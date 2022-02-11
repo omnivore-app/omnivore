@@ -15,7 +15,6 @@ jobs:
   run-graphql-inspector:
     name: Run GraphQL Inspector Checks
     if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
-    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,7 +26,6 @@ jobs:
 
   run-code-tests:
     name: Run Codebase tests
-    runs-on: self-hosted
     services:
       postgres:
         image: postgres
