@@ -23,7 +23,7 @@ jobs:
 
       - uses: kamilkisiela/graphql-inspector@master
         with:
-          schema: 'master:packages/api/src/generated/schema.graphql'
+          schema: 'main:packages/api/src/generated/schema.graphql'
 
   run-code-tests:
     name: Run Codebase tests
