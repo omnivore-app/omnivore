@@ -30,7 +30,7 @@
     "@google-cloud/pubsub": "^2.18.4",
     "@sendgrid/client": "^7.6.0",
     "@sentry/serverless": "^6.16.1",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "parse-headers": "^2.0.4",
     "parse-multipart-data": "^1.2.1",
     "quoted-printable": "^1.0.1"
