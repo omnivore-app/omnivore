@@ -1,0 +1,74 @@
+name: Run tests
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'apple/**'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'apple/**'
+
+jobs:
+  run-graphql-inspector:
+    name: Run GraphQL Inspector Checks
+    if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: kamilkisiela/graphql-inspector@master
+        with:
+          schema: 'master:packages/api/src/generated/schema.graphql'
+
+  run-code-tests:
+    name: Run Codebase tests
+    runs-on: self-hosted
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Initialize the database
+        run: |
+          cp ./packages/api/.env.test ./packages/api/.env
+          psql --host localhost --port ${{ job.services.postgres.ports[5432] }} --user postgres --password -c "CREATE DATABASE omnivore_test;"
+        env:
+          PGPASSWORD: postgres
+      - name: Setup nodejs 14.18
+        run: source ~/.nvm/nvm.sh && nvm install 14.18 && nvm use 14.18 && npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(source ~/.nvm/nvm.sh && yarn cache dir)"
+      - name: Install dependencies
+        run: |
+          source ~/.nvm/nvm.sh
+          yarn install --frozen-lockfile
+      - name: TypeScript, Lint, Tests
+        run: |
+          source ~/.nvm/nvm.sh
+          yarn build
+          yarn lint
+          yarn test
+        env:
+          PG_HOST: localhost
+          PG_PORT: ${{ job.services.postgres.ports[5432] }}
+          PG_USER: postgres
+          PG_PASSWORD: postgres
+          PG_DB: omnivore_test
+          PG_POOL_MAX: 10

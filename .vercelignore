@@ -1,0 +1,14 @@
+/pkg
+/.gcp
+/.github
+/apple
+/docs
+/e2e
+/imageproxy
+/packages/api
+/packages/data-exploration
+/packages/db
+/packages/gcf-shared
+/packages/readabilityjs
+/packages/pdf-handler
+/packages/puppeteer-parse

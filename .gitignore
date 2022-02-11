@@ -1,0 +1,61 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Banish npm lock
+package-lock.json
+
+# Docker data
+.docker
+
+# DSStore:
+.DS_Store
+
+# next.js build output
+.next
+
+# dotenv environment variables file
+.env
+.env.local
+.env.production
+
+
+# build & dist dirs
+build
+dist
+
+# Ignore local secret files
+**/.secrets-*.yaml
+
+# Ignore local SA JSON files
+**/*.sa.json
+
+# JetBrains Products
+.idea/
+
+# VScode local configurations
+.vscode/
+
+# Xcode
+xcuserdata/
+
+omnivore-app-sa-gcs*
+
+# Emacs temp files
+*~
