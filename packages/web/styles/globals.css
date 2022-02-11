@@ -1,0 +1,310 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  font-size: 18px;
+}
+
+.disable-webkit-callout {
+  -webkit-touch-callout: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+div#appleid-signin {
+  min-width: 300px;
+  min-height: 40px;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 200;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-ExtraLight-200.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 300;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-Light-300.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-Regular-400.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-Medium-500.ttf');
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/SFMono/SFMonoRegular.otf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 600;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-SemiBold-600.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-Bold-700.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 800;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-ExtraBold-800.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 900;
+  font-style: normal;
+  src: url('/static/fonts/Inter/Inter-Black-900.ttf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Lyon/Lyon Text Regular.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Lyon/Lyon Text Regular Italic.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/static/fonts/Lyon/Lyon Text Regular No. 2.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 500;
+  font-style: italic;
+  src: url('/static/fonts/Lyon/Lyon Text Regular No. 2 Italic.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 600;
+  font-style: normal;
+  src: url('/static/fonts/Lyon/Lyon Text Semibold.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 600;
+  font-style: italic;
+  src: url('/static/fonts/Lyon/Lyon Text Semibold Italic.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Lyon/Lyon Text Bold.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 700;
+  font-style: italic;
+  src: url('/static/fonts/Lyon/Lyon Text Bold Italic.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 900;
+  font-style: normal;
+  src: url('/static/fonts/Lyon/Lyon Text Black.otf');
+}
+
+@font-face {
+  font-family: 'Lyon';
+  font-weight: 900;
+  font-style: italic;
+  src: url('/static/fonts/Lyon/Lyon Text Black Italic.otf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 100;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Thin.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 100;
+  font-style: italic;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Thin Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 300;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Light.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 300;
+  font-style: italic;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Light Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Medium.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 500;
+  font-style: italic;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Medium Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 600;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Semibold.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 600;
+  font-style: italic;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Semibold Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 700;
+  font-style: italic;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Bold Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 900;
+  font-style: normal;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Black.ttf');
+}
+
+@font-face {
+  font-family: 'Tisa';
+  font-weight: 900;
+  font-style: italic;
+  src: url('/static/fonts/Tisa/Tisa Sans Pro Black Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Merriweather Light'), local('Merriweather-Light'),
+    url('/static/fonts/Merriweather/merriweather-v21-latin-300.woff2')
+      format('woff2'),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url('/static/fonts/Merriweather/merriweather-v21-latin-300.woff')
+      format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Merriweather Regular'), local('Merriweather-Regular'),
+    url('/static/fonts/Merriweather/merriweather-v21-latin-regular.woff2')
+      format('woff2'),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url('/static/fonts/Merriweather/merriweather-v21-latin-regular.woff')
+      format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Merriweather Bold'), local('Merriweather-Bold'),
+    url('/static/fonts/Merriweather/merriweather-v21-latin-700.woff2')
+      format('woff2'),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url('/static/fonts/Merriweather/merriweather-v21-latin-700.woff')
+      format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 900;
+  src: local('Merriweather Black'), local('Merriweather-Black'),
+    url('/static/fonts/Merriweather/merriweather-v21-latin-900.woff2')
+      format('woff2'),
+    /* Chrome 26+, Opera 23+, Firefox 39+ */
+      url('/static/fonts/Merriweather/merriweather-v21-latin-900.woff')
+      format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+.dropdown-arrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  border-style: solid;
+  border-width: 4px 4px 0;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}

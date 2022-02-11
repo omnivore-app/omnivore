@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>
+            Notes on technology in the 2020s | Eli Dourado
+        </title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="" />
+        <link href="https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.min.css" rel="stylesheet" />
+        <link href="../../css/style.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,700;1,300;1,700&amp;display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Mr+De+Haviland&amp;display=swap" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" rel="stylesheet" media="all" onload="this.media='all'" /><noscript>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" /></noscript>
+        <script type="text/javascript" async="async" src="https://www.google-analytics.com/analytics.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/quicklink@2/dist/quicklink.umd.js" crossorigin="anonymous"></script>
+        <link rel="shortcut icon" href="../../favicon.png" type="image/png" />
+        <link rel="alternate" type="application/rss+xml" href="../../index.xml" title="Eli Dourado" />
+        <meta property="og:title" content="Notes on technology in the 2020s" />
+        <meta property="og:description" content="Will we end the Great Stagnation? Here are the technologies I'm watching in the next decade." />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="https://elidourado.com/blog/notes-on-technology-2020s/" />
+        <meta property="og:image" content="https://elidourado.com/img/tfp.png" />
+        <meta property="article:published_time" content="2020-12-31T08:58:25-05:00" />
+        <meta property="article:modified_time" content="2021-01-21T16:51:27-05:00" />
+        <meta property="og:site_name" content="Eli Dourado" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://elidourado.com/img/tfp.png" />
+        <meta name="twitter:title" content="Notes on technology in the 2020s" />
+        <meta name="twitter:description" content="Will we end the Great Stagnation? Here are the technologies I'm watching in the next decade." />
+        <meta name="twitter:site" content="@elidourado" />
+        <meta itemprop="name" content="Notes on technology in the 2020s" />
+        <meta itemprop="description" content="Will we end the Great Stagnation? Here are the technologies I'm watching in the next decade." />
+        <meta itemprop="datePublished" content="2020-12-31T08:58:25-05:00" />
+        <meta itemprop="dateModified" content="2021-01-21T16:51:27-05:00" />
+        <meta itemprop="wordCount" content="5629" />
+        <meta itemprop="image" content="https://elidourado.com/img/tfp.png" />
+        <meta itemprop="keywords" content="total factor productivity,biotech,mRNA,CRISPR,protein folding,longevity,diagnostic-grade wearables,energy,wind,solar,geothermal,nuclear,alternative fuels,electric vehicles,batteries,air pollution,supersonics,urban air mobility,tunnels,space,Starship,Starlink,Varda," />
+        <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-7700727-1"></script>
+        <script>
+        <![CDATA[
+        window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+        gtag("js",new Date());gtag("config","UA-7700727-1");
+        ]]>
+        </script>
+        <link rel="prefetch" href="https://elidourado.com/" />
+        <link rel="prefetch" href="https://elidourado.com/blog/" />
+        <link rel="prefetch" href="https://elidourado.com/research/" />
+        <link rel="prefetch" href="https://elidourado.com/code/" />
+        <link rel="prefetch" href="https://elidourado.com/search/" />
+        <link rel="prefetch" href="https://elidourado.com/blog/dawn-of-geoengineering/" />
+        <link rel="prefetch" href="https://elidourado.com/tags/total-factor-productivity" />
+        <link rel="prefetch" href="https://elidourado.com/tags/biotech" />
+        <link rel="prefetch" href="https://elidourado.com/tags/mrna" />
+        <link rel="prefetch" href="https://elidourado.com/tags/crispr" />
+        <link rel="prefetch" href="https://elidourado.com/tags/protein-folding" />
+        <link rel="prefetch" href="https://elidourado.com/tags/longevity" />
+        <link rel="prefetch" href="https://elidourado.com/tags/diagnostic-grade-wearables" />
+        <link rel="prefetch" href="https://elidourado.com/tags/energy" />
+        <link rel="prefetch" href="https://elidourado.com/tags/wind" />
+        <link rel="prefetch" href="https://elidourado.com/tags/solar" />
+        <link rel="prefetch" href="https://elidourado.com/tags/geothermal" />
+        <link rel="prefetch" href="https://elidourado.com/tags/nuclear" />
+        <link rel="prefetch" href="https://elidourado.com/tags/alternative-fuels" />
+        <link rel="prefetch" href="https://elidourado.com/tags/electric-vehicles" />
+        <link rel="prefetch" href="https://elidourado.com/tags/batteries" />
+        <link rel="prefetch" href="https://elidourado.com/tags/air-pollution" />
+        <link rel="prefetch" href="https://elidourado.com/tags/supersonics" />
+        <link rel="prefetch" href="https://elidourado.com/tags/urban-air-mobility" />
+        <link rel="prefetch" href="https://elidourado.com/tags/tunnels" />
+        <link rel="prefetch" href="https://elidourado.com/tags/space" />
+        <link rel="prefetch" href="https://elidourado.com/tags/starship" />
+        <link rel="prefetch" href="https://elidourado.com/tags/starlink" />
+        <link rel="prefetch" href="https://elidourado.com/tags/varda" />
+        <link rel="prefetch" href="https://elidourado.com/blog/sls/" />
+        <link rel="prefetch" href="https://elidourado.com/blog/voting-systems/" />
+    </head>
+    <body>
+        <header>
+            <a href="https://www.twitter.com/elidourado" onmouseover="gtag('event', 'hover',{ 'event_category': 'corner-widget' });" onclick="gtag('event', 'click',{ 'event_category': 'corner-widget' });"><svg id="twitter-corner-logo" width="80" height="80" viewbox="0 0 250 250" style="fill: #1da1f2; position: fixed; top: 0; border: 0; right: 0; z-index: 100000" aria-hidden="true">
+            <path d="M0,0 L250,250 L250,0 Z"></path>
+            <path fill="white" id="twitter-bird-body" d="m113.916 115.568c30.019 30.019 71.308 21.567 92.876 0 .706-.707 1.409-1.41 2.062-2.158a46.962 46.962 0 0 0 16.591-.305 46.071 46.071 0 0 1-11.942-6.806 23.162 23.162 0 0 0 16.202-1.852 46.256 46.256 0 0 1-14.325-6.402 23.103 23.103 0 0 0-42.699-12.929 60 60 0 0 1-45.531 15.493 46.314 46.314 0 0 1-27.269-13.269 46.985 46.985 0 0 1-3.65-4.12 65.345 65.345 0 0 0 17.698 32.335"></path>
+            <path fill="white" id="twitter-bird-wing1" d="m172.681 85.116a65.529 65.529 0 0 1-16.584-50.689 23.099 23.099 0 0 0-16.734 26.84 22.909 22.909 0 0 1-5.365-9.45c-.067.067-.137.137-.207.207a23.09 23.09 0 0 0-2.905 29.092 23.045 23.045 0 0 1-7.65-7.089 23.108 23.108 0 0 0 3.914 26.582 46.314 46.314 0 0 0 45.531-15.493"></path>
+            <path fill="white" id="twitter-bird-wing2" d="m172.681 85.116a65.529 65.529 0 0 1-16.584-50.689 23.099 23.099 0 0 0-16.734 26.84 22.909 22.909 0 0 1-5.365-9.45c-.067.067-.137.137-.207.207a23.09 23.09 0 0 0-2.905 29.092 23.045 23.045 0 0 1-7.65-7.089 23.108 23.108 0 0 0 3.914 26.582 46.314 46.314 0 0 0 45.531-15.493"></path></svg></a>
+            <script src="../../js/twitter-corner-widget.js" data-username="elidourado" data-gtag=""></script><a href="../../">
+            <h1>
+                Eli Dourado
+            </h1></a>
+            <nav id="header-menu">
+                <ul>
+                    <li>
+                        <a class="item" href="../../blog/">Blog</a>
+                    </li>
+                    <li>
+                        <a class="item" href="../../research/">Research</a>
+                    </li>
+                    <li>
+                        <a class="item" href="../../code/">Code</a>
+                    </li>
+                    <li>
+                        <a class="item" href="../../search/">Search</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <h1 id="title">
+                Notes on technology in the 2020s
+            </h1>
+            <aside id="meta-top">
+                <section>
+                    <span id="date" title="Thu Dec 31 2020 08:58:25 -0500">Dec 31, 2020</span> <span id="reading-time">27 minute read</span>
+                </section>
+            </aside>
+            <article id="content">
+                <p>
+                    As we start a new decade, it’s a good time to reflect on expectations for the next 10 years. Tyler thinks the Great Stagnation <a href="https://marginalrevolution.com/marginalrevolution/2020/12/why-did-the-great-stagnation-end.html">could be ending</a>. Caleb sees <a href="https://www.agglomerations.tech/cracks-in-the-great-stagnation/">cracks</a>. Noah expresses <a href="https://noahpinion.substack.com/p/techno-optimism-for-the-2020s">techno-optimism</a>. In this post, my aim is not to predict an end or non-end to stagnation. Rather, it is to think through the particulars of how technology could evolve over the next decade. Then we can assess separately whether we should consider it the Roaring 20s or the Boring 20s.
+                </p>
+                <p>
+                    What would constitute an end to the Great Stagnation? Any precise cutoff will be arbitrary, but for the sake of discussion, let’s say sustained growth in <a href="https://www.frbsf.org/economic-research/indicators-data/total-factor-productivity-tfp/">utilization-adjusted total factor productivity</a> of 2 percent per year. By comparison, mean utilization-adjusted TFP growth from 1947 through 1972 was 2.1 percent. Since 2005, it has been 0.17 percent. (Note: it is important to use the utilization-adjusted series, as this corrects for the business cycle.)
+                </p>
+                <p>
+                    <img src="https://d33wubrfki0l68.cloudfront.net/a7a8a1d9e4c4d1050c2902966a316436559074f1/cd6b6/img/tfp.png" alt="Total factor productivity in the U.S. since 1947" title="Total factor productivity in the U.S. since 1947" />
+                </p>
+                <p>
+                    Whatever your cutoff for TFP growth, one of my convictions is that scientific breakthroughs alone are not enough to drive an end to the Great Stagnation. TFP only budges when new technologies are adopted at scale, and generally this means products, not just science. Science lays critical groundwork for new technology, but after all the science is done, much work remains. Someone must shepherd the breakthrough to the product stage, where it can actually affect TFP. This means building businesses, surmounting regulatory obstacles, and scaling production.
+                </p>
+                <p>
+                    With that caveat firmly in mind, what will the next decade bring in terms of meaningful technological change? Here’s what I’m watching.
+                </p>
+                <h2 id="biotech-and-health">
+                    Biotech and health
+                </h2>
+                <p>
+                    We are coming off a huge win: two new mRNA COVID vaccines, conceived and brought to market in less than a year. The ability to encode and deploy arbitrary mRNA in our bodies sure seems like a game changer—it allows us to essentially program our cells to make whatever proteins we want. In the case of the COVID vaccines, the vaccine payload instructs our cells to make the coronavirus spike protein, which our immune system then learns to attack. Bert Hubert has a <a href="https://berthub.eu/articles/posts/reverse-engineering-source-code-of-the-biontech-pfizer-vaccine/">fascinating write-up</a> of the “code” in the vaccine.
+                </p>
+                <p>
+                    Bringing a brand new vaccine to market in less than a year—using a never-before-applied-in-humans-at-scale technology no less—is a world record, but it could have been even faster. As David Wallace-Wells <a href="https://nymag.com/intelligencer/2020/12/moderna-covid-19-vaccine-design.html">emphasizes</a>, Moderna’s vaccine was designed by January 13. We had it the whole time. Some delay was necessary to determine effective dosing. Some further regulatory delay may have been warranted to ensure the vaccine was safe and to ascertain its efficacy. But as Wallace-Wells indicates, the regulatory outcome was never really in doubt. “None of the scientists I spoke to for this story were at all surprised by either outcome,” he writes. “All said they expected the vaccines were safe and effective all along.”
+                </p>
+                <p>
+                    What should we make of the fact that all of the scientists knew all along that Moderna’s vaccine would work? The question in my mind is: what other mRNA treatments do we have the whole time? What if I told you Moderna has an <a href="https://www.poz.com/article/experimental-hiv-vaccine-stimulates-production-neutralizing-antibodies">HIV vaccine candidate</a>? HIV lacks SARS-CoV-2’s telltale spike protein and thus may prove a more challenging foe—but don’t you wonder, if we treated the problem with real urgency, whether new mRNA technology could wipe out the AIDS epidemic this decade? I do.
+                </p>
+                <p>
+                    And mRNA technology can be deployed against more than just viruses. Both Moderna and BioNTech have personalized vaccine candidates targeting cancer. Although called a “cancer vaccine,” the treatment is only administered once the subject has cancer—it isn’t preventative. The companies use an algorithm to analyze the genetic sequences of the tumor and the patient’s healthy cells and predict which molecules could be used to generate a strong immune response against the cancer. “I was actually witnessing the cancer cells shrinking before my eyes,” <a href="https://www.nature.com/articles/d41586-019-03072-8">said</a> Brad Kremer, a melanoma patient who received the BioNTech treatment. So let’s milk mRNA technology for all it’s worth this decade. It can save us from more than just a pandemic.
+                </p>
+                <p>
+                    What about CRISPR? It is a great example of a technology that has not yet made a meaningful economic contribution. Although the technique for editing DNA was discovered in 2012—and a Nobel Prize was awarded to its two discoverers this year—no treatment using CRISPR has been approved outside of clinical trials. So far, its impact has been limited to making researchers more productive—not a bad thing, to be sure, but not close to CRISPR’s full potential. As trials progress, however, I do think some CRISPR treatments will come online in the next few years, especially those targeting genetic disorders that we have very limited means of otherwise treating.
+                </p>
+                <p>
+                    DeepMind’s <a href="https://medium.com/cgo-benchmark/deepminds-protein-folding-solution-what-just-happened-279d32e8d0f">protein-folding breakthrough</a> signals a promising decade for the science of proteomics. Most directly, being able to predict protein shapes will enable us to discover drugs more rapidly. Buuuut, because drug trials take many years, we might expect this technology not to really be felt by the general public until the 2030s.
+                </p>
+                <p>
+                    What DeepMind’s achievement indicates to me the most is that machine learning is actually useful. This might seem obvious, but consider: most applications of machine learning so far—excluding autonomous vehicles, which have themselves not really arrived yet—are toys. I love watching AlphaZero crush Stockfish on YouTube, but chess is literally a game. GPT-3 produced some fun demos. AlphaFold heralds something different—non-toy superhuman performance is now here, and I am interested to see what else it can do. Aside from the aforementioned AVs, I expect it to be applied widely in other areas of biology. Again, it will take a long time for the breakthroughs to trickle down into products, but at least the 2030s should be sick. I mean, not sick. Healthy.
+                </p>
+                <p>
+                    Let’s talk about life extension, one of my favorite biotech topics. 2020 was a big year for the Conboy Lab at Berkeley, which proved that all the weird past findings about “<a href="https://en.wikipedia.org/wiki/Parabiosis">young blood</a>” extending life were not actually due to any elixir in the blood of children (thank goodness). Rather, the rejuvenating aspects of young blood experiments were due to the dilution of harmful factors in old blood. By mechanically removing plasma and replacing it with saline and enough albumin to replace what was taken out, they diluted aged blood factors in both mice and humans and were able to <a href="https://www.aging-us.com/article/103418/text#fulltext">rejuvenate germ layer tissues</a> and <a href="https://link.springer.com/article/10.1007/s11357-020-00297-8">improve cognition by reducing neuroinflammation</a>.
+                </p>
+                <p>
+                    These findings are exciting not only because they represent a scientific advance in understanding aging, but also because they herald the first real anti-aging product that could come to market. Therapeutic plasma exchange is FDA-approved (not for aging, but for a bunch of other conditions). I imagine there remain prohibitions on advertising that it can add years to your life, but it is safe, and a doctor can prescribe it off label. It’s also cheap. An automated plasmapheresis machine—which lets you do treatment after treatment—can be bought online for under $3,000. That is less than the cost of a single transfusion of young blood sold by the startup <a href="https://www.ambrosiaplasma.com/">Ambrosia</a>. How long until someone opens a clinic offering plasma dilution? I bet someone tries it in 2021. If it works, people will get over the weirdness, and it could be commonplace by 2030.
+                </p>
+                <p>
+                    Another longevity product that is about to get hot: aging clocks based on DNA methylation or proteomics. Do you want to know how biologically old you are? Today, for a few hundred dollars, you can get a test that will tell you. As these tests become better and cheaper, self-experimenters are going to have a field day. Doing before-and-after aging tests, anyone who can get their hands on human growth hormone could replicate the protocol used by <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/acel.13028">Fahy et al.</a> to rejuvenate the thymus. As the thymus is a critical element of the immune system, decline of which is a critical factor in aging, this is non-trivial rejuvenation. The Fahy study found that 12 months of treatment created about 2.5 years of epigenetic rejuvenation, with results accelerating in the last quarter of the trial.
+                </p>
+                <p>
+                    There is a lot more in the <a href="https://www.lifespan.io/road-maps/the-rejuvenation-roadmap/">Rejuvenation Roadmap</a>—dozens of possible life-extending treatments are at various stages of development. There’s a good chance a few senolytic drugs will be approved by the end of the decade. As I noted <a href="https://fortune.com/2020/12/30/anti-aging-research-health-care-spending-biden/">yesterday at Fortune</a>, we spend less than 1% of the NIH budget on aging biology—we should raise that by a lot.
+                </p>
+                <p>
+                    Unlike others, I am not-so-bullish on metformin. It does seem to reduce all-cause mortality in Americans, but it may do so because <a href="https://www.liebertpub.com/doi/10.1089/met.2018.0105">88% of Americans are metabolically unhealthy</a>. If you are one of the 12%, and you should strive to be, I don’t think metformin will do much for you.
+                </p>
+                <p>
+                    One final biotech observation: every year, the Apple Watch gets a new health-related sensor. This year it was blood oxygen, pretty good for detecting if you might have COVID! Fast forward to 2030 and wearables will have at least 10 more health-related sensors than they do today. Some no-brainers are body temperature, blood pressure, and blood glucose sensors. What will the other 7 be? At some point, it becomes possible to replace a lot of primary care with continuous monitoring. A few smart algorithms to provide simple medical advice could improve population-level health without much cost. More data could also yield faster, more accurate, and of course more remote diagnoses when you do have to see a doctor.
+                </p>
+                <p>
+                    There is a lot in biotech that is promising right now, but in more than any other field, it is important not to be seduced by the sexy headlines showing rapid scientific progress. Don’t get complacent. Biology is proceeding faster than medical productivity because a lot of the wonderful discoveries are not being translated into approved treatments and products at a decent rate. Let’s salute and cheer for the discoveries, but spare many thoughts for the entrepreneurs trying to bring treatments to market.
+                </p>
+                <h2 id="energy">
+                    Energy
+                </h2>
+                <p>
+                    The 2010s were the wind and solar decade. We observed stunning declines in the cost of both, although total deployment of wind and solar remains small—in 2019, wind and solar represented less than 9 percent of utility-scale electricity generation in the US. In the 2020s, cost declines will likely stall—wind and solar are already pretty cheap, so the declines of the past decade are not reproducible. Deployment, on the other hand, will accelerate.
+                </p>
+                <p>
+                    Mass deployment of wind and solar will bring challenges. These sources are highly intermittent. When the wind suddenly stops blowing—which happens—we need a way to quickly make up the deficit. Each of the three electricity grids in the continental US—east, west, and Texas—has to remain in supply-demand balance every second of every day. We can use grid storage to smooth out some of the bumps, but storage remains expensive. To reach a grid powered entirely by today’s renewables, we would need storage at a price of <a href="https://www.vox.com/energy-and-environment/2019/8/9/20767886/renewable-energy-storage-cost-electricity">$20 per kWh</a> (with caveats).
+                </p>
+                <p>
+                    That storage doesn’t all have to come from batteries, but let’s talk about batteries for a bit. Using Tesla’s grid-scale Powerpack as data, a 232 kWh battery today <a href="https://electrek.co/2020/09/22/tesla-slashes-price-powerpack-battery-day/">costs</a> $125,793. That is a price of over $542/kWh. Through innovation, that pricetag will come down over the course of this decade, but improvements on the supply side could easily get swamped by increases in demand. After all, this decade will also include a huge shift toward electric vehicles, which I will discuss below. When demand outpaces supply, prices tend to stay high, even when there is impressive innovation.
+                </p>
+                <p>
+                    With increased deployment of intermittent power generation, increased total demand for electricity due to electric vehicles, a high cost of grid storage, inadequate electricity transmission (have I mentioned that we often neglect to build in this country?), and strong political support for decommissioning fossil fuel plants, the 2020s may be a time of electric grid instability. This could be tempered to some extent by using car batteries as grid resources and through (politically unpopular) variable electricity prices.
+                </p>
+                <p>
+                    Ultimately, we need scalable zero-carbon baseload energy, which means nuclear or geothermal. The problem with nuclear is the high cost. If you look at NuScale’s small modular reactor technology, they are <a href="https://www.nuscalepower.com/newsletter/nucleus-spring-2020/featured-topic-cost-competitive">targeting 6.5¢/kWh</a>. That is baseload power, so not directly comparable to wind and solar’s intermittent generation costs, but even so, it isn’t the most competitive in today’s market. Furthermore, NuScale’s flagship project was just <a href="https://www.sciencemag.org/news/2020/11/several-us-utilities-back-out-deal-build-novel-nuclear-power-plant">delayed three years</a> and is now not scheduled to come online until 2030.
+                </p>
+                <p>
+                    What is more plausible this decade is <a href="https://www.vox.com/energy-and-environment/2020/10/21/21515461/renewable-energy-geothermal-egs-ags-supercritical">enhanced and advanced geothermal systems</a>. The legacy geothermal industry is sleepy, tapping energy at traditional volcanic hydrothermal hotspots—forget about it. The next generation of the industry, however, is a bunch of scrappy startups manned by folks leaving the oil and gas industry. The startups I have spoken to think with today’s technology they can crack 3.5¢/kWh without being confined to volcanic regions. With relatively minor advancements in drilling technology compared to what we’ve seen over the last decade, advanced geothermal could reach 2¢/kWh and scale to become viable just about anywhere on the planet. Collectively, the startups are talking about figures like hundreds of gigawatts of generation by 2030. I’m watching this space closely; the <a href="https://www.heatbeat.energy/blog">Heat Beat blog</a> is a great way to stay in the loop. As I wrote last month, <a href="https://medium.com/cgo-benchmark/the-biggest-no-brainer-in-all-of-energy-policy-ff4768e6b079">permitting reform</a> will be important.
+                </p>
+                <p>
+                    Fusion continues to make technical progress. I expect we will get a demonstration of energy-positive fusion in this decade from one of several fusion startups or perhaps Lockheed Martin’s <a href="https://www.lockheedmartin.com/en-us/products/compact-fusion.html">compact fusion reactor</a>. But again: a demonstration is far from a change that transforms society. It will take further decades to deploy reactors onto the grid. By the time fusion gets there, the energy market will be quite different from when we started working on fusion reactors in the 1940s. Wind, solar, and hopefully geothermal will make electricity pretty cheap, and fusion will struggle to compete.
+                </p>
+                <p>
+                    Consider: around half the cost of an advanced geothermal plant is drilling, and half is conversion equipment. Suppose the plant is amortized over 30 years (although many geothermal plants last longer), and after that period the conversion equipment needs to be replaced. But the hole in the ground does not need to be replaced! That means for the <em>next</em> 30 years, electricity can be generated at half the initial cost. Geothermal wells we dig this decade could be producing at less than 1¢/kWh by the 2050s. That is a tough market for fusion to break into. But fusion will still be a great source of power in applications where other sources aren’t available, <a href="https://www.space.com/trump-space-policy-nuclear-power-propulsion">such as in space</a>.
+                </p>
+                <p>
+                    The 2020s will be a big decade for sustainable alternative fuels (SAF). Commercial aviation can’t electrify—batteries will never match fossil fuels’ energy density. Given political realities, aviation has no choice to decarbonize, which means either hydrogen fuel or SAF. Hydrogen fuel is much better than batteries, but still not as energy dense as fossil fuels or SAF, and so my money is on SAF, and particularly on fuel made from CO₂ pulled from the atmosphere. It is easy to convert atmospheric CO₂ to ethanol in solution; and it is easy to upgrade ethanol into other fuels. But it is hard to separate ethanol from water without using a lot of energy—unless you have an advanced membrane as <a href="https://www.prometheusfuels.com/">Prometheus Fuels</a> does. I have written about Prometheus <a href="https://elidourado.com/blog/dawn-of-geoengineering/">before</a> and continue to follow them closely. Their technology could decarbonize aviation very suddenly.
+                </p>
+                <p>
+                    One final note on energy: there may be very interesting geopolitical consequences in the decade ahead to America’s newfound energy independence. I could easily see, for example, the US deciding we actually don’t need an alliance with the Saudis after all, considering they are journalist-dismembering savages. If the US pulls out of Saudi Arabia, war between the Saudis and the Iranians becomes likely. Which means oil shipments to Asia get disrupted. Which means global chaos. This <a href="https://zeihan.com/">Zeihanesque</a> scenario is only a scenario, but I’m watching for it.
+                </p>
+                <h2 id="transportation">
+                    Transportation
+                </h2>
+                <p>
+                    Here’s the thing about electric cars: they are better than regular cars. They have lower fuel costs. They have fewer moving parts and thus lower maintenance costs. They have higher low-end torque and faster acceleration. If you mainly drive to and from work and have a charger at home, you <em>never have to stop for gas</em>. Electric cars will win because they are better, and the shift will happen suddenly.
+                </p>
+                <p>
+                    California <a href="https://www.gov.ca.gov/2020/09/23/governor-newsom-announces-california-will-phase-out-gasoline-powered-cars-drastically-reduce-demand-for-fossil-fuel-in-californias-fight-against-climate-change/">will require</a> that new cars purchased after 2035 have zero emissions. For most people, this will be a non-issue, as by 2035 most Californians would not dream of getting an internal combustion engine vehicle. I say this even as a relative battery price pessimist—or more accurately, I am a relative battery price pessimist because I think demand for batteries will be off the charts.
+                </p>
+                <p>
+                    One area where batteries may not work (aside from aviation, already discussed) is trucking. Towing really heavy loads requires a lot of energy—hydrogen fuel cells will be more suited to interstate trucking. The transition from diesel to hydrogen in trucking will likely not be as automatic as the transition from gas to batteries in cars. It’s possible that truckers will need a bit of a push.
+                </p>
+                <p>
+                    As cars shift to electric and trucks shift to hydrogen, air pollution will plummet, especially the currently unregulated ultrafine particles less than 0.1 μm in diameter which cause the worst health harms. There may still be larger particles from tires degrading and so on, but my view is that these do not cause serious health problems. Getting rid of the smallest particles, particularly from diesel fumes, will create health gains which may seem to appear out of nowhere. Fewer premature births, fewer cases of asthma, fewer cancers, fewer mystery illnesses.
+                </p>
+                <p>
+                    Autonomous vehicles could finally happen at scale. Waymo is already in production with a driverless fleet in Phoenix. Tesla has a “full self-driving” computer which might not yet live up to the label, but is nonetheless very cool. Although we have all been continually disappointed by the promise of autonomy right around the corner, it does seem like it has to happen at some point. As sensors and computing power get cheaper, and machine learning algorithms get better, autonomy is inevitable. A decade is a long time, so I am reasonably confident it will happen in the 2020s. It could save a lot of lives. Autonomy, too, will accelerate the adoption of electric vehicles, as fleet companies will prefer the low maintenance costs of battery or fuel cell vehicles.
+                </p>
+                <p>
+                    Let’s do aviation. As everyone knows, I am a huge fan of supersonics. I continue to cheer for my former colleagues at <a href="https://boomsupersonic.com/">Boom</a>, who will legitimately fly a supersonic aircraft in 2021. Supersonics will have an enormous impact on global business when it arrives at scale, but it’s looking like that won’t be in the 2020s—Boom’s most optimistic timeline per <a href="https://www.bloomberg.com/news/articles/2020-12-15/supersonic-jet-startup-boom-technology-is-now-a-unicorn">a recent article</a> is a first full-scale airliner by 2026, then several years of certification tests, then a ramp in production to make it matter.
+                </p>
+                <p>
+                    Other contenders: <a href="https://aerionsupersonic.com/">Aerion</a> has a Mach-1.4 business jet design ready to enter production. The key question is whether they can raise the money to <a href="https://www.floridatoday.com/story/news/2020/12/11/aerion-supersonic-starts-work-300-m-melbourne-hq-north-side-airport/3893689001/">build the factory</a>. The business jet market is small, so as an investor you really have to believe they will be able to parlay success on the AS2 into a future airliner program. <a href="https://www.hermeus.com/">Hermeus</a> is working on a Mach-5 design point with 20 passengers. <a href="https://www.exosonic.com/">Exosonic</a> is targeting Mach 1.8 with low boom technology that could allow it to operate over land. Gulfstream seems to have shuttered their supersonic business jet program, which was never announced in any case.
+                </p>
+                <p>
+                    In addition to Boom’s XB-1 flight test program commencing in 2021, I’ll also be watching two other supersonic flight programs in the early 2020s. <a href="https://www.nasa.gov/specials/X59/">NASA’s X-59</a> will start flying over select cities in 2023 to collect data on acceptable levels of sonic boom. This will pave the way for new standards that unlock overland supersonic flight. NASA is literally <a href="https://www.mercatus.org/system/files/mercatus-dourado-supersonic-transport-v1.pdf">making America boom again</a>! In the next couple years, I also expect an unmanned demonstrator flight from Hermeus reaching as high as Mach 5. Awesome, right?
+                </p>
+                <p>
+                    Aside from supersonics, the other exciting development in aviation is the proliferation of urban air mobility companies. Check out <a href="https://www.jobyaviation.com/">Joby</a>, which recently acquired Uber’s Elevate division. Or <a href="https://wisk.aero/">Wisk</a>, a joint venture between Boeing and Kitty Hawk. Both of these projects could enter service in the first half of the decade. Hyundai also has a new <a href="https://www.hyundai.com/au/en/why-hyundai/concept-cars/urban-air-mobility">UAM division</a>—look for their product to enter service near the end of the decade.
+                </p>
+                <p>
+                    A key question in my mind regarding urban air mobility is whether regulations will allow autonomy. The business model doesn’t seem like it will work if you have to pay a pilot and lose the space associated with the pilot’s seat, which could otherwise serve an additional passenger. The FAA has been very incremental about allowing even small drones to fly beyond line-of-sight of the operator. In order for urban air mobility to compete with, say, Uber Black, FAA needs to adopt rules for low-altitude air traffic control (called <a href="https://utm.arc.nasa.gov/index.shtml">UTM</a>) and figure out a way to certify autonomous operations. Wisk seems pessimistic—they are targeting New Zealand as a first market.
+                </p>
+                <p>
+                    Drone delivery is likely in the 2020s. FAA is <a href="https://www.faa.gov/news/media/attachments/OOP_Executive_Summary.pdf">about to issue a rule</a> incrementally expanding drone operations, this time allowing operations at night and flights over crowds of people. This is how the FAA operates: use waiver authority to expand the scope of drone operations, and then once they are comfortable with that, make it into a generally applicable rule. I expect the process will incrementally allow bigger and bigger drone delivery programs until they become normal. Those of us who live within five miles of a Class B airport, however, may be out of luck the entire decade.
+                </p>
+                <p>
+                    Let’s talk about tunnels. An efficiently governed country would need some tunnels, but perhaps not very many. China has added 25,000 km of (mostly non-tunnel) high-speed rail since 2008, and there is no technological reason why we couldn’t have done the same. But with a promiscuous distribution of the veto power, building long rail lines above ground becomes challenging. It may therefore be worth the high cost of tunneling to build new high-speed transport options.
+                </p>
+                <p>
+                    The Boring Company has a small, near-operational “<a href="https://www.lvloop.com/">loop</a>” under construction in Las Vegas. The project will whiz people around the convention center at up to 155 mph. <a href="https://www.lvloop.com/vegasloop">Expansion plans</a> include the Las Vegas Strip, the airport, and eventually connecting to Los Angeles. Another Boring project, currently mired in environmental review, is the <a href="https://www.dcbaltimoreloop.com/">DC-Baltimore Loop</a>, which would connect the two cities’ downtowns in 15 minutes. All of Boring’s loops are designed to be compatible with hyperloop requirements, which would eventually enable 600-mph travel between major cities.
+                </p>
+                <p>
+                    Although the full realization of this technology—a nationwide hyperloop network—is unlikely by 2030, even the 150-mph version is worth following. The time and hassle cost of travel is an important input into the gravity model of trade. I expect the DC-Baltimore Loop to significantly increase economic activity between the two cities—especially helping to revitalize Baltimore, as it would become easier to live there and work in DC.
+                </p>
+                <h2 id="space">
+                    Space
+                </h2>
+                <p>
+                    The big story in space technology for the next 10 years is Starship, as it will enable just about everything else. Let’s compare some <a href="https://aerospace.csis.org/data/space-launch-to-low-earth-orbit-how-much-does-it-cost/">launch costs</a>. The Space Shuttle entered service in 1981 and launched successfully 134 times. Each launch cost an inflation-adjusted $1.8 billion. The payload cost to low-Earth orbit (LEO) was $65,400/kg. Today’s workhorse launch vehicle, the Falcon 9, can send cargo to LEO for $2,600/kg. That is a staggering decrease in launch costs.
+                </p>
+                <p>
+                    Starship promises to take this trend much further. On Falcon 9, only the first stage is reusable, whereas on Starship, the entire system—both the booster and the space vehicle—is reusable. Starship runs on dirt cheap liquid methane instead of expensive rocket fuel. It is made out of stainless steel instead of more expensive traditional aerospace materials. SpaceX is talking about churning out Starships at a rate of one every 72 hours for a <a href="https://arstechnica.com/science/2020/03/inside-elon-musks-plan-to-build-one-starship-a-week-and-settle-mars/">cost of $5 million each</a>. Operating costs come down with a high flight rate, so Elon <a href="https://twitter.com/elonmusk/status/1258580078218412033">is figuring</a> a $1.5-million fully burdened launch cost for 150 tons to LEO. That is $10/kg, more than 100 times cheaper than a Falcon 9 launch today.
+                </p>
+                <p>
+                    It gets even more insane. Because Starship is designed to be refuelable on orbit, its 150-ton payload capacity to LEO equals its payload capacity to anywhere in the solar system. You will be able to launch 150 tons to LEO, load up on fuel while orbiting Earth, and then fly the same payload the rest of the way to the moons of Jupiter. The whole thing could cost less than one Falcon 9 launch—which is limited to 15 tons to LEO in a reusable configuration or 4 tons to Mars in an expendable configuration.
+                </p>
+                <p>
+                    Let’s apply the gravity model of trade once more, this time to commerce between Earth and LEO. Meta-analyses have found that trade (on Earth) is <a href="https://www.mitpressjournals.org/doi/10.1162/rest.90.1.37">roughly inverse-linear</a> in transport costs. If that holds for space, a 200x cost reduction in travel between Earth and LEO should increase “trade” between Earth and LEO by 200x. Commerce between the Earth and the moon, or between the Earth and Mars, starting from a base close to zero, would be stimulated even more.
+                </p>
+                <p>
+                    It’s worth noting a second-order effect of cheap launch costs. When launch is expensive, more engineering has to go into the payload to ensure reliability. You don’t want to spend $1.8 billion on launch, and then find out, as NASA did with the Hubble Space Telescope, that your new satellite needs repairs. This dynamic has caused over-engineering of space payloads. With launch for a new low price of $10-20/kg, companies and research agencies will be able to reduce engineering expenses by simply taking on the risk of paying for another (cheap) launch.
+                </p>
+                <p>
+                    Since my guiding star is economically noticeable technological progress, let’s talk about that. SpaceX first landed a rocket booster five years ago. They have been undercutting all other players in the medium-lift launch market ever since. But in the grand scheme of things, launch is still a small market. Aside from getting to watch cool livestreams of boosters landing, Falcon 9 has probably not made a noticeable impact on your life (unless you work in the space industry).
+                </p>
+                <p>
+                    That is finally beginning to change with Starlink. As of this month, there are 955 Starlink satellites providing Internet access to thousands of users in a “<a href="https://www.satellitetoday.com/broadband/2020/10/28/spacex-launches-better-than-nothing-public-starlink-beta-with-99-month-service/">better-than-nothing</a>” beta test. The constellation size could go as high as 42,000 satellites. Internet speeds are already over 100 mbps down—they seem to be only somewhat attenuated by bad weather. For many rural customers, the service is indeed much better than nothing—better than any other available alternative. With more (and more advanced) satellites in operation, speeds could reach a gigabit. With Starship, the cost of launching these thousands of satellites, and the speed at which the company could do so, will improve. Plan on a full buildout of the network this decade.
+                </p>
+                <p>
+                    Starlink could be a cash cow. The service is not a good fit for most customers—urban populations are too dense and have too many alternative service providers for Starlink to be viable. Elon has said Starlink will serve the <a href="https://arstechnica.com/information-technology/2020/03/musk-says-starlink-isnt-for-big-cities-wont-be-huge-threat-to-telcos/">3–4 percent hardest-to-reach customers</a>. In addition to rural customers, it will presumably serve other niches like in-flight wifi on airplanes and Internet access for the crew on container ships.
+                </p>
+                <p>
+                    Let’s call global telecommunications revenue <a href="https://www.prnewswire.com/news-releases/worldwide-telecommunications-industry-revenue-to-hit-24-trillion-in-2020-says-insight-research-300047963.html">$2.4 trillion</a>. Assume Starlink can capture 3 percent of that. That is $72 billion per year in revenue, faaaaar more than SpaceX makes in launch. In 2019, the company had only $2 billion in revenue. Starlink is a money printer. And it makes you wonder, if SpaceX’s success so far has come on a budget of $2B in annual revenue, what would a $72B-per-year SpaceX do?
+                </p>
+                <p>
+                    How about colonize Mars? I have a <a href="https://twitter.com/elidourado/status/1304811292335771649">bet</a> with Robin Hanson that a human will set foot on Mars by end of Q1 2030. I am not <em>totally</em> confident that this will happen (Robin gave me odds), but the scenario I think is most likely is the following: Starlink prints a lot of money, and SpaceX uses the money to pay for Mars colonization on Starship at a breakneck pace. That results in a human launch to Mars no later than <a href="http://clowder.net/hop/railroad/EMa.htm">January 2029</a>, landing in September 2029. SpaceX President Gwynne Shotwell has said it will be a “<a href="https://twitter.com/Free_Space/status/1265023077278191616">major company fail</a>” if humans are not flying on Starship (presumably just to LEO) by 2023. With Starlink revenue, SpaceX will be able to do the work on life support systems and mission planning to enable a human mission by 2029. NASA could be involved as a partner, but SpaceX would tolerate zero government obstacles.
+                </p>
+                <p>
+                    Starship is also still in the running to be the landing vehicle for NASA’s Artemis missions. If it is not selected, that seems like a colossal error. To be sure, choosing Starship would represent a huge change of plans for NASA, which had been assuming a congressionally supported boondoggle relying on the Space Launch System, the Orion capsule, and a moon-orbiting Gateway. While Artemis’s goal is a human mission to the moon’s south pole by 2024, the schedule could easily slip. But by leveraging the new opportunities afforded by Starship, a permanent moon base by the end of the decade seems highly plausible.
+                </p>
+                <p>
+                    With lower launch costs, what else is possible? Varda is a new company <a href="https://fiftyyears.substack.com/p/varda-space-industries">working on</a> in-space manufacturing. Microgravity means that structures can be used that would collapse under their own weight on Earth. As a result, certain pharmaceuticals, fiber optics, semiconductor wafers, and nanotube materials can be manufactured in space that can’t be made on our planet. Lots of people want to bring manufacturing back to America, but putting manufacturing in orbit is much more exciting.
+                </p>
+                <p>
+                    How about asteroid mining? I think this is still a ways off. There’s no question that it could be profitable someday. The street value of the materials on <a href="https://en.wikipedia.org/wiki/16_Psyche">16 Psyche</a> back on Earth is $10 quintillion—even allowing for the inevitable hefty price slippage, space resource extraction could make a few trillionaires. I would love to be proven wrong, but I don’t think serious space mining will happen until the 2030s at the earliest. Again, however, cheap launch costs could be a game changer.
+                </p>
+                <h2 id="information-technology">
+                    Information technology
+                </h2>
+                <p>
+                    Custom silicon is going to be huge. The rave reviews for Apple’s new custom system-on-a-chip platform demonstrate its inevitability. For machine learning, <a href="https://www.cerebras.net/">Cerebras</a> has a full wafer-sized SoC. Tesla’s “full self-driving” computer likewise uses custom silicon. Almost all computer hardware—anything that has any scale to it—will move in this direction, because the performance benefits are so large. In a way, it’s a repetition of what happened before in semiconductors: individual transistors gave way to the integrated circuit. This change is simply taking integration another level further. Note: we lack the capability to manufacture these SoCs (at least good ones) in North America. Given their strategic importance, it may be worth remedying that.
+                </p>
+                <p>
+                    The 2020s will be the decade that makes or breaks cryptocurrency. Well, nothing will ever <em>break</em> cryptocurrency—true believers will run the networks forever no matter what. But for cryptocurrency to have long-run value, I still hold that it needs to have mainstream uses. This means it needs to scale, it needs a good user experience, and normal people need to actually use it to transact. If it can’t reach that point by the end of the decade, I think it will have failed to have lived up to its promise. I am still cautiously optimistic. I think migration to proof-of-stake, lower transaction costs, more refined tools, and mature standards could lead to mainstreaming.
+                </p>
+                <p>
+                    By the middle of the decade, augmented reality will be widely deployed, in the same way that smart watches are today. Glasses will be computing devices. Every big tech company has a glasses project at a relatively mature stage in the lab today. The need for the glasses to understand context could result in much smarter digital assistants than today’s Siri, Alexa, and so on.
+                </p>
+                <h2 id="miscellaneous">
+                    Miscellaneous
+                </h2>
+                <p>
+                    I have an irrational love of vertical farming. The combination of LED lights, cheap electricity (for water pumps), direct-use geothermal heating, and smart machine learning algorithms that determine optimal nutrient distribution could yield better produce than conventionally farmed vegetables at competitive prices. By removing pesticides, optimizing varieties for nutrition and flavor instead of hardiness on the supply chain, and ensuring quick delivery to market, vertical farms could supply a healthier and more delicious future of food. Speaking of food, I predict plant-based “meat” will flop, but lab-grown real meat is worth keeping an eye on. Until then, eat humanely-raised grass-finished <a href="https://worksinprogress.co/issue/practical-veganism/">cows</a>.
+                </p>
+                <p>
+                    Construction tech is another area to watch. Whether it’s 3d-printed homes as imagined by <a href="https://www.iconbuild.com/">Icon</a>, or advanced manufactured housing as designed by <a href="https://buildcover.com/product/building-system">Cover</a> or <a href="https://livemodal.com/products">Modal</a>, there has to be a better way to build than our current stick-built paradigm. Housing costs have skyrocketed largely due to zoning rules, but construction technology is another lever by which we can increase housing productivity. This is another area where the barriers don’t seem to be primarily technological.
+                </p>
+                <hr />
+                <p>
+                    Collectively, these technologies add up to a lot of possibility. If we cure a bunch of diseases, slow down aspects of aging, realize cheap and emissions-free baseload energy, and deploy new modes of transportation and better construction technologies, we will almost certainly exceed 2 percent TFP growth. But we might not do these things.
+                </p>
+                <p>
+                    It all depends on execution. The underlying science is there. The engineers are willing. Even the funding is available in most cases. But, as a society, how much urgency do we feel? Our culture does not prioritize progress—it fights, destructively, for status. And our politics reflects our culture.
+                </p>
+                <p>
+                    I want to go faster.
+                </p>
+            </article>
+            <aside id="meta-bottom">
+                <div>
+                    <span id="tags-label">Tagged:&#160;</span>
+                    <ul id="tags">
+                        <li>
+                            <a href="../../tags/total-factor-productivity">total factor productivity</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/biotech">biotech</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/mrna">mRNA</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/crispr">CRISPR</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/protein-folding">protein folding</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/longevity">longevity</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/diagnostic-grade-wearables">diagnostic-grade wearables</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/energy">energy</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/wind">wind</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/solar">solar</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/geothermal">geothermal</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/nuclear">nuclear</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/alternative-fuels">alternative fuels</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/electric-vehicles">electric vehicles</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/batteries">batteries</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/air-pollution">air pollution</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/supersonics">supersonics</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/urban-air-mobility">urban air mobility</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/tunnels">tunnels</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/space">space</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/starship">Starship</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/starlink">Starlink</a>
+                        </li>
+                        <li>
+                            <a href="../../tags/varda">Varda</a>
+                        </li>
+                    </ul>
+                </div>
+                <nav id="prev-next">
+                    <div class="previous">
+                        <a href="../../blog/sls/">The Space Launch System is part of a swamp that needs to be drained</a>
+                    </div>
+                    <div class="next">
+                        <a class="next" href="../../blog/voting-systems/">I vote for a different voting system</a>
+                    </div>
+                </nav>
+            </aside>
+        </main>
+        <footer>
+            <section>
+                <div class="bmc-btn-container">
+                    <a class="bmc-btn" target="_blank" href="https://buymeacoffee.com/elidourado" title="Buy Eli a coffee" onclick="gtag('event','click',{'event_category':'footer-buymeacoffee'});" onmouseover="gtag('event','hover',{'event_category':'footer-buymeacoffee'});"><svg viewbox="0 0 884 1279" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M791.109 297.518 790.231 297.002 788.201 296.383C789.018 297.072 790.04 297.472 791.109 297.518z" fill="#0d0c22"></path>
+                    <path d="M803.896 388.891 802.916 389.166 803.896 388.891z" fill="#0d0c22"></path>
+                    <path d="M791.484 297.377C791.359 297.361 791.237 297.332 791.118 297.29 791.111 297.371 791.111 297.453 791.118 297.534 791.252 297.516 791.379 297.462 791.484 297.377z" fill="#0d0c22"></path>
+                    <path d="M791.113 297.529H791.244V297.447L791.113 297.529z" fill="#0d0c22"></path>
+                    <path d="M803.111 388.726 804.591 387.883 805.142 387.573 805.641 387.04C804.702 387.444 803.846 388.016 803.111 388.726z" fill="#0d0c22"></path>
+                    <path d="M793.669 299.515 792.223 298.138 791.243 297.605C791.77 298.535 792.641 299.221 793.669 299.515z" fill="#0d0c22"></path>
+                    <path d="M430.019 1186.18C428.864 1186.68 427.852 1187.46 427.076 1188.45L427.988 1187.87C428.608 1187.3 429.485 1186.63 430.019 1186.18z" fill="#0d0c22"></path>
+                    <path d="M641.187 1144.63C641.187 1143.33 640.551 1143.57 640.705 1148.21 640.705 1147.84 640.86 1147.46 640.929 1147.1 641.015 1146.27 641.084 1145.46 641.187 1144.63z" fill="#0d0c22"></path>
+                    <path d="M619.284 1186.18C618.129 1186.68 617.118 1187.46 616.342 1188.45L617.254 1187.87C617.873 1187.3 618.751 1186.63 619.284 1186.18z" fill="#0d0c22"></path>
+                    <path d="M281.304 1196.06C280.427 1195.3 279.354 1194.8 278.207 1194.61 279.136 1195.06 280.065 1195.51 280.684 1195.85L281.304 1196.06z" fill="#0d0c22"></path>
+                    <path d="M247.841 1164.01C247.704 1162.66 247.288 1161.35 246.619 1160.16 247.093 1161.39 247.489 1162.66 247.806 1163.94L247.841 1164.01z" fill="#0d0c22"></path>
+                    <path class="logo-coffee" d="M472.623 590.836C426.682 610.503 374.546 632.802 306.976 632.802 278.71 632.746 250.58 628.868 223.353 621.274L270.086 1101.08C271.74 1121.13 280.876 1139.83 295.679 1153.46 310.482 1167.09 329.87 1174.65 349.992 1174.65 349.992 1174.65 416.254 1178.09 438.365 1178.09 462.161 1178.09 533.516 1174.65 533.516 1174.65 553.636 1174.65 573.019 1167.08 587.819 1153.45 602.619 1139.82 611.752 1121.13 613.406 1101.08l50.053-530.204C641.091 563.237 618.516 558.161 593.068 558.161 549.054 558.144 513.591 573.303 472.623 590.836z" fill="#fd0"></path>
+                    <path d="M78.6885 386.132 79.4799 386.872 79.9962 387.182C79.5987 386.787 79.1603 386.435 78.6885 386.132z" fill="#0d0c22"></path>
+                    <path class="logo-outline" d="M879.567 341.849 872.53 306.352C866.215 274.503 851.882 244.409 819.19 232.898 808.711 229.215 796.821 227.633 788.786 220.01 780.751 212.388 778.376 200.55 776.518 189.572 773.076 169.423 769.842 149.257 766.314 129.143 763.269 111.85 760.86 92.4243 752.928 76.56 742.604 55.2584 721.182 42.8009 699.88 34.559 688.965 30.4844 677.826 27.0375 666.517 24.2352 613.297 10.1947 557.342 5.03277 502.591 2.09047 436.875-1.53577 370.983-.443234 305.422 5.35968 256.625 9.79894 205.229 15.1674 158.858 32.0469 141.91 38.224 124.445 45.6399 111.558 58.7341 95.7448 74.8221 90.5829 99.7026 102.128 119.765 110.336 134.012 124.239 144.078 138.985 150.737 158.192 159.317 178.251 165.846 198.829 170.215 256.126 182.879 315.471 187.851 374.007 189.968 438.887 192.586 503.87 190.464 568.44 183.618 584.408 181.863 600.347 179.758 616.257 177.304 634.995 174.43 647.022 149.928 641.499 132.859 634.891 112.453 617.134 104.538 597.055 107.618 594.095 108.082 591.153 108.512 588.193 108.942L586.06 109.252C579.257 110.113 572.455 110.915 565.653 111.661 551.601 113.175 537.515 114.414 523.394 115.378 491.768 117.58 460.057 118.595 428.363 118.647 397.219 118.647 366.058 117.769 334.983 115.722 320.805 114.793 306.661 113.611 292.552 112.177 286.134 111.506 279.733 110.801 273.333 110.009L267.241 109.235 265.917 109.046 259.602 108.134C246.697 106.189 233.792 103.953 221.025 101.251 219.737 100.965 218.584 100.249 217.758 99.2193 216.932 98.1901 216.482 96.9099 216.482 95.5903 216.482 94.2706 216.932 92.9904 217.758 91.9612 218.584 90.9319 219.737 90.2152 221.025 89.9293H221.266C232.33 87.5721 243.479 85.5589 254.663 83.8038 258.392 83.2188 262.131 82.6453 265.882 82.0832H265.985C272.988 81.6186 280.026 80.3625 286.994 79.5366 347.624 73.2301 408.614 71.0801 469.538 73.1014 499.115 73.9618 528.676 75.6996 558.116 78.6935 564.448 79.3474 570.746 80.0357 577.043 80.8099 579.452 81.1025 581.878 81.4465 584.305 81.7391L589.191 82.4445C603.438 84.5667 617.61 87.1419 631.708 90.1703 652.597 94.7128 679.422 96.1925 688.713 119.077 691.673 126.338 693.015 134.408 694.649 142.03L696.732 151.752C696.786 151.926 696.826 152.105 696.852 152.285 701.773 175.227 706.7 198.169 711.632 221.111 711.994 222.806 712.002 224.557 711.657 226.255 711.312 227.954 710.621 229.562 709.626 230.982 708.632 232.401 707.355 233.6 705.877 234.504 704.398 235.408 702.75 235.997 701.033 236.236H700.895L697.884 236.649 694.908 237.044C685.478 238.272 676.038 239.419 666.586 240.486 647.968 242.608 629.322 244.443 610.648 245.992 573.539 249.077 536.356 251.102 499.098 252.066 480.114 252.57 461.135 252.806 442.162 252.771 366.643 252.712 291.189 248.322 216.173 239.625 208.051 238.662 199.93 237.629 191.808 236.58 198.106 237.389 187.231 235.96 185.029 235.651 179.867 234.928 174.705 234.177 169.543 233.397 152.216 230.798 134.993 227.598 117.7 224.793 96.7944 221.352 76.8005 223.073 57.8906 233.397 42.3685 241.891 29.8055 254.916 21.8776 270.735 13.7217 287.597 11.2956 305.956 7.64786 324.075 4.00009 342.193-1.67805 361.688.472751 380.288 5.10128 420.431 33.165 453.054 73.5313 460.35 111.506 467.232 149.687 472.807 187.971 477.556 338.361 495.975 490.294 498.178 641.155 484.129 653.44 482.982 665.708 481.732 677.959 480.378 681.786 479.958 685.658 480.398 689.292 481.668S696.23 485.005 698.962 487.717 703.784 493.718 705.08 497.342C706.377 500.967 706.846 504.836 706.453 508.665L702.633 545.797C694.936 620.828 687.239 695.854 679.542 770.874 671.513 849.657 663.431 928.434 655.298 1007.2 653.004 1029.39 650.71 1051.57 648.416 1073.74 646.213 1095.58 645.904 1118.1 641.757 1139.68 635.218 1173.61 612.248 1194.45 578.73 1202.07 548.022 1209.06 516.652 1212.73 485.161 1213.01 450.249 1213.2 415.355 1211.65 380.443 1211.84 343.173 1212.05 297.525 1208.61 268.756 1180.87 243.479 1156.51 239.986 1118.36 236.545 1085.37 231.957 1041.7 227.409 998.039 222.9 954.381L197.607 711.615 181.244 554.538C180.968 551.94 180.693 549.376 180.435 546.76 178.473 528.023 165.207 509.681 144.301 510.627 126.407 511.418 106.069 526.629 108.168 546.76L120.298 663.214 145.385 904.104C152.532 972.528 159.661 1040.96 166.773 1109.41 168.15 1122.52 169.44 1135.67 170.885 1148.78 178.749 1220.43 233.465 1259.04 301.224 1269.91 340.799 1276.28 381.337 1277.59 421.497 1278.24 472.979 1279.07 524.977 1281.05 575.615 1271.72 650.653 1257.95 706.952 1207.85 714.987 1130.13 717.282 1107.69 719.576 1085.25 721.87 1062.8 729.498 988.559 737.115 914.313 744.72 840.061L769.601 597.451 781.009 486.263C781.577 480.749 783.905 475.565 787.649 471.478 791.392 467.391 796.352 464.617 801.794 463.567 823.25 459.386 843.761 452.245 859.023 435.916 883.318 409.918 888.153 376.021 879.567 341.849zM72.4301 365.835C72.757 365.68 72.1548 368.484 71.8967 369.792 71.8451 367.813 71.9483 366.058 72.4301 365.835zM74.5121 381.94C74.6842 381.819 75.2003 382.508 75.7337 383.334 74.925 382.576 74.4089 382.009 74.4949 381.94H74.5121zM76.5597 384.641C77.2996 385.897 77.6953 386.689 76.5597 384.641v0zM80.672 387.979H80.7752C80.7752 388.1 80.9645 388.22 81.0333 388.341 80.9192 388.208 80.7925 388.087 80.6548 387.979H80.672zM800.796 382.989C793.088 390.319 781.473 393.726 769.996 395.43 641.292 414.529 510.713 424.199 380.597 419.932 287.476 416.749 195.336 406.407 103.144 393.382 94.1102 392.109 84.3197 390.457 78.1082 383.798 66.4078 371.237 72.1548 345.944 75.2003 330.768 77.9878 316.865 83.3218 298.334 99.8572 296.355 125.667 293.327 155.64 304.218 181.175 308.09 211.917 312.781 242.774 316.538 273.745 319.36 405.925 331.405 540.325 329.529 671.92 311.91 695.906 308.686 719.805 304.941 743.619 300.674 764.835 296.871 788.356 289.731 801.175 311.703 809.967 326.673 811.137 346.701 809.778 363.615 809.359 370.984 806.139 377.915 800.779 382.989H800.796z" fill="#0d0c22"></path></svg><span class="bmc-btn-text">Buy me a coffee</span></a>
+                </div>
+            </section>
+            <section id="newsletter">
+                <a id="newsletter-link" href="https://tinyletter.com/elidourado" title="Subscribe to Eli's secret newsletter" onclick="gtag('event','click',{'event_category':'newsletter-button'});" onmouseover="gtag('event','hover',{'event_category':'newsletter-button'});"><svg viewbox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path id="envelope" d="M302.628 96.498H96.286C86.198 96.498 78.022 104.659 78.022 114.728V282.706C78.022 292.772 86.198 300.936 96.286 300.936H170.526L240.497 354.441V300.936H302.628C312.713 300.936 320.892 292.772 320.892 282.706V114.728C320.892 104.659 312.713 96.498 302.628 96.498" fill="#fff" fill-opacity="1" stroke="none"></path>
+                <path id="heart" d="M191.606 45.183 199.455 53.016 207.305 45.183C221.742 30.771 245.151 30.771 259.588 45.183 274.028 59.592 274.028 82.957 259.588 97.367L199.455 146.048 139.32 97.367C124.883 82.957 124.883 59.592 139.32 45.183 153.758 30.771 177.167 30.771 191.606 45.183" fill="#ed1c24" fill-opacity="1" stroke="none"></path>
+                <path id="outline" d="M302.739 290.451H230.957V337.217L169.29 290.451H96.172C90.993 290.451 86.78 286.247 86.78 281.077V256.451L145.028 212.273 199.455 253.548 253.881 212.276 312.131 256.454V281.077C312.131 286.247 307.919 290.451 302.739 290.451zM129.509 200.504 86.78 232.909V168.102zM312.131 168.102v64.81L269.402 200.504zM96.172 106.809H136.15L199.455 158.113 262.838 106.809H302.739C307.919 106.809 312.131 111.01 312.131 116.18v28.381L199.455 230.007 86.78 144.561V116.18C86.78 111.01 90.993 106.809 96.172 106.809zM145.961 51.809C151.172 46.61 158.095 43.745 165.463 43.745 172.829 43.745 179.755 46.61 184.966 51.809L199.455 66.274 213.945 51.809C219.153 46.61 226.08 43.745 233.448 43.745 240.817 43.745 247.742 46.61 252.95 51.809 258.158 57.007 261.03 63.922 261.03 71.277 261.03 78.477 258.275 85.256 253.27 90.42L199.455 133.979 145.641 90.42C135.205 79.659 135.314 62.435 145.961 51.809zM302.739 88.061H276.636C278.697 82.778 279.81 77.116 279.81 71.277 279.81 58.915 274.984 47.294 266.229 38.555 257.473 29.814 245.83 25 233.448 25 221.063 25 209.419 29.814 200.665 38.555L199.455 39.76 198.244 38.555C189.489 29.814 177.846 25 165.463 25 153.081 25 141.438 29.814 132.68 38.555 119.293 51.916 115.846 71.479 122.289 88.061H96.172C80.636 88.061 68 100.674 68 116.18V281.077C68 296.583 80.636 309.196 96.172 309.196H162.966L249.737 375V309.196H302.739C318.275 309.196 330.912 296.583 330.912 281.077V116.18C330.912 100.674 318.275 88.061 302.739 88.061" fill="#100f0d" fill-opacity="1" stroke="none"></path></svg>Secret newsletter 🤫</a>
+            </section>
+            <section>
+                <a id="follow-button" class="btn" title="Follow @elidourado on Twitter" href="https://twitter.com/elidourado" onclick="gtag('event','click',{'event_category':'footer-twitter'});" onmouseover="gtag('event','hover',{'event_category':'footer-twitter'});"><span class="label" id="l">&#160;Follow <b>@elidourado</b></span></a>
+            </section>
+        </footer>
+        <script>
+        <![CDATA[
+        window.addEventListener('load',()=>{quicklink.listen();});
+        ]]>
+        </script>
+    </body>
+</html>

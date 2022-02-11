@@ -1,0 +1,16 @@
+"signInScreenHeadline" = "Save and share the best of the web.";
+"googleAuthButton" = "Continue with Google";
+"registrationViewSignInHeadline" = "Login";
+"registrationViewSignUpHeadline" = "Sign Up";
+"registrationViewHeadline" = "Welcome";
+"username.validation.error.invalidPattern" = "Username can only contain letters, numbers, and underscores in the middle.";
+"username.validation.error.tooshort" = "Username should contain at least three characters.";
+"username.validation.error.toolong" = "Username cannot be longer than fifteen characters.";
+"error.network" = "We are having trouble connecting to the internet.";
+"error.generic" = "Something went wrong, please try again.";
+"extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
+"loginError.invalidCreds" = "The login credentials provided are invalid.";
+"saveArticleSavingState" = "Saving...";
+"saveArticleSavedState" = "Link Saved!";
+"saveArticleProcessingState" = "Link saved!";
+"dismissButton" = "Dismiss";

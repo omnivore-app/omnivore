@@ -1,0 +1,26 @@
+{
+  "name": "omnivore-extension",
+  "version": "1.0.0",
+  "description": "browser extension for omnivore",
+  "main": "scripts/background-script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "env EXT_ENV=local webpack --config webpack.js",
+    "build-qa": "env EXT_ENV=qa webpack --config webpack.js",
+    "build-demo": "env EXT_ENV=demo webpack --config webpack.js",
+    "build-prod": "env EXT_ENV=production webpack --config webpack.js",
+    "pack": "web-ext build --overwrite-dest --source-dir dist --artifacts-dir dist_packed --filename omnivore-v{version}.zip",
+    "pack-stores": "webext-store-incompat-fixer -i dist_packed/omnivore-v{version}.zip"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^7.0.0",
+    "dotenv-webpack": "^6.0.0",
+    "semistandard": "^16.0.1",
+    "web-ext": "^6.4.0",
+    "webext-store-incompat-fixer": "^0.1.36",
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.1",
+    "webpack-merge": "^5.7.3"
+  }
+}

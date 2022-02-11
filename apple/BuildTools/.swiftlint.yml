@@ -1,0 +1,11 @@
+excluded:
+  - build
+  - .build
+  - vendor
+  - docs
+  - .bundle
+  - BuildTools
+
+identifier_name:
+  excluded:
+    - id

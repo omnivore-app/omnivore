@@ -1,0 +1,33 @@
+{
+    "name": "Omnivore",
+    "short_name": "Omnivore",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#FFDE8C",
+    "description": "Save, read, highlight, and share your favorite articles.",
+    "icons": [
+      {
+        "src": "/static/icons/pwa/default.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/static/icons/pwa/default-large.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      },
+      {
+      "src": "/static/icons/pwa/default-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/pwa/default-maskable-large.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

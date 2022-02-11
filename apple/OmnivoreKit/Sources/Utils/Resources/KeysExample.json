@@ -1,0 +1,27 @@
+{
+  "pspdfKitKey": "",
+  "iosClientGoogleId": "",
+  "intercom": {
+    "apiKey": "",
+    "appID": ""
+  },
+  "firebaseDemoKeys": {
+    "googleAppID": "",
+    "gcmSenderID": "",
+    "apiKey": "",
+    "clientID": "",
+    "storageBucket": "",
+    "projectID": "",
+    "bundleID": ""
+  },
+  "firebaseProdKeys": {
+    "googleAppID": "",
+    "gcmSenderID": "",
+    "apiKey": "",
+    "clientID": "",
+    "storageBucket": "",
+    "projectID": "",
+    "bundleID": ""
+  }
+}
+

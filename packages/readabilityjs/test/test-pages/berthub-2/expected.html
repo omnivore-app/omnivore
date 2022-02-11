@@ -1,0 +1,227 @@
+<div id="readability-page-1" class="page">
+    <div id="content">
+        <article lang="en" xml:lang="en">
+            <div>
+                <p> All BNT162b2 vaccine data on this page is sourced from this <a href="https://mednet-communities.net/inn/db/media/docs/11889.doc" target="_blank">World Health Organization document</a>. </p>
+                <blockquote>
+                    <p> This is a living page, shared already so people can get going! But check back frequently for updates. </p>
+                </blockquote>
+                <p>
+                    <em>Translation</em>: <a href="https://renaudguerin.net/posts/partie-2-explorons-le-code-source-du-vaccin-biontech-pfizer/" target="_blank">Français</a> / <a href="https://msakai.github.io/bnt162b2/part-2-reverse-engineering-source-code-of-the-biontech-pfizer-vaccine.ja/" target="_blank">日本語</a>
+                </p>
+                <p> In short: the vaccine mRNA has been optimized by the manufacturer by changing bits of RNA from (say) <code>UUU</code> to <code>UUC</code>, and people would like to understand the logic behind these changes. This challenge is quite close to what cryptologists and reverse engineering people encounter regularly. On this page, you’ll find all the details you need to get cracking to reverse engineer just HOW the vaccine has been optimized. </p>
+                <p> I thought this would just be a fun puzzle, but I have just been informed that figuring out the optimization procedure &amp; documenting it is tremendously important for researchers around the world, as this would help them design code for proteins and vaccines. </p>
+                <p> So, if you want to help vaccine research, do read on! </p>
+                <h2 id="the-leader-board"> The leader board </h2>
+                <p> Here are the current best entrants to the optimization algorithm (average of 20 runs): </p>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th> Name </th>
+                            <th> Codon Match </th>
+                            <th> Nucleotide Match </th>
+                            <th> Author </th>
+                            <th> Comment </th>
+                        </tr>
+                        <tr>
+                            <td> codon mapping </td>
+                            <td> 79.51 % </td>
+                            <td> 91.52 % </td>
+                            <td> Harry Harpel </td>
+                            <td>
+                                <a href="https://github.com/berthubert/bnt162b2/blob/master/vaccine_dict.json">A simple static codon mapping</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://gist.github.com/sanxiyn/fddd1f18074076fb47e04733e6b62865">most-frequent.py</a>
+                            </td>
+                            <td> 78.57 % </td>
+                            <td> 91.08 % </td>
+                            <td>
+                                <a href="https://twitter.com/sanxiyn">Seo Sanghyeon</a>
+                            </td>
+                            <td> Codon frequency optimization using python_codon_tables </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://github.com/cibo6/bnt162b2">dnachisel</a>
+                            </td>
+                            <td> 76.99 % </td>
+                            <td> 91.06 % </td>
+                            <td>
+                                <a href="https://www.linkedin.com/in/erik-brauer/">Erik Brauer</a>
+                            </td>
+                            <td>
+                                <a href="https://edinburgh-genome-foundry.github.io/DnaChisel/">DNAChisel algorithm</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://gist.github.com/naomiajacobs/1e9de466ead8f362394cdfd581ec74fd#gistcomment-3578742">dnachisel</a>
+                            </td>
+                            <td> 76.89 % </td>
+                            <td> 90.89 % </td>
+                            <td>
+                                <a href="https://twitter.com/pvieito">Pedro José Pereira Vieito</a>
+                            </td>
+                            <td>
+                                <a href="https://edinburgh-genome-foundry.github.io/DnaChisel/">DNAChisel algorithm</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://github.com/hyc/bnt162b2/commit/b7b84a114748940de724992d6a6a5fc65b454fb0">remap</a>
+                            </td>
+                            <td> 71.11 % </td>
+                            <td> 88.59 % </td>
+                            <td>
+                                <a href="https://twitter.com/hyc_symas">Howard Chu</a>
+                            </td>
+                            <td> Map every codon to an amino acid, pick the best codon for that amino acid </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://github.com/unrelatedlabs/bnt162b2/blob/master/reverse.ipynb">3rd-cg.py</a>
+                            </td>
+                            <td> 60.83 % </td>
+                            <td> 85.11 % </td>
+                            <td>
+                                <a href="https://twitter.com/pkuhar">Peter Kuhar</a>
+                            </td>
+                            <td> If third position is already 'G' or 'C', no change. Otherwise replace third position by a C, if protein still matches, done. Otherwise try a G. </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://github.com/berthubert/bnt162b2/blob/master/3rd-gc.go">3rd-gc.go</a>
+                            </td>
+                            <td> 53.06 % </td>
+                            <td> 81.55 % </td>
+                            <td> bert hubert </td>
+                            <td> If third position is already 'G' or 'C', no change. Otherwise replace third position by a G, if protein still matches, done. Otherwise try a C. </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="https://gist.github.com/naomiajacobs/1e9de466ead8f362394cdfd581ec74fd">dnachisel</a>
+                            </td>
+                            <td> 46.33 % </td>
+                            <td> 79.48 % </td>
+                            <td>
+                                <a href="https://twitter.com/naomicodes">Naomi Jacobs</a>
+                            </td>
+                            <td>
+                                <a href="https://edinburgh-genome-foundry.github.io/DnaChisel/">DNAChisel algorithm</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td> NOP </td>
+                            <td> 27.63 % </td>
+                            <td> 72.23 % </td>
+                            <td></td>
+                            <td> Does not do any optimization at all </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h2 id="biontech"> BioNTech </h2>
+                <p> We should all be very grateful that BioNTech has shared this data with us. And of course we should also be grateful to the many many researchers and lab workers that worked for decades to bring the state of the art to the point that such a vaccine could be developed. It is marvelous. </p>
+                <p> Because it is so marvelous, I want to understand everything about the vaccine. I wrote a page <a href="https://berthub.eu/articles/posts/reverse-engineering-source-code-of-the-biontech-pfizer-vaccine/" target="_blank">Reverse Engineering the source code of the BioNTech/Pfizer SARS-CoV-2 Vaccine</a> that describes in some detail what is in the mRNA of the vaccine. It helps to read this page before continuing, I promise you it will be interesting. </p>
+                <p> The post left open some questions however, and this is where it gets fascinating. </p>
+                <h2 id="the-codon-optimization"> The codon optimization </h2>
+                <p> The vaccine contains RNA code for a very <em>slightly</em> modified copy of the SARS-CoV-2 S protein. </p>
+                <p> The RNA code of the vaccine itself however is <em>highly</em> modified from the viral original! This has been done by the manufacturer, based on their understanding of nature. </p>
+                <p> And from what we understand, these modifications make the vaccine <strong>much much more</strong> effective. It would be a lot of fun to understand these modifications. It might for example explain why the Moderna vaccine needs 100 micrograms and the BioNTech vaccine only 30 micrograms. </p>
+                <p> Here is the beginning of the S protein in both the virus and the BNT162b2 vaccine RNA code. Exclamation marks denote differences. </p>
+                <pre><code>Virus:   AUG UUU GUU UUU CUU GUU UUA UUG CCA CUA GUC UCU AGU CAG UGU GUU
+Vaccine: AUG UUC GUG UUC CUG GUG CUG CUG CCU CUG GUG UCC AGC CAG UGU GUG
+               !   !   !   !   ! ! ! !     !   !   !   !   !            
+</code></pre>
+                <p> RNA is a string (literally) of RNA characters, <code>A</code>, <code>C</code>, <code>G</code> and <code>U</code>. There is no physical framing on there, but it makes sense to analyse it in groups of three. </p>
+                <p> Each group (called a codon) maps to an amino acid (denoted by a capital letter). A string of amino acids is a protein. Here is what that looks like: </p>
+                <pre><code>Virus:   AUG UUU GUU UUU CUU GUU UUA UUG CCA CUA GUC UCU AGU CAG UGU GUU
+          M   F   V   F   L   V   L   L   P   L   V   S   S   Q   C   V
+Vaccine: AUG UUC GUG UUC CUG GUG CUG CUG CCU CUG GUG UCC AGC CAG UGU GUG
+               !   !   !   !   ! ! ! !     !   !   !   !   !            
+</code></pre>
+                <p> Here we can see that while the codons are different, the amino acid version is the same. There are 4*4*4 codons but only 20 amino acids. This means you can typically change every codon into one of two others, and still code for the same amino acid. </p>
+                <p> So in the second codon, <code>UUU</code> was changed to <code>UUC</code>. This is a net addition of one ‘C’ to the vaccine. The third codon changed from <code>GUU</code> to <code>GUG</code>, which is a net addition of one <code>G</code>. </p>
+                <p>
+                    <strong>It is known that a higher fraction of <code>G</code> and <code>C</code> characters improves the efficiency of an mRNA vaccine</strong>.
+                </p>
+                <p> Now, if that was all there was to it, this could be the end of this page. “The algorithm is change codons so we get more G and C in there”. But then we meet the 9th codon which changes <code>CCA</code> to <code>CCU</code>. </p>
+                <p> Throughout the ~4000 characters of the vaccine, this happens many times. </p>
+                <h2 id="our-challenge"> Our challenge </h2>
+                <p> The goal is: find an algorithm that modifies the ‘wild type’ RNA code into the BNT162b2 one. Because everyone would like to understand how to turn viral RNA into an effective vaccine. The algorithm does not need to reproduce the <em>exact</em> RNA code of course, but it would be super nice if it came up with something very similar, while also being brief. </p>
+                <p> To help you, I have provided the data in a number of forms, as described on <a href="https://github.com/berthubert/bnt162b2" target="_blank">the GitHub page</a>. </p>
+                <blockquote>
+                    <p> Note that in these files the <code>U</code> mentioned above appears as a <code>T</code>. <code>U</code> and <code>T</code> are the RNA and DNA manifestations of the same information. </p>
+                </blockquote>
+                <p> The easiest place to start might be the ‘<a href="https://github.com/berthubert/bnt162b2/blob/master/side-by-side.csv" target="_blank">side-by-side.csv</a>‘ file. This lists the original and modified version of each codon, side by side: </p>
+                <pre><code>abspos,codonOrig,codonVaccine
+0,ATG,ATG
+3,TTT,TTC
+6,GTT,GTG
+...
+3813,TAC,TAC
+3816,ACA,ACA
+3819,TAA,TGA
+</code></pre>
+                <p> There is also an equivalency table that shows wich codons can be interchanged without changing the amino acid output. Please find this in <a href="https://github.com/berthubert/bnt162b2/blob/master/codon-table-grouped.csv" target="_blank">codon-table-grouped.csv</a>. There is also a visual version <a href="https://en.wikipedia.org/wiki/DNA_and_RNA_codon_tables#Standard_DNA_codon_table" target="_blank">here</a>. </p>
+                <h2 id="a-sample-algorithm"> A sample algorithm </h2>
+                <p> On the <a href="https://github.com/berthubert/bnt162b2" target="_blank">GitHub repository</a> you can find <a href="https://github.com/berthubert/bnt162b2/blob/master/3rd-gc.go" target="_blank">3rd-gc.go</a> (and <a href="https://github.com/berthubert/bnt162b2/blob/master/3rd-gc.py" target="_blank">3rd-gc.py</a>). </p>
+                <p> These implement a simple strategy that works like this: </p>
+                <ul>
+                    <li>If a virus codon already ended on G or C, copy it to the vaccine mRNA </li>
+                    <li>If not, replace last nucleotide in codon by a G, see if the amino acid still matches, if so, copy to the vaccine mRNA </li>
+                    <li>Try the same with a C </li>
+                    <li>Otherwise copy as is </li>
+                </ul>
+                <p> Or in <code>golang</code>: </p>
+                <pre><code>// base case, don't do anything
+our = vir
+
+// don't do anything if codon ends on G or C already
+if(vir[2] == 'G' || vir[2] =='C') {
+        fmt.Printf("Codon ended on G or C already, not doing anything.")
+} else {
+        prop = vir[:2]+"G"
+        fmt.Printf("Attempting G substitution, new candidate '%s'. ", prop)
+        if(c2s[vir] == c2s[prop]) {
+                fmt.Printf("Amino acid still the same, done!")
+                our = prop
+        } else {
+                fmt.Printf("Oops, amino acid changed. Trying C, new candidate '%s'. ", prop)
+                prop = vir[:2]+"C"
+                if(c2s[vir] == c2s[prop]) {
+                        fmt.Printf("Amino acid still the same, done!")
+                        our=prop
+                } 
+                
+        }
+
+}
+</code></pre>
+                <p> This achieves a rather poor 53.1% match with the BioNTech RNA vaccine, but it is a start. </p>
+                <p> When you design your algorithm, be sure to only base your choices on the virus RNA. Do not peek into the BioNTech RNA! </p>
+                <p> If you have achieved a score beyond 53.1% please email a link to your code to bert@hubertnet.nl (or <a href="https://twitter.com/PowerDNS_Bert" target="_blank">@PowerDNS_Bert</a> and I’ll put it on the leader board at the top of this page! </p>
+                <h2 id="things-that-will-help"> Things that will help </h2>
+                <p> As with every form of reverse engineering or cryptanalysis, it helps to understand what we are looking at. </p>
+                <h2 id="gc-ratio"> GC ratio </h2>
+                <p> We know that one goal of the ‘codon optimization’ is to get more <code>C</code>s and <code>G</code>s into the vaccine version of the RNA. However, there is also a limit to that. In DNA, which is also used to manufacture the vaccine, <code>G</code> and <code>C</code> bind together strongly, to the point that if you put too many of these ‘nucleotides’ in there, the DNA will no longer be replicated efficiently. </p>
+                <p> So some modifications may actually happen to manage <em>down</em> the GC percentage of a stretch of DNA if it was getting too high. </p>
+                <p> I <a href="https://twitter.com/PowerDNS_Bert/status/1344036143961169920" target="_blank">tweeted about this</a> earlier. </p>
+                <h2 id="codon-optimization"> Codon optimization </h2>
+                <p> Some codons are rare in human DNA, or in certain cells. It may be that some codons are replaced by other ones simply because they are more frequently used by some cells. </p>
+                <p> I <a href="https://twitter.com/PowerDNS_Bert/status/1344400081802448897" target="_blank">tweeted about this</a> earlier. </p>
+                <h2 id="rna-folding"> RNA folding </h2>
+                <p> We’ve been looking at codons up to here. The RNA itself however does not know about codons, there are no markers that say where a codon begins and ends. The first codon on a protein however is always ATG (or AUG in RNA). </p>
+                <p> RNA curls up into a shape. This shape might help evade the immune system or it might improve translation into amino acids. This only depends on the sequence of RNA nucleotides and not on specific codons. </p>
+                <p> You can submit RNA sequences to <a href="http://rna.tbi.univie.ac.at/cgi-bin/RNAWebSuite/RNAfold.cgi" target="_blank">this server of the Institute for Theoretical Chemistry at the University of Vienna</a> and it will fold RNA for you. This is a very advanced server that does meticulous calculations. </p>
+                <p> This <a href="https://en.wikipedia.org/wiki/Nucleic_acid_structure_prediction" target="_blank">Wikipedia page</a> describes how this works. </p>
+                <p> It may be that some optimizations improve folding. </p>
+                <p> I am also told that this paper by Moderna (another mRNA vaccine manufacturer) may be relevant: <a href="https://www.pnas.org/content/116/48/24075" target="_blank">mRNA structure regulates protein expression through changes in functional half-life</a>. </p>
+            </div>
+        </article>
+        <nav>
+        </nav>
+    </div>
+</div>

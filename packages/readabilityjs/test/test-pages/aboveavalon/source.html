@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title></title>
+        <style type="text/css">
+        /*<![CDATA[*/
+        @font-face{font-family:proxima-nova;src:url(https://use.typekit.net/af/d45b9a/000000000000000077359577/30/l?subset_id=2&fvd=n4&v=3) format("woff2"),url(https://use.typekit.net/af/d45b9a/000000000000000077359577/30/d?subset_id=2&fvd=n4&v=3) format("woff"),url(https://use.typekit.net/af/d45b9a/000000000000000077359577/30/a?subset_id=2&fvd=n4&v=3) format("opentype");font-weight:400;font-style:normal;font-display:auto;}@font-face{font-family:proxima-nova;src:url(https://use.typekit.net/af/98e3f6/000000000000000077359562/30/l?subset_id=2&fvd=n7&v=3) format("woff2"),url(https://use.typekit.net/af/98e3f6/000000000000000077359562/30/d?subset_id=2&fvd=n7&v=3) format("woff"),url(https://use.typekit.net/af/98e3f6/000000000000000077359562/30/a?subset_id=2&fvd=n7&v=3) format("opentype");font-weight:700;font-style:normal;font-display:auto;}@font-face{font-family:proxima-nova;src:url(https://use.typekit.net/af/6cc429/00000000000000007735957a/30/l?subset_id=2&fvd=i4&v=3) format("woff2"),url(https://use.typekit.net/af/6cc429/00000000000000007735957a/30/d?subset_id=2&fvd=i4&v=3) format("woff"),url(https://use.typekit.net/af/6cc429/00000000000000007735957a/30/a?subset_id=2&fvd=i4&v=3) format("opentype");font-weight:400;font-style:italic;font-display:auto;}@font-face{font-family:proxima-nova;src:url(https://use.typekit.net/af/624cab/000000000000000077359558/30/l?subset_id=2&fvd=i7&v=3) format("woff2"),url(https://use.typekit.net/af/624cab/000000000000000077359558/30/d?subset_id=2&fvd=i7&v=3) format("woff"),url(https://use.typekit.net/af/624cab/000000000000000077359558/30/a?subset_id=2&fvd=i7&v=3) format("opentype");font-weight:700;font-style:italic;font-display:auto;}@font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/eded03/00000000000000007735d67b/30/l?subset_id=2&fvd=n4&v=3) format("woff2"),url(https://use.typekit.net/af/eded03/00000000000000007735d67b/30/d?subset_id=2&fvd=n4&v=3) format("woff"),url(https://use.typekit.net/af/eded03/00000000000000007735d67b/30/a?subset_id=2&fvd=n4&v=3) format("opentype");font-weight:400;font-style:normal;font-display:auto;}@font-face{font-family:futura-pt;src:url(https://use.typekit.net/af/634586/00000000000000007735d64d/30/l?subset_id=2&fvd=n5&v=3) format("woff2"),url(https://use.typekit.net/af/634586/00000000000000007735d64d/30/d?subset_id=2&fvd=n5&v=3) format("woff"),url(https://use.typekit.net/af/634586/00000000000000007735d64d/30/a?subset_id=2&fvd=n5&v=3) format("opentype");font-weight:500;font-style:normal;font-display:auto;}
+        /*]]>*/
+        </style>
+    </head>
+    <body class="sidebar-text-alignment-left sidebar-position-left sidebar-fixed mobile-site-title-style-auto blog-sidebar-right gallery-style-fit enable-gallery-thumbnails initial-gallery-view-slideshow homepage-gallery-view-inherit thumbnail-aspect-ratio-auto gallery-controls-simple social-icon-style-square hide-social-icons show-category-navigation event-show-past-events event-thumbnails event-thumbnail-size-32-standard event-date-label event-list-show-cats event-list-date event-list-time event-list-address event-icalgcal-links event-excerpts event-item-back-link product-list-titles-under product-list-alignment-center product-item-size-23-standard-vertical product-image-auto-crop product-gallery-size-11-square product-gallery-auto-crop show-product-price show-product-item-nav product-social-sharing tweak-v1-related-products-image-aspect-ratio-11-square tweak-v1-related-products-details-alignment-center newsletter-style-dark hide-opentable-icons opentable-style-dark small-button-style-solid small-button-shape-square medium-button-style-solid medium-button-shape-square large-button-style-solid large-button-shape-square image-block-poster-text-alignment-center image-block-card-dynamic-font-sizing image-block-card-content-position-center image-block-card-text-alignment-left image-block-overlap-dynamic-font-sizing image-block-overlap-content-position-center image-block-overlap-text-alignment-left image-block-collage-dynamic-font-sizing image-block-collage-content-position-top image-block-collage-text-alignment-left image-block-stack-dynamic-font-sizing image-block-stack-text-alignment-left button-style-solid button-corner-style-square tweak-product-quick-view-button-style-floating tweak-product-quick-view-button-position-bottom tweak-product-quick-view-lightbox-excerpt-display-truncate tweak-product-quick-view-lightbox-show-arrows tweak-product-quick-view-lightbox-show-close-button tweak-product-quick-view-lightbox-controls-weight-light native-currency-code-usd view-item collection-type-blog collection-layout-default collection-5457bb30e4b087fea5cb1c54 mobile-style-available" id="item-5f74e65f21abae74c7a3d26f">
+        <div id="yui3-css-stamp" style="position: absolute !important; visibility: hidden !important"></div>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" /><!-- This is Squarespace. --><!-- aboveavalon -->
+        <link charset="utf-8" rel="stylesheet" id="yui_3_17_2_1_1611755206508_193" href="//assets.squarespace.com/universal/styles-compressed/social-buttons-bf7788a87c794b73afd9d5c49f72f4f3-min.en-US.css" />
+        <script charset="utf-8" id="yui_3_17_2_1_1611755206508_192" src="//assets.squarespace.com/universal/scripts-compressed/social-buttons-aa06a0ebdaa97ed82d7ae-min.en-US.js"></script>
+        <base href="" />
+        <meta charset="utf-8" />
+        <title>
+            Above Avalon: Apple Watch Momentum Is Building
+        </title>
+        <link rel="shortcut icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1497467684469-0OFYG1H8WD6WHL09UZOY/ke17ZwdGBToddI8pDm48kMpagLdZPgiW6yD5i4KsS9VZw-zPPgdn4jUwVcJE1ZvWhcwhEtWJXoshNdA9f1qD7UnCxNA8dHvmd7460Z7fbKFSZnIIAPuX1C4iUTyn4Xd4-76gsgk4xgxAaWTBSRHt9w/favicon.ico?format=100w" />
+        <link rel="canonical" href="https://www.aboveavalon.com/notes/2020/9/30/apple-watch-momentum-is-building" />
+        <meta property="og:site_name" content="Above Avalon" />
+        <meta property="og:title" content="Above Avalon: Apple Watch Momentum Is Building" />
+        <meta property="og:latitude" content="40.7207559" />
+        <meta property="og:longitude" content="-74.0007613" />
+        <meta property="og:url" content="https://www.aboveavalon.com/notes/2020/9/30/apple-watch-momentum-is-building" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="In a few months, the number of people wearing an Apple Watch will surpass 100 million. While the tech press spent years infatuated with stationary smart speakers and the idea of voice-only interfaces, it was the Apple Watch and utility on the wrist that ushered in a new paradigm shift in computing." />
+        <meta property="og:image" content="http://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/5457bb30e4b087fea5cb1c54/5f74e65f21abae74c7a3d26f/1602274812639/Screen+Shot+2020-09-30+at+5.23.23+PM.png?format=1500w" />
+        <meta property="og:image:width" content="1500" />
+        <meta property="og:image:height" content="808" />
+        <meta itemprop="name" content="Above Avalon: Apple Watch Momentum Is Building" />
+        <meta itemprop="url" content="https://www.aboveavalon.com/notes/2020/9/30/apple-watch-momentum-is-building" />
+        <meta itemprop="description" content="In a few months, the number of people wearing an Apple Watch will surpass 100 million. While the tech press spent years infatuated with stationary smart speakers and the idea of voice-only interfaces, it was the Apple Watch and utility on the wrist that ushered in a new paradigm shift in computing." />
+        <meta itemprop="thumbnailUrl" content="http://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/5457bb30e4b087fea5cb1c54/5f74e65f21abae74c7a3d26f/1602274812639/Screen+Shot+2020-09-30+at+5.23.23+PM.png?format=1500w" />
+        <link rel="image_src" href="http://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/5457bb30e4b087fea5cb1c54/5f74e65f21abae74c7a3d26f/1602274812639/Screen+Shot+2020-09-30+at+5.23.23+PM.png?format=1500w" />
+        <meta itemprop="image" content="http://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/5457bb30e4b087fea5cb1c54/5f74e65f21abae74c7a3d26f/1602274812639/Screen+Shot+2020-09-30+at+5.23.23+PM.png?format=1500w" />
+        <meta itemprop="author" content="Neil Cybart" />
+        <meta itemprop="datePublished" content="2020-09-30T17:44:39-0400" />
+        <meta itemprop="headline" content="Apple Watch Momentum Is Building" />
+        <meta itemprop="publisher" content="Above Avalon" />
+        <meta name="twitter:title" content="Above Avalon: Apple Watch Momentum Is Building" />
+        <meta name="twitter:image" content="http://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/5457bb30e4b087fea5cb1c54/5f74e65f21abae74c7a3d26f/1602274812639/Screen+Shot+2020-09-30+at+5.23.23+PM.png?format=1500w" />
+        <meta name="twitter:url" content="https://www.aboveavalon.com/notes/2020/9/30/apple-watch-momentum-is-building" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:description" content="In a few months, the number of people wearing an Apple Watch will surpass 100 million. While the tech press spent years infatuated with stationary smart speakers and the idea of voice-only interfaces, it was the Apple Watch and utility on the wrist that ushered in a new paradigm shift in computing." />
+        <meta name="description" content="" />
+        <link rel="preconnect" href="https://images.squarespace-cdn.com" />
+        <script async="async" src="https://www.google-analytics.com/analytics.js"></script>
+        <script type="text/javascript" src="//use.typekit.net/ik/HNyLbzW9DMvISRkz8wn07wsYyPx9FoGcc87bmqZeUa9feGSIfFHN4UJLFRbh52jhWD9XF2Zc5QFqZQsKweIDF29kZeZyZRmKwgnNMKG0jA4zicmyicBCdht0SaBujW48Sagyjh90jhNlOfG0jAFu-WsoShFGZAsude80ZkoRdhXCHKoyjamTiY8Djhy8ZYmC-Ao1Oco8if37OcBDOcu8OfG0SaBujW48SagyjhmDjhy8ZYmC-Ao1OcFzdPUyjcNhZABhjAUzdKoRdhXCjA4zicmyicBCdht0SaBujW48Sagyjh90jhNlOeBRiA8XpWFR-emqiAUTdcS0jhNlOeBRiA8XpWFR-emqiAUTdcS0dcmXOeBDOcu8OeUzjhBC-eNDifUDSWmyScmDSeBRZWFR-emqiAUTdcS0jhNlOYiaikoyjcNhZABhjAUzdKoRdhXCiaiaOcBKdaZ8jWZydeN0O1FUiABkZWF3jAF8OcFzdPUaiaS0jAFu-WsoShFGZAsude80ZkoRdhXCiaiaOcBRiA8XpWFR-emqiAUTdcS0dcmXOYiaikoySkolZPUaiaS0SaBujW48SagyjhmDjhy8ZYmC-Ao1OcFzdPJwSY4zpe8ljPu0daZyJ68ciWsuScIlSYb7fbKzMsMMeMb6MKG4fJCgIMMjgkMfH6qJCMIbMg65JMJ7fbKwMsMMegI6MKG4fJsmIMIjgfMfH6qJxubbMs6BJMHbMZzacxtB.js"></script>
+        <script type="text/javascript">
+        //<![CDATA[
+        try{Typekit.load();}catch(e){}
+        //]]>
+        </script> 
+        <script type="text/javascript">
+        //<![CDATA[
+        SQUARESPACE_ROLLUPS = {};
+        //]]>
+        </script> 
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/cldr-resource-pack-d2b6094e965c882c2de89-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-cldr_resource_pack');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/cldr-resource-pack-d2b6094e965c882c2de89-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/common-vendors-53ef835317fe34505c9f0-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-common_vendors');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/common-vendors-53ef835317fe34505c9f0-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/common-f0ab9128300bd7ee68fca-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-common');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/common-f0ab9128300bd7ee68fca-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/commerce-4724f4e63755dc2feb814-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-commerce');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/commerce-4724f4e63755dc2feb814-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].css = ["//assets.squarespace.com/universal/styles-compressed/commerce-c6a9de0bd3119cb26a512448db40c590-min.en-US.css"]; })(SQUARESPACE_ROLLUPS, 'squarespace-commerce');
+        ]]>
+        </script>
+        <link rel="stylesheet" type="text/css" href="//assets.squarespace.com/universal/styles-compressed/commerce-c6a9de0bd3119cb26a512448db40c590-min.en-US.css" />
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/performance-e8f0bc9aa26cee507ecf9-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-performance');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/performance-e8f0bc9aa26cee507ecf9-min.en-US.js" defer="defer"></script>
+        <script data-name="static-context">
+        <![CDATA[
+        Static = window.Static || {}; Static.SQUARESPACE_CONTEXT = {"facebookAppId":"314192535267336","facebookApiVersion":"v6.0","rollups":{"squarespace-announcement-bar":{"js":"//assets.squarespace.com/universal/scripts-compressed/announcement-bar-8b244fce99594deac3684-min.en-US.js"},"squarespace-audio-player":{"css":"//assets.squarespace.com/universal/styles-compressed/audio-player-03a5305221e9f3857f5d3fbff2cd9bbe-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/audio-player-d1a0b8c7c79653250184a-min.en-US.js"},"squarespace-blog-collection-list":{"css":"//assets.squarespace.com/universal/styles-compressed/blog-collection-list-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/blog-collection-list-ab4142fcacca918cf4e2d-min.en-US.js"},"squarespace-calendar-block-renderer":{"css":"//assets.squarespace.com/universal/styles-compressed/calendar-block-renderer-1e8a762808391e4b0bd8945da50793ac-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/calendar-block-renderer-82b361c64e6e75913711e-min.en-US.js"},"squarespace-chartjs-helpers":{"css":"//assets.squarespace.com/universal/styles-compressed/chartjs-helpers-9935a41d63cf08ca108505d288c1712e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/chartjs-helpers-270e1573dd28dff07fc7c-min.en-US.js"},"squarespace-comments":{"css":"//assets.squarespace.com/universal/styles-compressed/comments-f794dccd3bb871fc0cbc0bb7ad024168-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/comments-1b8d1adb275f098d8dc6d-min.en-US.js"},"squarespace-commerce-cart":{"js":"//assets.squarespace.com/universal/scripts-compressed/commerce-cart-a4a2a3b044157a8a4b727-min.en-US.js"},"squarespace-dialog":{"css":"//assets.squarespace.com/universal/styles-compressed/dialog-4c984bcaacc45888f9092057493234b6-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/dialog-28ec957fa9d602710ab4d-min.en-US.js"},"squarespace-events-collection":{"css":"//assets.squarespace.com/universal/styles-compressed/events-collection-1e8a762808391e4b0bd8945da50793ac-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/events-collection-415312b37ef6978cf711b-min.en-US.js"},"squarespace-form-rendering-utils":{"js":"//assets.squarespace.com/universal/scripts-compressed/form-rendering-utils-29a6c3b96dfbbbec60b47-min.en-US.js"},"squarespace-forms":{"css":"//assets.squarespace.com/universal/styles-compressed/forms-763d974ea7719bb18959e8f0a891abe6-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/forms-a81645247e8ccf3de32dc-min.en-US.js"},"squarespace-gallery-collection-list":{"css":"//assets.squarespace.com/universal/styles-compressed/gallery-collection-list-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/gallery-collection-list-5d5ff461e8bba64f298dc-min.en-US.js"},"squarespace-image-zoom":{"css":"//assets.squarespace.com/universal/styles-compressed/image-zoom-72b0ab7796582588032aa6472e2e2f14-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/image-zoom-f7178bbfa97ac5234c120-min.en-US.js"},"squarespace-pinterest":{"css":"//assets.squarespace.com/universal/styles-compressed/pinterest-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/pinterest-9dd1acd10aa47a7154983-min.en-US.js"},"squarespace-popup-overlay":{"css":"//assets.squarespace.com/universal/styles-compressed/popup-overlay-68d60e7bd84500af34df575998cc00d0-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/popup-overlay-7a6d2536f626e13904cc1-min.en-US.js"},"squarespace-product-quick-view":{"css":"//assets.squarespace.com/universal/styles-compressed/product-quick-view-eedd090fe95cd960919fcf1e0a4293c3-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/product-quick-view-43f6f7434d438b766dbc6-min.en-US.js"},"squarespace-products-collection-item-v2":{"css":"//assets.squarespace.com/universal/styles-compressed/products-collection-item-v2-72b0ab7796582588032aa6472e2e2f14-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/products-collection-item-v2-2b78fe39c790620675609-min.en-US.js"},"squarespace-products-collection-list-v2":{"css":"//assets.squarespace.com/universal/styles-compressed/products-collection-list-v2-72b0ab7796582588032aa6472e2e2f14-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/products-collection-list-v2-0f57d23347251b2736f90-min.en-US.js"},"squarespace-search-page":{"css":"//assets.squarespace.com/universal/styles-compressed/search-page-207da8872118254c0a795bf9b187c205-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/search-page-ac207ca39a69cb84f84f0-min.en-US.js"},"squarespace-search-preview":{"js":"//assets.squarespace.com/universal/scripts-compressed/search-preview-638ba2bf8ec524b820947-min.en-US.js"},"squarespace-share-buttons":{"js":"//assets.squarespace.com/universal/scripts-compressed/share-buttons-32cc08f2dd7137611cfc4-min.en-US.js"},"squarespace-simple-liking":{"css":"//assets.squarespace.com/universal/styles-compressed/simple-liking-9ef41bf7ba753d65ec1acf18e093b88a-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/simple-liking-146a4d691830282d9ce5a-min.en-US.js"},"squarespace-social-buttons":{"css":"//assets.squarespace.com/universal/styles-compressed/social-buttons-bf7788a87c794b73afd9d5c49f72f4f3-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/social-buttons-aa06a0ebdaa97ed82d7ae-min.en-US.js"},"squarespace-tourdates":{"css":"//assets.squarespace.com/universal/styles-compressed/tourdates-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/tourdates-ee4869629f6a684b35f94-min.en-US.js"},"squarespace-website-overlays-manager":{"css":"//assets.squarespace.com/universal/styles-compressed/website-overlays-manager-4f212ab97f9bc590002bb2ff55f69409-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/website-overlays-manager-619ffedf63c2b43f6fc93-min.en-US.js"}},"pageType":50,"website":{"id":"5446f93de4b0a3452dfaf5b0","identifier":"aboveavalon","websiteType":1,"contentModifiedOn":1611301750554,"cloneable":false,"hasBeenCloneable":false,"siteStatus":{},"language":"en-US","timeZone":"America/New_York","machineTimeZoneOffset":-18000000,"timeZoneOffset":-18000000,"timeZoneAbbr":"EST","siteTitle":"Above Avalon","fullSiteTitle":"Above Avalon: Apple Watch Momentum Is Building ","siteTagLine":"","siteDescription":"","location":{"mapZoom":12.0,"mapLat":40.7207559,"mapLng":-74.0007613},"logoImageId":"562d1ddfe4b00876a04c8c35","socialLogoImageId":"5877e7359de4bb8bce71f8a6","shareButtonOptions":{"1":true,"6":true,"8":true,"4":true,"2":true,"3":true},"logoImageUrl":"//static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/t/562d1ddfe4b00876a04c8c35/1611301750554/","socialLogoImageUrl":"//static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/t/5877e7359de4bb8bce71f8a6/1611301750554/","authenticUrl":"https://www.aboveavalon.com","internalUrl":"https://aboveavalon.squarespace.com","baseUrl":"https://www.aboveavalon.com","primaryDomain":"www.aboveavalon.com","sslSetting":3,"isHstsEnabled":false,"socialAccounts":[{"serviceId":4,"userId":"2873457145","userName":"AboveAvalon","screenname":"Above Avalon ","addedOn":1415042691756,"profileUrl":"https://twitter.com/AboveAvalon","iconUrl":"http://pbs.twimg.com/profile_images/529288173315059713/5vWIJ5df_normal.png","collectionId":"5457d683e4b06f5c9cf7b5c0","iconEnabled":true,"serviceName":"twitter"},{"serviceId":2,"userId":"100008419200718","screenname":"Above Avalon","addedOn":1414117961998,"profileUrl":"https://www.facebook.com/pages/Above-Avalon/425453764279180?ref=aymt_homepage_panel","iconUrl":"http://graph.facebook.com/100008419200718/picture?type=square","metaData":{"service":"facebook"},"iconEnabled":true,"serviceName":"facebook"},{"serviceId":10,"userId":"22358730","userName":"sammythewalrusiv","screenname":"Sammy the Walrus IV","addedOn":1415621601668,"profileUrl":"https://instagram.com/neil.cybart/","iconUrl":"http://images.ak.instagram.com/profiles/profile_22358730_75sq_1364932132.jpg","collectionId":"5460abe1e4b042c56b5e4c93","iconEnabled":true,"serviceName":"instagram"}],"typekitId":"","statsMigrated":false,"imageMetadataProcessingEnabled":true,"screenshotId":"10d6a78f0325e29dcbcfeb1a618d93eeed6951254b866a2ca7de07f56903b0a8","showOwnerLogin":false},"websiteSettings":{"id":"5446f93de4b0a3452dfaf5b1","websiteId":"5446f93de4b0a3452dfaf5b0","type":"Personal","subjects":[],"country":"US","state":"CT","simpleLikingEnabled":false,"mobileInfoBarSettings":{"style":1,"isContactEmailEnabled":true,"isContactPhoneNumberEnabled":true,"isLocationEnabled":true,"isBusinessHoursEnabled":true},"announcementBarSettings":{"style":1,"text":"<p>Test&nbsp;</p>"},"commentLikesAllowed":true,"commentAnonAllowed":true,"commentThreaded":true,"commentApprovalRequired":false,"commentAvatarsOn":true,"commentSortType":1,"commentFlagThreshold":2,"commentFlagsAllowed":true,"commentEnableByDefault":true,"commentDisableAfterDaysDefault":0,"disqusShortname":"","commentsEnabled":false,"contactPhoneNumber":"","storeSettings":{"returnPolicy":null,"termsOfService":null,"privacyPolicy":null,"orderRefundedSubjectFormat":"%s: Order #%o Refunded","orderRefundedTitleFormat":"Order Refunded: #%o","expressCheckout":false,"continueShoppingLinkUrl":"/","useLightCart":false,"showNoteField":false,"shippingCountryDefaultValue":"US","billToShippingDefaultValue":false,"showShippingPhoneNumber":true,"isShippingPhoneRequired":false,"showBillingPhoneNumber":true,"isBillingPhoneRequired":false,"currenciesSupported":["USD"],"defaultCurrency":"USD","selectedCurrency":"USD","measurementStandard":1,"orderConfirmationInjectCode":"","showCustomCheckoutForm":false,"enableMailingListOptInByDefault":true,"sameAsRetailLocation":false,"merchandisingSettings":{"scarcityEnabledOnProductItems":false,"scarcityEnabledOnProductBlocks":false,"scarcityMessageType":"DEFAULT_SCARCITY_MESSAGE","scarcityThreshold":10,"multipleQuantityAllowedForServices":true,"restockNotificationsEnabled":false,"restockNotificationsMailingListSignUpEnabled":false,"relatedProductsEnabled":false,"relatedProductsOrdering":"random","soldOutVariantsDropdownDisabled":false,"productComposerOptedIn":false,"productComposerABTestOptedOut":false},"isLive":false,"multipleQuantityAllowedForServices":true},"useEscapeKeyToLogin":false,"ssBadgeType":1,"ssBadgePosition":4,"ssBadgeVisibility":1,"ssBadgeDevices":1,"pinterestOverlayOptions":{"mode":"disabled","size":"small","shape":"rect","color":"white"},"ampEnabled":false},"cookieSettings":{"isCookieBannerEnabled":false,"isRestrictiveCookiePolicyEnabled":false,"isRestrictiveCookiePolicyAbsolute":false,"cookieBannerText":"","cookieBannerTheme":"","cookieBannerVariant":"","cookieBannerPosition":"","cookieBannerCtaVariant":"","cookieBannerCtaText":""},"websiteCloneable":false,"collection":{"title":"Weekly Articles","id":"5457bb30e4b087fea5cb1c54","fullUrl":"/","type":1,"permissionType":1},"item":{"title":"Apple Watch Momentum Is Building ","id":"5f74e65f21abae74c7a3d26f","fullUrl":"/notes/2020/9/30/apple-watch-momentum-is-building","publicCommentCount":0,"commentState":2,"recordType":1},"subscribed":false,"appDomain":"squarespace.com","templateTweakable":true,"tweakJSON":{"gallery-style":"Fit","galleryPadding":"85px","product-gallery-auto-crop":"true","product-image-auto-crop":"true","thumbnail-aspect-ratio":"Auto","thumbnailWidth":"500px","tweak-v1-related-products-title-spacing":"50px"},"templateId":"4f9adc1524ac5df956fdf98f","templateVersion":"7","pageFeatures":[1,2,4],"gmRenderKey":"QUl6YVN5Q0JUUk9xNkx1dkZfSUUxcjQ2LVQ0QWVUU1YtMGQ3bXk4","templateScriptsRootUrl":"https://static1.squarespace.com/static/ta/4f9adbe124ac5df956fdf900/864/scripts/","betaFeatureFlags":["dg_downloads_from_fastly","seven_one_image_effects","animations_august_2020_new_preset","domain_info_via_registrar_service","commerce_reduce_cart_calculations","commerce_instagram_product_checkout_links","campaigns_new_subscriber_search","commerce_afterpay_toggle","ORDER_SERVICE-submit-reoccurring-subscription-order-through-service","seven-one-main-content-preview-api","seven-one-content-preview-section-api","commerce_pdp_survey_modal","campaigns_user_templates_in_sidebar","seven-one-menu-overlay-theme-switcher","donations_customer_accounts","seven_one_frontend_render_page_section","commerce_minimum_order_amount","domains_use_new_domain_connect_strategy","commerce_afterpay","commerce_pdp_edit_mode","domains_allow_async_gsuite","commerce_category_id_discounts_enabled","commerce-recaptcha-enterprise","seven_one_frontend_render_gallery_section","domain_locking_via_registrar_service","member_areas_discounts","domains_transfer_flow_improvements","newsletter_block_captcha","list_sent_to_groups","seven_one_header_editor_update","commerce_restock_notifications","commerce_add_to_cart_rate_limiting","commerce_setup_wizard","local_listings","ORDERS-SERVICE-check-digital-good-access-with-service","generic_iframe_loader_for_campaigns","domain_deletion_via_registrar_service","campaigns_email_reuse_template_flow","commerce_subscription_order_delay","domains_universal_search","events_panel_70","commerce_orders_elasticsearch_migration","omit_tweakengine_tweakvalues","campaigns_new_sender_profile_page","commerce_pdp_layout_catalog","crm_campaigns_sending","member_areas_ga","ORDERS-SERVICE-reset-digital-goods-access-with-service","commerce_tax_panel_v2","commerce_activation_experiment_add_payment_processor_card","domains_transfer_flow_hide_preface","campaigns_single_opt_in","customer_notifications_panel_v2","ORDER_SERVICE-submit-subscription-order-through-service","seven_one_portfolio_hover_layouts","gallery_captions_71","seven_one_image_overlay_opacity","nested_categories_migration_enabled"],"impersonatedSession":false,"tzData":{"zones":[[-300,"US","E%sT",null]],"rules":{"US":[[1967,2006,null,"Oct","lastSun","2:00","0","S"],[1987,2006,null,"Apr","Sun>=1","2:00","1:00","D"],[2007,"max",null,"Mar","Sun>=8","2:00","1:00","D"],[2007,"max",null,"Nov","Sun>=1","2:00","0","S"]]}}};
+        ]]>
+        </script>
+        <script type="text/javascript">
+        //<![CDATA[
+        SquarespaceFonts.loadViaContext(); Squarespace.load(window);
+        //]]>
+        </script>
+        <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://www.aboveavalon.com/notes?format=rss" />
+        <script type="application/ld+json">
+        <![CDATA[
+        {"url":"https://www.aboveavalon.com","name":"Above Avalon","description":"","image":"//static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/t/562d1ddfe4b00876a04c8c35/1611301750554/","@context":"http://schema.org","@type":"WebSite"}
+        ]]>
+        </script>
+        <script type="application/ld+json">
+        <![CDATA[
+        {"name":"Above Avalon: Apple Watch Momentum Is Building ","url":"https://www.aboveavalon.com/notes/2020/9/30/apple-watch-momentum-is-building","datePublished":"2020-09-30T17:44:39-0400","headline":"Apple Watch Momentum Is Building ","author":"Neil Cybart","publisher":{"name":"Above Avalon","logo":{"@type":"ImageObject","url":"https://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/t/562d1ddfe4b00876a04c8c35/1611301750554/"},"@context":"http://schema.org","@type":"Organization"},"image":"http://static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/5457bb30e4b087fea5cb1c54/5f74e65f21abae74c7a3d26f/1602274812639/Screen+Shot+2020-09-30+at+5.23.23+PM.png?format=1500w","@context":"http://schema.org","@type":"Article"}
+        ]]>
+        </script>
+        <link rel="stylesheet" type="text/css" href="//static1.squarespace.com/static/sitecss/5446f93de4b0a3452dfaf5b0/266/4f9adc1524ac5df956fdf98f/545826c4e4b04f6a72ad74f2/864-05142015/1607038200898/site.css?&amp;filterFeatures=false" />
+        <script>
+        <![CDATA[
+        Static.COOKIE_BANNER_CAPABLE = true;
+        ]]>
+        </script> 
+        <script>
+        <![CDATA[
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', 'UA-56323297-1', 'auto');ga('send', 'pageview');
+        ]]>
+        </script><!-- End of Squarespace Headers -->
+        <div id="canvasWrapper">
+            <div id="canvas">
+                <div id="mobileNav">
+                    <div class="wrapper">
+                        <nav class="main-nav mobile-nav">
+                            <ul>
+                                <li class="page-collection">
+                                    <a href="/about">About</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/articles">Free Articles</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/talkaboveavalon">Free Podcast</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/membership">Membership</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/dailyupdates">Daily Updates</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/aboveavalondaily">Daily Podcast</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/reports">Reports</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/contact">Contact</a>
+                                </li>
+                                <li class="page-collection">
+                                    <a href="/archives">Archives</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <nav class="main-nav mobile-nav">
+                            <ul>
+                                <li class="page-collection">
+                                    <a href="/member-portal">Members Area</a>
+                                </li>
+                                <li class="external-link">
+                                    <a href="https://aboveavalon.slack.com/">Member Login</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div id="headerWrapper">
+                    <header id="header">
+                        <div id="topNavMobile">
+                            <nav id="mobileMenuLink" class="main-nav clear">
+                                <ul>
+                                    <li class="active-link">
+                                        <a>Menu</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div id="logo" data-content-field="site-title">
+                            <h1 class="logo image" data-shrink-original-size="22" style="letter-spacing: 0.0454545em;">
+                                <a href="/"><img src="//static1.squarespace.com/static/5446f93de4b0a3452dfaf5b0/t/562d1ddfe4b00876a04c8c35/1611301750554/?format=750w" alt="Above Avalon" /></a>
+                            </h1>
+                        </div>
+                        <script>
+                        <![CDATA[
+                        Y.use('squarespace-ui-base', function(Y) {
+                        Y.one("h1.logo").plug(Y.Squarespace.TextShrink);
+                        });
+                        ]]>
+                        </script>
+                        <div id="topNav" data-content-field="navigation"></div>
+                    </header>
+                </div>
+                <div id="pageWrapper" class="hfeed" role="main">
+                    <!-- CATEGORY NAV -->
+                    <section id="page" style="min-height: 1768px;">
+                        <div class="main-content" data-content-field="main-content" id="yui_3_17_2_1_1611755206508_117">
+                            <article class="hentry tag-apple-watch tag-apple-watch-unit-sales tag-apple-watch-installed-base tag-how-many-people-wear-an-apple-watch tag-above-avalon tag-apples-wearables-strategy tag-the-grand-unified-theory-of-apple-products tag-apple-product-strategy tag-tim-cook tag-jony-ive tag-a-stationary-smart-speaker-mirage tag-amazon tag-apple-watch-adoption author-neil-cybart post-type-text" id="article-5f74e65f21abae74c7a3d26f" data-item-id="5f74e65f21abae74c7a3d26f">
+                                <!--SPECIAL CONTENT-->
+                                <!--POST HEADER-->
+                                <header>
+                                    <h1 class="entry-title">
+                                        <a href="/notes/2020/9/30/apple-watch-momentum-is-building">Apple Watch Momentum Is Building</a>
+                                    </h1>
+                                    <div class="entry-info">
+                                        <span class="published"><a href="/notes/2020/9/30/apple-watch-momentum-is-building" title="Permalink" class="permalink"><time datetime="2020-09-30">September 30, 2020</time></a></span>
+                                    </div>
+                                </header><!--POST BODY-->
+                                <div class="body entry-content" id="yui_3_17_2_1_1611755206508_116">
+                                    <div class="sqs-layout sqs-grid-12 columns-12" data-layout-label="Post Body" data-type="item" data-updated-on="1601496935906" id="item-5f74e65f21abae74c7a3d26f">
+                                        <div class="row sqs-row" id="yui_3_17_2_1_1611755206508_115">
+                                            <div class="col sqs-col-12 span-12" id="yui_3_17_2_1_1611755206508_114">
+                                                <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-97e2b81660fab5135973">
+                                                    <div class="sqs-block-content">
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            In a few months, the number of people wearing an Apple Watch will surpass 100 million. While the tech press spent years infatuated with stationary smart speakers and the idea of voice-only interfaces, it was the Apple Watch and utility on the wrist that ushered in a new paradigm shift in computing. We are now seeing Apple leverage the growing number of Apple Watch wearers to build a formidable health platform. The Apple Watch is a runaway train with no company in a position to slow it down.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>Mirages and Head Fakes</strong>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            We are coming off&#160;of&#160;a weird stretch for the tech industry. As smartphone sales growth slowed in the mid-2010s, companies, analysts, and pundits began to search for the next big thing. The search landed on stationary smart speakers and voice interfaces.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Companies who weren’t able to leverage the smartphone revolution with their own hardware placed massive bets on digital voice assistants&#160;that would supposedly usher&#160;in the end of the smartphone era. These digital voice assistants would be delivered to consumers via cheap stationary speakers placed in the home. Massive PR campaigns were launched&#160;that attempted&#160;to convince people about this post-smartphone future. Unfortunately for these companies, glowing press coverage cannot hide a product category’s fundamental design shortcomings.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            At nearly every turn, Apple was said to be missing the voice train because of a dependency on iPhone revenue. Management was said to suffer from tunnel vision while the company’s approach to privacy was positioned as a long-term headwind that would lead to inferior results in AI relative to the competition. Simply put, Apple was viewed as losing control of where technology was headed following the mobile revolution.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            There were glaring signs that narratives surrounding smart speakers and Apple lacking a coherent strategy for the future were off the mark. In November 2017, I wrote the following in an article titled, “<a href="https://www.aboveavalon.com/notes/2017/11/30/a-stationary-smart-speaker-mirage">A Stationary Smart Speaker Mirage</a>”:
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>“On the surface, Amazon Echo sales point to a burgeoning product category. A 15M+ annual sales pace for a product category that is only three years old is quite the accomplishment. This has led to prognostications of stationary smart speakers representing a new paradigm in technology. However, relying too much on Echo sales will lead to incomplete or faulty conclusions. The image portrayed by Echo sales isn't what it seems.&#160;In fact, it is only a matter of time before it becomes clear the stationary home speaker is shaping up to be one of the largest head fakes in tech. We are already starting to see early signs of disappointment begin to appear…</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>I don’t think stationary smart speakers represent the future of computing. Instead, companies are using smart speakers to take advantage of an awkward phase of technology in which there doesn’t seem to be any clear direction as to where things are headed. Consumers are buying cheap smart speakers powered by digital voice assistants without having any strong convictions regarding how such voice assistants should or can be used. The major takeaway from customer surveys regarding smart&#160;speaker&#160;usage is that there isn’t any clear trend. If anything, smart speakers are being used for rudimentary tasks that can just as easily be done with digital voice assistants found on smartwatches or smartphones. This environment paints a very different picture of the current health of the smart speaker market. The narrative in the press is simply too rosy and optimistic.</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>Ultimately, smart speakers end up competing with a seemingly unlikely product category: wearables.”</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Three years later, I wouldn’t change one thing found in the preceding three paragraphs.&#160;The smart speaker bubble popped less than 12 months after publishing that article. The product category no longer has a buzz factor, and despite the hopes of Amazon and Google, people are not using stationary speakers for much else besides listening to music and rudimentary tasks like setting kitchen timers.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            The primary problem found with voice is that it’s not a great medium for transferring a lot of data, information, and context. As a result, companies like Amazon have needed to dial back their grandiose vision for voice-first and voice-only paradigms. <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/9/28/amazons-new-products-amazons-declining-hardware-goodwill-the-battle-for-the-home">Last week’s Amazon hardware event highlighted a growing bet on screens</a> – a complete reversal from the second half of the 2010s.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>Betting on the Wrist&#160;</strong>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            As companies who missed the smartphone boat were placing bets on stationary speakers, Apple was placing a dramatically different bet on a small device with a screen. This device wouldn’t be stationary but instead push the definition of mobile by being worn on the wrist.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Jony Ive, who is credited with leading Apple’s push into wrist wearables, <a href="https://www.newyorker.com/magazine/2015/02/23/shape-things-come">referred to the wrist</a> as <em>“the obvious and right place”</em> for a different kind of computer.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            When Apple unveiled the Apple Watch in 2014, wearable computing on the wrist was more of a promise than anything else. Apple created&#160;an entirely new industry – something that isn’t found much in the traditional Apple playbook.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            After years of deep skepticism and cynicism, consensus reaction towards Apple Watch has changed and is now positive. Much of this is due to the fact that it’s impossible to miss Apple Watches appearing on wrists around the world. According to my estimates, <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/9/23/thoughts-on-iphone-widgets-iphone-widgets-vs-apple-watch-apple-watch-adoption-estimates">approximately 35% of iPhone users in the U.S. now wear an Apple Watch</a>. This is a shockingly high percentage for a five-year-old&#160;product category,&#160;and&#160;it&#160;says a lot about how Apple’s intuition about the wrist was right.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>Apple Watch Installed Base&#160;</strong>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            The number of people wearing an Apple Watch continues to steadily increase. <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/9/10/the-number-of-apple-watch-wearers-softbanks-big-bet-on-tech-stocks-gm-partners-with-nikola">According to my estimate, there were 81 million&#160;people&#160;wearing an Apple Watch&#160;as of the end of June</a>. According to Apple, 75% of Apple Watch sales are going to first-time customers. This means that 23 million people will have bought their first Apple Watch&#160;in 2020. To put that number in context, there are about 25 million people wearing a&#160;Fitbit.&#160;The Apple Watch installed base is increasing by the size of Fitbit’s overall installed base every 12 months.&#160;Exhibit 1 highlights the change in the Apple Watch installed base over the years.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>Exhibit 1: Apple Watch Installed Base (number of people wearing an Apple Watch)</strong>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="sqs-block image-block sqs-block-image sqs-text-ready" data-block-type="5" id="block-yui_3_17_2_1_1601496656493_21503">
+                                                    <div class="sqs-block-content" id="yui_3_17_2_1_1611755206508_113">
+                                                        <div class="image-block-outer-wrapper layout-caption-below design-layout-inline combination-animation-none individual-animation-none individual-text-animation-none" data-test="image-block-inline-outer-wrapper" id="yui_3_17_2_1_1611755206508_112">
+                                                            <figure class="sqs-block-image-figure intrinsic" style="max-width:1928.0px;" id="yui_3_17_2_1_1611755206508_111">
+                                                                <button class="sqs-block-image-button lightbox" data-description="" data-lightbox-theme="dark" id="yui_3_17_2_1_1611755206508_110"><span class="v6-visually-hidden">View fullsize</span></button>
+                                                                <div style="padding-bottom: 56.5353%; overflow: hidden;" class="image-block-wrapper has-aspect-ratio" data-animation-role="image" id="yui_3_17_2_1_1611755206508_109">
+                                                                    <button class="sqs-block-image-button lightbox" data-description="" data-lightbox-theme="dark" id="yui_3_17_2_1_1611755206508_110"><noscript><img src="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601503331287-7RZMPL0P3XT26HSYW2PM/ke17ZwdGBToddI8pDm48kHcGqbMF45vlywWRsFwnaVR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UaZ2-FSNrAucjbS64-gnZlYgEPKXZhIlV6X43N9eVyPBm7cT0R_dexc_UL_zbpz6JQ/Apple+Watch+Installed+Base+%28Above+Avalon%29" alt="Apple Watch Installed Base (Above Avalon)" /></noscript><img class="thumb-image loaded" data-src="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601503331287-7RZMPL0P3XT26HSYW2PM/ke17ZwdGBToddI8pDm48kHcGqbMF45vlywWRsFwnaVR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UaZ2-FSNrAucjbS64-gnZlYgEPKXZhIlV6X43N9eVyPBm7cT0R_dexc_UL_zbpz6JQ/Apple+Watch+Installed+Base+%28Above+Avalon%29" data-image="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601503331287-7RZMPL0P3XT26HSYW2PM/ke17ZwdGBToddI8pDm48kHcGqbMF45vlywWRsFwnaVR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UaZ2-FSNrAucjbS64-gnZlYgEPKXZhIlV6X43N9eVyPBm7cT0R_dexc_UL_zbpz6JQ/Apple+Watch+Installed+Base+%28Above+Avalon%29" data-image-dimensions="1928x1090" data-image-focal-point="0.5,0.5" data-load="false" data-image-id="5f7500624641c65f20701614" data-type="image" alt="Apple Watch Installed Base (Above Avalon)" style="left: -0.0386287%; top: 0%; width: 100.077%; height: 100%; position: absolute;" data-image-resolution="1000w" src="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601503331287-7RZMPL0P3XT26HSYW2PM/ke17ZwdGBToddI8pDm48kHcGqbMF45vlywWRsFwnaVR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1UaZ2-FSNrAucjbS64-gnZlYgEPKXZhIlV6X43N9eVyPBm7cT0R_dexc_UL_zbpz6JQ/Apple+Watch+Installed+Base+%28Above+Avalon%29?format=1000w" /></button>
+                                                                </div><button class="sqs-block-image-button lightbox" data-description="" data-lightbox-theme="dark" id="yui_3_17_2_1_1611755206508_110"></button>
+                                                            </figure>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-yui_3_17_2_1_1601497919848_6009">
+                                                    <div class="sqs-block-content">
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>(The calculations and methodology used to reach my Apple Watch installed base estimates is available</em> <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/9/10/the-number-of-apple-watch-wearers-softbanks-big-bet-on-tech-stocks-gm-partners-with-nikola"><em>here</em></a> <em>for Above Avalon members.)</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>Deriving Power</strong>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            From&#160;where is Apple Watch deriving its momentum? The answer is found in The Grand Unified Theory of Apple Products.&#160;
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="row sqs-row" id="yui_3_17_2_1_1611755206508_145">
+                                                    <div class="col sqs-col-1 span-1"></div>
+                                                    <div class="col sqs-col-9 span-9" id="yui_3_17_2_1_1611755206508_144">
+                                                        <div class="sqs-block image-block sqs-block-image sqs-text-ready" data-block-type="5" id="block-yui_3_17_2_1_1601497356498_23113">
+                                                            <div class="sqs-block-content" id="yui_3_17_2_1_1611755206508_143">
+                                                                <div class="image-block-outer-wrapper layout-caption-below design-layout-inline combination-animation-none individual-animation-none individual-text-animation-none" data-test="image-block-inline-outer-wrapper" id="yui_3_17_2_1_1611755206508_142">
+                                                                    <figure class="sqs-block-image-figure intrinsic" style="max-width:1774.0px;" id="yui_3_17_2_1_1611755206508_141">
+                                                                        <button class="sqs-block-image-button lightbox" data-description="" data-lightbox-theme="dark" id="yui_3_17_2_1_1611755206508_140"><span class="v6-visually-hidden">View fullsize</span></button>
+                                                                        <div style="padding-bottom: 109.132%; overflow: hidden;" class="image-block-wrapper has-aspect-ratio" data-animation-role="image" id="yui_3_17_2_1_1611755206508_139">
+                                                                            <button class="sqs-block-image-button lightbox" data-description="" data-lightbox-theme="dark" id="yui_3_17_2_1_1611755206508_140"><noscript><img src="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601497689595-TLHGYI10XZ5LT7N7KFUK/ke17ZwdGBToddI8pDm48kIwk48pS_D3V01G02IYvFnV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URXz3wnigOGf2UwKQWypmFO3jTDBiErN2R-MkRJJMM9_OpYghpI-Ha_TwZsqqmJXng/The+Grand+Unified+Theory+of+Apple+Products+%28Above+Avalon%29" alt="The Grand Unified Theory of Apple Products (Above Avalon)" /></noscript><img class="thumb-image loaded" data-src="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601497689595-TLHGYI10XZ5LT7N7KFUK/ke17ZwdGBToddI8pDm48kIwk48pS_D3V01G02IYvFnV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URXz3wnigOGf2UwKQWypmFO3jTDBiErN2R-MkRJJMM9_OpYghpI-Ha_TwZsqqmJXng/The+Grand+Unified+Theory+of+Apple+Products+%28Above+Avalon%29" data-image="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601497689595-TLHGYI10XZ5LT7N7KFUK/ke17ZwdGBToddI8pDm48kIwk48pS_D3V01G02IYvFnV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URXz3wnigOGf2UwKQWypmFO3jTDBiErN2R-MkRJJMM9_OpYghpI-Ha_TwZsqqmJXng/The+Grand+Unified+Theory+of+Apple+Products+%28Above+Avalon%29" data-image-dimensions="1774x1936" data-image-focal-point="0.5,0.5" data-load="false" data-image-id="5f74ea522ac6695716b890ee" data-type="image" alt="The Grand Unified Theory of Apple Products (Above Avalon)" style="left: 0%; top: -0.024275%; width: 100%; height: 100.049%; position: absolute;" data-image-resolution="1000w" src="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601497689595-TLHGYI10XZ5LT7N7KFUK/ke17ZwdGBToddI8pDm48kIwk48pS_D3V01G02IYvFnV7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1URXz3wnigOGf2UwKQWypmFO3jTDBiErN2R-MkRJJMM9_OpYghpI-Ha_TwZsqqmJXng/The+Grand+Unified+Theory+of+Apple+Products+%28Above+Avalon%29?format=1000w" /></button>
+                                                                        </div><button class="sqs-block-image-button lightbox" data-description="" data-lightbox-theme="dark" id="yui_3_17_2_1_1611755206508_140"></button>
+                                                                    </figure>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col sqs-col-2 span-2"></div>
+                                                </div>
+                                                <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-yui_3_17_2_1_1601497356498_23414">
+                                                    <div class="sqs-block-content">
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            One of the core tenets of my theory is that an Apple product category's design is tied to the role it is meant to play relative to other Apple products. The Apple Watch is designed to handle a growing number of tasks once given to the iPhone. Meanwhile, the iPhone is designed to handle a growing number of tasks given to the iPad. One can continue this exercise to cover all of Apple's major product categories.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Apple Watch is&#160;not&#160;an iPhone replacement because there are things done on an iPhone that can't be done on an Apple Watch. This ends up being a feature, not a bug. The Apple Watch’s design then allows the product to handle entirely new tasks that can’t be handled on an iPhone. This latter attribute goes a long way in explaining <a href="https://www.aboveavalon.com/notes/2020/2/5/apple-watch-and-a-paradigm-shift-in-computing">how Apple Watch has helped usher in a new paradigm shift in computing</a>. Apple Watch wearers are able to interact with technology&#160;differently.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            (<em>More on The Grand Unified Theory of Apple Products is found in the Above Avalon Report, “Product Vision: How Apple Thinks About the World,”&#160;</em><a href="https://www.aboveavalon.com/reports-archive/2019/4/15/product-vision-how-apple-thinks-about-the-world" target="_blank"><em>available here</em></a><em>&#160;for Above Avalon members.)</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>A Health Platform</strong>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            In January 2019, Tim Cook surprised many by saying Apple will&#160;be&#160;remembered more for its contributions to health than&#160;for&#160;any other&#160;reason. <a href="https://www.cnbc.com/2019/01/08/tim-cook-teases-new-apple-services-tied-to-health-care.html">Here’s Cook:</a>&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>“I believe, if you zoom out into the future, and you look back, and you ask the question, ‘What was Apple’s greatest contribution to mankind?’ it will be about health.”</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Many assumed that Cook’s comment hinted at Apple unveiling a portfolio of medical-grade devices that would go through the FDA approval process. Such thinking was based on a fundamental misunderstanding of Apple’s ambition and approach to product development.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Apple’s health strategy is based on leveraging hardware, software, and services to rethink the way we approach health. This means Apple wasn’t&#160;going to just launch&#160;a depository for our health data – something that is needed but which ultimately falls short of being truly revolutionary. In addition, Apple wasn’t going to just offer health and fitness services that amount to counting steps or keeping track of miles run.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            By the time Cook gave his bullish comment about health, Apple had already placed its big bet on health four years earlier by unveiling the Apple Watch. In what ended up being one of Apple’s best decisions, the company avoided going the route of medical-grade devices requiring government agency approval to reach consumers. Instead, Apple framed its health platform as a new-age computer that ultimately is an iPhone alternative.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            Health monitoring is one of&#160;the&#160;key new tasks that the Apple Watch, not iPhone, handles. To be more precise, Apple Watch is handling the following four health-related items:&#160;
+                                                        </p>
+                                                        <ol data-rte-list="default">
+                                                            <li>
+                                                                <p class="" style="white-space:pre-wrap;">
+                                                                    Proactive monitoring (i.e. heart rate and blood oxygen)
+                                                                </p>
+                                                            </li>
+                                                            <li>
+                                                                <p class="" style="white-space:pre-wrap;">
+                                                                    Well-being assistance (i.e. sleep monitoring including the runup to sleep)
+                                                                </p>
+                                                            </li>
+                                                            <li>
+                                                                <p class="" style="white-space:pre-wrap;">
+                                                                    Fitness and activity tracking (i.e. Activity and Workout apps)
+                                                                </p>
+                                                            </li>
+                                                            <li>
+                                                                <p class="" style="white-space:pre-wrap;">
+                                                                    Fitness and health activity (i.e. Apple Fitness+)
+                                                                </p>
+                                                            </li>
+                                                        </ol>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            With Apple Fitness+, Apple didn’t just release a virtual fitness class service. Instead, <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/9/18/apples-time-flies-event-review-consolidated">Apple Fitness+ is an Apple Watch service</a>.&#160;&#160;In some ways, Apple Fitness+ reminds me of Apple TV+. A future&#160;in which&#160;Fitness+ workouts are available on third-party gym equipment displays including on treadmills and stationary bikes is not a stretch. In addition, <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/9/24/nike-earnings-the-similarity-between-nike-and-apple-a-stronger-apple-and-nike-partnership">classes from other companies&#160;such as&#160;Nike could further elevate Apple Fitness</a>+.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <strong>Competition</strong>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            If the Apple Watch is a runaway train, there is no obvious candidate in a position to stop or even slow the train. While other companies are slowly waking up and seeing the momentum found with Apple Watch, there is still much indifference, mystery, and misunderstanding as to why people are buying wearables. Too many companies still think of wearables as glorified smartphone accessories. Such thinking makes it impossible for competitors to see how Apple Watch is ushering in a paradigm shift in computing&#160;by making technology more personal in a way that other devices have failed to accomplish or replicate.
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            One of the main takeaways from Apple’s product event earlier this month is how Apple is its own toughest competitor. The Apple Watch’s most legitimate competition&#160;is&#160;found with older Apple Watches and non-consumption (i.e. empty wrists). While this introduces its own set of risks and challenges, there&#160;is still no genuine Apple Watch competition from other companies after six years. This&#160;is an indication of the power found&#160;in&#160;controlling your own hardware, software, and services in order to get more out of technology without having technology take over people’s lives.&#160;
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>Listen to the corresponding Above Avalon podcast episode for this article</em> <a href="https://www.aboveavalon.com/podcast/2020/10/3/above-avalon-episode-174-apple-watch-is-a-runaway-train"><em>here</em></a><em>.</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>Receive my analysis and perspective on Apple throughout the week via exclusive daily updates (2-3 stories per day, 10-12 stories per week). Available to Above Avalon members in both written and audio forms. To sign up and for more information on membership, visit the&#160;</em><a href="http://www.aboveavalon.com/membership/" target="_blank"><em>membership page</em></a><em>.</em>
+                                                        </p>
+                                                        <p class="" style="white-space:pre-wrap;">
+                                                            <em>For additional discussion on this topic, check out the</em> <a href="https://www.aboveavalon.com/dailypremiumupdate/2020/10/1/apple-watch-is-a-runaway-train-googles-hardware-event-siri-vs-apple-watch"><em>Above Avalon daily update from October 1st.</em></a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!--POST FOOTER-->
+                                <footer>
+                                    <div class="post-item-injection"></div>
+                                    <div class="entry-info"></div>
+                                    <div class="engagement">
+                                        <div id="social-yui_3_17_2_1_1611755206508_407" class="yui3-widget yui3-socialbutton">
+                                            <div id="yui_3_17_2_1_1611755206508_412" class="yui3-socialbutton-content">
+                                                <div class="ss-social-button-wrapper">
+                                                    <div class="ss-social-button">
+                                                        <span class="squarespace-social-buttons inline-style" data-system-data-id="1601501196314-6IHAZRIVZMXPMINEK40M" data-asset-url="https://images.squarespace-cdn.com/content/v1/5446f93de4b0a3452dfaf5b0/1601501196314-6IHAZRIVZMXPMINEK40M/ke17ZwdGBToddI8pDm48kCxLl6RhNOdUWE6Irf7t7B17gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QPOohDIaIeljMHgDF5CVlOqpeNLcJ80NK65_fV7S1USn-ELVmjIMMEaMLTOxiYYg5qtlgdHpWy51_xn4nmvN_MW9u6oXQZQicHHG1WEE6fg/Screen+Shot+2020-09-30+at+5.23.23+PM.png" data-record-type="1" data-full-url="/notes/2020/9/30/apple-watch-momentum-is-building" data-title="Apple Watch Momentum Is Building"><img src="https://assets.squarespace.com/universal/images-v6/standard/icon_social_button_10_light.png" />Share</span>
+                                                    </div>
+                                                </div>
+                                                <div class="ss-social-list-wrapper">
+                                                    <div class="ss-social-button-list"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </footer>
+                            </article><!--PAGINATION-->
+                            <nav class="pagination">
+                                <a href="/notes/2020/10/9/above-avalon-podcast-episode-174-apple-watch-is-a-runaway-train">Prev</a> / <a href="/notes/2020/9/18/above-avalon-podcast-episode-173-lets-talk-app-store">Next</a>
+                            </nav><!-- COMMENTS -->
+                            <section id="comments-" class="comments-wrapper">
+                                <div class="squarespace-comments" id="comments-5f74e65f21abae74c7a3d26f" data-item-id="5f74e65f21abae74c7a3d26f" data-public-comment-count="0" data-comment-state="2"></div>
+                            </section>
+                        </div>
+                        <aside id="sidebarWrapper">
+                            <div id="sidebar">
+                                <div class="sqs-layout sqs-grid-1 columns-1" data-layout-label="Sidebar Content" data-type="block-field" data-updated-on="1573841316398" id="sidebarBlocks">
+                                    <div class="row sqs-row">
+                                        <div class="col sqs-col-1 span-1">
+                                            <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-yui_3_17_2_69_1461261037944_12020">
+                                                <div class="sqs-block-content">
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        <strong>By Neil Cybart</strong>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block horizontalrule-block sqs-block-horizontalrule" data-block-type="47" id="block-yui_3_17_2_69_1461261037944_14306">
+                                                <div class="sqs-block-content">
+                                                    <hr />
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-yui_3_17_2_28_1487271565271_17179">
+                                                <div class="sqs-block-content">
+                                                    <h2 style="white-space:pre-wrap;">
+                                                        Daily Updates
+                                                    </h2>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block summary-v2-block sqs-block-summary-v2" data-block-json="{&quot;hSize&quot;:null,&quot;floatDir&quot;:null,&quot;collectionId&quot;:&quot;545b92b4e4b0750d2cdea026&quot;,&quot;design&quot;:&quot;list&quot;,&quot;headerText&quot;:&quot;Featured&quot;,&quot;textSize&quot;:&quot;small&quot;,&quot;pageSize&quot;:6,&quot;imageAspectRatio&quot;:&quot;1.5&quot;,&quot;columnWidth&quot;:270,&quot;gutter&quot;:60,&quot;listImageSize&quot;:16,&quot;listImageAlignment&quot;:&quot;left&quot;,&quot;slidesPerRow&quot;:3,&quot;textAlignment&quot;:&quot;left&quot;,&quot;showTitle&quot;:true,&quot;showThumbnail&quot;:true,&quot;showExcerpt&quot;:true,&quot;showReadMoreLink&quot;:false,&quot;showPrice&quot;:true,&quot;productQuickViewEnabled&quot;:false,&quot;showPastOrUpcomingEvents&quot;:&quot;Upcoming&quot;,&quot;metadataPosition&quot;:&quot;below-content&quot;,&quot;primaryMetadata&quot;:&quot;date&quot;,&quot;secondaryMetadata&quot;:&quot;none&quot;,&quot;filter&quot;:{},&quot;autoCrop&quot;:true,&quot;lightbox&quot;:false,&quot;mixedContent&quot;:true,&quot;blockId&quot;:&quot;74dc6008939688dff26c&quot;}" data-block-type="55" id="block-yui_3_17_2_2_1432132747237_9395">
+                                                <div class="sqs-block-content">
+                                                    <div class="summary-block-wrapper summary-block-collection-type-blog summary-block-setting-text-size-small summary-block-setting-text-align-left summary-block-setting-design-list summary-block-setting-design-list-thumbnail-left summary-block-setting-metadata-position-below-content summary-block-setting-primary-metadata-date summary-block-setting-secondary-metadata-none summary-block-setting-show-thumbnail summary-block-setting-show-title summary-block-setting-show-price summary-block-setting-show-excerpt sqs-gallery-design-list">
+                                                        <div class="summary-item-list-container sqs-gallery-container" id="yui_3_17_2_1_1611755206508_253">
+                                                            <header class="summary-block-header">
+                                                                <!-- Collection Title -->
+                                                                <!-- Carousel Nav -->
+                                                            </header>
+                                                            <div class="summary-item-list sqs-gallery sqs-gallery-design-list" id="yui_3_17_2_1_1611755206508_272">
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_277" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 84%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/dailypremiumupdate/2021/1/26/apple-announces-executive-changes-dan-riccio-and-design-a-new-apple-succession-trend" class="summary-title-link">Apple Announces Executive Changes, Dan Riccio and Design, A New Apple Succession Trend</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content">
+                                                                            <div class="summary-metadata summary-metadata--primary">
+                                                                                <!-- Timestamp -->
+                                                                                <time class="summary-metadata-item summary-metadata-item--date" datetime="2021-01-26">Jan 26, 2021</time>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_279" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 84%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/dailypremiumupdate/2021/1/25/my-apple-1q21-estimates-wall-streets-expectations-the-apple-number-to-watch" class="summary-title-link">My Apple 1Q21 Estimates, Wall Street’s Expectations, The Apple Number to Watch</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content">
+                                                                            <div class="summary-metadata summary-metadata--primary">
+                                                                                <!-- Timestamp -->
+                                                                                <time class="summary-metadata-item summary-metadata-item--date" datetime="2021-01-25">Jan 25, 2021</time>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_281" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 84%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/dailypremiumupdate/2021/1/21/apples-secret-weapon-for-fitness-plus-how-much-is-apple-tv-costing-apple-thursday-qa" class="summary-title-link">Apple’s Secret Weapon for Fitness, How Much Is Apple TV+ Costing Apple?, Thursday Q&amp;A</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content">
+                                                                            <div class="summary-metadata summary-metadata--primary">
+                                                                                <!-- Timestamp -->
+                                                                                <time class="summary-metadata-item summary-metadata-item--date" datetime="2021-01-21">Jan 21, 2021</time>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_283" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 84%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/dailypremiumupdate/2021/1/20/netflix-earnings-apple-extends-tv-free-trial-again-engagement-is-key-in-video-streaming" class="summary-title-link">Netflix Earnings, Apple Extends TV+ Free Trial (Again), Engagement Is Key in Video Streaming</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content">
+                                                                            <div class="summary-metadata summary-metadata--primary">
+                                                                                <!-- Timestamp -->
+                                                                                <time class="summary-metadata-item summary-metadata-item--date" datetime="2021-01-20">Jan 20, 2021</time>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_285" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 84%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/dailypremiumupdate/2021/1/19/pelotons-marketing-shift-peloton-buys-precor-peloton-vs-apple" class="summary-title-link">Peloton’s Marketing Shift, Peloton Buys Precor, Peloton vs. Apple</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content">
+                                                                            <div class="summary-metadata summary-metadata--primary">
+                                                                                <!-- Timestamp -->
+                                                                                <time class="summary-metadata-item summary-metadata-item--date" datetime="2021-01-19">Jan 19, 2021</time>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_287" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 84%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/dailypremiumupdate/2021/1/14/apple-stock-buyback-debate-continued-projections-for-apples-buyback-pace-thursday-qa" class="summary-title-link">Apple Stock Buyback Debate (Continued), Projections for Apple’s Buyback Pace, Thursday Q&amp;A</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content">
+                                                                            <div class="summary-metadata summary-metadata--primary">
+                                                                                <!-- Timestamp -->
+                                                                                <time class="summary-metadata-item summary-metadata-item--date" datetime="2021-01-14">Jan 14, 2021</time>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                            </div><!-- End .summary-item-list -->
+                                                        </div><!-- End .summary-item-list-container -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block button-block sqs-block-button" data-block-type="53" id="block-yui_3_17_2_74_1461261037944_118252">
+                                                <div class="sqs-block-content" id="yui_3_17_2_1_1611755206508_169">
+                                                    <div class="sqs-block-button-container--left" data-animation-role="button" data-alignment="left" data-button-size="medium" id="yui_3_17_2_1_1611755206508_168">
+                                                        <a href="https://www.aboveavalon.com/dailyupdates" class="sqs-block-button-element--medium sqs-block-button-element" data-initialized="true">Read More</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block horizontalrule-block sqs-block-horizontalrule" data-block-type="47" id="block-0c47771f91077a33efb3">
+                                                <div class="sqs-block-content">
+                                                    <hr />
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-yui_3_17_2_1_1541973865112_6504">
+                                                <div class="sqs-block-content">
+                                                    <h2 style="white-space:pre-wrap;">
+                                                        <strong>Reports</strong>
+                                                    </h2>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block summary-v2-block sqs-block-summary-v2" data-block-json="{&quot;hSize&quot;:null,&quot;floatDir&quot;:null,&quot;collectionId&quot;:&quot;5be5a45721c67cf1e72e0ce0&quot;,&quot;design&quot;:&quot;list&quot;,&quot;headerText&quot;:&quot;Featured&quot;,&quot;textSize&quot;:&quot;small&quot;,&quot;pageSize&quot;:10,&quot;imageAspectRatio&quot;:&quot;1.5&quot;,&quot;columnWidth&quot;:270,&quot;gutter&quot;:60,&quot;listImageSize&quot;:30,&quot;listImageAlignment&quot;:&quot;left&quot;,&quot;slidesPerRow&quot;:3,&quot;textAlignment&quot;:&quot;left&quot;,&quot;showTitle&quot;:true,&quot;showThumbnail&quot;:true,&quot;showExcerpt&quot;:true,&quot;showReadMoreLink&quot;:false,&quot;showPrice&quot;:true,&quot;productQuickViewEnabled&quot;:false,&quot;showPastOrUpcomingEvents&quot;:&quot;upcoming&quot;,&quot;metadataPosition&quot;:&quot;below-content&quot;,&quot;primaryMetadata&quot;:&quot;none&quot;,&quot;secondaryMetadata&quot;:&quot;none&quot;,&quot;filter&quot;:{},&quot;autoCrop&quot;:true,&quot;lightbox&quot;:false,&quot;mixedContent&quot;:true,&quot;blockId&quot;:&quot;c2a1528246579f11664e&quot;}" data-block-type="55" id="block-yui_3_17_2_1_1541973865112_8057">
+                                                <div class="sqs-block-content">
+                                                    <div class="summary-block-wrapper summary-block-collection-type-blog summary-block-setting-text-size-small summary-block-setting-text-align-left summary-block-setting-design-list summary-block-setting-design-list-thumbnail-left summary-block-setting-metadata-position-below-content summary-block-setting-primary-metadata-none summary-block-setting-secondary-metadata-none summary-block-setting-show-thumbnail summary-block-setting-show-title summary-block-setting-show-price summary-block-setting-show-excerpt sqs-gallery-design-list">
+                                                        <div class="summary-item-list-container sqs-gallery-container" id="yui_3_17_2_1_1611755206508_332">
+                                                            <header class="summary-block-header">
+                                                                <!-- Collection Title -->
+                                                                <!-- Carousel Nav -->
+                                                            </header>
+                                                            <div class="summary-item-list sqs-gallery sqs-gallery-design-list" id="yui_3_17_2_1_1611755206508_351">
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_356" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 70%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/reports-archive/2019/12/23/share-buyback-101-an-examination-of-apples-share-repurchase-strategy" class="summary-title-link">Share Buyback 101: An Examination of Apple’s Share Repurchase Strategy</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content"></div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-tags summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_358" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 70%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/reports-archive/2019/8/15/industrial-design-at-apple" class="summary-title-link">Industrial Design at Apple</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content"></div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_360" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 70%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/reports-archive/2019/4/15/product-vision-how-apple-thinks-about-the-world" class="summary-title-link">Product Vision: How Apple Thinks About the World</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content"></div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_362" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 70%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/reports-archive/2018/12/22/apple-and-dividends-a-deep-dive-into-apples-cash-dividend-strategy" class="summary-title-link">Apple and Dividends: A Deep Dive into Apple’s Cash Dividend Strategy</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content"></div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                                <div class="summary-item summary-item-record-type-text sqs-gallery-design-list-slide summary-item-has-author no-image" id="yui_3_17_2_1_1611755206508_364" data-type="image">
+                                                                    <!-- Thumbnail -->
+                                                                    <div class="summary-content sqs-gallery-meta-container" data-animation-role="content" style="width: 70%;">
+                                                                        <!-- Metadata (Above Title) -->
+                                                                        <!-- Title -->
+                                                                        <div class="summary-title">
+                                                                            <a href="/reports-archive/2018/11/10/apples-leadership-structure-under-tim-cook-and-jony-ive" class="summary-title-link">Apple’s Leadership Structure Under Tim Cook and Jony Ive</a>
+                                                                        </div><!-- Metadata (Below Title) -->
+                                                                        <!-- Metadata (Below Content) -->
+                                                                        <div class="summary-metadata-container summary-metadata-container--below-content"></div>
+                                                                    </div><!-- End .summary-content -->
+                                                                </div><!-- End .summary-item -->
+                                                            </div><!-- End .summary-item-list -->
+                                                        </div><!-- End .summary-item-list-container -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block button-block sqs-block-button" data-block-type="53" id="block-yui_3_17_2_1_1556400282608_7311">
+                                                <div class="sqs-block-content" id="yui_3_17_2_1_1611755206508_176">
+                                                    <div class="sqs-block-button-container--left" data-animation-role="button" data-alignment="left" data-button-size="medium" id="yui_3_17_2_1_1611755206508_175">
+                                                        <a href="https://www.aboveavalon.com/reports" class="sqs-block-button-element--medium sqs-block-button-element" data-initialized="true">Read more</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block horizontalrule-block sqs-block-horizontalrule" data-block-type="47" id="block-yui_3_17_2_1_1541973865112_7251">
+                                                <div class="sqs-block-content">
+                                                    <hr />
+                                                </div>
+                                            </div>
+                                            <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-510648431a88c7d6121d">
+                                                <div class="sqs-block-content">
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        <strong>Follow on Twitter</strong>
+                                                    </p>
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        <a href="https://twitter.com/neilcybart">Neil Cybart</a>
+                                                    </p>
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        <a href="https://twitter.com/AboveAvalon">Above Avalon</a>
+                                                    </p>
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        <a href="https://twitter.com/TalkAboveAvalon">The Above Avalon Podcast</a>
+                                                    </p>
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        <a href="https://twitter.com/AboveAvalonPlus">Above Avalon Members</a>
+                                                    </p>
+                                                    <p class="" style="white-space:pre-wrap;">
+                                                        &#160;
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="https://static1.squarespace.com/static/ta/4f9adbe124ac5df956fdf900/864/scripts/combo/?site.js"></script> 
+        <script type="text/javascript" data-sqs-type="imageloader-bootstrapper">
+        //<![CDATA[
+        (function() {if(window.ImageLoader) { window.ImageLoader.bootstrap({}, document); }})();
+        //]]>
+        </script>
+        <script>
+        <![CDATA[
+        Squarespace.afterBodyLoad(Y);
+        ]]>
+        </script>
+        <div class="absolute-cart-box" id="yui_3_17_2_1_1611755206508_200"></div>
+    </body>
+</html>

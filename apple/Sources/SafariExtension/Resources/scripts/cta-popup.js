@@ -1,0 +1,1 @@
+"use strict";!function(){const e=window.location.search.match(/[?&]url=([^&]+)/);if(!e)return;const n=e[1];if(!n)return;const t=decodeURIComponent(n),o=document.getElementById("get-omnivore-link"),c=document.getElementById("omnivore-login");o.href=t,c.href=t}();

@@ -1,0 +1,47 @@
+import { styled } from './../tokens/stitches.config'
+import { Root, Image, Fallback } from '@radix-ui/react-avatar'
+
+type AvatarProps = {
+  imageURL?: string
+  height: string
+  fallbackText: string
+}
+
+export function Avatar(props: AvatarProps): JSX.Element {
+  return (
+    <StyledAvatar
+      css={{
+        width: props.height,
+        height: props.height,
+        borderRadius: '50%',
+      }}
+    >
+      <StyledImage src={props.imageURL} />
+      <StyledFallback>{props.fallbackText}</StyledFallback>
+    </StyledAvatar>
+  )
+}
+
+const StyledAvatar = styled(Root, {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  verticalAlign: 'middle',
+  overflow: 'hidden',
+  userSelect: 'none',
+})
+
+const StyledImage = styled(Image, {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+})
+
+const StyledFallback = styled(Fallback, {
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'dodgerblue',
+})

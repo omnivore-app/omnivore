@@ -1,0 +1,142 @@
+/* TODO inject into client css */
+
+.tweet {
+  max-width: 500px;
+  border: 1px solid rgb(204, 214, 221);
+  border-radius: 15px;
+  background: white;
+  transition: background-color 0.3s;
+}
+
+.tweet:hover {
+  background: rgb(245, 248, 250);
+}
+
+.tweet__content {
+  padding: 10px 15px 5px 15px;
+}
+
+.tweet__header {
+  display: flex;
+  padding-bottom: 15px;
+}
+
+.tweet__author-img img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.tweet__author {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 5px;
+  text-decoration: none;
+}
+
+.tweet__author__name {
+  font-size: 15px;
+  color: black;
+  font-weight: bold;
+}
+
+.tweet__author__username {
+  color: rgb(101, 119, 134);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.tweet_twitter-icon {
+  width: 25px;
+  margin-left: auto;
+}
+
+.tweet_twitter-icon path {
+  fill: rgb(29, 161, 242);
+}
+
+.tweet__text {
+  cursor: text;
+  font-size: 14px;
+  line-height: 1.3125;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.tweet__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.tweet__date {
+  color: rgb(101, 119, 134);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.tweet__date:hover {
+  text-decoration: underline;
+}
+
+.tweet__ads-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.tweet__ads-icon path {
+  fill: rgb(101, 119, 134);
+}
+
+.tweet__footer {
+  border: 0 solid rgb(204, 214, 221);
+  padding-top: 5px;
+  margin-top: 5px;
+  border-top-width: 1px;
+  display: flex;
+}
+
+.tweet__footer__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.tweet__footer__item {
+  display: flex;
+  margin-right: 20px;
+  align-items: center;
+  text-decoration: none;
+}
+
+.tweet__footer__item:hover {
+  text-decoration: underline;
+}
+
+.tweet__replies:hover .tweet__footer__counter {
+  color: rgb(29, 161, 242);
+}
+
+.tweet__replies:hover path {
+  fill: rgb(29, 161, 242);
+}
+
+.tweet__likes:hover .tweet__footer__counter {
+  color: #ff2052;
+}
+
+.tweet__likes:hover path {
+  fill: #ff2052;
+}
+
+.tweet__footer__item path {
+  fill: rgb(101, 119, 134);
+}
+
+.tweet__footer__counter {
+  font-size: 15px;
+  margin-left: 5px;
+  color: rgb(101, 119, 134);
+  font-weight: 400;
+}

@@ -1,0 +1,37 @@
+{
+  "name": "@omnivore/import-handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --source=build/src/ --target=importHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
+    "gcloud-deploy": "gcloud functions deploy importHandler --region=$npm_config_region --runtime nodejs14 --trigger-bucket=$npm_config_bucket --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
+    "deploy": "yarn build && yarn gcloud-deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "eslint-plugin-prettier": "^4.0.0"
+  },
+  "dependencies": {
+    "@fast-csv/parse": "^4.3.6",
+    "@google-cloud/functions-framework": "1.9.0",
+    "@google-cloud/pubsub": "^2.16.3",
+    "@google-cloud/storage": "^5.13.0",
+    "@types/express": "^4.17.13",
+    "axios": "^0.21.1",
+    "concurrently": "^6.2.1",
+    "csv-parser": "^3.0.0",
+    "nodemon": "^2.0.12"
+  }
+}

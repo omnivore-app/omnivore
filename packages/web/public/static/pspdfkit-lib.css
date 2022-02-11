@@ -1,0 +1,46 @@
+
+.PSPDFKit-Text-Markup-Annotation-Toolbar {
+  display: none;
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar .PSPDFKit-Icon {
+  display: none;
+  width: 0;
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar-Highlight {
+  order: 3;
+  width: initial !important;
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar-Highlight:after {
+  display: block;
+  content: "Highlight";
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar-Squiggle,
+.PSPDFKit-Text-Markup-Inline-Toolbar-Strike-Out,
+.PSPDFKit-Text-Markup-Inline-Toolbar-Redaction,
+.PSPDFKit-Text-Markup-Inline-Toolbar-Underline {
+  display: none;
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar-Strike-Out {
+  order: 2;
+  width: initial !important;
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar-Strike-Out:after {
+  display: block;
+  content: "Annotate";
+}
+ 
+.PSPDFKit-Text-Markup-Inline-Toolbar-Squiggle {
+	order: 4;
+  width: initial !important;
+}
+
+.PSPDFKit-Text-Markup-Inline-Toolbar-Squiggle:after {
+	display: block;
+  content: "Share";
+}

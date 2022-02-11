@@ -1,0 +1,99 @@
+version: '3'
+services:
+  postgres:
+    image: "postgres:12.8"
+    container_name: "omnivore-postgres"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=omnivore
+      - PG_POOL_MAX=20
+    healthcheck:
+      test: "exit 0"
+      interval: 2s
+      timeout: 12s
+      retries: 3
+    expose:
+      - 5432
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ./packages/db/Dockerfile
+    container_name: "omnivore-migrate"
+    command: '/bin/sh ./packages/db/setup.sh'
+    environment:
+      - PGPASSWORD=postgres
+      - PG_HOST=postgres
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=omnivore
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    container_name: "omnivore-api"
+    ports:
+      - "4000:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 5s
+      timeout: 60s
+    environment:
+      - API_ENV=local
+      - PG_HOST=postgres
+      - PG_USER=app_user
+      - PG_PASSWORD=app_pass
+      - PG_DB=omnivore
+      - PG_PORT=5432
+      - PG_POOL_MAX=20
+      - IMAGE_PROXY_URL=http://localhost:8080
+      - IMAGE_PROXY_SECRET=some-secret
+      - JWT_SECRET=some_secret
+      - SSO_JWT_SECRET=some_sso_secret
+      - CLIENT_URL=http://localhost:3000
+      - GATEWAY_URL=http://localhost:4000/api
+      - PUPPETEER_TASK_HANDLER_URL=http://localhost:9090/
+      - PREVIEW_IMAGE_WRAPPER_ID='selected_highlight_wrapper'
+      - PREVIEW_GENERATION_SERVICE_URL=http://localhost:8080/preview
+      - REMINDER_TASK_HANDLER_URL=/svc/reminders/trigger
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: ./packages/web/Dockerfile
+      args:
+        - APP_ENV=prod
+        - BASE_URL=http://localhost:8080
+        - SERVER_BASE_URL=http://localhost:4000
+        - HIGHLIGHTS_BASE_URL=http://localhost:8080
+    container_name: "omnivore-web"
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # TODO: Needs some work to get this running on M1
+  # content-fetch:
+  #   platform: linux/amd64
+  #   build:
+  #     context: .
+  #     dockerfile: ./packages/puppeteer-parse/Dockerfile
+  #   container_name: "omnivore-content-fetch"
+  #   ports:
+  #     - "9090:8080"
+  #   environment:
+  #     - JWT_SECRET=some_secret
+  #     - PREVIEW_IMAGE_BUCKET='fake-bucket'
+  #     - REST_BACKEND_ENDPOINT=http://api:4000/api
+  #     - CHROMIUM_PATH=/usr/bin/google-chrome-stable
+  #     - IS_LOCAL=true
+  #     - ALLOWED_ORIGINS=http://localhost:8080

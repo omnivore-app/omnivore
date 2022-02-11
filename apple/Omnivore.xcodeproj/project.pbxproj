@@ -1,0 +1,2032 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0411792A26A22860004AE24F /* MacAppSmokeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0411792926A22860004AE24F /* MacAppSmokeTest.swift */; };
+		0418837E2742E99F003E0001 /* Intercom in Frameworks */ = {isa = PBXBuildFile; productRef = 0418837D2742E99F003E0001 /* Intercom */; };
+		041883802742FCF2003E0001 /* Utils in Frameworks */ = {isa = PBXBuildFile; productRef = 0418837F2742FCF2003E0001 /* Utils */; };
+		042184ED273AD426002357B0 /* PSPDFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 042184EC273AD426002357B0 /* PSPDFKit */; };
+		042184EF273AD5F3002357B0 /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042184EE273AD5F3002357B0 /* PDFViewer.swift */; };
+		042184F0273AD5F3002357B0 /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042184EE273AD5F3002357B0 /* PDFViewer.swift */; };
+		042F48DC26DFD10E00BF98FC /* iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */; };
+		045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 045B1680279147E7005047F7 /* FirebaseMessaging */; };
+		0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
+		046C5CD526A3F89A00AC5349 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 046C5CD426A3F89A00AC5349 /* icon.icns */; };
+		046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		046C5CE626A3FE8C00AC5349 /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 046C5CE526A3FE8C00AC5349 /* Binders */; };
+		047AD6F22724C934004FD5CF /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F12724C934004FD5CF /* Binders */; };
+		047AD6F42724C941004FD5CF /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F32724C941004FD5CF /* Binders */; };
+		0480E71426D939BF006CAE2F /* MacLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0480E71326D939BF006CAE2F /* MacLaunchTests.swift */; };
+		0480E71C26D95096006CAE2F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0480E71B26D95096006CAE2F /* AppDelegate.swift */; };
+		0480E71D26D95096006CAE2F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0480E71B26D95096006CAE2F /* AppDelegate.swift */; };
+		0485A48126D56583003F8A1D /* ShareExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9F2334402E6B10A665F1A7 /* ShareExtensionViewController.swift */; };
+		04920CC6279671EF003EC1B6 /* PushNotificationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04920CC5279671EF003EC1B6 /* PushNotificationConfig.swift */; };
+		04B8B00326A0BA9500D3ED0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03BE831A6CCC63104CB366AE /* Assets.xcassets */; };
+		04B8B00626A0CEFA00D3ED0C /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 04B8B00526A0CEFA00D3ED0C /* Binders */; };
+		04E9706F26BDE47D002A523D /* ShareExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = 04E9706E26BDE47D002A523D /* ShareExtension.js */; };
+		04E9707226BDE5F1002A523D /* ShareExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = 04E9706E26BDE47D002A523D /* ShareExtension.js */; };
+		04EE742126DFD2EF001B3483 /* ScreenIdentifierHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */; };
+		04EE742226DFD2F0001B3483 /* ScreenIdentifierHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */; };
+		1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		260BBE4168E3C57D6D2E225D /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 7DD0EF4D497D71D248C7B0DF /* Binders */; };
+		4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B16271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B20271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4225D59227164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
+		4225D59327164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
+		42321E852714E6B00056429F /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 42321E822714E6B00056429F /* scripts */; };
+		42321E862714E6B00056429F /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 42321E822714E6B00056429F /* scripts */; };
+		42321E872714E6B00056429F /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 42321E832714E6B00056429F /* styles */; };
+		42321E882714E6B00056429F /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 42321E832714E6B00056429F /* styles */; };
+		42321E892714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
+		42321E8A2714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
+		4255C6D82755A5350006422A /* NanoID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255C6D72755A5350006422A /* NanoID.swift */; };
+		4255C6D92755A5350006422A /* NanoID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255C6D72755A5350006422A /* NanoID.swift */; };
+		426408732744676C00A2AE46 /* PDFReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426408722744676B00A2AE46 /* PDFReaderView.swift */; };
+		426408742744676C00A2AE46 /* PDFReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426408722744676B00A2AE46 /* PDFReaderView.swift */; };
+		42FF1B33271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
+		42FF1B34271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
+		42FF1B35271154A700B38C38 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AED271154A600B38C38 /* _locales */; };
+		42FF1B36271154A700B38C38 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AED271154A600B38C38 /* _locales */; };
+		42FF1B37271154A700B38C38 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AEE271154A600B38C38 /* images */; };
+		42FF1B38271154A700B38C38 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AEE271154A600B38C38 /* images */; };
+		42FF1B39271154A700B38C38 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AEF271154A600B38C38 /* manifest.json */; };
+		42FF1B3A271154A700B38C38 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AEF271154A600B38C38 /* manifest.json */; };
+		48BC97B3943AFD0D4A12A270 /* ShareExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9F2334402E6B10A665F1A7 /* ShareExtensionViewController.swift */; };
+		637E8CD320005ED0D0A71130 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03BE831A6CCC63104CB366AE /* Assets.xcassets */; };
+		CA7EE773095F267516D7AC98 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
+		CE5633B39A46CED02EF33C05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EE1FBB090D0F87F3E57C8A4B /* LaunchScreen.storyboard */; };
+		D2BC24479582C1B97F67646A /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 8F13016D33DF1598D7157563 /* Binders */; };
+		F2C20F3B072C3F7F2CA49CC8 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29DDFAF773437894779F192 /* SmokeTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0411792C26A22861004AE24F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 048ECFFB26A0B1CB00469E57;
+			remoteInfo = Omnivore;
+		};
+		042F48DE26DFD10E00BF98FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8260E9C026EF983F8970EC05;
+			remoteInfo = "Omnivore-iOS";
+		};
+		046C5CDD26A3F89A00AC5349 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 046C5CD126A3F89A00AC5349;
+			remoteInfo = "ShareExtension-Mac";
+		};
+		0480E71626D939BF006CAE2F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 048ECFFB26A0B1CB00469E57;
+			remoteInfo = Omnivore;
+		};
+		4214F6F02714D2260096B644 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 42FF1B15271154A700B38C38;
+			remoteInfo = "SafariExtension (iOS)";
+		};
+		4214F6F32714D28E0096B644 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 42FF1B1F271154A700B38C38;
+			remoteInfo = "SafariExtension (macOS)";
+		};
+		9DEDC1A5B4AFF9CA06136F13 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D30FF2BDEFCACE5A2A13AD1;
+			remoteInfo = ShareExtension;
+		};
+		ED2CF77FBF32858F8D604212 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8260E9C026EF983F8970EC05;
+			remoteInfo = Omnivore;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		046C5CE026A3F89A00AC5349 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed App Extensions */,
+				4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		089E832985F9DC4E3D727F87 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4C02552307C731B3D3F28680 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		76DAC57C99AFCDF06896A42F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BA17F8C8424E5121F1EE345C /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstSubfolderSpec = 13;
+			files = (
+				1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed App Extensions */,
+				4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		03BE831A6CCC63104CB366AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0411792726A22860004AE24F /* UnitTests-MacApp.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UnitTests-MacApp.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0411792926A22860004AE24F /* MacAppSmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppSmokeTest.swift; sourceTree = "<group>"; };
+		0411792B26A22860004AE24F /* MacUnitTests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MacUnitTests.plist; sourceTree = "<group>"; };
+		042184EE273AD5F3002357B0 /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
+		042F48D926DFD10E00BF98FC /* UITests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSLaunchTests.swift; sourceTree = "<group>"; };
+		042F48DD26DFD10E00BF98FC /* iOSUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSUITests.plist; sourceTree = "<group>"; };
+		046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ShareExtension-Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		046C5CD426A3F89A00AC5349 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
+		046C5CDB26A3F89A00AC5349 /* ShareExtensionMac.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShareExtensionMac.plist; sourceTree = "<group>"; };
+		046C5CDC26A3F89A00AC5349 /* ShareExtensionMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtensionMac.entitlements; sourceTree = "<group>"; };
+		047AD6F52724CF8A004FD5CF /* SafariExtension (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SafariExtension (iOS).entitlements"; sourceTree = "<group>"; };
+		047AD6F62724E513004FD5CF /* SafariExtension (iOS)Release.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SafariExtension (iOS)Release.entitlements"; sourceTree = "<group>"; };
+		0480E70B26D8A07A006CAE2F /* Omnivore-Mac.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Omnivore-Mac.xctestplan"; sourceTree = "<group>"; };
+		0480E70C26D8A22D006CAE2F /* Omnivore-iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Omnivore-iOS.xctestplan"; sourceTree = "<group>"; };
+		0480E71126D939BF006CAE2F /* UITests-Mac.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITests-Mac.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0480E71326D939BF006CAE2F /* MacLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLaunchTests.swift; sourceTree = "<group>"; };
+		0480E71526D939BF006CAE2F /* MacUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MacUITests.plist; sourceTree = "<group>"; };
+		0480E71B26D95096006CAE2F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		048ECFFC26A0B1CB00469E57 /* Omnivore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Omnivore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		048ED00A26A0B1CC00469E57 /* MacOmnivore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MacOmnivore.plist; sourceTree = "<group>"; };
+		048ED00B26A0B1CC00469E57 /* MacOmnivore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacOmnivore.entitlements; sourceTree = "<group>"; };
+		04920CC5279671EF003EC1B6 /* PushNotificationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationConfig.swift; sourceTree = "<group>"; };
+		04B8A28E2699F7B600AEAF72 /* Omnivore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Omnivore.entitlements; sourceTree = "<group>"; };
+		04B8A28F2699FA6A00AEAF72 /* ShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtension.entitlements; sourceTree = "<group>"; };
+		04E9706E26BDE47D002A523D /* ShareExtension.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = ShareExtension.js; sourceTree = "<group>"; };
+		04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenIdentifierHelpers.swift; sourceTree = "<group>"; };
+		082449FB9F5F3730EE0D8D3F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0BE7F7C593222747A96AA4E7 /* Omnivore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Omnivore.plist; sourceTree = "<group>"; };
+		1A39D8FDA25447FDBF07E24B /* Omnivore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Omnivore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4225D59127164F82002A680F /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fonts; sourceTree = "<group>"; };
+		42321E822714E6B00056429F /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
+		42321E832714E6B00056429F /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = styles; sourceTree = "<group>"; };
+		42321E842714E6B00056429F /* views */ = {isa = PBXFileReference; lastKnownFileType = folder; path = views; sourceTree = "<group>"; };
+		4255C6D72755A5350006422A /* NanoID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NanoID.swift; sourceTree = "<group>"; };
+		426408722744676B00A2AE46 /* PDFReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderView.swift; sourceTree = "<group>"; };
+		42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		42FF1AED271154A600B38C38 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; path = _locales; sourceTree = "<group>"; };
+		42FF1AEE271154A600B38C38 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		42FF1AEF271154A600B38C38 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		42FF1B0A271154A700B38C38 /* SafariExtension.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafariExtension.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		42FF1B16271154A700B38C38 /* SafariExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SafariExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		42FF1B1B271154A700B38C38 /* SafariExtension-iOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SafariExtension-iOS.plist"; sourceTree = "<group>"; };
+		42FF1B20271154A700B38C38 /* SafariExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SafariExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		42FF1B25271154A700B38C38 /* SafariExtension-Mac.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SafariExtension-Mac.plist"; sourceTree = "<group>"; };
+		42FF1B26271154A700B38C38 /* SafariExtension-Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "SafariExtension-Mac.entitlements"; sourceTree = "<group>"; };
+		4958DE83E1725D3E7A166B8E /* OmnivoreKit */ = {isa = PBXFileReference; lastKnownFileType = folder; path = OmnivoreKit; sourceTree = "<group>"; };
+		8FA2D3631F8C583E9695D087 /* OmnivoreTests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = OmnivoreTests.plist; sourceTree = "<group>"; };
+		95D337DDCEA2007A9705A969 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A25B2B310A2800932EECD5FD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		B29DDFAF773437894779F192 /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTests.swift; sourceTree = "<group>"; };
+		B5EF8E3E143618BFA9F4D89A /* OmnivoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OmnivoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D81BE98F0CB588F5FC577A13 /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
+		E5D8BC145E6C7ADCC724AF59 /* ShareExtension.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = ShareExtension.plist; sourceTree = "<group>"; };
+		FF9F2334402E6B10A665F1A7 /* ShareExtensionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareExtensionViewController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0411792426A22860004AE24F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		042F48D626DFD10E00BF98FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		046C5CCF26A3F89A00AC5349 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				046C5CE626A3FE8C00AC5349 /* Binders in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0480E70E26D939BF006CAE2F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		048ECFF926A0B1CB00469E57 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04B8B00626A0CEFA00D3ED0C /* Binders in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C5F49DFFF5F79D9D0C7412E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				260BBE4168E3C57D6D2E225D /* Binders in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42FF1B13271154A700B38C38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				047AD6F22724C934004FD5CF /* Binders in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42FF1B1D271154A700B38C38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				047AD6F42724C941004FD5CF /* Binders in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7D03721CA2BD53145181C839 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F06D5ADCFDD68AC8775386BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2BC24479582C1B97F67646A /* Binders in Frameworks */,
+				0418837E2742E99F003E0001 /* Intercom in Frameworks */,
+				045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */,
+				041883802742FCF2003E0001 /* Utils in Frameworks */,
+				042184ED273AD426002357B0 /* PSPDFKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		041101CE26A233A4006B2117 /* Entitlements */ = {
+			isa = PBXGroup;
+			children = (
+				04B8A28F2699FA6A00AEAF72 /* ShareExtension.entitlements */,
+				04B8A28E2699F7B600AEAF72 /* Omnivore.entitlements */,
+				046C5CDC26A3F89A00AC5349 /* ShareExtensionMac.entitlements */,
+				048ED00B26A0B1CC00469E57 /* MacOmnivore.entitlements */,
+				42FF1B26271154A700B38C38 /* SafariExtension-Mac.entitlements */,
+			);
+			path = Entitlements;
+			sourceTree = "<group>";
+		};
+		042F48DA26DFD10E00BF98FC /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		0480E71226D939BF006CAE2F /* Mac */ = {
+			isa = PBXGroup;
+			children = (
+				0480E71326D939BF006CAE2F /* MacLaunchTests.swift */,
+			);
+			path = Mac;
+			sourceTree = "<group>";
+		};
+		0498B8F826A1F5B20019B579 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				B29DDFAF773437894779F192 /* SmokeTests.swift */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		04E07AAE26A22A060054AEC7 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				0411792926A22860004AE24F /* MacAppSmokeTest.swift */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		04E07AAF26A22A530054AEC7 /* MacOS */ = {
+			isa = PBXGroup;
+			children = (
+				04E07AAE26A22A060054AEC7 /* UnitTests */,
+			);
+			path = MacOS;
+			sourceTree = "<group>";
+		};
+		04E07AB026A22A600054AEC7 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				0498B8F826A1F5B20019B579 /* UnitTests */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		04EE741D26DFD231001B3483 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				04EE741E26DFD2A2001B3483 /* Common */,
+				0480E71226D939BF006CAE2F /* Mac */,
+				042F48DA26DFD10E00BF98FC /* iOS */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		04EE741E26DFD2A2001B3483 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		1C5F41CFB32F3C10AD8537F2 /* InfoPlists */ = {
+			isa = PBXGroup;
+			children = (
+				42FF1B25271154A700B38C38 /* SafariExtension-Mac.plist */,
+				42FF1B1B271154A700B38C38 /* SafariExtension-iOS.plist */,
+				042F48DD26DFD10E00BF98FC /* iOSUITests.plist */,
+				0BE7F7C593222747A96AA4E7 /* Omnivore.plist */,
+				8FA2D3631F8C583E9695D087 /* OmnivoreTests.plist */,
+				E5D8BC145E6C7ADCC724AF59 /* ShareExtension.plist */,
+				048ED00A26A0B1CC00469E57 /* MacOmnivore.plist */,
+				0411792B26A22860004AE24F /* MacUnitTests.plist */,
+				0480E71526D939BF006CAE2F /* MacUITests.plist */,
+				046C5CDB26A3F89A00AC5349 /* ShareExtensionMac.plist */,
+			);
+			path = InfoPlists;
+			sourceTree = "<group>";
+		};
+		2EE5B57B588CF4ADBA39A106 = {
+			isa = PBXGroup;
+			children = (
+				047AD6F62724E513004FD5CF /* SafariExtension (iOS)Release.entitlements */,
+				047AD6F52724CF8A004FD5CF /* SafariExtension (iOS).entitlements */,
+				0480E70B26D8A07A006CAE2F /* Omnivore-Mac.xctestplan */,
+				0480E70C26D8A22D006CAE2F /* Omnivore-iOS.xctestplan */,
+				490C83F2909A01FFE92848AF /* Project */,
+				E601FA26367162479B614F0F /* Products */,
+				4958DE83E1725D3E7A166B8E /* OmnivoreKit */,
+				4214F6EE2714D2260096B644 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		4214F6EE2714D2260096B644 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		42FF1AEA271154A600B38C38 /* SafariExtension */ = {
+			isa = PBXGroup;
+			children = (
+				42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */,
+				42FF1AEC271154A600B38C38 /* Resources */,
+			);
+			path = SafariExtension;
+			sourceTree = "<group>";
+		};
+		42FF1AEC271154A600B38C38 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4225D59127164F82002A680F /* fonts */,
+				42321E822714E6B00056429F /* scripts */,
+				42321E832714E6B00056429F /* styles */,
+				42321E842714E6B00056429F /* views */,
+				42FF1AED271154A600B38C38 /* _locales */,
+				42FF1AEE271154A600B38C38 /* images */,
+				42FF1AEF271154A600B38C38 /* manifest.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		490C83F2909A01FFE92848AF /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				041101CE26A233A4006B2117 /* Entitlements */,
+				1C5F41CFB32F3C10AD8537F2 /* InfoPlists */,
+				E5BF4CE3B3AD6358C6D015F7 /* Resources */,
+				7C54279684D6252C9CD18562 /* Sources */,
+				BA1195A064B2AAD4A7658B06 /* Tests */,
+			);
+			name = Project;
+			sourceTree = "<group>";
+		};
+		7C54279684D6252C9CD18562 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				0480E71B26D95096006CAE2F /* AppDelegate.swift */,
+				D81BE98F0CB588F5FC577A13 /* MainApp.swift */,
+				042184EE273AD5F3002357B0 /* PDFViewer.swift */,
+				426408722744676B00A2AE46 /* PDFReaderView.swift */,
+				4255C6D72755A5350006422A /* NanoID.swift */,
+				42FF1AEA271154A600B38C38 /* SafariExtension */,
+				B330B55BAF36E624637EE3BE /* ShareExtension */,
+				04920CC5279671EF003EC1B6 /* PushNotificationConfig.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		B330B55BAF36E624637EE3BE /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				046C5CD426A3F89A00AC5349 /* icon.icns */,
+				FF9F2334402E6B10A665F1A7 /* ShareExtensionViewController.swift */,
+				04E9706E26BDE47D002A523D /* ShareExtension.js */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		BA1195A064B2AAD4A7658B06 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				04EE741D26DFD231001B3483 /* UITests */,
+				04E07AB026A22A600054AEC7 /* iOS */,
+				04E07AAF26A22A530054AEC7 /* MacOS */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		E5BF4CE3B3AD6358C6D015F7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				EE1FBB090D0F87F3E57C8A4B /* LaunchScreen.storyboard */,
+				03BE831A6CCC63104CB366AE /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E601FA26367162479B614F0F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A39D8FDA25447FDBF07E24B /* Omnivore.app */,
+				B5EF8E3E143618BFA9F4D89A /* OmnivoreTests.xctest */,
+				95D337DDCEA2007A9705A969 /* ShareExtension.appex */,
+				048ECFFC26A0B1CB00469E57 /* Omnivore.app */,
+				0411792726A22860004AE24F /* UnitTests-MacApp.xctest */,
+				046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */,
+				0480E71126D939BF006CAE2F /* UITests-Mac.xctest */,
+				042F48D926DFD10E00BF98FC /* UITests-iOS.xctest */,
+				42FF1B0A271154A700B38C38 /* SafariExtension.app */,
+				42FF1B16271154A700B38C38 /* SafariExtension.appex */,
+				42FF1B20271154A700B38C38 /* SafariExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0411792626A22860004AE24F /* UnitTests-MacApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0411792E26A22861004AE24F /* Build configuration list for PBXNativeTarget "UnitTests-MacApp" */;
+			buildPhases = (
+				0411792326A22860004AE24F /* Sources */,
+				0411792426A22860004AE24F /* Frameworks */,
+				0411792526A22860004AE24F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0411792D26A22861004AE24F /* PBXTargetDependency */,
+			);
+			name = "UnitTests-MacApp";
+			productName = "UnitTests-MacApp";
+			productReference = 0411792726A22860004AE24F /* UnitTests-MacApp.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		042F48D826DFD10E00BF98FC /* UITests-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 042F48E226DFD10E00BF98FC /* Build configuration list for PBXNativeTarget "UITests-iOS" */;
+			buildPhases = (
+				042F48D526DFD10E00BF98FC /* Sources */,
+				042F48D626DFD10E00BF98FC /* Frameworks */,
+				042F48D726DFD10E00BF98FC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				042F48DF26DFD10E00BF98FC /* PBXTargetDependency */,
+			);
+			name = "UITests-iOS";
+			productName = "UITests-iOS";
+			productReference = 042F48D926DFD10E00BF98FC /* UITests-iOS.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		046C5CD126A3F89A00AC5349 /* ShareExtension-Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 046C5CE326A3F89A00AC5349 /* Build configuration list for PBXNativeTarget "ShareExtension-Mac" */;
+			buildPhases = (
+				046C5CCE26A3F89A00AC5349 /* Sources */,
+				046C5CCF26A3F89A00AC5349 /* Frameworks */,
+				046C5CD026A3F89A00AC5349 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ShareExtension-Mac";
+			packageProductDependencies = (
+				046C5CE526A3FE8C00AC5349 /* Binders */,
+			);
+			productName = "ShareExtension-Mac";
+			productReference = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		0480E71026D939BF006CAE2F /* UITests-Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0480E71826D939BF006CAE2F /* Build configuration list for PBXNativeTarget "UITests-Mac" */;
+			buildPhases = (
+				0480E70D26D939BF006CAE2F /* Sources */,
+				0480E70E26D939BF006CAE2F /* Frameworks */,
+				0480E70F26D939BF006CAE2F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0480E71726D939BF006CAE2F /* PBXTargetDependency */,
+			);
+			name = "UITests-Mac";
+			productName = "UITests-Mac";
+			productReference = 0480E71126D939BF006CAE2F /* UITests-Mac.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		048ECFFB26A0B1CB00469E57 /* Omnivore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 048ED02826A0B1CC00469E57 /* Build configuration list for PBXNativeTarget "Omnivore" */;
+			buildPhases = (
+				048ECFF826A0B1CB00469E57 /* Sources */,
+				048ECFF926A0B1CB00469E57 /* Frameworks */,
+				048ECFFA26A0B1CB00469E57 /* Resources */,
+				04B8B00426A0C19900D3ED0C /* ShellScript */,
+				046C5CE026A3F89A00AC5349 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				046C5CDE26A3F89A00AC5349 /* PBXTargetDependency */,
+				4214F6F42714D28E0096B644 /* PBXTargetDependency */,
+			);
+			name = Omnivore;
+			packageProductDependencies = (
+				04B8B00526A0CEFA00D3ED0C /* Binders */,
+			);
+			productName = MacOmnivore;
+			productReference = 048ECFFC26A0B1CB00469E57 /* Omnivore.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3D30FF2BDEFCACE5A2A13AD1 /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 105F5ABA08D05F8E97994597 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				43512AEB8FEA59E4C1B62535 /* Sources */,
+				B147F11D6548C5B600AC0CBD /* Resources */,
+				AAC826E9061AEBA0BF527814 /* Embed Precompiled Frameworks */,
+				76DAC57C99AFCDF06896A42F /* Embed Frameworks */,
+				3C5F49DFFF5F79D9D0C7412E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			packageProductDependencies = (
+				7DD0EF4D497D71D248C7B0DF /* Binders */,
+			);
+			productName = ShareExtension;
+			productReference = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		42FF1B15271154A700B38C38 /* SafariExtension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 42FF1B4F271154A700B38C38 /* Build configuration list for PBXNativeTarget "SafariExtension (iOS)" */;
+			buildPhases = (
+				42FF1B12271154A700B38C38 /* Sources */,
+				42FF1B13271154A700B38C38 /* Frameworks */,
+				42FF1B14271154A700B38C38 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SafariExtension (iOS)";
+			packageProductDependencies = (
+				047AD6F12724C934004FD5CF /* Binders */,
+			);
+			productName = "SafariExtension Extension (iOS)";
+			productReference = 42FF1B16271154A700B38C38 /* SafariExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		42FF1B1F271154A700B38C38 /* SafariExtension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 42FF1B51271154A700B38C38 /* Build configuration list for PBXNativeTarget "SafariExtension (macOS)" */;
+			buildPhases = (
+				42FF1B1C271154A700B38C38 /* Sources */,
+				42FF1B1D271154A700B38C38 /* Frameworks */,
+				42FF1B1E271154A700B38C38 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SafariExtension (macOS)";
+			packageProductDependencies = (
+				047AD6F32724C941004FD5CF /* Binders */,
+			);
+			productName = "SafariExtension (macOS)";
+			productReference = 42FF1B20271154A700B38C38 /* SafariExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8260E9C026EF983F8970EC05 /* Omnivore-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9F5FF91AA45EA743104F171 /* Build configuration list for PBXNativeTarget "Omnivore-iOS" */;
+			buildPhases = (
+				8E4C1300A69A749FE3B720A3 /* Sources */,
+				ABA2CCAE947C7AFC88C991A5 /* Resources */,
+				BA17F8C8424E5121F1EE345C /* Embed App Extensions */,
+				6FD84AF08CA126EA8F6906A4 /* Embed Precompiled Frameworks */,
+				4C02552307C731B3D3F28680 /* Embed Frameworks */,
+				F06D5ADCFDD68AC8775386BB /* Frameworks */,
+				909EF91C2946F26E9123C65F /* Format and Lint */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5062BFE08129B9B110FB8AF7 /* PBXTargetDependency */,
+				4214F6F12714D2260096B644 /* PBXTargetDependency */,
+			);
+			name = "Omnivore-iOS";
+			packageProductDependencies = (
+				8F13016D33DF1598D7157563 /* Binders */,
+				042184EC273AD426002357B0 /* PSPDFKit */,
+				0418837D2742E99F003E0001 /* Intercom */,
+				0418837F2742FCF2003E0001 /* Utils */,
+				045B1680279147E7005047F7 /* FirebaseMessaging */,
+			);
+			productName = Omnivore;
+			productReference = 1A39D8FDA25447FDBF07E24B /* Omnivore.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B46CFFB2A582C337CB0AAAEF /* OmnivoreTests-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A176068BC2F89EC55D78D60 /* Build configuration list for PBXNativeTarget "OmnivoreTests-iOS" */;
+			buildPhases = (
+				041E0C13E0057CDDC868A4DB /* Sources */,
+				BC2DC89A3D7E1E86540ECA14 /* Resources */,
+				DEA43E9E9C46BFC9EBE0D359 /* Embed Precompiled Frameworks */,
+				089E832985F9DC4E3D727F87 /* Embed Frameworks */,
+				7D03721CA2BD53145181C839 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1CE996D52FE5EB07690669D3 /* PBXTargetDependency */,
+			);
+			name = "OmnivoreTests-iOS";
+			productName = OmnivoreTests;
+			productReference = B5EF8E3E143618BFA9F4D89A /* OmnivoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AFFD4158DD5DF9B387039311 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1300;
+				LastUpgradeCheck = 1300;
+				TargetAttributes = {
+					0411792626A22860004AE24F = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = 048ECFFB26A0B1CB00469E57;
+					};
+					042F48D826DFD10E00BF98FC = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = 8260E9C026EF983F8970EC05;
+					};
+					046C5CD126A3F89A00AC5349 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					0480E71026D939BF006CAE2F = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = 048ECFFB26A0B1CB00469E57;
+					};
+					048ECFFB26A0B1CB00469E57 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					42FF1B15271154A700B38C38 = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					42FF1B1F271154A700B38C38 = {
+						CreatedOnToolsVersion = 13.0;
+					};
+					B46CFFB2A582C337CB0AAAEF = {
+						TestTargetID = 8260E9C026EF983F8970EC05;
+					};
+				};
+			};
+			buildConfigurationList = 03828C73ABE6FE2833E1CC2B /* Build configuration list for PBXProject "Omnivore" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2EE5B57B588CF4ADBA39A106;
+			packageReferences = (
+				042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */,
+				0418837C2742E99F003E0001 /* XCRemoteSwiftPackageReference "intercom-ios" */,
+				048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			productRefGroup = E601FA26367162479B614F0F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8260E9C026EF983F8970EC05 /* Omnivore-iOS */,
+				3D30FF2BDEFCACE5A2A13AD1 /* ShareExtension */,
+				B46CFFB2A582C337CB0AAAEF /* OmnivoreTests-iOS */,
+				048ECFFB26A0B1CB00469E57 /* Omnivore */,
+				0411792626A22860004AE24F /* UnitTests-MacApp */,
+				046C5CD126A3F89A00AC5349 /* ShareExtension-Mac */,
+				0480E71026D939BF006CAE2F /* UITests-Mac */,
+				042F48D826DFD10E00BF98FC /* UITests-iOS */,
+				42FF1B15271154A700B38C38 /* SafariExtension (iOS) */,
+				42FF1B1F271154A700B38C38 /* SafariExtension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0411792526A22860004AE24F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		042F48D726DFD10E00BF98FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		046C5CD026A3F89A00AC5349 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E9707226BDE5F1002A523D /* ShareExtension.js in Resources */,
+				046C5CD526A3F89A00AC5349 /* icon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0480E70F26D939BF006CAE2F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		048ECFFA26A0B1CB00469E57 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04B8B00326A0BA9500D3ED0C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42FF1B14271154A700B38C38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42321E892714E6B00056429F /* views in Resources */,
+				42321E872714E6B00056429F /* styles in Resources */,
+				42321E852714E6B00056429F /* scripts in Resources */,
+				4225D59227164F82002A680F /* fonts in Resources */,
+				42FF1B37271154A700B38C38 /* images in Resources */,
+				42FF1B39271154A700B38C38 /* manifest.json in Resources */,
+				42FF1B35271154A700B38C38 /* _locales in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42FF1B1E271154A700B38C38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42321E8A2714E6B00056429F /* views in Resources */,
+				42321E882714E6B00056429F /* styles in Resources */,
+				42321E862714E6B00056429F /* scripts in Resources */,
+				4225D59327164F82002A680F /* fonts in Resources */,
+				42FF1B38271154A700B38C38 /* images in Resources */,
+				42FF1B3A271154A700B38C38 /* manifest.json in Resources */,
+				42FF1B36271154A700B38C38 /* _locales in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABA2CCAE947C7AFC88C991A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				637E8CD320005ED0D0A71130 /* Assets.xcassets in Resources */,
+				CE5633B39A46CED02EF33C05 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B147F11D6548C5B600AC0CBD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04E9706F26BDE47D002A523D /* ShareExtension.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BC2DC89A3D7E1E86540ECA14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		04B8B00426A0C19900D3ED0C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT\"/Scripts/format_and_lint.sh \n";
+		};
+		6FD84AF08CA126EA8F6906A4 /* Embed Precompiled Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Precompiled Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Skipping, nothing to be embedded.\"";
+		};
+		909EF91C2946F26E9123C65F /* Format and Lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Format and Lint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT\"/Scripts/format_and_lint.sh \n";
+		};
+		AAC826E9061AEBA0BF527814 /* Embed Precompiled Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Precompiled Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Skipping, nothing to be embedded.\"";
+		};
+		DEA43E9E9C46BFC9EBE0D359 /* Embed Precompiled Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Precompiled Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"Skipping, nothing to be embedded.\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0411792326A22860004AE24F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0411792A26A22860004AE24F /* MacAppSmokeTest.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		041E0C13E0057CDDC868A4DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F2C20F3B072C3F7F2CA49CC8 /* SmokeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		042F48D526DFD10E00BF98FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04EE742226DFD2F0001B3483 /* ScreenIdentifierHelpers.swift in Sources */,
+				042F48DC26DFD10E00BF98FC /* iOSLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		046C5CCE26A3F89A00AC5349 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0485A48126D56583003F8A1D /* ShareExtensionViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0480E70D26D939BF006CAE2F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04EE742126DFD2EF001B3483 /* ScreenIdentifierHelpers.swift in Sources */,
+				0480E71426D939BF006CAE2F /* MacLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		048ECFF826A0B1CB00469E57 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0480E71D26D95096006CAE2F /* AppDelegate.swift in Sources */,
+				4255C6D92755A5350006422A /* NanoID.swift in Sources */,
+				0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */,
+				426408742744676C00A2AE46 /* PDFReaderView.swift in Sources */,
+				042184F0273AD5F3002357B0 /* PDFViewer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42FF1B12271154A700B38C38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42FF1B33271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42FF1B1C271154A700B38C38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42FF1B34271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43512AEB8FEA59E4C1B62535 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				48BC97B3943AFD0D4A12A270 /* ShareExtensionViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E4C1300A69A749FE3B720A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0480E71C26D95096006CAE2F /* AppDelegate.swift in Sources */,
+				4255C6D82755A5350006422A /* NanoID.swift in Sources */,
+				04920CC6279671EF003EC1B6 /* PushNotificationConfig.swift in Sources */,
+				CA7EE773095F267516D7AC98 /* MainApp.swift in Sources */,
+				426408732744676C00A2AE46 /* PDFReaderView.swift in Sources */,
+				042184EF273AD5F3002357B0 /* PDFViewer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0411792D26A22861004AE24F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 048ECFFB26A0B1CB00469E57 /* Omnivore */;
+			targetProxy = 0411792C26A22861004AE24F /* PBXContainerItemProxy */;
+		};
+		042F48DF26DFD10E00BF98FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8260E9C026EF983F8970EC05 /* Omnivore-iOS */;
+			targetProxy = 042F48DE26DFD10E00BF98FC /* PBXContainerItemProxy */;
+		};
+		046C5CDE26A3F89A00AC5349 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 046C5CD126A3F89A00AC5349 /* ShareExtension-Mac */;
+			targetProxy = 046C5CDD26A3F89A00AC5349 /* PBXContainerItemProxy */;
+		};
+		0480E71726D939BF006CAE2F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 048ECFFB26A0B1CB00469E57 /* Omnivore */;
+			targetProxy = 0480E71626D939BF006CAE2F /* PBXContainerItemProxy */;
+		};
+		1CE996D52FE5EB07690669D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Omnivore;
+			target = 8260E9C026EF983F8970EC05 /* Omnivore-iOS */;
+			targetProxy = ED2CF77FBF32858F8D604212 /* PBXContainerItemProxy */;
+		};
+		4214F6F12714D2260096B644 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 42FF1B15271154A700B38C38 /* SafariExtension (iOS) */;
+			targetProxy = 4214F6F02714D2260096B644 /* PBXContainerItemProxy */;
+		};
+		4214F6F42714D28E0096B644 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 42FF1B1F271154A700B38C38 /* SafariExtension (macOS) */;
+			targetProxy = 4214F6F32714D28E0096B644 /* PBXContainerItemProxy */;
+		};
+		5062BFE08129B9B110FB8AF7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ShareExtension;
+			target = 3D30FF2BDEFCACE5A2A13AD1 /* ShareExtension */;
+			targetProxy = 9DEDC1A5B4AFF9CA06136F13 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EE1FBB090D0F87F3E57C8A4B /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				082449FB9F5F3730EE0D8D3F /* Base */,
+				A25B2B310A2800932EECD5FD /* en */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		0411792F26A22861004AE24F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/MacUnitTests.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.UnitTests-MacApp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Contents/MacOS/Omnivore";
+			};
+			name = Debug;
+		};
+		0411793026A22861004AE24F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/MacUnitTests.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.UnitTests-MacApp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Contents/MacOS/Omnivore";
+			};
+			name = Release;
+		};
+		042F48E026DFD10E00BF98FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/iOSUITests.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.UITests-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Omnivore-iOS";
+			};
+			name = Debug;
+		};
+		042F48E126DFD10E00BF98FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/iOSUITests.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.UITests-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Omnivore-iOS";
+			};
+			name = Release;
+		};
+		046C5CE126A3F89A00AC5349 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/ShareExtensionMac.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 47;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = InfoPlists/ShareExtensionMac.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.3.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.ShareExtension-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		046C5CE226A3F89A00AC5349 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/ShareExtensionMac.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 47;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = InfoPlists/ShareExtensionMac.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.3.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.ShareExtension-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		0480E71926D939BF006CAE2F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/MacUITests.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.UITests-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Omnivore;
+			};
+			name = Debug;
+		};
+		0480E71A26D939BF006CAE2F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/MacUITests.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.UITests-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Omnivore;
+			};
+			name = Release;
+		};
+		048ED02226A0B1CC00469E57 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/MacOmnivore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 47;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = InfoPlists/MacOmnivore.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.3.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		048ED02326A0B1CC00469E57 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/MacOmnivore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 47;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = InfoPlists/MacOmnivore.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.3.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		16EB934EAF841184E0DDC8B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/OmnivoreTests.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.tests;
+				PRODUCT_NAME = OmnivoreTests;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Omnivore";
+				TEST_TARGET_NAME = Omnivore;
+			};
+			name = Debug;
+		};
+		36CB3E9C4677B06DB57E8E42 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/Omnivore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 62;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = InfoPlists/Omnivore.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.3.7;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				PRODUCT_NAME = Omnivore;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		42FF1B4B271154A700B38C38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "SafariExtension (iOS).entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 62;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "InfoPlists/SafariExtension-iOS.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Omnivore;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_NAME = SafariExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		42FF1B4C271154A700B38C38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "SafariExtension (iOS)Release.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 62;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "InfoPlists/SafariExtension-iOS.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Omnivore;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.7;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_NAME = SafariExtension;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		42FF1B4D271154A700B38C38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/SafariExtension-Mac.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 47;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "InfoPlists/SafariExtension-Mac.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = SafariExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.3.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_NAME = SafariExtension;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		42FF1B4E271154A700B38C38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/SafariExtension-Mac.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 47;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "InfoPlists/SafariExtension-Mac.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = SafariExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.3.3;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.Omnivore-Extension";
+				PRODUCT_NAME = SafariExtension;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		4EFF43A3347EFF0E367462AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9E8E768A4C0FFCAF88EC3EBE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Entitlements/ShareExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 62;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/ShareExtension.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.7;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
+				PRODUCT_NAME = ShareExtension;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A49F3D242EB0B6B079C7C47B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/OmnivoreTests.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.tests;
+				PRODUCT_NAME = OmnivoreTests;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Omnivore.app/Omnivore";
+				TEST_TARGET_NAME = Omnivore;
+			};
+			name = Release;
+		};
+		BA399E57DA32B839D5E18A9D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Entitlements/Omnivore.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 62;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = InfoPlists/Omnivore.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.3.7;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
+				PRODUCT_NAME = Omnivore;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DD62C4BC6F6671BD15B38C9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Entitlements/ShareExtension.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 62;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				INFOPLIST_FILE = InfoPlists/ShareExtension.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.3.7;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
+				PRODUCT_NAME = ShareExtension;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.5;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F14BFD13D4B5AEE4E0328681 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		03828C73ABE6FE2833E1CC2B /* Build configuration list for PBXProject "Omnivore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F14BFD13D4B5AEE4E0328681 /* Debug */,
+				4EFF43A3347EFF0E367462AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0411792E26A22861004AE24F /* Build configuration list for PBXNativeTarget "UnitTests-MacApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0411792F26A22861004AE24F /* Debug */,
+				0411793026A22861004AE24F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		042F48E226DFD10E00BF98FC /* Build configuration list for PBXNativeTarget "UITests-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				042F48E026DFD10E00BF98FC /* Debug */,
+				042F48E126DFD10E00BF98FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		046C5CE326A3F89A00AC5349 /* Build configuration list for PBXNativeTarget "ShareExtension-Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				046C5CE126A3F89A00AC5349 /* Debug */,
+				046C5CE226A3F89A00AC5349 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0480E71826D939BF006CAE2F /* Build configuration list for PBXNativeTarget "UITests-Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0480E71926D939BF006CAE2F /* Debug */,
+				0480E71A26D939BF006CAE2F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		048ED02826A0B1CC00469E57 /* Build configuration list for PBXNativeTarget "Omnivore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				048ED02226A0B1CC00469E57 /* Debug */,
+				048ED02326A0B1CC00469E57 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		105F5ABA08D05F8E97994597 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DD62C4BC6F6671BD15B38C9B /* Debug */,
+				9E8E768A4C0FFCAF88EC3EBE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		42FF1B4F271154A700B38C38 /* Build configuration list for PBXNativeTarget "SafariExtension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42FF1B4B271154A700B38C38 /* Debug */,
+				42FF1B4C271154A700B38C38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		42FF1B51271154A700B38C38 /* Build configuration list for PBXNativeTarget "SafariExtension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42FF1B4D271154A700B38C38 /* Debug */,
+				42FF1B4E271154A700B38C38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A176068BC2F89EC55D78D60 /* Build configuration list for PBXNativeTarget "OmnivoreTests-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16EB934EAF841184E0DDC8B9 /* Debug */,
+				A49F3D242EB0B6B079C7C47B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A9F5FF91AA45EA743104F171 /* Build configuration list for PBXNativeTarget "Omnivore-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA399E57DA32B839D5E18A9D /* Debug */,
+				36CB3E9C4677B06DB57E8E42 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0418837C2742E99F003E0001 /* XCRemoteSwiftPackageReference "intercom-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/intercom/intercom-ios";
+			requirement = {
+				kind = exactVersion;
+				version = 10.3.2;
+			};
+		};
+		042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/PSPDFKit/PSPDFKit-SP";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0418837D2742E99F003E0001 /* Intercom */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0418837C2742E99F003E0001 /* XCRemoteSwiftPackageReference "intercom-ios" */;
+			productName = Intercom;
+		};
+		0418837F2742FCF2003E0001 /* Utils */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Utils;
+		};
+		042184EC273AD426002357B0 /* PSPDFKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */;
+			productName = PSPDFKit;
+		};
+		045B1680279147E7005047F7 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		046C5CE526A3FE8C00AC5349 /* Binders */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Binders;
+		};
+		047AD6F12724C934004FD5CF /* Binders */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Binders;
+		};
+		047AD6F32724C941004FD5CF /* Binders */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Binders;
+		};
+		04B8B00526A0CEFA00D3ED0C /* Binders */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Binders;
+		};
+		7DD0EF4D497D71D248C7B0DF /* Binders */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Binders;
+		};
+		8F13016D33DF1598D7157563 /* Binders */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Binders;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = AFFD4158DD5DF9B387039311 /* Project object */;
+}

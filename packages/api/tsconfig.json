@@ -1,0 +1,11 @@
+{
+  "extends": "./../../tsconfig.json",
+  "ts-node": {
+    "files": true
+  },
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src", "test"],
+  "exclude": ["./src/generated", "./test"]
+}

@@ -1,0 +1,226 @@
+<div id="readability-page-1" class="page">
+    <div>
+        <figure>
+            <div role="button" tabindex="0">
+                <p><img alt="Image for post" src="https://miro.medium.com/max/3840/1*8xaltkmBH_FInTZe8nH1bQ.jpeg" width="1920" height="1016" srcset="https://miro.medium.com/max/552/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 276w, https://miro.medium.com/max/1104/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 552w, https://miro.medium.com/max/1280/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 640w, https://miro.medium.com/max/1400/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 700w" sizes="700px" data-old-src="https://miro.medium.com/max/1920/1*8xaltkmBH_FInTZe8nH1bQ.jpeg" data-old-srcset="https://miro.medium.com/max/276/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 276w, https://miro.medium.com/max/552/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 552w, https://miro.medium.com/max/640/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 640w, https://miro.medium.com/max/700/1*8xaltkmBH_FInTZe8nH1bQ.jpeg 700w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Image credits: <a href="https://pixabay.com/illustrations/system-web-network-connection-3699542/" rel="noopener nofollow">Pixabay</a>
+            </figcaption>
+        </figure>
+        <h2 id="2fa4" data-selectable-paragraph="">
+            <strong>Microservices — a definition</strong>
+        </h2>
+        <p id="9199" data-selectable-paragraph=""> The term ‘micro’ in Microservices, though indicative of the size of a service, is not the only criteria that make an application a Microservice. When teams move to a microservices-based architecture, they aim to increase their agility — deploy features autonomously and frequently. It’s hard to pin down a single concise definition of this architectural style. I liked this short definition from <a rel="noopener" href="http://fakehost/@adrianco">Adrian Cockcroft</a> — <strong>“<em>service‑oriented architecture composed of loosely coupled elements that have bounded contexts</em>.”</strong>
+        </p>
+        <p id="cd81" data-selectable-paragraph=""> Though this defines a high-level design heuristic, Microservices architecture has some unique characteristics that differentiate it from the service-oriented architecture of the yesteryear. A few of those characteristics, below. These and a few more are well-documented — <a href="https://martinfowler.com/articles/microservices.html" rel="noopener nofollow">Martin Fowler’s article</a> and <a href="https://www.walmart.com/ip/Building-Microservices-Designing-Fine-Grained-Systems-9781491950357/40970629" rel="noopener nofollow">Sam Newman’s Building Microservices,</a> to name a few. </p>
+        <ol>
+            <li id="f4bb" data-selectable-paragraph="">Services have well-defined boundaries centered around business context, and not around arbitrary technical abstractions </li>
+            <li id="deab" data-selectable-paragraph="">Hide implementation detail and expose functionality through intention-revealing interfaces </li>
+            <li id="0365" data-selectable-paragraph="">Services don’t share their internal structures beyond their boundaries. For example, no sharing of databases. </li>
+            <li id="8fee" data-selectable-paragraph="">Services are resilient to failures. </li>
+            <li id="978e" data-selectable-paragraph="">
+                <mark>Teams own their functions independently and have the ability to release changes autonomously</mark>
+            </li>
+            <li id="5967" data-selectable-paragraph="">Teams embrace a culture of automation. For example, automated testing, continuous integration and continuous delivery </li>
+        </ol>
+        <p id="5d42" data-selectable-paragraph=""> In short, we can summarize this architecture style <em>as below:</em>
+        </p>
+        <blockquote>
+            <p id="a73c" data-selectable-paragraph="">
+                <strong>Loosely coupled service-oriented architecture, where each service is enclosed within a well-defined bounded context, enabling rapid, frequent, and reliable delivery of applications.</strong>
+            </p>
+        </blockquote>
+        <h2 id="85df" data-selectable-paragraph="">
+            <strong>Domain-driven design and Bounded contexts</strong>
+        </h2>
+        <p id="0dc0" data-selectable-paragraph=""> The power of microservices comes from clearly defining their responsibility and demarcating the boundary between them. The purpose here is to build high cohesion within the boundary and low coupling outside of it. That is, things that tend to change together should belong together. As in many real-life problems, this is easier said than done — businesses evolve, and assumptions change. Hence the ability to refactor is another critical thing to consider when designing systems. </p>
+        <p id="a55b" data-selectable-paragraph=""> Domain-driven design (DDD) is a key, and in our opinion, a necessary tool when designing microservices, be it breaking a monolith or implementing a greenfield project. Domain-driven design, made famous by Eric Evans by his <a href="https://www.walmart.com/ip/Domain-Driven-Design-Tackling-Complexity-in-the-Heart-of-Software-Hardcover-9780321125217/2222375" rel="noopener nofollow">book</a> , is a set of ideas, principles, and patterns that help design software systems based on the underlying model of the business domain. The developers and domain experts work together to create business models in a Ubiquitous common <em>language.</em> They then bind these models to systems where they make sense, establish collaboration protocols between these systems and the teams that work on these services. More importantly, they design the conceptual contours or boundaries between the systems. </p>
+        <p id="285f" data-selectable-paragraph=""> Microservice design draws inspiration from these concepts as all of these principles help build modular systems that can change and evolve independently of one another. </p>
+        <p id="6a57" data-selectable-paragraph=""> Before we proceed further, let’s quickly go through some of the basic terminologies of DDD. A full overview of Domain-Driven Design is out of scope for this blog. We highly recommend Eric Evans’ <a href="https://www.walmart.com/ip/Domain-Driven-Design-Tackling-Complexity-in-the-Heart-of-Software-Hardcover-9780321125217/2222375" rel="noopener nofollow">book</a> to anyone trying to build microservices </p>
+        <p id="14cf" data-selectable-paragraph="">
+            <strong>Domain:</strong> Represents what an organization does. In the below example, it would be Retail or eCommerce.
+        </p>
+        <p id="388f" data-selectable-paragraph="">
+            <strong>Subdomain:</strong> An organization or business unit within an organization. A domain is composed of multiple subdomains.
+        </p>
+        <p id="360e" data-selectable-paragraph="">
+            <strong>Ubiquitous language:</strong> This is the language used to express the models. In the example below, Item is a Model that belongs to the Ubiquitous language of each of these subdomains. Developers, Product Managers, domain experts, and business stakeholders agree on the same language and use it in their artifacts — Code, Product Documentation, and so on.
+        </p>
+        <figure>
+            <div>
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1332/1*CQSDhnewuP6sVxJJNuA_VA.png" width="666" height="626" srcset="https://miro.medium.com/max/552/1*CQSDhnewuP6sVxJJNuA_VA.png 276w, https://miro.medium.com/max/1104/1*CQSDhnewuP6sVxJJNuA_VA.png 552w, https://miro.medium.com/max/1280/1*CQSDhnewuP6sVxJJNuA_VA.png 640w, https://miro.medium.com/max/1332/1*CQSDhnewuP6sVxJJNuA_VA.png 666w" sizes="666px" data-old-src="https://miro.medium.com/max/666/1*CQSDhnewuP6sVxJJNuA_VA.png" data-old-srcset="https://miro.medium.com/max/276/1*CQSDhnewuP6sVxJJNuA_VA.png 276w, https://miro.medium.com/max/552/1*CQSDhnewuP6sVxJJNuA_VA.png 552w, https://miro.medium.com/max/640/1*CQSDhnewuP6sVxJJNuA_VA.png 640w, https://miro.medium.com/max/666/1*CQSDhnewuP6sVxJJNuA_VA.png 666w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 1. Sub-domains and Bounded Contexts in eCommerce domain </figcaption>
+        </figure>
+        <p id="e6be" data-selectable-paragraph="">
+            <strong>Bounded Contexts:</strong> Domain-driven design defines Bounded contexts as <em>“The setting in which a word or a statement appears that determines its meaning.”</em> In short, this means the boundary within which a model makes sense. In the above example, “Item” takes on a different meaning in each of those contexts. In the Catalog context, an Item means a sell-able product, whereas, in Cart context, it means the item that the customer has added to her cart. In Fulfillment context, it means a Warehouse Item that will be shipped to the customer. Each of these models is different, and each has a different meaning and possibly contains different attributes. By separating and isolating these models within their respective boundaries, we can express the models freely and without ambiguity.
+        </p>
+        <p id="76e1" data-selectable-paragraph="">
+            <strong>Note</strong>: It’s essential to understand the distinction between Subdomains and Bounded contexts. A subdomain belongs in the problem space, that is, how your business sees the problem, whereas Bounded contexts belong in the solution space, that is, how we will implement the solution to the problem. Theoretically, each subdomain may have multiple bounded contexts, though we strive for one bounded context per subdomain.
+        </p>
+        <h2 id="26ef" data-selectable-paragraph="">
+            <strong>How are Microservices related to Bounded contexts</strong>
+        </h2>
+        <p id="91b1" data-selectable-paragraph=""> Now, where do Microservices fit? Is it fair to say that each bounded context maps to a microservice? Yes and no. We will see why. There may be cases where the boundary or contour of your bounded context is quite large. </p>
+        <figure>
+            <div>
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1116/1*CRq9QlIpGlTx4-fQ2Hg73A.png" width="558" height="402" srcset="https://miro.medium.com/max/552/1*CRq9QlIpGlTx4-fQ2Hg73A.png 276w, https://miro.medium.com/max/1104/1*CRq9QlIpGlTx4-fQ2Hg73A.png 552w, https://miro.medium.com/max/1116/1*CRq9QlIpGlTx4-fQ2Hg73A.png 558w" sizes="558px" data-old-src="https://miro.medium.com/max/558/1*CRq9QlIpGlTx4-fQ2Hg73A.png" data-old-srcset="https://miro.medium.com/max/276/1*CRq9QlIpGlTx4-fQ2Hg73A.png 276w, https://miro.medium.com/max/552/1*CRq9QlIpGlTx4-fQ2Hg73A.png 552w, https://miro.medium.com/max/558/1*CRq9QlIpGlTx4-fQ2Hg73A.png 558w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 2. Bounded context and microservices </figcaption>
+        </figure>
+        <p id="0a1b" data-selectable-paragraph=""> Consider the example above. The Pricing bounded context has three distinct models — Price, Priced items, and Discounts, each responsible for the price of a catalog item, computing the total price of a list of items, and applying discounts respectively. We could create a single system that encompasses all the above models, but it could become an unreasonably large application. Each of the data models, as mentioned earlier, have their invariants and business rules. Over time, if we are not careful, the system could become a Big ball of mud with obscured boundaries, overlapping responsibilities, and probably back to where we started — a monolith. </p>
+        <p id="a9ac" data-selectable-paragraph=""> Another way to model this system is to separate, or group related models into separate microservices. In DDD, these models — Price, Priced Items, and Discounts — are called <em>Aggregates</em>. An aggregate is a self-contained model that composes related models. You could change the state of an aggregate only through a published interface, and the aggregate ensures consistency and that the invariants hold good. </p>
+        <p id="9e95" data-selectable-paragraph=""> Formally, An <em>Aggregate is a cluster of associated objects treated as a unit for data changes. External references are restricted to one member of the AGGREGATE, designated as the root. A set of consistency rules applies within the AGGREGATE’S boundaries.</em>
+        </p>
+        <figure>
+            <div>
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1180/1*zDE5n8r9UoTy3EQ4C9C-3w.png" width="590" height="336" srcset="https://miro.medium.com/max/552/1*zDE5n8r9UoTy3EQ4C9C-3w.png 276w, https://miro.medium.com/max/1104/1*zDE5n8r9UoTy3EQ4C9C-3w.png 552w, https://miro.medium.com/max/1180/1*zDE5n8r9UoTy3EQ4C9C-3w.png 590w" sizes="590px" data-old-src="https://miro.medium.com/max/590/1*zDE5n8r9UoTy3EQ4C9C-3w.png" data-old-srcset="https://miro.medium.com/max/276/1*zDE5n8r9UoTy3EQ4C9C-3w.png 276w, https://miro.medium.com/max/552/1*zDE5n8r9UoTy3EQ4C9C-3w.png 552w, https://miro.medium.com/max/590/1*zDE5n8r9UoTy3EQ4C9C-3w.png 590w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 3. Microservices in the Pricing Context </figcaption>
+        </figure>
+        <p id="af8e" data-selectable-paragraph=""> Again, it’s not necessary to model every aggregate as a distinct microservice. It turned out to be so for the services (aggregates) in Fig 3, but that’s not necessarily a rule. In some cases, it may make sense to host multiple aggregates in a single service, particularly when we don’t fully understand the business domain. An important thing to note is that consistency can be guaranteed only within a single aggregate, and the aggregates can only be modified through the published interface. Any violation of these bears the risk of turning into a big ball of mud. </p>
+        <h2 id="b6b3" data-selectable-paragraph="">
+            <strong>Context maps — A way to carve out accurate microservice boundaries</strong>
+        </h2>
+        <p id="82b7" data-selectable-paragraph=""> Another essential toolkit in your arsenal is the concept of Context maps — again, from Domain Driven Design. A monolith is usually composed of disparate models, mostly tightly coupled — models perhaps know the intimate details of one another, changing one could cause side effects on another, and so on. As you break down the monolith, it’s vital to identify these models — aggregates in this case — and their relationships. Context maps help us do just that. They are used to identify and define relationships between various bounded contexts and aggregates. While bounded contexts define the boundary of a model — Price, Discounts, etc. in the example above, Context maps define the relationships between these models and between different contexts. After identifying these dependencies, we can determine the right collaboration model between the teams that will implement these services. </p>
+        <p id="13e8" data-selectable-paragraph=""> A full exploration of Context maps is beyond the scope of this blog, but we’ll illustrate it with an example. The below diagram represents the various applications that handle payments for an eCommerce order. </p>
+        <ol>
+            <li id="cb4a" data-selectable-paragraph="">The cart context takes care of online authorizations of an order; Order context processes post fulfillment payment processes like Settlements; Contact center handles any exceptions like retrying payments and changing the payment method used for the order </li>
+            <li id="b779" data-selectable-paragraph="">For the sake of simplicity, let’s assume that all these contexts are implemented as separate services </li>
+            <li id="5f8a" data-selectable-paragraph="">All these contexts encapsulate the same model. </li>
+            <li id="c7e9" data-selectable-paragraph="">Note that these models are logically the same. That is, they all follow the same Ubiquitous domain language — payment methods, authorizations, and settlements. Just that they are a part of different contexts. </li>
+        </ol>
+        <p id="9d96" data-selectable-paragraph=""> Another sign that the same model is spread around different contexts is that all of these integrate directly with a single payment gateway and do the same operations as one another </p>
+        <figure>
+            <div role="button" tabindex="0">
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1872/1*WJZqMtq1spHo6lghw3V_Uw.png" width="936" height="562" srcset="https://miro.medium.com/max/552/1*WJZqMtq1spHo6lghw3V_Uw.png 276w, https://miro.medium.com/max/1104/1*WJZqMtq1spHo6lghw3V_Uw.png 552w, https://miro.medium.com/max/1280/1*WJZqMtq1spHo6lghw3V_Uw.png 640w, https://miro.medium.com/max/1400/1*WJZqMtq1spHo6lghw3V_Uw.png 700w" sizes="700px" data-old-src="https://miro.medium.com/max/936/1*WJZqMtq1spHo6lghw3V_Uw.png" data-old-srcset="https://miro.medium.com/max/276/1*WJZqMtq1spHo6lghw3V_Uw.png 276w, https://miro.medium.com/max/552/1*WJZqMtq1spHo6lghw3V_Uw.png 552w, https://miro.medium.com/max/640/1*WJZqMtq1spHo6lghw3V_Uw.png 640w, https://miro.medium.com/max/700/1*WJZqMtq1spHo6lghw3V_Uw.png 700w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 4. An incorrectly defined context map </figcaption>
+        </figure>
+        <h2 id="974f" data-selectable-paragraph="">
+            <strong>Redefining the service boundaries — Map the aggregates to the right contexts</strong>
+        </h2>
+        <p id="2407" data-selectable-paragraph=""> There are a few problems that are very evident in the above design (Fig 4). Payments aggregate is part of multiple contexts. It’s impossible to enforce invariants and consistency across various services, not to mention the concurrency issues between these services. For example, what happens if the contact center changes the payment method associated with the order while the Orders service is trying to post settlement of a previously submitted payment method. Also, note that any change in the payment gateway would force changes to multiple services and potentially numerous teams, as different groups could own these contexts. </p>
+        <p id="9449" data-selectable-paragraph=""> With a few adjustments and aligning the aggregates to the right contexts, we get a much better representation of these subdomains — Fig 5. There is a lot that has changed. Let’s review the changes: </p>
+        <ol>
+            <li id="42ee" data-selectable-paragraph="">Payments aggregate has a new home — Payment service. This service also abstracts the Payment gateway from the other services that require payment services. As a single bounded context now owns an aggregate, the invariants are easy to manage; all transactions happen within the same service boundary helping to avoid any concurrency issues. </li>
+            <li id="f9b6" data-selectable-paragraph="">Payments aggregate uses an Anti-corruption Layer (ACL) to isolate the core domain model from the payment gateway’s data model, which is usually a third-party provider and perhaps bound to change. We’ll dive deeper into the application design of such as service using Ports and Adapters pattern in a future post. The ACL layer usually contains the adapters that transform the data model of the payment gateway to the Payments aggregate data model. </li>
+            <li id="ba20" data-selectable-paragraph="">Cart service calls the Payments service through direct API calls as the cart service may have to complete the payment authorization while the customers are on the website </li>
+            <li id="f7ad" data-selectable-paragraph="">Make a note of the interaction between Orders and Payment service. Orders service emits a domain event (more on this later in this blog). Payments service listens to this event and completes settlement of the order </li>
+            <li id="3dbe" data-selectable-paragraph="">Contact center service may have many aggregates, but we are only interested in the Orders aggregate for this use case. This service emits an event when the payment method changes, and the Payments service reacts to it by reversing the credit card used prior and processing the new credit card. </li>
+        </ol>
+        <figure>
+            <div role="button" tabindex="0">
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1484/1*6jb1gyx5KK9q0cV1x5t2eA.png" width="742" height="726" srcset="https://miro.medium.com/max/552/1*6jb1gyx5KK9q0cV1x5t2eA.png 276w, https://miro.medium.com/max/1104/1*6jb1gyx5KK9q0cV1x5t2eA.png 552w, https://miro.medium.com/max/1280/1*6jb1gyx5KK9q0cV1x5t2eA.png 640w, https://miro.medium.com/max/1400/1*6jb1gyx5KK9q0cV1x5t2eA.png 700w" sizes="700px" data-old-src="https://miro.medium.com/max/742/1*6jb1gyx5KK9q0cV1x5t2eA.png" data-old-srcset="https://miro.medium.com/max/276/1*6jb1gyx5KK9q0cV1x5t2eA.png 276w, https://miro.medium.com/max/552/1*6jb1gyx5KK9q0cV1x5t2eA.png 552w, https://miro.medium.com/max/640/1*6jb1gyx5KK9q0cV1x5t2eA.png 640w, https://miro.medium.com/max/700/1*6jb1gyx5KK9q0cV1x5t2eA.png 700w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 5. Redefined context map </figcaption>
+        </figure>
+        <p id="2d18" data-selectable-paragraph=""> Usually, a monolithic or a legacy application has many aggregates, often with overlapping boundaries. Creating a context map of these aggregates and their dependencies helps us understand the contours of any new microservices that we will wrest out of these monoliths. Remember, the success or failure of microservices architecture hinges upon low coupling between the aggregates and high cohesion within these aggregates. </p>
+        <p id="cdc0" data-selectable-paragraph=""> It’s also important to note that bounded contexts are themselves suitable cohesive units. Even if a context has multiple aggregates, the entire context, along with its aggregates, can be composed into a single microservice. We find this heuristic particularly useful for domains that are a bit obscure — think about a new line of business the organization is venturing into. You may not have sufficient insight into the right boundaries of separation, and any premature decomposition of aggregates can lead to expensive refactoring. Imagine having to merge two databases into one, along with data migration, because we happened to find that two aggregates belong together. But ensure these aggregates are sufficiently isolated through interfaces so that they don’t know the intricate details of one another. </p>
+        <h2 id="c868" data-selectable-paragraph="">
+            <strong>Event Storming — Another technique to identify service boundaries</strong>
+        </h2>
+        <p id="a5e7" data-selectable-paragraph=""> Event Storming is another essential technique to identify aggregates (and hence microservices) in a system. It is a useful tool both for breaking monoliths and when designing a complex ecosystem of microservices. We have used this technique to break down one of our complex applications, and we intend to cover our experiences with Event Storming in a separate blog. For the scope of this blog, we want to give a quick high-level overview. Please watch <a href="https://www.youtube.com/watch?v=1i6QYvYhlYQ" rel="noopener nofollow">Alberto Brandelloni’s video</a> on the topic if you are interested in exploring further. </p>
+        <p id="ef88" data-selectable-paragraph=""> In a nutshell, Event Storming is a brainstorming exercise between the teams that work on an application — in our case, a monolith — to identify the various domain events and processes that happen within a system. The teams also identify the aggregates or models these events affect and any subsequent impacts thereof. As the teams do this exercise, they identify different overlapping concepts, ambiguous domain language, and conflicting business processes. They group related models, redefine aggregates and identify duplicate processes. As they progress with this exercise, the bounded contexts where these aggregates belong becomes clear. Event Storming workshops are useful if all the teams are in a single room — physical or virtual — and start to map the events, commands, and processes on a scrum-style whiteboard. At the end of this exercise, below are the usual outcomes: </p>
+        <ol>
+            <li id="eb62" data-selectable-paragraph="">Redefined list of Aggregates. These potentially become new microservices </li>
+            <li id="7d76" data-selectable-paragraph="">Domain Events that need to flow between these microservices </li>
+            <li id="47d3" data-selectable-paragraph="">Commands which are direct invocations from other applications or users </li>
+        </ol>
+        <p id="4598" data-selectable-paragraph=""> We’ve shown a sample board at the end of an Event Storming workshop below. It’s a great collaborative exercise for the teams to agree on the right aggregates and bounded contexts. Besides being a great team-building exercise, the teams come out of this session with a shared understanding of the domain, ubiquitous language, and precise service boundaries. </p>
+        <figure>
+            <div role="button" tabindex="0">
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1872/1*CL-6_jfymabIiv1NI_5epg.png" width="936" height="406" srcset="https://miro.medium.com/max/552/1*CL-6_jfymabIiv1NI_5epg.png 276w, https://miro.medium.com/max/1104/1*CL-6_jfymabIiv1NI_5epg.png 552w, https://miro.medium.com/max/1280/1*CL-6_jfymabIiv1NI_5epg.png 640w, https://miro.medium.com/max/1400/1*CL-6_jfymabIiv1NI_5epg.png 700w" sizes="700px" data-old-src="https://miro.medium.com/max/936/1*CL-6_jfymabIiv1NI_5epg.png" data-old-srcset="https://miro.medium.com/max/276/1*CL-6_jfymabIiv1NI_5epg.png 276w, https://miro.medium.com/max/552/1*CL-6_jfymabIiv1NI_5epg.png 552w, https://miro.medium.com/max/640/1*CL-6_jfymabIiv1NI_5epg.png 640w, https://miro.medium.com/max/700/1*CL-6_jfymabIiv1NI_5epg.png 700w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 6. Event Storming board </figcaption>
+        </figure>
+        <h2 id="9bb1" data-selectable-paragraph="">
+            <strong>Communication between microservices</strong>
+        </h2>
+        <p id="7e84" data-selectable-paragraph=""> To quickly recap, a monolith hosts multiple aggregates within a single process boundary. Hence managing consistency of aggregates within this boundary is possible. For example, if a Customer places an Order, we can decrement the Inventory of the items, send an email to the Customer — all within a single transaction. All operations would succeed, or all would fail. But, as we break the monolith and spread the aggregates into different contexts, we will have tens or even hundreds of microservices. The processes that hitherto existed within the single boundary of a monolith is now spread across multiple distributed systems. Achieving transactional integrity and consistency across all of these distributed systems is very hard, and it comes at a cost — the availability of the systems. </p>
+        <p id="b28d" data-selectable-paragraph=""> Microservices are distributed-systems as well. Hence, CAP theorem applies to them as well — <em>“a distributed system can deliver only two of three desired characteristics: consistency, availability, and partition tolerance (the ‘C,’ ‘A’ and ‘P’ in CAP).”</em> In real-world systems, partition tolerance is not negotiable — <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing" rel="noopener nofollow">network is unreliable</a>, virtual machines can go down, latency between regions can become worse, and so on. </p>
+        <p id="2058" data-selectable-paragraph=""> So that leaves us with a choice of either Availability or Consistency. Now, we know that in any modern application, sacrificing availability is not a good idea either. </p>
+        <figure>
+            <div>
+                <p><img alt="Image for post" src="https://miro.medium.com/max/412/1*h-XBZDSgZfCpXMfDtw8EYQ.png" width="206" height="196" data-old-src="https://miro.medium.com/max/206/1*h-XBZDSgZfCpXMfDtw8EYQ.png">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 7. CAP Theorem </figcaption>
+        </figure>
+        <h2 id="54e5" data-selectable-paragraph=""> Design applications around eventual consistency </h2>
+        <p id="cf43" data-selectable-paragraph=""> If you try to build transactions across several distributed systems, you’ll end up in the monolith land again. Only this time it will be the worst kind, a distributed monolith. If any of the systems become unavailable, the whole process becomes unavailable, often leading to frustrating customer experience, failed promises, and so on. Besides, changes to one service may usually entail changes to another service, leading to complex and costly deployments. Hence, we are better off designing applications tailoring our use cases to tolerate a little bit of inconsistency in favor of availability. For the example above, we can make all the processes asynchronous and hence eventually consistent. We can send emails asynchronously, independent of the other processes; If an item that’s promised is not available in the warehouse later, the item could be back-ordered, or we could stop taking orders for the item beyond a certain threshold.<br> Occasionally, you may encounter a scenario that might require strong ACID-style transactions across two aggregates in different process boundaries. That’s an excellent sign to revisit these aggregates and perhaps combine them into one. Event Storming and Context Maps will help identify these dependencies early on before we start breaking up these aggregates in different process boundaries. Merging two microservices into one is costly, and that’s something we should strive to avoid. </p>
+        <h2 id="0aaa" data-selectable-paragraph=""> Favor event-driven architecture </h2>
+        <p id="81f1" data-selectable-paragraph=""> Microservices can emit essential changes that happen to their aggregates. These are called Domain events, and any services that are interested in these changes can listen to these events and take respective action within their domains. This method avoids any behavioral coupling — one domain doesn’t prescribe what the other domains should do, and temporal coupling — the successful completion of a process doesn’t depend on all the systems to be available at the same time. This, of course, will mean that the systems will be eventually consistent. </p>
+        <figure>
+            <div>
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1372/1*7KRwNMvjysqKEEBmdm4jmw.png" width="686" height="580" srcset="https://miro.medium.com/max/552/1*7KRwNMvjysqKEEBmdm4jmw.png 276w, https://miro.medium.com/max/1104/1*7KRwNMvjysqKEEBmdm4jmw.png 552w, https://miro.medium.com/max/1280/1*7KRwNMvjysqKEEBmdm4jmw.png 640w, https://miro.medium.com/max/1372/1*7KRwNMvjysqKEEBmdm4jmw.png 686w" sizes="686px" data-old-src="https://miro.medium.com/max/686/1*7KRwNMvjysqKEEBmdm4jmw.png" data-old-srcset="https://miro.medium.com/max/276/1*7KRwNMvjysqKEEBmdm4jmw.png 276w, https://miro.medium.com/max/552/1*7KRwNMvjysqKEEBmdm4jmw.png 552w, https://miro.medium.com/max/640/1*7KRwNMvjysqKEEBmdm4jmw.png 640w, https://miro.medium.com/max/686/1*7KRwNMvjysqKEEBmdm4jmw.png 686w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 8. Event driven architecture </figcaption>
+        </figure>
+        <p id="cb94" data-selectable-paragraph=""> In the example above, Orders service publishes an event — Order Cancelled. The other services that have subscribed to the event process their respective domain functions: Payment service refunds the money, Inventory service adjusts the inventory of the items, and so on. Few things to note to ensure the reliability and resiliency of this integration: </p>
+        <ol>
+            <li id="4d94" data-selectable-paragraph="">Producers should ensure that they produce an event at least once. If there are failures in doing so, they should ensure there is a fall back mechanism present to re-trigger the events </li>
+            <li id="3790" data-selectable-paragraph="">Consumers should ensure that they consume the events in an idempotent way. If the same event occurs again, there shouldn’t be any side effect at the consumer end. Events may also arrive out of sequence. Consumers can use Timestamp or version numbers fields to guarantee the uniqueness of the events. </li>
+        </ol>
+        <p id="ebe5" data-selectable-paragraph=""> It may not always be possible to use event-based integration due to the nature of some use cases. Please take a look at the integration between the Cart service and Payment service. It’s a synchronous integration, and hence has a few things we should watch out. It’s an example of behavioral coupling — Cart service perhaps calls a REST API from Payment service and instructs it to authorize the payment for an order, and temporal coupling — Payment service needs to be available for Cart service to accept an order. This kind of coupling reduces the autonomy of these contexts and maybe an undesirable dependency. There are a few ways to avoid this coupling, but with all these options, we will lose the ability to provide instant feedback to the customers. </p>
+        <ol>
+            <li id="73b7" data-selectable-paragraph="">Convert the REST API to an event-based integration. But this option may not be available if the Payment Service exposes only a REST API </li>
+            <li id="035d" data-selectable-paragraph="">Cart service accepts an order instantaneously, and there is a batch job which picks up the orders and calls the Payment service API </li>
+            <li id="6768" data-selectable-paragraph="">Cart service produces a local event which then calls the Payment service API </li>
+        </ol>
+        <p id="469e" data-selectable-paragraph=""> A combination of the above with retries in case of failures and unavailability of the upstream dependency — Payment service — can result in a much more resilient design. For example, the synchronous integration between the Cart and the Payment services can be backed up by an event or batch-based retries in cases of failures. This approach has an added impact on the customer experience — the customers may have entered incorrect payment details, and we will not have them online when we process the payments offline. Or there may be an added cost to the business to reclaim failed payments. But in all likelihood, the benefits of the Cart service being resilient to the Payment service’s unavailability or faults outweigh the shortcomings. For example, we can notify the customers if we are not able to collect payments offline. In short, there are trade-offs between user experience, resiliency, and operating costs, and it’s wise to design systems, keeping these compromises in mind. </p>
+        <h2 id="1ad1" data-selectable-paragraph=""> Avoid orchestration between services for consumer-specific data needs </h2>
+        <p id="7077" data-selectable-paragraph=""> One of the anti-patterns in any service-oriented architecture is that the services cater to the specific access patterns of consumers. Usually, this happens when the consumer teams work closely with the service teams. If the team was working on a monolithic application, they would often create a single API that crosses different aggregate boundaries, hence tightly coupling these aggregates. Let’s consider an example. Say the Order Details page in Web, and Mobile applications need to show the details of both an Order and the details of the refunds processed for the order on a single page. In a monolithic application, an Order GET API — assuming it’s REST API — queries Orders and Refunds together, consolidates both the aggregates and sends a composite response to the callers. It’s possible to do this without a lot of overhead as the aggregates belong to the same process boundary. Thus, consumers can get all the necessary data in a single call. </p>
+        <p id="01c7" data-selectable-paragraph=""> If Orders and Refunds are part of different contexts, the data is no longer present within a single microservice or aggregate boundary. One option to retain the same functionality for the consumers is by making Order service responsible for calling the Refunds service and create a composite response. This approach causes several concerns: </p>
+        <p id="97e9" data-selectable-paragraph=""> 1. Order service now integrates with another service purely for supporting the consumers who need the Refund data along with Order data. Order service is less autonomous now as any changes in Refunds aggregate will lead to a change to the Order aggregate. </p>
+        <p id="2a4f" data-selectable-paragraph=""> 2. Order service has another integration and hence another failure point to take into account — if Refunds service is down, can Order Service still send partial data, and can the consumers fail gracefully? </p>
+        <p id="0d74" data-selectable-paragraph=""> 3. If the consumers need a change to fetch more data from the Refunds aggregate, two teams are involved now to make this change </p>
+        <p id="fe23" data-selectable-paragraph=""> 4. This pattern, if followed across the platform, can lead to an intricate web of dependencies between the various domain services, all because these services cater to the callers’ specific access patterns. </p>
+        <h2 id="74fc" data-selectable-paragraph=""> Backend for Frontends (BFFs) </h2>
+        <p id="a394" data-selectable-paragraph=""> An approach to mitigate this risk is to let the consumer teams manage the orchestration between the various domain services. After all, the callers know the access patterns better and can be in complete control of any changes to these patterns. This approach decouples the domain services from the presentation tier, letting them focus on the core business processes. But if the web and mobile apps begin to call different services directly instead of the one composite API from the monolith, it may cause performance overhead to these apps — multiple calls over lower bandwidth networks, processing and merging data from different APIs, and so on. </p>
+        <p id="a2a4" data-selectable-paragraph=""> Instead, one could use another pattern called <a href="https://www.boldare.com/blog/event-storming-guide/Backend%20for%20Frontends%E2%80%8A-%E2%80%8Ahttps://www.thoughtworks.com/insights/blog/bff-soundcloud" rel="noopener nofollow">Backend for Front-ends</a>. In this design pattern, a backend service created and managed by the consumers — in this case, the web and mobile teams — takes care of integration across multiple domain services purely to render the front-end experience to the customers. The web and mobile teams can now design the data contracts based on the use cases that they cater to. They can even use GraphQL instead of REST APIs to flexibly query and get back exactly what they need. It’s important to note that this service is owned and maintained by the consumer teams and not by the teams that own the domain services. The front-end teams can now optimize based on their needs — a mobile app can request a smaller payload, reduce the number of calls from the mobile app, and so on. Take a look at the revised view of the orchestration below. The BFF service now calls both Orders and Refunds domain services for its use case. </p>
+        <figure>
+            <div>
+                <p><img alt="Image for post" src="https://miro.medium.com/max/1120/1*CcRBzPfaGd7gs8gBXGr7BA.png" width="560" height="388" srcset="https://miro.medium.com/max/552/1*CcRBzPfaGd7gs8gBXGr7BA.png 276w, https://miro.medium.com/max/1104/1*CcRBzPfaGd7gs8gBXGr7BA.png 552w, https://miro.medium.com/max/1120/1*CcRBzPfaGd7gs8gBXGr7BA.png 560w" sizes="560px" data-old-src="https://miro.medium.com/max/560/1*CcRBzPfaGd7gs8gBXGr7BA.png" data-old-srcset="https://miro.medium.com/max/276/1*CcRBzPfaGd7gs8gBXGr7BA.png 276w, https://miro.medium.com/max/552/1*CcRBzPfaGd7gs8gBXGr7BA.png 552w, https://miro.medium.com/max/560/1*CcRBzPfaGd7gs8gBXGr7BA.png 560w">
+                </p>
+            </div>
+            <figcaption data-selectable-paragraph=""> Fig 9. Backend for Frontends </figcaption>
+        </figure>
+        <p id="4da9" data-selectable-paragraph=""> It’s also useful to build the BFF service early on, before breaking a plethora of services from the monolith. Otherwise, either the domain services will have to support the inter-domain orchestration, or the web and mobile apps will have to call multiple services directly from the front-end. Both of these options will lead to performance overhead, throw-away work, and lack of autonomy between the teams. </p>
+        <h2 id="6613" data-selectable-paragraph=""> Conclusion </h2>
+        <p id="161c" data-selectable-paragraph=""> In this blog, we touched upon various concepts, strategies, and design heuristics to consider when we venture into the world of microservices, more specifically when we try to break a monolith into multiple domain-based microservices. Many of these are vast topics on their own, and I don’t think we’ve done enough justice to explain them in full detail, but we wanted to introduce some of the critical topics and our experience in adopting these. Further Reading (link) section has some references and some useful content for anyone who wishes to pursue this path. </p>
+        <p id="fe5f" data-selectable-paragraph="">
+            <strong>Update:</strong> The next two blogs in the series are out. These two blogs discuss implementing the Cart microservice, with code examples, using Domain-Driven Design principles, and Ports and Adapters design patterns. The primary focus of these blogs is to demonstrate how these two principles/patterns help us build modular applications that are agile, testable, and refactorable — in short, be able to respond to the fast-paced environment we are all operating on.
+        </p>
+        <p id="42cb" data-selectable-paragraph="">
+            <a rel="noopener" href="http://fakehost/walmartglobaltech/implementing-cart-service-with-ddd-hexagonal-port-adapter-architecture-part-1-4dab93b3fa9f">Implementing Cart Microservice using Domain Driven Design and Ports and Adapters Pattern — Part 1</a>
+        </p>
+        <p id="c811" data-selectable-paragraph="">
+            <a rel="noopener" href="http://fakehost/walmartglobaltech/implementing-cart-service-with-ddd-hexagonal-port-adapter-architecture-part-2-d9c00e290ab">Implementing Cart Microservice using Domain Driven Design and Ports and Adapters Pattern — Part 2</a>
+        </p>
+        <h2 id="e088" data-selectable-paragraph=""> Further Reading </h2>
+        <p id="fc9c" data-selectable-paragraph=""> 1. <a href="https://www.walmart.com/ip/Domain-Driven-Design-Tackling-Complexity-in-the-Heart-of-Software-Hardcover-9780321125217/2222375" rel="noopener nofollow">Eric Evans’ Domain Driven Design</a>
+        </p>
+        <p id="80d6" data-selectable-paragraph=""> 2. <a href="https://www.walmart.com/ip/Implementing-Domain-Driven-Design-Hardcover-9780321834577/21124187" rel="noopener nofollow">Vaughn Vernon’s Implementing Domain Driven Design</a>
+        </p>
+        <p id="708a" data-selectable-paragraph=""> 3. <a href="https://martinfowler.com/articles/microservices.html" rel="noopener nofollow">Martin Fowler’s article on Microservices</a>
+        </p>
+        <p id="abcc" data-selectable-paragraph=""> 4. <a href="https://www.walmart.com/ip/Building-Microservices-Designing-Fine-Grained-Systems-9781491950357/40970629" rel="noopener nofollow">Sam Newman’s Building Microservices</a>
+        </p>
+        <p id="f1e5" data-selectable-paragraph=""> 5. <a href="https://www.youtube.com/watch?v=1i6QYvYhlYQ" rel="noopener nofollow">Event storming</a>
+        </p>
+        <p id="cf91" data-selectable-paragraph=""> 7. <a href="https://www.thoughtworks.com/insights/blog/bff-soundcloud" rel="noopener nofollow">Backend for Frontends</a>
+        </p>
+        <p id="1113" data-selectable-paragraph="">
+            <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing" rel="noopener nofollow">8.</a> <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing" rel="noopener nofollow">Fallacies of distributed computing</a>
+        </p>
+    </div>
+</div>

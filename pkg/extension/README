@@ -1,0 +1,23 @@
+
+We are using webpack to build the extension as described in the repo below:
+	Credit: https://github.com/paulmwatson/web-ext-environments.git
+Weback builds the main background script as well as the background html
+page for the extension. Webpack copy plugin is used to transform env
+variables in the main background script (not any of the content scripts).
+Env variables are loaded using dotenv-webpack and the checked in .env files.
+
+Steps for new extension release:
+* yarn install
+* To generate a production extension in dist/ folder to save articles
+against production site, run: yarn build-prod
+* For development extension to use against QA site (dev.omnivore.app) run yarn build-qa
+* For using extension against localhost, run yarn build
+
+
+Steps for creating Safari extension:
+* Follow guide here:
+  https://developer.apple.com/documentation/safariservices/safari_web_extensions/converting_a_web_extension_for_safari
+* Run: xcrun safari-web-extension-converter dist/ (on the webpack built extension dist/ folder)
+* In xcode, build for 'Running', next 'Archive' and finally 'Distribute' and choose 'Copy' to share manually 
+with others via file.
+

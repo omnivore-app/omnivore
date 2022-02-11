@@ -1,0 +1,19 @@
+runtime: custom
+service: imageproxy
+env: flex
+
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 2
+
+resources:
+  cpu: 1
+  memory_gb: 2
+  disk_size_gb: 10
+
+env_variables:
+  GCS_IMAGES_PATH: 'gcs://omnivore/images/'
+  MEM_CACHE_SIZE_MB: 600
+
+includes:
+  - .secrets-imageproxy.yaml

@@ -1,0 +1,235 @@
+<div id="readability-page-1" class="page">
+    <div id="content">
+        <article lang="en" xml:lang="en">
+            <div>
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:site" content="@powerdns_bert" />
+                <meta name="twitter:creator" content="@powerdns_bert" />
+                <meta name="twitter:title" content="Reverse Engineering the source code of the BioNTech/Pfizer SARS-CoV-2 Vaccine" />
+                <meta name="twitter:description" content="Welcome! In this post, we&apos;ll be taking a character-by-character look at the source code of the BioNTech/Pfizer SARS-CoV-2 mRNA vaccine." />
+                <meta name="twitter:image" content="https://berthub.eu/articles/bnt162b2.png" />
+                <p>
+                    <strong>Translations</strong>: <a href="https://berthub.eu/articles/posts/greek-reverse-engineering-source-code-of-the-biontech-pfizer-vaccine/" target="_blank">ελληνικά</a> / <a href="https://docs.google.com/document/d/17IEvUBHZnx-Yf-sPoGzih_pAr4eemBmXUplOd0WtWk4/edit" target="_blank">عربى</a> / <a href="https://mp.weixin.qq.com/s/b0Mw8uKLYuXHJ5Bj3t2Dwg" target="_blank">中文</a> (<a href="https://mp.weixin.qq.com/s/3z3L0ZtI_JcdlXLB_ZH4lQ" target="_blank">Weixin video</a>, <a href="https://www.youtube.com/watch?v=G75j4qKexN0&amp;feature=youtu.be" target="_blank">Youtube video</a>) / <a href="https://medium.com/@it9gamelog/reverse-engineering-biontech-pfizer-bnt162b2-2ce758508fb4" target="_blank">粵文</a> / <a href="https://berthub.eu/articles/posts/merekayasa-balik-kode-sumber-vaksin-sars-cov-2-biontech-pfizer/" target="_blank">bahasa Indonesia</a> / <a href="https://benedikz.space/articles/reverse-engineering-zdrojoveho-kodu-vakciny-biontech-pfizer.html" target="_blank">český</a> / <a href="https://www.webscatalunya.com/blog-disseny-web/programacio/enginyeria-inversa-del-codi-font-de-la-vacuna-de-biontech-pfizer-per-la-sars-cov-2/" target="_blank">Català</a> / <a href="https://benedikz.space/articles/reverse-engineering-zdrojoveho-kodu-vakciny-biontech-pfizer.html" target="_blank">český</a> / <a href="https://berthub.eu/articles/posts/german-reverse-engineering-source-code-of-the-biontech-pfizer-vaccine/" target="_blank">Deutsch</a> / <a href="https://berthub.eu/articles/posts/ingenieria_inversa_del_codigo_fuente_de_la_vacuna_de_biontech_pfizer_para_el_sars-cov-2/" target="_blank">Español</a> / <a href="https://virgool.io/@afeizi/%D9%85%D9%87%D9%86%D8%AF%D8%B3%DB%8C-%D9%85%D8%B9%DA%A9%D9%88%D8%B3-%DA%A9%D9%8F%D8%AF-%D9%85%D9%86%D8%A8%D8%B9%D9%8D-%D9%88%D8%A7%DA%A9%D8%B3%D9%86-%D9%85%D8%B4%D8%AA%D8%B1%DA%A9-%D8%A8%DB%8C%D9%88%D8%A7%D9%86%D8%AA%DA%A9-%D9%88-%D9%BE%DB%8C-%D9%81%D8%A7%DB%8C%D8%B2%D8%B1-yk6ti7m1aabg" target="_blank">2فارسی</a> / <a href="https://docs.google.com/document/d/1zNoxsxP-vW5Odv6QZUZYJ4FxAFK1EktQnjwQ5AuCTzc/edit" target="_blank">فارسی</a> / <a href="https://renaudguerin.net/posts/explorons-le-code-source-du-vaccin-biontech-pfizer-sars-cov-2/" target="_blank">Français</a> / <a href="https://github.com/chilik/Hebrew-ReversingSARS-CoV-2mRNAVaccine/blob/main/%D7%94%D7%A0%D7%93%D7%A1%D7%94%20%D7%9C%D7%90%D7%97%D7%95%D7%A8%20%D7%A9%D7%9C%20%D7%A7%D7%95%D7%93%20%D7%94%D7%9E%D7%A7%D7%95%D7%A8%20%D7%A9%D7%9C%20%D7%94%D7%97%D7%99%D7%A1%D7%95%D7%9F%20BioNTech%20-%20Pfizer%20SARS-CoV-2.pdf" target="_blank">עִברִית</a> / <a href="https://docs.google.com/document/d/1BODRitAvGuDYGZCHU5LY-AkNhs9_1cVDubdRvz-cSPY/edit" target="_blank">Hrvatski</a> / <a href="https://berthub.eu/articles/posts/italian-reverse-engineering-source-code-of-the-biontech-pfizer-vaccine/" target="_blank">Italiano</a> / <a href="https://berthub.eu/articles/posts/dutch-reverse-engineering-source-code-of-the-biontech-pfizer-vaccine/" target="_blank">Nederlands</a> / <a href="https://note.com/yubais/n/n349ab986da42" target="_blank">日本語</a> / <a href="https://msakai.github.io/bnt162b2/reverse-engineering-source-code-of-the-biontech-pfizer-vaccine.ja/" target="_blank">日本語 2</a> / <a href="https://onedrive.live.com/view.aspx?resid=9C571BA15BC4287D!15298&amp;ithint=file%2cdocx&amp;authkey=!ALATa2b8xetI7lQ" target="_blank">नेपाली</a> / <a href="https://randomseed.pl/rna/reverse-engineering-kodu-zrodlowego-szczepionki-biontech-pfizer-covid-sars-cov-2/" target="_blank">Polskie</a> / <a href="https://localcrew.ru/reversepfizer" target="_blank">русский</a> / <a href="https://docs.google.com/document/d/1pDo40DXcpXjzqAUfhFfup50-IQ2Qct-mhLnmRpjFZWM/edit" target="_blank">Português</a> / <a href="https://www.astarostech.com/read/sarscov2-ro/vaccine-mrna.html" target="_blank">Română</a> / <a href="https://dennikn.sk/blog/2205850/ako-funguje-zdrojovy-kod-vakciny-sars-cov-2/" target="_blank">Slovensky</a> / <a href="https://berthub.eu/articles/posts/reverzni-in%C5%BEeniring-izvorne-kode-cepiva-biontech-pfizer-proti-sars-cov-2/" target="_blank">Slovenščina</a> / <a href="https://berthub.eu/articles/posts/naliza-izvornog-k%C3%B4da-vakcine-biontech-pfizer-sars-cov-2/" target="_blank">Srpski</a> / <a href="https://berthub.eu/articles/posts/biontech-pfizer-mrna-a%C5%9F%C4%B1lar%C4%B1n%C4%B1n-kaynak-kodu/" target="_blank">Türk</a> / <a href="https://texty.org.ua/articles/102631/rekonstrukciya-vyhidnoho-kodu-vakcyny-biontechpfizer-sars-cov-2/" target="_blank">український</a> / <a href="https://raw.githubusercontent.com/berthubert/bnt162b2/master/reverse-engineering-source-code-of-the-biontech-pfizer-vaccine.md" target="_blank">Markdown for translating</a>
+                </p>
+                <p> Welcome! In this post, we’ll be taking a character-by-character look at the source code of the BioNTech/Pfizer SARS-CoV-2 mRNA vaccine. </p>
+                <blockquote>
+                    <p> Update: The other up and coming vaccines are described in <a href="https://berthub.eu/articles/posts/genetic-code-of-covid-19-vaccines/" target="_blank">The Genetic Code and Proteins of the Other Covid-19 Vaccines</a>
+                    </p>
+                    <p>
+                        <em>I want to thank the large cast of people who spent time previewing this article for legibility and correctness. All mistakes remain mine though, but I would love to hear about them quickly at bert@hubertnet.nl or <a href="https://twitter.com/PowerDNS_Bert" target="_blank">@PowerDNS_Bert</a></em>
+                    </p>
+                </blockquote>
+                <p> Now, these words may be somewhat jarring - the vaccine is a liquid that gets injected in your arm. How can we talk about source code? </p>
+                <p> This is a good question, so let’s start off with a small part of the very source code of the BioNTech/Pfizer vaccine, also known as <a href="https://en.wikipedia.org/wiki/Tozinameran" target="_blank">BNT162b2</a>, also known as Tozinameran <a href="https://twitter.com/PowerDNS_Bert/status/1342109138965422083" target="_blank">also known as Comirnaty</a>. </p>
+                <center>
+                    <figure>
+                        <img src="http://fakehost/articles/bnt162b2.png" alt="First 500 characters of the BNT162b2 mRNA. Source: World Health Organization" />
+                        <figcaption>
+                            <p> First 500 characters of the BNT162b2 mRNA. Source: <a href="https://mednet-communities.net/inn/db/media/docs/11889.doc" target="_blank">World Health Organization</a>
+                            </p>
+                        </figcaption>
+                    </figure>
+                </center>
+                <p> The BNT162b2 mRNA vaccine has this digital code at its heart. It is 4284 characters long, so it would fit in a bunch of tweets. At the very beginning of the vaccine production process, someone uploaded this code to a DNA printer (yes), which then converted the bytes on disk to actual DNA molecules. </p>
+                <center>
+                    <figure>
+                        <img src="http://fakehost/articles/bioxp-3200.jpg" alt="A Codex DNA BioXp 3200 DNA printer" />
+                        <figcaption>
+                            <p> A <a href="https://codexdna.com/products/bioxp-system/" target="_blank">Codex DNA</a> BioXp 3200 DNA printer </p>
+                        </figcaption>
+                    </figure>
+                </center>
+                <p> Out of such a machine come tiny amounts of DNA, which after a lot of biological and chemical processing end up as RNA (more about which later) in the vaccine vial. A 30 microgram dose turns out to actually contain 30 micrograms of RNA. In addition, there is a clever lipid (fatty) packaging system that gets the mRNA into our cells. </p>
+                <blockquote>
+                    <p> Update: Derek Lowe of the famous <a href="https://blogs.sciencemag.org/pipeline/" target="_blank">In the pipeline blog</a> over at Science has written a comprehensive post “<a href="https://blogs.sciencemag.org/pipeline/archives/2021/01/11/rna-vaccines-and-their-lipids" target="_blank">RNA Vaccines And Their Lipids</a>“ which neatly explains the lipid and delivery parts of the vaccines that I am not competent to describe. Luckily Derek is! </p>
+                    <p> Update 2: Jonas Neubert and Cornelia Scheitz have written <a href="https://blog.jonasneubert.com/2021/01/10/exploring-the-supply-chain-of-the-pfizer-biontech-and-moderna-covid-19-vaccines/" target="_blank">this awesome page</a> with loads of detail on how the vaccines actually get produced and distributed. Recommended! </p>
+                </blockquote>
+                <p> RNA is the volatile ‘working memory’ version of DNA. DNA is like the flash drive storage of biology. DNA is very durable, internally redundant and very reliable. But much like computers do not execute code directly from a flash drive, before something happens, code gets copied to a faster, more versatile yet far more fragile system. </p>
+                <p> For computers, this is RAM, for biology it is RNA. The resemblance is striking. Unlike flash memory, RAM degrades very quickly unless lovingly tended to. The reason the Pfizer/BioNTech mRNA vaccine must be stored in the deepest of deep freezers is the same: RNA is a fragile flower. </p>
+                <p> Each RNA character weighs on the order of 0.53·10⁻²¹ grams, meaning there are around 6·10¹⁶ characters in a single 30 microgram vaccine dose. Expressed in bytes, this is around 14 petabytes, although it must be said this consists of around <a href="https://docs.google.com/spreadsheets/d/1vc6p9IXQVRpVQntcI1tCdSMLNDuT8fl8rags0gDxMZA/edit?usp=sharing" target="_blank">13,000 billion repetitions</a> of the same 4284 characters. The actual informational content of the vaccine is just over a kilobyte. <a href="https://www.ncbi.nlm.nih.gov/projects/sviewer/?id=NC_045512&amp;tracks=[key:sequence_track,name:Sequence,display_name:Sequence,id:STD649220238,annots:Sequence,ShowLabel:false,ColorGaps:false,shown:true,order:1][key:gene_model_track,name:Genes,display_name:Genes,id:STD3194982005,annots:Unnamed,Options:ShowAllButGenes,CDSProductFeats:true,NtRuler:true,AaRuler:true,HighlightMode:2,ShowLabel:true,shown:true,order:9]&amp;v=1:29903&amp;c=null&amp;select=null&amp;slim=0" target="_blank">SARS-CoV-2 itself</a> weighs in at around 7.5 kilobytes. </p>
+                <blockquote>
+                    <p> Update: In the original post these numbers were off. <a href="https://docs.google.com/spreadsheets/d/1vc6p9IXQVRpVQntcI1tCdSMLNDuT8fl8rags0gDxMZA/edit?usp=sharing" target="_blank">Here is a spreadsheet</a> with the correct calculations. </p>
+                </blockquote>
+                <h2 id="the-briefest-bit-of-background"> The briefest bit of background </h2>
+                <p> DNA is a digital code. Unlike computers, which use 0 and 1, life uses A, C, G and U/T (the ‘nucleotides’, ‘nucleosides’ or ‘bases’). </p>
+                <p> In computers we store the 0 and 1 as the presence or absence of a charge, or as a current, as a magnetic transition, or as a voltage, or as a modulation of a signal, or as a change in reflectivity. Or in short, the 0 and 1 are not some kind of abstract concept - they live as electrons and in many other physical embodiments. </p>
+                <p> In nature, A, C, G and U/T are molecules, stored as chains in DNA (or RNA). </p>
+                <p> In computers, we group 8 bits into a byte, and the byte is the typical unit of data being processed. </p>
+                <p> Nature groups 3 nucleotides into a codon, and this codon is the typical unit of processing. A codon contains 6 bits of information (2 bits per DNA character, 3 characters = 6 bits. This means 2⁶ = 64 different codon values). </p>
+                <p> Pretty digital so far. When in doubt, <a href="https://mednet-communities.net/inn/db/media/docs/11889.doc" target="_blank">head to the WHO document</a> with the digital code to see for yourself. </p>
+                <blockquote>
+                    <p>
+                        <em>Some further reading is <a href="https://berthub.eu/articles/posts/what-is-life/" target="_blank">available here</a> - this link (‘What is life’) might help make sense of the rest of this page. Or, if you like video, I have <a href="https://berthub.eu/dna" target="_blank">two hours for you</a>.</em>
+                    </p>
+                </blockquote>
+                <h2 id="so-what-does-that-code-do"> So what does that code DO? </h2>
+                <p> The idea of a vaccine is to teach our immune system how to fight a pathogen, without us actually getting ill. Historically this has been done by injecting a weakened or incapacitated (attenuated) virus, plus an ‘adjuvant’ to scare our immune system into action. This was a decidedly analogue technique involving billions of eggs (or insects). It also required a lot of luck and loads of time. Sometimes a different (unrelated) virus was also used. </p>
+                <p> An mRNA vaccine achieves the same thing (‘educate our immune system’) but in a laser like way. And I mean this in both senses - very narrow but also very powerful. </p>
+                <p> So here is how it works. The injection contains volatile genetic material that describes the famous SARS-CoV-2 ‘Spike’ protein. Through clever chemical means, the vaccine manages to get this genetic material into some of our cells. </p>
+                <p> These then dutifully start producing SARS-CoV-2 Spike proteins in large enough quantities that our immune system springs into action. Confronted with Spike proteins, and (importantly) tell-tale signs that cells have been taken over, our immune system develops a powerful response against multiple aspects of the Spike protein AND the production process. </p>
+                <p> And this is what gets us to the 95% efficient vaccine. </p>
+                <h2 id="the-source-code"> The source code! </h2>
+                <p>
+                    <a href="https://youtu.be/jp0opnxQ4rY?t=8" target="_blank">Let’s start at the very beginning, a very good place to start</a>. The WHO document has this helpful picture:
+                </p>
+                <center>
+                    <figure>
+                        <img src="http://fakehost/articles/vaccine-toc.png" />
+                    </figure>
+                </center>
+                <p> This is a sort of table of contents. We’ll start with the ‘cap’, actually depicted as a little hat. </p>
+                <p> Much like you can’t just plonk opcodes in a file on a computer and run it, the biological operating system requires headers, has linkers and things like calling conventions. </p>
+                <p> The code of the vaccine starts with the following two nucleotides: </p>
+                <pre><code>GA
+</code></pre>
+                <p> This can be compared very much to every <a href="https://en.wikipedia.org/wiki/DOS_MZ_executable" target="_blank">DOS and Windows executable starting with MZ</a>, or UNIX scripts starting with <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)" target="_blank"><code>#!</code></a>. In both life and operating systems, these two characters are not executed in any way. But they have to be there because otherwise nothing happens. </p>
+                <p> The mRNA ‘cap’ <a href="https://en.wikipedia.org/wiki/Five-prime_cap#Function" target="_blank">has a number of functions</a>. For one, it marks code as coming from the nucleus. In our case of course it doesn’t, our code comes from a vaccination. But we don’t need to tell the cell that. The cap makes our code look legit, which protects it from destruction. </p>
+                <p> The initial two <code>GA</code> nucleotides are also chemically slightly different from the rest of the RNA. In this sense, the <code>GA</code> has some out-of-band signaling on it. </p>
+                <h2 id="the-five-prime-untranslated-region"> The “five-prime untranslated region” </h2>
+                <p> Some lingo here. RNA molecules can only be read in one direction. Confusingly, the part where the reading begins is called the 5’ or ‘five-prime’. The reading stops at the 3’ or three-prime end. </p>
+                <p> Life consists of proteins (or things made by proteins). And these proteins are described in RNA. When RNA gets converted into proteins, this is called translation. </p>
+                <p> Here we have the 5’ untranslated region (‘UTR’), so this bit does not end up in the protein: </p>
+                <pre><code>GAAΨAAACΨAGΨAΨΨCΨΨCΨGGΨCCCCACAGACΨCAGAGAGAACCCGCCACC
+</code></pre>
+                <p> Here we encounter our first surprise. The normal RNA characters are A, C, G and U. U is also known as ’T’ in DNA. But here we find a Ψ, what is going on? </p>
+                <p> This is one of the exceptionally clever bits about the vaccine. Our body runs a powerful antivirus system (“the original one”). For this reason, cells are extremely unenthusiastic about foreign RNA and try very hard to destroy it before it does anything. </p>
+                <p> This is somewhat of a problem for our vaccine - it needs to sneak past our immune system. Over many years of experimentation, it was found that if the U in RNA is replaced by a slightly modified molecule, our immune system loses interest. For real. </p>
+                <p> So in the BioNTech/Pfizer vaccine, every U has been replaced by 1-methyl-3’-pseudouridylyl, denoted by Ψ. The really clever bit is that although this replacement Ψ placates (calms) our immune system, it is accepted as a normal U by relevant parts of the cell. </p>
+                <p> In computer security we also know this trick - it sometimes is possible to transmit a slightly corrupted version of a message that confuses firewalls and security solutions, but that is still accepted by the backend servers - which can then get hacked. </p>
+                <p> We are now reaping the benefits of fundamental scientific research performed in the past. The <a href="https://twitter.com/PennMedicine/status/1341766354232365059" target="_blank">discoverers</a> of this Ψ technique had to fight to get <a href="https://www.statnews.com/2020/11/10/the-story-of-mrna-how-a-once-dismissed-idea-became-a-leading-technology-in-the-covid-vaccine-race/" target="_blank">their</a> work funded and then accepted. We should all be very grateful, and I am sure the <a href="https://twitter.com/PowerDNS_Bert/status/1329861047168225281" target="_blank">Nobel prizes will arrive in due course</a>. </p>
+                <blockquote>
+                    <p> Many people have asked, could viruses also use the Ψ technique to beat our immune systems? In short, this is extremely unlikely. Life simply does not have the machinery to build 1-methyl-3’-pseudouridylyl nucleotides. Viruses rely on the machinery of life to reproduce themselves, and this facility is simply not there. The mRNA vaccines quickly degrade in the human body, and there is no possibility of the Ψ-modified RNA replicating with the Ψ still in there. “<a href="https://www.deplatformdisease.com/blog/no-really-mrna-vaccines-are-not-going-to-affect-your-dna" target="_blank">No, Really, mRNA Vaccines Are Not Going To Affect Your DNA</a>“ is also a good read. </p>
+                </blockquote>
+                <p> Ok, back to the 5’ UTR. What do these 51 characters do? As everything in nature, almost nothing has one clear function. </p>
+                <p> When our cells need to <em>translate</em> RNA into proteins, this is done using a machine called the ribosome. The ribosome is like a 3D printer for proteins. It ingests a strand of RNA and based on that it emits a string of amino acids, which then fold into a protein. </p>
+                <center>
+                    <video controls="" width="90%" loop="">
+                        <source src="http://fakehost/articles/protein-short.mp4" type="video/mp4" />
+                    </video><br /> Source: <a href="https://commons.wikimedia.org/wiki/File:Protein_translation.gif" target="_blank">Wikipedia user Bensaccount</a>
+                </center>
+                <p> This is what we see happening above. The black ribbon at the bottom is RNA. The ribbon appearing in the green bit is the protein being formed. The things flying in and out are amino acids plus adaptors to make them fit on RNA. </p>
+                <p> This ribosome needs to physically sit on the RNA strand for it to get to work. Once seated, it can start forming proteins based on further RNA it ingests. From this, you can imagine that it can’t yet read the parts where it lands on first. This is just one of the functions of the UTR: the ribosome landing zone. The UTR provides ‘lead-in’. </p>
+                <p> In addition to this, the UTR also contains metadata: when should translation happen? And how much? For the vaccine, they took the most ‘right now’ UTR they could find, taken from the <a href="https://www.tandfonline.com/doi/full/10.1080/15476286.2018.1450054" target="_blank">alpha globin gene</a>. This gene is known to robustly produce a lot of proteins. In previous years, scientists had already found ways to optimize this UTR even further (according to the WHO document), so this is not quite the alpha globin UTR. It is better. </p>
+                <h2 id="the-s-glycoprotein-signal-peptide"> The S glycoprotein signal peptide </h2>
+                <p> As noted, the goal of the vaccine is to get the cell to produce copious amounts of the Spike protein of SARS-CoV-2. Up to this point, we have mostly encountered metadata and “calling convention” stuff in the vaccine source code. But now we enter the actual viral protein territory. </p>
+                <p> We still have one layer of metadata to go however. Once the ribosome (from the splendid animation above) has made a protein, that protein still needs to go somewhere. This is encoded in the “S glycoprotein signal peptide (extended leader sequence)“. </p>
+                <p> The way to see this is that at the beginning of the protein there is a sort of address label - encoded as part of the protein itself. In this specific case, the signal peptide says that this protein should exit the cell via the “endoplasmic reticulum”. Even Star Trek lingo is not as fancy as this! </p>
+                <p> The “signal peptide” is not very long, but when we look at the code, there are differences between the viral and vaccine RNA: </p>
+                <p> (Note that for comparison purposes, I have replaced the fancy modified Ψ by a regular RNA U) </p>
+                <pre><code>           3   3   3   3   3   3   3   3   3   3   3   3   3   3   3   3
+Virus:   AUG UUU GUU UUU CUU GUU UUA UUG CCA CUA GUC UCU AGU CAG UGU GUU
+Vaccine: AUG UUC GUG UUC CUG GUG CUG CUG CCU CUG GUG UCC AGC CAG UGU GUG
+               !   !   !   !   ! ! ! !     !   !   !   !   !           !
+</code></pre>
+                <p> So what is going on? I have not accidentally listed the RNA in groups of 3 letters. Three RNA characters make up a codon. And every codon encodes for a specific amino acid. The signal peptide in the vaccine consists of <em>exactly</em> the same amino acids as in the virus itself. </p>
+                <p> So how come the RNA is different? </p>
+                <p> There are 4³=64 different codons, since there are 4 RNA characters, and there are three of them in a codon. Yet there are only 20 different amino acids. This means that multiple codons encode for the same amino acid. </p>
+                <p> Life uses the following nearly universal table for mapping RNA codons to amino acids: </p>
+                <center>
+                    <figure>
+                        <img src="http://fakehost/articles/rna-codon-table.png" alt="The RNA codon table (Wikipedia)" />
+                        <figcaption>
+                            <p>
+                                <a href="https://en.wikipedia.org/wiki/DNA_and_RNA_codon_tables" target="_blank">The RNA codon table</a> (Wikipedia)
+                            </p>
+                        </figcaption>
+                    </figure>
+                </center>
+                <p> In this table, we can see that the modifications in the vaccine (UUU -&gt; UUC) are all <em>synonymous</em>. The vaccine RNA code is different, but the same amino acids and the same protein come out. </p>
+                <p> If we look closely, we see that the majority of the changes happen in the third codon position, noted with a ‘3’ above. And if we check the universal codon table, we see that this third position indeed often does not matter for which amino acid is produced. </p>
+                <p> So, the changes are synonymous, but then why are they there? Looking closely, we see that all changes <em>except one</em> lead to more C and Gs. </p>
+                <p> So why would you do that? As noted above, our immune system takes a very dim view of ‘exogenous’ RNA, RNA code coming from outside the cell. To evade detection, the ‘U’ in the RNA was already replaced by a Ψ. </p>
+                <p> However, it turns out that RNA with <a href="https://www.nature.com/articles/nrd.2017.243" target="_blank">a higher amount</a> of Gs and Cs is also <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1463026/" target="_blank">converted more efficiently into proteins</a>, </p>
+                <p> And this has been achieved in the vaccine RNA by replacing many characters with Gs and Cs wherever this was possible. </p>
+                <blockquote>
+                    <p> I’m slightly fascinated by the <em>one</em> change that did not lead to an additional C or G, the CCA -&gt; CCU modification. If anyone knows the reason, please let me know! Note that I’m aware that some codons are more common than others in the human genome, but <a href="https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006024" target="_blank">I also read that this does not influence translation speed a lot</a>. UPDATE: A number of readers <a href="https://twitter.com/noort_zuit/status/1348924353921081344" target="_blank">have pointed out</a> that this change could prevent a “hairpin” in the RNA. You can try this out yourself on the <a href="http://rna.tbi.univie.ac.at/cgi-bin/RNAWebSuite/RNAfold.cgi" target="_blank">RNAFold service</a>. </p>
+                </blockquote>
+                <h2 id="the-actual-spike-protein"> The actual Spike protein </h2>
+                <p> The next 3777 characters of the vaccine RNA are similarly ‘codon optimized’ to add a lot of C’s and G’s. In the interest of space I won’t list all the code here, but we are going to zoom in on one exceptionally special bit. This is the bit that makes it work, the part that will actually help us return to life as normal: </p>
+                <pre><code>                  *   *
+          L   D   K   V   E   A   E   V   Q   I   D   R   L   I   T   G
+Virus:   CUU GAC AAA GUU GAG GCU GAA GUG CAA AUU GAU AGG UUG AUC ACA GGC
+Vaccine: CUG GAC CCU CCU GAG GCC GAG GUG CAG AUC GAC AGA CUG AUC ACA GGC
+          L   D   P   P   E   A   E   V   Q   I   D   R   L   I   T   G
+           !     !!! !!        !   !       !   !   !   ! !              
+</code></pre>
+                <p> Here we see the usual synonymous RNA changes. For example, in the first codon we see that CUU is changed into CUG. This adds another ‘G’ to the vaccine, which we know helps enhance protein production. Both CUU and CUG encode for the amino acid ‘L’ or Leucine, so nothing changed in the protein. </p>
+                <p> When we compare the entire Spike protein in the vaccine, all changes are synonymous like this.. except for two, and this is what we see here. </p>
+                <p> The third and fourth codons above represent actual changes. The K and V amino acids there are both replaced by ‘P’ or Proline. For ‘K’ this required three changes (‘!!!’) and for ‘V’ it required only two (‘!!’). </p>
+                <p>
+                    <strong>It turns out that these two changes enhance the vaccine efficiency enormously</strong>.
+                </p>
+                <p> So what is happening here? If you look at a real SARS-CoV-2 particle, you can see the Spike protein as, well, a bunch of spikes: </p>
+                <center>
+                    <figure>
+                        <img src="http://fakehost/articles/sars-em.jpg" alt="SARS virus particles (Wikipedia)" />
+                        <figcaption>
+                            <p>
+                                <a href="https://en.wikipedia.org/wiki/Severe_acute_respiratory_syndrome_coronavirus" target="_blank">SARS virus particles</a> (Wikipedia)
+                            </p>
+                        </figcaption>
+                    </figure>
+                </center>
+                <p> The spikes are mounted on the virus body (‘the nucleocapsid protein’). But the thing is, our vaccine is only generating the spikes itself, and we’re not mounting them on any kind of virus body. </p>
+                <p> It turns out that, unmodified, freestanding Spike proteins collapse into a different structure. If injected as a vaccine, this would indeed cause our bodies to develop immunity.. but only against the collapsed spike protein. </p>
+                <p> And the real SARS-CoV-2 shows up with the spiky Spike. The vaccine would not work very well in that case. </p>
+                <p> So what to do? In <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5584442/" target="_blank">2017 it was described how putting a double Proline substitution in just the right place</a> would make the SARS-CoV-1 and MERS S proteins take up their ‘pre-fusion’ configuration, even without being part of the whole virus. This works <a href="https://cen.acs.org/pharmaceuticals/vaccines/tiny-tweak-behind-COVID-19/98/i38" target="_blank">because Proline is a very rigid amino acid</a>. It acts as a kind of splint, stabilising the protein in the state we need to show to the immune system. </p>
+                <p> The <a href="https://twitter.com/goodwish916" target="_blank">people</a> that <a href="https://twitter.com/KizzyPhD" target="_blank">discovered</a> this should be walking around high-fiving themselves incessantly. Unbearable amounts of smugness should be emanating from them. <a href="https://twitter.com/McLellan_Lab/status/1291077489566142464" target="_blank">And it would all be well deserved</a>. </p>
+                <blockquote>
+                    <p> Update! I have been contacted by the <a href="https://twitter.com/McLellan_Lab/status/1291077489566142464" target="_blank">McLellan lab</a>, one of the groups behind the Proline discovery. They tell me the high-fiving is subdued because of the ongoing pandemic, but they are pleased to have contributed to the vaccines. They also stress the importance of many other groups, workers and volunteers. </p>
+                </blockquote>
+                <h2 id="the-end-of-the-protein-next-steps"> The end of the protein, next steps </h2>
+                <p> If we scroll through the rest of the source code, we encounter some small modifications at the end of the Spike protein: </p>
+                <pre><code>          V   L   K   G   V   K   L   H   Y   T   s             
+Virus:   GUG CUC AAA GGA GUC AAA UUA CAU UAC ACA UAA
+Vaccine: GUG CUG AAG GGC GUG AAA CUG CAC UAC ACA UGA UGA 
+          V   L   K   G   V   K   L   H   Y   T   s   s          
+               !   !   !   !     ! !   !          ! 
+</code></pre>
+                <p> At the end of a protein we find a ‘stop’ codon, denoted here by a lowercase ’s’. This is a polite way of saying that the protein should end here. The original virus uses the UAA stop codon, the vaccine uses two UGA stop codons, perhaps just for good measure. </p>
+                <h2 id="the-3-untranslated-region"> The 3’ Untranslated Region </h2>
+                <p> Much like the ribosome needed some lead-in at the 5’ end, where we found the ‘five prime untranslated region’, at the end of a protein coding region we find a similar construct called the 3’ UTR. </p>
+                <p> Many words could be written about the 3’ UTR, but here I quote <a href="https://en.wikipedia.org/wiki/Three_prime_untranslated_region" target="_blank">what the Wikipedia says</a>: “The 3’-untranslated region plays a crucial role in gene expression by influencing the localization, stability, export, and translation efficiency of an mRNA .. <strong>despite our current understanding of 3’-UTRs, they are still relative mysteries</strong>”. </p>
+                <p> What we do know is that certain 3’-UTRs are very successful at promoting protein expression. According to the WHO document, the BioNTech/Pfizer vaccine 3’-UTR was picked from “the amino-terminal enhancer of split (AES) mRNA and the mitochondrial encoded 12S ribosomal RNA to confer RNA stability and high total protein expression”. To which I say, well done. </p>
+                <center>
+                    <figure>
+                        <img src="http://fakehost/articles/vaccine.jpg" />
+                    </figure>
+                </center>
+                <h2 id="the-aaaaaaaaaaaaaaaaaaaaaa-end-of-it-all"> The AAAAAAAAAAAAAAAAAAAAAA end of it all </h2>
+                <p> The very end of mRNA is polyadenylated. This is a fancy way of saying it ends on a lot of AAAAAAAAAAAAAAAAAAA. Even mRNA has had enough of 2020 it appears. </p>
+                <p> mRNA can be reused many times, but as this happens, it also loses some of the A’s at the end. Once the A’s run out, the mRNA is no longer functional and gets discarded. In this way, the ‘poly-A’ tail is protection from degradation. </p>
+                <p> Studies have been done to find out what the optimal number of A’s at the end is for mRNA vaccines. I read in the open literature that this peaked at 120 or so. </p>
+                <p> The BNT162b2 vaccine ends with: </p>
+                <pre><code>                                     ****** ****
+UAGCAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAGCAUAU GACUAAAAAA AAAAAAAAAA 
+AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA AAAA
+</code></pre>
+                <p> This is 30 A’s, then a “10 nucleotide linker” (GCAUAUGACU), followed by another 70 A’s. </p>
+                <p> There are various theories why this linker is there. Some people tell me it has to do with DNA plasmid stability, I have also received this from an actual expert: </p>
+                <p> “The 10-nucleotide linker within the poly(A) tail makes it easier to stitch together the synthetic DNA fragments that become the template for transcribing the mRNA. It also reduces slipping by T7 RNA polymerase so that the transcribed mRNA is more uniform in length”. </p>
+                <p> The article “<a href="https://rnajournal.cshlp.org/content/25/4/507.long" target="_blank">Segmented poly(A) tails significantly reduce recombination of plasmid DNA without affecting mRNA translation efficiency or half-life</a>” also has a compelling description of how a linked can benefit efficacy. </p>
+                <h2 id="summarising"> Summarising </h2>
+                <p> With this, we now know the exact mRNA contents of the BNT162b2 vaccine, and for most parts we understand why they are there: </p>
+                <ul>
+                    <li>The CAP to make sure the RNA looks like regular mRNA </li>
+                    <li>A known successful and optimized 5’ untranslated region (UTR) </li>
+                    <li>A codon optimized signal peptide to send the Spike protein to the right place (amino acids copied 100% from the original virus) </li>
+                    <li>A codon optimized version of the original spike, with two ‘Proline’ substitutions to make sure the protein appears in the right form </li>
+                    <li>A known successful and optimized 3’ untranslated region </li>
+                    <li>A poly-A tail with a ‘linker’ in there </li>
+                </ul>
+                <p> The codon optimization adds a lot of G and C to the mRNA. Meanwhile, using Ψ (1-methyl-3’-pseudouridylyl) instead of U helps evade our immune system, so the mRNA stays around long enough so we can actually help train the immune system. </p>
+                <h2 id="further-reading-viewing"> Further reading/viewing </h2>
+                <p> In 2017 I held a two hour presentation on DNA, which you can <a href="https://berthub.eu/dna" target="_blank">view here</a>. Like this page it is aimed at computer people. </p>
+                <p> In addition, I’ve been maintaining a page on ‘<a href="https://berthub.eu/articles/posts/amazing-dna/" target="_blank">DNA for programmers</a>’ since 2001. </p>
+                <p> You might also enjoy <a href="https://berthub.eu/articles/posts/immune-system/" target="_blank">this introduction to our amazing immune system</a>. </p>
+                <p> Finally, <a href="https://berthub.eu/articles" target="_blank">this listing of my blog posts</a> has quite some DNA, SARS-CoV-2 and COVID related material. </p>
+                <p> As an update, the other up and coming vaccines are described in <a href="https://berthub.eu/articles/posts/genetic-code-of-covid-19-vaccines/" target="_blank">The Genetic Code and Proteins of the Other Covid-19 Vaccines</a>
+                </p>
+            </div>
+        </article>
+        <nav>
+        </nav>
+    </div>
+</div>
