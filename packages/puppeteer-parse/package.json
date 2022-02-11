@@ -20,7 +20,7 @@
     "@google-cloud/functions-framework": "^1.7.1"
   },
   "scripts": {
-    "start": "npx functions-framework --target=puppeteer",
+    "start": "npx functions-framework --port=9090 --target=puppeteer",
     "start_preview": "npx functions-framework --target=preview",
     "test": "yarn mocha"
   }
