@@ -11,8 +11,6 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "storybook": "start-storybook -p 6006",
-    "storybook:build": "build-storybook",
     "upgrade-psdpdfkit": "cp -R '../../node_modules/pspdfkit/dist/pspdfkit-lib' public/pspdfkit-lib"
   },
   "dependencies": {
@@ -44,10 +42,6 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.3.10",
-    "@storybook/addon-essentials": "^6.3.10",
-    "@storybook/addon-links": "^6.3.10",
-    "@storybook/react": "^6.3.10",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@types/cookie": "^0.4.1",
