@@ -36,8 +36,5 @@
   },
   "volta": {
     "node": "14.18.1"
-  },
-  "dependencies": {
-    "nodemailer": "^6.6.1"
   }
 }
