@@ -2,12 +2,12 @@ name: Run tests
 on:
   push:
     branches:
-      - master
+      - main
     paths-ignore:
       - 'apple/**'
   pull_request:
     branches:
-      - master
+      - main
     paths-ignore:
       - 'apple/**'
 
