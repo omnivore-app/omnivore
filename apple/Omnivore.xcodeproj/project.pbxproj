@@ -1961,7 +1961,7 @@
 			repositoryURL = "https://github.com/intercom/intercom-ios";
 			requirement = {
 				kind = exactVersion;
-				version = 10.3.2;
+				version = 11.1.2;
 			};
 		};
 		042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */ = {
