@@ -25,8 +25,8 @@ const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 
 const storage = new Storage();
-const previewBucket = storage.bucket(process.env.PREVIEW_IMAGE_BUCKET);
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(',');
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -401,6 +401,11 @@ exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
       execution_id: execution_id,
     },
   });
+
+  if (!process.env.PREVIEW_IMAGE_BUCKET) {
+    logger.error(`PREVIEW_IMAGE_BUCKET not set`)
+    return res.sendStatus(500);
+  }
 
   const url = getUrl(req);
   console.log('preview request url', url);
