@@ -26,7 +26,57 @@ We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujN
 
 ## How to setup local development
 
-FIXME: Jackson to fill this in
+The easiest way to get started with local development is to run our docker-compose file which will run
+postgres, our web frontend and an API server.. Along with docker-compose you will need to run our `pupeteer-parse` service. This service is used to fetch web page content.
+
+###  Running the web and API services
+1. In the root directory run
+
+`docker-compose up`
+
+This will start postgres, initialize the database, and start the web and api services.
+
+2. Open a browser and go to `http://localhost:3000`
+
+3. To create a test account and login visit `http://localhost:3000/email-registration` and sign up.
+
+### Running the pupeteer-parse service
+
+1. Install and configure Chromium
+
+```
+brew install chromium
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+```
+
+1. Navigate to the service directory
+
+```
+cd packages/puppeteer-parse
+```
+
+2. Run `yarn` to install dependencies
+
+```
+yarn
+```
+
+3. Start the service
+
+```
+yarn start
+```
+
+This will start the puppeteer-parse service on port 9090.
+
+
+In your browser navigate to http://localhost:3000/home click the `Add Link` button and enter a URL
+such as https://blog.omnivore.app/p/getting-started-with-omnivore
+
+You should see a Chromium window open and navigate to your link. When the service is done fetching
+your content you will see it in your library.
+
 
 ## How to deploy to your own server
 
