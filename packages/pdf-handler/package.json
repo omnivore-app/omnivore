@@ -1,0 +1,33 @@
+{
+  "name": "@omnivore/pdf-handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --source=build/src/ --target=pdfHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
+    "gcloud-deploy": "gcloud functions deploy pdfHandler --region=$npm_config_region --runtime nodejs14 --trigger-bucket=$npm_config_bucket --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
+    "deploy": "yarn build && yarn gcloud-deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "1.9.0",
+    "@google-cloud/pubsub": "^2.16.3",
+    "@google-cloud/storage": "^5.13.0",
+    "axios": "^0.21.1",
+    "concurrently": "^6.2.1",
+    "pdfjs-dist": "^2.9.359"
+  }
+}

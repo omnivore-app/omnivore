@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "QJF2XZ86HB.app.omnivore.app"
+        ],
+        "components": [
+          {
+            "/": "/*/links/*",
+            "comment": "Match URL of format /[username]/links/[requestId]"
+          }
+        ]
+      }
+    ]
+  }
+}

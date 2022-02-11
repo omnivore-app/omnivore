@@ -1,0 +1,40 @@
+{
+  "name": "@omnivore/inbound-email-handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --source=build/src/ --target=inboundEmailHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
+    "gcloud-deploy": "gcloud functions deploy inboundEmailHandler --trigger-http --allow-unauthenticated --region=$npm_config_region --runtime nodejs14 --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
+    "deploy": "yarn build && yarn gcloud-deploy"
+  },
+  "devDependencies": {
+    "@types/json-bigint": "^1.0.1",
+    "@types/node": "^14.11.2",
+    "@types/quoted-printable": "^1.0.0",
+    "eslint-plugin-prettier": "^4.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "1.9.0",
+    "@google-cloud/pubsub": "^2.18.4",
+    "@sendgrid/client": "^7.6.0",
+    "@sendgrid/inbound-mail-parser": "^7.6.0",
+    "@sentry/serverless": "^6.16.1",
+    "axios": "^0.21.1",
+    "json-bigint": "^1.0.0",
+    "parse-headers": "^2.0.4",
+    "parse-multipart-data": "^1.2.1",
+    "quoted-printable": "^1.0.1"
+  }
+}

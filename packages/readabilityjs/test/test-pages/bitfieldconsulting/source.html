@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title></title>
+        <style type="text/css">
+        /*<![CDATA[*/
+        @font-face{font-family:source-serif-pro;src:url(https://use.typekit.net/af/ac5663/00000000000000007735a458/30/l?subset_id=2&fvd=n4&v=3) format("woff2"),url(https://use.typekit.net/af/ac5663/00000000000000007735a458/30/d?subset_id=2&fvd=n4&v=3) format("woff"),url(https://use.typekit.net/af/ac5663/00000000000000007735a458/30/a?subset_id=2&fvd=n4&v=3) format("opentype");font-weight:400;font-style:normal;font-display:auto;}@font-face{font-family:source-serif-pro;src:url(https://use.typekit.net/af/923169/00000000000000007735a459/30/l?subset_id=2&fvd=n7&v=3) format("woff2"),url(https://use.typekit.net/af/923169/00000000000000007735a459/30/d?subset_id=2&fvd=n7&v=3) format("woff"),url(https://use.typekit.net/af/923169/00000000000000007735a459/30/a?subset_id=2&fvd=n7&v=3) format("opentype");font-weight:700;font-style:normal;font-display:auto;}@font-face{font-family:source-serif-pro;src:url(https://use.typekit.net/af/1fc4ef/00000000000000007735a45f/30/l?subset_id=2&fvd=i4&v=3) format("woff2"),url(https://use.typekit.net/af/1fc4ef/00000000000000007735a45f/30/d?subset_id=2&fvd=i4&v=3) format("woff"),url(https://use.typekit.net/af/1fc4ef/00000000000000007735a45f/30/a?subset_id=2&fvd=i4&v=3) format("opentype");font-weight:400;font-style:italic;font-display:auto;}@font-face{font-family:source-serif-pro;src:url(https://use.typekit.net/af/7b989c/00000000000000007735a46e/30/l?subset_id=2&fvd=i7&v=3) format("woff2"),url(https://use.typekit.net/af/7b989c/00000000000000007735a46e/30/d?subset_id=2&fvd=i7&v=3) format("woff"),url(https://use.typekit.net/af/7b989c/00000000000000007735a46e/30/a?subset_id=2&fvd=i7&v=3) format("opentype");font-weight:700;font-style:italic;font-display:auto;}@font-face{font-family:minion-pro;src:url(https://use.typekit.net/af/1286c7/0000000000000000000151d6/27/l?subset_id=2&fvd=n4&v=3) format("woff2"),url(https://use.typekit.net/af/1286c7/0000000000000000000151d6/27/d?subset_id=2&fvd=n4&v=3) format("woff"),url(https://use.typekit.net/af/1286c7/0000000000000000000151d6/27/a?subset_id=2&fvd=n4&v=3) format("opentype");font-weight:400;font-style:normal;font-display:auto;}@font-face{font-family:minion-pro;src:url(https://use.typekit.net/af/ea8d85/0000000000000000000151d1/27/l?subset_id=2&fvd=n7&v=3) format("woff2"),url(https://use.typekit.net/af/ea8d85/0000000000000000000151d1/27/d?subset_id=2&fvd=n7&v=3) format("woff"),url(https://use.typekit.net/af/ea8d85/0000000000000000000151d1/27/a?subset_id=2&fvd=n7&v=3) format("opentype");font-weight:700;font-style:normal;font-display:auto;}@font-face{font-family:minion-pro;src:url(https://use.typekit.net/af/5033af/0000000000000000000151d3/27/l?subset_id=2&fvd=i4&v=3) format("woff2"),url(https://use.typekit.net/af/5033af/0000000000000000000151d3/27/d?subset_id=2&fvd=i4&v=3) format("woff"),url(https://use.typekit.net/af/5033af/0000000000000000000151d3/27/a?subset_id=2&fvd=i4&v=3) format("opentype");font-weight:400;font-style:italic;font-display:auto;}@font-face{font-family:minion-pro;src:url(https://use.typekit.net/af/bc1d75/0000000000000000000151d2/27/l?subset_id=2&fvd=i7&v=3) format("woff2"),url(https://use.typekit.net/af/bc1d75/0000000000000000000151d2/27/d?subset_id=2&fvd=i7&v=3) format("woff"),url(https://use.typekit.net/af/bc1d75/0000000000000000000151d2/27/a?subset_id=2&fvd=i7&v=3) format("opentype");font-weight:700;font-style:italic;font-display:auto;}
+        /*]]>*/
+        </style>
+        <style type="text/css">
+        /*<![CDATA[*/
+        #mc_embed_signup input.mce_inline_error { border-color:#6B0505; } #mc_embed_signup div.mce_inline_error { margin: 0 0 1em 0; padding: 5px 10px; background-color:#6B0505; font-weight: bold; z-index: 1; color:#fff; }
+        /*]]>*/
+        </style>
+    </head>
+    <body id="item-5fa52db75dfc746ea899bfdc" class="tweak-header-background-color-on tweak-main-blocks-full-bleed tweak-ui-icon-weight-light tweak-navigation-link-spacing-small tweak-hide-right-nav-column tweak-site-branding-borders-none tweak-show-site-tagline tweak-site-branding-layout-inline tweak-show-search-in-header tweak-show-social-in-header tweak-user-account-link-position-with-nav tweak-quote-block-alignment-left tweak-blog-list-grid-alignment-top tweak-blog-list-max-width-full tweak-blog-list-grid-narrow-columns tweak-crop-images-square tweak-show-excerpt-on-blog-list tweak-infinite-scroll tweak-blog-text-alignment-left tweak-blog-promoted-meta-none tweak-blog-date-style-callout-circle tweak-blog-show-divider tweak-blog-item-banner-image-width-normal tweak-show-blog-item-author-profile-hide tweak-template-social-icon-style-regular event-show-past-events event-thumbnails event-thumbnail-size-11-square event-date-label event-date-label-time event-list-show-cats event-list-date event-list-time event-list-address event-list-icalgcal-links event-list-like-and-share-buttons event-icalgcal-links event-like-and-share-buttons event-excerpts event-list-cta-button event-item-back-link gallery-design-slideshow aspect-ratio-auto lightbox-style-dark gallery-navigation-thumbnails gallery-info-overlay-always-show gallery-aspect-ratio-169-widescreen gallery-arrow-style-circular gallery-transitions-fade gallery-show-arrows gallery-auto-crop tweak-product-list-image-aspect-ratio-11-square tweak-product-list-item-hover-behavior-fade tweak-product-list-meta-position-under tweak-product-list-mobile-meta-position-under tweak-product-list-meta-alignment-under-center tweak-product-list-meta-alignment-overlay-center-center tweak-product-list-show-title tweak-product-list-show-price tweak-product-list-filter-display-left-side tweak-product-list-filter-alignment-left tweak-product-item-nav-show-pagination-only tweak-product-item-nav-pagination-style-previousnext tweak-product-item-nav-breadcrumb-alignment-left tweak-product-item-nav-pagination-alignment-split tweak-product-item-gallery-position-right tweak-product-item-gallery-design-stacked tweak-product-item-gallery-aspect-ratio-11-square tweak-product-item-gallery-thumbnail-alignment-left tweak-product-item-details-alignment-left tweak-product-item-details-show-title tweak-product-item-details-show-price tweak-product-item-details-show-excerpt tweak-product-item-details-excerpt-position-below-add-to-cart-button tweak-product-item-details-show-share-buttons tweak-product-item-details-show-variants tweak-product-item-details-show-quantity tweak-product-item-details-options-style-rounded tweak-product-item-details-show-add-to-cart-button tweak-product-item-details-add-to-cart-button-style-solid tweak-product-item-details-add-to-cart-button-shape-pill tweak-product-item-details-add-to-cart-button-padding-medium tweak-product-item-image-zoom-enabled tweak-product-item-image-zoom-behavior-hover tweak-product-item-lightbox-enabled tweak-related-products-image-aspect-ratio-11-square tweak-related-products-meta-alignment-under-center tweak-product-badge-style-circle tweak-product-badge-position-top-right tweak-product-badge-inset-floating newsletter-style-dark hide-opentable-icons opentable-style-dark small-button-style-outline small-button-shape-pill medium-button-style-outline medium-button-shape-pill large-button-style-outline large-button-shape-pill image-block-poster-text-alignment-center image-block-card-dynamic-font-sizing image-block-card-content-position-center image-block-card-text-alignment-left image-block-overlap-dynamic-font-sizing image-block-overlap-content-position-center image-block-overlap-text-alignment-left image-block-collage-dynamic-font-sizing image-block-collage-content-position-top image-block-collage-text-alignment-left image-block-stack-dynamic-font-sizing image-block-stack-text-alignment-left button-style-outline button-corner-style-pill tweak-product-quick-view-button-style-floating tweak-product-quick-view-button-position-bottom tweak-product-quick-view-lightbox-excerpt-display-truncate tweak-product-quick-view-lightbox-show-arrows tweak-product-quick-view-lightbox-show-close-button tweak-product-quick-view-lightbox-controls-weight-light tweak-share-buttons-style-icon-only tweak-share-buttons-icons-show tweak-share-buttons-counts-show tweak-share-buttons-standard-background-color native-currency-code-usd collection-5e949913434baa2223121b85 view-item collection-type-blog collection-layout-default mobile-style-available header-tucked" data-controller="SyncHeader, AddScrollingClass, HeaderScroll, BodyMinHeight" data-controllers-bound="SyncHeader, AddScrollingClass, HeaderScroll, BodyMinHeight" style="zoom: 1;">
+        <div id="yui3-css-stamp" style="position: absolute !important; visibility: hidden !important"></div>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- This is Squarespace. --><!-- jaguar-violin-d28j -->
+        <script charset="utf-8" id="yui_3_17_2_1_1611753884544_147" src="//assets.squarespace.com/universal/scripts-compressed/share-buttons-32cc08f2dd7137611cfc4-min.en-US.js"></script>
+        <base href="" />
+        <meta charset="utf-8" />
+        <title>
+            Rust vs Go — Bitfield Consulting
+        </title>
+        <link rel="shortcut icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1601296548308-UF3SJPONEGFITRM2OB64/ke17ZwdGBToddI8pDm48kCm4xBx_xLJDsr83RI3lddVZw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVGOjmk2xTq_LlcHVgrGNqw90z0CrpLMht6GHAb7xSGjXDFvbuqF0GUInBxxtVhBOn4/favicon.ico?format=100w" />
+        <link rel="canonical" href="https://bitfieldconsulting.com/golang/rust-vs-go" />
+        <link rel="amphtml" href="https://bitfieldconsulting.com/golang/rust-vs-go?format=amp" />
+        <meta property="og:site_name" content="Bitfield Consulting" />
+        <meta property="og:title" content="Rust vs Go — Bitfield Consulting" />
+        <meta property="og:latitude" content="40.7207559" />
+        <meta property="og:longitude" content="-74.0007613" />
+        <meta property="og:url" content="https://bitfieldconsulting.com/golang/rust-vs-go" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Which is better, Rust or Go? Which language should you choose for your next project, and why? How do the two compare in areas like performance, simplicity, safety, features, scale, and concurrency? Let's find out, in this friendly and even-handed comparison of Rust and Go." />
+        <meta property="og:image" content="http://static1.squarespace.com/static/5e10bdc20efb8f0d169f85f9/5e949913434baa2223121b85/5fa52db75dfc746ea899bfdc/1606903921091/rust-vs-go-square.png?format=1500w" />
+        <meta property="og:image:width" content="1092" />
+        <meta property="og:image:height" content="970" />
+        <meta itemprop="name" content="Rust vs Go — Bitfield Consulting" />
+        <meta itemprop="url" content="https://bitfieldconsulting.com/golang/rust-vs-go" />
+        <meta itemprop="description" content="Which is better, Rust or Go? Which language should you choose for your next project, and why? How do the two compare in areas like performance, simplicity, safety, features, scale, and concurrency? Let's find out, in this friendly and even-handed comparison of Rust and Go." />
+        <meta itemprop="thumbnailUrl" content="http://static1.squarespace.com/static/5e10bdc20efb8f0d169f85f9/5e949913434baa2223121b85/5fa52db75dfc746ea899bfdc/1606903921091/rust-vs-go-square.png?format=1500w" />
+        <link rel="image_src" href="http://static1.squarespace.com/static/5e10bdc20efb8f0d169f85f9/5e949913434baa2223121b85/5fa52db75dfc746ea899bfdc/1606903921091/rust-vs-go-square.png?format=1500w" />
+        <meta itemprop="image" content="http://static1.squarespace.com/static/5e10bdc20efb8f0d169f85f9/5e949913434baa2223121b85/5fa52db75dfc746ea899bfdc/1606903921091/rust-vs-go-square.png?format=1500w" />
+        <meta itemprop="author" content="John Arundel" />
+        <meta itemprop="datePublished" content="2020-11-06T11:04:17+0000" />
+        <meta itemprop="headline" content="Rust vs Go" />
+        <meta itemprop="publisher" content="Bitfield Consulting" />
+        <meta name="twitter:title" content="Rust vs Go — Bitfield Consulting" />
+        <meta name="twitter:image" content="http://static1.squarespace.com/static/5e10bdc20efb8f0d169f85f9/5e949913434baa2223121b85/5fa52db75dfc746ea899bfdc/1606903921091/rust-vs-go-square.png?format=1500w" />
+        <meta name="twitter:url" content="https://bitfieldconsulting.com/golang/rust-vs-go" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:description" content="Which is better, Rust or Go? Which language should you choose for your next project, and why? How do the two compare in areas like performance, simplicity, safety, features, scale, and concurrency? Let's find out, in this friendly and even-handed comparison of Rust and Go." />
+        <meta name="description" content="Which is better, Rust or Go? Which language should you choose for your next project, and why? How do the two compare in areas like performance, simplicity, safety, features, scale, and concurrency? Let's find out, in this friendly and even-handed comparison of Rust and Go." />
+        <link rel="preconnect" href="https://images.squarespace-cdn.com" />
+        <script async="async" src="https://www.google-analytics.com/analytics.js"></script>
+        <script type="text/javascript" src="//use.typekit.net/ik/ZtxxFSu-9vCbWmjBIW3OuUYYDSlssf-s58Qud45LICbfeCqIfFHN4UJLFRbh52jhWDm8wQgKZewkwemcjRycwebUFR8c52mc5s76MkG0jAFu-WsoShFGZAsude80ZkoRdhXCHKoyjamTiY8Djhy8ZYmC-Ao1Oco8if37OcBDOcu8OfG0-cB1iABkOWZTdhUTdKuqwRy7O1FUiABkZWF3jAF8OcFzdP37O1FUiABkZWF3jAF8ShFGZAsude80ZkoRdhXCjAFu-WsoShFGZAsude80ZkoRdhXCjAFu-WsoShFGZAsude80Zko0ZWbCjWw0dA9Cjc8XZc88desRdhoDiAUX-Ao1OcFzdPU7jAiujWJlic8zde80OAbk5eG0SaBujW48Sagyjh90jhNlOeUzjhBC-eNDifUDSWmyScmDSeBRZWFR-emqiAUTdcS0jhNlOYiaikoyjamTiY8Djhy8ZYmC-Ao1OcFzdPUaiaS0jAFu-WsoShFGZAsude80Zko0ZWbCiaiaOcBDOcu8OYiaikoK-Wsc-AmCZeFzd1FudYsTdcS0jhNlOYiaiko7jAiujWJlic8zde80OAbk5eG0SaBujW48Sagyjh90jhNlOYiaikoDSWmyScmDSeBRZWFR-emqiAUTdcS0jhNlJygDdamkjh9lShmk-AjlSY4zJ6Tl-AoTdhtlSY4zH6GJKOJgIMMjgfMfH6GJKdJgIMMjgkMfH6GJcnqfIMMj2KMfH6GJ1OqfIMMjIPMfH6qJGQ9bMs6IJMJ7fbKSFsMgeMS6MKG4f4tuIMIj2KMfH6qJ1Q9bMs6sJMHbMS14DLGB.js"></script>
+        <script type="text/javascript">
+        //<![CDATA[
+        try{Typekit.load();}catch(e){}
+        //]]>
+        </script>
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lato:400|Roboto+Slab:400,700" />
+        <script type="text/javascript">
+        //<![CDATA[
+        SQUARESPACE_ROLLUPS = {};
+        //]]>
+        </script> 
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/cldr-resource-pack-d2b6094e965c882c2de89-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-cldr_resource_pack');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/cldr-resource-pack-d2b6094e965c882c2de89-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/common-vendors-536e829cf9e088f4dbbf5-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-common_vendors');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/common-vendors-536e829cf9e088f4dbbf5-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/common-0fbd3adf0f5b02a423bb0-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-common');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/common-0fbd3adf0f5b02a423bb0-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/commerce-4401d08edb0a109d29a82-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-commerce');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/commerce-4401d08edb0a109d29a82-min.en-US.js"></script>
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].css = ["//assets.squarespace.com/universal/styles-compressed/commerce-c6a9de0bd3119cb26a512448db40c590-min.en-US.css"]; })(SQUARESPACE_ROLLUPS, 'squarespace-commerce');
+        ]]>
+        </script>
+        <link rel="stylesheet" type="text/css" href="//assets.squarespace.com/universal/styles-compressed/commerce-c6a9de0bd3119cb26a512448db40c590-min.en-US.css" />
+        <script>
+        <![CDATA[
+        (function(rollups, name) { if (!rollups[name]) { rollups[name] = {}; } rollups[name].js = ["//assets.squarespace.com/universal/scripts-compressed/performance-e8f0bc9aa26cee507ecf9-min.en-US.js"]; })(SQUARESPACE_ROLLUPS, 'squarespace-performance');
+        ]]>
+        </script> 
+        <script crossorigin="anonymous" src="//assets.squarespace.com/universal/scripts-compressed/performance-e8f0bc9aa26cee507ecf9-min.en-US.js" defer="defer"></script>
+        <script data-name="static-context">
+        <![CDATA[
+        Static = window.Static || {}; Static.SQUARESPACE_CONTEXT = {"facebookAppId":"314192535267336","facebookApiVersion":"v6.0","rollups":{"squarespace-announcement-bar":{"js":"//assets.squarespace.com/universal/scripts-compressed/announcement-bar-8b244fce99594deac3684-min.en-US.js"},"squarespace-audio-player":{"css":"//assets.squarespace.com/universal/styles-compressed/audio-player-03a5305221e9f3857f5d3fbff2cd9bbe-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/audio-player-9d33505677455a9b22add-min.en-US.js"},"squarespace-blog-collection-list":{"css":"//assets.squarespace.com/universal/styles-compressed/blog-collection-list-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/blog-collection-list-ab4142fcacca918cf4e2d-min.en-US.js"},"squarespace-calendar-block-renderer":{"css":"//assets.squarespace.com/universal/styles-compressed/calendar-block-renderer-1e8a762808391e4b0bd8945da50793ac-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/calendar-block-renderer-82b361c64e6e75913711e-min.en-US.js"},"squarespace-chartjs-helpers":{"css":"//assets.squarespace.com/universal/styles-compressed/chartjs-helpers-9935a41d63cf08ca108505d288c1712e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/chartjs-helpers-270e1573dd28dff07fc7c-min.en-US.js"},"squarespace-comments":{"css":"//assets.squarespace.com/universal/styles-compressed/comments-f794dccd3bb871fc0cbc0bb7ad024168-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/comments-1b8d1adb275f098d8dc6d-min.en-US.js"},"squarespace-commerce-cart":{"js":"//assets.squarespace.com/universal/scripts-compressed/commerce-cart-fdf057347b74253e7b79c-min.en-US.js"},"squarespace-dialog":{"css":"//assets.squarespace.com/universal/styles-compressed/dialog-4c984bcaacc45888f9092057493234b6-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/dialog-d0806f22106e2772a5834-min.en-US.js"},"squarespace-events-collection":{"css":"//assets.squarespace.com/universal/styles-compressed/events-collection-1e8a762808391e4b0bd8945da50793ac-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/events-collection-415312b37ef6978cf711b-min.en-US.js"},"squarespace-form-rendering-utils":{"js":"//assets.squarespace.com/universal/scripts-compressed/form-rendering-utils-da71321e53a08371a214c-min.en-US.js"},"squarespace-forms":{"css":"//assets.squarespace.com/universal/styles-compressed/forms-763d974ea7719bb18959e8f0a891abe6-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/forms-9fe4eb33891804b4464fe-min.en-US.js"},"squarespace-gallery-collection-list":{"css":"//assets.squarespace.com/universal/styles-compressed/gallery-collection-list-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/gallery-collection-list-5d5ff461e8bba64f298dc-min.en-US.js"},"squarespace-image-zoom":{"css":"//assets.squarespace.com/universal/styles-compressed/image-zoom-72b0ab7796582588032aa6472e2e2f14-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/image-zoom-f7178bbfa97ac5234c120-min.en-US.js"},"squarespace-pinterest":{"css":"//assets.squarespace.com/universal/styles-compressed/pinterest-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/pinterest-9dd1acd10aa47a7154983-min.en-US.js"},"squarespace-popup-overlay":{"css":"//assets.squarespace.com/universal/styles-compressed/popup-overlay-68d60e7bd84500af34df575998cc00d0-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/popup-overlay-423363c7cfdb2c8d48200-min.en-US.js"},"squarespace-product-quick-view":{"css":"//assets.squarespace.com/universal/styles-compressed/product-quick-view-eedd090fe95cd960919fcf1e0a4293c3-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/product-quick-view-8a140d79c50952270e5b7-min.en-US.js"},"squarespace-products-collection-item-v2":{"css":"//assets.squarespace.com/universal/styles-compressed/products-collection-item-v2-72b0ab7796582588032aa6472e2e2f14-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/products-collection-item-v2-5426bac76cb8bd5a92e8b-min.en-US.js"},"squarespace-products-collection-list-v2":{"css":"//assets.squarespace.com/universal/styles-compressed/products-collection-list-v2-72b0ab7796582588032aa6472e2e2f14-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/products-collection-list-v2-0f57d23347251b2736f90-min.en-US.js"},"squarespace-search-page":{"css":"//assets.squarespace.com/universal/styles-compressed/search-page-207da8872118254c0a795bf9b187c205-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/search-page-ac207ca39a69cb84f84f0-min.en-US.js"},"squarespace-search-preview":{"js":"//assets.squarespace.com/universal/scripts-compressed/search-preview-638ba2bf8ec524b820947-min.en-US.js"},"squarespace-share-buttons":{"js":"//assets.squarespace.com/universal/scripts-compressed/share-buttons-32cc08f2dd7137611cfc4-min.en-US.js"},"squarespace-simple-liking":{"css":"//assets.squarespace.com/universal/styles-compressed/simple-liking-9ef41bf7ba753d65ec1acf18e093b88a-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/simple-liking-146a4d691830282d9ce5a-min.en-US.js"},"squarespace-social-buttons":{"css":"//assets.squarespace.com/universal/styles-compressed/social-buttons-bf7788a87c794b73afd9d5c49f72f4f3-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/social-buttons-aa06a0ebdaa97ed82d7ae-min.en-US.js"},"squarespace-tourdates":{"css":"//assets.squarespace.com/universal/styles-compressed/tourdates-d41d8cd98f00b204e9800998ecf8427e-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/tourdates-ee4869629f6a684b35f94-min.en-US.js"},"squarespace-website-overlays-manager":{"css":"//assets.squarespace.com/universal/styles-compressed/website-overlays-manager-4f212ab97f9bc590002bb2ff55f69409-min.en-US.css","js":"//assets.squarespace.com/universal/scripts-compressed/website-overlays-manager-9e5a6a309dfd7e877bf6f-min.en-US.js"}},"pageType":50,"website":{"id":"5e10bdc20efb8f0d169f85f9","identifier":"jaguar-violin-d28j","websiteType":1,"contentModifiedOn":1611055427424,"cloneable":false,"hasBeenCloneable":false,"siteStatus":{},"language":"en-GB","timeZone":"Europe/London","machineTimeZoneOffset":0,"timeZoneOffset":0,"timeZoneAbbr":"GMT","siteTitle":"Bitfield Consulting","fullSiteTitle":"Rust vs Go \u2014 Bitfield Consulting","siteTagLine":"Cloud native and Go consultancy","siteDescription":"","location":{"addressLine1":"","addressLine2":"","addressCountry":""},"shareButtonOptions":{"3":true,"7":true,"1":true,"2":true},"authenticUrl":"https://bitfieldconsulting.com","internalUrl":"https://jaguar-violin-d28j.squarespace.com","baseUrl":"https://bitfieldconsulting.com","primaryDomain":"bitfieldconsulting.com","sslSetting":3,"isHstsEnabled":true,"socialAccounts":[{"serviceId":62,"screenname":"Twitter","addedOn":1578156332409,"profileUrl":"https://twitter.com/bitfield","iconEnabled":true,"serviceName":"twitter-unauth"},{"serviceId":65,"screenname":"LinkedIn","addedOn":1578156370584,"profileUrl":"https://www.linkedin.com/in/bitfieldconsulting/","iconEnabled":true,"serviceName":"linkedin-unauth"},{"serviceId":73,"screenname":"GitHub","addedOn":1579276993645,"profileUrl":"https://github.com/bitfield","iconEnabled":true,"serviceName":"github-unauth"}],"typekitId":"","statsMigrated":false,"imageMetadataProcessingEnabled":false,"screenshotId":"1a2d4d258c3a5bcad7f970309c4ccb12c4934181f35f67ee94a9ba24048f662a","captchaSettings":{"enabledForDonations":false},"showOwnerLogin":false},"websiteSettings":{"id":"5e10bdc20efb8f0d169f85fb","websiteId":"5e10bdc20efb8f0d169f85f9","subjects":[],"country":"GB","state":"ENG","simpleLikingEnabled":true,"mobileInfoBarSettings":{"style":1,"isContactEmailEnabled":false,"isContactPhoneNumberEnabled":false,"isLocationEnabled":false,"isBusinessHoursEnabled":false},"announcementBarSettings":{"style":1},"popupOverlaySettings":{"style":1,"enabledPages":[]},"commentLikesAllowed":true,"commentAnonAllowed":true,"commentThreaded":true,"commentApprovalRequired":false,"commentAvatarsOn":true,"commentSortType":2,"commentFlagThreshold":0,"commentFlagsAllowed":true,"commentEnableByDefault":true,"commentDisableAfterDaysDefault":0,"disqusShortname":"","commentsEnabled":false,"contactPhoneNumber":"","businessHours":{"monday":{"text":"","ranges":[{}]},"tuesday":{"text":"","ranges":[{}]},"wednesday":{"text":"","ranges":[{}]},"thursday":{"text":"","ranges":[{}]},"friday":{"text":"","ranges":[{}]},"saturday":{"text":"","ranges":[{}]},"sunday":{"text":"","ranges":[{}]}},"storeSettings":{"returnPolicy":null,"termsOfService":null,"privacyPolicy":null,"expressCheckout":false,"continueShoppingLinkUrl":"books","useLightCart":false,"showNoteField":false,"shippingCountryDefaultValue":"US","billToShippingDefaultValue":false,"showShippingPhoneNumber":true,"isShippingPhoneRequired":false,"showBillingPhoneNumber":true,"isBillingPhoneRequired":false,"currenciesSupported":["USD","ARS","AUD","BRL","CAD","CHF","COP","CZK","DKK","EUR","GBP","HKD","IDR","ILS","INR","JPY","MXN","MYR","NOK","NZD","PHP","PLN","RUB","SEK","SGD","THB","ZAR"],"defaultCurrency":"GBP","selectedCurrency":"USD","measurementStandard":2,"showCustomCheckoutForm":false,"enableMailingListOptInByDefault":true,"mailingListDescription":"<p class=\"\">Notify me when new books are released!</p>","sameAsRetailLocation":false,"merchandisingSettings":{"scarcityEnabledOnProductItems":false,"scarcityEnabledOnProductBlocks":false,"scarcityMessageType":"DEFAULT_SCARCITY_MESSAGE","scarcityThreshold":10,"multipleQuantityAllowedForServices":true,"restockNotificationsEnabled":false,"restockNotificationsMailingListSignUpEnabled":false,"relatedProductsEnabled":false,"relatedProductsOrdering":"random","soldOutVariantsDropdownDisabled":false,"productComposerOptedIn":true,"productComposerABTestOptedOut":false},"isLive":true,"multipleQuantityAllowedForServices":true},"useEscapeKeyToLogin":true,"ssBadgeType":1,"ssBadgePosition":4,"ssBadgeVisibility":1,"ssBadgeDevices":1,"pinterestOverlayOptions":{"mode":"disabled"},"ampEnabled":true},"cookieSettings":{"isCookieBannerEnabled":false,"isRestrictiveCookiePolicyEnabled":false,"isRestrictiveCookiePolicyAbsolute":false,"cookieBannerText":"","cookieBannerTheme":"","cookieBannerVariant":"","cookieBannerPosition":"","cookieBannerCtaVariant":"","cookieBannerCtaText":""},"websiteCloneable":false,"collection":{"title":"Go tutorials","id":"5e949913434baa2223121b85","fullUrl":"/golang","type":1,"permissionType":1},"item":{"title":"Rust vs Go","id":"5fa52db75dfc746ea899bfdc","fullUrl":"/golang/rust-vs-go","publicCommentCount":0,"commentState":2,"recordType":1},"subscribed":false,"appDomain":"squarespace.com","templateTweakable":true,"tweakJSON":{"aspect-ratio":"Auto","gallery-arrow-style":"Circular","gallery-aspect-ratio":"16:9 Widescreen","gallery-auto-crop":"true","gallery-autoplay":"false","gallery-design":"Slideshow","gallery-info-overlay":"Always Show","gallery-loop":"false","gallery-navigation":"Thumbnails","gallery-show-arrows":"true","gallery-transitions":"Fade","galleryArrowBackground":"rgba(255,255,255,0.7)","galleryArrowColor":"rgba(102,102,102,1)","galleryAutoplaySpeed":"3","galleryCircleColor":"rgba(255,255,255,0.8)","galleryInfoBackground":"rgba(255,255,255,0.7)","galleryThumbnailSize":"100px","gridSize":"350px","gridSpacing":"20px","maxNumberColumns":"3","minColumnWidth":"230","tweak-blog-list-grid-alignment":"Top","tweak-blog-list-grid-narrow-columns":"true","tweak-blog-list-max-width":"Full","tweak-crop-images":"Square","tweak-infinite-scroll":"true","tweak-product-item-image-zoom-factor":"2.5","tweak-product-list-item-hover-behavior":"Fade","tweak-product-list-items-per-row":"3","tweak-related-products-items-per-row":"3","tweak-related-products-title-spacing":"50px","tweak-show-progress-indicator":"false","tweak-user-account-link-position":"With Nav"},"templateId":"54d3906fe4b04c1c9981b00e","templateVersion":"7","pageFeatures":[1,2,4],"gmRenderKey":"QUl6YVN5Q0JUUk9xNkx1dkZfSUUxcjQ2LVQ0QWVUU1YtMGQ3bXk4","templateScriptsRootUrl":"https://static1.squarespace.com/static/ta/54d39057e4b01a0da310c80f/4943/scripts/","betaFeatureFlags":["campaigns_user_templates_in_sidebar","commerce-recaptcha-enterprise","commerce_afterpay","campaigns_email_reuse_template_flow","gallery_captions_71","commerce_pdp_edit_mode","commerce_instagram_product_checkout_links","domains_transfer_flow_hide_preface","domain_deletion_via_registrar_service","domain_info_via_registrar_service","domains_universal_search","ORDER_SERVICE-submit-subscription-order-through-service","campaigns_single_opt_in","donations_customer_accounts","seven-one-menu-overlay-theme-switcher","member_areas_discounts","seven-one-content-preview-section-api","nested_categories_migration_enabled","seven_one_image_effects","campaigns_new_sender_profile_page","domain_locking_via_registrar_service","domains_transfer_flow_improvements","commerce_activation_experiment_add_payment_processor_card","commerce_restock_notifications","seven_one_frontend_render_gallery_section","commerce_setup_wizard","omit_tweakengine_tweakvalues","domains_allow_async_gsuite","commerce_category_id_discounts_enabled","commerce_pdp_layout_catalog","commerce_minimum_order_amount","crm_campaigns_sending","commerce_afterpay_toggle","generic_iframe_loader_for_campaigns","product_composer_feedback_form_on_save","commerce_tax_panel_v2","seven_one_portfolio_hover_layouts","seven_one_frontend_render_page_section","local_listings","ORDER_SERVICE-submit-reoccurring-subscription-order-through-service","dg_downloads_from_fastly","member_areas_ga","ORDERS-SERVICE-check-digital-good-access-with-service","events_panel_70","commerce_orders_elasticsearch_migration","commerce_pdp_survey_modal","commerce_pdp_layouts","seven-one-main-content-preview-api","list_sent_to_groups","customer_notifications_panel_v2","commerce_subscription_order_delay","seven_one_image_overlay_opacity","commerce_add_to_cart_rate_limiting","newsletter_block_captcha","ORDERS-SERVICE-reset-digital-goods-access-with-service","commerce_reduce_cart_calculations","animations_august_2020_new_preset","domains_use_new_domain_connect_strategy","seven_one_header_editor_update"],"impersonatedSession":false,"tzData":{"zones":[[0,"EU","GMT/BST",null]],"rules":{"EU":[[1981,"max",null,"Mar","lastSun","1:00u","1:00","S"],[1996,"max",null,"Oct","lastSun","1:00u","0",null]]}}};
+        ]]>
+        </script>
+        <script type="text/javascript">
+        //<![CDATA[
+        SquarespaceFonts.loadViaContext(); Squarespace.load(window);
+        //]]>
+        </script>
+        <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="http://feeds.feedburner.com/Go-BitfieldConsulting" />
+        <script type="application/ld+json">
+        <![CDATA[
+        {"url":"https://bitfieldconsulting.com","name":"Bitfield Consulting","description":"","@context":"http://schema.org","@type":"WebSite"}
+        ]]>
+        </script>
+        <script type="application/ld+json">
+        <![CDATA[
+        {"openingHours":", , , , , , ","@context":"http://schema.org","@type":"LocalBusiness"}
+        ]]>
+        </script>
+        <script type="application/ld+json">
+        <![CDATA[
+        {"name":"Rust vs Go \u2014 Bitfield Consulting","url":"https://bitfieldconsulting.com/golang/rust-vs-go","datePublished":"2020-11-06T11:04:17+0000","headline":"Rust vs Go","author":"John Arundel","publisher":{"name":"Bitfield Consulting","logo":{"@type":"ImageObject"},"@context":"http://schema.org","@type":"Organization"},"image":"http://static1.squarespace.com/static/5e10bdc20efb8f0d169f85f9/5e949913434baa2223121b85/5fa52db75dfc746ea899bfdc/1606903921091/rust-vs-go-square.png?format=1500w","@context":"http://schema.org","@type":"Article"}
+        ]]>
+        </script>
+        <link rel="stylesheet" type="text/css" href="//static1.squarespace.com/static/sitecss/5e10bdc20efb8f0d169f85f9/72/54d3906fe4b04c1c9981b00e/5e10bdc20efb8f0d169f860e/4943-05142015/1608035203149/site.css?&amp;filterFeatures=false" />
+        <script>
+        <![CDATA[
+        Static.COOKIE_BANNER_CAPABLE = true;
+        ]]>
+        </script> 
+        <script>
+        <![CDATA[
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', 'UA-4300878-4', 'auto');ga('send', 'pageview');
+        ]]>
+        </script><!-- End of Squarespace Headers -->
+         
+        <script>
+        <![CDATA[
+
+        (function(){
+        var touchTest = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+        if (!touchTest) {
+        document.documentElement.className = document.documentElement.className.replace(/touch\-styles/g, '');
+        }
+        })();
+        ]]>
+        </script>
+        <div id="site" class="site-container clearfix">
+            <div class="sqs-announcement-bar-dropzone header-announcement-wrapper responsive-padding--left responsive-padding--right" id="headerAnnouncementWrapper" style="transform: translateY(-29px);">
+                <header id="header" class="site-header collapse" role="banner">
+                    <a class="nav-toggle-label flex-item" id="navToggle" data-controller="NavToggle" data-controllers-bound="NavToggle"><svg class="Icon Icon--hamburger nav-toggle-label-icon" viewbox="0 0 26 18">
+                    <use xlink:href="/assets/ui-icons.svg#hamburger-icon--even"></use></svg></a>
+                    <div class="logo-wrapper flex-item">
+                        <div class="site-title branding" data-content-field="site-title">
+                            <a href="/"><span class="site-title-text">Bitfield Consulting</span> <span class="site-tagline">Cloud native and Go consultancy</span></a>
+                        </div>
+                    </div>
+                    <nav class="header-special-social--shown-on-collapse sqs-template-social-icons sqs-svg-icon--list">
+                        <a href="https://twitter.com/bitfield" target="_blank" class="sqs-svg-icon--wrapper twitter-unauth">
+                        <div>
+                            <svg class="sqs-svg-icon--social" viewbox="0 0 64 64">
+                            <use class="sqs-use--icon" xlink:href="#twitter-unauth-icon"></use>
+                            <use class="sqs-use--mask" xlink:href="#twitter-unauth-mask"></use></svg>
+                        </div></a> <a href="https://www.linkedin.com/in/bitfieldconsulting/" target="_blank" class="sqs-svg-icon--wrapper linkedin-unauth">
+                        <div>
+                            <svg class="sqs-svg-icon--social" viewbox="0 0 64 64">
+                            <use class="sqs-use--icon" xlink:href="#linkedin-unauth-icon"></use>
+                            <use class="sqs-use--mask" xlink:href="#linkedin-unauth-mask"></use></svg>
+                        </div></a> <a href="https://github.com/bitfield" target="_blank" class="sqs-svg-icon--wrapper github-unauth">
+                        <div>
+                            <svg class="sqs-svg-icon--social" viewbox="0 0 64 64">
+                            <use class="sqs-use--icon" xlink:href="#github-unauth-icon"></use>
+                            <use class="sqs-use--mask" xlink:href="#github-unauth-mask"></use></svg>
+                        </div></a>
+                    </nav>
+                    <div class="header-special flex-item">
+                        <div class="social-search-wrapper cart-visible">
+                            <div class="social-ellipsis" id="socialEllipsis" data-controller="SocialToggle" data-controllers-bound="SocialToggle">
+                                <svg class="ellipsis-icon" viewbox="0 0 100 24">
+                                <use xlink:href="/assets/ui-icons.svg#ellipsis-icon"></use></svg>
+                            </div><!--
+               
+               
+                --><!--
+               
+               
+             --> <a href="/search" rel="search" class="header-search" data-controller="SearchToggle" data-controllers-bound="SearchToggle"><svg class="Icon Icon--search search-icon" viewbox="0 0 20 20" shape-rendering="geometricPrecision">
+                            <use xlink:href="/assets/ui-icons.svg#search-icon"></use></svg></a>
+                        </div><!--
+              --><!--
+              --> <a href="/cart" class="sqs-custom-cart custom-cart sqs-template-integrated-shopping-cart" data-test="continue-to-cart">
+                        <div class="custom-cart-bag">
+                            <svg class="Icon Icon--bag custom-cart-bag-icon" viewbox="0 0 34 38">
+                            <use class="use--even" xlink:href="/assets/ui-icons.svg#bag-icon--even"></use></svg> <span class="sqs-cart-quantity">0</span>
+                        </div></a>
+                    </div>
+                </header>
+            </div>
+            <main id="page" class="site-page responsive-padding--left responsive-padding--right site-page--blog-item" role="main" data-content-field="main-content" data-controller="FadeInContent" data-controllers-bound="FadeInContent" style="margin-top: 141px;">
+                <div class="blog-wrapper" data-content-field="main-content" data-item-id="5fa52db75dfc746ea899bfdc" id="yui_3_17_2_1_1611753884544_97">
+                    <div class="main-content blog-view-item clearfix" id="yui_3_17_2_1_1611753884544_96">
+                        <article id="article-5fa52db75dfc746ea899bfdc" class="entry--item h-entry clearfix hentry tag-golang tag-go tag-rust author-john-arundel post-type-text">
+                            <div class="blog-item-title">
+                                <div class="date-wrapper">
+                                    <time class="dt-published date-callout" datetime="2020-11-06" pubdate=""><span class="month">Nov</span> <span class="day">6</span></time>
+                                </div>
+                                <h2 class="entry-title entry-title--large p-name" itemprop="headline" data-content-field="title">
+                                    Rust vs Go
+                                </h2>
+                                <div class="meta-wrapper"></div>
+                            </div>
+                            <div class="blog-item-content-wrapper" data-controller="BlogProgressBar" id="yui_3_17_2_1_1611753884544_95" data-controllers-bound="BlogProgressBar">
+                                <div class="blog-item-content e-content" id="yui_3_17_2_1_1611753884544_94">
+                                    <div class="sqs-layout sqs-grid-12 columns-12" data-layout-label="Post Body" data-type="item" data-updated-on="1604661859883" id="item-5fa52db75dfc746ea899bfdc">
+                                        <div class="row sqs-row" id="yui_3_17_2_1_1611753884544_93">
+                                            <div class="col sqs-col-12 span-12" id="yui_3_17_2_1_1611753884544_92">
+                                                <div class="sqs-block image-block sqs-block-image sqs-text-ready" data-aspect-ratio="47.0873786407767" data-block-type="5" id="block-yui_3_17_2_1_1604660651634_14468">
+                                                    <div class="sqs-block-content" id="yui_3_17_2_1_1611753884544_91">
+                                                        <div class="image-block-outer-wrapper layout-caption-below design-layout-inline combination-animation-none individual-animation-none individual-text-animation-none" data-test="image-block-inline-outer-wrapper" id="yui_3_17_2_1_1611753884544_90">
+                                                            <figure class="sqs-block-image-figure intrinsic" style="max-width:1091.0px;" id="yui_3_17_2_1_1611753884544_89">
+                                                                <div style="padding-bottom: 47.0874%; overflow: hidden;" class="image-block-wrapper has-aspect-ratio" data-animation-role="image" id="yui_3_17_2_1_1611753884544_88">
+                                                                    <noscript><img src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1604661052496-1JWECFMKSRR7UKSHE1L2/ke17ZwdGBToddI8pDm48kBfoYxOA_pZe3DaZs9RVJSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcIW6kmdqM2CDGG1rvMQo1JpzhjrOryQb_D7KvZjluOzGfODKIY3A_js2Krrat3vB0/rust-vs-go-wide.png" alt="rust-vs-go-wide.png" /></noscript><img class="thumb-image loaded" data-src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1604661052496-1JWECFMKSRR7UKSHE1L2/ke17ZwdGBToddI8pDm48kBfoYxOA_pZe3DaZs9RVJSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcIW6kmdqM2CDGG1rvMQo1JpzhjrOryQb_D7KvZjluOzGfODKIY3A_js2Krrat3vB0/rust-vs-go-wide.png" data-image="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1604661052496-1JWECFMKSRR7UKSHE1L2/ke17ZwdGBToddI8pDm48kBfoYxOA_pZe3DaZs9RVJSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcIW6kmdqM2CDGG1rvMQo1JpzhjrOryQb_D7KvZjluOzGfODKIY3A_js2Krrat3vB0/rust-vs-go-wide.png" data-image-dimensions="1091x513" data-image-focal-point="0.5,0.5" data-load="false" data-image-id="5fa52f3ca27e0764adfc294a" data-type="image" alt="rust-vs-go-wide.png" style="left: -0.106474%; top: 0%; width: 100.213%; height: 100%; position: absolute;" data-image-resolution="750w" src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1604661052496-1JWECFMKSRR7UKSHE1L2/ke17ZwdGBToddI8pDm48kBfoYxOA_pZe3DaZs9RVJSIUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcIW6kmdqM2CDGG1rvMQo1JpzhjrOryQb_D7KvZjluOzGfODKIY3A_js2Krrat3vB0/rust-vs-go-wide.png?format=750w" />
+                                                                </div>
+                                                            </figure>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="sqs-block markdown-block sqs-block-markdown" data-block-type="44" id="block-f0eb5fb65d68113734ba">
+                                                    <div class="sqs-block-content">
+                                                        <p>
+                                                            Which is better, Rust or Go? Which language should you choose for your next project, and why? How do the two compare in areas like performance, simplicity, safety, features, scale, and concurrency? What do they have in common, and where do they fundamentally differ? Let's find out, in this friendly and even-handed comparison of Rust and Golang, from the author of the <a href="https://bitfieldconsulting.com/books/">For the Love of Go</a> book series.
+                                                        </p>
+                                                        <h2 id="rust-and-go-are-both-awesome">
+                                                            Rust and Go are both awesome
+                                                        </h2>
+                                                        <p>
+                                                            First, it's really important to say that <em>both Go and Rust are absolutely excellent programming languages</em>. They're modern, powerful, widely-adopted, and offer excellent performance. You may have read articles and blog posts aiming to convince you that Go is better than Rust, or vice versa. But that really makes no sense; every programming language represents a set of trade-offs. Each language is optimised for different things, so your choice of language should be determined by what suits you and the problems you want to solve with it.
+                                                        </p>
+                                                        <p>
+                                                            In this article, I'll try to give a brief overview of where I think Go is the ideal choice, and where I think Rust is a better alternative. Ideally, though, you should have a working familiarity with both languages. While they're very different in syntax and style, both Rust and Go are first-class tools for building software. With that said, let's take a closer look at the two languages.
+                                                        </p>
+                                                        <h2 id="the-similarities">
+                                                            The similarities
+                                                        </h2>
+                                                        <p>
+                                                            Rust and Go have a lot in common, which is one reason you often hear them mentioned together. What are some of the common goals of both languages?
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Rust is a low-level statically-typed multi-paradigm programming language that’s focused on safety and performance.<br />
+                                                                —<a href="https://serokell.io/blog/rust-guide">Gints Dreimanis</a>
+                                                            </p>
+                                                            <p>
+                                                                Go is an open source programming language that makes it easy to build simple, reliable, and efficient software.<br />
+                                                                —<a href="https://golang.org/">Golang.org</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h3 id="memory-safety">
+                                                            Memory safety
+                                                        </h3>
+                                                        <p>
+                                                            Both Go and Rust belong to the group of modern programming languages whose priority is <em>memory safety</em>. It's become clear over many decades of using older languages such as C and C++ that one of the biggest causes of bugs and security vulnerabilities is accessing memory unsafely or incorrectly. Rust and Go deal with this problem in different ways, but both aim to be smarter and safer than other languages about managing memory, and to help you write correct and performant programs.
+                                                        </p>
+                                                        <h3 id="fast-compact-executables">
+                                                            Fast, compact executables
+                                                        </h3>
+                                                        <p>
+                                                            They're both compiled languages, which means your programs are translated directly to executable machine code, so that you can deploy your program as a single binary file; unlike interpreted languages such as <a href="golang/go-vs-python">Python</a> and Ruby, you don't need to distribute an interpreter and lots of libraries and dependencies along with your program, which is a big plus. This also makes both Rust and Go programs extremely fast in comparison to interpreted languages.
+                                                        </p>
+                                                        <h3 id="general-purpose-languages">
+                                                            General-purpose languages
+                                                        </h3>
+                                                        <p>
+                                                            Rust and Go are also both powerful, scalable general-purpose programming languages, which you can use to develop all kinds of modern software, from web applications to distributed microservices, or from embedded microcontrollers to mobile apps. Both have excellent standard libraries and a thriving third-party ecosystem, as well as great commercial support and a large user base. They've both been around for many years, and will continue to be widely used for years to come. Learning either Go or Rust today will be a sound investment of your time and effort.
+                                                        </p>
+                                                        <h3 id="pragmatic-programming-style">
+                                                            Pragmatic programming style
+                                                        </h3>
+                                                        <p>
+                                                            Neither are primarily functional languages (like Scala or Elixir, for example), and neither are exclusively object-oriented (like Java and C#). Instead, while both Go and Rust have features associated with functional and object-oriented programming, they're pragmatic languages aimed at solving problems in whatever way is most appropriate, rather than forcing you into a particular way of doing things. (If you like the functional style of programming, though, you’ll find a lot more facilities for it in Rust, because Rust <em>has</em> a lot more facilities than Go in general.)
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                We can debate about what an ‘object-oriented’ language is, but it’s fair to say that the <em>style</em> of object-oriented programming that C++, Java, or C# users would expect is not present in either Go or Rust.<br />
+                                                                —Jack Mott
+                                                            </p>
+                                                        </blockquote>
+                                                        <h3 id="development-at-scale">
+                                                            Development at scale
+                                                        </h3>
+                                                        <p>
+                                                            Both Rust and Go have some useful features which make them suitable for programming in the large, whether that means large teams, or large codebases, or both.
+                                                        </p>
+                                                        <p>
+                                                            For example, whereas C programmers have argued for years about where to put their brackets, and whether code should be indented with tabs or spaces, both Rust and Go eliminate such issues completely by using a standard formatting tool (<code>gofmt</code> for Go, <code>rustfmt</code> for Rust) which rewrites your code automatically using the canonical style. It’s not that this particular style is so wonderful in itself: it’s the <em>standardisation</em> which Rust and Go programmers appreciate.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                <code>gofmt</code>’s style is no one’s favourite, yet <code>gofmt</code> is everyone’s favourite.<br />
+                                                                —<a href="https://www.youtube.com/watch?v=PAAkCSZUG1c&amp;t=8m43s">Rob Pike</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            Another area where both languages score highly is in the build pipeline. Both have excellent, built-in, high-performance standard build and dependency management tools; no more wrestling with complex third-party build systems and having to learn a new one every couple of years.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Building Go and Rust code, having come from a Java and Ruby background in my early career, felt like an impossible weight off my shoulders. When I was at Google, it was a relief to come across a service that was written in Go, because I knew it would be easy to build and run. This has also been true of Rust, though I've only worked on that at much smaller scale. I'm hoping that the days of infinitely configurable build systems are dead, and languages all ship with their own purpose-built build tools that just work out of the box.<br />
+                                                                —<a href="https://samwho.dev/">Sam Rose</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h2 id="so-what-s-all-the-fuss-about-">
+                                                            So what’s all the fuss about?
+                                                        </h2>
+                                                        <p>
+                                                            With all that in mind, and seeing that both languages are so well-designed and powerful, you might be wondering what all the holy wars are about (me too). Why do people make such a fuss about 'Go versus Rust', getting into angry social media spats and writing long blog posts about how only an idiot would use Rust, or that Go isn't a real programming language, or whatever. It might make them feel better, but it doesn't exactly help you, as someone trying to decide which language to use for your project, or which you should learn to advance your programming career. A wise person doesn't make important choices based on who shouts the loudest.
+                                                        </p>
+                                                        <p>
+                                                            Let's continue our grown-up discussion now by looking at some areas where a reasonable person might prefer one language over the other.
+                                                        </p>
+                                                        <h2 id="performance">
+                                                            Performance
+                                                        </h2>
+                                                        <p>
+                                                            We've said that both Go and Rust produce extremely fast programs because they're compiled to native machine code, without having to go through an interpreter or virtual machine. However, Rust's performance is particularly outstanding. It's comparable with C and C++, which are often regarded as the highest-performance compiled languages, but unlike these older languages, it also offers memory safety and concurrency safety at essentially no cost in execution speed. Rust also allows you to create complex abstractions without paying a performance penalty at run-time.
+                                                        </p>
+                                                        <p>
+                                                            By comparison, although Go programs also perform extremely well, Go is primarily designed for speed of <em>development</em> (including compilation), rather than speed of execution. The Go compiler doesn’t spend a lot of time trying to generate the most efficient possible machine code; it cares more about compiling lots of code quickly. So Rust will usually beat Go in run-time benchmarks.
+                                                        </p>
+                                                        <p>
+                                                            Rust’s run-time performance is also consistent and predictable, because it doesn’t use garbage collection. Go’s garbage collector is very efficient, and it’s optimised to make its stop-the-world pauses as short as possible (and getting shorter with every new Go release). But garbage collection inevitably introduces some unpredictability in the way programs behave, which can be a serious issue in some applications, such as embedded systems.
+                                                        </p>
+                                                        <p>
+                                                            Because Rust aims to give the programmer complete control of the underlying hardware, it's possible to optimise Rust programs to be pretty close to the maximum theoretical performance of the machine. This makes Rust an excellent choice for areas where speed of execution beats all other considerations, such as game programming, operating system kernels, web browser components, and real-time control systems.
+                                                        </p>
+                                                        <h2 id="simplicity">
+                                                            Simplicity
+                                                        </h2>
+                                                        <p>
+                                                            It doesn't matter how fast a programming language is if nobody can figure out how to use it. Go was deliberately conceived as a reaction against the ever-growing complexity of languages like C++; it has very little syntax, very few keywords, and, indeed, few features. This means it doesn't take long to learn the Go language to the point where you can write useful programs in it.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Go is incredibly easy to learn. I know this is an often-touted benefit, but I was really surprised at how quickly I was able to be productive. Thanks to the language, docs, and tools, I was writing interesting, committable code after literally two days.<br />
+                                                                —<a href="https://medium.com/better-programming/early-impressions-of-go-from-a-rust-programmer-f4fd1074c410">Early Impressions of Go From a Rust Programmer</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            The key word here is <em>simplicity</em>. Simple isn't the same as easy, for sure, but a small, simple language is easier to learn than a large, complex one. There just aren't that many different ways to do things, so all well-written Go code tends to look the same. It’s easy to just dive into an unfamiliar service and understand what it’s doing.
+                                                        </p>
+                                                        <pre><code class="lang-go">fmt.Println("Gopher's Diner Breakfast Menu")
+for dish, price := range menu {
+    fmt.Println(dish, price)
+}</code></pre>
+                                                        <p>
+                                                            (In the <a href="/videos">Code Club</a> series, I do exactly that: pick Go projects semi-randomly from GitHub and explore them with a group of Go beginners, to see how much of the code we can understand. It always turns out to be more than we expected!)
+                                                        </p>
+                                                        <p>
+                                                            Although the core language is small, Go’s standard library is very powerful. That means your learning curve will also need to include the parts of the standard library that you need, not just Go syntax. On the other hand, moving functionality out of the language and into the standard library means that you can focus on learning only the libraries that are relevant to you right now.
+                                                        </p>
+                                                        <p>
+                                                            Go is also designed for software development at scale, with large codebases and large teams. In these situations, it's important that new developers can get up to speed as quickly as possible.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                With Go, you get things done—fast. Go is one of the most productive languages I've ever worked with. The mantra is: <em>solve real problems today</em>.<br />
+                                                                —<a href="https://endler.dev/2017/go-vs-rust/">Matthias Endler</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h2 id="features">
+                                                            Features
+                                                        </h2>
+                                                        <blockquote>
+                                                            <p>
+                                                                Rust supports more complexity than several other programming languages, therefore, you can achieve more with it. For example, it supports generics.<br />
+                                                                —<a href="https://devathon.com/blog/rust-vs-go-which-programming-language-to-choose/">Devathon</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            Rust is specifically designed to include lots of powerful and useful features to help programmers do the most with the least code. For example, Rust's <code>match</code> feature lets you write flexible, expressive logic quite concisely:
+                                                        </p>
+                                                        <pre><code class="lang-rust">fn is_prime(n: u64) -&gt; bool {
+    match n {
+        0...1 =&gt; false,
+        _ =&gt; !(2..n).any(|d| n % d == 0),
+    }
+}</code></pre>
+                                                        <p>
+                                                            Because Rust <em>does</em> a lot, this means there's a lot to learn, especially at the start. But that's okay: there's a lot to learn in C++ or Java, too, and you don't get the advanced features that come with Rust, like memory safety. To criticise Rust for being a complex language misses the point: it's designed to be expressive, which means having a lot of features, and in many situations that's what you want from a programming language. There's a learning curve, for sure, but once you’re up and running with it, you’ll be fine.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Rust competes for mindshare with C++ and D for programmers who are prepared to accept more complex syntax and semantics (and presumably higher readability costs) in return for the maximum possible performance.<br />
+                                                                —<a href="https://dave.cheney.net/2015/07/02/why-go-and-rust-are-not-competitors">Dave Cheney</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h2 id="concurrency">
+                                                            Concurrency
+                                                        </h2>
+                                                        <p>
+                                                            Most languages have some form of support for concurrent programming (doing multiple things at once), but Go was designed for this job from the ground up. Instead of using operating system threads, Go provides a lightweight alternative: <em>goroutines</em>. Each goroutine is an independently executing Go function, which the Go scheduler will map to one of the OS threads under its control. This means that the scheduler can very efficiently manage a large number of concurrent goroutines, using only a limited number of OS threads.
+                                                        </p>
+                                                        <p>
+                                                            Consequently, you can run millions of concurrent goroutines in a single program without creating serious performance problems. That makes Go the perfect choice for high-scale concurrent applications such as webservers and microservices.
+                                                        </p>
+                                                        <p>
+                                                            Go also features fast, safe, efficient ways for goroutines to communicate and share data, using <em>channels</em>. Go's concurrency support feels well-designed, and a pleasure to use. Reasoning about concurrent programs is hard in general, and building reliable, correct concurrent programs is a challenge in any language. Because it was built into the language from the start, though, instead of being an afterthought, concurrent programming in Go is about as simple and well-integrated as it could reasonably be.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Go makes it very easy to build a nicely factored application that takes full advantage of concurrency while being deployed as a set of microservices. Rust can do those things, too, but it’s arguably a bit tougher. In some respects, Rust’s obsession with preventing memory-related security vulnerabilities means that programmers have to go out of their way to perform tasks that would be simpler in other languages, including Go.<br />
+                                                                —<a href="https://sdtimes.com/softwaredev/the-developers-dilemma-choosing-between-go-and-rust/">Sonya Koptyev</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            The concurrency story in Rust is very new, by comparison, and still stabilising, but it’s under very active development, so watch this space. For example, Rust’s <a href="https://github.com/rayon-rs/rayon">rayon</a> library provides a very elegant and lightweight way of turning sequential computations into parallel ones.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Having lightweight syntax for spawning Go routines and using channels are really nice. It really shows the power of syntax that such small details make concurrent programming feel so much nicer than in other languages.<br />
+                                                                —<a href="https://medium.com/better-programming/early-impressions-of-go-from-a-rust-programmer-f4fd1074c410">Early Impressions of Go From a Rust Programmer</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            While it may be a bit less straightforward to implement concurrent programs in Rust, it’s still possible, and those programs can take advantage of Rust’s guarantees about safety. A good example is the standard library’s <code>Mutex</code> class: in Go, you can forget to obtain a mutex lock before accessing something, but Rust won’t let you do that.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Go is focused on concurrency as a first class concept. That is not to say you cannot find aspects of Go’s actor oriented concurrency in Rust, but it is left as an exercise to the programmer.<br />
+                                                                —<a href="https://dave.cheney.net/2015/07/02/why-go-and-rust-are-not-competitors">Dave Cheney</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h2 id="safety">
+                                                            Safety
+                                                        </h2>
+                                                        <p>
+                                                            We saw earlier that both Go and Rust aim, in different ways, to prevent a large class of common programming errors, to do with memory management. But Rust in particular goes to great lengths to ensure that you can't do something unsafe that you didn't mean to do.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Rust's very strict and pedantic compiler checks each and every variable you use and every memory address you reference. It avoids possible data race conditions and informs you about undefined behavior. Concurrency and memory safety issues are fundamentally impossible to get in the safe subset of Rust.<br />
+                                                                —<a href="https://bitbucket.org/blog/why-rust">Why Rust?</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            This is going to make programming in Rust a different experience to almost all other languages, and it may be a challenging one at first. But for many people, the hard work is worth it.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                For me the key advantage of Rust is a feeling that the compiler has my back and won't let through any bug it could possibly detect (seriously, it feels like magic sometimes).<br />
+                                                                —Grzegorz Nosek
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            Many languages, including Go, have facilities to help programmers avoid mistakes, but Rust takes this to a new level, so that potentially incorrect programs won’t even compile.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                With Rust, the library programmer has a lot of tools to prevent her users making mistakes. Rust gives us the ability to say that we <em>own</em> a specific piece of data; it's not possible for anything else to claim ownership, so we know nothing else will be able to modify it. I can't think of a time I've ever been given this many tools to prevent accidental misuse before. It's a wonderful feeling.<br />
+                                                                —<a href="https://samwho.dev/">Sam Rose</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            "Fighting with the borrow checker" is a common syndrome for new Rust programmers, but in most cases the problems that it finds are genuine bugs (or at least potential bugs) in your code. It may force you to fundamentally re-architect your program to avoid running into these issues; and that's a good thing, when correctness and reliability are your top priority. What's the point of a language that doesn't change the way you program? The lessons that Rust teaches about safety can be useful when you’re working in other languages, too.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                If you choose Rust, usually you need the guarantees that the language provides: safety against null pointers and data races, predictable runtime behaviour, and total control over the hardware. If you don't require any of these features, Rust might be a poor choice for your next project. That's because these guarantees come with a cost: ramp-up time. You'll need to unlearn bad habits and learn new concepts. Chances are, you will fight with the borrow checker a lot when you start out.<br />
+                                                                —<a href="https://endler.dev/2017/go-vs-rust/">Matthias Endler</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            How challenging you find Rust's programming model probably depends on what previous experience you have in other languages. Python or Ruby programmers may find it restrictive; others will be delighted.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                If you’re a C or C++ programmer who’s spent weeks chasing down memory safety bugs in those languages, you’ll really appreciate Rust. “Fighting the borrow checker” becomes “The compiler can detect that? Cool!”<br />
+                                                                —Grzegorz Nosek
+                                                            </p>
+                                                        </blockquote>
+                                                        <h2 id="scale">
+                                                            Scale
+                                                        </h2>
+                                                        <blockquote>
+                                                            <p>
+                                                                Today's server programs comprise tens of millions of lines of code, are worked on by hundreds or even thousands of programmers, and are updated literally every day. Go was designed and developed to make working in this environment more productive. Go's design considerations include rigorous dependency management, the adaptability of software architecture as systems grow, and robustness across the boundaries between components.<br />
+                                                                —<a href="https://talks.golang.org/2012/splash.article">Rob Pike</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            When you're working on a problem by yourself or in small teams, the choice of a simple language or a rich language is a matter of preference. But as the software grows bigger and more complex, and the teams grow larger, the differences really start to show. For large applications and distributed systems, speed of execution is less important than speed of development: a deliberately minimal language like Go reduces the ramp-up time for new developers, and makes it easier for them to work with a large codebase.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                With Go, it’s easier as a junior developer to be more productive, and harder as a mid-level developer to introduce brittle abstractions that will cause problems down the line. For these reasons, Rust is less compelling than Go for enterprise software development.<br />
+                                                                —<a href="https://kristoff.it/blog/why-go-and-not-rust">Loris Cro</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            When it comes to software development in the large, clear is better than clever. Go's limitations actually make it more suitable for enterprises and big organisations than more complex and powerful languages such as Rust.
+                                                        </p>
+                                                        <h2 id="the-differences">
+                                                            The differences
+                                                        </h2>
+                                                        <p>
+                                                            Although Rust and Go are both popular, modern, widely-used languages, they're not really competitors, in the sense that they're deliberately targeting quite different use cases. Go's whole approach to programming is radically different to Rust's, and each language will suit some people while irritating others. That's absolutely fine, and if both Rust and Go did more or less the same things in more or less the same way, we wouldn't really need two different languages.
+                                                        </p>
+                                                        <p>
+                                                            So can we get a sense of the respective natures of Rust and Go by finding issues on which they take drastically different approaches? Let's find out.
+                                                        </p>
+                                                        <h3 id="garbage-collection">
+                                                            Garbage collection
+                                                        </h3>
+                                                        <p>
+                                                            “To garbage-collect, or not to garbage-collect” is one of those questions that has no right answer. Garbage collection, and automatic memory management in general, makes it quick and easy to develop reliable, efficient programs, and for some people that makes it essential. But others say that garbage collection, with its performance overhead and stop-the-world pauses, makes programs behave unpredictably at run-time, and introduces unacceptable latency. The debate rumbles on.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Go is a very different language to Rust. Although both can vaguely be described as systems languages or replacements for C, they have different goals and applications, styles of language design, and priorities. Garbage collection is a really huge differentiator. Having GC in Go makes the language much simpler and smaller, and easy to reason about.
+                                                            </p>
+                                                            <p>
+                                                                Not having GC in Rust makes it really fast (especially if you need guaranteed latency, not just high throughput) and enables features and programming patterns that are not possible in Go (or at least not without sacrificing performance).<br />
+                                                                —<a href="https://medium.com/better-programming/early-impressions-of-go-from-a-rust-programmer-f4fd1074c410">PingCAP</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h3 id="close-to-the-metal">
+                                                            Close to the metal
+                                                        </h3>
+                                                        <p>
+                                                            The history of computer programming has been a story of increasingly sophisticated abstractions that let the programmer solve problems without worrying too much about how the underlying machine actually works. That makes programs easier to write and perhaps more portable. But for many programs, access to the hardware, and precise control of how the program is executed, are more important. Rust aims to let programmers get “closer to the metal”, with more control, but Go abstracts away the architectural details to let programmers get closer to the problem.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Both languages have a different scope. Golang shines for writing microservices and for typical "DevOps" tasks, but it is not a systems programming language. Rust is stronger for tasks where concurrency, safety and/or performance are important; but it has a steeper learning curve than Go.<br />
+                                                                —<a href="https://endler.dev/2017/go-vs-rust/">Matthias Endler</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h3 id="must-go-faster">
+                                                            Must go faster
+                                                        </h3>
+                                                        <p>
+                                                            I’ve written elsewhere that <a href="https://bitfieldconsulting.com/golang/slower">performance is less important than readability for most programs</a>. But when performance <em>does</em> matter, it really matters. Rust makes a number of design trade-offs to achieve the best possible execution speed. By contrast, Go is more concerned about simplicity, and it’s willing to sacrifice some (run-time) performance for it. But Go’s <em>build</em> speed is unbeatable, and that’s important for large codebases.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                Rust is faster than Go. In the benchmarks above, Rust was faster, and in some cases, an order of magnitude faster. But before you run off choosing to write everything in Rust, consider that Go wasn’t that far behind it in many of those benchmarks, and it’s still much faster than the likes of Java, C#, JavaScript, Python and so on.
+                                                            </p>
+                                                            <p>
+                                                                If what you need is top-of-the-line performance, then you’ll be ahead of the game choosing either of these two languages. If you’re building a web service that handles high load, that you want to be able to scale both vertically and horizontally, either language will suit you perfectly.<br />
+                                                                —<a href="https://codeburst.io/should-i-rust-or-should-i-go-59a298e00ea9">Andrew Lader</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h3 id="correctness">
+                                                            Correctness
+                                                        </h3>
+                                                        <p>
+                                                            On the other hand, a program can be arbitrarily fast if it doesn’t have to work properly. Most code is not written for the long term, but it’s often surprising how long some programs can stay running in production: in some cases, many decades. In these situations it’s worth taking a little extra time in development to make sure that the program is correct, reliable, and won’t need a lot of maintenance in the future.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                My take: Go for the code that has to ship tomorrow, Rust for the code that has to keep running untouched for the next five years.<br />
+                                                                —Grzegorz Nosek
+                                                            </p>
+                                                        </blockquote>
+                                                        <p>
+                                                            While both Go and Rust are great choices for any serious project, it's a good idea to make yourself as well-informed as possible about each language and its characteristics. Ultimately, it doesn't matter what anyone else thinks: only you can decide which is right for you and your team.
+                                                        </p>
+                                                        <blockquote>
+                                                            <p>
+                                                                If you want to develop faster, perhaps because you have many different services to write, or you have a large team of developers, then Go is your language of choice. Go gives you concurrency as a first-class citizen, and does not tolerate unsafe memory access (neither does Rust), but without forcing you to manage every last detail. Go is fast and powerful, but it avoids bogging the developer down, focusing instead on simplicity and uniformity. If on the other hand, wringing out every last ounce of performance is a necessity, then Rust should be your choice.<br />
+                                                                —<a href="https://codeburst.io/should-i-rust-or-should-i-go-59a298e00ea9">Andrew Lader</a>
+                                                            </p>
+                                                        </blockquote>
+                                                        <h2 id="conclusion">
+                                                            Conclusion
+                                                        </h2>
+                                                        <p>
+                                                            I hope this article has convinced you that <em>both</em> Rust and Go deserve your serious consideration. If at all possible, you should aim to get at least some level of experience in both languages, because they will be incredibly useful to you in any tech career, or even if you enjoy programming as a hobby. If you only have time to invest in learning one language well, don't make your final decision until you've used both Go and Rust for a variety of different kinds of programs, large and small.
+                                                        </p>
+                                                        <p>
+                                                            And knowledge of a programming language is really only a small part of being a successful software engineer. By far the most important skills you'll need are design, engineering, architecture, communication, and collaboration. If you excel at these, you'll be a great software engineer regardless of your choice of language. Happy learning!
+                                                        </p>
+                                                        <h2 id="comparing-rust-and-go-code">
+                                                            Comparing Rust and Go code
+                                                        </h2>
+                                                        <p>
+                                                            There's a great website called <a href="programming-idioms.org">programming-idioms.org</a> which has a "cheat sheet" showing what the Rust and Go code looks like for over 200 common programming tasks:
+                                                        </p>
+                                                        <ul>
+                                                            <li>
+                                                                <a href="https://programming-idioms.org/cheatsheet/Go/Rust">Go vs Rust idioms</a>
+                                                            </li>
+                                                        </ul>
+                                                        <h2 id="getting-started">
+                                                            Getting started
+                                                        </h2>
+                                                        <p>
+                                                            If you're interested in learning to program with Rust and Go, here are a few resources you may find helpful.
+                                                        </p>
+                                                        <h3 id="go">
+                                                            Go
+                                                        </h3>
+                                                        <ul>
+                                                            <li>
+                                                                <a href="https://golang.org/dl/">Install Go</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/golang">Go tutorials by Bitfield</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="/books">For the Love of Go</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://tour.golang.org/">A Tour of Go</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://gobyexample.com/">Go By Example</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://play.golang.org/">The Go Playground</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://github.com/avelino/awesome-go">Awesome Go</a>
+                                                            </li>
+                                                        </ul>
+                                                        <h3 id="rust">
+                                                            Rust
+                                                        </h3>
+                                                        <ul>
+                                                            <li>
+                                                                <a href="https://www.rust-lang.org/tools/install">Install Rust</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://stevedonovan.github.io/rust-gentle-intro/">A Gentle Introduction to Rust</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://doc.rust-lang.org/book/index.html">The Rust Programming Language</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://github.com/sger/RustBooks">Rust books</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://doc.rust-lang.org/rust-by-example/">Rust By Example</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://play.rust-lang.org/">The Rust Playground</a>
+                                                            </li>
+                                                            <li>
+                                                                <a href="https://www.wezm.net/v2/posts/2020/100-rust-binaries/">One Hundred Rust Binaries</a>
+                                                            </li>
+                                                        </ul>
+                                                        <h2 id="acknowledgements">
+                                                            Acknowledgements
+                                                        </h2>
+                                                        <p>
+                                                            I am not young enough to know everything, as the saying goes, so I'm very grateful to a number of distinguished Gophers and Rustaceans who took the time to review and correct this piece, as well as providing some really useful suggestions. My special thanks go to Bill Kennedy, Grzegorz Nosek, Sam Rose, Jack Mott, Steve Klabnik, MN Mark, Ola Nordstrom, Levi Lovelock, Emile Pels, Sebastian Lauwers, Carl Lerche, and everyone else who contributed. You might get the impression from reading online hot takes that the Rust and Go communities don't get along. Nothing could be further from the truth, in my experience; we had very civilised and fruitful discussions about the draft article, and it's made a big difference to the finished product. Thanks again.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <footer class="blog-item-footer">
+                                    <div class="footer-meta">
+                                        <div class="blog-meta-item blog-meta-author">
+                                            <a href="/golang?author=5e10bdc11264f20181591485" class="blog-author-name">John Arundel</a>
+                                        </div>
+                                        <div class="blog-item-tags">
+                                            <a href="/golang/tag/golang" class="blog-item-tag blog-item-tag--golang" rel="tag">golang</a><span class="blog-meta-delimiter">,</span> <a href="/golang/tag/Go" class="blog-item-tag blog-item-tag--go" rel="tag">Go</a><span class="blog-meta-delimiter">,</span> <a href="/golang/tag/Rust" class="blog-item-tag blog-item-tag--rust" rel="tag">Rust</a>
+                                        </div>
+                                    </div>
+                                    <div class="blog-item-actions blog-item-actions--footer">
+                                        <div class="blog-item-actions-wrapper">
+                                            <div class="Share sqs-share-buttons" data-item-identifier="5fa52db75dfc746ea899bfdc" data-item-path="golang/rust-vs-go">
+                                                <div class="Share-buttons">
+                                                    <!--
+
+      Facebook
+
+    --> <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fbitfieldconsulting.com%2Fgolang%2Frust-vs-go" class="Share-buttons-item Share-buttons-item--social" target="_blank" data-service="facebook"><svg class="Share-buttons-item-icon" viewbox="0 0 64 64">
+                                                    <use xlink:href="/universal/svg/social-accounts.svg#facebook-icon"></use></svg></a> <!--
+
+      Twitter
+
+    --> <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fbitfieldconsulting.com%2Fgolang%2Frust-vs-go&amp;text=Which+is+better%2C+Rust+or+Go%3F+Which+language+should+you+choose+for+your+next+project%2C+and+why%3F+How+..." class="Share-buttons-item Share-buttons-item--social" target="_blank" data-service="twitter"><svg class="Share-buttons-item-icon" viewbox="0 0 64 64">
+                                                    <use xlink:href="/universal/svg/social-accounts.svg#twitter-icon"></use></svg></a> <!--
+
+      Pinterest
+
+    --> <a href="https://www.pinterest.com/pin/create/link/?description=Which+is+better%2C+Rust+or+Go%3F+Which+language+should+you+choose+for+your+next+project%2C+and+why%3F+How+...&amp;media=https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1604665871530-K5JPUPWRGEYKCKXQ1HPW/ke17ZwdGBToddI8pDm48kOOV3de0Ej9SnnsFP4KDdoMUqsxRUqqbr1mOJYKfIPR7LoDQ9mXPOjoJoqy81S2I8N_N4V1vUb5AoIIIbLZhVYxCRW4BPu10St3TBAUQYVKcQLFCfVOLL2s6zALfWetZwncusZn4PqUA6ZvU07-FiekaHBcFQysoqGrYgsZvooDb/rust-vs-go-square.png&amp;url=https%3A%2F%2Fbitfieldconsulting.com%2Fgolang%2Frust-vs-go" class="Share-buttons-item Share-buttons-item--social" target="_blank" data-service="pinterest"><svg class="Share-buttons-item-icon" viewbox="0 0 64 64">
+                                                    <use xlink:href="/universal/svg/social-accounts.svg#pinterest-icon"></use></svg></a> <!--
+
+      Simple Like
+
+    --> <a href="#" class="Share-buttons-item Share-buttons-item--like" data-item-identifier="5fa52db75dfc746ea899bfdc" data-like-count="4" data-service="squarespace-like"><svg class="Share-buttons-item-icon" viewbox="0 0 64 64">
+                                                    <g class="svg-icon">
+                                                        <path d="M39.9,37.8c-7.3,4.8-7.7,6.9-7.9,7.8c-0.2-0.9-0.6-3-7.9-7.8c-16-10.6,1.4-25.4,7.9-11.7C38.5,12.4,55.9,27.3,39.9,37.8z"></path>
+                                                    </g></svg></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </footer>
+                                <section class="blog-item-comments">
+                                    <div class="blog-item-comments-toggle-wrapper">
+                                        <div id="blogItemCommentsContent" class="blog-item-comments-content"></div>
+                                    </div>
+                                </section>
+                            </div>
+                        </article>
+                    </div>
+                    <section class="blog-item-pagination">
+                        <a href="/golang/bit" class="blog-item-pagination-link blog-item-pagination-link--prev">
+                        <div class="blog-item-label">
+                            <svg class="prev-icon" viewbox="0 0 50 100">
+                            <use xlink:href="/assets/ui-icons.svg#thick-arrow-left-icon"></use></svg>
+                        </div>
+                        <h2 class="blog-item-pagination-title">
+                            <span class="pagination-title-wrapper"><time class="dt-published date-pagination" datetime="2020-12-21" pubdate="">Dec 21</time> Bitfield Institute of Technology (BIT)</span>
+                        </h2></a><!--
+  --> <a href="/golang/go-vs-python" class="blog-item-pagination-link blog-item-pagination-link--next">
+                        <div class="blog-item-label">
+                            <svg class="next-icon" viewbox="0 0 50 100">
+                            <use xlink:href="/assets/ui-icons.svg#thick-arrow-right-icon"></use></svg>
+                        </div>
+                        <h2 class="blog-item-pagination-title">
+                            <span class="pagination-title-wrapper"><time class="dt-published date-pagination" datetime="2020-10-05" pubdate="">Oct 5</time> Go vs Python</span>
+                        </h2></a>
+                    </section>
+                    <h2 class="related-title responsive-padding--top">
+                        Related Posts
+                    </h2>
+                    <section id="related" class="blog-item-related clear" data-controller="RelatedPostImages" data-controllers-bound="RelatedPostImages">
+                        <article id="article-5e949a7ac047fa5ed9b18b68" class="blog-list-item entry entry--list entry--related h-entry hentry tag-go tag-golang tag-mentoring author-john-arundel post-type-text article-index-1 featured has-main-image" data-item-id="5e949a7ac047fa5ed9b18b68" data-item-title="Learn Golang remotely with me">
+                            <div class="thumbnail-title-wrapper">
+                                <div class="excerpt-thumb">
+                                    <a href="/golang/learn" class="excerpt-image content-fill" style="overflow: hidden;"><img data-src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1587217222517-VWO54SKA24E6D1I0FFCH/ke17ZwdGBToddI8pDm48kFc6r8ZGnvvf1ZP3fWvNGKpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIRbtNDE4vuTX7Oxma2ccBxClWRidw5Hn_nhexg5W_jOc/198-1980581_golang-gopher-png.png" data-image="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1587217222517-VWO54SKA24E6D1I0FFCH/ke17ZwdGBToddI8pDm48kFc6r8ZGnvvf1ZP3fWvNGKpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIRbtNDE4vuTX7Oxma2ccBxClWRidw5Hn_nhexg5W_jOc/198-1980581_golang-gopher-png.png" data-image-dimensions="895x895" data-image-focal-point="0.5,0.5" data-parent-ratio="0.4" alt="Learn Golang remotely with me" style="font-size: 0px; left: -74px; top: 0px; width: 267px; height: 267px; position: absolute;" class="" data-image-resolution="300w" src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1587217222517-VWO54SKA24E6D1I0FFCH/ke17ZwdGBToddI8pDm48kFc6r8ZGnvvf1ZP3fWvNGKpZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZamWLI2zvYWH8K3-s_4yszcp2ryTI0HqTOaaUohrI8PIRbtNDE4vuTX7Oxma2ccBxClWRidw5Hn_nhexg5W_jOc/198-1980581_golang-gopher-png.png?format=300w" /></a>
+                                </div>
+                            </div>
+                            <div class="entry-text">
+                                <header class="entry-header">
+                                    <a href="/golang/learn" class="u-url" rel="bookmark">
+                                    <div class="date-wrapper">
+                                        <time class="dt-published date-callout" datetime="2020-02-01" pubdate=""><span class="month">Feb</span> <span class="day">1</span></time>
+                                    </div>
+                                    <h2 class="entry-title entry-title--list p-name">
+                                        Learn Golang remotely with me
+                                    </h2></a>
+                                </header>
+                            </div>
+                        </article>
+                        <article id="article-5f1c4147b167f23f6552fab9" class="blog-list-item entry entry--list entry--related h-entry hentry tag-go tag-golang tag-python author-john-arundel post-type-text article-index-2 has-main-image" data-item-id="5f1c4147b167f23f6552fab9" data-item-title="Go vs Python">
+                            <div class="thumbnail-title-wrapper">
+                                <div class="excerpt-thumb">
+                                    <a href="/golang/go-vs-python" class="excerpt-image content-fill" style="overflow: hidden;"><img data-src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1601909051163-Y5UF1XOJ454EFSBVL227/ke17ZwdGBToddI8pDm48kHvYsOrJWa9Q0xIE90IKSoR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmIcpFzfQUGs-bV7TTeXK8l8Qgvo8fg_GzX9B78RO1NHr-CMZElphJdy2VgdroNabb/python-vs-go.png" data-image="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1601909051163-Y5UF1XOJ454EFSBVL227/ke17ZwdGBToddI8pDm48kHvYsOrJWa9Q0xIE90IKSoR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmIcpFzfQUGs-bV7TTeXK8l8Qgvo8fg_GzX9B78RO1NHr-CMZElphJdy2VgdroNabb/python-vs-go.png" data-image-dimensions="1008x1008" data-image-focal-point="0.5,0.5" data-parent-ratio="0.6" alt="Go vs Python" style="font-size: 0px; left: -37px; top: 0px; width: 193px; height: 193px; position: absolute;" class="" data-image-resolution="300w" src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1601909051163-Y5UF1XOJ454EFSBVL227/ke17ZwdGBToddI8pDm48kHvYsOrJWa9Q0xIE90IKSoR7gQa3H78H3Y0txjaiv_0fDoOvxcdMmMKkDsyUqMSsMWxHk725yiiHCCLfrh8O1z5QHyNOqBUUEtDDsRWrJLTmIcpFzfQUGs-bV7TTeXK8l8Qgvo8fg_GzX9B78RO1NHr-CMZElphJdy2VgdroNabb/python-vs-go.png?format=300w" /></a>
+                                </div>
+                            </div>
+                            <div class="entry-text">
+                                <header class="entry-header">
+                                    <a href="/golang/go-vs-python" class="u-url" rel="bookmark">
+                                    <div class="date-wrapper">
+                                        <time class="dt-published date-callout" datetime="2020-10-05" pubdate=""><span class="month">Oct</span> <span class="day">5</span></time>
+                                    </div>
+                                    <h2 class="entry-title entry-title--list p-name">
+                                        Go vs Python
+                                    </h2></a>
+                                </header>
+                            </div>
+                        </article>
+                        <article id="article-5fe8d52bba5cdf3765a66198" class="blog-list-item entry entry--list entry--related h-entry hentry tag-golang tag-go author-john-arundel post-type-text article-index-3 has-main-image" data-item-id="5fe8d52bba5cdf3765a66198" data-item-title="How to really learn Go">
+                            <div class="thumbnail-title-wrapper">
+                                <div class="excerpt-thumb">
+                                    <a href="/golang/how" class="excerpt-image content-fill" style="overflow: hidden;"><img data-src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1609099061829-432HNO6RX88UFS0IDJOZ/ke17ZwdGBToddI8pDm48kHrjr6XQz_FwlnBOObN9v_1Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEwl6KEL99Vo5G27ZtVJ6qVeDNhgx_RlWF8qSxBQmoNxhur-lC0WofN0YB1wFg-ZW0/witch-learning+square.png" data-image="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1609099061829-432HNO6RX88UFS0IDJOZ/ke17ZwdGBToddI8pDm48kHrjr6XQz_FwlnBOObN9v_1Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEwl6KEL99Vo5G27ZtVJ6qVeDNhgx_RlWF8qSxBQmoNxhur-lC0WofN0YB1wFg-ZW0/witch-learning+square.png" data-image-dimensions="429x429" data-image-focal-point="0.5,0.5" data-parent-ratio="0.5" alt="How to really learn Go" style="font-size: 0px; left: -55.5px; top: -1.42109e-14px; width: 230px; height: 230px; position: absolute;" class="" data-image-resolution="300w" src="https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/1609099061829-432HNO6RX88UFS0IDJOZ/ke17ZwdGBToddI8pDm48kHrjr6XQz_FwlnBOObN9v_1Zw-zPPgdn4jUwVcJE1ZvWEtT5uBSRWt4vQZAgTJucoTqqXjS3CfNDSuuf31e0tVEwl6KEL99Vo5G27ZtVJ6qVeDNhgx_RlWF8qSxBQmoNxhur-lC0WofN0YB1wFg-ZW0/witch-learning+square.png?format=300w" /></a>
+                                </div>
+                            </div>
+                            <div class="entry-text">
+                                <header class="entry-header">
+                                    <a href="/golang/how" class="u-url" rel="bookmark">
+                                    <div class="date-wrapper">
+                                        <time class="dt-published date-callout" datetime="2020-12-27" pubdate=""><span class="month">Dec</span> <span class="day">27</span></time>
+                                    </div>
+                                    <h2 class="entry-title entry-title--list p-name">
+                                        How to really learn Go
+                                    </h2></a>
+                                </header>
+                            </div>
+                        </article>
+                    </section>
+                </div>
+            </main>
+            <footer id="footer" class="site-footer responsive-margin--top responsive-padding--left responsive-padding--right responsive-padding--top responsive-padding--bottom" role="contentinfo">
+                <div class="sqs-layout sqs-grid-12 columns-12" data-layout-label="Footer Content" data-type="block-field" data-updated-on="1603015717250" id="footerBlocks">
+                    <div class="row sqs-row">
+                        <div class="col sqs-col-4 span-4">
+                            <div class="sqs-block spacer-block sqs-block-spacer sized vsize-1" data-block-type="21" id="block-af578289a144c6ca3110"></div>
+                        </div>
+                        <div class="col sqs-col-4 span-4">
+                            <div class="sqs-block code-block sqs-block-code" data-block-type="23" id="block-yui_3_17_2_1_1601630974491_6569">
+                                <div class="sqs-block-content">
+                                    <!-- Begin Mailchimp Signup Form -->
+                                    <div id="mc_embed_signup">
+                                        <form action="https://bitfieldconsulting.us2.list-manage.com/subscribe/post?u=eb0faa86400b99bd8ac0bf00b&amp;id=c8ee237186" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="novalidate">
+                                            <div id="mc_embed_signup_scroll">
+                                                <b>Notify me about new books</b>
+                                                <p>
+                                                    Be the first to know when John publishes a new Go book, and get early access!
+                                                </p>
+                                                <div class="mc-field-group">
+                                                    <label for="mce-EMAIL">Email Address <span class="asterisk">*</span></label> <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" aria-required="true" />
+                                                </div>
+                                                <div class="mc-field-group input-group">
+                                                    <strong>Beta reader</strong>
+                                                    <ul>
+                                                        <li>
+                                                            <input type="checkbox" value="1" name="group[53874][1]" id="mce-group[53874]-53874-0" /> <label for="mce-group[53874]-53874-0">I'd like to read early drafts and give feedback on new books</label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div id="mce-responses" class="clear"></div><!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                                                <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                                                    <input type="text" name="b_eb0faa86400b99bd8ac0bf00b_c8ee237186" tabindex="-1" value="" />
+                                                </div>
+                                                <div class="clear">
+                                                    <input type="submit" value="Notify me" name="subscribe" id="mc-embedded-subscribe" class="button" />
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+                                    <script type="text/javascript">
+                                    //<![CDATA[
+                                    (function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);
+                                    //]]>
+                                    </script> <!--End mc_embed_signup-->
+                                </div>
+                            </div>
+                            <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-8dfcbae070c4d116ffd3">
+                                <div class="sqs-block-content">
+                                    <p class="" style="white-space:pre-wrap;">
+                                        <a href="/about">John Arundel</a> is a well-known <a href="/golang">Golang</a> <a href="/golang/learn">mentor</a> and <a href="/books">writer</a> who has taught Go to literally thousands of people worldwide, helping them unlock and develop their careers in tech. Get friendly, professional, one-to-one instruction in Go wherever you live. <a href="/contact">Contact John</a> to find out more.&#160;
+                                    </p>
+                                    <p style="text-align:center;white-space:pre-wrap;" class="">
+                                        <a href="/books">Books</a>&#160; &#160;<a href="/golang">Tutorials</a>&#160; &#160;<a href="/blog">Blog</a>&#160; &#160;<a href="/contact">Contact</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="sqs-block spacer-block sqs-block-spacer sized vsize-1" data-aspect-ratio="1.3449023861171367" data-block-type="21" id="block-442cf107465762ceb83a"></div>
+                            <div class="sqs-block html-block sqs-block-html" data-block-type="2" id="block-49f30dbcd2f359149788">
+                                <div class="sqs-block-content">
+                                    <p style="text-align:center;white-space:pre-wrap;" class="">
+                                        Powered by <a href="http://www.squarespace.com?channel=word_of_mouth&amp;subchannel=customer&amp;source=footer&amp;campaign=4fd1028ee4b02be53c65dfb3" target="_blank">Squarespace</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col sqs-col-4 span-4">
+                            <div class="sqs-block spacer-block sqs-block-spacer sized vsize-1" data-block-type="21" id="block-1417db11dda8032dd169"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="footerNavWrapper" class="nav-wrapper footer-nav"></div>
+            </footer>
+        </div>
+        <script src="https://static1.squarespace.com/static/ta/54d39057e4b01a0da310c80f/4943/scripts/site-bundle.js" type="text/javascript"></script> 
+        <script type="text/javascript" data-sqs-type="imageloader-bootstrapper">
+        //<![CDATA[
+        (function() {if(window.ImageLoader) { window.ImageLoader.bootstrap({}, document); }})();
+        //]]>
+        </script>
+        <script>
+        <![CDATA[
+        Squarespace.afterBodyLoad(Y);
+        ]]>
+        </script>
+    </body>
+</html>

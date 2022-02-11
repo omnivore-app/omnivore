@@ -1,0 +1,48 @@
+import { gql } from 'graphql-request'
+import { gqlFetcher } from '../networkHelpers'
+
+type UpdateHighlightInput = {
+  highlightId: string
+  annotation?: string
+  sharedAt?: string
+}
+
+type UpdateHighlightOutput = {
+  updateHighlight: HighlightOutput
+}
+
+type HighlightOutput = {
+  highlight: HighlightId
+}
+
+type HighlightId = {
+  id: string
+}
+
+export async function updateHighlightMutation(
+  input: UpdateHighlightInput
+): Promise<string | undefined> {
+  const mutation = gql`
+    mutation UpdateHighlight($input: UpdateHighlightInput!) {
+      updateHighlight(input: $input) {
+        ... on UpdateHighlightSuccess {
+          highlight {
+            id
+          }
+        }
+
+        ... on UpdateHighlightError {
+          errorCodes
+        }
+      }
+    }
+  `
+
+  try {
+    const data = await gqlFetcher(mutation, { input })
+    const output = data as UpdateHighlightOutput | undefined
+    return output?.updateHighlight.highlight.id
+  } catch {
+    return undefined
+  }
+}

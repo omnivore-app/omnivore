@@ -1,0 +1,20 @@
+{
+  "name": "@omnivore/db",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "migrate": "ts-node ./migrate.ts",
+    "generate": "plop"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "pg": "^8.3.0",
+    "postgrator": "^4.1.1",
+    "ts-node": "^10.2.1"
+  },
+  "devDependencies": {
+    "plop": "^2.7.1"
+  }
+}

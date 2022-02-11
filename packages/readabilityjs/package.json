@@ -1,0 +1,39 @@
+{
+  "name": "@omnivore/readability",
+  "version": "1.0.0",
+  "description": "A standalone version of the readability library used for Firefox Reader View.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/test-*.js",
+    "generate-testcase": "node test/generate-testcase.js",
+    "perf": "matcha benchmarks/benchmarks.js",
+    "perf-reference": "READABILITY_PERF_REFERENCE=1 matcha --reporter ./benchmarks/benchmark-reporter.js benchmarks/benchmarks.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/readability"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/readability/issues"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "homepage": "https://github.com/mozilla/readability",
+  "devDependencies": {
+    "@c4312/matcha": "^1.3.1",
+    "chai": "^2.1.*",
+    "htmltidy2": "^0.3.0",
+    "js-beautify": "^1.13.0",
+    "jsdom": "^13.1",
+    "mocha": "^8.2.0",
+    "puppeteer": "^10.1.0",
+    "sinon": "^7.3.2"
+  },
+  "dependencies": {
+    "modern-random-ua": "^1.0.3",
+    "parse-srcset": "^1.0.2"
+  }
+}

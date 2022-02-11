@@ -1,0 +1,66 @@
+<div id="readability-page-1" class="page">
+    <div>
+        <div itemprop="text">
+            <p> I apologize for writing a lengthy answer, but I get the feeling the discussions about foundations for formalized mathematics are often hindered by lack of information. </p>
+            <p> I have used proof assistants for a while now, and also worked on their design and implementation. While I will be quick to tell jokes about set theory, I am bitterly aware of the shortcomings of type theory, very likely more so than the typical set theorist. (Ha, ha, "typical set theorist"!) If anyone can show me how to improve proof assistants with set theory, I will be absolutely deligthed! But it is not enough to just have good ideas – you need to test them in practice on large projects, as many phenomena related to formalized mathematics only appear once we reach a certain level of complexity. </p>
+            <h3> The components of a proof assistant </h3>
+            <p> The architecture of modern proof assistants is the result of several decades of experimentation, development and practical experience. A proof assistant incorporates not one, but several formal systems. </p>
+            <p> The central component of a proof assistant is the <strong>kernel</strong>, which validates every inference step and makes sure that proofs are correct. It does so by implementing a formal system <span>$F$</span> (the <strong>foundation</strong>) which is expressive enough to allow formalization of a large amount of mathematics, but also simple enough to allow an efficient and correct implementation. </p>
+            <p> The foundational system implemented in the kernel is too rudimentary to be directly usable for sophisticated mathematics. Instead, the user writes their input in a more expressive formal language <span>$V$</span> (the <strong>vernacular</strong>) that is designed to be practical and useful. Typically <span>$V$</span> is quite complex so that it can accommodate various notational conventions and other accepted forms of mathematical expression. A second component of the proof assistant, the <strong>elaborator</strong>, translates <span>$V$</span> to <span>$F$</span> and passes the translations to the kernel for verification. </p>
+            <p> A proof assistant may incorporate a third formal language <span>$M$</span> (the <strong>meta-language</strong>), which is used to implement proof search, decision procedures, and other automation techniques. Because the purpose of <span>$M$</span> is to implement algorithms, it typically resembles a programming language. The distinction between <span>$M$</span> and <span>$V$</span> may not be very sharp, and sometimes they are combined into a single formalism. From mathematical point of view, <span>$M$</span> is less interesting than <span>$F$</span> and <span>$V$</span>, so we shall ignore it. </p>
+            <h3> Suitability of foundation <span>$F$</span>
+            </h3>
+            <p> The correctness of the entire system depends on the correctness of the kernel. A bug in the kernel allows invalid proofs to be accepted, whereas a bug in any other component is just an annoyance. Therefore, the foundation <span>$F$</span> should be simple so that we can implement it reliably. It should not be so exotic that logicians cannot tell how it relates to the accepted foundations of mathematics. Computers are fast, so it does not matter (too much) if the translation from <span>$V$</span> to <span>$F$</span> creates verbose statements. Also, <span>$F$</span> need not be directly usable by humans. </p>
+            <p> A suitable variant of set theory or type theory fits these criteria. Indeed Mizar is based on set theory, while HOL, Lean, Coq, and Agda use type theory in the kernel. Since both set theory and type theory are mathematically very well understood, and more or less equally expressive, the choice will hinge on technical criteria, such as availability and efficiency of proof-checking algorithms. </p>
+            <h3> Suitability of vernacular <span>$V$</span>
+            </h3>
+            <p> A much more interesting question is what makes the vernacular <span>$V$</span> suitable. </p>
+            <p> For the vernacular to be useful, it has to reflect mathematical practice as much as possible. It should allow expression of mathematical ideas and concepts directly in familiar terms, and without unnecessary formalistic hassle. On the other hand, <span>$V$</span> should be a formal language so that the elaborator can translate it to the foundation <span>$F$</span>. </p>
+            <p> To learn more about what makes <span>$V$</span> good, we need to carefully observe how mathematicians <em>actually</em> write mathematics. They produce <a href="http://hott.github.io/HoTT/dependencies/HoTTCore.svg" rel="noreferrer">complex webs</a> of definitions, theorems, and constructions, therefore <span>$V$</span> should support <em>management</em> of large collections of formalized mathematics. In this regards we can learn a great deal by looking at how programmers organize software. For instance, saying that a body of mathematics is "just a series of definitions, theorems and proofs" is a naive idealization that works in certain contexts, but certainly not in practical formalization of mathematics. </p>
+            <p> Mathematicians omit a great deal of information in their writings, and are quite willing to sacrifice formal correctness for succinctness. The reader is expected to fill in the missing details, and to rectify the imprecisions. The proof assistant is expected to do the same. To illustrate this point, consider the following snippet of mathematical text: </p>
+            <blockquote>
+                <p> Let <span>$U$</span> and <span>$V$</span> be vector spaces and <span>$f : U \to V$</span> a linear map. Then <span>$f(2 \cdot x + y) = 2 \cdot f(x) + f(y)$</span> for all <span>$x$</span> and <span>$y$</span>. </p>
+            </blockquote>
+            <p> Did you understand it? Of course. But you might be quite surprised to learn how much guesswork and correction your brain carried out: </p>
+            <ul>
+                <li>
+                    <p> The field of scalars is not specified, but this does not prevent you from understanding the text. You simply assumed that there is some underlying field of scalars <span>$K$</span>. You might find out more about <span>$K$</span> in subsequent text. (<span>$K$</span> is an <a href="https://coq.inria.fr/refman/language/extensions/evars.html" rel="noreferrer">existential variable</a>.) </p>
+                </li>
+                <li>
+                    <p> Strictly speaking "<span>$f : U \to V$</span>" does not make sense because <span>$U$</span> and <span>$V$</span> are not sets, but structures <span>$U = (|U|, 0_U, {+}_U, {-}_U, {\cdot}_U)$</span> and <span>$V = (|V|, 0_V, {+}_V, {-}_V, {\cdot}_V)$</span>. Of course, you correctly surmised that <span>$f$</span> is a map between the <em>carriers</em>, i.e., <span>$f : |U| \to |V|$</span>. (You inserted an <a href="https://coq.inria.fr/distrib/current/refman/addendum/implicit-coercions.html" rel="noreferrer">implicit coercion</a> from a vector space to its carrier.) </p>
+                </li>
+                <li>
+                    <p> What do <span>$x$</span> and <span>$y$</span> range over? For <span>$f(x)$</span> and <span>$f(y)$</span> to make sense, it must be the case that <span>$x \in |U|$</span> and <span>$y \in |U|$</span>. (You <a href="https://en.wikipedia.org/wiki/Type_inference" rel="noreferrer">inferred</a> the domain of <span>$x$</span> and <span>$y$</span>.) </p>
+                </li>
+                <li>
+                    <p> In the equation, <span>$+$</span> on the left-hand side means <span>$+_{U}$</span>, and <span>$+$</span> on the right-hand side <span>${+}_V$</span>, and similarly for scalar multiplication. (You reconstructed the <a href="https://coq.inria.fr/refman/language/extensions/implicit-arguments.html" rel="noreferrer">implicit arguments</a> of <span>$+$</span>.) </p>
+                </li>
+                <li>
+                    <p> The symbol <span>$2$</span> normally denotes a natural number, as every child knows, but clearly it is meant to denote the scalar <span>$1_K +_K 1_K$</span>. (You interpreed "<span>$2$</span>" in the <a href="https://coq.inria.fr/refman/user-extensions/syntax-extensions.html#notation-scopes" rel="noreferrer">notation scope</a> appropriate for the situation at hand.) </p>
+                </li>
+            </ul>
+            <p> The vernacular <span>$V$</span> must support these techniques, and many more, so that they can be implemented in the elaborator. It cannot be anything as simple as ZFC with first-order logic and definitional extensions, or bare Martin-Löf type theory. You may consider the development of <span>$V$</span> to be outside of scope of mathematics and logic, but then do not complain when computer scientist fashion it after their technology. </p>
+            <p> I have never seen any serious proposals for a vernacular based on set theory. Or to put it another way, as soon as we start expanding and transforming set theory to fit the requirements for <span>$V$</span>, we end up with a theoretical framework that looks a lot like type theory. (You may entertain yourself by thinking how set theory could be used to detect that <span>$f : U \to V$</span> above does not make sense unless we insert coercions – for if everthying is a set then so are <span>$U$</span> and <span>$V$</span>, in which case <span>$f : U \to V$</span> <em>does</em> make sense.) </p>
+            <h3> Detecting mistakes </h3>
+            <p> An important aspect of suitability of foundation is its ability to detect mistakes. Of course, its purpose is to prevent logical errors, but there is more to mistakes than just violation of logic. There are formally meaningful statements which, with very high probability, are mistakes. Consider the following snippet, and read it carefully: </p>
+            <blockquote>
+                <p>
+                    <strong>Definition:</strong> A set <span>$X$</span> is <em>jaberwocky</em> when for every <span>$x \in X$</span> there exists a bryllyg <span>$U \subseteq X$</span> and an uffish <span>$K \subseteq X$</span> such that <span>$x \in U$</span> and <span>$U \in K$</span>.
+                </p>
+            </blockquote>
+            <p> Even if you have never read Lewis Carroll's works, you should wonder about "<span>$U \in K$</span>". It looks like "<span>$U \subseteq K$</span>" would make more sense, since <span>$U$</span> and <span>$K$</span> are both subsets of <span>$X$</span>. Nevertheless, a proof assistant whose foundation <span>$F$</span> is based on ZFC will accept the above definition as valid, even though it is very unlikely that the human intended it. </p>
+            <p> A proof assistant based on type theory would reject the definition by stating that "<span>$U \in K$</span>" is a type error. </p>
+            <p> So suppose we use a set-theoretic foundation <span>$F$</span> that accepts any syntactically valid formula as meaningful. In such a system writing "<span>$U \in K$</span>" is meaningful and therefore the above definition will be accepted by the kernel. If we want the proof assistant to actually <em>assist</em> the human, it has to contain an additional mechanism that will flag "<span>$U \in K$</span>" as suspect, despite the kernel being happy with it. But what is this additional mechanism, if not just a second kernel based on type theory? </p>
+            <p> I am not saying that it is impossible to design a proof assistant based on set theory. After all, <a href="http://mizar.org/" rel="noreferrer">Mizar</a>, the most venerable of them all, is designed precisely in this way – set theory with a layer of type-theoretic mechanisms on top. But I cannot help to wonder: why bother with the set-theoretic kernel that requires a type-theoretic fence to insulate the user from the unintended permissiveness of set theory? </p>
+        </div>
+        <div>
+            <p> answered <span title="2020-11-20 12:02:43Z">Nov 20 '20 at 12:02</span>
+            </p>
+            <div itemprop="author" itemscope="itemscope" itemtype="https://schema.org/Person">
+                <p><a href="http://fakehost/users/1176/andrej-bauer">Andrej Bauer</a></p>
+                <p><span title="reputation score 40,035" dir="ltr">40k</span><span>9 gold badges</span><span>102 silver badges</span><span>193 bronze badges</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

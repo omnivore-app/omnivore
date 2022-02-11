@@ -1,0 +1,10 @@
+{
+  "title": "Reverse Engineering the source code of the BioNTech/Pfizer SARS-CoV-2 Vaccine",
+  "byline": null,
+  "dir": null,
+  "excerpt": "Welcome! In this post, we'll be taking a character-by-character look at the source code of the BioNTech/Pfizer SARS-CoV-2 mRNA vaccine.",
+  "siteName": "Articles",
+  "previewImage": "https://berthub.eu/articles/bnt162b2.png",
+  "publishedDate": "2020-12-25T19:12:20.000Z",
+  "readerable": true
+}

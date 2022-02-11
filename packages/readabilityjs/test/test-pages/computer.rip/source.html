@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="UTF-8" />
+        <title>
+            Computers Are Bad
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
+        <style type="text/css">
+        /*<![CDATA[*/
+                        body {
+                                font-family: monospace;
+                                background-image: url("/younix.png");
+                                background-repeat: repeat;
+                                color: #111;
+                                margin: 0;
+                                padding: 0;
+                                text-align: center;
+                                line-height: 1.4;
+                        }
+                        #container {
+                                display: inline-block;
+                                width: 80ch;
+                                padding: 2em;
+                                background-color: #eee;
+                                text-align: left;
+                        }
+
+                        @media only screen and (max-width: 600px) {
+                                #container {
+                                        width: 40ch;
+                                }
+                        }
+
+                        pre {
+                                white-space: pre-wrap;
+                                white-space: -moz-pre-wrap;
+                                white-space: -pre-wrap;
+                                white-space: -o-pre-wrap;
+                                word-wrap: break-word;
+                        }
+
+                        p {
+                                margin: 0;
+                                margin-bottom: 2ex;
+                        }
+
+                        h1,h2 {
+                                font-size: 100%;
+                                font-weight: bold;      
+                        }
+
+                        ol {
+                                padding-left: 4ch;
+                        }
+
+                        ul {
+                                padding-left: 2ch;
+                                list-style: none;
+                        }
+
+                        ul li:before {
+                                content: "*";
+                                padding-right: 1ch;
+                        }
+        /*]]>*/
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <header>
+                <pre>   _____                   _                  _____            _____       _ 
+  |     |___ _____ ___ _ _| |_ ___ ___ ___   |  _  |___ ___   | __  |___ _| |
+  |   --| . |     | . | | |  _| -_|  _|_ -|  |     |  _| -_|  | __ -| .'| . |
+  |_____|___|_|_|_|  _|___|_| |___|_| |___|  |__|__|_| |___|  |_____|__,|___|
+  a newsletter by |_| <a href="https://jbcrawford.us">j. b. crawford</a>                       <a href="/">home</a> <a href="http://eepurl.com/g3QF-L">subscribe</a> <a href="https://computer.rip/rss.xml">rss</a>
+</pre>
+            </header>
+            <article>
+                <h1>
+                    &gt;&gt;&gt; 2020-11-28 the verboten band
+                </h1>
+                <p>
+                    To start: yes, long time no see. Well, COVID-19 has been like that. Some days I feel accomplished if I successfully check my email. I finally managed to clear out a backlog of an entire handfull of things that needed thoughtful responses, though, and so here I am, screaming into the void instead of at anyone in particular.
+                </p>
+                <p>
+                    That said, let's talk a bit about radios. It is probably unsurprising by now that I have a long-running interest in radio and especially digital radio communications---but people who come to radio from all kinds of different perspectives run into one odd problem: the curious refusal of any receiver to tune to certain frequencies in the 800-900MHz range.
+                </p>
+                <p>
+                    A lot of people have a general knowledge that this has to do with some kind of legal prohibition on reception of cellular phones. That's roughly correct, but to fully explain the matter requires going into some depth on two different topics: FCC regulation of radio devices, and the development of cellular phones. The first sounds more boring, so let's hit that one first.
+                </p>
+                <p>
+                    Generally speaking, most electronic products manufactured or imported into the United States are subject to regulation by the Federal Communications Commission. Specifically, they generally require an "Equipment Authorization" from the FCC prior to being marketed. For purposes of this regulatory scheme, electronic devices can be broadly divided into two categories: intentional radiators and unintentional radiators.
+                </p>
+                <p>
+                    An intentional radiator is something that is specifically intended to broadcast a radio signal, like, say, a cellular phone. Intentional radiators must be certified to comply with the specific Part of the FCC regulations relevant to the service for which they will be used. For example, cellular phones must be certified against Part 27, Wireless Communications Service, among others. The exact process varies by the part and can be involved, but it generally involves the manufacturer paying a certified test lab to perform certain tests and complying with various other filing requirements which include placing a label on the device which specifies its FCC approval. Device manufacturers must file with the FCC a description of how this label will appear before they receive approval to market the device, which is why the rough designs of unreleased devices are sometimes revealed by the rough drawings in these filings---tech journalists will watch these to get the dimensions of new iPhones, for example.
+                </p>
+                <p>
+                    By the way, when I say the "FCC Regulations," if you want to follow along at home these are promulgated as 47 CFR. So Part 27, for example, refers to 47 CFR 27. The ever lovely Cornell LII has the whole thing for your entertainment: https://www.law.cornell.edu/cfr/text/47. There's some reading for when you need help falling asleep.
+                </p>
+                <p>
+                    But that's all besides the point, I'm more interested in talking about unintentional radiators, devices which are not intended to produce RF radiation but may still do so as a result of the operation of the electronics---this is generally called a spurious emission, which is basically any RF emitted by accident. These devices are certified under Part 15 of the FCC regulations[1], and so are sometimes called "Part 15 devices." Part 15 essentially limits the type and amplitude of spurious emissions to prevent random devices causing harmful interference due to defects in their designs.
+                </p>
+                <p>
+                    What would we call a radio <em>receiver</em>, then? It is explicitly a radio device, but is not intended to transmit anything. As a result, radio receivers are Part 15 devices. Most of Part 15 is very general and doesn't really say anything specific about radio devices, it just limits spurious emissions and other design standards. However, 15.121 gets a great deal more specific in discussing "Scanning receivers.' A scanning receiver is specifically defined earlier in the regulation as a device capable of tuning to two or more frequency bands in the range of 30-960Mhz. This has the fun result that nothing for the GHz range is technically a scanner, but for practical reasons this doesn't matter too much.
+                </p>
+                <p>
+                    So what's in 15.121? This is:
+                </p>
+                <p>
+                    47 CFR 15.121(a): ... scanning receivers and frequency converters designed or marketed for use with scanning receivers, shall: (1) Be incapable of operating (tuning), or readily being altered by the user to operate, within the frequency bands allocated to the Cellular Radiotelephone Service in part 22 of this chapter (cellular telephone bands). ... (b) Be designed so that the tuning, control and filtering circuitry is inaccessible. The design must be such that any attempts to modify the equipment to receive transmissions from the Cellular Radiotelephone Service likely will render the receiver inoperable.
+                </p>
+                <p>
+                    The rest of paragraph (a) gives a pretty long clarification of "readily being altered by the user," and it's amusing to think of a bunch of FCC characters sitting around a table trying to think up every alteration that is easy. Jumper wires and reprogramming micro-controllers are both right out.
+                </p>
+                <p>
+                    It gets even better:
+                </p>
+                <p>
+                    47 CFR 15.121(b): ... scanning receivers shall reject any signals from the Cellular Radiotelephone Service frequency bands that are 38 dB or lower based upon a 12 dB SINAD measurement, which is considered the threshold where a signal can be clearly discerned from any interference that may be present.
+                </p>
+                <p>
+                    So, here's this actual weird rule about scanners. Scanners are specifically prohibited from being able to tune to any bands allocated to the Part 22 Cellular Radiotelephone Service. This raises questions, and as you can imagine from the way I got here, I am about to spend a long time answering them.
+                </p>
+                <p>
+                    When the FCC says "Cellular Radiotelephone Service," they aren't talking about cell phones in general. The CRS as I'll call it refers to a <em>very specific</em> cellular service, and that is AMPS.
+                </p>
+                <p>
+                    AMPS, the Advanced Mobile Phone System, is the most common in the US of the "1G" cellular services. Most carriers that were around when it was offered called it "Analog" service, and indeed, AMPS was entirely analog. And, due to an odd detail of the regulation, large cellular carriers were <em>required</em> to offer AMPS service until 2008, long after AMPS phones were no longer produced. You may have had a candy bar phone back when you would occasionally see an "A" for analog service, but I hope not into the late 2000s.
+                </p>
+                <p>
+                    There are a few things that we might infer from AMPS being an analog service. One of those things is that it probably did not employ strong encryption. In fact, AMPS employed no scrambling or enciphering of any kind. Your phone conversations were just flapping in the wind for anyone to hear. This posed a major practical problem for carriers in the '90s as it was discovered that it was not particularly difficult to intercept the call setup process from an AMPS phone and swipe its identification numbers, allowing you to basically steal someone else's cellular service. You can imagine that this was popular with certain criminals with a need for untraceable but convenient communications.
+                </p>
+                <p>
+                    There was also a problem for consumers: their phone conversations could be fairly easily overheard. There were a number of ways to do this, using any radio scanner that covered that band for example. One particularly well-known option was a particular model of phone, the Oki 900, that had an unusually open design (in terms of modifiability) that led to reverse engineered and modified firmware being developed that made eavesdropping on other people's calls just, well, a feature it had.
+                </p>
+                <p>
+                    The scale of this problem was fairly large, and it was fairly well known. For example, let's turn to <em>my</em> favorite source of late-night reading, newspaper archives. A lovely piece in the 30 May 1990 issue of The News and Observer, from Raleigh NC, takes the cheesy headline "Monitoring Megahertz" and goes into some depth on the issue.
+                </p>
+                <p>
+                    "I've heard men call their wives and tell them they'll be home late, then call their girl friends," quipped one electronics store owner who had "accidentally" eavesdropped on cellular calls using a scanner. We've all fat-fingered our ways into someone else's affairs I'm sure, pun intended. Another person said "when you look at the fact that there are how many thousands of people out there who know my name, my mailing address and my salary...I put cellular eavesdropping down as being no different from that." In the face of technology, even in 1990, people had begun to abandon their privacy.
+                </p>
+                <p>
+                    Cellular carriers were not so happy about this, viewing it as an embarrassment to their operation. I have heard before that cellular carriers went so far as to lobby for banning scanners entirely, although I am not aware of much hard evidence of this. What they did do was convince congress to stick an extra few paragraphs onto an otherwise only tangentially related bit of legislation called the Telephone Disclosure and Dispute Resolution Act of 1992. This has largely to do with abusive 1-900 numbers, which is its whole own topic in telephone regulation that I ought to take on sometime. But it also brought along just a bit more, an extra section that was subsequently amended several times at the behest of cellular carriers. Let's read part of it, as amended, and with some editing for readability.
+                </p>
+                <p>
+                    The Commission shall prescribe and make effective regulations denying equipment authorization for any scanning receiver that is capable of---(A) receiving transmissions in the frequencies allocated to the domestic cellular radio telecommunications service, (B) readily being altered by the user to receive transmissions in such frequencies, or (C) being equipped with decoders that convert digital cellular transmissions to analog voice audio.
+                </p>
+                <p>
+                    Well, we've made it full circle: we've seen the regulation, and we've seen the legislation that kicked the FCC to write the regulation. But how does this translate today? Things get a bit weird there.
+                </p>
+                <p>
+                    You see, the FCC seems to have (sensibly) interpreted the legislation as applying directly to the Cellular Radiotelephone Service, even though the legislation actually uses the term "domestic cellular radio communications service" which seems almost equally lively to have been (1) intended to be more general in its applicability or (2) a result of someone drafting legislation having read "Cellular Radiotelephone Service" in the FCC regulations but then forgetting exactly how it was worded.
+                </p>
+                <p>
+                    The Cellular Radiotelephone Service was allocated 824-849MHz and later 869-894MHz. That's it. You see, all of the digital cellular systems we use today are considered completely different services from Cellular Radiotelephone (usually called Wireless Communications Service although the details get complex). As a result, and to this day, those two sections in the 800MHz band are verboten to scanners, and nothing else.
+                </p>
+                <p>
+                    And about those frequencies... after the requirement for AMPS service ended, all US carriers ceased AMPS operations. The old AMPS bands remain allocated for cellular service, and Verizon and a couple of smaller carriers use the same frequencies for digital cellular services, which employ encryption and cannot be intercepted by radio scanners. The prohibition on tuning scanners to these frequencies no longer makes any sense, especially since this ban has never been extended to the AWS, PCS, and WCS bands that are more widely used by modern cellular phones.
+                </p>
+                <p>
+                    My suspicion is that the fact that this regulation was mandated by congress makes it difficult for the FCC to remove or modify, even though it no longer makes technical sense. Unless congress finds some time for minutiae we are unlikely to see a change in this rule.
+                </p>
+                <p>
+                    In general, the whole thing is sort of bizarre. Broadly speaking, it is legal to listen in on any radio communications in the US, but cellular phones have repeatedly gotten a special carve-out.
+                </p>
+                <p>
+                    Repeatedly? That's right. The whole AMPS band and scanners rule is the only specific <em>technical</em> regulation, but the Electronic Communications Privacy Act of 1986 had actually already made it illegal to intercept or listen in on cellular calls, and this remains true to the present day... but there was virtually no enforcement, and that hasn't really changed to this day.
+                </p>
+                <p>
+                    And of course the whole thing has always felt like a farce. The solution to the poor (or rather nonexistent) security design of AMPS was never legislation, but cellular carriers and the congress will be damned if they didn't try. In practice, the rule swept the entire eavesdropping problem under the rug for some years, allowing carriers to continue operating the insecure AMPS system for far longer than they should have (...but exactly as long as the FCC required them to).
+                </p>
+                <p>
+                    Because listening to the modern digital cellular modes wouldn't be particularly interesting or useful anyway, and this rule doesn't really deter anyone with the motivation and ability to decode those modes anyway, there are two lasting impacts of this rather particular rule:
+                </p>
+                <p>
+                    1) SDRs and other receivers made today must implement this particular and peculiar restriction in order to receive US equipment authorization, which is probably part of the reason that a lot of SDRs... don't.
+                </p>
+                <p>
+                    2) To comply with the specifics of the regulation about rejection, many receivers use a notch filter around 850MHz in their frontend. This means that reception throughout the 800-900MHz range is particularly poor, a real irritation as various public agencies and private agencies (especially railroads) use land-mobile radios elsewhere in the 800-900Mhz range.
+                </p>
+                <p>
+                    Basically, more than a decade after any of this made sense, we're all still hassling with it.
+                </p>
+                <p>
+                    [1] Part 15 is actually a lot more general and unintentional radiators are specifically discussed under 47 CFR 15.101, but everyone just says Part 15.
+                </p>
+            </article>
+            <footer>
+                <pre>                                                 sincerely,
+                                                 j. b. crawford
+                                                 me@computer.rip
+
+
+This website is begrudgingly generated by the use of software. Letters to the
+editor are welcome via facsimile to +1 (505) 926-5492 or mail to 609 Gold Ave
+SW, Suite 1D, Albuquerque, NM 87102. Opinions stated here are somewhat
+necessarily those of <a href="https://7thstd.com">Seventh Standard, LLC</a>, in that the author is the sole
+partner and does not wish to lead dual lives.
+</pre>
+            </footer>
+        </div>
+    </body>
+</html>

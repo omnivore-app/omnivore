@@ -1,0 +1,13 @@
+{
+  "extends": "@tsconfig/node14/tsconfig.json",
+  "ts-node": {
+    "files": true
+  },
+  "compilerOptions": {
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "lib": ["dom"]
+  },
+  "include": ["src", "test"],
+  "exclude": ["./src/generated"]
+}

@@ -1,0 +1,26 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint", "functional"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "prettier",
+    "plugin:functional/no-object-orientation"
+  ],
+  "root": true,
+  "env": {
+    "es6": true,
+    "browser": true,
+    "jest": true,
+    "node": true
+  },
+  "ignorePatterns": ["next.config.js", "jest.config.js"],
+  "rules": {
+    "functional/no-mixed-type": 0,
+    "react/react-in-jsx-scope": 0
+  }
+}

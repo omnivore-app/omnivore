@@ -1,0 +1,1 @@
+"use strict";!function(){if(window===window.top)return;const n=window.location.href;/instagram\.com/gi.test(n)&&browserApi.runtime.sendMessage({forwardToTab:!0,action:ACTIONS.AddIframeContent,payload:{url:n,content:document.body.innerHTML}})}();

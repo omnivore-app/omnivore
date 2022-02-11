@@ -1,0 +1,40 @@
+{
+  "name": "omnivore-app",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "lerna run test --ignore @omnivore/web",
+    "lint": "lerna run lint --ignore @omnivore/web",
+    "build": "lerna run build --ignore @omnivore/web",
+    "bootstrap": "lerna bootstrap",
+    "test:scoped:example": "lerna run test --scope={@omnivore/pdf-handler,@omnivore/web}",
+    "gql-typegen": "graphql-codegen",
+    "deploy:web": "vercel --prod"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^1.17.8",
+    "@graphql-codegen/introspection": "^1.17.8",
+    "@graphql-codegen/schema-ast": "^1.18.2",
+    "@graphql-codegen/typescript": "^1.17.9",
+    "@graphql-codegen/typescript-resolvers": "^1.17.9",
+    "@tsconfig/node14": "^1.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "eslint": "^8.6.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "graphql": "^15.3.0",
+    "graphql-tag": "^2.11.0",
+    "lerna": "^4.0.0",
+    "prettier": "^2.5.1",
+    "typescript": "^4.4.3"
+  },
+  "volta": {
+    "node": "14.18.1"
+  }
+}

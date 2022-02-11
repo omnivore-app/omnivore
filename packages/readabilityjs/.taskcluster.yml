@@ -1,0 +1,37 @@
+version: 1
+policy:
+  pullRequests: public
+tasks:
+  $let:
+    head_rev:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.sha}
+      else: ${event.after}
+    repository:
+      $if: 'tasks_for == "github-pull-request"'
+      then: ${event.pull_request.head.repo.html_url}
+      else: ${event.repository.html_url}
+  in:
+    $match:
+      '(tasks_for == "github-pull-request" && event["action"] in ["opened","reopened","synchronize"]) || (tasks_for == "github-push")':
+        taskId:
+          $eval: as_slugid("pr_task")
+        provisionerId: proj-misc
+        workerType: ci
+        deadline: {$fromNow: '1 day'}
+        payload:
+          maxRunTime: 600
+          image: node
+          command:
+            - /bin/bash
+            - '--login'
+            - '-c'
+            - >-
+              git clone ${repository} repo && cd repo && git config
+              advice.detachedHead false && git checkout ${head_rev} && npm
+              install . && npm run lint && npm test
+        metadata:
+          name: Run tests and linter
+          description: ''
+          owner: '${event.sender.login}@users.noreply.github.com'
+          source: '${event.repository.url}'
