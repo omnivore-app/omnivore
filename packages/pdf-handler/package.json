@@ -25,7 +25,7 @@
   "dependencies": {
     "@google-cloud/functions-framework": "1.9.0",
     "@google-cloud/pubsub": "^2.16.3",
-    "@google-cloud/storage": "^5.13.0",
+    "@google-cloud/storage": "^5.18.1",
     "axios": "^0.21.1",
     "concurrently": "^6.2.1",
     "pdfjs-dist": "^2.9.359"

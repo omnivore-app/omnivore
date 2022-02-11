@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@google-cloud/logging-winston": "^4.0.4",
-    "@google-cloud/storage": "^5.8.5",
+    "@google-cloud/storage": "^5.18.1",
     "@sentry/serverless": "^6.13.3",
     "axios": "^0.21.1",
     "chrome-aws-lambda": "^7.0.0",
