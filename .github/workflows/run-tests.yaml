@@ -2,12 +2,12 @@ name: Run tests
 on:
   push:
     branches:
-      - master
+      - main
     paths-ignore:
       - 'apple/**'
   pull_request:
     branches:
-      - master
+      - main
     paths-ignore:
       - 'apple/**'
 
@@ -15,7 +15,7 @@ jobs:
   run-graphql-inspector:
     name: Run GraphQL Inspector Checks
     if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,7 +27,7 @@ jobs:
 
   run-code-tests:
     name: Run Codebase tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres
@@ -50,8 +50,10 @@ jobs:
           psql --host localhost --port ${{ job.services.postgres.ports[5432] }} --user postgres --password -c "CREATE DATABASE omnivore_test;"
         env:
           PGPASSWORD: postgres
-      - name: Setup nodejs 14.18
-        run: source ~/.nvm/nvm.sh && nvm install 14.18 && nvm use 14.18 && npm install -g yarn
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.18
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(source ~/.nvm/nvm.sh && yarn cache dir)"
