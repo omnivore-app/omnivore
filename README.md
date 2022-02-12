@@ -30,13 +30,10 @@ Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-start
 
 ## How to setup local development
 
-The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, and an API server.
+The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
 
-Along with docker-compose you will need to run our `puppeteer-parse` service. This service is used to
-fetch web page content and relies on puppeteer and chromium which currently do not run inside of
-docker.
 
-### Requirements
+### Requirements for development
 
 * [Node](https://nodejs.org/) -- currently we are using nodejs v14.18
 * [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
