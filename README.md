@@ -32,12 +32,6 @@ Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-start
 
 The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
 
-
-### Requirements for development
-
-* [Node](https://nodejs.org/) -- currently we are using nodejs v14.18
-* [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
-
 ###  Running the web and API services
 
 ### 1. Start docker-compose
@@ -60,7 +54,28 @@ option.
 
 Go to <http://localhost:3000/email-registration> in your browser.
 
-### Running the puppeteer-parse service
+
+### Frontend Development
+
+If you want to work on just the frontend of Omnivore you can run the backend services
+with docker compose and the frontend locally:
+
+```bash
+docker-compose up api content-fetch
+cd packages/web
+cp .env.local .env
+yarn dev
+```
+
+### Requirements for development
+
+Omnivore is written in TypeScript and JavaScript.
+
+* [Node](https://nodejs.org/) -- currently we are using nodejs v14.18
+* [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
+
+
+### Running the puppeteer-parse service outside of Docker
 
 To save pages you need to run the `puppeteer-parse` service.
 
