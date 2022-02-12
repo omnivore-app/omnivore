@@ -118,8 +118,10 @@ export const createApp = (): {
 }
 
 const main = async (): Promise<void> => {
-  const entities = await initEntities()
-  console.log('created entitites', entities)
+  // If creating the DB entities fails, we want this to throw
+  // so the container will be restarted and not come online
+  // as healthy.
+  await initEntities()
 
   const { app, apollo, httpServer } = createApp()
 
