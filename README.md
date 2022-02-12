@@ -28,8 +28,8 @@ We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujN
 
 The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, and an API server.
 
-Along with docker-compose you will need to run our `pupeteer-parse` service. This service is used to
-fetch web page content and relies on pupeteer and chromium which currently do not run inside of
+Along with docker-compose you will need to run our `puppeteer-parse` service. This service is used to
+fetch web page content and relies on puppeteer and chromium which currently do not run inside of
 docker.
 
 ###  Running the web and API services
@@ -49,21 +49,21 @@ Open <http://localhost:3000> and confirm Omnivore is running
 
 ### 3. Create a test account
 
-Omnivore uses social login for most users. But for testing there is an email + password 
-option. 
+Omnivore uses social login, but for testing there is an email + password
+option.
 
-Open a browser and go to <http://localhost:3000/email-registration>
+Go to <http://localhost:3000/email-registration> in your browser.
 
-### Running the pupeteer-parse service
+### Running the puppeteer-parse service
+
+To save pages you need to run the `puppeteer-parse` service.
 
 ### 1. Install and configure Chromium
-
-If you are using an M1 Mac:
 
 ```
 brew install chromium --no-quarantine
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-export CHROMIUM_PATH=/opt/homebrew/bin/chromium
+export CHROMIUM_PATH=`which chromium`
 ```
 
 ### 2. Navigate to the service directory, setup your env file, and install dependencies
@@ -82,10 +82,11 @@ yarn start
 
 This will start the puppeteer-parse service on port 9090.
 
-In your browser navigate to http://localhost:3000/home click the `Add Link` button and enter a URL
-such as https://blog.omnivore.app/p/getting-started-with-omnivore
+In your browser go to <http://localhost:3000/home>, click the `Add Link` button,
+and enter a URL such as `https://blog.omnivore.app/p/getting-started-with-omnivore`.
 
-You should see a Chromium window open and navigate to your link. When the service is done fetching your content you will see it in your library.
+You should see a Chromium window open and navigate to your link. When the service
+is done fetching your content you will see it in your library.
 
 
 ## How to deploy to your own server
