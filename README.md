@@ -34,7 +34,7 @@ docker.
 
 ###  Running the web and API services
 
-### 1 Start docker-compose
+### 1. Start docker-compose
 
 ```bash
 git clone https://github.com/omnivore-app/omnivore
