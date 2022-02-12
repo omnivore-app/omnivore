@@ -2,7 +2,7 @@ import express from 'express';
 import AdminJs from 'adminjs';
 import AdminJsExpress from '@adminjs/express';
 import { registerDatabase, AdminUser, User, UserArticle, UserProfile } from './db';
-import { compare, hashSync } from 'bcrypt';
+import { compare, hashSync } from 'bcryptjs';
 
 const app = express();
 const port = process.env.PORT || '8000';
