@@ -26,8 +26,7 @@ We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujN
 
 Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
 
-
-<img width="1055" alt="omnivore-readme-screenshot" src="https://user-images.githubusercontent.com/75189/153696404-81afe8fc-6a89-43ac-8583-7f4ba9bbf895.png">
+<img width="981" alt="omnivore-readme-screenshot" src="https://user-images.githubusercontent.com/75189/153696698-9e4f1bdd-5954-465b-8ab0-b4eacc60f779.png">
 
 
 ## How to setup local development
