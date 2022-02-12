@@ -34,6 +34,11 @@ Along with docker-compose you will need to run our `puppeteer-parse` service. Th
 fetch web page content and relies on puppeteer and chromium which currently do not run inside of
 docker.
 
+### Requirements
+
+* [Node](https://nodejs.org/) -- currently we are using nodejs v14.18
+* [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
+
 ###  Running the web and API services
 
 ### 1. Start docker-compose
