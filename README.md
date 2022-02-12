@@ -20,13 +20,15 @@ Every single part is fully open source! Fork it, extend it, or deploy it to your
 
 We also have a free hosted version of Omnivore at [omnivore.app](https://omnivore.app/) -- try it now!
 
-<img width="1055" alt="omnivore-readme-screenshot" src="https://user-images.githubusercontent.com/75189/153696404-81afe8fc-6a89-43ac-8583-7f4ba9bbf895.png">
-
 ## Join us on Discord!
 
 We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujNe)
 
 Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
+
+
+<img width="1055" alt="omnivore-readme-screenshot" src="https://user-images.githubusercontent.com/75189/153696404-81afe8fc-6a89-43ac-8583-7f4ba9bbf895.png">
+
 
 ## How to setup local development
 
