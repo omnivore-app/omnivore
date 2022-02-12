@@ -1425,11 +1425,11 @@
     xdg-basedir "^4.0.0"
 
 "@google-cloud/tasks@^2.3.0":
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/@google-cloud/tasks/-/tasks-2.3.6.tgz#d87465edc7a5fdee1a3ffc987817114a13cfbc6a"
-  integrity sha512-iOBXSHLAXjI1T8PI/brVBSJX6OY8W7zY/VvSXQWK4dzNHpxR3nYVgo5p86mYJWeWBVI+niRg65MOtukphjNKeg==
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@google-cloud/tasks/-/tasks-2.5.0.tgz#e6c2598038001550c408845e91570d176c18a25a"
+  integrity sha512-3hhsLccb8OUI5/0Bg0VNt88XXYHhbKHiBt2n81VNjmwhZXHaKaBzq13l7NGcuOTkjl5hWLXPWDsctAu4m7dKVQ==
   dependencies:
-    google-gax "^2.17.1"
+    google-gax "^2.24.1"
 
 "@graphql-codegen/cli@^1.21.8":
   version "1.21.8"
@@ -1981,7 +1981,7 @@
     tslib "~2.2.0"
     value-or-promise "1.0.6"
 
-"@grpc/grpc-js@^1.1.8", "@grpc/grpc-js@~1.3.0":
+"@grpc/grpc-js@^1.1.8":
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.3.7.tgz#58b687aff93b743aafde237fd2ee9a3259d7f2d8"
   integrity sha512-CKQVuwuSPh40tgOkR7c0ZisxYRiN05PcKPW72mQL5y++qd7CwBRoaJZvU5xfXnCJDFBmS3qZGQ71Frx6Ofo2XA==
@@ -9337,7 +9337,7 @@ google-auth-library@^7.9.2:
     jws "^4.0.0"
     lru-cache "^6.0.0"
 
-google-gax@2.28.1:
+google-gax@2.28.1, google-gax@^2.24.1:
   version "2.28.1"
   resolved "https://registry.yarnpkg.com/google-gax/-/google-gax-2.28.1.tgz#99bc234b5769d901d70959d40bd1651729eb4a34"
   integrity sha512-2Xjd3FrjlVd6Cmw2B2Aicpc/q92SwTpIOvxPUlnRg9w+Do8nu7UR+eQrgoKlo2FIUcUuDTvppvcx8toND0pK9g==
@@ -9353,25 +9353,6 @@ google-gax@2.28.1:
     node-fetch "^2.6.1"
     object-hash "^2.1.1"
     proto3-json-serializer "^0.1.5"
-    protobufjs "6.11.2"
-    retry-request "^4.0.0"
-
-google-gax@^2.17.1, google-gax@^2.24.1:
-  version "2.24.2"
-  resolved "https://registry.yarnpkg.com/google-gax/-/google-gax-2.24.2.tgz#b2f1b5a0edb4673c00ddb79514a6643152456c98"
-  integrity sha512-4OtyEIt/KAXRX5o2W/6DGf8MnMs1lMXwcGoPHR4PwXfTUVKjK7ywRe2/yRIMkYEDzAwu/kppPgfpX+kCG2rWfw==
-  dependencies:
-    "@grpc/grpc-js" "~1.3.0"
-    "@grpc/proto-loader" "^0.6.1"
-    "@types/long" "^4.0.0"
-    abort-controller "^3.0.0"
-    duplexify "^4.0.0"
-    fast-text-encoding "^1.0.3"
-    google-auth-library "^7.6.1"
-    is-stream-ended "^0.1.4"
-    node-fetch "^2.6.1"
-    object-hash "^2.1.1"
-    proto3-json-serializer "^0.1.1"
     protobufjs "6.11.2"
     retry-request "^4.0.0"
 
@@ -14283,11 +14264,6 @@ proto-list@~1.2.1:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/proto-list/-/proto-list-1.2.4.tgz#212d5bfe1318306a420f6402b8e26ff39647a849"
   integrity sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
-
-proto3-json-serializer@^0.1.1:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/proto3-json-serializer/-/proto3-json-serializer-0.1.3.tgz#3b4d5f481dbb923dd88e259ed03b0629abc9a8e7"
-  integrity sha512-X0DAtxCBsy1NDn84huVFGOFgBslT2gBmM+85nY6/5SOAaCon1jzVNdvi74foIyFvs5CjtSbQsepsM5TsyNhqQw==
 
 proto3-json-serializer@^0.1.5:
   version "0.1.6"
