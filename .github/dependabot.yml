@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "yarn"
+    directory: "/**"
+    allow:
+      - dependency-type: "production"
