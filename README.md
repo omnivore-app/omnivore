@@ -10,9 +10,9 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - Add articles via email (with substack support!)
 - PDF support
 - [Web app](https://omnivore.app/) written in node and typescript
-- [Native iOS app](https://discord.gg/nyqRrjujNe)
+- [Native iOS app](https://omnivore.app/install/ios)
 - Progressive web app for Android users
-- [Browser extensions](https://omnivore.app/install/chrome) for Chrome, Safari, Firefox, and Edge
+- Browser extensions for [Chrome](https://omnivore.app/install/chrome), [Safari](https://omnivore.app/install/safari), [Firefox](https://omnivore.app/install/firefox), and [Edge](https://omnivore.app/install/edge)
 - Tagging (coming soon!)
 - Offline support (coming soon!)
 
@@ -23,6 +23,8 @@ We also have a free hosted version of Omnivore at [omnivore.app](https://omnivor
 ## Join us on Discord!
 
 We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujNe)
+
+Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
 
 ## How to setup local development
 
