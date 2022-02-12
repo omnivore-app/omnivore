@@ -122,7 +122,7 @@ const getBrowserPromise = (async () => {
     args: chromium.args,
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH || (await chromium.executablePath),
-    headless: process.env.IS_LOCAL ? false : chromium.headless,
+    headless: process.env.LAUNCH_HEADLESS ? true : chromium.headless,
     timeout: 0,
   });
 })();
