@@ -57,7 +57,7 @@
     "analytics-node": "^6.0.0",
     "apollo-datasource": "^0.7.2",
     "apollo-server-express": "^2.25.3",
-    "axios": "^0.21.4",
+    "axios": "^0.25.0",
     "bcryptjs": "^2.4.3",
     "cookie": "^0.4.1",
     "cookie-parser": "^1.4.5",

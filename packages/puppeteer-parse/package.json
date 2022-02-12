@@ -7,7 +7,7 @@
     "@google-cloud/logging-winston": "^4.0.4",
     "@google-cloud/storage": "^5.18.1",
     "@sentry/serverless": "^6.13.3",
-    "axios": "^0.21.4",
+    "axios": "^0.25.0",
     "chrome-aws-lambda": "^7.0.0",
     "dotenv": "^8.2.0",
     "jsdom": "^17.0.0",
