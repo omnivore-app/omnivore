@@ -26,43 +26,55 @@ We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujN
 
 ## How to setup local development
 
-The easiest way to get started with local development is to run our docker-compose file which will run
-postgres, our web frontend and an API server.. Along with docker-compose you will need to run our `pupeteer-parse` service. This service is used to fetch web page content.
+The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, and an API server.
+
+Along with docker-compose you will need to run our `pupeteer-parse` service. This service is used to
+fetch web page content and relies on pupeteer and chromium which currently do not run inside of
+docker.
 
 ###  Running the web and API services
-1. In the root directory run
 
-`docker-compose up`
+### 1 Start docker-compose
 
+```bash
+git clone https://github.com/omnivore-app/omnivore
+cd omnivore
+docker-compose up
+```
 This will start postgres, initialize the database, and start the web and api services.
 
-2. Open a browser and go to `http://localhost:3000`
+### 2. Open the browser
 
-3. To create a test account and login visit `http://localhost:3000/email-registration` and sign up.
+Open <http://localhost:3000> and confirm Omnivore is running
+
+### 3. Create a test account
+
+Omnivore uses social login for most users. But for testing there is an email + password 
+option. 
+
+Open a browser and go to <http://localhost:3000/email-registration>
 
 ### Running the pupeteer-parse service
 
-1. Install and configure Chromium
+### 1. Install and configure Chromium
+
+If you are using an M1 Mac:
 
 ```
-brew install chromium
+brew install chromium --no-quarantine
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+export CHROMIUM_PATH=/opt/homebrew/bin/chromium
 ```
 
-1. Navigate to the service directory
+### 2. Navigate to the service directory, setup your env file, and install dependencies
 
 ```
 cd packages/puppeteer-parse
-```
-
-2. Run `yarn` to install dependencies
-
-```
+cp .env.example .env
 yarn
 ```
 
-3. Start the service
+### 3. Start the service
 
 ```
 yarn start
@@ -70,12 +82,10 @@ yarn start
 
 This will start the puppeteer-parse service on port 9090.
 
-
 In your browser navigate to http://localhost:3000/home click the `Add Link` button and enter a URL
 such as https://blog.omnivore.app/p/getting-started-with-omnivore
 
-You should see a Chromium window open and navigate to your link. When the service is done fetching
-your content you will see it in your library.
+You should see a Chromium window open and navigate to your link. When the service is done fetching your content you will see it in your library.
 
 
 ## How to deploy to your own server
