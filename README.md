@@ -117,3 +117,4 @@ FIXME: Jackson to fill this in
 ## License
 
 Omnivore and our extensions to Readability.js are under the AGPL-3.0 license.
+
