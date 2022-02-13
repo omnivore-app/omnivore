@@ -15,10 +15,10 @@ import { UserArticleData } from '../links/model'
 const JOIN_COLS = [
   'links2.id',
   'links2.slug',
-  'article.title',
-  'article.description',
-  'article.author',
-  'article.image',
+  'pages.title',
+  'pages.description',
+  'pages.author',
+  'pages.image',
   'reminders.send_notification',
 ]
 

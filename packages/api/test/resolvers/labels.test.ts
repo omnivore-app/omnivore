@@ -1,15 +1,10 @@
-import {
-  createTestLink,
-  createTestPage,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { Link } from '../../src/entity/link'
-import { Label } from '../../src/entity/label'
-import { expect } from 'chai'
-import { Page } from '../../src/entity/page'
-import { getRepository } from 'typeorm'
+import { createTestLink, createTestPage, createTestUser, deleteTestUser } from "../db"
+import { generateFakeUuid, graphqlRequest, request } from "../util"
+import { Link } from "../../src/entity/link"
+import { Label } from "../../src/entity/label"
+import { expect } from "chai"
+import { Page } from "../../src/entity/page"
+import { getRepository } from "typeorm"
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -30,7 +25,7 @@ describe('Labels API', () => {
 
     //  create test label
     page = await createTestPage()
-    link = await createTestLink(user, page.id)
+    link = await createTestLink(user, page)
     const label1 = await getRepository(Label)
       .create({
         name: 'label1',

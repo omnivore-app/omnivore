@@ -87,7 +87,6 @@ export const createReminderResolver = authorized<
   try {
     if (articleId) {
       // saving from web
-      // this linkId is actually an article.id
       const link = await models.userArticle.getByArticleId(uid, articleId)
       if (!link) {
         log.error('link not found', articleId)

@@ -1,19 +1,14 @@
-import {
-  createConnection,
-  getConnection,
-  getManager,
-  getRepository,
-} from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
-import Postgrator from 'postgrator'
-import { User } from '../src/entity/user'
-import { createUser } from '../src/services/create_user'
-import { Profile } from '../src/entity/profile'
-import { Page } from '../src/entity/page'
-import { Link } from '../src/entity/link'
-import { Reminder } from '../src/entity/reminder'
-import { NewsletterEmail } from '../src/entity/newsletter_email'
-import { UserDeviceToken } from '../src/entity/user_device_tokens'
+import { createConnection, getConnection, getManager, getRepository } from "typeorm"
+import { SnakeNamingStrategy } from "typeorm-naming-strategies"
+import Postgrator from "postgrator"
+import { User } from "../src/entity/user"
+import { createUser } from "../src/services/create_user"
+import { Profile } from "../src/entity/profile"
+import { Page } from "../src/entity/page"
+import { Link } from "../src/entity/link"
+import { Reminder } from "../src/entity/reminder"
+import { NewsletterEmail } from "../src/entity/newsletter_email"
+import { UserDeviceToken } from "../src/entity/user_device_tokens"
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -125,10 +120,7 @@ export const createTestPage = async (): Promise<Page> => {
     .save()
 }
 
-export const createTestLink = async (
-  user: User,
-  page?: string
-): Promise<Link> => {
+export const createTestLink = async (user: User, page: Page): Promise<Link> => {
   return getRepository(Link)
     .create({
       user: user,
