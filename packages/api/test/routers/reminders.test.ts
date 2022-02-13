@@ -32,7 +32,7 @@ describe('Reminders Router', () => {
 
   describe('trigger reminders', () => {
     it('should trigger reminders and update status to Complete', async () => {
-      const res = await request
+      await request
         .post('/svc/reminders/trigger')
         .set('Authorization', `${authToken}`)
         .send({
