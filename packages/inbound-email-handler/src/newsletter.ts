@@ -8,6 +8,7 @@ const EMAIL_FORWARDING_SENDER_ADDRESSES = [
 ]
 const NEWSLETTER_SENDER_REGEX = '<.+@axios.com>'
 const CONFIRMATION_CODE_PATTERN = '^\\(#\\d+\\)'
+const AXIOS_URL_PATTERN = 'View in browser at <.+>'
 
 export const handleConfirmation = async (email: string, subject: string) => {
   console.log('confirmation email')
@@ -48,11 +49,11 @@ export const handleNewsletter = async (
     throw new Error('invalid newsletter email')
   }
 
-  // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
-  // we need to get the real url
-  let url = rawUrl
-  if (rawUrl.startsWith('<')) {
-    url = rawUrl.slice(1, -1)
+  const url = getNewsletterUrl(rawUrl, html)
+  console.log('url', url)
+  if (!url) {
+    console.log('invalid newsletter url', url)
+    throw new Error('invalid newsletter url')
   }
 
   // get author name from email
@@ -66,7 +67,6 @@ export const handleNewsletter = async (
     throw new Error('invalid from')
   }
   const author = authors[0]
-  console.log('author', author)
 
   const message = {
     email: email,
@@ -101,4 +101,21 @@ export const isNewsletter = (rawUrl: string, from: string): boolean => {
 
 export const isConfirmationEmail = (from: string): boolean => {
   return EMAIL_FORWARDING_SENDER_ADDRESSES.includes(from)
+}
+
+const getNewsletterUrl = (rawUrl: string, html: string): string | undefined => {
+  // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
+  // we need to get the real url
+  if (rawUrl.startsWith('<')) {
+    return rawUrl.slice(1, -1)
+  }
+
+  // axios newsletter url from html
+  const re = new RegExp(AXIOS_URL_PATTERN)
+  const matches = html.match(re)
+  if (matches) {
+    const match = matches[0]
+    return match.slice(match.indexOf('>') + 1, match.lastIndexOf('<'))
+  }
+  return undefined
 }

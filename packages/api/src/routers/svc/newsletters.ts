@@ -116,7 +116,6 @@ export function newsletterServiceRouter() {
       if (
         !('email' in data) ||
         !('content' in data) ||
-        !('url' in data) ||
         !('title' in data) ||
         !('author' in data)
       ) {
