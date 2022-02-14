@@ -10,6 +10,7 @@ import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
 import { Page } from '../../src/entity/page'
 import { getRepository } from 'typeorm'
+import 'mocha'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
