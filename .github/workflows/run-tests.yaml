@@ -12,19 +12,6 @@ on:
       - 'apple/**'
 
 jobs:
-  run-graphql-inspector:
-    name: Run GraphQL Inspector Checks
-    if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - uses: kamilkisiela/graphql-inspector@master
-        with:
-          schema: 'main:packages/api/src/generated/schema.graphql'
-
   run-code-tests:
     name: Run Codebase tests
     runs-on: ubuntu-latest
