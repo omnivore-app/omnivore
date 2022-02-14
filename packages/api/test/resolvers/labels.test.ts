@@ -90,7 +90,7 @@ describe('Labels API', () => {
             name: label.name,
           }))
         )
-      }).timeout(5000)
+      })
     })
 
     context('when link not exist', () => {
@@ -102,7 +102,7 @@ describe('Labels API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.labels.errorCodes).to.eql(['NOT_FOUND'])
-      }).timeout(5000)
+      })
     })
 
     it('responds status code 400 when invalid query', async () => {
@@ -112,12 +112,12 @@ describe('Labels API', () => {
         }
       `
       return graphqlRequest(invalidQuery, authToken).expect(400)
-    }).timeout(5000)
+    })
 
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
-    }).timeout(5000)
+    })
   })
 
   describe('Create label', () => {
@@ -158,7 +158,7 @@ describe('Labels API', () => {
           res.body.data.createLabel.label.id
         )
         expect(label).to.exist
-      }).timeout(5000)
+      })
     })
 
     context('when link not exist', () => {
@@ -170,7 +170,7 @@ describe('Labels API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.createLabel.errorCodes).to.eql(['NOT_FOUND'])
-      }).timeout(5000)
+      })
     })
 
     it('responds status code 400 when invalid query', async () => {
@@ -180,12 +180,12 @@ describe('Labels API', () => {
         }
       `
       return graphqlRequest(invalidQuery, authToken).expect(400)
-    }).timeout(5000)
+    })
 
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
-    }).timeout(5000)
+    })
   })
 
   describe('Delete label', () => {
@@ -219,7 +219,7 @@ describe('Labels API', () => {
         await graphqlRequest(query, authToken).expect(200)
         const label = await getRepository(Label).findOne(labelId)
         expect(label).to.not.exist
-      }).timeout(5000)
+      })
     })
 
     context('when label not exist', () => {
@@ -231,7 +231,7 @@ describe('Labels API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.deleteLabel.errorCodes).to.eql(['NOT_FOUND'])
-      }).timeout(5000)
+      })
     })
 
     it('responds status code 400 when invalid query', async () => {
@@ -241,11 +241,11 @@ describe('Labels API', () => {
         }
       `
       return graphqlRequest(invalidQuery, authToken).expect(400)
-    }).timeout(5000)
+    })
 
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
-    }).timeout(5000)
+    })
   })
 })
