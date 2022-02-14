@@ -9,6 +9,7 @@ import {
 } from '../../src/generated/graphql'
 import { User } from '../../src/entity/user'
 import { hashPassword } from '../../src/utils/auth'
+import 'mocha'
 
 describe('User API', () => {
   const username = 'fake_user'

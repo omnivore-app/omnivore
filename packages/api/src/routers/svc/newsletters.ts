@@ -19,12 +19,11 @@ import { env } from '../../env'
 import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
 import { messaging } from 'firebase-admin'
-import MulticastMessage = messaging.MulticastMessage
 import { ContentReader } from '../../generated/graphql'
-import UserArticleModel from '../../datalayer/links'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { UserArticleData } from '../../datalayer/links/model'
 import { ArticleData } from '../../datalayer/article/model'
+import MulticastMessage = messaging.MulticastMessage
 
 interface SetConfirmationCodeMessage {
   emailAddress: string

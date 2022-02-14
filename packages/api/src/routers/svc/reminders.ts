@@ -13,6 +13,7 @@ import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
 import { MulticastMessage } from 'firebase-admin/messaging'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { ContentReader } from '../../generated/graphql'
+import { DataModels } from '../../resolvers/types'
 
 type Article = {
   title: string
@@ -56,7 +57,7 @@ export function remindersServiceRouter() {
       const user = await models.user.get(userId)
       if (!user || !user.email) {
         console.log('user not found', userId)
-        res.status(404).send('Not Found')
+        res.status(400).send('User Not Found')
         return
       }
 
@@ -67,7 +68,7 @@ export function remindersServiceRouter() {
 
       if (!reminders) {
         console.log('reminders not found', userId, scheduleTime)
-        res.status(404).send('Not Found')
+        res.status(200).send('Reminders Not Found')
         return
       }
 
@@ -79,9 +80,17 @@ export function remindersServiceRouter() {
       // If none of the fetch reminders have sendNotification
       // set to true, then we should not send an email or notification
       if (articlesToNotify.length > 0) {
+        // we have configured Sendgrid to send a template
         if (!process.env.SENDGRID_REMINDER_TEMPLATE_ID) {
           console.log('Sendgrid reminder email template_id not set')
-          res.status(400).send('Template Id Not Found')
+
+          await updateRemindersStatus(
+            models,
+            userId,
+            linkIdsToUnarchive,
+            remindAt
+          )
+          res.status(200).send('Template Id Not Found')
           return
         }
 
@@ -109,28 +118,13 @@ export function remindersServiceRouter() {
 
         if (!deviceTokens) {
           console.log('Device tokens not set:', userId)
-          res.status(200).send('Device token Not Found')
+
+          res.status(400).send('Device token Not Found')
           return
         }
       }
 
-      // db update
-      await kx.transaction(async (tx) => {
-        await setClaims(tx, userId)
-        // Unarchive all the links and updated saved_at to now, so they
-        // appear at the top of the user's list.
-        await models.userArticle.updateByIds(
-          linkIdsToUnarchive,
-          {
-            savedAt: new Date(),
-            archivedAt: null,
-          },
-          tx
-        )
-
-        await models.reminder.setRemindersComplete(userId, remindAt, tx)
-      })
-
+      await updateRemindersStatus(models, userId, linkIdsToUnarchive, remindAt)
       res.status(200).send('Reminders triggered')
     } catch (e) {
       console.log(e)
@@ -224,4 +218,28 @@ const messageForLinks = (
     },
     tokens: deviceTokens.map((token) => token.token),
   }
+}
+
+const updateRemindersStatus = async (
+  models: DataModels,
+  userId: string,
+  linkIdsToUnarchive: string[],
+  remindAt: Date
+): Promise<void> => {
+  // db update
+  await kx.transaction(async (tx) => {
+    await setClaims(tx, userId)
+    // Unarchive all the links and updated saved_at to now, so they
+    // appear at the top of the user's list.
+    await models.userArticle.updateByIds(
+      linkIdsToUnarchive,
+      {
+        savedAt: new Date(),
+        archivedAt: null,
+      },
+      tx
+    )
+
+    await models.reminder.setRemindersComplete(userId, remindAt, tx)
+  })
 }

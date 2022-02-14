@@ -11,6 +11,7 @@ import { Page } from '../../src/entity/page'
 import { Link } from '../../src/entity/link'
 import { Highlight } from '../../src/entity/highlight'
 import { getRepository } from 'typeorm'
+import 'mocha'
 
 describe('User feed article API', () => {
   const existingUsername = 'fakeUser'
@@ -30,7 +31,7 @@ describe('User feed article API', () => {
     authToken = res.body.authToken
 
     page = await createTestPage()
-    link = await createTestLink(user, page.id)
+    link = await createTestLink(user, page)
     highlight = await getRepository(Highlight).save({
       page: page,
       text: 'test',

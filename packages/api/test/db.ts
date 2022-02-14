@@ -125,10 +125,7 @@ export const createTestPage = async (): Promise<Page> => {
     .save()
 }
 
-export const createTestLink = async (
-  user: User,
-  page?: string
-): Promise<Link> => {
+export const createTestLink = async (user: User, page: Page): Promise<Link> => {
   return getRepository(Link)
     .create({
       user: user,

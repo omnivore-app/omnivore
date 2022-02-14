@@ -39,7 +39,7 @@ export class Link extends BaseEntity {
 
   @OneToOne(() => Page)
   @JoinColumn({ name: 'article_id' })
-  page!: string
+  page!: Page
 
   @Column('timestamp')
   savedAt!: Date

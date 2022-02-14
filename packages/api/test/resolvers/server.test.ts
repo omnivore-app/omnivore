@@ -1,4 +1,5 @@
 import { request } from '../util'
+import 'mocha'
 
 describe('Server', () => {
   it('should respond for health check', async () => {

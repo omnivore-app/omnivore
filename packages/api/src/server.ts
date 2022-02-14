@@ -54,7 +54,7 @@ export const initModels = (kx: Knex, cache = true): DataModels => ({
 })
 
 const initEntities = async (): Promise<Connection> => {
-  const connection = await createConnection({
+  return createConnection({
     type: 'postgres',
     host: env.pg.host,
     port: env.pg.port,
@@ -67,7 +67,6 @@ const initEntities = async (): Promise<Connection> => {
     subscribers: [__dirname + '/events/**/*{.js,.ts}'],
     namingStrategy: new SnakeNamingStrategy(),
   })
-  return connection
 }
 
 export const createApp = (): {

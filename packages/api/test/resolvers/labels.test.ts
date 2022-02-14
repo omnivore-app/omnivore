@@ -10,6 +10,7 @@ import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
 import { Page } from '../../src/entity/page'
 import { getRepository } from 'typeorm'
+import 'mocha'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -30,7 +31,7 @@ describe('Labels API', () => {
 
     //  create test label
     page = await createTestPage()
-    link = await createTestLink(user, page.id)
+    link = await createTestLink(user, page)
     const label1 = await getRepository(Label)
       .create({
         name: 'label1',
@@ -191,7 +192,7 @@ describe('Labels API', () => {
     let query: string
     let labelId: string
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = `
         mutation {
           deleteLabel(id: "${labelId}") {

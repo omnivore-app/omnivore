@@ -1,6 +1,6 @@
 import { getConnection } from 'typeorm'
 
-export async function mochaGlobalTeardown() {
+export const mochaGlobalTeardown = async () => {
   await getConnection().close()
-  console.log('db connection close')
+  console.log('db connection closed')
 }

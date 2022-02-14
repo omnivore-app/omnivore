@@ -17,6 +17,7 @@ import {
 import { Page } from '../../src/entity/page'
 import { Link } from '../../src/entity/link'
 import { DateTime } from 'luxon'
+import 'mocha'
 
 describe('Reminders API', () => {
   const username = 'fakeUser'
@@ -37,7 +38,7 @@ describe('Reminders API', () => {
 
     // create page, link and reminders test data
     page = await createTestPage()
-    link = await createTestLink(user, page.id)
+    link = await createTestLink(user, page)
     reminder = await createTestReminder(user, link.id)
   })
 

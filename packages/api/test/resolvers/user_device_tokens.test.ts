@@ -8,6 +8,7 @@ import { generateFakeUuid, graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import { UserDeviceToken } from '../../src/entity/user_device_tokens'
 import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
+import 'mocha'
 
 describe('Device tokens API', () => {
   const username = 'fakeUser'
