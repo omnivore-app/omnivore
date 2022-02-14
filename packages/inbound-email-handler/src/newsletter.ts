@@ -103,7 +103,10 @@ export const isConfirmationEmail = (from: string): boolean => {
   return EMAIL_FORWARDING_SENDER_ADDRESSES.includes(from)
 }
 
-const getNewsletterUrl = (rawUrl: string, html: string): string | undefined => {
+export const getNewsletterUrl = (
+  rawUrl: string,
+  html: string
+): string | undefined => {
   // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
   // we need to get the real url
   if (rawUrl.startsWith('<')) {
