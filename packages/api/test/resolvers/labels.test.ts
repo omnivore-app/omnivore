@@ -192,7 +192,7 @@ describe('Labels API', () => {
     let query: string
     let labelId: string
 
-    beforeEach(async () => {
+    beforeEach(() => {
       query = `
         mutation {
           deleteLabel(id: "${labelId}") {

@@ -104,7 +104,7 @@ describe('Article API', () => {
     })
 
     context('when we fetch the second page', () => {
-      before(async () => {
+      before(() => {
         after = '5'
       })
 

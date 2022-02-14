@@ -1,6 +1,6 @@
 import { createTestConnection } from './db'
 
-export async function mochaGlobalSetup() {
+export const mochaGlobalSetup = async () => {
   await createTestConnection()
-  console.log('db connection create')
+  console.log('db connection created')
 }
