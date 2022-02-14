@@ -275,7 +275,7 @@ export function authRouter() {
       )
     }
 
-    res.setHeader('set-cookie', result.headers['set-cookie'])
+    res.setHeader('set-cookie', String(result.headers['set-cookie']))
 
     handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
   })
@@ -384,7 +384,7 @@ export function authRouter() {
           )
         }
 
-        res.setHeader('set-cookie', result.headers['set-cookie'])
+        res.setHeader('set-cookie', String(result.headers['set-cookie']))
 
         await handleSuccessfulLogin(req, res, data.login.me, false)
       } catch (e) {
