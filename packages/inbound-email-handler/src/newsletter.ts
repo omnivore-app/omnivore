@@ -41,7 +41,7 @@ export const handleNewsletter = async (
   title: string,
   from: string
 ) => {
-  console.log('handleNewsletter')
+  console.log('handleNewsletter', email, rawUrl, title, from)
 
   if (!email || !html || !title || !from) {
     console.log('invalid newsletter email')
@@ -66,6 +66,7 @@ export const handleNewsletter = async (
     throw new Error('invalid from')
   }
   const author = authors[0]
+  console.log('author', author)
 
   const message = {
     email: email,

@@ -45,7 +45,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const recipientAddress = forwardedAddress
         ? forwardedAddress.toString()
         : parsed.to
-      const rawUrl = headers['list-post']?.toString()
+      const rawUrl = headers['list-post'] ? headers['list-post'].toString() : ''
 
       // check if it is a forwarding confirmation email or newsletter
       if (isNewsletter(rawUrl, from)) {
