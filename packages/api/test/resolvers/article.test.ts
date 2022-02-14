@@ -1,7 +1,12 @@
-import { createTestLink, createTestPage, createTestUser, deleteTestUser } from "../db"
-import { graphqlRequest, request } from "../util"
-import { expect } from "chai"
-import { Page } from "../../src/entity/page"
+import {
+  createTestLink,
+  createTestPage,
+  createTestUser,
+  deleteTestUser,
+} from '../db'
+import { graphqlRequest, request } from '../util'
+import { expect } from 'chai'
+import { Page } from '../../src/entity/page'
 
 describe('Article API', () => {
   const username = 'fakeUser'
@@ -87,8 +92,13 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.articles.pageInfo.endCursor).to.eql('5')
         expect(res.body.data.articles.pageInfo.startCursor).to.eql('')
-        expect(res.body.data.articles.pageInfo.totalCount, 'totalCount').to.eql(15)
-        expect(res.body.data.articles.pageInfo.hasNextPage, 'hasNextPage').to.eql(true)
+        expect(res.body.data.articles.pageInfo.totalCount, 'totalCount').to.eql(
+          15
+        )
+        expect(
+          res.body.data.articles.pageInfo.hasNextPage,
+          'hasNextPage'
+        ).to.eql(true)
       })
     })
 
@@ -110,10 +120,20 @@ describe('Article API', () => {
 
       it('should set the pageInfo', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.articles.pageInfo.totalCount, 'totalCount').to.eql(15)
-        expect(res.body.data.articles.pageInfo.startCursor, 'startCursor').to.eql('5')
-        expect(res.body.data.articles.pageInfo.endCursor, 'endCursor').to.eql('10')
-        expect(res.body.data.articles.pageInfo.hasNextPage, 'hasNextPage').to.eql(true)
+        expect(res.body.data.articles.pageInfo.totalCount, 'totalCount').to.eql(
+          15
+        )
+        expect(
+          res.body.data.articles.pageInfo.startCursor,
+          'startCursor'
+        ).to.eql('5')
+        expect(res.body.data.articles.pageInfo.endCursor, 'endCursor').to.eql(
+          '10'
+        )
+        expect(
+          res.body.data.articles.pageInfo.hasNextPage,
+          'hasNextPage'
+        ).to.eql(true)
         // We don't implement hasPreviousPage in the API and should probably remove it
         // expect(res.body.data.articles.pageInfo.hasPreviousPage).to.eql(true)
       })

@@ -1,8 +1,15 @@
-import { createTestLink, createTestPage, createTestReminder, createTestUser, deleteTestUser, getReminder } from "../db"
-import { request } from "../util"
-import { User } from "../../src/entity/user"
-import { Reminder } from "../../src/entity/reminder"
-import { expect } from "chai"
+import {
+  createTestLink,
+  createTestPage,
+  createTestReminder,
+  createTestUser,
+  deleteTestUser,
+  getReminder,
+} from '../db'
+import { request } from '../util'
+import { User } from '../../src/entity/user'
+import { Reminder } from '../../src/entity/reminder'
+import { expect } from 'chai'
 
 describe('Reminders Router', () => {
   const username = 'fakeUser'

@@ -1,11 +1,16 @@
-import { createTestLink, createTestPage, createTestUser, deleteTestUser } from "../db"
-import { graphqlRequest, request } from "../util"
-import { expect } from "chai"
-import { SharedArticleErrorCode } from "../../src/generated/graphql"
-import { Page } from "../../src/entity/page"
-import { Link } from "../../src/entity/link"
-import { Highlight } from "../../src/entity/highlight"
-import { getRepository } from "typeorm"
+import {
+  createTestLink,
+  createTestPage,
+  createTestUser,
+  deleteTestUser,
+} from '../db'
+import { graphqlRequest, request } from '../util'
+import { expect } from 'chai'
+import { SharedArticleErrorCode } from '../../src/generated/graphql'
+import { Page } from '../../src/entity/page'
+import { Link } from '../../src/entity/link'
+import { Highlight } from '../../src/entity/highlight'
+import { getRepository } from 'typeorm'
 
 describe('User feed article API', () => {
   const existingUsername = 'fakeUser'

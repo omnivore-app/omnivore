@@ -8,6 +8,7 @@ import { generateFakeUuid, graphqlRequest, request } from '../util'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { expect } from 'chai'
 import { DeleteNewsletterEmailErrorCode } from '../../src/generated/graphql'
+import 'mocha'
 
 describe('Newsletters API', () => {
   const username = 'fakeUser'
