@@ -3272,13 +3272,13 @@
     "@opentelemetry/tracing" "0.22.0"
     jaeger-client "^3.15.0"
 
-"@opentelemetry/instrumentation-dns@^0.22.0":
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-dns/-/instrumentation-dns-0.22.0.tgz#2f77da042cda66b33078a72dd9984b3253088cc2"
-  integrity sha512-zyPbG0X2Hjbf5wg3cIifOVu8crHmqStP5CR4KQm0MGFeH7avIWQ4303i1vQRTED0IJX56aTGdVakOBM6eZD5ew==
+"@opentelemetry/instrumentation-dns@^0.27.1":
+  version "0.27.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-dns/-/instrumentation-dns-0.27.1.tgz#5b341f18d959f15cb88095070a2c931d57d3652a"
+  integrity sha512-NwLMHthT7/YncTZcfYbb24n8z/mFYSWPlZkWOhG6XVRAE0KsDLlMsrwvha5Yg/4vhv4nj2qLM9bk5+zA5a/ZfA==
   dependencies:
-    "@opentelemetry/instrumentation" "^0.22.0"
-    "@opentelemetry/semantic-conventions" "^0.22.0"
+    "@opentelemetry/instrumentation" "^0.27.0"
+    "@opentelemetry/semantic-conventions" "^1.0.0"
     semver "^7.3.2"
 
 "@opentelemetry/instrumentation-express@^0.22.0":
@@ -3338,7 +3338,7 @@
     semver "^7.3.2"
     shimmer "^1.2.1"
 
-"@opentelemetry/instrumentation@0.27.0":
+"@opentelemetry/instrumentation@0.27.0", "@opentelemetry/instrumentation@^0.27.0":
   version "0.27.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.27.0.tgz#8e9864aed24e5b265008ffb14466bdc27ce31897"
   integrity sha512-dUwY/VoDptdK8AYigwS3IKblG+unV5xIdV4VQKy+nX5aT3f7vd5PMYs4arCQSYLbLRe0s7GxK6S9dtjai/TsHQ==
@@ -3387,7 +3387,7 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-0.22.0.tgz#e91751bd2eb4f49344172bac62ba87c9390f93e9"
   integrity sha512-t4fKikazahwNKmwD+CE/icHyuZldWvNMupJhjxdk9T/KxHFx3zCGjHT3MKavwYP6abzgAAm5WwzD1oHlmj7dyg==
 
-"@opentelemetry/semantic-conventions@1.0.1":
+"@opentelemetry/semantic-conventions@1.0.1", "@opentelemetry/semantic-conventions@^1.0.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.0.1.tgz#9349c3860a53468fa2108b5df09aa843f22dbf94"
   integrity sha512-7XU1sfQ8uCVcXLxtAHA8r3qaLJ2oq7sKtEwzZhzuEXqYmjW+n+J4yM3kNo0HQo3Xp1eUe47UM6Wy6yuAvIyllg==
