@@ -2,6 +2,7 @@ import { createTestUser, deleteTestUser } from '../db'
 import { request } from '../util'
 import { expect } from 'chai'
 import nock from 'nock'
+import 'mocha'
 
 describe('/article/save API', () => {
   const username = 'fakeUser'

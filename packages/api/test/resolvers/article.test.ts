@@ -7,6 +7,7 @@ import {
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import { Page } from '../../src/entity/page'
+import 'mocha'
 
 describe('Article API', () => {
   const username = 'fakeUser'

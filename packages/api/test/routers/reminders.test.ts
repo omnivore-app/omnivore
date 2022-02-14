@@ -10,6 +10,7 @@ import { request } from '../util'
 import { User } from '../../src/entity/user'
 import { Reminder } from '../../src/entity/reminder'
 import { expect } from 'chai'
+import 'mocha'
 
 describe('Reminders Router', () => {
   const username = 'fakeUser'
