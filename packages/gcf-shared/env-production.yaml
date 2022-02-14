@@ -1,6 +1,0 @@
-#
-REST_BACKEND_ENDPOINT: 'https://api-prod.omnivore.app/api'
-SENTRY_DSN: 'https://3f18bbb99d13426383346cadf4243cb1@o462643.ingest.sentry.io/5466498'
-PREVIEW_IMAGE_BUCKET: 'omnivore-prod-preview-bucket'
-ALLOWED_ORIGINS: 'https://omnivore.app,https://web-prod.omnivore.app'
-PREVIEW_IMAGE_CDN_ORIGIN: 'https://preview-prod.omnivore-image-cache.app'
