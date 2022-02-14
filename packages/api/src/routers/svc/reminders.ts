@@ -57,7 +57,7 @@ export function remindersServiceRouter() {
       const user = await models.user.get(userId)
       if (!user || !user.email) {
         console.log('user not found', userId)
-        res.status(404).send('User Not Found')
+        res.status(400).send('User Not Found')
         return
       }
 
@@ -68,7 +68,7 @@ export function remindersServiceRouter() {
 
       if (!reminders) {
         console.log('reminders not found', userId, scheduleTime)
-        res.status(404).send('Reminders Not Found')
+        res.status(200).send('Reminders Not Found')
         return
       }
 
@@ -119,13 +119,7 @@ export function remindersServiceRouter() {
         if (!deviceTokens) {
           console.log('Device tokens not set:', userId)
 
-          await updateRemindersStatus(
-            models,
-            userId,
-            linkIdsToUnarchive,
-            remindAt
-          )
-          res.status(200).send('Device token Not Found')
+          res.status(400).send('Device token Not Found')
           return
         }
       }
