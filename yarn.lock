@@ -5046,9 +5046,9 @@
   integrity sha512-Y2mHTRAbqfFkpjldbkHGY8JIzRN6XqYRliG8/24FcHm2D2PwW24fl5xMRTVGdrb7iMrwCaIEbLWerGIkXuFWVg==
 
 "@types/voca@^1.4.0":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@types/voca/-/voca-1.4.1.tgz#953bbccabc1b6d199f591cf9b18b531d8b7000ce"
-  integrity sha512-Qi8c/YSUCH54J9HoIi2QfUTcCUr4l7qdUtQb8P85MOLdRXQgR87N7K3p1Dvw9aNrRFmiQnOHl0q7GFebBhmEXA==
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@types/voca/-/voca-1.4.2.tgz#4d2ceef3582c2a1f6a1574f71f0897400d910583"
+  integrity sha512-Vmw8euGSdVlcDV69LoixtuervYUim5u6Vgp41PNxrHVGIo4vxSKMhW0I9MmBKbk3gtveNFzdHIVzyW1DpECzYw==
 
 "@types/websocket@1.0.1":
   version "1.0.1"
