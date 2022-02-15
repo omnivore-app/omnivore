@@ -10,6 +10,7 @@ import { createImageProxyUrl } from './imageproxy'
 import axios from 'axios'
 import { WikipediaHandler } from './wikipedia-handler'
 import { SubstackHandler } from './substack-handler'
+import { AxiosHandler } from './axios-handler'
 
 const logger = buildLogger('utils.parse')
 
@@ -40,7 +41,11 @@ interface ContentHandler {
   prehandle: (url: URL, document: DOMWindow) => Promise<DOMWindow>
 }
 
-const HANDLERS = [new WikipediaHandler(), new SubstackHandler()]
+const HANDLERS = [
+  new WikipediaHandler(),
+  new SubstackHandler(),
+  new AxiosHandler(),
+]
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
 const domPurifySanitizeHook = (
