@@ -13,6 +13,7 @@ import {
   isNewsletter,
 } from './newsletter'
 import { PubSub } from '@google-cloud/pubsub'
+import { handlePdfAttachment } from './pdf'
 
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
@@ -23,9 +24,14 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
     const parsed: Record<string, string> = {}
 
     for (const part of parts) {
-      const { name, data } = part
+      const { name, data, type, filename } = part
       if (name && data) {
         parsed[name] = data.toString()
+      } else if (type === 'application/pdf' && data) {
+        parsed['pdf-attachment-data'] = data.toString()
+        parsed['pdf-attachment-filename'] = filename
+          ? filename
+          : 'attachment.pdf'
       } else {
         console.log('no data or name for ', part)
       }
@@ -76,7 +82,15 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (isConfirmationEmail(from)) {
           console.log('handleConfirmation', from, recipientAddress)
           await handleConfirmation(recipientAddress, subject)
+        } else if (parsed['pdf-attachment']) {
+          console.log('handle PDF attachment', from, recipientAddress)
+          await handlePdfAttachment(
+            recipientAddress,
+            parsed['pdf-attachment-filename'],
+            parsed['pdf-attachment-data']
+          )
         }
+
         // queue non-newsletter emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {
