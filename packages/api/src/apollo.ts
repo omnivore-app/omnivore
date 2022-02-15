@@ -15,12 +15,12 @@ import { tracer } from './tracing'
 import { env } from './env'
 import { promisify } from 'util'
 import { buildLogger } from './utils/logger'
-import { ApolloServer, makeExecutableSchema } from 'apollo-server-express'
+import { ApolloServer } from 'apollo-server-express'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 import { applyMiddleware } from 'graphql-middleware'
 import * as cookie from 'cookie'
 import typeDefs from './schema'
-import { gqlTracingPlugin, traceResolvers } from './graphql_tracing'
-import { SanitizeDirective } from './directives'
+// import { SanitizeDirective } from './directives'
 import { functionResolvers } from './resolvers/function_resolvers'
 import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
@@ -36,10 +36,6 @@ const pubsub = createPubSubClient()
 const resolvers = {
   ...functionResolvers,
   ...ScalarResolvers,
-}
-
-const schemaDirectives = {
-  sanitize: SanitizeDirective,
 }
 
 const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
@@ -112,53 +108,16 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 }
 
 export function makeApolloServer(app: Express): ApolloServer {
-  traceResolvers(functionResolvers)
-
+  let schema = makeExecutableSchema({ typeDefs, resolvers })
   const apollo = new ApolloServer({
-    schema: applyMiddleware(
-      makeExecutableSchema({ typeDefs, resolvers, schemaDirectives })
-    ),
+    schema: schema,
     context: contextFunc,
-    plugins: [
-      gqlTracingPlugin,
-      {
-        requestDidStart: () => ({
-          didEncounterErrors: (ctx) => {
-            const error = ctx.errors[0]
-            const trxId = ctx.request.http?.headers.get('X-Transaction-ID')
-            const userId = ctx.context?.claims?.uid
-            const consoleMessage = `Transaction ID: ${trxId}. user: ${userId}.\n`
-            console.error(consoleMessage, error)
-          },
-        }),
-      },
-    ],
     formatError: (err) => {
       Sentry.captureException(err)
       // hide error messages from frontend on prod
       return new Error('Unexpected server error')
     },
-    subscriptions: {
-      path: '/api/graphql',
-      keepAlive: 4000,
-      onConnect: (connectionParams, webSocket, context) => {
-        const extraContext: { [key: string]: Record<string, unknown> } = {}
-        if (
-          context.request &&
-          context.request.headers &&
-          context.request.headers.cookie
-        ) {
-          extraContext.cookies = cookie.parse(context.request.headers.cookie)
-        }
-        return {
-          ...extraContext,
-          ...context,
-        }
-      },
-    },
   })
-
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
   return apollo
 }

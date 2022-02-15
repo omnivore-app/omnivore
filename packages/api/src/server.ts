@@ -38,6 +38,7 @@ import ReminderModel from './datalayer/reminders'
 import { remindersServiceRouter } from './routers/svc/reminders'
 import { ApolloServer } from 'apollo-server-express'
 import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
+import { corsConfig } from './utils/corsConfig'
 
 const PORT = process.env.PORT || 4000
 
@@ -124,6 +125,9 @@ const main = async (): Promise<void> => {
   await initEntities()
 
   const { app, apollo, httpServer } = createApp()
+
+  await apollo.start()
+  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
