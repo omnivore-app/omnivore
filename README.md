@@ -1,7 +1,7 @@
 # Omnivore
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/omnivore-app/omnivore/Run%20tests)](https://github.com/omnivore-app/omnivore/actions/workflows/run-tests.yaml)
-[![Discord](https://img.shields.io/discord/844965259462311966?label=Join%20our%20Discord)](https://discord.gg/nyqRrjujNe)
+[![Discord](https://img.shields.io/discord/844965259462311966?label=Join%20our%20Discord)](https://discord.gg/h2z5rppzz9)
 [![Twitter Follow](https://img.shields.io/twitter/follow/omnivoreapp)](https://twitter.com/OmnivoreApp)
 ![GitHub](https://img.shields.io/github/license/omnivore-app/omnivore)
 
@@ -32,7 +32,7 @@ We also have a free hosted version of Omnivore at [omnivore.app](https://omnivor
 
 ## Join us on Discord!
 
-We're building our community on Discord. [Join us!](https://discord.gg/nyqRrjujNe)
+We're building our community on Discord. [Join us!](https://discord.gg/h2z5rppzz9)
 
 Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
 
