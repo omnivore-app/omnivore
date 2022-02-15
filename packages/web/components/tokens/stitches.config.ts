@@ -159,6 +159,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       },
     },
     media: {
+      xsmDown: '(max-width: 375px)',
       smDown: '(max-width: 575px)',
       mdDown: '(max-width: 768px)',
       sm: '(min-width: 576px)',
