@@ -275,6 +275,15 @@ export function authRouter() {
       )
     }
 
+    if (!result.headers['set-cookie']) {
+      return res.redirect(
+        `${env.client.url}/${
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (req.params as any)?.action
+        }?errorCodes=unknown`
+      )
+    }
+
     res.setHeader('set-cookie', result.headers['set-cookie'])
 
     handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
@@ -381,6 +390,15 @@ export function authRouter() {
           const errorCodes = data.login.errorCodes.join(',')
           return res.redirect(
             `${env.client.url}/email-login?errorCodes=${errorCodes}`
+          )
+        }
+
+        if (!result.headers['set-cookie']) {
+          return res.redirect(
+            `${env.client.url}/${
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (req.params as any)?.action
+            }?errorCodes=unknown`
           )
         }
 
