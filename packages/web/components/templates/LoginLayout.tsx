@@ -1,9 +1,12 @@
-import { Box, MediumBreakpointBox, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, MediumBreakpointBox, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { LoginForm } from './LoginForm'
 import type { LoginFormProps } from './LoginForm'
 import Image from 'next/image'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
+import Link from 'next/link'
+import { Star } from 'phosphor-react'
+import { Button } from '../elements/Button'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
   return (
@@ -25,9 +28,33 @@ export function LoginLayout(props: LoginFormProps): JSX.Element {
           alignItems: 'center',
           '@md': { width: '50%' },
           '@xsDown': { height: '48px' },
+          justifyContent: 'space-between',
+          width: '100%',
         }}
       >
         <OmnivoreNameLogo color={theme.colors.omnivoreGray.toString()} />
+        <Box css={{
+          marginLeft: 'auto',
+          fontSize: '14px',
+          fontWeight: '500',
+          verticalAlign: 'middle',
+          textAlign: 'center',
+          cursor: 'pointer',
+          lineHeight: '100%',
+          textDecoration: 'none',
+          '&hover': {
+            bg: theme.colors.omnivoreGray.toString(),
+          },
+        }}>
+          <a href="https://github.com/omnivore-app/omnivore">
+            <Button style="ctaLightGray">
+              <HStack css={{ height: '100%' }}>
+                <Star size={16} />
+                <SpanBox css={{ pl: '4px' }}>Star us on GitHub</SpanBox>
+              </HStack>
+            </Button>
+          </a>
+        </Box>
       </Box>
     </>
   )

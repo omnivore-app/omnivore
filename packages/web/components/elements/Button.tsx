@@ -30,6 +30,24 @@ export const Button = styled('button', {
         bg: '$omnivoreCtaYellow',
         p: '10px 12px',
       },
+      ctaLightGray: {
+        border: 0,
+        fontSize: '14px',
+        fontWeight: 500,
+        fontStyle: 'normal',
+        fontFamily: 'Inter',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        color: '$omnivoreGray',
+        p: '10px 12px',
+        bg: 'rgb(125, 125, 125, 0)',
+        '&:hover': {
+          bg: 'rgb(125, 125, 125, 0.1)',
+        },
+        '@xsmDown': {
+          visibility: 'collapse',
+        }
+      },
       ctaGray: {
         border: 0,
         fontSize: '14px',
