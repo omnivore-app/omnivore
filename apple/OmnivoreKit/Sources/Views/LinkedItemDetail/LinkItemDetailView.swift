@@ -54,8 +54,29 @@ public struct LinkItemDetailView: View {
     innerBody
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
+      .introspectNavigationController {
+        navigationController = $0
+        navigationController?.hidesBarsOnSwipe = UIDevice.isIPhone
+      }
+      .introspectTabBarController {
+        tabBarController = $0
+        tabBarController?.tabBar.isHidden = UIDevice.isIPhone
+      }
+      .onDisappear {
+        navigationController?.hidesBarsOnSwipe = true
+        tabBarController?.tabBar.isHidden = false
+      }
+      .onAppear {
+        navigationController?.hidesBarsOnSwipe = UIDevice.isIPhone
+        tabBarController?.tabBar.isHidden = UIDevice.isIPhone
+      }
+      //      .ignoresSafeArea(, edges: <#T##Edge.Set#>)
+      .ignoresSafeArea(., edges: .vertical)
     #endif
   }
+
+  @State var navigationController: UINavigationController?
+  @State var tabBarController: UITabBarController?
 
   @ViewBuilder private var innerBody: some View {
     if let pdfURL = viewModel.item.pdfURL {
@@ -91,6 +112,7 @@ public struct LinkItemDetailView: View {
             #endif
           }
         }
+
     } else {
       HStack(alignment: .center) {
         Spacer()

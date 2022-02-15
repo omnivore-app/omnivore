@@ -56,6 +56,8 @@ public struct HomeFeedView: View {
   @State private var confirmationShown = false
   @State private var snoozePresented = false
   @State private var itemToSnooze: FeedItem?
+  @State var navigationController: UINavigationController?
+  @State var tabBarController: UITabBarController?
 
   public init(viewModel: HomeFeedViewModel) {
     self.viewModel = viewModel
@@ -376,6 +378,23 @@ public struct HomeFeedView: View {
       if UIDevice.isIPhone {
         NavigationView {
           conditionalInnerBody
+            .introspectNavigationController {
+              navigationController = $0
+              navigationController?.hidesBarsOnSwipe = false
+            }
+            .introspectTabBarController {
+              tabBarController = $0
+              tabBarController?.tabBar.isHidden = false
+              navigationController?.navigationBar.isHidden = false
+            }
+            .onDisappear {
+              tabBarController?.tabBar.isHidden = true
+              navigationController?.hidesBarsOnSwipe = true
+            }
+            .onAppear {
+              navigationController?.hidesBarsOnSwipe = false
+              tabBarController?.tabBar.isHidden = false
+            }
         }
       } else {
         conditionalInnerBody
