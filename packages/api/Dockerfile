@@ -5,8 +5,6 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-RUN apk add udev ttf-freefont
-
 COPY package.json .
 COPY yarn.lock .
 COPY tsconfig.json .
