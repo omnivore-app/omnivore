@@ -24,7 +24,7 @@
     "@opentelemetry/instrumentation-dns": "^0.27.1",
     "@opentelemetry/instrumentation-express": "^0.22.0",
     "@opentelemetry/instrumentation-graphql": "^0.22.0",
-    "@opentelemetry/instrumentation-grpc": "^0.22.0",
+    "@opentelemetry/instrumentation-grpc": "^0.27.0",
     "@opentelemetry/instrumentation-http": "^0.27.0",
     "@opentelemetry/instrumentation-pg": "^0.22.0",
     "@opentelemetry/node": "^0.22.0",
