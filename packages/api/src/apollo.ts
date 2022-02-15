@@ -108,8 +108,13 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 }
 
 export function makeApolloServer(app: Express): ApolloServer {
-  let schema = makeExecutableSchema({ typeDefs, resolvers })
+  let schema = makeExecutableSchema({
+    resolvers,
+    typeDefs
+  })
+
   schema = sanitizeDirectiveTransformer(schema)
+
   const apollo = new ApolloServer({
     schema: schema,
     context: contextFunc,
