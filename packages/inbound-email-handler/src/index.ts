@@ -10,6 +10,7 @@ import {
   handleConfirmation,
   handleNewsletter,
   isConfirmationEmail,
+  isNewsletter,
 } from './newsletter'
 import { PubSub } from '@google-cloud/pubsub'
 
@@ -44,10 +45,10 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const recipientAddress = forwardedAddress
         ? forwardedAddress.toString()
         : parsed.to
-      const rawUrl = headers['list-post']?.toString()
+      const rawUrl = headers['list-post'] ? headers['list-post'].toString() : ''
 
       // check if it is a forwarding confirmation email or newsletter
-      if (rawUrl) {
+      if (isNewsletter(rawUrl, from)) {
         try {
           console.log('handleNewsletter', from, recipientAddress)
           await handleNewsletter(recipientAddress, html, rawUrl, subject, from)
