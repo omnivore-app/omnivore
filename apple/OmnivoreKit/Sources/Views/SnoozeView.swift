@@ -4,7 +4,7 @@ import SwiftUI
 struct SnoozeView: View {
   @Binding var snoozePresented: Bool
   @Binding var itemToSnooze: FeedItem?
-  let snoozeAction: (String, Date, String?) -> Void
+  let snoozeAction: (SnoozeActionParams) -> Void
 
   var body: some View {
     VStack {
@@ -28,12 +28,24 @@ struct SnoozeView: View {
   private func snoozeItem(_ snooze: Snooze) {
     if let item = itemToSnooze {
       withAnimation(.linear(duration: 0.4)) {
-        snoozeAction(item.id, snooze.until, "Snoozed until \(snooze.untilStr)")
+        snoozeAction(
+          SnoozeActionParams(
+            feedItemId: item.id,
+            snoozeUntilDate: snooze.until,
+            successMessage: "Snoozed until \(snooze.untilStr)"
+          )
+        )
       }
     }
     itemToSnooze = nil
     snoozePresented = false
   }
+}
+
+struct SnoozeActionParams {
+  let feedItemId: String
+  let snoozeUntilDate: Date
+  let successMessage: String?
 }
 
 private struct SnoozeIconButtonView: View {

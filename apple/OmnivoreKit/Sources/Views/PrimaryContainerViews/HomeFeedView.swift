@@ -239,9 +239,9 @@ public struct HomeFeedView: View {
         }
       }
       .formSheet(isPresented: $snoozePresented) {
-        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) { linkId, until, successMessage in
+        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
           viewModel.performActionSubject.send(
-            .snooze(linkId: linkId, until: until, successMessage: successMessage)
+            .snooze(linkId: $0.feedItemId, until: $0.snoozeUntilDate, successMessage: $0.successMessage)
           )
         }
       }
