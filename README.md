@@ -1,7 +1,7 @@
 # Omnivore
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/omnivore-app/omnivore/Run%20tests)](https://github.com/omnivore-app/omnivore/actions/workflows/run-tests.yaml)
-[![Discord](https://img.shields.io/discord/844965259462311966)](https://discord.gg/nyqRrjujNe)
+[![Discord](https://img.shields.io/discord/844965259462311966?label=Join%20our%20Discord)](https://discord.gg/nyqRrjujNe)
 [![Twitter Follow](https://img.shields.io/twitter/follow/omnivoreapp)](https://twitter.com/OmnivoreApp)
 
 [Omnivore](https://omnivore.app) is a complete, open source read-it-later solution for people who like text.
