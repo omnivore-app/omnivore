@@ -380,7 +380,6 @@ public struct HomeFeedView: View {
           conditionalInnerBody
             .introspectNavigationController {
               navigationController = $0
-              navigationController?.hidesBarsOnSwipe = false
             }
             .introspectTabBarController {
               tabBarController = $0
@@ -389,11 +388,15 @@ public struct HomeFeedView: View {
             }
             .onDisappear {
               tabBarController?.tabBar.isHidden = true
-              navigationController?.hidesBarsOnSwipe = true
+              navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+              navigationController?.navigationBar.shadowImage = UIImage()
+              navigationController?.navigationBar.isTranslucent = true
             }
             .onAppear {
-              navigationController?.hidesBarsOnSwipe = false
               tabBarController?.tabBar.isHidden = false
+              navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+              navigationController?.navigationBar.shadowImage = nil
+              navigationController?.navigationBar.isTranslucent = false
             }
         }
       } else {

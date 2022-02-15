@@ -56,21 +56,34 @@ public struct LinkItemDetailView: View {
       .navigationBarTitleDisplayMode(.inline)
       .introspectNavigationController {
         navigationController = $0
-        navigationController?.hidesBarsOnSwipe = UIDevice.isIPhone
+        if UIDevice.isIPhone {
+          navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+          navigationController?.navigationBar.shadowImage = UIImage()
+          navigationController?.navigationBar.isTranslucent = true
+        }
       }
       .introspectTabBarController {
         tabBarController = $0
         tabBarController?.tabBar.isHidden = UIDevice.isIPhone
       }
       .onDisappear {
-        navigationController?.hidesBarsOnSwipe = true
         tabBarController?.tabBar.isHidden = false
+        if UIDevice.isIPhone {
+          navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+          navigationController?.navigationBar.shadowImage = nil
+          navigationController?.navigationBar.isTranslucent = false
+        }
       }
       .onAppear {
-        navigationController?.hidesBarsOnSwipe = UIDevice.isIPhone
+        if UIDevice.isIPhone {
+          navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+          navigationController?.navigationBar.shadowImage = UIImage()
+          navigationController?.navigationBar.isTranslucent = true
+        }
         tabBarController?.tabBar.isHidden = UIDevice.isIPhone
       }
       .ignoresSafeArea(.all, edges: .vertical)
+      .statusBar(hidden: true)
     #endif
   }
 
