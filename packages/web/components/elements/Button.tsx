@@ -42,11 +42,15 @@ export const Button = styled('button', {
         p: '10px 12px',
         bg: 'rgb(125, 125, 125, 0)',
         '&:hover': {
+          bg: 'rgb(47, 47, 47, 0.1)',
+        },
+        '@md': {
           bg: 'rgb(125, 125, 125, 0.1)',
         },
         '@xsmDown': {
           visibility: 'collapse',
-        }
+        },
+
       },
       ctaGray: {
         border: 0,
