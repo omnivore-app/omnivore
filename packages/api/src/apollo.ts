@@ -45,10 +45,8 @@ const schemaDirectives = {
 const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   req,
   res,
-  connection,
 }) => {
   let claims: Claims | undefined
-  const isSubscription = !!connection
 
   const token = req?.cookies?.auth || req?.headers?.authorization
 
@@ -59,14 +57,8 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 
   if (token && jwt.verify(token, env.server.jwtSecret)) {
     claims = jwt.decode(token) as Claims
-  } else if (connection) {
-    const wsToken =
-      connection?.context?.cookies?.auth ||
-      connection?.context?.headers?.authorization
-    if (wsToken && jwt.verify(wsToken, env.server.jwtSecret)) {
-      claims = jwt.decode(wsToken) as Claims
-    }
   }
+
   async function setClaims(
     tx: Transaction,
     uuid?: string,
@@ -87,7 +79,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     // no caching for subscriptions
     // TODO: create per request caching for connections
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    models: initModels(kx, !isSubscription),
+    models: initModels(kx, true),
     clearAuth: () => {
       res.clearCookie('auth')
       res.clearCookie('pendingUserAuth')
@@ -116,14 +108,6 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     tracingSpan: tracer.startSpan('apollo.request'),
   }
 
-  if (connection) {
-    return {
-      ...connection.context,
-      ...ctx,
-      userRole: claims?.userRole,
-      uid: claims ? claims.uid : null,
-    }
-  }
   return ctx
 }
 

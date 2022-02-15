@@ -40,15 +40,12 @@ export type DataModels = {
   reminder: ReminderModel
 }
 
-export type DataSources = unknown
-
 export interface RequestContext {
   log: winston.Logger
   claims: Claims | undefined
   kx: Knex
   pubsub: PubsubClient
   models: DataModels
-  dataSources: DataSources
   setAuth: (claims: ClaimsToSet, secret?: string) => Promise<void>
   clearAuth: () => void
   setClaims: (tx: Knex.Transaction, uuid?: string | undefined) => Promise<void>

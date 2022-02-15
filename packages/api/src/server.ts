@@ -113,7 +113,6 @@ export const createApp = (): {
 
   const apollo = makeApolloServer(app)
   const httpServer = createServer(app)
-  apollo.installSubscriptionHandlers(httpServer)
 
   return { app, apollo, httpServer }
 }
@@ -136,7 +135,6 @@ const main = async (): Promise<void> => {
   const listener = httpServer.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
-    logger.notice(`🚀 WS Server ready at ${apollo.subscriptionsPath}`)
   })
 
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.
