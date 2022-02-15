@@ -58,8 +58,8 @@ describe('Sanitize Directive', () => {
       `
     })
 
-    it('responds with error code EMPTY_NAME', async () => {
-      expect(async () => { await graphqlRequest(query, authToken) }).to.throw
+    it('responds status code 500 when invalid input', async () => {
+      return graphqlRequest(query, authToken).expect(500)
     })
   })
 })
