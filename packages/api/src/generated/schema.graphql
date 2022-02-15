@@ -1,292 +1,25 @@
 directive @sanitize(allowedTags: [String], maxLength: Int) on INPUT_FIELD_DEFINITION
 
-scalar Date
-
-enum SortOrder {
-  ASCENDING
-  DESCENDING
+type ArchiveLinkError {
+  message: String!
+  errorCodes: [ArchiveLinkErrorCode!]!
 }
 
-enum ReactionType {
-  LIKE
-  HEART
-  SMILE
-  HUSHED
-  CRYING
-  POUT
-}
-
-enum SortBy {
-  UPDATED_TIME
-}
-
-enum ContentReader {
-  WEB
-  PDF
-}
-
-input SortParams {
-  order: SortOrder
-  by: SortBy!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-  totalCount: Int
-}
-
-type ArticleEdge {
-  cursor: String!
-  node: Article!
-}
-
-type FeedArticleEdge {
-  cursor: String!
-  node: FeedArticle!
-}
-
-type ArticlesSuccess {
-  edges: [ArticleEdge!]!
-  pageInfo: PageInfo!
-}
-
-type User {
-  id: ID!
-  name: String!
-  isFullUser: Boolean
-  viewerIsFollowing: Boolean
-  isFriend: Boolean @deprecated(reason: "isFriend has been replaced with viewerIsFollowing")
-  picture: String
-  profile: Profile!
-  sharedArticles: [FeedArticle!]!
-  sharedArticlesCount: Int
-  sharedHighlightsCount: Int
-  sharedNotesCount: Int
-  friendsCount: Int
-  followersCount: Int
-}
-
-type Profile {
-  id: ID!
-  username: String!
-  private: Boolean!
-  bio: String
-  pictureUrl: String
-}
-
-union UserResult = UserSuccess | UserError
-
-enum UserErrorCode {
+enum ArchiveLinkErrorCode {
   UNAUTHORIZED
-  USER_NOT_FOUND
   BAD_REQUEST
 }
 
-type UserError {
-  errorCodes: [UserErrorCode!]!
+input ArchiveLinkInput {
+  linkId: ID!
+  archived: Boolean!
 }
 
-type UserSuccess {
-  user: User!
-}
+union ArchiveLinkResult = ArchiveLinkSuccess | ArchiveLinkError
 
-union UsersResult = UsersSuccess | UsersError
-
-enum UsersErrorCode {
-  UNAUTHORIZED
-}
-
-type UsersError {
-  errorCodes: [UsersErrorCode!]!
-}
-
-type UsersSuccess {
-  users: [User!]!
-}
-
-union LoginResult = LoginSuccess | LoginError
-
-type LoginSuccess {
-  me: User!
-}
-
-type LoginError {
-  errorCodes: [LoginErrorCode!]!
-}
-
-enum LoginErrorCode {
-  AUTH_FAILED
-  USER_ALREADY_EXISTS
-  INVALID_CREDENTIALS
-  USER_NOT_FOUND
-  WRONG_SOURCE
-  ACCESS_DENIED
-}
-
-input GoogleLoginInput {
-  secret: String!
-  email: String!
-}
-
-input GoogleSignupInput {
-  secret: String!
-  email: String!
-  username: String!
-  name: String!
-  pictureUrl: String!
-  sourceUserId: String!
-  bio: String
-}
-
-type GoogleSignupSuccess {
-  me: User!
-}
-
-enum SignupErrorCode {
-  UNKNOWN
-  ACCESS_DENIED
-  GOOGLE_AUTH_ERROR
-  INVALID_USERNAME
-  USER_EXISTS
-  EXPIRED_TOKEN
-  INVALID_PASSWORD
-}
-
-type GoogleSignupError {
-  errorCodes: [SignupErrorCode]!
-}
-
-union GoogleSignupResult = GoogleSignupSuccess | GoogleSignupError
-
-union LogOutResult = LogOutSuccess | LogOutError
-
-enum LogOutErrorCode {
-  LOG_OUT_FAILED
-}
-
-type LogOutError {
-  errorCodes: [LogOutErrorCode!]!
-}
-
-type LogOutSuccess {
-  message: String
-}
-
-union UpdateUserResult = UpdateUserSuccess | UpdateUserError
-
-input UpdateUserInput {
-  name: String!
-  bio: String
-}
-
-enum UpdateUserErrorCode {
-  EMPTY_NAME
-  BIO_TOO_LONG
-  USER_NOT_FOUND
-  UNAUTHORIZED
-}
-
-type UpdateUserError {
-  errorCodes: [UpdateUserErrorCode!]!
-}
-
-type UpdateUserSuccess {
-  user: User!
-}
-
-union UpdateUserProfileResult = UpdateUserProfileSuccess | UpdateUserProfileError
-
-input UpdateUserProfileInput {
-  userId: ID!
-  username: String
-  bio: String
-  pictureUrl: String
-}
-
-type UpdateUserProfileSuccess {
-  user: User!
-}
-
-enum UpdateUserProfileErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  BAD_DATA
-  BAD_USERNAME
-  USERNAME_EXISTS
-}
-
-type UpdateUserProfileError {
-  errorCodes: [UpdateUserProfileErrorCode!]!
-}
-
-input ArticleHighlightsInput {
-  includeFriends: Boolean
-}
-
-type ReadState {
-  reading: Boolean
-  readingTime: Int
-  progressPercent: Float!
-  progressAnchorIndex: Int!
-}
-
-type HighlightStats {
-  highlightCount: Int!
-}
-
-type ShareStats {
-  viewCount: Int!
-  saveCount: Int!
-  readDuration: Int!
-}
-
-type LinkShareInfo {
-  title: String!
-  description: String!
-  imageUrl: String!
-}
-
-type Link {
-  id: ID!
-  url: String!
-  slug: String!
-  savedBy: User!
-  savedAt: Date!
-  savedByViewer: Boolean!
-  postedByViewer: Boolean!
-  readState: ReadState!
-  highlightStats: HighlightStats!
-  shareInfo: LinkShareInfo!
-  shareStats: ShareStats!
-  page: Page!
-}
-
-enum PageType {
-  ARTICLE
-  BOOK
-  FILE
-  PROFILE
-  WEBSITE
-  UNKNOWN
-}
-
-type Page {
-  id: ID!
-  url: String!
-  hash: String!
-  originalUrl: String!
-  type: PageType!
-  image: String!
-  title: String!
-  author: String!
-  description: String!
-  publishedAt: Date
-  originalHtml: String!
-  readableHtml: String!
-  createdAt: Date!
+type ArchiveLinkSuccess {
+  linkId: String!
+  message: String!
 }
 
 type Article {
@@ -317,7 +50,14 @@ type Article {
   isArchived: Boolean!
 }
 
-union ArticleResult = ArticleSuccess | ArticleError
+type ArticleEdge {
+  cursor: String!
+  node: Article!
+}
+
+type ArticleError {
+  errorCodes: [ArticleErrorCode!]!
+}
 
 enum ArticleErrorCode {
   NOT_FOUND
@@ -325,90 +65,70 @@ enum ArticleErrorCode {
   UNAUTHORIZED
 }
 
-type ArticleError {
-  errorCodes: [ArticleErrorCode!]!
+input ArticleHighlightsInput {
+  includeFriends: Boolean
+}
+
+union ArticleResult = ArticleSuccess | ArticleError
+
+type ArticleSavingRequest {
+  id: ID!
+  userId: ID! @deprecated(reason: "userId has been replaced with user")
+  user: User!
+  article: Article
+  status: ArticleSavingRequestStatus!
+  errorCode: CreateArticleErrorCode
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type ArticleSavingRequestError {
+  errorCodes: [ArticleSavingRequestErrorCode!]!
+}
+
+enum ArticleSavingRequestErrorCode {
+  UNAUTHORIZED
+  NOT_FOUND
+}
+
+union ArticleSavingRequestResult = ArticleSavingRequestSuccess | ArticleSavingRequestError
+
+enum ArticleSavingRequestStatus {
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
+type ArticleSavingRequestSuccess {
+  articleSavingRequest: ArticleSavingRequest!
 }
 
 type ArticleSuccess {
   article: Article!
 }
 
-union SharedArticleResult = SharedArticleSuccess | SharedArticleError
-
-enum SharedArticleErrorCode {
-  NOT_FOUND
+type ArticlesError {
+  errorCodes: [ArticlesErrorCode!]!
 }
-
-type SharedArticleError {
-  errorCodes: [SharedArticleErrorCode!]!
-}
-
-type SharedArticleSuccess {
-  article: Article!
-}
-
-union ArticlesResult = ArticlesSuccess | ArticlesError
 
 enum ArticlesErrorCode {
   UNAUTHORIZED
 }
 
-type ArticlesError {
-  errorCodes: [ArticlesErrorCode!]!
+union ArticlesResult = ArticlesSuccess | ArticlesError
+
+type ArticlesSuccess {
+  edges: [ArticleEdge!]!
+  pageInfo: PageInfo!
 }
 
-input PageInfoInput {
-  title: String
-  author: String
-  description: String
-  previewImage: String
-  canonicalUrl: String
-  publishedAt: Date
-  contentType: String
+enum ContentReader {
+  WEB
+  PDF
 }
 
-input PreparedDocumentInput {
-  document: String!
-  pageInfo: PageInfoInput!
-}
-
-enum UploadFileStatus {
-  INITIALIZED
-  COMPLETED
-}
-
-union UploadFileRequestResult = UploadFileRequestSuccess | UploadFileRequestError
-
-input UploadFileRequestInput {
-  url: String!
-  contentType: String!
-}
-
-enum UploadFileRequestErrorCode {
-  UNAUTHORIZED
-  BAD_INPUT
-  FAILED_CREATE
-}
-
-type UploadFileRequestError {
-  errorCodes: [UploadFileRequestErrorCode!]!
-}
-
-type UploadFileRequestSuccess {
-  id: ID!
-  uploadSignedUrl: String
-  uploadFileId: ID
-}
-
-union CreateArticleResult = CreateArticleSuccess | CreateArticleError
-
-input CreateArticleInput {
-  url: String!
-  preparedDocument: PreparedDocumentInput
-  articleSavingRequestId: ID
-  uploadFileId: ID
-  skipParsing: Boolean
-  source: String
+type CreateArticleError {
+  errorCodes: [CreateArticleErrorCode!]!
 }
 
 enum CreateArticleErrorCode {
@@ -420,8 +140,34 @@ enum CreateArticleErrorCode {
   UPLOAD_FILE_MISSING
 }
 
-type CreateArticleError {
-  errorCodes: [CreateArticleErrorCode!]!
+input CreateArticleInput {
+  url: String!
+  preparedDocument: PreparedDocumentInput
+  articleSavingRequestId: ID
+  uploadFileId: ID
+  skipParsing: Boolean
+  source: String
+}
+
+union CreateArticleResult = CreateArticleSuccess | CreateArticleError
+
+type CreateArticleSavingRequestError {
+  errorCodes: [CreateArticleSavingRequestErrorCode!]!
+}
+
+enum CreateArticleSavingRequestErrorCode {
+  UNAUTHORIZED
+  BAD_DATA
+}
+
+input CreateArticleSavingRequestInput {
+  url: String!
+}
+
+union CreateArticleSavingRequestResult = CreateArticleSavingRequestSuccess | CreateArticleSavingRequestError
+
+type CreateArticleSavingRequestSuccess {
+  articleSavingRequest: ArticleSavingRequest!
 }
 
 type CreateArticleSuccess {
@@ -430,104 +176,244 @@ type CreateArticleSuccess {
   created: Boolean!
 }
 
-enum SaveErrorCode {
-  UNKNOWN
+type CreateHighlightError {
+  errorCodes: [CreateHighlightErrorCode!]!
+}
+
+enum CreateHighlightErrorCode {
   UNAUTHORIZED
-}
-
-type SaveError {
-  errorCodes: [SaveErrorCode!]!
-  message: String
-}
-
-type SaveSuccess {
-  url: String!
-  clientRequestId: ID!
-}
-
-input SaveFileInput {
-  url: String!
-  source: String!
-  clientRequestId: ID!
-  uploadFileId: ID!
-}
-
-input SavePageInput {
-  url: String!
-  source: String!
-  clientRequestId: ID!
-  title: String
-  originalContent: String!
-}
-
-input SaveUrlInput {
-  url: String!
-  source: String!
-  clientRequestId: ID!
-}
-
-union SaveResult = SaveSuccess | SaveError
-
-union SetFollowResult = SetFollowSuccess | SetFollowError
-
-input SetFollowInput {
-  userId: ID!
-  follow: Boolean!
-}
-
-enum SetFollowErrorCode {
-  NOT_FOUND
-  UNAUTHORIZED
-}
-
-type SetFollowError {
-  errorCodes: [SetFollowErrorCode!]!
-}
-
-type SetFollowSuccess {
-  updatedUser: User!
-}
-
-union SaveArticleReadingProgressResult = SaveArticleReadingProgressSuccess | SaveArticleReadingProgressError
-
-input SaveArticleReadingProgressInput {
-  id: ID!
-  readingProgressPercent: Float!
-  readingProgressAnchorIndex: Int!
-}
-
-enum SaveArticleReadingProgressErrorCode {
-  NOT_FOUND
+  FORBIDDEN
   BAD_DATA
-  UNAUTHORIZED
-}
-
-type SaveArticleReadingProgressError {
-  errorCodes: [SaveArticleReadingProgressErrorCode!]!
-}
-
-type SaveArticleReadingProgressSuccess {
-  updatedArticle: Article!
-}
-
-union SetBookmarkArticleResult = SetBookmarkArticleSuccess | SetBookmarkArticleError
-
-input SetBookmarkArticleInput {
-  articleID: ID!
-  bookmark: Boolean!
-}
-
-enum SetBookmarkArticleErrorCode {
   NOT_FOUND
-  BOOKMARK_EXISTS
+  ALREADY_EXISTS
 }
 
-type SetBookmarkArticleError {
-  errorCodes: [SetBookmarkArticleErrorCode!]!
+input CreateHighlightInput {
+  id: ID!
+  shortId: String!
+  articleId: ID!
+  patch: String!
+  quote: String!
+  prefix: String
+  suffix: String
+  annotation: String
+  sharedAt: Date
 }
 
-type SetBookmarkArticleSuccess {
-  bookmarkedArticle: Article!
+type CreateHighlightReplyError {
+  errorCodes: [CreateHighlightReplyErrorCode!]!
+}
+
+enum CreateHighlightReplyErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  NOT_FOUND
+  EMPTY_ANNOTATION
+}
+
+input CreateHighlightReplyInput {
+  highlightId: ID!
+  text: String!
+}
+
+union CreateHighlightReplyResult = CreateHighlightReplySuccess | CreateHighlightReplyError
+
+type CreateHighlightReplySuccess {
+  highlightReply: HighlightReply!
+}
+
+union CreateHighlightResult = CreateHighlightSuccess | CreateHighlightError
+
+type CreateHighlightSuccess {
+  highlight: Highlight!
+}
+
+type CreateLabelError {
+  errorCodes: [CreateLabelErrorCode!]!
+}
+
+enum CreateLabelErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+input CreateLabelInput {
+  linkId: ID!
+  name: String!
+}
+
+union CreateLabelResult = CreateLabelSuccess | CreateLabelError
+
+type CreateLabelSuccess {
+  label: Label!
+}
+
+type CreateNewsletterEmailError {
+  errorCodes: [CreateNewsletterEmailErrorCode!]!
+}
+
+enum CreateNewsletterEmailErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+}
+
+union CreateNewsletterEmailResult = CreateNewsletterEmailSuccess | CreateNewsletterEmailError
+
+type CreateNewsletterEmailSuccess {
+  newsletterEmail: NewsletterEmail!
+}
+
+type CreateReactionError {
+  errorCodes: [CreateReactionErrorCode!]!
+}
+
+enum CreateReactionErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  BAD_TARGET
+  BAD_CODE
+  NOT_FOUND
+}
+
+input CreateReactionInput {
+  highlightId: ID
+  userArticleId: ID
+  code: ReactionType!
+}
+
+union CreateReactionResult = CreateReactionSuccess | CreateReactionError
+
+type CreateReactionSuccess {
+  reaction: Reaction!
+}
+
+type CreateReminderError {
+  errorCodes: [CreateReminderErrorCode!]!
+}
+
+enum CreateReminderErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+input CreateReminderInput {
+  linkId: ID
+  clientRequestId: ID
+  archiveUntil: Boolean!
+  sendNotification: Boolean!
+  remindAt: Date!
+}
+
+union CreateReminderResult = CreateReminderSuccess | CreateReminderError
+
+type CreateReminderSuccess {
+  reminder: Reminder!
+}
+
+scalar Date
+
+type DeleteHighlightError {
+  errorCodes: [DeleteHighlightErrorCode!]!
+}
+
+enum DeleteHighlightErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  NOT_FOUND
+}
+
+type DeleteHighlightReplyError {
+  errorCodes: [DeleteHighlightReplyErrorCode!]!
+}
+
+enum DeleteHighlightReplyErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  NOT_FOUND
+}
+
+union DeleteHighlightReplyResult = DeleteHighlightReplySuccess | DeleteHighlightReplyError
+
+type DeleteHighlightReplySuccess {
+  highlightReply: HighlightReply!
+}
+
+union DeleteHighlightResult = DeleteHighlightSuccess | DeleteHighlightError
+
+type DeleteHighlightSuccess {
+  highlight: Highlight!
+}
+
+type DeleteLabelError {
+  errorCodes: [DeleteLabelErrorCode!]!
+}
+
+enum DeleteLabelErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+union DeleteLabelResult = DeleteLabelSuccess | DeleteLabelError
+
+type DeleteLabelSuccess {
+  label: Label!
+}
+
+type DeleteNewsletterEmailError {
+  errorCodes: [DeleteNewsletterEmailErrorCode!]!
+}
+
+enum DeleteNewsletterEmailErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+union DeleteNewsletterEmailResult = DeleteNewsletterEmailSuccess | DeleteNewsletterEmailError
+
+type DeleteNewsletterEmailSuccess {
+  newsletterEmail: NewsletterEmail!
+}
+
+type DeleteReactionError {
+  errorCodes: [DeleteReactionErrorCode!]!
+}
+
+enum DeleteReactionErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  NOT_FOUND
+}
+
+union DeleteReactionResult = DeleteReactionSuccess | DeleteReactionError
+
+type DeleteReactionSuccess {
+  reaction: Reaction!
+}
+
+type DeleteReminderError {
+  errorCodes: [DeleteReminderErrorCode!]!
+}
+
+enum DeleteReminderErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+union DeleteReminderResult = DeleteReminderSuccess | DeleteReminderError
+
+type DeleteReminderSuccess {
+  reminder: Reminder!
+}
+
+type DeviceToken {
+  id: ID!
+  token: String!
+  createdAt: Date!
 }
 
 type FeedArticle {
@@ -541,6 +427,93 @@ type FeedArticle {
   annotationsCount: Int
   highlight: Highlight
   reactions: [Reaction!]!
+}
+
+type FeedArticleEdge {
+  cursor: String!
+  node: FeedArticle!
+}
+
+type FeedArticlesError {
+  errorCodes: [FeedArticlesErrorCode!]!
+}
+
+enum FeedArticlesErrorCode {
+  UNAUTHORIZED
+}
+
+union FeedArticlesResult = FeedArticlesSuccess | FeedArticlesError
+
+type FeedArticlesSuccess {
+  edges: [FeedArticleEdge!]!
+  pageInfo: PageInfo!
+}
+
+type GetFollowersError {
+  errorCodes: [GetFollowersErrorCode!]!
+}
+
+enum GetFollowersErrorCode {
+  UNAUTHORIZED
+}
+
+union GetFollowersResult = GetFollowersSuccess | GetFollowersError
+
+type GetFollowersSuccess {
+  followers: [User!]!
+}
+
+type GetFollowingError {
+  errorCodes: [GetFollowingErrorCode!]!
+}
+
+enum GetFollowingErrorCode {
+  UNAUTHORIZED
+}
+
+union GetFollowingResult = GetFollowingSuccess | GetFollowingError
+
+type GetFollowingSuccess {
+  following: [User!]!
+}
+
+type GetUserPersonalizationError {
+  errorCodes: [GetUserPersonalizationErrorCode!]!
+}
+
+enum GetUserPersonalizationErrorCode {
+  UNAUTHORIZED
+}
+
+union GetUserPersonalizationResult = GetUserPersonalizationSuccess | GetUserPersonalizationError
+
+type GetUserPersonalizationSuccess {
+  userPersonalization: UserPersonalization
+}
+
+input GoogleLoginInput {
+  secret: String!
+  email: String!
+}
+
+type GoogleSignupError {
+  errorCodes: [SignupErrorCode]!
+}
+
+input GoogleSignupInput {
+  secret: String!
+  email: String!
+  username: String!
+  name: String!
+  pictureUrl: String!
+  sourceUserId: String!
+  bio: String
+}
+
+union GoogleSignupResult = GoogleSignupSuccess | GoogleSignupError
+
+type GoogleSignupSuccess {
+  me: User!
 }
 
 type Highlight {
@@ -561,35 +534,110 @@ type Highlight {
   createdByMe: Boolean!
 }
 
-input CreateHighlightInput {
+type HighlightReply {
   id: ID!
-  shortId: String!
-  articleId: ID!
-  patch: String!
-  quote: String!
-  prefix: String
-  suffix: String
-  annotation: String
-  sharedAt: Date
-}
-
-type CreateHighlightSuccess {
+  user: User!
   highlight: Highlight!
+  text: String!
+  createdAt: Date!
+  updatedAt: Date!
 }
 
-enum CreateHighlightErrorCode {
+type HighlightStats {
+  highlightCount: Int!
+}
+
+type Label {
+  id: ID!
+  name: String!
+}
+
+type LabelsError {
+  errorCodes: [LabelsErrorCode!]!
+}
+
+enum LabelsErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+union LabelsResult = LabelsSuccess | LabelsError
+
+type LabelsSuccess {
+  labels: [Label!]!
+}
+
+type Link {
+  id: ID!
+  url: String!
+  slug: String!
+  savedBy: User!
+  savedAt: Date!
+  savedByViewer: Boolean!
+  postedByViewer: Boolean!
+  readState: ReadState!
+  highlightStats: HighlightStats!
+  shareInfo: LinkShareInfo!
+  shareStats: ShareStats!
+  page: Page!
+}
+
+type LinkShareInfo {
+  title: String!
+  description: String!
+  imageUrl: String!
+}
+
+type LogOutError {
+  errorCodes: [LogOutErrorCode!]!
+}
+
+enum LogOutErrorCode {
+  LOG_OUT_FAILED
+}
+
+union LogOutResult = LogOutSuccess | LogOutError
+
+type LogOutSuccess {
+  message: String
+}
+
+type LoginError {
+  errorCodes: [LoginErrorCode!]!
+}
+
+enum LoginErrorCode {
+  AUTH_FAILED
+  USER_ALREADY_EXISTS
+  INVALID_CREDENTIALS
+  USER_NOT_FOUND
+  WRONG_SOURCE
+  ACCESS_DENIED
+}
+
+input LoginInput {
+  password: String!
+  email: String!
+}
+
+union LoginResult = LoginSuccess | LoginError
+
+type LoginSuccess {
+  me: User!
+}
+
+type MergeHighlightError {
+  errorCodes: [MergeHighlightErrorCode!]!
+}
+
+enum MergeHighlightErrorCode {
   UNAUTHORIZED
   FORBIDDEN
   BAD_DATA
   NOT_FOUND
   ALREADY_EXISTS
 }
-
-type CreateHighlightError {
-  errorCodes: [CreateHighlightErrorCode!]!
-}
-
-union CreateHighlightResult = CreateHighlightSuccess | CreateHighlightError
 
 input MergeHighlightInput {
   id: ID!
@@ -603,695 +651,12 @@ input MergeHighlightInput {
   overlapHighlightIdList: [String!]!
 }
 
+union MergeHighlightResult = MergeHighlightSuccess | MergeHighlightError
+
 type MergeHighlightSuccess {
   highlight: Highlight!
   overlapHighlightIdList: [String!]!
 }
-
-enum MergeHighlightErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  BAD_DATA
-  NOT_FOUND
-  ALREADY_EXISTS
-}
-
-type MergeHighlightError {
-  errorCodes: [MergeHighlightErrorCode!]!
-}
-
-union MergeHighlightResult = MergeHighlightSuccess | MergeHighlightError
-
-input UpdateHighlightInput {
-  highlightId: ID!
-  annotation: String
-  sharedAt: Date
-}
-
-type UpdateHighlightSuccess {
-  highlight: Highlight!
-}
-
-enum UpdateHighlightErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  NOT_FOUND
-  BAD_DATA
-}
-
-type UpdateHighlightError {
-  errorCodes: [UpdateHighlightErrorCode!]!
-}
-
-union UpdateHighlightResult = UpdateHighlightSuccess | UpdateHighlightError
-
-type DeleteHighlightSuccess {
-  highlight: Highlight!
-}
-
-enum DeleteHighlightErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  NOT_FOUND
-}
-
-type DeleteHighlightError {
-  errorCodes: [DeleteHighlightErrorCode!]!
-}
-
-union DeleteHighlightResult = DeleteHighlightSuccess | DeleteHighlightError
-
-type HighlightReply {
-  id: ID!
-  user: User!
-  highlight: Highlight!
-  text: String!
-  createdAt: Date!
-  updatedAt: Date!
-}
-
-input CreateHighlightReplyInput {
-  highlightId: ID!
-  text: String!
-}
-
-type CreateHighlightReplySuccess {
-  highlightReply: HighlightReply!
-}
-
-enum CreateHighlightReplyErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  NOT_FOUND
-  EMPTY_ANNOTATION
-}
-
-type CreateHighlightReplyError {
-  errorCodes: [CreateHighlightReplyErrorCode!]!
-}
-
-union CreateHighlightReplyResult = CreateHighlightReplySuccess | CreateHighlightReplyError
-
-input UpdateHighlightReplyInput {
-  highlightReplyId: ID!
-  text: String!
-}
-
-type UpdateHighlightReplySuccess {
-  highlightReply: HighlightReply!
-}
-
-enum UpdateHighlightReplyErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  NOT_FOUND
-}
-
-type UpdateHighlightReplyError {
-  errorCodes: [UpdateHighlightReplyErrorCode!]!
-}
-
-union UpdateHighlightReplyResult = UpdateHighlightReplySuccess | UpdateHighlightReplyError
-
-type DeleteHighlightReplySuccess {
-  highlightReply: HighlightReply!
-}
-
-enum DeleteHighlightReplyErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  NOT_FOUND
-}
-
-type DeleteHighlightReplyError {
-  errorCodes: [DeleteHighlightReplyErrorCode!]!
-}
-
-union DeleteHighlightReplyResult = DeleteHighlightReplySuccess | DeleteHighlightReplyError
-
-type Reaction {
-  id: ID!
-  user: User!
-  code: ReactionType!
-  createdAt: Date!
-  updatedAt: Date
-}
-
-input CreateReactionInput {
-  highlightId: ID
-  userArticleId: ID
-  code: ReactionType!
-}
-
-type CreateReactionSuccess {
-  reaction: Reaction!
-}
-
-enum CreateReactionErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  BAD_TARGET
-  BAD_CODE
-  NOT_FOUND
-}
-
-type CreateReactionError {
-  errorCodes: [CreateReactionErrorCode!]!
-}
-
-union CreateReactionResult = CreateReactionSuccess | CreateReactionError
-
-type DeleteReactionSuccess {
-  reaction: Reaction!
-}
-
-enum DeleteReactionErrorCode {
-  UNAUTHORIZED
-  FORBIDDEN
-  NOT_FOUND
-}
-
-type DeleteReactionError {
-  errorCodes: [DeleteReactionErrorCode!]!
-}
-
-union DeleteReactionResult = DeleteReactionSuccess | DeleteReactionError
-
-union FeedArticlesResult = FeedArticlesSuccess | FeedArticlesError
-
-enum FeedArticlesErrorCode {
-  UNAUTHORIZED
-}
-
-type FeedArticlesError {
-  errorCodes: [FeedArticlesErrorCode!]!
-}
-
-type FeedArticlesSuccess {
-  edges: [FeedArticleEdge!]!
-  pageInfo: PageInfo!
-}
-
-enum SetShareArticleErrorCode {
-  NOT_FOUND
-  UNAUTHORIZED
-}
-
-type SetShareArticleSuccess {
-  updatedFeedArticleId: String
-  updatedFeedArticle: FeedArticle
-  updatedArticle: Article!
-}
-
-type SetShareArticleError {
-  errorCodes: [SetShareArticleErrorCode!]!
-}
-
-union SetShareArticleResult = SetShareArticleSuccess | SetShareArticleError
-
-input SetShareArticleInput {
-  articleID: ID!
-  share: Boolean!
-  sharedComment: String
-  sharedWithHighlights: Boolean
-}
-
-enum UpdateSharedCommentErrorCode {
-  NOT_FOUND
-  UNAUTHORIZED
-}
-
-type UpdateSharedCommentSuccess {
-  articleID: ID!
-  sharedComment: String!
-}
-
-type UpdateSharedCommentError {
-  errorCodes: [UpdateSharedCommentErrorCode!]!
-}
-
-union UpdateSharedCommentResult = UpdateSharedCommentSuccess | UpdateSharedCommentError
-
-input UpdateSharedCommentInput {
-  articleID: ID!
-  sharedComment: String!
-}
-
-union GetFollowersResult = GetFollowersSuccess | GetFollowersError
-
-enum GetFollowersErrorCode {
-  UNAUTHORIZED
-}
-
-type GetFollowersError {
-  errorCodes: [GetFollowersErrorCode!]!
-}
-
-type GetFollowersSuccess {
-  followers: [User!]!
-}
-
-union GetFollowingResult = GetFollowingSuccess | GetFollowingError
-
-enum GetFollowingErrorCode {
-  UNAUTHORIZED
-}
-
-type GetFollowingError {
-  errorCodes: [GetFollowingErrorCode!]!
-}
-
-type GetFollowingSuccess {
-  following: [User!]!
-}
-
-type UserPersonalization {
-  id: ID
-  theme: String
-  fontSize: Int
-  fontFamily: String
-  margin: Int
-  libraryLayoutType: String
-  librarySortOrder: SortOrder
-}
-
-union GetUserPersonalizationResult = GetUserPersonalizationSuccess | GetUserPersonalizationError
-
-enum GetUserPersonalizationErrorCode {
-  UNAUTHORIZED
-}
-
-type GetUserPersonalizationError {
-  errorCodes: [GetUserPersonalizationErrorCode!]!
-}
-
-type GetUserPersonalizationSuccess {
-  userPersonalization: UserPersonalization
-}
-
-union SetUserPersonalizationResult = SetUserPersonalizationSuccess | SetUserPersonalizationError
-
-enum SetUserPersonalizationErrorCode {
-  UNAUTHORIZED
-}
-
-type SetUserPersonalizationError {
-  errorCodes: [SetUserPersonalizationErrorCode!]!
-}
-
-type SetUserPersonalizationSuccess {
-  updatedUserPersonalization: UserPersonalization!
-}
-
-input SetUserPersonalizationInput {
-  theme: String
-  fontSize: Int
-  fontFamily: String
-  margin: Int
-  libraryLayoutType: String
-  librarySortOrder: SortOrder
-}
-
-enum ArticleSavingRequestStatus {
-  PROCESSING
-  SUCCEEDED
-  FAILED
-}
-
-type ArticleSavingRequest {
-  id: ID!
-  userId: ID! @deprecated(reason: "userId has been replaced with user")
-  user: User!
-  article: Article
-  status: ArticleSavingRequestStatus!
-  errorCode: CreateArticleErrorCode
-  createdAt: Date!
-  updatedAt: Date!
-}
-
-union ArticleSavingRequestResult = ArticleSavingRequestSuccess | ArticleSavingRequestError
-
-enum ArticleSavingRequestErrorCode {
-  UNAUTHORIZED
-  NOT_FOUND
-}
-
-type ArticleSavingRequestError {
-  errorCodes: [ArticleSavingRequestErrorCode!]!
-}
-
-type ArticleSavingRequestSuccess {
-  articleSavingRequest: ArticleSavingRequest!
-}
-
-union CreateArticleSavingRequestResult = CreateArticleSavingRequestSuccess | CreateArticleSavingRequestError
-
-enum CreateArticleSavingRequestErrorCode {
-  UNAUTHORIZED
-  BAD_DATA
-}
-
-type CreateArticleSavingRequestError {
-  errorCodes: [CreateArticleSavingRequestErrorCode!]!
-}
-
-type CreateArticleSavingRequestSuccess {
-  articleSavingRequest: ArticleSavingRequest!
-}
-
-input CreateArticleSavingRequestInput {
-  url: String!
-}
-
-union SetShareHighlightResult = SetShareHighlightSuccess | SetShareHighlightError
-
-enum SetShareHighlightErrorCode {
-  UNAUTHORIZED
-  NOT_FOUND
-  FORBIDDEN
-}
-
-type SetShareHighlightError {
-  errorCodes: [SetShareHighlightErrorCode!]!
-}
-
-type SetShareHighlightSuccess {
-  highlight: Highlight!
-}
-
-input SetShareHighlightInput {
-  id: ID!
-  share: Boolean!
-}
-
-enum ReportType {
-  SPAM
-  ABUSIVE
-  CONTENT_DISPLAY
-  CONTENT_VIOLATION
-}
-
-input ReportItemInput {
-  pageId: ID!
-  itemUrl: String!
-  sharedBy: ID
-  reportTypes: [ReportType!]!
-  reportComment: String!
-}
-
-type ReportItemResult {
-  message: String!
-}
-
-input UpdateLinkShareInfoInput {
-  linkId: ID!
-  title: String!
-  description: String!
-}
-
-union UpdateLinkShareInfoResult = UpdateLinkShareInfoSuccess | UpdateLinkShareInfoError
-
-enum UpdateLinkShareInfoErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-}
-
-type UpdateLinkShareInfoError {
-  errorCodes: [UpdateLinkShareInfoErrorCode!]!
-}
-
-type UpdateLinkShareInfoSuccess {
-  message: String!
-}
-
-input ArchiveLinkInput {
-  linkId: ID!
-  archived: Boolean!
-}
-
-enum ArchiveLinkErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-}
-
-type ArchiveLinkError {
-  message: String!
-  errorCodes: [ArchiveLinkErrorCode!]!
-}
-
-type ArchiveLinkSuccess {
-  linkId: String!
-  message: String!
-}
-
-union ArchiveLinkResult = ArchiveLinkSuccess | ArchiveLinkError
-
-enum NewsletterEmailsErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-}
-
-type NewsletterEmail {
-  id: ID!
-  address: String!
-  confirmationCode: String
-}
-
-type NewsletterEmailsSuccess {
-  newsletterEmails: [NewsletterEmail!]!
-}
-
-type NewsletterEmailsError {
-  errorCodes: [NewsletterEmailsErrorCode!]!
-}
-
-union NewsletterEmailsResult = NewsletterEmailsSuccess | NewsletterEmailsError
-
-enum CreateNewsletterEmailErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-}
-
-type CreateNewsletterEmailSuccess {
-  newsletterEmail: NewsletterEmail!
-}
-
-type CreateNewsletterEmailError {
-  errorCodes: [CreateNewsletterEmailErrorCode!]!
-}
-
-union CreateNewsletterEmailResult = CreateNewsletterEmailSuccess | CreateNewsletterEmailError
-
-enum DeleteNewsletterEmailErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type DeleteNewsletterEmailSuccess {
-  newsletterEmail: NewsletterEmail!
-}
-
-type DeleteNewsletterEmailError {
-  errorCodes: [DeleteNewsletterEmailErrorCode!]!
-}
-
-union DeleteNewsletterEmailResult = DeleteNewsletterEmailSuccess | DeleteNewsletterEmailError
-
-type Reminder {
-  id: ID!
-  archiveUntil: Boolean!
-  sendNotification: Boolean!
-  remindAt: Date!
-}
-
-type ReminderSuccess {
-  reminder: Reminder!
-}
-
-enum ReminderErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type ReminderError {
-  errorCodes: [ReminderErrorCode!]!
-}
-
-union ReminderResult = ReminderSuccess | ReminderError
-
-input CreateReminderInput {
-  linkId: ID
-  clientRequestId: ID
-  archiveUntil: Boolean!
-  sendNotification: Boolean!
-  remindAt: Date!
-}
-
-type CreateReminderSuccess {
-  reminder: Reminder!
-}
-
-enum CreateReminderErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type CreateReminderError {
-  errorCodes: [CreateReminderErrorCode!]!
-}
-
-union CreateReminderResult = CreateReminderSuccess | CreateReminderError
-
-input UpdateReminderInput {
-  id: ID!
-  archiveUntil: Boolean!
-  sendNotification: Boolean!
-  remindAt: Date!
-}
-
-union UpdateReminderResult = UpdateReminderSuccess | UpdateReminderError
-
-type UpdateReminderSuccess {
-  reminder: Reminder!
-}
-
-enum UpdateReminderErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type UpdateReminderError {
-  errorCodes: [UpdateReminderErrorCode!]!
-}
-
-union DeleteReminderResult = DeleteReminderSuccess | DeleteReminderError
-
-type DeleteReminderSuccess {
-  reminder: Reminder!
-}
-
-enum DeleteReminderErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type DeleteReminderError {
-  errorCodes: [DeleteReminderErrorCode!]!
-}
-
-input SetDeviceTokenInput {
-  id: ID
-  token: String
-}
-
-type DeviceToken {
-  id: ID!
-  token: String!
-  createdAt: Date!
-}
-
-type SetDeviceTokenSuccess {
-  deviceToken: DeviceToken!
-}
-
-enum SetDeviceTokenErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type SetDeviceTokenError {
-  errorCodes: [SetDeviceTokenErrorCode!]!
-}
-
-union SetDeviceTokenResult = SetDeviceTokenSuccess | SetDeviceTokenError
-
-type Label {
-  id: ID!
-  name: String!
-}
-
-type LabelsSuccess {
-  labels: [Label!]!
-}
-
-enum LabelsErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type LabelsError {
-  errorCodes: [LabelsErrorCode!]!
-}
-
-union LabelsResult = LabelsSuccess | LabelsError
-
-input CreateLabelInput {
-  linkId: ID!
-  name: String!
-}
-
-type CreateLabelSuccess {
-  label: Label!
-}
-
-enum CreateLabelErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type CreateLabelError {
-  errorCodes: [CreateLabelErrorCode!]!
-}
-
-union CreateLabelResult = CreateLabelSuccess | CreateLabelError
-
-type DeleteLabelSuccess {
-  label: Label!
-}
-
-enum DeleteLabelErrorCode {
-  UNAUTHORIZED
-  BAD_REQUEST
-  NOT_FOUND
-}
-
-type DeleteLabelError {
-  errorCodes: [DeleteLabelErrorCode!]!
-}
-
-union DeleteLabelResult = DeleteLabelSuccess | DeleteLabelError
-
-input LoginInput {
-  password: String!
-  email: String!
-}
-
-input SignupInput {
-  email: String!
-  password: String!
-  username: String!
-  name: String!
-  pictureUrl: String
-  bio: String
-}
-
-type SignupSuccess {
-  me: User!
-}
-
-type SignupError {
-  errorCodes: [SignupErrorCode]!
-}
-
-union SignupResult = SignupSuccess | SignupError
 
 type Mutation {
   googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1336,6 +701,83 @@ type Mutation {
   signup(input: SignupInput!): SignupResult!
 }
 
+type NewsletterEmail {
+  id: ID!
+  address: String!
+  confirmationCode: String
+}
+
+type NewsletterEmailsError {
+  errorCodes: [NewsletterEmailsErrorCode!]!
+}
+
+enum NewsletterEmailsErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+}
+
+union NewsletterEmailsResult = NewsletterEmailsSuccess | NewsletterEmailsError
+
+type NewsletterEmailsSuccess {
+  newsletterEmails: [NewsletterEmail!]!
+}
+
+type Page {
+  id: ID!
+  url: String!
+  hash: String!
+  originalUrl: String!
+  type: PageType!
+  image: String!
+  title: String!
+  author: String!
+  description: String!
+  publishedAt: Date
+  originalHtml: String!
+  readableHtml: String!
+  createdAt: Date!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+  totalCount: Int
+}
+
+input PageInfoInput {
+  title: String
+  author: String
+  description: String
+  previewImage: String
+  canonicalUrl: String
+  publishedAt: Date
+  contentType: String
+}
+
+enum PageType {
+  ARTICLE
+  BOOK
+  FILE
+  PROFILE
+  WEBSITE
+  UNKNOWN
+}
+
+input PreparedDocumentInput {
+  document: String!
+  pageInfo: PageInfoInput!
+}
+
+type Profile {
+  id: ID!
+  username: String!
+  private: Boolean!
+  bio: String
+  pictureUrl: String
+}
+
 type Query {
   hello: String
   me: User
@@ -1353,4 +795,562 @@ type Query {
   newsletterEmails: NewsletterEmailsResult!
   reminder(linkId: ID!): ReminderResult!
   labels(linkId: ID!): LabelsResult!
+}
+
+type Reaction {
+  id: ID!
+  user: User!
+  code: ReactionType!
+  createdAt: Date!
+  updatedAt: Date
+}
+
+enum ReactionType {
+  LIKE
+  HEART
+  SMILE
+  HUSHED
+  CRYING
+  POUT
+}
+
+type ReadState {
+  reading: Boolean
+  readingTime: Int
+  progressPercent: Float!
+  progressAnchorIndex: Int!
+}
+
+type Reminder {
+  id: ID!
+  archiveUntil: Boolean!
+  sendNotification: Boolean!
+  remindAt: Date!
+}
+
+type ReminderError {
+  errorCodes: [ReminderErrorCode!]!
+}
+
+enum ReminderErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+union ReminderResult = ReminderSuccess | ReminderError
+
+type ReminderSuccess {
+  reminder: Reminder!
+}
+
+input ReportItemInput {
+  pageId: ID!
+  itemUrl: String!
+  sharedBy: ID
+  reportTypes: [ReportType!]!
+  reportComment: String!
+}
+
+type ReportItemResult {
+  message: String!
+}
+
+enum ReportType {
+  SPAM
+  ABUSIVE
+  CONTENT_DISPLAY
+  CONTENT_VIOLATION
+}
+
+type SaveArticleReadingProgressError {
+  errorCodes: [SaveArticleReadingProgressErrorCode!]!
+}
+
+enum SaveArticleReadingProgressErrorCode {
+  NOT_FOUND
+  BAD_DATA
+  UNAUTHORIZED
+}
+
+input SaveArticleReadingProgressInput {
+  id: ID!
+  readingProgressPercent: Float!
+  readingProgressAnchorIndex: Int!
+}
+
+union SaveArticleReadingProgressResult = SaveArticleReadingProgressSuccess | SaveArticleReadingProgressError
+
+type SaveArticleReadingProgressSuccess {
+  updatedArticle: Article!
+}
+
+type SaveError {
+  errorCodes: [SaveErrorCode!]!
+  message: String
+}
+
+enum SaveErrorCode {
+  UNKNOWN
+  UNAUTHORIZED
+}
+
+input SaveFileInput {
+  url: String!
+  source: String!
+  clientRequestId: ID!
+  uploadFileId: ID!
+}
+
+input SavePageInput {
+  url: String!
+  source: String!
+  clientRequestId: ID!
+  title: String
+  originalContent: String!
+}
+
+union SaveResult = SaveSuccess | SaveError
+
+type SaveSuccess {
+  url: String!
+  clientRequestId: ID!
+}
+
+input SaveUrlInput {
+  url: String!
+  source: String!
+  clientRequestId: ID!
+}
+
+type SetBookmarkArticleError {
+  errorCodes: [SetBookmarkArticleErrorCode!]!
+}
+
+enum SetBookmarkArticleErrorCode {
+  NOT_FOUND
+  BOOKMARK_EXISTS
+}
+
+input SetBookmarkArticleInput {
+  articleID: ID!
+  bookmark: Boolean!
+}
+
+union SetBookmarkArticleResult = SetBookmarkArticleSuccess | SetBookmarkArticleError
+
+type SetBookmarkArticleSuccess {
+  bookmarkedArticle: Article!
+}
+
+type SetDeviceTokenError {
+  errorCodes: [SetDeviceTokenErrorCode!]!
+}
+
+enum SetDeviceTokenErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+input SetDeviceTokenInput {
+  id: ID
+  token: String
+}
+
+union SetDeviceTokenResult = SetDeviceTokenSuccess | SetDeviceTokenError
+
+type SetDeviceTokenSuccess {
+  deviceToken: DeviceToken!
+}
+
+type SetFollowError {
+  errorCodes: [SetFollowErrorCode!]!
+}
+
+enum SetFollowErrorCode {
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetFollowInput {
+  userId: ID!
+  follow: Boolean!
+}
+
+union SetFollowResult = SetFollowSuccess | SetFollowError
+
+type SetFollowSuccess {
+  updatedUser: User!
+}
+
+type SetShareArticleError {
+  errorCodes: [SetShareArticleErrorCode!]!
+}
+
+enum SetShareArticleErrorCode {
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetShareArticleInput {
+  articleID: ID!
+  share: Boolean!
+  sharedComment: String
+  sharedWithHighlights: Boolean
+}
+
+union SetShareArticleResult = SetShareArticleSuccess | SetShareArticleError
+
+type SetShareArticleSuccess {
+  updatedFeedArticleId: String
+  updatedFeedArticle: FeedArticle
+  updatedArticle: Article!
+}
+
+type SetShareHighlightError {
+  errorCodes: [SetShareHighlightErrorCode!]!
+}
+
+enum SetShareHighlightErrorCode {
+  UNAUTHORIZED
+  NOT_FOUND
+  FORBIDDEN
+}
+
+input SetShareHighlightInput {
+  id: ID!
+  share: Boolean!
+}
+
+union SetShareHighlightResult = SetShareHighlightSuccess | SetShareHighlightError
+
+type SetShareHighlightSuccess {
+  highlight: Highlight!
+}
+
+type SetUserPersonalizationError {
+  errorCodes: [SetUserPersonalizationErrorCode!]!
+}
+
+enum SetUserPersonalizationErrorCode {
+  UNAUTHORIZED
+}
+
+input SetUserPersonalizationInput {
+  theme: String
+  fontSize: Int
+  fontFamily: String
+  margin: Int
+  libraryLayoutType: String
+  librarySortOrder: SortOrder
+}
+
+union SetUserPersonalizationResult = SetUserPersonalizationSuccess | SetUserPersonalizationError
+
+type SetUserPersonalizationSuccess {
+  updatedUserPersonalization: UserPersonalization!
+}
+
+type ShareStats {
+  viewCount: Int!
+  saveCount: Int!
+  readDuration: Int!
+}
+
+type SharedArticleError {
+  errorCodes: [SharedArticleErrorCode!]!
+}
+
+enum SharedArticleErrorCode {
+  NOT_FOUND
+}
+
+union SharedArticleResult = SharedArticleSuccess | SharedArticleError
+
+type SharedArticleSuccess {
+  article: Article!
+}
+
+type SignupError {
+  errorCodes: [SignupErrorCode]!
+}
+
+enum SignupErrorCode {
+  UNKNOWN
+  ACCESS_DENIED
+  GOOGLE_AUTH_ERROR
+  INVALID_USERNAME
+  USER_EXISTS
+  EXPIRED_TOKEN
+  INVALID_PASSWORD
+}
+
+input SignupInput {
+  email: String!
+  password: String!
+  username: String!
+  name: String!
+  pictureUrl: String
+  bio: String
+}
+
+union SignupResult = SignupSuccess | SignupError
+
+type SignupSuccess {
+  me: User!
+}
+
+enum SortBy {
+  UPDATED_TIME
+}
+
+enum SortOrder {
+  ASCENDING
+  DESCENDING
+}
+
+input SortParams {
+  order: SortOrder
+  by: SortBy!
+}
+
+type UpdateHighlightError {
+  errorCodes: [UpdateHighlightErrorCode!]!
+}
+
+enum UpdateHighlightErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  NOT_FOUND
+  BAD_DATA
+}
+
+input UpdateHighlightInput {
+  highlightId: ID!
+  annotation: String
+  sharedAt: Date
+}
+
+type UpdateHighlightReplyError {
+  errorCodes: [UpdateHighlightReplyErrorCode!]!
+}
+
+enum UpdateHighlightReplyErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  NOT_FOUND
+}
+
+input UpdateHighlightReplyInput {
+  highlightReplyId: ID!
+  text: String!
+}
+
+union UpdateHighlightReplyResult = UpdateHighlightReplySuccess | UpdateHighlightReplyError
+
+type UpdateHighlightReplySuccess {
+  highlightReply: HighlightReply!
+}
+
+union UpdateHighlightResult = UpdateHighlightSuccess | UpdateHighlightError
+
+type UpdateHighlightSuccess {
+  highlight: Highlight!
+}
+
+type UpdateLinkShareInfoError {
+  errorCodes: [UpdateLinkShareInfoErrorCode!]!
+}
+
+enum UpdateLinkShareInfoErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+}
+
+input UpdateLinkShareInfoInput {
+  linkId: ID!
+  title: String!
+  description: String!
+}
+
+union UpdateLinkShareInfoResult = UpdateLinkShareInfoSuccess | UpdateLinkShareInfoError
+
+type UpdateLinkShareInfoSuccess {
+  message: String!
+}
+
+type UpdateReminderError {
+  errorCodes: [UpdateReminderErrorCode!]!
+}
+
+enum UpdateReminderErrorCode {
+  UNAUTHORIZED
+  BAD_REQUEST
+  NOT_FOUND
+}
+
+input UpdateReminderInput {
+  id: ID!
+  archiveUntil: Boolean!
+  sendNotification: Boolean!
+  remindAt: Date!
+}
+
+union UpdateReminderResult = UpdateReminderSuccess | UpdateReminderError
+
+type UpdateReminderSuccess {
+  reminder: Reminder!
+}
+
+type UpdateSharedCommentError {
+  errorCodes: [UpdateSharedCommentErrorCode!]!
+}
+
+enum UpdateSharedCommentErrorCode {
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateSharedCommentInput {
+  articleID: ID!
+  sharedComment: String!
+}
+
+union UpdateSharedCommentResult = UpdateSharedCommentSuccess | UpdateSharedCommentError
+
+type UpdateSharedCommentSuccess {
+  articleID: ID!
+  sharedComment: String!
+}
+
+type UpdateUserError {
+  errorCodes: [UpdateUserErrorCode!]!
+}
+
+enum UpdateUserErrorCode {
+  EMPTY_NAME
+  BIO_TOO_LONG
+  USER_NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateUserInput {
+  name: String!
+  bio: String
+}
+
+type UpdateUserProfileError {
+  errorCodes: [UpdateUserProfileErrorCode!]!
+}
+
+enum UpdateUserProfileErrorCode {
+  UNAUTHORIZED
+  FORBIDDEN
+  BAD_DATA
+  BAD_USERNAME
+  USERNAME_EXISTS
+}
+
+input UpdateUserProfileInput {
+  userId: ID!
+  username: String
+  bio: String
+  pictureUrl: String
+}
+
+union UpdateUserProfileResult = UpdateUserProfileSuccess | UpdateUserProfileError
+
+type UpdateUserProfileSuccess {
+  user: User!
+}
+
+union UpdateUserResult = UpdateUserSuccess | UpdateUserError
+
+type UpdateUserSuccess {
+  user: User!
+}
+
+type UploadFileRequestError {
+  errorCodes: [UploadFileRequestErrorCode!]!
+}
+
+enum UploadFileRequestErrorCode {
+  UNAUTHORIZED
+  BAD_INPUT
+  FAILED_CREATE
+}
+
+input UploadFileRequestInput {
+  url: String!
+  contentType: String!
+}
+
+union UploadFileRequestResult = UploadFileRequestSuccess | UploadFileRequestError
+
+type UploadFileRequestSuccess {
+  id: ID!
+  uploadSignedUrl: String
+  uploadFileId: ID
+}
+
+enum UploadFileStatus {
+  INITIALIZED
+  COMPLETED
+}
+
+type User {
+  id: ID!
+  name: String!
+  isFullUser: Boolean
+  viewerIsFollowing: Boolean
+  isFriend: Boolean @deprecated(reason: "isFriend has been replaced with viewerIsFollowing")
+  picture: String
+  profile: Profile!
+  sharedArticles: [FeedArticle!]!
+  sharedArticlesCount: Int
+  sharedHighlightsCount: Int
+  sharedNotesCount: Int
+  friendsCount: Int
+  followersCount: Int
+}
+
+type UserError {
+  errorCodes: [UserErrorCode!]!
+}
+
+enum UserErrorCode {
+  UNAUTHORIZED
+  USER_NOT_FOUND
+  BAD_REQUEST
+}
+
+type UserPersonalization {
+  id: ID
+  theme: String
+  fontSize: Int
+  fontFamily: String
+  margin: Int
+  libraryLayoutType: String
+  librarySortOrder: SortOrder
+}
+
+union UserResult = UserSuccess | UserError
+
+type UserSuccess {
+  user: User!
+}
+
+type UsersError {
+  errorCodes: [UsersErrorCode!]!
+}
+
+enum UsersErrorCode {
+  UNAUTHORIZED
+}
+
+union UsersResult = UsersSuccess | UsersError
+
+type UsersSuccess {
+  users: [User!]!
 }
