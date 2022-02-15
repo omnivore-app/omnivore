@@ -20,7 +20,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { applyMiddleware } from 'graphql-middleware'
 import * as cookie from 'cookie'
 import typeDefs from './schema'
-// import { SanitizeDirective } from './directives'
+import { sanitizeDirectiveTransformer } from './directives'
 import { functionResolvers } from './resolvers/function_resolvers'
 import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
@@ -109,6 +109,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 
 export function makeApolloServer(app: Express): ApolloServer {
   let schema = makeExecutableSchema({ typeDefs, resolvers })
+  schema = sanitizeDirectiveTransformer(schema)
   const apollo = new ApolloServer({
     schema: schema,
     context: contextFunc,
