@@ -70,8 +70,7 @@ public struct LinkItemDetailView: View {
         navigationController?.hidesBarsOnSwipe = UIDevice.isIPhone
         tabBarController?.tabBar.isHidden = UIDevice.isIPhone
       }
-      //      .ignoresSafeArea(, edges: <#T##Edge.Set#>)
-      .ignoresSafeArea(., edges: .vertical)
+      .ignoresSafeArea(.all, edges: .vertical)
     #endif
   }
 
