@@ -30,13 +30,13 @@ We also have a free hosted version of Omnivore at [omnivore.app](https://omnivor
 
 <img width="981" alt="omnivore-readme-screenshot" src="https://user-images.githubusercontent.com/75189/153696698-9e4f1bdd-5954-465b-8ab0-b4eacc60f779.png">
 
-## Join us on Discord!
+## :speech_balloon: Join us on Discord!
 
 We're building our community on Discord. [Join us!](https://discord.gg/h2z5rppzz9)
 
 Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
 
-## Shoutouts
+## :tada: Shoutouts
 
 Omnivore takes advantage of some great open source software:
 
@@ -46,7 +46,7 @@ Omnivore takes advantage of some great open source software:
 * [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
 
 
-## How to setup local development
+## :computer: How to setup local development
 
 The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
 
