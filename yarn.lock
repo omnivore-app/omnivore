@@ -4906,11 +4906,6 @@
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.7.tgz#63bb7d067db107cc1e457c303bc25d511febf6cb"
   integrity sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==
 
-"@types/quoted-printable@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@types/quoted-printable/-/quoted-printable-1.0.0.tgz#903f81f5d81698d361c176b5b52970cd2bc9868e"
-  integrity sha512-hgFjmHmgT5M8SvDVe+tMhiUb3xViwqkEAM/sTpWCpO0B2Z7RGAgwiQaxPcLVk4KLiZmqj7BMXZvaQQdX6uPM6A==
-
 "@types/range-parser@*":
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
@@ -14538,13 +14533,6 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-quoted-printable@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/quoted-printable/-/quoted-printable-1.0.1.tgz#9eebf5eb3d11eef022b264fd2d2b6b2bb3b84cc3"
-  integrity sha1-nuv16z0R7vAismT9LStrK7O4TMM=
-  dependencies:
-    utf8 "^2.1.0"
-
 randombytes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
@@ -16990,11 +16978,6 @@ user-home@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/user-home/-/user-home-1.1.1.tgz#2b5be23a32b63a7c9deb8d0f28d485724a3df190"
   integrity sha1-K1viOjK2Onyd640PKNSFcko98ZA=
-
-utf8@^2.1.0:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/utf8/-/utf8-2.1.2.tgz#1fa0d9270e9be850d9b05027f63519bf46457d96"
-  integrity sha1-H6DZJw6b6FDZsFAn9jUZv0ZFfZY=
 
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"

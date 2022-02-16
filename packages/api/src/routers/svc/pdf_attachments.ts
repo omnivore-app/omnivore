@@ -12,6 +12,7 @@ import { initModels } from '../../server'
 import { kx } from '../../datalayer/knex_config'
 import { analytics } from '../../utils/analytics'
 import normalizeUrl from 'normalize-url'
+import { getNewsletterEmail } from '../../services/newsletters'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -30,12 +31,12 @@ export function pdfAttachmentsRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const models = initModels(kx, false)
-    const user = await models.user.getWhere({ email })
-
-    if (!user) {
+    const newsletterEmail = await getNewsletterEmail(email)
+    if (!newsletterEmail || !newsletterEmail.user) {
       return res.status(401).send('UNAUTHORIZED')
     }
+
+    const user = newsletterEmail.user
 
     analytics.track({
       userId: user.id,
@@ -46,6 +47,7 @@ export function pdfAttachmentsRouter() {
     })
 
     const contentType = 'application/pdf'
+    const models = initModels(kx, false)
     const uploadFileData = await models.uploadFile.create({
       url: '',
       userId: user.id,
@@ -59,10 +61,10 @@ export function pdfAttachmentsRouter() {
         uploadFileData.id,
         fileName
       )
-      const uploadSignedUrl = await generateUploadSignedUrl(
-        uploadFilePathName,
-        contentType
-      )
+      const uploadSignedUrl =
+        env.server.apiEnv === 'prod'
+          ? await generateUploadSignedUrl(uploadFilePathName, contentType)
+          : 'http://localhost:3000/uploads/' + uploadFilePathName
       res.send({
         id: uploadFileData.id,
         url: uploadSignedUrl,
@@ -86,12 +88,12 @@ export function pdfAttachmentsRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const models = initModels(kx, false)
-    const user = await models.user.getWhere({ email })
-
-    if (!user) {
+    const newsletterEmail = await getNewsletterEmail(email)
+    if (!newsletterEmail || !newsletterEmail.user) {
       return res.status(401).send('UNAUTHORIZED')
     }
+
+    const user = newsletterEmail.user
 
     analytics.track({
       userId: user.id,
@@ -101,6 +103,7 @@ export function pdfAttachmentsRouter() {
       },
     })
 
+    const models = initModels(kx, false)
     const uploadFile = await models.uploadFile.getWhere({
       id: uploadFileId,
       userId: user.id,

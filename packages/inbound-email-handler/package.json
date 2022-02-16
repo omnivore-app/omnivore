@@ -22,7 +22,6 @@
   "devDependencies": {
     "@types/json-bigint": "^1.0.1",
     "@types/node": "^14.11.2",
-    "@types/quoted-printable": "^1.0.0",
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
@@ -31,8 +30,8 @@
     "@sendgrid/client": "^7.6.0",
     "@sentry/serverless": "^6.16.1",
     "axios": "^0.26.0",
+    "jsonwebtoken": "^8.5.1",
     "parse-headers": "^2.0.4",
-    "parse-multipart-data": "^1.2.1",
-    "quoted-printable": "^1.0.1"
+    "parse-multipart-data": "^1.2.1"
   }
 }

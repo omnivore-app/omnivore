@@ -82,7 +82,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (isConfirmationEmail(from)) {
           console.log('handleConfirmation', from, recipientAddress)
           await handleConfirmation(recipientAddress, subject)
-        } else if (parsed['pdf-attachment']) {
+        } else if (parsed['pdf-attachment-filename']) {
           console.log('handle PDF attachment', from, recipientAddress)
           await handlePdfAttachment(
             recipientAddress,
