@@ -42,6 +42,7 @@ Omnivore takes advantage of some great open source software:
 
 * [TypeScript](https://www.typescriptlang.org/) - Most of our backend and frontend are written in TypeScript.
 * [Next.js](https://nextjs.org/) - Our frontend is a Next.JS app and is hosted on [Vercel](https://vercel.com/).
+* [SWR](https://swr.vercel.app/) - We do all our data fetching on the web using SWR.
 * [Stitches](https://stitches.dev/) - We use Stitches on the frontend to style our components.
 * [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
 * [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
