@@ -11,7 +11,7 @@ export class SanitizedString extends GraphQLScalarType {
     maxLength?: number
   ) {
     super({
-      name: 'SanitizedString',
+      name: `SanitizedString_${allowedTags}_${maxLength}`,
       description: 'Source string that was sanitized',
 
       serialize(value: string) {
