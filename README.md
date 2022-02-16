@@ -36,6 +36,16 @@ We're building our community on Discord. [Join us!](https://discord.gg/h2z5rppzz
 
 Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-started-with-omnivore>
 
+## Shoutouts
+
+Omnivore takes advantage of some great open source software:
+
+* [TypeScript](https://www.typescriptlang.org/) - Most of our backend and frontend are written in TypeScript.
+* [Next.js](https://nextjs.org/) - Our frontend is a Next.JS app and is hosted on [Vercel](https://vercel.com/)
+* [Stitches](https://stitches.dev/) - We use stitches on the frontend to style our components.
+* [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
+
+
 ## How to setup local development
 
 The easiest way to get started with local development is to use `docker-compose up`. This will start a postgres container, our web frontend, an API server, and our content fetching microservice.
