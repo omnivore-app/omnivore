@@ -196,3 +196,7 @@ export const getDeviceToken = async (
 export const getUser = async (id: string): Promise<User | undefined> => {
   return getRepository(User).findOne(id)
 }
+
+export const getLink = async (id: string): Promise<Link | undefined> => {
+  return getRepository(Link).findOne(id)
+}

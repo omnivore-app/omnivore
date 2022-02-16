@@ -11,7 +11,6 @@ import {
 import { initModels } from '../../server'
 import { kx } from '../../datalayer/knex_config'
 import { analytics } from '../../utils/analytics'
-import normalizeUrl from 'normalize-url'
 import { getNewsletterEmail } from '../../services/newsletters'
 
 export function pdfAttachmentsRouter() {
@@ -46,31 +45,36 @@ export function pdfAttachmentsRouter() {
       },
     })
 
-    const contentType = 'application/pdf'
-    const models = initModels(kx, false)
-    const uploadFileData = await models.uploadFile.create({
-      url: '',
-      userId: user.id,
-      fileName: fileName,
-      status: UploadFileStatus.Initialized,
-      contentType: contentType,
-    })
-
-    if (uploadFileData.id) {
-      const uploadFilePathName = generateUploadFilePathName(
-        uploadFileData.id,
-        fileName
-      )
-      const uploadSignedUrl =
-        env.server.apiEnv === 'prod'
-          ? await generateUploadSignedUrl(uploadFilePathName, contentType)
-          : 'http://localhost:3000/uploads/' + uploadFilePathName
-      res.send({
-        id: uploadFileData.id,
-        url: uploadSignedUrl,
+    try {
+      const contentType = 'application/pdf'
+      const models = initModels(kx, false)
+      const uploadFileData = await models.uploadFile.create({
+        url: '',
+        userId: user.id,
+        fileName: fileName,
+        status: UploadFileStatus.Initialized,
+        contentType: contentType,
       })
-    } else {
-      res.status(400).send('BAD REQUEST')
+
+      if (uploadFileData.id) {
+        const uploadFilePathName = generateUploadFilePathName(
+          uploadFileData.id,
+          fileName
+        )
+        const uploadSignedUrl =
+          env.server.apiEnv === 'prod'
+            ? await generateUploadSignedUrl(uploadFilePathName, contentType)
+            : 'http://localhost:3000/uploads/' + uploadFilePathName
+        res.send({
+          id: uploadFileData.id,
+          url: uploadSignedUrl,
+        })
+      } else {
+        res.status(400).send('BAD REQUEST')
+      }
+    } catch (err) {
+      console.error(err)
+      return res.status(500).send('INTERNAL_SERVER_ERROR')
     }
   })
 
@@ -103,63 +107,70 @@ export function pdfAttachmentsRouter() {
       },
     })
 
-    const models = initModels(kx, false)
-    const uploadFile = await models.uploadFile.getWhere({
-      id: uploadFileId,
-      userId: user.id,
-    })
-    if (!uploadFile) {
-      return res.status(400).send('BAD REQUEST')
-    }
-    const uploadFileDetails = await getStorageFileDetails(
-      uploadFileId,
-      uploadFile.fileName
-    )
-    const uploadFileHash = uploadFileDetails.md5Hash
-    const canonicalUrl = uploadFile.url
-    const pageType = PageType.File
+    try {
+      const models = initModels(kx, false)
+      const uploadFile = await models.uploadFile.getWhere({
+        id: uploadFileId,
+        userId: user.id,
+      })
+      if (!uploadFile) {
+        return res.status(400).send('BAD REQUEST')
+      }
 
-    const saveTime = new Date()
-    const articleToSave = {
-      url: normalizeUrl(canonicalUrl, {
-        stripHash: true,
-        stripWWW: false,
-      }),
-      pageType: pageType,
-      hash: uploadFileHash,
-      uploadFileId: uploadFileId,
-      title: uploadFile.fileName,
-      content: '',
-    }
+      const uploadFileDetails =
+        env.server.apiEnv === 'prod'
+          ? await getStorageFileDetails(uploadFileId, uploadFile.fileName)
+          : { md5Hash: '', size: 0 }
+      const uploadFileHash = uploadFileDetails.md5Hash
+      const pageType = PageType.File
 
-    const uploadFileData = await models.uploadFile.setFileUploadComplete(
-      uploadFileId
-    )
-    if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
-      return res.status(400).send('BAD REQUEST')
-    }
+      const saveTime = new Date()
+      const articleToSave = {
+        url: '',
+        pageType: pageType,
+        hash: uploadFileHash,
+        uploadFileId: uploadFileId,
+        title: uploadFile.fileName,
+        content: '',
+      }
 
-    const uploadFileUrlOverride = await makeStorageFilePublic(
-      uploadFileData.id,
-      uploadFileData.fileName
-    )
-
-    await kx.transaction(async (tx) => {
-      const articleRecord = await models.article.create(articleToSave, tx)
-      await models.userArticle.create(
-        {
-          userId: user.id,
-          slug: '',
-          savedAt: saveTime,
-          articleId: articleRecord.id,
-          articleUrl: uploadFileUrlOverride,
-          articleHash: articleRecord.hash,
-        },
-        tx
+      const uploadFileData = await models.uploadFile.setFileUploadComplete(
+        uploadFileId
       )
-    })
+      if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
+        return res.status(400).send('BAD REQUEST')
+      }
 
-    res.send('OK')
+      const uploadFileUrlOverride =
+        env.server.apiEnv === 'prod'
+          ? await makeStorageFilePublic(
+              uploadFileData.id,
+              uploadFileData.fileName
+            )
+          : 'http://localhost:3000/uploads/' +
+            uploadFileData.id +
+            '/' +
+            uploadFileData.fileName
+
+      const link = await kx.transaction(async (tx) => {
+        const articleRecord = await models.article.create(articleToSave, tx)
+        return models.userArticle.create(
+          {
+            userId: user.id,
+            slug: '',
+            savedAt: saveTime,
+            articleId: articleRecord.id,
+            articleUrl: uploadFileUrlOverride,
+            articleHash: articleRecord.hash,
+          },
+          tx
+        )
+      })
+      res.send({ id: link.id })
+    } catch (err) {
+      console.log(err)
+      res.status(500).send(err)
+    }
   })
 
   return router
