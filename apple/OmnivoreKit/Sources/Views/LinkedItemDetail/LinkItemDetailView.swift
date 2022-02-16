@@ -96,8 +96,9 @@ public struct LinkItemDetailView: View {
             }
           #endif
         }
-        .scaleEffect(x: 1, y: navBarVisibilityRatio)
         .frame(height: 30 * navBarVisibilityRatio)
+        .opacity(navBarVisibilityRatio)
+        .offset(x: 0.0, y: -30 * (1 - navBarVisibilityRatio))
       }
       if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
         WebAppWrapperView(
