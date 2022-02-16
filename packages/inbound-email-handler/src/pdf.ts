@@ -14,9 +14,19 @@ export const handlePdfAttachment = async (
   fileName: string,
   data: string
 ): Promise<void> => {
-  const uploadResult = await getUploadIdAndSignedUrl(email, fileName)
-  await uploadToSignedUrl(uploadResult.url, data)
-  await createArticle(email, uploadResult.id)
+  console.log('handlePdfAttachment', email, fileName)
+
+  try {
+    const uploadResult = await getUploadIdAndSignedUrl(email, fileName)
+    if (!uploadResult.url || !uploadResult.id) {
+      console.log('failed to create upload request', uploadResult)
+      return
+    }
+    await uploadToSignedUrl(uploadResult.url, data)
+    await createArticle(email, uploadResult.id)
+  } catch (error) {
+    console.error('handlePdfAttachment error', error)
+  }
 }
 
 const getUploadIdAndSignedUrl = async (
@@ -48,7 +58,7 @@ const getUploadIdAndSignedUrl = async (
   return response.data as UploadResponse
 }
 
-const uploadToSignedUrl = (
+const uploadToSignedUrl = async (
   uploadUrl: string,
   data: string
 ): Promise<AxiosResponse> => {

@@ -129,12 +129,13 @@ export function pdfAttachmentsRouter() {
       content: '',
     }
 
-    const uploadFileData = await kx.transaction(async (tx) => {
-      return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
-    })
+    const uploadFileData = await models.uploadFile.setFileUploadComplete(
+      uploadFileId
+    )
     if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
       return res.status(400).send('BAD REQUEST')
     }
+
     const uploadFileUrlOverride = await makeStorageFilePublic(
       uploadFileData.id,
       uploadFileData.fileName
