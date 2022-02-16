@@ -45,6 +45,7 @@ Omnivore takes advantage of some great open source software:
 * [Stitches](https://stitches.dev/) - We use Stitches on the frontend to style our components.
 * [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
 * [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
+* [Radix](https://www.radix-ui.com/) - We use Raxix UI's components on our frontend.
 * And many more awesome libraries, just checkout our package files to see what we are using.
 
 
