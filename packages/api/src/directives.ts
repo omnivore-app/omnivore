@@ -1,25 +1,38 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-import { SchemaDirectiveVisitor } from 'apollo-server-express'
-import { GraphQLInputField, GraphQLScalarType } from 'graphql'
+import { mapSchema, getDirective, MapperKind } from '@graphql-tools/utils'
+import { GraphQLNonNull, GraphQLScalarType, GraphQLSchema } from 'graphql'
 import { SanitizedString } from './scalars'
-import { GraphQLNonNull } from 'graphql/type/definition'
 
-export class SanitizeDirective extends SchemaDirectiveVisitor {
-  visitInputFieldDefinition(
-    field: GraphQLInputField
-  ): GraphQLInputField | void | null {
-    const { allowedTags, maxLength } = this.args
-    if (
-      field.type instanceof GraphQLNonNull &&
-      field.type.ofType instanceof GraphQLScalarType
-    ) {
-      field.type = new GraphQLNonNull(
-        new SanitizedString(field.type.ofType, allowedTags, maxLength)
-      )
-    } else if (field.type instanceof GraphQLScalarType) {
-      field.type = new SanitizedString(field.type, allowedTags, maxLength)
-    } else {
-      throw new Error(`Not a scalar type: ${field.type}`)
-    }
-  }
+export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
+  return mapSchema(schema, {
+    [MapperKind.FIELD]: (fieldConfig) => {
+      const sanitizeDirective = getDirective(schema, fieldConfig, 'sanitize')
+      if (!sanitizeDirective || sanitizeDirective.length < 1) {
+        return fieldConfig
+      }
+
+      const maxLength = sanitizeDirective[0].maxLength as number | undefined
+      const allowedTags = sanitizeDirective[0].allowedTags as
+        | string[]
+        | undefined
+
+      if (
+        fieldConfig.type instanceof GraphQLNonNull &&
+        fieldConfig.type.ofType instanceof GraphQLScalarType
+      ) {
+        fieldConfig.type = new GraphQLNonNull(
+          new SanitizedString(fieldConfig.type.ofType, allowedTags, maxLength)
+        )
+      } else if (fieldConfig.type instanceof GraphQLScalarType) {
+        fieldConfig.type = new SanitizedString(
+          fieldConfig.type,
+          allowedTags,
+          maxLength
+        )
+      } else {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        throw new Error(`Not a scalar type: ${fieldConfig.type}`)
+      }
+      return fieldConfig
+    },
+  })
 }

@@ -38,6 +38,7 @@ import ReminderModel from './datalayer/reminders'
 import { remindersServiceRouter } from './routers/svc/reminders'
 import { ApolloServer } from 'apollo-server-express'
 import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
+import { corsConfig } from './utils/corsConfig'
 
 const PORT = process.env.PORT || 4000
 
@@ -113,7 +114,6 @@ export const createApp = (): {
 
   const apollo = makeApolloServer(app)
   const httpServer = createServer(app)
-  apollo.installSubscriptionHandlers(httpServer)
 
   return { app, apollo, httpServer }
 }
@@ -126,6 +126,9 @@ const main = async (): Promise<void> => {
 
   const { app, apollo, httpServer } = createApp()
 
+  await apollo.start()
+  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+
   if (!env.dev.isLocal) {
     const mwLogger = loggers.get('express', { levels: config.syslog.levels })
     const transport = buildLoggerTransport('express')
@@ -136,7 +139,6 @@ const main = async (): Promise<void> => {
   const listener = httpServer.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
-    logger.notice(`🚀 WS Server ready at ${apollo.subscriptionsPath}`)
   })
 
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.

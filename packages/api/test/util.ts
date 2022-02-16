@@ -1,9 +1,15 @@
 import { createApp } from '../src/server'
 import supertest from 'supertest'
 import { v4 } from 'uuid'
+import { corsConfig } from '../src/utils/corsConfig'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)
+
+before(async () => {
+  await apollo.start()
+  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
+})
 
 export const graphqlRequest = (
   query: string,

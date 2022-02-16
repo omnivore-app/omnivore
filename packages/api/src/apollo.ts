@@ -15,12 +15,12 @@ import { tracer } from './tracing'
 import { env } from './env'
 import { promisify } from 'util'
 import { buildLogger } from './utils/logger'
-import { ApolloServer, makeExecutableSchema } from 'apollo-server-express'
+import { ApolloServer } from 'apollo-server-express'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 import { applyMiddleware } from 'graphql-middleware'
 import * as cookie from 'cookie'
 import typeDefs from './schema'
-import { gqlTracingPlugin, traceResolvers } from './graphql_tracing'
-import { SanitizeDirective } from './directives'
+import { sanitizeDirectiveTransformer } from './directives'
 import { functionResolvers } from './resolvers/function_resolvers'
 import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
@@ -38,17 +38,11 @@ const resolvers = {
   ...ScalarResolvers,
 }
 
-const schemaDirectives = {
-  sanitize: SanitizeDirective,
-}
-
 const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   req,
   res,
-  connection,
 }) => {
   let claims: Claims | undefined
-  const isSubscription = !!connection
 
   const token = req?.cookies?.auth || req?.headers?.authorization
 
@@ -59,14 +53,8 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 
   if (token && jwt.verify(token, env.server.jwtSecret)) {
     claims = jwt.decode(token) as Claims
-  } else if (connection) {
-    const wsToken =
-      connection?.context?.cookies?.auth ||
-      connection?.context?.headers?.authorization
-    if (wsToken && jwt.verify(wsToken, env.server.jwtSecret)) {
-      claims = jwt.decode(wsToken) as Claims
-    }
   }
+
   async function setClaims(
     tx: Transaction,
     uuid?: string,
@@ -87,7 +75,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     // no caching for subscriptions
     // TODO: create per request caching for connections
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    models: initModels(kx, !isSubscription),
+    models: initModels(kx, true),
     clearAuth: () => {
       res.clearCookie('auth')
       res.clearCookie('pendingUserAuth')
@@ -116,65 +104,26 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     tracingSpan: tracer.startSpan('apollo.request'),
   }
 
-  if (connection) {
-    return {
-      ...connection.context,
-      ...ctx,
-      userRole: claims?.userRole,
-      uid: claims ? claims.uid : null,
-    }
-  }
   return ctx
 }
 
 export function makeApolloServer(app: Express): ApolloServer {
-  traceResolvers(functionResolvers)
+  let schema = makeExecutableSchema({
+    resolvers,
+    typeDefs,
+  })
+
+  schema = sanitizeDirectiveTransformer(schema)
 
   const apollo = new ApolloServer({
-    schema: applyMiddleware(
-      makeExecutableSchema({ typeDefs, resolvers, schemaDirectives })
-    ),
+    schema: schema,
     context: contextFunc,
-    plugins: [
-      gqlTracingPlugin,
-      {
-        requestDidStart: () => ({
-          didEncounterErrors: (ctx) => {
-            const error = ctx.errors[0]
-            const trxId = ctx.request.http?.headers.get('X-Transaction-ID')
-            const userId = ctx.context?.claims?.uid
-            const consoleMessage = `Transaction ID: ${trxId}. user: ${userId}.\n`
-            console.error(consoleMessage, error)
-          },
-        }),
-      },
-    ],
     formatError: (err) => {
       Sentry.captureException(err)
       // hide error messages from frontend on prod
       return new Error('Unexpected server error')
     },
-    subscriptions: {
-      path: '/api/graphql',
-      keepAlive: 4000,
-      onConnect: (connectionParams, webSocket, context) => {
-        const extraContext: { [key: string]: Record<string, unknown> } = {}
-        if (
-          context.request &&
-          context.request.headers &&
-          context.request.headers.cookie
-        ) {
-          extraContext.cookies = cookie.parse(context.request.headers.cookie)
-        }
-        return {
-          ...extraContext,
-          ...context,
-        }
-      },
-    },
   })
-
-  apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
   return apollo
 }

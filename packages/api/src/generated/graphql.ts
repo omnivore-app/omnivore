@@ -1,10 +1,11 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { ResolverContext } from '../resolvers/types';
 export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -15,24 +16,23 @@ export type Scalars = {
   Date: any;
 };
 
-
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
-  message: Scalars['String'];
   errorCodes: Array<ArchiveLinkErrorCode>;
+  message: Scalars['String'];
 };
 
 export enum ArchiveLinkErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  BadRequest = 'BAD_REQUEST'
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type ArchiveLinkInput = {
-  linkId: Scalars['ID'];
   archived: Scalars['Boolean'];
+  linkId: Scalars['ID'];
 };
 
-export type ArchiveLinkResult = ArchiveLinkSuccess | ArchiveLinkError;
+export type ArchiveLinkResult = ArchiveLinkError | ArchiveLinkSuccess;
 
 export type ArchiveLinkSuccess = {
   __typename?: 'ArchiveLinkSuccess';
@@ -42,36 +42,36 @@ export type ArchiveLinkSuccess = {
 
 export type Article = {
   __typename?: 'Article';
-  id: Scalars['ID'];
-  title: Scalars['String'];
-  slug: Scalars['String'];
-  url: Scalars['String'];
-  hash: Scalars['String'];
-  content: Scalars['String'];
-  pageType?: Maybe<PageType>;
-  contentReader: ContentReader;
-  hasContent?: Maybe<Scalars['Boolean']>;
   author?: Maybe<Scalars['String']>;
-  image?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  originalHtml?: Maybe<Scalars['String']>;
+  content: Scalars['String'];
+  contentReader: ContentReader;
   createdAt: Scalars['Date'];
-  savedAt: Scalars['Date'];
-  publishedAt?: Maybe<Scalars['Date']>;
-  readingProgressPercent: Scalars['Float'];
-  readingProgressAnchorIndex: Scalars['Int'];
-  sharedComment?: Maybe<Scalars['String']>;
-  savedByViewer?: Maybe<Scalars['Boolean']>;
-  postedByViewer?: Maybe<Scalars['Boolean']>;
-  originalArticleUrl?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  hasContent?: Maybe<Scalars['Boolean']>;
+  hash: Scalars['String'];
   highlights: Array<Highlight>;
-  shareInfo?: Maybe<LinkShareInfo>;
+  id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
+  originalArticleUrl?: Maybe<Scalars['String']>;
+  originalHtml?: Maybe<Scalars['String']>;
+  pageType?: Maybe<PageType>;
+  postedByViewer?: Maybe<Scalars['Boolean']>;
+  publishedAt?: Maybe<Scalars['Date']>;
+  readingProgressAnchorIndex: Scalars['Int'];
+  readingProgressPercent: Scalars['Float'];
+  savedAt: Scalars['Date'];
+  savedByViewer?: Maybe<Scalars['Boolean']>;
+  sharedComment?: Maybe<Scalars['String']>;
+  shareInfo?: Maybe<LinkShareInfo>;
+  slug: Scalars['String'];
+  title: Scalars['String'];
+  url: Scalars['String'];
 };
 
 
 export type ArticleHighlightsArgs = {
-  input?: Maybe<ArticleHighlightsInput>;
+  input?: InputMaybe<ArticleHighlightsInput>;
 };
 
 export type ArticleEdge = {
@@ -86,28 +86,28 @@ export type ArticleError = {
 };
 
 export enum ArticleErrorCode {
-  NotFound = 'NOT_FOUND',
   BadData = 'BAD_DATA',
+  NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
 export type ArticleHighlightsInput = {
-  includeFriends?: Maybe<Scalars['Boolean']>;
+  includeFriends?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type ArticleResult = ArticleSuccess | ArticleError;
+export type ArticleResult = ArticleError | ArticleSuccess;
 
 export type ArticleSavingRequest = {
   __typename?: 'ArticleSavingRequest';
+  article?: Maybe<Article>;
+  createdAt: Scalars['Date'];
+  errorCode?: Maybe<CreateArticleErrorCode>;
   id: Scalars['ID'];
+  status: ArticleSavingRequestStatus;
+  updatedAt: Scalars['Date'];
+  user: User;
   /** @deprecated userId has been replaced with user */
   userId: Scalars['ID'];
-  user: User;
-  article?: Maybe<Article>;
-  status: ArticleSavingRequestStatus;
-  errorCode?: Maybe<CreateArticleErrorCode>;
-  createdAt: Scalars['Date'];
-  updatedAt: Scalars['Date'];
 };
 
 export type ArticleSavingRequestError = {
@@ -116,26 +116,21 @@ export type ArticleSavingRequestError = {
 };
 
 export enum ArticleSavingRequestErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type ArticleSavingRequestResult = ArticleSavingRequestSuccess | ArticleSavingRequestError;
+export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess;
 
 export enum ArticleSavingRequestStatus {
+  Failed = 'FAILED',
   Processing = 'PROCESSING',
-  Succeeded = 'SUCCEEDED',
-  Failed = 'FAILED'
+  Succeeded = 'SUCCEEDED'
 }
 
 export type ArticleSavingRequestSuccess = {
   __typename?: 'ArticleSavingRequestSuccess';
   articleSavingRequest: ArticleSavingRequest;
-};
-
-export type ArticleSuccess = {
-  __typename?: 'ArticleSuccess';
-  article: Article;
 };
 
 export type ArticlesError = {
@@ -147,7 +142,7 @@ export enum ArticlesErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type ArticlesResult = ArticlesSuccess | ArticlesError;
+export type ArticlesResult = ArticlesError | ArticlesSuccess;
 
 export type ArticlesSuccess = {
   __typename?: 'ArticlesSuccess';
@@ -155,9 +150,14 @@ export type ArticlesSuccess = {
   pageInfo: PageInfo;
 };
 
+export type ArticleSuccess = {
+  __typename?: 'ArticleSuccess';
+  article: Article;
+};
+
 export enum ContentReader {
-  Web = 'WEB',
-  Pdf = 'PDF'
+  Pdf = 'PDF',
+  Web = 'WEB'
 }
 
 export type CreateArticleError = {
@@ -166,24 +166,24 @@ export type CreateArticleError = {
 };
 
 export enum CreateArticleErrorCode {
+  NotAllowedToParse = 'NOT_ALLOWED_TO_PARSE',
+  PayloadTooLarge = 'PAYLOAD_TOO_LARGE',
   UnableToFetch = 'UNABLE_TO_FETCH',
   UnableToParse = 'UNABLE_TO_PARSE',
   Unauthorized = 'UNAUTHORIZED',
-  NotAllowedToParse = 'NOT_ALLOWED_TO_PARSE',
-  PayloadTooLarge = 'PAYLOAD_TOO_LARGE',
   UploadFileMissing = 'UPLOAD_FILE_MISSING'
 }
 
 export type CreateArticleInput = {
+  articleSavingRequestId?: InputMaybe<Scalars['ID']>;
+  preparedDocument?: InputMaybe<PreparedDocumentInput>;
+  skipParsing?: InputMaybe<Scalars['Boolean']>;
+  source?: InputMaybe<Scalars['String']>;
+  uploadFileId?: InputMaybe<Scalars['ID']>;
   url: Scalars['String'];
-  preparedDocument?: Maybe<PreparedDocumentInput>;
-  articleSavingRequestId?: Maybe<Scalars['ID']>;
-  uploadFileId?: Maybe<Scalars['ID']>;
-  skipParsing?: Maybe<Scalars['Boolean']>;
-  source?: Maybe<Scalars['String']>;
 };
 
-export type CreateArticleResult = CreateArticleSuccess | CreateArticleError;
+export type CreateArticleResult = CreateArticleError | CreateArticleSuccess;
 
 export type CreateArticleSavingRequestError = {
   __typename?: 'CreateArticleSavingRequestError';
@@ -191,15 +191,15 @@ export type CreateArticleSavingRequestError = {
 };
 
 export enum CreateArticleSavingRequestErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  BadData = 'BAD_DATA'
+  BadData = 'BAD_DATA',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateArticleSavingRequestInput = {
   url: Scalars['String'];
 };
 
-export type CreateArticleSavingRequestResult = CreateArticleSavingRequestSuccess | CreateArticleSavingRequestError;
+export type CreateArticleSavingRequestResult = CreateArticleSavingRequestError | CreateArticleSavingRequestSuccess;
 
 export type CreateArticleSavingRequestSuccess = {
   __typename?: 'CreateArticleSavingRequestSuccess';
@@ -208,9 +208,9 @@ export type CreateArticleSavingRequestSuccess = {
 
 export type CreateArticleSuccess = {
   __typename?: 'CreateArticleSuccess';
+  created: Scalars['Boolean'];
   createdArticle: Article;
   user: User;
-  created: Scalars['Boolean'];
 };
 
 export type CreateHighlightError = {
@@ -219,23 +219,23 @@ export type CreateHighlightError = {
 };
 
 export enum CreateHighlightErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  Forbidden = 'FORBIDDEN',
+  AlreadyExists = 'ALREADY_EXISTS',
   BadData = 'BAD_DATA',
+  Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
-  AlreadyExists = 'ALREADY_EXISTS'
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateHighlightInput = {
-  id: Scalars['ID'];
-  shortId: Scalars['String'];
+  annotation?: InputMaybe<Scalars['String']>;
   articleId: Scalars['ID'];
+  id: Scalars['ID'];
   patch: Scalars['String'];
+  prefix?: InputMaybe<Scalars['String']>;
   quote: Scalars['String'];
-  prefix?: Maybe<Scalars['String']>;
-  suffix?: Maybe<Scalars['String']>;
-  annotation?: Maybe<Scalars['String']>;
-  sharedAt?: Maybe<Scalars['Date']>;
+  sharedAt?: InputMaybe<Scalars['Date']>;
+  shortId: Scalars['String'];
+  suffix?: InputMaybe<Scalars['String']>;
 };
 
 export type CreateHighlightReplyError = {
@@ -244,10 +244,10 @@ export type CreateHighlightReplyError = {
 };
 
 export enum CreateHighlightReplyErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
+  EmptyAnnotation = 'EMPTY_ANNOTATION',
   Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
-  EmptyAnnotation = 'EMPTY_ANNOTATION'
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateHighlightReplyInput = {
@@ -255,14 +255,14 @@ export type CreateHighlightReplyInput = {
   text: Scalars['String'];
 };
 
-export type CreateHighlightReplyResult = CreateHighlightReplySuccess | CreateHighlightReplyError;
+export type CreateHighlightReplyResult = CreateHighlightReplyError | CreateHighlightReplySuccess;
 
 export type CreateHighlightReplySuccess = {
   __typename?: 'CreateHighlightReplySuccess';
   highlightReply: HighlightReply;
 };
 
-export type CreateHighlightResult = CreateHighlightSuccess | CreateHighlightError;
+export type CreateHighlightResult = CreateHighlightError | CreateHighlightSuccess;
 
 export type CreateHighlightSuccess = {
   __typename?: 'CreateHighlightSuccess';
@@ -275,9 +275,9 @@ export type CreateLabelError = {
 };
 
 export enum CreateLabelErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateLabelInput = {
@@ -285,7 +285,7 @@ export type CreateLabelInput = {
   name: Scalars['String'];
 };
 
-export type CreateLabelResult = CreateLabelSuccess | CreateLabelError;
+export type CreateLabelResult = CreateLabelError | CreateLabelSuccess;
 
 export type CreateLabelSuccess = {
   __typename?: 'CreateLabelSuccess';
@@ -298,11 +298,11 @@ export type CreateNewsletterEmailError = {
 };
 
 export enum CreateNewsletterEmailErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  BadRequest = 'BAD_REQUEST'
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type CreateNewsletterEmailResult = CreateNewsletterEmailSuccess | CreateNewsletterEmailError;
+export type CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess;
 
 export type CreateNewsletterEmailSuccess = {
   __typename?: 'CreateNewsletterEmailSuccess';
@@ -315,20 +315,20 @@ export type CreateReactionError = {
 };
 
 export enum CreateReactionErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  Forbidden = 'FORBIDDEN',
-  BadTarget = 'BAD_TARGET',
   BadCode = 'BAD_CODE',
-  NotFound = 'NOT_FOUND'
+  BadTarget = 'BAD_TARGET',
+  Forbidden = 'FORBIDDEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateReactionInput = {
-  highlightId?: Maybe<Scalars['ID']>;
-  userArticleId?: Maybe<Scalars['ID']>;
   code: ReactionType;
+  highlightId?: InputMaybe<Scalars['ID']>;
+  userArticleId?: InputMaybe<Scalars['ID']>;
 };
 
-export type CreateReactionResult = CreateReactionSuccess | CreateReactionError;
+export type CreateReactionResult = CreateReactionError | CreateReactionSuccess;
 
 export type CreateReactionSuccess = {
   __typename?: 'CreateReactionSuccess';
@@ -341,26 +341,25 @@ export type CreateReminderError = {
 };
 
 export enum CreateReminderErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateReminderInput = {
-  linkId?: Maybe<Scalars['ID']>;
-  clientRequestId?: Maybe<Scalars['ID']>;
   archiveUntil: Scalars['Boolean'];
-  sendNotification: Scalars['Boolean'];
+  clientRequestId?: InputMaybe<Scalars['ID']>;
+  linkId?: InputMaybe<Scalars['ID']>;
   remindAt: Scalars['Date'];
+  sendNotification: Scalars['Boolean'];
 };
 
-export type CreateReminderResult = CreateReminderSuccess | CreateReminderError;
+export type CreateReminderResult = CreateReminderError | CreateReminderSuccess;
 
 export type CreateReminderSuccess = {
   __typename?: 'CreateReminderSuccess';
   reminder: Reminder;
 };
-
 
 export type DeleteHighlightError = {
   __typename?: 'DeleteHighlightError';
@@ -368,9 +367,9 @@ export type DeleteHighlightError = {
 };
 
 export enum DeleteHighlightErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   Forbidden = 'FORBIDDEN',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type DeleteHighlightReplyError = {
@@ -379,19 +378,19 @@ export type DeleteHighlightReplyError = {
 };
 
 export enum DeleteHighlightReplyErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   Forbidden = 'FORBIDDEN',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type DeleteHighlightReplyResult = DeleteHighlightReplySuccess | DeleteHighlightReplyError;
+export type DeleteHighlightReplyResult = DeleteHighlightReplyError | DeleteHighlightReplySuccess;
 
 export type DeleteHighlightReplySuccess = {
   __typename?: 'DeleteHighlightReplySuccess';
   highlightReply: HighlightReply;
 };
 
-export type DeleteHighlightResult = DeleteHighlightSuccess | DeleteHighlightError;
+export type DeleteHighlightResult = DeleteHighlightError | DeleteHighlightSuccess;
 
 export type DeleteHighlightSuccess = {
   __typename?: 'DeleteHighlightSuccess';
@@ -404,12 +403,12 @@ export type DeleteLabelError = {
 };
 
 export enum DeleteLabelErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type DeleteLabelResult = DeleteLabelSuccess | DeleteLabelError;
+export type DeleteLabelResult = DeleteLabelError | DeleteLabelSuccess;
 
 export type DeleteLabelSuccess = {
   __typename?: 'DeleteLabelSuccess';
@@ -422,12 +421,12 @@ export type DeleteNewsletterEmailError = {
 };
 
 export enum DeleteNewsletterEmailErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type DeleteNewsletterEmailResult = DeleteNewsletterEmailSuccess | DeleteNewsletterEmailError;
+export type DeleteNewsletterEmailResult = DeleteNewsletterEmailError | DeleteNewsletterEmailSuccess;
 
 export type DeleteNewsletterEmailSuccess = {
   __typename?: 'DeleteNewsletterEmailSuccess';
@@ -440,12 +439,12 @@ export type DeleteReactionError = {
 };
 
 export enum DeleteReactionErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   Forbidden = 'FORBIDDEN',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type DeleteReactionResult = DeleteReactionSuccess | DeleteReactionError;
+export type DeleteReactionResult = DeleteReactionError | DeleteReactionSuccess;
 
 export type DeleteReactionSuccess = {
   __typename?: 'DeleteReactionSuccess';
@@ -458,12 +457,12 @@ export type DeleteReminderError = {
 };
 
 export enum DeleteReminderErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type DeleteReminderResult = DeleteReminderSuccess | DeleteReminderError;
+export type DeleteReminderResult = DeleteReminderError | DeleteReminderSuccess;
 
 export type DeleteReminderSuccess = {
   __typename?: 'DeleteReminderSuccess';
@@ -472,23 +471,23 @@ export type DeleteReminderSuccess = {
 
 export type DeviceToken = {
   __typename?: 'DeviceToken';
+  createdAt: Scalars['Date'];
   id: Scalars['ID'];
   token: Scalars['String'];
-  createdAt: Scalars['Date'];
 };
 
 export type FeedArticle = {
   __typename?: 'FeedArticle';
-  id: Scalars['ID'];
+  annotationsCount?: Maybe<Scalars['Int']>;
   article: Article;
-  sharedBy: User;
+  highlight?: Maybe<Highlight>;
+  highlightsCount?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  reactions: Array<Reaction>;
   sharedAt: Scalars['Date'];
+  sharedBy: User;
   sharedComment?: Maybe<Scalars['String']>;
   sharedWithHighlights?: Maybe<Scalars['Boolean']>;
-  highlightsCount?: Maybe<Scalars['Int']>;
-  annotationsCount?: Maybe<Scalars['Int']>;
-  highlight?: Maybe<Highlight>;
-  reactions: Array<Reaction>;
 };
 
 export type FeedArticleEdge = {
@@ -506,7 +505,7 @@ export enum FeedArticlesErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type FeedArticlesResult = FeedArticlesSuccess | FeedArticlesError;
+export type FeedArticlesResult = FeedArticlesError | FeedArticlesSuccess;
 
 export type FeedArticlesSuccess = {
   __typename?: 'FeedArticlesSuccess';
@@ -523,7 +522,7 @@ export enum GetFollowersErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type GetFollowersResult = GetFollowersSuccess | GetFollowersError;
+export type GetFollowersResult = GetFollowersError | GetFollowersSuccess;
 
 export type GetFollowersSuccess = {
   __typename?: 'GetFollowersSuccess';
@@ -539,7 +538,7 @@ export enum GetFollowingErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type GetFollowingResult = GetFollowingSuccess | GetFollowingError;
+export type GetFollowingResult = GetFollowingError | GetFollowingSuccess;
 
 export type GetFollowingSuccess = {
   __typename?: 'GetFollowingSuccess';
@@ -555,7 +554,7 @@ export enum GetUserPersonalizationErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type GetUserPersonalizationResult = GetUserPersonalizationSuccess | GetUserPersonalizationError;
+export type GetUserPersonalizationResult = GetUserPersonalizationError | GetUserPersonalizationSuccess;
 
 export type GetUserPersonalizationSuccess = {
   __typename?: 'GetUserPersonalizationSuccess';
@@ -563,8 +562,8 @@ export type GetUserPersonalizationSuccess = {
 };
 
 export type GoogleLoginInput = {
-  secret: Scalars['String'];
   email: Scalars['String'];
+  secret: Scalars['String'];
 };
 
 export type GoogleSignupError = {
@@ -573,16 +572,16 @@ export type GoogleSignupError = {
 };
 
 export type GoogleSignupInput = {
-  secret: Scalars['String'];
+  bio?: InputMaybe<Scalars['String']>;
   email: Scalars['String'];
-  username: Scalars['String'];
   name: Scalars['String'];
   pictureUrl: Scalars['String'];
+  secret: Scalars['String'];
   sourceUserId: Scalars['String'];
-  bio?: Maybe<Scalars['String']>;
+  username: Scalars['String'];
 };
 
-export type GoogleSignupResult = GoogleSignupSuccess | GoogleSignupError;
+export type GoogleSignupResult = GoogleSignupError | GoogleSignupSuccess;
 
 export type GoogleSignupSuccess = {
   __typename?: 'GoogleSignupSuccess';
@@ -591,31 +590,31 @@ export type GoogleSignupSuccess = {
 
 export type Highlight = {
   __typename?: 'Highlight';
-  id: Scalars['ID'];
-  shortId: Scalars['String'];
-  user: User;
-  article: Article;
-  quote: Scalars['String'];
-  prefix?: Maybe<Scalars['String']>;
-  suffix?: Maybe<Scalars['String']>;
-  patch: Scalars['String'];
   annotation?: Maybe<Scalars['String']>;
+  article: Article;
+  createdAt: Scalars['Date'];
+  createdByMe: Scalars['Boolean'];
+  id: Scalars['ID'];
+  patch: Scalars['String'];
+  prefix?: Maybe<Scalars['String']>;
+  quote: Scalars['String'];
+  reactions: Array<Reaction>;
   replies: Array<HighlightReply>;
   sharedAt?: Maybe<Scalars['Date']>;
-  createdAt: Scalars['Date'];
+  shortId: Scalars['String'];
+  suffix?: Maybe<Scalars['String']>;
   updatedAt: Scalars['Date'];
-  reactions: Array<Reaction>;
-  createdByMe: Scalars['Boolean'];
+  user: User;
 };
 
 export type HighlightReply = {
   __typename?: 'HighlightReply';
-  id: Scalars['ID'];
-  user: User;
-  highlight: Highlight;
-  text: Scalars['String'];
   createdAt: Scalars['Date'];
+  highlight: Highlight;
+  id: Scalars['ID'];
+  text: Scalars['String'];
   updatedAt: Scalars['Date'];
+  user: User;
 };
 
 export type HighlightStats = {
@@ -635,12 +634,12 @@ export type LabelsError = {
 };
 
 export enum LabelsErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type LabelsResult = LabelsSuccess | LabelsError;
+export type LabelsResult = LabelsError | LabelsSuccess;
 
 export type LabelsSuccess = {
   __typename?: 'LabelsSuccess';
@@ -649,25 +648,51 @@ export type LabelsSuccess = {
 
 export type Link = {
   __typename?: 'Link';
+  highlightStats: HighlightStats;
   id: Scalars['ID'];
-  url: Scalars['String'];
-  slug: Scalars['String'];
-  savedBy: User;
-  savedAt: Scalars['Date'];
-  savedByViewer: Scalars['Boolean'];
+  page: Page;
   postedByViewer: Scalars['Boolean'];
   readState: ReadState;
-  highlightStats: HighlightStats;
+  savedAt: Scalars['Date'];
+  savedBy: User;
+  savedByViewer: Scalars['Boolean'];
   shareInfo: LinkShareInfo;
   shareStats: ShareStats;
-  page: Page;
+  slug: Scalars['String'];
+  url: Scalars['String'];
 };
 
 export type LinkShareInfo = {
   __typename?: 'LinkShareInfo';
-  title: Scalars['String'];
   description: Scalars['String'];
   imageUrl: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export type LoginError = {
+  __typename?: 'LoginError';
+  errorCodes: Array<LoginErrorCode>;
+};
+
+export enum LoginErrorCode {
+  AccessDenied = 'ACCESS_DENIED',
+  AuthFailed = 'AUTH_FAILED',
+  InvalidCredentials = 'INVALID_CREDENTIALS',
+  UserAlreadyExists = 'USER_ALREADY_EXISTS',
+  UserNotFound = 'USER_NOT_FOUND',
+  WrongSource = 'WRONG_SOURCE'
+}
+
+export type LoginInput = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type LoginResult = LoginError | LoginSuccess;
+
+export type LoginSuccess = {
+  __typename?: 'LoginSuccess';
+  me: User;
 };
 
 export type LogOutError = {
@@ -679,37 +704,11 @@ export enum LogOutErrorCode {
   LogOutFailed = 'LOG_OUT_FAILED'
 }
 
-export type LogOutResult = LogOutSuccess | LogOutError;
+export type LogOutResult = LogOutError | LogOutSuccess;
 
 export type LogOutSuccess = {
   __typename?: 'LogOutSuccess';
   message?: Maybe<Scalars['String']>;
-};
-
-export type LoginError = {
-  __typename?: 'LoginError';
-  errorCodes: Array<LoginErrorCode>;
-};
-
-export enum LoginErrorCode {
-  AuthFailed = 'AUTH_FAILED',
-  UserAlreadyExists = 'USER_ALREADY_EXISTS',
-  InvalidCredentials = 'INVALID_CREDENTIALS',
-  UserNotFound = 'USER_NOT_FOUND',
-  WrongSource = 'WRONG_SOURCE',
-  AccessDenied = 'ACCESS_DENIED'
-}
-
-export type LoginInput = {
-  password: Scalars['String'];
-  email: Scalars['String'];
-};
-
-export type LoginResult = LoginSuccess | LoginError;
-
-export type LoginSuccess = {
-  __typename?: 'LoginSuccess';
-  me: User;
 };
 
 export type MergeHighlightError = {
@@ -718,26 +717,26 @@ export type MergeHighlightError = {
 };
 
 export enum MergeHighlightErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  Forbidden = 'FORBIDDEN',
+  AlreadyExists = 'ALREADY_EXISTS',
   BadData = 'BAD_DATA',
+  Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
-  AlreadyExists = 'ALREADY_EXISTS'
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type MergeHighlightInput = {
-  id: Scalars['ID'];
-  shortId: Scalars['ID'];
+  annotation?: InputMaybe<Scalars['String']>;
   articleId: Scalars['ID'];
-  patch: Scalars['String'];
-  quote: Scalars['String'];
-  prefix?: Maybe<Scalars['String']>;
-  suffix?: Maybe<Scalars['String']>;
-  annotation?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
   overlapHighlightIdList: Array<Scalars['String']>;
+  patch: Scalars['String'];
+  prefix?: InputMaybe<Scalars['String']>;
+  quote: Scalars['String'];
+  shortId: Scalars['ID'];
+  suffix?: InputMaybe<Scalars['String']>;
 };
 
-export type MergeHighlightResult = MergeHighlightSuccess | MergeHighlightError;
+export type MergeHighlightResult = MergeHighlightError | MergeHighlightSuccess;
 
 export type MergeHighlightSuccess = {
   __typename?: 'MergeHighlightSuccess';
@@ -747,46 +746,111 @@ export type MergeHighlightSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createArticle: CreateArticleResult;
+  createArticleSavingRequest: CreateArticleSavingRequestResult;
+  createHighlight: CreateHighlightResult;
+  createHighlightReply: CreateHighlightReplyResult;
+  createLabel: CreateLabelResult;
+  createNewsletterEmail: CreateNewsletterEmailResult;
+  createReaction: CreateReactionResult;
+  createReminder: CreateReminderResult;
+  deleteHighlight: DeleteHighlightResult;
+  deleteHighlightReply: DeleteHighlightReplyResult;
+  deleteLabel: DeleteLabelResult;
+  deleteNewsletterEmail: DeleteNewsletterEmailResult;
+  deleteReaction: DeleteReactionResult;
+  deleteReminder: DeleteReminderResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
+  login: LoginResult;
   logOut: LogOutResult;
+  mergeHighlight: MergeHighlightResult;
+  reportItem: ReportItemResult;
+  saveArticleReadingProgress: SaveArticleReadingProgressResult;
+  saveFile: SaveResult;
+  savePage: SaveResult;
+  saveUrl: SaveResult;
+  setBookmarkArticle: SetBookmarkArticleResult;
+  setDeviceToken: SetDeviceTokenResult;
+  setFollow: SetFollowResult;
+  setLinkArchived: ArchiveLinkResult;
+  setShareArticle: SetShareArticleResult;
+  setShareHighlight: SetShareHighlightResult;
+  setUserPersonalization: SetUserPersonalizationResult;
+  signup: SignupResult;
+  updateHighlight: UpdateHighlightResult;
+  updateHighlightReply: UpdateHighlightReplyResult;
+  updateLinkShareInfo: UpdateLinkShareInfoResult;
+  updateReminder: UpdateReminderResult;
+  updateSharedComment: UpdateSharedCommentResult;
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
-  createArticle: CreateArticleResult;
-  createHighlight: CreateHighlightResult;
-  mergeHighlight: MergeHighlightResult;
-  updateHighlight: UpdateHighlightResult;
-  deleteHighlight: DeleteHighlightResult;
-  createHighlightReply: CreateHighlightReplyResult;
-  updateHighlightReply: UpdateHighlightReplyResult;
-  deleteHighlightReply: DeleteHighlightReplyResult;
-  createReaction: CreateReactionResult;
-  deleteReaction: DeleteReactionResult;
   uploadFileRequest: UploadFileRequestResult;
-  saveArticleReadingProgress: SaveArticleReadingProgressResult;
-  setShareArticle: SetShareArticleResult;
-  updateSharedComment: UpdateSharedCommentResult;
-  setFollow: SetFollowResult;
-  setBookmarkArticle: SetBookmarkArticleResult;
-  setUserPersonalization: SetUserPersonalizationResult;
-  createArticleSavingRequest: CreateArticleSavingRequestResult;
-  setShareHighlight: SetShareHighlightResult;
-  reportItem: ReportItemResult;
-  updateLinkShareInfo: UpdateLinkShareInfoResult;
-  setLinkArchived: ArchiveLinkResult;
-  createNewsletterEmail: CreateNewsletterEmailResult;
-  deleteNewsletterEmail: DeleteNewsletterEmailResult;
-  saveUrl: SaveResult;
-  savePage: SaveResult;
-  saveFile: SaveResult;
-  createReminder: CreateReminderResult;
-  updateReminder: UpdateReminderResult;
-  deleteReminder: DeleteReminderResult;
-  setDeviceToken: SetDeviceTokenResult;
-  createLabel: CreateLabelResult;
-  deleteLabel: DeleteLabelResult;
-  login: LoginResult;
-  signup: SignupResult;
+};
+
+
+export type MutationCreateArticleArgs = {
+  input: CreateArticleInput;
+};
+
+
+export type MutationCreateArticleSavingRequestArgs = {
+  input: CreateArticleSavingRequestInput;
+};
+
+
+export type MutationCreateHighlightArgs = {
+  input: CreateHighlightInput;
+};
+
+
+export type MutationCreateHighlightReplyArgs = {
+  input: CreateHighlightReplyInput;
+};
+
+
+export type MutationCreateLabelArgs = {
+  input: CreateLabelInput;
+};
+
+
+export type MutationCreateReactionArgs = {
+  input: CreateReactionInput;
+};
+
+
+export type MutationCreateReminderArgs = {
+  input: CreateReminderInput;
+};
+
+
+export type MutationDeleteHighlightArgs = {
+  highlightId: Scalars['ID'];
+};
+
+
+export type MutationDeleteHighlightReplyArgs = {
+  highlightReplyId: Scalars['ID'];
+};
+
+
+export type MutationDeleteLabelArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNewsletterEmailArgs = {
+  newsletterEmailId: Scalars['ID'];
+};
+
+
+export type MutationDeleteReactionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteReminderArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -800,6 +864,106 @@ export type MutationGoogleSignupArgs = {
 };
 
 
+export type MutationLoginArgs = {
+  input: LoginInput;
+};
+
+
+export type MutationMergeHighlightArgs = {
+  input: MergeHighlightInput;
+};
+
+
+export type MutationReportItemArgs = {
+  input: ReportItemInput;
+};
+
+
+export type MutationSaveArticleReadingProgressArgs = {
+  input: SaveArticleReadingProgressInput;
+};
+
+
+export type MutationSaveFileArgs = {
+  input: SaveFileInput;
+};
+
+
+export type MutationSavePageArgs = {
+  input: SavePageInput;
+};
+
+
+export type MutationSaveUrlArgs = {
+  input: SaveUrlInput;
+};
+
+
+export type MutationSetBookmarkArticleArgs = {
+  input: SetBookmarkArticleInput;
+};
+
+
+export type MutationSetDeviceTokenArgs = {
+  input: SetDeviceTokenInput;
+};
+
+
+export type MutationSetFollowArgs = {
+  input: SetFollowInput;
+};
+
+
+export type MutationSetLinkArchivedArgs = {
+  input: ArchiveLinkInput;
+};
+
+
+export type MutationSetShareArticleArgs = {
+  input: SetShareArticleInput;
+};
+
+
+export type MutationSetShareHighlightArgs = {
+  input: SetShareHighlightInput;
+};
+
+
+export type MutationSetUserPersonalizationArgs = {
+  input: SetUserPersonalizationInput;
+};
+
+
+export type MutationSignupArgs = {
+  input: SignupInput;
+};
+
+
+export type MutationUpdateHighlightArgs = {
+  input: UpdateHighlightInput;
+};
+
+
+export type MutationUpdateHighlightReplyArgs = {
+  input: UpdateHighlightReplyInput;
+};
+
+
+export type MutationUpdateLinkShareInfoArgs = {
+  input: UpdateLinkShareInfoInput;
+};
+
+
+export type MutationUpdateReminderArgs = {
+  input: UpdateReminderInput;
+};
+
+
+export type MutationUpdateSharedCommentArgs = {
+  input: UpdateSharedCommentInput;
+};
+
+
 export type MutationUpdateUserArgs = {
   input: UpdateUserInput;
 };
@@ -810,180 +974,15 @@ export type MutationUpdateUserProfileArgs = {
 };
 
 
-export type MutationCreateArticleArgs = {
-  input: CreateArticleInput;
-};
-
-
-export type MutationCreateHighlightArgs = {
-  input: CreateHighlightInput;
-};
-
-
-export type MutationMergeHighlightArgs = {
-  input: MergeHighlightInput;
-};
-
-
-export type MutationUpdateHighlightArgs = {
-  input: UpdateHighlightInput;
-};
-
-
-export type MutationDeleteHighlightArgs = {
-  highlightId: Scalars['ID'];
-};
-
-
-export type MutationCreateHighlightReplyArgs = {
-  input: CreateHighlightReplyInput;
-};
-
-
-export type MutationUpdateHighlightReplyArgs = {
-  input: UpdateHighlightReplyInput;
-};
-
-
-export type MutationDeleteHighlightReplyArgs = {
-  highlightReplyId: Scalars['ID'];
-};
-
-
-export type MutationCreateReactionArgs = {
-  input: CreateReactionInput;
-};
-
-
-export type MutationDeleteReactionArgs = {
-  id: Scalars['ID'];
-};
-
-
 export type MutationUploadFileRequestArgs = {
   input: UploadFileRequestInput;
 };
 
-
-export type MutationSaveArticleReadingProgressArgs = {
-  input: SaveArticleReadingProgressInput;
-};
-
-
-export type MutationSetShareArticleArgs = {
-  input: SetShareArticleInput;
-};
-
-
-export type MutationUpdateSharedCommentArgs = {
-  input: UpdateSharedCommentInput;
-};
-
-
-export type MutationSetFollowArgs = {
-  input: SetFollowInput;
-};
-
-
-export type MutationSetBookmarkArticleArgs = {
-  input: SetBookmarkArticleInput;
-};
-
-
-export type MutationSetUserPersonalizationArgs = {
-  input: SetUserPersonalizationInput;
-};
-
-
-export type MutationCreateArticleSavingRequestArgs = {
-  input: CreateArticleSavingRequestInput;
-};
-
-
-export type MutationSetShareHighlightArgs = {
-  input: SetShareHighlightInput;
-};
-
-
-export type MutationReportItemArgs = {
-  input: ReportItemInput;
-};
-
-
-export type MutationUpdateLinkShareInfoArgs = {
-  input: UpdateLinkShareInfoInput;
-};
-
-
-export type MutationSetLinkArchivedArgs = {
-  input: ArchiveLinkInput;
-};
-
-
-export type MutationDeleteNewsletterEmailArgs = {
-  newsletterEmailId: Scalars['ID'];
-};
-
-
-export type MutationSaveUrlArgs = {
-  input: SaveUrlInput;
-};
-
-
-export type MutationSavePageArgs = {
-  input: SavePageInput;
-};
-
-
-export type MutationSaveFileArgs = {
-  input: SaveFileInput;
-};
-
-
-export type MutationCreateReminderArgs = {
-  input: CreateReminderInput;
-};
-
-
-export type MutationUpdateReminderArgs = {
-  input: UpdateReminderInput;
-};
-
-
-export type MutationDeleteReminderArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationSetDeviceTokenArgs = {
-  input: SetDeviceTokenInput;
-};
-
-
-export type MutationCreateLabelArgs = {
-  input: CreateLabelInput;
-};
-
-
-export type MutationDeleteLabelArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationLoginArgs = {
-  input: LoginInput;
-};
-
-
-export type MutationSignupArgs = {
-  input: SignupInput;
-};
-
 export type NewsletterEmail = {
   __typename?: 'NewsletterEmail';
-  id: Scalars['ID'];
   address: Scalars['String'];
   confirmationCode?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
 };
 
 export type NewsletterEmailsError = {
@@ -992,11 +991,11 @@ export type NewsletterEmailsError = {
 };
 
 export enum NewsletterEmailsErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  BadRequest = 'BAD_REQUEST'
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type NewsletterEmailsResult = NewsletterEmailsSuccess | NewsletterEmailsError;
+export type NewsletterEmailsResult = NewsletterEmailsError | NewsletterEmailsSuccess;
 
 export type NewsletterEmailsSuccess = {
   __typename?: 'NewsletterEmailsSuccess';
@@ -1005,38 +1004,38 @@ export type NewsletterEmailsSuccess = {
 
 export type Page = {
   __typename?: 'Page';
-  id: Scalars['ID'];
-  url: Scalars['String'];
-  hash: Scalars['String'];
-  originalUrl: Scalars['String'];
-  type: PageType;
-  image: Scalars['String'];
-  title: Scalars['String'];
   author: Scalars['String'];
-  description: Scalars['String'];
-  publishedAt?: Maybe<Scalars['Date']>;
-  originalHtml: Scalars['String'];
-  readableHtml: Scalars['String'];
   createdAt: Scalars['Date'];
+  description: Scalars['String'];
+  hash: Scalars['String'];
+  id: Scalars['ID'];
+  image: Scalars['String'];
+  originalHtml: Scalars['String'];
+  originalUrl: Scalars['String'];
+  publishedAt?: Maybe<Scalars['Date']>;
+  readableHtml: Scalars['String'];
+  title: Scalars['String'];
+  type: PageType;
+  url: Scalars['String'];
 };
 
 export type PageInfo = {
   __typename?: 'PageInfo';
+  endCursor?: Maybe<Scalars['String']>;
   hasNextPage: Scalars['Boolean'];
   hasPreviousPage: Scalars['Boolean'];
   startCursor?: Maybe<Scalars['String']>;
-  endCursor?: Maybe<Scalars['String']>;
   totalCount?: Maybe<Scalars['Int']>;
 };
 
 export type PageInfoInput = {
-  title?: Maybe<Scalars['String']>;
-  author?: Maybe<Scalars['String']>;
-  description?: Maybe<Scalars['String']>;
-  previewImage?: Maybe<Scalars['String']>;
-  canonicalUrl?: Maybe<Scalars['String']>;
-  publishedAt?: Maybe<Scalars['Date']>;
-  contentType?: Maybe<Scalars['String']>;
+  author?: InputMaybe<Scalars['String']>;
+  canonicalUrl?: InputMaybe<Scalars['String']>;
+  contentType?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  previewImage?: InputMaybe<Scalars['String']>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  title?: InputMaybe<Scalars['String']>;
 };
 
 export enum PageType {
@@ -1044,8 +1043,8 @@ export enum PageType {
   Book = 'BOOK',
   File = 'FILE',
   Profile = 'PROFILE',
-  Website = 'WEBSITE',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
+  Website = 'WEBSITE'
 }
 
 export type PreparedDocumentInput = {
@@ -1055,82 +1054,46 @@ export type PreparedDocumentInput = {
 
 export type Profile = {
   __typename?: 'Profile';
-  id: Scalars['ID'];
-  username: Scalars['String'];
-  private: Scalars['Boolean'];
   bio?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
   pictureUrl?: Maybe<Scalars['String']>;
+  private: Scalars['Boolean'];
+  username: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  hello?: Maybe<Scalars['String']>;
-  me?: Maybe<User>;
-  user: UserResult;
-  articles: ArticlesResult;
   article: ArticleResult;
-  sharedArticle: SharedArticleResult;
+  articles: ArticlesResult;
+  articleSavingRequest: ArticleSavingRequestResult;
   feedArticles: FeedArticlesResult;
-  users: UsersResult;
-  validateUsername: Scalars['Boolean'];
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
-  articleSavingRequest: ArticleSavingRequestResult;
+  hello?: Maybe<Scalars['String']>;
+  labels: LabelsResult;
+  me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
   reminder: ReminderResult;
-  labels: LabelsResult;
-};
-
-
-export type QueryUserArgs = {
-  userId?: Maybe<Scalars['ID']>;
-  username?: Maybe<Scalars['String']>;
-};
-
-
-export type QueryArticlesArgs = {
-  sharedOnly?: Maybe<Scalars['Boolean']>;
-  sort?: Maybe<SortParams>;
-  after?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  query?: Maybe<Scalars['String']>;
+  sharedArticle: SharedArticleResult;
+  user: UserResult;
+  users: UsersResult;
+  validateUsername: Scalars['Boolean'];
 };
 
 
 export type QueryArticleArgs = {
-  username: Scalars['String'];
   slug: Scalars['String'];
-};
-
-
-export type QuerySharedArticleArgs = {
-  username: Scalars['String'];
-  slug: Scalars['String'];
-  selectedHighlightId?: Maybe<Scalars['String']>;
-};
-
-
-export type QueryFeedArticlesArgs = {
-  after?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  sort?: Maybe<SortParams>;
-  sharedByUser?: Maybe<Scalars['ID']>;
-};
-
-
-export type QueryValidateUsernameArgs = {
   username: Scalars['String'];
 };
 
 
-export type QueryGetFollowersArgs = {
-  userId?: Maybe<Scalars['ID']>;
-};
-
-
-export type QueryGetFollowingArgs = {
-  userId?: Maybe<Scalars['ID']>;
+export type QueryArticlesArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  query?: InputMaybe<Scalars['String']>;
+  sharedOnly?: InputMaybe<Scalars['Boolean']>;
+  sort?: InputMaybe<SortParams>;
 };
 
 
@@ -1139,8 +1102,21 @@ export type QueryArticleSavingRequestArgs = {
 };
 
 
-export type QueryReminderArgs = {
-  linkId: Scalars['ID'];
+export type QueryFeedArticlesArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  sharedByUser?: InputMaybe<Scalars['ID']>;
+  sort?: InputMaybe<SortParams>;
+};
+
+
+export type QueryGetFollowersArgs = {
+  userId?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type QueryGetFollowingArgs = {
+  userId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1148,38 +1124,61 @@ export type QueryLabelsArgs = {
   linkId: Scalars['ID'];
 };
 
+
+export type QueryReminderArgs = {
+  linkId: Scalars['ID'];
+};
+
+
+export type QuerySharedArticleArgs = {
+  selectedHighlightId?: InputMaybe<Scalars['String']>;
+  slug: Scalars['String'];
+  username: Scalars['String'];
+};
+
+
+export type QueryUserArgs = {
+  userId?: InputMaybe<Scalars['ID']>;
+  username?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QueryValidateUsernameArgs = {
+  username: Scalars['String'];
+};
+
 export type Reaction = {
   __typename?: 'Reaction';
-  id: Scalars['ID'];
-  user: User;
   code: ReactionType;
   createdAt: Scalars['Date'];
+  id: Scalars['ID'];
   updatedAt?: Maybe<Scalars['Date']>;
+  user: User;
 };
 
 export enum ReactionType {
-  Like = 'LIKE',
-  Heart = 'HEART',
-  Smile = 'SMILE',
-  Hushed = 'HUSHED',
   Crying = 'CRYING',
-  Pout = 'POUT'
+  Heart = 'HEART',
+  Hushed = 'HUSHED',
+  Like = 'LIKE',
+  Pout = 'POUT',
+  Smile = 'SMILE'
 }
 
 export type ReadState = {
   __typename?: 'ReadState';
+  progressAnchorIndex: Scalars['Int'];
+  progressPercent: Scalars['Float'];
   reading?: Maybe<Scalars['Boolean']>;
   readingTime?: Maybe<Scalars['Int']>;
-  progressPercent: Scalars['Float'];
-  progressAnchorIndex: Scalars['Int'];
 };
 
 export type Reminder = {
   __typename?: 'Reminder';
-  id: Scalars['ID'];
   archiveUntil: Scalars['Boolean'];
-  sendNotification: Scalars['Boolean'];
+  id: Scalars['ID'];
   remindAt: Scalars['Date'];
+  sendNotification: Scalars['Boolean'];
 };
 
 export type ReminderError = {
@@ -1188,12 +1187,12 @@ export type ReminderError = {
 };
 
 export enum ReminderErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
-export type ReminderResult = ReminderSuccess | ReminderError;
+export type ReminderResult = ReminderError | ReminderSuccess;
 
 export type ReminderSuccess = {
   __typename?: 'ReminderSuccess';
@@ -1201,11 +1200,11 @@ export type ReminderSuccess = {
 };
 
 export type ReportItemInput = {
-  pageId: Scalars['ID'];
   itemUrl: Scalars['String'];
-  sharedBy?: Maybe<Scalars['ID']>;
-  reportTypes: Array<ReportType>;
+  pageId: Scalars['ID'];
   reportComment: Scalars['String'];
+  reportTypes: Array<ReportType>;
+  sharedBy?: InputMaybe<Scalars['ID']>;
 };
 
 export type ReportItemResult = {
@@ -1214,10 +1213,10 @@ export type ReportItemResult = {
 };
 
 export enum ReportType {
-  Spam = 'SPAM',
   Abusive = 'ABUSIVE',
   ContentDisplay = 'CONTENT_DISPLAY',
-  ContentViolation = 'CONTENT_VIOLATION'
+  ContentViolation = 'CONTENT_VIOLATION',
+  Spam = 'SPAM'
 }
 
 export type SaveArticleReadingProgressError = {
@@ -1226,18 +1225,18 @@ export type SaveArticleReadingProgressError = {
 };
 
 export enum SaveArticleReadingProgressErrorCode {
-  NotFound = 'NOT_FOUND',
   BadData = 'BAD_DATA',
+  NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
 export type SaveArticleReadingProgressInput = {
   id: Scalars['ID'];
-  readingProgressPercent: Scalars['Float'];
   readingProgressAnchorIndex: Scalars['Int'];
+  readingProgressPercent: Scalars['Float'];
 };
 
-export type SaveArticleReadingProgressResult = SaveArticleReadingProgressSuccess | SaveArticleReadingProgressError;
+export type SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess;
 
 export type SaveArticleReadingProgressSuccess = {
   __typename?: 'SaveArticleReadingProgressSuccess';
@@ -1251,37 +1250,37 @@ export type SaveError = {
 };
 
 export enum SaveErrorCode {
-  Unknown = 'UNKNOWN',
-  Unauthorized = 'UNAUTHORIZED'
+  Unauthorized = 'UNAUTHORIZED',
+  Unknown = 'UNKNOWN'
 }
 
 export type SaveFileInput = {
-  url: Scalars['String'];
-  source: Scalars['String'];
   clientRequestId: Scalars['ID'];
+  source: Scalars['String'];
   uploadFileId: Scalars['ID'];
+  url: Scalars['String'];
 };
 
 export type SavePageInput = {
-  url: Scalars['String'];
-  source: Scalars['String'];
   clientRequestId: Scalars['ID'];
-  title?: Maybe<Scalars['String']>;
   originalContent: Scalars['String'];
+  source: Scalars['String'];
+  title?: InputMaybe<Scalars['String']>;
+  url: Scalars['String'];
 };
 
-export type SaveResult = SaveSuccess | SaveError;
+export type SaveResult = SaveError | SaveSuccess;
 
 export type SaveSuccess = {
   __typename?: 'SaveSuccess';
-  url: Scalars['String'];
   clientRequestId: Scalars['ID'];
+  url: Scalars['String'];
 };
 
 export type SaveUrlInput = {
-  url: Scalars['String'];
-  source: Scalars['String'];
   clientRequestId: Scalars['ID'];
+  source: Scalars['String'];
+  url: Scalars['String'];
 };
 
 export type SetBookmarkArticleError = {
@@ -1290,8 +1289,8 @@ export type SetBookmarkArticleError = {
 };
 
 export enum SetBookmarkArticleErrorCode {
-  NotFound = 'NOT_FOUND',
-  BookmarkExists = 'BOOKMARK_EXISTS'
+  BookmarkExists = 'BOOKMARK_EXISTS',
+  NotFound = 'NOT_FOUND'
 }
 
 export type SetBookmarkArticleInput = {
@@ -1299,7 +1298,7 @@ export type SetBookmarkArticleInput = {
   bookmark: Scalars['Boolean'];
 };
 
-export type SetBookmarkArticleResult = SetBookmarkArticleSuccess | SetBookmarkArticleError;
+export type SetBookmarkArticleResult = SetBookmarkArticleError | SetBookmarkArticleSuccess;
 
 export type SetBookmarkArticleSuccess = {
   __typename?: 'SetBookmarkArticleSuccess';
@@ -1312,17 +1311,17 @@ export type SetDeviceTokenError = {
 };
 
 export enum SetDeviceTokenErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type SetDeviceTokenInput = {
-  id?: Maybe<Scalars['ID']>;
-  token?: Maybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['ID']>;
+  token?: InputMaybe<Scalars['String']>;
 };
 
-export type SetDeviceTokenResult = SetDeviceTokenSuccess | SetDeviceTokenError;
+export type SetDeviceTokenResult = SetDeviceTokenError | SetDeviceTokenSuccess;
 
 export type SetDeviceTokenSuccess = {
   __typename?: 'SetDeviceTokenSuccess';
@@ -1340,11 +1339,11 @@ export enum SetFollowErrorCode {
 }
 
 export type SetFollowInput = {
-  userId: Scalars['ID'];
   follow: Scalars['Boolean'];
+  userId: Scalars['ID'];
 };
 
-export type SetFollowResult = SetFollowSuccess | SetFollowError;
+export type SetFollowResult = SetFollowError | SetFollowSuccess;
 
 export type SetFollowSuccess = {
   __typename?: 'SetFollowSuccess';
@@ -1364,17 +1363,17 @@ export enum SetShareArticleErrorCode {
 export type SetShareArticleInput = {
   articleID: Scalars['ID'];
   share: Scalars['Boolean'];
-  sharedComment?: Maybe<Scalars['String']>;
-  sharedWithHighlights?: Maybe<Scalars['Boolean']>;
+  sharedComment?: InputMaybe<Scalars['String']>;
+  sharedWithHighlights?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type SetShareArticleResult = SetShareArticleSuccess | SetShareArticleError;
+export type SetShareArticleResult = SetShareArticleError | SetShareArticleSuccess;
 
 export type SetShareArticleSuccess = {
   __typename?: 'SetShareArticleSuccess';
-  updatedFeedArticleId?: Maybe<Scalars['String']>;
-  updatedFeedArticle?: Maybe<FeedArticle>;
   updatedArticle: Article;
+  updatedFeedArticle?: Maybe<FeedArticle>;
+  updatedFeedArticleId?: Maybe<Scalars['String']>;
 };
 
 export type SetShareHighlightError = {
@@ -1383,9 +1382,9 @@ export type SetShareHighlightError = {
 };
 
 export enum SetShareHighlightErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
+  Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
-  Forbidden = 'FORBIDDEN'
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type SetShareHighlightInput = {
@@ -1393,7 +1392,7 @@ export type SetShareHighlightInput = {
   share: Scalars['Boolean'];
 };
 
-export type SetShareHighlightResult = SetShareHighlightSuccess | SetShareHighlightError;
+export type SetShareHighlightResult = SetShareHighlightError | SetShareHighlightSuccess;
 
 export type SetShareHighlightSuccess = {
   __typename?: 'SetShareHighlightSuccess';
@@ -1410,26 +1409,19 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
-  theme?: Maybe<Scalars['String']>;
-  fontSize?: Maybe<Scalars['Int']>;
-  fontFamily?: Maybe<Scalars['String']>;
-  margin?: Maybe<Scalars['Int']>;
-  libraryLayoutType?: Maybe<Scalars['String']>;
-  librarySortOrder?: Maybe<SortOrder>;
+  fontFamily?: InputMaybe<Scalars['String']>;
+  fontSize?: InputMaybe<Scalars['Int']>;
+  libraryLayoutType?: InputMaybe<Scalars['String']>;
+  librarySortOrder?: InputMaybe<SortOrder>;
+  margin?: InputMaybe<Scalars['Int']>;
+  theme?: InputMaybe<Scalars['String']>;
 };
 
-export type SetUserPersonalizationResult = SetUserPersonalizationSuccess | SetUserPersonalizationError;
+export type SetUserPersonalizationResult = SetUserPersonalizationError | SetUserPersonalizationSuccess;
 
 export type SetUserPersonalizationSuccess = {
   __typename?: 'SetUserPersonalizationSuccess';
   updatedUserPersonalization: UserPersonalization;
-};
-
-export type ShareStats = {
-  __typename?: 'ShareStats';
-  viewCount: Scalars['Int'];
-  saveCount: Scalars['Int'];
-  readDuration: Scalars['Int'];
 };
 
 export type SharedArticleError = {
@@ -1441,11 +1433,18 @@ export enum SharedArticleErrorCode {
   NotFound = 'NOT_FOUND'
 }
 
-export type SharedArticleResult = SharedArticleSuccess | SharedArticleError;
+export type SharedArticleResult = SharedArticleError | SharedArticleSuccess;
 
 export type SharedArticleSuccess = {
   __typename?: 'SharedArticleSuccess';
   article: Article;
+};
+
+export type ShareStats = {
+  __typename?: 'ShareStats';
+  readDuration: Scalars['Int'];
+  saveCount: Scalars['Int'];
+  viewCount: Scalars['Int'];
 };
 
 export type SignupError = {
@@ -1454,25 +1453,25 @@ export type SignupError = {
 };
 
 export enum SignupErrorCode {
-  Unknown = 'UNKNOWN',
   AccessDenied = 'ACCESS_DENIED',
-  GoogleAuthError = 'GOOGLE_AUTH_ERROR',
-  InvalidUsername = 'INVALID_USERNAME',
-  UserExists = 'USER_EXISTS',
   ExpiredToken = 'EXPIRED_TOKEN',
-  InvalidPassword = 'INVALID_PASSWORD'
+  GoogleAuthError = 'GOOGLE_AUTH_ERROR',
+  InvalidPassword = 'INVALID_PASSWORD',
+  InvalidUsername = 'INVALID_USERNAME',
+  Unknown = 'UNKNOWN',
+  UserExists = 'USER_EXISTS'
 }
 
 export type SignupInput = {
+  bio?: InputMaybe<Scalars['String']>;
   email: Scalars['String'];
-  password: Scalars['String'];
-  username: Scalars['String'];
   name: Scalars['String'];
-  pictureUrl?: Maybe<Scalars['String']>;
-  bio?: Maybe<Scalars['String']>;
+  password: Scalars['String'];
+  pictureUrl?: InputMaybe<Scalars['String']>;
+  username: Scalars['String'];
 };
 
-export type SignupResult = SignupSuccess | SignupError;
+export type SignupResult = SignupError | SignupSuccess;
 
 export type SignupSuccess = {
   __typename?: 'SignupSuccess';
@@ -1489,8 +1488,8 @@ export enum SortOrder {
 }
 
 export type SortParams = {
-  order?: Maybe<SortOrder>;
   by: SortBy;
+  order?: InputMaybe<SortOrder>;
 };
 
 export type UpdateHighlightError = {
@@ -1499,16 +1498,16 @@ export type UpdateHighlightError = {
 };
 
 export enum UpdateHighlightErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
+  BadData = 'BAD_DATA',
   Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
-  BadData = 'BAD_DATA'
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type UpdateHighlightInput = {
+  annotation?: InputMaybe<Scalars['String']>;
   highlightId: Scalars['ID'];
-  annotation?: Maybe<Scalars['String']>;
-  sharedAt?: Maybe<Scalars['Date']>;
+  sharedAt?: InputMaybe<Scalars['Date']>;
 };
 
 export type UpdateHighlightReplyError = {
@@ -1517,9 +1516,9 @@ export type UpdateHighlightReplyError = {
 };
 
 export enum UpdateHighlightReplyErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   Forbidden = 'FORBIDDEN',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type UpdateHighlightReplyInput = {
@@ -1527,14 +1526,14 @@ export type UpdateHighlightReplyInput = {
   text: Scalars['String'];
 };
 
-export type UpdateHighlightReplyResult = UpdateHighlightReplySuccess | UpdateHighlightReplyError;
+export type UpdateHighlightReplyResult = UpdateHighlightReplyError | UpdateHighlightReplySuccess;
 
 export type UpdateHighlightReplySuccess = {
   __typename?: 'UpdateHighlightReplySuccess';
   highlightReply: HighlightReply;
 };
 
-export type UpdateHighlightResult = UpdateHighlightSuccess | UpdateHighlightError;
+export type UpdateHighlightResult = UpdateHighlightError | UpdateHighlightSuccess;
 
 export type UpdateHighlightSuccess = {
   __typename?: 'UpdateHighlightSuccess';
@@ -1547,17 +1546,17 @@ export type UpdateLinkShareInfoError = {
 };
 
 export enum UpdateLinkShareInfoErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  BadRequest = 'BAD_REQUEST'
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type UpdateLinkShareInfoInput = {
+  description: Scalars['String'];
   linkId: Scalars['ID'];
   title: Scalars['String'];
-  description: Scalars['String'];
 };
 
-export type UpdateLinkShareInfoResult = UpdateLinkShareInfoSuccess | UpdateLinkShareInfoError;
+export type UpdateLinkShareInfoResult = UpdateLinkShareInfoError | UpdateLinkShareInfoSuccess;
 
 export type UpdateLinkShareInfoSuccess = {
   __typename?: 'UpdateLinkShareInfoSuccess';
@@ -1570,19 +1569,19 @@ export type UpdateReminderError = {
 };
 
 export enum UpdateReminderErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadRequest = 'BAD_REQUEST',
-  NotFound = 'NOT_FOUND'
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type UpdateReminderInput = {
-  id: Scalars['ID'];
   archiveUntil: Scalars['Boolean'];
-  sendNotification: Scalars['Boolean'];
+  id: Scalars['ID'];
   remindAt: Scalars['Date'];
+  sendNotification: Scalars['Boolean'];
 };
 
-export type UpdateReminderResult = UpdateReminderSuccess | UpdateReminderError;
+export type UpdateReminderResult = UpdateReminderError | UpdateReminderSuccess;
 
 export type UpdateReminderSuccess = {
   __typename?: 'UpdateReminderSuccess';
@@ -1604,7 +1603,7 @@ export type UpdateSharedCommentInput = {
   sharedComment: Scalars['String'];
 };
 
-export type UpdateSharedCommentResult = UpdateSharedCommentSuccess | UpdateSharedCommentError;
+export type UpdateSharedCommentResult = UpdateSharedCommentError | UpdateSharedCommentSuccess;
 
 export type UpdateSharedCommentSuccess = {
   __typename?: 'UpdateSharedCommentSuccess';
@@ -1618,15 +1617,15 @@ export type UpdateUserError = {
 };
 
 export enum UpdateUserErrorCode {
-  EmptyName = 'EMPTY_NAME',
   BioTooLong = 'BIO_TOO_LONG',
-  UserNotFound = 'USER_NOT_FOUND',
-  Unauthorized = 'UNAUTHORIZED'
+  EmptyName = 'EMPTY_NAME',
+  Unauthorized = 'UNAUTHORIZED',
+  UserNotFound = 'USER_NOT_FOUND'
 }
 
 export type UpdateUserInput = {
+  bio?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
-  bio?: Maybe<Scalars['String']>;
 };
 
 export type UpdateUserProfileError = {
@@ -1635,28 +1634,28 @@ export type UpdateUserProfileError = {
 };
 
 export enum UpdateUserProfileErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
-  Forbidden = 'FORBIDDEN',
   BadData = 'BAD_DATA',
   BadUsername = 'BAD_USERNAME',
+  Forbidden = 'FORBIDDEN',
+  Unauthorized = 'UNAUTHORIZED',
   UsernameExists = 'USERNAME_EXISTS'
 }
 
 export type UpdateUserProfileInput = {
+  bio?: InputMaybe<Scalars['String']>;
+  pictureUrl?: InputMaybe<Scalars['String']>;
   userId: Scalars['ID'];
-  username?: Maybe<Scalars['String']>;
-  bio?: Maybe<Scalars['String']>;
-  pictureUrl?: Maybe<Scalars['String']>;
+  username?: InputMaybe<Scalars['String']>;
 };
 
-export type UpdateUserProfileResult = UpdateUserProfileSuccess | UpdateUserProfileError;
+export type UpdateUserProfileResult = UpdateUserProfileError | UpdateUserProfileSuccess;
 
 export type UpdateUserProfileSuccess = {
   __typename?: 'UpdateUserProfileSuccess';
   user: User;
 };
 
-export type UpdateUserResult = UpdateUserSuccess | UpdateUserError;
+export type UpdateUserResult = UpdateUserError | UpdateUserSuccess;
 
 export type UpdateUserSuccess = {
   __typename?: 'UpdateUserSuccess';
@@ -1669,46 +1668,46 @@ export type UploadFileRequestError = {
 };
 
 export enum UploadFileRequestErrorCode {
-  Unauthorized = 'UNAUTHORIZED',
   BadInput = 'BAD_INPUT',
-  FailedCreate = 'FAILED_CREATE'
+  FailedCreate = 'FAILED_CREATE',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type UploadFileRequestInput = {
-  url: Scalars['String'];
   contentType: Scalars['String'];
+  url: Scalars['String'];
 };
 
-export type UploadFileRequestResult = UploadFileRequestSuccess | UploadFileRequestError;
+export type UploadFileRequestResult = UploadFileRequestError | UploadFileRequestSuccess;
 
 export type UploadFileRequestSuccess = {
   __typename?: 'UploadFileRequestSuccess';
   id: Scalars['ID'];
-  uploadSignedUrl?: Maybe<Scalars['String']>;
   uploadFileId?: Maybe<Scalars['ID']>;
+  uploadSignedUrl?: Maybe<Scalars['String']>;
 };
 
 export enum UploadFileStatus {
-  Initialized = 'INITIALIZED',
-  Completed = 'COMPLETED'
+  Completed = 'COMPLETED',
+  Initialized = 'INITIALIZED'
 }
 
 export type User = {
   __typename?: 'User';
+  followersCount?: Maybe<Scalars['Int']>;
+  friendsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
-  name: Scalars['String'];
-  isFullUser?: Maybe<Scalars['Boolean']>;
-  viewerIsFollowing?: Maybe<Scalars['Boolean']>;
   /** @deprecated isFriend has been replaced with viewerIsFollowing */
   isFriend?: Maybe<Scalars['Boolean']>;
+  isFullUser?: Maybe<Scalars['Boolean']>;
+  name: Scalars['String'];
   picture?: Maybe<Scalars['String']>;
   profile: Profile;
   sharedArticles: Array<FeedArticle>;
   sharedArticlesCount?: Maybe<Scalars['Int']>;
   sharedHighlightsCount?: Maybe<Scalars['Int']>;
   sharedNotesCount?: Maybe<Scalars['Int']>;
-  friendsCount?: Maybe<Scalars['Int']>;
-  followersCount?: Maybe<Scalars['Int']>;
+  viewerIsFollowing?: Maybe<Scalars['Boolean']>;
 };
 
 export type UserError = {
@@ -1717,28 +1716,23 @@ export type UserError = {
 };
 
 export enum UserErrorCode {
+  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED',
-  UserNotFound = 'USER_NOT_FOUND',
-  BadRequest = 'BAD_REQUEST'
+  UserNotFound = 'USER_NOT_FOUND'
 }
 
 export type UserPersonalization = {
   __typename?: 'UserPersonalization';
-  id?: Maybe<Scalars['ID']>;
-  theme?: Maybe<Scalars['String']>;
-  fontSize?: Maybe<Scalars['Int']>;
   fontFamily?: Maybe<Scalars['String']>;
-  margin?: Maybe<Scalars['Int']>;
+  fontSize?: Maybe<Scalars['Int']>;
+  id?: Maybe<Scalars['ID']>;
   libraryLayoutType?: Maybe<Scalars['String']>;
   librarySortOrder?: Maybe<SortOrder>;
+  margin?: Maybe<Scalars['Int']>;
+  theme?: Maybe<Scalars['String']>;
 };
 
-export type UserResult = UserSuccess | UserError;
-
-export type UserSuccess = {
-  __typename?: 'UserSuccess';
-  user: User;
-};
+export type UserResult = UserError | UserSuccess;
 
 export type UsersError = {
   __typename?: 'UsersError';
@@ -1749,11 +1743,16 @@ export enum UsersErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type UsersResult = UsersSuccess | UsersError;
+export type UsersResult = UsersError | UsersSuccess;
 
 export type UsersSuccess = {
   __typename?: 'UsersSuccess';
   users: Array<User>;
+};
+
+export type UserSuccess = {
+  __typename?: 'UserSuccess';
+  user: User;
 };
 
 
@@ -1764,21 +1763,7 @@ export type ResolverTypeWrapper<T> = Promise<T> | T;
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-
-export type LegacyStitchingResolver<TResult, TParent, TContext, TArgs> = {
-  fragment: string;
-  resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
-};
-
-export type NewStitchingResolver<TResult, TParent, TContext, TArgs> = {
-  selectionSet: string;
-  resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
-};
-export type StitchingResolver<TResult, TParent, TContext, TArgs> = LegacyStitchingResolver<TResult, TParent, TContext, TArgs> | NewStitchingResolver<TResult, TParent, TContext, TArgs>;
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> =
-  | ResolverFn<TResult, TParent, TContext, TArgs>
-  | ResolverWithResolve<TResult, TParent, TContext, TArgs>
-  | StitchingResolver<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -1792,7 +1777,7 @@ export type SubscriptionSubscribeFn<TResult, TParent, TContext, TArgs> = (
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
-) => AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>;
+) => AsyncIterable<TResult> | Promise<AsyncIterable<TResult>>;
 
 export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -1840,41 +1825,37 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
-  String: ResolverTypeWrapper<Scalars['String']>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
-  ID: ResolverTypeWrapper<Scalars['ID']>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  ArchiveLinkResult: ResolversTypes['ArchiveLinkSuccess'] | ResolversTypes['ArchiveLinkError'];
+  ArchiveLinkResult: ResolversTypes['ArchiveLinkError'] | ResolversTypes['ArchiveLinkSuccess'];
   ArchiveLinkSuccess: ResolverTypeWrapper<ArchiveLinkSuccess>;
   Article: ResolverTypeWrapper<Article>;
-  Float: ResolverTypeWrapper<Scalars['Float']>;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
   ArticleEdge: ResolverTypeWrapper<ArticleEdge>;
   ArticleError: ResolverTypeWrapper<ArticleError>;
   ArticleErrorCode: ArticleErrorCode;
   ArticleHighlightsInput: ArticleHighlightsInput;
-  ArticleResult: ResolversTypes['ArticleSuccess'] | ResolversTypes['ArticleError'];
+  ArticleResult: ResolversTypes['ArticleError'] | ResolversTypes['ArticleSuccess'];
   ArticleSavingRequest: ResolverTypeWrapper<ArticleSavingRequest>;
   ArticleSavingRequestError: ResolverTypeWrapper<ArticleSavingRequestError>;
   ArticleSavingRequestErrorCode: ArticleSavingRequestErrorCode;
-  ArticleSavingRequestResult: ResolversTypes['ArticleSavingRequestSuccess'] | ResolversTypes['ArticleSavingRequestError'];
+  ArticleSavingRequestResult: ResolversTypes['ArticleSavingRequestError'] | ResolversTypes['ArticleSavingRequestSuccess'];
   ArticleSavingRequestStatus: ArticleSavingRequestStatus;
   ArticleSavingRequestSuccess: ResolverTypeWrapper<ArticleSavingRequestSuccess>;
-  ArticleSuccess: ResolverTypeWrapper<ArticleSuccess>;
   ArticlesError: ResolverTypeWrapper<ArticlesError>;
   ArticlesErrorCode: ArticlesErrorCode;
-  ArticlesResult: ResolversTypes['ArticlesSuccess'] | ResolversTypes['ArticlesError'];
+  ArticlesResult: ResolversTypes['ArticlesError'] | ResolversTypes['ArticlesSuccess'];
   ArticlesSuccess: ResolverTypeWrapper<ArticlesSuccess>;
+  ArticleSuccess: ResolverTypeWrapper<ArticleSuccess>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   ContentReader: ContentReader;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
   CreateArticleInput: CreateArticleInput;
-  CreateArticleResult: ResolversTypes['CreateArticleSuccess'] | ResolversTypes['CreateArticleError'];
+  CreateArticleResult: ResolversTypes['CreateArticleError'] | ResolversTypes['CreateArticleSuccess'];
   CreateArticleSavingRequestError: ResolverTypeWrapper<CreateArticleSavingRequestError>;
   CreateArticleSavingRequestErrorCode: CreateArticleSavingRequestErrorCode;
   CreateArticleSavingRequestInput: CreateArticleSavingRequestInput;
-  CreateArticleSavingRequestResult: ResolversTypes['CreateArticleSavingRequestSuccess'] | ResolversTypes['CreateArticleSavingRequestError'];
+  CreateArticleSavingRequestResult: ResolversTypes['CreateArticleSavingRequestError'] | ResolversTypes['CreateArticleSavingRequestSuccess'];
   CreateArticleSavingRequestSuccess: ResolverTypeWrapper<CreateArticleSavingRequestSuccess>;
   CreateArticleSuccess: ResolverTypeWrapper<CreateArticleSuccess>;
   CreateHighlightError: ResolverTypeWrapper<CreateHighlightError>;
@@ -1883,107 +1864,110 @@ export type ResolversTypes = {
   CreateHighlightReplyError: ResolverTypeWrapper<CreateHighlightReplyError>;
   CreateHighlightReplyErrorCode: CreateHighlightReplyErrorCode;
   CreateHighlightReplyInput: CreateHighlightReplyInput;
-  CreateHighlightReplyResult: ResolversTypes['CreateHighlightReplySuccess'] | ResolversTypes['CreateHighlightReplyError'];
+  CreateHighlightReplyResult: ResolversTypes['CreateHighlightReplyError'] | ResolversTypes['CreateHighlightReplySuccess'];
   CreateHighlightReplySuccess: ResolverTypeWrapper<CreateHighlightReplySuccess>;
-  CreateHighlightResult: ResolversTypes['CreateHighlightSuccess'] | ResolversTypes['CreateHighlightError'];
+  CreateHighlightResult: ResolversTypes['CreateHighlightError'] | ResolversTypes['CreateHighlightSuccess'];
   CreateHighlightSuccess: ResolverTypeWrapper<CreateHighlightSuccess>;
   CreateLabelError: ResolverTypeWrapper<CreateLabelError>;
   CreateLabelErrorCode: CreateLabelErrorCode;
   CreateLabelInput: CreateLabelInput;
-  CreateLabelResult: ResolversTypes['CreateLabelSuccess'] | ResolversTypes['CreateLabelError'];
+  CreateLabelResult: ResolversTypes['CreateLabelError'] | ResolversTypes['CreateLabelSuccess'];
   CreateLabelSuccess: ResolverTypeWrapper<CreateLabelSuccess>;
   CreateNewsletterEmailError: ResolverTypeWrapper<CreateNewsletterEmailError>;
   CreateNewsletterEmailErrorCode: CreateNewsletterEmailErrorCode;
-  CreateNewsletterEmailResult: ResolversTypes['CreateNewsletterEmailSuccess'] | ResolversTypes['CreateNewsletterEmailError'];
+  CreateNewsletterEmailResult: ResolversTypes['CreateNewsletterEmailError'] | ResolversTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: ResolverTypeWrapper<CreateNewsletterEmailSuccess>;
   CreateReactionError: ResolverTypeWrapper<CreateReactionError>;
   CreateReactionErrorCode: CreateReactionErrorCode;
   CreateReactionInput: CreateReactionInput;
-  CreateReactionResult: ResolversTypes['CreateReactionSuccess'] | ResolversTypes['CreateReactionError'];
+  CreateReactionResult: ResolversTypes['CreateReactionError'] | ResolversTypes['CreateReactionSuccess'];
   CreateReactionSuccess: ResolverTypeWrapper<CreateReactionSuccess>;
   CreateReminderError: ResolverTypeWrapper<CreateReminderError>;
   CreateReminderErrorCode: CreateReminderErrorCode;
   CreateReminderInput: CreateReminderInput;
-  CreateReminderResult: ResolversTypes['CreateReminderSuccess'] | ResolversTypes['CreateReminderError'];
+  CreateReminderResult: ResolversTypes['CreateReminderError'] | ResolversTypes['CreateReminderSuccess'];
   CreateReminderSuccess: ResolverTypeWrapper<CreateReminderSuccess>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
   DeleteHighlightReplyErrorCode: DeleteHighlightReplyErrorCode;
-  DeleteHighlightReplyResult: ResolversTypes['DeleteHighlightReplySuccess'] | ResolversTypes['DeleteHighlightReplyError'];
+  DeleteHighlightReplyResult: ResolversTypes['DeleteHighlightReplyError'] | ResolversTypes['DeleteHighlightReplySuccess'];
   DeleteHighlightReplySuccess: ResolverTypeWrapper<DeleteHighlightReplySuccess>;
-  DeleteHighlightResult: ResolversTypes['DeleteHighlightSuccess'] | ResolversTypes['DeleteHighlightError'];
+  DeleteHighlightResult: ResolversTypes['DeleteHighlightError'] | ResolversTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: ResolverTypeWrapper<DeleteHighlightSuccess>;
   DeleteLabelError: ResolverTypeWrapper<DeleteLabelError>;
   DeleteLabelErrorCode: DeleteLabelErrorCode;
-  DeleteLabelResult: ResolversTypes['DeleteLabelSuccess'] | ResolversTypes['DeleteLabelError'];
+  DeleteLabelResult: ResolversTypes['DeleteLabelError'] | ResolversTypes['DeleteLabelSuccess'];
   DeleteLabelSuccess: ResolverTypeWrapper<DeleteLabelSuccess>;
   DeleteNewsletterEmailError: ResolverTypeWrapper<DeleteNewsletterEmailError>;
   DeleteNewsletterEmailErrorCode: DeleteNewsletterEmailErrorCode;
-  DeleteNewsletterEmailResult: ResolversTypes['DeleteNewsletterEmailSuccess'] | ResolversTypes['DeleteNewsletterEmailError'];
+  DeleteNewsletterEmailResult: ResolversTypes['DeleteNewsletterEmailError'] | ResolversTypes['DeleteNewsletterEmailSuccess'];
   DeleteNewsletterEmailSuccess: ResolverTypeWrapper<DeleteNewsletterEmailSuccess>;
   DeleteReactionError: ResolverTypeWrapper<DeleteReactionError>;
   DeleteReactionErrorCode: DeleteReactionErrorCode;
-  DeleteReactionResult: ResolversTypes['DeleteReactionSuccess'] | ResolversTypes['DeleteReactionError'];
+  DeleteReactionResult: ResolversTypes['DeleteReactionError'] | ResolversTypes['DeleteReactionSuccess'];
   DeleteReactionSuccess: ResolverTypeWrapper<DeleteReactionSuccess>;
   DeleteReminderError: ResolverTypeWrapper<DeleteReminderError>;
   DeleteReminderErrorCode: DeleteReminderErrorCode;
-  DeleteReminderResult: ResolversTypes['DeleteReminderSuccess'] | ResolversTypes['DeleteReminderError'];
+  DeleteReminderResult: ResolversTypes['DeleteReminderError'] | ResolversTypes['DeleteReminderSuccess'];
   DeleteReminderSuccess: ResolverTypeWrapper<DeleteReminderSuccess>;
   DeviceToken: ResolverTypeWrapper<DeviceToken>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
   FeedArticlesError: ResolverTypeWrapper<FeedArticlesError>;
   FeedArticlesErrorCode: FeedArticlesErrorCode;
-  FeedArticlesResult: ResolversTypes['FeedArticlesSuccess'] | ResolversTypes['FeedArticlesError'];
+  FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
   GetFollowersError: ResolverTypeWrapper<GetFollowersError>;
   GetFollowersErrorCode: GetFollowersErrorCode;
-  GetFollowersResult: ResolversTypes['GetFollowersSuccess'] | ResolversTypes['GetFollowersError'];
+  GetFollowersResult: ResolversTypes['GetFollowersError'] | ResolversTypes['GetFollowersSuccess'];
   GetFollowersSuccess: ResolverTypeWrapper<GetFollowersSuccess>;
   GetFollowingError: ResolverTypeWrapper<GetFollowingError>;
   GetFollowingErrorCode: GetFollowingErrorCode;
-  GetFollowingResult: ResolversTypes['GetFollowingSuccess'] | ResolversTypes['GetFollowingError'];
+  GetFollowingResult: ResolversTypes['GetFollowingError'] | ResolversTypes['GetFollowingSuccess'];
   GetFollowingSuccess: ResolverTypeWrapper<GetFollowingSuccess>;
   GetUserPersonalizationError: ResolverTypeWrapper<GetUserPersonalizationError>;
   GetUserPersonalizationErrorCode: GetUserPersonalizationErrorCode;
-  GetUserPersonalizationResult: ResolversTypes['GetUserPersonalizationSuccess'] | ResolversTypes['GetUserPersonalizationError'];
+  GetUserPersonalizationResult: ResolversTypes['GetUserPersonalizationError'] | ResolversTypes['GetUserPersonalizationSuccess'];
   GetUserPersonalizationSuccess: ResolverTypeWrapper<GetUserPersonalizationSuccess>;
   GoogleLoginInput: GoogleLoginInput;
   GoogleSignupError: ResolverTypeWrapper<GoogleSignupError>;
   GoogleSignupInput: GoogleSignupInput;
-  GoogleSignupResult: ResolversTypes['GoogleSignupSuccess'] | ResolversTypes['GoogleSignupError'];
+  GoogleSignupResult: ResolversTypes['GoogleSignupError'] | ResolversTypes['GoogleSignupSuccess'];
   GoogleSignupSuccess: ResolverTypeWrapper<GoogleSignupSuccess>;
   Highlight: ResolverTypeWrapper<Highlight>;
   HighlightReply: ResolverTypeWrapper<HighlightReply>;
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
-  LabelsResult: ResolversTypes['LabelsSuccess'] | ResolversTypes['LabelsError'];
+  LabelsResult: ResolversTypes['LabelsError'] | ResolversTypes['LabelsSuccess'];
   LabelsSuccess: ResolverTypeWrapper<LabelsSuccess>;
   Link: ResolverTypeWrapper<Link>;
   LinkShareInfo: ResolverTypeWrapper<LinkShareInfo>;
-  LogOutError: ResolverTypeWrapper<LogOutError>;
-  LogOutErrorCode: LogOutErrorCode;
-  LogOutResult: ResolversTypes['LogOutSuccess'] | ResolversTypes['LogOutError'];
-  LogOutSuccess: ResolverTypeWrapper<LogOutSuccess>;
   LoginError: ResolverTypeWrapper<LoginError>;
   LoginErrorCode: LoginErrorCode;
   LoginInput: LoginInput;
-  LoginResult: ResolversTypes['LoginSuccess'] | ResolversTypes['LoginError'];
+  LoginResult: ResolversTypes['LoginError'] | ResolversTypes['LoginSuccess'];
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
+  LogOutError: ResolverTypeWrapper<LogOutError>;
+  LogOutErrorCode: LogOutErrorCode;
+  LogOutResult: ResolversTypes['LogOutError'] | ResolversTypes['LogOutSuccess'];
+  LogOutSuccess: ResolverTypeWrapper<LogOutSuccess>;
   MergeHighlightError: ResolverTypeWrapper<MergeHighlightError>;
   MergeHighlightErrorCode: MergeHighlightErrorCode;
   MergeHighlightInput: MergeHighlightInput;
-  MergeHighlightResult: ResolversTypes['MergeHighlightSuccess'] | ResolversTypes['MergeHighlightError'];
+  MergeHighlightResult: ResolversTypes['MergeHighlightError'] | ResolversTypes['MergeHighlightSuccess'];
   MergeHighlightSuccess: ResolverTypeWrapper<MergeHighlightSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
   NewsletterEmailsErrorCode: NewsletterEmailsErrorCode;
-  NewsletterEmailsResult: ResolversTypes['NewsletterEmailsSuccess'] | ResolversTypes['NewsletterEmailsError'];
+  NewsletterEmailsResult: ResolversTypes['NewsletterEmailsError'] | ResolversTypes['NewsletterEmailsSuccess'];
   NewsletterEmailsSuccess: ResolverTypeWrapper<NewsletterEmailsSuccess>;
   Page: ResolverTypeWrapper<Page>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -1998,7 +1982,7 @@ export type ResolversTypes = {
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
   ReminderErrorCode: ReminderErrorCode;
-  ReminderResult: ResolversTypes['ReminderSuccess'] | ResolversTypes['ReminderError'];
+  ReminderResult: ResolversTypes['ReminderError'] | ResolversTypes['ReminderSuccess'];
   ReminderSuccess: ResolverTypeWrapper<ReminderSuccess>;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ResolverTypeWrapper<ReportItemResult>;
@@ -2006,82 +1990,83 @@ export type ResolversTypes = {
   SaveArticleReadingProgressError: ResolverTypeWrapper<SaveArticleReadingProgressError>;
   SaveArticleReadingProgressErrorCode: SaveArticleReadingProgressErrorCode;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
-  SaveArticleReadingProgressResult: ResolversTypes['SaveArticleReadingProgressSuccess'] | ResolversTypes['SaveArticleReadingProgressError'];
+  SaveArticleReadingProgressResult: ResolversTypes['SaveArticleReadingProgressError'] | ResolversTypes['SaveArticleReadingProgressSuccess'];
   SaveArticleReadingProgressSuccess: ResolverTypeWrapper<SaveArticleReadingProgressSuccess>;
   SaveError: ResolverTypeWrapper<SaveError>;
   SaveErrorCode: SaveErrorCode;
   SaveFileInput: SaveFileInput;
   SavePageInput: SavePageInput;
-  SaveResult: ResolversTypes['SaveSuccess'] | ResolversTypes['SaveError'];
+  SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
   SaveUrlInput: SaveUrlInput;
   SetBookmarkArticleError: ResolverTypeWrapper<SetBookmarkArticleError>;
   SetBookmarkArticleErrorCode: SetBookmarkArticleErrorCode;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
-  SetBookmarkArticleResult: ResolversTypes['SetBookmarkArticleSuccess'] | ResolversTypes['SetBookmarkArticleError'];
+  SetBookmarkArticleResult: ResolversTypes['SetBookmarkArticleError'] | ResolversTypes['SetBookmarkArticleSuccess'];
   SetBookmarkArticleSuccess: ResolverTypeWrapper<SetBookmarkArticleSuccess>;
   SetDeviceTokenError: ResolverTypeWrapper<SetDeviceTokenError>;
   SetDeviceTokenErrorCode: SetDeviceTokenErrorCode;
   SetDeviceTokenInput: SetDeviceTokenInput;
-  SetDeviceTokenResult: ResolversTypes['SetDeviceTokenSuccess'] | ResolversTypes['SetDeviceTokenError'];
+  SetDeviceTokenResult: ResolversTypes['SetDeviceTokenError'] | ResolversTypes['SetDeviceTokenSuccess'];
   SetDeviceTokenSuccess: ResolverTypeWrapper<SetDeviceTokenSuccess>;
   SetFollowError: ResolverTypeWrapper<SetFollowError>;
   SetFollowErrorCode: SetFollowErrorCode;
   SetFollowInput: SetFollowInput;
-  SetFollowResult: ResolversTypes['SetFollowSuccess'] | ResolversTypes['SetFollowError'];
+  SetFollowResult: ResolversTypes['SetFollowError'] | ResolversTypes['SetFollowSuccess'];
   SetFollowSuccess: ResolverTypeWrapper<SetFollowSuccess>;
   SetShareArticleError: ResolverTypeWrapper<SetShareArticleError>;
   SetShareArticleErrorCode: SetShareArticleErrorCode;
   SetShareArticleInput: SetShareArticleInput;
-  SetShareArticleResult: ResolversTypes['SetShareArticleSuccess'] | ResolversTypes['SetShareArticleError'];
+  SetShareArticleResult: ResolversTypes['SetShareArticleError'] | ResolversTypes['SetShareArticleSuccess'];
   SetShareArticleSuccess: ResolverTypeWrapper<SetShareArticleSuccess>;
   SetShareHighlightError: ResolverTypeWrapper<SetShareHighlightError>;
   SetShareHighlightErrorCode: SetShareHighlightErrorCode;
   SetShareHighlightInput: SetShareHighlightInput;
-  SetShareHighlightResult: ResolversTypes['SetShareHighlightSuccess'] | ResolversTypes['SetShareHighlightError'];
+  SetShareHighlightResult: ResolversTypes['SetShareHighlightError'] | ResolversTypes['SetShareHighlightSuccess'];
   SetShareHighlightSuccess: ResolverTypeWrapper<SetShareHighlightSuccess>;
   SetUserPersonalizationError: ResolverTypeWrapper<SetUserPersonalizationError>;
   SetUserPersonalizationErrorCode: SetUserPersonalizationErrorCode;
   SetUserPersonalizationInput: SetUserPersonalizationInput;
-  SetUserPersonalizationResult: ResolversTypes['SetUserPersonalizationSuccess'] | ResolversTypes['SetUserPersonalizationError'];
+  SetUserPersonalizationResult: ResolversTypes['SetUserPersonalizationError'] | ResolversTypes['SetUserPersonalizationSuccess'];
   SetUserPersonalizationSuccess: ResolverTypeWrapper<SetUserPersonalizationSuccess>;
-  ShareStats: ResolverTypeWrapper<ShareStats>;
   SharedArticleError: ResolverTypeWrapper<SharedArticleError>;
   SharedArticleErrorCode: SharedArticleErrorCode;
-  SharedArticleResult: ResolversTypes['SharedArticleSuccess'] | ResolversTypes['SharedArticleError'];
+  SharedArticleResult: ResolversTypes['SharedArticleError'] | ResolversTypes['SharedArticleSuccess'];
   SharedArticleSuccess: ResolverTypeWrapper<SharedArticleSuccess>;
+  ShareStats: ResolverTypeWrapper<ShareStats>;
   SignupError: ResolverTypeWrapper<SignupError>;
   SignupErrorCode: SignupErrorCode;
   SignupInput: SignupInput;
-  SignupResult: ResolversTypes['SignupSuccess'] | ResolversTypes['SignupError'];
+  SignupResult: ResolversTypes['SignupError'] | ResolversTypes['SignupSuccess'];
   SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   SortBy: SortBy;
   SortOrder: SortOrder;
   SortParams: SortParams;
+  String: ResolverTypeWrapper<Scalars['String']>;
   UpdateHighlightError: ResolverTypeWrapper<UpdateHighlightError>;
   UpdateHighlightErrorCode: UpdateHighlightErrorCode;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: ResolverTypeWrapper<UpdateHighlightReplyError>;
   UpdateHighlightReplyErrorCode: UpdateHighlightReplyErrorCode;
   UpdateHighlightReplyInput: UpdateHighlightReplyInput;
-  UpdateHighlightReplyResult: ResolversTypes['UpdateHighlightReplySuccess'] | ResolversTypes['UpdateHighlightReplyError'];
+  UpdateHighlightReplyResult: ResolversTypes['UpdateHighlightReplyError'] | ResolversTypes['UpdateHighlightReplySuccess'];
   UpdateHighlightReplySuccess: ResolverTypeWrapper<UpdateHighlightReplySuccess>;
-  UpdateHighlightResult: ResolversTypes['UpdateHighlightSuccess'] | ResolversTypes['UpdateHighlightError'];
+  UpdateHighlightResult: ResolversTypes['UpdateHighlightError'] | ResolversTypes['UpdateHighlightSuccess'];
   UpdateHighlightSuccess: ResolverTypeWrapper<UpdateHighlightSuccess>;
   UpdateLinkShareInfoError: ResolverTypeWrapper<UpdateLinkShareInfoError>;
   UpdateLinkShareInfoErrorCode: UpdateLinkShareInfoErrorCode;
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
-  UpdateLinkShareInfoResult: ResolversTypes['UpdateLinkShareInfoSuccess'] | ResolversTypes['UpdateLinkShareInfoError'];
+  UpdateLinkShareInfoResult: ResolversTypes['UpdateLinkShareInfoError'] | ResolversTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: ResolverTypeWrapper<UpdateLinkShareInfoSuccess>;
   UpdateReminderError: ResolverTypeWrapper<UpdateReminderError>;
   UpdateReminderErrorCode: UpdateReminderErrorCode;
   UpdateReminderInput: UpdateReminderInput;
-  UpdateReminderResult: ResolversTypes['UpdateReminderSuccess'] | ResolversTypes['UpdateReminderError'];
+  UpdateReminderResult: ResolversTypes['UpdateReminderError'] | ResolversTypes['UpdateReminderSuccess'];
   UpdateReminderSuccess: ResolverTypeWrapper<UpdateReminderSuccess>;
   UpdateSharedCommentError: ResolverTypeWrapper<UpdateSharedCommentError>;
   UpdateSharedCommentErrorCode: UpdateSharedCommentErrorCode;
   UpdateSharedCommentInput: UpdateSharedCommentInput;
-  UpdateSharedCommentResult: ResolversTypes['UpdateSharedCommentSuccess'] | ResolversTypes['UpdateSharedCommentError'];
+  UpdateSharedCommentResult: ResolversTypes['UpdateSharedCommentError'] | ResolversTypes['UpdateSharedCommentSuccess'];
   UpdateSharedCommentSuccess: ResolverTypeWrapper<UpdateSharedCommentSuccess>;
   UpdateUserError: ResolverTypeWrapper<UpdateUserError>;
   UpdateUserErrorCode: UpdateUserErrorCode;
@@ -2089,146 +2074,145 @@ export type ResolversTypes = {
   UpdateUserProfileError: ResolverTypeWrapper<UpdateUserProfileError>;
   UpdateUserProfileErrorCode: UpdateUserProfileErrorCode;
   UpdateUserProfileInput: UpdateUserProfileInput;
-  UpdateUserProfileResult: ResolversTypes['UpdateUserProfileSuccess'] | ResolversTypes['UpdateUserProfileError'];
+  UpdateUserProfileResult: ResolversTypes['UpdateUserProfileError'] | ResolversTypes['UpdateUserProfileSuccess'];
   UpdateUserProfileSuccess: ResolverTypeWrapper<UpdateUserProfileSuccess>;
-  UpdateUserResult: ResolversTypes['UpdateUserSuccess'] | ResolversTypes['UpdateUserError'];
+  UpdateUserResult: ResolversTypes['UpdateUserError'] | ResolversTypes['UpdateUserSuccess'];
   UpdateUserSuccess: ResolverTypeWrapper<UpdateUserSuccess>;
   UploadFileRequestError: ResolverTypeWrapper<UploadFileRequestError>;
   UploadFileRequestErrorCode: UploadFileRequestErrorCode;
   UploadFileRequestInput: UploadFileRequestInput;
-  UploadFileRequestResult: ResolversTypes['UploadFileRequestSuccess'] | ResolversTypes['UploadFileRequestError'];
+  UploadFileRequestResult: ResolversTypes['UploadFileRequestError'] | ResolversTypes['UploadFileRequestSuccess'];
   UploadFileRequestSuccess: ResolverTypeWrapper<UploadFileRequestSuccess>;
   UploadFileStatus: UploadFileStatus;
   User: ResolverTypeWrapper<User>;
   UserError: ResolverTypeWrapper<UserError>;
   UserErrorCode: UserErrorCode;
   UserPersonalization: ResolverTypeWrapper<UserPersonalization>;
-  UserResult: ResolversTypes['UserSuccess'] | ResolversTypes['UserError'];
-  UserSuccess: ResolverTypeWrapper<UserSuccess>;
+  UserResult: ResolversTypes['UserError'] | ResolversTypes['UserSuccess'];
   UsersError: ResolverTypeWrapper<UsersError>;
   UsersErrorCode: UsersErrorCode;
-  UsersResult: ResolversTypes['UsersSuccess'] | ResolversTypes['UsersError'];
+  UsersResult: ResolversTypes['UsersError'] | ResolversTypes['UsersSuccess'];
   UsersSuccess: ResolverTypeWrapper<UsersSuccess>;
+  UserSuccess: ResolverTypeWrapper<UserSuccess>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   ArchiveLinkError: ArchiveLinkError;
-  String: Scalars['String'];
   ArchiveLinkInput: ArchiveLinkInput;
-  ID: Scalars['ID'];
-  Boolean: Scalars['Boolean'];
-  ArchiveLinkResult: ResolversParentTypes['ArchiveLinkSuccess'] | ResolversParentTypes['ArchiveLinkError'];
+  ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
   ArchiveLinkSuccess: ArchiveLinkSuccess;
   Article: Article;
-  Float: Scalars['Float'];
-  Int: Scalars['Int'];
   ArticleEdge: ArticleEdge;
   ArticleError: ArticleError;
   ArticleHighlightsInput: ArticleHighlightsInput;
-  ArticleResult: ResolversParentTypes['ArticleSuccess'] | ResolversParentTypes['ArticleError'];
+  ArticleResult: ResolversParentTypes['ArticleError'] | ResolversParentTypes['ArticleSuccess'];
   ArticleSavingRequest: ArticleSavingRequest;
   ArticleSavingRequestError: ArticleSavingRequestError;
-  ArticleSavingRequestResult: ResolversParentTypes['ArticleSavingRequestSuccess'] | ResolversParentTypes['ArticleSavingRequestError'];
+  ArticleSavingRequestResult: ResolversParentTypes['ArticleSavingRequestError'] | ResolversParentTypes['ArticleSavingRequestSuccess'];
   ArticleSavingRequestSuccess: ArticleSavingRequestSuccess;
-  ArticleSuccess: ArticleSuccess;
   ArticlesError: ArticlesError;
-  ArticlesResult: ResolversParentTypes['ArticlesSuccess'] | ResolversParentTypes['ArticlesError'];
+  ArticlesResult: ResolversParentTypes['ArticlesError'] | ResolversParentTypes['ArticlesSuccess'];
   ArticlesSuccess: ArticlesSuccess;
+  ArticleSuccess: ArticleSuccess;
+  Boolean: Scalars['Boolean'];
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
-  CreateArticleResult: ResolversParentTypes['CreateArticleSuccess'] | ResolversParentTypes['CreateArticleError'];
+  CreateArticleResult: ResolversParentTypes['CreateArticleError'] | ResolversParentTypes['CreateArticleSuccess'];
   CreateArticleSavingRequestError: CreateArticleSavingRequestError;
   CreateArticleSavingRequestInput: CreateArticleSavingRequestInput;
-  CreateArticleSavingRequestResult: ResolversParentTypes['CreateArticleSavingRequestSuccess'] | ResolversParentTypes['CreateArticleSavingRequestError'];
+  CreateArticleSavingRequestResult: ResolversParentTypes['CreateArticleSavingRequestError'] | ResolversParentTypes['CreateArticleSavingRequestSuccess'];
   CreateArticleSavingRequestSuccess: CreateArticleSavingRequestSuccess;
   CreateArticleSuccess: CreateArticleSuccess;
   CreateHighlightError: CreateHighlightError;
   CreateHighlightInput: CreateHighlightInput;
   CreateHighlightReplyError: CreateHighlightReplyError;
   CreateHighlightReplyInput: CreateHighlightReplyInput;
-  CreateHighlightReplyResult: ResolversParentTypes['CreateHighlightReplySuccess'] | ResolversParentTypes['CreateHighlightReplyError'];
+  CreateHighlightReplyResult: ResolversParentTypes['CreateHighlightReplyError'] | ResolversParentTypes['CreateHighlightReplySuccess'];
   CreateHighlightReplySuccess: CreateHighlightReplySuccess;
-  CreateHighlightResult: ResolversParentTypes['CreateHighlightSuccess'] | ResolversParentTypes['CreateHighlightError'];
+  CreateHighlightResult: ResolversParentTypes['CreateHighlightError'] | ResolversParentTypes['CreateHighlightSuccess'];
   CreateHighlightSuccess: CreateHighlightSuccess;
   CreateLabelError: CreateLabelError;
   CreateLabelInput: CreateLabelInput;
-  CreateLabelResult: ResolversParentTypes['CreateLabelSuccess'] | ResolversParentTypes['CreateLabelError'];
+  CreateLabelResult: ResolversParentTypes['CreateLabelError'] | ResolversParentTypes['CreateLabelSuccess'];
   CreateLabelSuccess: CreateLabelSuccess;
   CreateNewsletterEmailError: CreateNewsletterEmailError;
-  CreateNewsletterEmailResult: ResolversParentTypes['CreateNewsletterEmailSuccess'] | ResolversParentTypes['CreateNewsletterEmailError'];
+  CreateNewsletterEmailResult: ResolversParentTypes['CreateNewsletterEmailError'] | ResolversParentTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: CreateNewsletterEmailSuccess;
   CreateReactionError: CreateReactionError;
   CreateReactionInput: CreateReactionInput;
-  CreateReactionResult: ResolversParentTypes['CreateReactionSuccess'] | ResolversParentTypes['CreateReactionError'];
+  CreateReactionResult: ResolversParentTypes['CreateReactionError'] | ResolversParentTypes['CreateReactionSuccess'];
   CreateReactionSuccess: CreateReactionSuccess;
   CreateReminderError: CreateReminderError;
   CreateReminderInput: CreateReminderInput;
-  CreateReminderResult: ResolversParentTypes['CreateReminderSuccess'] | ResolversParentTypes['CreateReminderError'];
+  CreateReminderResult: ResolversParentTypes['CreateReminderError'] | ResolversParentTypes['CreateReminderSuccess'];
   CreateReminderSuccess: CreateReminderSuccess;
   Date: Scalars['Date'];
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
-  DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplySuccess'] | ResolversParentTypes['DeleteHighlightReplyError'];
+  DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
   DeleteHighlightReplySuccess: DeleteHighlightReplySuccess;
-  DeleteHighlightResult: ResolversParentTypes['DeleteHighlightSuccess'] | ResolversParentTypes['DeleteHighlightError'];
+  DeleteHighlightResult: ResolversParentTypes['DeleteHighlightError'] | ResolversParentTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: DeleteHighlightSuccess;
   DeleteLabelError: DeleteLabelError;
-  DeleteLabelResult: ResolversParentTypes['DeleteLabelSuccess'] | ResolversParentTypes['DeleteLabelError'];
+  DeleteLabelResult: ResolversParentTypes['DeleteLabelError'] | ResolversParentTypes['DeleteLabelSuccess'];
   DeleteLabelSuccess: DeleteLabelSuccess;
   DeleteNewsletterEmailError: DeleteNewsletterEmailError;
-  DeleteNewsletterEmailResult: ResolversParentTypes['DeleteNewsletterEmailSuccess'] | ResolversParentTypes['DeleteNewsletterEmailError'];
+  DeleteNewsletterEmailResult: ResolversParentTypes['DeleteNewsletterEmailError'] | ResolversParentTypes['DeleteNewsletterEmailSuccess'];
   DeleteNewsletterEmailSuccess: DeleteNewsletterEmailSuccess;
   DeleteReactionError: DeleteReactionError;
-  DeleteReactionResult: ResolversParentTypes['DeleteReactionSuccess'] | ResolversParentTypes['DeleteReactionError'];
+  DeleteReactionResult: ResolversParentTypes['DeleteReactionError'] | ResolversParentTypes['DeleteReactionSuccess'];
   DeleteReactionSuccess: DeleteReactionSuccess;
   DeleteReminderError: DeleteReminderError;
-  DeleteReminderResult: ResolversParentTypes['DeleteReminderSuccess'] | ResolversParentTypes['DeleteReminderError'];
+  DeleteReminderResult: ResolversParentTypes['DeleteReminderError'] | ResolversParentTypes['DeleteReminderSuccess'];
   DeleteReminderSuccess: DeleteReminderSuccess;
   DeviceToken: DeviceToken;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
   FeedArticlesError: FeedArticlesError;
-  FeedArticlesResult: ResolversParentTypes['FeedArticlesSuccess'] | ResolversParentTypes['FeedArticlesError'];
+  FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: FeedArticlesSuccess;
+  Float: Scalars['Float'];
   GetFollowersError: GetFollowersError;
-  GetFollowersResult: ResolversParentTypes['GetFollowersSuccess'] | ResolversParentTypes['GetFollowersError'];
+  GetFollowersResult: ResolversParentTypes['GetFollowersError'] | ResolversParentTypes['GetFollowersSuccess'];
   GetFollowersSuccess: GetFollowersSuccess;
   GetFollowingError: GetFollowingError;
-  GetFollowingResult: ResolversParentTypes['GetFollowingSuccess'] | ResolversParentTypes['GetFollowingError'];
+  GetFollowingResult: ResolversParentTypes['GetFollowingError'] | ResolversParentTypes['GetFollowingSuccess'];
   GetFollowingSuccess: GetFollowingSuccess;
   GetUserPersonalizationError: GetUserPersonalizationError;
-  GetUserPersonalizationResult: ResolversParentTypes['GetUserPersonalizationSuccess'] | ResolversParentTypes['GetUserPersonalizationError'];
+  GetUserPersonalizationResult: ResolversParentTypes['GetUserPersonalizationError'] | ResolversParentTypes['GetUserPersonalizationSuccess'];
   GetUserPersonalizationSuccess: GetUserPersonalizationSuccess;
   GoogleLoginInput: GoogleLoginInput;
   GoogleSignupError: GoogleSignupError;
   GoogleSignupInput: GoogleSignupInput;
-  GoogleSignupResult: ResolversParentTypes['GoogleSignupSuccess'] | ResolversParentTypes['GoogleSignupError'];
+  GoogleSignupResult: ResolversParentTypes['GoogleSignupError'] | ResolversParentTypes['GoogleSignupSuccess'];
   GoogleSignupSuccess: GoogleSignupSuccess;
   Highlight: Highlight;
   HighlightReply: HighlightReply;
   HighlightStats: HighlightStats;
+  ID: Scalars['ID'];
+  Int: Scalars['Int'];
   Label: Label;
   LabelsError: LabelsError;
-  LabelsResult: ResolversParentTypes['LabelsSuccess'] | ResolversParentTypes['LabelsError'];
+  LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
   LabelsSuccess: LabelsSuccess;
   Link: Link;
   LinkShareInfo: LinkShareInfo;
-  LogOutError: LogOutError;
-  LogOutResult: ResolversParentTypes['LogOutSuccess'] | ResolversParentTypes['LogOutError'];
-  LogOutSuccess: LogOutSuccess;
   LoginError: LoginError;
   LoginInput: LoginInput;
-  LoginResult: ResolversParentTypes['LoginSuccess'] | ResolversParentTypes['LoginError'];
+  LoginResult: ResolversParentTypes['LoginError'] | ResolversParentTypes['LoginSuccess'];
   LoginSuccess: LoginSuccess;
+  LogOutError: LogOutError;
+  LogOutResult: ResolversParentTypes['LogOutError'] | ResolversParentTypes['LogOutSuccess'];
+  LogOutSuccess: LogOutSuccess;
   MergeHighlightError: MergeHighlightError;
   MergeHighlightInput: MergeHighlightInput;
-  MergeHighlightResult: ResolversParentTypes['MergeHighlightSuccess'] | ResolversParentTypes['MergeHighlightError'];
+  MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
   MergeHighlightSuccess: MergeHighlightSuccess;
   Mutation: {};
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
-  NewsletterEmailsResult: ResolversParentTypes['NewsletterEmailsSuccess'] | ResolversParentTypes['NewsletterEmailsError'];
+  NewsletterEmailsResult: ResolversParentTypes['NewsletterEmailsError'] | ResolversParentTypes['NewsletterEmailsSuccess'];
   NewsletterEmailsSuccess: NewsletterEmailsSuccess;
   Page: Page;
   PageInfo: PageInfo;
@@ -2240,108 +2224,111 @@ export type ResolversParentTypes = {
   ReadState: ReadState;
   Reminder: Reminder;
   ReminderError: ReminderError;
-  ReminderResult: ResolversParentTypes['ReminderSuccess'] | ResolversParentTypes['ReminderError'];
+  ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
   ReminderSuccess: ReminderSuccess;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ReportItemResult;
   SaveArticleReadingProgressError: SaveArticleReadingProgressError;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
-  SaveArticleReadingProgressResult: ResolversParentTypes['SaveArticleReadingProgressSuccess'] | ResolversParentTypes['SaveArticleReadingProgressError'];
+  SaveArticleReadingProgressResult: ResolversParentTypes['SaveArticleReadingProgressError'] | ResolversParentTypes['SaveArticleReadingProgressSuccess'];
   SaveArticleReadingProgressSuccess: SaveArticleReadingProgressSuccess;
   SaveError: SaveError;
   SaveFileInput: SaveFileInput;
   SavePageInput: SavePageInput;
-  SaveResult: ResolversParentTypes['SaveSuccess'] | ResolversParentTypes['SaveError'];
+  SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
   SaveUrlInput: SaveUrlInput;
   SetBookmarkArticleError: SetBookmarkArticleError;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
-  SetBookmarkArticleResult: ResolversParentTypes['SetBookmarkArticleSuccess'] | ResolversParentTypes['SetBookmarkArticleError'];
+  SetBookmarkArticleResult: ResolversParentTypes['SetBookmarkArticleError'] | ResolversParentTypes['SetBookmarkArticleSuccess'];
   SetBookmarkArticleSuccess: SetBookmarkArticleSuccess;
   SetDeviceTokenError: SetDeviceTokenError;
   SetDeviceTokenInput: SetDeviceTokenInput;
-  SetDeviceTokenResult: ResolversParentTypes['SetDeviceTokenSuccess'] | ResolversParentTypes['SetDeviceTokenError'];
+  SetDeviceTokenResult: ResolversParentTypes['SetDeviceTokenError'] | ResolversParentTypes['SetDeviceTokenSuccess'];
   SetDeviceTokenSuccess: SetDeviceTokenSuccess;
   SetFollowError: SetFollowError;
   SetFollowInput: SetFollowInput;
-  SetFollowResult: ResolversParentTypes['SetFollowSuccess'] | ResolversParentTypes['SetFollowError'];
+  SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
   SetFollowSuccess: SetFollowSuccess;
   SetShareArticleError: SetShareArticleError;
   SetShareArticleInput: SetShareArticleInput;
-  SetShareArticleResult: ResolversParentTypes['SetShareArticleSuccess'] | ResolversParentTypes['SetShareArticleError'];
+  SetShareArticleResult: ResolversParentTypes['SetShareArticleError'] | ResolversParentTypes['SetShareArticleSuccess'];
   SetShareArticleSuccess: SetShareArticleSuccess;
   SetShareHighlightError: SetShareHighlightError;
   SetShareHighlightInput: SetShareHighlightInput;
-  SetShareHighlightResult: ResolversParentTypes['SetShareHighlightSuccess'] | ResolversParentTypes['SetShareHighlightError'];
+  SetShareHighlightResult: ResolversParentTypes['SetShareHighlightError'] | ResolversParentTypes['SetShareHighlightSuccess'];
   SetShareHighlightSuccess: SetShareHighlightSuccess;
   SetUserPersonalizationError: SetUserPersonalizationError;
   SetUserPersonalizationInput: SetUserPersonalizationInput;
-  SetUserPersonalizationResult: ResolversParentTypes['SetUserPersonalizationSuccess'] | ResolversParentTypes['SetUserPersonalizationError'];
+  SetUserPersonalizationResult: ResolversParentTypes['SetUserPersonalizationError'] | ResolversParentTypes['SetUserPersonalizationSuccess'];
   SetUserPersonalizationSuccess: SetUserPersonalizationSuccess;
-  ShareStats: ShareStats;
   SharedArticleError: SharedArticleError;
-  SharedArticleResult: ResolversParentTypes['SharedArticleSuccess'] | ResolversParentTypes['SharedArticleError'];
+  SharedArticleResult: ResolversParentTypes['SharedArticleError'] | ResolversParentTypes['SharedArticleSuccess'];
   SharedArticleSuccess: SharedArticleSuccess;
+  ShareStats: ShareStats;
   SignupError: SignupError;
   SignupInput: SignupInput;
-  SignupResult: ResolversParentTypes['SignupSuccess'] | ResolversParentTypes['SignupError'];
+  SignupResult: ResolversParentTypes['SignupError'] | ResolversParentTypes['SignupSuccess'];
   SignupSuccess: SignupSuccess;
   SortParams: SortParams;
+  String: Scalars['String'];
   UpdateHighlightError: UpdateHighlightError;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: UpdateHighlightReplyError;
   UpdateHighlightReplyInput: UpdateHighlightReplyInput;
-  UpdateHighlightReplyResult: ResolversParentTypes['UpdateHighlightReplySuccess'] | ResolversParentTypes['UpdateHighlightReplyError'];
+  UpdateHighlightReplyResult: ResolversParentTypes['UpdateHighlightReplyError'] | ResolversParentTypes['UpdateHighlightReplySuccess'];
   UpdateHighlightReplySuccess: UpdateHighlightReplySuccess;
-  UpdateHighlightResult: ResolversParentTypes['UpdateHighlightSuccess'] | ResolversParentTypes['UpdateHighlightError'];
+  UpdateHighlightResult: ResolversParentTypes['UpdateHighlightError'] | ResolversParentTypes['UpdateHighlightSuccess'];
   UpdateHighlightSuccess: UpdateHighlightSuccess;
   UpdateLinkShareInfoError: UpdateLinkShareInfoError;
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
-  UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoSuccess'] | ResolversParentTypes['UpdateLinkShareInfoError'];
+  UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoError'] | ResolversParentTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: UpdateLinkShareInfoSuccess;
   UpdateReminderError: UpdateReminderError;
   UpdateReminderInput: UpdateReminderInput;
-  UpdateReminderResult: ResolversParentTypes['UpdateReminderSuccess'] | ResolversParentTypes['UpdateReminderError'];
+  UpdateReminderResult: ResolversParentTypes['UpdateReminderError'] | ResolversParentTypes['UpdateReminderSuccess'];
   UpdateReminderSuccess: UpdateReminderSuccess;
   UpdateSharedCommentError: UpdateSharedCommentError;
   UpdateSharedCommentInput: UpdateSharedCommentInput;
-  UpdateSharedCommentResult: ResolversParentTypes['UpdateSharedCommentSuccess'] | ResolversParentTypes['UpdateSharedCommentError'];
+  UpdateSharedCommentResult: ResolversParentTypes['UpdateSharedCommentError'] | ResolversParentTypes['UpdateSharedCommentSuccess'];
   UpdateSharedCommentSuccess: UpdateSharedCommentSuccess;
   UpdateUserError: UpdateUserError;
   UpdateUserInput: UpdateUserInput;
   UpdateUserProfileError: UpdateUserProfileError;
   UpdateUserProfileInput: UpdateUserProfileInput;
-  UpdateUserProfileResult: ResolversParentTypes['UpdateUserProfileSuccess'] | ResolversParentTypes['UpdateUserProfileError'];
+  UpdateUserProfileResult: ResolversParentTypes['UpdateUserProfileError'] | ResolversParentTypes['UpdateUserProfileSuccess'];
   UpdateUserProfileSuccess: UpdateUserProfileSuccess;
-  UpdateUserResult: ResolversParentTypes['UpdateUserSuccess'] | ResolversParentTypes['UpdateUserError'];
+  UpdateUserResult: ResolversParentTypes['UpdateUserError'] | ResolversParentTypes['UpdateUserSuccess'];
   UpdateUserSuccess: UpdateUserSuccess;
   UploadFileRequestError: UploadFileRequestError;
   UploadFileRequestInput: UploadFileRequestInput;
-  UploadFileRequestResult: ResolversParentTypes['UploadFileRequestSuccess'] | ResolversParentTypes['UploadFileRequestError'];
+  UploadFileRequestResult: ResolversParentTypes['UploadFileRequestError'] | ResolversParentTypes['UploadFileRequestSuccess'];
   UploadFileRequestSuccess: UploadFileRequestSuccess;
   User: User;
   UserError: UserError;
   UserPersonalization: UserPersonalization;
-  UserResult: ResolversParentTypes['UserSuccess'] | ResolversParentTypes['UserError'];
-  UserSuccess: UserSuccess;
+  UserResult: ResolversParentTypes['UserError'] | ResolversParentTypes['UserSuccess'];
   UsersError: UsersError;
-  UsersResult: ResolversParentTypes['UsersSuccess'] | ResolversParentTypes['UsersError'];
+  UsersResult: ResolversParentTypes['UsersError'] | ResolversParentTypes['UsersSuccess'];
   UsersSuccess: UsersSuccess;
+  UserSuccess: UserSuccess;
 };
 
-export type SanitizeDirectiveArgs = {   allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
-  maxLength?: Maybe<Scalars['Int']>; };
+export type SanitizeDirectiveArgs = {
+  allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maxLength?: Maybe<Scalars['Int']>;
+};
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type ArchiveLinkErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveLinkError'] = ResolversParentTypes['ArchiveLinkError']> = {
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   errorCodes?: Resolver<Array<ResolversTypes['ArchiveLinkErrorCode']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ArchiveLinkResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveLinkResult'] = ResolversParentTypes['ArchiveLinkResult']> = {
-  __resolveType: TypeResolveFn<'ArchiveLinkSuccess' | 'ArchiveLinkError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ArchiveLinkError' | 'ArchiveLinkSuccess', ParentType, ContextType>;
 };
 
 export type ArchiveLinkSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveLinkSuccess'] = ResolversParentTypes['ArchiveLinkSuccess']> = {
@@ -2351,31 +2338,31 @@ export type ArchiveLinkSuccessResolvers<ContextType = ResolverContext, ParentTyp
 };
 
 export type ArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Article'] = ResolversParentTypes['Article']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  pageType?: Resolver<Maybe<ResolversTypes['PageType']>, ParentType, ContextType>;
-  contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
-  hasContent?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  originalHtml?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  postedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  highlights?: Resolver<Array<ResolversTypes['Highlight']>, ParentType, ContextType, RequireFields<ArticleHighlightsArgs, never>>;
-  shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasContent?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  highlights?: Resolver<Array<ResolversTypes['Highlight']>, ParentType, ContextType, Partial<ArticleHighlightsArgs>>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  originalHtml?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  pageType?: Resolver<Maybe<ResolversTypes['PageType']>, ParentType, ContextType>;
+  postedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2391,18 +2378,18 @@ export type ArticleErrorResolvers<ContextType = ResolverContext, ParentType exte
 };
 
 export type ArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleResult'] = ResolversParentTypes['ArticleResult']> = {
-  __resolveType: TypeResolveFn<'ArticleSuccess' | 'ArticleError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ArticleError' | 'ArticleSuccess', ParentType, ContextType>;
 };
 
 export type ArticleSavingRequestResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSavingRequest'] = ResolversParentTypes['ArticleSavingRequest']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   article?: Resolver<Maybe<ResolversTypes['Article']>, ParentType, ContextType>;
-  status?: Resolver<ResolversTypes['ArticleSavingRequestStatus'], ParentType, ContextType>;
-  errorCode?: Resolver<Maybe<ResolversTypes['CreateArticleErrorCode']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  errorCode?: Resolver<Maybe<ResolversTypes['CreateArticleErrorCode']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ArticleSavingRequestStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2412,16 +2399,11 @@ export type ArticleSavingRequestErrorResolvers<ContextType = ResolverContext, Pa
 };
 
 export type ArticleSavingRequestResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSavingRequestResult'] = ResolversParentTypes['ArticleSavingRequestResult']> = {
-  __resolveType: TypeResolveFn<'ArticleSavingRequestSuccess' | 'ArticleSavingRequestError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ArticleSavingRequestError' | 'ArticleSavingRequestSuccess', ParentType, ContextType>;
 };
 
 export type ArticleSavingRequestSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSavingRequestSuccess'] = ResolversParentTypes['ArticleSavingRequestSuccess']> = {
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSuccess'] = ResolversParentTypes['ArticleSuccess']> = {
-  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2431,12 +2413,17 @@ export type ArticlesErrorResolvers<ContextType = ResolverContext, ParentType ext
 };
 
 export type ArticlesResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticlesResult'] = ResolversParentTypes['ArticlesResult']> = {
-  __resolveType: TypeResolveFn<'ArticlesSuccess' | 'ArticlesError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ArticlesError' | 'ArticlesSuccess', ParentType, ContextType>;
 };
 
 export type ArticlesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticlesSuccess'] = ResolversParentTypes['ArticlesSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['ArticleEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSuccess'] = ResolversParentTypes['ArticleSuccess']> = {
+  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2446,7 +2433,7 @@ export type CreateArticleErrorResolvers<ContextType = ResolverContext, ParentTyp
 };
 
 export type CreateArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateArticleResult'] = ResolversParentTypes['CreateArticleResult']> = {
-  __resolveType: TypeResolveFn<'CreateArticleSuccess' | 'CreateArticleError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateArticleError' | 'CreateArticleSuccess', ParentType, ContextType>;
 };
 
 export type CreateArticleSavingRequestErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateArticleSavingRequestError'] = ResolversParentTypes['CreateArticleSavingRequestError']> = {
@@ -2455,7 +2442,7 @@ export type CreateArticleSavingRequestErrorResolvers<ContextType = ResolverConte
 };
 
 export type CreateArticleSavingRequestResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateArticleSavingRequestResult'] = ResolversParentTypes['CreateArticleSavingRequestResult']> = {
-  __resolveType: TypeResolveFn<'CreateArticleSavingRequestSuccess' | 'CreateArticleSavingRequestError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateArticleSavingRequestError' | 'CreateArticleSavingRequestSuccess', ParentType, ContextType>;
 };
 
 export type CreateArticleSavingRequestSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateArticleSavingRequestSuccess'] = ResolversParentTypes['CreateArticleSavingRequestSuccess']> = {
@@ -2464,9 +2451,9 @@ export type CreateArticleSavingRequestSuccessResolvers<ContextType = ResolverCon
 };
 
 export type CreateArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateArticleSuccess'] = ResolversParentTypes['CreateArticleSuccess']> = {
+  created?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   createdArticle?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  created?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2481,7 +2468,7 @@ export type CreateHighlightReplyErrorResolvers<ContextType = ResolverContext, Pa
 };
 
 export type CreateHighlightReplyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateHighlightReplyResult'] = ResolversParentTypes['CreateHighlightReplyResult']> = {
-  __resolveType: TypeResolveFn<'CreateHighlightReplySuccess' | 'CreateHighlightReplyError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateHighlightReplyError' | 'CreateHighlightReplySuccess', ParentType, ContextType>;
 };
 
 export type CreateHighlightReplySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateHighlightReplySuccess'] = ResolversParentTypes['CreateHighlightReplySuccess']> = {
@@ -2490,7 +2477,7 @@ export type CreateHighlightReplySuccessResolvers<ContextType = ResolverContext, 
 };
 
 export type CreateHighlightResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateHighlightResult'] = ResolversParentTypes['CreateHighlightResult']> = {
-  __resolveType: TypeResolveFn<'CreateHighlightSuccess' | 'CreateHighlightError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateHighlightError' | 'CreateHighlightSuccess', ParentType, ContextType>;
 };
 
 export type CreateHighlightSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateHighlightSuccess'] = ResolversParentTypes['CreateHighlightSuccess']> = {
@@ -2504,7 +2491,7 @@ export type CreateLabelErrorResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type CreateLabelResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateLabelResult'] = ResolversParentTypes['CreateLabelResult']> = {
-  __resolveType: TypeResolveFn<'CreateLabelSuccess' | 'CreateLabelError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateLabelError' | 'CreateLabelSuccess', ParentType, ContextType>;
 };
 
 export type CreateLabelSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateLabelSuccess'] = ResolversParentTypes['CreateLabelSuccess']> = {
@@ -2518,7 +2505,7 @@ export type CreateNewsletterEmailErrorResolvers<ContextType = ResolverContext, P
 };
 
 export type CreateNewsletterEmailResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateNewsletterEmailResult'] = ResolversParentTypes['CreateNewsletterEmailResult']> = {
-  __resolveType: TypeResolveFn<'CreateNewsletterEmailSuccess' | 'CreateNewsletterEmailError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateNewsletterEmailError' | 'CreateNewsletterEmailSuccess', ParentType, ContextType>;
 };
 
 export type CreateNewsletterEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateNewsletterEmailSuccess'] = ResolversParentTypes['CreateNewsletterEmailSuccess']> = {
@@ -2532,7 +2519,7 @@ export type CreateReactionErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type CreateReactionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateReactionResult'] = ResolversParentTypes['CreateReactionResult']> = {
-  __resolveType: TypeResolveFn<'CreateReactionSuccess' | 'CreateReactionError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateReactionError' | 'CreateReactionSuccess', ParentType, ContextType>;
 };
 
 export type CreateReactionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateReactionSuccess'] = ResolversParentTypes['CreateReactionSuccess']> = {
@@ -2546,7 +2533,7 @@ export type CreateReminderErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type CreateReminderResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateReminderResult'] = ResolversParentTypes['CreateReminderResult']> = {
-  __resolveType: TypeResolveFn<'CreateReminderSuccess' | 'CreateReminderError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'CreateReminderError' | 'CreateReminderSuccess', ParentType, ContextType>;
 };
 
 export type CreateReminderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateReminderSuccess'] = ResolversParentTypes['CreateReminderSuccess']> = {
@@ -2569,7 +2556,7 @@ export type DeleteHighlightReplyErrorResolvers<ContextType = ResolverContext, Pa
 };
 
 export type DeleteHighlightReplyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightReplyResult'] = ResolversParentTypes['DeleteHighlightReplyResult']> = {
-  __resolveType: TypeResolveFn<'DeleteHighlightReplySuccess' | 'DeleteHighlightReplyError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteHighlightReplyError' | 'DeleteHighlightReplySuccess', ParentType, ContextType>;
 };
 
 export type DeleteHighlightReplySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightReplySuccess'] = ResolversParentTypes['DeleteHighlightReplySuccess']> = {
@@ -2578,7 +2565,7 @@ export type DeleteHighlightReplySuccessResolvers<ContextType = ResolverContext, 
 };
 
 export type DeleteHighlightResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightResult'] = ResolversParentTypes['DeleteHighlightResult']> = {
-  __resolveType: TypeResolveFn<'DeleteHighlightSuccess' | 'DeleteHighlightError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteHighlightError' | 'DeleteHighlightSuccess', ParentType, ContextType>;
 };
 
 export type DeleteHighlightSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightSuccess'] = ResolversParentTypes['DeleteHighlightSuccess']> = {
@@ -2592,7 +2579,7 @@ export type DeleteLabelErrorResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type DeleteLabelResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteLabelResult'] = ResolversParentTypes['DeleteLabelResult']> = {
-  __resolveType: TypeResolveFn<'DeleteLabelSuccess' | 'DeleteLabelError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteLabelError' | 'DeleteLabelSuccess', ParentType, ContextType>;
 };
 
 export type DeleteLabelSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteLabelSuccess'] = ResolversParentTypes['DeleteLabelSuccess']> = {
@@ -2606,7 +2593,7 @@ export type DeleteNewsletterEmailErrorResolvers<ContextType = ResolverContext, P
 };
 
 export type DeleteNewsletterEmailResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteNewsletterEmailResult'] = ResolversParentTypes['DeleteNewsletterEmailResult']> = {
-  __resolveType: TypeResolveFn<'DeleteNewsletterEmailSuccess' | 'DeleteNewsletterEmailError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteNewsletterEmailError' | 'DeleteNewsletterEmailSuccess', ParentType, ContextType>;
 };
 
 export type DeleteNewsletterEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteNewsletterEmailSuccess'] = ResolversParentTypes['DeleteNewsletterEmailSuccess']> = {
@@ -2620,7 +2607,7 @@ export type DeleteReactionErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type DeleteReactionResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteReactionResult'] = ResolversParentTypes['DeleteReactionResult']> = {
-  __resolveType: TypeResolveFn<'DeleteReactionSuccess' | 'DeleteReactionError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteReactionError' | 'DeleteReactionSuccess', ParentType, ContextType>;
 };
 
 export type DeleteReactionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteReactionSuccess'] = ResolversParentTypes['DeleteReactionSuccess']> = {
@@ -2634,7 +2621,7 @@ export type DeleteReminderErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type DeleteReminderResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteReminderResult'] = ResolversParentTypes['DeleteReminderResult']> = {
-  __resolveType: TypeResolveFn<'DeleteReminderSuccess' | 'DeleteReminderError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'DeleteReminderError' | 'DeleteReminderSuccess', ParentType, ContextType>;
 };
 
 export type DeleteReminderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteReminderSuccess'] = ResolversParentTypes['DeleteReminderSuccess']> = {
@@ -2643,23 +2630,23 @@ export type DeleteReminderSuccessResolvers<ContextType = ResolverContext, Parent
 };
 
 export type DeviceTokenResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceToken'] = ResolversParentTypes['DeviceToken']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type FeedArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticle'] = ResolversParentTypes['FeedArticle']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  annotationsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
-  sharedBy?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  highlight?: Resolver<Maybe<ResolversTypes['Highlight']>, ParentType, ContextType>;
+  highlightsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   sharedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  sharedBy?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sharedWithHighlights?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  highlightsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  annotationsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  highlight?: Resolver<Maybe<ResolversTypes['Highlight']>, ParentType, ContextType>;
-  reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2675,7 +2662,7 @@ export type FeedArticlesErrorResolvers<ContextType = ResolverContext, ParentType
 };
 
 export type FeedArticlesResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticlesResult'] = ResolversParentTypes['FeedArticlesResult']> = {
-  __resolveType: TypeResolveFn<'FeedArticlesSuccess' | 'FeedArticlesError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'FeedArticlesError' | 'FeedArticlesSuccess', ParentType, ContextType>;
 };
 
 export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticlesSuccess'] = ResolversParentTypes['FeedArticlesSuccess']> = {
@@ -2690,7 +2677,7 @@ export type GetFollowersErrorResolvers<ContextType = ResolverContext, ParentType
 };
 
 export type GetFollowersResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetFollowersResult'] = ResolversParentTypes['GetFollowersResult']> = {
-  __resolveType: TypeResolveFn<'GetFollowersSuccess' | 'GetFollowersError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'GetFollowersError' | 'GetFollowersSuccess', ParentType, ContextType>;
 };
 
 export type GetFollowersSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetFollowersSuccess'] = ResolversParentTypes['GetFollowersSuccess']> = {
@@ -2704,7 +2691,7 @@ export type GetFollowingErrorResolvers<ContextType = ResolverContext, ParentType
 };
 
 export type GetFollowingResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetFollowingResult'] = ResolversParentTypes['GetFollowingResult']> = {
-  __resolveType: TypeResolveFn<'GetFollowingSuccess' | 'GetFollowingError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'GetFollowingError' | 'GetFollowingSuccess', ParentType, ContextType>;
 };
 
 export type GetFollowingSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetFollowingSuccess'] = ResolversParentTypes['GetFollowingSuccess']> = {
@@ -2718,7 +2705,7 @@ export type GetUserPersonalizationErrorResolvers<ContextType = ResolverContext, 
 };
 
 export type GetUserPersonalizationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetUserPersonalizationResult'] = ResolversParentTypes['GetUserPersonalizationResult']> = {
-  __resolveType: TypeResolveFn<'GetUserPersonalizationSuccess' | 'GetUserPersonalizationError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'GetUserPersonalizationError' | 'GetUserPersonalizationSuccess', ParentType, ContextType>;
 };
 
 export type GetUserPersonalizationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetUserPersonalizationSuccess'] = ResolversParentTypes['GetUserPersonalizationSuccess']> = {
@@ -2732,7 +2719,7 @@ export type GoogleSignupErrorResolvers<ContextType = ResolverContext, ParentType
 };
 
 export type GoogleSignupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GoogleSignupResult'] = ResolversParentTypes['GoogleSignupResult']> = {
-  __resolveType: TypeResolveFn<'GoogleSignupSuccess' | 'GoogleSignupError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'GoogleSignupError' | 'GoogleSignupSuccess', ParentType, ContextType>;
 };
 
 export type GoogleSignupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GoogleSignupSuccess'] = ResolversParentTypes['GoogleSignupSuccess']> = {
@@ -2741,31 +2728,31 @@ export type GoogleSignupSuccessResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type HighlightResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Highlight'] = ResolversParentTypes['Highlight']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  shortId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
-  quote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  suffix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  patch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  createdByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  patch?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  prefix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  quote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   replies?: Resolver<Array<ResolversTypes['HighlightReply']>, ParentType, ContextType>;
   sharedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  shortId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  suffix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
-  createdByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type HighlightReplyResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['HighlightReply'] = ResolversParentTypes['HighlightReply']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  highlight?: Resolver<ResolversTypes['Highlight'], ParentType, ContextType>;
-  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  highlight?: Resolver<ResolversTypes['Highlight'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2786,7 +2773,7 @@ export type LabelsErrorResolvers<ContextType = ResolverContext, ParentType exten
 };
 
 export type LabelsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LabelsResult'] = ResolversParentTypes['LabelsResult']> = {
-  __resolveType: TypeResolveFn<'LabelsSuccess' | 'LabelsError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'LabelsError' | 'LabelsSuccess', ParentType, ContextType>;
 };
 
 export type LabelsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LabelsSuccess'] = ResolversParentTypes['LabelsSuccess']> = {
@@ -2795,39 +2782,25 @@ export type LabelsSuccessResolvers<ContextType = ResolverContext, ParentType ext
 };
 
 export type LinkResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Link'] = ResolversParentTypes['Link']> = {
+  highlightStats?: Resolver<ResolversTypes['HighlightStats'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  savedBy?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  savedByViewer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  page?: Resolver<ResolversTypes['Page'], ParentType, ContextType>;
   postedByViewer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   readState?: Resolver<ResolversTypes['ReadState'], ParentType, ContextType>;
-  highlightStats?: Resolver<ResolversTypes['HighlightStats'], ParentType, ContextType>;
+  savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  savedBy?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  savedByViewer?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   shareInfo?: Resolver<ResolversTypes['LinkShareInfo'], ParentType, ContextType>;
   shareStats?: Resolver<ResolversTypes['ShareStats'], ParentType, ContextType>;
-  page?: Resolver<ResolversTypes['Page'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type LinkShareInfoResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LinkShareInfo'] = ResolversParentTypes['LinkShareInfo']> = {
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   imageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type LogOutErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutError'] = ResolversParentTypes['LogOutError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['LogOutErrorCode']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type LogOutResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutResult'] = ResolversParentTypes['LogOutResult']> = {
-  __resolveType: TypeResolveFn<'LogOutSuccess' | 'LogOutError', ParentType, ContextType>;
-};
-
-export type LogOutSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutSuccess'] = ResolversParentTypes['LogOutSuccess']> = {
-  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2837,11 +2810,25 @@ export type LoginErrorResolvers<ContextType = ResolverContext, ParentType extend
 };
 
 export type LoginResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginResult'] = ResolversParentTypes['LoginResult']> = {
-  __resolveType: TypeResolveFn<'LoginSuccess' | 'LoginError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'LoginError' | 'LoginSuccess', ParentType, ContextType>;
 };
 
 export type LoginSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginSuccess'] = ResolversParentTypes['LoginSuccess']> = {
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LogOutErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutError'] = ResolversParentTypes['LogOutError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['LogOutErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LogOutResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutResult'] = ResolversParentTypes['LogOutResult']> = {
+  __resolveType: TypeResolveFn<'LogOutError' | 'LogOutSuccess', ParentType, ContextType>;
+};
+
+export type LogOutSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutSuccess'] = ResolversParentTypes['LogOutSuccess']> = {
+  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2851,7 +2838,7 @@ export type MergeHighlightErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type MergeHighlightResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MergeHighlightResult'] = ResolversParentTypes['MergeHighlightResult']> = {
-  __resolveType: TypeResolveFn<'MergeHighlightSuccess' | 'MergeHighlightError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'MergeHighlightError' | 'MergeHighlightSuccess', ParentType, ContextType>;
 };
 
 export type MergeHighlightSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MergeHighlightSuccess'] = ResolversParentTypes['MergeHighlightSuccess']> = {
@@ -2861,52 +2848,52 @@ export type MergeHighlightSuccessResolvers<ContextType = ResolverContext, Parent
 };
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
+  createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
+  createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
+  createHighlightReply?: Resolver<ResolversTypes['CreateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightReplyArgs, 'input'>>;
+  createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
+  createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
+  createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
+  createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
+  deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
+  deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
+  deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
+  deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
+  deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
+  deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
+  login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
+  mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
+  reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
+  saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
+  saveFile?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveFileArgs, 'input'>>;
+  savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
+  saveUrl?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveUrlArgs, 'input'>>;
+  setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
+  setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
+  setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
+  setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
+  setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
+  setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
+  setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
+  signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
+  updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
+  updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
+  updateLinkShareInfo?: Resolver<ResolversTypes['UpdateLinkShareInfoResult'], ParentType, ContextType, RequireFields<MutationUpdateLinkShareInfoArgs, 'input'>>;
+  updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
+  updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserProfile?: Resolver<ResolversTypes['UpdateUserProfileResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
-  createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
-  createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
-  mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
-  updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
-  deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
-  createHighlightReply?: Resolver<ResolversTypes['CreateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightReplyArgs, 'input'>>;
-  updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
-  deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
-  createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
-  deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
   uploadFileRequest?: Resolver<ResolversTypes['UploadFileRequestResult'], ParentType, ContextType, RequireFields<MutationUploadFileRequestArgs, 'input'>>;
-  saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
-  setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
-  updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
-  setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
-  setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
-  setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
-  createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
-  setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
-  reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
-  updateLinkShareInfo?: Resolver<ResolversTypes['UpdateLinkShareInfoResult'], ParentType, ContextType, RequireFields<MutationUpdateLinkShareInfoArgs, 'input'>>;
-  setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
-  createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
-  deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
-  saveUrl?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveUrlArgs, 'input'>>;
-  savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
-  saveFile?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveFileArgs, 'input'>>;
-  createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
-  updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
-  deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
-  setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
-  createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
-  deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
-  login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
-  signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
 };
 
 export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmail'] = ResolversParentTypes['NewsletterEmail']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   confirmationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2916,7 +2903,7 @@ export type NewsletterEmailsErrorResolvers<ContextType = ResolverContext, Parent
 };
 
 export type NewsletterEmailsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmailsResult'] = ResolversParentTypes['NewsletterEmailsResult']> = {
-  __resolveType: TypeResolveFn<'NewsletterEmailsSuccess' | 'NewsletterEmailsError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'NewsletterEmailsError' | 'NewsletterEmailsSuccess', ParentType, ContextType>;
 };
 
 export type NewsletterEmailsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmailsSuccess'] = ResolversParentTypes['NewsletterEmailsSuccess']> = {
@@ -2925,81 +2912,81 @@ export type NewsletterEmailsSuccessResolvers<ContextType = ResolverContext, Pare
 };
 
 export type PageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Page'] = ResolversParentTypes['Page']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  originalUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
-  image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  originalHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  readableHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  originalHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  originalUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  readableHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type PageInfoResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = {
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hasNextPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasPreviousPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   startCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   totalCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ProfileResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Profile'] = ResolversParentTypes['Profile']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  private?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   pictureUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  private?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, RequireFields<QueryUserArgs, never>>;
-  articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, RequireFields<QueryArticlesArgs, never>>;
-  article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'username' | 'slug'>>;
-  sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'username' | 'slug'>>;
-  feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, RequireFields<QueryFeedArticlesArgs, never>>;
-  users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
-  validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
-  getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, RequireFields<QueryGetFollowersArgs, never>>;
-  getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, RequireFields<QueryGetFollowingArgs, never>>;
-  getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
+  article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
+  articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
+  feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
+  getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
+  getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
+  getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
+  hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType, RequireFields<QueryLabelsArgs, 'linkId'>>;
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
-  labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType, RequireFields<QueryLabelsArgs, 'linkId'>>;
+  sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
+  user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
+  users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
+  validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
 };
 
 export type ReactionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Reaction'] = ResolversParentTypes['Reaction']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   code?: Resolver<ResolversTypes['ReactionType'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ReadStateResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReadState'] = ResolversParentTypes['ReadState']> = {
+  progressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  progressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   reading?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   readingTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  progressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  progressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ReminderResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Reminder'] = ResolversParentTypes['Reminder']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   archiveUntil?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  sendNotification?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   remindAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  sendNotification?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3009,7 +2996,7 @@ export type ReminderErrorResolvers<ContextType = ResolverContext, ParentType ext
 };
 
 export type ReminderResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReminderResult'] = ResolversParentTypes['ReminderResult']> = {
-  __resolveType: TypeResolveFn<'ReminderSuccess' | 'ReminderError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'ReminderError' | 'ReminderSuccess', ParentType, ContextType>;
 };
 
 export type ReminderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReminderSuccess'] = ResolversParentTypes['ReminderSuccess']> = {
@@ -3028,7 +3015,7 @@ export type SaveArticleReadingProgressErrorResolvers<ContextType = ResolverConte
 };
 
 export type SaveArticleReadingProgressResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveArticleReadingProgressResult'] = ResolversParentTypes['SaveArticleReadingProgressResult']> = {
-  __resolveType: TypeResolveFn<'SaveArticleReadingProgressSuccess' | 'SaveArticleReadingProgressError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SaveArticleReadingProgressError' | 'SaveArticleReadingProgressSuccess', ParentType, ContextType>;
 };
 
 export type SaveArticleReadingProgressSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveArticleReadingProgressSuccess'] = ResolversParentTypes['SaveArticleReadingProgressSuccess']> = {
@@ -3043,12 +3030,12 @@ export type SaveErrorResolvers<ContextType = ResolverContext, ParentType extends
 };
 
 export type SaveResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveResult'] = ResolversParentTypes['SaveResult']> = {
-  __resolveType: TypeResolveFn<'SaveSuccess' | 'SaveError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SaveError' | 'SaveSuccess', ParentType, ContextType>;
 };
 
 export type SaveSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveSuccess'] = ResolversParentTypes['SaveSuccess']> = {
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   clientRequestId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3058,7 +3045,7 @@ export type SetBookmarkArticleErrorResolvers<ContextType = ResolverContext, Pare
 };
 
 export type SetBookmarkArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetBookmarkArticleResult'] = ResolversParentTypes['SetBookmarkArticleResult']> = {
-  __resolveType: TypeResolveFn<'SetBookmarkArticleSuccess' | 'SetBookmarkArticleError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SetBookmarkArticleError' | 'SetBookmarkArticleSuccess', ParentType, ContextType>;
 };
 
 export type SetBookmarkArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetBookmarkArticleSuccess'] = ResolversParentTypes['SetBookmarkArticleSuccess']> = {
@@ -3072,7 +3059,7 @@ export type SetDeviceTokenErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type SetDeviceTokenResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetDeviceTokenResult'] = ResolversParentTypes['SetDeviceTokenResult']> = {
-  __resolveType: TypeResolveFn<'SetDeviceTokenSuccess' | 'SetDeviceTokenError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SetDeviceTokenError' | 'SetDeviceTokenSuccess', ParentType, ContextType>;
 };
 
 export type SetDeviceTokenSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetDeviceTokenSuccess'] = ResolversParentTypes['SetDeviceTokenSuccess']> = {
@@ -3086,7 +3073,7 @@ export type SetFollowErrorResolvers<ContextType = ResolverContext, ParentType ex
 };
 
 export type SetFollowResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFollowResult'] = ResolversParentTypes['SetFollowResult']> = {
-  __resolveType: TypeResolveFn<'SetFollowSuccess' | 'SetFollowError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SetFollowError' | 'SetFollowSuccess', ParentType, ContextType>;
 };
 
 export type SetFollowSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFollowSuccess'] = ResolversParentTypes['SetFollowSuccess']> = {
@@ -3100,13 +3087,13 @@ export type SetShareArticleErrorResolvers<ContextType = ResolverContext, ParentT
 };
 
 export type SetShareArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShareArticleResult'] = ResolversParentTypes['SetShareArticleResult']> = {
-  __resolveType: TypeResolveFn<'SetShareArticleSuccess' | 'SetShareArticleError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SetShareArticleError' | 'SetShareArticleSuccess', ParentType, ContextType>;
 };
 
 export type SetShareArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShareArticleSuccess'] = ResolversParentTypes['SetShareArticleSuccess']> = {
-  updatedFeedArticleId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  updatedFeedArticle?: Resolver<Maybe<ResolversTypes['FeedArticle']>, ParentType, ContextType>;
   updatedArticle?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
+  updatedFeedArticle?: Resolver<Maybe<ResolversTypes['FeedArticle']>, ParentType, ContextType>;
+  updatedFeedArticleId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3116,7 +3103,7 @@ export type SetShareHighlightErrorResolvers<ContextType = ResolverContext, Paren
 };
 
 export type SetShareHighlightResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShareHighlightResult'] = ResolversParentTypes['SetShareHighlightResult']> = {
-  __resolveType: TypeResolveFn<'SetShareHighlightSuccess' | 'SetShareHighlightError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SetShareHighlightError' | 'SetShareHighlightSuccess', ParentType, ContextType>;
 };
 
 export type SetShareHighlightSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetShareHighlightSuccess'] = ResolversParentTypes['SetShareHighlightSuccess']> = {
@@ -3130,18 +3117,11 @@ export type SetUserPersonalizationErrorResolvers<ContextType = ResolverContext, 
 };
 
 export type SetUserPersonalizationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetUserPersonalizationResult'] = ResolversParentTypes['SetUserPersonalizationResult']> = {
-  __resolveType: TypeResolveFn<'SetUserPersonalizationSuccess' | 'SetUserPersonalizationError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SetUserPersonalizationError' | 'SetUserPersonalizationSuccess', ParentType, ContextType>;
 };
 
 export type SetUserPersonalizationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetUserPersonalizationSuccess'] = ResolversParentTypes['SetUserPersonalizationSuccess']> = {
   updatedUserPersonalization?: Resolver<ResolversTypes['UserPersonalization'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ShareStatsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ShareStats'] = ResolversParentTypes['ShareStats']> = {
-  viewCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  saveCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  readDuration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3151,11 +3131,18 @@ export type SharedArticleErrorResolvers<ContextType = ResolverContext, ParentTyp
 };
 
 export type SharedArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SharedArticleResult'] = ResolversParentTypes['SharedArticleResult']> = {
-  __resolveType: TypeResolveFn<'SharedArticleSuccess' | 'SharedArticleError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SharedArticleError' | 'SharedArticleSuccess', ParentType, ContextType>;
 };
 
 export type SharedArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SharedArticleSuccess'] = ResolversParentTypes['SharedArticleSuccess']> = {
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ShareStatsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ShareStats'] = ResolversParentTypes['ShareStats']> = {
+  readDuration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  saveCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  viewCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3165,7 +3152,7 @@ export type SignupErrorResolvers<ContextType = ResolverContext, ParentType exten
 };
 
 export type SignupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupResult'] = ResolversParentTypes['SignupResult']> = {
-  __resolveType: TypeResolveFn<'SignupSuccess' | 'SignupError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'SignupError' | 'SignupSuccess', ParentType, ContextType>;
 };
 
 export type SignupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = {
@@ -3184,7 +3171,7 @@ export type UpdateHighlightReplyErrorResolvers<ContextType = ResolverContext, Pa
 };
 
 export type UpdateHighlightReplyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateHighlightReplyResult'] = ResolversParentTypes['UpdateHighlightReplyResult']> = {
-  __resolveType: TypeResolveFn<'UpdateHighlightReplySuccess' | 'UpdateHighlightReplyError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateHighlightReplyError' | 'UpdateHighlightReplySuccess', ParentType, ContextType>;
 };
 
 export type UpdateHighlightReplySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateHighlightReplySuccess'] = ResolversParentTypes['UpdateHighlightReplySuccess']> = {
@@ -3193,7 +3180,7 @@ export type UpdateHighlightReplySuccessResolvers<ContextType = ResolverContext, 
 };
 
 export type UpdateHighlightResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateHighlightResult'] = ResolversParentTypes['UpdateHighlightResult']> = {
-  __resolveType: TypeResolveFn<'UpdateHighlightSuccess' | 'UpdateHighlightError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateHighlightError' | 'UpdateHighlightSuccess', ParentType, ContextType>;
 };
 
 export type UpdateHighlightSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateHighlightSuccess'] = ResolversParentTypes['UpdateHighlightSuccess']> = {
@@ -3207,7 +3194,7 @@ export type UpdateLinkShareInfoErrorResolvers<ContextType = ResolverContext, Par
 };
 
 export type UpdateLinkShareInfoResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLinkShareInfoResult'] = ResolversParentTypes['UpdateLinkShareInfoResult']> = {
-  __resolveType: TypeResolveFn<'UpdateLinkShareInfoSuccess' | 'UpdateLinkShareInfoError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateLinkShareInfoError' | 'UpdateLinkShareInfoSuccess', ParentType, ContextType>;
 };
 
 export type UpdateLinkShareInfoSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLinkShareInfoSuccess'] = ResolversParentTypes['UpdateLinkShareInfoSuccess']> = {
@@ -3221,7 +3208,7 @@ export type UpdateReminderErrorResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type UpdateReminderResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateReminderResult'] = ResolversParentTypes['UpdateReminderResult']> = {
-  __resolveType: TypeResolveFn<'UpdateReminderSuccess' | 'UpdateReminderError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateReminderError' | 'UpdateReminderSuccess', ParentType, ContextType>;
 };
 
 export type UpdateReminderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateReminderSuccess'] = ResolversParentTypes['UpdateReminderSuccess']> = {
@@ -3235,7 +3222,7 @@ export type UpdateSharedCommentErrorResolvers<ContextType = ResolverContext, Par
 };
 
 export type UpdateSharedCommentResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSharedCommentResult'] = ResolversParentTypes['UpdateSharedCommentResult']> = {
-  __resolveType: TypeResolveFn<'UpdateSharedCommentSuccess' | 'UpdateSharedCommentError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateSharedCommentError' | 'UpdateSharedCommentSuccess', ParentType, ContextType>;
 };
 
 export type UpdateSharedCommentSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateSharedCommentSuccess'] = ResolversParentTypes['UpdateSharedCommentSuccess']> = {
@@ -3255,7 +3242,7 @@ export type UpdateUserProfileErrorResolvers<ContextType = ResolverContext, Paren
 };
 
 export type UpdateUserProfileResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserProfileResult'] = ResolversParentTypes['UpdateUserProfileResult']> = {
-  __resolveType: TypeResolveFn<'UpdateUserProfileSuccess' | 'UpdateUserProfileError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateUserProfileError' | 'UpdateUserProfileSuccess', ParentType, ContextType>;
 };
 
 export type UpdateUserProfileSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserProfileSuccess'] = ResolversParentTypes['UpdateUserProfileSuccess']> = {
@@ -3264,7 +3251,7 @@ export type UpdateUserProfileSuccessResolvers<ContextType = ResolverContext, Par
 };
 
 export type UpdateUserResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserResult'] = ResolversParentTypes['UpdateUserResult']> = {
-  __resolveType: TypeResolveFn<'UpdateUserSuccess' | 'UpdateUserError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UpdateUserError' | 'UpdateUserSuccess', ParentType, ContextType>;
 };
 
 export type UpdateUserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserSuccess'] = ResolversParentTypes['UpdateUserSuccess']> = {
@@ -3278,30 +3265,30 @@ export type UploadFileRequestErrorResolvers<ContextType = ResolverContext, Paren
 };
 
 export type UploadFileRequestResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadFileRequestResult'] = ResolversParentTypes['UploadFileRequestResult']> = {
-  __resolveType: TypeResolveFn<'UploadFileRequestSuccess' | 'UploadFileRequestError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UploadFileRequestError' | 'UploadFileRequestSuccess', ParentType, ContextType>;
 };
 
 export type UploadFileRequestSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadFileRequestSuccess'] = ResolversParentTypes['UploadFileRequestSuccess']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  uploadSignedUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  uploadSignedUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  followersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  friendsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  isFullUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  viewerIsFollowing?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isFriend?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  isFullUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   picture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   profile?: Resolver<ResolversTypes['Profile'], ParentType, ContextType>;
   sharedArticles?: Resolver<Array<ResolversTypes['FeedArticle']>, ParentType, ContextType>;
   sharedArticlesCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   sharedHighlightsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   sharedNotesCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  friendsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  followersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  viewerIsFollowing?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3311,23 +3298,18 @@ export type UserErrorResolvers<ContextType = ResolverContext, ParentType extends
 };
 
 export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserPersonalization'] = ResolversParentTypes['UserPersonalization']> = {
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  theme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  fontSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   fontFamily?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  margin?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fontSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   libraryLayoutType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   librarySortOrder?: Resolver<Maybe<ResolversTypes['SortOrder']>, ParentType, ContextType>;
+  margin?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  theme?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserResult'] = ResolversParentTypes['UserResult']> = {
-  __resolveType: TypeResolveFn<'UserSuccess' | 'UserError', ParentType, ContextType>;
-};
-
-export type UserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserSuccess'] = ResolversParentTypes['UserSuccess']> = {
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UserError' | 'UserSuccess', ParentType, ContextType>;
 };
 
 export type UsersErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UsersError'] = ResolversParentTypes['UsersError']> = {
@@ -3336,11 +3318,16 @@ export type UsersErrorResolvers<ContextType = ResolverContext, ParentType extend
 };
 
 export type UsersResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UsersResult'] = ResolversParentTypes['UsersResult']> = {
-  __resolveType: TypeResolveFn<'UsersSuccess' | 'UsersError', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'UsersError' | 'UsersSuccess', ParentType, ContextType>;
 };
 
 export type UsersSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UsersSuccess'] = ResolversParentTypes['UsersSuccess']> = {
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserSuccess'] = ResolversParentTypes['UserSuccess']> = {
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3356,10 +3343,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   ArticleSavingRequestError?: ArticleSavingRequestErrorResolvers<ContextType>;
   ArticleSavingRequestResult?: ArticleSavingRequestResultResolvers<ContextType>;
   ArticleSavingRequestSuccess?: ArticleSavingRequestSuccessResolvers<ContextType>;
-  ArticleSuccess?: ArticleSuccessResolvers<ContextType>;
   ArticlesError?: ArticlesErrorResolvers<ContextType>;
   ArticlesResult?: ArticlesResultResolvers<ContextType>;
   ArticlesSuccess?: ArticlesSuccessResolvers<ContextType>;
+  ArticleSuccess?: ArticleSuccessResolvers<ContextType>;
   CreateArticleError?: CreateArticleErrorResolvers<ContextType>;
   CreateArticleResult?: CreateArticleResultResolvers<ContextType>;
   CreateArticleSavingRequestError?: CreateArticleSavingRequestErrorResolvers<ContextType>;
@@ -3430,12 +3417,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   LabelsSuccess?: LabelsSuccessResolvers<ContextType>;
   Link?: LinkResolvers<ContextType>;
   LinkShareInfo?: LinkShareInfoResolvers<ContextType>;
-  LogOutError?: LogOutErrorResolvers<ContextType>;
-  LogOutResult?: LogOutResultResolvers<ContextType>;
-  LogOutSuccess?: LogOutSuccessResolvers<ContextType>;
   LoginError?: LoginErrorResolvers<ContextType>;
   LoginResult?: LoginResultResolvers<ContextType>;
   LoginSuccess?: LoginSuccessResolvers<ContextType>;
+  LogOutError?: LogOutErrorResolvers<ContextType>;
+  LogOutResult?: LogOutResultResolvers<ContextType>;
+  LogOutSuccess?: LogOutSuccessResolvers<ContextType>;
   MergeHighlightError?: MergeHighlightErrorResolvers<ContextType>;
   MergeHighlightResult?: MergeHighlightResultResolvers<ContextType>;
   MergeHighlightSuccess?: MergeHighlightSuccessResolvers<ContextType>;
@@ -3479,10 +3466,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetUserPersonalizationError?: SetUserPersonalizationErrorResolvers<ContextType>;
   SetUserPersonalizationResult?: SetUserPersonalizationResultResolvers<ContextType>;
   SetUserPersonalizationSuccess?: SetUserPersonalizationSuccessResolvers<ContextType>;
-  ShareStats?: ShareStatsResolvers<ContextType>;
   SharedArticleError?: SharedArticleErrorResolvers<ContextType>;
   SharedArticleResult?: SharedArticleResultResolvers<ContextType>;
   SharedArticleSuccess?: SharedArticleSuccessResolvers<ContextType>;
+  ShareStats?: ShareStatsResolvers<ContextType>;
   SignupError?: SignupErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
@@ -3514,25 +3501,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   UserError?: UserErrorResolvers<ContextType>;
   UserPersonalization?: UserPersonalizationResolvers<ContextType>;
   UserResult?: UserResultResolvers<ContextType>;
-  UserSuccess?: UserSuccessResolvers<ContextType>;
   UsersError?: UsersErrorResolvers<ContextType>;
   UsersResult?: UsersResultResolvers<ContextType>;
   UsersSuccess?: UsersSuccessResolvers<ContextType>;
+  UserSuccess?: UserSuccessResolvers<ContextType>;
 };
 
-
-/**
- * @deprecated
- * Use "Resolvers" root object instead. If you wish to get "IResolvers", add "typesPrefix: I" to your config.
- */
-export type IResolvers<ContextType = ResolverContext> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = ResolverContext> = {
   sanitize?: SanitizeDirectiveResolver<any, any, ContextType>;
 };
-
-
-/**
- * @deprecated
- * Use "DirectiveResolvers" root object instead. If you wish to get "IDirectiveResolvers", add "typesPrefix: I" to your config.
- */
-export type IDirectiveResolvers<ContextType = ResolverContext> = DirectiveResolvers<ContextType>;
