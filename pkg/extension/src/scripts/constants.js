@@ -7,6 +7,7 @@ window.browserScriptingApi = browserApi.scripting || browserApi.tabs;
 window.ENV_EXTENSION_ORIGIN = browserApi.runtime.getURL('PATH/').replace('/PATH/', '');
 window.ENV_IS_FIREFOX = ENV_EXTENSION_ORIGIN.startsWith('moz-extension://');
 window.ENV_IS_EDGE = navigator.userAgent.toLowerCase().indexOf('edg') > -1;
+window.ENV_DOES_NOT_SUPPORT_BLOB_URL_ACCESS = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 window.SELECTORS = {
   CANONICAL_URL: ["head > link[rel='canonical']"],

@@ -75,7 +75,7 @@ function uploadFile ({ id, uploadSignedUrl }, contentType, contentObjUrl) {
       });
     })
     .catch((err) => {
-      console.log('error uploading file', err)
+      console.error('error uploading file', err)
       return undefined
     });
 }
@@ -264,18 +264,24 @@ function saveArticle (tab) {
 
     let uploadResult = null;
 
-    if (type === 'pdf') {
-      // For PDF articles, we first upload the PDF file before passing the upload file ID in createArticle
-      uploadResult = await savePdfFile(tab, encodeURI(tab.url), pageInfo.contentType, uploadContentObjUrl);
-      if (!uploadResult || !uploadResult.id) {
-        browserApi.tabs.sendMessage(tab.id, {
-          action: ACTIONS.ShowMessage,
-          payload: {
-            text: 'Unable to save page',
-            type: 'error'
-          }
-        });
-        return;
+    switch(type) {
+      case 'pdf': {
+        // For PDFs, we first upload the PDF file before passing the upload file ID in createArticle
+        uploadResult = await savePdfFile(tab, encodeURI(tab.url), pageInfo.contentType, uploadContentObjUrl);
+        if (!uploadResult || !uploadResult.id) {
+          browserApi.tabs.sendMessage(tab.id, {
+            action: ACTIONS.ShowMessage,
+            payload: {
+              text: 'Unable to save page',
+              type: 'error'
+            }
+          });
+          return;
+        }
+      }
+      case 'url': {
+        // We don't have to special case URL, it will fall through
+        // and be handled when isContentAvailable returns false
       }
     }
 
@@ -438,7 +444,6 @@ function checkAuthOnFirstClickPostInstall (tabId) {
       const xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log('response:' + xhr.response);
           const { data } = JSON.parse(xhr.response);
           if (!data.me) {
             browserApi.tabs.sendMessage(tabId, {
@@ -471,7 +476,6 @@ function checkAuthOnFirstClickPostInstall (tabId) {
       const data = JSON.stringify({
         query
       });
-      console.log('querying url', omnivoreGraphqlURL)
       xhr.open('POST', omnivoreGraphqlURL + 'graphql', true);
       setupConnection(xhr);
 

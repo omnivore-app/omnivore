@@ -2,6 +2,7 @@
   browserApi
   XMLHttpRequest
   ACTIONS
+  ENV_DOES_NOT_SUPPORT_BLOB_URL_ACCESS
 */
 
 'use strict';
@@ -28,7 +29,6 @@
       'text/x-pdf'
     ];
     const isPdfContent = pdfContentTypes.indexOf(document.contentType) !== -1;
-
     if (!hasPdfExtension && !isPdfContent) {
       return Promise.resolve(null);
     }
@@ -38,6 +38,10 @@
       return Promise.resolve(null);
     }
 
+    if (ENV_DOES_NOT_SUPPORT_BLOB_URL_ACCESS && embedEl.src) {
+      return Promise.resolve({ type: 'url', uploadContentObjUrl: embedEl.src })
+    }
+
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       // load `document` from `cache`
@@ -45,8 +49,7 @@
       xhr.responseType = 'blob';
       xhr.onload = function (e) {
         if (this.status === 200) {
-        // `blob` response
-          resolve(URL.createObjectURL(this.response));
+          resolve({ type: 'pdf', uploadContentObjUrl: URL.createObjectURL(this.response) })
         } else {
           reject(e);
         }
@@ -132,7 +135,6 @@
     // Without adding that copy to the DOM the `window.getComputedStyle` method will always return undefined.
     document.documentElement.appendChild(contentCopyEl);
 
-    console.log('\n\nStarting evaluation!');
     Array.from(contentCopyEl.getElementsByTagName('*')).forEach(prepareContentPostItem);
 
     /*
@@ -181,9 +183,9 @@
   }
 
   async function prepareContent () {
-    const pdfContentObjectUrl = await grabPdfContent();
-    if (pdfContentObjectUrl) {
-      return { type: 'pdf', uploadContentObjUrl: pdfContentObjectUrl };
+    const pdfContent = await grabPdfContent();
+    if (pdfContent) {
+      return pdfContent
     }
 
     async function scrollPage () {
