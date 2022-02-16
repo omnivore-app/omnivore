@@ -2,6 +2,7 @@ import SwiftUI
 import WebKit
 
 final class WebAppViewCoordinator: NSObject {
+  let navBarHeight = LinkItemDetailView.navBarHeight
   var webViewActionHandler: (WKScriptMessage) -> Void = { _ in }
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = true
@@ -54,9 +55,9 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
       return
     }
 
-    if yOffset < 30 {
+    if yOffset < navBarHeight {
       let isScrollingUp = yOffsetAtStartOfDrag ?? 0 > yOffset
-      updateNavBarVisibilityRatio(isScrollingUp ? 1 : 1 - (yOffset / 30))
+      updateNavBarVisibilityRatio(isScrollingUp ? 1 : 1 - (yOffset / navBarHeight))
       return
     }
 
@@ -64,7 +65,7 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
 
     if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
       let translation = yOffset - yOffsetAtStartOfDrag
-      let ratio = translation < 30 ? translation / 30 : 0
+      let ratio = translation < navBarHeight ? 1 - (translation / navBarHeight) : 0
       isNavBarHidden = ratio == 0
       updateNavBarVisibilityRatio(ratio)
     }

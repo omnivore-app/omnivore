@@ -27,6 +27,7 @@ public final class LinkItemDetailViewModel: ObservableObject {
 public struct LinkItemDetailView: View {
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
+  static let navBarHeight = 50.0
   @ObservedObject private var viewModel: LinkItemDetailViewModel
   @State private var showFontSizePopover = false
   @State private var navBarVisibilityRatio = 1.0
@@ -73,20 +74,22 @@ public struct LinkItemDetailView: View {
             action: { self.presentationMode.wrappedValue.dismiss() },
             label: {
               Image(systemName: "chevron.backward")
-                .font(.appTitleThree)
+                .font(.appTitle)
                 .foregroundColor(.appGrayTextContrast)
                 .padding(.horizontal)
-                .padding(.bottom, 5)
             }
           )
+          .scaleEffect(navBarVisibilityRatio)
           Spacer()
           Button(
             action: { showFontSizePopover = true },
             label: {
               Image(systemName: "textformat.size")
+                .font(.appTitle)
             }
           )
           .padding(.horizontal)
+          .scaleEffect(navBarVisibilityRatio)
           #if os(iOS)
             .fittedPopover(isPresented: $showFontSizePopover) {
               FontSizeAdjustmentPopoverView(
@@ -96,15 +99,13 @@ public struct LinkItemDetailView: View {
             }
           #endif
         }
-        .frame(height: 30 * navBarVisibilityRatio)
+        .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
         .opacity(navBarVisibilityRatio)
-        .offset(x: 0.0, y: -30 * (1 - navBarVisibilityRatio))
       }
       if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
         WebAppWrapperView(
           viewModel: webAppWrapperViewModel,
           navBarVisibilityRatioUpdater: {
-            print($0)
             navBarVisibilityRatio = $0
           }
         )
@@ -162,5 +163,17 @@ public struct LinkItemDetailView: View {
         viewModel.performActionSubject.send(.load)
       }
     }
+  }
+}
+
+// Enable swipe to go back behavior if nav bar is hidden
+extension UINavigationController: UIGestureRecognizerDelegate {
+  override open func viewDidLoad() {
+    super.viewDidLoad()
+    interactivePopGestureRecognizer?.delegate = self
+  }
+
+  public func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
+    viewControllers.count > 1
   }
 }
