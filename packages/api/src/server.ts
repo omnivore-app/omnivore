@@ -37,6 +37,7 @@ import { emailsServiceRouter } from './routers/svc/emails'
 import ReminderModel from './datalayer/reminders'
 import { remindersServiceRouter } from './routers/svc/reminders'
 import { ApolloServer } from 'apollo-server-express'
+import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
 
 const PORT = process.env.PORT || 4000
 
@@ -97,6 +98,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
   app.use('/svc/pubsub/emails', emailsServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
+  app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())
