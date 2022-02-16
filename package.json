@@ -17,7 +17,7 @@
     "deploy:web": "vercel --prod"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.6.1",
+    "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/introspection": "^2.1.1",
     "@graphql-codegen/schema-ast": "^2.1.1",
     "@graphql-codegen/typescript": "^2.1.1",
