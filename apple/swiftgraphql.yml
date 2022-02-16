@@ -1,3 +1,13 @@
 scalars:
   Date: DateTime
   SanitizedString: String
+  SanitizedString_undefined_15: String
+  SanitizedString_undefined_40: String
+  SanitizedString_undefined_50: String
+  SanitizedString_undefined_95: String
+  SanitizedString_undefined_300: String
+  SanitizedString_undefined_400: String
+  SanitizedString_undefined_2000: String
+  SanitizedString_undefined_4000: String
+  SanitizedString_undefined_8000: String
+  SanitizedString_undefined_undefined: String
