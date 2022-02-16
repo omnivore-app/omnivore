@@ -6,10 +6,12 @@ import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getStorageFileDetails,
+  makeStorageFilePublic,
 } from '../../utils/uploads'
 import { initModels } from '../../server'
 import { kx } from '../../datalayer/knex_config'
 import { analytics } from '../../utils/analytics'
+import normalizeUrl from 'normalize-url'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -71,7 +73,7 @@ export function pdfAttachmentsRouter() {
   })
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('create-article', async (req, res) => {
+  router.post('/create-article', async (req, res) => {
     console.log('pdf-attachments/create-article')
 
     const { email, uploadFileId } = req.body as {
@@ -93,7 +95,7 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'create-article',
+      event: 'pdf-attachment-create-article',
       properties: {
         env: env.server.apiEnv,
       },
@@ -111,9 +113,49 @@ export function pdfAttachmentsRouter() {
       uploadFile.fileName
     )
     const uploadFileHash = uploadFileDetails.md5Hash
-    const userArticleUrl = uploadFileDetails.fileUrl
     const canonicalUrl = uploadFile.url
     const pageType = PageType.File
+
+    const saveTime = new Date()
+    const articleToSave = {
+      url: normalizeUrl(canonicalUrl, {
+        stripHash: true,
+        stripWWW: false,
+      }),
+      pageType: pageType,
+      hash: uploadFileHash,
+      uploadFileId: uploadFileId,
+      title: uploadFile.fileName,
+      content: '',
+    }
+
+    const uploadFileData = await kx.transaction(async (tx) => {
+      return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
+    })
+    if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
+      return res.status(400).send('BAD REQUEST')
+    }
+    const uploadFileUrlOverride = await makeStorageFilePublic(
+      uploadFileData.id,
+      uploadFileData.fileName
+    )
+
+    await kx.transaction(async (tx) => {
+      const articleRecord = await models.article.create(articleToSave, tx)
+      await models.userArticle.create(
+        {
+          userId: user.id,
+          slug: '',
+          savedAt: saveTime,
+          articleId: articleRecord.id,
+          articleUrl: uploadFileUrlOverride,
+          articleHash: articleRecord.hash,
+        },
+        tx
+      )
+    })
+
+    res.send('OK')
   })
 
   return router
