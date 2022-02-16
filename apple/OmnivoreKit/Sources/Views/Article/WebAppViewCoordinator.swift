@@ -1,6 +1,4 @@
-// import Models
 import SwiftUI
-// import Utils
 import WebKit
 
 final class WebAppViewCoordinator: NSObject {
@@ -8,6 +6,10 @@ final class WebAppViewCoordinator: NSObject {
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = true
   var lastSavedAnnotationID: UUID?
+  var updateNavBarVisibilityRatio: (Double) -> Void = { _ in }
+  private var yOffsetAtStartOfDrag: Double?
+  private var lastYOffset: Double = 0
+  private var hasDragged = false
 
   override init() {
     super.init()
@@ -31,6 +33,44 @@ extension WebAppViewCoordinator: WKNavigationDelegate {
     } else {
       decisionHandler(.allow)
     }
+  }
+}
+
+extension WebAppViewCoordinator: UIScrollViewDelegate {
+  func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    hasDragged = true
+    yOffsetAtStartOfDrag = scrollView.contentOffset.y
+  }
+
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    guard hasDragged else { return }
+
+    let yOffset = scrollView.contentOffset.y
+
+    if yOffset <= 0 {
+      updateNavBarVisibilityRatio(1)
+      return
+    }
+
+    if yOffset < 30 {
+      updateNavBarVisibilityRatio(1) // yOffset / 30)
+      return
+    }
+
+    guard let yOffsetAtStartOfDrag = yOffsetAtStartOfDrag else { return }
+
+    if yOffset > yOffsetAtStartOfDrag {
+      let translation = yOffset - yOffsetAtStartOfDrag
+      let ratio = 0.0 // translation < 30 ? translation / 30 : 0
+      updateNavBarVisibilityRatio(ratio)
+    }
+  }
+
+  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    if decelerate, scrollView.contentOffset.y < (yOffsetAtStartOfDrag ?? 0) {
+      updateNavBarVisibilityRatio(1)
+    }
+    yOffsetAtStartOfDrag = nil
   }
 }
 

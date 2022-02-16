@@ -25,8 +25,11 @@ public final class LinkItemDetailViewModel: ObservableObject {
 }
 
 public struct LinkItemDetailView: View {
+  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
   @ObservedObject private var viewModel: LinkItemDetailViewModel
   @State private var showFontSizePopover = false
+  @State private var navBarVisibilityRatio = 1.0
 
   public init(viewModel: LinkItemDetailViewModel) {
     self.viewModel = viewModel
@@ -51,10 +54,67 @@ public struct LinkItemDetailView: View {
   }
 
   public var body: some View {
-    innerBody
     #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
+      if UIDevice.isIPhone, !viewModel.item.isPDF {
+        compactInnerBody
+      } else {
+        innerBody
+      }
+    #else
+      innerBody
     #endif
+  }
+
+  @ViewBuilder private var compactInnerBody: some View {
+    VStack {
+      withAnimation {
+        HStack(alignment: .center) {
+          Button(
+            action: { self.presentationMode.wrappedValue.dismiss() },
+            label: {
+              Image(systemName: "chevron.backward")
+                .font(.appTitleThree)
+                .foregroundColor(.appGrayTextContrast)
+                .padding(.horizontal)
+                .padding(.bottom, 5)
+            }
+          )
+          Spacer()
+          Button(
+            action: { showFontSizePopover = true },
+            label: {
+              Image(systemName: "textformat.size")
+            }
+          )
+          .padding(.horizontal)
+          #if os(iOS)
+            .fittedPopover(isPresented: $showFontSizePopover) {
+              FontSizeAdjustmentPopoverView(
+                increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
+                decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
+              )
+            }
+          #endif
+        }
+        .scaleEffect(x: 1, y: navBarVisibilityRatio)
+        .frame(height: 30 * navBarVisibilityRatio)
+      }
+      if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
+        WebAppWrapperView(
+          viewModel: webAppWrapperViewModel,
+          navBarVisibilityRatioUpdater: {
+            print($0)
+            navBarVisibilityRatio = $0
+          }
+        )
+      } else {
+        Spacer()
+          .onAppear {
+            viewModel.performActionSubject.send(.load)
+          }
+      }
+    }
+    .navigationBarHidden(true)
   }
 
   @ViewBuilder private var innerBody: some View {
