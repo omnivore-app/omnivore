@@ -59,7 +59,7 @@ describe('Sanitize Directive', () => {
     })
 
     it('responds status code 500 when invalid input', async () => {
-      return graphqlRequest(query, authToken).expect(500)
+      return graphqlRequest(query, authToken).expect(400)
     })
   })
 })
