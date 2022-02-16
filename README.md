@@ -41,8 +41,8 @@ Read more about Omnivore on our blog. <https://blog.omnivore.app/p/getting-start
 Omnivore takes advantage of some great open source software:
 
 * [TypeScript](https://www.typescriptlang.org/) - Most of our backend and frontend are written in TypeScript.
-* [Next.js](https://nextjs.org/) - Our frontend is a Next.JS app and is hosted on [Vercel](https://vercel.com/)
-* [Stitches](https://stitches.dev/) - We use stitches on the frontend to style our components.
+* [Next.js](https://nextjs.org/) - Our frontend is a Next.JS app and is hosted on [Vercel](https://vercel.com/).
+* [Stitches](https://stitches.dev/) - We use Stitches on the frontend to style our components.
 * [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
 
 
