@@ -73,6 +73,10 @@ function uploadFile ({ id, uploadSignedUrl }, contentType, contentObjUrl) {
         };
         xhr.send(blob);
       });
+    })
+    .catch((err) => {
+      console.log('error uploading file', err)
+      return undefined
     });
 }
 
