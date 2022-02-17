@@ -23,15 +23,16 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
     const parts = multipart.parse(req.body, 'xYzZY')
     const parsed: Record<string, string> = {}
 
+    let pdfAttachment: Buffer | undefined
+    let pdfAttachmentName: string | undefined
+
     for (const part of parts) {
       const { name, data, type, filename } = part
       if (name && data) {
         parsed[name] = data.toString()
       } else if (type === 'application/pdf' && data) {
-        parsed['pdf-attachment-data'] = data.toString()
-        parsed['pdf-attachment-filename'] = filename
-          ? filename
-          : 'attachment.pdf'
+        pdfAttachment = data
+        pdfAttachmentName = filename
       } else {
         console.log('no data or name for ', part)
       }
@@ -82,12 +83,13 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (isConfirmationEmail(from)) {
           console.log('handleConfirmation', from, recipientAddress)
           await handleConfirmation(recipientAddress, subject)
-        } else if (parsed['pdf-attachment-filename']) {
+        } else if (pdfAttachment) {
           console.log('handle PDF attachment', from, recipientAddress)
           await handlePdfAttachment(
             recipientAddress,
-            parsed['pdf-attachment-filename'],
-            parsed['pdf-attachment-data']
+            pdfAttachmentName,
+            pdfAttachment,
+            subject
           )
         }
 

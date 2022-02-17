@@ -12,6 +12,7 @@ import { initModels } from '../../server'
 import { kx } from '../../datalayer/knex_config'
 import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
+import { setClaims } from '../../datalayer/helpers'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -82,9 +83,10 @@ export function pdfAttachmentsRouter() {
   router.post('/create-article', async (req, res) => {
     console.log('pdf-attachments/create-article')
 
-    const { email, uploadFileId } = req.body as {
+    const { email, uploadFileId, subject } = req.body as {
       email: string
       uploadFileId: string
+      subject: string
     }
 
     const token = req?.headers?.authorization
@@ -130,13 +132,14 @@ export function pdfAttachmentsRouter() {
         pageType: pageType,
         hash: uploadFileHash,
         uploadFileId: uploadFileId,
-        title: uploadFile.fileName,
+        title: subject || uploadFile.fileName,
         content: '',
       }
 
-      const uploadFileData = await models.uploadFile.setFileUploadComplete(
-        uploadFileId
-      )
+      const uploadFileData = await kx.transaction(async (tx) => {
+        await setClaims(tx, user.id)
+        return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
+      })
       if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
         return res.status(400).send('BAD REQUEST')
       }
@@ -147,6 +150,7 @@ export function pdfAttachmentsRouter() {
       )
 
       const link = await kx.transaction(async (tx) => {
+        await setClaims(tx, user.id)
         const articleRecord = await models.article.create(articleToSave, tx)
         return models.userArticle.create(
           {
