@@ -74,14 +74,14 @@ public struct LinkItemDetailView: View {
   }
 
   @ViewBuilder private var compactInnerBody: some View {
-    VStack {
+    VStack(spacing: 0) {
       withAnimation {
         HStack(alignment: .center) {
           Button(
             action: { self.presentationMode.wrappedValue.dismiss() },
             label: {
               Image(systemName: "chevron.backward")
-                .font(.appTitle)
+                .font(.appTitleTwo)
                 .foregroundColor(.appGrayTextContrast)
                 .padding(.horizontal)
             }
@@ -92,7 +92,7 @@ public struct LinkItemDetailView: View {
             action: { showFontSizePopover.toggle() },
             label: {
               Image(systemName: "textformat.size")
-                .font(.appTitle)
+                .font(.appTitleTwo)
             }
           )
           .padding(.horizontal)
