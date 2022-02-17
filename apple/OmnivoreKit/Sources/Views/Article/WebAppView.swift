@@ -29,7 +29,7 @@ import WebKit
       let webView = WebView(frame: CGRect.zero)
       let contentController = WKUserContentController()
 
-      webView.scrollView.isScrollEnabled = true
+      webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
       webView.navigationDelegate = context.coordinator
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear

@@ -73,73 +73,84 @@ public struct LinkItemDetailView: View {
     #endif
   }
 
-  @ViewBuilder private var compactInnerBody: some View {
-    VStack(spacing: 0) {
-      withAnimation {
-        HStack(alignment: .center) {
-          Button(
-            action: { self.presentationMode.wrappedValue.dismiss() },
-            label: {
-              Image(systemName: "chevron.backward")
-                .font(.appTitleTwo)
-                .foregroundColor(.appGrayTextContrast)
-                .padding(.horizontal)
-            }
-          )
-          .scaleEffect(navBarVisibilityRatio)
-          Spacer()
-          Button(
-            action: { showFontSizePopover.toggle() },
-            label: {
-              Image(systemName: "textformat.size")
-                .font(.appTitleTwo)
-            }
-          )
-          .padding(.horizontal)
-          .scaleEffect(navBarVisibilityRatio)
+  var navBar: some View {
+    HStack(alignment: .center) {
+      Button(
+        action: { self.presentationMode.wrappedValue.dismiss() },
+        label: {
+          Image(systemName: "chevron.backward")
+            .font(.appTitleTwo)
+            .foregroundColor(.appGrayTextContrast)
+            .padding(.horizontal)
         }
-        .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
-        .opacity(navBarVisibilityRatio)
-      }
-      if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
-        ZStack {
-          WebAppWrapperView(
-            viewModel: webAppWrapperViewModel,
-            navBarVisibilityRatioUpdater: {
-              if $0 < 1 {
+      )
+      .scaleEffect(navBarVisibilityRatio)
+      Spacer()
+      Button(
+        action: { showFontSizePopover.toggle() },
+        label: {
+          Image(systemName: "textformat.size")
+            .font(.appTitleTwo)
+        }
+      )
+      .padding(.horizontal)
+      .scaleEffect(navBarVisibilityRatio)
+    }
+    .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
+    .opacity(navBarVisibilityRatio)
+    .background(Color.systemBackground)
+  }
+
+  @ViewBuilder private var compactInnerBody: some View {
+    if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
+      ZStack {
+        WebAppWrapperView(
+          viewModel: webAppWrapperViewModel,
+          navBarVisibilityRatioUpdater: {
+            if $0 < 1 {
+              showFontSizePopover = false
+            }
+            navBarVisibilityRatio = $0
+          }
+        )
+        if showFontSizePopover {
+          VStack {
+            Color.clear
+              .contentShape(Rectangle())
+              .frame(height: LinkItemDetailView.navBarHeight)
+            HStack {
+              Spacer()
+              fontAdjustmentPopoverView
+                .background(Color.appButtonBackground)
+                .cornerRadius(8)
+                .padding(.trailing, 5)
+            }
+            Spacer()
+          }
+          .background(
+            Color.clear
+              .contentShape(Rectangle())
+              .onTapGesture {
                 showFontSizePopover = false
               }
-              navBarVisibilityRatio = $0
-            }
           )
-          if showFontSizePopover {
-            VStack {
-              HStack {
-                Spacer()
-                fontAdjustmentPopoverView
-                  .background(Color.appButtonBackground)
-                  .cornerRadius(8)
-                  .padding(.trailing, 5)
-              }
-              Spacer()
-            }
-            .background(
-              Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {
-                  showFontSizePopover = false
-                }
-            )
-          }
         }
-      } else {
-        Spacer()
-          .onAppear {
-            viewModel.performActionSubject.send(.load)
-          }
+        VStack(spacing: 0) {
+          navBar
+          Spacer()
+        }
       }
+      .navigationBarHidden(true)
+    } else {
+      VStack(spacing: 0) {
+        navBar
+        Spacer()
+      }
+      .onAppear {
+        viewModel.performActionSubject.send(.load)
+      }
+      .navigationBarHidden(true)
     }
-    .navigationBarHidden(true)
   }
 
   @ViewBuilder private var innerBody: some View {

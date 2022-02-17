@@ -20,6 +20,7 @@ final class WebAppViewCoordinator: NSObject {
   var navBarVisibilityRatio: Double = 1.0 {
     didSet {
       isNavBarHidden = navBarVisibilityRatio == 0
+      print(navBarVisibilityRatio)
       updateNavBarVisibilityRatio(navBarVisibilityRatio)
     }
   }
@@ -48,24 +49,31 @@ extension WebAppViewCoordinator: WKNavigationDelegate {
 extension WebAppViewCoordinator: UIScrollViewDelegate {
   func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
     hasDragged = true
-    yOffsetAtStartOfDrag = scrollView.contentOffset.y
+    yOffsetAtStartOfDrag = scrollView.contentOffset.y + scrollView.contentInset.top
   }
 
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     guard hasDragged else { return }
 
-    let yOffset = scrollView.contentOffset.y
+    let yOffset = scrollView.contentOffset.y + scrollView.contentInset.top
 
     if yOffset == 0 {
-      let additionalOffset = (1 - navBarVisibilityRatio) * navBarHeight
-      scrollView.contentOffset.y += additionalOffset
+      scrollView.contentInset.top = navBarHeight
       navBarVisibilityRatio = 1
+      return
+    }
+
+    if yOffset < 0 {
+      navBarVisibilityRatio = 1
+      scrollView.contentInset.top = navBarHeight
       return
     }
 
     if yOffset < navBarHeight {
       let isScrollingUp = yOffsetAtStartOfDrag ?? 0 > yOffset
-      navBarVisibilityRatio = isScrollingUp ? 1 : 1 - (yOffset / navBarHeight)
+      navBarVisibilityRatio = isScrollingUp || yOffset < 0 ? 1 : min(1, 1 - (yOffset / navBarHeight))
+      print("parkour!", navBarVisibilityRatio, isScrollingUp, yOffsetAtStartOfDrag, yOffset)
+      scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
       return
     }
 
@@ -74,22 +82,22 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
     if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
       let translation = yOffset - yOffsetAtStartOfDrag
       let ratio = translation < navBarHeight ? 1 - (translation / navBarHeight) : 0
-      navBarVisibilityRatio = ratio
+      navBarVisibilityRatio = min(ratio, 1)
+//      print("bike!", navBarVisibilityRatio)
+      scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
     }
   }
 
   func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-    if decelerate, scrollView.contentOffset.y < (yOffsetAtStartOfDrag ?? 0) {
-      let additionalOffset = (1 - navBarVisibilityRatio) * navBarHeight
-      scrollView.contentOffset.y += additionalOffset
+    if decelerate, scrollView.contentOffset.y + scrollView.contentInset.top < (yOffsetAtStartOfDrag ?? 0) {
+      scrollView.contentInset.top = navBarHeight
       navBarVisibilityRatio = 1
     }
     yOffsetAtStartOfDrag = nil
   }
 
   func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-    let additionalOffset = (1 - navBarVisibilityRatio) * navBarHeight
-    scrollView.contentOffset.y += additionalOffset
+    scrollView.contentInset.top = navBarHeight
     navBarVisibilityRatio = 1
     return false
   }
