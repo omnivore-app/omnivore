@@ -6,7 +6,13 @@ export class SubstackHandler {
   shouldPrehandle = (url: URL, dom: DOMWindow): boolean => {
     const host = this.name + '.com'
     // check if url ends with bloomberg.com
-    return url.hostname.endsWith(host)
+    return (
+      url.hostname.endsWith(host) ||
+      dom.document
+        .querySelector('.logo-image')
+        ?.getAttribute('alt')
+        ?.toLowerCase() === this.name
+    )
   }
 
   prehandle = (url: URL, dom: DOMWindow): Promise<DOMWindow> => {

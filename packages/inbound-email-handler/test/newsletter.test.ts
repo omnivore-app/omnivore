@@ -46,10 +46,23 @@ describe('Newsletter email test', () => {
 
     it('returns url when email is from Axios', () => {
       const rawUrl = ''
-      const html = `View in browser at <a>https://axios.com/blog/2019/02/28/the-best-way-to-build-a-web-app</a>`
+      const html = `View in browser at <a>https://axios.com/blog/the-best-way-to-build-a-web-app</a>`
 
       expect(getNewsletterUrl(rawUrl, html)).to.equal(
-        'https://axios.com/blog/2019/02/28/the-best-way-to-build-a-web-app'
+        'https://axios.com/blog/the-best-way-to-build-a-web-app'
+      )
+    })
+
+    it('returns url when email is from Bloomberg', () => {
+      const rawUrl = ''
+      const html = `
+        <a class="view-in-browser__url" href="https://www.bloomberg.com/news/google-is-now-a-partner">
+        View in browser
+        </a>
+      `
+
+      expect(getNewsletterUrl(rawUrl, html)).to.equal(
+        'https://www.bloomberg.com/news/google-is-now-a-partner'
       )
     })
   })
