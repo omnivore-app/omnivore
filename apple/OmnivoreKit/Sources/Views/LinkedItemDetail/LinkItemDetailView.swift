@@ -82,7 +82,7 @@ public struct LinkItemDetailView: View {
           .scaleEffect(navBarVisibilityRatio)
           Spacer()
           Button(
-            action: { showFontSizePopover = true },
+            action: { showFontSizePopover.toggle() },
             label: {
               Image(systemName: "textformat.size")
                 .font(.appTitle)
@@ -90,25 +90,41 @@ public struct LinkItemDetailView: View {
           )
           .padding(.horizontal)
           .scaleEffect(navBarVisibilityRatio)
-          #if os(iOS)
-            .fittedPopover(isPresented: $showFontSizePopover) {
-              FontSizeAdjustmentPopoverView(
-                increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-                decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-              )
-            }
-          #endif
         }
         .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
         .opacity(navBarVisibilityRatio)
       }
       if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
-        WebAppWrapperView(
-          viewModel: webAppWrapperViewModel,
-          navBarVisibilityRatioUpdater: {
-            navBarVisibilityRatio = $0
+        ZStack {
+          WebAppWrapperView(
+            viewModel: webAppWrapperViewModel,
+            navBarVisibilityRatioUpdater: {
+              navBarVisibilityRatio = $0
+            }
+          )
+          if showFontSizePopover {
+            VStack {
+              HStack {
+                Spacer()
+                FontSizeAdjustmentPopoverView(
+                  increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
+                  decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
+                )
+                .background(Color.appButtonBackground)
+                .cornerRadius(8)
+                .padding(.trailing, 5)
+              }
+              Spacer()
+            }
+            .background(
+              Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                  showFontSizePopover = false
+                }
+            )
           }
-        )
+        }
       } else {
         Spacer()
           .onAppear {
