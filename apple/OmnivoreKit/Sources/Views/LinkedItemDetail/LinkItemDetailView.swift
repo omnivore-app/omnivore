@@ -54,6 +54,13 @@ public struct LinkItemDetailView: View {
     )
   }
 
+  var fontAdjustmentPopoverView: some View {
+    FontSizeAdjustmentPopoverView(
+      increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
+      decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
+    )
+  }
+
   public var body: some View {
     #if os(iOS)
       if UIDevice.isIPhone, !viewModel.item.isPDF {
@@ -99,6 +106,9 @@ public struct LinkItemDetailView: View {
           WebAppWrapperView(
             viewModel: webAppWrapperViewModel,
             navBarVisibilityRatioUpdater: {
+              if $0 < 1 {
+                showFontSizePopover = false
+              }
               navBarVisibilityRatio = $0
             }
           )
@@ -106,13 +116,10 @@ public struct LinkItemDetailView: View {
             VStack {
               HStack {
                 Spacer()
-                FontSizeAdjustmentPopoverView(
-                  increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-                  decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-                )
-                .background(Color.appButtonBackground)
-                .cornerRadius(8)
-                .padding(.trailing, 5)
+                fontAdjustmentPopoverView
+                  .background(Color.appButtonBackground)
+                  .cornerRadius(8)
+                  .padding(.trailing, 5)
               }
               Spacer()
             }
@@ -154,17 +161,11 @@ public struct LinkItemDetailView: View {
             )
             #if os(iOS)
               .fittedPopover(isPresented: $showFontSizePopover) {
-                FontSizeAdjustmentPopoverView(
-                  increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-                  decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-                )
+                fontAdjustmentPopoverView
               }
             #else
               .popover(isPresented: $showFontSizePopover) {
-                FontSizeAdjustmentPopoverView(
-                  increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-                  decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-                )
+                fontAdjustmentPopoverView
               }
             #endif
           }
