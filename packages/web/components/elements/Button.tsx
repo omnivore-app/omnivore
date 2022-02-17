@@ -39,10 +39,13 @@ export const Button = styled('button', {
         borderRadius: '8px',
         cursor: 'pointer',
         color: '$omnivoreGray',
-        p: '10px 12px',
+        p: '10px 10px',
         bg: 'rgb(125, 125, 125, 0)',
         '&:hover': {
           bg: 'rgb(47, 47, 47, 0.1)',
+          '.ctaButtonIcon': {
+            visibility: 'visible',
+          },
         },
         '@md': {
           bg: 'rgb(125, 125, 125, 0.1)',
@@ -50,7 +53,9 @@ export const Button = styled('button', {
         '@xsmDown': {
           visibility: 'collapse',
         },
-
+        '.ctaButtonIcon': {
+          visibility: 'hidden',
+        }
       },
       ctaGray: {
         border: 0,
