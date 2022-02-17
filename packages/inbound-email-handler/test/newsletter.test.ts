@@ -28,6 +28,11 @@ describe('Newsletter email test', () => {
 
       expect(isNewsletter('', from)).to.be.true
     })
+
+    it('should return true when email is from bloomberg', () => {
+      const from = 'From: Bloomberg <noreply@mail.bloombergbusiness.com>'
+      expect(isNewsletter('', from)).to.be.true
+    })
   })
 
   describe('#getNewsletterUrl()', () => {

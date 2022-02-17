@@ -6,9 +6,11 @@ const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
 const EMAIL_FORWARDING_SENDER_ADDRESSES = [
   'Gmail Team <forwarding-noreply@google.com>',
 ]
-const NEWSLETTER_SENDER_REGEX = '<.+@axios.com>'
+const NEWSLETTER_SENDER_REGEX =
+  '<.+@((axios.com)|(mail.bloombergbusiness.com))>'
 const CONFIRMATION_CODE_PATTERN = '^\\(#\\d+\\)'
 const AXIOS_URL_PATTERN = 'View in browser at <.+>'
+const BLOOMBERG_URL_PATTERN = '<a class="view-in-browser__url".+>'
 
 export const handleConfirmation = async (email: string, subject: string) => {
   console.log('confirmation email')
@@ -114,11 +116,19 @@ export const getNewsletterUrl = (
   }
 
   // axios newsletter url from html
-  const re = new RegExp(AXIOS_URL_PATTERN)
-  const matches = html.match(re)
+  let re = new RegExp(AXIOS_URL_PATTERN)
+  let matches = html.match(re)
   if (matches) {
     const match = matches[0]
     return match.slice(match.indexOf('>') + 1, match.lastIndexOf('<'))
+  }
+
+  // bloomberg newsletter url from html
+  re = new RegExp(BLOOMBERG_URL_PATTERN)
+  matches = html.match(re)
+  if (matches) {
+    const match = matches[0]
+    return match.slice(match.indexOf('href=') + 1, match.lastIndexOf('style'))
   }
   return undefined
 }
