@@ -18,6 +18,10 @@ export const generateUploadSignedUrl = async (
   filePathName: string,
   contentType: string
 ): Promise<string> => {
+  if (env.dev.isLocal) {
+    return 'http://localhost:3000/uploads/' + filePathName
+  }
+
   // These options will allow temporary uploading of file with requested content type
   const options: GetSignedUrlConfig = {
     version: 'v4',
@@ -53,6 +57,10 @@ export const makeStorageFilePublic = async (
   id: string,
   fileName: string
 ): Promise<string> => {
+  if (env.dev.isLocal) {
+    return 'http://localhost:3000/public/' + id + '/' + fileName
+  }
+
   // Makes the file public
   const filePathName = generateUploadFilePathName(id, fileName)
   await storage.bucket(bucketName).file(filePathName).makePublic()
@@ -65,6 +73,13 @@ export const getStorageFileDetails = async (
   id: string,
   fileName: string
 ): Promise<{ md5Hash: string; fileUrl: string }> => {
+  if (env.dev.isLocal) {
+    return {
+      md5Hash: 'some_md5_hash',
+      fileUrl: 'http://localhost:3000/public/' + id + '/' + fileName,
+    }
+  }
+
   const filePathName = generateUploadFilePathName(id, fileName)
   const file = storage.bucket(bucketName).file(filePathName)
   const [metadata] = await file.getMetadata()

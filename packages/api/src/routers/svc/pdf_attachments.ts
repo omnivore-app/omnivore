@@ -61,10 +61,10 @@ export function pdfAttachmentsRouter() {
           uploadFileData.id,
           fileName
         )
-        const uploadSignedUrl =
-          env.server.apiEnv === 'prod'
-            ? await generateUploadSignedUrl(uploadFilePathName, contentType)
-            : 'http://localhost:3000/uploads/' + uploadFilePathName
+        const uploadSignedUrl = await generateUploadSignedUrl(
+          uploadFilePathName,
+          contentType
+        )
         res.send({
           id: uploadFileData.id,
           url: uploadSignedUrl,
@@ -117,10 +117,10 @@ export function pdfAttachmentsRouter() {
         return res.status(400).send('BAD REQUEST')
       }
 
-      const uploadFileDetails =
-        env.server.apiEnv === 'prod'
-          ? await getStorageFileDetails(uploadFileId, uploadFile.fileName)
-          : { md5Hash: '', size: 0 }
+      const uploadFileDetails = await getStorageFileDetails(
+        uploadFileId,
+        uploadFile.fileName
+      )
       const uploadFileHash = uploadFileDetails.md5Hash
       const pageType = PageType.File
 
@@ -141,16 +141,10 @@ export function pdfAttachmentsRouter() {
         return res.status(400).send('BAD REQUEST')
       }
 
-      const uploadFileUrlOverride =
-        env.server.apiEnv === 'prod'
-          ? await makeStorageFilePublic(
-              uploadFileData.id,
-              uploadFileData.fileName
-            )
-          : 'http://localhost:3000/uploads/' +
-            uploadFileData.id +
-            '/' +
-            uploadFileData.fileName
+      const uploadFileUrlOverride = await makeStorageFilePublic(
+        uploadFileData.id,
+        uploadFileData.fileName
+      )
 
       const link = await kx.transaction(async (tx) => {
         const articleRecord = await models.article.create(articleToSave, tx)

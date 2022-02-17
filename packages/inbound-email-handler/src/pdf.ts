@@ -42,11 +42,11 @@ const getUploadIdAndSignedUrl = async (
     email,
   }
 
-  if (process.env.REST_BACKEND_ENDPOINT === undefined) {
+  if (process.env.INTERNAL_SVC_ENDPOINT === undefined) {
     throw new Error('REST_BACKEND_ENDPOINT is not defined')
   }
   const response = await axios.post(
-    `${process.env.REST_BACKEND_ENDPOINT}/svc/pdf-attachments/upload`,
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pdf-attachments/upload`,
     data,
     {
       headers: {
@@ -85,11 +85,11 @@ const createArticle = async (
   }
   const auth = await signToken(email, process.env.JWT_SECRET)
 
-  if (process.env.REST_BACKEND_ENDPOINT === undefined) {
+  if (process.env.INTERNAL_SVC_ENDPOINT === undefined) {
     throw new Error('REST_BACKEND_ENDPOINT is not defined')
   }
   return axios.post(
-    `${process.env.REST_BACKEND_ENDPOINT}/svc/pdf-attachments/create-article`,
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pdf-attachments/create-article`,
     data,
     {
       headers: {
