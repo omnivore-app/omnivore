@@ -57,6 +57,8 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
     let yOffset = scrollView.contentOffset.y
 
     if yOffset == 0 {
+      let additionalOffset = (1 - navBarVisibilityRatio) * navBarHeight
+      scrollView.contentOffset.y += additionalOffset
       navBarVisibilityRatio = 1
       return
     }
@@ -78,12 +80,16 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
 
   func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
     if decelerate, scrollView.contentOffset.y < (yOffsetAtStartOfDrag ?? 0) {
+      let additionalOffset = (1 - navBarVisibilityRatio) * navBarHeight
+      scrollView.contentOffset.y += additionalOffset
       navBarVisibilityRatio = 1
     }
     yOffsetAtStartOfDrag = nil
   }
 
-  func scrollViewShouldScrollToTop(_: UIScrollView) -> Bool {
+  func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+    let additionalOffset = (1 - navBarVisibilityRatio) * navBarHeight
+    scrollView.contentOffset.y += additionalOffset
     navBarVisibilityRatio = 1
     return false
   }
