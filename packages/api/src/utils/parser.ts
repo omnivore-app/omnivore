@@ -11,6 +11,7 @@ import axios from 'axios'
 import { WikipediaHandler } from './wikipedia-handler'
 import { SubstackHandler } from './substack-handler'
 import { AxiosHandler } from './axios-handler'
+import { BloombergHandler } from './bloomberg-handler'
 
 const logger = buildLogger('utils.parse')
 
@@ -45,6 +46,7 @@ const HANDLERS = [
   new WikipediaHandler(),
   new SubstackHandler(),
   new AxiosHandler(),
+  new BloombergHandler(),
 ]
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
