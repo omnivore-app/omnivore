@@ -46,7 +46,7 @@ const getUploadIdAndSignedUrl = async (
     throw new Error('REST_BACKEND_ENDPOINT is not defined')
   }
   const response = await axios.post(
-    `${process.env.INTERNAL_SVC_ENDPOINT}/pdf-attachments/upload`,
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pdf-attachments/upload`,
     data,
     {
       headers: {
@@ -89,7 +89,7 @@ const createArticle = async (
     throw new Error('REST_BACKEND_ENDPOINT is not defined')
   }
   return axios.post(
-    `${process.env.INTERNAL_SVC_ENDPOINT}/pdf-attachments/create-article`,
+    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pdf-attachments/create-article`,
     data,
     {
       headers: {
