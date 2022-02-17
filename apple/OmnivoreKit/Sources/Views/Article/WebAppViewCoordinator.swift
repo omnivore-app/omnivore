@@ -19,6 +19,7 @@ final class WebAppViewCoordinator: NSObject {
 
   var navBarVisibilityRatio: Double = 1.0 {
     didSet {
+      isNavBarHidden = navBarVisibilityRatio == 0
       updateNavBarVisibilityRatio(navBarVisibilityRatio)
     }
   }
@@ -55,8 +56,7 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
 
     let yOffset = scrollView.contentOffset.y
 
-    if yOffset <= 0 {
-      isNavBarHidden = false
+    if yOffset == 0 {
       navBarVisibilityRatio = 1
       return
     }
@@ -72,7 +72,6 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
     if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
       let translation = yOffset - yOffsetAtStartOfDrag
       let ratio = translation < navBarHeight ? 1 - (translation / navBarHeight) : 0
-      isNavBarHidden = ratio == 0
       navBarVisibilityRatio = ratio
     }
   }
@@ -80,18 +79,13 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
   func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
     if decelerate, scrollView.contentOffset.y < (yOffsetAtStartOfDrag ?? 0) {
       navBarVisibilityRatio = 1
-      isNavBarHidden = false
     }
     yOffsetAtStartOfDrag = nil
   }
 
   func scrollViewShouldScrollToTop(_: UIScrollView) -> Bool {
-    if navBarVisibilityRatio == 1 {
-      return true
-    } else {
-      navBarVisibilityRatio = 1
-      return false
-    }
+    navBarVisibilityRatio = 1
+    return false
   }
 }
 
