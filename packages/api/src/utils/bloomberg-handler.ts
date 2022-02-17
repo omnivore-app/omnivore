@@ -1,6 +1,6 @@
 import { DOMWindow } from 'jsdom'
 
-export class SubstackHandler {
+export class BloombergHandler {
   name = 'bloomberg'
 
   shouldPrehandle = (url: URL, dom: DOMWindow): boolean => {
@@ -15,7 +15,7 @@ export class SubstackHandler {
     )
   }
 
-  prehandle = (url: URL, dom: DOMWindow): Promise<DOMWindow> => {
+  prehandle = (_url: URL, dom: DOMWindow): Promise<DOMWindow> => {
     const body = dom.document.querySelector('.wrapper')
 
     // this removes header
