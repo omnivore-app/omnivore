@@ -45,59 +45,61 @@ extension WebAppViewCoordinator: WKNavigationDelegate {
   }
 }
 
-extension WebAppViewCoordinator: UIScrollViewDelegate {
-  func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-    hasDragged = true
-    yOffsetAtStartOfDrag = scrollView.contentOffset.y + scrollView.contentInset.top
-  }
+#if os(iOS)
+  extension WebAppViewCoordinator: UIScrollViewDelegate {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+      hasDragged = true
+      yOffsetAtStartOfDrag = scrollView.contentOffset.y + scrollView.contentInset.top
+    }
 
-  func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    guard hasDragged else { return }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+      guard hasDragged else { return }
 
-    let yOffset = scrollView.contentOffset.y
+      let yOffset = scrollView.contentOffset.y
 
-    if yOffset == 0 {
+      if yOffset == 0 {
+        scrollView.contentInset.top = navBarHeight
+        navBarVisibilityRatio = 1
+        return
+      }
+
+      if yOffset < 0 {
+        navBarVisibilityRatio = 1
+        scrollView.contentInset.top = navBarHeight
+        return
+      }
+
+      if yOffset < navBarHeight {
+        let isScrollingUp = yOffsetAtStartOfDrag ?? 0 > yOffset
+        navBarVisibilityRatio = isScrollingUp || yOffset < 0 ? 1 : min(1, 1 - (yOffset / navBarHeight))
+        scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
+        return
+      }
+
+      guard let yOffsetAtStartOfDrag = yOffsetAtStartOfDrag else { return }
+
+      if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
+        let translation = yOffset - yOffsetAtStartOfDrag
+        let ratio = translation < navBarHeight ? 1 - (translation / navBarHeight) : 0
+        navBarVisibilityRatio = min(ratio, 1)
+        scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
+      }
+    }
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+      if decelerate, scrollView.contentOffset.y + scrollView.contentInset.top < (yOffsetAtStartOfDrag ?? 0) {
+        scrollView.contentInset.top = navBarHeight
+        navBarVisibilityRatio = 1
+      }
+    }
+
+    func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
       scrollView.contentInset.top = navBarHeight
       navBarVisibilityRatio = 1
-      return
-    }
-
-    if yOffset < 0 {
-      navBarVisibilityRatio = 1
-      scrollView.contentInset.top = navBarHeight
-      return
-    }
-
-    if yOffset < navBarHeight {
-      let isScrollingUp = yOffsetAtStartOfDrag ?? 0 > yOffset
-      navBarVisibilityRatio = isScrollingUp || yOffset < 0 ? 1 : min(1, 1 - (yOffset / navBarHeight))
-      scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
-      return
-    }
-
-    guard let yOffsetAtStartOfDrag = yOffsetAtStartOfDrag else { return }
-
-    if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
-      let translation = yOffset - yOffsetAtStartOfDrag
-      let ratio = translation < navBarHeight ? 1 - (translation / navBarHeight) : 0
-      navBarVisibilityRatio = min(ratio, 1)
-      scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
+      return false
     }
   }
-
-  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-    if decelerate, scrollView.contentOffset.y + scrollView.contentInset.top < (yOffsetAtStartOfDrag ?? 0) {
-      scrollView.contentInset.top = navBarHeight
-      navBarVisibilityRatio = 1
-    }
-  }
-
-  func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-    scrollView.contentInset.top = navBarHeight
-    navBarVisibilityRatio = 1
-    return false
-  }
-}
+#endif
 
 struct WebViewConfig {
   let url: URL

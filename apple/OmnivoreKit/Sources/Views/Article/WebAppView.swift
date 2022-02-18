@@ -92,6 +92,7 @@ import WebKit
     let rawAuthCookie: String?
     let openLinkAction: (URL) -> Void
     let webViewActionHandler: (WKScriptMessage) -> Void
+    let navBarVisibilityRatioUpdater: (Double) -> Void
     @Binding var annotation: String
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var sendIncreaseFontSignal: Bool
