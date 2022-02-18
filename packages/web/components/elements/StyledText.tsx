@@ -130,7 +130,7 @@ const textVariants = {
 export const StyledText = styled('p', {
   fontFamily: 'Inter',
   fontWeight: 'normal',
-  lineHeight: '1.35',
+  lineHeight: '120%',
   color: '$grayTextContrast',
   variants: textVariants,
   defaultVariants: {

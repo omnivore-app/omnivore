@@ -126,7 +126,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           maxWidth: '94%',
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
-          '--line-height': `1.61em`,
+          '--line-height': `150%`,
           '--blockquote-padding': '0.5em 1em',
           '--blockquote-icon-font-size': '1.3rem',
           '--figure-margin': '1.6rem auto',
