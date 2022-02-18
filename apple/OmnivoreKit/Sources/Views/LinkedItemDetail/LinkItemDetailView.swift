@@ -101,57 +101,59 @@ public struct LinkItemDetailView: View {
     .background(Color.systemBackground)
   }
 
-  @ViewBuilder private var compactInnerBody: some View {
-    if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
-      ZStack {
-        WebAppWrapperView(
-          viewModel: webAppWrapperViewModel,
-          navBarVisibilityRatioUpdater: {
-            if $0 < 1 {
-              showFontSizePopover = false
-            }
-            navBarVisibilityRatio = $0
-          }
-        )
-        if showFontSizePopover {
-          VStack {
-            Color.clear
-              .contentShape(Rectangle())
-              .frame(height: LinkItemDetailView.navBarHeight)
-            HStack {
-              Spacer()
-              fontAdjustmentPopoverView
-                .background(Color.appButtonBackground)
-                .cornerRadius(8)
-                .padding(.trailing, 5)
-            }
-            Spacer()
-          }
-          .background(
-            Color.clear
-              .contentShape(Rectangle())
-              .onTapGesture {
+  #if os(iOS)
+    @ViewBuilder private var compactInnerBody: some View {
+      if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
+        ZStack {
+          WebAppWrapperView(
+            viewModel: webAppWrapperViewModel,
+            navBarVisibilityRatioUpdater: {
+              if $0 < 1 {
                 showFontSizePopover = false
               }
+              navBarVisibilityRatio = $0
+            }
           )
+          if showFontSizePopover {
+            VStack {
+              Color.clear
+                .contentShape(Rectangle())
+                .frame(height: LinkItemDetailView.navBarHeight)
+              HStack {
+                Spacer()
+                fontAdjustmentPopoverView
+                  .background(Color.appButtonBackground)
+                  .cornerRadius(8)
+                  .padding(.trailing, 5)
+              }
+              Spacer()
+            }
+            .background(
+              Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                  showFontSizePopover = false
+                }
+            )
+          }
+          VStack(spacing: 0) {
+            navBar
+            Spacer()
+          }
         }
+        .navigationBarHidden(true)
+      } else {
         VStack(spacing: 0) {
           navBar
           Spacer()
         }
+        .onAppear {
+          viewModel.performActionSubject.send(.load)
+        }
+        .navigationBarHidden(true)
       }
-      .navigationBarHidden(true)
-    } else {
-      VStack(spacing: 0) {
-        navBar
-        Spacer()
-      }
-      .onAppear {
-        viewModel.performActionSubject.send(.load)
-      }
-      .navigationBarHidden(true)
     }
-  }
+  #endif
 
   @ViewBuilder private var innerBody: some View {
     if let pdfURL = viewModel.item.pdfURL {
@@ -195,14 +197,16 @@ public struct LinkItemDetailView: View {
   }
 }
 
-// Enable swipe to go back behavior if nav bar is hidden
-extension UINavigationController: UIGestureRecognizerDelegate {
-  override open func viewDidLoad() {
-    super.viewDidLoad()
-    interactivePopGestureRecognizer?.delegate = self
-  }
+#if os(iOS)
+  // Enable swipe to go back behavior if nav bar is hidden
+  extension UINavigationController: UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+      super.viewDidLoad()
+      interactivePopGestureRecognizer?.delegate = self
+    }
 
-  public func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
-    viewControllers.count > 1
+    public func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
+      viewControllers.count > 1
+    }
   }
-}
+#endif
