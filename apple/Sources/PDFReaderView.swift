@@ -21,7 +21,7 @@ import WebKit
 
       let nav = UINavigationController(rootViewController: readerViewcontroller)
 
-      // Using an emoty image creates a transparent navigation bar
+      // Using an empty image creates a transparent navigation bar
       nav.navigationBar.setBackgroundImage(UIImage(), for: .default)
       nav.navigationBar.shadowImage = UIImage()
       nav.navigationBar.isTranslucent = true

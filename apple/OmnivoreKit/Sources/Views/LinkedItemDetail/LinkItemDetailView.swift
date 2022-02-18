@@ -157,6 +157,7 @@ public struct LinkItemDetailView: View {
     if let pdfURL = viewModel.item.pdfURL {
       #if os(iOS)
         PDFProvider.pdfViewerProvider?(pdfURL, viewModel.item)
+          .navigationBarTitleDisplayMode(.inline)
       #elseif os(macOS)
         PDFWrapperView(pdfURL: pdfURL)
       #endif
