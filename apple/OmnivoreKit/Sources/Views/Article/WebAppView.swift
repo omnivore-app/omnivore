@@ -35,6 +35,7 @@ import WebKit
       webView.backgroundColor = UIColor.clear
       webView.configuration.userContentController = contentController
       webView.scrollView.delegate = context.coordinator
+      webView.scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0)
 
       for action in WebViewAction.allCases {
         webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
