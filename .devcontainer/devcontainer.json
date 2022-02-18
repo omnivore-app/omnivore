@@ -7,7 +7,7 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "extensions": [],
-  "remoteUser": "vscode",,
+  "remoteUser": "vscode",
   "runServices": [
     "postgres",
     "migrate",
@@ -16,4 +16,3 @@
     "app"
   ]
 }
-
