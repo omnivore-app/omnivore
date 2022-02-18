@@ -54,7 +54,7 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     guard hasDragged else { return }
 
-    let yOffset = scrollView.contentOffset.y + scrollView.contentInset.top
+    let yOffset = scrollView.contentOffset.y
 
     if yOffset == 0 {
       scrollView.contentInset.top = navBarHeight
@@ -90,7 +90,6 @@ extension WebAppViewCoordinator: UIScrollViewDelegate {
       scrollView.contentInset.top = navBarHeight
       navBarVisibilityRatio = 1
     }
-    yOffsetAtStartOfDrag = nil
   }
 
   func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
