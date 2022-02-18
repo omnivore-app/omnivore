@@ -1,10 +1,10 @@
 {
-    "extension_name": {
-        "message": "Omnivore",
-        "description": "The display name for the extension."
-    },
-    "extension_description": {
-        "message": "Save links to your Omnivore library.",
-        "description": "Description of what the extension does."
-    }
+  "extension_name": {
+      "message": "Omnivore",
+      "description": "The display name for the extension."
+  },
+  "extension_description": {
+      "message": "Save links to your Omnivore library.",
+      "description": "Description of what the extension does."
+  }
 }
