@@ -13,6 +13,7 @@ import { kx } from '../../datalayer/knex_config'
 import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { setClaims } from '../../datalayer/helpers'
+import { generateSlug } from '../../utils/helpers'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -123,18 +124,6 @@ export function pdfAttachmentsRouter() {
         uploadFileId,
         uploadFile.fileName
       )
-      const uploadFileHash = uploadFileDetails.md5Hash
-      const pageType = PageType.File
-
-      const saveTime = new Date()
-      const articleToSave = {
-        url: '',
-        pageType: pageType,
-        hash: uploadFileHash,
-        uploadFileId: uploadFileId,
-        title: subject || uploadFile.fileName,
-        content: '',
-      }
 
       const uploadFileData = await kx.transaction(async (tx) => {
         await setClaims(tx, user.id)
@@ -149,14 +138,25 @@ export function pdfAttachmentsRouter() {
         uploadFileData.fileName
       )
 
+      const uploadFileHash = uploadFileDetails.md5Hash
+      const pageType = PageType.File
+      const title = subject || uploadFileData.fileName
+      const articleToSave = {
+        url: uploadFileUrlOverride,
+        pageType: pageType,
+        hash: uploadFileHash,
+        uploadFileId: uploadFileId,
+        title: title,
+        content: '',
+      }
+
       const link = await kx.transaction(async (tx) => {
         await setClaims(tx, user.id)
         const articleRecord = await models.article.create(articleToSave, tx)
         return models.userArticle.create(
           {
             userId: user.id,
-            slug: '',
-            savedAt: saveTime,
+            slug: generateSlug(title),
             articleId: articleRecord.id,
             articleUrl: uploadFileUrlOverride,
             articleHash: articleRecord.hash,
