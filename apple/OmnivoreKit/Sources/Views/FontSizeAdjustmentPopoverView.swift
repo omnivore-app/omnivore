@@ -23,6 +23,7 @@ public struct FontSizeAdjustmentPopoverView: View {
           Image(systemName: "minus")
           #if os(iOS)
             .foregroundColor(.appGraySolid)
+            .padding()
           #endif
         }
       )
@@ -37,6 +38,7 @@ public struct FontSizeAdjustmentPopoverView: View {
           Image(systemName: "plus")
           #if os(iOS)
             .foregroundColor(.appGraySolid)
+            .padding()
           #endif
         }
       )

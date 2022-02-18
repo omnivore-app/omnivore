@@ -10,6 +10,7 @@ import WebKit
     let rawAuthCookie: String?
     let openLinkAction: (URL) -> Void
     let webViewActionHandler: (WKScriptMessage) -> Void
+    let navBarVisibilityRatioUpdater: (Double) -> Void
     @Binding var annotation: String
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var sendIncreaseFontSignal: Bool
@@ -28,11 +29,12 @@ import WebKit
       let webView = WebView(frame: CGRect.zero)
       let contentController = WKUserContentController()
 
-      webView.scrollView.isScrollEnabled = true
+      webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
       webView.navigationDelegate = context.coordinator
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear
       webView.configuration.userContentController = contentController
+      webView.scrollView.delegate = context.coordinator
 
       for action in WebViewAction.allCases {
         webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
@@ -53,6 +55,7 @@ import WebKit
 
       context.coordinator.linkHandler = openLinkAction
       context.coordinator.webViewActionHandler = webViewActionHandler
+      context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
 
       return webView
     }

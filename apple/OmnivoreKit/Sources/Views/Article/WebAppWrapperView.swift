@@ -35,9 +35,11 @@ public struct WebAppWrapperView: View {
   @State private var annotation = String()
   @State var annotationSaveTransactionID: UUID?
   @State var safariWebLink: SafariWebLink?
+  let navBarVisibilityRatioUpdater: (Double) -> Void
 
-  public init(viewModel: WebAppWrapperViewModel) {
+  public init(viewModel: WebAppWrapperViewModel, navBarVisibilityRatioUpdater: ((Double) -> Void)? = nil) {
     self.viewModel = viewModel
+    self.navBarVisibilityRatioUpdater = navBarVisibilityRatioUpdater ?? { _ in }
   }
 
   public var body: some View {
@@ -53,6 +55,7 @@ public struct WebAppWrapperView: View {
         #endif
       },
       webViewActionHandler: webViewActionHandler,
+      navBarVisibilityRatioUpdater: navBarVisibilityRatioUpdater,
       annotation: $annotation,
       annotationSaveTransactionID: $annotationSaveTransactionID,
       sendIncreaseFontSignal: $viewModel.sendIncreaseFontSignal,

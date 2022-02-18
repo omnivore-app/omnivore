@@ -25,8 +25,12 @@ public final class LinkItemDetailViewModel: ObservableObject {
 }
 
 public struct LinkItemDetailView: View {
+  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
+  static let navBarHeight = 50.0
   @ObservedObject private var viewModel: LinkItemDetailViewModel
   @State private var showFontSizePopover = false
+  @State private var navBarVisibilityRatio = 1.0
 
   public init(viewModel: LinkItemDetailViewModel) {
     self.viewModel = viewModel
@@ -50,11 +54,103 @@ public struct LinkItemDetailView: View {
     )
   }
 
+  var fontAdjustmentPopoverView: some View {
+    FontSizeAdjustmentPopoverView(
+      increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
+      decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
+    )
+  }
+
   public var body: some View {
-    innerBody
     #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
+      if UIDevice.isIPhone, !viewModel.item.isPDF {
+        compactInnerBody
+      } else {
+        innerBody
+      }
+    #else
+      innerBody
     #endif
+  }
+
+  var navBar: some View {
+    HStack(alignment: .center) {
+      Button(
+        action: { self.presentationMode.wrappedValue.dismiss() },
+        label: {
+          Image(systemName: "chevron.backward")
+            .font(.appTitleTwo)
+            .foregroundColor(.appGrayTextContrast)
+            .padding(.horizontal)
+        }
+      )
+      .scaleEffect(navBarVisibilityRatio)
+      Spacer()
+      Button(
+        action: { showFontSizePopover.toggle() },
+        label: {
+          Image(systemName: "textformat.size")
+            .font(.appTitleTwo)
+        }
+      )
+      .padding(.horizontal)
+      .scaleEffect(navBarVisibilityRatio)
+    }
+    .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
+    .opacity(navBarVisibilityRatio)
+    .background(Color.systemBackground)
+  }
+
+  @ViewBuilder private var compactInnerBody: some View {
+    if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
+      ZStack {
+        WebAppWrapperView(
+          viewModel: webAppWrapperViewModel,
+          navBarVisibilityRatioUpdater: {
+            if $0 < 1 {
+              showFontSizePopover = false
+            }
+            navBarVisibilityRatio = $0
+          }
+        )
+        if showFontSizePopover {
+          VStack {
+            Color.clear
+              .contentShape(Rectangle())
+              .frame(height: LinkItemDetailView.navBarHeight)
+            HStack {
+              Spacer()
+              fontAdjustmentPopoverView
+                .background(Color.appButtonBackground)
+                .cornerRadius(8)
+                .padding(.trailing, 5)
+            }
+            Spacer()
+          }
+          .background(
+            Color.clear
+              .contentShape(Rectangle())
+              .onTapGesture {
+                showFontSizePopover = false
+              }
+          )
+        }
+        VStack(spacing: 0) {
+          navBar
+          Spacer()
+        }
+      }
+      .navigationBarHidden(true)
+    } else {
+      VStack(spacing: 0) {
+        navBar
+        Spacer()
+      }
+      .onAppear {
+        viewModel.performActionSubject.send(.load)
+      }
+      .navigationBarHidden(true)
+    }
   }
 
   @ViewBuilder private var innerBody: some View {
@@ -76,17 +172,11 @@ public struct LinkItemDetailView: View {
             )
             #if os(iOS)
               .fittedPopover(isPresented: $showFontSizePopover) {
-                FontSizeAdjustmentPopoverView(
-                  increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-                  decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-                )
+                fontAdjustmentPopoverView
               }
             #else
               .popover(isPresented: $showFontSizePopover) {
-                FontSizeAdjustmentPopoverView(
-                  increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-                  decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-                )
+                fontAdjustmentPopoverView
               }
             #endif
           }
@@ -101,5 +191,17 @@ public struct LinkItemDetailView: View {
         viewModel.performActionSubject.send(.load)
       }
     }
+  }
+}
+
+// Enable swipe to go back behavior if nav bar is hidden
+extension UINavigationController: UIGestureRecognizerDelegate {
+  override open func viewDidLoad() {
+    super.viewDidLoad()
+    interactivePopGestureRecognizer?.delegate = self
+  }
+
+  public func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
+    viewControllers.count > 1
   }
 }
