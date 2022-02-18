@@ -519,8 +519,8 @@ Readability.prototype = {
             return res
           }
 
-          const width = parseNumber(image.getAttribute('width') || image.style.width);
-          const height = parseNumber(image.getAttribute('height') || image.style.height);
+          const width = parseInt(image.getAttribute('width') || image.style.width);
+          const height = parseInt(image.getAttribute('height') || image.style.height);
 
           const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
