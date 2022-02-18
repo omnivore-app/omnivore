@@ -29,12 +29,13 @@ import WebKit
       let webView = WebView(frame: CGRect.zero)
       let contentController = WKUserContentController()
 
-      webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
       webView.navigationDelegate = context.coordinator
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear
       webView.configuration.userContentController = contentController
       webView.scrollView.delegate = context.coordinator
+      webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
+      webView.scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: LinkItemDetailView.navBarHeight, left: 0, bottom: 0, right: 0)
 
       for action in WebViewAction.allCases {
         webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
