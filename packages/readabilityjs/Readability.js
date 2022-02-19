@@ -516,6 +516,7 @@ Readability.prototype = {
             if (!str) { return 0; }
             const res = parseInt(str);
             if (isNaN(res)) { return 0; }
+            if (String(res) !== str) { return 0; }
             return res
           }
 
