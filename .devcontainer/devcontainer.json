@@ -12,7 +12,6 @@
     "postgres",
     "migrate",
     "api",
-    "web",
     "app"
   ]
 }
