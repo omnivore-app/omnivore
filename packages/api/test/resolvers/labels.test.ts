@@ -36,14 +36,14 @@ describe('Labels API', () => {
       .create({
         name: 'label1',
         user: user,
-        link: link,
+        color: '#ffffff',
       })
       .save()
     const label2 = await getRepository(Label)
       .create({
         name: 'label2',
         user: user,
-        link: link,
+        color: '#eeeeee',
       })
       .save()
     labels = [label1, label2]
@@ -56,16 +56,18 @@ describe('Labels API', () => {
 
   describe('GET labels', () => {
     let query: string
-    let linkId: string
 
     beforeEach(() => {
       query = `
         query {
-          labels(linkId: "${linkId}") {
+          labels {
             ... on LabelsSuccess {
               labels {
                 id
                 name
+                color
+                description
+                createdAt
               }
             }
             ... on LabelsError {
@@ -76,33 +78,18 @@ describe('Labels API', () => {
       `
     })
 
-    context('when link exists', () => {
-      before(() => {
-        linkId = link.id
-      })
+    it('should return labels', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
 
-      it('should return labels', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.labels.labels).to.eql(
-          labels.map((label) => ({
-            id: label.id,
-            name: label.name,
-          }))
-        )
-      })
-    })
-
-    context('when link not exist', () => {
-      before(() => {
-        linkId = generateFakeUuid()
-      })
-
-      it('should return error code NOT_FOUND', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.labels.errorCodes).to.eql(['NOT_FOUND'])
-      })
+      expect(res.body.data.labels.labels).to.eql(
+        labels.map((label) => ({
+          id: label.id,
+          name: label.name,
+          color: label.color,
+          description: label.description,
+          createdAt: new Date(label.createdAt.setMilliseconds(0)).toISOString(),
+        }))
+      )
     })
 
     it('responds status code 400 when invalid query', async () => {
@@ -122,15 +109,15 @@ describe('Labels API', () => {
 
   describe('Create label', () => {
     let query: string
-    let linkId: string
+    let name: string
 
     beforeEach(() => {
       query = `
         mutation {
           createLabel(
             input: {
-              linkId: "${linkId}",
-              name: "label3"
+              color: "#ffffff"
+              name: "${name}"
             }
           ) {
             ... on CreateLabelSuccess {
@@ -147,9 +134,9 @@ describe('Labels API', () => {
       `
     })
 
-    context('when link exists', () => {
+    context('when name not exists', () => {
       before(() => {
-        linkId = link.id
+        name = 'label3'
       })
 
       it('should create label', async () => {
@@ -161,15 +148,17 @@ describe('Labels API', () => {
       })
     })
 
-    context('when link not exist', () => {
+    context('when name exists', () => {
       before(() => {
-        linkId = generateFakeUuid()
+        name = labels[0].name
       })
 
-      it('should return error code NOT_FOUND', async () => {
+      it('should return error code LABEL_ALREADY_EXISTS', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
-        expect(res.body.data.createLabel.errorCodes).to.eql(['NOT_FOUND'])
+        expect(res.body.data.createLabel.errorCodes).to.eql([
+          'LABEL_ALREADY_EXISTS',
+        ])
       })
     })
 

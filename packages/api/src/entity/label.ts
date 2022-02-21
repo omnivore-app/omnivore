@@ -31,7 +31,7 @@ export class Label extends BaseEntity {
   @Column('text')
   color!: string
 
-  @Column('text')
+  @Column('text', { nullable: true })
   description?: string
 
   @CreateDateColumn()

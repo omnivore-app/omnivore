@@ -11,6 +11,7 @@ import {
 import { MembershipTier, RegistrationType } from '../datalayer/user/model'
 import { NewsletterEmail } from './newsletter_email'
 import { Profile } from './profile'
+import { Label } from './label'
 
 @Entity()
 export class User extends BaseEntity {
@@ -46,4 +47,7 @@ export class User extends BaseEntity {
 
   @Column('varchar', { length: 255, nullable: true })
   password?: string
+
+  @OneToMany(() => Label, (label) => label.user)
+  labels?: Label[]
 }

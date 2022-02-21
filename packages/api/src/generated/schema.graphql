@@ -234,12 +234,14 @@ type CreateLabelError {
 
 enum CreateLabelErrorCode {
   BAD_REQUEST
+  LABEL_ALREADY_EXISTS
   NOT_FOUND
   UNAUTHORIZED
 }
 
 input CreateLabelInput {
-  linkId: ID!
+  color: String!
+  description: String
   name: String!
 }
 
@@ -548,6 +550,9 @@ type HighlightStats {
 }
 
 type Label {
+  color: String!
+  createdAt: Date!
+  description: String
   id: ID!
   name: String!
 }
@@ -787,7 +792,7 @@ type Query {
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
   hello: String
-  labels(linkId: ID!): LabelsResult!
+  labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
   reminder(linkId: ID!): ReminderResult!

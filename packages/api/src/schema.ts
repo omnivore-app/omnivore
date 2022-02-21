@@ -1242,6 +1242,9 @@ const schema = gql`
   type Label {
     id: ID!
     name: String!
+    color: String!
+    description: String
+    createdAt: Date!
   }
 
   type LabelsSuccess {
@@ -1261,8 +1264,9 @@ const schema = gql`
   union LabelsResult = LabelsSuccess | LabelsError
 
   input CreateLabelInput {
-    linkId: ID!
     name: String!
+    color: String!
+    description: String
   }
 
   type CreateLabelSuccess {
@@ -1273,6 +1277,7 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+    LABEL_ALREADY_EXISTS
   }
 
   type CreateLabelError {
@@ -1414,7 +1419,7 @@ const schema = gql`
     articleSavingRequest(id: ID!): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
-    labels(linkId: ID!): LabelsResult!
+    labels: LabelsResult!
   }
 `
 

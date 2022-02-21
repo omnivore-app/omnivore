@@ -276,12 +276,14 @@ export type CreateLabelError = {
 
 export enum CreateLabelErrorCode {
   BadRequest = 'BAD_REQUEST',
+  LabelAlreadyExists = 'LABEL_ALREADY_EXISTS',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
 export type CreateLabelInput = {
-  linkId: Scalars['ID'];
+  color: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
 };
 
@@ -624,6 +626,9 @@ export type HighlightStats = {
 
 export type Label = {
   __typename?: 'Label';
+  color: Scalars['String'];
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
 };
@@ -1117,11 +1122,6 @@ export type QueryGetFollowersArgs = {
 
 export type QueryGetFollowingArgs = {
   userId?: InputMaybe<Scalars['ID']>;
-};
-
-
-export type QueryLabelsArgs = {
-  linkId: Scalars['ID'];
 };
 
 
@@ -2762,6 +2762,9 @@ export type HighlightStatsResolvers<ContextType = ResolverContext, ParentType ex
 };
 
 export type LabelResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = {
+  color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2955,7 +2958,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType, RequireFields<QueryLabelsArgs, 'linkId'>>;
+  labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
