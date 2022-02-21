@@ -42,9 +42,9 @@ struct MainApp: App {
       WindowGroup {
         RootView(pdfViewerProvider: nil, intercomProvider: nil)
       }
-      Settings {
-        SettingsView()
-      }
+//      Settings {
+//        SettingsView()
+//      }
     #endif
   }
 
