@@ -51,15 +51,16 @@ const LINK_COLS = [
   'omnivore.pages.title',
   'omnivore.pages.description',
   'omnivore.pages.hash',
-  'omnivore.pages.originalHtml',
-  'omnivore.pages.content',
   'omnivore.pages.author',
   'omnivore.pages.image',
   'omnivore.pages.pageType',
   'omnivore.pages.publishedAt',
 ]
 
-const linkCols = (tx: Knex) => {
+// When fetching the library list we don't need to
+// pull all the content out of the database into
+// memory just to discard it later
+const linkColsWithoutContent = (tx: Knex) => {
   return [
     tx.raw(`
       CASE
@@ -76,6 +77,14 @@ const linkCols = (tx: Knex) => {
     as is_archived
     `),
     ...LINK_COLS,
+  ]
+}
+
+const linkCols = (tx: Knex) => {
+  return [
+    'omnivore.pages.content',
+    'omnivore.pages.originalHtml',
+    ...linkColsWithoutContent(tx),
   ]
 }
 
@@ -405,7 +414,7 @@ class UserArticleModel extends DataModel<
     const whereOperator = sort?.order === SortOrder.Ascending ? '>=' : '<='
 
     const queryPromise = tx(this.tableName)
-      .select(linkCols(tx))
+      .select(linkColsWithoutContent(tx))
       .innerJoin(Table.PAGES, 'pages.id', 'links.article_id')
       .where({ 'links.user_id': userId })
       .where(tx.raw(readFilterQuery(readFilter)))
