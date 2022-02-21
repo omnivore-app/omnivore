@@ -6,7 +6,7 @@ BEGIN;
 
 ALTER TABLE omnivore.labels
     DROP COLUMN link_id,
-    ADD COLUMN color text,
+    ADD COLUMN color text NOT NULL,
     ADD COLUMN description text,
     ADD CONSTRAINT label_name_unique UNIQUE (user_id, name);
 

@@ -15,7 +15,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  OneToMany,
+  JoinTable,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -62,6 +63,7 @@ export class Link extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date
 
-  @OneToMany(() => Label, (label) => label.link)
+  @ManyToMany(() => Label, (label) => label.link)
+  @JoinTable({ name: 'link_labels' })
   labels?: Label[]
 }

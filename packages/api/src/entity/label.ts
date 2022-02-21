@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
@@ -22,9 +24,15 @@ export class Label extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @ManyToOne(() => Link)
-  @JoinColumn({ name: 'link_id' })
-  link!: Link
+  @ManyToMany(() => Link, (link) => link.labels)
+  @JoinTable({ name: 'link_labels' })
+  link?: Link
+
+  @Column('text')
+  color!: string
+
+  @Column('text')
+  description?: string
 
   @CreateDateColumn()
   createdAt!: Date
