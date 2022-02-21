@@ -88,7 +88,6 @@ const linkCols = (tx: Knex) => {
   ]
 }
 
-
 const readFilterQuery = (filter: ReadFilter) => {
   switch (filter) {
     case ReadFilter.ALL:
