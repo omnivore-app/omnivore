@@ -20,6 +20,7 @@
     "deploy": "yarn build && yarn gcloud-deploy"
   },
   "devDependencies": {
+    "@types/addressparser": "^1.0.1",
     "@types/json-bigint": "^1.0.1",
     "@types/node": "^14.11.2",
     "eslint-plugin-prettier": "^4.0.0"
@@ -29,6 +30,7 @@
     "@google-cloud/pubsub": "^2.18.4",
     "@sendgrid/client": "^7.6.0",
     "@sentry/serverless": "^6.16.1",
+    "addressparser": "^1.0.1",
     "axios": "^0.26.0",
     "jsonwebtoken": "^8.5.1",
     "parse-headers": "^2.0.4",

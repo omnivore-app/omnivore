@@ -4195,6 +4195,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/addressparser@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/addressparser/-/addressparser-1.0.1.tgz#e34e8ca186c96a5bc3d9bfbf93a7258d7a03b413"
+  integrity sha512-iw+cRQy5XcLGWhyyuYJ2Fnu8dyJ1y0QoaODfnbJCRzv/qYtAWH5yK6H688kGIyqm1VowwKUlA8mTH9qUkPOd7A==
+  dependencies:
+    "@types/node" "*"
+
 "@types/analytics-node@^3.1.7":
   version "3.1.7"
   resolved "https://registry.yarnpkg.com/@types/analytics-node/-/analytics-node-3.1.7.tgz#cb97c80ee505094e44a0188c3ad25f70c67e3c65"
@@ -5024,6 +5031,11 @@ add-stream@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/add-stream/-/add-stream-1.0.0.tgz#6a7990437ca736d5e1288db92bd3266d5f5cb2aa"
   integrity sha1-anmQQ3ynNtXhKI25K9MmbV9csqo=
+
+addressparser@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/addressparser/-/addressparser-1.0.1.tgz#47afbe1a2a9262191db6838e4fd1d39b40821746"
+  integrity sha1-R6++GiqSYhkdtoOOT9HTm0CCF0Y=
 
 agent-base@6:
   version "6.0.1"
