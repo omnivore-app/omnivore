@@ -79,7 +79,7 @@ export const saveEmail = async (
 
     result = await ctx.models.userArticle.update(matchedUserArticleRecord.id, {
       savedAt: new Date(),
-      archivedAt: undefined,
+      archivedAt: null,
     })
   } else {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)

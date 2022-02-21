@@ -125,7 +125,7 @@ export const savePage = async (
         matchedUserArticleRecord.id,
         {
           savedAt: new Date(),
-          archivedAt: undefined,
+          archivedAt: null,
         },
         tx
       )

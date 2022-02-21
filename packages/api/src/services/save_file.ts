@@ -92,7 +92,7 @@ export const saveFile = async (
         matchedUserArticleRecord.id,
         {
           savedAt: new Date(),
-          archivedAt: undefined,
+          archivedAt: null,
         },
         tx
       )
