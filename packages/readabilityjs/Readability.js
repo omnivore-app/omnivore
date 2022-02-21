@@ -512,11 +512,18 @@ Readability.prototype = {
 
         if (src) {
           const absoluteSrc = this.toAbsoluteURI(src);
+          const attToNumber = (str) => {
+            if (!str) { return 0; }
+            const res = parseInt(str);
+            if (isNaN(res)) { return 0; }
+            if (String(res) !== str) { return 0; }
+            return res
+          }
 
-          const width = image.getAttribute('width') || image.style.width;
-          const height = image.getAttribute('height') || image.style.height;
+          const width = attToNumber(image.getAttribute('width') || image.style.width);
+          const height = attToNumber(image.getAttribute('height') || image.style.height);
 
-          const proxySrc = this.createImageProxyUrl(absoluteSrc, width || 0, height || 0);
+          const proxySrc = this.createImageProxyUrl(absoluteSrc, width, height);
           image.setAttribute('src', proxySrc);
         }
       });
