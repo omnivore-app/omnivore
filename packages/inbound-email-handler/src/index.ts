@@ -8,15 +8,34 @@ import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
 import {
   handleConfirmation,
-  handleNewsletter,
   isConfirmationEmail,
-  isNewsletter,
+  NewsletterHandler,
 } from './newsletter'
 import { PubSub } from '@google-cloud/pubsub'
 import { handlePdfAttachment } from './pdf'
+import { SubstackHandler } from './substack-handler'
+import { AxiosHandler } from './axios-handler'
+import { BloombergHandler } from './bloomberg-handler'
+import { GolangHandler } from './golang-handler'
 
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
+
+const NEWSLETTER_HANDLERS = [
+  new SubstackHandler(),
+  new AxiosHandler(),
+  new BloombergHandler(),
+  new GolangHandler(),
+]
+
+export const getNewsletterHandler = (
+  rawUrl: string,
+  from: string
+): NewsletterHandler | undefined => {
+  return NEWSLETTER_HANDLERS.find((h) => {
+    return h.isNewsletter(rawUrl, from)
+  })
+}
 
 export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
@@ -55,10 +74,17 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const rawUrl = headers['list-post'] ? headers['list-post'].toString() : ''
 
       // check if it is a forwarding confirmation email or newsletter
-      if (isNewsletter(rawUrl, from)) {
+      const newsletterHandler = getNewsletterHandler(rawUrl, from)
+      if (newsletterHandler) {
         try {
           console.log('handleNewsletter', from, recipientAddress)
-          await handleNewsletter(recipientAddress, html, rawUrl, subject, from)
+          await newsletterHandler.handleNewsletter(
+            recipientAddress,
+            html,
+            rawUrl,
+            subject,
+            from
+          )
         } catch (error) {
           console.log(
             'error handling newsletter, will forward.',
