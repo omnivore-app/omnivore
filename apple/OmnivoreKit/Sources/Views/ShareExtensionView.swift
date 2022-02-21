@@ -164,12 +164,12 @@ public struct ShareExtensionView: View {
           savedStateView
         } else {
           HStack(spacing: 4) {
-            Text("Link saved to your inbox.")
+            Text("Link saved and will be available in your inbox shortly.")
               .font(.appTitleThree)
               .foregroundColor(.appGrayText)
               .padding(.trailing, 16)
               .multilineTextAlignment(.center)
-              .frame(maxWidth: .infinity)
+              .fixedSize(horizontal: false, vertical: true)
               .lineLimit(nil)
           }
           .padding()
