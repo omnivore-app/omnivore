@@ -6,12 +6,70 @@ const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
 const EMAIL_FORWARDING_SENDER_ADDRESSES = [
   'Gmail Team <forwarding-noreply@google.com>',
 ]
-const NEWSLETTER_SENDER_REGEX =
-  /<.+@((axios.com)|(mail.bloombergbusiness.com))>/
 const CONFIRMATION_CODE_PATTERN = /^\\(#\\d+\\)/
-const AXIOS_URL_PATTERN = /View in browser at <a.*>(.*)<\/a>/
-const BLOOMBERG_URL_PATTERN =
-  /<a class="view-in-browser__url" href=["']([^"']*)["']/
+
+export class NewsletterHandler {
+  protected senderRegex = /NEWSLETTER_SENDER_REGEX/
+  protected urlRegex = /NEWSLETTER_URL_REGEX/
+
+  isNewsletter(_rawUrl: string, from: string): boolean {
+    // Axios newsletter is from <xx@axios.com>
+    const re = new RegExp(this.senderRegex)
+    return re.test(from)
+  }
+
+  getNewsletterUrl(rawUrl: string, html: string): string | undefined {
+    // get newsletter url from html
+    const matches = html.match(this.urlRegex)
+    if (matches) {
+      return matches[1]
+    }
+    return undefined
+  }
+
+  async handleNewsletter(
+    email: string,
+    html: string,
+    rawUrl: string,
+    title: string,
+    from: string
+  ): Promise<[string] | undefined> {
+    console.log('handleNewsletter', email, rawUrl, title, from)
+
+    if (!email || !html || !title || !from) {
+      console.log('invalid newsletter email')
+      throw new Error('invalid newsletter email')
+    }
+
+    const url = this.getNewsletterUrl(rawUrl, html)
+    console.log('url', url)
+    if (!url) {
+      console.log('invalid newsletter url', url)
+      throw new Error('invalid newsletter url')
+    }
+
+    // get author name from email
+    // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
+    // or 'Mike Allen <mike@axios.com>'
+    const authors = from.includes(' from ')
+      ? from.split(' from')
+      : from.split(' <')
+    if (!authors) {
+      console.log('invalid from', from)
+      throw new Error('invalid from')
+    }
+    const author = authors[0]
+
+    const message = {
+      email: email,
+      content: html,
+      url: url,
+      title: title,
+      author: author,
+    }
+    return publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, message)
+  }
+}
 
 export const handleConfirmation = async (email: string, subject: string) => {
   console.log('confirmation email')
@@ -38,49 +96,6 @@ export const handleConfirmation = async (email: string, subject: string) => {
   return publishMessage(EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC, message)
 }
 
-export const handleNewsletter = async (
-  email: string,
-  html: string,
-  rawUrl: string,
-  title: string,
-  from: string
-) => {
-  console.log('handleNewsletter', email, rawUrl, title, from)
-
-  if (!email || !html || !title || !from) {
-    console.log('invalid newsletter email')
-    throw new Error('invalid newsletter email')
-  }
-
-  const url = getNewsletterUrl(rawUrl, html)
-  console.log('url', url)
-  if (!url) {
-    console.log('invalid newsletter url', url)
-    throw new Error('invalid newsletter url')
-  }
-
-  // get author name from email
-  // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
-  // or 'Mike Allen <mike@axios.com>'
-  const authors = from.includes(' from ')
-    ? from.split(' from')
-    : from.split(' <')
-  if (!authors) {
-    console.log('invalid from', from)
-    throw new Error('invalid from')
-  }
-  const author = authors[0]
-
-  const message = {
-    email: email,
-    content: html,
-    url: url,
-    title: title,
-    author: author,
-  }
-  return publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, message)
-}
-
 const publishMessage = async (
   topic: string,
   message: Record<string, string>
@@ -94,38 +109,6 @@ const publishMessage = async (
     })
 }
 
-// SubStack newsletter has raw Url in the email
-// url is like <https://hongbo130.substack.com/p/tldr>
-// Axios newsletter is from <xx@axios.com>
-export const isNewsletter = (rawUrl: string, from: string): boolean => {
-  const re = new RegExp(NEWSLETTER_SENDER_REGEX)
-  return !!rawUrl || re.test(from)
-}
-
 export const isConfirmationEmail = (from: string): boolean => {
   return EMAIL_FORWARDING_SENDER_ADDRESSES.includes(from)
-}
-
-export const getNewsletterUrl = (
-  rawUrl: string,
-  html: string
-): string | undefined => {
-  // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
-  // we need to get the real url
-  if (rawUrl.startsWith('<')) {
-    return rawUrl.slice(1, -1)
-  }
-
-  // axios newsletter url from html
-  let matches = html.match(AXIOS_URL_PATTERN)
-  if (matches) {
-    return matches[1]
-  }
-
-  // bloomberg newsletter url from html
-  matches = html.match(BLOOMBERG_URL_PATTERN)
-  if (matches) {
-    return matches[1]
-  }
-  return undefined
 }
