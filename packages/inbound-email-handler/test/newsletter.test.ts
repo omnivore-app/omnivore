@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { isConfirmationEmail } from '../src/newsletter'
+import { isConfirmationEmail, NewsletterHandler } from '../src/newsletter'
 import { SubstackHandler } from '../src/substack-handler'
 import { AxiosHandler } from '../src/axios-handler'
 import { BloombergHandler } from '../src/bloomberg-handler'
@@ -75,6 +75,20 @@ describe('Newsletter email test', () => {
       `
 
       expect(new GolangHandler().getNewsletterUrl('', html)).to.equal(url)
+    })
+  })
+
+  describe('get author from email address', () => {
+    it('returns author when email is from Substack', () => {
+      const from = 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
+      expect(new NewsletterHandler().getAuthor(from)).to.equal(
+        'Jackson Harper from Omnivore App'
+      )
+    })
+
+    it('returns author when email is from Axios', () => {
+      const from = 'Mike Allen <mike@axios.com>'
+      expect(new NewsletterHandler().getAuthor(from)).to.equal('Mike Allen')
     })
   })
 })

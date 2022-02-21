@@ -1,4 +1,5 @@
 import { PubSub } from '@google-cloud/pubsub'
+import addressparser from 'addressparser'
 
 const pubsub = new PubSub()
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
@@ -27,6 +28,17 @@ export class NewsletterHandler {
     return undefined
   }
 
+  getAuthor(from: string): string {
+    // get author name from email
+    // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
+    // or 'Mike Allen <mike@axios.com>'
+    const parsed = addressparser(from)
+    if (parsed.length > 0) {
+      return parsed[0].name
+    }
+    return from
+  }
+
   async handleNewsletter(
     email: string,
     html: string,
@@ -48,17 +60,7 @@ export class NewsletterHandler {
       throw new Error('invalid newsletter url')
     }
 
-    // get author name from email
-    // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
-    // or 'Mike Allen <mike@axios.com>'
-    const authors = from.includes(' from ')
-      ? from.split(' from')
-      : from.split(' <')
-    if (!authors) {
-      console.log('invalid from', from)
-      throw new Error('invalid from')
-    }
-    const author = authors[0]
+    const author = this.getAuthor(from)
 
     const message = {
       email: email,
