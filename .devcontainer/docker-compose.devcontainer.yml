@@ -16,3 +16,8 @@ services:
     depends_on:
       api:
         condition: service_started
+
+  content-fetch:
+    depends_on:
+      api:
+        condition: service_started
