@@ -45,7 +45,7 @@ export class NewsletterHandler {
     rawUrl: string,
     title: string,
     from: string
-  ): Promise<[string] | undefined> {
+  ): Promise<string | undefined> {
     console.log('handleNewsletter', email, rawUrl, title, from)
 
     if (!email || !html || !title || !from) {
@@ -101,7 +101,7 @@ export const handleConfirmation = async (email: string, subject: string) => {
 const publishMessage = async (
   topic: string,
   message: Record<string, string>
-): Promise<[string] | undefined> => {
+): Promise<string | undefined> => {
   return pubsub
     .topic(topic)
     .publishMessage({ json: message })
