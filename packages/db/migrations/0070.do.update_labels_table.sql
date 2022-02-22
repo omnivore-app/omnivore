@@ -11,9 +11,11 @@ ALTER TABLE omnivore.labels
     ADD CONSTRAINT label_name_unique UNIQUE (user_id, name);
 
 CREATE TABLE omnivore.link_labels (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     link_id uuid NOT NULL REFERENCES omnivore.links ON DELETE CASCADE,
     label_id uuid NOT NULL REFERENCES omnivore.labels ON DELETE CASCADE,
-    created_at timestamptz NOT NULL DEFAULT current_timestamp
+    created_at timestamptz NOT NULL DEFAULT current_timestamp,
+    UNIQUE (link_id, label_id)
 );
 
 COMMIT;
