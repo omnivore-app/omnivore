@@ -220,7 +220,7 @@ export const logOutResolver: ResolverFn<
   unknown,
   WithDataSourcesContext,
   unknown
-> = (_, __, { claims, clearAuth }) => {
+> = (_, __, { clearAuth }) => {
   try {
     clearAuth()
     return { message: 'User successfully logged out' }

@@ -17,16 +17,12 @@ import { promisify } from 'util'
 import { buildLogger } from './utils/logger'
 import { ApolloServer } from 'apollo-server-express'
 import { makeExecutableSchema } from '@graphql-tools/schema'
-import { applyMiddleware } from 'graphql-middleware'
-import * as cookie from 'cookie'
 import typeDefs from './schema'
 import { sanitizeDirectiveTransformer } from './directives'
 import { functionResolvers } from './resolvers/function_resolvers'
 import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
-import type { Express } from 'express'
 import { createPubSubClient } from './datalayer/pubsub'
-import { corsConfig } from './utils/corsConfig'
 import { initModels } from './server'
 
 const signToken = promisify(jwt.sign)
@@ -107,7 +103,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   return ctx
 }
 
-export function makeApolloServer(app: Express): ApolloServer {
+export function makeApolloServer(): ApolloServer {
   let schema = makeExecutableSchema({
     resolvers,
     typeDefs,
