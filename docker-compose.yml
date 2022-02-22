@@ -59,6 +59,9 @@ services:
       - GATEWAY_URL=http://localhost:8080/api
       - PUPPETEER_TASK_HANDLER_URL=http://content-fetch:9090/
       - REMINDER_TASK_HANDLER_URL=/svc/reminders/trigger
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   web:
     build:
@@ -77,6 +80,9 @@ services:
       - NEXT_PUBLIC_BASE_URL=http://localhost:3000
       - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4000
       - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
+    depends_on:
+      api:
+        condition: service_healthy
 
   content-fetch:
     build:
