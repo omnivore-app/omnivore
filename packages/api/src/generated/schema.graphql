@@ -691,6 +691,7 @@ type Mutation {
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
+  setLabels(input: SetLabelsInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
@@ -987,6 +988,27 @@ union SetFollowResult = SetFollowError | SetFollowSuccess
 
 type SetFollowSuccess {
   updatedUser: User!
+}
+
+type SetLabelsError {
+  errorCodes: [SetLabelsErrorCode!]!
+}
+
+enum SetLabelsErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetLabelsInput {
+  labelIds: [ID!]!
+  linkId: ID!
+}
+
+union SetLabelsResult = SetLabelsError | SetLabelsSuccess
+
+type SetLabelsSuccess {
+  labels: [Label!]!
 }
 
 type SetShareArticleError {

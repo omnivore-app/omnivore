@@ -1326,6 +1326,27 @@ const schema = gql`
 
   union SignupResult = SignupSuccess | SignupError
 
+  input SetLabelsInput {
+    linkId: ID!
+    labelIds: [ID!]!
+  }
+
+  union SetLabelsResult = SetLabelsSuccess | SetLabelsError
+
+  type SetLabelsSuccess {
+    labels: [Label!]!
+  }
+
+  type SetLabelsError {
+    errorCodes: [SetLabelsErrorCode!]!
+  }
+
+  enum SetLabelsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1384,6 +1405,7 @@ const schema = gql`
     deleteLabel(id: ID!): DeleteLabelResult!
     login(input: LoginInput!): LoginResult!
     signup(input: SignupInput!): SignupResult!
+    setLabels(input: SetLabelsInput!): SetLabelsResult!
   }
 
   # FIXME: remove sort from feedArticles after all cahced tabs are closed

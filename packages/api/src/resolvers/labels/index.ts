@@ -11,6 +11,10 @@ import {
   LabelsSuccess,
   MutationCreateLabelArgs,
   MutationDeleteLabelArgs,
+  MutationSetLabelsArgs,
+  SetLabelsError,
+  SetLabelsErrorCode,
+  SetLabelsSuccess,
 } from '../../generated/graphql'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
@@ -18,6 +22,8 @@ import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
 import { getManager, getRepository } from 'typeorm'
 import { setClaims } from '../../entity/utils'
+import { Link } from '../../entity/link'
+import { LinkLabel } from '../../entity/link_label'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -169,6 +175,73 @@ export const deleteLabelResolver = authorized<
     log.error(error)
     return {
       errorCodes: [DeleteLabelErrorCode.BadRequest],
+    }
+  }
+})
+
+export const setLabelsResolver = authorized<
+  SetLabelsSuccess,
+  SetLabelsError,
+  MutationSetLabelsArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  log.info('setLabelsResolver')
+
+  const { linkId, labelIds } = input
+
+  try {
+    const user = await getRepository(User).findOne(uid)
+    if (!user) {
+      return {
+        errorCodes: [SetLabelsErrorCode.Unauthorized],
+      }
+    }
+
+    const link = await getRepository(Link).findOne(linkId)
+    if (!link) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
+      }
+    }
+
+    const labels = await getRepository(Label).findByIds(labelIds, {
+      where: {
+        user,
+      },
+      relations: ['user'],
+    })
+    if (labels.length !== labelIds.length) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
+      }
+    }
+
+    // delete all existing labels of the link
+    await getManager().transaction(async (t) => {
+      await t.getRepository(LinkLabel).delete({ link })
+
+      // add new labels
+      await t
+        .getRepository(LinkLabel)
+        .save(labels.map((label) => ({ link, label })))
+    })
+
+    analytics.track({
+      userId: uid,
+      event: 'setLabels',
+      properties: {
+        linkId,
+        labelIds,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return {
+      labels,
+    }
+  } catch (error) {
+    log.error(error)
+    return {
+      errorCodes: [SetLabelsErrorCode.BadRequest],
     }
   }
 })

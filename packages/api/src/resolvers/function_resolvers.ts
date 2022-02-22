@@ -59,6 +59,7 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFollowResolver,
+  setLabelsResolver,
   setLinkArchivedResolver,
   setShareArticleResolver,
   setShareHighlightResolver,
@@ -135,6 +136,7 @@ export const functionResolvers = {
     deleteLabel: deleteLabelResolver,
     login: loginResolver,
     signup: signupResolver,
+    setLabels: setLabelsResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -525,4 +527,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteLabel'),
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('Signup'),
+  ...resultResolveTypeResolver('SetLabels'),
 }

@@ -778,6 +778,7 @@ export type Mutation = {
   setBookmarkArticle: SetBookmarkArticleResult;
   setDeviceToken: SetDeviceTokenResult;
   setFollow: SetFollowResult;
+  setLabels: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
   setShareArticle: SetShareArticleResult;
   setShareHighlight: SetShareHighlightResult;
@@ -916,6 +917,11 @@ export type MutationSetDeviceTokenArgs = {
 
 export type MutationSetFollowArgs = {
   input: SetFollowInput;
+};
+
+
+export type MutationSetLabelsArgs = {
+  input: SetLabelsInput;
 };
 
 
@@ -1348,6 +1354,29 @@ export type SetFollowResult = SetFollowError | SetFollowSuccess;
 export type SetFollowSuccess = {
   __typename?: 'SetFollowSuccess';
   updatedUser: User;
+};
+
+export type SetLabelsError = {
+  __typename?: 'SetLabelsError';
+  errorCodes: Array<SetLabelsErrorCode>;
+};
+
+export enum SetLabelsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SetLabelsInput = {
+  labelIds: Array<Scalars['ID']>;
+  linkId: Scalars['ID'];
+};
+
+export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;
+
+export type SetLabelsSuccess = {
+  __typename?: 'SetLabelsSuccess';
+  labels: Array<Label>;
 };
 
 export type SetShareArticleError = {
@@ -2014,6 +2043,11 @@ export type ResolversTypes = {
   SetFollowInput: SetFollowInput;
   SetFollowResult: ResolversTypes['SetFollowError'] | ResolversTypes['SetFollowSuccess'];
   SetFollowSuccess: ResolverTypeWrapper<SetFollowSuccess>;
+  SetLabelsError: ResolverTypeWrapper<SetLabelsError>;
+  SetLabelsErrorCode: SetLabelsErrorCode;
+  SetLabelsInput: SetLabelsInput;
+  SetLabelsResult: ResolversTypes['SetLabelsError'] | ResolversTypes['SetLabelsSuccess'];
+  SetLabelsSuccess: ResolverTypeWrapper<SetLabelsSuccess>;
   SetShareArticleError: ResolverTypeWrapper<SetShareArticleError>;
   SetShareArticleErrorCode: SetShareArticleErrorCode;
   SetShareArticleInput: SetShareArticleInput;
@@ -2250,6 +2284,10 @@ export type ResolversParentTypes = {
   SetFollowInput: SetFollowInput;
   SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
   SetFollowSuccess: SetFollowSuccess;
+  SetLabelsError: SetLabelsError;
+  SetLabelsInput: SetLabelsInput;
+  SetLabelsResult: ResolversParentTypes['SetLabelsError'] | ResolversParentTypes['SetLabelsSuccess'];
+  SetLabelsSuccess: SetLabelsSuccess;
   SetShareArticleError: SetShareArticleError;
   SetShareArticleInput: SetShareArticleInput;
   SetShareArticleResult: ResolversParentTypes['SetShareArticleError'] | ResolversParentTypes['SetShareArticleSuccess'];
@@ -2878,6 +2916,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
   setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
+  setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
   setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
@@ -3081,6 +3120,20 @@ export type SetFollowResultResolvers<ContextType = ResolverContext, ParentType e
 
 export type SetFollowSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFollowSuccess'] = ResolversParentTypes['SetFollowSuccess']> = {
   updatedUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetLabelsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetLabelsError'] = ResolversParentTypes['SetLabelsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SetLabelsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetLabelsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetLabelsResult'] = ResolversParentTypes['SetLabelsResult']> = {
+  __resolveType: TypeResolveFn<'SetLabelsError' | 'SetLabelsSuccess', ParentType, ContextType>;
+};
+
+export type SetLabelsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetLabelsSuccess'] = ResolversParentTypes['SetLabelsSuccess']> = {
+  labels?: Resolver<Array<ResolversTypes['Label']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3460,6 +3513,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetFollowError?: SetFollowErrorResolvers<ContextType>;
   SetFollowResult?: SetFollowResultResolvers<ContextType>;
   SetFollowSuccess?: SetFollowSuccessResolvers<ContextType>;
+  SetLabelsError?: SetLabelsErrorResolvers<ContextType>;
+  SetLabelsResult?: SetLabelsResultResolvers<ContextType>;
+  SetLabelsSuccess?: SetLabelsSuccessResolvers<ContextType>;
   SetShareArticleError?: SetShareArticleErrorResolvers<ContextType>;
   SetShareArticleResult?: SetShareArticleResultResolvers<ContextType>;
   SetShareArticleSuccess?: SetShareArticleSuccessResolvers<ContextType>;

@@ -63,7 +63,11 @@ export class Link extends BaseEntity {
   @UpdateDateColumn()
   updatedAt?: Date
 
-  @ManyToMany(() => Label, (label) => label.link)
-  @JoinTable({ name: 'link_labels' })
+  @ManyToMany(() => Label)
+  @JoinTable({
+    name: 'link_labels',
+    joinColumn: { name: 'link_id' },
+    inverseJoinColumn: { name: 'label_id' },
+  })
   labels?: Label[]
 }

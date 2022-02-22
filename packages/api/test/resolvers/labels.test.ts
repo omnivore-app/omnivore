@@ -1,4 +1,5 @@
 import {
+  createTestLabel,
   createTestLink,
   createTestPage,
   createTestUser,
@@ -11,10 +12,13 @@ import { expect } from 'chai'
 import { Page } from '../../src/entity/page'
 import { getRepository } from 'typeorm'
 import 'mocha'
+import { LinkLabel } from '../../src/entity/link_label'
+import { User } from '../../src/entity/user'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
 
+  let user: User
   let authToken: string
   let page: Page
   let link: Link
@@ -22,31 +26,30 @@ describe('Labels API', () => {
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(username)
+    user = await createTestUser(username)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
 
-    //  create test label
+    //  create testing labels
+    const label1 = await createTestLabel(user, 'label_1', '#ffffff')
+    const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+    labels = [label1, label2]
+
     page = await createTestPage()
     link = await createTestLink(user, page)
-    const label1 = await getRepository(Label)
-      .create({
-        name: 'label1',
-        user: user,
-        color: '#ffffff',
-      })
-      .save()
-    const label2 = await getRepository(Label)
-      .create({
-        name: 'label2',
-        user: user,
-        color: '#eeeeee',
-      })
-      .save()
-    labels = [label1, label2]
+    const existingLabelOfLink = await createTestLabel(
+      user,
+      'different_label',
+      '#dddddd'
+    )
+    //  set another label to link
+    await getRepository(LinkLabel).save({
+      link,
+      label: existingLabelOfLink,
+    })
   })
 
   after(async () => {
@@ -81,6 +84,7 @@ describe('Labels API', () => {
     it('should return labels', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
+      const labels = await getRepository(Label).find({ where: { user } })
       expect(res.body.data.labels.labels).to.eql(
         labels.map((label) => ({
           id: label.id,
@@ -200,8 +204,9 @@ describe('Labels API', () => {
     })
 
     context('when label exists', () => {
-      before(() => {
-        labelId = labels[0].id
+      before(async () => {
+        const toDeleteLabel = await createTestLabel(user, 'label4', '#ffffff')
+        labelId = toDeleteLabel.id
       })
 
       it('should delete label', async () => {
@@ -227,6 +232,91 @@ describe('Labels API', () => {
       const invalidQuery = `
         mutation {
           deleteLabel {}
+        }
+      `
+      return graphqlRequest(invalidQuery, authToken).expect(400)
+    })
+
+    it('responds status code 500 when invalid user', async () => {
+      const invalidAuthToken = 'Fake token'
+      return graphqlRequest(query, invalidAuthToken).expect(500)
+    })
+  })
+
+  describe('Set labels', () => {
+    let query: string
+    let linkId: string
+    let labelIds: string[] = []
+
+    beforeEach(() => {
+      query = `
+        mutation {
+          setLabels(
+            input: {
+              linkId: "${linkId}",
+              labelIds: [
+                "${labelIds[0]}",
+                "${labelIds[1]}"
+              ]
+            }
+          ) {
+            ... on SetLabelsSuccess {
+              labels {
+                id
+                name
+              }
+            }
+            ... on SetLabelsError {
+              errorCodes
+            }
+          }
+        }
+      `
+    })
+
+    context('when labels exists', () => {
+      before(() => {
+        linkId = link.id
+        labelIds = [labels[0].id, labels[1].id]
+      })
+
+      it('should set labels', async () => {
+        await graphqlRequest(query, authToken).expect(200)
+        const link = await getRepository(Link).findOne(linkId, {
+          relations: ['labels'],
+        })
+        expect(link?.labels?.map((l) => l.id)).to.eql(labelIds)
+      })
+    })
+
+    context('when labels not exist', () => {
+      before(() => {
+        linkId = link.id
+        labelIds = [generateFakeUuid(), generateFakeUuid()]
+      })
+
+      it('should return error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.setLabels.errorCodes).to.eql(['NOT_FOUND'])
+      })
+    })
+
+    context('when link not exist', () => {
+      before(() => {
+        linkId = generateFakeUuid()
+        labelIds = [labels[0].id, labels[1].id]
+      })
+
+      it('should return error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.setLabels.errorCodes).to.eql(['NOT_FOUND'])
+      })
+    })
+
+    it('responds status code 400 when invalid query', async () => {
+      const invalidQuery = `
+        mutation {
+          setLabels {}
         }
       `
       return graphqlRequest(invalidQuery, authToken).expect(400)
