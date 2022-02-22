@@ -32,29 +32,8 @@ extension ShareExtensionViewModel {
       switch action {
       case let .savePage(requestID):
         self?.savePage(extensionContext: extensionContext, requestId: requestID)
-      case let .dismissButtonTapped(reminderTime, hideUntilReminded):
+      case .dismissButtonTapped:
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-//
-//        guard let reminderTime = reminderTime, let self = self else {
-//          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-//          return
-//        }
-//
-//        let services = Services()
-//
-//        services.dataService.createReminderPublisher(
-//          hideUntilReminded: hideUntilReminded,
-//          reminderTime: reminderTime,
-//          reminderItemId: .clientRequest(id: self.requestID)
-//        )
-//        .sink { _ in
-//          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-//        } receiveValue: { _ in
-//          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-//        }
-//        .store(in: &self.subscriptions)
-//
-//        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
       case .copyLinkButtonTapped:
         print("copy link button tapped")
       case .readNowButtonTapped:
@@ -65,7 +44,6 @@ extension ShareExtensionViewModel {
           }
         #endif
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-      // TODO: implement macos
       case .archiveButtonTapped:
         print("archive button tapped")
       }

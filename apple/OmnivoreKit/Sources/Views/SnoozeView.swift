@@ -53,25 +53,26 @@ private struct SnoozeIconButtonView: View {
   let action: (_ snooze: Snooze) -> Void
 
   var body: some View {
-    Button(action: {
-      action(snooze)
-    }) {
-      VStack(alignment: .center, spacing: 8) {
-        snooze.icon
-          .font(.appTitle)
-          .foregroundColor(.appYellow48)
-        Text(snooze.title)
-          .font(.appBody)
-          .foregroundColor(.appGrayText)
-        Text(snooze.untilStr)
-          .font(.appCaption)
-          .foregroundColor(.appGrayText)
+    Button(
+      action: { action(snooze) },
+      label: {
+        VStack(alignment: .center, spacing: 8) {
+          snooze.icon
+            .font(.appTitle)
+            .foregroundColor(.appYellow48)
+          Text(snooze.title)
+            .font(.appBody)
+            .foregroundColor(.appGrayText)
+          Text(snooze.untilStr)
+            .font(.appCaption)
+            .foregroundColor(.appGrayText)
+        }
+        .frame(
+          maxWidth: .infinity,
+          maxHeight: .infinity
+        )
       }
-      .frame(
-        maxWidth: .infinity,
-        maxHeight: .infinity
-      )
-    }
+    )
     .frame(height: 100)
   }
 }

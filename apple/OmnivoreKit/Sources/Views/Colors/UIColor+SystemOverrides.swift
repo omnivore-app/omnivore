@@ -157,11 +157,13 @@
     }
 
     @objc class var customSecondarySystemGroupedBackground: UIColor {
-      UIColor(named: "_appPrimaryBackground", in: .module, compatibleWith: .current) ?? .secondarySystemGroupedBackground
+      UIColor(named: "_appPrimaryBackground", in: .module, compatibleWith: .current)
+        ?? .secondarySystemGroupedBackground
     }
 
     @objc class var customSystemTertiaryGroupedBackground: UIColor {
-      UIColor(named: "_appPrimaryBackground", in: .module, compatibleWith: .current) ?? .customSystemTertiaryGroupedBackground
+      UIColor(named: "_appPrimaryBackground", in: .module, compatibleWith: .current)
+        ?? .customSystemTertiaryGroupedBackground
     }
 
     @objc class var customSeparator: UIColor {

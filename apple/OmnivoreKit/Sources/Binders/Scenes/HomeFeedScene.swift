@@ -177,7 +177,6 @@ extension HomeFeedViewModel {
   }
 }
 
-// TODO: replace these deprecated calls with a progress bar or custom spinner
 private func startNetworkActivityIndicator() {
   #if os(iOS)
     UIApplication.shared.isNetworkActivityIndicatorVisible = true

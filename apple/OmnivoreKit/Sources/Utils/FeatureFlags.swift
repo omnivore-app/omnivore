@@ -7,10 +7,10 @@ import Foundation
 #endif
 
 public enum FeatureFlag {
-  public static let exampleFlag = false // unused
   public static let showAccountDeletion = false
   public static let enableSnoozeFromShareExtension = false
   public static let enableReadNowFromShareExtension = false
   public static let enableRemindersFromShareExtension = false
   public static let enablePushNotifications = false
+  public static let enableShareButton = false
 }

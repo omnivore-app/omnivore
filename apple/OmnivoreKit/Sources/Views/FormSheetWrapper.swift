@@ -70,16 +70,17 @@ import SwiftUI
     let content: () -> Content
 
     func makeUIViewController(
-      context _: UIViewControllerRepresentableContext<FormSheet<Content>>) -> FormSheetWrapper<Content>
-    {
+      context _: UIViewControllerRepresentableContext<FormSheet<Content>>
+    ) -> FormSheetWrapper<Content> {
       let controller = FormSheetWrapper(content: content, modalSize: modalSize)
       controller.onDismiss = { self.show = false }
       return controller
     }
 
-    func updateUIViewController(_ uiViewController: FormSheetWrapper<Content>,
-                                context _: UIViewControllerRepresentableContext<FormSheet<Content>>)
-    {
+    func updateUIViewController(
+      _ uiViewController: FormSheetWrapper<Content>,
+      context _: UIViewControllerRepresentableContext<FormSheet<Content>>
+    ) {
       if show {
         uiViewController.show()
       } else {
@@ -89,10 +90,11 @@ import SwiftUI
   }
 
   public extension View {
-    func formSheet<Content: View>(isPresented: Binding<Bool>,
-                                  modalSize: CGSize = CGSize(width: 320, height: 320),
-                                  @ViewBuilder content: @escaping () -> Content) -> some View
-    {
+    func formSheet<Content: View>(
+      isPresented: Binding<Bool>,
+      modalSize: CGSize = CGSize(width: 320, height: 320),
+      @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
       background(FormSheet(show: isPresented,
                            modalSize: modalSize,
                            content: content))

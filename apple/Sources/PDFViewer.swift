@@ -1,6 +1,7 @@
 import Binders
 import Combine
 import SwiftUI
+import Utils
 
 #if os(iOS)
   import PDFKit
@@ -103,15 +104,13 @@ import SwiftUI
           let highlights = annotations?.compactMap { $0 as? HighlightAnnotation }
           let shortId = highlights.flatMap { coordinator.shortHighlightIds($0).first }
 
-          if let shortId = shortId {
-            /*
-             let share = MenuItem(title: "Share", block: {
-               if let shareURL = viewModel.highlightShareURL(shortId: shortId) {
-                 shareLink = ShareLink(id: UUID(), url: shareURL)
-               }
-             })
-             result.append(share)
-              */
+          if let shortId = shortId, FeatureFlag.enableShareButton {
+            let share = MenuItem(title: "Share", block: {
+              if let shareURL = viewModel.highlightShareURL(shortId: shortId) {
+                shareLink = ShareLink(id: UUID(), url: shareURL)
+              }
+            })
+            result.append(share)
           }
 
           return result

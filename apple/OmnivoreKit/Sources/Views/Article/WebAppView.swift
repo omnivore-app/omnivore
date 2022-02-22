@@ -35,7 +35,7 @@ import WebKit
       webView.configuration.userContentController = contentController
       webView.scrollView.delegate = context.coordinator
       webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
-      webView.scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: LinkItemDetailView.navBarHeight, left: 0, bottom: 0, right: 0)
+      webView.scrollView.verticalScrollIndicatorInsets.top = LinkItemDetailView.navBarHeight
 
       for action in WebViewAction.allCases {
         webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
@@ -125,7 +125,7 @@ import WebKit
           themeId: NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua ? "Gray" : "LightGray",
           margin: 0,
           fontSize: fontSize(),
-          fontFamily: "inter", // TODO: allow user to change this and save to user defaults
+          fontFamily: "inter",
           rawAuthCookie: rawAuthCookie
         )
       )

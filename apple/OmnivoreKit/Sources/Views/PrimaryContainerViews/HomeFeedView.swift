@@ -38,7 +38,7 @@ public final class HomeFeedViewModel: ObservableObject {
 
     // Check if user has scrolled to the last five items in the list
     if itemIndex == thresholdIndex {
-      print("load more items triggered") // TODO: fix loading mechanism
+      print("load more items triggered")
       //      performActionSubject.send(.loadItems)
     }
   }
