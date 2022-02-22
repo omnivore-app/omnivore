@@ -4,5 +4,6 @@
     "docker-compose.devcontainer.yml"
   ],
   "service": "web",
+  "onCreateCommand": "cd ./packages/web && cp .env.local .env && yarn install",
   "extensions": []
 }
