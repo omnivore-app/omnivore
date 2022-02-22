@@ -3,17 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import axios from 'axios'
-import {
-  CreateArticleErrorCode,
-  CreateArticleSavingRequestResult,
-} from './../generated/graphql'
+import { CreateArticleErrorCode } from './../generated/graphql'
 import { isSiteBlockedForParse } from './../utils/blocked'
 import cors from 'cors'
 import { env } from './../env'
 import { buildLogger } from './../utils/logger'
 import * as jwt from 'jsonwebtoken'
-import { promisify } from 'util'
 import { corsConfig } from '../utils/corsConfig'
 import { v4 as uuidv4 } from 'uuid'
 import { createPageSaveRequest } from '../services/create_page_save_request'
@@ -21,16 +16,14 @@ import { initModels } from '../server'
 import { kx } from '../datalayer/knex_config'
 
 const logger = buildLogger('app.dispatch')
-const signToken = promisify(jwt.sign)
 
 export function articleRouter() {
   const router = express.Router()
 
   router.options('/save', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
   router.post('/save', cors<express.Request>(corsConfig), async (req, res) => {
-    const { url, v } = req.body as {
+    const { url } = req.body as {
       url?: string
-      v?: string
     }
 
     const token = req?.cookies?.auth || req?.headers?.authorization
