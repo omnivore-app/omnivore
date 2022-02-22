@@ -13,12 +13,13 @@ struct Snackbar: View {
 
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
-  init<Presenting>(isShowing: Binding<Bool>,
-                   presenting: Presenting,
-                   text: Text,
-                   actionText: Text? = nil,
-                   action: (() -> Void)? = nil) where Presenting: View
-  {
+  init<Presenting>(
+    isShowing: Binding<Bool>,
+    presenting: Presenting,
+    text: Text,
+    actionText: Text? = nil,
+    action: (() -> Void)? = nil
+  ) where Presenting: View {
     self._isShowing = isShowing
     self.presenting = AnyView(presenting)
     self.text = text
@@ -73,11 +74,12 @@ struct Snackbar: View {
 }
 
 public extension View {
-  func snackBar(isShowing: Binding<Bool>,
-                text: Text,
-                actionText: Text? = nil,
-                action: (() -> Void)? = nil) -> some View
-  {
+  func snackBar(
+    isShowing: Binding<Bool>,
+    text: Text,
+    actionText: Text? = nil,
+    action: (() -> Void)? = nil
+  ) -> some View {
     Snackbar(isShowing: isShowing,
              presenting: self,
              text: text,

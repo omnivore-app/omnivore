@@ -71,6 +71,7 @@ public enum PageScraper {
     }
   }
 
+  // swiftlint:disable:next function_body_length
   private static func scrapeURLOnly(
     extensionContext: NSExtensionContext?,
     completion: @escaping (Result<PageScrapePayload, PageScrapeError>) -> Void
