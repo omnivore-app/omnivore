@@ -71,7 +71,10 @@ public extension DataService {
         articlesSuccess: .init {
           QueryResult.success(
             result: HomeFeedData(
-              items: try $0.edges(selection: articleEdgeSelection.list)
+              items: try $0.edges(selection: articleEdgeSelection.list),
+              cursor: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.endCursor()
+              })
             )
           )
         },

@@ -10,6 +10,7 @@ public final class HomeFeedViewModel: ObservableObject {
   @Published public var items = [FeedItem]()
   @Published public var isLoading = false
   @Published public var showPushNotificationPrimer = false
+  public var cursor: String?
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -17,6 +18,7 @@ public final class HomeFeedViewModel: ObservableObject {
   public var receivedIdx = 0
 
   public enum Action {
+    case refreshItems(query: String)
     case loadItems(query: String)
     case archive(linkId: String)
     case unarchive(linkId: String)
@@ -31,15 +33,14 @@ public final class HomeFeedViewModel: ObservableObject {
     self.detailViewModelCreator = detailViewModelCreator
   }
 
-  func itemAppeared(item: FeedItem) {
+  func itemAppeared(item: FeedItem, searchQuery: String) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if itemIndex == thresholdIndex {
-      print("load more items triggered")
-      //      performActionSubject.send(.loadItems)
+      performActionSubject.send(.loadItems(query: searchQuery))
     }
   }
 
@@ -124,7 +125,7 @@ public struct HomeFeedView: View {
             .opacity(0)
             .buttonStyle(PlainButtonStyle())
             .onAppear {
-              viewModel.itemAppeared(item: item)
+              viewModel.itemAppeared(item: item, searchQuery: searchQuery)
             }
             FeedCard(item: item)
           }.contextMenu {
@@ -268,6 +269,6 @@ public struct HomeFeedView: View {
   }
 
   private func refresh() {
-    viewModel.performActionSubject.send(.loadItems(query: searchQuery))
+    viewModel.performActionSubject.send(.refreshItems(query: searchQuery))
   }
 }

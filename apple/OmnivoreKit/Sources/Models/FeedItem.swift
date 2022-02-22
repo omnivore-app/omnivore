@@ -2,9 +2,11 @@ import Foundation
 
 public struct HomeFeedData {
   public let items: [FeedItem]
+  public let cursor: String?
 
-  public init(items: [FeedItem]) {
+  public init(items: [FeedItem], cursor: String?) {
     self.items = items
+    self.cursor = cursor
   }
 }
 
