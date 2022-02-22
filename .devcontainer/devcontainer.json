@@ -6,5 +6,11 @@
   ],
   "service": "web",
   "onCreateCommand": "cd ./packages/web && yarn install",
-  "extensions": []
+  "extensions": [],
+  "runServices": [
+    "postgres",
+    "migrate",
+    "api",
+    "web"
+  ]
 }
