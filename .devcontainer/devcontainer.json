@@ -1,10 +1,4 @@
 {
   "name": "omnivore",
-  "dockerComposeFile": [
-    "../docker-compose.yml",
-    "docker-compose.devcontainer.yml"
-  ],
-  "service": "web",
-  "onCreateCommand": "cd ./packages/web && yarn install",
   "extensions": []
 }
