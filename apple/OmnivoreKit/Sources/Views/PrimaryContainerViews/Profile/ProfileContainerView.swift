@@ -30,16 +30,8 @@ public struct ProfileContainerView: View {
 
   public var body: some View {
     #if os(iOS)
-      if UIDevice.isIPhone {
-        NavigationView {
-          Form {
-            innerBody
-          }
-        }
-      } else {
-        Form {
-          innerBody
-        }
+      Form {
+        innerBody
       }
     #elseif os(macOS)
       List {

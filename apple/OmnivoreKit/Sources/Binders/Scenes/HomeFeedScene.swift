@@ -11,6 +11,10 @@ extension HomeFeedViewModel {
       LinkItemDetailViewModel.make(feedItem: feedItem, services: services)
     }
 
+    if UIDevice.isIPhone {
+      viewModel.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
+    }
+
     viewModel.bind(services: services)
     viewModel.loadItems(dataService: services.dataService, searchQuery: nil, isRefresh: false)
     return viewModel
