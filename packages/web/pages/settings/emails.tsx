@@ -9,6 +9,7 @@ import { useCopyLink } from '../../lib/hooks/useCopyLink'
 import { toast, Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import Link from 'next/link'
+import { StyledText } from '../../components/elements/StyledText'
 
 enum TextType {
   EmailAddress,
@@ -60,7 +61,10 @@ export default function EmailsPage(): JSX.Element {
           },
         }}
       >
-        <h1>Email Addresses</h1>
+        <StyledText style='fixedHeadline' css={{ mb: '8px' }}>Email Addresses</StyledText>
+        <StyledText style="body" css={{ mb: '42px', mt: '0px' }}>
+          Add PDFs to your library, or subscribe to emails using an Omnivore email address.
+        </StyledText>
         {emailAddresses && emailAddresses.map((email) => {
             return (
               <Box css={{ marginBottom: '26px' }} key={email.id}>
