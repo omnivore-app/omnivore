@@ -261,13 +261,14 @@ public struct HomeFeedView: View {
           conditionalInnerBody
             .toolbar {
               ToolbarItem {
-                Button(
-                  action: { print("Profile") },
+                NavigationLink(
+                  destination: { EmptyView() },
                   label: { Image.profileTab.padding() }
                 )
               }
             }
         }
+        .accentColor(.appGrayTextContrast)
       } else {
         conditionalInnerBody
       }
