@@ -36,60 +36,11 @@ public struct WelcomeView: View {
       if showRegistrationView {
         RegistrationView(viewModel: viewModel.registrationViewModel)
       } else {
-        getStartedView
+        GetStartedView(showRegistrationView: $showRegistrationView)
       }
     }
     .frame(width: width)
     .zIndex(2)
-  }
-
-  var titleLogo: some View {
-    Image.omnivoreTitleLogo
-      .renderingMode(.template)
-      .foregroundColor(.appGrayTextContrast)
-      .frame(height: 40)
-      .gesture(
-        TapGesture(count: 2)
-          .onEnded {
-            viewModel.performActionSubject.send(.hiddenGesturePerformed)
-          }
-      )
-  }
-
-  var getStartedView: some View {
-    HStack {
-      VStack(alignment: .leading, spacing: 32) {
-        Text("A better social\nreading experience\nstarts with Omnivore.")
-          .font(.appTitle)
-          .multilineTextAlignment(.leading)
-
-        BorderedButton(color: .appGrayTextContrast, text: "Get Started") {
-          showRegistrationView = true
-        }
-        .frame(width: 220)
-      }
-      .padding(.leading, horizontalSizeClass == .compact ? 16 : 80)
-      .padding(.top, horizontalSizeClass == .compact ? 16 : 0)
-
-      Spacer()
-    }
-  }
-
-  @ViewBuilder func splitColorBackground(width: CGFloat) -> some View {
-    HStack(spacing: 0) {
-      Color.systemBackground.frame(width: width * 0.5)
-      Color.appBackground.frame(width: width * 0.5)
-    }
-    .edgesIgnoringSafeArea(.all)
-  }
-
-  @ViewBuilder func largeBackgroundImage(width: CGFloat) -> some View {
-    Image.readingIllustrationXXL
-      .resizable()
-      .aspectRatio(contentMode: .fill)
-      .frame(width: width)
-      .clipped()
-      .edgesIgnoringSafeArea([.vertical, .trailing])
   }
 
   @ViewBuilder func primaryContent() -> some View {
@@ -121,17 +72,19 @@ public struct WelcomeView: View {
     } else {
       GeometryReader { geometry in
         ZStack(alignment: .leading) {
-          splitColorBackground(width: geometry.size.width)
+          SplitColorBackground(width: geometry.size.width)
 
           VStack {
-            titleLogo
+            TitleLogoView {
+              viewModel.performActionSubject.send(.hiddenGesturePerformed)
+            }
             Spacer()
           }
           .padding()
 
           HStack(spacing: 0) {
             userInteractiveView(width: geometry.size.width * 0.5)
-            largeBackgroundImage(width: geometry.size.width * 0.5)
+            ReadingIllustrationXXLView(width: geometry.size.width * 0.5)
           }
         }
       }
@@ -146,5 +99,71 @@ public struct WelcomeView: View {
         }
       }
       .onReceive(Publishers.keyboardHeight) { isKeyboardOnScreen = $0 > 1 }
+  }
+}
+
+public struct ReadingIllustrationXXLView: View {
+  let width: CGFloat
+
+  public var body: some View {
+    Image.readingIllustrationXXL
+      .resizable()
+      .aspectRatio(contentMode: .fill)
+      .frame(width: width)
+      .clipped()
+      .edgesIgnoringSafeArea([.vertical, .trailing])
+  }
+}
+
+public struct TitleLogoView: View {
+  let handleHiddenGestureAction: () -> Void
+
+  public var body: some View {
+    Image.omnivoreTitleLogo
+      .renderingMode(.template)
+      .foregroundColor(.appGrayTextContrast)
+      .frame(height: 40)
+      .gesture(
+        TapGesture(count: 2)
+          .onEnded {
+            handleHiddenGestureAction()
+          }
+      )
+  }
+}
+
+struct GetStartedView: View {
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  @Binding var showRegistrationView: Bool
+
+  var body: some View {
+    HStack {
+      VStack(alignment: .leading, spacing: 32) {
+        Text("A better social\nreading experience\nstarts with Omnivore.")
+          .font(.appTitle)
+          .multilineTextAlignment(.leading)
+
+        BorderedButton(color: .appGrayTextContrast, text: "Get Started") {
+          showRegistrationView = true
+        }
+        .frame(width: 220)
+      }
+      .padding(.leading, horizontalSizeClass == .compact ? 16 : 80)
+      .padding(.top, horizontalSizeClass == .compact ? 16 : 0)
+
+      Spacer()
+    }
+  }
+}
+
+struct SplitColorBackground: View {
+  let width: CGFloat
+
+  var body: some View {
+    HStack(spacing: 0) {
+      Color.systemBackground.frame(width: width * 0.5)
+      Color.appBackground.frame(width: width * 0.5)
+    }
+    .edgesIgnoringSafeArea(.all)
   }
 }
