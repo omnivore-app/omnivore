@@ -448,9 +448,8 @@ class UserArticleModel extends DataModel<
         .innerJoin(Table.LINK_LABELS, 'link_labels.link_id', 'links.id')
         .innerJoin(Table.LABELS, 'labels.id', 'link_labels.label_id')
         .whereRaw('LOWER(omnivore.labels.name) = ANY(?)', [args.labelFilters])
+        .distinct('links.id')
     }
-
-    console.log(queryPromise.toString())
 
     if (notNullField) {
       queryPromise.whereNotNull(notNullField)
