@@ -42,28 +42,10 @@ struct MainApp: App {
       WindowGroup {
         RootView(pdfViewerProvider: nil, intercomProvider: nil)
       }
-//      Settings {
-//        SettingsView()
-//      }
     #endif
   }
 
   private func pdfViewerProvider(url: URL, viewModel: PDFViewerViewModel) -> AnyView {
     AnyView(PDFViewer(pdfURL: url, viewModel: viewModel))
-  }
-}
-
-struct SettingsView: View {
-  var appVersion: String {
-    Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-  }
-
-  var body: some View {
-    VStack {
-      Text("Omnivore")
-        .font(.largeTitle)
-      Text("Omnivore Version: \(appVersion)")
-    }
-    .frame(width: 600, height: 600)
   }
 }
