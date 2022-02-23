@@ -3,14 +3,16 @@
 }
 
 .highlight {
-  background-color: var(--colors-highlightText) !important;
+  color: var(--colors-highlightText);
+  background-color: var(--colors-highlightBackground);
   cursor: pointer;
 }
 
 .highlight_with_note {
-  cursor: pointer;
-  border-bottom: 2px var(--colors-highlightText) solid;
+  color: var(--colors-highlightText);
+  border-bottom: 2px var(--colors-highlightBackground) solid;
   border-radius: 2px;
+  cursor: pointer;
 }
 
 .article-inner-css .highlight_with_note .highlight_note_button {
@@ -118,7 +120,11 @@ on smaller screens we display the note icon
 }
 
 .article-inner-css a {
-  color: #416ed2;
+  color: var(--font-color-readerFont);
+}
+
+.article-inner-css .highlight a {
+  color: var(--colors-highlightText);
 }
 
 .article-inner-css figure {
