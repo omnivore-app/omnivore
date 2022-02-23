@@ -118,8 +118,6 @@ public struct RootView: View {
   @ObservedObject private var viewModel: RootViewModel
   @ObservedObject private var authenticator: Authenticator
 
-  private var primaryViewModel: PrimaryContentViewModel
-
   public init(
     pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?,
     intercomProvider: IntercomProvider?
@@ -127,7 +125,6 @@ public struct RootView: View {
     let rootViewModel = RootViewModel()
     self.viewModel = rootViewModel
     self.authenticator = rootViewModel.services.authenticator
-    self.primaryViewModel = PrimaryContentViewModel(services: rootViewModel.services)
 
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {
@@ -148,7 +145,7 @@ public struct RootView: View {
 
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
-      PrimaryContentView(viewModel: primaryViewModel)
+      PrimaryContentView(services: viewModel.services)
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }

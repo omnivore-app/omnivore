@@ -3,21 +3,13 @@ import Services
 import SwiftUI
 import Views
 
-public final class PrimaryContentViewModel {
+public struct PrimaryContentView: View {
   let homeFeedViewModel: HomeFeedViewModel
   let profileContainerViewModel: ProfileContainerViewModel
 
   public init(services: Services) {
     self.homeFeedViewModel = HomeFeedViewModel.make(services: services)
     self.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
-  }
-}
-
-public struct PrimaryContentView: View {
-  private let viewModel: PrimaryContentViewModel
-
-  public init(viewModel: PrimaryContentViewModel) {
-    self.viewModel = viewModel
   }
 
   public var body: some View {
@@ -34,14 +26,14 @@ public struct PrimaryContentView: View {
 
   // iphone view container
   private var compactView: some View {
-    HomeFeedView(viewModel: viewModel.homeFeedViewModel)
+    HomeFeedView(viewModel: homeFeedViewModel)
   }
 
   // ipad and mac view container
   private var regularView: some View {
     let categories = [
-      PrimaryContentCategory.feed(viewModel: viewModel.homeFeedViewModel),
-      PrimaryContentCategory.profile(viewModel: viewModel.profileContainerViewModel)
+      PrimaryContentCategory.feed(viewModel: homeFeedViewModel),
+      PrimaryContentCategory.profile(viewModel: profileContainerViewModel)
     ]
 
     return NavigationView {
