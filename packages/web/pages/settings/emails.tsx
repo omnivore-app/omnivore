@@ -1,12 +1,11 @@
-import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
-import { Button } from '../../../components/elements/Button'
-import { useGetNewsletterEmailsQuery } from '../../../lib/networking/queries/useGetNewsletterEmailsQuery'
-import { createNewsletterEmailMutation } from '../../../lib/networking/mutations/createNewsletterEmailMutation'
-import { CopyLinkIcon } from '../../../components/elements/images/CopyLinkIcon'
-import { theme } from '../../../components/tokens/stitches.config'
-import { StyledText } from '../../../components/elements/StyledText'
-import { Box, HStack, VStack } from '../../../components/elements/LayoutPrimitives'
-import { useCopyLink } from '../../../lib/hooks/useCopyLink'
+import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { Button } from '../../components/elements/Button'
+import { useGetNewsletterEmailsQuery } from '../../lib/networking/queries/useGetNewsletterEmailsQuery'
+import { createNewsletterEmailMutation } from '../../lib/networking/mutations/createNewsletterEmailMutation'
+import { CopyLinkIcon } from '../../components/elements/images/CopyLinkIcon'
+import { theme } from '../../components/tokens/stitches.config'
+import { Box, HStack, VStack } from '../../components/elements/LayoutPrimitives'
+import { useCopyLink } from '../../lib/hooks/useCopyLink'
 import { toast, Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import Link from 'next/link'
@@ -36,7 +35,7 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
   )
 }
 
-export default function NewsletterEmailsPage(): JSX.Element {
+export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } = useGetNewsletterEmailsQuery()
 
   async function createEmail(): Promise<void> {
