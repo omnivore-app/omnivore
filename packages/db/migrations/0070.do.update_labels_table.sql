@@ -6,7 +6,7 @@ BEGIN;
 
 ALTER TABLE omnivore.labels
     DROP COLUMN link_id,
-    ADD COLUMN color text NOT NULL,
+    ADD COLUMN color text NOT NULL DEFAULT '#000000',
     ADD COLUMN description text,
     ADD CONSTRAINT label_name_unique UNIQUE (user_id, name);
 
@@ -17,5 +17,7 @@ CREATE TABLE omnivore.link_labels (
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     UNIQUE (link_id, label_id)
 );
+
+GRANT SELECT, INSERT, DELETE ON omnivore.link_labels TO omnivore_user;
 
 COMMIT;

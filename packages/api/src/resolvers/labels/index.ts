@@ -20,7 +20,7 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
-import { getManager, getRepository } from 'typeorm'
+import { getManager, getRepository, ILike } from 'typeorm'
 import { setClaims } from '../../entity/utils'
 import { Link } from '../../entity/link'
 import { LinkLabel } from '../../entity/link_label'
@@ -76,9 +76,10 @@ export const createLabelResolver = authorized<
       }
     }
 
+    // Check if label already exists ignoring case of name
     const existingLabel = await getRepository(Label).findOne({
       where: {
-        name,
+        name: ILike(name),
       },
     })
     if (existingLabel) {
