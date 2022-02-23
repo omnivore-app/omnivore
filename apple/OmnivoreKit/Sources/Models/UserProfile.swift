@@ -50,19 +50,16 @@ public struct Viewer {
   public let username: String
   public let name: String
   public let profileImageURL: String?
-  public let isWaitlisted: Bool
 
   public init(
     username: String,
     name: String,
     profileImageURL: String?,
-    isWaitlisted: Bool,
     userID: String
   ) {
     self.username = username
     self.name = name
     self.profileImageURL = profileImageURL
-    self.isWaitlisted = isWaitlisted
     self.userID = userID
   }
 }

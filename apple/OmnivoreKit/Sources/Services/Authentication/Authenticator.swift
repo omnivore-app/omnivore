@@ -14,7 +14,6 @@ public final class Authenticator: ObservableObject {
   }
 
   @Published public internal(set) var isLoggedIn: Bool
-  @Published public internal(set) var isWaitlisted = false
 
   let networker: Networker
 
@@ -56,10 +55,6 @@ public final class Authenticator: ObservableObject {
     // We could do a more thorough check by decoding the token and reading it's properties
     // but then we would have to store the jwt secret client side.
     return !authToken.isEmpty
-  }
-
-  public func updateWaitlistStatus(isWaitlistedUser: Bool) {
-    isWaitlisted = isWaitlistedUser
   }
 
   private func clearCookies() {
