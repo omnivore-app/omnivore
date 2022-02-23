@@ -5,5 +5,6 @@ export class GolangHandler extends NewsletterHandler {
     super()
     this.senderRegex = /<.+@golangweekly.com>/
     this.urlRegex = /<a href=["']([^"']*)["'].*>Read on the Web<\/a>/
+    this.defaultUrl = 'https://golangweekly.com/'
   }
 }

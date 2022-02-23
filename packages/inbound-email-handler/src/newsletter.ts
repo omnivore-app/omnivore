@@ -12,6 +12,7 @@ const CONFIRMATION_CODE_PATTERN = /^\\(#\\d+\\)/
 export class NewsletterHandler {
   protected senderRegex = /NEWSLETTER_SENDER_REGEX/
   protected urlRegex = /NEWSLETTER_URL_REGEX/
+  protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
 
   isNewsletter(_rawUrl: string, from: string): boolean {
     // Axios newsletter is from <xx@axios.com>
@@ -19,7 +20,7 @@ export class NewsletterHandler {
     return re.test(from)
   }
 
-  getNewsletterUrl(rawUrl: string, html: string): string | undefined {
+  getNewsletterUrl(_rawUrl: string, html: string): string | undefined {
     // get newsletter url from html
     const matches = html.match(this.urlRegex)
     if (matches) {
@@ -53,13 +54,8 @@ export class NewsletterHandler {
       throw new Error('invalid newsletter email')
     }
 
-    const url = this.getNewsletterUrl(rawUrl, html)
-    console.log('url', url)
-    if (!url) {
-      console.log('invalid newsletter url', url)
-      throw new Error('invalid newsletter url')
-    }
-
+    // fallback to default url if newsletter url does not exist
+    const url = this.getNewsletterUrl(rawUrl, html) || this.defaultUrl
     const author = this.getAuthor(from)
 
     const message = {

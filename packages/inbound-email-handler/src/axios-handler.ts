@@ -5,5 +5,6 @@ export class AxiosHandler extends NewsletterHandler {
     super()
     this.senderRegex = /<.+@axios.com>/
     this.urlRegex = /View in browser at <a.*>(.*)<\/a>/
+    this.defaultUrl = 'https://axios.com'
   }
 }
