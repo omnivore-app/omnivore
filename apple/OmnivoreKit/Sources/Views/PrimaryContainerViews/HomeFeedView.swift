@@ -39,7 +39,7 @@ public final class HomeFeedViewModel: ObservableObject {
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
-    if itemIndex == thresholdIndex {
+    if itemIndex == thresholdIndex, items.count < thresholdIndex + 10 {
       performActionSubject.send(.loadItems(query: searchQuery))
     }
   }
