@@ -12749,15 +12749,15 @@ normalize-url@^4.1.0:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.5.1.tgz#0dd90cf1288ee1d1313b87081c9a5932ee48518a"
   integrity sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==
 
-normalize-url@^5.3.1:
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-5.3.1.tgz#c8485c0f5ba2f9c17a6d2907b56117ae5967f882"
-  integrity sha512-K1c7+vaAP+Yh5bOGmA10PGPpp+6h7WZrl7GwqKhUflBc9flU9pzG27DDeB9+iuhZkE3BJZOcgN1P/2sS5pqrWw==
-
 normalize-url@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-6.1.0.tgz#40d0885b535deffe3f3147bec877d05fe4c5668a"
   integrity sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==
+
+normalize-url@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-7.0.3.tgz#12e56889f7a54b2d5b09616f36c442a9063f61af"
+  integrity sha512-RiCOdwdPnzvwcBFJE4iI1ss3dMVRIrEzFpn8ftje6iBfzBInqlnRrNhxcLwBEKjPPXQKzm1Ptlxtaiv9wdcj5w==
 
 npm-bundled@^1.1.1:
   version "1.1.2"
