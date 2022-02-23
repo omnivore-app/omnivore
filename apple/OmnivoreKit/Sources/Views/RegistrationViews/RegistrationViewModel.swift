@@ -13,8 +13,6 @@ public final class RegistrationViewModel: ObservableObject {
   @Published public var createProfileViewModel: CreateProfileViewModel?
   @Published public var newAppleSignupViewModel: NewAppleSignupViewModel?
 
-  public var debugMenuViewModel: DebugMenuViewModel?
-
   public enum Action {
     case googleButtonTapped
     case appleSignInCompleted(result: Result<ASAuthorization, Error>)
