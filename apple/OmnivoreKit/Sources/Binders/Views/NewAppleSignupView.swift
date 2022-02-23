@@ -41,6 +41,7 @@ extension NewAppleSignupViewModel {
   }
 }
 
+// TODO: remove this view model
 final class NewAppleSignupViewModel: ObservableObject {
   let userProfile: UserProfile
   @Published var loginError: LoginError?

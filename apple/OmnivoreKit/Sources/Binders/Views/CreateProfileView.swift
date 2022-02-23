@@ -1,8 +1,75 @@
 import Combine
 import Models
+import Services
 import SwiftUI
+import Utils
+import Views
 
-public final class CreateProfileViewModel: ObservableObject {
+extension CreateProfileViewModel {
+  static func make(services: Services, pendingUserProfile: UserProfile) -> CreateProfileViewModel {
+    let viewModel = CreateProfileViewModel(initialUserProfile: pendingUserProfile)
+    viewModel.bind(services: services)
+    return viewModel
+  }
+
+  func bind(services: Services) {
+    performActionSubject.sink { [weak self] action in
+      switch action {
+      case let .submitProfile(userProfile):
+        self?.submitProfile(userProfile: userProfile, authenticator: services.authenticator)
+      case let .validateUsername(username: username):
+        self?.validateUsername(username: username, dataService: services.dataService)
+      }
+    }
+    .store(in: &subscriptions)
+  }
+
+  private func validateUsername(username: String, dataService: DataService) {
+    if let status = PotentialUsernameStatus.validationError(username: username.lowercased()) {
+      potentialUsernameStatus = status
+      return
+    }
+
+    dataService.validateUsernamePublisher(username: username).sink(
+      receiveCompletion: { [weak self] completion in
+        guard case let .failure(usernameError) = completion else { return }
+        switch usernameError {
+        case .tooShort:
+          self?.potentialUsernameStatus = .tooShort
+        case .tooLong:
+          self?.potentialUsernameStatus = .tooLong
+        case .invalidPattern:
+          self?.potentialUsernameStatus = .invalidPattern
+        case .nameUnavailable:
+          self?.potentialUsernameStatus = .unavailable
+        case .internalServer, .unknown:
+          self?.loginError = .unknown
+        case .network:
+          self?.loginError = .network
+        }
+      },
+      receiveValue: { [weak self] in
+        self?.potentialUsernameStatus = .available
+      }
+    )
+    .store(in: &subscriptions)
+  }
+
+  private func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
+    authenticator
+      .createAccount(userProfile: userProfile).sink(
+        receiveCompletion: { [weak self] completion in
+          guard case let .failure(loginError) = completion else { return }
+          self?.loginError = loginError
+        },
+        receiveValue: { _ in }
+      )
+      .store(in: &subscriptions)
+  }
+}
+
+// TODO: remove this view model
+final class CreateProfileViewModel: ObservableObject {
   let initialUserProfile: UserProfile
 
   var hasSuggestedProfile: Bool {
@@ -17,20 +84,20 @@ public final class CreateProfileViewModel: ObservableObject {
     hasSuggestedProfile ? "Confirm" : "Submit"
   }
 
-  @Published public var loginError: LoginError?
+  @Published var loginError: LoginError?
   @Published var validationErrorMessage: String?
-  @Published public var potentialUsernameStatus = PotentialUsernameStatus.noUsername
+  @Published var potentialUsernameStatus = PotentialUsernameStatus.noUsername
   @Published var potentialUsername: String
 
-  public enum Action {
+  enum Action {
     case submitProfile(userProfile: UserProfile)
     case validateUsername(username: String)
   }
 
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
+  var subscriptions = Set<AnyCancellable>()
+  let performActionSubject = PassthroughSubject<Action, Never>()
 
-  public init(initialUserProfile: UserProfile) {
+  init(initialUserProfile: UserProfile) {
     self.initialUserProfile = initialUserProfile
     self.potentialUsername = initialUserProfile.username
 
@@ -58,14 +125,14 @@ public final class CreateProfileViewModel: ObservableObject {
   }
 }
 
-public struct CreateProfileView: View {
+struct CreateProfileView: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @ObservedObject private var viewModel: CreateProfileViewModel
 
   @State private var name: String
   @State private var bio = ""
 
-  public init(viewModel: CreateProfileViewModel) {
+  init(viewModel: CreateProfileViewModel) {
     self.viewModel = viewModel
     self._name = State(initialValue: viewModel.initialUserProfile.name)
   }
@@ -74,7 +141,7 @@ public struct CreateProfileView: View {
     viewModel.submitProfile(name: name, bio: bio)
   }
 
-  public var body: some View {
+  var body: some View {
     VStack(spacing: 0) {
       VStack(spacing: 28) {
         ScrollView(showsIndicators: false) {
