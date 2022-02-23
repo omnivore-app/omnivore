@@ -539,8 +539,8 @@ export const getArticlesResolver = authorized<
   const first = params.first || 10
 
   // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
-  // so queries can contain phrases like "human race". In the future we will need to
-  // split out terms like "label:unread".
+  // so queries can contain phrases like "human race";
+  // We can also split out terms like "label:unread".
   const searchQuery = parseSearchQuery(params.query || undefined)
 
   analytics.track({
@@ -551,6 +551,7 @@ export const getArticlesResolver = authorized<
       inFilter: searchQuery.inFilter,
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
       env: env.server.apiEnv,
     },
   })
@@ -566,6 +567,7 @@ export const getArticlesResolver = authorized<
         inFilter: searchQuery.inFilter,
         readFilter: searchQuery.readFilter,
         typeFilter: searchQuery.typeFilter,
+        labelFilters: searchQuery.labelFilters,
       },
       claims.uid,
       tx,

@@ -86,7 +86,10 @@ const parseLabelFilters = (
     return labelFilters
   }
 
-  return labelFilters ? labelFilters.concat(str) : [str]
+  // use lower case for label names
+  const label = str.toLowerCase()
+
+  return labelFilters ? labelFilters.concat(label) : [label]
 }
 
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
