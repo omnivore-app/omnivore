@@ -1,34 +1,15 @@
-import Combine
 import Models
+import Services
 import SwiftUI
-
-public final class PrimaryContentViewModel: ObservableObject {
-  let categories: [PrimaryContentCategory]
-
-  public enum Action {
-    case nothing
-  }
-
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
-
-  public init(
-    homeFeedViewModel: HomeFeedViewModel,
-    profileContainerViewModel: ProfileContainerViewModel
-  ) {
-    self.categories = [
-      .feed(viewModel: homeFeedViewModel),
-      .profile(viewModel: profileContainerViewModel)
-    ]
-  }
-}
+import Views
 
 public struct PrimaryContentView: View {
-  @ObservedObject private var viewModel: PrimaryContentViewModel
-  @State private var currentTab = 0
+  let homeFeedViewModel: HomeFeedViewModel
+  let profileContainerViewModel: ProfileContainerViewModel
 
-  public init(viewModel: PrimaryContentViewModel) {
-    self.viewModel = viewModel
+  public init(services: Services) {
+    self.homeFeedViewModel = HomeFeedViewModel.make(services: services)
+    self.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
   }
 
   public var body: some View {
@@ -45,27 +26,23 @@ public struct PrimaryContentView: View {
 
   // iphone view container
   private var compactView: some View {
-    TabView(selection: $currentTab) {
-      ForEach(viewModel.categories.indices, id: \.self) { index in
-        viewModel.categories[index].destinationView
-          .tabItem {
-            TabIcon(isSelected: currentTab == index, primaryContentCategory: viewModel.categories[index])
-          }
-          .tag(index)
-      }
-    }
-    .accentColor(.appGrayTextContrast)
+    HomeFeedView(viewModel: homeFeedViewModel)
   }
 
   // ipad and mac view container
   private var regularView: some View {
-    NavigationView {
+    let categories = [
+      PrimaryContentCategory.feed(viewModel: homeFeedViewModel),
+      PrimaryContentCategory.profile(viewModel: profileContainerViewModel)
+    ]
+
+    return NavigationView {
       // The first column is the sidebar.
-      PrimaryContentSidebar(categories: viewModel.categories)
+      PrimaryContentSidebar(categories: categories)
         .navigationTitle("Categories")
 
       // Initial Content of second column
-      if let destinationView = viewModel.categories.first?.destinationView {
+      if let destinationView = categories.first?.destinationView {
         destinationView
       } else {
         Text("Select a Category")

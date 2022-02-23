@@ -30,7 +30,6 @@ extension DataService {
         profileImageURL: try $0.profile(
           selection: .init { try $0.pictureUrl() }
         ),
-        isWaitlisted: try !($0.isFullUser() ?? false),
         userID: try $0.id()
       )
     }

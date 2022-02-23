@@ -6,6 +6,7 @@ import Utils
 public final class HomeFeedViewModel: ObservableObject {
   let detailViewModelCreator: (FeedItem) -> LinkItemDetailViewModel
   var currentDetailViewModel: LinkItemDetailViewModel?
+  public var profileContainerViewModel: ProfileContainerViewModel?
 
   @Published public var items = [FeedItem]()
   @Published public var isLoading = false
@@ -256,10 +257,26 @@ public struct HomeFeedView: View {
 
   public var body: some View {
     #if os(iOS)
-      if UIDevice.isIPhone {
+      if UIDevice.isIPhone, let profileContainerViewModel = viewModel.profileContainerViewModel {
         NavigationView {
           conditionalInnerBody
+            .toolbar {
+              ToolbarItem {
+                NavigationLink(
+                  destination: {
+                    ProfileContainerView(viewModel: profileContainerViewModel)
+                  },
+                  label: {
+                    Image.profile
+                      .resizable()
+                      .frame(width: 26, height: 26)
+                      .padding()
+                  }
+                )
+              }
+            }
         }
+        .accentColor(.appGrayTextContrast)
       } else {
         conditionalInnerBody
       }

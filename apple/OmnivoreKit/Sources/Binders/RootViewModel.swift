@@ -29,21 +29,6 @@ public final class RootViewModel: ObservableObject {
     registerFonts()
   }
 
-  func updateWaitlistStatus() {
-    services.dataService.viewerPublisher().sink(
-      receiveCompletion: { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      },
-      receiveValue: { [weak self] viewer in
-        guard let self = self else { return }
-        let isWaitlisted = viewer.isWaitlisted
-        self.services.authenticator.updateWaitlistStatus(isWaitlistedUser: isWaitlisted)
-      }
-    )
-    .store(in: &subscriptions)
-  }
-
   func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
     PDFProvider.pdfViewerProvider = { [weak self] url, feedItem in
       guard let self = self else { return AnyView(Text("")) }
@@ -133,8 +118,6 @@ public struct RootView: View {
   @ObservedObject private var viewModel: RootViewModel
   @ObservedObject private var authenticator: Authenticator
 
-  private var primaryViewModel: PrimaryContentViewModel
-
   public init(
     pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?,
     intercomProvider: IntercomProvider?
@@ -142,7 +125,6 @@ public struct RootView: View {
     let rootViewModel = RootViewModel()
     self.viewModel = rootViewModel
     self.authenticator = rootViewModel.services.authenticator
-    self.primaryViewModel = PrimaryContentViewModel.make(services: rootViewModel.services)
 
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {
@@ -163,34 +145,30 @@ public struct RootView: View {
 
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
-      if authenticator.isWaitlisted {
-        WaitlistView(viewModel: WaitlistViewModel.make(services: viewModel.services))
-      } else {
-        PrimaryContentView(viewModel: primaryViewModel)
-          .onAppear {
-            viewModel.updateWaitlistStatus()
-            viewModel.triggerPushNotificationRequestIfNeeded()
+      PrimaryContentView(services: viewModel.services)
+        .onAppear {
+          viewModel.triggerPushNotificationRequestIfNeeded()
+        }
+      #if os(iOS)
+        .fullScreenCover(item: $viewModel.webLinkPath, content: { safariLinkPath in
+          NavigationView {
+            FullScreenWebAppView(
+              viewModel: viewModel.webAppWrapperViewModel(webLinkPath: safariLinkPath.path),
+              handleClose: { viewModel.webLinkPath = nil }
+            )
           }
-        #if os(iOS)
-          .fullScreenCover(item: $viewModel.webLinkPath, content: { safariLinkPath in
-            NavigationView {
-              FullScreenWebAppView(
-                viewModel: viewModel.webAppWrapperViewModel(webLinkPath: safariLinkPath.path),
-                handleClose: { viewModel.webLinkPath = nil }
-              )
-            }
-          })
-        #endif
-        .snackBar(
-          isShowing: $viewModel.showSnackbar,
-          text: Text(viewModel.snackbarMessage ?? "")
-        )
-        #if os(iOS)
-          .customAlert(isPresented: $viewModel.showPushNotificationPrimer) {
-            pushNotificationPrimerView
-          }
-        #endif
-      }
+        })
+      #endif
+      .snackBar(
+        isShowing: $viewModel.showSnackbar,
+        text: Text(viewModel.snackbarMessage ?? "")
+      )
+      #if os(iOS)
+        .customAlert(isPresented: $viewModel.showPushNotificationPrimer) {
+          pushNotificationPrimerView
+        }
+      #endif
+
     } else {
       WelcomeView(viewModel: WelcomeViewModel.make(services: viewModel.services))
         .accessibilityElement()
