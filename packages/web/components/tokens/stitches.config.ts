@@ -136,9 +136,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         // Semantic Colors
         overlay: blackA.blackA9,
-        highlightBackground: 'rgb(255,234,159)',
+        highlightBackground: 'rgba(255, 210, 52, 0.65)',
         highlight: '#FFD234',
-        highlightText: 'rgba(255, 210, 52, 0.65)',
+        highlightText: '#3D3D3D',
         error: '#FA5E4A',
 
         // Brand Colors
@@ -180,7 +180,6 @@ export const darkTheme = createTheme(ThemeId.Dark, {
     grayBgActive: '#4f4d4c',
     grayTextContrast: '#D8D7D7',
     grayBorder: 'rgba(255, 255, 255, 0.06)',
-    highlightText: '#867740',
     graySolid: '#9C9B9A',
 
     grayBgSubtle: grayDark.gray2,
@@ -192,8 +191,9 @@ export const darkTheme = createTheme(ThemeId.Dark, {
 
     // Semantic Colors
     overlay: blackA.blackA9,
-    highlightBackground: 'rgb(255,234,159)',
+    highlightBackground: '#867740',
     highlight: '#FFD234',
+    highlightText: 'white',
     error: '#FA5E4A',
 
     // Reader Colors
@@ -296,7 +296,7 @@ export const globalStyles = globalCss({
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {
     '::selection': {
-      background: '$highlightText',
+      background: '$highlightBackground',
     }
   }
 })
