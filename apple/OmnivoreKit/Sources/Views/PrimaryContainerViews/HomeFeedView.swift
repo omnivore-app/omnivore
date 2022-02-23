@@ -266,7 +266,12 @@ public struct HomeFeedView: View {
                   destination: {
                     ProfileContainerView(viewModel: profileContainerViewModel)
                   },
-                  label: { Image.profileTab.padding() }
+                  label: {
+                    Image.profile
+                      .resizable()
+                      .frame(width: 26, height: 26)
+                      .padding()
+                  }
                 )
               }
             }
