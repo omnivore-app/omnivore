@@ -23,4 +23,6 @@ export enum Table {
   HIGHLIGHT_REPLY = 'omnivore.highlight_reply',
   REACTION = 'omnivore.reaction',
   REMINDER = 'omnivore.reminders',
+  LABELS = 'omnivore.labels',
+  LINK_LABELS = 'omnivore.link_labels',
 }
