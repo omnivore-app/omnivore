@@ -30,9 +30,20 @@ describe('Newsletter email test', () => {
       expect(getNewsletterHandler('', from)).to.be.instanceof(AxiosHandler)
     })
 
-    it('should return BloombergHandler when email is from Bloomberg', () => {
-      const from = 'From: Bloomberg <noreply@mail.bloombergbusiness.com>'
-      expect(getNewsletterHandler('', from)).to.be.instanceof(BloombergHandler)
+    context('when email is from Bloomberg', () => {
+      it('should return BloombergHandler when email is from Bloomberg Business', () => {
+        const from = 'From: Bloomberg <noreply@mail.bloombergbusiness.com>'
+        expect(getNewsletterHandler('', from)).to.be.instanceof(
+          BloombergHandler
+        )
+      })
+
+      it('should return BloombergHandler when email is from Bloomberg View', () => {
+        const from = 'From: Bloomberg <noreply@mail.bloombergview.com>'
+        expect(getNewsletterHandler('', from)).to.be.instanceof(
+          BloombergHandler
+        )
+      })
     })
 
     it('should return GolangHandler when email is from Golang Weekly', () => {
