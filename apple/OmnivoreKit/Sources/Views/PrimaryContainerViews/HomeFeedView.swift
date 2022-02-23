@@ -259,6 +259,14 @@ public struct HomeFeedView: View {
       if UIDevice.isIPhone {
         NavigationView {
           conditionalInnerBody
+            .toolbar {
+              ToolbarItem {
+                Button(
+                  action: { print("Profile") },
+                  label: { Image.profileTab.padding() }
+                )
+              }
+            }
         }
       } else {
         conditionalInnerBody
