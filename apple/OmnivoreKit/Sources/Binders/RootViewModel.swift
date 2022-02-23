@@ -170,7 +170,7 @@ public struct RootView: View {
       #endif
 
     } else {
-      WelcomeView(viewModel: WelcomeViewModel.make(services: viewModel.services))
+      WelcomeView(services: viewModel.services)
         .accessibilityElement()
         .accessibilityIdentifier("welcomeView")
     }

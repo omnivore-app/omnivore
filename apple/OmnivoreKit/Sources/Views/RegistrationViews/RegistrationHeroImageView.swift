@@ -1,9 +1,13 @@
 import SwiftUI
 
-struct RegistrationHeroImageView: View {
+public struct RegistrationHeroImageView: View {
   let tapGestureHandler: () -> Void
 
-  var body: some View {
+  public init(tapGestureHandler: @escaping () -> Void) {
+    self.tapGestureHandler = tapGestureHandler
+  }
+
+  public var body: some View {
     ZStack(alignment: .topLeading) {
       Image.readingIllustration
         .resizable()
