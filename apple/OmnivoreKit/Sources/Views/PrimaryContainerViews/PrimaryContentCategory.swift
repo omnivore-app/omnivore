@@ -56,20 +56,3 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     hasher.combine(id)
   }
 }
-
-struct TabIcon: View {
-  let isSelected: Bool
-  let primaryContentCategory: PrimaryContentCategory
-
-  var body: some View {
-    if isSelected {
-      Label {
-        Text(primaryContentCategory.title)
-      } icon: {
-        primaryContentCategory.selectedImage
-      }
-    } else {
-      primaryContentCategory.listLabel
-    }
-  }
-}
