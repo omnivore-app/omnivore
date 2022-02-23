@@ -1,6 +1,6 @@
 import Foundation
 
-struct LocalText {
+public enum LocalText {
   static func localText(key: String, comment: String? = nil) -> String {
     NSLocalizedString(key, bundle: .module, comment: comment ?? "no comment provided by developer")
   }
@@ -9,7 +9,7 @@ struct LocalText {
   static let googleAuthButton = localText(key: "googleAuthButton")
   static let registrationViewSignInHeadline = localText(key: "registrationViewSignInHeadline")
   static let registrationViewSignUpHeadline = localText(key: "registrationViewSignUpHeadline")
-  static let registrationViewHeadline = localText(key: "registrationViewHeadline")
+  public static let registrationViewHeadline = localText(key: "registrationViewHeadline")
   static let networkError = localText(key: "error.network")
   static let genericError = localText(key: "error.generic")
   static let invalidCredsLoginError = localText(key: "loginError.invalidCreds")
