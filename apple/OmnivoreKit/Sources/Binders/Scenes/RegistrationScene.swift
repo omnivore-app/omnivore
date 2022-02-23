@@ -6,20 +6,21 @@ import SwiftUI
 import Utils
 import Views
 
-public final class RegistrationViewModel: ObservableObject {
-  @Published public var loginError: LoginError?
-  @Published public var createProfileViewModel: CreateProfileViewModel?
-  @Published public var newAppleSignupViewModel: NewAppleSignupViewModel?
+// TODO: remove this view model
+final class RegistrationViewModel: ObservableObject {
+  @Published var loginError: LoginError?
+  @Published var createProfileViewModel: CreateProfileViewModel?
+  @Published var newAppleSignupViewModel: NewAppleSignupViewModel?
 
-  public enum Action {
+  enum Action {
     case googleButtonTapped
     case appleSignInCompleted(result: Result<ASAuthorization, Error>)
   }
 
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
+  var subscriptions = Set<AnyCancellable>()
+  let performActionSubject = PassthroughSubject<Action, Never>()
 
-  public init() {}
+  init() {}
 }
 
 extension RegistrationViewModel {
@@ -132,11 +133,11 @@ private func presentingViewController() -> PlatformViewController? {
   #endif
 }
 
-public struct RegistrationView: View {
+struct RegistrationView: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @ObservedObject private var viewModel: RegistrationViewModel
 
-  public init(viewModel: RegistrationViewModel) {
+  init(viewModel: RegistrationViewModel) {
     self.viewModel = viewModel
   }
 
@@ -176,7 +177,7 @@ public struct RegistrationView: View {
     }
   }
 
-  public var body: some View {
+  var body: some View {
     if let createProfileViewModel = viewModel.createProfileViewModel {
       CreateProfileView(viewModel: createProfileViewModel)
     } else if let newAppleSignupViewModel = viewModel.newAppleSignupViewModel {
