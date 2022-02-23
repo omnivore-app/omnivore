@@ -39,6 +39,11 @@ const moduleExports = {
         permanent: true,
       },
       {
+        source: '/settings/subscriptions/newsletters',
+        destination: '/settings/emails',
+        permanent: true,
+      },
+      {
         source: '/static/icons/default/favicon-dark.ico',
         destination: '/favicon-dark.ico',
         permanent: true,
