@@ -1,14 +1,14 @@
 import SwiftUI
 
-enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
+public enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
   case feed(viewModel: HomeFeedViewModel)
   case profile(viewModel: ProfileContainerViewModel)
 
-  static func == (lhs: PrimaryContentCategory, rhs: PrimaryContentCategory) -> Bool {
+  public static func == (lhs: PrimaryContentCategory, rhs: PrimaryContentCategory) -> Bool {
     lhs.id == rhs.id
   }
 
-  var id: String {
+  public var id: String {
     title
   }
 
@@ -39,11 +39,11 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     }
   }
 
-  var listLabel: some View {
+  public var listLabel: some View {
     Label { Text(title) } icon: { image.renderingMode(.template) }
   }
 
-  @ViewBuilder var destinationView: some View {
+  @ViewBuilder public var destinationView: some View {
     switch self {
     case let .feed(viewModel: viewModel):
       HomeFeedView(viewModel: viewModel)
@@ -52,7 +52,7 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     }
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }

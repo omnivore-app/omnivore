@@ -127,7 +127,7 @@ public struct RootView: View {
     let rootViewModel = RootViewModel()
     self.viewModel = rootViewModel
     self.authenticator = rootViewModel.services.authenticator
-    self.primaryViewModel = PrimaryContentViewModel.make(services: rootViewModel.services)
+    self.primaryViewModel = PrimaryContentViewModel(services: rootViewModel.services)
 
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {

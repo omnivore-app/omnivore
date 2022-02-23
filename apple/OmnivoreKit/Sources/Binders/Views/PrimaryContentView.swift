@@ -1,22 +1,20 @@
-import Combine
 import Models
+import Services
 import SwiftUI
+import Views
 
-public final class PrimaryContentViewModel: ObservableObject {
+public final class PrimaryContentViewModel {
   let homeFeedViewModel: HomeFeedViewModel
   let profileContainerViewModel: ProfileContainerViewModel
 
-  public init(
-    homeFeedViewModel: HomeFeedViewModel,
-    profileContainerViewModel: ProfileContainerViewModel
-  ) {
-    self.homeFeedViewModel = homeFeedViewModel
-    self.profileContainerViewModel = profileContainerViewModel
+  public init(services: Services) {
+    self.homeFeedViewModel = HomeFeedViewModel.make(services: services)
+    self.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
   }
 }
 
 public struct PrimaryContentView: View {
-  @ObservedObject private var viewModel: PrimaryContentViewModel
+  private let viewModel: PrimaryContentViewModel
 
   public init(viewModel: PrimaryContentViewModel) {
     self.viewModel = viewModel
