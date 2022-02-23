@@ -25,7 +25,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
   })
 
   return (
-    <VStack css={{ width: '100%', bg: '$highlightBackground', p: '20px' }}>
+    <VStack css={{ width: '100%', bg: '$omnivoreYellow', p: '20px' }}>
       <StyledQuote>
         {props.highlight.prefix}
         <SpanBox css={{ bg: '$highlight', p: '1px', borderRadius: '2px' }}>
