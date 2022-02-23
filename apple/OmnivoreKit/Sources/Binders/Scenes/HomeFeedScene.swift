@@ -12,15 +12,17 @@ extension HomeFeedViewModel {
     }
 
     viewModel.bind(services: services)
-    viewModel.loadItems(dataService: services.dataService, searchQuery: nil)
+    viewModel.loadItems(dataService: services.dataService, searchQuery: nil, isRefresh: false)
     return viewModel
   }
 
   func bind(services: Services) {
     performActionSubject.sink { [weak self] action in
       switch action {
+      case let .refreshItems(query: query):
+        self?.loadItems(dataService: services.dataService, searchQuery: query, isRefresh: true)
       case let .loadItems(query):
-        self?.loadItems(dataService: services.dataService, searchQuery: query)
+        self?.loadItems(dataService: services.dataService, searchQuery: query, isRefresh: false)
       case let .archive(linkId):
         self?.setLinkArchived(dataService: services.dataService, linkId: linkId, archived: true)
       case let .unarchive(linkId):
@@ -39,7 +41,7 @@ extension HomeFeedViewModel {
     .store(in: &subscriptions)
   }
 
-  private func loadItems(dataService: DataService, searchQuery: String?) {
+  private func loadItems(dataService: DataService, searchQuery: String?, isRefresh: Bool) {
     // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
     dataService.clearHighlights()
 
@@ -59,10 +61,10 @@ extension HomeFeedViewModel {
     }
 
     dataService.libraryItemsPublisher(
-      limit: 100,
+      limit: 10,
       sortDescending: true,
       searchQuery: searchQuery,
-      cursor: nil
+      cursor: isRefresh ? nil : cursor
     )
     .sink(
       receiveCompletion: { [weak self] completion in
@@ -80,9 +82,10 @@ extension HomeFeedViewModel {
         if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
           return
         }
-        self?.items = result.items
+        self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
         self?.isLoading = false
         self?.receivedIdx = thisSearchIdx
+        self?.cursor = result.cursor
         stopNetworkActivityIndicator()
       }
     )
