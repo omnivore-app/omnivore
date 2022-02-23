@@ -40,9 +40,9 @@ export default function Newsletters(): JSX.Element {
         <p>
           Currently Omnivore supports newsletters from the following providers.
           <ul>
-            <li>Newsletters hosted on <a href="https://substack.com" target="_blank">substack.com</a></li>
-            <li>The <a href="https://www.axios.com/newsletters" target="_blank">Axios Daily</a> newsletters</li>
-            <li><a href="https://golangweekly.com/" target="_blank">Golang Weekly</a></li>
+            <li>Newsletters hosted on <a href="https://substack.com" target="_blank" rel="noreferrer">substack.com</a></li>
+            <li>The <a href="https://www.axios.com/newsletters" target="_blank" rel="noreferrer">Axios Daily</a> newsletters</li>
+            <li><a href="https://golangweekly.com/" target="_blank" rel="noreferrer">Golang Weekly</a></li>
           </ul>
           If there is a newsletter you would like to read in Omnivore, please let us know.
         </p>
