@@ -76,7 +76,7 @@ struct WelcomeView: View {
   public var body: some View {
     primaryContent()
       .sheet(isPresented: $showDebugModal) {
-        DebugMenuView(viewModel: DebugMenuViewModel.make(services: services))
+        DebugMenuView(services: services)
       }
       .onReceive(Publishers.keyboardHeight) { isKeyboardOnScreen = $0 > 1 }
   }
