@@ -80,7 +80,7 @@
     "knex-stringcase": "^1.4.2",
     "luxon": "^1.25.0",
     "nanoid": "^3.1.25",
-    "normalize-url": "^5.3.1",
+    "normalize-url": "^6.1.0",
     "oauth": "^0.9.15",
     "pg": "^8.3.3",
     "postgrator": "^4.2.0",
