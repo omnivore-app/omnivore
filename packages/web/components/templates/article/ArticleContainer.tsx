@@ -17,6 +17,7 @@ import { ShareArticleModal } from './ShareArticleModal'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
+import { EditLabelsModal } from './EditLabelsModal'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -32,6 +33,7 @@ type ArticleContainerProps = {
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
@@ -55,6 +57,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           break
         case 'decrementFontSize':
           updateFontSize(Math.max(fontSize - 2, 10))
+          break
+        case 'editLabels':
+          setShowLabelsModal(true)
           break
       }
     })
@@ -233,6 +238,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           originalArticleUrl={props.article.originalArticleUrl}
           onOpenChange={(open: boolean) => setShowShareModal(open)}
         />
+      )}
+      {showLabelsModal && (
+        <EditLabelsModal article={props.article} labels={[ /* props.article.labels */]} onOpenChange={() => {
+          setShowLabelsModal(false)
+        }} />
       )}
     </>
   )

@@ -210,6 +210,7 @@ type ArticleKeyboardAction =
   | 'openOriginalArticle'
   | 'incrementFontSize'
   | 'decrementFontSize'
+  | 'editLabels'
 
 export function articleKeyboardCommands(
   actionHandler: (action: ArticleKeyboardAction) => void
@@ -232,6 +233,12 @@ export function articleKeyboardCommands(
       actionDescription: 'Decrease font size',
       shortcutKeyDescription: '-',
       callback: () => actionHandler('decrementFontSize'),
+    },
+    {
+      shortcutKeys: ['l'],
+      actionDescription: 'Edit labels',
+      shortcutKeyDescription: 'l',
+      callback: () => actionHandler('editLabels'),
     },
   ]
 }
