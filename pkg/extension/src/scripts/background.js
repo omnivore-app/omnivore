@@ -210,7 +210,7 @@ function saveArticle (tab) {
             browserApi.tabs.sendMessage(tab.id, {
               action: ACTIONS.ShowMessage,
               payload: {
-                text: 'Page saved!',
+                text: 'Saved to Omnivore',
                 link: link,
                 linkText: 'View',
                 type: 'success'
@@ -232,7 +232,7 @@ function saveArticle (tab) {
             browserApi.tabs.sendMessage(tab.id, {
               action: ACTIONS.ShowMessage,
               payload: {
-                text: 'Page saved!',
+                text: 'Saved to Omnivore',
                 link: link,
                 linkText: 'View',
                 type: 'success'

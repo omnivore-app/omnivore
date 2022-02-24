@@ -11,6 +11,6 @@
 "extensionAppUnauthorized" = "Please login to Omnivore from the app before saving your first link.";
 "loginError.invalidCreds" = "The login credentials provided are invalid.";
 "saveArticleSavingState" = "Saving...";
-"saveArticleSavedState" = "Link Saved!";
-"saveArticleProcessingState" = "Link saved!";
+"saveArticleSavedState" = "Saved to Omnivore";
+"saveArticleProcessingState" = "Saved to Omnivore";
 "dismissButton" = "Dismiss";
