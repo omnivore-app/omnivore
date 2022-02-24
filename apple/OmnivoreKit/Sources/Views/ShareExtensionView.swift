@@ -164,7 +164,7 @@ public struct ShareExtensionView: View {
           savedStateView
         } else {
           HStack(spacing: 4) {
-            Text("Link saved and will be available in your inbox shortly.")
+            Text("Saved to Omnivore")
               .font(.appTitleThree)
               .foregroundColor(.appGrayText)
               .padding(.trailing, 16)
