@@ -1,5 +1,9 @@
 import { expect } from 'chai'
-import { isConfirmationEmail, NewsletterHandler } from '../src/newsletter'
+import {
+  getConfirmationCode,
+  isConfirmationEmail,
+  NewsletterHandler,
+} from '../src/newsletter'
 import { SubstackHandler } from '../src/substack-handler'
 import { AxiosHandler } from '../src/axios-handler'
 import { BloombergHandler } from '../src/bloomberg-handler'
@@ -12,6 +16,15 @@ describe('Confirmation email test', () => {
       const from = 'Gmail Team <forwarding-noreply@google.com>'
 
       expect(isConfirmationEmail(from)).to.be.true
+    })
+  })
+
+  describe('#getConfirmationCode()', () => {
+    it('returns the confirmation code from the email', () => {
+      const code = '593781109'
+      const subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from sam@omnivore.com`
+
+      expect(getConfirmationCode(subject)).to.equal(code)
     })
   })
 })

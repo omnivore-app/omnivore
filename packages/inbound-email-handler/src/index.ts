@@ -75,8 +75,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // check if it is a forwarding confirmation email or newsletter
       const newsletterHandler = getNewsletterHandler(rawUrl, from)
-      if (newsletterHandler) {
-        try {
+      try {
+        if (newsletterHandler) {
           console.log('handleNewsletter', from, recipientAddress)
           await newsletterHandler.handleNewsletter(
             recipientAddress,
@@ -85,13 +85,22 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             subject,
             from
           )
-        } catch (error) {
-          console.log(
-            'error handling newsletter, will forward.',
-            from,
-            recipientAddress,
-            subject
-          )
+        } else {
+          console.log('non-newsletter email from:', from, recipientAddress)
+
+          if (isConfirmationEmail(from)) {
+            console.log('handleConfirmation', from)
+            await handleConfirmation(recipientAddress, subject)
+          } else if (pdfAttachment) {
+            console.log('handle PDF attachment', from, recipientAddress)
+            await handlePdfAttachment(
+              recipientAddress,
+              pdfAttachmentName,
+              pdfAttachment,
+              subject
+            )
+          }
+
           // queue non-newsletter emails
           await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
             json: {
@@ -103,23 +112,14 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             },
           })
         }
-      } else {
-        console.log('non-newsletter email from:', from, recipientAddress)
-
-        if (isConfirmationEmail(from)) {
-          console.log('handleConfirmation', from, recipientAddress)
-          await handleConfirmation(recipientAddress, subject)
-        } else if (pdfAttachment) {
-          console.log('handle PDF attachment', from, recipientAddress)
-          await handlePdfAttachment(
-            recipientAddress,
-            pdfAttachmentName,
-            pdfAttachment,
-            subject
-          )
-        }
-
-        // queue non-newsletter emails
+      } catch (error) {
+        console.log(
+          'error handling emails, will forward.',
+          from,
+          recipientAddress,
+          subject
+        )
+        // queue error emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {
             from: from,
