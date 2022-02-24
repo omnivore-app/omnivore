@@ -1,11 +1,12 @@
 import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
 import { gqlFetcher } from '../networkHelpers'
-import { articleFragment } from '../fragments/articleFragment'
 import type { ArticleFragmentData } from '../fragments/articleFragment'
+import { articleFragment } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
+import { labelFragment } from '../fragments/labelFragment'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -89,6 +90,9 @@ export function useGetLibraryItemsQuery({
             cursor
             node {
               ...ArticleFields
+              labels {
+                ...LabelFields
+              }
               originalArticleUrl
             }
           }
@@ -106,6 +110,7 @@ export function useGetLibraryItemsQuery({
       }
     }
     ${articleFragment}
+    ${labelFragment}
   `
 
   const variables = {
@@ -132,7 +137,9 @@ export function useGetLibraryItemsQuery({
         limit,
         sortDescending,
         searchQuery,
-        pageIndex === 0 ? undefined : previousResult.articles.pageInfo.endCursor,
+        pageIndex === 0
+          ? undefined
+          : previousResult.articles.pageInfo.endCursor,
       ]
     },
     (query, _l, _s, _sq, cursor: string) => {
