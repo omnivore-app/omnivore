@@ -145,7 +145,7 @@ public struct RootView: View {
 
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
-      PrimaryContentView(services: viewModel.services)
+      PrimaryContentView()
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }

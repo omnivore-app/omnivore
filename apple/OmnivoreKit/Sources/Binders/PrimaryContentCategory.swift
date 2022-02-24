@@ -1,9 +1,8 @@
 import SwiftUI
 import Views
 
-// TODO: maybe this can be removed??
 enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
-  case feed(viewModel: HomeFeedViewModel)
+  case feed
   case profile
 
   static func == (lhs: PrimaryContentCategory, rhs: PrimaryContentCategory) -> Bool {
@@ -38,8 +37,8 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
 
   @ViewBuilder var destinationView: some View {
     switch self {
-    case let .feed(viewModel: viewModel):
-      HomeFeedView(viewModel: viewModel)
+    case .feed:
+      HomeFeedView()
     case .profile:
       ProfileContainerView()
     }

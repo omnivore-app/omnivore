@@ -67,7 +67,7 @@ struct ProfileContainerView: View {
         #if os(iOS)
           Button(
             action: {
-              viewModel.performActionSubject.send(.showIntercomMessenger)
+              DataService.showIntercomMessenger?()
             },
             label: { Text("Feedback") }
           )
