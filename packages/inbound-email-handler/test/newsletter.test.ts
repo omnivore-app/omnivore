@@ -21,10 +21,10 @@ describe('Confirmation email test', () => {
 
   describe('#getConfirmationCode()', () => {
     it('returns the confirmation code from the email', () => {
-      const subject =
-        '(#593781109) Gmail Forwarding Confirmation - Receive Mail from sy.wuhb@gmail.com'
+      const code = '593781109'
+      const subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from sam@omnivore.com`
 
-      expect(getConfirmationCode(subject)).to.equal('593781109')
+      expect(getConfirmationCode(subject)).to.equal(code)
     })
   })
 })
