@@ -9,13 +9,6 @@ import Views
 extension HomeFeedViewModel {
   static func make(services: Services) -> HomeFeedViewModel {
     let viewModel = HomeFeedViewModel()
-
-    #if os(iOS)
-      if UIDevice.isIPhone {
-        viewModel.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
-      }
-    #endif
-
     viewModel.bind(services: services)
     viewModel.loadItems(dataService: services.dataService, searchQuery: nil, isRefresh: false)
     return viewModel
@@ -185,22 +178,9 @@ extension HomeFeedViewModel {
   }
 }
 
-private func startNetworkActivityIndicator() {
-  #if os(iOS)
-    UIApplication.shared.isNetworkActivityIndicatorVisible = true
-  #endif
-}
-
-private func stopNetworkActivityIndicator() {
-  #if os(iOS)
-    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-  #endif
-}
-
 // TODO: remove this view model
 final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
-  var profileContainerViewModel: ProfileContainerViewModel?
 
   @Published var items = [FeedItem]()
   @Published var isLoading = false
@@ -452,15 +432,13 @@ struct HomeFeedView: View {
 
   var body: some View {
     #if os(iOS)
-      if UIDevice.isIPhone, let profileContainerViewModel = viewModel.profileContainerViewModel {
+      if UIDevice.isIPhone {
         NavigationView {
           conditionalInnerBody
             .toolbar {
               ToolbarItem {
                 NavigationLink(
-                  destination: {
-                    ProfileContainerView(viewModel: profileContainerViewModel)
-                  },
+                  destination: { ProfileContainerView() },
                   label: {
                     Image.profile
                       .resizable()
@@ -483,4 +461,16 @@ struct HomeFeedView: View {
   private func refresh() {
     viewModel.performActionSubject.send(.refreshItems(query: searchQuery))
   }
+}
+
+private func startNetworkActivityIndicator() {
+  #if os(iOS)
+    UIApplication.shared.isNetworkActivityIndicatorVisible = true
+  #endif
+}
+
+private func stopNetworkActivityIndicator() {
+  #if os(iOS)
+    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+  #endif
 }

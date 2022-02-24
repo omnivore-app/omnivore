@@ -4,7 +4,7 @@ import Views
 // TODO: maybe this can be removed??
 enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
   case feed(viewModel: HomeFeedViewModel)
-  case profile(viewModel: ProfileContainerViewModel)
+  case profile
 
   static func == (lhs: PrimaryContentCategory, rhs: PrimaryContentCategory) -> Bool {
     lhs.id == rhs.id
@@ -40,8 +40,8 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     switch self {
     case let .feed(viewModel: viewModel):
       HomeFeedView(viewModel: viewModel)
-    case let .profile(viewModel: viewModel):
-      ProfileContainerView(viewModel: viewModel)
+    case .profile:
+      ProfileContainerView()
     }
   }
 

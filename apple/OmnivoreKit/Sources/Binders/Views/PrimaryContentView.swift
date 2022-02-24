@@ -5,11 +5,9 @@ import Views
 
 public struct PrimaryContentView: View {
   let homeFeedViewModel: HomeFeedViewModel
-  let profileContainerViewModel: ProfileContainerViewModel
 
   public init(services: Services) {
     self.homeFeedViewModel = HomeFeedViewModel.make(services: services)
-    self.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
   }
 
   public var body: some View {
@@ -33,7 +31,7 @@ public struct PrimaryContentView: View {
   private var regularView: some View {
     let categories = [
       PrimaryContentCategory.feed(viewModel: homeFeedViewModel),
-      PrimaryContentCategory.profile(viewModel: profileContainerViewModel)
+      PrimaryContentCategory.profile
     ]
 
     return NavigationView {

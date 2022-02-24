@@ -5,31 +5,13 @@ import SwiftUI
 import Utils
 import Views
 
-// TODO: remove this view model
-extension ProfileContainerViewModel {
-  static func make(services: Services) -> ProfileContainerViewModel {
-    let viewModel = ProfileContainerViewModel()
-    viewModel.bind(services: services)
-    return viewModel
-  }
+final class ProfileContainerViewModel: ObservableObject {
+  @Published var isLoading = false
+  @Published var profileCardData = ProfileCardData()
 
-  func bind(services: Services) {
-    performActionSubject.sink { [weak self] action in
-      switch action {
-      case .logout:
-        services.authenticator.logout()
-      case .loadProfileData:
-        self?.loadProfileData(dataService: services.dataService)
-      case .showIntercomMessenger:
-        DataService.showIntercomMessenger?()
-      case .deleteAccount:
-        print("delete account")
-      }
-    }
-    .store(in: &subscriptions)
-  }
+  var subscriptions = Set<AnyCancellable>()
 
-  private func loadProfileData(dataService: DataService) {
+  func loadProfileData(dataService: DataService) {
     dataService.viewerPublisher().sink(
       receiveCompletion: { _ in },
       receiveValue: { [weak self] viewer in
@@ -44,30 +26,12 @@ extension ProfileContainerViewModel {
   }
 }
 
-final class ProfileContainerViewModel: ObservableObject {
-  @Published var isLoading = false
-  @Published var profileCardData = ProfileCardData()
-
-  enum Action {
-    case logout
-    case loadProfileData
-    case showIntercomMessenger
-    case deleteAccount
-  }
-
-  var subscriptions = Set<AnyCancellable>()
-  let performActionSubject = PassthroughSubject<Action, Never>()
-
-  init() {}
-}
-
 struct ProfileContainerView: View {
-  @ObservedObject private var viewModel: ProfileContainerViewModel
-  @State private var showLogoutConfirmation = false
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
 
-  init(viewModel: ProfileContainerViewModel) {
-    self.viewModel = viewModel
-  }
+  @ObservedObject private var viewModel = ProfileContainerViewModel()
+  @State private var showLogoutConfirmation = false
 
   var body: some View {
     #if os(iOS)
@@ -87,7 +51,7 @@ struct ProfileContainerView: View {
       Section {
         ProfileCard(data: viewModel.profileCardData)
           .onAppear {
-            viewModel.performActionSubject.send(.loadProfileData)
+            viewModel.loadProfileData(dataService: dataService)
           }
       }
 
@@ -114,7 +78,7 @@ struct ProfileContainerView: View {
         if FeatureFlag.showAccountDeletion {
           NavigationLink(
             destination: ManageAccountView(handleAccountDeletion: {
-              viewModel.performActionSubject.send(.deleteAccount)
+              print("delete account")
             })
           ) {
             Text("Manage Account")
@@ -129,7 +93,7 @@ struct ProfileContainerView: View {
             Alert(
               title: Text("Are you sure you want to logout?"),
               primaryButton: .destructive(Text("Confirm")) {
-                viewModel.performActionSubject.send(.logout)
+                authenticator.logout()
               },
               secondaryButton: .cancel()
             )
