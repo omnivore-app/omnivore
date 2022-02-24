@@ -1,5 +1,3 @@
-import { styled } from './../tokens/stitches.config'
-import { Root, Image, Fallback } from '@radix-ui/react-avatar'
 import { StyledText } from './StyledText'
 
 type LabelProps = {
@@ -9,12 +7,12 @@ type LabelProps = {
 
 export function Label(props: LabelProps): JSX.Element {
   const hexToRgb = (hex: string) => {
-    var bigint = parseInt(hex.substring(1), 16);
-    var r = (bigint >> 16) & 255;
-    var g = (bigint >> 8) & 255;
-    var b = bigint & 255;
+    const bigint = parseInt(hex.substring(1), 16)
+    const r = (bigint >> 16) & 255
+    const g = (bigint >> 8) & 255
+    const b = bigint & 255
 
-    return [r,g,b];
+    return [r, g, b]
   }
   const color = hexToRgb(props.color)
   return (
