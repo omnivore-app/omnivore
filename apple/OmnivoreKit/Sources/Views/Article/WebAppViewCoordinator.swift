@@ -2,7 +2,7 @@ import SwiftUI
 import WebKit
 
 final class WebAppViewCoordinator: NSObject {
-  let navBarHeight = LinkItemDetailView.navBarHeight
+  let navBarHeight = 50.0 // TODO: LinkItemDetailView.navBarHeight
   var webViewActionHandler: (WKScriptMessage) -> Void = { _ in }
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = true

@@ -34,8 +34,8 @@ import WebKit
       webView.backgroundColor = UIColor.clear
       webView.configuration.userContentController = contentController
       webView.scrollView.delegate = context.coordinator
-      webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
-      webView.scrollView.verticalScrollIndicatorInsets.top = LinkItemDetailView.navBarHeight
+      webView.scrollView.contentInset.top = 50.0 // TODO: LinkItemDetailView.navBarHeight
+      webView.scrollView.verticalScrollIndicatorInsets.top = 50.0 // TODO: LinkItemDetailView.navBarHeight
 
       for action in WebViewAction.allCases {
         webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)

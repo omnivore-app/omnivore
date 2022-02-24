@@ -14,8 +14,8 @@ public final class WebAppWrapperViewModel: ObservableObject {
   let baseURL: URL
   let rawAuthCookie: String?
 
-  @Published var sendIncreaseFontSignal: Bool = false
-  @Published var sendDecreaseFontSignal: Bool = false
+  @Published public var sendIncreaseFontSignal: Bool = false
+  @Published public var sendDecreaseFontSignal: Bool = false
 
   public init(webViewURLRequest: URLRequest, baseURL: URL, rawAuthCookie: String?) {
     self.webViewURLRequest = webViewURLRequest
