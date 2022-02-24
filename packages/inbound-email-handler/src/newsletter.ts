@@ -7,7 +7,7 @@ const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
 const EMAIL_FORWARDING_SENDER_ADDRESSES = [
   'Gmail Team <forwarding-noreply@google.com>',
 ]
-const CONFIRMATION_CODE_PATTERN = /^\\(#\\d+\\)/
+const CONFIRMATION_CODE_PATTERN = /^\(#\d+\)/
 
 export class NewsletterHandler {
   protected senderRegex = /NEWSLETTER_SENDER_REGEX/
@@ -70,16 +70,9 @@ export class NewsletterHandler {
 }
 
 export const handleConfirmation = async (email: string, subject: string) => {
-  console.log('confirmation email')
+  console.log('confirmation email', email, subject)
 
-  let confirmationCode = ''
-  const matches = subject.match(CONFIRMATION_CODE_PATTERN)
-  if (matches) {
-    // get the number code only
-    // e.g. (#123456) => 123456
-    confirmationCode = matches[0].slice(2, -1)
-  }
-
+  const confirmationCode = getConfirmationCode(subject)
   if (!email || !confirmationCode) {
     console.log(
       'confirmation email error, user email:',
@@ -94,6 +87,20 @@ export const handleConfirmation = async (email: string, subject: string) => {
   return publishMessage(EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC, message)
 }
 
+export const getConfirmationCode = (subject: string): string | undefined => {
+  const matches = subject.match(CONFIRMATION_CODE_PATTERN)
+  if (matches) {
+    // get the number code only
+    // e.g. (#123456) => 123456
+    return matches[0].slice(2, -1)
+  }
+  return undefined
+}
+
+export const isConfirmationEmail = (from: string): boolean => {
+  return EMAIL_FORWARDING_SENDER_ADDRESSES.includes(from)
+}
+
 const publishMessage = async (
   topic: string,
   message: Record<string, string>
@@ -105,8 +112,4 @@ const publishMessage = async (
       console.log('error publishing message:', err)
       return undefined
     })
-}
-
-export const isConfirmationEmail = (from: string): boolean => {
-  return EMAIL_FORWARDING_SENDER_ADDRESSES.includes(from)
 }
