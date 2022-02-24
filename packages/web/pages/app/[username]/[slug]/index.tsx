@@ -67,12 +67,13 @@ function AppArticleEmbedContent(
   if (articleData) {
     return (
       <Box
-      ref={scrollRef}
-      css={{
-        overflowY: 'auto',
-        height: '100%',
-        width: '100vw',
-      }}>
+        ref={scrollRef}
+        css={{
+          overflowY: 'auto',
+          height: '100%',
+          width: '100vw',
+        }}
+      >
         <VStack
           alignment="center"
           distribution="center"

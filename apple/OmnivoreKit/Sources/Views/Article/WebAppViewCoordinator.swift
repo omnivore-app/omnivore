@@ -126,7 +126,7 @@ extension WKWebView {
     }
   }
 
-  private func injectCookie(cookieString: String?, url: URL) {
+  func injectCookie(cookieString: String?, url: URL) {
     if let cookieString = cookieString {
       for cookie in HTTPCookie.cookies(withResponseHeaderFields: ["Set-Cookie": cookieString], for: url) {
         configuration.websiteDataStore.httpCookieStore.setCookie(cookie) {}

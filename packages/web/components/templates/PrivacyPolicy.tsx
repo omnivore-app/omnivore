@@ -5,11 +5,15 @@ import {
   StyledList,
 } from '../elements/StyledText'
 
-export function PrivacyPolicy(): JSX.Element {
+type PrivacyPolicyProps = {
+  isAppEmbed?: boolean
+}
+
+export function PrivacyPolicy(props: PrivacyPolicyProps): JSX.Element {
   return (
     <Box
       css={{
-        bg: '$grayBase',
+        bg: props.isAppEmbed ? '#ffffff00' : '$grayBase',
         px: '$1',
         py: '$3',
         mx: '$3',

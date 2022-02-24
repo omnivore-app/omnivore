@@ -56,11 +56,15 @@ struct ProfileContainerView: View {
       }
 
       Section {
-        NavigationLink(destination: BasicWebAppView.privacyPolicyWebView) {
+        NavigationLink(
+          destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+        ) {
           Text("Privacy Policy")
         }
 
-        NavigationLink(destination: BasicWebAppView.termsConditionsWebView) {
+        NavigationLink(
+          destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+        ) {
           Text("Terms and Conditions")
         }
 
@@ -105,16 +109,21 @@ struct ProfileContainerView: View {
 }
 
 private extension BasicWebAppView {
-  static let privacyPolicyWebView: BasicWebAppView = {
-    omnivoreWebView(path: "privacy")
-  }()
+  static func privacyPolicyWebView(baseURL: URL) -> BasicWebAppView {
+    omnivoreWebView(path: "/app/privacy", baseURL: baseURL)
+  }
 
-  static let termsConditionsWebView: BasicWebAppView = {
-    omnivoreWebView(path: "terms")
-  }()
+  static func termsConditionsWebView(baseURL: URL) -> BasicWebAppView {
+    omnivoreWebView(path: "/app/terms", baseURL: baseURL)
+  }
 
-  private static func omnivoreWebView(path: String) -> BasicWebAppView {
-    let urlString = "https://omnivore.app/\(path)?isAppEmbedView=true"
-    return BasicWebAppView(request: URLRequest(url: URL(string: urlString)!))
+  private static func omnivoreWebView(path: String, baseURL: URL) -> BasicWebAppView {
+    let urlRequest = URLRequest.webRequest(
+      baseURL: baseURL,
+      urlPath: path,
+      queryParams: nil
+    )
+
+    return BasicWebAppView(request: urlRequest)
   }
 }

@@ -18,6 +18,10 @@ import WebKit
       webView.scrollView.isScrollEnabled = true
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear
+      if let url = request.url {
+        let themeID = UITraitCollection.current.userInterfaceStyle == .dark ? "Gray" : "LightGray"
+        webView.injectCookie(cookieString: "theme=\(themeID); Max-Age=31536000;", url: url)
+      }
       return webView
     }
 
@@ -43,7 +47,14 @@ import WebKit
     }
 
     public func makeNSView(context _: Context) -> WKWebView {
-      WebView(frame: CGRect.zero)
+      let webView = WebView(frame: CGRect.zero)
+      if let url = request.url {
+        // Dark mode is still rendering a white background on mac for some reason.
+        // Forcing light mode for now until we figure out a fix
+        let themeID = "LightGray" // NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua ? "Gray" : "LightGray"
+        webView.injectCookie(cookieString: "theme=\(themeID); Max-Age=31536000;", url: url)
+      }
+      return webView
     }
 
     public func updateNSView(_ webView: WKWebView, context: Context) {
