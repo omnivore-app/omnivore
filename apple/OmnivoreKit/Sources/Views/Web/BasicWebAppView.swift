@@ -2,22 +2,26 @@ import SwiftUI
 import WebKit
 
 #if os(iOS)
-  struct BasicWebAppView: UIViewRepresentable {
+  public struct BasicWebAppView: UIViewRepresentable {
     let request: URLRequest
     let webView = WKWebView()
 
-    func makeCoordinator() -> BasicWebAppViewCoordinator {
+    public init(request: URLRequest) {
+      self.request = request
+    }
+
+    public func makeCoordinator() -> BasicWebAppViewCoordinator {
       BasicWebAppViewCoordinator()
     }
 
-    func makeUIView(context _: Context) -> WKWebView {
+    public func makeUIView(context _: Context) -> WKWebView {
       webView.scrollView.isScrollEnabled = true
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear
       return webView
     }
 
-    func updateUIView(_ webView: WKWebView, context: Context) {
+    public func updateUIView(_ webView: WKWebView, context: Context) {
       if context.coordinator.needsReload {
         webView.load(request)
         context.coordinator.needsReload = false
@@ -27,18 +31,22 @@ import WebKit
 #endif
 
 #if os(macOS)
-  struct BasicWebAppView: NSViewRepresentable {
+  public struct BasicWebAppView: NSViewRepresentable {
     let request: URLRequest
 
-    func makeCoordinator() -> BasicWebAppViewCoordinator {
+    public init(request: URLRequest) {
+      self.request = request
+    }
+
+    public func makeCoordinator() -> BasicWebAppViewCoordinator {
       BasicWebAppViewCoordinator()
     }
 
-    func makeNSView(context _: Context) -> WKWebView {
+    public func makeNSView(context _: Context) -> WKWebView {
       WebView(frame: CGRect.zero)
     }
 
-    func updateNSView(_ webView: WKWebView, context: Context) {
+    public func updateNSView(_ webView: WKWebView, context: Context) {
       if context.coordinator.needsReload {
         webView.load(request)
         context.coordinator.needsReload = false
@@ -47,7 +55,7 @@ import WebKit
   }
 #endif
 
-final class BasicWebAppViewCoordinator: NSObject {
+public final class BasicWebAppViewCoordinator: NSObject {
   var needsReload = true
 
   override init() {

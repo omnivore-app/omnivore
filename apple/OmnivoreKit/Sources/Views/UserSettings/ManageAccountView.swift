@@ -1,10 +1,14 @@
 import SwiftUI
 
-struct ManageAccountView: View {
+public struct ManageAccountView: View {
   let handleAccountDeletion: () -> Void
   @State private var showDeleteAccountConfirmation = false
 
-  var body: some View {
+  public init(handleAccountDeletion: @escaping () -> Void) {
+    self.handleAccountDeletion = handleAccountDeletion
+  }
+
+  public var body: some View {
     Button(
       action: {
         showDeleteAccountConfirmation = true
