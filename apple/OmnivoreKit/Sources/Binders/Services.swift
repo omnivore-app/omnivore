@@ -11,9 +11,4 @@ public final class Services {
     self.authenticator = Authenticator(networker: networker)
     self.dataService = DataService(appEnvironment: appEnvironment, networker: networker)
   }
-
-  public func switchAppEnvironment(to appEnvironment: AppEnvironment) {
-    authenticator.logout()
-    dataService.switchAppEnvironment(appEnvironment: appEnvironment)
-  }
 }

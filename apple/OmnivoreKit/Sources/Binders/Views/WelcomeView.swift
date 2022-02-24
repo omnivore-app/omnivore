@@ -5,6 +5,7 @@ import Utils
 import Views
 
 struct WelcomeView: View {
+  @EnvironmentObject var dataService: DataService
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   let services: Services
   @State private var showRegistrationView = false
@@ -76,7 +77,7 @@ struct WelcomeView: View {
   public var body: some View {
     primaryContent()
       .sheet(isPresented: $showDebugModal) {
-        DebugMenuView(services: services)
+        DebugMenuView(initialEnvironment: dataService.appEnvironment)
       }
       .onReceive(Publishers.keyboardHeight) { isKeyboardOnScreen = $0 > 1 }
   }

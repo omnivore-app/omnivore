@@ -1,16 +1,17 @@
 import Models
+import Services
 import SwiftUI
 import Views
 
 struct DebugMenuView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
   @State private var selectedEnvironment: AppEnvironment
 
   let appEnvironments: [AppEnvironment] = [.local, .demo, .dev, .prod]
-  let services: Services
 
-  init(services: Services) {
-    self._selectedEnvironment = State(initialValue: services.dataService.appEnvironment)
-    self.services = services
+  init(initialEnvironment: AppEnvironment) {
+    self._selectedEnvironment = State(initialValue: initialEnvironment)
   }
 
   var body: some View {
@@ -28,7 +29,10 @@ struct DebugMenuView: View {
       }
 
       Button(
-        action: { services.switchAppEnvironment(to: selectedEnvironment) },
+        action: {
+          authenticator.logout()
+          dataService.switchAppEnvironment(appEnvironment: selectedEnvironment)
+        },
         label: { Text("Apply Changes") }
       )
       .buttonStyle(SolidCapsuleButtonStyle(width: 220))

@@ -1,6 +1,7 @@
 import SwiftUI
 import Views
 
+// TODO: maybe this can be removed??
 enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
   case feed(viewModel: HomeFeedViewModel)
   case profile(viewModel: ProfileContainerViewModel)
@@ -28,15 +29,6 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
       return .homeTab
     case .profile:
       return .profileTab
-    }
-  }
-
-  var selectedImage: Image {
-    switch self {
-    case .feed:
-      return .homeTabSelected
-    case .profile:
-      return .profileTabSelected
     }
   }
 

@@ -1,7 +1,7 @@
 import Foundation
 import Models
 
-public final class DataService {
+public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
   public static var showIntercomMessenger: (() -> Void)?
 
