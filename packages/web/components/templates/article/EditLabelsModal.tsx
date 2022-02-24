@@ -11,25 +11,26 @@ import { theme } from '../../tokens/stitches.config'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { ChangeEvent, useCallback, useState } from 'react'
 import { Label } from '../../elements/Label'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 
 type EditLabelsModalProps = {
+  labels: string[]
   article: ArticleAttributes
   onOpenChange: (open: boolean) => void
+  setLabels: (labels: string[]) => void
 }
 
 export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
-  const [selectedLabels, setSelectedLabels] = useState(
-    props.article.labels?.map((l) => l.id) || []
-  )
-  const { labels, revalidate, isValidating } = useGetLabelsQuery()
+  const [selectedLabels, setSelectedLabels] = useState(props.labels)
+  const { labels } = useGetLabelsQuery()
 
   const saveAndExit = useCallback(async () => {
     const result = await setLabelsMutation(props.article.linkId, selectedLabels)
     console.log('result of setting labels', result)
     props.onOpenChange(false)
-  }, [selectedLabels, props.onOpenChange])
+    props.setLabels(selectedLabels)
+  }, [props, selectedLabels])
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +41,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
         setSelectedLabels(selectedLabels.filter((l) => l !== label))
       }
     },
-    [selectedLabels, setSelectedLabels]
+    [selectedLabels]
   )
 
   return (

@@ -6,7 +6,7 @@ import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { useState, useEffect, MutableRefObject } from 'react'
+import { MutableRefObject, useEffect, useState } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
@@ -37,6 +37,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const [labels, setLabels] = useState(
+    props.article.labels?.map((l) => l.id) || []
+  )
 
   const updateFontSize = (newFontSize: number) => {
     setFontSize(newFontSize)
@@ -240,9 +243,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         />
       )}
       {showLabelsModal && (
-        <EditLabelsModal article={props.article} labels={[ /* props.article.labels */]} onOpenChange={() => {
-          setShowLabelsModal(false)
-        }} />
+        <EditLabelsModal
+          labels={labels}
+          article={props.article}
+          onOpenChange={() => {
+            setShowLabelsModal(false)
+          }}
+          setLabels={(labels: string[]) => {
+            setLabels(labels)
+          }}
+        />
       )}
     </>
   )
