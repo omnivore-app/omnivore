@@ -2,10 +2,14 @@ import PDFKit
 import SwiftUI
 
 #if os(macOS)
-  struct PDFWrapperView: NSViewRepresentable {
+  public struct PDFWrapperView: NSViewRepresentable {
     let pdfURL: URL
 
-    func makeNSView(context _: Context) -> PDFView {
+    public init(pdfURL: URL) {
+      self.pdfURL = pdfURL
+    }
+
+    public func makeNSView(context _: Context) -> PDFView {
       let pdfView = PDFView()
       if let document = PDFDocument(url: pdfURL) {
         pdfView.document = document
@@ -13,7 +17,7 @@ import SwiftUI
       return pdfView
     }
 
-    func updateNSView(_: PDFView, context _: Context) {}
+    public func updateNSView(_: PDFView, context _: Context) {}
   }
 #endif
 
