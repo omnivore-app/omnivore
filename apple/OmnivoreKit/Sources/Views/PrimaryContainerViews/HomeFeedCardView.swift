@@ -1,10 +1,14 @@
 import Models
 import SwiftUI
 
-struct FeedCard: View {
+public struct FeedCard: View {
   let item: FeedItem
 
-  var body: some View {
+  public init(item: FeedItem) {
+    self.item = item
+  }
+
+  public var body: some View {
     HStack(alignment: .top, spacing: 6) {
       VStack(alignment: .leading, spacing: 6) {
         Text(item.title)

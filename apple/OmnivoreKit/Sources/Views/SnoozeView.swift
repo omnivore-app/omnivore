@@ -1,12 +1,22 @@
 import Models
 import SwiftUI
 
-struct SnoozeView: View {
+public struct SnoozeView: View {
   @Binding var snoozePresented: Bool
   @Binding var itemToSnooze: FeedItem?
   let snoozeAction: (SnoozeActionParams) -> Void
 
-  var body: some View {
+  public init(
+    snoozePresented: Binding<Bool>,
+    itemToSnooze: Binding<FeedItem?>,
+    snoozeAction: @escaping (SnoozeActionParams) -> Void
+  ) {
+    self._snoozePresented = snoozePresented
+    self._itemToSnooze = itemToSnooze
+    self.snoozeAction = snoozeAction
+  }
+
+  public var body: some View {
     VStack {
       Spacer()
 
@@ -42,10 +52,10 @@ struct SnoozeView: View {
   }
 }
 
-struct SnoozeActionParams {
-  let feedItemId: String
-  let snoozeUntilDate: Date
-  let successMessage: String?
+public struct SnoozeActionParams {
+  public let feedItemId: String
+  public let snoozeUntilDate: Date
+  public let successMessage: String?
 }
 
 private struct SnoozeIconButtonView: View {
