@@ -5,88 +5,6 @@ import SwiftUI
 import Utils
 import Views
 
-// TODO: remove this view model
-extension LinkItemDetailViewModel {
-  static func make(feedItem: FeedItem, services: Services) -> LinkItemDetailViewModel {
-    let viewModel = LinkItemDetailViewModel(item: feedItem)
-    viewModel.bind(services: services)
-    return viewModel
-  }
-
-  func bind(services: Services) {
-    performActionSubject.sink { [weak self] action in
-      switch action {
-      case .load:
-        self?.loadWebAppWrapper(services: services)
-      case let .updateReadStatus(markAsRead: markAsRead):
-        self?.updateItemReadStatus(markAsRead: markAsRead, dataService: services.dataService)
-      }
-    }
-    .store(in: &subscriptions)
-  }
-
-  private func updateItemReadStatus(markAsRead: Bool, dataService: DataService) {
-    dataService
-      .updateArticleReadingProgressPublisher(
-        itemID: item.id,
-        readingProgress: markAsRead ? 100 : 0,
-        anchorIndex: 0
-      )
-      .sink { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      } receiveValue: { [weak self] feedItem in
-        self?.item.readingProgress = feedItem.readingProgress
-      }
-      .store(in: &subscriptions)
-  }
-
-  private func loadWebAppWrapper(services: Services) {
-    // Attempt to get `Viewer` from DataService
-    if let currentViewer = services.dataService.currentViewer {
-      createWebAppWrapperViewModel(username: currentViewer.username, services: services)
-      return
-    }
-
-    services.dataService.viewerPublisher().sink(
-      receiveCompletion: { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      },
-      receiveValue: { [weak self] viewer in
-        self?.createWebAppWrapperViewModel(username: viewer.username, services: services)
-      }
-    )
-    .store(in: &subscriptions)
-  }
-
-  private func createWebAppWrapperViewModel(username: String, services: Services) {
-    let baseURL = services.dataService.appEnvironment.webAppBaseURL
-
-    let urlRequest = URLRequest.webRequest(
-      baseURL: services.dataService.appEnvironment.webAppBaseURL,
-      urlPath: "/app/\(username)/\(item.slug)",
-      queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
-    )
-
-    let newWebAppWrapperViewModel = WebAppWrapperViewModel(
-      webViewURLRequest: urlRequest,
-      baseURL: baseURL,
-      rawAuthCookie: services.authenticator.omnivoreAuthCookieString
-    )
-
-    newWebAppWrapperViewModel.performActionSubject.sink { action in
-      switch action {
-      case let .shareHighlight(highlightID):
-        print("show share modal for highlight with id: \(highlightID)")
-      }
-    }
-    .store(in: &newWebAppWrapperViewModel.subscriptions)
-
-    webAppWrapperViewModel = newWebAppWrapperViewModel
-  }
-}
-
 enum PDFProvider {
   static var pdfViewerProvider: ((URL, FeedItem) -> AnyView)?
 }
@@ -101,14 +19,84 @@ final class LinkItemDetailViewModel: ObservableObject {
   }
 
   var subscriptions = Set<AnyCancellable>()
-  let performActionSubject = PassthroughSubject<Action, Never>()
 
   init(item: FeedItem) {
     self.item = item
   }
+
+  func updateItemReadStatus(dataService: DataService) {
+    dataService
+      .updateArticleReadingProgressPublisher(
+        itemID: item.id,
+        readingProgress: item.isRead ? 0 : 100,
+        anchorIndex: 0
+      )
+      .sink { completion in
+        guard case let .failure(error) = completion else { return }
+        print(error)
+      } receiveValue: { [weak self] feedItem in
+        self?.item.readingProgress = feedItem.readingProgress
+      }
+      .store(in: &subscriptions)
+  }
+
+  func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) {
+    // Attempt to get `Viewer` from DataService
+    if let currentViewer = dataService.currentViewer {
+      createWebAppWrapperViewModel(
+        username: currentViewer.username,
+        dataService: dataService,
+        rawAuthCookie: rawAuthCookie
+      )
+      return
+    }
+
+    dataService.viewerPublisher().sink(
+      receiveCompletion: { completion in
+        guard case let .failure(error) = completion else { return }
+        print(error)
+      },
+      receiveValue: { [weak self] viewer in
+        self?.createWebAppWrapperViewModel(
+          username: viewer.username,
+          dataService: dataService,
+          rawAuthCookie: rawAuthCookie
+        )
+      }
+    )
+    .store(in: &subscriptions)
+  }
+
+  private func createWebAppWrapperViewModel(username: String, dataService: DataService, rawAuthCookie: String?) {
+    let baseURL = dataService.appEnvironment.webAppBaseURL
+
+    let urlRequest = URLRequest.webRequest(
+      baseURL: dataService.appEnvironment.webAppBaseURL,
+      urlPath: "/app/\(username)/\(item.slug)",
+      queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
+    )
+
+    let newWebAppWrapperViewModel = WebAppWrapperViewModel(
+      webViewURLRequest: urlRequest,
+      baseURL: baseURL,
+      rawAuthCookie: rawAuthCookie
+    )
+
+    newWebAppWrapperViewModel.performActionSubject.sink { action in
+      switch action {
+      case let .shareHighlight(highlightID):
+        print("show share modal for highlight with id: \(highlightID)")
+      }
+    }
+    .store(in: &newWebAppWrapperViewModel.subscriptions)
+
+    webAppWrapperViewModel = newWebAppWrapperViewModel
+  }
 }
 
 struct LinkItemDetailView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
   static let navBarHeight = 50.0
@@ -122,7 +110,9 @@ struct LinkItemDetailView: View {
 
   var toggleReadStatusToolbarItem: some View {
     Button(
-      action: { viewModel.performActionSubject.send(.updateReadStatus(markAsRead: !viewModel.item.isRead)) },
+      action: {
+        viewModel.updateItemReadStatus(dataService: dataService)
+      },
       label: {
         Image(systemName: viewModel.item.isRead ? "line.horizontal.3.decrease.circle" : "checkmark.circle")
       }
@@ -232,7 +222,10 @@ struct LinkItemDetailView: View {
           Spacer()
         }
         .onAppear {
-          viewModel.performActionSubject.send(.load)
+          viewModel.loadWebAppWrapper(
+            dataService: dataService,
+            rawAuthCookie: authenticator.omnivoreAuthCookieString
+          )
         }
         .navigationBarHidden(true)
       }
@@ -275,7 +268,10 @@ struct LinkItemDetailView: View {
         Spacer()
       }
       .onAppear {
-        viewModel.performActionSubject.send(.load)
+        viewModel.loadWebAppWrapper(
+          dataService: dataService,
+          rawAuthCookie: authenticator.omnivoreAuthCookieString
+        )
       }
     }
   }

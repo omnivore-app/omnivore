@@ -8,9 +8,7 @@ import Views
 
 extension HomeFeedViewModel {
   static func make(services: Services) -> HomeFeedViewModel {
-    let viewModel = HomeFeedViewModel { feedItem in
-      LinkItemDetailViewModel.make(feedItem: feedItem, services: services)
-    }
+    let viewModel = HomeFeedViewModel()
 
     #if os(iOS)
       if UIDevice.isIPhone {
@@ -201,7 +199,6 @@ private func stopNetworkActivityIndicator() {
 
 // TODO: remove this view model
 final class HomeFeedViewModel: ObservableObject {
-  let detailViewModelCreator: (FeedItem) -> LinkItemDetailViewModel
   var currentDetailViewModel: LinkItemDetailViewModel?
   var profileContainerViewModel: ProfileContainerViewModel?
 
@@ -227,9 +224,7 @@ final class HomeFeedViewModel: ObservableObject {
   var subscriptions = Set<AnyCancellable>()
   let performActionSubject = PassthroughSubject<Action, Never>()
 
-  init(detailViewModelCreator: @escaping (FeedItem) -> LinkItemDetailViewModel) {
-    self.detailViewModelCreator = detailViewModelCreator
-  }
+  init() {}
 
   func itemAppeared(item: FeedItem, searchQuery: String) {
     if isLoading { return }
@@ -248,6 +243,9 @@ final class HomeFeedViewModel: ObservableObject {
 }
 
 struct HomeFeedView: View {
+//  @EnvironmentObject var authenticator: Authenticator
+//  @EnvironmentObject var dataService: DataService
+
   @ObservedObject private var viewModel: HomeFeedViewModel
   @State private var selectedLinkItem: FeedItem?
   @State private var searchQuery = ""
@@ -314,7 +312,7 @@ struct HomeFeedView: View {
         ForEach(viewModel.items) { item in
           let link = ZStack {
             NavigationLink(
-              destination: LinkItemDetailView(viewModel: viewModel.detailViewModelCreator(item)),
+              destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
               tag: item,
               selection: $selectedLinkItem
             ) {
