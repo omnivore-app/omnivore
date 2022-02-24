@@ -1,4 +1,4 @@
-import Binders
+import App
 import Firebase
 import FirebaseMessaging
 import Foundation
