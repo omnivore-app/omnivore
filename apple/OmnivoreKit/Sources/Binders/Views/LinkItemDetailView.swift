@@ -180,7 +180,7 @@ struct LinkItemDetailView: View {
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
     }
-    .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
+    .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
     .background(Color.systemBackground)
   }
