@@ -10,7 +10,7 @@ let package = Package(
     .macOS(.v11)
   ],
   products: [
-    .library(name: "Binders", targets: ["Binders"]),
+    .library(name: "App", targets: ["App"]),
     .library(name: "Views", targets: ["Views"]),
     .library(name: "Services", targets: ["Services"]),
     .library(name: "Models", targets: ["Models"]),
@@ -23,8 +23,8 @@ let package = Package(
     .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.3")
   ],
   targets: [
-    .target(name: "Binders", dependencies: ["Views", "Services", "Models", "Utils"]),
-    .testTarget(name: "BindersTests", dependencies: ["Binders"]),
+    .target(name: "App", dependencies: ["Views", "Services", "Models", "Utils"]),
+    .testTarget(name: "AppTests", dependencies: ["App"]),
     .target(
       name: "Views",
       dependencies: [

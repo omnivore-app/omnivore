@@ -1,7 +1,7 @@
 import XCTest
 
-import BindersTests
+import AppTests
 
 var tests = [XCTestCaseEntry]()
-tests += BindersTests.allTests()
+tests += AppTests.allTests()
 XCTMain(tests)

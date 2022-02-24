@@ -1,5 +1,5 @@
 // swiftlint:disable weak_delegate
-import Binders
+import App
 import SwiftUI
 
 #if os(macOS)

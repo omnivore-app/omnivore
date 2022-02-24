@@ -18,22 +18,22 @@
 		0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
 		046C5CD526A3F89A00AC5349 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 046C5CD426A3F89A00AC5349 /* icon.icns */; };
 		046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		046C5CE626A3FE8C00AC5349 /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 046C5CE526A3FE8C00AC5349 /* Binders */; };
-		047AD6F22724C934004FD5CF /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F12724C934004FD5CF /* Binders */; };
-		047AD6F42724C941004FD5CF /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F32724C941004FD5CF /* Binders */; };
+		046C5CE626A3FE8C00AC5349 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 046C5CE526A3FE8C00AC5349 /* App */; };
+		047AD6F22724C934004FD5CF /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F12724C934004FD5CF /* App */; };
+		047AD6F42724C941004FD5CF /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F32724C941004FD5CF /* App */; };
 		0480E71426D939BF006CAE2F /* MacLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0480E71326D939BF006CAE2F /* MacLaunchTests.swift */; };
 		0480E71C26D95096006CAE2F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0480E71B26D95096006CAE2F /* AppDelegate.swift */; };
 		0480E71D26D95096006CAE2F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0480E71B26D95096006CAE2F /* AppDelegate.swift */; };
 		0485A48126D56583003F8A1D /* ShareExtensionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9F2334402E6B10A665F1A7 /* ShareExtensionViewController.swift */; };
 		04920CC6279671EF003EC1B6 /* PushNotificationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04920CC5279671EF003EC1B6 /* PushNotificationConfig.swift */; };
 		04B8B00326A0BA9500D3ED0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03BE831A6CCC63104CB366AE /* Assets.xcassets */; };
-		04B8B00626A0CEFA00D3ED0C /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 04B8B00526A0CEFA00D3ED0C /* Binders */; };
+		04B8B00626A0CEFA00D3ED0C /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 04B8B00526A0CEFA00D3ED0C /* App */; };
 		04E9706F26BDE47D002A523D /* ShareExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = 04E9706E26BDE47D002A523D /* ShareExtension.js */; };
 		04E9707226BDE5F1002A523D /* ShareExtension.js in Resources */ = {isa = PBXBuildFile; fileRef = 04E9706E26BDE47D002A523D /* ShareExtension.js */; };
 		04EE742126DFD2EF001B3483 /* ScreenIdentifierHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */; };
 		04EE742226DFD2F0001B3483 /* ScreenIdentifierHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EE741F26DFD2CA001B3483 /* ScreenIdentifierHelpers.swift */; };
 		1BE07906EAA5555B6140B6DB /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		260BBE4168E3C57D6D2E225D /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 7DD0EF4D497D71D248C7B0DF /* Binders */; };
+		260BBE4168E3C57D6D2E225D /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 7DD0EF4D497D71D248C7B0DF /* App */; };
 		4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B16271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B20271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4225D59227164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
@@ -60,7 +60,7 @@
 		637E8CD320005ED0D0A71130 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 03BE831A6CCC63104CB366AE /* Assets.xcassets */; };
 		CA7EE773095F267516D7AC98 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
 		CE5633B39A46CED02EF33C05 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EE1FBB090D0F87F3E57C8A4B /* LaunchScreen.storyboard */; };
-		D2BC24479582C1B97F67646A /* Binders in Frameworks */ = {isa = PBXBuildFile; productRef = 8F13016D33DF1598D7157563 /* Binders */; };
+		D2BC24479582C1B97F67646A /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 8F13016D33DF1598D7157563 /* App */; };
 		F2C20F3B072C3F7F2CA49CC8 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29DDFAF773437894779F192 /* SmokeTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -257,7 +257,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				046C5CE626A3FE8C00AC5349 /* Binders in Frameworks */,
+				046C5CE626A3FE8C00AC5349 /* App in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,7 +272,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				04B8B00626A0CEFA00D3ED0C /* Binders in Frameworks */,
+				04B8B00626A0CEFA00D3ED0C /* App in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,7 +280,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				260BBE4168E3C57D6D2E225D /* Binders in Frameworks */,
+				260BBE4168E3C57D6D2E225D /* App in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,7 +288,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				047AD6F22724C934004FD5CF /* Binders in Frameworks */,
+				047AD6F22724C934004FD5CF /* App in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,7 +296,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				047AD6F42724C941004FD5CF /* Binders in Frameworks */,
+				047AD6F42724C941004FD5CF /* App in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,7 +311,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D2BC24479582C1B97F67646A /* Binders in Frameworks */,
+				D2BC24479582C1B97F67646A /* App in Frameworks */,
 				0418837E2742E99F003E0001 /* Intercom in Frameworks */,
 				045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */,
 				041883802742FCF2003E0001 /* Utils in Frameworks */,
@@ -588,7 +588,7 @@
 			);
 			name = "ShareExtension-Mac";
 			packageProductDependencies = (
-				046C5CE526A3FE8C00AC5349 /* Binders */,
+				046C5CE526A3FE8C00AC5349 /* App */,
 			);
 			productName = "ShareExtension-Mac";
 			productReference = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */;
@@ -630,7 +630,7 @@
 			);
 			name = Omnivore;
 			packageProductDependencies = (
-				04B8B00526A0CEFA00D3ED0C /* Binders */,
+				04B8B00526A0CEFA00D3ED0C /* App */,
 			);
 			productName = MacOmnivore;
 			productReference = 048ECFFC26A0B1CB00469E57 /* Omnivore.app */;
@@ -652,7 +652,7 @@
 			);
 			name = ShareExtension;
 			packageProductDependencies = (
-				7DD0EF4D497D71D248C7B0DF /* Binders */,
+				7DD0EF4D497D71D248C7B0DF /* App */,
 			);
 			productName = ShareExtension;
 			productReference = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */;
@@ -672,7 +672,7 @@
 			);
 			name = "SafariExtension (iOS)";
 			packageProductDependencies = (
-				047AD6F12724C934004FD5CF /* Binders */,
+				047AD6F12724C934004FD5CF /* App */,
 			);
 			productName = "SafariExtension Extension (iOS)";
 			productReference = 42FF1B16271154A700B38C38 /* SafariExtension.appex */;
@@ -692,7 +692,7 @@
 			);
 			name = "SafariExtension (macOS)";
 			packageProductDependencies = (
-				047AD6F32724C941004FD5CF /* Binders */,
+				047AD6F32724C941004FD5CF /* App */,
 			);
 			productName = "SafariExtension (macOS)";
 			productReference = 42FF1B20271154A700B38C38 /* SafariExtension.appex */;
@@ -718,7 +718,7 @@
 			);
 			name = "Omnivore-iOS";
 			packageProductDependencies = (
-				8F13016D33DF1598D7157563 /* Binders */,
+				8F13016D33DF1598D7157563 /* App */,
 				042184EC273AD426002357B0 /* PSPDFKit */,
 				0418837D2742E99F003E0001 /* Intercom */,
 				0418837F2742FCF2003E0001 /* Utils */,
@@ -2002,29 +2002,29 @@
 			package = 048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
-		046C5CE526A3FE8C00AC5349 /* Binders */ = {
+		046C5CE526A3FE8C00AC5349 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Binders;
+			productName = App;
 		};
-		047AD6F12724C934004FD5CF /* Binders */ = {
+		047AD6F12724C934004FD5CF /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Binders;
+			productName = App;
 		};
-		047AD6F32724C941004FD5CF /* Binders */ = {
+		047AD6F32724C941004FD5CF /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Binders;
+			productName = App;
 		};
-		04B8B00526A0CEFA00D3ED0C /* Binders */ = {
+		04B8B00526A0CEFA00D3ED0C /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Binders;
+			productName = App;
 		};
-		7DD0EF4D497D71D248C7B0DF /* Binders */ = {
+		7DD0EF4D497D71D248C7B0DF /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Binders;
+			productName = App;
 		};
-		8F13016D33DF1598D7157563 /* Binders */ = {
+		8F13016D33DF1598D7157563 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Binders;
+			productName = App;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
