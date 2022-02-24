@@ -5,30 +5,17 @@ import SwiftUI
 import Utils
 import Views
 
-extension NewAppleSignupViewModel {
-  static func make(
-    services: Services,
-    userProfile: UserProfile,
-    showProfileEditView: @escaping () -> Void
-  ) -> NewAppleSignupViewModel {
-    let viewModel = NewAppleSignupViewModel(userProfile: userProfile)
-    viewModel.bind(services: services, showProfileEditView: showProfileEditView)
-    return viewModel
+final class NewAppleSignupViewModel: ObservableObject {
+  let userProfile: UserProfile
+  @Published var loginError: LoginError?
+
+  var subscriptions = Set<AnyCancellable>()
+
+  init(userProfile: UserProfile) {
+    self.userProfile = userProfile
   }
 
-  func bind(services: Services, showProfileEditView: @escaping () -> Void) {
-    performActionSubject.sink { [weak self] action in
-      switch action {
-      case let .acceptProfile(userProfile: userProfile):
-        self?.submitProfile(userProfile: userProfile, authenticator: services.authenticator)
-      case .changeProfile:
-        showProfileEditView()
-      }
-    }
-    .store(in: &subscriptions)
-  }
-
-  private func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
+  func submitProfile(authenticator: Authenticator) {
     authenticator
       .createAccount(userProfile: userProfile).sink(
         receiveCompletion: { [weak self] completion in
@@ -41,29 +28,14 @@ extension NewAppleSignupViewModel {
   }
 }
 
-// TODO: remove this view model
-final class NewAppleSignupViewModel: ObservableObject {
-  let userProfile: UserProfile
-  @Published var loginError: LoginError?
-
-  enum Action {
-    case acceptProfile(userProfile: UserProfile)
-    case changeProfile
-  }
-
-  var subscriptions = Set<AnyCancellable>()
-  let performActionSubject = PassthroughSubject<Action, Never>()
-
-  init(userProfile: UserProfile) {
-    self.userProfile = userProfile
-  }
-}
-
 struct NewAppleSignupView: View {
+  @EnvironmentObject var authenticator: Authenticator
   @ObservedObject private var viewModel: NewAppleSignupViewModel
+  let showProfileEditView: () -> Void
 
-  init(viewModel: NewAppleSignupViewModel) {
-    self.viewModel = viewModel
+  init(userProfile: UserProfile, showProfileEditView: @escaping () -> Void) {
+    self.showProfileEditView = showProfileEditView
+    self.viewModel = NewAppleSignupViewModel(userProfile: userProfile)
   }
 
   var body: some View {
@@ -83,13 +55,13 @@ struct NewAppleSignupView: View {
 
       VStack {
         Button(
-          action: { viewModel.performActionSubject.send(.acceptProfile(userProfile: viewModel.userProfile)) },
+          action: { viewModel.submitProfile(authenticator: authenticator) },
           label: { Text("Continue") }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 
         Button(
-          action: { viewModel.performActionSubject.send(.changeProfile) },
+          action: showProfileEditView,
           label: { Text("Change Username") }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))

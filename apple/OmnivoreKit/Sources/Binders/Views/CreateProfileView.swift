@@ -5,26 +5,56 @@ import SwiftUI
 import Utils
 import Views
 
-extension CreateProfileViewModel {
-  static func make(services: Services, pendingUserProfile: UserProfile) -> CreateProfileViewModel {
-    let viewModel = CreateProfileViewModel(initialUserProfile: pendingUserProfile)
-    viewModel.bind(services: services)
-    return viewModel
+final class CreateProfileViewModel: ObservableObject {
+  let initialUserProfile: UserProfile
+
+  var hasSuggestedProfile: Bool {
+    !(initialUserProfile.name.isEmpty && initialUserProfile.username.isEmpty)
   }
 
-  func bind(services: Services) {
-    performActionSubject.sink { [weak self] action in
-      switch action {
-      case let .submitProfile(userProfile):
-        self?.submitProfile(userProfile: userProfile, authenticator: services.authenticator)
-      case let .validateUsername(username: username):
-        self?.validateUsername(username: username, dataService: services.dataService)
-      }
+  var headlineText: String {
+    hasSuggestedProfile ? "Confirm Your Profile" : "Create Your Profile"
+  }
+
+  var submitButtonText: String {
+    hasSuggestedProfile ? "Confirm" : "Submit"
+  }
+
+  @Published var loginError: LoginError?
+  @Published var validationErrorMessage: String?
+  @Published var potentialUsernameStatus = PotentialUsernameStatus.noUsername
+  @Published var potentialUsername: String
+
+  var subscriptions = Set<AnyCancellable>()
+
+  init(initialUserProfile: UserProfile, dataService: DataService) {
+    self.initialUserProfile = initialUserProfile
+    self.potentialUsername = initialUserProfile.username
+
+    $potentialUsername
+      .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+      .sink(receiveValue: { [weak self] username in
+        self?.validateUsername(username: username, dataService: dataService)
+      })
+      .store(in: &subscriptions)
+  }
+
+  func submitProfile(name: String, bio: String, authenticator: Authenticator) {
+    let profileOrError = UserProfile.make(
+      username: potentialUsername,
+      name: name,
+      bio: bio.isEmpty ? nil : bio
+    )
+
+    switch profileOrError {
+    case let .left(userProfile):
+      submitProfile(userProfile: userProfile, authenticator: authenticator)
+    case let .right(errorMessage):
+      validationErrorMessage = errorMessage
     }
-    .store(in: &subscriptions)
   }
 
-  private func validateUsername(username: String, dataService: DataService) {
+  func validateUsername(username: String, dataService: DataService) {
     if let status = PotentialUsernameStatus.validationError(username: username.lowercased()) {
       potentialUsernameStatus = status
       return
@@ -55,7 +85,7 @@ extension CreateProfileViewModel {
     .store(in: &subscriptions)
   }
 
-  private func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
+  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
     authenticator
       .createAccount(userProfile: userProfile).sink(
         receiveCompletion: { [weak self] completion in
@@ -68,77 +98,22 @@ extension CreateProfileViewModel {
   }
 }
 
-// TODO: remove this view model
-final class CreateProfileViewModel: ObservableObject {
-  let initialUserProfile: UserProfile
-
-  var hasSuggestedProfile: Bool {
-    !(initialUserProfile.name.isEmpty && initialUserProfile.username.isEmpty)
-  }
-
-  var headlineText: String {
-    hasSuggestedProfile ? "Confirm Your Profile" : "Create Your Profile"
-  }
-
-  var submitButtonText: String {
-    hasSuggestedProfile ? "Confirm" : "Submit"
-  }
-
-  @Published var loginError: LoginError?
-  @Published var validationErrorMessage: String?
-  @Published var potentialUsernameStatus = PotentialUsernameStatus.noUsername
-  @Published var potentialUsername: String
-
-  enum Action {
-    case submitProfile(userProfile: UserProfile)
-    case validateUsername(username: String)
-  }
-
-  var subscriptions = Set<AnyCancellable>()
-  let performActionSubject = PassthroughSubject<Action, Never>()
-
-  init(initialUserProfile: UserProfile) {
-    self.initialUserProfile = initialUserProfile
-    self.potentialUsername = initialUserProfile.username
-
-    $potentialUsername
-      .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
-      .sink(receiveValue: { [weak self] username in
-        self?.performActionSubject.send(.validateUsername(username: username))
-      })
-      .store(in: &subscriptions)
-  }
-
-  func submitProfile(name: String, bio: String) {
-    let profileOrError = UserProfile.make(
-      username: potentialUsername,
-      name: name,
-      bio: bio.isEmpty ? nil : bio
-    )
-
-    switch profileOrError {
-    case let .left(userProfile):
-      performActionSubject.send(.submitProfile(userProfile: userProfile))
-    case let .right(errorMessage):
-      validationErrorMessage = errorMessage
-    }
-  }
-}
-
 struct CreateProfileView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @ObservedObject private var viewModel: CreateProfileViewModel
 
   @State private var name: String
   @State private var bio = ""
 
-  init(viewModel: CreateProfileViewModel) {
-    self.viewModel = viewModel
-    self._name = State(initialValue: viewModel.initialUserProfile.name)
+  init(userProfile: UserProfile, dataService: DataService) {
+    self.viewModel = CreateProfileViewModel(initialUserProfile: userProfile, dataService: dataService)
+    self._name = State(initialValue: userProfile.name)
   }
 
   private func didTapSubmitButton() {
-    viewModel.submitProfile(name: name, bio: bio)
+    viewModel.submitProfile(name: name, bio: bio, authenticator: authenticator)
   }
 
   var body: some View {

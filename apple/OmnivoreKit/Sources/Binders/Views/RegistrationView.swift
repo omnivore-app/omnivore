@@ -6,61 +6,38 @@ import SwiftUI
 import Utils
 import Views
 
-// TODO: remove this view model
 final class RegistrationViewModel: ObservableObject {
-  @Published var loginError: LoginError?
-  @Published var createProfileViewModel: CreateProfileViewModel?
-  @Published var newAppleSignupViewModel: NewAppleSignupViewModel?
-
-  enum Action {
-    case googleButtonTapped
-    case appleSignInCompleted(result: Result<ASAuthorization, Error>)
+  enum RegistrationState {
+    case createProfile(userProfile: UserProfile)
+    case newAppleSignUp(userProfile: UserProfile)
   }
+
+  @Published var loginError: LoginError?
+  @Published var registrationState: RegistrationState?
 
   var subscriptions = Set<AnyCancellable>()
-  let performActionSubject = PassthroughSubject<Action, Never>()
 
-  init() {}
-}
-
-extension RegistrationViewModel {
-  static func make(services: Services) -> RegistrationViewModel {
-    let viewModel = RegistrationViewModel()
-    viewModel.bind(services: services)
-    return viewModel
-  }
-
-  func bind(services: Services) {
-    performActionSubject.sink { [weak self] action in
-      self?.loginError = nil
-
-      switch action {
-      case .googleButtonTapped:
-        self?.handleGoogleAuth(services: services)
-      case let .appleSignInCompleted(result: result):
-        switch AppleSigninPayload.parse(authResult: result) {
-        case let .success(payload):
-          self?.handleAppleToken(payload: payload, services: services)
-        case let .failure(error):
-          switch error {
-          case .unauthorized, .unknown:
-            break
-          case .network:
-            self?.loginError = error
-          }
-        }
+  func handleAppleSignInCompletion(result: Result<ASAuthorization, Error>, authenticator: Authenticator) {
+    switch AppleSigninPayload.parse(authResult: result) {
+    case let .success(payload):
+      handleAppleToken(payload: payload, authenticator: authenticator)
+    case let .failure(error):
+      switch error {
+      case .unauthorized, .unknown:
+        break
+      case .network:
+        loginError = error
       }
     }
-    .store(in: &subscriptions)
   }
 
-  private func handleAppleToken(payload: AppleSigninPayload, services: Services) {
-    services.authenticator.submitAppleToken(token: payload.token).sink(
+  private func handleAppleToken(payload: AppleSigninPayload, authenticator: Authenticator) {
+    authenticator.submitAppleToken(token: payload.token).sink(
       receiveCompletion: { [weak self] completion in
         guard case let .failure(loginError) = completion else { return }
         switch loginError {
         case .unauthorized, .unknown:
-          self?.handleAppleSignUp(services: services, payload: payload)
+          self?.handleAppleSignUp(authenticator: authenticator, payload: payload)
         case .network:
           self?.loginError = loginError
         }
@@ -70,8 +47,8 @@ extension RegistrationViewModel {
     .store(in: &subscriptions)
   }
 
-  private func handleAppleSignUp(services: Services, payload: AppleSigninPayload) {
-    services.authenticator
+  private func handleAppleSignUp(authenticator: Authenticator, payload: AppleSigninPayload) {
+    authenticator
       .createPendingAccountUsingApple(token: payload.token, name: payload.fullName)
       .sink(
         receiveCompletion: { [weak self] completion in
@@ -80,23 +57,17 @@ extension RegistrationViewModel {
         },
         receiveValue: { [weak self] userProfile in
           if userProfile.name.isEmpty {
-            self?.showProfileEditView(services: services, pendingUserProfile: userProfile)
+            self?.registrationState = .createProfile(userProfile: userProfile)
           } else {
-            self?.newAppleSignupViewModel = NewAppleSignupViewModel.make(
-              services: services,
-              userProfile: userProfile,
-              showProfileEditView: {
-                self?.showProfileEditView(services: services, pendingUserProfile: userProfile)
-              }
-            )
+            self?.registrationState = .newAppleSignUp(userProfile: userProfile)
           }
         }
       )
       .store(in: &subscriptions)
   }
 
-  private func handleGoogleAuth(services: Services) {
-    services.authenticator
+  func handleGoogleAuth(authenticator: Authenticator) {
+    authenticator
       .handleGoogleAuth(presentingViewController: presentingViewController())
       .sink(
         receiveCompletion: { [weak self] completion in
@@ -105,41 +76,19 @@ extension RegistrationViewModel {
         },
         receiveValue: { [weak self] isNewAccount in
           if isNewAccount {
-            let pendingUserProfile = UserProfile(username: "", name: "")
-            self?.showProfileEditView(services: services, pendingUserProfile: pendingUserProfile)
+            self?.registrationState = .createProfile(userProfile: UserProfile(username: "", name: ""))
           }
         }
       )
       .store(in: &subscriptions)
   }
-
-  func showProfileEditView(services: Services, pendingUserProfile: UserProfile) {
-    createProfileViewModel = CreateProfileViewModel.make(
-      services: services,
-      pendingUserProfile: pendingUserProfile
-    )
-    newAppleSignupViewModel = nil
-  }
-}
-
-private func presentingViewController() -> PlatformViewController? {
-  #if os(iOS)
-    return UIApplication.shared.windows
-      .filter(\.isKeyWindow)
-      .first?
-      .rootViewController
-  #elseif os(macOS)
-    return nil
-  #endif
 }
 
 struct RegistrationView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
-  @ObservedObject private var viewModel: RegistrationViewModel
-
-  init(viewModel: RegistrationViewModel) {
-    self.viewModel = viewModel
-  }
+  @ObservedObject private var viewModel = RegistrationViewModel()
 
   var authenticationView: some View {
     VStack(spacing: 0) {
@@ -156,12 +105,12 @@ struct RegistrationView: View {
             .padding(.top, horizontalSizeClass == .compact ? 30 : 0)
 
           AppleSignInButton {
-            viewModel.performActionSubject.send(.appleSignInCompleted(result: $0))
+            viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
           }
 
           if AppKeys.sharedInstance?.iosClientGoogleId != nil {
             GoogleAuthButton {
-              viewModel.performActionSubject.send(.googleButtonTapped)
+              viewModel.handleGoogleAuth(authenticator: authenticator)
             }
           }
         }
@@ -178,12 +127,30 @@ struct RegistrationView: View {
   }
 
   var body: some View {
-    if let createProfileViewModel = viewModel.createProfileViewModel {
-      CreateProfileView(viewModel: createProfileViewModel)
-    } else if let newAppleSignupViewModel = viewModel.newAppleSignupViewModel {
-      NewAppleSignupView(viewModel: newAppleSignupViewModel)
+    if let registrationState = viewModel.registrationState {
+      if case let RegistrationViewModel.RegistrationState.createProfile(userProfile) = registrationState {
+        CreateProfileView(userProfile: userProfile, dataService: dataService)
+      } else if case let RegistrationViewModel.RegistrationState.newAppleSignUp(userProfile) = registrationState {
+        NewAppleSignupView(
+          userProfile: userProfile,
+          showProfileEditView: { viewModel.registrationState = .createProfile(userProfile: userProfile) }
+        )
+      } else {
+        authenticationView
+      }
     } else {
       authenticationView
     }
   }
+}
+
+private func presentingViewController() -> PlatformViewController? {
+  #if os(iOS)
+    return UIApplication.shared.windows
+      .filter(\.isKeyWindow)
+      .first?
+      .rootViewController
+  #elseif os(macOS)
+    return nil
+  #endif
 }

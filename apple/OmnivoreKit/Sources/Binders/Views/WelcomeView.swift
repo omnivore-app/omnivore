@@ -7,7 +7,6 @@ import Views
 struct WelcomeView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
-  let services: Services
   @State private var showRegistrationView = false
   @State private var isKeyboardOnScreen = false
   @State private var showDebugModal = false
@@ -21,7 +20,7 @@ struct WelcomeView: View {
   @ViewBuilder func userInteractiveView(width: CGFloat) -> some View {
     Group {
       if showRegistrationView {
-        RegistrationView(viewModel: RegistrationViewModel.make(services: services))
+        RegistrationView()
       } else {
         GetStartedView(showRegistrationView: $showRegistrationView)
       }
