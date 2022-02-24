@@ -5,11 +5,17 @@ import {
   StyledList,
 } from '../elements/StyledText'
 
-export function TermsAndConditions(): JSX.Element {
+type TermsAndConditionsProps = {
+  isAppEmbed?: boolean
+}
+
+export function TermsAndConditions(
+  props: TermsAndConditionsProps
+): JSX.Element {
   return (
     <Box
       css={{
-        bg: '$grayBase',
+        bg: props.isAppEmbed ? '#ffffff00' : '$grayBase',
         px: '$1',
         py: '$3',
         mx: '$3',
