@@ -429,7 +429,6 @@ export const functionResolvers = {
       )
     },
     async labels(article: { linkId: string }): Promise<Label[] | undefined> {
-      console.log('labels', article.linkId)
       const link = await getRepository(Link).findOne(article.linkId, {
         relations: ['labels'],
       })
