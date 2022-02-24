@@ -53,6 +53,8 @@ export type Article = {
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
+  labels?: Maybe<Array<Label>>;
+  linkId?: Maybe<Scalars['ID']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   originalHtml?: Maybe<Scalars['String']>;
   pageType?: Maybe<PageType>;
@@ -2387,6 +2389,8 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
+  linkId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalHtml?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   pageType?: Resolver<Maybe<ResolversTypes['PageType']>, ParentType, ContextType>;

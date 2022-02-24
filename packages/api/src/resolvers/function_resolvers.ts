@@ -79,6 +79,9 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
+import { getRepository } from 'typeorm'
+import { Link } from '../entity/link'
+import { Label } from '../entity/label'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -424,6 +427,13 @@ export const functionResolvers = {
         article.id,
         ctx.models
       )
+    },
+    async labels(article: { linkId: string }): Promise<Label[] | undefined> {
+      console.log('labels', article.linkId)
+      const link = await getRepository(Link).findOne(article.linkId, {
+        relations: ['labels'],
+      })
+      return link?.labels
     },
   },
   ArticleSavingRequest: {

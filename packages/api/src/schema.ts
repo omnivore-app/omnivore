@@ -333,6 +333,8 @@ const schema = gql`
     highlights(input: ArticleHighlightsInput): [Highlight!]!
     shareInfo: LinkShareInfo
     isArchived: Boolean!
+    linkId: ID
+    labels: [Label!]
   }
 
   # Query: article

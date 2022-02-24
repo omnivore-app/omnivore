@@ -36,6 +36,7 @@ type UserArticleStats = {
 }
 
 const LINK_COLS = [
+  'omnivore.links.id as linkId',
   'omnivore.links.userId',
   'omnivore.links.slug',
   'omnivore.links.article_url as url',
