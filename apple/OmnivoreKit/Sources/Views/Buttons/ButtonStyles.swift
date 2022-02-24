@@ -1,17 +1,17 @@
 import SwiftUI
 
-struct SolidCapsuleButtonStyle: ButtonStyle {
+public struct SolidCapsuleButtonStyle: ButtonStyle {
   let backgroundColor: Color
   let textColor: Color
   let width: CGFloat
 
-  init(color: Color = .blue, textColor: Color = .appGrayTextContrast, width: CGFloat = 220) {
+  public init(color: Color = .blue, textColor: Color = .appGrayTextContrast, width: CGFloat = 220) {
     self.backgroundColor = color
     self.textColor = textColor
     self.width = width
   }
 
-  func makeBody(configuration: Configuration) -> some View {
+  public func makeBody(configuration: Configuration) -> some View {
     configuration.label
       .font(.appBody)
       .foregroundColor(textColor)

@@ -2,7 +2,6 @@ import SwiftUI
 import WebKit
 
 final class WebAppViewCoordinator: NSObject {
-  let navBarHeight = LinkItemDetailView.navBarHeight
   var webViewActionHandler: (WKScriptMessage) -> Void = { _ in }
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = true
@@ -58,21 +57,21 @@ extension WebAppViewCoordinator: WKNavigationDelegate {
       let yOffset = scrollView.contentOffset.y
 
       if yOffset == 0 {
-        scrollView.contentInset.top = navBarHeight
+        scrollView.contentInset.top = readerViewNavBarHeight
         navBarVisibilityRatio = 1
         return
       }
 
       if yOffset < 0 {
         navBarVisibilityRatio = 1
-        scrollView.contentInset.top = navBarHeight
+        scrollView.contentInset.top = readerViewNavBarHeight
         return
       }
 
-      if yOffset < navBarHeight {
+      if yOffset < readerViewNavBarHeight {
         let isScrollingUp = yOffsetAtStartOfDrag ?? 0 > yOffset
-        navBarVisibilityRatio = isScrollingUp || yOffset < 0 ? 1 : min(1, 1 - (yOffset / navBarHeight))
-        scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
+        navBarVisibilityRatio = isScrollingUp || yOffset < 0 ? 1 : min(1, 1 - (yOffset / readerViewNavBarHeight))
+        scrollView.contentInset.top = navBarVisibilityRatio * readerViewNavBarHeight
         return
       }
 
@@ -80,21 +79,21 @@ extension WebAppViewCoordinator: WKNavigationDelegate {
 
       if yOffset > yOffsetAtStartOfDrag, !isNavBarHidden {
         let translation = yOffset - yOffsetAtStartOfDrag
-        let ratio = translation < navBarHeight ? 1 - (translation / navBarHeight) : 0
+        let ratio = translation < readerViewNavBarHeight ? 1 - (translation / readerViewNavBarHeight) : 0
         navBarVisibilityRatio = min(ratio, 1)
-        scrollView.contentInset.top = navBarVisibilityRatio * navBarHeight
+        scrollView.contentInset.top = navBarVisibilityRatio * readerViewNavBarHeight
       }
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
       if decelerate, scrollView.contentOffset.y + scrollView.contentInset.top < (yOffsetAtStartOfDrag ?? 0) {
-        scrollView.contentInset.top = navBarHeight
+        scrollView.contentInset.top = readerViewNavBarHeight
         navBarVisibilityRatio = 1
       }
     }
 
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-      scrollView.contentInset.top = navBarHeight
+      scrollView.contentInset.top = readerViewNavBarHeight
       navBarVisibilityRatio = 1
       return false
     }

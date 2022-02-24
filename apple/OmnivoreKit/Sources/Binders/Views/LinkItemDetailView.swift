@@ -1,30 +1,102 @@
 import Combine
 import Models
+import Services
 import SwiftUI
 import Utils
+import Views
 
-public enum PDFProvider {
-  public static var pdfViewerProvider: ((URL, FeedItem) -> AnyView)?
+enum PDFProvider {
+  static var pdfViewerProvider: ((URL, FeedItem) -> AnyView)?
 }
 
-public final class LinkItemDetailViewModel: ObservableObject {
-  @Published public var item: FeedItem
-  @Published public var webAppWrapperViewModel: WebAppWrapperViewModel?
+final class LinkItemDetailViewModel: ObservableObject {
+  @Published var item: FeedItem
+  @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
-  public enum Action {
+  enum Action {
     case load
     case updateReadStatus(markAsRead: Bool)
   }
 
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
+  var subscriptions = Set<AnyCancellable>()
 
-  public init(item: FeedItem) {
+  init(item: FeedItem) {
     self.item = item
+  }
+
+  func updateItemReadStatus(dataService: DataService) {
+    dataService
+      .updateArticleReadingProgressPublisher(
+        itemID: item.id,
+        readingProgress: item.isRead ? 0 : 100,
+        anchorIndex: 0
+      )
+      .sink { completion in
+        guard case let .failure(error) = completion else { return }
+        print(error)
+      } receiveValue: { [weak self] feedItem in
+        self?.item.readingProgress = feedItem.readingProgress
+      }
+      .store(in: &subscriptions)
+  }
+
+  func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) {
+    // Attempt to get `Viewer` from DataService
+    if let currentViewer = dataService.currentViewer {
+      createWebAppWrapperViewModel(
+        username: currentViewer.username,
+        dataService: dataService,
+        rawAuthCookie: rawAuthCookie
+      )
+      return
+    }
+
+    dataService.viewerPublisher().sink(
+      receiveCompletion: { completion in
+        guard case let .failure(error) = completion else { return }
+        print(error)
+      },
+      receiveValue: { [weak self] viewer in
+        self?.createWebAppWrapperViewModel(
+          username: viewer.username,
+          dataService: dataService,
+          rawAuthCookie: rawAuthCookie
+        )
+      }
+    )
+    .store(in: &subscriptions)
+  }
+
+  private func createWebAppWrapperViewModel(username: String, dataService: DataService, rawAuthCookie: String?) {
+    let baseURL = dataService.appEnvironment.webAppBaseURL
+
+    let urlRequest = URLRequest.webRequest(
+      baseURL: dataService.appEnvironment.webAppBaseURL,
+      urlPath: "/app/\(username)/\(item.slug)",
+      queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
+    )
+
+    let newWebAppWrapperViewModel = WebAppWrapperViewModel(
+      webViewURLRequest: urlRequest,
+      baseURL: baseURL,
+      rawAuthCookie: rawAuthCookie
+    )
+
+    newWebAppWrapperViewModel.performActionSubject.sink { action in
+      switch action {
+      case let .shareHighlight(highlightID):
+        print("show share modal for highlight with id: \(highlightID)")
+      }
+    }
+    .store(in: &newWebAppWrapperViewModel.subscriptions)
+
+    webAppWrapperViewModel = newWebAppWrapperViewModel
   }
 }
 
-public struct LinkItemDetailView: View {
+struct LinkItemDetailView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
   static let navBarHeight = 50.0
@@ -32,13 +104,15 @@ public struct LinkItemDetailView: View {
   @State private var showFontSizePopover = false
   @State private var navBarVisibilityRatio = 1.0
 
-  public init(viewModel: LinkItemDetailViewModel) {
+  init(viewModel: LinkItemDetailViewModel) {
     self.viewModel = viewModel
   }
 
   var toggleReadStatusToolbarItem: some View {
     Button(
-      action: { viewModel.performActionSubject.send(.updateReadStatus(markAsRead: !viewModel.item.isRead)) },
+      action: {
+        viewModel.updateItemReadStatus(dataService: dataService)
+      },
       label: {
         Image(systemName: viewModel.item.isRead ? "line.horizontal.3.decrease.circle" : "checkmark.circle")
       }
@@ -61,7 +135,7 @@ public struct LinkItemDetailView: View {
     )
   }
 
-  public var body: some View {
+  var body: some View {
     #if os(iOS)
       if UIDevice.isIPhone, !viewModel.item.isPDF {
         compactInnerBody
@@ -96,7 +170,7 @@ public struct LinkItemDetailView: View {
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
     }
-    .frame(height: LinkItemDetailView.navBarHeight * navBarVisibilityRatio)
+    .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
     .background(Color.systemBackground)
   }
@@ -148,7 +222,10 @@ public struct LinkItemDetailView: View {
           Spacer()
         }
         .onAppear {
-          viewModel.performActionSubject.send(.load)
+          viewModel.loadWebAppWrapper(
+            dataService: dataService,
+            rawAuthCookie: authenticator.omnivoreAuthCookieString
+          )
         }
         .navigationBarHidden(true)
       }
@@ -191,7 +268,10 @@ public struct LinkItemDetailView: View {
         Spacer()
       }
       .onAppear {
-        viewModel.performActionSubject.send(.load)
+        viewModel.loadWebAppWrapper(
+          dataService: dataService,
+          rawAuthCookie: authenticator.omnivoreAuthCookieString
+        )
       }
     }
   }

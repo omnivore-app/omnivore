@@ -4,36 +4,23 @@ import SwiftUI
 import Views
 
 public struct PrimaryContentView: View {
-  let homeFeedViewModel: HomeFeedViewModel
-  let profileContainerViewModel: ProfileContainerViewModel
-
-  public init(services: Services) {
-    self.homeFeedViewModel = HomeFeedViewModel.make(services: services)
-    self.profileContainerViewModel = ProfileContainerViewModel.make(services: services)
-  }
-
   public var body: some View {
     #if os(iOS)
       if UIDevice.isIPad {
         regularView
       } else {
-        compactView
+        HomeFeedView()
       }
     #elseif os(macOS)
       regularView
     #endif
   }
 
-  // iphone view container
-  private var compactView: some View {
-    HomeFeedView(viewModel: homeFeedViewModel)
-  }
-
   // ipad and mac view container
   private var regularView: some View {
     let categories = [
-      PrimaryContentCategory.feed(viewModel: homeFeedViewModel),
-      PrimaryContentCategory.profile(viewModel: profileContainerViewModel)
+      PrimaryContentCategory.feed,
+      PrimaryContentCategory.profile
     ]
 
     return NavigationView {

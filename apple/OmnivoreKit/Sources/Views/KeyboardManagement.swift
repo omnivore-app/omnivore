@@ -5,7 +5,7 @@ import SwiftUI
   import UIKit
 #endif
 
-extension Publishers {
+public extension Publishers {
   static var keyboardHeight: AnyPublisher<CGFloat, Never> {
     #if os(iOS)
       let willShow = NotificationCenter.default

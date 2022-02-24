@@ -1,34 +1,39 @@
 import Combine
 import Models
+import Services
 import SwiftUI
 import Utils
+import Views
 
-public final class ProfileContainerViewModel: ObservableObject {
-  @Published public var isLoading = false
-  @Published public var profileCardData = ProfileCardData()
+final class ProfileContainerViewModel: ObservableObject {
+  @Published var isLoading = false
+  @Published var profileCardData = ProfileCardData()
 
-  public enum Action {
-    case logout
-    case loadProfileData
-    case showIntercomMessenger
-    case deleteAccount
+  var subscriptions = Set<AnyCancellable>()
+
+  func loadProfileData(dataService: DataService) {
+    dataService.viewerPublisher().sink(
+      receiveCompletion: { _ in },
+      receiveValue: { [weak self] viewer in
+        self?.profileCardData = ProfileCardData(
+          name: viewer.name,
+          username: viewer.username,
+          imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
+        )
+      }
+    )
+    .store(in: &subscriptions)
   }
-
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
-
-  public init() {}
 }
 
-public struct ProfileContainerView: View {
-  @ObservedObject private var viewModel: ProfileContainerViewModel
+struct ProfileContainerView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
+
+  @ObservedObject private var viewModel = ProfileContainerViewModel()
   @State private var showLogoutConfirmation = false
 
-  public init(viewModel: ProfileContainerViewModel) {
-    self.viewModel = viewModel
-  }
-
-  public var body: some View {
+  var body: some View {
     #if os(iOS)
       Form {
         innerBody
@@ -46,7 +51,7 @@ public struct ProfileContainerView: View {
       Section {
         ProfileCard(data: viewModel.profileCardData)
           .onAppear {
-            viewModel.performActionSubject.send(.loadProfileData)
+            viewModel.loadProfileData(dataService: dataService)
           }
       }
 
@@ -62,7 +67,7 @@ public struct ProfileContainerView: View {
         #if os(iOS)
           Button(
             action: {
-              viewModel.performActionSubject.send(.showIntercomMessenger)
+              DataService.showIntercomMessenger?()
             },
             label: { Text("Feedback") }
           )
@@ -73,7 +78,7 @@ public struct ProfileContainerView: View {
         if FeatureFlag.showAccountDeletion {
           NavigationLink(
             destination: ManageAccountView(handleAccountDeletion: {
-              viewModel.performActionSubject.send(.deleteAccount)
+              print("delete account")
             })
           ) {
             Text("Manage Account")
@@ -88,7 +93,7 @@ public struct ProfileContainerView: View {
             Alert(
               title: Text("Are you sure you want to logout?"),
               primaryButton: .destructive(Text("Confirm")) {
-                viewModel.performActionSubject.send(.logout)
+                authenticator.logout()
               },
               secondaryButton: .cancel()
             )

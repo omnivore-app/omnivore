@@ -12,10 +12,14 @@ public struct ProfileCardData {
   }
 }
 
-struct ProfileCard: View {
+public struct ProfileCard: View {
   let data: ProfileCardData
 
-  var body: some View {
+  public init(data: ProfileCardData) {
+    self.data = data
+  }
+
+  public var body: some View {
     HStack(alignment: .center) {
       Group {
         if let url = data.imageURL {

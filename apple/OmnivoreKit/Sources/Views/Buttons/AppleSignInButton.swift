@@ -1,12 +1,16 @@
 import AuthenticationServices
 import SwiftUI
 
-struct AppleSignInButton: View {
+public struct AppleSignInButton: View {
   @Environment(\.colorScheme) var colorScheme
 
   let onCompletion: (Result<ASAuthorization, Error>) -> Void
 
-  var body: some View {
+  public init(onCompletion: @escaping (Result<ASAuthorization, Error>) -> Void) {
+    self.onCompletion = onCompletion
+  }
+
+  public var body: some View {
     SignInWithAppleButton(
       .continue,
       onRequest: { request in

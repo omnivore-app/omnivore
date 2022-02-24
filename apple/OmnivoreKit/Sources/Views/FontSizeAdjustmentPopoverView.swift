@@ -5,6 +5,14 @@ public struct FontSizeAdjustmentPopoverView: View {
   let increaseFontAction: () -> Void
   let decreaseFontAction: () -> Void
 
+  public init(
+    increaseFontAction: @escaping () -> Void,
+    decreaseFontAction: @escaping () -> Void
+  ) {
+    self.increaseFontAction = increaseFontAction
+    self.decreaseFontAction = decreaseFontAction
+  }
+
   static let preferredWebFontSizeKey = UserDefaultKey.preferredWebFontSize.rawValue
   #if os(macOS)
     @AppStorage(preferredWebFontSizeKey) var storedFontSize = Int(NSFont.userFont(ofSize: 16)?.pointSize ?? 16)

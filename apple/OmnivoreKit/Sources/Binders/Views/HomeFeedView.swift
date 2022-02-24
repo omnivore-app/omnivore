@@ -1,67 +1,192 @@
 import Combine
 import Models
+import Services
 import SwiftUI
+import UserNotifications
 import Utils
+import Views
 
-public final class HomeFeedViewModel: ObservableObject {
-  let detailViewModelCreator: (FeedItem) -> LinkItemDetailViewModel
+final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
-  public var profileContainerViewModel: ProfileContainerViewModel?
 
-  @Published public var items = [FeedItem]()
-  @Published public var isLoading = false
-  @Published public var showPushNotificationPrimer = false
-  public var cursor: String?
+  @Published var items = [FeedItem]()
+  @Published var isLoading = false
+  @Published var showPushNotificationPrimer = false
+  var cursor: String?
 
   // These are used to make sure we handle search result
   // responses in the right order
-  public var searchIdx = 0
-  public var receivedIdx = 0
+  var searchIdx = 0
+  var receivedIdx = 0
 
-  public enum Action {
-    case refreshItems(query: String)
-    case loadItems(query: String)
-    case archive(linkId: String)
-    case unarchive(linkId: String)
-    case remove(linkId: String)
-    case snooze(linkId: String, until: Date, successMessage: String?)
-  }
+  var subscriptions = Set<AnyCancellable>()
 
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
+  init() {}
 
-  public init(detailViewModelCreator: @escaping (FeedItem) -> LinkItemDetailViewModel) {
-    self.detailViewModelCreator = detailViewModelCreator
-  }
-
-  func itemAppeared(item: FeedItem, searchQuery: String) {
+  func itemAppeared(item: FeedItem, searchQuery: String, dataService: DataService) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      performActionSubject.send(.loadItems(query: searchQuery))
+      loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: false)
     }
   }
 
   func pushFeedItem(item: FeedItem) {
     items.insert(item, at: 0)
   }
+
+  func loadItems(dataService: DataService, searchQuery: String?, isRefresh: Bool) {
+    // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
+    dataService.clearHighlights()
+
+    let thisSearchIdx = searchIdx
+    searchIdx += 1
+
+    isLoading = true
+    startNetworkActivityIndicator()
+
+    // Cache the viewer
+    if dataService.currentViewer == nil {
+      dataService.viewerPublisher().sink(
+        receiveCompletion: { _ in },
+        receiveValue: { _ in }
+      )
+      .store(in: &subscriptions)
+    }
+
+    dataService.libraryItemsPublisher(
+      limit: 10,
+      sortDescending: true,
+      searchQuery: searchQuery,
+      cursor: isRefresh ? nil : cursor
+    )
+    .sink(
+      receiveCompletion: { [weak self] completion in
+        guard case let .failure(error) = completion else { return }
+        self?.isLoading = false
+        stopNetworkActivityIndicator()
+        print(error)
+      },
+      receiveValue: { [weak self] result in
+        // Search results aren't guaranteed to return in order so this
+        // will discard old results that are returned while a user is typing.
+        // For example if a user types 'Canucks', often the search results
+        // for 'C' are returned after 'Canucks' because it takes the backend
+        // much longer to compute.
+        if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
+          return
+        }
+        self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
+        self?.isLoading = false
+        self?.receivedIdx = thisSearchIdx
+        self?.cursor = result.cursor
+        stopNetworkActivityIndicator()
+      }
+    )
+    .store(in: &subscriptions)
+  }
+
+  func setLinkArchived(dataService: DataService, linkId: String, archived: Bool) {
+    isLoading = true
+    startNetworkActivityIndicator()
+
+    // First remove the link from the internal list,
+    // then make a call to remove it. The isLoading block should
+    // prevent our local change from being overwritten, but we
+    // might need to cache a local list of archived links
+    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
+      items.remove(at: itemIndex)
+    }
+
+    dataService.archiveLinkPublisher(itemID: linkId, archived: archived)
+      .sink(
+        receiveCompletion: { [weak self] completion in
+          guard case let .failure(error) = completion else { return }
+          self?.isLoading = false
+          stopNetworkActivityIndicator()
+          print(error)
+          NSNotification.operationFailed(message: archived ? "Failed to archive link" : "Failed to unarchive link")
+        },
+        receiveValue: { [weak self] _ in
+          self?.isLoading = false
+          stopNetworkActivityIndicator()
+          NSNotification.operationSuccess(message: archived ? "Link archived" : "Link moved to Inbox")
+        }
+      )
+      .store(in: &subscriptions)
+  }
+
+  func removeLink(dataService: DataService, linkId: String) {
+    isLoading = true
+    startNetworkActivityIndicator()
+
+    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
+      items.remove(at: itemIndex)
+    }
+
+    dataService.removeLinkPublisher(itemID: linkId)
+      .sink(
+        receiveCompletion: { [weak self] completion in
+          guard case let .failure(error) = completion else { return }
+          self?.isLoading = false
+          stopNetworkActivityIndicator()
+          print(error)
+          NSNotification.operationFailed(message: "Failed to remove link")
+        },
+        receiveValue: { [weak self] _ in
+          self?.isLoading = false
+          stopNetworkActivityIndicator()
+          NSNotification.operationSuccess(message: "Link removed")
+        }
+      )
+      .store(in: &subscriptions)
+  }
+
+  func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) {
+    isLoading = true
+    startNetworkActivityIndicator()
+
+    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
+      items.remove(at: itemIndex)
+    }
+
+    dataService.createReminderPublisher(
+      reminderItemId: .link(id: linkId),
+      remindAt: until
+    )
+    .sink(
+      receiveCompletion: { [weak self] completion in
+        guard case let .failure(error) = completion else { return }
+        self?.isLoading = false
+        stopNetworkActivityIndicator()
+        print(error)
+        NSNotification.operationFailed(message: "Failed to snooze")
+      },
+      receiveValue: { [weak self] _ in
+        self?.isLoading = false
+        stopNetworkActivityIndicator()
+        if let message = successMessage {
+          NSNotification.operationSuccess(message: message)
+        }
+      }
+    )
+    .store(in: &subscriptions)
+  }
 }
 
-public struct HomeFeedView: View {
-  @ObservedObject private var viewModel: HomeFeedViewModel
+struct HomeFeedView: View {
+  @EnvironmentObject var dataService: DataService
+
+  @ObservedObject private var viewModel = HomeFeedViewModel()
   @State private var selectedLinkItem: FeedItem?
   @State private var searchQuery = ""
   @State private var itemToRemove: FeedItem?
   @State private var confirmationShown = false
   @State private var snoozePresented = false
   @State private var itemToSnooze: FeedItem?
-
-  public init(viewModel: HomeFeedViewModel) {
-    self.viewModel = viewModel
-  }
 
   @ViewBuilder var conditionalInnerBody: some View {
     #if os(iOS)
@@ -117,7 +242,7 @@ public struct HomeFeedView: View {
         ForEach(viewModel.items) { item in
           let link = ZStack {
             NavigationLink(
-              destination: LinkItemDetailView(viewModel: viewModel.detailViewModelCreator(item)),
+              destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
               tag: item,
               selection: $selectedLinkItem
             ) {
@@ -126,14 +251,14 @@ public struct HomeFeedView: View {
             .opacity(0)
             .buttonStyle(PlainButtonStyle())
             .onAppear {
-              viewModel.itemAppeared(item: item, searchQuery: searchQuery)
+              viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
             }
             FeedCard(item: item)
           }.contextMenu {
             if !item.isArchived {
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
-                  viewModel.performActionSubject.send(.archive(linkId: item.id))
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
                   if item == selectedLinkItem {
                     selectedLinkItem = nil
                   }
@@ -142,7 +267,7 @@ public struct HomeFeedView: View {
             } else {
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
-                  viewModel.performActionSubject.send(.unarchive(linkId: item.id))
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
                 }
               }, label: { Label("Unarchive", systemImage: "tray.and.arrow.down.fill") })
             }
@@ -160,7 +285,7 @@ public struct HomeFeedView: View {
                   if !item.isArchived {
                     Button {
                       withAnimation(.linear(duration: 0.4)) {
-                        viewModel.performActionSubject.send(.archive(linkId: item.id))
+                        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
                       }
                     } label: {
                       Label("Archive", systemImage: "archivebox")
@@ -168,7 +293,7 @@ public struct HomeFeedView: View {
                   } else {
                     Button {
                       withAnimation(.linear(duration: 0.4)) {
-                        viewModel.performActionSubject.send(.unarchive(linkId: item.id))
+                        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
                       }
                     } label: {
                       Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
@@ -190,7 +315,7 @@ public struct HomeFeedView: View {
                   Button("Remove Link", role: .destructive) {
                     if let itemToRemove = itemToRemove {
                       withAnimation {
-                        viewModel.performActionSubject.send(.remove(linkId: itemToRemove.id))
+                        viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
                       }
                     }
                     self.itemToRemove = nil
@@ -242,8 +367,11 @@ public struct HomeFeedView: View {
       }
       .formSheet(isPresented: $snoozePresented) {
         SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
-          viewModel.performActionSubject.send(
-            .snooze(linkId: $0.feedItemId, until: $0.snoozeUntilDate, successMessage: $0.successMessage)
+          viewModel.snoozeUntil(
+            dataService: dataService,
+            linkId: $0.feedItemId,
+            until: $0.snoozeUntilDate,
+            successMessage: $0.successMessage
           )
         }
       }
@@ -255,17 +383,15 @@ public struct HomeFeedView: View {
     }
   }
 
-  public var body: some View {
+  var body: some View {
     #if os(iOS)
-      if UIDevice.isIPhone, let profileContainerViewModel = viewModel.profileContainerViewModel {
+      if UIDevice.isIPhone {
         NavigationView {
           conditionalInnerBody
             .toolbar {
               ToolbarItem {
                 NavigationLink(
-                  destination: {
-                    ProfileContainerView(viewModel: profileContainerViewModel)
-                  },
+                  destination: { ProfileContainerView() },
                   label: {
                     Image.profile
                       .resizable()
@@ -286,6 +412,18 @@ public struct HomeFeedView: View {
   }
 
   private func refresh() {
-    viewModel.performActionSubject.send(.refreshItems(query: searchQuery))
+    viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
   }
+}
+
+private func startNetworkActivityIndicator() {
+  #if os(iOS)
+    UIApplication.shared.isNetworkActivityIndicatorVisible = true
+  #endif
+}
+
+private func stopNetworkActivityIndicator() {
+  #if os(iOS)
+    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+  #endif
 }

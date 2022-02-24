@@ -1,9 +1,13 @@
 import SwiftUI
 
-struct GoogleAuthButton: View {
+public struct GoogleAuthButton: View {
   let tapAction: () -> Void
 
-  var body: some View {
+  public init(tapAction: @escaping () -> Void) {
+    self.tapAction = tapAction
+  }
+
+  public var body: some View {
     Button(action: tapAction) {
       HStack(spacing: 8) {
         Image.googleIcon

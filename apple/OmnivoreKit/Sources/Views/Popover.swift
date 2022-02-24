@@ -1,7 +1,7 @@
 import SwiftUI
 
 #if os(iOS)
-  extension View {
+  public extension View {
     func fittedPopover<Content>(
       isPresented: Binding<Bool>,
       onDismiss: (() -> Void)? = nil,

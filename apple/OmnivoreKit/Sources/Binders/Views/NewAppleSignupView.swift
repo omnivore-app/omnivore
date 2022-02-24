@@ -1,32 +1,44 @@
 import Combine
 import Models
+import Services
 import SwiftUI
+import Utils
+import Views
 
-public final class NewAppleSignupViewModel: ObservableObject {
+final class NewAppleSignupViewModel: ObservableObject {
   let userProfile: UserProfile
-  @Published public var loginError: LoginError?
+  @Published var loginError: LoginError?
 
-  public enum Action {
-    case acceptProfile(userProfile: UserProfile)
-    case changeProfile
+  var subscriptions = Set<AnyCancellable>()
+
+  init(userProfile: UserProfile) {
+    self.userProfile = userProfile
   }
 
-  public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
-
-  public init(userProfile: UserProfile) {
-    self.userProfile = userProfile
+  func submitProfile(authenticator: Authenticator) {
+    authenticator
+      .createAccount(userProfile: userProfile).sink(
+        receiveCompletion: { [weak self] completion in
+          guard case let .failure(loginError) = completion else { return }
+          self?.loginError = loginError
+        },
+        receiveValue: { _ in }
+      )
+      .store(in: &subscriptions)
   }
 }
 
-public struct NewAppleSignupView: View {
+struct NewAppleSignupView: View {
+  @EnvironmentObject var authenticator: Authenticator
   @ObservedObject private var viewModel: NewAppleSignupViewModel
+  let showProfileEditView: () -> Void
 
-  public init(viewModel: NewAppleSignupViewModel) {
-    self.viewModel = viewModel
+  init(userProfile: UserProfile, showProfileEditView: @escaping () -> Void) {
+    self.showProfileEditView = showProfileEditView
+    self.viewModel = NewAppleSignupViewModel(userProfile: userProfile)
   }
 
-  public var body: some View {
+  var body: some View {
     VStack(spacing: 28) {
       Text("Welcome to Omnivore!")
         .font(.appTitle)
@@ -43,13 +55,13 @@ public struct NewAppleSignupView: View {
 
       VStack {
         Button(
-          action: { viewModel.performActionSubject.send(.acceptProfile(userProfile: viewModel.userProfile)) },
+          action: { viewModel.submitProfile(authenticator: authenticator) },
           label: { Text("Continue") }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 
         Button(
-          action: { viewModel.performActionSubject.send(.changeProfile) },
+          action: showProfileEditView,
           label: { Text("Change Username") }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))

@@ -1,8 +1,9 @@
 import SwiftUI
 
-struct StandardTextFieldStyle: TextFieldStyle {
+public struct StandardTextFieldStyle: TextFieldStyle {
+  public init() {}
   // swiftlint:disable:next identifier_name
-  func _body(configuration: TextField<_Label>) -> some View {
+  public func _body(configuration: TextField<_Label>) -> some View {
     configuration
       .textFieldStyle(PlainTextFieldStyle())
       .multilineTextAlignment(.leading)
@@ -13,7 +14,7 @@ struct StandardTextFieldStyle: TextFieldStyle {
       .background(border)
   }
 
-  var border: some View {
+  public var border: some View {
     RoundedRectangle(cornerRadius: 16)
       .strokeBorder(Color.appGrayBorder, lineWidth: 1)
       .background(RoundedRectangle(cornerRadius: 16).fill(Color.systemBackground))

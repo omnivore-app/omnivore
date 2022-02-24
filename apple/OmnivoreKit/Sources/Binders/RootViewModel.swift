@@ -145,7 +145,7 @@ public struct RootView: View {
 
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
-      PrimaryContentView(services: viewModel.services)
+      PrimaryContentView()
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }
@@ -170,7 +170,7 @@ public struct RootView: View {
       #endif
 
     } else {
-      WelcomeView(viewModel: WelcomeViewModel.make(services: viewModel.services))
+      WelcomeView()
         .accessibilityElement()
         .accessibilityIdentifier("welcomeView")
     }
@@ -185,6 +185,8 @@ public struct RootView: View {
           .frame(minWidth: 400, idealWidth: 1200, minHeight: 400, idealHeight: 1200)
       #endif
     }
+    .environmentObject(viewModel.services.authenticator)
+    .environmentObject(viewModel.services.dataService)
     #if os(iOS)
       .onOpenURL { url in
         withoutAnimation {

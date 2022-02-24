@@ -1,10 +1,14 @@
 import Models
 import SwiftUI
 
-struct LoginErrorMessageView: View {
+public struct LoginErrorMessageView: View {
   let loginError: LoginError
 
-  var body: some View {
+  public init(loginError: LoginError) {
+    self.loginError = loginError
+  }
+
+  public var body: some View {
     Text(loginError.message)
       .font(.appBody)
       .foregroundColor(.red)

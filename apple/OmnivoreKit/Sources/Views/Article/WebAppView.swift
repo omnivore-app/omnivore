@@ -3,6 +3,8 @@ import SwiftUI
 import Utils
 import WebKit
 
+public let readerViewNavBarHeight = 50.0
+
 #if os(iOS)
   struct WebAppView: UIViewRepresentable {
     let request: URLRequest
@@ -34,8 +36,8 @@ import WebKit
       webView.backgroundColor = UIColor.clear
       webView.configuration.userContentController = contentController
       webView.scrollView.delegate = context.coordinator
-      webView.scrollView.contentInset.top = LinkItemDetailView.navBarHeight
-      webView.scrollView.verticalScrollIndicatorInsets.top = LinkItemDetailView.navBarHeight
+      webView.scrollView.contentInset.top = readerViewNavBarHeight
+      webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
 
       for action in WebViewAction.allCases {
         webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
