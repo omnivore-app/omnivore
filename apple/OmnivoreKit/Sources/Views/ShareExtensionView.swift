@@ -114,8 +114,8 @@ public struct ShareExtensionChildView: View {
   let readNowButtonAction: () -> Void
   let dismissButtonTappedAction: (ReminderTime?, Bool) -> Void
 
-  @Binding var reminderTime: ReminderTime?
-  @Binding var hideUntilReminded: Bool
+  @State var reminderTime: ReminderTime?
+  @State var hideUntilReminded = false
 
   private var savedStateView: some View {
     HStack {
@@ -254,9 +254,6 @@ public struct ShareExtensionChildView: View {
 }
 
 public struct ShareExtensionView: View {
-  @State private var reminderTime: ReminderTime?
-  @State private var hideUntilReminded = false
-
   @ObservedObject private var viewModel: ShareExtensionViewModel
 
   public init(viewModel: ShareExtensionViewModel) {
@@ -272,9 +269,7 @@ public struct ShareExtensionView: View {
       readNowButtonAction: { viewModel.performActionSubject.send(.readNowButtonTapped) },
       dismissButtonTappedAction: {
         viewModel.performActionSubject.send(.dismissButtonTapped(reminderTime: $0, hideUntilReminded: $1))
-      },
-      reminderTime: $reminderTime,
-      hideUntilReminded: $hideUntilReminded
+      }
     )
   }
 }
