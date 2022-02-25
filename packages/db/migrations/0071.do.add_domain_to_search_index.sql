@@ -19,7 +19,7 @@ begin
 end
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER article_tsv_update BEFORE INSERT OR UPDATE
+CREATE article_tsv_update BEFORE INSERT OR UPDATE
     ON omnivore.pages FOR EACH ROW EXECUTE PROCEDURE update_page_tsv();
 
 -- rename to page* since we aren't using Article naming anymore
