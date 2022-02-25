@@ -106,15 +106,16 @@ struct CheckmarkButtonView: View {
   }
 }
 
-public struct ShareExtensionView: View {
-  @State private var reminderTime: ReminderTime?
-  @State private var hideUntilReminded = false
+public struct ShareExtensionChildView: View {
+  let debugText: String?
+  let title: String?
+  let status: ShareExtensionStatus
+  let onAppearAction: () -> Void
+  let readNowButtonAction: () -> Void
+  let dismissButtonTappedAction: (ReminderTime?, Bool) -> Void
 
-  @ObservedObject private var viewModel: ShareExtensionViewModel
-
-  public init(viewModel: ShareExtensionViewModel) {
-    self.viewModel = viewModel
-  }
+  @Binding var reminderTime: ReminderTime?
+  @Binding var hideUntilReminded: Bool
 
   private var savedStateView: some View {
     HStack {
@@ -123,7 +124,7 @@ public struct ShareExtensionView: View {
         title: "Read Now",
         systemIconName: "book",
         action: {
-          viewModel.performActionSubject.send(.readNowButtonTapped)
+          readNowButtonAction()
         }
       )
       Spacer()
@@ -144,12 +145,12 @@ public struct ShareExtensionView: View {
   public var body: some View {
     VStack(alignment: .leading) {
       #if DEBUG
-        if let debugText = viewModel.debugText {
+        if let debugText = debugText {
           Text(debugText)
         }
       #endif
 
-      if let title = viewModel.title {
+      if let title = title {
         Text(title)
           .font(.appHeadline)
           .lineLimit(1)
@@ -159,7 +160,7 @@ public struct ShareExtensionView: View {
 
       Spacer()
 
-      if case ShareExtensionStatus.successfullySaved = viewModel.status {
+      if case ShareExtensionStatus.successfullySaved = status {
         if FeatureFlag.enableReadNowFromShareExtension {
           savedStateView
         } else {
@@ -174,7 +175,7 @@ public struct ShareExtensionView: View {
           }
           .padding()
         }
-      } else if case let ShareExtensionStatus.failed(error) = viewModel.status {
+      } else if case let ShareExtensionStatus.failed(error) = status {
         HStack {
           Spacer()
           Text(error.displayMessage)
@@ -230,11 +231,7 @@ public struct ShareExtensionView: View {
 
       Button(
         action: {
-          viewModel.performActionSubject
-            .send(.dismissButtonTapped(
-              reminderTime: reminderTime,
-              hideUntilReminded: hideUntilReminded
-            ))
+          dismissButtonTappedAction(reminderTime, hideUntilReminded)
         },
         label: {
           Text("Dismiss")
@@ -251,34 +248,33 @@ public struct ShareExtensionView: View {
       alignment: .topLeading
     )
     .onAppear {
-      viewModel.performActionSubject.send(.savePage(requestID: viewModel.requestID))
+      onAppearAction()
     }
   }
 }
 
-#if DEBUG
-  struct ShareExtensionViewPreview: PreviewProvider {
-    public struct ContainerView: View {
-      let shareExtensionViewModel: ShareExtensionViewModel
-      @State var showExtensionModal = true
+public struct ShareExtensionView: View {
+  @State private var reminderTime: ReminderTime?
+  @State private var hideUntilReminded = false
 
-      public var body: some View {
-        Button("Show Extension") {
-          showExtensionModal = true
-        }
-        .popover(isPresented: $showExtensionModal) {
-          ShareExtensionView(viewModel: shareExtensionViewModel)
-        }
-      }
-    }
+  @ObservedObject private var viewModel: ShareExtensionViewModel
 
-    static var previews: some View {
-      registerFonts()
-
-      let viewModel = ShareExtensionViewModel()
-      viewModel.status = .successfullySaved
-      return ShareExtensionView(viewModel: viewModel)
-        .preferredColorScheme(.dark)
-    }
+  public init(viewModel: ShareExtensionViewModel) {
+    self.viewModel = viewModel
   }
-#endif
+
+  public var body: some View {
+    ShareExtensionChildView(
+      debugText: viewModel.debugText,
+      title: viewModel.title,
+      status: viewModel.status,
+      onAppearAction: { viewModel.performActionSubject.send(.savePage(requestID: viewModel.requestID)) },
+      readNowButtonAction: { viewModel.performActionSubject.send(.readNowButtonTapped) },
+      dismissButtonTappedAction: {
+        viewModel.performActionSubject.send(.dismissButtonTapped(reminderTime: $0, hideUntilReminded: $1))
+      },
+      reminderTime: $reminderTime,
+      hideUntilReminded: $hideUntilReminded
+    )
+  }
+}
