@@ -5,6 +5,7 @@
 BEGIN;
 
 DROP TRIGGER IF EXISTS page_tsv_update ON omnivore.pages;
+DROP FUNCTION IF EXISTS article_tsv_update();
 DROP FUNCTION IF EXISTS update_page_tsv();
 
 CREATE OR REPLACE TRIGGER article_tsv_update BEFORE INSERT OR UPDATE
