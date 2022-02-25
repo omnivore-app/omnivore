@@ -83,7 +83,10 @@ struct NewsletterEmailsView: View {
         Section(header: Text("Existing Emails (Tap to copy)")) {
           ForEach(viewModel.emails) { newsletterEmail in
             Button(
-              action: { UIPasteboard.general.string = newsletterEmail.email },
+              action: {
+                UIPasteboard.general.string = newsletterEmail.email
+                NSNotification.operationSuccess(message: "Email copied")
+              },
               label: { Text(newsletterEmail.email) }
             )
           }
