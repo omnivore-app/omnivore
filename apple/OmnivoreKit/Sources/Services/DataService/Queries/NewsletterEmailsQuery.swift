@@ -4,9 +4,9 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func newsletterEmailsPublisher() -> AnyPublisher<NewsletterEmails, ServerError> {
+  func newsletterEmailsPublisher() -> AnyPublisher<[NewsletterEmail], ServerError> {
     enum QueryResult {
-      case success(result: NewsletterEmails)
+      case success(result: [NewsletterEmail])
       case error(error: String)
     }
 
@@ -21,11 +21,7 @@ public extension DataService {
     let selection = Selection<QueryResult, Unions.NewsletterEmailsResult> {
       try $0.on(
         newsletterEmailsSuccess: .init {
-          QueryResult.success(result:
-            NewsletterEmails(
-              newsletterEmails: try $0.newsletterEmails(selection: newsletterEmailSelection.list)
-            )
-          )
+          QueryResult.success(result: try $0.newsletterEmails(selection: newsletterEmailSelection.list))
         },
         newsletterEmailsError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
