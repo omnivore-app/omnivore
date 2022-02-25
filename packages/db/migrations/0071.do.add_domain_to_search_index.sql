@@ -10,7 +10,9 @@ begin
     setweight(to_tsvector('pg_catalog.english', coalesce(new.title, '')), 'A') ||
     setweight(to_tsvector('pg_catalog.english', coalesce(new.author, '')), 'A') ||
     setweight(to_tsvector('pg_catalog.english', coalesce(new.description,'')), 'A') ||
+    -- full hostname (eg www.omnivore.app)
     setweight(to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.url, '^((http[s]?):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$', '\3'), '')), 'A') ||
+    -- secondary hostname (eg omnivore)
     setweight(to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.url, '^((http[s]?):\/)?\/?(.*\.)?([^:\/\s]+)(\..*)((\/+)*\/)?([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$', '\4'), '')), 'A') ||
     setweight(to_tsvector('pg_catalog.english', coalesce(new.content,'')), 'B');
   return new;
