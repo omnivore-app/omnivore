@@ -20,10 +20,7 @@ public final class RootViewModel: ObservableObject {
   @Published fileprivate var snackbarMessage: String?
   @Published fileprivate var showSnackbar = false
 
-  public enum Action {}
-
   public var subscriptions = Set<AnyCancellable>()
-  public let performActionSubject = PassthroughSubject<Action, Never>()
 
   public init() {
     registerFonts()

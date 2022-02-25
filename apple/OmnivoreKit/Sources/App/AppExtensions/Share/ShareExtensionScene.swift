@@ -8,9 +8,9 @@ import Views
 
 public extension PlatformViewController {
   static func makeShareExtensionController(extensionContext: NSExtensionContext?) -> PlatformViewController {
-    let viewModel = ShareExtensionViewModel.make(extensionContext: extensionContext)
-    let rootView = ShareExtensionView(viewModel: viewModel)
-    let hostingController = PlatformHostingController(rootView: rootView)
+    let hostingController = PlatformHostingController(
+      rootView: ShareExtensionView(extensionContext: extensionContext)
+    )
     #if os(iOS)
       hostingController.view.layer.cornerRadius = 12
       hostingController.view.layer.masksToBounds = true
@@ -20,42 +20,35 @@ public extension PlatformViewController {
   }
 }
 
-extension ShareExtensionViewModel {
-  static func make(extensionContext: NSExtensionContext?) -> ShareExtensionViewModel {
-    let viewModel = ShareExtensionViewModel()
-    viewModel.bind(extensionContext: extensionContext)
-    return viewModel
+final class ShareExtensionViewModel: ObservableObject {
+  let extensionContext: NSExtensionContext?
+
+  @Published var title: String?
+  @Published var status = ShareExtensionStatus.successfullySaved
+  @Published var debugText: String?
+
+  var subscriptions = Set<AnyCancellable>()
+  let requestID = UUID().uuidString.lowercased()
+
+  init(extensionContext: NSExtensionContext?) {
+    self.extensionContext = extensionContext
   }
 
-  func bind(extensionContext: NSExtensionContext?) {
-    performActionSubject.sink { [weak self] action in
-      switch action {
-      case let .savePage(requestID):
-        self?.savePage(extensionContext: extensionContext, requestId: requestID)
-      case .dismissButtonTapped:
-        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-      case .copyLinkButtonTapped:
-        print("copy link button tapped")
-      case .readNowButtonTapped:
-        #if os(iOS)
-          if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
-            let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(self?.requestID ?? "")")
-            application.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
-          }
-        #endif
-        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-      case .archiveButtonTapped:
-        print("archive button tapped")
+  func handleReadNowAction() {
+    #if os(iOS)
+      if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
+        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestID)")
+        application.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
       }
-    }
-    .store(in: &subscriptions)
+    #endif
+    extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
-  private func savePage(extensionContext: NSExtensionContext?, requestId: String) {
+  func savePage() {
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
       switch result {
       case let .success(payload):
-        self?.persist(pageScrapePayload: payload, requestId: requestId)
+        self?.persist(pageScrapePayload: payload, requestId: self?.requestID ?? "")
       case let .failure(error):
         self?.debugText = error.message
       }
@@ -98,5 +91,26 @@ extension ShareExtensionViewModel {
         self?.status = .failed(error: .unknown(description: ""))
       } receiveValue: { _ in }
       .store(in: &subscriptions)
+  }
+}
+
+struct ShareExtensionView: View {
+  @ObservedObject private var viewModel: ShareExtensionViewModel
+
+  init(extensionContext: NSExtensionContext?) {
+    self.viewModel = ShareExtensionViewModel(extensionContext: extensionContext)
+  }
+
+  var body: some View {
+    ShareExtensionChildView(
+      debugText: viewModel.debugText,
+      title: viewModel.title,
+      status: viewModel.status,
+      onAppearAction: viewModel.savePage,
+      readNowButtonAction: viewModel.handleReadNowAction,
+      dismissButtonTappedAction: { _, _ in
+        viewModel.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+      }
+    )
   }
 }
