@@ -24,6 +24,7 @@ import { getManager, getRepository, ILike } from 'typeorm'
 import { setClaims } from '../../entity/utils'
 import { Link } from '../../entity/link'
 import { LinkLabel } from '../../entity/link_label'
+import { labelsLoader } from '../../services/labels'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -173,7 +174,7 @@ export const deleteLabelResolver = authorized<
       label,
     }
   } catch (error) {
-    log.error(error)
+    log.error('error', error)
     return {
       errorCodes: [DeleteLabelErrorCode.BadRequest],
     }
@@ -225,6 +226,9 @@ export const setLabelsResolver = authorized<
         .getRepository(LinkLabel)
         .save(labels.map((label) => ({ link, label })))
     })
+
+    // clear cache
+    labelsLoader.clear(linkId)
 
     analytics.track({
       userId: uid,
