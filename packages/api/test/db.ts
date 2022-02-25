@@ -14,6 +14,7 @@ import { Link } from '../src/entity/link'
 import { Reminder } from '../src/entity/reminder'
 import { NewsletterEmail } from '../src/entity/newsletter_email'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
+import { Label } from '../src/entity/label'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -199,4 +200,18 @@ export const getUser = async (id: string): Promise<User | undefined> => {
 
 export const getLink = async (id: string): Promise<Link | undefined> => {
   return getRepository(Link).findOne(id)
+}
+
+export const createTestLabel = async (
+  user: User,
+  name: string,
+  color: string
+): Promise<Label> => {
+  return getRepository(Label)
+    .create({
+      user: user,
+      name: name,
+      color: color,
+    })
+    .save()
 }

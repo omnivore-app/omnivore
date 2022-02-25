@@ -1,16 +1,20 @@
 import {
+  createTestLabel,
   createTestLink,
   createTestPage,
   createTestUser,
   deleteTestUser,
 } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
+import * as chai from 'chai'
 import { expect } from 'chai'
-import { Page } from '../../src/entity/page'
+import { Link } from '../../src/entity/link'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import * as chai from 'chai'
 import chaiString from 'chai-string'
+import { getRepository } from 'typeorm'
+import { LinkLabel } from '../../src/entity/link_label'
+import { Label } from '../../src/entity/label'
 
 chai.use(chaiString)
 
@@ -32,7 +36,7 @@ const archiveLink = async (authToken: string, linkId: string) => {
     }
   }
   `
- return await graphqlRequest(query, authToken).expect(200)
+  return graphqlRequest(query, authToken).expect(200)
 }
 
 const articlesQuery = (after = '', order = 'ASCENDING') => {
@@ -53,6 +57,12 @@ const articlesQuery = (after = '', order = 'ASCENDING') => {
           node {
             id
             url
+            linkId
+            labels {
+              id
+              name
+              color
+            }
           }
         }
         pageInfo {
@@ -98,7 +108,8 @@ describe('Article API', () => {
   const username = 'fakeUser'
   let authToken: string
   let user: User
-  let links: Page[] = []
+  let links: Link[] = []
+  let label: Label
 
   before(async () => {
     // create test user and login
@@ -110,9 +121,17 @@ describe('Article API', () => {
     // Create some test links
     for (let i = 0; i < 15; i++) {
       const page = await createTestPage()
-      await createTestLink(user, page)
-      links.push(page)
+      const link = await createTestLink(user, page)
+      links.push(link)
     }
+    //  create testing labels
+    label = await createTestLabel(user, 'label', '#ffffff')
+    //  set label to a link
+    await getRepository(LinkLabel).save({
+      link: links[0],
+      label: label,
+    })
+
     authToken = res.body.authToken
   })
 
@@ -129,17 +148,29 @@ describe('Article API', () => {
       query = articlesQuery(after)
     })
 
+    it('should return linkId', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.articles.edges[0].node.linkId).to.eql(links[0].id)
+    })
+
+    it('should return labels', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.articles.edges[0].node.labels[0].id).to.eql(label.id)
+    })
+
     context('when we fetch the first page', () => {
       it('should return the first five items', async () => {
         after = ''
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(links[0].id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(links[1].id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(links[2].id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(links[3].id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(links[4].id)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(links[0].page.id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(links[1].page.id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(links[2].page.id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(links[3].page.id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(links[4].page.id)
       })
 
       it('should set the pageInfo', async () => {
@@ -166,11 +197,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(links[5].id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(links[6].id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(links[7].id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(links[8].id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(links[9].id)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(links[5].page.id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(links[6].page.id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(links[7].page.id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(links[8].page.id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(links[9].page.id)
       })
 
       it('should set the pageInfo', async () => {
@@ -208,27 +239,44 @@ describe('Article API', () => {
     context('when we save a new page', () => {
       it('should return a slugged url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.savePage.url).to.startsWith("http://localhost:3000/fakeUser/example-title-")
+        expect(res.body.data.savePage.url).to.startsWith(
+          'http://localhost:3000/fakeUser/example-title-'
+        )
       })
     })
 
     context('when we save a page that is already archived', () => {
       it('it should return that page in the GetArticles Query', async () => {
         url = 'https://example.com/new-url'
-        await graphqlRequest(savePageQuery(url, title, originalContent), authToken).expect(200)
+        await graphqlRequest(
+          savePageQuery(url, title, originalContent),
+          authToken
+        ).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(articlesQuery('', 'DESCENDING'), authToken).expect(200)
+        let allLinks = await graphqlRequest(
+          articlesQuery('', 'DESCENDING'),
+          authToken
+        ).expect(200)
         const justSavedId = allLinks.body.data.articles.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(articlesQuery('', 'DESCENDING'), authToken).expect(200)
+        allLinks = await graphqlRequest(
+          articlesQuery('', 'DESCENDING'),
+          authToken
+        ).expect(200)
         expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
-        const resaved = await graphqlRequest(savePageQuery(url, title, originalContent), authToken).expect(200)
-        allLinks = await graphqlRequest(articlesQuery('', 'DESCENDING'), authToken).expect(200)
+        const resaved = await graphqlRequest(
+          savePageQuery(url, title, originalContent),
+          authToken
+        ).expect(200)
+        allLinks = await graphqlRequest(
+          articlesQuery('', 'DESCENDING'),
+          authToken
+        ).expect(200)
         expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
       })
     })

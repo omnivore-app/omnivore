@@ -5,8 +5,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   parse,
-  SearchParserTextOffset,
   SearchParserKeyWordOffset,
+  SearchParserTextOffset,
 } from 'search-query-parser'
 import { PageType } from '../generated/graphql'
 
@@ -27,6 +27,7 @@ export type SearchFilter = {
   inFilter: InFilter
   readFilter: ReadFilter
   typeFilter?: PageType | undefined
+  labelFilters?: string[]
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -77,6 +78,20 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
   return undefined
 }
 
+const parseLabelFilters = (
+  str: string | undefined,
+  labelFilters: string[] | undefined
+): string[] | undefined => {
+  if (str === undefined) {
+    return labelFilters
+  }
+
+  // use lower case for label names
+  const label = str.toLowerCase()
+
+  return labelFilters ? labelFilters.concat(label) : [label]
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -94,7 +109,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   }
 
   const parsed = parse(searchQuery, {
-    keywords: ['in', 'is', 'type'],
+    keywords: ['in', 'is', 'type', 'label'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -132,6 +147,12 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         case 'type':
           result.typeFilter = parseTypeFilter(keyword.value)
+          break
+        case 'label':
+          result.labelFilters = parseLabelFilters(
+            keyword.value,
+            result.labelFilters
+          )
           break
       }
     }

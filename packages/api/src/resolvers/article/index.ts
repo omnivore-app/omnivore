@@ -4,21 +4,25 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import {
-  FeedArticle,
-  PageInfo,
   Article,
   ArticleError,
   ArticleErrorCode,
   ArticlesError,
   ArticleSuccess,
+  ContentReader,
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  FeedArticle,
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetShareArticleArgs,
+  PageInfo,
+  PageType,
   QueryArticleArgs,
+  QueryArticlesArgs,
+  ResolverFn,
   SaveArticleReadingProgressError,
   SaveArticleReadingProgressErrorCode,
   SaveArticleReadingProgressSuccess,
@@ -28,15 +32,12 @@ import {
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
-  ResolverFn,
-  PageType,
-  ContentReader,
 } from '../../generated/graphql'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Merge } from '../../util'
 import {
-  makeStorageFilePublic,
   getStorageFileDetails,
+  makeStorageFilePublic,
 } from '../../utils/uploads'
 import { ContentParseError } from '../../utils/errors'
 import {
@@ -49,9 +50,9 @@ import {
   validatedDate,
 } from '../../utils/helpers'
 import {
+  ParsedContentPuppeteer,
   parseOriginalContent,
   parsePreparedContent,
-  ParsedContentPuppeteer,
 } from '../../utils/parser'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import { Readability } from '@omnivore/readability'
@@ -530,16 +531,17 @@ type PaginatedPartialArticles = {
 
 export const getArticlesResolver = authorized<
   PaginatedPartialArticles,
-  ArticlesError
->(async (_obj, _params, { models, claims, authTrx }) => {
-  const notNullField = _params?.sharedOnly ? 'sharedAt' : null
-  const startCursor = _params.after || ''
-  const first = _params.first || 10
+  ArticlesError,
+  QueryArticlesArgs
+>(async (_obj, params, { models, claims, authTrx }) => {
+  const notNullField = params.sharedOnly ? 'sharedAt' : null
+  const startCursor = params.after || ''
+  const first = params.first || 10
 
   // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
-  // so queries can contain phrases like "human race". In the future we will need to
-  // split out terms like "label:unread".
-  const searchQuery = parseSearchQuery(_params.query)
+  // so queries can contain phrases like "human race";
+  // We can also split out terms like "label:unread".
+  const searchQuery = parseSearchQuery(params.query || undefined)
 
   analytics.track({
     userId: claims.uid,
@@ -549,6 +551,7 @@ export const getArticlesResolver = authorized<
       inFilter: searchQuery.inFilter,
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
       env: env.server.apiEnv,
     },
   })
@@ -559,11 +562,12 @@ export const getArticlesResolver = authorized<
       {
         cursor: startCursor,
         first: first + 1, // fetch one more item to get next cursor
-        sort: _params.sort,
+        sort: params.sort || undefined,
         query: searchQuery.query,
         inFilter: searchQuery.inFilter,
         readFilter: searchQuery.readFilter,
         typeFilter: searchQuery.typeFilter,
+        labelFilters: searchQuery.labelFilters,
       },
       claims.uid,
       tx,

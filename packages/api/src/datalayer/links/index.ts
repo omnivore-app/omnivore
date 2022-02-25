@@ -36,6 +36,7 @@ type UserArticleStats = {
 }
 
 const LINK_COLS = [
+  'omnivore.links.id as linkId',
   'omnivore.links.userId',
   'omnivore.links.slug',
   'omnivore.links.article_url as url',
@@ -403,6 +404,7 @@ class UserArticleModel extends DataModel<
       inFilter: InFilter
       readFilter: ReadFilter
       typeFilter: PageType | undefined
+      labelFilters?: string[]
     },
     userId: string,
     tx = this.kx,
@@ -441,6 +443,15 @@ class UserArticleModel extends DataModel<
       }
     }
 
+    // search by labels using lowercase
+    if (args.labelFilters) {
+      queryPromise
+        .innerJoin(Table.LINK_LABELS, 'link_labels.link_id', 'links.id')
+        .innerJoin(Table.LABELS, 'labels.id', 'link_labels.label_id')
+        .whereRaw('LOWER(omnivore.labels.name) = ANY(?)', [args.labelFilters])
+        .distinct('links.id')
+    }
+
     if (notNullField) {
       queryPromise.whereNotNull(notNullField)
     }
@@ -469,12 +480,11 @@ class UserArticleModel extends DataModel<
       .orderBy('omnivore.links.id', sortOrder)
       .limit(limit)
 
-    // console.log('query', queryPromise.toString())
     const rows = await queryPromise
-
     for (const row of rows) {
       this.loader.prime(row.id, row)
     }
+
     return [rows, parseInt(totalCount as string)]
   }
 

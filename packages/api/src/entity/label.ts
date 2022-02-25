@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { User } from './user'
-import { Link } from './link'
 
 @Entity({ name: 'labels' })
 export class Label extends BaseEntity {
@@ -22,9 +21,11 @@ export class Label extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @ManyToOne(() => Link)
-  @JoinColumn({ name: 'link_id' })
-  link!: Link
+  @Column('text')
+  color!: string
+
+  @Column('text', { nullable: true })
+  description?: string
 
   @CreateDateColumn()
   createdAt!: Date

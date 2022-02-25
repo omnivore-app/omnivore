@@ -333,6 +333,8 @@ const schema = gql`
     highlights(input: ArticleHighlightsInput): [Highlight!]!
     shareInfo: LinkShareInfo
     isArchived: Boolean!
+    linkId: ID
+    labels: [Label!]
   }
 
   # Query: article
@@ -1242,6 +1244,9 @@ const schema = gql`
   type Label {
     id: ID!
     name: String!
+    color: String!
+    description: String
+    createdAt: Date!
   }
 
   type LabelsSuccess {
@@ -1261,8 +1266,9 @@ const schema = gql`
   union LabelsResult = LabelsSuccess | LabelsError
 
   input CreateLabelInput {
-    linkId: ID!
     name: String!
+    color: String!
+    description: String
   }
 
   type CreateLabelSuccess {
@@ -1273,6 +1279,7 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+    LABEL_ALREADY_EXISTS
   }
 
   type CreateLabelError {
@@ -1320,6 +1327,27 @@ const schema = gql`
   }
 
   union SignupResult = SignupSuccess | SignupError
+
+  input SetLabelsInput {
+    linkId: ID!
+    labelIds: [ID!]!
+  }
+
+  union SetLabelsResult = SetLabelsSuccess | SetLabelsError
+
+  type SetLabelsSuccess {
+    labels: [Label!]!
+  }
+
+  type SetLabelsError {
+    errorCodes: [SetLabelsErrorCode!]!
+  }
+
+  enum SetLabelsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
 
   # Mutations
   type Mutation {
@@ -1379,6 +1407,7 @@ const schema = gql`
     deleteLabel(id: ID!): DeleteLabelResult!
     login(input: LoginInput!): LoginResult!
     signup(input: SignupInput!): SignupResult!
+    setLabels(input: SetLabelsInput!): SetLabelsResult!
   }
 
   # FIXME: remove sort from feedArticles after all cahced tabs are closed
@@ -1414,7 +1443,7 @@ const schema = gql`
     articleSavingRequest(id: ID!): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
-    labels(linkId: ID!): LabelsResult!
+    labels: LabelsResult!
   }
 `
 

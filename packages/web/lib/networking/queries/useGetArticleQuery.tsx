@@ -1,9 +1,10 @@
 import { gql } from 'graphql-request'
-import useSWRImmutable, { useSWRConfig } from 'swr'
+import useSWRImmutable from 'swr'
 import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
 import { articleFragment, ContentReader } from '../fragments/articleFragment'
-import { highlightFragment, Highlight } from '../fragments/highlightFragment'
+import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { ScopedMutator } from 'swr/dist/types'
+import { Label, labelFragment } from '../fragments/labelFragment'
 
 type ArticleQueryInput = {
   username?: string
@@ -46,6 +47,8 @@ export type ArticleAttributes = {
   content: string
   shareInfo?: ArticleShareInfo
   highlights: Highlight[]
+  linkId: string
+  labels?: Label[]
 }
 
 type ArticleShareInfo = {
@@ -73,6 +76,9 @@ const query = gql`
           highlights(input: { includeFriends: $includeFriendsHighlights }) {
             ...HighlightFields
           }
+          labels {
+            ...LabelFields
+          }
         }
       }
       ... on ArticleError {
@@ -82,10 +88,16 @@ const query = gql`
   }
   ${articleFragment}
   ${highlightFragment}
+  ${labelFragment}
 `
-export const cacheArticle = (mutate: ScopedMutator, username: string, article: ArticleAttributes, includeFriendsHighlights = false) => {
+export const cacheArticle = (
+  mutate: ScopedMutator,
+  username: string,
+  article: ArticleAttributes,
+  includeFriendsHighlights = false
+) => {
   mutate([query, username, article.slug, includeFriendsHighlights], {
-    article: { article: {...article, cached: true} }
+    article: { article: { ...article, cached: true } },
   })
 }
 
@@ -134,4 +146,3 @@ export async function articleQuery(
 
   return Promise.reject()
 }
-

@@ -6,7 +6,7 @@ import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { useState, useEffect, MutableRefObject } from 'react'
+import { MutableRefObject, useEffect, useState } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
@@ -17,6 +17,7 @@ import { ShareArticleModal } from './ShareArticleModal'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
+import { EditLabelsModal } from './EditLabelsModal'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -32,9 +33,13 @@ type ArticleContainerProps = {
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const [labels, setLabels] = useState(
+    props.article.labels?.map((l) => l.id) || []
+  )
 
   const updateFontSize = (newFontSize: number) => {
     setFontSize(newFontSize)
@@ -55,6 +60,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           break
         case 'decrementFontSize':
           updateFontSize(Math.max(fontSize - 2, 10))
+          break
+        case 'editLabels':
+          setShowLabelsModal(true)
           break
       }
     })
@@ -232,6 +240,18 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           description={props.article.description}
           originalArticleUrl={props.article.originalArticleUrl}
           onOpenChange={(open: boolean) => setShowShareModal(open)}
+        />
+      )}
+      {showLabelsModal && (
+        <EditLabelsModal
+          labels={labels}
+          article={props.article}
+          onOpenChange={() => {
+            setShowLabelsModal(false)
+          }}
+          setLabels={(labels: string[]) => {
+            setLabels(labels)
+          }}
         />
       )}
     </>

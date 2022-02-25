@@ -17,6 +17,7 @@ export const articleFragment = gql`
     slug
     isArchived
     description
+    linkId
   }
 `
 
@@ -38,4 +39,5 @@ export type ArticleFragmentData = {
   slug: string
   isArchived: boolean
   description: string
+  linkId?: string
 }
