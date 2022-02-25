@@ -70,7 +70,7 @@ struct NewsletterEmailsView: View {
         Section(header: Text("Existing Emails (Tap to copy)")) {
           ForEach(viewModel.emails) { newsletterEmail in
             Button(
-              action: {},
+              action: { UIPasteboard.general.string = newsletterEmail.email },
               label: { Text(newsletterEmail.email) }
             )
           }
