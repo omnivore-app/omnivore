@@ -6,7 +6,6 @@ import { articleFragment } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { labelFragment } from '../fragments/labelFragment'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -90,9 +89,6 @@ export function useGetLibraryItemsQuery({
             cursor
             node {
               ...ArticleFields
-              labels {
-                ...LabelFields
-              }
               originalArticleUrl
             }
           }
@@ -110,7 +106,6 @@ export function useGetLibraryItemsQuery({
       }
     }
     ${articleFragment}
-    ${labelFragment}
   `
 
   const variables = {
