@@ -1,31 +1,40 @@
+import Combine
 import Models
+import Services
 import SwiftUI
 import Utils
+import Views
 
-public enum ProfileViewAction {
-  case loadProfileAction
-  case logout
-  case showIntercomMessenger
+final class ProfileContainerViewModel: ObservableObject {
+  @Published var isLoading = false
+  @Published var profileCardData = ProfileCardData()
+
+  var subscriptions = Set<AnyCancellable>()
+
+  func loadProfileData(dataService: DataService) {
+    dataService.viewerPublisher().sink(
+      receiveCompletion: { _ in },
+      receiveValue: { [weak self] viewer in
+        self?.profileCardData = ProfileCardData(
+          name: viewer.name,
+          username: viewer.username,
+          imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
+        )
+      }
+    )
+    .store(in: &subscriptions)
+  }
 }
 
-public struct ProfileView: View {
+struct ProfileView: View {
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
+
+  @ObservedObject private var viewModel = ProfileContainerViewModel()
+
   @State private var showLogoutConfirmation = false
 
-  let profileCardData: ProfileCardData
-  let webAppBaseURL: URL
-  let actionHandler: (ProfileViewAction) -> Void
-
-  public init(
-    profileCardData: ProfileCardData,
-    webAppBaseURL: URL,
-    actionHandler: @escaping (ProfileViewAction) -> Void
-  ) {
-    self.profileCardData = profileCardData
-    self.webAppBaseURL = webAppBaseURL
-    self.actionHandler = actionHandler
-  }
-
-  public var body: some View {
+  var body: some View {
     #if os(iOS)
       Form {
         innerBody
@@ -41,28 +50,32 @@ public struct ProfileView: View {
   private var innerBody: some View {
     Group {
       Section {
-        ProfileCard(data: profileCardData)
-          .onAppear { actionHandler(.loadProfileAction) }
+        ProfileCard(data: viewModel.profileCardData)
+          .onAppear { viewModel.loadProfileData(dataService: dataService) }
+      }
+
+      Section {
+        NavigationLink(destination: EmailsView()) {
+          Text("Emails")
+        }
       }
 
       Section {
         NavigationLink(
-          destination: BasicWebAppView.privacyPolicyWebView(baseURL: webAppBaseURL)
+          destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
           Text("Privacy Policy")
         }
 
         NavigationLink(
-          destination: BasicWebAppView.termsConditionsWebView(baseURL: webAppBaseURL)
+          destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {
           Text("Terms and Conditions")
         }
 
         #if os(iOS)
           Button(
-            action: {
-              actionHandler(.showIntercomMessenger)
-            },
+            action: { DataService.showIntercomMessenger?() },
             label: { Text("Feedback") }
           )
         #endif
@@ -87,7 +100,7 @@ public struct ProfileView: View {
             Alert(
               title: Text("Are you sure you want to logout?"),
               primaryButton: .destructive(Text("Confirm")) {
-                actionHandler(.logout)
+                authenticator.logout()
               },
               secondaryButton: .cancel()
             )

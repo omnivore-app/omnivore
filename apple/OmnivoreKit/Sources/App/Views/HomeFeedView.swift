@@ -391,7 +391,7 @@ struct HomeFeedView: View {
             .toolbar {
               ToolbarItem {
                 NavigationLink(
-                  destination: { ProfileContainerView() },
+                  destination: { ProfileView() },
                   label: {
                     Image.profile
                       .resizable()
