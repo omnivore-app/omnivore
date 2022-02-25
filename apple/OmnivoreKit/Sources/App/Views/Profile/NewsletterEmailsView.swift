@@ -23,6 +23,21 @@ final class NewsletterEmailsViewModel: ObservableObject {
     )
     .store(in: &subscriptions)
   }
+
+  func createEmail(dataService: DataService) {
+    isLoading = true
+
+    dataService.createNewsletterEmailPublisher().sink(
+      receiveCompletion: { [weak self] _ in
+        self?.isLoading = false
+      },
+      receiveValue: { [weak self] result in
+        self?.isLoading = false
+        self?.emails.insert(result, at: 0)
+      }
+    )
+    .store(in: &subscriptions)
+  }
 }
 
 struct NewsletterEmailsView: View {
@@ -51,9 +66,7 @@ struct NewsletterEmailsView: View {
       Section(footer: Text(footerText)) {
         Button(
           action: {
-            withAnimation {
-              print("create email")
-            }
+            viewModel.createEmail(dataService: dataService)
           },
           label: {
             HStack {
