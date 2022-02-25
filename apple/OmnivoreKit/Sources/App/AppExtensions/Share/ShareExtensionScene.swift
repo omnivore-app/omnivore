@@ -20,6 +20,26 @@ public extension PlatformViewController {
   }
 }
 
+public final class ShareExtensionViewModel: ObservableObject {
+  public enum Action {
+    case savePage(requestID: String)
+    case copyLinkButtonTapped
+    case readNowButtonTapped
+    case archiveButtonTapped
+    case dismissButtonTapped(reminderTime: ReminderTime?, hideUntilReminded: Bool)
+  }
+
+  @Published public var title: String?
+  @Published public var status = ShareExtensionStatus.successfullySaved
+  @Published public var debugText: String?
+
+  public var subscriptions = Set<AnyCancellable>()
+  public let performActionSubject = PassthroughSubject<Action, Never>()
+  public let requestID = UUID().uuidString.lowercased()
+
+  public init() {}
+}
+
 extension ShareExtensionViewModel {
   static func make(extensionContext: NSExtensionContext?) -> ShareExtensionViewModel {
     let viewModel = ShareExtensionViewModel()
@@ -98,5 +118,26 @@ extension ShareExtensionViewModel {
         self?.status = .failed(error: .unknown(description: ""))
       } receiveValue: { _ in }
       .store(in: &subscriptions)
+  }
+}
+
+public struct ShareExtensionView: View {
+  @ObservedObject private var viewModel: ShareExtensionViewModel
+
+  public init(viewModel: ShareExtensionViewModel) {
+    self.viewModel = viewModel
+  }
+
+  public var body: some View {
+    ShareExtensionChildView(
+      debugText: viewModel.debugText,
+      title: viewModel.title,
+      status: viewModel.status,
+      onAppearAction: { viewModel.performActionSubject.send(.savePage(requestID: viewModel.requestID)) },
+      readNowButtonAction: { viewModel.performActionSubject.send(.readNowButtonTapped) },
+      dismissButtonTappedAction: {
+        viewModel.performActionSubject.send(.dismissButtonTapped(reminderTime: $0, hideUntilReminded: $1))
+      }
+    )
   }
 }
