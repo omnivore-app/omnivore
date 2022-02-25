@@ -55,7 +55,6 @@ struct Snackbar: View {
             .frame(width: min(380, geometry.size.width * 0.96), height: 44)
             .background(self.colorScheme == .light ? Color.black : Color.white)
             .cornerRadius(5)
-            .offset(x: 0, y: -54)
             .shadow(color: .gray, radius: 2)
             .animation(Animation.spring())
             .onAppear {
