@@ -1,16 +1,16 @@
 import { ErrorLayout } from '../components/templates/ErrorLayout'
-import { Box } from '../components/elements/LayoutPrimitives'
 import Head from 'next/head'
+import { SettingsLayout } from '../components/templates/SettingsLayout'
 
 export default function Custom500(): JSX.Element {
   return (
-    <Box
-      css={{ bg: '$omnivoreYellow', height: '100vh', overflow: 'hidden', m: 0, p: 0 }}
-    >
+    <>
       <Head>
-        <title>Page Not Found</title>
+        <title>An unknown error occurred.</title>
       </Head>
-      <ErrorLayout statusCode={500} />;
-    </Box>
+      <SettingsLayout>
+       <ErrorLayout statusCode={404} message="An unknown error occurred." />
+      </SettingsLayout>
+    </>
   )
 }
