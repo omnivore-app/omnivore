@@ -12,7 +12,7 @@ public extension DataService {
 
     let newsletterEmailSelection = Selection.NewsletterEmail {
       NewsletterEmail(
-        id: try $0.id(),
+        emailId: try $0.id(),
         email: try $0.address(),
         confirmationCode: try $0.confirmationCode()
       )
