@@ -31,7 +31,24 @@ struct ProfileContainerView: View {
   @EnvironmentObject var dataService: DataService
 
   @ObservedObject private var viewModel = ProfileContainerViewModel()
+
+  var body: some View {
+    ProfileView(
+      profileCardData: viewModel.profileCardData,
+      webAppBaseURL: dataService.appEnvironment.webAppBaseURL,
+      onAppearAction: { viewModel.loadProfileData(dataService: dataService) },
+      logoutAction: authenticator.logout
+    )
+  }
+}
+
+struct ProfileView: View {
   @State private var showLogoutConfirmation = false
+
+  let profileCardData: ProfileCardData
+  let webAppBaseURL: URL
+  let onAppearAction: () -> Void
+  let logoutAction: () -> Void
 
   var body: some View {
     #if os(iOS)
@@ -49,21 +66,19 @@ struct ProfileContainerView: View {
   private var innerBody: some View {
     Group {
       Section {
-        ProfileCard(data: viewModel.profileCardData)
-          .onAppear {
-            viewModel.loadProfileData(dataService: dataService)
-          }
+        ProfileCard(data: profileCardData)
+          .onAppear { onAppearAction() }
       }
 
       Section {
         NavigationLink(
-          destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+          destination: BasicWebAppView.privacyPolicyWebView(baseURL: webAppBaseURL)
         ) {
           Text("Privacy Policy")
         }
 
         NavigationLink(
-          destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+          destination: BasicWebAppView.termsConditionsWebView(baseURL: webAppBaseURL)
         ) {
           Text("Terms and Conditions")
         }
@@ -97,7 +112,7 @@ struct ProfileContainerView: View {
             Alert(
               title: Text("Are you sure you want to logout?"),
               primaryButton: .destructive(Text("Confirm")) {
-                authenticator.logout()
+                logoutAction()
               },
               secondaryButton: .cancel()
             )
