@@ -76,6 +76,9 @@ const query = gql`
           highlights(input: { includeFriends: $includeFriendsHighlights }) {
             ...HighlightFields
           }
+          labels {
+            ...LabelFields
+          }
         }
       }
       ... on ArticleError {
@@ -85,6 +88,7 @@ const query = gql`
   }
   ${articleFragment}
   ${highlightFragment}
+  ${labelFragment}
 `
 export const cacheArticle = (
   mutate: ScopedMutator,
