@@ -9,12 +9,12 @@ your code meets are style.
 License
 =======
 
-Omnivore is licensed under the AGPL license.
+Omnivore is licensed under the [AGPL license](https://github.com/omnivore-app/omnivore/blob/main/LICENSE).
 
 CLA
 =======
 
-Contributions are taken under [Omnivore's CLA](https://cla-assistant.io/omnivore-app/omnivore).
+Contributions are accepted under [Omnivore's CLA](https://cla-assistant.io/omnivore-app/omnivore).
 
 Code Review
 =======
@@ -23,11 +23,11 @@ We require code review from a [CODEOWNER](https://github.com/omnivore-app/omnivo
 Testing
 =======
 
-Pull requests are automatically tested using GitHub Actions. Wed
-usually only merge a pull request if it causes no regressions in a
-test run.
+Pull requests are automatically tested using GitHub Actions. We
+usually only merge a pull request if it causes no regressions in
+our tests.
 
-When you submit a pull request, one of two things happens:
+When you submit a pull request:
 
 * If you are a new contributor, GitHub will ask for permissions (on
   the pull request) to test it. A maintainer will reply to approve
