@@ -303,6 +303,7 @@ on smaller screens we display the note icon
   margin: 0;
   overflow-x: auto;
   word-wrap: normal;
+  border-radius: 4px;
 }
 
 .article-inner-css img {
