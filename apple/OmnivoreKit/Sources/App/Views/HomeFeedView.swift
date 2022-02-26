@@ -113,7 +113,7 @@ final class HomeFeedViewModel: ObservableObject {
         receiveValue: { [weak self] _ in
           self?.isLoading = false
           stopNetworkActivityIndicator()
-          NSNotification.operationSuccess(message: archived ? "Link archived" : "Link moved to Inbox")
+          Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
         }
       )
       .store(in: &subscriptions)
@@ -130,16 +130,15 @@ final class HomeFeedViewModel: ObservableObject {
     dataService.removeLinkPublisher(itemID: linkId)
       .sink(
         receiveCompletion: { [weak self] completion in
-          guard case let .failure(error) = completion else { return }
+          guard case .failure = completion else { return }
           self?.isLoading = false
           stopNetworkActivityIndicator()
-          print(error)
-          NSNotification.operationFailed(message: "Failed to remove link")
+          Snackbar.show(message: "Failed to remove link")
         },
         receiveValue: { [weak self] _ in
           self?.isLoading = false
           stopNetworkActivityIndicator()
-          NSNotification.operationSuccess(message: "Link removed")
+          Snackbar.show(message: "Link removed")
         }
       )
       .store(in: &subscriptions)
@@ -169,7 +168,7 @@ final class HomeFeedViewModel: ObservableObject {
         self?.isLoading = false
         stopNetworkActivityIndicator()
         if let message = successMessage {
-          NSNotification.operationSuccess(message: message)
+          Snackbar.show(message: message)
         }
       }
     )
@@ -391,7 +390,7 @@ struct HomeFeedView: View {
             .toolbar {
               ToolbarItem {
                 NavigationLink(
-                  destination: { ProfileContainerView() },
+                  destination: { ProfileView() },
                   label: {
                     Image.profile
                       .resizable()

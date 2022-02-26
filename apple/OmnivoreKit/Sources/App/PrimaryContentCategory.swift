@@ -40,7 +40,7 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     case .feed:
       HomeFeedView()
     case .profile:
-      ProfileContainerView()
+      ProfileView()
     }
   }
 

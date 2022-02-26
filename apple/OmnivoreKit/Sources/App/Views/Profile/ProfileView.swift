@@ -26,11 +26,12 @@ final class ProfileContainerViewModel: ObservableObject {
   }
 }
 
-struct ProfileContainerView: View {
+struct ProfileView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
 
   @ObservedObject private var viewModel = ProfileContainerViewModel()
+
   @State private var showLogoutConfirmation = false
 
   var body: some View {
@@ -50,9 +51,13 @@ struct ProfileContainerView: View {
     Group {
       Section {
         ProfileCard(data: viewModel.profileCardData)
-          .onAppear {
-            viewModel.loadProfileData(dataService: dataService)
-          }
+          .onAppear { viewModel.loadProfileData(dataService: dataService) }
+      }
+
+      Section {
+        NavigationLink(destination: NewsletterEmailsView()) {
+          Text("Emails")
+        }
       }
 
       Section {
@@ -70,9 +75,7 @@ struct ProfileContainerView: View {
 
         #if os(iOS)
           Button(
-            action: {
-              DataService.showIntercomMessenger?()
-            },
+            action: { DataService.showIntercomMessenger?() },
             label: { Text("Feedback") }
           )
         #endif
@@ -118,12 +121,12 @@ private extension BasicWebAppView {
   }
 
   private static func omnivoreWebView(path: String, baseURL: URL) -> BasicWebAppView {
-    let urlRequest = URLRequest.webRequest(
-      baseURL: baseURL,
-      urlPath: path,
-      queryParams: nil
-    )
+    let url: URL = {
+      var urlComponents = URLComponents()
+      urlComponents.path = path
+      return urlComponents.url(relativeTo: baseURL)!
+    }()
 
-    return BasicWebAppView(request: urlRequest)
+    return BasicWebAppView(request: URLRequest(url: url))
   }
 }
