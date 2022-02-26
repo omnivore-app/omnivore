@@ -53,6 +53,7 @@ export default class Document extends NextDocument {
           <link rel="manifest" href="/manifest.webmanifest" />
           <script async src="/static/scripts/intercom.js" />
           <script async src="/static/scripts/inject-sw.js" />
+          <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
         </Head>
         <body>
           <Main />

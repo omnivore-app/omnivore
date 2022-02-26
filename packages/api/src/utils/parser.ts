@@ -12,6 +12,7 @@ import { WikipediaHandler } from './wikipedia-handler'
 import { SubstackHandler } from './substack-handler'
 import { AxiosHandler } from './axios-handler'
 import { BloombergHandler } from './bloomberg-handler'
+import * as hljs from 'highlightjs'
 
 const logger = buildLogger('utils.parse')
 
@@ -253,6 +254,22 @@ export const parsePreparedContent = async (
 
     const jsonLdLinkMetadata = await getJSONLdLinkMetadata(window.document)
     logRecord.JSONLdParsed = jsonLdLinkMetadata
+
+    if (article?.content) {
+      const cWindow = new JSDOM(article?.content).window
+      cWindow.document.querySelectorAll('code').forEach((e) => {
+        console.log(e.textContent)
+        if (e.textContent) {
+          const att = hljs.highlightAuto(e.textContent)
+          const code = window.document.createElement('code')
+          const langClass = `hljs language-${att.language}` + att.second_best?.language ? ` language-${att.second_best?.language}` : ''
+          code.setAttribute('class', langClass)
+          code.innerHTML = att.value
+          e.replaceWith(code)
+        }
+      })
+      article.content = cWindow.document.body.outerHTML
+    }
 
     Object.assign(article, {
       content: clean,

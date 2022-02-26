@@ -26,6 +26,8 @@ export type ArticleProps = {
 }
 
 export function Article(props: ArticleProps): JSX.Element {
+  const highlightTheme = isDarkTheme() ? 'dark' : 'default'
+
   const [readingProgress, setReadingProgress] = useState(
     props.initialReadingProgress || 0
   )
@@ -179,7 +181,9 @@ export function Article(props: ArticleProps): JSX.Element {
   }, [onLoadImageHandler])
 
   return (
-    <Box
+    <>
+      <link rel="stylesheet" href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/${highlightTheme}.min.css`} />
+      <Box
       ref={articleContentRef}
       css={{
         maxWidth: '100%',
@@ -188,6 +192,7 @@ export function Article(props: ArticleProps): JSX.Element {
       dangerouslySetInnerHTML={{
         __html: props.content,
       }}
-    />
+      />
+    </>
   )
 }
