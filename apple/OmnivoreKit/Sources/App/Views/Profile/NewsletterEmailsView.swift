@@ -2,6 +2,7 @@ import Combine
 import Models
 import Services
 import SwiftUI
+import Views
 
 final class NewsletterEmailsViewModel: ObservableObject {
   private var hasLoadedInitialEmails = false
@@ -94,7 +95,7 @@ struct NewsletterEmailsView: View {
                   pasteBoard.writeObjects([newsletterEmail.email as NSString])
                 #endif
 
-                NSNotification.operationSuccess(message: "Email copied")
+                Snackbar.show(message: "Email copied")
               },
               label: { Text(newsletterEmail.email) }
             )

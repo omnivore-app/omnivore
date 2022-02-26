@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Snackbar: View {
+public struct Snackbar: View {
   @Binding var isShowing: Bool
   private let presenting: AnyView
   private let text: Text
@@ -27,7 +27,7 @@ struct Snackbar: View {
     self.action = action
   }
 
-  var body: some View {
+  public var body: some View {
     GeometryReader { geometry in
       ZStack(alignment: .center) {
         self.presenting
