@@ -84,7 +84,16 @@ struct NewsletterEmailsView: View {
           ForEach(viewModel.emails) { newsletterEmail in
             Button(
               action: {
-                UIPasteboard.general.string = newsletterEmail.email
+                #if os(iOS)
+                  UIPasteboard.general.string = newsletterEmail.email
+                #endif
+
+                #if os(macOS)
+                  let pasteBoard = NSPasteboard.general
+                  pasteBoard.clearContents()
+                  pasteBoard.writeObjects([newsletterEmail.email as NSString])
+                #endif
+
                 NSNotification.operationSuccess(message: "Email copied")
               },
               label: { Text(newsletterEmail.email) }
