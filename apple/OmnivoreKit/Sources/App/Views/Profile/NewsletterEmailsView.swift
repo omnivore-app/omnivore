@@ -43,7 +43,7 @@ final class NewsletterEmailsViewModel: ObservableObject {
 
 struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
-  @ObservedObject var viewModel = NewsletterEmailsViewModel()
+  @StateObject var viewModel = NewsletterEmailsViewModel()
   let footerText = "Add PDFs to your library, or subscribe to emails using an Omnivore email address."
 
   var body: some View {

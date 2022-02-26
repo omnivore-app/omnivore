@@ -179,7 +179,7 @@ final class HomeFeedViewModel: ObservableObject {
 struct HomeFeedView: View {
   @EnvironmentObject var dataService: DataService
 
-  @ObservedObject private var viewModel = HomeFeedViewModel()
+  @StateObject private var viewModel = HomeFeedViewModel()
   @State private var selectedLinkItem: FeedItem?
   @State private var searchQuery = ""
   @State private var itemToRemove: FeedItem?

@@ -88,7 +88,7 @@ struct RegistrationView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
-  @ObservedObject private var viewModel = RegistrationViewModel()
+  @StateObject private var viewModel = RegistrationViewModel()
 
   var authenticationView: some View {
     VStack(spacing: 0) {

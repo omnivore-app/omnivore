@@ -30,7 +30,7 @@ struct ProfileView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
 
-  @ObservedObject private var viewModel = ProfileContainerViewModel()
+  @StateObject private var viewModel = ProfileContainerViewModel()
 
   @State private var showLogoutConfirmation = false
 

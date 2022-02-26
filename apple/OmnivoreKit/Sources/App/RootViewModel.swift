@@ -22,8 +22,18 @@ public final class RootViewModel: ObservableObject {
 
   public var subscriptions = Set<AnyCancellable>()
 
-  public init() {
+  public init(pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?) {
     registerFonts()
+
+    if let pdfViewerProvider = pdfViewerProvider {
+      configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
+    }
+
+    #if DEBUG
+      if CommandLine.arguments.contains("--uitesting") {
+        services.authenticator.logout()
+      }
+    #endif
   }
 
   func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
@@ -112,26 +122,13 @@ private struct SafariWebLinkPath: Identifiable {
 }
 
 public struct RootView: View {
-  @ObservedObject private var viewModel: RootViewModel
-  @ObservedObject private var authenticator: Authenticator
+  @StateObject private var viewModel: RootViewModel
 
   public init(
     pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?,
     intercomProvider: IntercomProvider?
   ) {
-    let rootViewModel = RootViewModel()
-    self.viewModel = rootViewModel
-    self.authenticator = rootViewModel.services.authenticator
-
-    #if DEBUG
-      if CommandLine.arguments.contains("--uitesting") {
-        authenticator.logout()
-      }
-    #endif
-
-    if let pdfViewerProvider = pdfViewerProvider {
-      viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
-    }
+    self._viewModel = StateObject(wrappedValue: RootViewModel(pdfViewerProvider: pdfViewerProvider))
 
     if let intercomProvider = intercomProvider {
       DataService.showIntercomMessenger = intercomProvider.showIntercomMessenger
@@ -141,7 +138,7 @@ public struct RootView: View {
   }
 
   @ViewBuilder private var innerBody: some View {
-    if authenticator.isLoggedIn {
+    if viewModel.services.authenticator.isLoggedIn {
       PrimaryContentView()
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()

@@ -95,10 +95,10 @@ final class ShareExtensionViewModel: ObservableObject {
 }
 
 struct ShareExtensionView: View {
-  @ObservedObject private var viewModel: ShareExtensionViewModel
+  @StateObject private var viewModel: ShareExtensionViewModel
 
   init(extensionContext: NSExtensionContext?) {
-    self.viewModel = ShareExtensionViewModel(extensionContext: extensionContext)
+    self._viewModel = StateObject(wrappedValue: ShareExtensionViewModel(extensionContext: extensionContext))
   }
 
   var body: some View {
