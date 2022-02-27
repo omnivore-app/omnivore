@@ -26,14 +26,15 @@ public struct PrimaryContentView: View {
     return NavigationView {
       // The first column is the sidebar.
       PrimaryContentSidebar(categories: categories)
-        .navigationBarTitle("Categories")
+        .navigationTitle("Categories")
 
       // Second column is the Primary Nav Stack
-      if let destinationView = categories.first?.destinationView {
-        destinationView
-      } else {
-        Text("Select a Category")
-      }
+      PrimaryContentCategory.feed.destinationView
+
+      // Add a third column for macOS only
+      #if os(macOS)
+        Text("Select a link from the feed")
+      #endif
     }
     .accentColor(.appGrayTextContrast)
   }
