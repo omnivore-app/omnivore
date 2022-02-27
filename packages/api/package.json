@@ -72,6 +72,7 @@
     "graphql": "^15.3.0",
     "graphql-middleware": "^6.0.10",
     "graphql-shield": "^7.5.0",
+    "highlightjs": "^9.16.2",
     "intercom-client": "^2.11.0",
     "jsdom": "^16.4.0",
     "jsonwebtoken": "^8.5.1",
@@ -100,6 +101,7 @@
   "devDependencies": {
     "@babel/register": "^7.14.5",
     "@types/analytics-node": "^3.1.7",
+    "@types/highlightjs": "^9.12.2",
     "@types/nanoid": "^3.0.0",
     "@types/private-ip": "^1.0.0",
     "chai": "^4.3.4",
