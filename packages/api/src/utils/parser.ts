@@ -262,7 +262,11 @@ export const parsePreparedContent = async (
         if (e.textContent) {
           const att = hljs.highlightAuto(e.textContent)
           const code = window.document.createElement('code')
-          const langClass = `hljs language-${att.language}` + att.second_best?.language ? ` language-${att.second_best?.language}` : ''
+          const langClass =
+            `hljs language-${att.language}` +
+            (att.second_best?.language
+              ? ` language-${att.second_best?.language}`
+              : '')
           code.setAttribute('class', langClass)
           code.innerHTML = att.value
           e.replaceWith(code)
