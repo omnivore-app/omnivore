@@ -26,17 +26,13 @@ public struct PrimaryContentView: View {
     return NavigationView {
       // The first column is the sidebar.
       PrimaryContentSidebar(categories: categories)
-        .navigationTitle("Categories")
 
-      // Initial Content of second column
+      // Second column is the Primary Nav Stack
       if let destinationView = categories.first?.destinationView {
         destinationView
       } else {
         Text("Select a Category")
       }
-
-      // Initial content of detail view
-      Text("No Selection")
     }
     .accentColor(.appGrayTextContrast)
   }
