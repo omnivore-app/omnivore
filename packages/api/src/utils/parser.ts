@@ -192,9 +192,6 @@ const applyHandlers = async (url: string, window: DOMWindow): Promise<void> => {
     })
     if (handler) {
       try {
-        // The only handler we have now can modify the URL, but in the
-        // future maybe we let it modify content. In that case
-        // we might exit the request early.
         console.log('pre-handling url or content with handler: ', handler.name)
         await handler.prehandle(u, window)
       } catch (e) {
@@ -247,14 +244,9 @@ export const parsePreparedContent = async (
   try {
     article = getReadabilityResult(url, document, window)
 
-    const newWindow = new JSDOM('').window
-    const DOMPurify = createDOMPurify(newWindow as unknown as Window)
-    DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
-    const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
-
-    const jsonLdLinkMetadata = await getJSONLdLinkMetadata(window.document)
-    logRecord.JSONLdParsed = jsonLdLinkMetadata
-
+    // Format code blocks
+    // TODO: we probably want to move this type of thing
+    // to the handlers, and have some concept of postHandle
     if (article?.content) {
       const cWindow = new JSDOM(article?.content).window
       cWindow.document.querySelectorAll('code').forEach((e) => {
@@ -274,6 +266,14 @@ export const parsePreparedContent = async (
       })
       article.content = cWindow.document.body.outerHTML
     }
+
+    const newWindow = new JSDOM('').window
+    const DOMPurify = createDOMPurify(newWindow as unknown as Window)
+    DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
+    const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
+
+    const jsonLdLinkMetadata = await getJSONLdLinkMetadata(window.document)
+    logRecord.JSONLdParsed = jsonLdLinkMetadata
 
     Object.assign(article, {
       content: clean,
