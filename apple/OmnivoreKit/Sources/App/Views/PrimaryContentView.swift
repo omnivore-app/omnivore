@@ -26,6 +26,7 @@ public struct PrimaryContentView: View {
     return NavigationView {
       // The first column is the sidebar.
       PrimaryContentSidebar(categories: categories)
+        .navigationBarTitle("Categories")
 
       // Second column is the Primary Nav Stack
       if let destinationView = categories.first?.destinationView {
