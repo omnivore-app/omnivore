@@ -5,31 +5,43 @@ import Utils
 
 struct AsyncImage: View {
   let isResizable: Bool
-  @ObservedObject private var imageLoader = ImageLoader()
+  let url: URL?
+  @State private var isLoaded = false
+  @StateObject private var imageLoader = ImageLoader()
 
   init(url: URL?, isResizable: Bool = true) {
     self.isResizable = isResizable
-    if let url = url {
+    self.url = url
+  }
+
+  func load() {
+    if let url = url, !isLoaded {
       imageLoader.load(fromUrl: url)
+      isLoaded = true
     }
   }
 
   var body: some View {
-    #if os(iOS)
-      if isResizable {
-        Image(uiImage: imageLoader.image ?? imageLoader.placeholder)
-          .resizable()
-      } else {
-        Image(uiImage: imageLoader.image ?? imageLoader.placeholder)
-      }
-    #elseif os(macOS)
-      if isResizable {
-        Image(nsImage: imageLoader.image ?? imageLoader.placeholder)
-          .resizable()
-      } else {
-        Image(nsImage: imageLoader.image ?? imageLoader.placeholder)
-      }
-    #endif
+    Group {
+      #if os(iOS)
+        if isResizable {
+          Image(uiImage: imageLoader.image ?? imageLoader.placeholder)
+            .resizable()
+        } else {
+          Image(uiImage: imageLoader.image ?? imageLoader.placeholder)
+        }
+      #elseif os(macOS)
+        if isResizable {
+          Image(nsImage: imageLoader.image ?? imageLoader.placeholder)
+            .resizable()
+        } else {
+          Image(nsImage: imageLoader.image ?? imageLoader.placeholder)
+        }
+      #endif
+    }
+    .onAppear {
+      load()
+    }
   }
 }
 

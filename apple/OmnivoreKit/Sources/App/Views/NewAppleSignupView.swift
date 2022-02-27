@@ -30,12 +30,12 @@ final class NewAppleSignupViewModel: ObservableObject {
 
 struct NewAppleSignupView: View {
   @EnvironmentObject var authenticator: Authenticator
-  @ObservedObject private var viewModel: NewAppleSignupViewModel
+  @StateObject private var viewModel: NewAppleSignupViewModel
   let showProfileEditView: () -> Void
 
   init(userProfile: UserProfile, showProfileEditView: @escaping () -> Void) {
     self.showProfileEditView = showProfileEditView
-    self.viewModel = NewAppleSignupViewModel(userProfile: userProfile)
+    self._viewModel = StateObject(wrappedValue: NewAppleSignupViewModel(userProfile: userProfile))
   }
 
   var body: some View {

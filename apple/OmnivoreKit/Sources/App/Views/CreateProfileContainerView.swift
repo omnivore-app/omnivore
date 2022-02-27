@@ -101,13 +101,15 @@ final class CreateProfileViewModel: ObservableObject {
 struct CreateProfileContainerView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
-  @ObservedObject private var viewModel: CreateProfileViewModel
+  @StateObject private var viewModel: CreateProfileViewModel
 
   @State private var name: String
   @State private var bio = ""
 
   init(userProfile: UserProfile, dataService: DataService) {
-    self.viewModel = CreateProfileViewModel(initialUserProfile: userProfile, dataService: dataService)
+    self._viewModel = StateObject(
+      wrappedValue: CreateProfileViewModel(initialUserProfile: userProfile, dataService: dataService)
+    )
     self._name = State(initialValue: userProfile.name)
   }
 
