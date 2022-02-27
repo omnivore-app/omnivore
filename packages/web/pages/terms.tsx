@@ -11,7 +11,7 @@ export default function Terms(): JSX.Element {
     return <TermsAndConditions />
   } else {
     return (
-      <SettingsLayout>
+      <SettingsLayout title="Terms and Conditions">
         <TermsAndConditions />
       </SettingsLayout>
     )

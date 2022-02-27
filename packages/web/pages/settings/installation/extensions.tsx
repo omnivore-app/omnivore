@@ -6,7 +6,7 @@ import { VStack } from '../../../components/elements/LayoutPrimitives'
 
 export default function Extensions(): JSX.Element {
   return (
-    <SettingsLayout>
+    <SettingsLayout title="Extensions">
       <VStack distribution="center" alignment="center" css={{ width: '100%' }}>
         <ExtensionInstallHelp />
       </VStack>

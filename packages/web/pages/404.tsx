@@ -9,7 +9,7 @@ export default function Custom404(): JSX.Element {
       <Head>
         <title>Page Not Found</title>
       </Head>
-      <SettingsLayout>
+      <SettingsLayout title="Page could not be found">
        <ErrorLayout statusCode={404} message="This page could not be found." />
       </SettingsLayout>
     </>

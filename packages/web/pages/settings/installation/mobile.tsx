@@ -6,10 +6,8 @@ import { VStack } from '../../../components/elements/LayoutPrimitives'
 
 export default function Mobile(): JSX.Element {
   return (
-    <SettingsLayout>
-      {/* <VStack distribution="center" alignment="center" css={{ width: '100%', height: '100%' }}> */}
-        <MobileInstallHelp />
-      {/* </VStack> */}
+    <SettingsLayout title="Mobile Installation">
+      <MobileInstallHelp />
     </SettingsLayout>
   )
 }

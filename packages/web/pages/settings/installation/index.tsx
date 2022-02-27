@@ -7,7 +7,7 @@ import { Box, VStack } from '../../../components/elements/LayoutPrimitives'
 
 export default function Installation(): JSX.Element {
   return (
-    <SettingsLayout>
+    <SettingsLayout title="Installation">
       <MobileInstallHelp />
       <Box css={{ m: '32px' }} />
       <ExtensionInstallHelp />

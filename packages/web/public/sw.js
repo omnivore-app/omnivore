@@ -33,8 +33,6 @@
   const initialCacheItems = [
     homeCache,
     '/manifest.webmanifest',
-    '/favicon.ico',
-    '/favicon-32.png',
     '/pwa-36.png',
     '/pwa-48.png',
     '/pwa-72.png',

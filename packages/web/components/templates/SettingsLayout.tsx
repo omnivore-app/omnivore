@@ -11,8 +11,10 @@ import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
 import { useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
+import { PageMetaData } from '../patterns/PageMetaData'
 
 type SettingsLayoutProps = {
+  title?: string
   children: React.ReactNode
 }
 
@@ -41,6 +43,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
 
   return (
     <>
+      <PageMetaData path='settings' title='Settings' />
         <PrimaryHeader
           user={viewerData?.me}
           isFixedPosition={false}
