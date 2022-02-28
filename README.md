@@ -49,6 +49,10 @@ Omnivore takes advantage of some great open source software:
 * [Radix](https://www.radix-ui.com/) - We use Raxix UI's components on our frontend.
 * And many more awesome libraries, just checkout our package files to see what we are using.
 
+## Importing Libraries
+
+If you have a library you'd like to import, [@davidohlin](https://github.com/davidohlin) has created
+a tool that imports a list of CSV URLs: [omnivore-import](https://github.com/davidohlin/instapaper-to-omnivore-import)
 
 ## How to setup local development :computer:
 
@@ -70,6 +74,7 @@ git clone https://github.com/omnivore-app/omnivore
 cd omnivore
 docker-compose up
 ```
+
 This will start postgres, initialize the database, and start the web and api services.
 
 ### 2. Open the browser
