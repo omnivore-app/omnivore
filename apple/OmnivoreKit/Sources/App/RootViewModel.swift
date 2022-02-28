@@ -33,6 +33,8 @@ public final class RootViewModel: ObservableObject {
   }
 
   func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
+    guard PDFProvider.pdfViewerProvider == nil else { return }
+
     PDFProvider.pdfViewerProvider = { [weak self] url, feedItem in
       guard let self = self else { return AnyView(Text("")) }
       return pdfViewerProvider(url, PDFViewerViewModel(services: self.services, feedItem: feedItem))
@@ -118,15 +120,14 @@ private struct SafariWebLinkPath: Identifiable {
 }
 
 public struct RootView: View {
+  let pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?
   @StateObject private var viewModel = RootViewModel()
 
   public init(
     pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?,
     intercomProvider: IntercomProvider?
   ) {
-    if let pdfViewerProvider = pdfViewerProvider {
-      viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
-    }
+    self.pdfViewerProvider = pdfViewerProvider
 
     if let intercomProvider = intercomProvider {
       DataService.showIntercomMessenger = intercomProvider.showIntercomMessenger
@@ -139,6 +140,11 @@ public struct RootView: View {
     InnerRootView(viewModel: viewModel)
       .environmentObject(viewModel.services.authenticator)
       .environmentObject(viewModel.services.dataService)
+      .onAppear {
+        if let pdfViewerProvider = pdfViewerProvider {
+          viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
+        }
+      }
   }
 }
 
