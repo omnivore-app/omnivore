@@ -9,7 +9,7 @@ public struct PrimaryContentView: View {
       if UIDevice.isIPad {
         regularView
       } else {
-        HomeFeedView()
+        HomeView()
       }
     #elseif os(macOS)
       regularView
