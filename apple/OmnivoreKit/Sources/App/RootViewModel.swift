@@ -22,12 +22,8 @@ public final class RootViewModel: ObservableObject {
 
   public var subscriptions = Set<AnyCancellable>()
 
-  public init(pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?) {
+  public init() {
     registerFonts()
-
-    if let pdfViewerProvider = pdfViewerProvider {
-      configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
-    }
 
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {
@@ -122,13 +118,15 @@ private struct SafariWebLinkPath: Identifiable {
 }
 
 public struct RootView: View {
-  @StateObject private var viewModel: RootViewModel
+  @StateObject private var viewModel = RootViewModel()
 
   public init(
     pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?,
     intercomProvider: IntercomProvider?
   ) {
-    self._viewModel = StateObject(wrappedValue: RootViewModel(pdfViewerProvider: pdfViewerProvider))
+    if let pdfViewerProvider = pdfViewerProvider {
+      viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
+    }
 
     if let intercomProvider = intercomProvider {
       DataService.showIntercomMessenger = intercomProvider.showIntercomMessenger
@@ -137,8 +135,21 @@ public struct RootView: View {
     }
   }
 
+  public var body: some View {
+    InnerRootView(viewModel: viewModel)
+      .environmentObject(viewModel.services.authenticator)
+      .environmentObject(viewModel.services.dataService)
+  }
+}
+
+struct InnerRootView: View {
+  @EnvironmentObject var dataService: DataService
+  @EnvironmentObject var authenticator: Authenticator
+
+  @ObservedObject var viewModel: RootViewModel
+
   @ViewBuilder private var innerBody: some View {
-    if viewModel.services.authenticator.isLoggedIn {
+    if authenticator.isLoggedIn {
       PrimaryContentView()
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
@@ -170,7 +181,7 @@ public struct RootView: View {
     }
   }
 
-  public var body: some View {
+  var body: some View {
     Group {
       #if os(iOS)
         innerBody
@@ -179,8 +190,6 @@ public struct RootView: View {
           .frame(minWidth: 400, idealWidth: 1200, minHeight: 400, idealHeight: 1200)
       #endif
     }
-    .environmentObject(viewModel.services.authenticator)
-    .environmentObject(viewModel.services.dataService)
     #if os(iOS)
       .onOpenURL { url in
         withoutAnimation {
