@@ -76,7 +76,7 @@ struct WelcomeView: View {
   public var body: some View {
     primaryContent()
       .sheet(isPresented: $showDebugModal) {
-        DebugMenuView(initialEnvironment: dataService.appEnvironment)
+        DebugMenuView()
       }
       .onReceive(Publishers.keyboardHeight) { isKeyboardOnScreen = $0 > 1 }
   }

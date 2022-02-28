@@ -6,13 +6,9 @@ import Views
 struct DebugMenuView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
-  @State private var selectedEnvironment: AppEnvironment
+  @State private var selectedEnvironment = AppEnvironment.dev
 
   let appEnvironments: [AppEnvironment] = [.local, .demo, .dev, .prod]
-
-  init(initialEnvironment: AppEnvironment) {
-    self._selectedEnvironment = State(initialValue: initialEnvironment)
-  }
 
   var body: some View {
     VStack {
@@ -38,5 +34,8 @@ struct DebugMenuView: View {
       .buttonStyle(SolidCapsuleButtonStyle(width: 220))
     }
     .padding()
+    .onAppear {
+      selectedEnvironment = dataService.appEnvironment
+    }
   }
 }
