@@ -2,9 +2,9 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
 import {
-  parsePreparedContent,
-  parseOriginalContent,
   parseMetadata,
+  parseOriginalContent,
+  parsePreparedContent,
 } from '../utils/parser'
 import normalizeUrl from 'normalize-url'
 import { kx } from '../datalayer/knex_config'
@@ -28,12 +28,16 @@ export const saveEmail = async (
   input: SaveEmailInput
 ): Promise<UserArticleData | undefined> => {
   const url = input.url
-  const parseResult = await parsePreparedContent(url, {
-    document: input.originalContent,
-    pageInfo: {
-      // can leave this empty for now
+  const parseResult = await parsePreparedContent(
+    url,
+    {
+      document: input.originalContent,
+      pageInfo: {
+        // can leave this empty for now
+      },
     },
-  })
+    true
+  )
 
   const title = input.title
   const content = parseResult.parsedContent?.content || input.originalContent

@@ -131,6 +131,13 @@ declare module '@omnivore/readability' {
         width?: number,
         height?: number
       ) => string
+
+      /**
+       * By default, Readability will clean all tables from the HTML elements in the
+       * processed article. But newsletters in emails use tables to display their content.
+       * By setting this to `true`, these tables will be retained.
+       */
+      keepTables?: boolean
     }
 
     interface ParseResult {
