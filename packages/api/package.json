@@ -22,7 +22,7 @@
     "@opentelemetry/core": "^0.24.0",
     "@opentelemetry/exporter-jaeger": "^0.24.0",
     "@opentelemetry/instrumentation-dns": "^0.27.1",
-    "@opentelemetry/instrumentation-express": "^0.24.0",
+    "@opentelemetry/instrumentation-express": "^0.28.0",
     "@opentelemetry/instrumentation-graphql": "^0.24.0",
     "@opentelemetry/instrumentation-grpc": "^0.27.0",
     "@opentelemetry/instrumentation-http": "^0.27.0",
