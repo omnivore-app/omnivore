@@ -6,7 +6,7 @@ import Views
 struct DebugMenuView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
-  @State private var selectedEnvironment = AppEnvironment.dev
+  @Binding var selectedEnvironment: AppEnvironment
 
   let appEnvironments: [AppEnvironment] = [.local, .demo, .dev, .prod]
 
@@ -34,8 +34,5 @@ struct DebugMenuView: View {
       .buttonStyle(SolidCapsuleButtonStyle(width: 220))
     }
     .padding()
-    .onAppear {
-      selectedEnvironment = dataService.appEnvironment
-    }
   }
 }

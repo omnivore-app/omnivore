@@ -1,4 +1,5 @@
 import Combine
+import Models
 import Services
 import SwiftUI
 import Utils
@@ -10,6 +11,7 @@ struct WelcomeView: View {
   @State private var showRegistrationView = false
   @State private var isKeyboardOnScreen = false
   @State private var showDebugModal = false
+  @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
 
   func handleHiddenGestureAction() {
     if !Bundle.main.isAppStoreBuild {
@@ -76,8 +78,9 @@ struct WelcomeView: View {
   public var body: some View {
     primaryContent()
       .sheet(isPresented: $showDebugModal) {
-        DebugMenuView()
+        DebugMenuView(selectedEnvironment: $selectedEnvironment)
       }
       .onReceive(Publishers.keyboardHeight) { isKeyboardOnScreen = $0 > 1 }
+      .onAppear { selectedEnvironment = dataService.appEnvironment }
   }
 }
