@@ -9,7 +9,7 @@ public struct PrimaryContentView: View {
       if UIDevice.isIPad {
         regularView
       } else {
-        HomeFeedView()
+        HomeView()
       }
     #elseif os(macOS)
       regularView
@@ -28,15 +28,13 @@ public struct PrimaryContentView: View {
       PrimaryContentSidebar(categories: categories)
         .navigationTitle("Categories")
 
-      // Initial Content of second column
-      if let destinationView = categories.first?.destinationView {
-        destinationView
-      } else {
-        Text("Select a Category")
-      }
+      // Second column is the Primary Nav Stack
+      PrimaryContentCategory.feed.destinationView
 
-      // Initial content of detail view
-      Text("No Selection")
+      // Add a third column for macOS only
+      #if os(macOS)
+        Text("Select a link from the feed")
+      #endif
     }
     .accentColor(.appGrayTextContrast)
   }

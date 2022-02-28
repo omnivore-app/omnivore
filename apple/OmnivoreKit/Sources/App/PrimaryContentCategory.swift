@@ -38,7 +38,7 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
   @ViewBuilder var destinationView: some View {
     switch self {
     case .feed:
-      HomeFeedView()
+      HomeView()
     case .profile:
       ProfileView()
     }
