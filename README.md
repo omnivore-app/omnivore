@@ -74,6 +74,7 @@ git clone https://github.com/omnivore-app/omnivore
 cd omnivore
 docker-compose up
 ```
+
 This will start postgres, initialize the database, and start the web and api services.
 
 ### 2. Open the browser
