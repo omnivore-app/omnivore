@@ -86,51 +86,25 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    let columns: [GridItem] = {
-      [GridItem(.adaptive(minimum: 300))]
-    }()
-
     var body: some View {
-      ScrollView {
-        LazyVGrid(columns: columns, spacing: 20) {
+      List {
+        Section {
           ForEach(viewModel.items) { item in
             let link = ZStack {
-              NavigationLink(
-                destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
-                tag: item,
-                selection: $selectedLinkItem
-              ) {
-                EmptyView()
-              }
-              .opacity(0)
-              .buttonStyle(PlainButtonStyle())
-              .onAppear {
-                viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
-              }
-              FeedCard(item: item)
+              FeedCardNavigationLink(
+                item: item,
+                searchQuery: searchQuery,
+                selectedLinkItem: $selectedLinkItem,
+                viewModel: viewModel
+              )
             }.contextMenu {
-              if !item.isArchived {
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
-                    if item == selectedLinkItem {
-                      selectedLinkItem = nil
-                    }
-                  }
-                }, label: { Label("Archive", systemImage: "archivebox") })
-              } else {
-                Button(action: {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
-                  }
-                }, label: { Label("Unarchive", systemImage: "tray.and.arrow.down.fill") })
-              }
-              Button {
-                itemToSnooze = item
-                snoozePresented = true
-              } label: {
-                Label { Text("Snooze") } icon: { Image.moon }
-              }
+              FeedItemContextMenuView(
+                item: item,
+                selectedLinkItem: $selectedLinkItem,
+                snoozePresented: $snoozePresented,
+                itemToSnooze: $itemToSnooze,
+                viewModel: viewModel
+              )
             }
             if #available(iOS 15.0, *) {
               link
@@ -175,14 +149,16 @@ import Views
                   }
                   Button("Cancel", role: .cancel) { self.itemToRemove = nil }
                 }
-              //                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-              //                  Button {
-              //                    itemToSnooze = item
-              //                    snoozePresented = true
-              //                  } label: {
-              //                    Label { Text("Snooze") } icon: { Image.moon }
-              //                  }.tint(.appYellow48)
-              //                }
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                  if FeatureFlag.enableSnooze {
+                    Button {
+                      itemToSnooze = item
+                      snoozePresented = true
+                    } label: {
+                      Label { Text("Snooze") } icon: { Image.moon }
+                    }.tint(.appYellow48)
+                  }
+                }
             } else {
               link
             }
@@ -190,14 +166,7 @@ import Views
         }
 
         if viewModel.isLoading {
-          Section {
-            HStack(alignment: .center) {
-              Spacer()
-              Text("Loading...")
-              Spacer()
-            }
-            .frame(maxWidth: .infinity)
-          }
+          LoadingSection()
         }
       }
       .listStyle(PlainListStyle())

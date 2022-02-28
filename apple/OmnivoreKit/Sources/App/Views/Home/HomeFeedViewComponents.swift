@@ -1,6 +1,7 @@
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 struct FeedItemContextMenuView: View {
@@ -31,11 +32,13 @@ struct FeedItemContextMenuView: View {
         }
       }, label: { Label("Unarchive", systemImage: "tray.and.arrow.down.fill") })
     }
-    Button {
-      itemToSnooze = item
-      snoozePresented = true
-    } label: {
-      Label { Text("Snooze") } icon: { Image.moon }
+    if FeatureFlag.enableSnooze {
+      Button {
+        itemToSnooze = item
+        snoozePresented = true
+      } label: {
+        Label { Text("Snooze") } icon: { Image.moon }
+      }
     }
   }
 }

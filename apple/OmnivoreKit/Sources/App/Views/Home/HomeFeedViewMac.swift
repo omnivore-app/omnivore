@@ -65,5 +65,4 @@ import Views
     }
   }
 
-// TODO: handle $snoozePresented == true
 #endif
