@@ -6,7 +6,8 @@ import Utils
 import Views
 
 final class CreateProfileViewModel: ObservableObject {
-  let initialUserProfile: UserProfile
+  private(set) var initialUserProfile = UserProfile(username: "", name: "", bio: nil)
+  var isConfigured = false
 
   var hasSuggestedProfile: Bool {
     !(initialUserProfile.name.isEmpty && initialUserProfile.username.isEmpty)
@@ -23,21 +24,11 @@ final class CreateProfileViewModel: ObservableObject {
   @Published var loginError: LoginError?
   @Published var validationErrorMessage: String?
   @Published var potentialUsernameStatus = PotentialUsernameStatus.noUsername
-  @Published var potentialUsername: String
+  @Published var potentialUsername = ""
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(initialUserProfile: UserProfile, dataService: DataService) {
-    self.initialUserProfile = initialUserProfile
-    self.potentialUsername = initialUserProfile.username
-
-    $potentialUsername
-      .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
-      .sink(receiveValue: { [weak self] username in
-        self?.validateUsername(username: username, dataService: dataService)
-      })
-      .store(in: &subscriptions)
-  }
+  init() {}
 
   func submitProfile(name: String, bio: String, authenticator: Authenticator) {
     let profileOrError = UserProfile.make(
@@ -96,25 +87,40 @@ final class CreateProfileViewModel: ObservableObject {
       )
       .store(in: &subscriptions)
   }
+
+  func configure(profile: UserProfile, dataService: DataService) {
+    guard !isConfigured else { return }
+
+    isConfigured = true
+    initialUserProfile = profile
+    potentialUsername = profile.username
+
+    $potentialUsername
+      .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+      .sink(receiveValue: { [weak self] username in
+        self?.validateUsername(username: username, dataService: dataService)
+      })
+      .store(in: &subscriptions)
+  }
 }
 
-public struct CreateProfileView: View {
+struct CreateProfileView: View {
+  private let initialUserProfile: UserProfile
+  @State private var isConfigured = false
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
-  @StateObject private var viewModel: CreateProfileViewModel
+  @StateObject private var viewModel = CreateProfileViewModel()
 
-  @State private var name: String
+  @State private var name = ""
   @State private var bio = ""
 
-  init(userProfile: UserProfile, dataService: DataService) {
-    self._viewModel = StateObject(
-      wrappedValue: CreateProfileViewModel(initialUserProfile: userProfile, dataService: dataService)
-    )
+  init(userProfile: UserProfile) {
+    self.initialUserProfile = userProfile
     self._name = State(initialValue: userProfile.name)
   }
 
-  public var body: some View {
+  var body: some View {
     VStack(spacing: 0) {
       VStack(spacing: 28) {
         ScrollView(showsIndicators: false) {
@@ -208,6 +214,12 @@ public struct CreateProfileView: View {
       }
     }
     .frame(maxWidth: 300)
+    .onAppear {
+      guard !isConfigured else { return }
+      isConfigured = true
+      name = initialUserProfile.name
+      viewModel.configure(profile: initialUserProfile, dataService: dataService)
+    }
   }
 }
 
