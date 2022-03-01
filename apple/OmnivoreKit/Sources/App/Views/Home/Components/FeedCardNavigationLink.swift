@@ -35,6 +35,7 @@ struct GridCardNavigationLink: View {
 
   let item: FeedItem
   let searchQuery: String
+  let actionHandler: (GridCardAction) -> Void
 
   @Binding var selectedLinkItem: FeedItem?
 
@@ -47,7 +48,7 @@ struct GridCardNavigationLink: View {
         tag: item,
         selection: $selectedLinkItem
       ) {
-        GridCard(item: item)
+        GridCard(item: item, actionHandler: actionHandler)
       }
       .buttonStyle(FlatLinkStyle())
       .onAppear {

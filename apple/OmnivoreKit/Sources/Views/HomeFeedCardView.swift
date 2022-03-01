@@ -50,11 +50,18 @@ public struct FeedCard: View {
   }
 }
 
+public enum GridCardAction {
+  case toggleArchiveStatus
+  case delete
+}
+
 public struct GridCard: View {
   let item: FeedItem
+  let actionHandler: (GridCardAction) -> Void
 
-  public init(item: FeedItem) {
+  public init(item: FeedItem, actionHandler: @escaping (GridCardAction) -> Void) {
     self.item = item
+    self.actionHandler = actionHandler
   }
 
   public var body: some View {
@@ -77,8 +84,22 @@ public struct GridCard: View {
             .foregroundColor(.appGrayTextContrast)
             .lineLimit(1)
           Spacer()
-          Button(
-            action: { print("grid button tapped") },
+          Menu(
+            content: {
+              Button(
+                action: { actionHandler(.toggleArchiveStatus) },
+                label: {
+                  Label(
+                    item.isArchived ? "Unarchive" : "Archive",
+                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                  )
+                }
+              )
+              Button(
+                action: { actionHandler(.delete) },
+                label: { Label("Delete Link", systemImage: "trash") }
+              )
+            },
             label: { Image.profile }
           )
         }

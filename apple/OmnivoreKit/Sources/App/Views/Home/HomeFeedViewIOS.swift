@@ -248,6 +248,15 @@ import Views
             let link = GridCardNavigationLink(
               item: item,
               searchQuery: searchQuery,
+              actionHandler: { action in
+                switch action {
+                case .toggleArchiveStatus:
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                case .delete:
+                  itemToRemove = item
+                  confirmationShown = true
+                }
+              },
               selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
