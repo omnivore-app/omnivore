@@ -6,16 +6,13 @@ import Utils
 import Views
 
 final class NewAppleSignupViewModel: ObservableObject {
-  let userProfile: UserProfile
   @Published var loginError: LoginError?
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(userProfile: UserProfile) {
-    self.userProfile = userProfile
-  }
+  init() {}
 
-  func submitProfile(authenticator: Authenticator) {
+  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
     authenticator
       .createAccount(userProfile: userProfile).sink(
         receiveCompletion: { [weak self] completion in
@@ -30,13 +27,9 @@ final class NewAppleSignupViewModel: ObservableObject {
 
 struct NewAppleSignupView: View {
   @EnvironmentObject var authenticator: Authenticator
-  @StateObject private var viewModel: NewAppleSignupViewModel
+  @StateObject private var viewModel = NewAppleSignupViewModel()
+  let userProfile: UserProfile
   let showProfileEditView: () -> Void
-
-  init(userProfile: UserProfile, showProfileEditView: @escaping () -> Void) {
-    self.showProfileEditView = showProfileEditView
-    self._viewModel = StateObject(wrappedValue: NewAppleSignupViewModel(userProfile: userProfile))
-  }
 
   var body: some View {
     VStack(spacing: 28) {
@@ -48,14 +41,14 @@ struct NewAppleSignupView: View {
         Text("Your username is:")
           .font(.appBody)
           .foregroundColor(.appGrayText)
-        Text("@\(viewModel.userProfile.username)")
+        Text("@\(userProfile.username)")
           .font(.appHeadline)
           .foregroundColor(.appGrayText)
       }
 
       VStack {
         Button(
-          action: { viewModel.submitProfile(authenticator: authenticator) },
+          action: { viewModel.submitProfile(userProfile: userProfile, authenticator: authenticator) },
           label: { Text("Continue") }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
