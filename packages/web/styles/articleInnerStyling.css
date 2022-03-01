@@ -293,7 +293,6 @@ on smaller screens we display the note icon
 
 .article-inner-css pre,
 .article-inner-css code {
-  display: inline-block;
   vertical-align: bottom;
   word-wrap: initial;
   font-family: 'SF Mono', monospace !important;
