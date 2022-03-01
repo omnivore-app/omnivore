@@ -1,5 +1,6 @@
 import Models
 import SwiftUI
+import Utils
 
 public struct FeedCard: View {
   let item: FeedItem
@@ -60,11 +61,11 @@ public struct GridCard: View {
     VStack(alignment: .leading, spacing: 16) {
       // Progress Bar
       if #available(iOS 15.0, *) {
-        ProgressView(value: Double.random(in: 0 ... 1))
+        ProgressView(value: min(abs(item.readingProgress) / 100, 1))
           .tint(.appYellow48)
           .frame(maxWidth: .infinity, alignment: .leading)
       } else {
-        ProgressView(value: Double.random(in: 0 ... 1))
+        ProgressView(value: max(abs(item.readingProgress) / 100, 1))
           .frame(maxWidth: .infinity, alignment: .leading)
       }
 
@@ -104,7 +105,7 @@ public struct GridCard: View {
       .frame(height: 30)
       .padding(.horizontal)
 
-      // Description, Image
+      // Link description and image
       HStack(alignment: .top) {
         Text(item.description ?? item.title)
           .font(.appFootnote)
@@ -124,17 +125,21 @@ public struct GridCard: View {
       .frame(height: 95)
       .padding(.horizontal)
 
-      // Labels
-      HStack {
-        if Bool.random() {
-          TextChip(text: "label", color: .red)
-          TextChip(text: "longer label", color: .blue)
+      // Category Labels
+      if FeatureFlag.showFeedItemTags {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            TextChip(text: "label", color: .red)
+            TextChip(text: "longer label", color: .blue)
+            Spacer()
+          }
+          .frame(height: 30)
+          .padding(.horizontal)
+          .padding(.bottom, 8)
         }
-        Spacer()
+      } else {
+        Spacer(minLength: 8)
       }
-      .frame(height: 30)
-      .padding(.horizontal)
-      .padding(.bottom, 8)
     }
     .background(Color(.secondarySystemGroupedBackground))
     .cornerRadius(6)
