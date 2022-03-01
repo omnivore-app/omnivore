@@ -245,7 +245,7 @@ import Views
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
           ForEach(viewModel.items) { item in
             let link = ZStack {
-              FeedCardNavigationLink(
+              GridCardNavigationLink(
                 item: item,
                 searchQuery: searchQuery,
                 selectedLinkItem: $selectedLinkItem,
