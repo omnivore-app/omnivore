@@ -1,6 +1,7 @@
 import AppAuth
 import Combine
 import Foundation
+import Models
 import Utils
 import WebKit
 
@@ -14,6 +15,7 @@ public final class Authenticator: ObservableObject {
   }
 
   @Published public internal(set) var isLoggedIn: Bool
+  @Published public var pendinguserProfile = UserProfile(username: "", name: "", bio: nil)
 
   let networker: Networker
 
