@@ -6,13 +6,9 @@ import Views
 struct DebugMenuView: View {
   @EnvironmentObject var authenticator: Authenticator
   @EnvironmentObject var dataService: DataService
-  @State private var selectedEnvironment: AppEnvironment
+  @Binding var selectedEnvironment: AppEnvironment
 
   let appEnvironments: [AppEnvironment] = [.local, .demo, .dev, .prod]
-
-  init(initialEnvironment: AppEnvironment) {
-    self._selectedEnvironment = State(initialValue: initialEnvironment)
-  }
 
   var body: some View {
     VStack {

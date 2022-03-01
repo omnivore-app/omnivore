@@ -129,7 +129,7 @@ struct RegistrationView: View {
   var body: some View {
     if let registrationState = viewModel.registrationState {
       if case let RegistrationViewModel.RegistrationState.createProfile(userProfile) = registrationState {
-        CreateProfileContainerView(userProfile: userProfile, dataService: dataService)
+        CreateProfileView(userProfile: userProfile)
       } else if case let RegistrationViewModel.RegistrationState.newAppleSignUp(userProfile) = registrationState {
         NewAppleSignupView(
           userProfile: userProfile,
