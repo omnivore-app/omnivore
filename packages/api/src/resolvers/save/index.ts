@@ -21,7 +21,7 @@ export const savePageResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  createIntercomEvent('link-saved', uid)
+  await createIntercomEvent('link-saved', uid)
 
   const user = userDataToUser(await models.user.get(uid))
   if (!user) {
@@ -44,7 +44,7 @@ export const saveUrlResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  createIntercomEvent('link-saved', uid)
+  await createIntercomEvent('link-saved', uid)
 
   const user = userDataToUser(await models.user.get(uid))
   if (!user) {
@@ -63,7 +63,7 @@ export const saveFileResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  createIntercomEvent('link-saved', uid)
+  await createIntercomEvent('link-saved', uid)
 
   const user = userDataToUser(await models.user.get(uid))
   if (!user) {

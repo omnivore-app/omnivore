@@ -333,13 +333,11 @@ export function authRouter() {
 
       if (env.server.apiEnv && !env.dev.isLocal && IntercomClient) {
         if (newUser) {
-          createIntercomEvent('signed-up', user.id, function () {
-            redirect(res)
-          })
+          await createIntercomEvent('signed-up', user.id)
+          redirect(res)
         } else {
-          createIntercomEvent('logged-in', user.id, function () {
-            redirect(res)
-          })
+          await createIntercomEvent('logged-in', user.id)
+          redirect(res)
         }
       } else {
         redirect(res)
