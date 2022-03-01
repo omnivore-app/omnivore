@@ -156,8 +156,8 @@ export function useGetLibraryItemsQuery({
   // it will be nested in the data pages, if there is one error,
   // we invalidate the data and return the error. We also zero out
   // the response in the case of an error.
-  if (!error && data) {
-    const errors = data?.filter((d) => d.articles.errorCodes?.length > 0)
+  if (!error && responsePages) {
+    const errors = responsePages.filter((d) => d.articles.errorCodes && d.articles.errorCodes.length > 0)
     if (errors?.length > 0) {
       responseError = errors
       responsePages = undefined
