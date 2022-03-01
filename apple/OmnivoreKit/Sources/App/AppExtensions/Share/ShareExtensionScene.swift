@@ -21,8 +21,6 @@ public extension PlatformViewController {
 }
 
 final class ShareExtensionViewModel: ObservableObject {
-  let extensionContext: NSExtensionContext?
-
   @Published var title: String?
   @Published var status = ShareExtensionStatus.successfullySaved
   @Published var debugText: String?
@@ -30,11 +28,9 @@ final class ShareExtensionViewModel: ObservableObject {
   var subscriptions = Set<AnyCancellable>()
   let requestID = UUID().uuidString.lowercased()
 
-  init(extensionContext: NSExtensionContext?) {
-    self.extensionContext = extensionContext
-  }
+  init() {}
 
-  func handleReadNowAction() {
+  func handleReadNowAction(extensionContext: NSExtensionContext?) {
     #if os(iOS)
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
         let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestID)")
@@ -44,7 +40,7 @@ final class ShareExtensionViewModel: ObservableObject {
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
-  func savePage() {
+  func savePage(extensionContext: NSExtensionContext?) {
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
       switch result {
       case let .success(payload):
@@ -95,21 +91,18 @@ final class ShareExtensionViewModel: ObservableObject {
 }
 
 struct ShareExtensionView: View {
-  @StateObject private var viewModel: ShareExtensionViewModel
-
-  init(extensionContext: NSExtensionContext?) {
-    self._viewModel = StateObject(wrappedValue: ShareExtensionViewModel(extensionContext: extensionContext))
-  }
+  let extensionContext: NSExtensionContext?
+  @StateObject private var viewModel = ShareExtensionViewModel()
 
   var body: some View {
     ShareExtensionChildView(
       debugText: viewModel.debugText,
       title: viewModel.title,
       status: viewModel.status,
-      onAppearAction: viewModel.savePage,
-      readNowButtonAction: viewModel.handleReadNowAction,
+      onAppearAction: { viewModel.savePage(extensionContext: extensionContext) },
+      readNowButtonAction: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
       dismissButtonTappedAction: { _, _ in
-        viewModel.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
       }
     )
   }

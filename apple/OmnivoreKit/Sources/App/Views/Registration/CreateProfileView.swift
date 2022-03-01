@@ -117,7 +117,6 @@ struct CreateProfileView: View {
 
   init(userProfile: UserProfile) {
     self.initialUserProfile = userProfile
-    self._name = State(initialValue: userProfile.name)
   }
 
   var body: some View {
