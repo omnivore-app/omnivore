@@ -24,7 +24,9 @@ struct HomeView: View {
         }
         .accentColor(.appGrayTextContrast)
       } else {
-        HomeFeedContainerView(isCompact: false, viewModel: viewModel)
+        GeometryReader { geo in
+          HomeFeedContainerView(isCompact: geo.size.width < 500, viewModel: viewModel)
+        }
       }
     #elseif os(macOS)
       HomeFeedView(viewModel: viewModel)

@@ -239,9 +239,11 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+
     var body: some View {
       ScrollView {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+        LazyVGrid(columns: columns, spacing: 20) {
           ForEach(viewModel.items) { item in
             let link = GridCardNavigationLink(
               item: item,
@@ -276,6 +278,8 @@ import Views
             }
           }
         }
+        .padding()
+        .background(Color(.systemGroupedBackground))
 
         if viewModel.isLoading {
           LoadingSection()

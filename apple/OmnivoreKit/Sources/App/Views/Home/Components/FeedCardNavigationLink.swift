@@ -12,6 +12,7 @@ struct FeedCardNavigationLink: View {
   @Binding var selectedLinkItem: FeedItem?
 
   @ObservedObject var viewModel: HomeFeedViewModel
+  
   var body: some View {
     NavigationLink(
       destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
@@ -38,6 +39,7 @@ struct GridCardNavigationLink: View {
   @Binding var selectedLinkItem: FeedItem?
 
   @ObservedObject var viewModel: HomeFeedViewModel
+  
   var body: some View {
     ZStack {
       NavigationLink(
@@ -47,11 +49,16 @@ struct GridCardNavigationLink: View {
       ) {
         GridCard(item: item)
       }
-//      .opacity(0)
-//      .buttonStyle(PlainButtonStyle())
+//      .buttonStyle(FlatLinkStyle())
       .onAppear {
         viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
       }
     }
+  }
+}
+
+struct FlatLinkStyle: ButtonStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
   }
 }
