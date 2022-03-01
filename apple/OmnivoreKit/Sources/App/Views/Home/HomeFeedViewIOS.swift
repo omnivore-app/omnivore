@@ -265,8 +265,8 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      List {
-        Section {
+      ScrollView {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
           ForEach(viewModel.items) { item in
             let link = ZStack {
               FeedCardNavigationLink(
