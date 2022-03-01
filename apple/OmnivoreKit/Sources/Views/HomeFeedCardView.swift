@@ -64,6 +64,24 @@ public struct GridCard: View {
     self.actionHandler = actionHandler
   }
 
+  var contextMenuView: some View {
+    Group {
+      Button(
+        action: { actionHandler(.toggleArchiveStatus) },
+        label: {
+          Label(
+            item.isArchived ? "Unarchive" : "Archive",
+            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+          )
+        }
+      )
+      Button(
+        action: { actionHandler(.delete) },
+        label: { Label("Delete Link", systemImage: "trash") }
+      )
+    }
+  }
+
   public var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       // Progress Bar
@@ -84,24 +102,7 @@ public struct GridCard: View {
             .foregroundColor(.appGrayTextContrast)
             .lineLimit(1)
           Spacer()
-          Menu(
-            content: {
-              Button(
-                action: { actionHandler(.toggleArchiveStatus) },
-                label: {
-                  Label(
-                    item.isArchived ? "Unarchive" : "Archive",
-                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-                  )
-                }
-              )
-              Button(
-                action: { actionHandler(.delete) },
-                label: { Label("Delete Link", systemImage: "trash") }
-              )
-            },
-            label: { Image.profile }
-          )
+          Menu(content: { contextMenuView }, label: { Image.profile })
         }
 
         HStack {
@@ -164,23 +165,7 @@ public struct GridCard: View {
     }
     .background(Color(.secondarySystemGroupedBackground))
     .cornerRadius(6)
-  }
-}
-
-struct TextChipdep: View {
-  let text: String
-  let color: Color
-
-  var body: some View {
-    Capsule()
-      .fill(color.opacity(0.3))
-      .border(color.opacity(0.7), width: 3)
-      .overlay(
-        Text(text)
-          .font(.appFootnote)
-          .foregroundColor(color)
-          .padding()
-      )
+    .contextMenu { contextMenuView }
   }
 }
 

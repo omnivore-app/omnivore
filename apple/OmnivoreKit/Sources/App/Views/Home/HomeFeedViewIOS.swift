@@ -241,6 +241,16 @@ import Views
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
 
+    func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
+      switch action {
+      case .toggleArchiveStatus:
+        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+      case .delete:
+        itemToRemove = item
+        confirmationShown = true
+      }
+    }
+
     var body: some View {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 20) {
@@ -248,27 +258,10 @@ import Views
             let link = GridCardNavigationLink(
               item: item,
               searchQuery: searchQuery,
-              actionHandler: { action in
-                switch action {
-                case .toggleArchiveStatus:
-                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
-                case .delete:
-                  itemToRemove = item
-                  confirmationShown = true
-                }
-              },
+              actionHandler: { contextMenuActionHandler(item: item, action: $0) },
               selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
-            .contextMenu {
-              FeedItemContextMenuView(
-                item: item,
-                selectedLinkItem: $selectedLinkItem,
-                snoozePresented: $snoozePresented,
-                itemToSnooze: $itemToSnooze,
-                viewModel: viewModel
-              )
-            }
             if #available(iOS 15.0, *) {
               link
                 .alert("Are you sure?", isPresented: $confirmationShown) {
