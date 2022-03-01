@@ -32,6 +32,6 @@
     "axios": "^0.26.0",
     "concurrently": "^6.2.1",
     "csv-parser": "^3.0.0",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.15"
   }
 }
