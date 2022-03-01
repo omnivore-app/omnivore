@@ -44,12 +44,12 @@ const moduleExports = {
         permanent: true,
       },
       {
-        source: '/static/icons/default/favicon-dark.ico',
+        source: '/static/icons/favicon-dark.ico',
         destination: '/favicon-dark.ico',
         permanent: true,
       },
       {
-        source: '/static/icons/default/favicon-light.ico',
+        source: '/static/icons/favicon-light.ico',
         destination: '/favicon.ico',
         permanent: true,
       },

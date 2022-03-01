@@ -11,7 +11,7 @@ export default function Privacy(): JSX.Element {
     return <PrivacyPolicy />
   } else {
     return (
-      <SettingsLayout>
+      <SettingsLayout title="Privacy Policy">
         <PrivacyPolicy />
       </SettingsLayout>
     )
