@@ -126,7 +126,7 @@ export const createArticleResolver = authorized<
         env: env.server.apiEnv,
       },
     })
-    createIntercomEvent('link-saved', uid)
+    await createIntercomEvent('link-saved', uid)
 
     const articleSavingRequest = articleSavingRequestId
       ? (await models.articleSavingRequest.get(articleSavingRequestId)) ||
@@ -507,7 +507,7 @@ export const getArticleResolver: ResolverFn<
         env: env.server.apiEnv,
       },
     })
-    createIntercomEvent('get-article', claims.uid)
+    await createIntercomEvent('get-article', claims.uid)
 
     const article = await models.userArticle.getByUserIdAndSlug(
       claims.uid,
@@ -555,7 +555,7 @@ export const getArticlesResolver = authorized<
       env: env.server.apiEnv,
     },
   })
-  createIntercomEvent('search', claims.uid)
+  await createIntercomEvent('search', claims.uid)
 
   const [userArticles, totalCount] = (await authTrx((tx) =>
     models.userArticle.getPaginated(

@@ -60,17 +60,13 @@ export class CreateIntercomAccount
     const customAttributes: { source_user_id: string } = {
       source_user_id: profile.user.sourceUserId,
     }
-    await IntercomClient?.users.create({
+    await IntercomClient?.contacts.createUser({
       email: profile.user.email,
-      user_id: profile.user.id,
+      externalId: profile.user.id,
       name: profile.user.name,
-      avatar: {
-        image_url: profile.pictureUrl || null,
-        type: 'avatar',
-      },
-      custom_attributes: customAttributes,
-      created_at: Math.floor(new Date(profile.user.createdAt).getTime() / 1000),
-      signed_up_at: Math.floor(Date.now() / 1000),
+      avatar: profile.pictureUrl,
+      customAttributes: customAttributes,
+      signedUpAt: Math.floor(Date.now() / 1000),
     })
   }
 }

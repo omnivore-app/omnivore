@@ -20,7 +20,7 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { models, claims }) => {
-  createIntercomEvent('link-save-request', claims.uid)
+  await createIntercomEvent('link-save-request', claims.uid)
   const request = await createPageSaveRequest(claims.uid, url, models)
   return {
     articleSavingRequest: request,
