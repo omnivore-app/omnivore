@@ -12,7 +12,7 @@ import Views
 
     var body: some View {
       NavigationView {
-        HomeFeedContainerView(viewModel: viewModel)
+        HomeFeedContainerView(isCompact: true, viewModel: viewModel)
           .toolbar {
             ToolbarItem {
               NavigationLink(
@@ -32,13 +32,14 @@ import Views
   }
 
   struct HomeFeedContainerView: View {
+    let isCompact: Bool
     @EnvironmentObject var dataService: DataService
     @State private var searchQuery = ""
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
       if #available(iOS 15.0, *) {
-        HomeFeedView(searchQuery: $searchQuery, viewModel: viewModel)
+        HomeFeedView(isCompact: isCompact, searchQuery: $searchQuery, viewModel: viewModel)
           .refreshable {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
@@ -62,7 +63,7 @@ import Views
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
       } else {
-        HomeFeedView(searchQuery: $searchQuery, viewModel: viewModel).toolbar {
+        HomeFeedView(isCompact: isCompact, searchQuery: $searchQuery, viewModel: viewModel).toolbar {
           ToolbarItem {
             Button(
               action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
@@ -75,6 +76,7 @@ import Views
   }
 
   struct HomeFeedView: View {
+    let isCompact: Bool
     @EnvironmentObject var dataService: DataService
     @Binding var searchQuery: String
 
@@ -174,7 +176,7 @@ import Views
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
         if selectedLinkItem == nil {
-          refresh()
+          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
@@ -195,14 +197,14 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          refresh()
+          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
         }
       }
     }
-
-    private func refresh() {
-      viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-    }
   }
+
+  // struct HomeFeedListView: View {}
+//
+  // struct HomeFeedGridView: View {}
 
 #endif

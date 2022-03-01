@@ -8,7 +8,7 @@ struct HomeView: View {
       if UIDevice.isIPhone {
         CompactHomeView(viewModel: viewModel)
       } else {
-        HomeFeedContainerView(viewModel: viewModel)
+        HomeFeedContainerView(isCompact: false, viewModel: viewModel)
       }
     #elseif os(macOS)
       HomeFeedView(viewModel: viewModel)
