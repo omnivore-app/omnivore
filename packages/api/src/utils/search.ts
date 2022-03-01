@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
+  ISearchParserDictionary,
   parse,
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
@@ -27,7 +28,17 @@ export type SearchFilter = {
   inFilter: InFilter
   readFilter: ReadFilter
   typeFilter?: PageType | undefined
-  labelFilters?: string[]
+  labelFilters: LabelFilter[]
+}
+
+export enum LabelFilterType {
+  ANY,
+  NONE,
+}
+
+export type LabelFilter = {
+  type: LabelFilterType
+  labels: string[]
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -78,18 +89,27 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
   return undefined
 }
 
-const parseLabelFilters = (
-  str: string | undefined,
-  labelFilters: string[] | undefined
-): string[] | undefined => {
+const parseLabelFilter = (
+  str?: string,
+  exclude?: ISearchParserDictionary
+): LabelFilter | undefined => {
   if (str === undefined) {
-    return labelFilters
+    return undefined
   }
 
   // use lower case for label names
-  const label = str.toLowerCase()
+  const labels = str.toLocaleLowerCase().split(',')
 
-  return labelFilters ? labelFilters.concat(label) : [label]
+  // check if the labels are in the exclude list
+  const excluded =
+    exclude &&
+    exclude.label &&
+    labels.every((label) => exclude.label.includes(label))
+
+  return {
+    type: excluded ? LabelFilterType.NONE : LabelFilterType.ANY,
+    labels,
+  }
 }
 
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
@@ -98,6 +118,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     query: searchQuery,
     readFilter: ReadFilter.ALL,
     inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
+    labelFilters: [],
   }
 
   if (!searchQuery) {
@@ -105,6 +126,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       query: undefined,
       inFilter: InFilter.INBOX,
       readFilter: ReadFilter.ALL,
+      labelFilters: [],
     }
   }
 
@@ -148,12 +170,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'type':
           result.typeFilter = parseTypeFilter(keyword.value)
           break
-        case 'label':
-          result.labelFilters = parseLabelFilters(
-            keyword.value,
-            result.labelFilters
-          )
+        case 'label': {
+          const labelFilter = parseLabelFilter(keyword.value, parsed.exclude)
+          labelFilter && result.labelFilters.push(labelFilter)
           break
+        }
       }
     }
   }
