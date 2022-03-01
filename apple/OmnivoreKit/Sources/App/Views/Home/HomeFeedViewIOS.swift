@@ -35,11 +35,22 @@ import Views
     let isCompact: Bool
     @EnvironmentObject var dataService: DataService
     @State private var searchQuery = ""
+    @State private var snoozePresented = false
+    @State private var itemToSnooze: FeedItem?
+    @State private var selectedLinkItem: FeedItem?
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      if #available(iOS 15.0, *) {
-        HomeFeedView(isCompact: isCompact, searchQuery: $searchQuery, viewModel: viewModel)
+      Group {
+        if #available(iOS 15.0, *) {
+          HomeFeedView(
+            isCompact: isCompact,
+            searchQuery: $searchQuery,
+            selectedLinkItem: $selectedLinkItem,
+            snoozePresented: $snoozePresented,
+            itemToSnooze: $itemToSnooze,
+            viewModel: viewModel
+          )
           .refreshable {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
@@ -62,14 +73,51 @@ import Views
           .onSubmit(of: .search) {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
-      } else {
-        HomeFeedView(isCompact: isCompact, searchQuery: $searchQuery, viewModel: viewModel).toolbar {
-          ToolbarItem {
-            Button(
-              action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
-              label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-            )
+        } else {
+          HomeFeedView(
+            isCompact: isCompact,
+            searchQuery: $searchQuery,
+            selectedLinkItem: $selectedLinkItem,
+            snoozePresented: $snoozePresented,
+            itemToSnooze: $itemToSnooze,
+            viewModel: viewModel
+          )
+          .toolbar {
+            ToolbarItem {
+              Button(
+                action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
+                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+            }
           }
+        }
+      }
+      .navigationTitle("Home")
+      .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+        // Don't refresh the list if the user is currently reading an article
+        if selectedLinkItem == nil {
+          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+        }
+      }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
+        if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
+          viewModel.pushFeedItem(item: feedItem)
+          self.selectedLinkItem = feedItem
+        }
+      }
+      .formSheet(isPresented: $snoozePresented) {
+        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
+          viewModel.snoozeUntil(
+            dataService: dataService,
+            linkId: $0.feedItemId,
+            until: $0.snoozeUntilDate,
+            successMessage: $0.successMessage
+          )
+        }
+      }
+      .onAppear {
+        if viewModel.items.isEmpty {
+          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
         }
       }
     }
@@ -79,12 +127,12 @@ import Views
     let isCompact: Bool
     @EnvironmentObject var dataService: DataService
     @Binding var searchQuery: String
+    @Binding var selectedLinkItem: FeedItem?
+    @Binding var snoozePresented: Bool
+    @Binding var itemToSnooze: FeedItem?
 
-    @State private var selectedLinkItem: FeedItem?
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
-    @State private var snoozePresented = false
-    @State private var itemToSnooze: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -172,34 +220,6 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
-      .navigationTitle("Home")
-      .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-        // Don't refresh the list if the user is currently reading an article
-        if selectedLinkItem == nil {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-        }
-      }
-      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
-        if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
-          viewModel.pushFeedItem(item: feedItem)
-          self.selectedLinkItem = feedItem
-        }
-      }
-      .formSheet(isPresented: $snoozePresented) {
-        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
-          viewModel.snoozeUntil(
-            dataService: dataService,
-            linkId: $0.feedItemId,
-            until: $0.snoozeUntilDate,
-            successMessage: $0.successMessage
-          )
-        }
-      }
-      .onAppear {
-        if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-        }
-      }
     }
   }
 
