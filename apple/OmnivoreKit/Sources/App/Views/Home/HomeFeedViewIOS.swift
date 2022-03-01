@@ -125,6 +125,29 @@ import Views
 
   struct HomeFeedView: View {
     let isCompact: Bool
+    @Binding var searchQuery: String
+    @Binding var selectedLinkItem: FeedItem?
+    @Binding var snoozePresented: Bool
+    @Binding var itemToSnooze: FeedItem?
+
+    @ObservedObject var viewModel: HomeFeedViewModel
+
+    var body: some View {
+      if isCompact {
+        HomeFeedListView(
+          searchQuery: $searchQuery,
+          selectedLinkItem: $selectedLinkItem,
+          snoozePresented: $snoozePresented,
+          itemToSnooze: $itemToSnooze,
+          viewModel: viewModel
+        )
+      } else {
+        HomeFeedGridView()
+      }
+    }
+  }
+
+  struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var searchQuery: String
     @Binding var selectedLinkItem: FeedItem?
@@ -223,8 +246,10 @@ import Views
     }
   }
 
-  // struct HomeFeedListView: View {}
-//
-  // struct HomeFeedGridView: View {}
+  struct HomeFeedGridView: View {
+    var body: some View {
+      Text("Grid View")
+    }
+  }
 
 #endif
