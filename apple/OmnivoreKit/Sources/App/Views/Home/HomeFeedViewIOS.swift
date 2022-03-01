@@ -145,14 +145,13 @@ import Views
       List {
         Section {
           ForEach(viewModel.items) { item in
-            let link = ZStack {
-              FeedCardNavigationLink(
-                item: item,
-                searchQuery: searchQuery,
-                selectedLinkItem: $selectedLinkItem,
-                viewModel: viewModel
-              )
-            }.contextMenu {
+            let link = FeedCardNavigationLink(
+              item: item,
+              searchQuery: searchQuery,
+              selectedLinkItem: $selectedLinkItem,
+              viewModel: viewModel
+            )
+            .contextMenu {
               FeedItemContextMenuView(
                 item: item,
                 selectedLinkItem: $selectedLinkItem,
@@ -244,14 +243,13 @@ import Views
       ScrollView {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
           ForEach(viewModel.items) { item in
-            let link = ZStack {
-              GridCardNavigationLink(
-                item: item,
-                searchQuery: searchQuery,
-                selectedLinkItem: $selectedLinkItem,
-                viewModel: viewModel
-              )
-            }.contextMenu {
+            let link = GridCardNavigationLink(
+              item: item,
+              searchQuery: searchQuery,
+              selectedLinkItem: $selectedLinkItem,
+              viewModel: viewModel
+            )
+            .contextMenu {
               FeedItemContextMenuView(
                 item: item,
                 selectedLinkItem: $selectedLinkItem,

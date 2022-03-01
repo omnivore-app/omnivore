@@ -22,14 +22,13 @@ import Views
       List {
         Section {
           ForEach(viewModel.items) { item in
-            ZStack {
-              FeedCardNavigationLink(
-                item: item,
-                searchQuery: searchQuery,
-                selectedLinkItem: $selectedLinkItem,
-                viewModel: viewModel
-              )
-            }.contextMenu {
+            FeedCardNavigationLink(
+              item: item,
+              searchQuery: searchQuery,
+              selectedLinkItem: $selectedLinkItem,
+              viewModel: viewModel
+            )
+            .contextMenu {
               FeedItemContextMenuView(
                 item: item,
                 selectedLinkItem: $selectedLinkItem,

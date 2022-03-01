@@ -51,6 +51,6 @@ struct GridCardNavigationLink: View {
     .onAppear {
       viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
     }
-    FeedCard(item: item)
+    GridCard(item: item)
   }
 }
