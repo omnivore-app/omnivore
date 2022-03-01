@@ -12,6 +12,7 @@ import { WikipediaHandler } from './wikipedia-handler'
 import { SubstackHandler } from './substack-handler'
 import { AxiosHandler } from './axios-handler'
 import { BloombergHandler } from './bloomberg-handler'
+import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
 
 const logger = buildLogger('utils.parse')
@@ -48,6 +49,7 @@ const HANDLERS = [
   new SubstackHandler(),
   new AxiosHandler(),
   new BloombergHandler(),
+  new GolangHandler(),
 ]
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
@@ -135,7 +137,8 @@ const getPurifiedContent = (html: string): Document => {
 const getReadabilityResult = (
   url: string,
   html: string,
-  window: DOMWindow
+  window: DOMWindow,
+  isNewsletter?: boolean
 ): Readability.ParseResult | null => {
   virtualConsole.removeAllListeners('jsdomError')
   virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
@@ -166,6 +169,7 @@ const getReadabilityResult = (
       const article = new Readability(document, {
         debug: DEBUG_MODE,
         createImageProxyUrl,
+        keepTables: isNewsletter,
       }).parse()
 
       if (article) {
@@ -205,7 +209,8 @@ const applyHandlers = async (url: string, window: DOMWindow): Promise<void> => {
 
 export const parsePreparedContent = async (
   url: string,
-  preparedDocument: PreparedDocumentInput
+  preparedDocument: PreparedDocumentInput,
+  isNewsletter?: boolean
 ): Promise<ParsedContentPuppeteer> => {
   const logRecord: ArticleParseLogRecord = {
     url: url,
@@ -242,7 +247,7 @@ export const parsePreparedContent = async (
   await applyHandlers(url, window)
 
   try {
-    article = getReadabilityResult(url, document, window)
+    article = getReadabilityResult(url, document, window, isNewsletter)
 
     // Format code blocks
     // TODO: we probably want to move this type of thing

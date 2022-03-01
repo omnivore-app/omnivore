@@ -17,9 +17,10 @@ export class AxiosHandler {
       if (k > 0) {
         el.remove()
       } else {
+        // removes the first few rows of the table (the header)
         // remove the last two rows of the table (they are ads)
         el.querySelectorAll('tr').forEach((tr, i) => {
-          if (i >= el.querySelectorAll('tr').length - 2) {
+          if (i <= 7 || i >= el.querySelectorAll('tr').length - 2) {
             console.log('removing', tr)
             tr.remove()
           }
