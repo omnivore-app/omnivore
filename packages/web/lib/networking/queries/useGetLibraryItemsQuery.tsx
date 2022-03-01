@@ -7,6 +7,7 @@ import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { labelFragment } from '../fragments/labelFragment'
+import { Label } from './useGetLabelsQuery'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -54,6 +55,7 @@ export type LibraryItemNode = ArticleFragmentData & {
   hasContent: boolean
   originalArticleUrl: string
   sharedComment?: string
+  labels?: Label[]
 }
 
 export type PageInfo = {

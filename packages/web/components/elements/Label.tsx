@@ -22,8 +22,8 @@ export function Label(props: LabelProps): JSX.Element {
         borderRadius: '32px',
         color: props.color,
         padding: '4px 8px 4px 8px',
-        border: `1px solid ${props.color}`,
-        backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.3)`,
+        border: `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.40)`,
+        backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.20)`,
       }}
     >
       {props.text}
