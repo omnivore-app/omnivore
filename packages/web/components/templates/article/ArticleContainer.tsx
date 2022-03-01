@@ -41,13 +41,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.article.labels?.map((l) => l.id) || []
   )
 
-  const updateFontSize = (newFontSize: number) => {
+  const updateFontSize = async (newFontSize: number) => {
     setFontSize(newFontSize)
-    userPersonalizationMutation({ fontSize: newFontSize })
+    await userPersonalizationMutation({ fontSize: newFontSize })
   }
 
   useKeyboardShortcuts(
-    articleKeyboardCommands((action) => {
+    articleKeyboardCommands(async (action) => {
       switch (action) {
         case 'openOriginalArticle':
           const url = props.article.url
@@ -56,10 +56,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           }
           break
         case 'incrementFontSize':
-          updateFontSize(Math.min(fontSize + 2, 28))
+          await updateFontSize(Math.min(fontSize + 2, 28))
           break
         case 'decrementFontSize':
-          updateFontSize(Math.max(fontSize - 2, 10))
+          await updateFontSize(Math.max(fontSize - 2, 10))
           break
         case 'editLabels':
           setShowLabelsModal(true)
@@ -70,12 +70,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   // Listen for font size and color mode change events sent from host apps (ios, macos...)
   useEffect(() => {
-    const increaseFontSize = () => {
-      setFontSize(Math.min(fontSize + 2, 28))
+    const increaseFontSize = async () => {
+      await updateFontSize(Math.min(fontSize + 2, 28))
     }
 
-    const decreaseFontSize = () => {
-      setFontSize(Math.max(fontSize - 2, 10))
+    const decreaseFontSize = async () => {
+      await updateFontSize(Math.max(fontSize - 2, 10))
     }
 
     const switchToDarkMode = () => {
