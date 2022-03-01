@@ -144,7 +144,7 @@ export function useGetLibraryItemsQuery({
           : previousResult.articles.pageInfo.endCursor,
       ]
     },
-    (query, _l, _s, _sq, cursor: string) => {
+    (_query, _l, _s, _sq, cursor: string) => {
       return gqlFetcher(query, { ...variables, after: cursor }, true)
     }
   )
