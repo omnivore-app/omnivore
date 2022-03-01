@@ -7,30 +7,6 @@ import Utils
 import Views
 
 #if os(iOS)
-  struct CompactHomeView: View {
-    @ObservedObject var viewModel: HomeFeedViewModel
-
-    var body: some View {
-      NavigationView {
-        HomeFeedContainerView(isCompact: true, viewModel: viewModel)
-          .toolbar {
-            ToolbarItem {
-              NavigationLink(
-                destination: { ProfileView() },
-                label: {
-                  Image.profile
-                    .resizable()
-                    .frame(width: 26, height: 26)
-                    .padding()
-                }
-              )
-            }
-          }
-      }
-      .accentColor(.appGrayTextContrast)
-    }
-  }
-
   struct HomeFeedContainerView: View {
     let isCompact: Bool
     @EnvironmentObject var dataService: DataService
