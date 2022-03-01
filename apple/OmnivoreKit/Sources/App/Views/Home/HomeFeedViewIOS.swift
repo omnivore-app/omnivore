@@ -142,7 +142,13 @@ import Views
           viewModel: viewModel
         )
       } else {
-        HomeFeedGridView()
+        HomeFeedGridView(
+          searchQuery: $searchQuery,
+          selectedLinkItem: $selectedLinkItem,
+          snoozePresented: $snoozePresented,
+          itemToSnooze: $itemToSnooze,
+          viewModel: viewModel
+        )
       }
     }
   }
@@ -247,8 +253,60 @@ import Views
   }
 
   struct HomeFeedGridView: View {
+    @EnvironmentObject var dataService: DataService
+    @Binding var searchQuery: String
+    @Binding var selectedLinkItem: FeedItem?
+    @Binding var snoozePresented: Bool
+    @Binding var itemToSnooze: FeedItem?
+
+    @State private var itemToRemove: FeedItem?
+    @State private var confirmationShown = false
+
+    @ObservedObject var viewModel: HomeFeedViewModel
+
     var body: some View {
-      Text("Grid View")
+      List {
+        Section {
+          ForEach(viewModel.items) { item in
+            let link = ZStack {
+              FeedCardNavigationLink(
+                item: item,
+                searchQuery: searchQuery,
+                selectedLinkItem: $selectedLinkItem,
+                viewModel: viewModel
+              )
+            }.contextMenu {
+              FeedItemContextMenuView(
+                item: item,
+                selectedLinkItem: $selectedLinkItem,
+                snoozePresented: $snoozePresented,
+                itemToSnooze: $itemToSnooze,
+                viewModel: viewModel
+              )
+            }
+            if #available(iOS 15.0, *) {
+              link
+                .alert("Are you sure?", isPresented: $confirmationShown) {
+                  Button("Remove Link", role: .destructive) {
+                    if let itemToRemove = itemToRemove {
+                      withAnimation {
+                        viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                      }
+                    }
+                    self.itemToRemove = nil
+                  }
+                  Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+                }
+            } else {
+              link
+            }
+          }
+        }
+
+        if viewModel.isLoading {
+          LoadingSection()
+        }
+      }
     }
   }
 
