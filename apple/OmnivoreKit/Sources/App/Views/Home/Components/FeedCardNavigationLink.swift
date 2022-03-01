@@ -39,18 +39,19 @@ struct GridCardNavigationLink: View {
 
   @ObservedObject var viewModel: HomeFeedViewModel
   var body: some View {
-    NavigationLink(
-      destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
-      tag: item,
-      selection: $selectedLinkItem
-    ) {
-      EmptyView()
+    ZStack {
+      NavigationLink(
+        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
+        tag: item,
+        selection: $selectedLinkItem
+      ) {
+        GridCard(item: item)
+      }
+//      .opacity(0)
+//      .buttonStyle(PlainButtonStyle())
+      .onAppear {
+        viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
+      }
     }
-    .opacity(0)
-    .buttonStyle(PlainButtonStyle())
-    .onAppear {
-      viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
-    }
-    GridCard(item: item)
   }
 }
