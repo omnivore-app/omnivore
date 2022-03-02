@@ -41,6 +41,7 @@ struct GridCardNavigationLink: View {
   let actionHandler: (GridCardAction) -> Void
 
   @Binding var selectedLinkItem: FeedItem?
+  @Binding var isContextMenuOpen: Bool
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -55,7 +56,7 @@ struct GridCardNavigationLink: View {
       .onAppear {
         viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
       }
-      GridCard(item: item, actionHandler: actionHandler, tapAction: {
+      GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler, tapAction: {
         withAnimation {
           scale = 0.95
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
@@ -64,7 +65,7 @@ struct GridCardNavigationLink: View {
           }
         }
       })
-        .scaleEffect(scale)
     }
+    .scaleEffect(scale)
   }
 }

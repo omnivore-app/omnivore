@@ -236,6 +236,7 @@ import Views
 
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
+    @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -260,6 +261,7 @@ import Views
               searchQuery: searchQuery,
               actionHandler: { contextMenuActionHandler(item: item, action: $0) },
               selectedLinkItem: $selectedLinkItem,
+              isContextMenuOpen: $isContextMenuOpen,
               viewModel: viewModel
             )
             if #available(iOS 15.0, *) {

@@ -56,24 +56,42 @@ public enum GridCardAction {
 }
 
 public struct GridCard: View {
+  @Binding var isContextMenuOpen: Bool
   let item: FeedItem
   let actionHandler: (GridCardAction) -> Void
   let tapAction: () -> Void
 
   public init(
     item: FeedItem,
+    isContextMenuOpen: Binding<Bool>,
     actionHandler: @escaping (GridCardAction) -> Void,
     tapAction: @escaping () -> Void
   ) {
     self.item = item
+    self._isContextMenuOpen = isContextMenuOpen
     self.actionHandler = actionHandler
     self.tapAction = tapAction
+  }
+
+  // Menu doesn't provide an API to observe it's open state
+  // so we have keep track of it's state manually
+  func tapHandler() {
+    if isContextMenuOpen {
+      isContextMenuOpen = false
+    } else {
+      tapAction()
+    }
+  }
+
+  func menuActionHandler(_ action: GridCardAction) {
+    isContextMenuOpen = false
+    actionHandler(action)
   }
 
   var contextMenuView: some View {
     Group {
       Button(
-        action: { actionHandler(.toggleArchiveStatus) },
+        action: { menuActionHandler(.toggleArchiveStatus) },
         label: {
           Label(
             item.isArchived ? "Unarchive" : "Archive",
@@ -82,7 +100,7 @@ public struct GridCard: View {
         }
       )
       Button(
-        action: { actionHandler(.delete) },
+        action: { menuActionHandler(.delete) },
         label: { Label("Delete Link", systemImage: "trash") }
       )
     }
@@ -101,7 +119,7 @@ public struct GridCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
       }
-      .onTapGesture { tapAction() }
+      .onTapGesture { tapHandler() }
 
       // Title, Subtitle, Menu Button
       VStack(alignment: .leading, spacing: 4) {
@@ -110,9 +128,14 @@ public struct GridCard: View {
             .font(.appHeadline)
             .foregroundColor(.appGrayTextContrast)
             .lineLimit(1)
-            .onTapGesture { tapAction() }
+            .onTapGesture { tapHandler() }
           Spacer()
-          Menu(content: { contextMenuView }, label: { Image.profile })
+
+          Menu(
+            content: { contextMenuView },
+            label: { Image.profile }
+          )
+          .onTapGesture { isContextMenuOpen = true }
         }
 
         HStack {
@@ -133,7 +156,7 @@ public struct GridCard: View {
 
           Spacer()
         }
-        .onTapGesture { tapAction() }
+        .onTapGesture { tapHandler() }
       }
       .frame(height: 30)
       .padding(.horizontal)
@@ -157,7 +180,7 @@ public struct GridCard: View {
       }
       .frame(height: 95)
       .padding(.horizontal)
-      .onTapGesture { tapAction() }
+      .onTapGesture { tapHandler() }
 
       // Category Labels
       if FeatureFlag.showFeedItemTags {
@@ -177,7 +200,7 @@ public struct GridCard: View {
     }
     .background(
       Color(.secondarySystemGroupedBackground)
-        .onTapGesture { tapAction() }
+        .onTapGesture { tapHandler() }
     )
     .cornerRadius(6)
     .contextMenu { contextMenuView }
