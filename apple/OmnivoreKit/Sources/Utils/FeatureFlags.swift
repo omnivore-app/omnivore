@@ -14,4 +14,5 @@ public enum FeatureFlag {
   public static let enablePushNotifications = false
   public static let enableShareButton = false
   public static let enableSnooze = false
+  public static let showFeedItemTags = false
 }

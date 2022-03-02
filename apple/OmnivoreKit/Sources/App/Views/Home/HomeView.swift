@@ -6,9 +6,27 @@ struct HomeView: View {
   var body: some View {
     #if os(iOS)
       if UIDevice.isIPhone {
-        CompactHomeView(viewModel: viewModel)
+        NavigationView {
+          HomeFeedContainerView(isCompact: true, viewModel: viewModel)
+            .toolbar {
+              ToolbarItem {
+                NavigationLink(
+                  destination: { ProfileView() },
+                  label: {
+                    Image.profile
+                      .resizable()
+                      .frame(width: 26, height: 26)
+                      .padding()
+                  }
+                )
+              }
+            }
+        }
+        .accentColor(.appGrayTextContrast)
       } else {
-        HomeFeedContainerView(viewModel: viewModel)
+        GeometryReader { geo in
+          HomeFeedContainerView(isCompact: geo.size.width < 500, viewModel: viewModel)
+        }
       }
     #elseif os(macOS)
       HomeFeedView(viewModel: viewModel)
