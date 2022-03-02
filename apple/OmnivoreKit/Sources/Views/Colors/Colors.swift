@@ -21,8 +21,12 @@ public extension Color {
   #if os(iOS)
     static var systemBackground: Color { Color(.systemBackground) }
     static var systemPlaceholder: Color { Color(.placeholderText) }
+    static var secondarySystemGroupedBackground: Color { Color(.secondarySystemGroupedBackground) }
   #elseif os(macOS)
     static var systemBackground: Color { Color(.windowBackgroundColor) }
     static var systemPlaceholder: Color { Color(.placeholderTextColor) }
+
+    // Just for compilation. secondarySystemGroupedBackground shouldn't be used on macOS
+    static var secondarySystemGroupedBackground: Color { Color(.windowBackgroundColor) }
   #endif
 }

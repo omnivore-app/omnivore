@@ -152,13 +152,31 @@ import Views
               viewModel: viewModel
             )
             .contextMenu {
-              FeedItemContextMenuView(
-                item: item,
-                selectedLinkItem: $selectedLinkItem,
-                snoozePresented: $snoozePresented,
-                itemToSnooze: $itemToSnooze,
-                viewModel: viewModel
+              Button(action: {
+                withAnimation(.linear(duration: 0.4)) {
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                }
+              }, label: {
+                Label(
+                  item.isArchived ? "Unarchive" : "Archive",
+                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                )
+              })
+              Button(
+                action: {
+                  itemToRemove = item
+                  confirmationShown = true
+                },
+                label: { Label("Delete Link", systemImage: "trash") }
               )
+              if FeatureFlag.enableSnooze {
+                Button {
+                  itemToSnooze = item
+                  snoozePresented = true
+                } label: {
+                  Label { Text("Snooze") } icon: { Image.moon }
+                }
+              }
             }
             if #available(iOS 15.0, *) {
               link

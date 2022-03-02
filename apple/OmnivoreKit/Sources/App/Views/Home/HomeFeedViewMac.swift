@@ -22,18 +22,54 @@ import Views
       List {
         Section {
           ForEach(viewModel.items) { item in
-            FeedCardNavigationLink(
-              item: item,
-              searchQuery: searchQuery,
-              selectedLinkItem: $selectedLinkItem,
-              viewModel: viewModel
-            )
-            .contextMenu {
-              FeedItemContextMenuView(
+            if #available(macOS 12.0, *) {
+              FeedCardNavigationLink(
                 item: item,
+                searchQuery: searchQuery,
                 selectedLinkItem: $selectedLinkItem,
-                snoozePresented: $snoozePresented,
-                itemToSnooze: $itemToSnooze,
+                viewModel: viewModel
+              )
+              .contextMenu {
+                Button(action: {
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                }, label: {
+                  Label(
+                    item.isArchived ? "Unarchive" : "Archive",
+                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                  )
+                })
+                Button(
+                  action: {
+                    itemToRemove = item
+                    confirmationShown = true
+                  },
+                  label: { Label("Delete Link", systemImage: "trash") }
+                )
+                if FeatureFlag.enableSnooze {
+                  Button {
+                    itemToSnooze = item
+                    snoozePresented = true
+                  } label: {
+                    Label { Text("Snooze") } icon: { Image.moon }
+                  }
+                }
+              }
+              .alert("Are you sure?", isPresented: $confirmationShown) {
+                Button("Remove Link", role: .destructive) {
+                  if let itemToRemove = itemToRemove {
+                    withAnimation {
+                      viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                      self.itemToRemove = nil
+                    }
+                  }
+                }
+                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+              }
+            } else {
+              FeedCardNavigationLink(
+                item: item,
+                searchQuery: searchQuery,
+                selectedLinkItem: $selectedLinkItem,
                 viewModel: viewModel
               )
             }
