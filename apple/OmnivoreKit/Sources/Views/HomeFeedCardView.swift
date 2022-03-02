@@ -58,10 +58,16 @@ public enum GridCardAction {
 public struct GridCard: View {
   let item: FeedItem
   let actionHandler: (GridCardAction) -> Void
+  let tapAction: () -> Void
 
-  public init(item: FeedItem, actionHandler: @escaping (GridCardAction) -> Void) {
+  public init(
+    item: FeedItem,
+    actionHandler: @escaping (GridCardAction) -> Void,
+    tapAction: @escaping () -> Void
+  ) {
     self.item = item
     self.actionHandler = actionHandler
+    self.tapAction = tapAction
   }
 
   var contextMenuView: some View {
@@ -85,14 +91,17 @@ public struct GridCard: View {
   public var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       // Progress Bar
-      if #available(iOS 15.0, *) {
-        ProgressView(value: min(abs(item.readingProgress) / 100, 1))
-          .tint(.appYellow48)
-          .frame(maxWidth: .infinity, alignment: .leading)
-      } else {
-        ProgressView(value: max(abs(item.readingProgress) / 100, 1))
-          .frame(maxWidth: .infinity, alignment: .leading)
+      Group {
+        if #available(iOS 15.0, *) {
+          ProgressView(value: min(abs(item.readingProgress) / 100, 1))
+            .tint(.appYellow48)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+          ProgressView(value: max(abs(item.readingProgress) / 100, 1))
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
       }
+      .onTapGesture { tapAction() }
 
       // Title, Subtitle, Menu Button
       VStack(alignment: .leading, spacing: 4) {
@@ -101,6 +110,7 @@ public struct GridCard: View {
             .font(.appHeadline)
             .foregroundColor(.appGrayTextContrast)
             .lineLimit(1)
+            .onTapGesture { tapAction() }
           Spacer()
           Menu(content: { contextMenuView }, label: { Image.profile })
         }
@@ -123,6 +133,7 @@ public struct GridCard: View {
 
           Spacer()
         }
+        .onTapGesture { tapAction() }
       }
       .frame(height: 30)
       .padding(.horizontal)
@@ -146,6 +157,7 @@ public struct GridCard: View {
       }
       .frame(height: 95)
       .padding(.horizontal)
+      .onTapGesture { tapAction() }
 
       // Category Labels
       if FeatureFlag.showFeedItemTags {
@@ -163,7 +175,10 @@ public struct GridCard: View {
         Spacer(minLength: 8)
       }
     }
-    .background(Color(.secondarySystemGroupedBackground))
+    .background(
+      Color(.secondarySystemGroupedBackground)
+        .onTapGesture { tapAction() }
+    )
     .cornerRadius(6)
     .contextMenu { contextMenuView }
   }

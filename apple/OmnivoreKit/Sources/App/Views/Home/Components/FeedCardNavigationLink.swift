@@ -33,6 +33,9 @@ struct FeedCardNavigationLink: View {
 struct GridCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
 
+  @State private var scale = 1.0
+  @State private var isActive = false
+
   let item: FeedItem
   let searchQuery: String
   let actionHandler: (GridCardAction) -> Void
@@ -45,21 +48,23 @@ struct GridCardNavigationLink: View {
     ZStack {
       NavigationLink(
         destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
-        tag: item,
-        selection: $selectedLinkItem
+        isActive: $isActive
       ) {
-        GridCard(item: item, actionHandler: actionHandler)
+        EmptyView()
       }
-      .buttonStyle(FlatLinkStyle())
       .onAppear {
         viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
       }
+      GridCard(item: item, actionHandler: actionHandler, tapAction: {
+        withAnimation {
+          scale = 0.95
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
+            scale = 1.0
+            isActive = true
+          }
+        }
+      })
+        .scaleEffect(scale)
     }
-  }
-}
-
-struct FlatLinkStyle: ButtonStyle {
-  func makeBody(configuration: Configuration) -> some View {
-    configuration.label
   }
 }
