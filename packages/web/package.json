@@ -11,6 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci",
     "upgrade-psdpdfkit": "cp -R '../../node_modules/pspdfkit/dist/pspdfkit-lib' public/pspdfkit-lib"
   },
   "dependencies": {
@@ -28,7 +30,7 @@
     "diff-match-patch": "^1.0.5",
     "graphql-request": "^3.6.1",
     "nanoid": "^3.1.29",
-    "next": "^12.0.7",
+    "next": "^12.1.0",
     "phosphor-react": "^1.4.0",
     "pspdfkit": "^2021.6.0",
     "react": "^17.0.2",
@@ -42,8 +44,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "13.5.0",
     "@types/cookie": "^0.4.1",
     "@types/diff-match-patch": "^1.0.32",
     "@types/jest": "^27.0.2",
@@ -51,13 +54,12 @@
     "@types/react-dom": "^17.0.2",
     "@types/segment-analytics": "^0.0.34",
     "@types/uuid": "^8.3.1",
-    "babel-jest": "^27.2.5",
+    "babel-jest": "^27.4.5",
     "eslint-config-next": "12.0.7",
     "eslint-plugin-functional": "^4.0.2",
     "eslint-plugin-react": "^7.28.0",
     "graphql": "^15.6.1",
-    "jest": "^27.2.5",
-    "jest-watch-typeahead": "^1.0.0"
+    "jest": "^27.4.5"
   },
   "volta": {
     "node": "14.18.0",
