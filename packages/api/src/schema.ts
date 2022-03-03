@@ -436,6 +436,7 @@ const schema = gql`
     NOT_ALLOWED_TO_PARSE
     PAYLOAD_TOO_LARGE
     UPLOAD_FILE_MISSING
+    ELASTIC_ERROR
   }
   type CreateArticleError {
     errorCodes: [CreateArticleErrorCode!]!

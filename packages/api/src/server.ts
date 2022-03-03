@@ -39,6 +39,7 @@ import { remindersServiceRouter } from './routers/svc/reminders'
 import { ApolloServer } from 'apollo-server-express'
 import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
 import { corsConfig } from './utils/corsConfig'
+import { initElasticsearch } from './elastic'
 
 const PORT = process.env.PORT || 4000
 
@@ -123,6 +124,8 @@ const main = async (): Promise<void> => {
   // so the container will be restarted and not come online
   // as healthy.
   await initEntities()
+
+  await initElasticsearch()
 
   const { app, apollo, httpServer } = createApp()
 

@@ -39,6 +39,45 @@ const archiveLink = async (authToken: string, linkId: string) => {
   return graphqlRequest(query, authToken).expect(200)
 }
 
+const createArticleQuery = (
+  url: string,
+  source: string,
+  document: string,
+  title: string
+) => {
+  return `
+  mutation {
+    createArticle(input: {
+      url: "${url}"
+      source: "${source}"
+      preparedDocument: {
+        document: "${document}"
+        pageInfo: {
+          contentType: "text/html"
+          title: "${title}"
+        }
+      }
+    }) {
+      ... on CreateArticleSuccess {
+        createdArticle {
+          id
+          title
+          content
+        }
+        user {
+          id
+          name
+        }
+        created
+      }
+      ... on CreateArticleError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 const articlesQuery = (after = '', order = 'ASCENDING') => {
   return `
   query {
@@ -138,6 +177,31 @@ describe('Article API', () => {
   after(async () => {
     // clean up
     await deleteTestUser(username)
+  })
+
+  describe('CreateArticle', () => {
+    let query = ''
+    let url = ''
+    let source = ''
+    let document = ''
+    let title = ''
+
+    beforeEach(async () => {
+      query = createArticleQuery(url, source, document, title)
+    })
+
+    context('when saving from document', () => {
+      url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
+      source = 'puppeteer-parse'
+      document = '<p>test</p>'
+      title = 'test'
+
+      it('should create an article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
+      })
+    })
   })
 
   describe('GetArticles', () => {

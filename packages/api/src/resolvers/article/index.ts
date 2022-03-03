@@ -61,13 +61,13 @@ import { traceAs } from '../../tracing'
 import { createImageProxyUrl } from '../../utils/imageproxy'
 import normalizeUrl from 'normalize-url'
 import { WithDataSourcesContext } from '../types'
-import { UserArticleData } from '../../datalayer/links/model'
 
 import { parseSearchQuery } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import { createPage, getPageByUrl, updatePage } from '../../elastic'
 
 export type PartialArticle = Omit<
   Article,
@@ -275,114 +275,6 @@ export const createArticleResolver = authorized<
         }
       }
 
-      const existingArticle = await models.article.getByUrlAndHash({
-        url: articleToSave.url,
-        hash: articleToSave.hash,
-      })
-
-      if (existingArticle) {
-        let uploadFileUrlOverride = ''
-        if (existingArticle.uploadFileId) {
-          /* Grab the public URL from the existing uploaded Article, we ignore
-           * the duplicate uploaded file record, leave it in initialized/unused
-           * state (the duplicate uploaded file in GCS will remain private).
-           */
-          const uploadFileData = await models.uploadFile.get(
-            existingArticle.uploadFileId
-          )
-          uploadFileUrlOverride = await makeStorageFilePublic(
-            uploadFileData.id,
-            uploadFileData.fileName
-          )
-        }
-
-        // Checking if either a user article pointing to existing article or with the same URL exists
-        const matchedUserArticleRecord =
-          (await models.userArticle.getByParameters(uid, {
-            articleId: existingArticle.id,
-          })) ||
-          (await models.userArticle.getByParameters(uid, {
-            articleUrl: articleToSave.url,
-          }))
-
-        if (matchedUserArticleRecord) {
-          log.info('Article exists, updating user article', {
-            existingArticleId: existingArticle.id,
-            matchedUserArticleRecord,
-            uploadFileId: existingArticle.uploadFileId,
-            uploadFileUrlOverride,
-            labels: {
-              source: 'resolver',
-              resolver: 'createArticleResolver',
-              articleId: existingArticle.id,
-              userId: uid,
-            },
-          })
-
-          // If the user already has the article saved, we just update savedAt
-          // and we unarchive the article by updating archivedAt, unless they have
-          // a reminder set to archive the article.
-          const updatedArticle = await authTrx((tx) =>
-            models.userArticle.update(
-              matchedUserArticleRecord.id,
-              {
-                slug: slug,
-                archivedAt: archive ? saveTime : null,
-                savedAt: saveTime,
-                articleId: existingArticle.id,
-                articleUrl: uploadFileUrlOverride || existingArticle.url,
-                articleHash: existingArticle.hash,
-              },
-              tx
-            )
-          )
-
-          const createdArticle = { ...existingArticle, ...updatedArticle }
-          return articleSavingRequestPopulate(
-            {
-              user,
-              created: false,
-              createdArticle: createdArticle,
-            },
-            ctx,
-            articleSavingRequest?.id,
-            createdArticle.articleId || undefined
-          )
-        } else {
-          log.info('Article exists, creating user article', {
-            existingArticleId: existingArticle.id,
-            uploadFileId: existingArticle.uploadFileId,
-            uploadFileUrlOverride,
-            labels: {
-              source: 'resolver',
-              resolver: 'createArticleResolver',
-              articleId: existingArticle.id,
-              userId: uid,
-            },
-          })
-
-          const updatedArticle = await models.userArticle.create({
-            slug: slug,
-            userId: uid,
-            articleId: existingArticle.id,
-            articleUrl: uploadFileUrlOverride || existingArticle.url,
-            articleHash: existingArticle.hash,
-          })
-
-          const createdArticle = { ...existingArticle, ...updatedArticle }
-          return articleSavingRequestPopulate(
-            {
-              user,
-              created: false,
-              createdArticle: createdArticle,
-            },
-            ctx,
-            articleSavingRequest?.id,
-            createdArticle.articleId || undefined
-          )
-        }
-      }
-
       log.info('New article saving', {
         parsedArticle: Object.assign({}, articleToSave, {
           content: undefined,
@@ -416,48 +308,58 @@ export const createArticleResolver = authorized<
         )
       }
 
-      const [articleRecord, matchedUserArticleRecord] = await Promise.all([
-        models.article.create(articleToSave),
-        models.userArticle.getByParameters(uid, {
-          articleUrl: articleToSave.url,
-        }),
-      ])
+      let page = await getPageByUrl(articleToSave.url)
+      if (page && page.id) {
+        //  update existing page in elastic
+        page.slug = slug
+        page.savedAt = saveTime
+        page.archivedAt = archive ? saveTime : undefined
+        page.url = uploadFileUrlOverride || articleToSave.url
+        page.hash = articleToSave.hash
 
-      if (!matchedUserArticleRecord && canonicalUrl && domContent) {
-        await ctx.pubsub.pageCreated(uid, canonicalUrl, domContent)
+        await updatePage(page.id, page)
+
+        console.log('page updated in elastic', page)
+      } else {
+        // create new page in elastic
+        page = {
+          ...articleToSave,
+          slug,
+          userId: uid,
+          originalHtml: articleToSave.originalHtml || '',
+          uploadFileId: articleToSave.uploadFileId || undefined,
+          readingProgress: 0,
+          readingProgressAnchorIndex: 0,
+          createdAt: saveTime,
+          updatedAt: saveTime,
+          savedAt: saveTime,
+        }
+        const pageId = await createPage(page)
+
+        if (!pageId) {
+          return articleSavingRequestError(
+            {
+              errorCodes: [CreateArticleErrorCode.UnableToParse],
+            },
+            ctx,
+            articleSavingRequest
+          )
+        }
+        page.id = pageId
+
+        console.log('page created in elastic', page)
+
+        if (canonicalUrl && domContent) {
+          await ctx.pubsub.pageCreated(uid, canonicalUrl, domContent)
+        }
       }
 
-      // Updating already existing user_article record with the new saved_at date and the new article record
-      // or creating the new one.
-      const userArticle = await authTrx<Promise<UserArticleData>>((tx) =>
-        matchedUserArticleRecord
-          ? models.userArticle.update(
-              matchedUserArticleRecord.id,
-              {
-                slug: slug,
-                savedAt: saveTime,
-                articleId: articleRecord.id,
-                archivedAt: archive ? saveTime : null,
-                articleUrl: uploadFileUrlOverride || articleRecord.url,
-                articleHash: articleRecord.hash,
-              },
-              tx
-            )
-          : models.userArticle.create(
-              {
-                userId: uid,
-                slug: slug,
-                savedAt: saveTime,
-                articleId: articleRecord.id,
-                archivedAt: archive ? saveTime : null,
-                articleUrl: uploadFileUrlOverride || articleRecord.url,
-                articleHash: articleRecord.hash,
-              },
-              tx
-            )
-      )
-
-      const createdArticle = { ...userArticle, ...articleRecord }
+      const createdArticle: PartialArticle = {
+        ...page,
+        isArchived: !!page.archivedAt,
+        id: page.id,
+        url: articleToSave.url,
+      }
       return articleSavingRequestPopulate(
         {
           user,
@@ -466,7 +368,7 @@ export const createArticleResolver = authorized<
         },
         ctx,
         articleSavingRequest?.id,
-        createdArticle.articleId || undefined
+        createdArticle.id || undefined
       )
     } catch (error) {
       if (
