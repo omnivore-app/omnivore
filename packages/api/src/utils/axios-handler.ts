@@ -3,6 +3,7 @@ import { DOMWindow } from 'jsdom'
 export class AxiosHandler {
   name = 'axios'
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   shouldPrehandle = (url: URL, _dom: DOMWindow): boolean => {
     const host = this.name + '.com'
     // check if url ends with axios.com

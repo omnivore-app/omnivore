@@ -3,6 +3,7 @@ import { DOMWindow } from 'jsdom'
 export class WikipediaHandler {
   name = 'wikipedia'
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   shouldPrehandle = (url: URL, _dom: DOMWindow): boolean => {
     return url.hostname.endsWith('wikipedia.org')
   }
