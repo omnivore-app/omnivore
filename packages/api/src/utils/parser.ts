@@ -402,7 +402,9 @@ export const isProbablyNewsletter = (html: string): boolean => {
 
 // Given an HTML blob tries to find a URL to use for
 // a canonical URL.
-export const findNewsletterUrl = async (html: string): Promise<string | undefined> => {
+export const findNewsletterUrl = async (
+  html: string
+): Promise<string | undefined> => {
   const dom = new JSDOM(html).window
 
   // If there is an <h1 element with a URL, use that
@@ -416,8 +418,8 @@ export const findNewsletterUrl = async (html: string): Promise<string | undefine
         method: 'HEAD',
         url: href,
       })
-      .then(res => res.request.res.responseUrl)
-      .catch((e) => href)
+        .then((res) => res.request.res.responseUrl as string | undefined)
+        .catch((e) => href)
     }
   }
 

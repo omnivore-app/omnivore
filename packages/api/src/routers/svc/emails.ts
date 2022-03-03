@@ -57,7 +57,9 @@ export function emailsServiceRouter() {
           title: data.subject,
           content: data.html,
           author: data.from,
-          url: (await findNewsletterUrl(data.html)) || 'https://omnivore.app/no_url',
+          url:
+            (await findNewsletterUrl(data.html)) ||
+            'https://omnivore.app/no_url',
         })
         res.status(200).send('Newsletter')
         return
