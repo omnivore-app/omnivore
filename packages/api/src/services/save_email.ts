@@ -50,7 +50,7 @@ export const saveEmail = async (
     originalHtml: input.originalContent,
     content: content,
     description: metadata?.description || parseResult.parsedContent?.excerpt,
-    title: title,
+    title: parseResult.parsedContent?.title || title,
     author: parseResult.parsedContent?.byline || input.author,
     url: normalizeUrl(parseResult.canonicalUrl || url, {
       stripHash: true,
