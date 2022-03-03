@@ -12,7 +12,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:ci": "jest --ci",
+    "test:build": "jest && next build",
     "upgrade-psdpdfkit": "cp -R '../../node_modules/pspdfkit/dist/pspdfkit-lib' public/pspdfkit-lib"
   },
   "dependencies": {
