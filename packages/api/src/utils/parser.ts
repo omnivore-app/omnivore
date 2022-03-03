@@ -374,3 +374,27 @@ export const parseMetadata = async (
     return undefined
   }
 }
+
+// Attempt to determine if an HTML blob is a newsletter
+// based on it's contents.
+// TODO: when we consolidate the handlers we could include this
+// as a utility method on each one.
+export const isProbablyNewsletter = (dom: DOMWindow): boolean => {
+  const domCopy = new JSDOM(dom.document.documentElement.outerHTML)
+  const article = new Readability(domCopy.window.document, {
+    debug: false,
+    keepTables: true,
+  }).parse()
+
+  if (!article || !article.content) {
+    console.log('no article content')
+    return false
+  }
+
+  // substack newsletter emails have tables with a *post-meta class
+  if (dom.document.querySelector('table[class$="post-meta"]')) {
+    return true
+  }
+
+  return false
+};
