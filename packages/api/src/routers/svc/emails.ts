@@ -4,6 +4,8 @@ import { sendEmail } from '../../utils/sendEmail'
 import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { env } from '../../env'
+import { isProbablyNewsletter } from '../../utils/parser'
+import { saveNewsletterEmail } from '../../services/save_newsletter_email'
 
 interface ForwardEmailMessage {
   from: string
@@ -45,6 +47,19 @@ export function emailsServiceRouter() {
       ) {
         console.log('Invalid message')
         res.status(400).send('Bad Request')
+        return
+      }
+
+      if (isProbablyNewsletter(data.html)) {
+        console.log('handling as newsletter', data)
+        await saveNewsletterEmail({
+          email: data.from,
+          title: data.subject,
+          content: data.html,
+          author: data.from,
+          url: 'https://omnivore.app/no_url',
+        })
+        res.status(200).send('Newsletter')
         return
       }
 
