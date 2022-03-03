@@ -3,15 +3,8 @@ import { expect } from 'chai'
 import 'chai/register-should'
 import {
   createTestUser,
-  createUserWithoutProfile,
   deleteTestUser,
-  getProfile,
 } from '../db'
-import { createGroup } from '../../src/services/create_group'
-import {
-  getUserFollowers,
-  getUserFollowing,
-} from '../../src/services/followers'
 import { createNewsletterEmail } from '../../src/services/newsletters'
 import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
 import { getRepository } from 'typeorm'
@@ -22,14 +15,6 @@ describe('saveNewsletterEmail', () => {
   after(async () => {
     await deleteTestUser(username)
   })
-
-  interface NewsletterMessage {
-    email: string
-    content: string
-    url: string
-    title: string
-    author: string
-  }
 
   it('adds the newsletter to the library', async () => {
     const user = await createTestUser(username)

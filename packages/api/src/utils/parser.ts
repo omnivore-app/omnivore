@@ -399,3 +399,27 @@ export const isProbablyNewsletter = (html: string): boolean => {
 
   return false
 }
+
+// Given an HTML blob tries to find a URL to use for
+// a canonical URL.
+export const findNewsletterUrl = async (html: string): Promise<string | undefined> => {
+  const dom = new JSDOM(html).window
+
+  // If there is an <h1 element with a URL, use that
+  const postLink = dom.document.querySelector('h1 a ')
+  if (postLink) {
+    const href = postLink.getAttribute('href')
+    if (href) {
+      // Try to make a HEAD request so we get the redirected URL, since these
+      // will usually be behind tracking url redirects
+      return axios({
+        method: 'HEAD',
+        url: href,
+      })
+      .then(res => res.request.res.responseUrl)
+      .catch((e) => href)
+    }
+  }
+
+  return undefined
+}

@@ -94,6 +94,7 @@ const RESERVED_NAMES = new Set([
   'mine',
   'mis',
   'news',
+  'no_url',
   'oauth',
   'oauth_clients',
   'offers',
