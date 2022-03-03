@@ -168,6 +168,7 @@ export type CreateArticleError = {
 };
 
 export enum CreateArticleErrorCode {
+  ElasticError = 'ELASTIC_ERROR',
   NotAllowedToParse = 'NOT_ALLOWED_TO_PARSE',
   PayloadTooLarge = 'PAYLOAD_TOO_LARGE',
   UnableToFetch = 'UNABLE_TO_FETCH',

@@ -134,6 +134,7 @@ type CreateArticleError {
 }
 
 enum CreateArticleErrorCode {
+  ELASTIC_ERROR
   NOT_ALLOWED_TO_PARSE
   PAYLOAD_TOO_LARGE
   UNABLE_TO_FETCH

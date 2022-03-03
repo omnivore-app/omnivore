@@ -11,6 +11,7 @@
     "test": "yarn mocha -r ts-node/register --config mocha-config.json --exit --timeout 10000"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "~7.12.0",
     "@google-cloud/logging-winston": "^4.1.2",
     "@google-cloud/monitoring": "^2.3.5",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^1.1.0",
