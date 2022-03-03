@@ -51,7 +51,7 @@ export const saveEmail = async (
     content: content,
     description: metadata?.description || parseResult.parsedContent?.excerpt,
     title: title,
-    author: input.author,
+    author: parseResult.parsedContent?.byline || input.author,
     url: normalizeUrl(parseResult.canonicalUrl || url, {
       stripHash: true,
       stripWWW: false,
