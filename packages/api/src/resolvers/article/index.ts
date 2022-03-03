@@ -339,7 +339,7 @@ export const createArticleResolver = authorized<
         if (!pageId) {
           return articleSavingRequestError(
             {
-              errorCodes: [CreateArticleErrorCode.UnableToParse],
+              errorCodes: [CreateArticleErrorCode.ElasticError],
             },
             ctx,
             articleSavingRequest
