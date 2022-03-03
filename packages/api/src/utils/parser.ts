@@ -346,6 +346,8 @@ const getJSONLdLinkMetadata = async (
 }
 
 type Metadata = {
+  title?: string
+  author?: string
   description: string
   previewImage: string
 }
@@ -368,7 +370,20 @@ export const parseMetadata = async (
         .querySelector("head meta[property='og:image']")
         ?.getAttribute('content') || ''
 
-    return { description: description, previewImage: previewImage }
+    const title =
+      window.document
+        .querySelector("head meta[property='og:title']")
+        ?.getAttribute('content') || undefined
+
+    const author =
+      window.document
+        .querySelector("head meta[property='author']")
+        ?.getAttribute('content') || undefined
+
+    // TODO: we should be able to apply the JSONLD metadata
+    // here too
+
+    return { title, author, description, previewImage }
   } catch (e) {
     console.log('failed to got:', url, e)
     return undefined
