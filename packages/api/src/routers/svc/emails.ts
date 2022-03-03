@@ -50,12 +50,10 @@ export function emailsServiceRouter() {
         return
       }
 
-      const isNewsletter = isProbablyNewsletter(data.html)
-      console.log('isNewsletter:', isNewsletter)
       if (isProbablyNewsletter(data.html)) {
         console.log('handling as newsletter', data)
         await saveNewsletterEmail({
-          email: data.from,
+          email: data.to,
           title: data.subject,
           content: data.html,
           author: data.from,
