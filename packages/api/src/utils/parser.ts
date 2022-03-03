@@ -379,7 +379,8 @@ export const parseMetadata = async (
 // based on it's contents.
 // TODO: when we consolidate the handlers we could include this
 // as a utility method on each one.
-export const isProbablyNewsletter = (dom: DOMWindow): boolean => {
+export const isProbablyNewsletter = (html: string): boolean => {
+  const dom = new JSDOM(html).window
   const domCopy = new JSDOM(dom.document.documentElement.outerHTML)
   const article = new Readability(domCopy.window.document, {
     debug: false,
