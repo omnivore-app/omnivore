@@ -397,4 +397,4 @@ export const isProbablyNewsletter = (dom: DOMWindow): boolean => {
   }
 
   return false
-};
+}
