@@ -14,6 +14,10 @@ describe('isProbablyNewsletter', () => {
     const html = load('./test/utils/data/substack-forwarded-newsletter.html')
     isProbablyNewsletter(html).should.be.true
   })
+  it('returns true for private forwarded substack newsletter', () => {
+    const html = load('./test/utils/data/substack-private-forwarded-newsletter.html')
+    isProbablyNewsletter(html).should.be.true
+  })
   it('returns false for substack welcome email', () => {
     const html = load('./test/utils/data/substack-forwarded-welcome-email.html')
     isProbablyNewsletter(html).should.be.false
@@ -33,3 +37,4 @@ describe('findNewsletterUrl', async () => {
     expect(url).to.be.undefined
   })
 })
+

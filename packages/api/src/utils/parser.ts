@@ -388,7 +388,6 @@ export const isProbablyNewsletter = (html: string): boolean => {
   }).parse()
 
   if (!article || !article.content) {
-    console.log('no article content')
     return false
   }
 
@@ -397,7 +396,27 @@ export const isProbablyNewsletter = (html: string): boolean => {
     return true
   }
 
+  // If the article has a header link, and substack icons its probably a newsletter
+  const href = findNewsletterHeaderHref(dom.window)
+  const heartIcon = dom.document.querySelector(
+    'table tbody td span a img[src*="HeartIcon"]'
+  )
+  const recommendIcon = dom.document.querySelector(
+    'table tbody td span a img[src*="RecommendIconRounded"]'
+  )
+  if (href && (heartIcon || recommendIcon)) {
+    return true
+  }
+
   return false
+}
+
+const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
+  const postLink = dom.document.querySelector('h1 a ')
+  if (postLink) {
+    return postLink.getAttribute('href') || undefined
+  }
+  return undefined
 }
 
 // Given an HTML blob tries to find a URL to use for
@@ -406,21 +425,16 @@ export const findNewsletterUrl = async (
   html: string
 ): Promise<string | undefined> => {
   const dom = new JSDOM(html).window
-
-  // If there is an <h1 element with a URL, use that
-  const postLink = dom.document.querySelector('h1 a ')
-  if (postLink) {
-    const href = postLink.getAttribute('href')
-    if (href) {
-      // Try to make a HEAD request so we get the redirected URL, since these
-      // will usually be behind tracking url redirects
-      return axios({
-        method: 'HEAD',
-        url: href,
-      })
-        .then((res) => res.request.res.responseUrl as string | undefined)
-        .catch((e) => href)
-    }
+  const href = findNewsletterHeaderHref(dom.window)
+  if (href) {
+    // Try to make a HEAD request so we get the redirected URL, since these
+    // will usually be behind tracking url redirects
+    return axios({
+      method: 'HEAD',
+      url: href,
+    })
+      .then((res) => res.request.res.responseUrl as string | undefined)
+      .catch((e) => href)
   }
 
   return undefined
