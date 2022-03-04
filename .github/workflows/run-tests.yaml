@@ -72,4 +72,4 @@ jobs:
           PG_PASSWORD: postgres
           PG_DB: omnivore_test
           PG_POOL_MAX: 10
-          ELASTIC_URL: http://elastic:${{ job.services.elastic.ports[5432] }}/
+          ELASTIC_URL: http://elastic:${{ job.services.elastic.ports[9200] }}/
