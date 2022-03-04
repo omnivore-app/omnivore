@@ -32,8 +32,8 @@ export type SearchFilter = {
 }
 
 export enum LabelFilterType {
-  ANY,
-  NONE,
+  INCLUDE,
+  EXCLUDE,
 }
 
 export type LabelFilter = {
@@ -107,7 +107,7 @@ const parseLabelFilter = (
     labels.every((label) => exclude.label.includes(label))
 
   return {
-    type: excluded ? LabelFilterType.NONE : LabelFilterType.ANY,
+    type: excluded ? LabelFilterType.EXCLUDE : LabelFilterType.INCLUDE,
     labels,
   }
 }

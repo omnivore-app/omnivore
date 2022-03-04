@@ -308,7 +308,7 @@ export const createArticleResolver = authorized<
         )
       }
 
-      let page = await getPageByUrl(articleToSave.url)
+      let page = await getPageByUrl(uid, articleToSave.url)
       if (page && page.id) {
         //  update existing page in elastic
         page.slug = slug
