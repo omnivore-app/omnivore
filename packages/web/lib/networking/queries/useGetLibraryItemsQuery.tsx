@@ -164,112 +164,117 @@ export function useGetLibraryItemsQuery({
     }
   }
 
-  const performActionOnItem = async (
-    action: LibraryItemAction,
-    item: LibraryItem
-  ) => {
-    if (!responsePages) {
-      return
-    }
-
-    const updateData = (mutatedItem: LibraryItem | undefined) => {
-      if (!responsePages) {
-        return
-      }
-      for (const articlesData of responsePages) {
-        const itemIndex = articlesData.articles.edges.indexOf(item)
-        if (itemIndex !== -1) {
-          if (typeof mutatedItem === 'undefined') {
-            articlesData.articles.edges.splice(itemIndex, 1)
-          } else {
-            articlesData.articles.edges[itemIndex] = mutatedItem
-          }
-          break
-        }
-      }
-      mutate(responsePages, false)
-    }
-
-    switch (action) {
-      case 'archive':
-        if (/in:all/.test(query)) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              isArchived: true,
-            },
-          })
-        } else {
-          updateData(undefined)
-        }
-
-        setLinkArchivedMutation({
-          linkId: item.node.id,
-          archived: true,
-        })
-
-        break
-      case 'unarchive':
-        if (/in:all/.test(query)) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              isArchived: false,
-            },
-          })
-        } else {
-          updateData(undefined)
-        }
-
-        setLinkArchivedMutation({
-          linkId: item.node.id,
-          archived: false,
-        })
-        break
-      case 'delete':
-        updateData(undefined)
-        deleteLinkMutation(item.node.id)
-        break
-      case 'mark-read':
-        updateData({
-          cursor: item.cursor,
-          node: {
-            ...item.node,
-            readingProgressPercent: 100,
-          },
-        })
-        articleReadingProgressMutation({
-          id: item.node.id,
-          readingProgressPercent: 100,
-          readingProgressAnchorIndex: 0,
-        })
-        break
-      case 'mark-unread':
-        updateData({
-          cursor: item.cursor,
-          node: {
-            ...item.node,
-            readingProgressPercent: 0,
-          },
-        })
-        articleReadingProgressMutation({
-          id: item.node.id,
-          readingProgressPercent: 0,
-          readingProgressAnchorIndex: 0,
-        })
-        break
-    }
-  }
-
   return {
     isValidating,
     articlesPages: responsePages || undefined,
     articlesDataError: responseError,
     isLoading: !error && !data,
-    performActionOnItem,
+    performActionOnItem: async (action: LibraryItemAction, item: LibraryItem) => {
+      performActionOnItem(query, responsePages, action, item, mutate)
+    },
     size,
     setSize,
+  }
+}
+
+const performActionOnItem = async (
+  query: string,
+  responsePages: LibraryItemsData[] | undefined,
+  action: LibraryItemAction,
+  item: LibraryItem,
+  mutate:  KeyedMutator<unknown[]>
+) => {
+  if (!responsePages) {
+    return
+  }
+
+  const updateData = (mutatedItem: LibraryItem | undefined) => {
+    if (!responsePages) {
+      return
+    }
+    for (const articlesData of responsePages) {
+      const itemIndex = articlesData.articles.edges.indexOf(item)
+      if (itemIndex !== -1) {
+        if (typeof mutatedItem === 'undefined') {
+          articlesData.articles.edges.splice(itemIndex, 1)
+        } else {
+          articlesData.articles.edges[itemIndex] = mutatedItem
+        }
+        break
+      }
+    }
+    mutate(responsePages, false)
+  }
+
+  switch (action) {
+    case 'archive':
+      if (/in:all/.test(query)) {
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            isArchived: true,
+          },
+        })
+      } else {
+        updateData(undefined)
+      }
+
+      setLinkArchivedMutation({
+        linkId: item.node.id,
+        archived: true,
+      })
+
+      break
+    case 'unarchive':
+      if (/in:all/.test(query)) {
+        updateData({
+          cursor: item.cursor,
+          node: {
+            ...item.node,
+            isArchived: false,
+          },
+        })
+      } else {
+        updateData(undefined)
+      }
+
+      setLinkArchivedMutation({
+        linkId: item.node.id,
+        archived: false,
+      })
+      break
+    case 'delete':
+      updateData(undefined)
+      deleteLinkMutation(item.node.id)
+      break
+    case 'mark-read':
+      updateData({
+        cursor: item.cursor,
+        node: {
+          ...item.node,
+          readingProgressPercent: 100,
+        },
+      })
+      articleReadingProgressMutation({
+        id: item.node.id,
+        readingProgressPercent: 100,
+        readingProgressAnchorIndex: 0,
+      })
+      break
+    case 'mark-unread':
+      updateData({
+        cursor: item.cursor,
+        node: {
+          ...item.node,
+          readingProgressPercent: 0,
+        },
+      })
+      articleReadingProgressMutation({
+        id: item.node.id,
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
+      })
+      break
   }
 }
