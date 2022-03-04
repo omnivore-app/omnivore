@@ -39,6 +39,8 @@ export type Page = {
 const INDEX_NAME = 'pages'
 const client = new Client({
   node: env.elastic.url,
+  maxRetries: 3,
+  requestTimeout: 50000,
   auth: {
     username: env.elastic.username,
     password: env.elastic.password,
@@ -52,10 +54,15 @@ const ingest = async (): Promise<void> => {
       settings: {
         analysis: {
           analyzer: {
-            my_custom_analyzer: {
+            html_strip_analyzer: {
               tokenizer: 'standard',
               filter: ['lowercase'],
               char_filter: ['html_strip'],
+            },
+          },
+          normalizer: {
+            lowercase_normalizer: {
+              filter: ['lowercase'],
             },
           },
         },
@@ -76,10 +83,10 @@ const ingest = async (): Promise<void> => {
           },
           content: {
             type: 'text',
-            analyzer: 'my_custom_analyzer',
+            analyzer: 'html_strip_analyzer',
           },
           url: {
-            type: 'keyword',
+            type: 'text',
           },
           uploadFileId: {
             type: 'keyword',
@@ -95,6 +102,7 @@ const ingest = async (): Promise<void> => {
             properties: {
               name: {
                 type: 'keyword',
+                normalizer: 'lowercase_normalizer',
               },
             },
           },
@@ -117,6 +125,70 @@ const ingest = async (): Promise<void> => {
       },
     },
   })
+}
+
+const readFilterRange = (filter: ReadFilter) => {
+  switch (filter) {
+    case ReadFilter.UNREAD:
+      return { lt: 98 }
+    case ReadFilter.READ:
+      return { gte: 98 }
+  }
+}
+
+const inFilterQuery = (filter: InFilter) => {
+  switch (filter) {
+    case InFilter.ARCHIVE:
+      return {
+        exists: {
+          field: 'archivedAt',
+        },
+      }
+    case InFilter.INBOX:
+      return {
+        bool: {
+          must_not: {
+            exists: {
+              field: 'archivedAt',
+            },
+          },
+        },
+      }
+  }
+}
+
+const excludeLabelQuery = (filters: LabelFilter[]) => {
+  return {
+    nested: {
+      path: 'labels',
+      query: filters.map((filter) => {
+        return {
+          terms: {
+            'labels.name': filter.labels,
+          },
+        }
+      }),
+    },
+  }
+}
+
+const includeLabelQuery = (filters: LabelFilter[]) => {
+  return {
+    nested: {
+      path: 'labels',
+      query: {
+        bool: {
+          filter: filters.map((filter) => {
+            return {
+              terms: {
+                'labels.name': filter.labels,
+              },
+            }
+          }),
+        },
+      },
+    },
+  }
 }
 
 export const createPage = async (data: Page): Promise<string | undefined> => {
@@ -155,21 +227,34 @@ export const deletePage = async (id: string): Promise<void> => {
     await client.delete({
       index: INDEX_NAME,
       id,
-      refresh: true,
     })
   } catch (e) {
     console.error('failed to delete a page in elastic', e)
   }
 }
 
-export const getPageByUrl = async (url: string): Promise<Page | undefined> => {
+export const getPageByUrl = async (
+  userId: string,
+  url: string
+): Promise<Page | undefined> => {
   try {
     const { body } = await client.search({
       index: INDEX_NAME,
       body: {
         query: {
-          term: {
-            url,
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                match: {
+                  url,
+                },
+              },
+            ],
           },
         },
       },
@@ -191,24 +276,14 @@ export const getPageByUrl = async (url: string): Promise<Page | undefined> => {
 
 export const getPageById = async (id: string): Promise<Page | undefined> => {
   try {
-    const { body } = await client.search({
+    const { body } = await client.get({
       index: INDEX_NAME,
-      body: {
-        query: {
-          ids: {
-            values: [id],
-          },
-        },
-      },
+      id,
     })
 
-    if (body.hits.total.value === 0) {
-      return undefined
-    }
-
     return {
-      ...body.hits.hits[0]._source,
-      id: body.hits.hits[0]._id,
+      ...body._source,
+      id: body._id,
     } as Page
   } catch (e) {
     console.error('failed to search pages in elastic', e)
@@ -218,13 +293,13 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
 
 export const searchPages = async (
   args: {
-    from: number
-    size: number
+    from?: number
+    size?: number
     sort?: SortParams
     query?: string
     inFilter: InFilter
     readFilter: ReadFilter
-    typeFilter: PageType | undefined
+    typeFilter?: PageType
     labelFilters: LabelFilter[]
   },
   userId: string,
@@ -232,8 +307,8 @@ export const searchPages = async (
 ): Promise<[Page[], number] | undefined> => {
   try {
     const {
-      from,
-      size,
+      from = 0,
+      size = 10,
       sort,
       query,
       readFilter,
@@ -242,28 +317,16 @@ export const searchPages = async (
       inFilter,
     } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
+    const includeLabels = labelFilters.filter(
+      (filter) => filter.type === LabelFilterType.INCLUDE
+    )
+    const excludeLabels = labelFilters.filter(
+      (filter) => filter.type === LabelFilterType.EXCLUDE
+    )
 
     const { body } = await client.search({
       index: INDEX_NAME,
       body: {
-        sort: [
-          {
-            savedAt: {
-              order: sortOrder,
-              format: 'strict_date_optional_time_nanos',
-            },
-          },
-          {
-            createdAt: {
-              order: sortOrder,
-              format: 'strict_date_optional_time_nanos',
-            },
-          },
-          {
-            _id: sortOrder,
-          },
-          '_score',
-        ],
         query: {
           bool: {
             filter: [
@@ -283,7 +346,7 @@ export const searchPages = async (
                   readingProgress: readFilterRange(readFilter),
                 },
               },
-              labelFilters.length > 0 && labelFiltersQuery(labelFilters),
+              includeLabels.length > 0 && includeLabelQuery(includeLabels),
               {
                 exists: {
                   field: notNullField,
@@ -303,8 +366,30 @@ export const searchPages = async (
                 ],
               },
             },
+            minimum_should_match: 1,
+            must_not: [
+              excludeLabels.length > 0 && excludeLabelQuery(excludeLabels),
+            ],
           },
         },
+        sort: [
+          {
+            savedAt: {
+              order: sortOrder,
+              format: 'strict_date_optional_time_nanos',
+            },
+          },
+          {
+            createdAt: {
+              order: sortOrder,
+              format: 'strict_date_optional_time_nanos',
+            },
+          },
+          {
+            _id: sortOrder,
+          },
+          '_score',
+        ],
         from,
         size,
       },
@@ -327,61 +412,6 @@ export const searchPages = async (
   } catch (e) {
     console.error('failed to search pages in elastic', e)
     return undefined
-  }
-}
-
-const readFilterRange = (filter: ReadFilter) => {
-  switch (filter) {
-    case ReadFilter.UNREAD:
-      return { lt: 98 }
-    case ReadFilter.READ:
-      return { gte: 98 }
-  }
-}
-
-const inFilterQuery = (filter: InFilter) => {
-  switch (filter) {
-    case InFilter.ARCHIVE:
-      return {
-        exists: {
-          field: 'archivedAt',
-        },
-      }
-    case InFilter.INBOX:
-      return {
-        bool: {
-          must_not: {
-            exists: {
-              field: 'archivedAt',
-            },
-          },
-        },
-      }
-  }
-}
-
-const labelFiltersQuery = (filters: LabelFilter[]) => {
-  return {
-    bool: filters.map((filter) => {
-      switch (filter.type) {
-        case LabelFilterType.ANY:
-          return {
-            must: {
-              match: {
-                'labels.name': filter.labels,
-              },
-            },
-          }
-        case LabelFilterType.NONE:
-          return {
-            must_not: {
-              match: {
-                'labels.name': filter.labels,
-              },
-            },
-          }
-      }
-    }),
   }
 }
 

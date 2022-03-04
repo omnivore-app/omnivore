@@ -462,10 +462,10 @@ class UserArticleModel extends DataModel<
 
         // filter by include/exclude the result of sub query
         switch (labelFilter.type) {
-          case LabelFilterType.ANY:
+          case LabelFilterType.INCLUDE:
             queryPromise.whereIn('links.id', subQuery)
             break
-          case LabelFilterType.NONE:
+          case LabelFilterType.EXCLUDE:
             queryPromise.whereNotIn('links.id', subQuery)
             break
         }

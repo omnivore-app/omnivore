@@ -1,13 +1,16 @@
 import 'mocha'
 import {
   createPage,
+  deletePage,
   getPageById,
   getPageByUrl,
   Page,
+  searchPages,
   updatePage,
 } from '../../src/elastic'
 import { PageType } from '../../src/generated/graphql'
 import { expect } from 'chai'
+import { InFilter, ReadFilter } from '../../src/utils/search'
 
 describe('elastic api', () => {
   let page: Page
@@ -15,22 +18,54 @@ describe('elastic api', () => {
   before(async () => {
     // create a testing page
     page = {
-      hash: 'hash',
-      userId: 'userId',
+      hash: 'test hash',
+      userId: 'test userId',
       pageType: PageType.Article,
-      title: 'test',
-      content: 'test',
-      slug: 'test',
+      title: 'test title',
+      content: '<p>test</p>',
+      slug: 'test slug',
       createdAt: new Date(),
       updatedAt: new Date(),
-      readingProgress: 0,
+      readingProgress: 100,
       readingProgressAnchorIndex: 0,
-      url: 'url',
+      url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
+      archivedAt: new Date(),
+      labels: [
+        {
+          id: 'Test label id',
+          name: 'test label',
+          color: '#ffffff',
+          createdAt: new Date(),
+        },
+        {
+          id: 'Test label id 2',
+          name: 'test label 2',
+          color: '#eeeeee',
+          createdAt: new Date(),
+        },
+      ],
     }
     page.id = await createPage(page)
   })
 
+  after(async () => {
+    if (!page.id) {
+      expect.fail('pageId is null')
+    }
+    // delete the testing page
+    await deletePage(page.id)
+  })
+
   describe('createPage', () => {
+    let newPageId: string | undefined
+
+    after(async () => {
+      if (!newPageId) {
+        expect.fail('pageId is null')
+      }
+      await deletePage(newPageId)
+    })
+
     it('creates a page', async () => {
       const newPageData: Page = {
         hash: 'hash',
@@ -45,9 +80,9 @@ describe('elastic api', () => {
         readingProgressAnchorIndex: 0,
       }
 
-      const pageId = await createPage(newPageData)
+      newPageId = await createPage(newPageData)
 
-      expect(pageId).to.be.a('string')
+      expect(newPageId).to.be.a('string')
     })
   })
 
@@ -55,7 +90,7 @@ describe('elastic api', () => {
     it('gets a page by url', async () => {
       const url = page.url || 'url'
 
-      const pageFound = await getPageByUrl(url)
+      const pageFound = await getPageByUrl(page.userId, url)
 
       expect(pageFound).not.undefined
     })
@@ -87,6 +122,21 @@ describe('elastic api', () => {
       } else {
         expect.fail('page id is undefined')
       }
+    })
+  })
+
+  describe('searchPages', () => {
+    it('searches pages', async () => {
+      const searchResults = await searchPages(
+        {
+          inFilter: InFilter.ALL,
+          labelFilters: [],
+          readFilter: ReadFilter.ALL,
+          query: 'test',
+        },
+        page.userId
+      )
+      expect(searchResults).not.undefined
     })
   })
 })
