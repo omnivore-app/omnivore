@@ -352,7 +352,7 @@ type Metadata = {
   previewImage: string
 }
 
-export const parsePageMetadata = async (html: string): Promise<Metadata | undefined> => {
+export const parsePageMetadata = (html: string): Metadata | undefined => {
   try {
     const window = new JSDOM(html).window
 
