@@ -286,7 +286,14 @@ export const searchPages = async (
             should: {
               multi_match: {
                 query,
-                fields: ['title', 'content', 'author', 'description', 'slug'],
+                fields: [
+                  'title',
+                  'content',
+                  'author',
+                  'description',
+                  'slug',
+                  'url',
+                ],
               },
             },
           },
@@ -376,10 +383,10 @@ export const initElasticsearch = async (): Promise<void> => {
   console.log('elastic info: ', response)
 
   // check if index exists
-  const indexExists = await client.indices.exists({
+  const { body: indexExists } = await client.indices.exists({
     index: INDEX_NAME,
   })
-  if (!indexExists.body) {
+  if (!indexExists) {
     console.log('ingesting index...')
     await ingest()
   }
