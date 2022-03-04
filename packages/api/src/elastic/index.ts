@@ -125,6 +125,7 @@ export const createPage = async (data: Page): Promise<string | undefined> => {
       id: data.id,
       index: INDEX_NAME,
       body: data,
+      refresh: true,
     })
 
     return body._id as string
@@ -142,6 +143,7 @@ export const updatePage = async (id: string, data: Page): Promise<void> => {
       body: {
         doc: data,
       },
+      refresh: true,
     })
   } catch (e) {
     console.error('failed to update a page in elastic', e)
@@ -149,10 +151,15 @@ export const updatePage = async (id: string, data: Page): Promise<void> => {
 }
 
 export const deletePage = async (id: string): Promise<void> => {
-  await client.delete({
-    index: INDEX_NAME,
-    id,
-  })
+  try {
+    await client.delete({
+      index: INDEX_NAME,
+      id,
+      refresh: true,
+    })
+  } catch (e) {
+    console.error('failed to delete a page in elastic', e)
+  }
 }
 
 export const getPageByUrl = async (url: string): Promise<Page | undefined> => {
