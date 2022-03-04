@@ -352,12 +352,9 @@ type Metadata = {
   previewImage: string
 }
 
-export const parseMetadata = async (
-  url: string
-): Promise<Metadata | undefined> => {
+export const parsePageMetadata = async (html: string): Promise<Metadata | undefined> => {
   try {
-    const res = await axios.get(url)
-    const window = new JSDOM(res.data).window
+    const window = new JSDOM(html).window
 
     // get open graph metadata
     const description =
@@ -385,7 +382,19 @@ export const parseMetadata = async (
 
     return { title, author, description, previewImage }
   } catch (e) {
-    console.log('failed to got:', url, e)
+    console.log('failed to parse page:', html, e)
+    return undefined
+  }
+}
+
+export const parseUrlMetadata = async (
+  url: string
+): Promise<Metadata | undefined> => {
+  try {
+    const res = await axios.get(url)
+    return parsePageMetadata(res.data)
+  } catch (e) {
+    console.log('failed to get:', url, e)
     return undefined
   }
 }
