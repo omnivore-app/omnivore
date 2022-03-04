@@ -45,7 +45,6 @@ final class HomeFeedViewModel: ObservableObject {
     searchIdx += 1
 
     isLoading = true
-    startNetworkActivityIndicator()
 
     // Cache the viewer
     if dataService.currentViewer == nil {
@@ -64,10 +63,8 @@ final class HomeFeedViewModel: ObservableObject {
     )
     .sink(
       receiveCompletion: { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
+        guard case .failure = completion else { return }
         self?.isLoading = false
-        stopNetworkActivityIndicator()
-        print(error)
       },
       receiveValue: { [weak self] result in
         // Search results aren't guaranteed to return in order so this
@@ -82,7 +79,6 @@ final class HomeFeedViewModel: ObservableObject {
         self?.isLoading = false
         self?.receivedIdx = thisSearchIdx
         self?.cursor = result.cursor
-        stopNetworkActivityIndicator()
       }
     )
     .store(in: &subscriptions)
@@ -90,7 +86,6 @@ final class HomeFeedViewModel: ObservableObject {
 
   func setLinkArchived(dataService: DataService, linkId: String, archived: Bool) {
     isLoading = true
-    startNetworkActivityIndicator()
 
     // First remove the link from the internal list,
     // then make a call to remove it. The isLoading block should
@@ -103,15 +98,12 @@ final class HomeFeedViewModel: ObservableObject {
     dataService.archiveLinkPublisher(itemID: linkId, archived: archived)
       .sink(
         receiveCompletion: { [weak self] completion in
-          guard case let .failure(error) = completion else { return }
+          guard case .failure = completion else { return }
           self?.isLoading = false
-          stopNetworkActivityIndicator()
-          print(error)
           NSNotification.operationFailed(message: archived ? "Failed to archive link" : "Failed to unarchive link")
         },
         receiveValue: { [weak self] _ in
           self?.isLoading = false
-          stopNetworkActivityIndicator()
           Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
         }
       )
@@ -120,7 +112,6 @@ final class HomeFeedViewModel: ObservableObject {
 
   func removeLink(dataService: DataService, linkId: String) {
     isLoading = true
-    startNetworkActivityIndicator()
 
     if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
       items.remove(at: itemIndex)
@@ -131,12 +122,10 @@ final class HomeFeedViewModel: ObservableObject {
         receiveCompletion: { [weak self] completion in
           guard case .failure = completion else { return }
           self?.isLoading = false
-          stopNetworkActivityIndicator()
           Snackbar.show(message: "Failed to remove link")
         },
         receiveValue: { [weak self] _ in
           self?.isLoading = false
-          stopNetworkActivityIndicator()
           Snackbar.show(message: "Link removed")
         }
       )
@@ -145,7 +134,6 @@ final class HomeFeedViewModel: ObservableObject {
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) {
     isLoading = true
-    startNetworkActivityIndicator()
 
     if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
       items.remove(at: itemIndex)
@@ -157,15 +145,12 @@ final class HomeFeedViewModel: ObservableObject {
     )
     .sink(
       receiveCompletion: { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
+        guard case .failure = completion else { return }
         self?.isLoading = false
-        stopNetworkActivityIndicator()
-        print(error)
         NSNotification.operationFailed(message: "Failed to snooze")
       },
       receiveValue: { [weak self] _ in
         self?.isLoading = false
-        stopNetworkActivityIndicator()
         if let message = successMessage {
           Snackbar.show(message: message)
         }
@@ -173,16 +158,4 @@ final class HomeFeedViewModel: ObservableObject {
     )
     .store(in: &subscriptions)
   }
-}
-
-private func startNetworkActivityIndicator() {
-  #if os(iOS)
-    UIApplication.shared.isNetworkActivityIndicatorVisible = true
-  #endif
-}
-
-private func stopNetworkActivityIndicator() {
-  #if os(iOS)
-    UIApplication.shared.isNetworkActivityIndicatorVisible = false
-  #endif
 }

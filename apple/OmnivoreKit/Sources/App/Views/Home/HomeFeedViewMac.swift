@@ -84,12 +84,28 @@ import Views
       .navigationTitle("Home")
       .toolbar {
         ToolbarItem {
-          Button(
-            action: {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-            },
-            label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-          )
+          if #available(macOS 12.0, *) {
+            Button(
+              action: {
+                viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+              },
+              label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+            )
+            .disabled(viewModel.isLoading)
+            .opacity(viewModel.isLoading ? 0 : 1)
+            .overlay {
+              if viewModel.isLoading {
+                ProgressView()
+              }
+            }
+          } else {
+            Button(
+              action: {
+                viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+              },
+              label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+            )
+          }
         }
       }
       .onAppear {
