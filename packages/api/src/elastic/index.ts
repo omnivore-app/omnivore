@@ -379,18 +379,23 @@ const labelFiltersQuery = (filters: LabelFilter[]) => {
 }
 
 export const initElasticsearch = async (): Promise<void> => {
-  const response = await client.info()
-  console.log('elastic info: ', response)
+  try {
+    const response = await client.info()
+    console.log('elastic info: ', response)
 
-  // check if index exists
-  const { body: indexExists } = await client.indices.exists({
-    index: INDEX_NAME,
-  })
-  if (!indexExists) {
-    console.log('ingesting index...')
-    await ingest()
+    // check if index exists
+    const { body: indexExists } = await client.indices.exists({
+      index: INDEX_NAME,
+    })
+    if (!indexExists) {
+      console.log('ingesting index...')
+      await ingest()
+    }
+
+    await client.indices.refresh({ index: INDEX_NAME })
+    console.log('elastic client is ready')
+  } catch (e) {
+    console.error('failed to init elasticsearch', e)
+    throw e
   }
-
-  await client.indices.refresh({ index: INDEX_NAME })
-  console.log('elastic client is ready')
 }
