@@ -326,12 +326,7 @@ export const createArticleResolver = authorized<
           ...articleToSave,
           slug,
           userId: uid,
-          originalHtml: articleToSave.originalHtml || '',
-          uploadFileId: articleToSave.uploadFileId || undefined,
-          readingProgress: 0,
-          readingProgressAnchorIndex: 0,
           createdAt: saveTime,
-          updatedAt: saveTime,
           savedAt: saveTime,
         }
         const pageId = await createPage(page)

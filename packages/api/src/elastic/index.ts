@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
-import { Label, PageType } from '../generated/graphql'
+import { Label, PageType, SortOrder, SortParams } from '../generated/graphql'
+import { InFilter, LabelFilter, ReadFilter } from '../utils/search'
 
 export type Page = {
   id?: string
@@ -13,16 +15,16 @@ export type Page = {
   content: string
   url?: string
   hash: string
-  uploadFileId?: string
+  uploadFileId?: string | null
   image?: string
   pageType: PageType
-  originalHtml?: string
+  originalHtml?: string | null
   slug: string
   labels?: Label[]
-  readingProgress: number
-  readingProgressAnchorIndex: number
+  readingProgress?: number
+  readingProgressAnchorIndex?: number
   createdAt: Date
-  updatedAt: Date
+  updatedAt?: Date
   publishedAt?: Date
   savedAt?: Date
   sharedAt?: Date
@@ -42,6 +44,17 @@ const ingest = async (): Promise<void> => {
   await client.indices.create({
     index: INDEX_NAME,
     body: {
+      settings: {
+        analysis: {
+          analyzer: {
+            my_custom_analyzer: {
+              tokenizer: 'standard',
+              filter: ['lowercase'],
+              char_filter: ['html_strip'],
+            },
+          },
+        },
+      },
       mappings: {
         properties: {
           userId: {
@@ -58,24 +71,16 @@ const ingest = async (): Promise<void> => {
           },
           content: {
             type: 'text',
+            analyzer: 'my_custom_analyzer',
           },
           url: {
             type: 'keyword',
           },
-          hash: {
-            type: 'text',
-          },
           uploadFileId: {
             type: 'keyword',
           },
-          image: {
-            type: 'text',
-          },
           pageType: {
             type: 'keyword',
-          },
-          originalHtml: {
-            type: 'text',
           },
           slug: {
             type: 'text',
@@ -83,14 +88,8 @@ const ingest = async (): Promise<void> => {
           labels: {
             type: 'nested',
             properties: {
-              id: {
-                type: 'keyword',
-              },
               name: {
-                type: 'text',
-              },
-              color: {
-                type: 'text',
+                type: 'keyword',
               },
             },
           },
@@ -103,16 +102,7 @@ const ingest = async (): Promise<void> => {
           createdAt: {
             type: 'date',
           },
-          updatedAt: {
-            type: 'date',
-          },
-          publishedAt: {
-            type: 'date',
-          },
           savedAt: {
-            type: 'date',
-          },
-          sharedAt: {
             type: 'date',
           },
           archivedAt: {
@@ -193,8 +183,8 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
       index: INDEX_NAME,
       body: {
         query: {
-          term: {
-            _id: id,
+          ids: {
+            values: [id],
           },
         },
       },
@@ -211,6 +201,142 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
   } catch (e) {
     console.error('failed to search pages in elastic', e)
     return undefined
+  }
+}
+
+export const searchPages = async (
+  args: {
+    from: number
+    size: number
+    sort?: SortParams
+    query?: string
+    inFilter: InFilter
+    readFilter: ReadFilter
+    typeFilter: PageType | undefined
+    labelFilters: LabelFilter[]
+  },
+  userId: string,
+  notNullField: string | null = null
+): Promise<[Page[], number] | undefined> => {
+  try {
+    const {
+      from,
+      size,
+      sort,
+      query,
+      readFilter,
+      typeFilter,
+      labelFilters,
+      inFilter,
+    } = args
+    const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
+
+    const { body } = await client.search({
+      index: INDEX_NAME,
+      body: {
+        sort: [
+          {
+            savedAt: {
+              order: sortOrder,
+              format: 'strict_date_optional_time_nanos',
+            },
+          },
+          {
+            createdAt: {
+              order: sortOrder,
+              format: 'strict_date_optional_time_nanos',
+            },
+          },
+          {
+            _id: sortOrder,
+          },
+          '_score',
+        ],
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              typeFilter && {
+                term: {
+                  pageType: typeFilter,
+                },
+              },
+              inFilter !== InFilter.ALL && inFilterQuery(inFilter),
+              readFilter !== ReadFilter.ALL && {
+                range: {
+                  readingProgress: readFilterRange(readFilter),
+                },
+              },
+              {
+                exists: {
+                  field: notNullField,
+                },
+              },
+            ],
+            should: {
+              multi_match: {
+                query,
+                fields: ['title', 'content', 'author', 'description', 'slug'],
+              },
+            },
+          },
+        },
+        from,
+        size,
+      },
+    })
+
+    if (body.hits.total.value === 0) {
+      return [[], 0]
+    }
+
+    return [
+      body.hits.hits.map(
+        (hit: { _source: Page; _id: string }) =>
+          ({
+            ...hit._source,
+            id: hit._id,
+          } as Page)
+      ) as Page[],
+      body.hits.total.value,
+    ]
+  } catch (e) {
+    console.error('failed to search pages in elastic', e)
+    return undefined
+  }
+}
+
+const readFilterRange = (filter: ReadFilter) => {
+  switch (filter) {
+    case ReadFilter.UNREAD:
+      return { lt: 98 }
+    case ReadFilter.READ:
+      return { gte: 98 }
+  }
+}
+
+const inFilterQuery = (filter: InFilter) => {
+  switch (filter) {
+    case InFilter.ARCHIVE:
+      return {
+        exists: {
+          field: 'archivedAt',
+        },
+      }
+    case InFilter.INBOX:
+      return {
+        bool: {
+          must_not: {
+            exists: {
+              field: 'archivedAt',
+            },
+          },
+        },
+      }
   }
 }
 
