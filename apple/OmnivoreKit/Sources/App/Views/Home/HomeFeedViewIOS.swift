@@ -100,6 +100,8 @@ import Views
   }
 
   struct HomeFeedView: View {
+    @EnvironmentObject var dataService: DataService
+
     let isCompact: Bool
     @Binding var searchQuery: String
     @Binding var selectedLinkItem: FeedItem?
@@ -125,6 +127,32 @@ import Views
           itemToSnooze: $itemToSnooze,
           viewModel: viewModel
         )
+        .toolbar {
+          ToolbarItem {
+            if #available(iOS 15.0, *) {
+              Button(
+                action: {
+                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+                },
+                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+              .disabled(viewModel.isLoading)
+              .opacity(viewModel.isLoading ? 0 : 1)
+              .overlay {
+                if viewModel.isLoading {
+                  ProgressView()
+                }
+              }
+            } else {
+              Button(
+                action: {
+                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+                },
+                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+            }
+          }
+        }
       }
     }
   }
