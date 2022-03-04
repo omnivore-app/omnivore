@@ -150,8 +150,8 @@
         "repositoryURL": "https://github.com/maticzav/swift-graphql",
         "state": {
           "branch": null,
-          "revision": "716973b9af4fcce8cb5dd6ac5fda80aff1458b84",
-          "version": "2.3.0"
+          "revision": "b1fad45d10194e865685150fedad9ef0845fb254",
+          "version": "2.3.1"
         }
       },
       {
@@ -177,8 +177,8 @@
         "repositoryURL": "https://github.com/siteline/SwiftUI-Introspect.git",
         "state": {
           "branch": null,
-          "revision": "2e09be8af614401bc9f87d40093ec19ce56ccaf2",
-          "version": "0.1.3"
+          "revision": "f2616860a41f9d9932da412a8978fec79c06fe24",
+          "version": "0.1.4"
         }
       },
       {
