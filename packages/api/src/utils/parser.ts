@@ -374,7 +374,7 @@ export const parsePageMetadata = (html: string): Metadata | undefined => {
 
     const author =
       window.document
-        .querySelector("head meta[property='author']")
+        .querySelector("head meta[name='author']")
         ?.getAttribute('content') || undefined
 
     // TODO: we should be able to apply the JSONLD metadata
