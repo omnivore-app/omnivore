@@ -31,6 +31,10 @@ jobs:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
         env:
           discovery.type: single-node
+          http.cors.allow-origin: '*'
+          http.cors.enabled: true
+          http.cors.allow-headers: 'X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization'
+          http.cors.allow-credentials: true
         options: >-
           --health-cmd "curl http://0.0.0.0:9200/_cluster/health"
           --health-interval 10s
