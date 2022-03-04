@@ -18,6 +18,7 @@ import { userPersonalizationMutation } from '../../../lib/networking/mutations/u
 import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
+import Script from 'next/script'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -119,14 +120,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   return (
     <>
-      <Head>
-        <script async src="/static/scripts/mathJaxConfiguration.js" />
-        <script
-          async
-          id="MathJax-script"
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-        />
-      </Head>
+      <Script async src="/static/scripts/mathJaxConfiguration.js" />
+      <Script
+        async
+        id="MathJax-script"
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+      />
       <Box
         id="article-container"
         css={{
