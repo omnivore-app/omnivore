@@ -4,7 +4,12 @@
 import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
 import { Label, PageType, SortOrder, SortParams } from '../generated/graphql'
-import { InFilter, LabelFilter, ReadFilter } from '../utils/search'
+import {
+  InFilter,
+  LabelFilter,
+  LabelFilterType,
+  ReadFilter,
+} from '../utils/search'
 
 export type Page = {
   id?: string
@@ -271,6 +276,7 @@ export const searchPages = async (
                   readingProgress: readFilterRange(readFilter),
                 },
               },
+              labelFilters.length > 0 && labelFiltersQuery(labelFilters),
               {
                 exists: {
                   field: notNullField,
@@ -337,6 +343,31 @@ const inFilterQuery = (filter: InFilter) => {
           },
         },
       }
+  }
+}
+
+const labelFiltersQuery = (filters: LabelFilter[]) => {
+  return {
+    bool: filters.map((filter) => {
+      switch (filter.type) {
+        case LabelFilterType.ANY:
+          return {
+            must: {
+              match: {
+                'labels.name': filter.labels,
+              },
+            },
+          }
+        case LabelFilterType.NONE:
+          return {
+            must_not: {
+              match: {
+                'labels.name': filter.labels,
+              },
+            },
+          }
+      }
+    }),
   }
 }
 
