@@ -27,6 +27,17 @@ jobs:
           --health-retries 5
         ports:
           - 5432
+      elastic:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+        env:
+          discovery.type: single-node
+        options: >-
+          --health-cmd "curl http://0.0.0.0:9200/_cluster/health"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 9200
     steps:
       - uses: actions/checkout@v2
         with:
@@ -61,3 +72,4 @@ jobs:
           PG_PASSWORD: postgres
           PG_DB: omnivore_test
           PG_POOL_MAX: 10
+          ELASTIC_URL: http://elastic:${{ job.services.elastic.ports[5432] }}/
