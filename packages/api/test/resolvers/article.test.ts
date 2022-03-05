@@ -1,20 +1,13 @@
-import {
-  createTestLabel,
-  createTestLink,
-  createTestPage,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
+import { createTestLabel, createTestUser, deleteTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
-import { Link } from '../../src/entity/link'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { getRepository } from 'typeorm'
-import { LinkLabel } from '../../src/entity/link_label'
 import { Label } from '../../src/entity/label'
+import { createPage, deletePage, Page, updatePage } from '../../src/elastic'
+import { PageType } from '../../src/generated/graphql'
 
 chai.use(chaiString)
 
@@ -147,7 +140,7 @@ describe('Article API', () => {
   const username = 'fakeUser'
   let authToken: string
   let user: User
-  let links: Link[] = []
+  let pages: Page[] = []
   let label: Label
 
   before(async () => {
@@ -157,18 +150,37 @@ describe('Article API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    // Create some test links
+    const page = {
+      id: '',
+      hash: 'test hash',
+      userId: 'test userId',
+      pageType: PageType.Article,
+      title: 'test title',
+      content: '<p>test</p>',
+      slug: 'test slug',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      readingProgress: 100,
+      readingProgressAnchorIndex: 0,
+      url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
+    }
+    // Create some test pages
     for (let i = 0; i < 15; i++) {
-      const page = await createTestPage()
-      const link = await createTestLink(user, page)
-      links.push(link)
+      const pageId = await createPage(page)
+      if (!pageId) {
+        expect.fail('Failed to create page')
+      }
+      pages.push({
+        ...page,
+        id: pageId,
+      })
     }
     //  create testing labels
     label = await createTestLabel(user, 'label', '#ffffff')
     //  set label to a link
-    await getRepository(LinkLabel).save({
-      link: links[0],
-      label: label,
+    await updatePage(pages[0].id, {
+      ...page,
+      labels: [label],
     })
 
     authToken = res.body.authToken
@@ -176,6 +188,9 @@ describe('Article API', () => {
 
   after(async () => {
     // clean up
+    for (const page of pages) {
+      await deletePage(page.id)
+    }
     await deleteTestUser(username)
   })
 
@@ -215,7 +230,7 @@ describe('Article API', () => {
     it('should return linkId', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      expect(res.body.data.articles.edges[0].node.linkId).to.eql(links[0].id)
+      expect(res.body.data.articles.edges[0].node.linkId).to.eql(pages[0].id)
     })
 
     it('should return labels', async () => {
@@ -230,11 +245,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(links[0].page.id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(links[1].page.id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(links[2].page.id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(links[3].page.id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(links[4].page.id)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[0].id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[1].id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[2].id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[3].id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[4].id)
       })
 
       it('should set the pageInfo', async () => {
@@ -261,11 +276,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(links[5].page.id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(links[6].page.id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(links[7].page.id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(links[8].page.id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(links[9].page.id)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[5].id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[6].id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[7].id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[8].id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[9].id)
       })
 
       it('should set the pageInfo', async () => {

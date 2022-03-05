@@ -18,6 +18,7 @@ describe('elastic api', () => {
   before(async () => {
     // create a testing page
     page = {
+      id: '',
       hash: 'test hash',
       userId: 'test userId',
       pageType: PageType.Article,
@@ -45,29 +46,22 @@ describe('elastic api', () => {
         },
       ],
     }
-    page.id = await createPage(page)
+    const pageId = await createPage(page)
+    if (!pageId) {
+      expect.fail('Failed to create page')
+    }
+    page.id = pageId
   })
 
   after(async () => {
-    if (!page.id) {
-      expect.fail('pageId is null')
-    }
     // delete the testing page
     await deletePage(page.id)
   })
 
   describe('createPage', () => {
-    let newPageId: string | undefined
-
-    after(async () => {
-      if (!newPageId) {
-        expect.fail('pageId is null')
-      }
-      await deletePage(newPageId)
-    })
-
     it('creates a page', async () => {
       const newPageData: Page = {
+        id: '',
         hash: 'hash',
         userId: 'userId',
         pageType: PageType.Article,
@@ -78,9 +72,10 @@ describe('elastic api', () => {
         updatedAt: new Date(),
         readingProgress: 0,
         readingProgressAnchorIndex: 0,
+        url: 'https://blog.omnivore.app/testUrl',
       }
 
-      newPageId = await createPage(newPageData)
+      const newPageId = await createPage(newPageData)
 
       expect(newPageId).to.be.a('string')
     })
@@ -98,9 +93,6 @@ describe('elastic api', () => {
 
   describe('getPageById', () => {
     it('gets a page by id', async () => {
-      if (!page.id) {
-        expect.fail('page id is undefined')
-      }
       const pageFound = await getPageById(page.id)
 
       expect(pageFound).not.undefined
@@ -115,13 +107,11 @@ describe('elastic api', () => {
         title: newTitle,
       }
 
-      if (page.id) {
-        await updatePage(page.id, updatedPageData)
-        const updatedPage = await getPageById(page.id)
-        expect(updatedPage?.title).to.eql(newTitle)
-      } else {
-        expect.fail('page id is undefined')
-      }
+      await updatePage(page.id, updatedPageData)
+
+      const updatedPage = await getPageById(page.id)
+
+      expect(updatedPage?.title).to.eql(newTitle)
     })
   })
 

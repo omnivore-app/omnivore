@@ -67,7 +67,12 @@ import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { createPage, getPageByUrl, updatePage } from '../../elastic'
+import {
+  createPage,
+  getPageByUrl,
+  searchPages,
+  updatePage,
+} from '../../elastic'
 
 export type PartialArticle = Omit<
   Article,
@@ -309,7 +314,7 @@ export const createArticleResolver = authorized<
       }
 
       let page = await getPageByUrl(uid, articleToSave.url)
-      if (page && page.id) {
+      if (page) {
         //  update existing page in elastic
         page.slug = slug
         page.savedAt = saveTime
@@ -328,6 +333,7 @@ export const createArticleResolver = authorized<
           userId: uid,
           createdAt: saveTime,
           savedAt: saveTime,
+          id: '',
         }
         const pageId = await createPage(page)
 
@@ -352,7 +358,6 @@ export const createArticleResolver = authorized<
       const createdArticle: PartialArticle = {
         ...page,
         isArchived: !!page.archivedAt,
-        id: page.id,
         url: articleToSave.url,
       }
       return articleSavingRequestPopulate(
@@ -430,7 +435,7 @@ export const getArticlesResolver = authorized<
   PaginatedPartialArticles,
   ArticlesError,
   QueryArticlesArgs
->(async (_obj, params, { models, claims, authTrx }) => {
+>(async (_obj, params, { claims }) => {
   const notNullField = params.sharedOnly ? 'sharedAt' : null
   const startCursor = params.after || ''
   const first = params.first || 10
@@ -454,28 +459,25 @@ export const getArticlesResolver = authorized<
   })
   await createIntercomEvent('search', claims.uid)
 
-  const [userArticles, totalCount] = (await authTrx((tx) =>
-    models.userArticle.getPaginated(
-      {
-        cursor: startCursor,
-        first: first + 1, // fetch one more item to get next cursor
-        sort: params.sort || undefined,
-        query: searchQuery.query,
-        inFilter: searchQuery.inFilter,
-        readFilter: searchQuery.readFilter,
-        typeFilter: searchQuery.typeFilter,
-        labelFilters: searchQuery.labelFilters,
-      },
-      claims.uid,
-      tx,
-      notNullField
-    )
+  const [pages, totalCount] = (await searchPages(
+    {
+      from: parseInt(startCursor),
+      size: first, // fetch one more item to get next cursor
+      sort: params.sort || undefined,
+      query: searchQuery.query,
+      inFilter: searchQuery.inFilter,
+      readFilter: searchQuery.readFilter,
+      typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
+    },
+    claims.uid,
+    notNullField
   )) || [[], 0]
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-  const hasNextPage = userArticles.length > first
-  const endCursor = String(start + userArticles.length - (hasNextPage ? 1 : 0))
+  const hasNextPage = pages.length > first
+  const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
 
   console.log(
     'start',
@@ -483,18 +485,22 @@ export const getArticlesResolver = authorized<
     'returning end cursor',
     endCursor,
     'length',
-    userArticles.length - 1
+    pages.length - 1
   )
 
   //TODO: refactor so that the lastCursor included
   if (hasNextPage) {
     // remove an extra if exists
-    userArticles.pop()
+    pages.pop()
   }
 
-  const edges = userArticles.map((a) => {
+  const edges = pages.map((a) => {
     return {
-      node: { ...a, image: a.image && createImageProxyUrl(a.image, 88, 88) },
+      node: {
+        ...a,
+        image: a.image && createImageProxyUrl(a.image, 88, 88),
+        isArchived: !!a.archivedAt,
+      },
       cursor: endCursor,
     }
   })
