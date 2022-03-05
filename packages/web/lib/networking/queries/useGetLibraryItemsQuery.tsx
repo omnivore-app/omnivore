@@ -8,6 +8,8 @@ import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { labelFragment } from '../fragments/labelFragment'
 import { Label } from './useGetLabelsQuery'
+import { KeyedMutator, Cache } from 'swr'
+import { ScopedMutator } from 'swr/dist/types'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -174,6 +176,42 @@ export function useGetLibraryItemsQuery({
     },
     size,
     setSize,
+  }
+}
+
+export const removeItemFromCache = (
+  cache: Cache<unknown>,
+  mutate: ScopedMutator,
+  itemId: string,
+) => {
+  try {
+    const mappedCache = cache as Map<string, unknown>
+    mappedCache.forEach((value: any, key) => {
+      if (typeof value == 'object' && 'articles' in value) {
+        const articles = value.articles as LibraryItems
+        const idx = articles.edges.findIndex((edge) => edge.node.id == itemId)
+        if (idx > -1) {
+          const newEdges = articles.edges.splice(idx, 1)
+          value.articles.edges = newEdges
+          mutate(key, value, false)
+        }
+      } else if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          const item = value[i]
+          if (typeof item == 'object' && 'articles' in item) {
+            const articles = item.articles as LibraryItems
+            const idx = articles.edges.findIndex((edge) => edge.node.id == itemId)
+            if (idx > -1) {
+              const newEdges = articles.edges.splice(idx, 1)
+              value[i].articles.edges = newEdges
+            }
+          }
+        }
+        mutate(key, value, false)
+      }
+    })
+  } catch (error) {
+    console.log('error removing item from cache', error)
   }
 }
 

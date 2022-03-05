@@ -18,7 +18,10 @@ import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
 import Script from 'next/script'
+import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { useRouter } from 'next/router'
+import { useSWRConfig } from 'swr'
+import { removeItemFromCache } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -34,6 +37,10 @@ type ArticleContainerProps = {
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const router = useRouter()
+<<<<<<< HEAD
+=======
+  const { cache, mutate } = useSWRConfig()
+>>>>>>> 6018a6a (Remove items from the SWR cache when archiving from reader page)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
@@ -51,6 +58,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
       switch (action) {
+        case 'archiveItem':
+          await setLinkArchivedMutation({
+            linkId: props.article.id,
+            archived: true,
+          })
+          removeItemFromCache(cache, mutate, props.article.id)
+          router.push(`/home`)
+          break
         case 'openOriginalArticle':
           const url = props.article.url
           if (url) {

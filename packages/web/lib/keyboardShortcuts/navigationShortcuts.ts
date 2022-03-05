@@ -208,12 +208,19 @@ type ArticleKeyboardAction =
   | 'incrementFontSize'
   | 'decrementFontSize'
   | 'editLabels'
+  | 'archiveItem'
 
 export function articleKeyboardCommands(
   router: NextRouter | undefined,
   actionHandler: (action: ArticleKeyboardAction) => void
 ): KeyboardCommand[] {
   return [
+    {
+      shortcutKeys: ['e'],
+      actionDescription: 'Archive page',
+      shortcutKeyDescription: 'e',
+      callback: () => actionHandler('archiveItem'),
+    },
     {
       shortcutKeys: ['o'],
       actionDescription: 'Open original article page',
