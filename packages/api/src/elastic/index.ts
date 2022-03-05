@@ -11,7 +11,127 @@ import {
   ReadFilter,
 } from '../utils/search'
 
-export type Page = {
+// Define the type of the body for the Search request
+interface SearchBody {
+  query: {
+    bool: {
+      filter: (
+        | {
+            term: {
+              userId: string
+            }
+          }
+        | { term: { pageType: string } }
+        | { exists: { field: string } }
+        | {
+            range: {
+              readingProgress: { gte: number } | { lt: number }
+            }
+          }
+        | {
+            nested: {
+              path: 'labels'
+              query: {
+                bool: {
+                  filter: {
+                    terms: {
+                      'labels.name': string[]
+                    }
+                  }[]
+                }
+              }
+            }
+          }
+      )[]
+      should: {
+        multi_match: {
+          query: string
+          fields: string[]
+        }
+      }[]
+      minimum_should_match?: number
+      must_not: (
+        | {
+            exists: {
+              field: string
+            }
+          }
+        | {
+            nested: {
+              path: 'labels'
+              query: {
+                terms: {
+                  'labels.name': string[]
+                }
+              }[]
+            }
+          }
+      )[]
+    }
+  }
+  sort: [
+    {
+      savedAt: {
+        order: string
+        format: 'strict_date_optional_time_nanos'
+      }
+    },
+    {
+      createdAt: {
+        order: string
+        format: 'strict_date_optional_time_nanos'
+      }
+    },
+    {
+      _id: string
+    },
+    '_score'
+  ]
+  from: number
+  size: number
+}
+
+// Complete definition of the Search response
+interface ShardsResponse {
+  total: number
+  successful: number
+  failed: number
+  skipped: number
+}
+
+interface Explanation {
+  value: number
+  description: string
+  details: Explanation[]
+}
+
+interface SearchResponse<T> {
+  took: number
+  timed_out: boolean
+  _scroll_id?: string
+  _shards: ShardsResponse
+  hits: {
+    total: number
+    max_score: number
+    hits: Array<{
+      _index: string
+      _type: string
+      _id: string
+      _score: number
+      _source: T
+      _version?: number
+      _explanation?: Explanation
+      fields?: any
+      highlight?: any
+      inner_hits?: any
+      matched_queries?: string[]
+      sort?: string[]
+    }>
+  }
+  aggregations?: any
+}
+
+export interface Page {
   id?: string
   userId: string
   title: string
@@ -127,38 +247,76 @@ const ingest = async (): Promise<void> => {
   })
 }
 
-const readFilterRange = (filter: ReadFilter) => {
+const appendQuery = (body: SearchBody, query: string): void => {
+  body.query.bool.should.push({
+    multi_match: {
+      query,
+      fields: ['title', 'content', 'author', 'description', 'slug', 'url'],
+    },
+  })
+}
+
+const appendTypeFilter = (body: SearchBody, filter: PageType): void => {
+  body.query.bool.filter.push({
+    term: {
+      pageType: filter,
+    },
+  })
+}
+
+const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
   switch (filter) {
     case ReadFilter.UNREAD:
-      return { lt: 98 }
+      body.query.bool.filter.push({
+        range: {
+          readingProgress: {
+            gte: 98,
+          },
+        },
+      })
+      break
     case ReadFilter.READ:
-      return { gte: 98 }
+      body.query.bool.filter.push({
+        range: {
+          readingProgress: {
+            lt: 98,
+          },
+        },
+      })
   }
 }
 
-const inFilterQuery = (filter: InFilter) => {
+const appendInFilter = (body: SearchBody, filter: InFilter): void => {
   switch (filter) {
     case InFilter.ARCHIVE:
-      return {
+      body.query.bool.filter.push({
         exists: {
           field: 'archivedAt',
         },
-      }
+      })
+      break
     case InFilter.INBOX:
-      return {
-        bool: {
-          must_not: {
-            exists: {
-              field: 'archivedAt',
-            },
-          },
+      body.query.bool.must_not.push({
+        exists: {
+          field: 'archivedAt',
         },
-      }
+      })
   }
 }
 
-const excludeLabelQuery = (filters: LabelFilter[]) => {
-  return {
+const appendNotNullField = (body: SearchBody, field: string): void => {
+  body.query.bool.filter.push({
+    exists: {
+      field,
+    },
+  })
+}
+
+const appendExcludeLabelFilter = (
+  body: SearchBody,
+  filters: LabelFilter[]
+): void => {
+  body.query.bool.must_not.push({
     nested: {
       path: 'labels',
       query: filters.map((filter) => {
@@ -169,11 +327,14 @@ const excludeLabelQuery = (filters: LabelFilter[]) => {
         }
       }),
     },
-  }
+  })
 }
 
-const includeLabelQuery = (filters: LabelFilter[]) => {
-  return {
+const appendIncludeLabelFilter = (
+  body: SearchBody,
+  filters: LabelFilter[]
+): void => {
+  body.query.bool.filter.push({
     nested: {
       path: 'labels',
       query: {
@@ -188,7 +349,7 @@ const includeLabelQuery = (filters: LabelFilter[]) => {
         },
       },
     },
-  }
+  })
 }
 
 export const createPage = async (data: Page): Promise<string | undefined> => {
@@ -324,90 +485,81 @@ export const searchPages = async (
       (filter) => filter.type === LabelFilterType.EXCLUDE
     )
 
-    const { body } = await client.search({
-      index: INDEX_NAME,
-      body: {
-        query: {
-          bool: {
-            filter: [
-              {
-                term: {
-                  userId,
-                },
-              },
-              typeFilter && {
-                term: {
-                  pageType: typeFilter,
-                },
-              },
-              inFilter !== InFilter.ALL && inFilterQuery(inFilter),
-              readFilter !== ReadFilter.ALL && {
-                range: {
-                  readingProgress: readFilterRange(readFilter),
-                },
-              },
-              includeLabels.length > 0 && includeLabelQuery(includeLabels),
-              {
-                exists: {
-                  field: notNullField,
-                },
-              },
-            ],
-            should: {
-              multi_match: {
-                query,
-                fields: [
-                  'title',
-                  'content',
-                  'author',
-                  'description',
-                  'slug',
-                  'url',
-                ],
+    const body: SearchBody = {
+      query: {
+        bool: {
+          filter: [
+            {
+              term: {
+                userId,
               },
             },
-            minimum_should_match: 1,
-            must_not: [
-              excludeLabels.length > 0 && excludeLabelQuery(excludeLabels),
-            ],
+          ],
+          should: [],
+          minimum_should_match: 1,
+          must_not: [],
+        },
+      },
+      sort: [
+        {
+          savedAt: {
+            order: sortOrder,
+            format: 'strict_date_optional_time_nanos',
           },
         },
-        sort: [
-          {
-            savedAt: {
-              order: sortOrder,
-              format: 'strict_date_optional_time_nanos',
-            },
+        {
+          createdAt: {
+            order: sortOrder,
+            format: 'strict_date_optional_time_nanos',
           },
-          {
-            createdAt: {
-              order: sortOrder,
-              format: 'strict_date_optional_time_nanos',
-            },
-          },
-          {
-            _id: sortOrder,
-          },
-          '_score',
-        ],
-        from,
-        size,
-      },
+        },
+        {
+          _id: sortOrder,
+        },
+        '_score',
+      ],
+      from,
+      size,
+    }
+
+    // append filters
+    if (query) {
+      appendQuery(body, query)
+    }
+    if (typeFilter) {
+      appendTypeFilter(body, typeFilter)
+    }
+    if (inFilter !== InFilter.ALL) {
+      appendInFilter(body, inFilter)
+    }
+    if (readFilter !== ReadFilter.ALL) {
+      appendReadFilter(body, readFilter)
+    }
+    if (notNullField) {
+      appendNotNullField(body, notNullField)
+    }
+    if (includeLabels.length > 0) {
+      appendIncludeLabelFilter(body, includeLabels)
+    }
+    if (excludeLabels.length > 0) {
+      appendExcludeLabelFilter(body, excludeLabels)
+    }
+
+    const response = await client.search<SearchResponse<Page>, SearchBody>({
+      index: INDEX_NAME,
+      body,
     })
 
-    if (body.hits.total.value === 0) {
+    if (response.body.hits.total === 0) {
       return [[], 0]
     }
 
     return [
-      body.hits.hits.map(
-        (hit: { _source: Page; _id: string }) =>
-          ({
-            ...hit._source,
-            id: hit._id,
-          } as Page)
-      ) as Page[],
-      body.hits.total.value,
+      response.body.hits.hits.map((hit: { _source: Page; _id: string }) => ({
+        ...hit._source,
+        id: hit._id,
+      })),
+      response.body.hits.total,
     ]
   } catch (e) {
     console.error('failed to search pages in elastic', e)
