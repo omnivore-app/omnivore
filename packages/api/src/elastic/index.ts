@@ -132,13 +132,13 @@ interface SearchResponse<T> {
 }
 
 export interface Page {
-  id?: string
+  id: string
   userId: string
   title: string
   author?: string
   description?: string
   content: string
-  url?: string
+  url: string
   hash: string
   uploadFileId?: string | null
   image?: string
@@ -355,7 +355,7 @@ const appendIncludeLabelFilter = (
 export const createPage = async (data: Page): Promise<string | undefined> => {
   try {
     const { body } = await client.index({
-      id: data.id,
+      id: data.id || undefined,
       index: INDEX_NAME,
       body: data,
       refresh: true,
