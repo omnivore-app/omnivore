@@ -70,6 +70,7 @@ import { env } from '../../env'
 import {
   createPage,
   getPageByUrl,
+  Page,
   searchPages,
   updatePage,
 } from '../../elastic'
@@ -245,7 +246,9 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      const articleToSave = {
+      const articleToSave: Page = {
+        id: '',
+        userId: uid,
         originalHtml: domContent,
         content: parsedContent?.content || '',
         description: parsedContent?.excerpt,
@@ -263,6 +266,10 @@ export const createArticleResolver = authorized<
         image: parsedContent?.previewImage,
         publishedAt: validatedDate(parsedContent?.publishedDate),
         uploadFileId: uploadFileId,
+        slug,
+        createdAt: saveTime,
+        savedAt: saveTime,
+        siteName: parsedContent?.siteName,
       }
 
       if (canonicalUrl && domContent) {
@@ -313,29 +320,23 @@ export const createArticleResolver = authorized<
         )
       }
 
-      let page = await getPageByUrl(uid, articleToSave.url)
-      if (page) {
+      const existingPage = await getPageByUrl(uid, articleToSave.url)
+      if (existingPage) {
         //  update existing page in elastic
-        page.slug = slug
-        page.savedAt = saveTime
-        page.archivedAt = archive ? saveTime : undefined
-        page.url = uploadFileUrlOverride || articleToSave.url
-        page.hash = articleToSave.hash
+        const updatedFields: Partial<Page> = {
+          slug,
+          savedAt: saveTime,
+          archivedAt: archive ? saveTime : undefined,
+          url: uploadFileUrlOverride || articleToSave.url,
+          hash: articleToSave.hash,
+        }
 
-        await updatePage(page.id, page)
+        await updatePage(existingPage.id, updatedFields)
 
-        console.log('page updated in elastic', page)
+        console.log('page updated in elastic', existingPage.id)
       } else {
         // create new page in elastic
-        page = {
-          ...articleToSave,
-          slug,
-          userId: uid,
-          createdAt: saveTime,
-          savedAt: saveTime,
-          id: '',
-        }
-        const pageId = await createPage(page)
+        const pageId = await createPage(articleToSave)
 
         if (!pageId) {
           return articleSavingRequestError(
@@ -346,9 +347,9 @@ export const createArticleResolver = authorized<
             articleSavingRequest
           )
         }
-        page.id = pageId
+        articleToSave.id = pageId
 
-        console.log('page created in elastic', page)
+        console.log('page created in elastic', articleToSave)
 
         if (canonicalUrl && domContent) {
           await ctx.pubsub.pageCreated(uid, canonicalUrl, domContent)
@@ -356,9 +357,8 @@ export const createArticleResolver = authorized<
       }
 
       const createdArticle: PartialArticle = {
-        ...page,
-        isArchived: !!page.archivedAt,
-        url: articleToSave.url,
+        ...articleToSave,
+        isArchived: !!articleToSave.archivedAt,
       }
       return articleSavingRequestPopulate(
         {

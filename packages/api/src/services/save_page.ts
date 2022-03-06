@@ -8,12 +8,13 @@ import {
 } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
-import { parsePreparedContent, parseOriginalContent } from '../utils/parser'
+import { parseOriginalContent, parsePreparedContent } from '../utils/parser'
 
 import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { kx } from '../datalayer/knex_config'
 import { setClaims } from '../datalayer/helpers'
+import { createPage, getPageByUrl, Page, updatePage } from '../elastic'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -85,7 +86,10 @@ export const savePage = async (
 
   const pageType = parseOriginalContent(input.url, input.originalContent)
 
-  const articleToSave = {
+  const articleToSave: Page = {
+    id: '',
+    slug,
+    userId: saver.userId,
     originalHtml: parseResult.domContent,
     content: parseResult.parsedContent?.content || '',
     description: parseResult.parsedContent?.excerpt,
@@ -99,6 +103,7 @@ export const savePage = async (
     hash: stringToHash(parseResult.parsedContent?.content || input.url),
     image: parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
+    createdAt: new Date(),
   }
 
   if (parseResult.canonicalUrl && parseResult.domContent) {
@@ -109,30 +114,20 @@ export const savePage = async (
     )
   }
 
-  const matchedUserArticleRecord = await ctx.models.userArticle.getByParameters(
-    saver.userId,
-    {
-      articleUrl: articleToSave.url,
-    }
-  )
-
-  if (matchedUserArticleRecord) {
+  const existingPage = await getPageByUrl(saver.userId, articleToSave.url)
+  if (existingPage) {
     await ctx.pubsub.pageCreated(saver.userId, input.url, input.originalContent)
 
+    await updatePage(existingPage.id, {
+      savedAt: new Date(),
+      archivedAt: undefined,
+    })
     await kx.transaction(async (tx) => {
       await setClaims(tx, saver.userId)
-      await ctx.models.userArticle.update(
-        matchedUserArticleRecord.id,
-        {
-          savedAt: new Date(),
-          archivedAt: null,
-        },
-        tx
-      )
       await ctx.models.articleSavingRequest.update(
         savingRequest.id,
         {
-          articleId: matchedUserArticleRecord.articleId,
+          articleId: existingPage.id,
           status: ArticleSavingRequestStatus.Succeeded,
         },
         tx
@@ -143,24 +138,14 @@ export const savePage = async (
   } else {
     await ctx.pubsub.pageCreated(saver.userId, input.url, input.originalContent)
 
+    const pageId = await createPage(articleToSave)
+
     await kx.transaction(async (tx) => {
       await setClaims(tx, saver.userId)
-
-      const article = await ctx.models.article.create(articleToSave, tx)
-      await ctx.models.userArticle.create(
-        {
-          slug: slug,
-          userId: saver.userId,
-          articleId: article.id,
-          articleUrl: article.url,
-          articleHash: article.hash,
-        },
-        tx
-      )
       await ctx.models.articleSavingRequest.update(
         savingRequest.id,
         {
-          articleId: article.id,
+          articleId: pageId,
           status: ArticleSavingRequestStatus.Succeeded,
         },
         tx

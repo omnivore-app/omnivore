@@ -59,6 +59,14 @@ describe('elastic api', () => {
   })
 
   describe('createPage', () => {
+    let newPageId: string | undefined
+
+    after(async () => {
+      if (newPageId) {
+        await deletePage(newPageId)
+      }
+    })
+
     it('creates a page', async () => {
       const newPageData: Page = {
         id: '',
@@ -75,7 +83,7 @@ describe('elastic api', () => {
         url: 'https://blog.omnivore.app/testUrl',
       }
 
-      const newPageId = await createPage(newPageData)
+      newPageId = await createPage(newPageData)
 
       expect(newPageId).to.be.a('string')
     })
@@ -83,9 +91,7 @@ describe('elastic api', () => {
 
   describe('getPageByUrl', () => {
     it('gets a page by url', async () => {
-      const url = page.url || 'url'
-
-      const pageFound = await getPageByUrl(page.userId, url)
+      const pageFound = await getPageByUrl(page.userId, page.url)
 
       expect(pageFound).not.undefined
     })
@@ -102,8 +108,7 @@ describe('elastic api', () => {
   describe('updatePage', () => {
     it('updates a page', async () => {
       const newTitle = 'new title'
-      const updatedPageData: Page = {
-        ...page,
+      const updatedPageData: Partial<Page> = {
         title: newTitle,
       }
 

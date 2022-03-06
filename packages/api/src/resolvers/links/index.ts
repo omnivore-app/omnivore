@@ -1,20 +1,20 @@
 import { createOrUpdateLinkShareInfo } from '../../datalayer/links/share_info'
 
 import {
-  UpdateLinkShareInfoError,
-  UpdateLinkShareInfoSuccess,
-  UpdateLinkShareInfoErrorCode,
-  MutationUpdateLinkShareInfoArgs,
-  ArchiveLinkSuccess,
   ArchiveLinkError,
-  MutationSetLinkArchivedArgs,
   ArchiveLinkErrorCode,
+  ArchiveLinkSuccess,
+  MutationSetLinkArchivedArgs,
+  MutationUpdateLinkShareInfoArgs,
+  UpdateLinkShareInfoError,
+  UpdateLinkShareInfoErrorCode,
+  UpdateLinkShareInfoSuccess,
 } from '../../generated/graphql'
-import { setLinkArchived } from '../../services/archive_link'
 
 import { authorized } from '../../utils/helpers'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import { updatePage } from '../../elastic'
 
 export const updateLinkShareInfoResolver = authorized<
   UpdateLinkShareInfoSuccess,
@@ -90,7 +90,9 @@ export const setLinkArchivedResolver = authorized<
   }
 
   try {
-    await setLinkArchived(claims.uid, link.id, args.input.archived)
+    await updatePage(link.id, {
+      archivedAt: args.input.archived ? new Date() : undefined,
+    })
   } catch (e) {
     return {
       message: 'An error occurred',
