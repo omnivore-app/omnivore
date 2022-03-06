@@ -2,6 +2,10 @@
   max-width: 100%;
 }
 
+:root {
+  color-scheme: light dark;
+}
+
 .highlight {
   color: var(--colors-highlightText);
   background-color: var(--colors-highlightBackground);
