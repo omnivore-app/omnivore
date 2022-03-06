@@ -81,11 +81,7 @@ interface SearchBody {
         order: string
         format: 'strict_date_optional_time_nanos'
       }
-    },
-    {
-      _id: string
-    },
-    '_score'
+    }
   ]
   from: number
   size: number
@@ -156,6 +152,7 @@ export interface Page {
   savedAt?: Date
   sharedAt?: Date
   archivedAt?: Date
+  siteName?: string
 }
 
 const INDEX_NAME = 'pages'
@@ -208,7 +205,7 @@ const ingest = async (): Promise<void> => {
             analyzer: 'html_strip_analyzer',
           },
           url: {
-            type: 'text',
+            type: 'keyword',
           },
           uploadFileId: {
             type: 'keyword',
@@ -243,6 +240,9 @@ const ingest = async (): Promise<void> => {
           archivedAt: {
             type: 'date',
           },
+          siteName: {
+            type: 'text',
+          },
         },
       },
     },
@@ -253,7 +253,7 @@ const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
     multi_match: {
       query,
-      fields: ['title', 'content', 'author', 'description', 'slug', 'url'],
+      fields: ['title', 'content', 'author', 'description', 'slug', 'siteName'],
     },
   })
 }
@@ -370,7 +370,10 @@ export const createPage = async (data: Page): Promise<string | undefined> => {
   }
 }
 
-export const updatePage = async (id: string, data: Page): Promise<void> => {
+export const updatePage = async (
+  id: string,
+  data: Partial<Page>
+): Promise<void> => {
   try {
     await client.update({
       index: INDEX_NAME,
@@ -413,7 +416,7 @@ export const getPageByUrl = async (
                 },
               },
               {
-                match: {
+                term: {
                   url,
                 },
               },
@@ -514,10 +517,6 @@ export const searchPages = async (
             format: 'strict_date_optional_time_nanos',
           },
         },
-        {
-          _id: sortOrder,
-        },
-        '_score',
       ],
       from,
       size,
