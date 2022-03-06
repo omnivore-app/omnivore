@@ -150,37 +150,36 @@ describe('Article API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    const page = {
-      id: '',
-      hash: 'test hash',
-      userId: 'test userId',
-      pageType: PageType.Article,
-      title: 'test title',
-      content: '<p>test</p>',
-      slug: 'test slug',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      readingProgress: 100,
-      readingProgressAnchorIndex: 0,
-      url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
-    }
     // Create some test pages
     for (let i = 0; i < 15; i++) {
+      const page = {
+        id: '',
+        hash: 'test hash',
+        userId: user.id,
+        pageType: PageType.Article,
+        title: 'test title',
+        content: '<p>test</p>',
+        slug: 'test slug',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        readingProgress: 100,
+        readingProgressAnchorIndex: 0,
+        url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
+        savedAt: new Date(),
+      } as Page
       const pageId = await createPage(page)
       if (!pageId) {
         expect.fail('Failed to create page')
       }
-      pages.push({
-        ...page,
-        id: pageId,
-      })
+      page.id = pageId
+      pages.push(page)
     }
     //  create testing labels
     label = await createTestLabel(user, 'label', '#ffffff')
     //  set label to a link
     await updatePage(pages[0].id, {
-      ...page,
-      labels: [label],
+      ...pages[0],
+      labels: [{ id: label.id, name: label.name, color: label.color }],
     })
 
     authToken = res.body.authToken
@@ -200,6 +199,7 @@ describe('Article API', () => {
     let source = ''
     let document = ''
     let title = ''
+    let pageId = ''
 
     beforeEach(async () => {
       query = createArticleQuery(url, source, document, title)
@@ -209,12 +209,17 @@ describe('Article API', () => {
       url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
       source = 'puppeteer-parse'
       document = '<p>test</p>'
-      title = 'test'
+      title = 'new title'
+
+      after(async () => {
+        await deletePage(pageId)
+      })
 
       it('should create an article', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
+        pageId = res.body.data.createArticle.createdArticle.id
       })
     })
   })
@@ -227,14 +232,9 @@ describe('Article API', () => {
       query = articlesQuery(after)
     })
 
-    it('should return linkId', async () => {
-      const res = await graphqlRequest(query, authToken).expect(200)
-
-      expect(res.body.data.articles.edges[0].node.linkId).to.eql(pages[0].id)
-    })
-
     it('should return labels', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
+      console.log(res.body.data.articles.edges[0].node)
 
       expect(res.body.data.articles.edges[0].node.labels[0].id).to.eql(label.id)
     })

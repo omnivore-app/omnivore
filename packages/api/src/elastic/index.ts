@@ -111,7 +111,9 @@ interface SearchResponse<T> {
   _scroll_id?: string
   _shards: ShardsResponse
   hits: {
-    total: number
+    total: {
+      value: number
+    }
     max_score: number
     hits: Array<{
       _index: string
@@ -121,14 +123,14 @@ interface SearchResponse<T> {
       _source: T
       _version?: number
       _explanation?: Explanation
-      fields?: any
-      highlight?: any
-      inner_hits?: any
+      fields?: never
+      highlight?: never
+      inner_hits?: never
       matched_queries?: string[]
       sort?: string[]
     }>
   }
-  aggregations?: any
+  aggregations?: never
 }
 
 export interface Page {
@@ -496,7 +498,6 @@ export const searchPages = async (
             },
           ],
           should: [],
-          minimum_should_match: 1,
           must_not: [],
         },
       },
@@ -550,7 +551,7 @@ export const searchPages = async (
       body,
     })
 
-    if (response.body.hits.total === 0) {
+    if (response.body.hits.total.value === 0) {
       return [[], 0]
     }
 
@@ -559,7 +560,7 @@ export const searchPages = async (
         ...hit._source,
         id: hit._id,
       })),
-      response.body.hits.total,
+      response.body.hits.total.value,
     ]
   } catch (e) {
     console.error('failed to search pages in elastic', e)

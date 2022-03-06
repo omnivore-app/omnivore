@@ -1247,7 +1247,7 @@ const schema = gql`
     name: String!
     color: String!
     description: String
-    createdAt: Date!
+    createdAt: Date
   }
 
   type LabelsSuccess {

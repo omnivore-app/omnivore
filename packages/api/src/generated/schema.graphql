@@ -554,7 +554,7 @@ type HighlightStats {
 
 type Label {
   color: String!
-  createdAt: Date!
+  createdAt: Date
   description: String
   id: ID!
   name: String!
