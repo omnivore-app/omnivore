@@ -461,7 +461,7 @@ export const getArticlesResolver = authorized<
 
   const [pages, totalCount] = (await searchPages(
     {
-      from: parseInt(startCursor),
+      from: Number(startCursor),
       size: first, // fetch one more item to get next cursor
       sort: params.sort || undefined,
       query: searchQuery.query,
