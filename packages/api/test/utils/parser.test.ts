@@ -35,9 +35,10 @@ describe('findNewsletterUrl', async () => {
     // Not sure if the redirects from substack expire, this test could eventually fail
     expect(url).to.startWith('https://newsletter.slowchinese.net/p/companies-that-eat-people-217')
   })
-  it('gets the URL from the header if it is a beehiiv newsletter', () => {
+  it('gets the URL from the header if it is a beehiiv newsletter', async () => {
     const html = load('./test/utils/data/beehiiv-newsletter.html')
-    isProbablyNewsletter(html).should.be.true
+    const url = await findNewsletterUrl(html)
+    expect(url).to.startWith('https://www.milkroad.com/p/talked-guy-spent-30m-beeple')
   })
   it('returns undefined if it is not a newsletter', async () => {
     const html = load('./test/utils/data/substack-forwarded-welcome-email.html')

@@ -432,9 +432,12 @@ export const isProbablyNewsletter = (html: string): boolean => {
     return true
   }
 
-  const beehiivUrl = beehiivNewsletterHref(dom.window)
-  if (beehiivUrl) {
-    return true
+  // Check if this is a beehiiv.net newsletter
+  if (dom.document.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
+    const beehiivUrl = beehiivNewsletterHref(dom.window)
+    if (beehiivUrl) {
+      return true
+    }
   }
 
   return false
@@ -446,7 +449,6 @@ const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
   )
   let res: string | undefined = undefined
   readOnline.forEach((e) => {
-    console.log('text content', e.textContent)
     if (e.textContent === 'Read Online') {
       res = e.getAttribute('href') || undefined
     }
@@ -455,10 +457,18 @@ const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
 }
 
 const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
+  // Substack header links
   const postLink = dom.document.querySelector('h1 a ')
   if (postLink) {
     return postLink.getAttribute('href') || undefined
   }
+
+  // Check if this is a beehiiv.net newsletter
+  const beehiiv = beehiivNewsletterHref(dom.window)
+  if (beehiiv) {
+    return beehiiv
+  }
+
   return undefined
 }
 
@@ -468,6 +478,8 @@ export const findNewsletterUrl = async (
   html: string
 ): Promise<string | undefined> => {
   const dom = new JSDOM(html).window
+
+  // Check if this is a substack newsletter
   const href = findNewsletterHeaderHref(dom.window)
   if (href) {
     // Try to make a HEAD request so we get the redirected URL, since these
