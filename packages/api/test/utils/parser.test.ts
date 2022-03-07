@@ -22,14 +22,22 @@ describe('isProbablyNewsletter', () => {
     const html = load('./test/utils/data/substack-forwarded-welcome-email.html')
     isProbablyNewsletter(html).should.be.false
   })
+  it('returns true for beehiiv.com newsletter', () => {
+    const html = load('./test/utils/data/beehiiv-newsletter.html')
+    isProbablyNewsletter(html).should.be.true
+  })
 })
 
 describe('findNewsletterUrl', async () => {
-  it('gets the URL from the header if it is a newsletter', async () => {
+  it('gets the URL from the header if it is a substack newsletter', async () => {
     const html = load('./test/utils/data/substack-forwarded-newsletter.html')
     const url = await findNewsletterUrl(html)
     // Not sure if the redirects from substack expire, this test could eventually fail
     expect(url).to.startWith('https://newsletter.slowchinese.net/p/companies-that-eat-people-217')
+  })
+  it('gets the URL from the header if it is a beehiiv newsletter', () => {
+    const html = load('./test/utils/data/beehiiv-newsletter.html')
+    isProbablyNewsletter(html).should.be.true
   })
   it('returns undefined if it is not a newsletter', async () => {
     const html = load('./test/utils/data/substack-forwarded-welcome-email.html')
