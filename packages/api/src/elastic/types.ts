@@ -1,5 +1,6 @@
 // Define the type of the body for the Search request
 import { Label, PageType } from '../generated/graphql'
+import { PickTuple } from '../util'
 
 export interface SearchBody {
   query: {
@@ -70,7 +71,8 @@ export interface SearchBody {
         order: string
         format: 'strict_date_optional_time_nanos'
       }
-    }
+    },
+    '_score'
   ]
   from: number
   size: number
@@ -142,4 +144,9 @@ export interface Page {
   sharedAt?: Date
   archivedAt?: Date
   siteName?: string
+  _id?: string
 }
+
+const keys = ['_id', 'url', 'slug'] as const
+
+export type ParamSet = PickTuple<Page, typeof keys>

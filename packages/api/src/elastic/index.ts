@@ -10,7 +10,7 @@ import {
   LabelFilterType,
   ReadFilter,
 } from '../utils/search'
-import { Page, SearchBody, SearchResponse } from './types'
+import { Page, ParamSet, SearchBody, SearchResponse } from './types'
 
 const INDEX_NAME = 'pages'
 const client = new Client({
@@ -113,6 +113,7 @@ const appendQuery = (body: SearchBody, query: string): void => {
       fields: ['title', 'content', 'author', 'description', 'siteName'],
     },
   })
+  body.query.bool.minimum_should_match = 1
 }
 
 const appendTypeFilter = (body: SearchBody, filter: PageType): void => {
@@ -256,9 +257,9 @@ export const deletePage = async (id: string): Promise<void> => {
   }
 }
 
-export const getPageByUrl = async (
+export const getPageByParam = async <K extends keyof ParamSet>(
   userId: string,
-  url: string
+  param: Record<K, Page[K]>
 ): Promise<Page | undefined> => {
   try {
     const { body } = await client.search({
@@ -273,50 +274,7 @@ export const getPageByUrl = async (
                 },
               },
               {
-                term: {
-                  url,
-                },
-              },
-            ],
-          },
-        },
-      },
-    })
-
-    if (body.hits.total.value === 0) {
-      return undefined
-    }
-
-    return {
-      ...body.hits.hits[0]._source,
-      id: body.hits.hits[0]._id,
-    } as Page
-  } catch (e) {
-    console.error('failed to search pages in elastic', e)
-    return undefined
-  }
-}
-
-export const getPageBySlug = async (
-  userId: string,
-  slug: string
-): Promise<Page | undefined> => {
-  try {
-    const { body } = await client.search({
-      index: INDEX_NAME,
-      body: {
-        query: {
-          bool: {
-            filter: [
-              {
-                term: {
-                  userId,
-                },
-              },
-              {
-                term: {
-                  slug,
-                },
+                term: param,
               },
             ],
           },
@@ -415,6 +373,7 @@ export const searchPages = async (
             format: 'strict_date_optional_time_nanos',
           },
         },
+        '_score',
       ],
       from,
       size,

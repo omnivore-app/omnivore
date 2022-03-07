@@ -69,8 +69,7 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import {
   createPage,
-  getPageBySlug,
-  getPageByUrl,
+  getPageByParam,
   searchPages,
   updatePage,
 } from '../../elastic'
@@ -321,7 +320,7 @@ export const createArticleResolver = authorized<
         )
       }
 
-      const existingPage = await getPageByUrl(uid, articleToSave.url)
+      const existingPage = await getPageByParam(uid, { url: articleToSave.url })
       if (existingPage) {
         //  update existing page in elastic
         existingPage.slug = slug
@@ -410,7 +409,7 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    const page = await getPageBySlug(claims.uid, slug)
+    const page = await getPageByParam(claims.uid, { slug })
 
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
@@ -776,8 +775,8 @@ export const getReadingProgressForArticleResolver: ResolverFn<
   }
 
   const articleReadingProgress = (
-    await models.userArticle.getByArticleId(claims.uid, article.id)
-  )?.articleReadingProgress
+    await getPageByParam(claims.uid, { _id: article.id })
+  )?.readingProgress
 
   return articleReadingProgress || 0
 }
@@ -800,8 +799,8 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
   }
 
   const articleReadingProgressAnchorIndex = (
-    await models.userArticle.getByArticleId(claims.uid, article.id)
-  )?.articleReadingProgressAnchorIndex
+    await getPageByParam(claims.uid, { _id: article.id })
+  )?.readingProgressAnchorIndex
 
   return articleReadingProgressAnchorIndex || 0
 }

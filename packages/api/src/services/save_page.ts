@@ -14,7 +14,7 @@ import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { kx } from '../datalayer/knex_config'
 import { setClaims } from '../datalayer/helpers'
-import { createPage, getPageByUrl, updatePage } from '../elastic'
+import { createPage, getPageByParam, updatePage } from '../elastic'
 import { Page } from '../elastic/types'
 
 type SaveContext = {
@@ -115,7 +115,9 @@ export const savePage = async (
     )
   }
 
-  const existingPage = await getPageByUrl(saver.userId, articleToSave.url)
+  const existingPage = await getPageByParam(saver.userId, {
+    url: articleToSave.url,
+  })
   if (existingPage) {
     await ctx.pubsub.pageCreated(saver.userId, input.url, input.originalContent)
 

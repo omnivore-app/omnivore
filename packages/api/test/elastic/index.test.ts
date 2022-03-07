@@ -3,7 +3,7 @@ import {
   createPage,
   deletePage,
   getPageById,
-  getPageByUrl,
+  getPageByParam,
   searchPages,
   updatePage,
 } from '../../src/elastic'
@@ -89,9 +89,9 @@ describe('elastic api', () => {
     })
   })
 
-  describe('getPageByUrl', () => {
+  describe('getPageByParam', () => {
     it('gets a page by url', async () => {
-      const pageFound = await getPageByUrl(page.userId, page.url)
+      const pageFound = await getPageByParam(page.userId, { url: page.url })
 
       expect(pageFound).not.undefined
     })
