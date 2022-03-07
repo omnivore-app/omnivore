@@ -6,8 +6,9 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { Label } from '../../src/entity/label'
-import { createPage, deletePage, Page, updatePage } from '../../src/elastic'
+import { createPage, deletePage, updatePage } from '../../src/elastic'
 import { PageType } from '../../src/generated/graphql'
+import { Page } from '../../src/elastic/types'
 
 chai.use(chaiString)
 
@@ -140,8 +141,6 @@ describe('Article API', () => {
   const username = 'fakeUser'
   let authToken: string
   let user: User
-  let pages: Page[] = []
-  let label: Label
 
   before(async () => {
     // create test user and login
@@ -150,46 +149,11 @@ describe('Article API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    // Create some test pages
-    for (let i = 0; i < 15; i++) {
-      const page = {
-        id: '',
-        hash: 'test hash',
-        userId: user.id,
-        pageType: PageType.Article,
-        title: 'test title',
-        content: '<p>test</p>',
-        slug: 'test slug',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        readingProgress: 100,
-        readingProgressAnchorIndex: 0,
-        url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
-        savedAt: new Date(),
-      } as Page
-      const pageId = await createPage(page)
-      if (!pageId) {
-        expect.fail('Failed to create page')
-      }
-      page.id = pageId
-      pages.push(page)
-    }
-    //  create testing labels
-    label = await createTestLabel(user, 'label', '#ffffff')
-    //  set label to a link
-    await updatePage(pages[0].id, {
-      ...pages[0],
-      labels: [{ id: label.id, name: label.name, color: label.color }],
-    })
-
     authToken = res.body.authToken
   })
 
   after(async () => {
     // clean up
-    for (const page of pages) {
-      await deletePage(page.id)
-    }
     await deleteTestUser(username)
   })
 
@@ -206,7 +170,7 @@ describe('Article API', () => {
     })
 
     context('when saving from document', () => {
-      url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
+      url = 'https://blog.omnivore.app/p/testing-is-fun-with-omnivore'
       source = 'puppeteer-parse'
       document = '<p>test</p>'
       title = 'new title'
@@ -227,6 +191,42 @@ describe('Article API', () => {
   describe('GetArticles', () => {
     let query = ''
     let after = ''
+    let pages: Page[] = []
+    let label: Label
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 15; i++) {
+        const page = {
+          id: '',
+          hash: 'test hash',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'test title',
+          content: '<p>test</p>',
+          slug: 'test slug',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgress: 100,
+          readingProgressAnchorIndex: 0,
+          url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
+          savedAt: new Date(),
+        } as Page
+        const pageId = await createPage(page)
+        if (!pageId) {
+          expect.fail('Failed to create page')
+        }
+        page.id = pageId
+        pages.push(page)
+      }
+      //  create testing labels
+      label = await createTestLabel(user, 'label', '#ffffff')
+      //  set label to a link
+      await updatePage(pages[0].id, {
+        ...pages[0],
+        labels: [{ id: label.id, name: label.name, color: label.color }],
+      })
+    })
 
     beforeEach(async () => {
       query = articlesQuery(after)
@@ -234,7 +234,6 @@ describe('Article API', () => {
 
     it('should return labels', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
-      console.log(res.body.data.articles.edges[0].node)
 
       expect(res.body.data.articles.edges[0].node.labels[0].id).to.eql(label.id)
     })

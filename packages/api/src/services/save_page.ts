@@ -14,7 +14,8 @@ import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { kx } from '../datalayer/knex_config'
 import { setClaims } from '../datalayer/helpers'
-import { createPage, getPageByUrl, Page, updatePage } from '../elastic'
+import { createPage, getPageByUrl, updatePage } from '../elastic'
+import { Page } from '../elastic/types'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -127,8 +128,8 @@ export const savePage = async (
       await ctx.models.articleSavingRequest.update(
         savingRequest.id,
         {
-          articleId: existingPage.id,
           status: ArticleSavingRequestStatus.Succeeded,
+          elasticPageId: existingPage.id,
         },
         tx
       )
@@ -145,8 +146,8 @@ export const savePage = async (
       await ctx.models.articleSavingRequest.update(
         savingRequest.id,
         {
-          articleId: pageId,
           status: ArticleSavingRequestStatus.Succeeded,
+          elasticPageId: pageId,
         },
         tx
       )

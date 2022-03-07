@@ -24,6 +24,7 @@ export interface ArticleSavingRequestData {
   createdAt: Date
   updatedAt: Date
   taskName?: string
+  elasticPageId?: string
 }
 
 export const keys = [
@@ -35,6 +36,7 @@ export const keys = [
   'createdAt',
   'updatedAt',
   'taskName',
+  'elasticPageId',
 ] as const
 
 export const defaultedKeys = ['id', 'createdAt', 'updatedAt', 'status'] as const
@@ -51,6 +53,7 @@ export const updateKeys = [
   'status',
   'errorCode',
   'taskName',
+  'elasticPageId',
 ] as const
 
 export type UpdateSet = PickTuple<ArticleSavingRequestData, typeof updateKeys>

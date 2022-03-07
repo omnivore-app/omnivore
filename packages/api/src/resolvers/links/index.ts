@@ -64,7 +64,7 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkSuccess,
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
->(async (_obj, args, { models, claims, authTrx }) => {
+>(async (_obj, args, { claims }) => {
   console.log('setLinkArchivedResolver', args.input.linkId)
 
   analytics.track({
@@ -75,22 +75,8 @@ export const setLinkArchivedResolver = authorized<
     },
   })
 
-  // TEMP: because the old API uses articles instead of Links, we are actually
-  // getting an article ID here and need to map it to a link ID. When the API
-  // is updated to use Links instead of Articles this will be removed.
-  const link = await authTrx((tx) =>
-    models.userArticle.getByArticleId(claims.uid, args.input.linkId, tx)
-  )
-
-  if (!link?.id) {
-    return {
-      message: 'An error occurred',
-      errorCodes: [ArchiveLinkErrorCode.BadRequest],
-    }
-  }
-
   try {
-    await updatePage(link.id, {
+    await updatePage(args.input.linkId, {
       archivedAt: args.input.archived ? new Date() : undefined,
     })
   } catch (e) {
@@ -101,7 +87,7 @@ export const setLinkArchivedResolver = authorized<
   }
 
   return {
-    linkId: link.id,
+    linkId: args.input.linkId,
     message: 'Link Archived',
   }
 })

@@ -4,13 +4,13 @@ import {
   deletePage,
   getPageById,
   getPageByUrl,
-  Page,
   searchPages,
   updatePage,
 } from '../../src/elastic'
 import { PageType } from '../../src/generated/graphql'
 import { expect } from 'chai'
 import { InFilter, ReadFilter } from '../../src/utils/search'
+import { Page } from '../../src/elastic/types'
 
 describe('elastic api', () => {
   let page: Page
