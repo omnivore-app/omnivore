@@ -70,10 +70,10 @@ import { env } from '../../env'
 import {
   createPage,
   getPageByUrl,
-  Page,
   searchPages,
   updatePage,
 } from '../../elastic'
+import { Page } from '../../elastic/types'
 
 export type PartialArticle = Omit<
   Article,
@@ -246,7 +246,7 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      const articleToSave: Page = {
+      let articleToSave: Page = {
         id: '',
         userId: uid,
         originalHtml: domContent,
@@ -323,17 +323,16 @@ export const createArticleResolver = authorized<
       const existingPage = await getPageByUrl(uid, articleToSave.url)
       if (existingPage) {
         //  update existing page in elastic
-        const updatedFields: Partial<Page> = {
-          slug,
-          savedAt: saveTime,
-          archivedAt: archive ? saveTime : undefined,
-          url: uploadFileUrlOverride || articleToSave.url,
-          hash: articleToSave.hash,
-        }
+        existingPage.slug = slug
+        existingPage.savedAt = saveTime
+        existingPage.archivedAt = archive ? saveTime : undefined
+        existingPage.url = uploadFileUrlOverride || articleToSave.url
+        existingPage.hash = articleToSave.hash
 
-        await updatePage(existingPage.id, updatedFields)
+        await updatePage(existingPage.id, existingPage)
 
         console.log('page updated in elastic', existingPage.id)
+        articleToSave = existingPage
       } else {
         // create new page in elastic
         const pageId = await createPage(articleToSave)
@@ -347,9 +346,8 @@ export const createArticleResolver = authorized<
             articleSavingRequest
           )
         }
-        articleToSave.id = pageId
-
         console.log('page created in elastic', articleToSave)
+        articleToSave.id = pageId
 
         if (canonicalUrl && domContent) {
           await ctx.pubsub.pageCreated(uid, canonicalUrl, domContent)
@@ -462,7 +460,7 @@ export const getArticlesResolver = authorized<
   const [pages, totalCount] = (await searchPages(
     {
       from: Number(startCursor),
-      size: first, // fetch one more item to get next cursor
+      size: first + 1, // fetch one more item to get next cursor
       sort: params.sort || undefined,
       query: searchQuery.query,
       inFilter: searchQuery.inFilter,

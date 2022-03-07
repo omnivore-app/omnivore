@@ -1,10 +1,10 @@
 import {
-  MutationSaveUrlArgs,
+  MutationSaveFileArgs,
   MutationSavePageArgs,
+  MutationSaveUrlArgs,
   SaveError,
   SaveErrorCode,
   SaveSuccess,
-  MutationSaveFileArgs,
 } from '../../generated/graphql'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
@@ -28,7 +28,7 @@ export const savePageResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return await savePage(
+  return savePage(
     ctx,
     { userId: user.id, username: user.profile.username },
     input

@@ -79,8 +79,6 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { Label } from '../entity/label'
-import { labelsLoader } from '../services/labels'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -448,10 +446,6 @@ export const functionResolvers = {
         article.id,
         ctx.models
       )
-    },
-    async labels(article: { linkId: string }): Promise<Label[]> {
-      // retrieve labels for the link
-      return labelsLoader.load(article.linkId)
     },
   },
   ArticleSavingRequest: {
