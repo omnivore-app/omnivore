@@ -156,7 +156,7 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
     const highlights = await this.kx(Table.HIGHLIGHT)
       .select(modelKeys)
       .where('user_id', userId)
-      .andWhere('article_id', articleId)
+      .andWhere('elastic_page_id', articleId)
       .andWhere('deleted', false)
       .orderBy(`${Table.HIGHLIGHT}.created_at`, 'desc')
       .limit(MAX_RECORDS_LIMIT)

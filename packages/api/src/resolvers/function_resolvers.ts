@@ -79,6 +79,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
+import { getPageById, getPageByParam } from '../elastic'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -314,11 +315,10 @@ export const functionResolvers = {
         return article.savedByViewer
       }
       if (!ctx.claims?.uid) return undefined
-      const userArticle = await ctx.models.userArticle.getByArticleId(
-        ctx.claims.uid,
-        article.id
-      )
-      return !!userArticle
+      const page = await getPageByParam(ctx.claims.uid, {
+        _id: article.id,
+      })
+      return !!page
     },
     async postedByViewer(
       article: { id: string; postedByViewer?: boolean },
@@ -329,11 +329,10 @@ export const functionResolvers = {
         return article.postedByViewer
       }
       if (!ctx.claims?.uid) return false
-      const userArticle = await ctx.models.userArticle.getByArticleId(
-        ctx.claims.uid,
-        article.id
-      )
-      return !!userArticle?.sharedAt
+      const page = await getPageByParam(ctx.claims.uid, {
+        _id: article.id,
+      })
+      return !!page?.sharedAt
     },
     async savedAt(
       article: { id: string; savedAt?: Date; createdAt?: Date },
@@ -344,10 +343,9 @@ export const functionResolvers = {
       if (!article.savedAt) return new Date()
       return (
         (
-          await ctx.models.userArticle.getByArticleId(
-            ctx.claims.uid,
-            article.id
-          )
+          await getPageByParam(ctx.claims.uid, {
+            _id: article.id,
+          })
         )?.savedAt ||
         article.createdAt ||
         new Date()
@@ -369,12 +367,10 @@ export const functionResolvers = {
     ) {
       if ('isArchived' in article) return article.isArchived
       if (!ctx.claims?.uid) return false
-      const userArticle = await ctx.models.userArticle.getForUser(
-        ctx.claims.uid,
-        article.id,
-        ctx.kx
-      )
-      return userArticle?.isArchived || false
+      const page = await getPageByParam(ctx.claims.uid, {
+        _id: article.id,
+      })
+      return !!page?.archivedAt || false
     },
     contentReader(article: { pageType: PageType }) {
       return article.pageType === PageType.File
@@ -454,11 +450,10 @@ export const functionResolvers = {
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      const article = await ctx.models.userArticle.getForUser(
-        request.userId,
-        request.articleId
-      )
-      return article
+      const page = await getPageByParam(request.userId, {
+        _id: request.articleId,
+      })
+      return page
     },
   },
   Highlight: {
@@ -467,7 +462,7 @@ export const functionResolvers = {
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return ctx.models.article.get(highlight.articleId)
+      return getPageById(highlight.articleId)
     },
     async user(
       highlight: { userId: string },
