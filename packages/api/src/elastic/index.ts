@@ -71,7 +71,7 @@ const ingest = async (): Promise<void> => {
             type: 'keyword',
           },
           slug: {
-            type: 'text',
+            type: 'keyword',
           },
           labels: {
             type: 'nested',
@@ -110,7 +110,7 @@ const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
     multi_match: {
       query,
-      fields: ['title', 'content', 'author', 'description', 'slug', 'siteName'],
+      fields: ['title', 'content', 'author', 'description', 'siteName'],
     },
   })
 }
@@ -275,6 +275,47 @@ export const getPageByUrl = async (
               {
                 term: {
                   url,
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    if (body.hits.total.value === 0) {
+      return undefined
+    }
+
+    return {
+      ...body.hits.hits[0]._source,
+      id: body.hits.hits[0]._id,
+    } as Page
+  } catch (e) {
+    console.error('failed to search pages in elastic', e)
+    return undefined
+  }
+}
+
+export const getPageBySlug = async (
+  userId: string,
+  slug: string
+): Promise<Page | undefined> => {
+  try {
+    const { body } = await client.search({
+      index: INDEX_NAME,
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                term: {
+                  slug,
                 },
               },
             ],

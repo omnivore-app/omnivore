@@ -114,6 +114,24 @@ const articlesQuery = (after = '', order = 'ASCENDING') => {
   `
 }
 
+const getArticleQuery = (slug: string) => {
+  return `
+  query {
+    article(slug: "${slug}", username: "") {
+      ... on ArticleSuccess {
+        article {
+          id
+          slug
+        }
+      }
+      ... on ArticleError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 const savePageQuery = (url: string, title: string, originalContent: string) => {
   return `
     mutation {
@@ -170,10 +188,12 @@ describe('Article API', () => {
     })
 
     context('when saving from document', () => {
-      url = 'https://blog.omnivore.app/p/testing-is-fun-with-omnivore'
-      source = 'puppeteer-parse'
-      document = '<p>test</p>'
-      title = 'new title'
+      before(() => {
+        url = 'https://blog.omnivore.app/p/testing-is-fun-with-omnivore'
+        source = 'puppeteer-parse'
+        document = '<p>test</p>'
+        title = 'new title'
+      })
 
       after(async () => {
         await deletePage(pageId)
@@ -184,6 +204,66 @@ describe('Article API', () => {
 
         expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
         pageId = res.body.data.createArticle.createdArticle.id
+      })
+    })
+  })
+
+  describe('GetArticle', () => {
+    const realSlug = 'testing-is-really-fun-with-omnivore'
+    let query = ''
+    let slug = ''
+    let pageId: string | undefined
+
+    before(async () => {
+      const page = {
+        id: '',
+        hash: 'test hash',
+        userId: user.id,
+        pageType: PageType.Article,
+        title: 'test title',
+        content: '<p>test</p>',
+        slug: realSlug,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        readingProgress: 100,
+        readingProgressAnchorIndex: 0,
+        url: 'https://blog.omnivore.app/test-with-omnivore',
+        savedAt: new Date(),
+      } as Page
+      pageId = await createPage(page)
+    })
+
+    after(async () => {
+      if (pageId) {
+        await deletePage(pageId)
+      }
+    })
+
+    beforeEach(async () => {
+      query = getArticleQuery(slug)
+    })
+
+    context('when article exists', () => {
+      before(() => {
+        slug = realSlug
+      })
+
+      it('should return the article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.article.article.slug).to.eql(slug)
+      })
+    })
+
+    context('when article does not exist', () => {
+      before(() => {
+        slug = 'not-a-real-slug'
+      })
+
+      it('should return an error', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.article.errorCodes).to.eql(['NOT_FOUND'])
       })
     })
   })
