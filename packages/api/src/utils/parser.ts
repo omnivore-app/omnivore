@@ -432,7 +432,26 @@ export const isProbablyNewsletter = (html: string): boolean => {
     return true
   }
 
+  const beehiivUrl = beehiivNewsletterHref(dom.window)
+  if (beehiivUrl) {
+    return true
+  }
+
   return false
+}
+
+const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
+  const readOnline = dom.document.querySelectorAll(
+    'table tr td div a[class*="link"]'
+  )
+  let res: string | undefined = undefined
+  readOnline.forEach((e) => {
+    console.log('text content', e.textContent)
+    if (e.textContent === 'Read Online') {
+      res = e.getAttribute('href') || undefined
+    }
+  })
+  return res
 }
 
 const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
