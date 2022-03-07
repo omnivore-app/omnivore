@@ -10,6 +10,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import Link from 'next/link'
 import { StyledText } from '../../components/elements/StyledText'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 
 enum TextType {
   EmailAddress,
@@ -38,6 +39,8 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } = useGetNewsletterEmailsQuery()
+
+  applyStoredTheme(false)
 
   async function createEmail(): Promise<void> {
     await createNewsletterEmailMutation()
