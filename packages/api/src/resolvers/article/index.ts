@@ -69,6 +69,7 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import {
   createPage,
+  getPageBySlug,
   getPageByUrl,
   searchPages,
   updatePage,
@@ -393,7 +394,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims, models }) => {
+> = async (_obj, { slug }, { claims }) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -409,16 +410,13 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    const article = await models.userArticle.getByUserIdAndSlug(
-      claims.uid,
-      slug
-    )
+    const page = await getPageBySlug(claims.uid, slug)
 
-    if (!article) {
+    if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
-    return { article: article }
+    return { article: { ...page, isArchived: !!page.archivedAt } }
   } catch (error) {
     return { errorCodes: [ArticleErrorCode.BadData] }
   }
