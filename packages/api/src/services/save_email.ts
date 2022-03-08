@@ -9,6 +9,7 @@ import {
 import normalizeUrl from 'normalize-url'
 import { kx } from '../datalayer/knex_config'
 import { UserArticleData } from '../datalayer/links/model'
+import { setClaims } from '../datalayer/helpers'
 
 export type SaveContext = {
   pubsub: PubsubClient
@@ -82,16 +83,21 @@ export const saveEmail = async (
   if (matchedUserArticleRecord) {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
-    result = await ctx.models.userArticle.update(matchedUserArticleRecord.id, {
-      savedAt: new Date(),
-      archivedAt: null,
-    })
-    console.log('save matched email article record', result)
+    await kx.transaction(async (tx) => {
+      await setClaims(tx, saverId)
 
+      result = await ctx.models.userArticle.update(matchedUserArticleRecord.id, {
+        savedAt: new Date(),
+        archivedAt: null,
+      })
+    })
+    console.log('save matched email article record', result, matchedUserArticleRecord)
   } else {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
     await kx.transaction(async (tx) => {
+      await setClaims(tx, saverId)
+
       const articleRecord = await ctx.models.article.create(articleToSave, tx)
       console.log('save new email article record', articleRecord)
 
