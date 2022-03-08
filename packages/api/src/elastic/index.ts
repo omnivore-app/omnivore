@@ -364,13 +364,11 @@ export const searchPages = async (
         {
           savedAt: {
             order: sortOrder,
-            format: 'strict_date_optional_time_nanos',
           },
         },
         {
           createdAt: {
             order: sortOrder,
-            format: 'strict_date_optional_time_nanos',
           },
         },
         '_score',
