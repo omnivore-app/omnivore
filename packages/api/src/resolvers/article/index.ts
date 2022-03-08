@@ -637,7 +637,7 @@ export const setBookmarkArticleResolver = authorized<
       return {
         bookmarkedArticle: {
           ...userArticleRemoved,
-          isArchived: !!userArticleRemoved.archivedAt,
+          isArchived: false,
           savedByViewer: false,
           postedByViewer: false,
         },
@@ -747,7 +747,7 @@ export const getReadingProgressForArticleResolver: ResolverFn<
   Article,
   WithDataSourcesContext,
   Record<string, unknown>
-> = async (article, _params, { models, claims }) => {
+> = async (article, _params, { claims }) => {
   if (!claims?.uid) {
     return 0
   }
