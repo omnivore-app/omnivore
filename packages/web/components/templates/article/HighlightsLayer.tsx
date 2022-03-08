@@ -6,7 +6,11 @@ import type { Highlight } from '../../../lib/networking/fragments/highlightFragm
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { shareHighlightToFeedMutation } from '../../../lib/networking/mutations/shareHighlightToFeedMutation'
 import { shareHighlightCommentMutation } from '../../../lib/networking/mutations/updateShareHighlightCommentMutation'
-import { highlightIdAttribute, highlightNoteIdAttribute, SelectionAttributes } from '../../../lib/highlights/highlightHelpers'
+import {
+  highlightIdAttribute,
+  highlightNoteIdAttribute,
+  SelectionAttributes,
+} from '../../../lib/highlights/highlightHelpers'
 import { HighlightBar, HighlightAction } from '../../patterns/HighlightBar'
 import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
@@ -49,7 +53,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
 
-  const [highlightLocations, setHighlightLocations] = useState<HighlightLocation[]>([])
+  const [highlightLocations, setHighlightLocations] = useState<
+    HighlightLocation[]
+  >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [focusedHighlight, setFocusedHighlight] = useState<
@@ -175,7 +181,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [props.highlightBarDisabled]
   )
 
-  const createHighlightFromSelection = async (selection: SelectionAttributes, note?: string): Promise<Highlight | undefined> => {
+  const createHighlightFromSelection = async (
+    selection: SelectionAttributes,
+    note?: string
+  ): Promise<Highlight | undefined> => {
     const result = await createHighlight({
       selection: selection,
       articleId: props.articleId,
@@ -206,7 +215,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       if (!selectionData) {
         return
       }
-      const result = await createHighlightFromSelection(selectionData, annotation)
+      const result = await createHighlightFromSelection(
+        selectionData,
+        annotation
+      )
       if (!result) {
         toast.error('Error saving highlight', { position: 'bottom-right' })
       }

@@ -1,7 +1,6 @@
 export {}
 
 declare global {
-  // eslint-disable-next-line functional/prefer-type-literal
   interface Window {
     webkit?: Webkit
     MathJax?: MathJax
@@ -24,6 +23,7 @@ declare type Webkit = {
 declare type MessageHandlers = {
   viewerAction?: WebKitMessageHandler
   highlightAction?: WebKitMessageHandler
+  readingProgressUpdate?: WebKitMessageHandler
 }
 
 declare type WebKitMessageHandler = {

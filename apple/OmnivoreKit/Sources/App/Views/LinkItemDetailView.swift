@@ -91,6 +91,8 @@ final class LinkItemDetailViewModel: ObservableObject {
       switch action {
       case let .shareHighlight(highlightID):
         print("show share modal for highlight with id: \(highlightID)")
+      case let .updateReadingProgess(progress: progress):
+        print("new reading progress: \(progress)")
       }
     }
     .store(in: &newWebAppWrapperViewModel.subscriptions)
