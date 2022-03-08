@@ -711,7 +711,8 @@ export const saveArticleReadingProgressResolver = authorized<
     // be greater than the current reading progress.
     const shouldUpdate =
       readingProgressPercent === 0 ||
-      (userArticleRecord.readingProgressPercent || 0) < readingProgressPercent ||
+      (userArticleRecord.readingProgressPercent || 0) <
+        readingProgressPercent ||
       (userArticleRecord.readingProgressAnchorIndex || 0) <
         readingProgressAnchorIndex
 
