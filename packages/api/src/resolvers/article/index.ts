@@ -69,6 +69,8 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import {
   createPage,
+  deletePage,
+  getPageById,
   getPageByParam,
   searchPages,
   updatePage,
@@ -600,35 +602,23 @@ export const setBookmarkArticleResolver = authorized<
     { input: { articleID, bookmark } },
     { models, authTrx, claims: { uid }, log }
   ) => {
-    const article = await models.article.get(articleID)
+    const article = await getPageById(articleID)
     if (!article) {
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
     if (!bookmark) {
-      const { userArticleRemoved, highlightsUnshared } = await authTrx(
-        async (tx) => {
-          const userArticleRemoved = await models.userArticle.getForUser(
-            uid,
-            article.id,
-            tx
-          )
-
-          await models.userArticle.deleteWhere(
-            { userId: uid, articleId: article.id },
-            tx
-          )
-
-          const highlightsUnshared =
-            await models.highlight.unshareAllHighlights(articleID, uid, tx)
-
-          return { userArticleRemoved, highlightsUnshared }
-        }
-      )
+      const userArticleRemoved = await getPageByParam(uid, { _id: articleID })
 
       if (!userArticleRemoved) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
+
+      await deletePage(userArticleRemoved.id)
+
+      const highlightsUnshared = await authTrx(async (tx) => {
+        return models.highlight.unshareAllHighlights(articleID, uid, tx)
+      })
 
       log.info('Article unbookmarked', {
         article: Object.assign({}, article, {
@@ -647,25 +637,19 @@ export const setBookmarkArticleResolver = authorized<
       return {
         bookmarkedArticle: {
           ...userArticleRemoved,
-          ...article,
+          isArchived: !!userArticleRemoved.archivedAt,
           savedByViewer: false,
           postedByViewer: false,
         },
       }
     } else {
       try {
-        const userArticle = await authTrx((tx) => {
-          return models.userArticle.create(
-            {
-              userId: uid,
-              articleId: article.id,
-              slug: generateSlug(article.title),
-              articleUrl: article.url,
-              articleHash: article.hash,
-            },
-            tx
-          )
-        })
+        const userArticle: Partial<Page> = {
+          userId: uid,
+          slug: generateSlug(article.title),
+        }
+        await updatePage(articleID, userArticle)
+
         log.info('Article bookmarked', {
           article: Object.assign({}, article, {
             content: undefined,
@@ -683,6 +667,7 @@ export const setBookmarkArticleResolver = authorized<
           bookmarkedArticle: {
             ...userArticle,
             ...article,
+            isArchived: false,
             savedByViewer: true,
             postedByViewer: false,
           },

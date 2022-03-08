@@ -142,7 +142,7 @@ export interface Page {
   publishedAt?: Date
   savedAt?: Date
   sharedAt?: Date
-  archivedAt?: Date
+  archivedAt?: Date | null
   siteName?: string
   _id?: string
 }
