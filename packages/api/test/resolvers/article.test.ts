@@ -17,8 +17,10 @@ import {
   getPageById,
   updatePage,
 } from '../../src/elastic'
-import { PageType } from '../../src/generated/graphql'
+import { PageType, UploadFileStatus } from '../../src/generated/graphql'
 import { Page } from '../../src/elastic/types'
+import { getRepository } from 'typeorm'
+import { UploadFile } from '../../src/entity/upload_file'
 
 chai.use(chaiString)
 
@@ -152,6 +154,28 @@ const savePageQuery = (url: string, title: string, originalContent: string) => {
           clientRequestId: "${generateFakeUuid()}",
           title: "${title}",
           originalContent: "${originalContent}"
+        }
+      ) {
+        ... on SaveSuccess {
+          url
+        }
+        ... on SaveError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
+const saveFileQuery = (url: string, uploadFileId: string) => {
+  return `
+    mutation {
+      saveFile (
+        input: {
+          url: "${url}",
+          source: "test",
+          clientRequestId: "${generateFakeUuid()}",
+          uploadFileId: "${uploadFileId}",
         }
       ) {
         ... on SaveSuccess {
@@ -594,6 +618,49 @@ describe('Article API', () => {
           res.body.data.saveArticleReadingProgress.updatedArticle
             .readingProgressPercent
         ).to.eq(progress)
+      })
+    })
+  })
+
+  describe('SaveFile', () => {
+    let query = ''
+    let url = ''
+    let uploadFileId = ''
+
+    beforeEach(() => {
+      query = saveFileQuery(url, uploadFileId)
+    })
+
+    context('when the file is not uploaded', () => {
+      before(async () => {
+        url = 'fake url'
+        uploadFileId = generateFakeUuid()
+      })
+
+      it('should return Unauthorized error', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.saveFile.errorCodes).to.eql(['UNAUTHORIZED'])
+      })
+    })
+
+    context('when the file is uploaded', () => {
+      before(async () => {
+        url = 'https://example.com/'
+        const uploadFile = await getRepository(UploadFile).save({
+          fileName: 'test.pdf',
+          contentType: 'application/pdf',
+          url: url,
+          user: user,
+          status: UploadFileStatus.Initialized,
+        })
+        uploadFileId = uploadFile.id
+      })
+
+      it('should return the new url', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.saveFile.url).to.startsWith(
+          'http://localhost:3000/fakeUser/links'
+        )
       })
     })
   })

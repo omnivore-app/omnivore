@@ -764,7 +764,7 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
   Article,
   WithDataSourcesContext,
   Record<string, unknown>
-> = async (article, _params, { models, claims }) => {
+> = async (article, _params, { claims }) => {
   if (!claims?.uid) {
     return 0
   }
