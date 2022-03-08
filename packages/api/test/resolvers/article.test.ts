@@ -619,6 +619,23 @@ describe('Article API', () => {
             .readingProgressPercent
         ).to.eq(progress)
       })
+
+      it('should not allow setting the reading progress lower than current progress', async () => {
+        const firstQuery = saveArticleReadingProgressQuery(articleId, 75)
+        const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
+        expect(
+          firstRes.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(75)
+
+        // Now try to set to a lower value (50), value should not be updated
+        const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
+        const secondRes = await graphqlRequest(secondQuery, authToken).expect(200)
+        expect(
+          secondRes.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(75)
+      })
     })
   })
 
