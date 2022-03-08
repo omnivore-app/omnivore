@@ -63,10 +63,12 @@ export function Article(props: ArticleProps): JSX.Element {
 
   // Post message to webkit so apple app embeds get progress updates
   useEffect(() => {
-    window?.webkit?.messageHandlers.readingProgressUpdate?.postMessage({
-      progress: debouncedReadingProgress,
-    })
-  }, [debouncedReadingProgress])
+    if (typeof window?.webkit != 'undefined') {
+      window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
+        progress: debouncedReadingProgress,
+      })
+    }
+  }, [readingProgress, debouncedReadingProgress])
 
   const setScrollWatchedElement = useScrollWatcher(
     (changeset: ScrollOffsetChangeset) => {

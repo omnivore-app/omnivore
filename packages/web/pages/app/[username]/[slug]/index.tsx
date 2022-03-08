@@ -69,6 +69,7 @@ function AppArticleEmbedContent(
       <Box
         ref={scrollRef}
         css={{
+          position: 'fixed',
           overflowY: 'auto',
           height: '100%',
           width: '100vw',
