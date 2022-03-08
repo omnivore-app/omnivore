@@ -169,6 +169,27 @@ struct LinkItemDetailView: View {
       )
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
+      if FeatureFlag.showLinkOptionsOnReaderView {
+        Menu(
+          content: {
+            Group {
+              Button(
+                action: {},
+                label: { Label("Archive", systemImage: "archivebox") }
+              )
+              Button(
+                action: {},
+                label: { Label("Delete Link", systemImage: "trash") }
+              )
+            }
+          },
+          label: {
+            Image.profile
+              .padding(.horizontal)
+              .scaleEffect(navBarVisibilityRatio)
+          }
+        )
+      }
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)

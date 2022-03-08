@@ -301,7 +301,7 @@ import Views
     var body: some View {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 20) {
-          ForEach(viewModel.items) { item in
+          ForEach(viewModel.items, id: \.renderID) { item in
             let link = GridCardNavigationLink(
               item: item,
               searchQuery: searchQuery,
@@ -329,9 +329,21 @@ import Views
           }
         }
         .padding()
-        .background(Color(.systemGroupedBackground))
+        .background(
+          GeometryReader {
+            Color(.systemGroupedBackground).preference(
+              key: ScrollViewOffsetPreferenceKey.self,
+              value: $0.frame(in: .global).origin.y
+            )
+          }
+        )
+        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+          if !viewModel.isLoading, offset > 240 {
+            viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          }
+        }
 
-        if viewModel.isLoading {
+        if viewModel.items.isEmpty, viewModel.isLoading {
           LoadingSection()
         }
       }
@@ -339,3 +351,11 @@ import Views
   }
 
 #endif
+
+struct ScrollViewOffsetPreferenceKey: PreferenceKey {
+  typealias Value = CGFloat
+  static var defaultValue = CGFloat.zero
+  static func reduce(value: inout Value, nextValue: () -> Value) {
+    value += nextValue()
+  }
+}
