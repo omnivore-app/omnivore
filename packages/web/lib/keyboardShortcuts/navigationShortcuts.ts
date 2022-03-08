@@ -209,7 +209,7 @@ type ArticleKeyboardAction =
   | 'editLabels'
 
 export function articleKeyboardCommands(
-  router: NextRouter,
+  router: NextRouter | undefined,
   actionHandler: (action: ArticleKeyboardAction) => void
 ): KeyboardCommand[] {
   return [

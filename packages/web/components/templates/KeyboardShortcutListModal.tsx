@@ -71,7 +71,7 @@ export function KeyboardShortcutListModal(
           />
           <ShortcutListSection
             title="Article"
-            commands={articleKeyboardCommands(() => {})}
+            commands={articleKeyboardCommands(router, () => {})}
           />
           <ShortcutListSection
             title="Highlight Bar"
