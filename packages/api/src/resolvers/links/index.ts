@@ -77,7 +77,7 @@ export const setLinkArchivedResolver = authorized<
 
   try {
     await updatePage(args.input.linkId, {
-      archivedAt: args.input.archived ? new Date() : undefined,
+      archivedAt: args.input.archived ? new Date() : null,
     })
   } catch (e) {
     return {
