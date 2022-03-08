@@ -6,7 +6,12 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { Label } from '../../src/entity/label'
-import { createPage, deletePage, updatePage } from '../../src/elastic'
+import {
+  createPage,
+  deletePage,
+  getPageById,
+  updatePage,
+} from '../../src/elastic'
 import { PageType } from '../../src/generated/graphql'
 import { Page } from '../../src/elastic/types'
 
@@ -148,6 +153,28 @@ const savePageQuery = (url: string, title: string, originalContent: string) => {
           url
         }
         ... on SaveError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
+const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
+  return `
+    mutation {
+      setBookmarkArticle(
+        input: {
+          articleID: "${articleId}",
+          bookmark: ${bookmark}
+        }
+      ) {
+        ... on SetBookmarkArticleSuccess {
+          bookmarkedArticle {
+            id
+          }
+        }
+        ... on SetBookmarkArticleError {
           errorCodes
         }
       }
@@ -436,6 +463,68 @@ describe('Article API', () => {
           authToken
         ).expect(200)
         expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+      })
+    })
+  })
+
+  describe('setBookmarkArticle', () => {
+    let query = ''
+    let articleId = ''
+    let bookmark = true
+    let pageId = ''
+
+    before(async () => {
+      const page: Page = {
+        id: '',
+        hash: 'test hash',
+        userId: user.id,
+        pageType: PageType.Article,
+        title: 'test title',
+        content: '<p>test</p>',
+        createdAt: new Date(),
+        url: 'https://blog.omnivore.app/setBookmarkArticle',
+        slug: 'test-with-omnivore',
+      }
+      const newPageId = await createPage(page)
+      if (newPageId) {
+        pageId = newPageId
+      }
+    })
+
+    after(async () => {
+      if (pageId) {
+        await deletePage(pageId)
+      }
+    })
+
+    beforeEach(() => {
+      query = setBookmarkQuery(articleId, bookmark)
+    })
+
+    context('when we set a bookmark on an article', () => {
+      before(async () => {
+        articleId = pageId
+        bookmark = true
+      })
+
+      it('should bookmark an article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.setBookmarkArticle.bookmarkedArticle.id).to.eq(
+          articleId
+        )
+      })
+    })
+
+    context('when we unset a bookmark on an article', () => {
+      before(async () => {
+        articleId = pageId
+        bookmark = false
+      })
+
+      it('should delete an article', async () => {
+        await graphqlRequest(query, authToken).expect(200)
+        const pageId = await getPageById(articleId)
+        expect(pageId).to.undefined
       })
     })
   })
