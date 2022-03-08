@@ -711,14 +711,14 @@ export const saveArticleReadingProgressResolver = authorized<
     // be greater than the current reading progress.
     const shouldUpdate =
       readingProgressPercent === 0 ||
-      (userArticleRecord.readingProgress || 0) < readingProgressPercent ||
+      (userArticleRecord.readingProgressPercent || 0) < readingProgressPercent ||
       (userArticleRecord.readingProgressAnchorIndex || 0) <
         readingProgressAnchorIndex
 
     const updatedArticle = Object.assign(userArticleRecord, {
       readingProgressPercent: shouldUpdate
         ? readingProgressPercent
-        : userArticleRecord.readingProgress,
+        : userArticleRecord.readingProgressPercent,
       readingProgressAnchorIndex: shouldUpdate
         ? readingProgressAnchorIndex
         : userArticleRecord.readingProgressAnchorIndex,
@@ -754,7 +754,7 @@ export const getReadingProgressForArticleResolver: ResolverFn<
 
   const articleReadingProgress = (
     await getPageByParam(claims.uid, { _id: article.id })
-  )?.readingProgress
+  )?.readingProgressPercent
 
   return articleReadingProgress || 0
 }

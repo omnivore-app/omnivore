@@ -27,7 +27,7 @@ describe('elastic api', () => {
       slug: 'test slug',
       createdAt: new Date(),
       updatedAt: new Date(),
-      readingProgress: 100,
+      readingProgressPercent: 100,
       readingProgressAnchorIndex: 0,
       url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
       archivedAt: new Date(),
@@ -78,7 +78,7 @@ describe('elastic api', () => {
         slug: 'test',
         createdAt: new Date(),
         updatedAt: new Date(),
-        readingProgress: 0,
+        readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
         url: 'https://blog.omnivore.app/testUrl',
       }

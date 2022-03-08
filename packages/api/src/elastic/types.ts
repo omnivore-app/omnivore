@@ -140,7 +140,7 @@ export interface Page {
   originalHtml?: string | null
   slug: string
   labels?: Label[]
-  readingProgress?: number
+  readingProgressPercent?: number
   readingProgressAnchorIndex?: number
   createdAt: Date
   updatedAt?: Date
