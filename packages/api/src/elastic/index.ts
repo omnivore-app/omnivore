@@ -30,10 +30,22 @@ const ingest = async (): Promise<void> => {
       settings: {
         analysis: {
           analyzer: {
-            html_strip_analyzer: {
-              tokenizer: 'standard',
+            ngrams: {
+              tokenizer: 'ngrams',
+              filter: ['lowercase'],
+            },
+            stripHTMLWithNgrams: {
+              tokenizer: 'ngrams',
               filter: ['lowercase'],
               char_filter: ['html_strip'],
+            },
+          },
+          tokenizer: {
+            ngrams: {
+              type: 'ngram',
+              min_gram: 3,
+              max_gram: 3,
+              token_chars: ['letter', 'digit'],
             },
           },
           normalizer: {
@@ -50,16 +62,51 @@ const ingest = async (): Promise<void> => {
           },
           title: {
             type: 'text',
+            analyzer: 'pattern',
+            fields: {
+              raw: {
+                type: 'text',
+                analyzer: 'pattern',
+              },
+              ngram: {
+                type: 'text',
+                analyzer: 'ngrams',
+              },
+            },
           },
           author: {
             type: 'text',
+            analyzer: 'pattern',
+            fields: {
+              raw: {
+                type: 'text',
+                analyzer: 'pattern',
+              },
+              ngram: {
+                type: 'text',
+                analyzer: 'ngrams',
+              },
+            },
           },
           description: {
             type: 'text',
+            analyzer: 'ngrams',
+            fields: {
+              raw: {
+                type: 'text',
+                analyzer: 'pattern',
+              },
+            },
           },
           content: {
             type: 'text',
-            analyzer: 'html_strip_analyzer',
+            analyzer: 'stripHTMLWithNgrams',
+            fields: {
+              raw: {
+                type: 'text',
+                analyzer: 'pattern',
+              },
+            },
           },
           url: {
             type: 'keyword',
@@ -111,6 +158,8 @@ const appendQuery = (body: SearchBody, query: string): void => {
     multi_match: {
       query,
       fields: ['title', 'content', 'author', 'description', 'siteName'],
+      operator: 'and',
+      type: 'cross_fields',
     },
   })
   body.query.bool.minimum_should_match = 1
@@ -399,6 +448,8 @@ export const searchPages = async (
     if (excludeLabels.length > 0) {
       appendExcludeLabelFilter(body, excludeLabels)
     }
+
+    console.log('searching pages in elastic', JSON.stringify(body))
 
     const response = await client.search<SearchResponse<Page>, SearchBody>({
       index: INDEX_NAME,
