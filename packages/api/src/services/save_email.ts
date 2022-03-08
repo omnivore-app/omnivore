@@ -86,11 +86,14 @@ export const saveEmail = async (
       savedAt: new Date(),
       archivedAt: null,
     })
+    console.log('save matched email article record', result)
+
   } else {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
     await kx.transaction(async (tx) => {
       const articleRecord = await ctx.models.article.create(articleToSave, tx)
+      console.log('save new email article record', articleRecord)
 
       result = await ctx.models.userArticle.create(
         {
@@ -102,6 +105,8 @@ export const saveEmail = async (
         },
         tx
       )
+
+      console.log('save new email result', result)
     })
   }
 
