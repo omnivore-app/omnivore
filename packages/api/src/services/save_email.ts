@@ -85,22 +85,16 @@ export const saveEmail = async (
 
     await kx.transaction(async (tx) => {
       await setClaims(tx, saverId)
-
       result = await ctx.models.userArticle.update(matchedUserArticleRecord.id, {
         savedAt: new Date(),
         archivedAt: null,
       })
     })
-    console.log('save matched email article record', result, matchedUserArticleRecord)
   } else {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
     await kx.transaction(async (tx) => {
-      await setClaims(tx, saverId)
-
       const articleRecord = await ctx.models.article.create(articleToSave, tx)
-      console.log('save new email article record', articleRecord)
-
       result = await ctx.models.userArticle.create(
         {
           userId: saverId,
