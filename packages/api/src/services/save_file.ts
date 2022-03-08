@@ -13,6 +13,7 @@ import { DataModels } from '../resolvers/types'
 import { generateSlug } from '../utils/helpers'
 import { getStorageFileDetails, makeStorageFilePublic } from '../utils/uploads'
 import { createSavingRequest } from './save_page'
+import { createPage, getPageByParam, updatePage } from '../elastic'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -74,64 +75,54 @@ export const saveFile = async (
   //     ctx.pubsub.pageSaved(saver.id, parseResult.canonicalUrl, parseResult.domContent)
   // }
 
-  const matchedUserArticleRecord = await ctx.authTrx(async (tx) => {
-    return ctx.models.userArticle.getByParameters(
-      saver.id,
-      {
-        articleUrl: uploadFileUrlOverride,
-      },
-      tx
-    )
+  const matchedUserArticleRecord = await getPageByParam(saver.id, {
+    url: uploadFileUrlOverride,
   })
 
   if (matchedUserArticleRecord) {
     // ctx.pubsub.pageCreated(saver.id, input.url, input.originalContent)
 
+    await updatePage(matchedUserArticleRecord.id, {
+      savedAt: new Date(),
+      archivedAt: null,
+    })
+
     await ctx.authTrx(async (tx) => {
-      await ctx.models.userArticle.update(
-        matchedUserArticleRecord.id,
-        {
-          savedAt: new Date(),
-          archivedAt: null,
-        },
-        tx
-      )
       await ctx.models.articleSavingRequest.update(
         savingRequest.id,
         {
-          articleId: matchedUserArticleRecord.articleId,
+          elasticPageId: matchedUserArticleRecord.id,
           status: ArticleSavingRequestStatus.Succeeded,
         },
         tx
       )
     })
   } else {
+    const pageId = await createPage({
+      url: uploadFileUrlOverride,
+      title: uploadFile.fileName,
+      hash: uploadFileDetails.md5Hash,
+      content: '',
+      pageType: PageType.File,
+      uploadFileId: input.uploadFileId,
+      slug: generateSlug(uploadFile.fileName),
+      userId: saver.id,
+      id: '',
+      createdAt: new Date(),
+    })
+
+    if (!pageId) {
+      console.log('error creating page in elastic', input)
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+      }
+    }
+
     await ctx.authTrx(async (tx) => {
-      const article = await ctx.models.article.create(
-        {
-          url: uploadFileUrlOverride,
-          title: uploadFile.fileName,
-          hash: uploadFileDetails.md5Hash,
-          content: '',
-          pageType: PageType.File,
-          uploadFileId: input.uploadFileId,
-        },
-        tx
-      )
-      await ctx.models.userArticle.create(
-        {
-          slug: generateSlug(uploadFile.fileName),
-          userId: saver.id,
-          articleId: article.id,
-          articleUrl: article.url,
-          articleHash: article.hash,
-        },
-        tx
-      )
       await ctx.models.articleSavingRequest.update(
         savingRequest.id,
         {
-          articleId: article.id,
+          elasticPageId: pageId,
           status: ArticleSavingRequestStatus.Succeeded,
         },
         tx
