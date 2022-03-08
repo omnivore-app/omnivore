@@ -63,13 +63,11 @@ export interface SearchBody {
     {
       savedAt: {
         order: string
-        format: 'strict_date_optional_time_nanos'
       }
     },
     {
       createdAt: {
         order: string
-        format: 'strict_date_optional_time_nanos'
       }
     },
     '_score'
