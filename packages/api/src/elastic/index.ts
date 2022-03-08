@@ -27,6 +27,9 @@ const ingest = async (): Promise<void> => {
   await client.indices.create({
     index: INDEX_NAME,
     body: {
+      aliases: {
+        pages: {},
+      },
       settings: {
         analysis: {
           analyzer: {
