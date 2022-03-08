@@ -1,10 +1,23 @@
+#!/usr/bin/python
+import os
 import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from elasticsearch import Elasticsearch, helpers
 
+PG_HOST = os.getenv('PG_HOST', 'localhost')
+PG_PORT = os.getenv('PG_PORT', 5432)
+PG_USER = os.getenv('PG_USER', 'app_user')
+PG_PASSWORD = os.getenv('PG_PASSWORD', 'app_pass')
+PG_DB = os.getenv('PG_DB', 'omnivore')
+ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
+ES_USERNAME = os.getenv('ES_USERNAME')
+ES_PASSWORD = os.getenv('ES_PASSWORD')
+
 # export data from postgres to a json file
-conn = psycopg2.connect('dbname=omnivore user=app_user password=app_pass')
+conn = psycopg2.connect(
+    f'host={PG_HOST} port={PG_PORT} dbname={PG_DB} user={PG_USER} \
+    password={PG_PASSWORD}')
 cur = conn.cursor(cursor_factory=RealDictCursor)
 cur.execute('''
    SELECT
@@ -42,7 +55,7 @@ with open('data.json', 'w') as f:
 print('Exported data to data.json')
 
 # import data from json file to elasticsearch
-client = Elasticsearch('http://localhost:9200')
+client = Elasticsearch(ES_URL, basic_auth=(ES_USERNAME, ES_PASSWORD))
 
 
 docs = json.load(open('data.json'))
