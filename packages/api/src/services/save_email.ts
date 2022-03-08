@@ -105,8 +105,6 @@ export const saveEmail = async (
         },
         tx
       )
-
-      console.log('save new email result', result)
     })
   }
 
