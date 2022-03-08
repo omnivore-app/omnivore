@@ -27,10 +27,8 @@ final class HomeFeedViewModel: ObservableObject {
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
-    print("itemIndex", itemIndex)
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      print("loading more items")
       loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: false)
     }
   }

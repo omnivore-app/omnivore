@@ -12,6 +12,7 @@ public struct HomeFeedData {
 
 public struct FeedItem: Identifiable, Hashable, Decodable {
   public let id: String
+  public let renderID = UUID()
   public let title: String
   public var readingProgress: Double
   public var readingProgressAnchor: Int

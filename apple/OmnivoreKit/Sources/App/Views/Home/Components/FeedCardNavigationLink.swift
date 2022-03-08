@@ -53,9 +53,6 @@ struct GridCardNavigationLink: View {
       ) {
         EmptyView()
       }
-//      .onAppear {
-//        viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
-//      }
       GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler, tapAction: {
         withAnimation {
           scale = 0.95

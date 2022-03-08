@@ -301,7 +301,7 @@ import Views
     var body: some View {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 20) {
-          ForEach(viewModel.items) { item in
+          ForEach(viewModel.items, id: \.renderID) { item in
             let link = GridCardNavigationLink(
               item: item,
               searchQuery: searchQuery,
@@ -338,7 +338,7 @@ import Views
           }
         )
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-          if !viewModel.isLoading, abs(offset) > 240 {
+          if !viewModel.isLoading, offset > 240 {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
         }
