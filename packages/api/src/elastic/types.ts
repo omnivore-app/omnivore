@@ -37,6 +37,13 @@ export interface SearchBody {
         multi_match: {
           query: string
           fields: string[]
+          operator: 'and' | 'or'
+          type:
+            | 'best_fields'
+            | 'most_fields'
+            | 'cross_fields'
+            | 'phrase'
+            | 'phrase_prefix'
         }
       }[]
       minimum_should_match?: number
