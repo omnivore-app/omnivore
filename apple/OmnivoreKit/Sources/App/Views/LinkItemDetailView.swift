@@ -192,6 +192,9 @@ struct LinkItemDetailView: View {
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
     .background(Color.systemBackground)
+    .onTapGesture {
+      showFontSizePopover = false
+    }
   }
 
   #if os(iOS)
@@ -217,7 +220,7 @@ struct LinkItemDetailView: View {
                 fontAdjustmentPopoverView
                   .background(Color.appButtonBackground)
                   .cornerRadius(8)
-                  .padding(.trailing, 5)
+                  .padding(.trailing, 44)
               }
               Spacer()
             }
