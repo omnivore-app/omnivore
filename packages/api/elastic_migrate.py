@@ -8,14 +8,27 @@ conn = psycopg2.connect('dbname=omnivore user=app_user password=app_pass')
 cur = conn.cursor(cursor_factory=RealDictCursor)
 cur.execute('''
    SELECT
-     p.id, title, description, l.created_at as "createdAt",
-     l.updated_at as "updatedAt", url, hash, original_html as "originalHtml",
-     content, author, image, published_at as "publishedAt",
-     upload_file_id as "uploadFileId", page_type as "pageType",
-     user_id as "userId", shared_at as "sharedAt",
+     p.id,
+     title,
+     description,
+     to_char(l.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "createdAt",
+     to_char(l.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "updatedAt",
+     url,
+     hash,
+     original_html as "originalHtml",
+     content,
+     author,
+     image,
+     to_char(published_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "publishedAt",
+     upload_file_id as "uploadFileId",
+     page_type as "pageType",
+     user_id as "userId",
+     to_char(shared_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "sharedAt",
      article_reading_progress as "readingProgress",
      article_reading_progress_anchor_index as "readingProgressAnchorIndex",
-     saved_at as "savedAt", slug, archived_at as "archivedAt"
+     to_char(saved_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "savedAt",
+     slug,
+     to_char(archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "archivedAt"
    FROM omnivore.pages p
    INNER JOIN omnivore.links l ON p.id = l.article_id
 ''')
@@ -43,7 +56,7 @@ for num, doc in enumerate(docs):
         dict_doc = {
             '_index': 'pages',
             '_id': doc['id'],
-            'doc': doc
+            '_source': doc
         }
         doc_list += [dict_doc]
 
