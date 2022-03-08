@@ -20,6 +20,7 @@ cur.execute('''
    INNER JOIN omnivore.links l ON p.id = l.article_id
 ''')
 
+
 # generate JSON
 with open('data.json', 'w') as f:
     f.write(json.dumps(cur.fetchall(), default=str))
@@ -31,28 +32,18 @@ print('Exported data to data.json')
 client = Elasticsearch('http://localhost:9200')
 
 
-def get_data_from_text_file(self):
-    # the function will return a list of docs
-    return [l.strip() for l in open(str(self), encoding='utf8', errors='ignore')]
-
-
-docs = get_data_from_text_file('data.json')
+docs = json.load(open('data.json'))
 
 print('String docs length:', len(docs))
 
 doc_list = []
 for num, doc in enumerate(docs):
     try:
-        # prevent JSONDecodeError resulting from Python uppercase boolean
-        doc = doc.replace('True', 'true')
-        doc = doc.replace('False', 'false')
-
         # convert the string to a dict object
-        source = json.loads(doc)
         dict_doc = {
             '_index': 'pages',
-            '_id': source[0]['id'],
-            '_source': source[0]
+            '_id': doc['id'],
+            'doc': doc
         }
         doc_list += [dict_doc]
 
