@@ -691,11 +691,9 @@ export const saveArticleReadingProgressResolver = authorized<
   async (
     _,
     { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
-    { models, authTrx, claims: { uid } }
+    { claims: { uid } }
   ) => {
-    const userArticleRecord = await authTrx((tx) =>
-      models.userArticle.getByParameters(uid, { articleId: id }, tx)
-    )
+    const userArticleRecord = await getPageByParam(uid, { _id: id })
 
     if (!userArticleRecord) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
@@ -713,32 +711,27 @@ export const saveArticleReadingProgressResolver = authorized<
     // be greater than the current reading progress.
     const shouldUpdate =
       readingProgressPercent === 0 ||
-      userArticleRecord.articleReadingProgress < readingProgressPercent ||
-      userArticleRecord.articleReadingProgressAnchorIndex <
+      (userArticleRecord.readingProgress || 0) < readingProgressPercent ||
+      (userArticleRecord.readingProgressAnchorIndex || 0) <
         readingProgressAnchorIndex
 
-    const updatedArticle = Object.assign(await models.article.get(id), {
+    const updatedArticle = Object.assign(userArticleRecord, {
       readingProgressPercent: shouldUpdate
         ? readingProgressPercent
-        : userArticleRecord.articleReadingProgress,
+        : userArticleRecord.readingProgress,
       readingProgressAnchorIndex: shouldUpdate
         ? readingProgressAnchorIndex
-        : userArticleRecord.articleReadingProgressAnchorIndex,
+        : userArticleRecord.readingProgressAnchorIndex,
     })
 
-    shouldUpdate &&
-      (await authTrx((tx) =>
-        models.userArticle.update(
-          userArticleRecord.id,
-          {
-            articleReadingProgress: readingProgressPercent,
-            articleReadingProgressAnchorIndex: readingProgressAnchorIndex,
-          },
-          tx
-        )
-      ))
+    shouldUpdate && (await updatePage(id, updatedArticle))
 
-    return { updatedArticle: { ...userArticleRecord, ...updatedArticle } }
+    return {
+      updatedArticle: {
+        ...updatedArticle,
+        isArchived: !!updatedArticle.archivedAt,
+      },
+    }
   }
 )
 

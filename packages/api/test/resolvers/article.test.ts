@@ -1,5 +1,10 @@
 import { createTestLabel, createTestUser, deleteTestUser } from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
+import {
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import 'mocha'
@@ -175,6 +180,33 @@ const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
           }
         }
         ... on SetBookmarkArticleError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
+const saveArticleReadingProgressQuery = (
+  articleId: string,
+  progress: number
+) => {
+  return `
+    mutation {
+      saveArticleReadingProgress(
+        input: {
+          id: "${articleId}",
+          readingProgressPercent: ${progress}
+          readingProgressAnchorIndex: 0
+        }
+      ) {
+        ... on SaveArticleReadingProgressSuccess {
+          updatedArticle {
+            id
+            readingProgressPercent
+          }
+        }
+        ... on SaveArticleReadingProgressError {
           errorCodes
         }
       }
@@ -525,6 +557,43 @@ describe('Article API', () => {
         await graphqlRequest(query, authToken).expect(200)
         const pageId = await getPageById(articleId)
         expect(pageId).to.undefined
+      })
+    })
+  })
+
+  describe('saveArticleReadingProgressResolver', () => {
+    let query = ''
+    let articleId = ''
+    let progress = 0.5
+    let pageId = ''
+
+    before(async () => {
+      pageId = (await createTestElasticPage(user)).id
+    })
+
+    after(async () => {
+      if (pageId) {
+        await deletePage(pageId)
+      }
+    })
+
+    beforeEach(() => {
+      query = saveArticleReadingProgressQuery(articleId, progress)
+    })
+
+    context('when we save a reading progress on an article', () => {
+      before(async () => {
+        articleId = pageId
+        progress = 0.5
+      })
+
+      it('should save a reading progress on an article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        console.log(res.body.data)
+        expect(
+          res.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(progress)
       })
     })
   })
