@@ -283,9 +283,9 @@ export const createPage = async (data: Page): Promise<string | undefined> => {
 export const updatePage = async (
   id: string,
   data: Partial<Page>
-): Promise<void> => {
+): Promise<boolean> => {
   try {
-    await client.update({
+    const { body } = await client.update({
       index: INDEX_NAME,
       id,
       body: {
@@ -293,8 +293,12 @@ export const updatePage = async (
       },
       refresh: true,
     })
+    console.log(body)
+
+    return body.result == 'updated'
   } catch (e) {
     console.error('failed to update a page in elastic', e)
+    return false
   }
 }
 
