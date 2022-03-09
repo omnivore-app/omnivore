@@ -67,18 +67,22 @@ const generateHighlightPreviewImage = (
       highlight.shortId
     }`
 
-    axios.get(previewImageGenerationUrl).catch((err) => {
-      log.warning(`Preview image generation request failed`, {
-        axiosError: JSON.stringify(err),
-        highlight,
-        labels: {
-          source: 'resolver',
-          resolver: 'setShareHighlightResolver',
-          articleId: highlight.articleId,
-          userId: highlight.userId,
-        },
-      })
-    })
+    //
+    // This is commented out until we re-enable sharing
+    // highlights.
+    //
+    // axios.get(previewImageGenerationUrl).catch((err) => {
+    //   log.warning(`Preview image generation request failed`, {
+    //     axiosError: JSON.stringify(err),
+    //     highlight,
+    //     labels: {
+    //       source: 'resolver',
+    //       resolver: 'setShareHighlightResolver',
+    //       articleId: highlight.articleId,
+    //       userId: highlight.userId,
+    //     },
+    //   })
+    // })
   })
 }
 
