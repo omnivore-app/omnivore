@@ -115,7 +115,8 @@ export const savePage = async (
     )
   }
 
-  const existingPage = await getPageByParam(saver.userId, {
+  const existingPage = await getPageByParam({
+    userId: saver.userId,
     url: articleToSave.url,
   })
   if (existingPage) {

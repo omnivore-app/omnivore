@@ -322,7 +322,10 @@ export const createArticleResolver = authorized<
         )
       }
 
-      const existingPage = await getPageByParam(uid, { url: articleToSave.url })
+      const existingPage = await getPageByParam({
+        userId: uid,
+        url: articleToSave.url,
+      })
       if (existingPage) {
         //  update existing page in elastic
         existingPage.slug = slug
@@ -411,7 +414,7 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    const page = await getPageByParam(claims.uid, { slug })
+    const page = await getPageByParam({ userId: claims.uid, slug })
 
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
@@ -608,7 +611,10 @@ export const setBookmarkArticleResolver = authorized<
     }
 
     if (!bookmark) {
-      const userArticleRemoved = await getPageByParam(uid, { _id: articleID })
+      const userArticleRemoved = await getPageByParam({
+        userId: uid,
+        _id: articleID,
+      })
 
       if (!userArticleRemoved) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
@@ -693,7 +699,7 @@ export const saveArticleReadingProgressResolver = authorized<
     { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
     { claims: { uid } }
   ) => {
-    const userArticleRecord = await getPageByParam(uid, { _id: id })
+    const userArticleRecord = await getPageByParam({ userId: uid, _id: id })
 
     if (!userArticleRecord) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
@@ -754,7 +760,7 @@ export const getReadingProgressForArticleResolver: ResolverFn<
   }
 
   const articleReadingProgress = (
-    await getPageByParam(claims.uid, { _id: article.id })
+    await getPageByParam({ userId: claims.uid, _id: article.id })
   )?.readingProgressPercent
 
   return articleReadingProgress || 0
@@ -778,7 +784,7 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
   }
 
   const articleReadingProgressAnchorIndex = (
-    await getPageByParam(claims.uid, { _id: article.id })
+    await getPageByParam({ userId: claims.uid, _id: article.id })
   )?.readingProgressAnchorIndex
 
   return articleReadingProgressAnchorIndex || 0

@@ -16,7 +16,7 @@ export const getShareInfoForArticle = async (
   // TEMP: because the old API uses articles instead of Links, we are actually
   // getting an article ID here and need to map it to a link ID. When the API
   // is updated to use Links instead of Articles this will be removed.
-  const page = await getPageByParam(userId, { _id: articleId })
+  const page = await getPageByParam({ userId, _id: articleId })
 
   if (!page) {
     return undefined

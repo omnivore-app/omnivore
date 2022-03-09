@@ -5,6 +5,7 @@ import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { kx } from '../../datalayer/knex_config'
 import ArticleModel from '../../datalayer/article'
+import { getPageByParam } from '../../elastic'
 
 interface UpdateContentMessage {
   fileId: string
@@ -51,7 +52,7 @@ export function contentServiceRouter() {
     }
 
     const model = new ArticleModel(kx)
-    const page = await model.getByUploadFileId(fileId)
+    const page = await getPageByParam({ uploadFileId: fileId })
     if (!page) {
       console.log('No upload file found for id:', fileId)
       res.status(400).send('Bad Request')

@@ -75,7 +75,8 @@ export const saveFile = async (
   //     ctx.pubsub.pageSaved(saver.id, parseResult.canonicalUrl, parseResult.domContent)
   // }
 
-  const matchedUserArticleRecord = await getPageByParam(saver.id, {
+  const matchedUserArticleRecord = await getPageByParam({
+    userId: saver.id,
     url: uploadFileUrlOverride,
   })
 

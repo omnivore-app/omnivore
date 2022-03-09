@@ -315,7 +315,8 @@ export const functionResolvers = {
         return article.savedByViewer
       }
       if (!ctx.claims?.uid) return undefined
-      const page = await getPageByParam(ctx.claims.uid, {
+      const page = await getPageByParam({
+        userId: ctx.claims.uid,
         _id: article.id,
       })
       return !!page
@@ -329,7 +330,8 @@ export const functionResolvers = {
         return article.postedByViewer
       }
       if (!ctx.claims?.uid) return false
-      const page = await getPageByParam(ctx.claims.uid, {
+      const page = await getPageByParam({
+        userId: ctx.claims.uid,
         _id: article.id,
       })
       return !!page?.sharedAt
@@ -343,7 +345,8 @@ export const functionResolvers = {
       if (!article.savedAt) return new Date()
       return (
         (
-          await getPageByParam(ctx.claims.uid, {
+          await getPageByParam({
+            userId: ctx.claims.uid,
             _id: article.id,
           })
         )?.savedAt ||
@@ -367,7 +370,8 @@ export const functionResolvers = {
     ) {
       if (article.isArchived) return article.isArchived
       if (!ctx.claims?.uid) return false
-      const page = await getPageByParam(ctx.claims.uid, {
+      const page = await getPageByParam({
+        userId: ctx.claims.uid,
         _id: article.id,
       })
       return !!page?.archivedAt || false
@@ -424,7 +428,8 @@ export const functionResolvers = {
   },
   ArticleSavingRequest: {
     async article(request: { userId: string; articleId: string }, __: unknown) {
-      return getPageByParam(request.userId, {
+      return getPageByParam({
+        userId: request.userId,
         _id: request.articleId,
       })
     },

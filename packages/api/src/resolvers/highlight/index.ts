@@ -52,7 +52,7 @@ const generateHighlightPreviewImage = (
 ): void => {
   Promise.all([
     models.user.get(highlight.userId),
-    getPageByParam(highlight.userId, { _id: highlight.elasticPageId }),
+    getPageByParam({ userId: highlight.userId, _id: highlight.elasticPageId }),
   ]).then(async ([user, userArticle]) => {
     if (!userArticle) return
 
