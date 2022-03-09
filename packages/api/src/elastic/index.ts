@@ -28,7 +28,7 @@ const ingest = async (): Promise<void> => {
     index: INDEX_NAME,
     body: {
       aliases: {
-        pages: {},
+        pages_alias: {},
       },
       settings: {
         analysis: {
