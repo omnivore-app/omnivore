@@ -293,7 +293,6 @@ export const updatePage = async (
       },
       refresh: true,
     })
-    console.log(body)
 
     return body.result == 'updated'
   } catch (e) {
