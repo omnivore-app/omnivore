@@ -67,9 +67,7 @@ function AppArticleEmbedContent(
   if (articleData) {
     return (
       <Box
-        ref={scrollRef}
         css={{
-          position: 'fixed',
           overflowY: 'auto',
           height: '100%',
           width: '100vw',

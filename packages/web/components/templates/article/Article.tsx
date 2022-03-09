@@ -79,6 +79,12 @@ export function Article(props: ArticleProps): JSX.Element {
           scrollContainer.scrollHeight
 
         setReadingProgress(newReadingProgress * 100)
+      } else if (window && window.document.scrollingElement) {
+        const newReadingProgress =
+          window.scrollY / window.document.scrollingElement.scrollHeight
+        const adjustedReadingProgress =
+          newReadingProgress > 0.92 ? 1 : newReadingProgress
+        setReadingProgress(adjustedReadingProgress * 100)
       }
     },
     1000
