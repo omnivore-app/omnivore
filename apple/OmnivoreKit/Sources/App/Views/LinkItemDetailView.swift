@@ -87,12 +87,12 @@ final class LinkItemDetailViewModel: ObservableObject {
       rawAuthCookie: rawAuthCookie
     )
 
-    newWebAppWrapperViewModel.performActionSubject.sink { action in
+    newWebAppWrapperViewModel.performActionSubject.sink { [weak self] action in
       switch action {
       case let .shareHighlight(highlightID):
         print("show share modal for highlight with id: \(highlightID)")
       case let .updateReadingProgess(progress: progress):
-        print("new reading progress: \(progress)")
+        self?.item.readingProgress = Double(progress)
       }
     }
     .store(in: &newWebAppWrapperViewModel.subscriptions)
