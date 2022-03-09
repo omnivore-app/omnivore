@@ -137,13 +137,13 @@ struct LinkItemDetailView: View {
 
   var body: some View {
     #if os(iOS)
-      if UIDevice.isIPhone, !viewModel.item.isPDF {
-        compactInnerBody
+      if viewModel.item.isPDF {
+        fixedNavBarReader
       } else {
-        innerBody
+        hidingNavBarReader
       }
     #else
-      innerBody
+      fixedNavBarReader
     #endif
   }
 
@@ -169,6 +169,27 @@ struct LinkItemDetailView: View {
       )
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
+      if FeatureFlag.showLinkOptionsOnReaderView {
+        Menu(
+          content: {
+            Group {
+              Button(
+                action: {},
+                label: { Label("Archive", systemImage: "archivebox") }
+              )
+              Button(
+                action: {},
+                label: { Label("Delete Link", systemImage: "trash") }
+              )
+            }
+          },
+          label: {
+            Image.profile
+              .padding(.horizontal)
+              .scaleEffect(navBarVisibilityRatio)
+          }
+        )
+      }
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
@@ -176,7 +197,7 @@ struct LinkItemDetailView: View {
   }
 
   #if os(iOS)
-    @ViewBuilder private var compactInnerBody: some View {
+    @ViewBuilder private var hidingNavBarReader: some View {
       if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
         ZStack {
           WebAppWrapperView(
@@ -232,7 +253,7 @@ struct LinkItemDetailView: View {
     }
   #endif
 
-  @ViewBuilder private var innerBody: some View {
+  @ViewBuilder private var fixedNavBarReader: some View {
     if let pdfURL = viewModel.item.pdfURL {
       #if os(iOS)
         PDFProvider.pdfViewerProvider?(pdfURL, viewModel.item)

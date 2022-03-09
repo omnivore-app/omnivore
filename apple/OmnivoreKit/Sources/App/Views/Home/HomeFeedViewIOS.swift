@@ -7,38 +7,26 @@ import Utils
 import Views
 
 #if os(iOS)
-  struct CompactHomeView: View {
-    @ObservedObject var viewModel: HomeFeedViewModel
-
-    var body: some View {
-      NavigationView {
-        HomeFeedContainerView(viewModel: viewModel)
-          .toolbar {
-            ToolbarItem {
-              NavigationLink(
-                destination: { ProfileView() },
-                label: {
-                  Image.profile
-                    .resizable()
-                    .frame(width: 26, height: 26)
-                    .padding()
-                }
-              )
-            }
-          }
-      }
-      .accentColor(.appGrayTextContrast)
-    }
-  }
-
   struct HomeFeedContainerView: View {
+    let isCompact: Bool
     @EnvironmentObject var dataService: DataService
     @State private var searchQuery = ""
+    @State private var snoozePresented = false
+    @State private var itemToSnooze: FeedItem?
+    @State private var selectedLinkItem: FeedItem?
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      if #available(iOS 15.0, *) {
-        HomeFeedView(searchQuery: $searchQuery, viewModel: viewModel)
+      Group {
+        if #available(iOS 15.0, *) {
+          HomeFeedView(
+            isCompact: isCompact,
+            searchQuery: $searchQuery,
+            selectedLinkItem: $selectedLinkItem,
+            snoozePresented: $snoozePresented,
+            itemToSnooze: $itemToSnooze,
+            viewModel: viewModel
+          )
           .refreshable {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
@@ -61,14 +49,51 @@ import Views
           .onSubmit(of: .search) {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
-      } else {
-        HomeFeedView(searchQuery: $searchQuery, viewModel: viewModel).toolbar {
-          ToolbarItem {
-            Button(
-              action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
-              label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-            )
+        } else {
+          HomeFeedView(
+            isCompact: isCompact,
+            searchQuery: $searchQuery,
+            selectedLinkItem: $selectedLinkItem,
+            snoozePresented: $snoozePresented,
+            itemToSnooze: $itemToSnooze,
+            viewModel: viewModel
+          )
+          .toolbar {
+            ToolbarItem {
+              Button(
+                action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
+                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+            }
           }
+        }
+      }
+      .navigationTitle("Home")
+      .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+        // Don't refresh the list if the user is currently reading an article
+        if selectedLinkItem == nil {
+          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+        }
+      }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
+        if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
+          viewModel.pushFeedItem(item: feedItem)
+          self.selectedLinkItem = feedItem
+        }
+      }
+      .formSheet(isPresented: $snoozePresented) {
+        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
+          viewModel.snoozeUntil(
+            dataService: dataService,
+            linkId: $0.feedItemId,
+            until: $0.snoozeUntilDate,
+            successMessage: $0.successMessage
+          )
+        }
+      }
+      .onAppear {
+        if viewModel.items.isEmpty {
+          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
         }
       }
     }
@@ -76,13 +101,71 @@ import Views
 
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-    @Binding var searchQuery: String
 
-    @State private var selectedLinkItem: FeedItem?
+    let isCompact: Bool
+    @Binding var searchQuery: String
+    @Binding var selectedLinkItem: FeedItem?
+    @Binding var snoozePresented: Bool
+    @Binding var itemToSnooze: FeedItem?
+
+    @ObservedObject var viewModel: HomeFeedViewModel
+
+    var body: some View {
+      if isCompact {
+        HomeFeedListView(
+          searchQuery: $searchQuery,
+          selectedLinkItem: $selectedLinkItem,
+          snoozePresented: $snoozePresented,
+          itemToSnooze: $itemToSnooze,
+          viewModel: viewModel
+        )
+      } else {
+        HomeFeedGridView(
+          searchQuery: $searchQuery,
+          selectedLinkItem: $selectedLinkItem,
+          snoozePresented: $snoozePresented,
+          itemToSnooze: $itemToSnooze,
+          viewModel: viewModel
+        )
+        .toolbar {
+          ToolbarItem {
+            if #available(iOS 15.0, *) {
+              Button(
+                action: {
+                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+                },
+                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+              .disabled(viewModel.isLoading)
+              .opacity(viewModel.isLoading ? 0 : 1)
+              .overlay {
+                if viewModel.isLoading {
+                  ProgressView()
+                }
+              }
+            } else {
+              Button(
+                action: {
+                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+                },
+                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+            }
+          }
+        }
+      }
+    }
+  }
+
+  struct HomeFeedListView: View {
+    @EnvironmentObject var dataService: DataService
+    @Binding var searchQuery: String
+    @Binding var selectedLinkItem: FeedItem?
+    @Binding var snoozePresented: Bool
+    @Binding var itemToSnooze: FeedItem?
+
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
-    @State private var snoozePresented = false
-    @State private var itemToSnooze: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -90,21 +173,38 @@ import Views
       List {
         Section {
           ForEach(viewModel.items) { item in
-            let link = ZStack {
-              FeedCardNavigationLink(
-                item: item,
-                searchQuery: searchQuery,
-                selectedLinkItem: $selectedLinkItem,
-                viewModel: viewModel
+            let link = FeedCardNavigationLink(
+              item: item,
+              searchQuery: searchQuery,
+              selectedLinkItem: $selectedLinkItem,
+              viewModel: viewModel
+            )
+            .contextMenu {
+              Button(action: {
+                withAnimation(.linear(duration: 0.4)) {
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                }
+              }, label: {
+                Label(
+                  item.isArchived ? "Unarchive" : "Archive",
+                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                )
+              })
+              Button(
+                action: {
+                  itemToRemove = item
+                  confirmationShown = true
+                },
+                label: { Label("Delete Link", systemImage: "trash") }
               )
-            }.contextMenu {
-              FeedItemContextMenuView(
-                item: item,
-                selectedLinkItem: $selectedLinkItem,
-                snoozePresented: $snoozePresented,
-                itemToSnooze: $itemToSnooze,
-                viewModel: viewModel
-              )
+              if FeatureFlag.enableSnooze {
+                Button {
+                  itemToSnooze = item
+                  snoozePresented = true
+                } label: {
+                  Label { Text("Snooze") } icon: { Image.moon }
+                }
+              }
             }
             if #available(iOS 15.0, *) {
               link
@@ -170,39 +270,92 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
-      .navigationTitle("Home")
-      .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-        // Don't refresh the list if the user is currently reading an article
-        if selectedLinkItem == nil {
-          refresh()
-        }
-      }
-      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
-        if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
-          viewModel.pushFeedItem(item: feedItem)
-          self.selectedLinkItem = feedItem
-        }
-      }
-      .formSheet(isPresented: $snoozePresented) {
-        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
-          viewModel.snoozeUntil(
-            dataService: dataService,
-            linkId: $0.feedItemId,
-            until: $0.snoozeUntilDate,
-            successMessage: $0.successMessage
-          )
-        }
-      }
-      .onAppear {
-        if viewModel.items.isEmpty {
-          refresh()
-        }
+    }
+  }
+
+  struct HomeFeedGridView: View {
+    @EnvironmentObject var dataService: DataService
+    @Binding var searchQuery: String
+    @Binding var selectedLinkItem: FeedItem?
+    @Binding var snoozePresented: Bool
+    @Binding var itemToSnooze: FeedItem?
+
+    @State private var itemToRemove: FeedItem?
+    @State private var confirmationShown = false
+    @State var isContextMenuOpen = false
+
+    @ObservedObject var viewModel: HomeFeedViewModel
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
+
+    func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
+      switch action {
+      case .toggleArchiveStatus:
+        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+      case .delete:
+        itemToRemove = item
+        confirmationShown = true
       }
     }
 
-    private func refresh() {
-      viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+    var body: some View {
+      ScrollView {
+        LazyVGrid(columns: columns, spacing: 20) {
+          ForEach(viewModel.items, id: \.renderID) { item in
+            let link = GridCardNavigationLink(
+              item: item,
+              searchQuery: searchQuery,
+              actionHandler: { contextMenuActionHandler(item: item, action: $0) },
+              selectedLinkItem: $selectedLinkItem,
+              isContextMenuOpen: $isContextMenuOpen,
+              viewModel: viewModel
+            )
+            if #available(iOS 15.0, *) {
+              link
+                .alert("Are you sure?", isPresented: $confirmationShown) {
+                  Button("Remove Link", role: .destructive) {
+                    if let itemToRemove = itemToRemove {
+                      withAnimation {
+                        viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                      }
+                    }
+                    self.itemToRemove = nil
+                  }
+                  Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+                }
+            } else {
+              link
+            }
+          }
+        }
+        .padding()
+        .background(
+          GeometryReader {
+            Color(.systemGroupedBackground).preference(
+              key: ScrollViewOffsetPreferenceKey.self,
+              value: $0.frame(in: .global).origin.y
+            )
+          }
+        )
+        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+          if !viewModel.isLoading, offset > 240 {
+            viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          }
+        }
+
+        if viewModel.items.isEmpty, viewModel.isLoading {
+          LoadingSection()
+        }
+      }
     }
   }
 
 #endif
+
+struct ScrollViewOffsetPreferenceKey: PreferenceKey {
+  typealias Value = CGFloat
+  static var defaultValue = CGFloat.zero
+  static func reduce(value: inout Value, nextValue: () -> Value) {
+    value += nextValue()
+  }
+}

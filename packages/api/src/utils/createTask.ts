@@ -170,6 +170,7 @@ export const getTask = async (
 
   const request: protos.google.cloud.tasks.v2.GetTaskRequest = {
     responseView: View.FULL,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     toJSON(): { [p: string]: any } {
       return {}
     },

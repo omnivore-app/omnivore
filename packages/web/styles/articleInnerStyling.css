@@ -2,6 +2,10 @@
   max-width: 100%;
 }
 
+:root {
+  color-scheme: light dark;
+}
+
 .highlight {
   color: var(--colors-highlightText);
   background-color: var(--colors-highlightBackground);
@@ -293,7 +297,6 @@ on smaller screens we display the note icon
 
 .article-inner-css pre,
 .article-inner-css code {
-  display: inline-block;
   vertical-align: bottom;
   word-wrap: initial;
   font-family: 'SF Mono', monospace !important;

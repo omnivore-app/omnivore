@@ -1,5 +1,6 @@
 import Models
 import SwiftUI
+import Utils
 
 public struct FeedCard: View {
   let item: FeedItem

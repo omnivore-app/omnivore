@@ -6,12 +6,15 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
 import { useState } from 'react'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 
 export default function LabelsPage(): JSX.Element {
   const { labels, revalidate, isValidating } = useGetLabelsQuery()
   const [name, setName] = useState('')
   const [color, setColor] = useState('')
   const [description, setDescription] = useState('')
+
+  applyStoredTheme(false)
 
   async function createLabel(): Promise<void> {
     const res = await createLabelMutation(name, color, description)

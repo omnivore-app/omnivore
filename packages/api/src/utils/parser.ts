@@ -346,16 +346,15 @@ const getJSONLdLinkMetadata = async (
 }
 
 type Metadata = {
+  title?: string
+  author?: string
   description: string
   previewImage: string
 }
 
-export const parseMetadata = async (
-  url: string
-): Promise<Metadata | undefined> => {
+export const parsePageMetadata = (html: string): Metadata | undefined => {
   try {
-    const res = await axios.get(url)
-    const window = new JSDOM(res.data).window
+    const window = new JSDOM(html).window
 
     // get open graph metadata
     const description =
@@ -368,9 +367,99 @@ export const parseMetadata = async (
         .querySelector("head meta[property='og:image']")
         ?.getAttribute('content') || ''
 
-    return { description: description, previewImage: previewImage }
+    const title =
+      window.document
+        .querySelector("head meta[property='og:title']")
+        ?.getAttribute('content') || undefined
+
+    const author =
+      window.document
+        .querySelector("head meta[name='author']")
+        ?.getAttribute('content') || undefined
+
+    // TODO: we should be able to apply the JSONLD metadata
+    // here too
+
+    return { title, author, description, previewImage }
   } catch (e) {
-    console.log('failed to got:', url, e)
+    console.log('failed to parse page:', html, e)
     return undefined
   }
+}
+
+export const parseUrlMetadata = async (
+  url: string
+): Promise<Metadata | undefined> => {
+  try {
+    const res = await axios.get(url)
+    return parsePageMetadata(res.data)
+  } catch (e) {
+    console.log('failed to get:', url, e)
+    return undefined
+  }
+}
+
+// Attempt to determine if an HTML blob is a newsletter
+// based on it's contents.
+// TODO: when we consolidate the handlers we could include this
+// as a utility method on each one.
+export const isProbablyNewsletter = (html: string): boolean => {
+  const dom = new JSDOM(html).window
+  const domCopy = new JSDOM(dom.document.documentElement.outerHTML)
+  const article = new Readability(domCopy.window.document, {
+    debug: false,
+    keepTables: true,
+  }).parse()
+
+  if (!article || !article.content) {
+    return false
+  }
+
+  // substack newsletter emails have tables with a *post-meta class
+  if (dom.document.querySelector('table[class$="post-meta"]')) {
+    return true
+  }
+
+  // If the article has a header link, and substack icons its probably a newsletter
+  const href = findNewsletterHeaderHref(dom.window)
+  const heartIcon = dom.document.querySelector(
+    'table tbody td span a img[src*="HeartIcon"]'
+  )
+  const recommendIcon = dom.document.querySelector(
+    'table tbody td span a img[src*="RecommendIconRounded"]'
+  )
+  if (href && (heartIcon || recommendIcon)) {
+    return true
+  }
+
+  return false
+}
+
+const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
+  const postLink = dom.document.querySelector('h1 a ')
+  if (postLink) {
+    return postLink.getAttribute('href') || undefined
+  }
+  return undefined
+}
+
+// Given an HTML blob tries to find a URL to use for
+// a canonical URL.
+export const findNewsletterUrl = async (
+  html: string
+): Promise<string | undefined> => {
+  const dom = new JSDOM(html).window
+  const href = findNewsletterHeaderHref(dom.window)
+  if (href) {
+    // Try to make a HEAD request so we get the redirected URL, since these
+    // will usually be behind tracking url redirects
+    return axios({
+      method: 'HEAD',
+      url: href,
+    })
+      .then((res) => res.request.res.responseUrl as string | undefined)
+      .catch((e) => href)
+  }
+
+  return undefined
 }

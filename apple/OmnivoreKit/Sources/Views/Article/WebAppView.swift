@@ -33,7 +33,7 @@ public let readerViewNavBarHeight = 50.0
 
       webView.navigationDelegate = context.coordinator
       webView.isOpaque = false
-      webView.backgroundColor = UIColor.clear
+      webView.backgroundColor = .clear
       webView.configuration.userContentController = contentController
       webView.scrollView.delegate = context.coordinator
       webView.scrollView.contentInset.top = readerViewNavBarHeight

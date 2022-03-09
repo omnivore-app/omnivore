@@ -1,4 +1,4 @@
-import { render } from '../testUtils'
+import { render } from '@testing-library/react'
 import Login from '../../pages/login'
 import { IntlProvider } from 'react-intl'
 import { englishTranslations } from './../../locales/en/messages'

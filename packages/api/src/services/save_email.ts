@@ -2,13 +2,14 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
 import {
-  parseMetadata,
+  parseUrlMetadata,
   parseOriginalContent,
   parsePreparedContent,
 } from '../utils/parser'
 import normalizeUrl from 'normalize-url'
 import { kx } from '../datalayer/knex_config'
 import { UserArticleData } from '../datalayer/links/model'
+import { setClaims } from '../datalayer/helpers'
 
 export type SaveContext = {
   pubsub: PubsubClient
@@ -44,14 +45,15 @@ export const saveEmail = async (
   const slug = generateSlug(title)
 
   const pageType = parseOriginalContent(url, input.originalContent)
-  const metadata = await parseMetadata(url)
+  const metadata = await parseUrlMetadata(url)
 
   const articleToSave = {
     originalHtml: input.originalContent,
     content: content,
     description: metadata?.description || parseResult.parsedContent?.excerpt,
-    title: title,
-    author: input.author,
+    title: metadata?.title || parseResult.parsedContent?.title || title,
+    author:
+      metadata?.author || parseResult.parsedContent?.byline || input.author,
     url: normalizeUrl(parseResult.canonicalUrl || url, {
       stripHash: true,
       stripWWW: false,
@@ -81,16 +83,21 @@ export const saveEmail = async (
   if (matchedUserArticleRecord) {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
-    result = await ctx.models.userArticle.update(matchedUserArticleRecord.id, {
-      savedAt: new Date(),
-      archivedAt: null,
+    await kx.transaction(async (tx) => {
+      await setClaims(tx, saverId)
+      result = await ctx.models.userArticle.update(
+        matchedUserArticleRecord.id,
+        {
+          savedAt: new Date(),
+          archivedAt: null,
+        }
+      )
     })
   } else {
     await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
     await kx.transaction(async (tx) => {
       const articleRecord = await ctx.models.article.create(articleToSave, tx)
-
       result = await ctx.models.userArticle.create(
         {
           userId: saverId,
