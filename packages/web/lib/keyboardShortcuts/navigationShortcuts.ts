@@ -11,14 +11,10 @@ export function navigationCommands(
       shortcutKeyDescription: 'g then h',
       callback: () => router?.push('/home'),
     },
-    // {
-    //   shortcutKeys: ['g', 'd'],
-    //   callback: () => router.push('/discover'),
-    // },
     {
-      shortcutKeys: ['b|u'],
+      shortcutKeys: ['b'],
       actionDescription: 'Go back',
-      shortcutKeyDescription: 'b or u',
+      shortcutKeyDescription: 'b',
       callback: () => router?.back(),
     },
   ]
@@ -213,6 +209,7 @@ type ArticleKeyboardAction =
   | 'editLabels'
 
 export function articleKeyboardCommands(
+  router: NextRouter | undefined,
   actionHandler: (action: ArticleKeyboardAction) => void
 ): KeyboardCommand[] {
   return [
@@ -221,6 +218,12 @@ export function articleKeyboardCommands(
       actionDescription: 'Open original article page',
       shortcutKeyDescription: 'o',
       callback: () => actionHandler('openOriginalArticle'),
+    },
+    {
+      shortcutKeys: ['u'],
+      actionDescription: 'Back to library',
+      shortcutKeyDescription: 'u',
+      callback: () => router?.push('/home'),
     },
     {
       shortcutKeys: ['+'],
