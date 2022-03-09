@@ -14,8 +14,8 @@ ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
 ES_USERNAME = os.getenv('ES_USERNAME')
 ES_PASSWORD = os.getenv('ES_PASSWORD')
 DATA_FILE = os.getenv('DATA_FILE', 'data.json')
+BULK_SIZE = os.getenv('BULK_SIZE', 1000)
 
-BULK_SIZE = 1000
 DATETIME_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 QUERY = f'''
    SELECT
@@ -61,12 +61,13 @@ def elastic_bulk_insert(client, doc_list):
         print('Elasticsearch helpers.bulk() ERROR:', err)
 
 
-def export_data_to_json(cursor, query, data_file):
+def export_data_to_json(conn, query, data_file):
     try:
         print('Executing query: {}'.format(query))
         # generate JSON
         count = 0
         with open(data_file, 'w') as f:
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
             cursor.execute(query)
 
             result = cursor.fetchmany(BULK_SIZE)
@@ -130,10 +131,9 @@ conn = psycopg2.connect(
     f'host={PG_HOST} port={PG_PORT} dbname={PG_DB} user={PG_USER} \
     password={PG_PASSWORD}')
 print('Postgres connection:', conn)
-cur = conn.cursor(cursor_factory=RealDictCursor)
 
 # export data from postgres to a json file
-export_data_to_json(cur, QUERY, DATA_FILE)
+export_data_to_json(conn, QUERY, DATA_FILE)
 
 # import data from json to elasticsearch
 import_data_to_es(client, DATA_FILE)
