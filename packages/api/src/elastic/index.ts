@@ -302,11 +302,59 @@ export const updatePage = async (
   }
 }
 
-export const deletePage = async (id: string): Promise<void> => {
+export const deletePage = async (id: string): Promise<boolean> => {
   try {
-    await client.delete({
+    const { body } = await client.delete({
       index: INDEX_ALIAS,
       id,
+      refresh: true,
+    })
+
+    return body.deleted > 0
+  } catch (e) {
+    console.error('failed to delete a page in elastic', e)
+    return false
+  }
+}
+
+export const deleteLabelInPages = async (
+  userId: string,
+  label: string
+): Promise<void> => {
+  try {
+    await client.updateByQuery({
+      index: INDEX_ALIAS,
+      body: {
+        script: {
+          source:
+            'ctx._source.labels.removeIf(label -> label.name == params.label)',
+          lang: 'painless',
+          params: {
+            label: label,
+          },
+        },
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                nested: {
+                  path: 'labels',
+                  query: {
+                    term: {
+                      'labels.name': label,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
       refresh: true,
     })
   } catch (e) {

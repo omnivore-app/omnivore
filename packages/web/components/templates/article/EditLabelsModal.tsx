@@ -26,7 +26,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
   const { labels } = useGetLabelsQuery()
 
   const saveAndExit = useCallback(async () => {
-    const result = await setLabelsMutation(props.article.linkId, selectedLabels)
+    const result = await setLabelsMutation(props.article.id, selectedLabels)
     console.log('result of setting labels', result)
     props.onOpenChange(false)
     props.setLabels(selectedLabels)

@@ -6,6 +6,7 @@ import { Page } from '../src/elastic/types'
 import { PageType } from '../src/generated/graphql'
 import { createPage } from '../src/elastic'
 import { User } from '../src/entity/user'
+import { Label } from '../src/entity/label'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)
@@ -33,7 +34,10 @@ export const generateFakeUuid = () => {
   return v4()
 }
 
-export const createTestElasticPage = async (user: User): Promise<Page> => {
+export const createTestElasticPage = async (
+  user: User,
+  labels?: Label[]
+): Promise<Page> => {
   const page: Page = {
     id: '',
     hash: 'test hash',
@@ -44,6 +48,7 @@ export const createTestElasticPage = async (user: User): Promise<Page> => {
     createdAt: new Date(),
     url: 'https://example.com/test-url',
     slug: 'test-with-omnivore',
+    labels: labels,
   }
   const pageId = await createPage(page)
   if (pageId) {

@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
 export async function setLabelsMutation(
-  linkId: string,
+  pageId: string,
   labelIds: string[]
 ): Promise<any | undefined> {
   const mutation = gql`
@@ -21,7 +21,7 @@ export async function setLabelsMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation, { input: { linkId, labelIds } })
+    const data = await gqlFetcher(mutation, { input: { pageId, labelIds } })
     console.log(data)
     return data
   } catch (error) {
