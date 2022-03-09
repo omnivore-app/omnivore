@@ -7,16 +7,16 @@ import {
   CreateHighlightError,
   CreateHighlightErrorCode,
   CreateHighlightSuccess,
-  MergeHighlightError,
-  MergeHighlightErrorCode,
-  MergeHighlightSuccess,
   DeleteHighlightError,
   DeleteHighlightErrorCode,
   DeleteHighlightSuccess,
   Highlight,
+  MergeHighlightError,
+  MergeHighlightErrorCode,
+  MergeHighlightSuccess,
   MutationCreateHighlightArgs,
-  MutationMergeHighlightArgs,
   MutationDeleteHighlightArgs,
+  MutationMergeHighlightArgs,
   MutationSetShareHighlightArgs,
   MutationUpdateHighlightArgs,
   SetShareHighlightError,
@@ -30,6 +30,7 @@ import {
 import { HighlightData } from '../../datalayer/highlight/model'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
+import { getPageById } from '../../elastic'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
@@ -47,7 +48,13 @@ export const createHighlightResolver = authorized<
   MutationCreateHighlightArgs
 >(async (_, { input }, { models, claims, log }) => {
   const { articleId } = input
-  const article = await models.article.get(articleId)
+  const article = await getPageById(articleId)
+
+  if (!article) {
+    return {
+      errorCodes: [CreateHighlightErrorCode.NotFound],
+    }
+  }
 
   analytics.track({
     userId: claims.uid,
@@ -58,12 +65,6 @@ export const createHighlightResolver = authorized<
     },
   })
 
-  if (!article.id) {
-    return {
-      errorCodes: [CreateHighlightErrorCode.NotFound],
-    }
-  }
-
   if (input.annotation && input.annotation.length > 4000) {
     return {
       errorCodes: [CreateHighlightErrorCode.BadData],
@@ -73,7 +74,9 @@ export const createHighlightResolver = authorized<
   try {
     const highlight = await models.highlight.create({
       ...input,
+      articleId: undefined,
       userId: claims.uid,
+      elasticPageId: article.id,
     })
 
     log.info('Creating a new highlight', {
@@ -86,7 +89,8 @@ export const createHighlightResolver = authorized<
     })
 
     return { highlight: highlightDataToHighlight(highlight) }
-  } catch {
+  } catch (err) {
+    log.error('Error creating highlight', err)
     return {
       errorCodes: [CreateHighlightErrorCode.AlreadyExists],
     }
@@ -129,6 +133,7 @@ export const mergeHighlightResolver = authorized<
         ...newHighlightInput,
         annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
         userId: claims.uid,
+        elasticPageId: newHighlightInput.articleId,
       })
     })
     if (!highlight) {

@@ -445,23 +445,14 @@ export const functionResolvers = {
     },
   },
   ArticleSavingRequest: {
-    async article(
-      request: { userId: string; articleId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const page = await getPageByParam(request.userId, {
+    async article(request: { userId: string; articleId: string }, __: unknown) {
+      return getPageByParam(request.userId, {
         _id: request.articleId,
       })
-      return page
     },
   },
   Highlight: {
-    async article(
-      highlight: { articleId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
+    async article(highlight: { articleId: string }, __: unknown) {
       return getPageById(highlight.articleId)
     },
     async user(

@@ -62,7 +62,7 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
 
       const result = await this.kx(Table.HIGHLIGHT)
         .select(modelKeys)
-        .whereIn('articleId', articleIds)
+        .whereIn('elasticPageId', articleIds)
         .andWhere('deleted', false)
         .orderBy(`${Table.HIGHLIGHT}.created_at`, 'desc')
         .limit(MAX_RECORDS_LIMIT)
@@ -79,7 +79,7 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
           )
 
           highlights.forEach((highlight) => {
-            const index = positions[highlight.articleId]
+            const index = positions[highlight.elasticPageId]
             result[index].push({
               ...highlight,
               updatedAt: highlight.updatedAt || highlight.createdAt,

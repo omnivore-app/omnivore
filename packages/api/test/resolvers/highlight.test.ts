@@ -1,5 +1,10 @@
 import { createTestUser, deleteTestUser } from '../db'
-import { createTestElasticPage, graphqlRequest, request } from '../util'
+import {
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import 'mocha'
@@ -71,8 +76,8 @@ describe('Highlights API', () => {
 
   context('createHighlightMutation', () => {
     it('should not fail', async () => {
-      const highlightId = '_highlight_id'
-      const shortHighlightId = '_short_highlight_id'
+      const highlightId = generateFakeUuid()
+      const shortHighlightId = '_short_id'
       const query = createHighlightQuery(
         authToken,
         pageId,
@@ -81,7 +86,6 @@ describe('Highlights API', () => {
       )
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      console.log(res.body.data)
       expect(res.body.data.createHighlight.highlight.id).to.eq(highlightId)
     })
   })

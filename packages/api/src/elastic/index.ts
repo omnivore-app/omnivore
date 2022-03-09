@@ -270,7 +270,6 @@ export const createPage = async (data: Page): Promise<string | undefined> => {
       id: data.id || undefined,
       index: INDEX_NAME,
       body: data,
-      refresh: true,
     })
 
     return body._id as string
@@ -291,7 +290,6 @@ export const updatePage = async (
       body: {
         doc: data,
       },
-      refresh: true,
     })
 
     return body.result == 'updated'
