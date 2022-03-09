@@ -1,17 +1,11 @@
 import { createTestUser, deleteTestUser } from '../db'
-import {
-  createTestElasticPage,
-  graphqlRequest,
-  request,
-} from '../util'
+import { createTestElasticPage, graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import {
-  deletePage,
-} from '../../src/elastic'
+import { deletePage } from '../../src/elastic'
 
 chai.use(chaiString)
 
@@ -20,10 +14,10 @@ const createHighlightQuery = (
   linkId: string,
   highlightId: string,
   shortHighlightId: string,
-  prefix = "_prefix",
-  suffix = "_suffix",
-  quote = "_quote",
-  patch = "_patch",
+  prefix = '_prefix',
+  suffix = '_suffix',
+  quote = '_quote',
+  patch = '_patch'
 ) => {
   return `
   mutation {
@@ -51,7 +45,6 @@ const createHighlightQuery = (
   `
 }
 
-
 describe('Highlights API', () => {
   const username = 'fakeUser'
   let authToken: string
@@ -78,14 +71,18 @@ describe('Highlights API', () => {
 
   context('createHighlightMutation', () => {
     it('should not fail', async () => {
-      const highlightId = "_highlight_id"
-      const shortHighlightId = "_short_highlight_id"
-      const query = createHighlightQuery(authToken, pageId, highlightId, shortHighlightId)
+      const highlightId = '_highlight_id'
+      const shortHighlightId = '_short_highlight_id'
+      const query = createHighlightQuery(
+        authToken,
+        pageId,
+        highlightId,
+        shortHighlightId
+      )
       const res = await graphqlRequest(query, authToken).expect(200)
 
       console.log(res.body.data)
-      expect(res.body.data.createHighlight.highlight.id
-      ).to.eq(highlightId)
+      expect(res.body.data.createHighlight.highlight.id).to.eq(highlightId)
     })
   })
 })

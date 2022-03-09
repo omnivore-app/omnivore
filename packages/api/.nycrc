@@ -3,14 +3,14 @@
   "check-coverage": true,
   "all": true,
   "include": [
-    "src/**/!(*.test.*).[tj]s?(x)"
+    "src/resolvers/**/index.ts",
+    "src/elastic/index.ts"
   ],
   "reporter": [
-    "text-summary"
+    "text"
   ],
-  "report-dir": "coverage",
-  "branches": "&gt;80",
-  "lines": "&gt;80",
-  "functions": "&gt;80",
-  "statements": "&gt;80"
+  "branches": 80,
+  "lines": 80,
+  "functions": 80,
+  "statements": 80
 }
