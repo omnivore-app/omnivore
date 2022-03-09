@@ -23,12 +23,7 @@ import {
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
 import DataLoader from 'dataloader'
 import { ArticleData } from '../article/model'
-import {
-  InFilter,
-  LabelFilter,
-  LabelFilterType,
-  ReadFilter,
-} from '../../utils/search'
+import { InFilter, LabelFilter, ReadFilter } from '../../utils/search'
 
 type PartialArticle = Omit<
   Article,
@@ -446,30 +441,6 @@ class UserArticleModel extends DataModel<
           queryPromise.whereNotNull('links.archivedAt')
           break
       }
-    }
-
-    // search by labels using lowercase
-    if (args.labelFilters.length > 0) {
-      // combine all label filters into one query
-      args.labelFilters.forEach((labelFilter) => {
-        // create a sub query to get the ids of the articles that have the label
-        const subQuery = tx(Table.LINK_LABELS)
-          .select('link_id')
-          .innerJoin(Table.LABELS, 'labels.id', 'link_labels.label_id')
-          .whereRaw('LOWER(omnivore.labels.name) = ANY (?)', [
-            labelFilter.labels,
-          ])
-
-        // filter by include/exclude the result of sub query
-        switch (labelFilter.type) {
-          case LabelFilterType.INCLUDE:
-            queryPromise.whereIn('links.id', subQuery)
-            break
-          case LabelFilterType.EXCLUDE:
-            queryPromise.whereNotIn('links.id', subQuery)
-            break
-        }
-      })
     }
 
     if (notNullField) {
