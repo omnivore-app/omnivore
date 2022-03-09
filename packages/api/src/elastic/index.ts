@@ -13,6 +13,7 @@ import {
 import { Page, ParamSet, SearchBody, SearchResponse } from './types'
 
 const INDEX_NAME = 'pages'
+const INDEX_ALIAS = 'pages_alias'
 const client = new Client({
   node: env.elastic.url,
   maxRetries: 3,
@@ -268,8 +269,9 @@ export const createPage = async (data: Page): Promise<string | undefined> => {
   try {
     const { body } = await client.index({
       id: data.id || undefined,
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
       body: data,
+      refresh: true,
     })
 
     return body._id as string
@@ -285,11 +287,12 @@ export const updatePage = async (
 ): Promise<boolean> => {
   try {
     const { body } = await client.update({
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
       id,
       body: {
         doc: data,
       },
+      refresh: true,
     })
 
     return body.result == 'updated'
@@ -302,8 +305,9 @@ export const updatePage = async (
 export const deletePage = async (id: string): Promise<void> => {
   try {
     await client.delete({
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
       id,
+      refresh: true,
     })
   } catch (e) {
     console.error('failed to delete a page in elastic', e)
@@ -316,7 +320,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
 ): Promise<Page | undefined> => {
   try {
     const { body } = await client.search({
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
       body: {
         query: {
           bool: {
@@ -352,7 +356,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
 export const getPageById = async (id: string): Promise<Page | undefined> => {
   try {
     const { body } = await client.get({
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
       id,
     })
 
@@ -456,7 +460,7 @@ export const searchPages = async (
     console.log('searching pages in elastic', JSON.stringify(body))
 
     const response = await client.search<SearchResponse<Page>, SearchBody>({
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
       body,
     })
 
@@ -484,13 +488,13 @@ export const initElasticsearch = async (): Promise<void> => {
 
     // check if index exists
     const { body: indexExists } = await client.indices.exists({
-      index: INDEX_NAME,
+      index: INDEX_ALIAS,
     })
     if (!indexExists) {
       console.log('ingesting index...')
       await ingest()
 
-      await client.indices.refresh({ index: INDEX_NAME })
+      await client.indices.refresh({ index: INDEX_ALIAS })
     }
     console.log('elastic client is ready')
   } catch (e) {
