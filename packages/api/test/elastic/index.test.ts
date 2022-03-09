@@ -91,7 +91,10 @@ describe('elastic api', () => {
 
   describe('getPageByParam', () => {
     it('gets a page by url', async () => {
-      const pageFound = await getPageByParam(page.userId, { url: page.url })
+      const pageFound = await getPageByParam({
+        userId: page.userId,
+        url: page.url,
+      })
 
       expect(pageFound).not.undefined
     })

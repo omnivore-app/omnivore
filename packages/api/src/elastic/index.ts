@@ -363,7 +363,6 @@ export const deleteLabelInPages = async (
 }
 
 export const getPageByParam = async <K extends keyof ParamSet>(
-  userId: string,
   param: Record<K, Page[K]>
 ): Promise<Page | undefined> => {
   try {
@@ -372,16 +371,13 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       body: {
         query: {
           bool: {
-            filter: [
-              {
+            filter: Object.keys(param).map((key) => {
+              return {
                 term: {
-                  userId,
+                  [key]: param[key as K],
                 },
-              },
-              {
-                term: param,
-              },
-            ],
+              }
+            }),
           },
         },
       },
@@ -396,7 +392,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.error('failed to search pages in elastic', e)
+    console.log('failed to search pages in elastic', e)
     return undefined
   }
 }

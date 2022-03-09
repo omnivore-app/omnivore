@@ -152,6 +152,6 @@ export interface Page {
   _id?: string
 }
 
-const keys = ['_id', 'url', 'slug'] as const
+const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
