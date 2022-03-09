@@ -50,9 +50,6 @@ export const Button = styled('button', {
         '@md': {
           bg: 'rgb(125, 125, 125, 0.1)',
         },
-        '@xsmDown': {
-          visibility: 'collapse',
-        },
         '.ctaButtonIcon': {
           visibility: 'hidden',
         }
