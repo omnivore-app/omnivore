@@ -12,6 +12,7 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
   var cursor: String?
+  var sendProgressUpdates = false
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -160,7 +161,7 @@ final class HomeFeedViewModel: ObservableObject {
   }
 
   func updateProgress(itemID: String, progress: Double) {
-    guard let item = items.first(where: { $0.id == itemID }) else { return }
+    guard sendProgressUpdates, let item = items.first(where: { $0.id == itemID }) else { return }
     if let index = items.firstIndex(of: item) {
       items[index].readingProgress = progress
     }
