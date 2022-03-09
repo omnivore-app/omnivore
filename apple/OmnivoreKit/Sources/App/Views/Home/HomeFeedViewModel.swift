@@ -158,4 +158,11 @@ final class HomeFeedViewModel: ObservableObject {
     )
     .store(in: &subscriptions)
   }
+
+  func updateProgress(itemID: String, progress: Double) {
+    guard let item = items.first(where: { $0.id == itemID }) else { return }
+    if let index = items.firstIndex(of: item) {
+      items[index].readingProgress = progress
+    }
+  }
 }

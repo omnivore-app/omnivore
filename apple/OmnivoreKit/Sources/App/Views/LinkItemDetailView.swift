@@ -92,7 +92,7 @@ final class LinkItemDetailViewModel: ObservableObject {
       case let .shareHighlight(highlightID):
         print("show share modal for highlight with id: \(highlightID)")
       case let .updateReadingProgess(progress: progress):
-        self?.item.readingProgress = Double(progress)
+        self?.homeFeedViewModel.updateProgress(itemID: self?.item.id ?? "", progress: Double(progress))
       }
     }
     .store(in: &newWebAppWrapperViewModel.subscriptions)
