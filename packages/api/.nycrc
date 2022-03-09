@@ -3,8 +3,7 @@
   "check-coverage": true,
   "all": true,
   "include": [
-    "src/resolvers/**/index.ts",
-    "src/elastic/index.ts"
+    "src/**/*.ts"
   ],
   "reporter": [
     "text"
