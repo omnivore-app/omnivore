@@ -44,8 +44,10 @@ extension WebAppViewCoordinator: WKNavigationDelegate {
   }
 
   func webView(_ webView: WKWebView, didFinish _: WKNavigation!) {
-    webView.isOpaque = true
-    webView.backgroundColor = .systemBackground
+    #if os(iOS)
+      webView.isOpaque = true
+      webView.backgroundColor = .systemBackground
+    #endif
   }
 }
 

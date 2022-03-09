@@ -22,9 +22,18 @@ public extension Color {
     static var systemBackground: Color { Color(.systemBackground) }
     static var systemPlaceholder: Color { Color(.placeholderText) }
     static var secondarySystemGroupedBackground: Color { Color(.secondarySystemGroupedBackground) }
+    static var systemLabel: Color {
+      if #available(iOS 15.0, *) {
+        return Color(uiColor: .label)
+      } else {
+        return Color.appGrayTextContrast
+      }
+    }
+
   #elseif os(macOS)
     static var systemBackground: Color { Color(.windowBackgroundColor) }
     static var systemPlaceholder: Color { Color(.placeholderTextColor) }
+    static var systemLabel: Color { Color(.labelColor) }
 
     // Just for compilation. secondarySystemGroupedBackground shouldn't be used on macOS
     static var secondarySystemGroupedBackground: Color { Color(.windowBackgroundColor) }
