@@ -19,7 +19,7 @@ export const useFetchMoreScroll = (
 }
 
 const useFetchMoreInternal = (node: HTMLDivElement | null, callback: () => void, delay = 500): void => {
-  let first = false
+  const [first, setFirst] = useState(true)
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const useFetchMoreInternal = (node: HTMLDivElement | null, callback: () => void,
 
     const handleScroll = () => {
       if (first) {
-        first = false
+        setFirst(false)
         callbackInternal()
         return
       }
@@ -56,5 +56,5 @@ const useFetchMoreInternal = (node: HTMLDivElement | null, callback: () => void,
     return () => {
       node.removeEventListener('scroll', handleScroll)
     }
-  }, [node, callback, delay])
+  }, [node, callback, delay, first, setFirst])
 }
