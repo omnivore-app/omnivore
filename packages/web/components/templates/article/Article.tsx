@@ -36,27 +36,39 @@ export function Article(props: ArticleProps): JSX.Element {
     props.initialAnchorIndex
   )
 
-  const [
-    shouldScrollToInitialPosition,
-    setShouldScrollToInitialPosition,
-  ] = useState(true)
+  const [shouldScrollToInitialPosition, setShouldScrollToInitialPosition] =
+    useState(true)
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
   useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
 
-  const debouncedReadingProgress = useDebounce(readingProgress, 1000);
-  const debouncedReadingAnchorIndex = useDebounce(readingAnchorIndex, 1000);
+  const debouncedReadingProgress = useDebounce(readingProgress, 1000)
+  const debouncedReadingAnchorIndex = useDebounce(readingAnchorIndex, 1000)
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       await articleReadingProgressMutation({
         id: props.articleId,
-        readingProgressPercent: readingProgress,
+        readingProgressPercent: debouncedReadingProgress,
         readingProgressAnchorIndex: readingAnchorIndex,
       })
     })()
-  }, [props.articleId, debouncedReadingProgress, debouncedReadingAnchorIndex])
+  }, [
+    props.articleId,
+    debouncedReadingProgress,
+    debouncedReadingAnchorIndex,
+    readingAnchorIndex,
+  ])
+
+  // Post message to webkit so apple app embeds get progress updates
+  useEffect(() => {
+    if (typeof window?.webkit != 'undefined') {
+      window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
+        progress: debouncedReadingProgress,
+      })
+    }
+  }, [readingProgress, debouncedReadingProgress])
 
   const setScrollWatchedElement = useScrollWatcher(
     (changeset: ScrollOffsetChangeset) => {
@@ -67,6 +79,12 @@ export function Article(props: ArticleProps): JSX.Element {
           scrollContainer.scrollHeight
 
         setReadingProgress(newReadingProgress * 100)
+      } else if (window && window.document.scrollingElement) {
+        const newReadingProgress =
+          window.scrollY / window.document.scrollingElement.scrollHeight
+        const adjustedReadingProgress =
+          newReadingProgress > 0.92 ? 1 : newReadingProgress
+        setReadingProgress(adjustedReadingProgress * 100)
       }
     },
     1000
@@ -182,16 +200,19 @@ export function Article(props: ArticleProps): JSX.Element {
 
   return (
     <>
-      <link rel="stylesheet" href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/${highlightTheme}.min.css`} />
+      <link
+        rel="stylesheet"
+        href={`https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/${highlightTheme}.min.css`}
+      />
       <Box
-      ref={articleContentRef}
-      css={{
-        maxWidth: '100%',
-      }}
-      className="article-inner-css"
-      dangerouslySetInnerHTML={{
-        __html: props.content,
-      }}
+        ref={articleContentRef}
+        css={{
+          maxWidth: '100%',
+        }}
+        className="article-inner-css"
+        dangerouslySetInnerHTML={{
+          __html: props.content,
+        }}
       />
     </>
   )

@@ -1,6 +1,12 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
-import { ReactNode, MutableRefObject, useEffect, useContext, useState } from 'react'
+import {
+  ReactNode,
+  MutableRefObject,
+  useEffect,
+  useContext,
+  useState,
+} from 'react'
 import { PrimaryHeader } from './../patterns/PrimaryHeader'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -10,7 +16,6 @@ import { Analytics } from '@segment/analytics-next'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
-
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -25,7 +30,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
-  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] = useState(false)
+  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
+    useState(false)
 
   useKeyboardShortcuts(navigationCommands(router))
 

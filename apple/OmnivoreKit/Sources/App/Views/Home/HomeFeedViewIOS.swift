@@ -270,6 +270,9 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
+      .onAppear {
+        viewModel.sendProgressUpdates = false
+      }
     }
   }
 
@@ -346,6 +349,9 @@ import Views
         if viewModel.items.isEmpty, viewModel.isLoading {
           LoadingSection()
         }
+      }
+      .onAppear {
+        viewModel.sendProgressUpdates = true
       }
     }
   }
