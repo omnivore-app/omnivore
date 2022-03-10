@@ -15,7 +15,7 @@ export const createPubSubClient = (): PubsubClient => {
     console.log(`Publishing ${topicName}`, msg)
     return client
       .topic(topicName)
-      .publish(msg)
+      .publishMessage({ data: msg })
       .catch((err) => {
         console.error(`[PubSub] error: ${topicName}`, err)
       })
