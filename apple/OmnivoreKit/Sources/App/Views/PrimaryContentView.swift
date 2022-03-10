@@ -43,8 +43,6 @@ public struct PrimaryContentView: View {
       NavigationView {
         // The first column is the sidebar.
         PrimaryContentSidebar(categories: categories)
-          .navigationTitle("")
-          .navigationBarTitleDisplayMode(.inline)
 
         // Second column is the Primary Nav Stack
         PrimaryContentCategory.feed.destinationView

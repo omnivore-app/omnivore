@@ -121,20 +121,22 @@ public struct GridCard: View {
       .padding(.horizontal)
 
       // Link description and image
-      HStack(alignment: .top) {
-        Text(item.description ?? item.title)
-          .font(.appFootnote)
-          .foregroundColor(.appGrayTextContrast)
-          .lineLimit(nil)
-          .multilineTextAlignment(.leading)
+      GeometryReader { geo in
+        HStack(alignment: .top) {
+          Text(item.description ?? item.title)
+            .font(.appFootnote)
+            .foregroundColor(.appGrayTextContrast)
+            .lineLimit(nil)
+            .multilineTextAlignment(.leading)
 
-        Spacer()
+          Spacer()
 
-        if let imageURL = item.imageURL {
-          AsyncImage(url: imageURL, isResizable: true)
-            .aspectRatio(1, contentMode: .fill)
-            .frame(width: 135, height: 90)
-            .cornerRadius(3)
+          if let imageURL = item.imageURL {
+            AsyncImage(url: imageURL, isResizable: true)
+              .aspectRatio(1, contentMode: .fill)
+              .frame(width: min(geo.size.width / 3, 135), height: min((geo.size.width * 2) / 9, 90))
+              .cornerRadius(3)
+          }
         }
       }
       .frame(height: 95)
