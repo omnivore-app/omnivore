@@ -44,7 +44,7 @@ export function Article(props: ArticleProps): JSX.Element {
   const debouncedReadingProgress = useDebounce(readingProgress, 1000);
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       if (!debouncedReadingProgress) return
       await articleReadingProgressMutation({
         id: props.articleId,
