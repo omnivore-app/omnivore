@@ -66,6 +66,7 @@ struct GridCardNavigationLink: View {
           viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
         }
     }
+    .aspectRatio(2.1, contentMode: .fill)
     .scaleEffect(scale)
   }
 }

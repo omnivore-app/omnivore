@@ -24,8 +24,8 @@ struct HomeView: View {
         }
         .accentColor(.appGrayTextContrast)
       } else {
-        GeometryReader { geo in
-          HomeFeedContainerView(isCompact: geo.size.width < 500, viewModel: viewModel)
+        GeometryReader { _ in
+          HomeFeedContainerView(isCompact: UIDevice.isIPhone, viewModel: viewModel)
         }
       }
     #elseif os(macOS)

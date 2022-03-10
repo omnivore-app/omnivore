@@ -4,40 +4,60 @@ import SwiftUI
 import Views
 
 public struct PrimaryContentView: View {
+  let categories = [
+    PrimaryContentCategory.feed,
+    PrimaryContentCategory.profile
+  ]
+
   public var body: some View {
     #if os(iOS)
       if UIDevice.isIPad {
-        regularView
+        splitView
       } else {
         HomeView()
       }
     #elseif os(macOS)
-      regularView
+      splitView
     #endif
   }
 
-  // ipad and mac view container
-  private var regularView: some View {
-    let categories = [
-      PrimaryContentCategory.feed,
-      PrimaryContentCategory.profile
-    ]
+  #if os(macOS)
+    private var splitView: some View {
+      NavigationView {
+        // The first column is the sidebar.
+        PrimaryContentSidebar(categories: categories)
+          .navigationTitle("Categories")
 
-    return NavigationView {
-      // The first column is the sidebar.
-      PrimaryContentSidebar(categories: categories)
-        .navigationTitle("Categories")
+        // Second column is the Primary Nav Stack
+        PrimaryContentCategory.feed.destinationView
 
-      // Second column is the Primary Nav Stack
-      PrimaryContentCategory.feed.destinationView
-
-      // Add a third column for macOS only
-      #if os(macOS)
+        // Third column is the detail view
         Text("Select a link from the feed")
-      #endif
+      }
+      .accentColor(.appGrayTextContrast)
     }
-    .accentColor(.appGrayTextContrast)
-  }
+  #endif
+
+  #if os(iOS)
+    private var splitView: some View {
+      NavigationView {
+        // The first column is the sidebar.
+        PrimaryContentSidebar(categories: categories)
+
+        // Second column is the Primary Nav Stack
+        PrimaryContentCategory.feed.destinationView
+      }
+      .accentColor(.appGrayTextContrast)
+      .introspectSplitViewController {
+        $0.preferredSplitBehavior = .tile
+        $0.preferredPrimaryColumnWidth = 200
+        if #available(iOS 14.5, *) {
+          $0.presentsWithGesture = false
+          $0.displayModeButtonVisibility = .always
+        }
+      }
+    }
+  #endif
 }
 
 struct PrimaryContentSidebar: View {
