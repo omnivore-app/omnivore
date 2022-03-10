@@ -186,6 +186,7 @@ struct LinkItemDetailView: View {
     }
   }
 
+  @available(macOS 12.0, *)
   @available(iOS 15.0, *)
   var navBar: some View {
     HStack(alignment: .center) {
