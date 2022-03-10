@@ -10,18 +10,23 @@ enum PDFProvider {
 }
 
 final class LinkItemDetailViewModel: ObservableObject {
+  let homeFeedViewModel: HomeFeedViewModel
   @Published var item: FeedItem
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
-  enum Action {
-    case load
-    case updateReadStatus(markAsRead: Bool)
-  }
-
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: FeedItem) {
+  init(item: FeedItem, homeFeedViewModel: HomeFeedViewModel) {
     self.item = item
+    self.homeFeedViewModel = homeFeedViewModel
+  }
+
+  func handleArchiveAction(dataService: DataService) {
+    homeFeedViewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+  }
+
+  func handleDeleteAction(dataService: DataService) {
+    homeFeedViewModel.removeLink(dataService: dataService, linkId: item.id)
   }
 
   func updateItemReadStatus(dataService: DataService) {
@@ -82,10 +87,12 @@ final class LinkItemDetailViewModel: ObservableObject {
       rawAuthCookie: rawAuthCookie
     )
 
-    newWebAppWrapperViewModel.performActionSubject.sink { action in
+    newWebAppWrapperViewModel.performActionSubject.sink { [weak self] action in
       switch action {
       case let .shareHighlight(highlightID):
         print("show share modal for highlight with id: \(highlightID)")
+      case let .updateReadingProgess(progress: progress):
+        self?.homeFeedViewModel.updateProgress(itemID: self?.item.id ?? "", progress: Double(progress))
       }
     }
     .store(in: &newWebAppWrapperViewModel.subscriptions)
@@ -103,6 +110,7 @@ struct LinkItemDetailView: View {
   @ObservedObject private var viewModel: LinkItemDetailViewModel
   @State private var showFontSizePopover = false
   @State private var navBarVisibilityRatio = 1.0
+  @State private var showDeleteConfirmation = false
 
   init(viewModel: LinkItemDetailViewModel) {
     self.viewModel = viewModel
@@ -147,6 +155,38 @@ struct LinkItemDetailView: View {
     #endif
   }
 
+  var navBariOS14: some View {
+    HStack(alignment: .center) {
+      Button(
+        action: { self.presentationMode.wrappedValue.dismiss() },
+        label: {
+          Image(systemName: "chevron.backward")
+            .font(.appTitleTwo)
+            .foregroundColor(.appGrayTextContrast)
+            .padding(.horizontal)
+        }
+      )
+      .scaleEffect(navBarVisibilityRatio)
+      Spacer()
+      Button(
+        action: { showFontSizePopover.toggle() },
+        label: {
+          Image(systemName: "textformat.size")
+            .font(.appTitleTwo)
+        }
+      )
+      .padding(.horizontal)
+      .scaleEffect(navBarVisibilityRatio)
+    }
+    .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
+    .opacity(navBarVisibilityRatio)
+    .background(Color.systemBackground)
+    .onTapGesture {
+      showFontSizePopover = false
+    }
+  }
+
+  @available(iOS 15.0, *)
   var navBar: some View {
     HStack(alignment: .center) {
       Button(
@@ -169,31 +209,43 @@ struct LinkItemDetailView: View {
       )
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
-      if FeatureFlag.showLinkOptionsOnReaderView {
-        Menu(
-          content: {
-            Group {
-              Button(
-                action: {},
-                label: { Label("Archive", systemImage: "archivebox") }
-              )
-              Button(
-                action: {},
-                label: { Label("Delete Link", systemImage: "trash") }
-              )
-            }
-          },
-          label: {
-            Image.profile
-              .padding(.horizontal)
-              .scaleEffect(navBarVisibilityRatio)
+      Menu(
+        content: {
+          Group {
+            Button(
+              action: { viewModel.handleArchiveAction(dataService: dataService) },
+              label: {
+                Label(
+                  viewModel.item.isArchived ? "Unarchive" : "Archive",
+                  systemImage: viewModel.item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                )
+              }
+            )
+            Button(
+              action: { showDeleteConfirmation = true },
+              label: { Label("Delete", systemImage: "trash") }
+            )
           }
-        )
-      }
+        },
+        label: {
+          Image.profile
+            .padding(.horizontal)
+            .scaleEffect(navBarVisibilityRatio)
+        }
+      )
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
     .background(Color.systemBackground)
+    .onTapGesture {
+      showFontSizePopover = false
+    }
+    .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
+      Button("Remove Link", role: .destructive) {
+        viewModel.handleDeleteAction(dataService: dataService)
+      }
+      Button("Cancel", role: .cancel, action: {})
+    }
   }
 
   #if os(iOS)
@@ -219,7 +271,7 @@ struct LinkItemDetailView: View {
                 fontAdjustmentPopoverView
                   .background(Color.appButtonBackground)
                   .cornerRadius(8)
-                  .padding(.trailing, 5)
+                  .padding(.trailing, 44)
               }
               Spacer()
             }
@@ -231,24 +283,47 @@ struct LinkItemDetailView: View {
                 }
             )
           }
+          if #available(iOS 15.0, *) {
+            VStack(spacing: 0) {
+              navBar
+              Spacer()
+            }
+            .navigationBarHidden(true)
+          } else {
+            VStack(spacing: 0) {
+              navBariOS14
+              Spacer()
+            }
+            .navigationBarHidden(true)
+          }
+        }
+
+      } else {
+        if #available(iOS 15.0, *) {
           VStack(spacing: 0) {
             navBar
             Spacer()
           }
+          .onAppear {
+            viewModel.loadWebAppWrapper(
+              dataService: dataService,
+              rawAuthCookie: authenticator.omnivoreAuthCookieString
+            )
+          }
+          .navigationBarHidden(true)
+        } else {
+          VStack(spacing: 0) {
+            navBariOS14
+            Spacer()
+          }
+          .onAppear {
+            viewModel.loadWebAppWrapper(
+              dataService: dataService,
+              rawAuthCookie: authenticator.omnivoreAuthCookieString
+            )
+          }
+          .navigationBarHidden(true)
         }
-        .navigationBarHidden(true)
-      } else {
-        VStack(spacing: 0) {
-          navBar
-          Spacer()
-        }
-        .onAppear {
-          viewModel.loadWebAppWrapper(
-            dataService: dataService,
-            rawAuthCookie: authenticator.omnivoreAuthCookieString
-          )
-        }
-        .navigationBarHidden(true)
       }
     }
   #endif

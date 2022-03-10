@@ -15,7 +15,7 @@ struct FeedCardNavigationLink: View {
 
   var body: some View {
     NavigationLink(
-      destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
+      destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
       tag: item,
       selection: $selectedLinkItem
     ) {
@@ -48,7 +48,7 @@ struct GridCardNavigationLink: View {
   var body: some View {
     ZStack {
       NavigationLink(
-        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item)),
+        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
         isActive: $isActive
       ) {
         EmptyView()

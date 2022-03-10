@@ -10,7 +10,6 @@ import { MutableRefObject, useEffect, useState } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
-import Head from 'next/head'
 import { articleKeyboardCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { ShareArticleModal } from './ShareArticleModal'
@@ -19,6 +18,7 @@ import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
 import Script from 'next/script'
+import { useRouter } from 'next/router'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -33,6 +33,7 @@ type ArticleContainerProps = {
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
+  const router = useRouter()
   const [showShareModal, setShowShareModal] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
@@ -48,7 +49,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   }
 
   useKeyboardShortcuts(
-    articleKeyboardCommands(async (action) => {
+    articleKeyboardCommands(router, async (action) => {
       switch (action) {
         case 'openOriginalArticle':
           const url = props.article.url

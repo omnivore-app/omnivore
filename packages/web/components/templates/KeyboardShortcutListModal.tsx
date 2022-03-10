@@ -18,6 +18,7 @@ import {
   highlightBarKeyboardCommands,
   articleKeyboardCommands,
 } from '../../lib/keyboardShortcuts/navigationShortcuts'
+import { useRouter } from 'next/router'
 
 type KeyboardShortcutListModalProps = {
   onOpenChange: (open: boolean) => void
@@ -26,6 +27,8 @@ type KeyboardShortcutListModalProps = {
 export function KeyboardShortcutListModal(
   props: KeyboardShortcutListModalProps
 ): JSX.Element {
+  const router = useRouter()
+
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
@@ -71,7 +74,7 @@ export function KeyboardShortcutListModal(
           />
           <ShortcutListSection
             title="Article"
-            commands={articleKeyboardCommands(() => {})}
+            commands={articleKeyboardCommands(router, () => {})}
           />
           <ShortcutListSection
             title="Highlight Bar"
