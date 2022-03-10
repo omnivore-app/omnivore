@@ -63,12 +63,14 @@ jobs:
         run: |
           source ~/.nvm/nvm.sh
           yarn install --frozen-lockfile
-      - name: TypeScript, Lint, Tests
+      - name: TypeScript, Lint
         run: |
           source ~/.nvm/nvm.sh
           yarn build
           yarn lint
-          yarn test
+      - name: Run tests
+        run: yarn test
+
         env:
           PG_HOST: localhost
           PG_PORT: ${{ job.services.postgres.ports[5432] }}
