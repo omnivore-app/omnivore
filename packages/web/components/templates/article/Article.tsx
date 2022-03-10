@@ -28,9 +28,7 @@ export type ArticleProps = {
 export function Article(props: ArticleProps): JSX.Element {
   const highlightTheme = isDarkTheme() ? 'dark' : 'default'
 
-  const [readingProgress, setReadingProgress] = useState(
-    props.initialReadingProgress || 0
-  )
+  const [readingProgress, setReadingProgress] = useState(props.initialReadingProgress)
 
   const [readingAnchorIndex, setReadingAnchorIndex] = useState(
     props.initialAnchorIndex
@@ -43,21 +41,24 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
 
-  const debouncedReadingProgress = useDebounce(readingProgress, 1000)
-  const debouncedReadingAnchorIndex = useDebounce(readingAnchorIndex, 1000)
+  const debouncedReadingProgress = useDebounce(readingProgress, 1000);
 
   useEffect(() => {
     ;(async () => {
+      if (!debouncedReadingProgress) return
       await articleReadingProgressMutation({
         id: props.articleId,
         readingProgressPercent: debouncedReadingProgress,
         readingProgressAnchorIndex: readingAnchorIndex,
       })
     })()
+
+    // We don't react to changes to readingAnchorIndex we
+    // only care about the progress (scroll position) changed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     props.articleId,
     debouncedReadingProgress,
-    debouncedReadingAnchorIndex,
     readingAnchorIndex,
   ])
 
