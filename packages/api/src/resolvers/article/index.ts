@@ -274,10 +274,6 @@ export const createArticleResolver = authorized<
         siteName: parsedContent?.siteName,
       }
 
-      if (canonicalUrl && domContent) {
-        await ctx.pubsub.pageSaved(uid, canonicalUrl, domContent)
-      }
-
       let archive = false
       if (articleSavingRequestId) {
         const reminder = await models.reminder.getByRequestId(
@@ -353,10 +349,6 @@ export const createArticleResolver = authorized<
         }
         console.log('page created in elastic', articleToSave)
         articleToSave.id = pageId
-
-        if (canonicalUrl && domContent) {
-          await ctx.pubsub.pageCreated(uid, canonicalUrl, domContent)
-        }
       }
 
       const createdArticle: PartialArticle = {

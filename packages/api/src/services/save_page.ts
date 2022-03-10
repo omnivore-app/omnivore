@@ -107,14 +107,6 @@ export const savePage = async (
     createdAt: new Date(),
   }
 
-  if (parseResult.canonicalUrl && parseResult.domContent) {
-    await ctx.pubsub.pageSaved(
-      saver.userId,
-      parseResult.canonicalUrl,
-      parseResult.domContent
-    )
-  }
-
   const existingPage = await getPageByParam({
     userId: saver.userId,
     url: articleToSave.url,
@@ -140,8 +132,6 @@ export const savePage = async (
   } else if (shouldParseInBackend(input)) {
     await createPageSaveRequest(saver.userId, input.url, ctx.models)
   } else {
-    await ctx.pubsub.pageCreated(saver.userId, input.url, input.originalContent)
-
     const pageId = await createPage(articleToSave)
 
     await kx.transaction(async (tx) => {
