@@ -139,12 +139,13 @@ export function libraryListCommands(
       shortcutKeyDescription: 'shift + u',
       callback: () => actionHandler('markItemAsUnread'),
     },
-    {
-      shortcutKeys: ['shift', 's'],
-      actionDescription: 'Open share modal',
-      shortcutKeyDescription: 'shift + s',
-      callback: () => actionHandler('shareItem'),
-    },
+    // Commented out until we re-enable highlight sharing
+    // {
+    //   shortcutKeys: ['shift', 's'],
+    //   actionDescription: 'Open share modal',
+    //   shortcutKeyDescription: 'shift + s',
+    //   callback: () => actionHandler('shareItem'),
+    // },
     {
       shortcutKeys: ['s', 'o'],
       actionDescription: 'Sort item in ascending order',
