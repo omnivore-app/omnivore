@@ -278,9 +278,8 @@ export const createPage = async (
       refresh: true,
     })
 
-    if (ctx && page.url && page.originalHtml) {
-      await ctx.pubsub.pageCreated(page.userId, page.url, page.originalHtml)
-      ctx.log.info('Created page in pubsub', body._id)
+    if (ctx) {
+      await ctx.pubsub.pageCreated(page)
     }
 
     return body._id as string
@@ -307,9 +306,8 @@ export const updatePage = async (
 
     if (body.result !== 'updated') return false
 
-    if (ctx && page.url && page.originalHtml) {
-      await ctx.pubsub.pageSaved(id, page.url, page.originalHtml)
-      ctx.log.info('Saved page in pubsub', id)
+    if (ctx) {
+      await ctx.pubsub.pageSaved(page)
     }
 
     return true
