@@ -56,6 +56,9 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, url, content }))
       )
     },
+    pageDeleted: (id: string): Promise<void> => {
+      return publish('pageDeleted', Buffer.from(JSON.stringify({ id })))
+    },
     reportSubmitted: (
       submitterId: string,
       itemUrl: string,
@@ -81,6 +84,7 @@ export interface PubsubClient {
   ) => Promise<void>
   pageCreated: (userId: string, url: string, content: string) => Promise<void>
   pageSaved: (userId: string, url: string, content: string) => Promise<void>
+  pageDeleted: (id: string) => Promise<void>
   reportSubmitted(
     submitterId: string | undefined,
     itemUrl: string,

@@ -6,10 +6,10 @@
     "src/**/*.ts"
   ],
   "reporter": [
-    "text"
+    "text-summary"
   ],
-  "branches": 0,
-  "lines": 50,
-  "functions": 50,
-  "statements": 0
+  "branches": 80,
+  "lines": 80,
+  "functions": 80,
+  "statements": 80
 }

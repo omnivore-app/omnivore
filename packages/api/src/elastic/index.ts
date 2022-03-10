@@ -11,6 +11,7 @@ import {
   ReadFilter,
 } from '../utils/search'
 import { Page, ParamSet, SearchBody, SearchResponse } from './types'
+import { RequestContext } from '../resolvers/types'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -265,14 +266,22 @@ const appendIncludeLabelFilter = (
   })
 }
 
-export const createPage = async (data: Page): Promise<string | undefined> => {
+export const createPage = async (
+  page: Page,
+  ctx?: RequestContext
+): Promise<string | undefined> => {
   try {
     const { body } = await client.index({
-      id: data.id || undefined,
+      id: page.id || undefined,
       index: INDEX_ALIAS,
-      body: data,
+      body: page,
       refresh: true,
     })
+
+    if (ctx && page.url && page.originalHtml) {
+      await ctx.pubsub.pageCreated(page.userId, page.url, page.originalHtml)
+      ctx.log.info('Created page in pubsub', body._id)
+    }
 
     return body._id as string
   } catch (e) {
@@ -283,26 +292,37 @@ export const createPage = async (data: Page): Promise<string | undefined> => {
 
 export const updatePage = async (
   id: string,
-  data: Partial<Page>
+  page: Partial<Page>,
+  ctx?: RequestContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.update({
       index: INDEX_ALIAS,
       id,
       body: {
-        doc: data,
+        doc: page,
       },
       refresh: true,
     })
 
-    return body.result == 'updated'
+    if (body.result !== 'updated') return false
+
+    if (ctx && page.url && page.originalHtml) {
+      await ctx.pubsub.pageSaved(id, page.url, page.originalHtml)
+      ctx.log.info('Saved page in pubsub', id)
+    }
+
+    return true
   } catch (e) {
     console.error('failed to update a page in elastic', e)
     return false
   }
 }
 
-export const deletePage = async (id: string): Promise<boolean> => {
+export const deletePage = async (
+  id: string,
+  ctx?: RequestContext
+): Promise<boolean> => {
   try {
     const { body } = await client.delete({
       index: INDEX_ALIAS,
@@ -310,7 +330,14 @@ export const deletePage = async (id: string): Promise<boolean> => {
       refresh: true,
     })
 
-    return body.deleted > 0
+    if (body.deleted === 0) return false
+
+    if (ctx) {
+      await ctx.pubsub.pageDeleted(id)
+      ctx.log.info('Deleted page in pubsub', id)
+    }
+
+    return true
   } catch (e) {
     console.error('failed to delete a page in elastic', e)
     return false
