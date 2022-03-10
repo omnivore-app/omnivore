@@ -28,10 +28,7 @@ import {
   User,
 } from '../../generated/graphql'
 import { HighlightData } from '../../datalayer/highlight/model'
-import axios from 'axios'
 import { env } from '../../env'
-import { DataModels } from '../types'
-import { Logger } from 'winston'
 import { analytics } from '../../utils/analytics'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
@@ -43,48 +40,6 @@ const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   reactions: [],
   createdByMe: undefined as never,
 })
-
-const generateHighlightPreviewImage = (
-  models: DataModels,
-  highlight: HighlightData,
-  log: Logger
-): void => {
-  Promise.all([
-    models.user.get(highlight.userId),
-    models.userArticle.getByArticleId(highlight.userId, highlight.articleId),
-  ]).then(async ([user, userArticle]) => {
-    if (!userArticle) return
-
-    const previewImageGenerationUrl = `${
-      env.client.previewGenerationServiceUrl
-    }?url=${
-      env.client.url +
-      '/' +
-      encodeURIComponent(user.profile.username) +
-      '/' +
-      userArticle.slug +
-      '/highlights/' +
-      highlight.shortId
-    }`
-
-    //
-    // This is commented out until we re-enable sharing
-    // highlights.
-    //
-    // axios.get(previewImageGenerationUrl).catch((err) => {
-    //   log.warning(`Preview image generation request failed`, {
-    //     axiosError: JSON.stringify(err),
-    //     highlight,
-    //     labels: {
-    //       source: 'resolver',
-    //       resolver: 'setShareHighlightResolver',
-    //       articleId: highlight.articleId,
-    //       userId: highlight.userId,
-    //     },
-    //   })
-    // })
-  })
-}
 
 export const createHighlightResolver = authorized<
   CreateHighlightSuccess,
@@ -129,8 +84,6 @@ export const createHighlightResolver = authorized<
         uid: claims.uid,
       },
     })
-
-    generateHighlightPreviewImage(models, highlight, log)
 
     return { highlight: highlightDataToHighlight(highlight) }
   } catch {
@@ -191,8 +144,6 @@ export const mergeHighlightResolver = authorized<
         articleId: articleId,
       },
     })
-
-    generateHighlightPreviewImage(models, highlight, log)
 
     return {
       highlight: highlightDataToHighlight(highlight),
