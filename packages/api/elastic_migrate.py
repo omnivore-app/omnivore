@@ -14,7 +14,7 @@ ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
 ES_USERNAME = os.getenv('ES_USERNAME')
 ES_PASSWORD = os.getenv('ES_PASSWORD')
 DATA_FILE = os.getenv('DATA_FILE', 'data.json')
-BULK_SIZE = os.getenv('BULK_SIZE', 1000)
+BULK_SIZE = os.getenv('BULK_SIZE', 100)
 
 DATETIME_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 QUERY = f'''
@@ -45,97 +45,91 @@ QUERY = f'''
 '''
 
 
-def elastic_bulk_insert(client, doc_list):
+def elastic_bulk_insert(client, doc_list) -> int:
     print('Bulk docs length:', len(doc_list))
     try:
         # use the helpers library's Bulk API to index list of
         # Elasticsearch docs
         resp = helpers.bulk(
             client,
-            doc_list
+            doc_list,
+            request_timeout=30,
         )
         # print the response returned by Elasticsearch
         print('helpers.bulk() RESPONSE:',
-              json.dumps(resp, indent=4))
+              json.dumps(resp, indent=2))
+        return resp[0]
     except Exception as err:
         print('Elasticsearch helpers.bulk() ERROR:', err)
+        return 0
 
 
-def export_data_to_json(conn, query, data_file):
+def ingest_data(conn, query, data_file):
     try:
         print('Executing query: {}'.format(query))
-        # generate JSON
+        # export data from postgres
         count = 0
+        import_count = 0
         with open(data_file, 'w') as f:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             cursor.execute(query)
 
             result = cursor.fetchmany(BULK_SIZE)
             while len(result) > 0:
-                f.write(json.dumps(result, default=str))
+                print(f'Writing {len(result)} docs to file')
+                import_count += import_data_to_es(client, result)
                 count += len(result)
+                f.write(json.dumps(result, indent=2, default=str))
                 result = cursor.fetchmany(BULK_SIZE)
 
             cursor.close()
         f.close()
         print(f'Exported {count} rows to data.json')
+        print(f'Imported {import_count} rows to es')
 
     except Exception as err:
         print('Export data to json ERROR:', err)
 
 
-def import_data_to_es(client, data_file):
-    print('Importing data to elasticsearch')
-    # import data from json file to elasticsearch
-    with open(data_file, 'r') as f:
-        docs = json.load(f)
-        print('docs length:', len(docs))
+def import_data_to_es(client, docs) -> int:
+    # import data to elasticsearch
+    print('Importing docs to elasticsearch:', len(docs))
 
-        if len(docs) == 0:
-            print('No data to import')
-            return
+    if len(docs) == 0:
+        print('No data to import')
+        return 0
 
-        print('Attempting to index the list of docs using helpers.bulk()')
+    print('Attempting to index the list of docs using helpers.bulk()')
 
-        count = 0
-        doc_list = []
-        for doc in docs:
-            # convert the string to a dict object
-            dict_doc = {
-                '_index': 'pages',
-                '_id': doc['id'],
-                '_source': doc
-            }
-            doc_list += [dict_doc]
-            count += 1
+    doc_list = []
+    for doc in docs:
+        # convert the string to a dict object
+        dict_doc = {
+            '_index': 'pages',
+            '_id': doc['id'],
+            '_source': doc
+        }
+        doc_list += [dict_doc]
 
-            if count % BULK_SIZE == 0:
-                elastic_bulk_insert(client, doc_list)
-                doc_list = []
-
-        if len(doc_list) > 0:
-            elastic_bulk_insert(client, doc_list)
-
-        f.close()
-        print(f'Imported {count} docs to elasticsearch')
+    count = elastic_bulk_insert(client, doc_list)
+    print(f'Imported {count} docs to elasticsearch')
+    return count
 
 
 print('Starting migration')
 
 # test elastic client
-client = Elasticsearch(ES_URL, basic_auth=(ES_USERNAME, ES_PASSWORD))
-print('Elasticsearch client:', client)
+client = Elasticsearch(ES_URL, basic_auth=(
+    ES_USERNAME, ES_PASSWORD), retry_on_timeout=True)
+print('Elasticsearch client:', client.info)
 
 # test postgres client
 conn = psycopg2.connect(
     f'host={PG_HOST} port={PG_PORT} dbname={PG_DB} user={PG_USER} \
     password={PG_PASSWORD}')
-print('Postgres connection:', conn)
+print('Postgres connection:', conn.info)
 
-# export data from postgres to a json file
-export_data_to_json(conn, QUERY, DATA_FILE)
-
-# import data from json to elasticsearch
-import_data_to_es(client, DATA_FILE)
+# ingest data from postgres to es and json file (for debugging)
+ingest_data(conn, QUERY, DATA_FILE)
 
 print('Migration complete')
