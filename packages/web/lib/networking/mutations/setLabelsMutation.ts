@@ -4,7 +4,7 @@ import { gqlFetcher } from '../networkHelpers'
 export async function setLabelsMutation(
   linkId: string,
   labelIds: string[]
-): Promise<any | undefined> {
+): Promise<unknown | undefined> {
   const mutation = gql`
     mutation SetLabels($input: SetLabelsInput!) {
       setLabels(input: $input) {

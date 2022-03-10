@@ -4,8 +4,6 @@ import type { LoginFormProps } from './LoginForm'
 import Image from 'next/image'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
-import Link from 'next/link'
-import { Star } from 'phosphor-react'
 import { Button } from '../elements/Button'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {

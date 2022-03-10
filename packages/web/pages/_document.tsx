@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable functional/no-class */
-import { useEffect } from 'react'
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document'
 import { getCssText, globalStyles } from '../components/tokens/stitches.config'
-import { useRouter } from 'next/router'
 
 export default class Document extends NextDocument {
   render() {

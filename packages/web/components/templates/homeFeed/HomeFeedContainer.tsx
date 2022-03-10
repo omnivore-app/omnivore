@@ -673,7 +673,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               .then(() => {
                 toast.success(msg, { position: 'bottom-right' })
               })
-              .catch((error) => {
+              .catch(() => {
                 toast.error('There was an error snoozing your link.', { position: 'bottom-right' })
               })
           }}

@@ -4,7 +4,6 @@ import {
   ReactNode,
   MutableRefObject,
   useEffect,
-  useContext,
   useState,
 } from 'react'
 import { PrimaryHeader } from './../patterns/PrimaryHeader'
@@ -12,7 +11,6 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
-import { Analytics } from '@segment/analytics-next'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'

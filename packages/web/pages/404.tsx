@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { useRouter } from 'next/router'
 import { ErrorLayout } from '../components/templates/ErrorLayout'
 import { SettingsLayout } from '../components/templates/SettingsLayout'
 

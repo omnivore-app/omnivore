@@ -41,7 +41,7 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
     }
   `
 
-  const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
 
   try {
     if (data) {

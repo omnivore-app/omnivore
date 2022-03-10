@@ -5,7 +5,7 @@ export async function createLabelMutation(
   name: string,
   color: string,
   description?: string
-): Promise<any | undefined> {
+): Promise<unknown | undefined> {
   const mutation = gql`
     mutation {
       createLabel(

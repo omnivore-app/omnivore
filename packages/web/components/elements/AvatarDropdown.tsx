@@ -1,5 +1,4 @@
 import { Avatar } from './../elements/Avatar'
-import { AngleDownIcon } from './../tokens/icons/AngleDownIcon'
 import { HStack } from '../elements/LayoutPrimitives'
 
 type AvatarDropdownProps = {

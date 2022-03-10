@@ -30,7 +30,7 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
   const copy = useCallback(() => {
     copyLink()
     toast(props.type == TextType.EmailAddress ? 'Email Address Copied' : 'Confirmation Code Copied')
-  }, [])
+  }, [copyLink, props.type])
 
   return (
     <Button style="plainIcon" onClick={copy}><CopyLinkIcon strokeColor={theme.colors.grayText.toString()} isCompleted={isLinkCopied} /></Button>
@@ -38,7 +38,7 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 }
 
 export default function EmailsPage(): JSX.Element {
-  const { emailAddresses, revalidate, isValidating } = useGetNewsletterEmailsQuery()
+  const { emailAddresses, revalidate } = useGetNewsletterEmailsQuery()
 
   applyStoredTheme(false)
 

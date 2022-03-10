@@ -7,7 +7,6 @@ import { Box, HStack, VStack, Separator, SpanBox } from '../../elements/LayoutPr
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
-import { CommentIcon } from '../../elements/images/CommentIcon'
 import { TrashIcon } from '../../elements/images/TrashIcon'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -15,7 +14,7 @@ import { HighlightView } from '../../patterns/HighlightView'
 import { useCallback, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { Pen, Trash } from 'phosphor-react'
+import { Trash } from 'phosphor-react'
 
 type HighlightsModalProps = {
   highlights: Highlight[]

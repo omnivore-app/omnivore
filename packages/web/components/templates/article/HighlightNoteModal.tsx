@@ -3,7 +3,7 @@ import {
   ModalContent,
   ModalOverlay,
 } from './../../elements/ModalPrimitives'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CommentIcon } from '../../elements/images/CommentIcon'
@@ -15,8 +15,6 @@ import { StyledTextArea } from '../../elements/StyledTextArea'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { readableUpdatedAtMessage } from './../../../lib/dateFormatting'
 import { useConfirmListener } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { createHighlight } from '../../../lib/highlights/createHighlight'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import toast from 'react-hot-toast'
 
 type HighlightNoteModalProps = {

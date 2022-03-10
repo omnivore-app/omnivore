@@ -5,7 +5,6 @@ import { StyledText } from './../elements/StyledText'
 import { authoredByText } from './../patterns/ArticleSubtitle'
 import { MoreOptionsIcon } from './../elements/images/MoreOptionsIcon'
 import { theme } from './../tokens/stitches.config'
-import Link from 'next/link'
 import { CardMenu } from './../patterns/CardMenu'
 import { LayoutType } from '../templates/homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
@@ -38,7 +37,6 @@ export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
 }
 
 export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
-  const username = props.viewer.profile.username
   const originText = new URL(props.item.url).hostname
 
   return (
@@ -152,7 +150,6 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
 }
 
 export function ListLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
-  const username = props.viewer.profile.username
   const originText = new URL(props.item.url).hostname
 
   return (

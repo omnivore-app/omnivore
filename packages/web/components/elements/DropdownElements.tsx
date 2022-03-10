@@ -9,7 +9,6 @@ import {
   Label,
 } from '@radix-ui/react-dropdown-menu'
 import { styled } from './../tokens/stitches.config'
-import { Button } from './Button'
 
 const itemStyles = {
   fontSize: 13,
@@ -98,7 +97,7 @@ export function Dropdown(props: DropdownProps): JSX.Element {
         {props.triggerElement}
       </DropdownTrigger>
       <DropdownContent
-        onInteractOutside={(event) => {
+        onInteractOutside={() => {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}

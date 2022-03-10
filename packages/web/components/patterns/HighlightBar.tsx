@@ -7,7 +7,6 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { styled, theme } from '../tokens/stitches.config'
 import { PenIcon } from '../elements/images/PenIcon'
 import { CommentIcon } from '../elements/images/CommentIcon'
-import { ShareIcon } from '../elements/images/ShareIcon'
 import { TrashIcon } from '../elements/images/TrashIcon'
 import { isAndroid } from '../../lib/deviceType'
 

@@ -1,6 +1,4 @@
-import Link from 'next/link'
-import { HStack, VStack, Box } from '../elements/LayoutPrimitives'
-import { StyledText } from '../elements/StyledText'
+import { Box } from '../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { PrimaryHeader } from '../patterns/PrimaryHeader'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'

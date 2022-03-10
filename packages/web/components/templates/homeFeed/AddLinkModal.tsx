@@ -11,7 +11,6 @@ import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
 import { useState, useCallback } from 'react'
 import { createArticleFromURLMutation } from '../../../lib/networking/mutations/createArticleFromURLMutation'
-import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import toast from 'react-hot-toast'
 
 type AddLinkModalProps = {
@@ -44,7 +43,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
     } else {
       toast.error('Error saving link', { position: 'bottom-right' })
     }
-  }, [link])
+  }, [])
 
   const validateLink = useCallback((link: string) => {
     try {
@@ -56,7 +55,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
       return false
     }
     return true
-  }, [link])
+  }, [])
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>

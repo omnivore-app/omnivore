@@ -21,7 +21,7 @@ export default function PublicHighlightsPage(
       slug: props.publicArticle.slug,
       url: props.publicArticle.url
     })
-  }, [props.publicArticle.url])
+  }, [props.publicArticle.id, props.publicArticle.slug, props.publicArticle.url])
 
   return (
     <ArticleHighlights

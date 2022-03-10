@@ -3,7 +3,7 @@ import { gqlFetcher } from '../networkHelpers'
 
 export async function deleteLabelMutation(
   labelId: string
-): Promise<any | undefined> {
+): Promise<unknown | undefined> {
   const mutation = gql`
     mutation {
       deleteLabel(id: "${labelId}") {

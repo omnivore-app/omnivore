@@ -1,4 +1,4 @@
-import { Box, VStack } from '../elements/LayoutPrimitives'
+import { VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 
 export default function MobileInstallHelp(): JSX.Element {

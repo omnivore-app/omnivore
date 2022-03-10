@@ -1,9 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Box, HStack, SpanBox } from '../../components/elements/LayoutPrimitives'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Button } from '../../components/elements/Button'
 import Link from 'next/link'
-import { StyledText } from '../../components/elements/StyledText'
 import { styled } from '@stitches/react'
 
 export default function Newsletters(): JSX.Element {

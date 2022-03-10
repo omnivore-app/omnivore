@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import { SettingsLayout } from '../templates/SettingsLayout'
 import {
   Box,
   VStack,
@@ -7,7 +6,6 @@ import {
 } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
 import { Button } from './Button'
-import Router from 'next/router'
 import {
   Dropdown,
   DropdownOption,
@@ -16,8 +14,8 @@ import { ChromeIcon } from './images/ChromeIcon'
 import { SafariIcon } from './images/SafariIcon'
 import { FirefoxIcon } from './images/FirefoxIcon'
 import { EdgeIcon } from './images/EdgeIcon'
-import { AngleDownIcon } from '../tokens/icons/AngleDownIcon'
 import { theme } from '../tokens/stitches.config'
+import Image from 'next/image'
 
 export default function ExtensionInstallHelp(): JSX.Element {
   return (
@@ -79,7 +77,7 @@ function ExtensionSelector(): JSX.Element {
       Omnivore from your computer. Learn more about the browser extensions <a href="https://omnivore.app/help/saving-links#savingfromyourcomputer">here</a>.
       </StyledText>
       <HStack distribution="center" css={{ width: '100%', mb: '32px', pl: '24px' }}>
-        <img src="/static/media/about/save-article.png" alt="Save articles" width="300"></img>
+        <Image src="/static/media/about/save-article.png" alt="Save articles" width="300"></Image>
       </HStack> 
       <VStack alignment="center" css={{ mb: '32px', width: '100%' }}>
         <Button onClick={selectBrowser} style="ctaDarkYellow" css={{ p: '18px', px: '42px', fontSize: '18px' }}>Download for {browserInfo(browser).title}</Button>
