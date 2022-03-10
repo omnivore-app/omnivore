@@ -15,5 +15,4 @@ public enum FeatureFlag {
   public static let enableShareButton = false
   public static let enableSnooze = false
   public static let showFeedItemTags = false
-  public static let showLinkOptionsOnReaderView = false
 }

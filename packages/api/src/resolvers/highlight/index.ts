@@ -28,10 +28,7 @@ import {
   User,
 } from '../../generated/graphql'
 import { HighlightData } from '../../datalayer/highlight/model'
-import axios from 'axios'
 import { env } from '../../env'
-import { DataModels } from '../types'
-import { Logger } from 'winston'
 import { analytics } from '../../utils/analytics'
 import { getPageById, getPageByParam } from '../../elastic'
 
@@ -129,8 +126,6 @@ export const createHighlightResolver = authorized<
       },
     })
 
-    generateHighlightPreviewImage(models, highlight, log)
-
     return { highlight: highlightDataToHighlight(highlight) }
   } catch (err) {
     log.error('Error creating highlight', err)
@@ -192,8 +187,6 @@ export const mergeHighlightResolver = authorized<
         articleId: articleId,
       },
     })
-
-    generateHighlightPreviewImage(models, highlight, log)
 
     return {
       highlight: highlightDataToHighlight(highlight),

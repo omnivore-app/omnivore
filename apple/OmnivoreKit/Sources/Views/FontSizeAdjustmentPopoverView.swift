@@ -30,13 +30,15 @@ public struct FontSizeAdjustmentPopoverView: View {
         label: {
           Image(systemName: "minus")
           #if os(iOS)
-            .foregroundColor(.appGraySolid)
+            .foregroundColor(.systemLabel)
             .padding()
           #endif
         }
       )
       .frame(width: 55, height: 40, alignment: .center)
-      Divider().frame(height: 30)
+      Divider()
+        .frame(height: 30)
+        .background(Color.systemLabel)
       Button(
         action: {
           storedFontSize = min(storedFontSize + 2, 28)
@@ -45,7 +47,7 @@ public struct FontSizeAdjustmentPopoverView: View {
         label: {
           Image(systemName: "plus")
           #if os(iOS)
-            .foregroundColor(.appGraySolid)
+            .foregroundColor(.systemLabel)
             .padding()
           #endif
         }

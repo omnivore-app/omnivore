@@ -4,6 +4,7 @@ import WebKit
 /// The names on the javascript side must match for an action to be handled.
 enum WebViewAction: String, CaseIterable {
   case highlightAction
+  case readingProgressUpdate
 }
 
 final class WebView: WKWebView {

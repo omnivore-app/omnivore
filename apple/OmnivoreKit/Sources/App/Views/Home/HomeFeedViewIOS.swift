@@ -195,7 +195,7 @@ import Views
                   itemToRemove = item
                   confirmationShown = true
                 },
-                label: { Label("Delete Link", systemImage: "trash") }
+                label: { Label("Delete", systemImage: "trash") }
               )
               if FeatureFlag.enableSnooze {
                 Button {
@@ -270,6 +270,9 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
+      .onAppear {
+        viewModel.sendProgressUpdates = false
+      }
     }
   }
 
@@ -346,6 +349,9 @@ import Views
         if viewModel.items.isEmpty, viewModel.isLoading {
           LoadingSection()
         }
+      }
+      .onAppear {
+        viewModel.sendProgressUpdates = true
       }
     }
   }
