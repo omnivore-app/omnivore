@@ -289,8 +289,7 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    private let twoColumns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
-    private let oneColumn = [GridItem(.flexible(), spacing: 20)]
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
 
     func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
       switch action {
@@ -304,53 +303,51 @@ import Views
 
     var body: some View {
       ScrollView {
-        GeometryReader { geo in
-          LazyVGrid(columns: geo.size.width < 500 ? oneColumn : twoColumns, spacing: 20) {
-            ForEach(viewModel.items, id: \.renderID) { item in
-              let link = GridCardNavigationLink(
-                item: item,
-                searchQuery: searchQuery,
-                actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-                selectedLinkItem: $selectedLinkItem,
-                isContextMenuOpen: $isContextMenuOpen,
-                viewModel: viewModel
-              )
-              if #available(iOS 15.0, *) {
-                link
-                  .alert("Are you sure?", isPresented: $confirmationShown) {
-                    Button("Remove Link", role: .destructive) {
-                      if let itemToRemove = itemToRemove {
-                        withAnimation {
-                          viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
-                        }
+        LazyVGrid(columns: columns, spacing: 20) {
+          ForEach(viewModel.items, id: \.renderID) { item in
+            let link = GridCardNavigationLink(
+              item: item,
+              searchQuery: searchQuery,
+              actionHandler: { contextMenuActionHandler(item: item, action: $0) },
+              selectedLinkItem: $selectedLinkItem,
+              isContextMenuOpen: $isContextMenuOpen,
+              viewModel: viewModel
+            )
+            if #available(iOS 15.0, *) {
+              link
+                .alert("Are you sure?", isPresented: $confirmationShown) {
+                  Button("Remove Link", role: .destructive) {
+                    if let itemToRemove = itemToRemove {
+                      withAnimation {
+                        viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
                       }
-                      self.itemToRemove = nil
                     }
-                    Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+                    self.itemToRemove = nil
                   }
-              } else {
-                link
-              }
+                  Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+                }
+            } else {
+              link
             }
           }
-          .padding()
-          .background(
-            GeometryReader {
-              Color(.systemGroupedBackground).preference(
-                key: ScrollViewOffsetPreferenceKey.self,
-                value: $0.frame(in: .global).origin.y
-              )
-            }
-          )
-          .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-            if !viewModel.isLoading, offset > 240 {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-            }
+        }
+        .padding()
+        .background(
+          GeometryReader {
+            Color(.systemGroupedBackground).preference(
+              key: ScrollViewOffsetPreferenceKey.self,
+              value: $0.frame(in: .global).origin.y
+            )
           }
+        )
+        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+          if !viewModel.isLoading, offset > 240 {
+            viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          }
+        }
 
-          if viewModel.items.isEmpty, viewModel.isLoading {
-            LoadingSection()
-          }
+        if viewModel.items.isEmpty, viewModel.isLoading {
+          LoadingSection()
         }
       }
       .onAppear {
