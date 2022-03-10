@@ -53,6 +53,10 @@ public struct PrimaryContentView: View {
       .introspectSplitViewController {
         $0.preferredSplitBehavior = .tile
         $0.preferredPrimaryColumnWidth = 200
+        if #available(iOS 14.5, *) {
+          $0.presentsWithGesture = false
+          $0.displayModeButtonVisibility = .always
+        }
       }
     }
   #endif
