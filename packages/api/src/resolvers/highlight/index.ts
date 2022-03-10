@@ -30,7 +30,7 @@ import {
 import { HighlightData } from '../../datalayer/highlight/model'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-import { getPageById, getPageByParam } from '../../elastic'
+import { getPageById } from '../../elastic'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
@@ -41,44 +41,6 @@ const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   reactions: [],
   createdByMe: undefined as never,
 })
-
-const generateHighlightPreviewImage = (
-  models: DataModels,
-  highlight: HighlightData,
-  log: Logger
-): void => {
-  Promise.all([
-    models.user.get(highlight.userId),
-    getPageByParam({ userId: highlight.userId, _id: highlight.elasticPageId }),
-  ]).then(async ([user, userArticle]) => {
-    if (!userArticle) return
-
-    const previewImageGenerationUrl = `${
-      env.client.previewGenerationServiceUrl
-    }?url=${
-      env.client.url +
-      '/' +
-      encodeURIComponent(user.profile.username) +
-      '/' +
-      userArticle.slug +
-      '/highlights/' +
-      highlight.shortId
-    }`
-
-    axios.get(previewImageGenerationUrl).catch((err) => {
-      log.warning(`Preview image generation request failed`, {
-        axiosError: JSON.stringify(err),
-        highlight,
-        labels: {
-          source: 'resolver',
-          resolver: 'setShareHighlightResolver',
-          articleId: highlight.articleId,
-          userId: highlight.userId,
-        },
-      })
-    })
-  })
-}
 
 export const createHighlightResolver = authorized<
   CreateHighlightSuccess,
