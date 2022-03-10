@@ -2,9 +2,9 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
 import {
-  parseUrlMetadata,
   parseOriginalContent,
   parsePreparedContent,
+  parseUrlMetadata,
 } from '../utils/parser'
 import normalizeUrl from 'normalize-url'
 import { kx } from '../datalayer/knex_config'
@@ -65,11 +65,11 @@ export const saveEmail = async (
   }
 
   if (parseResult.canonicalUrl && parseResult.domContent) {
-    await ctx.pubsub.pageSaved(
-      saverId,
-      parseResult.canonicalUrl,
-      parseResult.domContent
-    )
+    // await ctx.pubsub.pageSaved(
+    //   saverId,
+    //   parseResult.canonicalUrl,
+    //   parseResult.domContent
+    // )
   }
 
   const matchedUserArticleRecord = await ctx.models.userArticle.getByParameters(
@@ -81,7 +81,7 @@ export const saveEmail = async (
 
   let result: UserArticleData | undefined = undefined
   if (matchedUserArticleRecord) {
-    await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
+    // await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
     await kx.transaction(async (tx) => {
       await setClaims(tx, saverId)
@@ -95,7 +95,7 @@ export const saveEmail = async (
     })
     console.log('created matched email', result)
   } else {
-    await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
+    // await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
 
     await kx.transaction(async (tx) => {
       await setClaims(tx, saverId)

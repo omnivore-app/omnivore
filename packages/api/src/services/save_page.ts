@@ -112,8 +112,6 @@ export const savePage = async (
     url: articleToSave.url,
   })
   if (existingPage) {
-    await ctx.pubsub.pageCreated(saver.userId, input.url, input.originalContent)
-
     await updatePage(existingPage.id, {
       savedAt: new Date(),
       archivedAt: undefined,
