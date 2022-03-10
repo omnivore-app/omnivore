@@ -43,12 +43,17 @@ public struct PrimaryContentView: View {
       NavigationView {
         // The first column is the sidebar.
         PrimaryContentSidebar(categories: categories)
-          .navigationTitle("Categories")
+          .navigationTitle("")
+          .navigationBarTitleDisplayMode(.inline)
 
         // Second column is the Primary Nav Stack
         PrimaryContentCategory.feed.destinationView
       }
       .accentColor(.appGrayTextContrast)
+      .introspectSplitViewController {
+        $0.preferredSplitBehavior = .tile
+        $0.preferredPrimaryColumnWidth = 200
+      }
     }
   #endif
 }
