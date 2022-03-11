@@ -307,8 +307,6 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
-
     func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
       switch action {
       case .toggleArchiveStatus:
@@ -321,7 +319,7 @@ import Views
 
     var body: some View {
       ScrollView {
-        LazyVGrid(columns: columns, spacing: 20) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 24)], spacing: 24) {
           ForEach(viewModel.items, id: \.renderID) { item in
             let link = GridCardNavigationLink(
               item: item,
