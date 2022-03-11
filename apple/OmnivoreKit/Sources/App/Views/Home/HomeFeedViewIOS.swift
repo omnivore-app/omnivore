@@ -8,8 +8,8 @@ import Views
 
 #if os(iOS)
   struct HomeFeedContainerView: View {
-    let isCompact: Bool
     @EnvironmentObject var dataService: DataService
+    @State private var prefersListLayout = UIDevice.isIPhone
     @State private var searchQuery = ""
     @State private var snoozePresented = false
     @State private var itemToSnooze: FeedItem?
@@ -20,7 +20,7 @@ import Views
       Group {
         if #available(iOS 15.0, *) {
           HomeFeedView(
-            isCompact: isCompact,
+            prefersListLayout: $prefersListLayout,
             searchQuery: $searchQuery,
             selectedLinkItem: $selectedLinkItem,
             snoozePresented: $snoozePresented,
@@ -51,7 +51,7 @@ import Views
           }
         } else {
           HomeFeedView(
-            isCompact: isCompact,
+            prefersListLayout: $prefersListLayout,
             searchQuery: $searchQuery,
             selectedLinkItem: $selectedLinkItem,
             snoozePresented: $snoozePresented,
@@ -102,7 +102,7 @@ import Views
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
 
-    let isCompact: Bool
+    @Binding var prefersListLayout: Bool
     @Binding var searchQuery: String
     @Binding var selectedLinkItem: FeedItem?
     @Binding var snoozePresented: Bool
@@ -111,7 +111,7 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      if isCompact {
+      if prefersListLayout {
         HomeFeedListView(
           searchQuery: $searchQuery,
           selectedLinkItem: $selectedLinkItem,

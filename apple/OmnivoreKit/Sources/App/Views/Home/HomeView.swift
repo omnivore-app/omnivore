@@ -7,7 +7,7 @@ struct HomeView: View {
     #if os(iOS)
       if UIDevice.isIPhone {
         NavigationView {
-          HomeFeedContainerView(isCompact: true, viewModel: viewModel)
+          HomeFeedContainerView(viewModel: viewModel)
             .toolbar {
               ToolbarItem {
                 NavigationLink(
@@ -24,9 +24,7 @@ struct HomeView: View {
         }
         .accentColor(.appGrayTextContrast)
       } else {
-        GeometryReader { _ in
-          HomeFeedContainerView(isCompact: UIDevice.isIPhone, viewModel: viewModel)
-        }
+        HomeFeedContainerView(viewModel: viewModel)
       }
     #elseif os(macOS)
       HomeFeedView(viewModel: viewModel)
