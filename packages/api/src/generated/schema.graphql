@@ -49,6 +49,7 @@ type Article {
   shareInfo: LinkShareInfo
   slug: String!
   title: String!
+  uploadFileId: ID
   url: String!
 }
 
