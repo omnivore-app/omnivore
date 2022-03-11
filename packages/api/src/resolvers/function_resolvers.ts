@@ -366,7 +366,11 @@ export const functionResolvers = {
       return validatedDate(article.publishedAt)
     },
     async isArchived(
-      article: { id: string; isArchived?: boolean | null; archivedAt?: Date | undefined },
+      article: {
+        id: string
+        isArchived?: boolean | null
+        archivedAt?: Date | undefined
+      },
       __: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
