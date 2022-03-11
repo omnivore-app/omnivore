@@ -113,6 +113,7 @@ import Views
     var body: some View {
       if prefersListLayout {
         HomeFeedListView(
+          prefersListLayout: $prefersListLayout,
           searchQuery: $searchQuery,
           selectedLinkItem: $selectedLinkItem,
           snoozePresented: $snoozePresented,
@@ -152,6 +153,16 @@ import Views
               )
             }
           }
+          ToolbarItem {
+            if UIDevice.isIPad {
+              Button(
+                action: { prefersListLayout.toggle() },
+                label: {
+                  Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                }
+              )
+            }
+          }
         }
       }
     }
@@ -159,6 +170,7 @@ import Views
 
   struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
+    @Binding var prefersListLayout: Bool
     @Binding var searchQuery: String
     @Binding var selectedLinkItem: FeedItem?
     @Binding var snoozePresented: Bool
@@ -270,6 +282,18 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
+      .toolbar {
+        ToolbarItem {
+          if UIDevice.isIPad {
+            Button(
+              action: { prefersListLayout.toggle() },
+              label: {
+                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+              }
+            )
+          }
+        }
+      }
       .onAppear {
         viewModel.sendProgressUpdates = false
       }
