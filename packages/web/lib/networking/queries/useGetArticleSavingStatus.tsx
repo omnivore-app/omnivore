@@ -67,10 +67,6 @@ export function useGetArticleSavingStatus({
             article {
               ...ArticleFields
               content
-              shareInfo {
-                title
-                description
-              }
               highlights(input: { includeFriends: false }) {
                 ...HighlightFields
               }

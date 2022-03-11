@@ -33,13 +33,7 @@ export type PublicArticleAttributes = {
   image?: string
   description?: string
   hasContent?: boolean
-  shareInfo?: PublicArticleShareInfo
   highlights: Highlight[]
-}
-
-type PublicArticleShareInfo = {
-  title?: string
-  description?: string
 }
 
 export const PublicArticleGQLFragment = gql`
@@ -54,10 +48,6 @@ export const PublicArticleGQLFragment = gql`
     savedByViewer
     postedByViewer
     hasContent
-    shareInfo {
-      title
-      description
-    }
     highlights {
       id
       shortId

@@ -23,9 +23,7 @@ export function ArticleHighlights(props: ArticleHighlightsProps): JSX.Element {
     <PrimaryLayout
       pageMetaDataProps={{
         title: props.publicArticle.title,
-        description:
-          props.publicArticle.shareInfo?.description ||
-          props.publicArticle.description,
+        description: props.publicArticle.description,
         path: router.pathname,
         ogImage: props.previewImagePath,
         ogImageType: 'image/png',

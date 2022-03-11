@@ -45,7 +45,7 @@ export default function Home(): JSX.Element {
         pageMetaDataProps={{
           title: article.title,
           path: router.pathname,
-          description: article.shareInfo?.description || article.description,
+          description: article.description,
         }}
       >
         <Toaster />
