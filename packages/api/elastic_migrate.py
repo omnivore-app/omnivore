@@ -43,16 +43,24 @@ QUERY = f'''
      slug,
      to_char(archived_at, '{DATETIME_FORMAT}') as "archivedAt"
    FROM omnivore.pages p
-   INNER JOIN omnivore.links l ON p.id = l.article_id
+   LEFT JOIN omnivore.links l ON p.id = l.article_id
+   WHERE p.updated_at > '{UPDATE_TIME}'
 '''
 
-UPDATE_EXISTING_TABLES_SQL = f'''
+UPDATE_ARTICLE_SAVING_REQUEST_SQL = f'''
 UPDATE omnivore.article_saving_request
     SET elastic_page_id = article_id
-    WHERE elastic_page_id is NULL and updated_at > '{UPDATE_TIME}';
+    WHERE elastic_page_id is NULL
+        AND article_id is NOT NULL
+        AND updated_at > '{UPDATE_TIME}';
+'''
+
+UPDATE_HIGHLIGHT_SQL = f'''
 UPDATE omnivore.highlight
     SET elastic_page_id = article_id
-    WHERE elastic_page_id is NULL and updated_at > '{UPDATE_TIME}';
+    WHERE elastic_page_id is NULL
+        AND article_id is NOT NULL
+        AND updated_at > '{UPDATE_TIME}';
 '''
 
 
@@ -68,21 +76,22 @@ def create_index(client):
         with open(INDEX_SETTINGS, 'r') as f:
             settings = json.load(f)
             client.indices.create(index='pages', body=settings)
-            f.close()
         print('Index created')
     except Exception as err:
         print('Create index ERROR:', err)
         exit(1)
 
 
-def update_postgres_data(conn, query):
+def update_postgres_data(conn, query, table):
     try:
         print('Executing query: {}'.format(query))
         # update data in postgres
         cursor = conn.cursor()
         cursor.execute(query)
+        count = cursor.rowcount
+        conn.commit()
         cursor.close()
-        print('Updated postgres data')
+        print(f'Updated {table} in postgres, rows: ', count)
     except Exception as err:
         print('Update postgres data ERROR:', err)
 
@@ -106,7 +115,7 @@ def elastic_bulk_insert(client, doc_list) -> int:
         return 0
 
 
-def ingest_data(conn, query, data_file):
+def ingest_data_to_elastic(conn, query, data_file):
     try:
         print('Executing query: {}'.format(query))
         # export data from postgres
@@ -125,7 +134,6 @@ def ingest_data(conn, query, data_file):
                 result = cursor.fetchmany(BULK_SIZE)
 
             cursor.close()
-        f.close()
         print(f'Exported {count} rows to data.json')
         print(f'Imported {import_count} rows to es')
 
@@ -169,19 +177,21 @@ except Exception as err:
     print('Elasticsearch client ERROR:', err)
     exit(1)
 
-create_index(client)
-
 # test postgres client
 conn = psycopg2.connect(
     f'host={PG_HOST} port={PG_PORT} dbname={PG_DB} user={PG_USER} \
     password={PG_PASSWORD}')
 print('Postgres connection:', conn.info)
 
+create_index(client)
+
 # ingest data from postgres to es and json file (for debugging)
-ingest_data(conn, QUERY, DATA_FILE)
+ingest_data_to_elastic(conn, QUERY, DATA_FILE)
 
 # update existing tables
-update_postgres_data(conn, UPDATE_EXISTING_TABLES_SQL)
+update_postgres_data(conn, UPDATE_ARTICLE_SAVING_REQUEST_SQL,
+                     'article_saving_request')
+update_postgres_data(conn, UPDATE_HIGHLIGHT_SQL, 'highlight')
 
 client.close()
 conn.close()
