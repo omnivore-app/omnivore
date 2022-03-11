@@ -162,7 +162,11 @@ print('Starting migration')
 # test elastic client
 client = Elasticsearch(ES_URL, http_auth=(
     ES_USERNAME, ES_PASSWORD), retry_on_timeout=True)
-print('Elasticsearch client:', client.info)
+try:
+    print('Elasticsearch client connected', client.info())
+except Exception as err:
+    print('Elasticsearch client ERROR:', err)
+    exit(1)
 
 create_index(client)
 
