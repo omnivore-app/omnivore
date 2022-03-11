@@ -9,7 +9,7 @@ import Views
 #if os(iOS)
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
-    @State private var prefersListLayout = UIDevice.isIPhone
+    @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
     @State private var searchQuery = ""
     @State private var snoozePresented = false
     @State private var itemToSnooze: FeedItem?
