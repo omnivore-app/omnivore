@@ -359,8 +359,10 @@ import Views
           }
         )
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-          if !viewModel.isLoading, offset > 240 {
-            viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          DispatchQueue.main.async {
+            if !viewModel.isLoading, offset > 240 {
+              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+            }
           }
         }
 
