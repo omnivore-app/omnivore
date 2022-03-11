@@ -131,19 +131,13 @@ import Views
         .toolbar {
           ToolbarItem {
             if #available(iOS 15.0, *) {
-              Button(
-                action: {
-                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-                },
-                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-              )
-              .disabled(viewModel.isLoading)
-              .opacity(viewModel.isLoading ? 0 : 1)
-              .overlay {
-                if viewModel.isLoading {
-                  ProgressView()
+              Button("", action: {})
+                .disabled(true)
+                .overlay {
+                  if viewModel.isLoading {
+                    ProgressView()
+                  }
                 }
-              }
             } else {
               Button(
                 action: {
