@@ -42,7 +42,6 @@ export type ArticleAttributes = {
   readingProgressPercent: number
   readingProgressAnchorIndex: number
   slug: string
-  postedByViewer?: boolean
   savedByViewer?: boolean
   content: string
   shareInfo?: ArticleShareInfo
@@ -66,8 +65,6 @@ const query = gql`
       ... on ArticleSuccess {
         article {
           ...ArticleFields
-          postedByViewer
-          savedByViewer
           content
           shareInfo {
             title

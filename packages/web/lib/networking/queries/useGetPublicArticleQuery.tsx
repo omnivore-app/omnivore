@@ -32,8 +32,6 @@ export type PublicArticleAttributes = {
   author?: string
   image?: string
   description?: string
-  savedByViewer?: boolean
-  postedByViewer?: boolean
   hasContent?: boolean
   shareInfo?: PublicArticleShareInfo
   highlights: Highlight[]
