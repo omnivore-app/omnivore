@@ -104,7 +104,7 @@
           }
         }
       },
-      "readingProgress": {
+      "readingProgressPercent": {
         "type": "float"
       },
       "readingProgressAnchorIndex": {

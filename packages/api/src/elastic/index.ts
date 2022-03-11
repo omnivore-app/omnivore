@@ -12,6 +12,8 @@ import {
 } from '../utils/search'
 import { Page, ParamSet, SearchBody, SearchResponse } from './types'
 import { RequestContext } from '../resolvers/types'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -26,135 +28,15 @@ const client = new Client({
 })
 
 const ingest = async (): Promise<void> => {
+  // read index settings from file
+  const indexSettings = readFileSync(
+    join(__dirname, '..', '..', 'index_settings.json'),
+    'utf8'
+  )
+  // create index
   await client.indices.create({
     index: INDEX_NAME,
-    body: {
-      aliases: {
-        pages_alias: {},
-      },
-      settings: {
-        analysis: {
-          analyzer: {
-            ngrams: {
-              tokenizer: 'ngrams',
-              filter: ['lowercase'],
-            },
-            stripHTMLWithNgrams: {
-              tokenizer: 'ngrams',
-              filter: ['lowercase'],
-              char_filter: ['html_strip'],
-            },
-          },
-          tokenizer: {
-            ngrams: {
-              type: 'ngram',
-              min_gram: 3,
-              max_gram: 3,
-              token_chars: ['letter', 'digit'],
-            },
-          },
-          normalizer: {
-            lowercase_normalizer: {
-              filter: ['lowercase'],
-            },
-          },
-        },
-      },
-      mappings: {
-        properties: {
-          userId: {
-            type: 'keyword',
-          },
-          title: {
-            type: 'text',
-            analyzer: 'pattern',
-            fields: {
-              raw: {
-                type: 'text',
-                analyzer: 'pattern',
-              },
-              ngram: {
-                type: 'text',
-                analyzer: 'ngrams',
-              },
-            },
-          },
-          author: {
-            type: 'text',
-            analyzer: 'pattern',
-            fields: {
-              raw: {
-                type: 'text',
-                analyzer: 'pattern',
-              },
-              ngram: {
-                type: 'text',
-                analyzer: 'ngrams',
-              },
-            },
-          },
-          description: {
-            type: 'text',
-            analyzer: 'ngrams',
-            fields: {
-              raw: {
-                type: 'text',
-                analyzer: 'pattern',
-              },
-            },
-          },
-          content: {
-            type: 'text',
-            analyzer: 'stripHTMLWithNgrams',
-            fields: {
-              raw: {
-                type: 'text',
-                analyzer: 'pattern',
-              },
-            },
-          },
-          url: {
-            type: 'keyword',
-          },
-          uploadFileId: {
-            type: 'keyword',
-          },
-          pageType: {
-            type: 'keyword',
-          },
-          slug: {
-            type: 'keyword',
-          },
-          labels: {
-            type: 'nested',
-            properties: {
-              name: {
-                type: 'keyword',
-                normalizer: 'lowercase_normalizer',
-              },
-            },
-          },
-          readingProgress: {
-            type: 'float',
-          },
-          readingProgressAnchorIndex: {
-            type: 'integer',
-          },
-          createdAt: {
-            type: 'date',
-          },
-          savedAt: {
-            type: 'date',
-          },
-          archivedAt: {
-            type: 'date',
-          },
-          siteName: {
-            type: 'text',
-          },
-        },
-      },
-    },
+    body: indexSettings,
   })
 }
 
