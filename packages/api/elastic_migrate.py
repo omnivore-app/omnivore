@@ -11,10 +11,12 @@ PG_USER = os.getenv('PG_USER', 'app_user')
 PG_PASSWORD = os.getenv('PG_PASSWORD', 'app_pass')
 PG_DB = os.getenv('PG_DB', 'omnivore')
 ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
-ES_USERNAME = os.getenv('ES_USERNAME')
-ES_PASSWORD = os.getenv('ES_PASSWORD')
+ES_USERNAME = os.getenv('ES_USERNAME', 'elastic')
+ES_PASSWORD = os.getenv('ES_PASSWORD', 'password')
 DATA_FILE = os.getenv('DATA_FILE', 'data.json')
 BULK_SIZE = os.getenv('BULK_SIZE', 100)
+UPDATE_TIME = os.getenv('UPDATE_TIME', '2019-01-01 00:00:00')
+INDEX_SETTINGS = os.getenv('INDEX_SETTINGS', 'index_settings.json')
 
 DATETIME_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 QUERY = f'''
@@ -43,6 +45,45 @@ QUERY = f'''
    FROM omnivore.pages p
    INNER JOIN omnivore.links l ON p.id = l.article_id
 '''
+
+UPDATE_EXISTING_TABLES_SQL = f'''
+UPDATE omnivore.article_saving_request
+    SET elastic_page_id = article_id
+    WHERE elastic_page_id is NULL and updated_at > '{UPDATE_TIME}';
+UPDATE omnivore.highlight
+    SET elastic_page_id = article_id
+    WHERE elastic_page_id is NULL and updated_at > '{UPDATE_TIME}';
+'''
+
+
+def create_index(client):
+    print('Creating index')
+    try:
+        # check if index exists
+        if client.indices.exists(index='pages_alias'):
+            print('Index already exists')
+            return
+
+        # create index
+        with open(INDEX_SETTINGS, 'r') as f:
+            settings = json.load(f)
+            client.indices.create(index='pages', body=settings)
+            f.close()
+        print('Index created')
+    except Exception as err:
+        print('Create index ERROR:', err)
+
+
+def update_postgres_data(conn, query):
+    try:
+        print('Executing query: {}'.format(query))
+        # update data in postgres
+        cursor = conn.cursor()
+        cursor.execute(query)
+        cursor.close()
+        print('Updated postgres data')
+    except Exception as err:
+        print('Update postgres data ERROR:', err)
 
 
 def elastic_bulk_insert(client, doc_list) -> int:
@@ -123,6 +164,8 @@ client = Elasticsearch(ES_URL, http_auth=(
     ES_USERNAME, ES_PASSWORD), retry_on_timeout=True)
 print('Elasticsearch client:', client.info)
 
+create_index(client)
+
 # test postgres client
 conn = psycopg2.connect(
     f'host={PG_HOST} port={PG_PORT} dbname={PG_DB} user={PG_USER} \
@@ -131,5 +174,11 @@ print('Postgres connection:', conn.info)
 
 # ingest data from postgres to es and json file (for debugging)
 ingest_data(conn, QUERY, DATA_FILE)
+
+# update existing tables
+update_postgres_data(conn, UPDATE_EXISTING_TABLES_SQL)
+
+client.close()
+conn.close()
 
 print('Migration complete')
