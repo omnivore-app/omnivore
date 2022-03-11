@@ -66,8 +66,6 @@ export function useGetArticleSavingStatus({
             }
             article {
               ...ArticleFields
-              postedByViewer
-              savedByViewer
               content
               shareInfo {
                 title
