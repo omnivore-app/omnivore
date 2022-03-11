@@ -119,7 +119,7 @@ def import_data_to_es(client, docs) -> int:
 print('Starting migration')
 
 # test elastic client
-client = Elasticsearch(ES_URL, basic_auth=(
+client = Elasticsearch(ES_URL, http_auth=(
     ES_USERNAME, ES_PASSWORD), retry_on_timeout=True)
 print('Elasticsearch client:', client.info)
 
