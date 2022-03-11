@@ -335,6 +335,7 @@ const schema = gql`
     isArchived: Boolean!
     linkId: ID
     labels: [Label!]
+    uploadFileId: ID
   }
 
   # Query: article

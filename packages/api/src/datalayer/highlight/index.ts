@@ -108,7 +108,7 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
   ): Promise<HighlightData[]> {
     const rows: HighlightData[] = await tx(this.tableName)
       .update({ sharedAt: null })
-      .where({ articleId, userId })
+      .where({ elasticPageId: articleId, userId })
       .andWhere(tx.raw(`shared_at is not null`))
       .returning(this.modelKeys)
 

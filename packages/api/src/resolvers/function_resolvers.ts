@@ -293,11 +293,13 @@ export const functionResolvers = {
   },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
-      if (article.pageType == PageType.File && ctx.claims) {
-        const upload = await ctx.models.uploadFile.uploadFileForArticle(
-          article.id
-        )
-        if (!upload || !upload.fileName || !upload.fileName) {
+      if (
+        article.pageType == PageType.File &&
+        ctx.claims &&
+        article.uploadFileId
+      ) {
+        const upload = await ctx.models.uploadFile.get(article.uploadFileId)
+        if (!upload || !upload.fileName) {
           return undefined
         }
         const filePath = generateUploadFilePathName(upload.id, upload.fileName)

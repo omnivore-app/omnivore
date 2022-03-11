@@ -68,6 +68,7 @@ export type Article = {
   shareInfo?: Maybe<LinkShareInfo>;
   slug: Scalars['String'];
   title: Scalars['String'];
+  uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
 
@@ -2405,6 +2406,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
