@@ -44,15 +44,9 @@ export type ArticleAttributes = {
   slug: string
   savedByViewer?: boolean
   content: string
-  shareInfo?: ArticleShareInfo
   highlights: Highlight[]
   linkId: string
   labels?: Label[]
-}
-
-type ArticleShareInfo = {
-  title?: string
-  description?: string
 }
 
 const query = gql`
@@ -66,10 +60,6 @@ const query = gql`
         article {
           ...ArticleFields
           content
-          shareInfo {
-            title
-            description
-          }
           highlights(input: { includeFriends: $includeFriendsHighlights }) {
             ...HighlightFields
           }
