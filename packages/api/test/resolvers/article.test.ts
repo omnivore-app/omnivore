@@ -21,9 +21,11 @@ import { PageType, UploadFileStatus } from '../../src/generated/graphql'
 import { Page } from '../../src/elastic/types'
 import { getRepository } from 'typeorm'
 import { UploadFile } from '../../src/entity/upload_file'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 chai.use(chaiString)
 
+const ctx = { pubsub: createPubSubClient() }
 const archiveLink = async (authToken: string, linkId: string) => {
   const query = `
   mutation {
@@ -279,7 +281,7 @@ describe('Article API', () => {
       })
 
       after(async () => {
-        await deletePage(pageId)
+        await deletePage(pageId, ctx)
       })
 
       it('should create an article', async () => {
@@ -313,12 +315,12 @@ describe('Article API', () => {
         url: 'https://blog.omnivore.app/test-with-omnivore',
         savedAt: new Date(),
       } as Page
-      pageId = await createPage(page)
+      pageId = await createPage(page, ctx)
     })
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId)
+        await deletePage(pageId, ctx)
       }
     })
 
@@ -375,7 +377,7 @@ describe('Article API', () => {
           url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
           savedAt: new Date(),
         } as Page
-        const pageId = await createPage(page)
+        const pageId = await createPage(page, ctx)
         if (!pageId) {
           expect.fail('Failed to create page')
         }
@@ -385,10 +387,14 @@ describe('Article API', () => {
       //  create testing labels
       label = await createTestLabel(user, 'label', '#ffffff')
       //  set label to a link
-      await updatePage(pages[0].id, {
-        ...pages[0],
-        labels: [{ id: label.id, name: label.name, color: label.color }],
-      })
+      await updatePage(
+        pages[0].id,
+        {
+          ...pages[0],
+          labels: [{ id: label.id, name: label.name, color: label.color }],
+        },
+        ctx
+      )
     })
 
     beforeEach(async () => {
@@ -541,7 +547,7 @@ describe('Article API', () => {
         url: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
       }
-      const newPageId = await createPage(page)
+      const newPageId = await createPage(page, ctx)
       if (newPageId) {
         pageId = newPageId
       }
@@ -549,7 +555,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId)
+        await deletePage(pageId, ctx)
       }
     })
 
@@ -597,7 +603,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId)
+        await deletePage(pageId, ctx)
       }
     })
 
@@ -630,7 +636,9 @@ describe('Article API', () => {
 
         // Now try to set to a lower value (50), value should not be updated
         const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
-        const secondRes = await graphqlRequest(secondQuery, authToken).expect(200)
+        const secondRes = await graphqlRequest(secondQuery, authToken).expect(
+          200
+        )
         expect(
           secondRes.body.data.saveArticleReadingProgress.updatedArticle
             .readingProgressPercent

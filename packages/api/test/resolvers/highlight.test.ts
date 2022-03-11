@@ -11,9 +11,11 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { deletePage } from '../../src/elastic'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 chai.use(chaiString)
 
+const ctx = { pubsub: createPubSubClient() }
 const createHighlightQuery = (
   authToken: string,
   linkId: string,
@@ -70,7 +72,7 @@ describe('Highlights API', () => {
   after(async () => {
     await deleteTestUser(username)
     if (pageId) {
-      await deletePage(pageId)
+      await deletePage(pageId, ctx)
     }
   })
 
