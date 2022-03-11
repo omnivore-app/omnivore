@@ -112,10 +112,14 @@ export const savePage = async (
     url: articleToSave.url,
   })
   if (existingPage) {
-    await updatePage(existingPage.id, {
-      savedAt: new Date(),
-      archivedAt: undefined,
-    })
+    await updatePage(
+      existingPage.id,
+      {
+        savedAt: new Date(),
+        archivedAt: undefined,
+      },
+      ctx
+    )
     await kx.transaction(async (tx) => {
       await setClaims(tx, saver.userId)
       await ctx.models.articleSavingRequest.update(
@@ -130,7 +134,7 @@ export const savePage = async (
   } else if (shouldParseInBackend(input)) {
     await createPageSaveRequest(saver.userId, input.url, ctx.models)
   } else {
-    const pageId = await createPage(articleToSave)
+    const pageId = await createPage(articleToSave, ctx)
 
     await kx.transaction(async (tx) => {
       await setClaims(tx, saver.userId)

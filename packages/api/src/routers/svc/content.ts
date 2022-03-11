@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
+import {
+  createPubSubClient,
+  readPushSubscription,
+} from '../../datalayer/pubsub'
 import { getPageByParam, updatePage } from '../../elastic'
 import { Page } from '../../elastic/types'
 
@@ -62,7 +65,9 @@ export function contentServiceRouter() {
     if (msg.author) pageToUpdate.author = msg.author
     if (msg.description) pageToUpdate.description = msg.description
 
-    const result = await updatePage(page.id, pageToUpdate)
+    const result = await updatePage(page.id, pageToUpdate, {
+      pubsub: createPubSubClient(),
+    })
     console.log(
       'Updating article text',
       page.id,

@@ -71,22 +71,20 @@ export const saveFile = async (
     uploadFileData.fileName
   )
 
-  // if (parseResult.canonicalUrl && parseResult.domContent) {
-  //     ctx.pubsub.pageSaved(saver.id, parseResult.canonicalUrl, parseResult.domContent)
-  // }
-
   const matchedUserArticleRecord = await getPageByParam({
     userId: saver.id,
     url: uploadFileUrlOverride,
   })
 
   if (matchedUserArticleRecord) {
-    // ctx.pubsub.pageCreated(saver.id, input.url, input.originalContent)
-
-    await updatePage(matchedUserArticleRecord.id, {
-      savedAt: new Date(),
-      archivedAt: null,
-    })
+    await updatePage(
+      matchedUserArticleRecord.id,
+      {
+        savedAt: new Date(),
+        archivedAt: null,
+      },
+      ctx
+    )
 
     await ctx.authTrx(async (tx) => {
       await ctx.models.articleSavingRequest.update(
@@ -99,18 +97,21 @@ export const saveFile = async (
       )
     })
   } else {
-    const pageId = await createPage({
-      url: uploadFileUrlOverride,
-      title: uploadFile.fileName,
-      hash: uploadFileDetails.md5Hash,
-      content: '',
-      pageType: PageType.File,
-      uploadFileId: input.uploadFileId,
-      slug: generateSlug(uploadFile.fileName),
-      userId: saver.id,
-      id: '',
-      createdAt: new Date(),
-    })
+    const pageId = await createPage(
+      {
+        url: uploadFileUrlOverride,
+        title: uploadFile.fileName,
+        hash: uploadFileDetails.md5Hash,
+        content: '',
+        pageType: PageType.File,
+        uploadFileId: input.uploadFileId,
+        slug: generateSlug(uploadFile.fileName),
+        userId: saver.id,
+        id: '',
+        createdAt: new Date(),
+      },
+      ctx
+    )
 
     if (!pageId) {
       console.log('error creating page in elastic', input)

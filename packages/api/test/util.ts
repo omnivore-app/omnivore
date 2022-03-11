@@ -7,6 +7,7 @@ import { PageType } from '../src/generated/graphql'
 import { createPage } from '../src/elastic'
 import { User } from '../src/entity/user'
 import { Label } from '../src/entity/label'
+import { createPubSubClient } from '../src/datalayer/pubsub'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)
@@ -50,7 +51,8 @@ export const createTestElasticPage = async (
     slug: 'test-with-omnivore',
     labels: labels,
   }
-  const pageId = await createPage(page)
+
+  const pageId = await createPage(page, { pubsub: createPubSubClient() })
   if (pageId) {
     page.id = pageId
   }

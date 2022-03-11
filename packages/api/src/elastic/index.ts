@@ -10,8 +10,13 @@ import {
   LabelFilterType,
   ReadFilter,
 } from '../utils/search'
-import { Page, ParamSet, SearchBody, SearchResponse } from './types'
-import { RequestContext } from '../resolvers/types'
+import {
+  Page,
+  PageContext,
+  ParamSet,
+  SearchBody,
+  SearchResponse,
+} from './types'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
@@ -150,7 +155,7 @@ const appendIncludeLabelFilter = (
 
 export const createPage = async (
   page: Page,
-  ctx?: RequestContext
+  ctx: PageContext
 ): Promise<string | undefined> => {
   try {
     const { body } = await client.index({
@@ -160,9 +165,7 @@ export const createPage = async (
       refresh: true,
     })
 
-    if (ctx) {
-      await ctx.pubsub.pageCreated(page)
-    }
+    await ctx.pubsub.pageCreated(page)
 
     return body._id as string
   } catch (e) {
@@ -174,7 +177,7 @@ export const createPage = async (
 export const updatePage = async (
   id: string,
   page: Partial<Page>,
-  ctx?: RequestContext
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.update({
@@ -188,9 +191,7 @@ export const updatePage = async (
 
     if (body.result !== 'updated') return false
 
-    if (ctx) {
-      await ctx.pubsub.pageSaved(page)
-    }
+    await ctx.pubsub.pageSaved(page)
 
     return true
   } catch (e) {
@@ -201,7 +202,7 @@ export const updatePage = async (
 
 export const deletePage = async (
   id: string,
-  ctx?: RequestContext
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.delete({
@@ -212,10 +213,7 @@ export const deletePage = async (
 
     if (body.deleted === 0) return false
 
-    if (ctx) {
-      await ctx.pubsub.pageDeleted(id)
-      ctx.log.info('Deleted page in pubsub', id)
-    }
+    await ctx.pubsub.pageDeleted(id)
 
     return true
   } catch (e) {

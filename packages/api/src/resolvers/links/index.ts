@@ -64,7 +64,7 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkSuccess,
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
->(async (_obj, args, { claims }) => {
+>(async (_obj, args, { claims, pubsub }) => {
   console.log('setLinkArchivedResolver', args.input.linkId)
 
   analytics.track({
@@ -76,9 +76,13 @@ export const setLinkArchivedResolver = authorized<
   })
 
   try {
-    await updatePage(args.input.linkId, {
-      archivedAt: args.input.archived ? new Date() : null,
-    })
+    await updatePage(
+      args.input.linkId,
+      {
+        archivedAt: args.input.archived ? new Date() : null,
+      },
+      { pubsub }
+    )
   } catch (e) {
     return {
       message: 'An error occurred',

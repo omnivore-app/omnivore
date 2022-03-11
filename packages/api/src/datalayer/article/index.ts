@@ -4,7 +4,6 @@ import DataModel from '../model'
 import Knex from 'knex'
 import { Table } from '../../utils/dictionary'
 import { logMethod } from '../helpers'
-import { updatePage } from '../../elastic'
 
 class ArticleModel extends DataModel<ArticleData, CreateSet, UpdateSet> {
   public tableName = Table.PAGES
@@ -39,23 +38,6 @@ class ArticleModel extends DataModel<ArticleData, CreateSet, UpdateSet> {
     if (!row) return null
     this.loader.prime(row.id, row)
     return row
-  }
-
-  @logMethod
-  async updateContent(
-    id: string,
-    content: string,
-    title?: string,
-    author?: string,
-    description?: string
-  ): Promise<boolean> {
-    const items = { content, title, author, description }
-    if (!title) delete items.title
-    if (!author) delete items.author
-    if (!description) delete items.description
-
-    // update the article in elastic
-    return updatePage(id, items)
   }
 }
 
