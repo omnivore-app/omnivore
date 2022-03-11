@@ -344,7 +344,7 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
       if (!ctx.claims?.uid) return new Date()
-      if (!article.savedAt) return new Date()
+      if (article.savedAt) return article.savedAt
       return (
         (
           await getPageByParam({
@@ -366,11 +366,12 @@ export const functionResolvers = {
       return validatedDate(article.publishedAt)
     },
     async isArchived(
-      article: { id: string; isArchived?: boolean | null },
+      article: { id: string; isArchived?: boolean | null; archivedAt?: Date | undefined },
       __: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
       if ('isArchived' in article) return article.isArchived
+      if ('archivedAt' in article) return !!article.archivedAt
       if (!ctx.claims?.uid) return false
       const page = await getPageByParam({
         userId: ctx.claims.uid,
