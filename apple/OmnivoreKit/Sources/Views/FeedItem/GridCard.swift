@@ -92,7 +92,7 @@ public struct GridCard: View {
 
             Menu(
               content: { contextMenuView },
-              label: { Image.dotsThree }
+              label: { Image.dotsThree.padding().background(Color.clear) }
             )
             .frame(width: 16, height: 16, alignment: .center)
             .onTapGesture { isContextMenuOpen = true }
