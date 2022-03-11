@@ -8,8 +8,8 @@ import Views
 
 #if os(iOS)
   struct HomeFeedContainerView: View {
-    let isCompact: Bool
     @EnvironmentObject var dataService: DataService
+    @State private var prefersListLayout = UIDevice.isIPhone
     @State private var searchQuery = ""
     @State private var snoozePresented = false
     @State private var itemToSnooze: FeedItem?
@@ -20,7 +20,7 @@ import Views
       Group {
         if #available(iOS 15.0, *) {
           HomeFeedView(
-            isCompact: isCompact,
+            prefersListLayout: $prefersListLayout,
             searchQuery: $searchQuery,
             selectedLinkItem: $selectedLinkItem,
             snoozePresented: $snoozePresented,
@@ -51,7 +51,7 @@ import Views
           }
         } else {
           HomeFeedView(
-            isCompact: isCompact,
+            prefersListLayout: $prefersListLayout,
             searchQuery: $searchQuery,
             selectedLinkItem: $selectedLinkItem,
             snoozePresented: $snoozePresented,
@@ -102,7 +102,7 @@ import Views
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
 
-    let isCompact: Bool
+    @Binding var prefersListLayout: Bool
     @Binding var searchQuery: String
     @Binding var selectedLinkItem: FeedItem?
     @Binding var snoozePresented: Bool
@@ -111,8 +111,9 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      if isCompact {
+      if prefersListLayout {
         HomeFeedListView(
+          prefersListLayout: $prefersListLayout,
           searchQuery: $searchQuery,
           selectedLinkItem: $selectedLinkItem,
           snoozePresented: $snoozePresented,
@@ -130,25 +131,29 @@ import Views
         .toolbar {
           ToolbarItem {
             if #available(iOS 15.0, *) {
-              Button(
-                action: {
-                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-                },
-                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-              )
-              .disabled(viewModel.isLoading)
-              .opacity(viewModel.isLoading ? 0 : 1)
-              .overlay {
-                if viewModel.isLoading {
-                  ProgressView()
+              Button("", action: {})
+                .disabled(true)
+                .overlay {
+                  if viewModel.isLoading {
+                    ProgressView()
+                  }
                 }
-              }
             } else {
               Button(
                 action: {
                   viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
                 },
                 label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+              )
+            }
+          }
+          ToolbarItem {
+            if UIDevice.isIPad {
+              Button(
+                action: { prefersListLayout.toggle() },
+                label: {
+                  Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                }
               )
             }
           }
@@ -159,6 +164,7 @@ import Views
 
   struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
+    @Binding var prefersListLayout: Bool
     @Binding var searchQuery: String
     @Binding var selectedLinkItem: FeedItem?
     @Binding var snoozePresented: Bool
@@ -270,6 +276,18 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
+      .toolbar {
+        ToolbarItem {
+          if UIDevice.isIPad {
+            Button(
+              action: { prefersListLayout.toggle() },
+              label: {
+                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+              }
+            )
+          }
+        }
+      }
       .onAppear {
         viewModel.sendProgressUpdates = false
       }
@@ -289,8 +307,6 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 20), count: 2)
-
     func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
       switch action {
       case .toggleArchiveStatus:
@@ -303,7 +319,7 @@ import Views
 
     var body: some View {
       ScrollView {
-        LazyVGrid(columns: columns, spacing: 20) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 24)], spacing: 24) {
           ForEach(viewModel.items, id: \.renderID) { item in
             let link = GridCardNavigationLink(
               item: item,
@@ -341,8 +357,10 @@ import Views
           }
         )
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-          if !viewModel.isLoading, offset > 240 {
-            viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          DispatchQueue.main.async {
+            if !viewModel.isLoading, offset > 240 {
+              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+            }
           }
         }
 
