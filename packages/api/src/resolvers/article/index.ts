@@ -330,13 +330,13 @@ export const createArticleResolver = authorized<
         existingPage.url = uploadFileUrlOverride || articleToSave.url
         existingPage.hash = articleToSave.hash
 
-        await updatePage(existingPage.id, existingPage)
+        await updatePage(existingPage.id, existingPage, ctx)
 
         console.log('page updated in elastic', existingPage.id)
         articleToSave = existingPage
       } else {
         // create new page in elastic
-        const pageId = await createPage(articleToSave)
+        const pageId = await createPage(articleToSave, ctx)
 
         if (!pageId) {
           return articleSavingRequestError(
@@ -595,7 +595,7 @@ export const setBookmarkArticleResolver = authorized<
   async (
     _,
     { input: { articleID, bookmark } },
-    { models, authTrx, claims: { uid }, log }
+    { models, authTrx, claims: { uid }, log, pubsub }
   ) => {
     const article = await getPageById(articleID)
     if (!article) {
@@ -612,7 +612,7 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      await deletePage(userArticleRemoved.id)
+      await deletePage(userArticleRemoved.id, { pubsub })
 
       const highlightsUnshared = await authTrx(async (tx) => {
         return models.highlight.unshareAllHighlights(articleID, uid, tx)
@@ -646,7 +646,7 @@ export const setBookmarkArticleResolver = authorized<
           userId: uid,
           slug: generateSlug(article.title),
         }
-        await updatePage(articleID, userArticle)
+        await updatePage(articleID, userArticle, { pubsub })
 
         log.info('Article bookmarked', {
           article: Object.assign({}, article, {
@@ -689,7 +689,7 @@ export const saveArticleReadingProgressResolver = authorized<
   async (
     _,
     { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
-    { claims: { uid } }
+    { claims: { uid }, pubsub }
   ) => {
     const userArticleRecord = await getPageByParam({ userId: uid, _id: id })
 
@@ -723,7 +723,7 @@ export const saveArticleReadingProgressResolver = authorized<
         : userArticleRecord.readingProgressAnchorIndex,
     })
 
-    shouldUpdate && (await updatePage(id, updatedArticle))
+    shouldUpdate && (await updatePage(id, updatedArticle, { pubsub }))
 
     return {
       updatedArticle: {

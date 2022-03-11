@@ -186,7 +186,7 @@ export const setLabelsResolver = authorized<
   SetLabelsSuccess,
   SetLabelsError,
   MutationSetLabelsArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { claims: { uid }, log, pubsub }) => {
   log.info('setLabelsResolver')
 
   const { pageId, labelIds } = input
@@ -219,9 +219,13 @@ export const setLabelsResolver = authorized<
     }
 
     // update labels in the page
-    await updatePage(pageId, {
-      labels,
-    })
+    await updatePage(
+      pageId,
+      {
+        labels,
+      },
+      { pubsub }
+    )
 
     analytics.track({
       userId: uid,

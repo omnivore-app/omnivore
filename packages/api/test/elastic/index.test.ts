@@ -11,8 +11,11 @@ import { PageType } from '../../src/generated/graphql'
 import { expect } from 'chai'
 import { InFilter, ReadFilter } from '../../src/utils/search'
 import { Page } from '../../src/elastic/types'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 describe('elastic api', () => {
+  const ctx = { pubsub: createPubSubClient() }
+
   let page: Page
 
   before(async () => {
@@ -46,7 +49,7 @@ describe('elastic api', () => {
         },
       ],
     }
-    const pageId = await createPage(page)
+    const pageId = await createPage(page, ctx)
     if (!pageId) {
       expect.fail('Failed to create page')
     }
@@ -55,7 +58,7 @@ describe('elastic api', () => {
 
   after(async () => {
     // delete the testing page
-    await deletePage(page.id)
+    await deletePage(page.id, ctx)
   })
 
   describe('createPage', () => {
@@ -63,7 +66,7 @@ describe('elastic api', () => {
 
     after(async () => {
       if (newPageId) {
-        await deletePage(newPageId)
+        await deletePage(newPageId, ctx)
       }
     })
 
@@ -83,7 +86,7 @@ describe('elastic api', () => {
         url: 'https://blog.omnivore.app/testUrl',
       }
 
-      newPageId = await createPage(newPageData)
+      newPageId = await createPage(newPageData, ctx)
 
       expect(newPageId).to.be.a('string')
     })
@@ -115,7 +118,7 @@ describe('elastic api', () => {
         title: newTitle,
       }
 
-      await updatePage(page.id, updatedPageData)
+      await updatePage(page.id, updatedPageData, ctx)
 
       const updatedPage = await getPageById(page.id)
 

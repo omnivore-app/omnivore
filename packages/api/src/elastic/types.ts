@@ -1,6 +1,7 @@
 // Define the type of the body for the Search request
 import { Label, PageType } from '../generated/graphql'
 import { PickTuple } from '../util'
+import { PubsubClient } from '../datalayer/pubsub'
 
 export interface SearchBody {
   query: {
@@ -155,3 +156,7 @@ export interface Page {
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
+
+export interface PageContext {
+  pubsub: PubsubClient
+}
