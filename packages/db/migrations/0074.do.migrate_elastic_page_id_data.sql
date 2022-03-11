@@ -5,8 +5,10 @@
 BEGIN;
 
 UPDATE omnivore.article_saving_request
-    SET elastic_page_id = article_id WHERE elastic_page_id is NULL;
+    SET elastic_page_id = article_id
+    WHERE elastic_page_id is NULL AND article_id is NOT NULL;
 UPDATE omnivore.highlight
-    SET elastic_page_id = article_id WHERE elastic_page_id is NULL;
+    SET elastic_page_id = article_id
+    WHERE elastic_page_id is NULL AND article_id is NOT NULL;
 
 COMMIT;
