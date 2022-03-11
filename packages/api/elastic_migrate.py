@@ -37,7 +37,7 @@ QUERY = f'''
      page_type as "pageType",
      user_id as "userId",
      to_char(shared_at, '{DATETIME_FORMAT}') as "sharedAt",
-     article_reading_progress as "readingProgress",
+     article_reading_progress as "readingProgressPercent",
      article_reading_progress_anchor_index as "readingProgressAnchorIndex",
      to_char(saved_at, '{DATETIME_FORMAT}') as "savedAt",
      slug,
@@ -72,6 +72,7 @@ def create_index(client):
         print('Index created')
     except Exception as err:
         print('Create index ERROR:', err)
+        exit(1)
 
 
 def update_postgres_data(conn, query):
