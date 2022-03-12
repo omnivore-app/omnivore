@@ -412,7 +412,9 @@ export const getArticleResolver: ResolverFn<
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
-    return { article: { ...page, isArchived: !!page.archivedAt } }
+    return {
+      article: { ...page, isArchived: !!page.archivedAt, linkId: page.id },
+    }
   } catch (error) {
     return { errorCodes: [ArticleErrorCode.BadData] }
   }
