@@ -185,6 +185,7 @@ export const removeItemFromCache = (
   itemId: string,
 ) => {
   try {
+    // First update the individaul article pages
     const mappedCache = cache as Map<string, unknown>
     mappedCache.forEach((value: any, key) => {
       if (typeof value == 'object' && 'articles' in value) {
@@ -195,19 +196,15 @@ export const removeItemFromCache = (
           value.articles.edges = newEdges
           mutate(key, value, false)
         }
-      } else if (Array.isArray(value)) {
-        for (let i = 0; i < value.length; i++) {
-          const item = value[i]
-          if (typeof item == 'object' && 'articles' in item) {
-            const articles = item.articles as LibraryItems
-            const idx = articles.edges.findIndex((edge) => edge.node.id == itemId)
-            if (idx > -1) {
-              const newEdges = articles.edges.splice(idx, 1)
-              value[i].articles.edges = newEdges
-            }
-          }
+      }
+    })
+    // Update the infinite scroll list of pages
+    mappedCache.forEach((value: any, key) => {
+      if (Array.isArray(value)) {
+        const idx = value.findIndex((item) => 'articles' in item)
+        if (idx > -1) {
+          mutate(key, value, false)
         }
-        mutate(key, value, false)
       }
     })
   } catch (error) {
