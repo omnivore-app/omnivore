@@ -99,11 +99,12 @@ export const generateUploadFilePathName = (
 
 export const uploadToSignedUrl = async (
   uploadUrl: string,
-  data: Buffer
+  data: Buffer,
+  contentType: string
 ): Promise<AxiosResponse> => {
   return axios.put(uploadUrl, data, {
     headers: {
-      'Content-Type': 'application/pdf',
+      'Content-Type': contentType,
     },
     maxBodyLength: 1000000000,
     maxContentLength: 100000000,

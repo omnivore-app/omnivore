@@ -9,9 +9,8 @@ export function pageServiceRouter() {
   const router = express.Router()
 
   router.post('/upload/:filename', async (req, res) => {
-    console.log('upload page data req', req.query, req.body)
+    console.log('upload page data req', req.params.filename)
     const { message: msgStr, expired } = readPushSubscription(req)
-    console.log('read pubsub message', msgStr, 'has expired', expired)
 
     if (!msgStr) {
       res.status(400).send('Bad Request')
@@ -25,11 +24,16 @@ export function pageServiceRouter() {
     }
 
     try {
+      const contentType = 'text/plain'
       const uploadUrl = await generateUploadSignedUrl(
         req.params.filename,
-        'text/plain'
+        contentType
       )
-      await uploadToSignedUrl(uploadUrl, Buffer.from(msgStr, 'utf8'))
+      await uploadToSignedUrl(
+        uploadUrl,
+        Buffer.from(msgStr, 'utf8'),
+        contentType
+      )
       res.status(200)
     } catch (err) {
       console.log('upload page data failed', err)
