@@ -245,7 +245,7 @@ describe('Labels API', () => {
         mutation {
           setLabels(
             input: {
-              pageId: "${pageId}",
+              linkId: "${pageId}",
               labelIds: [
                 "${labelIds[0]}",
                 "${labelIds[1]}"

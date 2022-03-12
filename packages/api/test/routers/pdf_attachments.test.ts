@@ -2,13 +2,13 @@ import {
   createTestNewsletterEmail,
   createTestUser,
   deleteTestUser,
-  getLink,
 } from '../db'
 import { request } from '../util'
 import { User } from '../../src/entity/user'
 import 'mocha'
 import * as jwt from 'jsonwebtoken'
 import { expect } from 'chai'
+import { getPageById } from '../../src/elastic'
 
 describe('PDF attachments Router', () => {
   const username = 'fakeUser'
@@ -49,7 +49,9 @@ describe('PDF attachments Router', () => {
   })
 
   describe('create article', () => {
-    it('create article with uploaded file id and url', async () => {
+    let uploadFileId: string
+
+    before(async () => {
       // upload file first
       const testFile = 'testFile.pdf'
       const res = await request
@@ -59,8 +61,10 @@ describe('PDF attachments Router', () => {
           email: newsletterEmail,
           fileName: testFile,
         })
-      const uploadFileId = res.body.id
+      uploadFileId = res.body.id
+    })
 
+    it('create article with uploaded file id and url', async () => {
       // create article
       const res2 = await request
         .post('/svc/pdf-attachments/create-article')
@@ -72,7 +76,7 @@ describe('PDF attachments Router', () => {
         .expect(200)
 
       expect(res2.body.id).to.be.a('string')
-      const link = await getLink(res2.body.id)
+      const link = await getPageById(res2.body.id)
 
       expect(link).to.exist
     })
