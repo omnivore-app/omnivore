@@ -37,10 +37,7 @@ type ArticleContainerProps = {
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const router = useRouter()
-<<<<<<< HEAD
-=======
   const { cache, mutate } = useSWRConfig()
->>>>>>> 6018a6a (Remove items from the SWR cache when archiving from reader page)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)

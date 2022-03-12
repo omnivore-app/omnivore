@@ -104,7 +104,13 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         return ad.articles.edges
       }) || []
     )
-    return items
+    const result = items.reduce((res: LibraryItem[], item) => {
+      if (res.findIndex((i) => i.node.id === item.node.id) !== -1) {
+        return res
+      }
+      return [...res, item]
+    }, [])
+    return result
   }, [articlesPages, performActionOnItem])
 
   const handleFetchMore = useCallback(() => {
