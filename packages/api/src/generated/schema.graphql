@@ -1006,7 +1006,7 @@ enum SetLabelsErrorCode {
 
 input SetLabelsInput {
   labelIds: [ID!]!
-  pageId: ID!
+  linkId: ID!
 }
 
 union SetLabelsResult = SetLabelsError | SetLabelsSuccess

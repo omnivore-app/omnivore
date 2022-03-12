@@ -1373,7 +1373,7 @@ export enum SetLabelsErrorCode {
 
 export type SetLabelsInput = {
   labelIds: Array<Scalars['ID']>;
-  pageId: Scalars['ID'];
+  linkId: Scalars['ID'];
 };
 
 export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;

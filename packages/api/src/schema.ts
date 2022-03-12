@@ -1331,7 +1331,7 @@ const schema = gql`
   union SignupResult = SignupSuccess | SignupError
 
   input SetLabelsInput {
-    pageId: ID!
+    linkId: ID!
     labelIds: [ID!]!
   }
 
