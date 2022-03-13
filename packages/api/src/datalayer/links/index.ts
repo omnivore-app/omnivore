@@ -82,8 +82,6 @@ const linkColsWithoutContent = (tx: Knex) => {
 }
 
 const linkCols = (tx: Knex) => {
-  console.trace('linkCols')
-
   return [
     'omnivore.pages.content',
     'omnivore.pages.originalHtml',
@@ -412,8 +410,6 @@ class UserArticleModel extends DataModel<
     tx = this.kx,
     notNullField: string | null = null
   ): Promise<[PartialArticle[], number] | null> {
-    console.log("GETTING PAGINATED")
-
     const { cursor, first, sort, query, readFilter } = args
 
     const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
@@ -485,9 +481,9 @@ class UserArticleModel extends DataModel<
       .limit(limit)
 
     const rows = await queryPromise
-    // for (const row of rows) {
-    //   this.loader.prime(row.id, row)
-    // }
+    for (const row of rows) {
+      this.loader.prime(row.id, row)
+    }
 
     return [rows, parseInt(totalCount as string)]
   }
