@@ -5,7 +5,6 @@ import { StyledText } from './../elements/StyledText'
 import { authoredByText } from './../patterns/ArticleSubtitle'
 import { MoreOptionsIcon } from './../elements/images/MoreOptionsIcon'
 import { theme } from './../tokens/stitches.config'
-import Link from 'next/link'
 import { CardMenu } from './../patterns/CardMenu'
 import { LayoutType } from '../templates/homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
@@ -28,6 +27,15 @@ type LinkedItemCardProps = {
   handleAction: (action: LinkedItemCardAction) => void
 }
 
+const siteName = (originalArticleUrl: string,  itemUrl: string): string => {
+  try {
+    return new URL(originalArticleUrl).hostname
+  } catch { }
+  try {
+    return new URL(itemUrl).hostname
+  } catch { }
+  return ''
+}
 
 export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
   if (props.layout == 'LIST_LAYOUT') {
@@ -38,8 +46,7 @@ export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
 }
 
 export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
-  const username = props.viewer.profile.username
-  const originText = new URL(props.item.url).hostname
+  const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   return (
     // <Link href={`/${username}/${props.item.slug}`} passHref={true}>
@@ -152,8 +159,7 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
 }
 
 export function ListLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
-  const username = props.viewer.profile.username
-  const originText = new URL(props.item.url).hostname
+  const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
   return (
     // <Link href={`/${username}/${props.item.slug}`} passHref={true}>
