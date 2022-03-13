@@ -92,9 +92,6 @@ export function useGetLibraryItemsQuery({
             cursor
             node {
               ...ArticleFields
-              labels {
-                ...LabelFields
-              }
               originalArticleUrl
             }
           }
@@ -112,7 +109,6 @@ export function useGetLibraryItemsQuery({
       }
     }
     ${articleFragment}
-    ${labelFragment}
   `
 
   const variables = {
