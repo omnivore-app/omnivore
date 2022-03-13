@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request'
-import useSWRInfinite from 'swr/infinite'
+import useSWRInfinite, { unstable_serialize } from 'swr/infinite'
 import { gqlFetcher } from '../networkHelpers'
 import type { ArticleFragmentData } from '../fragments/articleFragment'
 import { articleFragment } from '../fragments/articleFragment'
@@ -185,20 +185,18 @@ export const removeItemFromCache = (
   itemId: string,
 ) => {
   try {
-    // First update the individaul article pages
     const mappedCache = cache as Map<string, unknown>
     mappedCache.forEach((value: any, key) => {
       if (typeof value == 'object' && 'articles' in value) {
         const articles = value.articles as LibraryItems
         const idx = articles.edges.findIndex((edge) => edge.node.id == itemId)
         if (idx > -1) {
-          const newEdges = articles.edges.splice(idx, 1)
-          value.articles.edges = newEdges
+          value.articles.edges.splice(idx, 1)
           mutate(key, value, false)
         }
       }
     })
-    // Update the infinite scroll list of pages
+
     mappedCache.forEach((value: any, key) => {
       if (Array.isArray(value)) {
         const idx = value.findIndex((item) => 'articles' in item)
