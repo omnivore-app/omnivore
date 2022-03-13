@@ -369,7 +369,7 @@ export const functionResolvers = {
       __: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
-      if (article.isArchived) return article.isArchived
+      if ('isArchived' in article) return article.isArchived
       if (!ctx.claims?.uid) return false
       const userArticle = await ctx.models.userArticle.getForUser(
         ctx.claims.uid,
