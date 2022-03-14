@@ -457,6 +457,8 @@ export const functionResolvers = {
   },
   ArticleSavingRequest: {
     async article(request: { userId: string; articleId: string }, __: unknown) {
+      if (!request.userId || !request.articleId) return undefined
+
       return getPageByParam({
         userId: request.userId,
         _id: request.articleId,
