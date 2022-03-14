@@ -82,6 +82,9 @@ export interface SearchBody {
   ]
   from: number
   size: number
+  _source: {
+    excludes: string[]
+  }
 }
 
 // Complete definition of the Search response

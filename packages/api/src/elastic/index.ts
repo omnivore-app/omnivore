@@ -285,6 +285,10 @@ export const getPageByParam = async <K extends keyof ParamSet>(
             }),
           },
         },
+        size: 1,
+        _source: {
+          excludes: ['originalHtml'],
+        },
       },
     })
 
@@ -381,6 +385,9 @@ export const searchPages = async (
       ],
       from,
       size,
+      _source: {
+        excludes: ['originalHtml'],
+      },
     }
 
     // append filters
