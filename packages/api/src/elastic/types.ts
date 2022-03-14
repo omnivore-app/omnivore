@@ -77,8 +77,7 @@ export interface SearchBody {
       createdAt: {
         order: string
       }
-    },
-    '_score'
+    }
   ]
   from: number
   size: number

@@ -381,7 +381,6 @@ export const searchPages = async (
             order: sortOrder,
           },
         },
-        '_score',
       ],
       from,
       size,
