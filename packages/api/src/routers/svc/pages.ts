@@ -4,12 +4,13 @@
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { generateUploadSignedUrl, uploadToSignedUrl } from '../../utils/uploads'
+import { v4 as uuidv4 } from 'uuid'
 
 export function pageServiceRouter() {
   const router = express.Router()
 
-  router.post('/upload/:filename', async (req, res) => {
-    console.log('upload page data req', req.params.filename)
+  router.post('/upload/:folder', async (req, res) => {
+    console.log('upload page data req', req.params.folder)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -24,9 +25,9 @@ export function pageServiceRouter() {
     }
 
     try {
-      const contentType = 'text/plain'
+      const contentType = 'application/json'
       const uploadUrl = await generateUploadSignedUrl(
-        req.params.filename,
+        `${req.params.folder}/${new Date().toDateString()}/${uuidv4()}.json`,
         contentType
       )
       await uploadToSignedUrl(
