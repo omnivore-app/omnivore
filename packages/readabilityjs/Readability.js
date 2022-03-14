@@ -1925,7 +1925,7 @@ Readability.prototype = {
 
     try {
       metadata.publishedDate = metadata.publishedDate && new Date(this._unescapeHtmlEntities(metadata.publishedDate))
-      if (!(metadata.publishedData instanceof Date) || isNaN(metadata.publishedDate)) {
+      if (!(metadata.publishedDate instanceof Date) || isNaN(metadata.publishedDate)) {
         delete metadata.publishedDate
       }
     } catch {
