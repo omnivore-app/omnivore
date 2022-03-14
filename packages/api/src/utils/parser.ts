@@ -280,6 +280,20 @@ export const parsePreparedContent = async (
     const jsonLdLinkMetadata = await getJSONLdLinkMetadata(window.document)
     logRecord.JSONLdParsed = jsonLdLinkMetadata
 
+    // Attempt to set the published date if readability didn't find it
+    if (article && !article?.publishedDate) {
+      try {
+        const publishedTime = window.document
+          .querySelector('meta[property="article:published_time"]')
+          ?.getAttribute('content')
+        if (publishedTime) {
+          article.publishedDate = new Date(publishedTime)
+        }
+      } catch (error) {
+        logger.error('Error getting article:published_time', error)
+      }
+    }
+
     Object.assign(article, {
       content: clean,
       title: article?.title || jsonLdLinkMetadata.title,
