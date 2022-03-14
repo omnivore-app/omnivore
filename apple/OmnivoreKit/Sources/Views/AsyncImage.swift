@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import Models
 import SwiftUI
 import Utils
 
@@ -48,10 +49,11 @@ struct AsyncImage: View {
 #if os(iOS)
   private final class ImageLoader: ObservableObject {
     @Published var image: UIImage?
+    @Published var hasFailed = false
 
     let placeholder = UIImage()
 
-    private var cancellable: AnyCancellable?
+    private var subscriptions = Set<AnyCancellable>()
 
     func load(fromUrl url: URL) {
       if let cachedImage = ImageCache.shared[url] {
@@ -59,25 +61,31 @@ struct AsyncImage: View {
         return
       }
 
-      cancellable = URLSession.shared
-        .dataTaskPublisher(for: url)
-        .map { UIImage(data: $0.data) }
-        .handleEvents(receiveOutput: {
-          ImageCache.shared[url] = $0
-        })
-        .replaceError(with: nil)
-        .receive(on: DispatchQueue.main)
-        .assign(to: \.image, on: self)
+      fetch(url: url).sink(
+        receiveCompletion: { [weak self] completion in
+          guard case .failure = completion else { return }
+          self?.hasFailed = true
+        }, receiveValue: { [weak self] data in
+          guard let fetchedImage = UIImage(data: data) else {
+            self?.hasFailed = true
+            return
+          }
+          ImageCache.shared[url] = fetchedImage
+          self?.image = fetchedImage
+        }
+      )
+      .store(in: &subscriptions)
     }
   }
 
 #elseif os(macOS)
   private final class ImageLoader: ObservableObject {
     @Published var image: NSImage?
+    @Published var hasFailed = false
 
     let placeholder = NSImage(systemSymbolName: "photo", accessibilityDescription: "photo-placeholder")!
 
-    private var cancellable: AnyCancellable?
+    private var subscriptions = Set<AnyCancellable>()
 
     func load(fromUrl url: URL) {
       if let cachedImage = ImageCache.shared[url] {
@@ -85,15 +93,37 @@ struct AsyncImage: View {
         return
       }
 
-      cancellable = URLSession.shared
-        .dataTaskPublisher(for: url)
-        .map { NSImage(data: $0.data) }
-        .handleEvents(receiveOutput: {
-          ImageCache.shared[url] = $0
-        })
-        .replaceError(with: nil)
-        .receive(on: DispatchQueue.main)
-        .assign(to: \.image, on: self)
+      fetch(url: url).sink(
+        receiveCompletion: { [weak self] completion in
+          guard case .failure = completion else { return }
+          self?.hasFailed = true
+        }, receiveValue: { [weak self] data in
+          guard let fetchedImage = NSImage(data: data) else {
+            self?.hasFailed = true
+            return
+          }
+          ImageCache.shared[url] = fetchedImage
+          self?.image = fetchedImage
+        }
+      )
+      .store(in: &subscriptions)
     }
   }
 #endif
+
+func fetch(url: URL) -> AnyPublisher<Data, BasicError> {
+  let request = URLRequest(url: url)
+
+  return URLSession.DataTaskPublisher(request: request, session: .shared)
+    .tryMap { data, response in
+      guard let httpResponse = response as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        throw BasicError.message(messageText: "failed")
+      }
+      return data
+    }
+    .mapError { _ in
+      BasicError.message(messageText: "failed")
+    }
+    .receive(on: DispatchQueue.main)
+    .eraseToAnyPublisher()
+}

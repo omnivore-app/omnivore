@@ -73,11 +73,11 @@ struct PrimaryContentSidebar: View {
         label: { category.listLabel }
       )
       #if os(iOS)
-      .listRowBackground(
-        category == selectedCategory
-          ? Color.appGraySolid.opacity(0.4).cornerRadius(8)
-          : Color.clear.cornerRadius(8)
-      )
+        .listRowBackground(
+          category == selectedCategory
+            ? Color.appGraySolid.opacity(0.4).cornerRadius(8)
+            : Color.clear.cornerRadius(8)
+        )
       #endif
     }
     .listStyle(.sidebar)
