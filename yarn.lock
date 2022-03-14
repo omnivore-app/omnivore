@@ -14296,9 +14296,9 @@ pgpass@1.x:
     split2 "^3.1.1"
 
 phosphor-react@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/phosphor-react/-/phosphor-react-1.4.0.tgz#6c3d5f9d3433c3c2456b902891d24ec677f89dc3"
-  integrity sha512-K2/ZtkigHV/li5qfYPqY5fA7MLkWM52tW9ghBCyJc7JS5ykI/WD61JC8kFWaZ6yqlEHXPUJLHr+p+5uGsBnHmQ==
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/phosphor-react/-/phosphor-react-1.4.1.tgz#97b0e034d9937db9b97fe53b186e9646464fd4e7"
+  integrity sha512-gO5j7U0xZrdglTAYDYPACU4xDOFBTJmptrrB/GeR+tHhCZF3nUMyGmV/0hnloKjuTrOmpSFlbfOY78H39rgjUQ==
 
 picocolors@^1.0.0:
   version "1.0.0"
