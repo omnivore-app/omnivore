@@ -18,14 +18,14 @@ import {
   updatePage,
 } from '../../src/elastic'
 import { PageType, UploadFileStatus } from '../../src/generated/graphql'
-import { Page } from '../../src/elastic/types'
+import { Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from 'typeorm'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 chai.use(chaiString)
 
-const ctx = { pubsub: createPubSubClient() }
+const ctx: PageContext = { pubsub: createPubSubClient(), refresh: true }
 const archiveLink = async (authToken: string, linkId: string) => {
   const query = `
   mutation {
@@ -500,31 +500,40 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
+        let allLinks
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(
-          articlesQuery('', 'DESCENDING'),
-          authToken
-        ).expect(200)
-        const justSavedId = allLinks.body.data.articles.edges[0].node.id
-        await archiveLink(authToken, justSavedId)
+        // set a slight delay to make sure the page is updated
+        setTimeout(async () => {
+          let allLinks = await graphqlRequest(
+            articlesQuery('', 'DESCENDING'),
+            authToken
+          ).expect(200)
+          const justSavedId = allLinks.body.data.articles.edges[0].node.id
+          await archiveLink(authToken, justSavedId)
+        }, 100)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(
-          articlesQuery('', 'DESCENDING'),
-          authToken
-        ).expect(200)
-        expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(
+            articlesQuery('', 'DESCENDING'),
+            authToken
+          ).expect(200)
+          expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
+        }, 100)
 
         // Now save the link again, and ensure it is returned
-        const resaved = await graphqlRequest(
+        await graphqlRequest(
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
-        allLinks = await graphqlRequest(
-          articlesQuery('', 'DESCENDING'),
-          authToken
-        ).expect(200)
-        expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(
+            articlesQuery('', 'DESCENDING'),
+            authToken
+          ).expect(200)
+          expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+        }, 100)
       })
     })
   })
@@ -619,7 +628,6 @@ describe('Article API', () => {
 
       it('should save a reading progress on an article', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        console.log(res.body.data)
         expect(
           res.body.data.saveArticleReadingProgress.updatedArticle
             .readingProgressPercent
@@ -635,14 +643,17 @@ describe('Article API', () => {
         ).to.eq(75)
 
         // Now try to set to a lower value (50), value should not be updated
-        const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
-        const secondRes = await graphqlRequest(secondQuery, authToken).expect(
-          200
-        )
-        expect(
-          secondRes.body.data.saveArticleReadingProgress.updatedArticle
-            .readingProgressPercent
-        ).to.eq(75)
+        // have a slight delay to ensure the reading progress is updated
+        setTimeout(async () => {
+          const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
+          const secondRes = await graphqlRequest(secondQuery, authToken).expect(
+            200
+          )
+          expect(
+            secondRes.body.data.saveArticleReadingProgress.updatedArticle
+              .readingProgressPercent
+          ).to.eq(75)
+        }, 100)
       })
     })
   })

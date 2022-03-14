@@ -162,7 +162,7 @@ export const createPage = async (
       id: page.id || undefined,
       index: INDEX_ALIAS,
       body: page,
-      refresh: true,
+      refresh: ctx.refresh,
     })
 
     await ctx.pubsub.pageCreated(page)
@@ -186,7 +186,7 @@ export const updatePage = async (
       body: {
         doc: page,
       },
-      refresh: true,
+      refresh: ctx.refresh,
     })
 
     if (body.result !== 'updated') return false
@@ -208,7 +208,7 @@ export const deletePage = async (
     const { body } = await client.delete({
       index: INDEX_ALIAS,
       id,
-      refresh: true,
+      refresh: ctx.refresh,
     })
 
     if (body.deleted === 0) return false
@@ -224,7 +224,8 @@ export const deletePage = async (
 
 export const deleteLabelInPages = async (
   userId: string,
-  label: string
+  label: string,
+  ctx: PageContext
 ): Promise<void> => {
   try {
     await client.updateByQuery({
@@ -260,7 +261,7 @@ export const deleteLabelInPages = async (
           },
         },
       },
-      refresh: true,
+      refresh: ctx.refresh,
     })
   } catch (e) {
     console.error('failed to delete a page in elastic', e)

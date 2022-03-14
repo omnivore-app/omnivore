@@ -23,6 +23,7 @@ import { Label } from '../../entity/label'
 import { getManager, getRepository, ILike } from 'typeorm'
 import { setClaims } from '../../entity/utils'
 import { deleteLabelInPages, getPageById, updatePage } from '../../elastic'
+import { createPubSubClient } from '../../datalayer/pubsub'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -160,7 +161,7 @@ export const deleteLabelResolver = authorized<
     }
 
     // delete label in elastic pages
-    await deleteLabelInPages(uid, label.name)
+    await deleteLabelInPages(uid, label.name, { pubsub: createPubSubClient() })
 
     analytics.track({
       userId: uid,

@@ -52,7 +52,10 @@ export const createTestElasticPage = async (
     labels: labels,
   }
 
-  const pageId = await createPage(page, { pubsub: createPubSubClient() })
+  const pageId = await createPage(page, {
+    pubsub: createPubSubClient(),
+    refresh: true,
+  })
   if (pageId) {
     page.id = pageId
   }

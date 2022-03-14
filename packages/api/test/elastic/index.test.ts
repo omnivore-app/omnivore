@@ -10,11 +10,11 @@ import {
 import { PageType } from '../../src/generated/graphql'
 import { expect } from 'chai'
 import { InFilter, ReadFilter } from '../../src/utils/search'
-import { Page } from '../../src/elastic/types'
+import { Page, PageContext } from '../../src/elastic/types'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 describe('elastic api', () => {
-  const ctx = { pubsub: createPubSubClient() }
+  const ctx: PageContext = { pubsub: createPubSubClient(), refresh: true }
 
   let page: Page
 
