@@ -383,8 +383,26 @@ export const functionResolvers = {
         ? ContentReader.Pdf
         : ContentReader.Web
     },
-    readingProgressPercent: getReadingProgressForArticleResolver,
-    readingProgressAnchorIndex: getReadingProgressAnchorIndexForArticleResolver,
+    async readingProgressPercent(article: { id: string, articleReadingProgress?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext & { claims: Claims }) {
+      if ('articleReadingProgress' in article) {
+        return article.articleReadingProgress
+      }
+      return (
+        await ctx.models.userArticle.getByArticleId(ctx.claims.uid, article.id)
+      )?.articleReadingProgress
+    },
+    async readingProgressAnchorIndex(article: { id: string, articleReadingProgressAnchorIndex?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext & { claims: Claims }) {
+      if ('articleReadingProgressAnchorIndex' in article) {
+        return article.articleReadingProgressAnchorIndex
+      }
+      return (
+        await ctx.models.userArticle.getByArticleId(ctx.claims.uid, article.id)
+      )?.articleReadingProgressAnchorIndex
+    },
     async highlights(
       article: { id: string; userId?: string },
       _: { input: ArticleHighlightsInput },
