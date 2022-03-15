@@ -46,7 +46,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const defaultQuery = {
-    limit: 14,
+    limit: 10,
     sortDescending: true,
     searchQuery: undefined,
   }

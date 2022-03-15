@@ -332,7 +332,7 @@ export const createArticleResolver = authorized<
 
         await updatePage(existingPage.id, existingPage, ctx)
 
-        console.log('page updated in elastic', existingPage.id)
+        log.info('page updated in elastic', existingPage.id)
         articleToSave = existingPage
       } else {
         // create new page in elastic
@@ -347,7 +347,7 @@ export const createArticleResolver = authorized<
             articleSavingRequest
           )
         }
-        console.log('page created in elastic', articleToSave)
+        log.info('page created in elastic', articleToSave)
         articleToSave.id = pageId
       }
 
