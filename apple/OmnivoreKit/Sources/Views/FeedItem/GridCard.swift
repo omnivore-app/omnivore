@@ -70,7 +70,8 @@ public struct GridCard: View {
                 .tint(.appYellow48)
                 .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-              ProgressView(value: max(abs(item.readingProgress) / 100, 1))
+              Color.clear
+                .contentShape(Rectangle())
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
           #else

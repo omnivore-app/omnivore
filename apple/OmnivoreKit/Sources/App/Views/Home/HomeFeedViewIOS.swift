@@ -60,10 +60,14 @@ import Views
           )
           .toolbar {
             ToolbarItem {
-              Button(
-                action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
-                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-              )
+              if viewModel.isLoading {
+                Button(action: {}, label: { ProgressView() })
+              } else {
+                Button(
+                  action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
+                  label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                )
+              }
             }
           }
         }
@@ -139,12 +143,14 @@ import Views
                   }
                 }
             } else {
-              Button(
-                action: {
-                  viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-                },
-                label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-              )
+              if viewModel.isLoading {
+                Button(action: {}, label: { ProgressView() })
+              } else {
+                Button(
+                  action: { viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true) },
+                  label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                )
+              }
             }
           }
           ToolbarItem {
