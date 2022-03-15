@@ -37,8 +37,6 @@ import {
   getFollowersResolver,
   getFollowingResolver,
   getMeUserResolver,
-  getReadingProgressAnchorIndexForArticleResolver,
-  getReadingProgressForArticleResolver,
   getSharedArticleResolver,
   getUserFeedArticlesResolver,
   getUserPersonalizationResolver,
