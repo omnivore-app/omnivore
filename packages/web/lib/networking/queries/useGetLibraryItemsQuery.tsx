@@ -142,7 +142,8 @@ export function useGetLibraryItemsQuery({
     },
     (_query, _l, _s, _sq, cursor: string) => {
       return gqlFetcher(query, { ...variables, after: cursor }, true)
-    }
+    },
+    { revalidateFirstPage: false }
   )
 
   let responseError = error
@@ -153,7 +154,9 @@ export function useGetLibraryItemsQuery({
   // we invalidate the data and return the error. We also zero out
   // the response in the case of an error.
   if (!error && responsePages) {
-    const errors = responsePages.filter((d) => d.articles.errorCodes && d.articles.errorCodes.length > 0)
+    const errors = responsePages.filter(
+      (d) => d.articles.errorCodes && d.articles.errorCodes.length > 0
+    )
     if (errors?.length > 0) {
       responseError = errors
       responsePages = undefined
