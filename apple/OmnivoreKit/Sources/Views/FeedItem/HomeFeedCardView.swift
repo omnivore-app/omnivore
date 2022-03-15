@@ -39,10 +39,21 @@ public struct FeedCard: View {
 
       Group {
         if let imageURL = item.imageURL {
-          AsyncImage(url: imageURL, isResizable: true)
-            .aspectRatio(1, contentMode: .fill)
-            .frame(width: 80, height: 80)
-            .cornerRadius(6)
+          AsyncImage(url: imageURL) { imageStatus in
+            if case let AsyncImageStatus.loaded(image) = imageStatus {
+              image
+                .resizable()
+                .aspectRatio(1, contentMode: .fill)
+                .frame(width: 80, height: 80)
+                .cornerRadius(6)
+            } else if case AsyncImageStatus.loading = imageStatus {
+              Color.appButtonBackground
+                .frame(width: 80, height: 80)
+                .cornerRadius(6)
+            } else {
+              EmptyView()
+            }
+          }
         }
       }
     }

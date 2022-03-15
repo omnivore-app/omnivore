@@ -1,99 +1,91 @@
 import Combine
 import Foundation
+import Models
 import SwiftUI
 import Utils
 
-struct AsyncImage: View {
-  let isResizable: Bool
-  let url: URL?
-  @State private var isLoaded = false
+enum AsyncImageStatus {
+  case loading
+  case loaded(image: Image)
+  case error
+}
+
+struct AsyncImage<Content: View>: View {
+  let viewBuilder: (AsyncImageStatus) -> Content
+  let url: URL
   @StateObject private var imageLoader = ImageLoader()
 
-  init(url: URL?, isResizable: Bool = true) {
-    self.isResizable = isResizable
+  init(url: URL, @ViewBuilder viewBuilder: @escaping (AsyncImageStatus) -> Content) {
     self.url = url
-  }
-
-  func load() {
-    if let url = url, !isLoaded {
-      imageLoader.load(fromUrl: url)
-      isLoaded = true
-    }
+    self.viewBuilder = viewBuilder
   }
 
   var body: some View {
-    Group {
-      #if os(iOS)
-        if isResizable {
-          Image(uiImage: imageLoader.image ?? imageLoader.placeholder)
-            .resizable()
-        } else {
-          Image(uiImage: imageLoader.image ?? imageLoader.placeholder)
-        }
-      #elseif os(macOS)
-        if isResizable {
-          Image(nsImage: imageLoader.image ?? imageLoader.placeholder)
-            .resizable()
-        } else {
-          Image(nsImage: imageLoader.image ?? imageLoader.placeholder)
-        }
-      #endif
-    }
-    .onAppear {
-      load()
-    }
+    viewBuilder(imageLoader.status)
+      .onAppear {
+        imageLoader.load(fromUrl: url)
+      }
   }
 }
 
-#if os(iOS)
-  private final class ImageLoader: ObservableObject {
-    @Published var image: UIImage?
+private final class ImageLoader: ObservableObject {
+  @Published var status: AsyncImageStatus = .loading
+  var loadStarted = false
 
-    let placeholder = UIImage()
+  private var subscriptions = Set<AnyCancellable>()
 
-    private var cancellable: AnyCancellable?
+  func load(fromUrl url: URL) {
+    guard !loadStarted else { return }
+    loadStarted = true
 
-    func load(fromUrl url: URL) {
-      if let cachedImage = ImageCache.shared[url] {
-        image = cachedImage
-        return
-      }
-
-      cancellable = URLSession.shared
-        .dataTaskPublisher(for: url)
-        .map { UIImage(data: $0.data) }
-        .handleEvents(receiveOutput: {
-          ImageCache.shared[url] = $0
-        })
-        .replaceError(with: nil)
-        .receive(on: DispatchQueue.main)
-        .assign(to: \.image, on: self)
+    if let cachedImage = ImageCache.shared[url] {
+      #if os(iOS)
+        status = .loaded(image: Image(uiImage: cachedImage))
+      #else
+        status = .loaded(image: Image(nsImage: cachedImage))
+      #endif
+      return
     }
-  }
 
-#elseif os(macOS)
-  private final class ImageLoader: ObservableObject {
-    @Published var image: NSImage?
+    fetch(url: url).sink(
+      receiveCompletion: { [weak self] completion in
+        guard case .failure = completion else { return }
+        self?.status = .error
+      }, receiveValue: { [weak self] data in
+        #if os(iOS)
+          let fetchedImage = UIImage(data: data)
+        #else
+          let fetchedImage = NSImage(data: data)#endif
+        guard let fetchedImage = fetchedImage else {
+          self?.status = .error
+          return
+        }
+        ImageCache.shared[url] = fetchedImage
 
-    let placeholder = NSImage(systemSymbolName: "photo", accessibilityDescription: "photo-placeholder")!
-
-    private var cancellable: AnyCancellable?
-
-    func load(fromUrl url: URL) {
-      if let cachedImage = ImageCache.shared[url] {
-        image = cachedImage
-        return
+        #if os(iOS)
+          self?.status = .loaded(image: Image(uiImage: fetchedImage))
+        #else
+          self?.status = .loaded(image: Image(nsImage: fetchedImage))
+        #endif
       }
-
-      cancellable = URLSession.shared
-        .dataTaskPublisher(for: url)
-        .map { NSImage(data: $0.data) }
-        .handleEvents(receiveOutput: {
-          ImageCache.shared[url] = $0
-        })
-        .replaceError(with: nil)
-        .receive(on: DispatchQueue.main)
-        .assign(to: \.image, on: self)
-    }
+    )
+    .store(in: &subscriptions)
   }
-#endif
+}
+
+private func fetch(url: URL) -> AnyPublisher<Data, BasicError> {
+  let request = URLRequest(url: url)
+
+  return URLSession.DataTaskPublisher(request: request, session: .shared)
+    .tryMap { data, response in
+      guard let httpResponse = response as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        throw BasicError.message(messageText: "failed")
+      }
+      return data
+    }
+    .mapError { _ in
+      BasicError.message(messageText: "failed")
+    }
+    .receive(on: DispatchQueue.main)
+    .eraseToAnyPublisher()
+}
