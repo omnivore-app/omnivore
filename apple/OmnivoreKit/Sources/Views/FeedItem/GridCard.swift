@@ -133,10 +133,21 @@ public struct GridCard: View {
           Spacer()
 
           if let imageURL = item.imageURL {
-            AsyncImage(url: imageURL, isResizable: true)
-              .aspectRatio(contentMode: .fill)
-              .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
-              .cornerRadius(3)
+            AsyncImage(url: imageURL) { imageStatus in
+              if case let AsyncImageStatus.loaded(image) = imageStatus {
+                image
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+                  .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
+                  .cornerRadius(3)
+              } else if case AsyncImageStatus.loading = imageStatus {
+                Color.appButtonBackground
+                  .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
+                  .cornerRadius(3)
+              } else {
+                EmptyView()
+              }
+            }
           }
         }
         .padding(.horizontal)
