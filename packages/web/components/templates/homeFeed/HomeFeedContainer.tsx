@@ -1,10 +1,10 @@
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import {
   LinkedItemCard,
   LinkedItemCardAction,
@@ -19,8 +19,8 @@ import { styled } from '../../tokens/stitches.config'
 import { ListLayoutIcon } from '../../elements/images/ListLayoutIcon'
 import { GridLayoutIcon } from '../../elements/images/GridLayoutIcon'
 import {
-  searchBarCommands,
   libraryListCommands,
+  searchBarCommands,
 } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { ShareArticleModal } from '../article/ShareArticleModal'
@@ -46,7 +46,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const defaultQuery = {
-    limit: 20,
+    limit: 14,
     sortDescending: true,
     searchQuery: undefined,
   }
@@ -99,11 +99,10 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
   }, [articlesPages])
 
   const libraryItems = useMemo(() => {
-    const items = (
+    const items =
       articlesPages?.flatMap((ad) => {
         return ad.articles.edges
       }) || []
-    )
     return items
   }, [articlesPages, performActionOnItem])
 
@@ -129,26 +128,26 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
     activateCard(firstItem.node.id)
   }, [libraryItems])
 
-  const activateCard = useCallback((id: string) => {
-    if (!document.getElementById(id)) {
-      return;
-    }
-    setActiveCardId(id)
-    scrollToActiveCard(id, true)
-  }, [libraryItems])
-
+  const activateCard = useCallback(
+    (id: string) => {
+      if (!document.getElementById(id)) {
+        return
+      }
+      setActiveCardId(id)
+      scrollToActiveCard(id, true)
+    },
+    [libraryItems]
+  )
 
   const isVisible = function (ele: HTMLElement, container: HTMLElement) {
-    const eleTop = ele.offsetTop;
-    const eleBottom = eleTop + ele.clientHeight;
+    const eleTop = ele.offsetTop
+    const eleBottom = eleTop + ele.clientHeight
 
-    const containerTop = container.scrollTop + 200;
-    const containerBottom = containerTop + container.clientHeight;
+    const containerTop = container.scrollTop + 200
+    const containerBottom = containerTop + container.clientHeight
 
-    return (
-        (eleTop >= containerTop && eleBottom <= containerBottom)
-    );
-  };
+    return eleTop >= containerTop && eleBottom <= containerBottom
+  }
 
   const scrollToActiveCard = useCallback(
     (id: string | null, isSmouth?: boolean): void => {
@@ -156,14 +155,17 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         const target = document.getElementById(id)
         if (target) {
           try {
-            if (props.scrollElementRef.current && !isVisible(target, props.scrollElementRef.current)) {
+            if (
+              props.scrollElementRef.current &&
+              !isVisible(target, props.scrollElementRef.current)
+            ) {
               target.scrollIntoView({
                 block: 'center',
                 behavior: isSmouth ? 'smooth' : 'auto',
               })
             }
             target.focus({
-              preventScroll: true
+              preventScroll: true,
             })
           } catch (error) {
             console.log('Cannot Scroll', error)
@@ -186,9 +188,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       return undefined
     }
 
-    return libraryItems.find(
-      (item) => item.node.id === activeCardId
-    )
+    return libraryItems.find((item) => item.node.id === activeCardId)
   }, [libraryItems, activeCardId])
 
   const activeItemIndex = useMemo(() => {
@@ -277,7 +277,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
           break
         case 'moveFocusToNextListItem': {
           const currentItemIndex = activeItemIndex
-          const nextItemIndex = currentItemIndex == undefined ? 0 : currentItemIndex + 1
+          const nextItemIndex =
+            currentItemIndex == undefined ? 0 : currentItemIndex + 1
           const nextItem = libraryItems[nextItemIndex]
           if (nextItem) {
             activateCard(nextItem.node.id)
@@ -286,7 +287,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         }
         case 'moveFocusToPreviousListItem': {
           const currentItemIndex = activeItemIndex
-          const previousItemIndex = currentItemIndex == undefined ? 0 : currentItemIndex - 1
+          const previousItemIndex =
+            currentItemIndex == undefined ? 0 : currentItemIndex - 1
           const previousItem = libraryItems[previousItemIndex]
           if (previousItem) {
             activateCard(previousItem.node.id)
@@ -302,9 +304,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
             )
             const nextItem = libraryItems[nextItemIndex]
             if (nextItem) {
-              const nextItemElement = document.getElementById(
-                nextItem.node.id
-              )
+              const nextItemElement = document.getElementById(nextItem.node.id)
               if (nextItemElement) {
                 activateCard(nextItem.node.id)
               }
@@ -323,9 +323,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
             )
             const nextItem = libraryItems[nextItemIndex]
             if (nextItem) {
-              const nextItemElement = document.getElementById(
-                nextItem.node.id
-              )
+              const nextItemElement = document.getElementById(nextItem.node.id)
               if (nextItemElement) {
                 activateCard(nextItem.node.id)
               }
@@ -589,12 +587,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 '&:focus': {
                   '> div': {
                     bg: '$grayBgActive',
-                  }
+                  },
                 },
                 '&:hover': {
                   '> div': {
                     bg: '$grayBgActive',
-                  }
+                  },
                 },
               }}
             >
@@ -674,7 +672,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 toast.success(msg, { position: 'bottom-right' })
               })
               .catch((error) => {
-                toast.error('There was an error snoozing your link.', { position: 'bottom-right' })
+                toast.error('There was an error snoozing your link.', {
+                  position: 'bottom-right',
+                })
               })
           }}
           onOpenChange={() => {

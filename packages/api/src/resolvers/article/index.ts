@@ -406,7 +406,11 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
+    console.log('start to get article', Date.now())
+
     const page = await getPageByParam({ userId: claims.uid, slug })
+
+    console.log('get article from elastic', Date.now())
 
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
@@ -434,6 +438,8 @@ export const getArticlesResolver = authorized<
   const startCursor = params.after || ''
   const first = params.first || 10
 
+  console.log('getArticlesResolver starts', Date.now())
+
   // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
   // so queries can contain phrases like "human race";
   // We can also split out terms like "label:unread".
@@ -451,6 +457,9 @@ export const getArticlesResolver = authorized<
       env: env.server.apiEnv,
     },
   })
+
+  console.log('parsed search query', Date.now())
+
   await createIntercomEvent('search', claims.uid)
 
   const [pages, totalCount] = (await searchPages(
@@ -472,6 +481,8 @@ export const getArticlesResolver = authorized<
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
   const hasNextPage = pages.length > first
   const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
+
+  console.log('get search result', Date.now())
 
   console.log(
     'start',

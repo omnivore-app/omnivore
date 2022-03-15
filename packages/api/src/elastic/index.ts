@@ -290,15 +290,10 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       },
     }
 
-    console.log(JSON.stringify(params))
-    console.log('start timestamp:', Date.now())
-
     const { body } = await client.search({
       index: INDEX_ALIAS,
       body: params,
     })
-
-    console.log('end timestamp:', Date.now())
 
     if (body.hits.total.value === 0) {
       return undefined
@@ -421,13 +416,11 @@ export const searchPages = async (
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))
-    console.log('start timestamp to search in elastic', Date.now())
 
     const response = await client.search<SearchResponse<Page>, SearchBody>({
       index: INDEX_ALIAS,
       body,
     })
-    console.log('end timestamp to search in elastic', Date.now())
 
     if (response.body.hits.total.value === 0) {
       return [[], 0]
