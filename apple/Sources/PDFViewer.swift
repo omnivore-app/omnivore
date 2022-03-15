@@ -291,27 +291,28 @@ import Utils
     }
 
     override func didCreateDocumentProvider(_ documentProvider: PDFDocumentProvider) -> PDFDocumentProvider {
-      DispatchQueue.main.async { [self] in
-        if self.highlightsApplied {
-          return
+      if !highlightsApplied {
+        DispatchQueue.main.async { [self] in
+          self.applyHighlights(documentProvider: documentProvider)
         }
-
-        var annnotations: [Annotation] = []
-        for highlight in self.viewModel.allHighlights() {
-          let data = highlight.patch.data(using: String.Encoding.utf8)
-          if let data = data {
-            guard let annotation = try? Annotation(fromInstantJSON: data, documentProvider: documentProvider) else {
-              continue
-            }
-            annnotations.append(annotation)
-          }
-        }
-        add(annotations: annnotations)
-
-        highlightsApplied = true
       }
 
       return documentProvider
+    }
+
+    private func applyHighlights(documentProvider: PDFDocumentProvider) {
+      viewModel.loadHighlights { [weak self] highlights in
+        var annnotations: [Annotation] = []
+        for highlight in highlights {
+          guard let data = highlight.patch.data(using: String.Encoding.utf8) else { continue }
+          let annotation = try? Annotation(fromInstantJSON: data, documentProvider: documentProvider)
+          guard let annotation = annotation else { continue }
+          annnotations.append(annotation)
+        }
+        self?.add(annotations: annnotations)
+
+        self?.highlightsApplied = true
+      }
     }
 
     @available(*, unavailable)

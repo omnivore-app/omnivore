@@ -17,13 +17,28 @@ public final class PDFViewerViewModel: ObservableObject {
     self.feedItem = feedItem
   }
 
-  public func allHighlights() -> [Highlight] {
+  public func loadHighlights(completion onComplete: @escaping ([Highlight]) -> Void) {
+    guard let viewer = services.dataService.currentViewer else { return }
+
+    services.dataService.pdfHighlightsPublisher(username: viewer.username, slug: feedItem.slug).sink(
+      receiveCompletion: { [weak self] completion in
+        guard case .failure = completion else { return }
+        onComplete(self?.allHighlights(fetchedHighlights: []) ?? [])
+      },
+      receiveValue: { [weak self] highlights in
+        onComplete(self?.allHighlights(fetchedHighlights: highlights) ?? [])
+      }
+    )
+    .store(in: &subscriptions)
+  }
+
+  private func allHighlights(fetchedHighlights: [Highlight]) -> [Highlight] {
     var resultSet = [String: Highlight]()
 
     for highlight in services.dataService.cachedHighlights(pdfID: feedItem.id) {
       resultSet[highlight.id] = highlight
     }
-    for highlight in feedItem.highlights ?? [] {
+    for highlight in fetchedHighlights {
       resultSet[highlight.id] = highlight
     }
     for highlightId in services.dataService.fetchRemovedHighlightIds(pdfID: feedItem.id) {
@@ -147,7 +162,6 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   private func removeLocalHighlights(highlightIds: [String]) {
-    feedItem.highlights?.removeAll { highlightIds.contains($0.id) }
     services.dataService.removeHighlights(pdfID: feedItem.id, highlightIds: highlightIds)
   }
 }

@@ -125,18 +125,6 @@ public extension DataService {
   }
 }
 
-let highlightSelection = Selection.Highlight {
-  Highlight(
-    id: try $0.id(),
-    shortId: try $0.shortId(),
-    quote: try $0.quote(),
-    prefix: try $0.prefix(),
-    suffix: try $0.suffix(),
-    patch: try $0.patch(),
-    annotation: try $0.annotation()
-  )
-}
-
 let homeFeedItemSelection = Selection.Article {
   FeedItem(
     id: try $0.id(),
@@ -153,8 +141,7 @@ let homeFeedItemSelection = Selection.Article {
     publishDate: try $0.publishedAt()?.value,
     slug: try $0.slug(),
     isArchived: try $0.isArchived(),
-    contentReader: try $0.contentReader().rawValue,
-    highlights: try $0.highlights(selection: highlightSelection.list)
+    contentReader: try $0.contentReader().rawValue
   )
 }
 

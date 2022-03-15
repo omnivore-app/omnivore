@@ -27,7 +27,6 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   public let slug: String
   public let isArchived: Bool
   public let contentReader: String?
-  public var highlights: [Highlight]?
 
   public init(
     id: String,
@@ -44,8 +43,7 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     publishDate: Date?,
     slug: String,
     isArchived: Bool,
-    contentReader: String?,
-    highlights: [Highlight]?
+    contentReader: String?
   ) {
     self.id = id
     self.title = title
@@ -62,7 +60,6 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     self.slug = slug
     self.isArchived = isArchived
     self.contentReader = contentReader
-    self.highlights = highlights
   }
 
   enum CodingKeys: String, CodingKey {
