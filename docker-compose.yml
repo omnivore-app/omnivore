@@ -39,7 +39,6 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
     container_name: "omnivore-elastic"
     healthcheck:
-    #   test: ["CMD", "nc", "-z", "-v", "localhost", "9200"]
       test: curl 0.0.0.0:9200/_cat/health >/dev/null || exit 1
       interval: 2s
       timeout: 2s
