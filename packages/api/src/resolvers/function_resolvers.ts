@@ -395,8 +395,11 @@ export const functionResolvers = {
         return article.articleReadingProgress
       }
       return (
-        await ctx.models.userArticle.getByArticleId(ctx.claims.uid, article.id)
-      )?.articleReadingProgress
+        await getPageByParam({
+          userId: ctx.claims.uid,
+          _id: article.id,
+        })
+      )?.readingProgressPercent
     },
     async readingProgressAnchorIndex(
       article: { id: string; articleReadingProgressAnchorIndex?: number },
@@ -407,8 +410,11 @@ export const functionResolvers = {
         return article.articleReadingProgressAnchorIndex
       }
       return (
-        await ctx.models.userArticle.getByArticleId(ctx.claims.uid, article.id)
-      )?.articleReadingProgressAnchorIndex
+        await getPageByParam({
+          userId: ctx.claims.uid,
+          _id: article.id,
+        })
+      )?.readingProgressAnchorIndex
     },
     async highlights(
       article: { id: string; userId?: string },
