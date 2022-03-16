@@ -387,12 +387,12 @@ export const functionResolvers = {
         : ContentReader.Web
     },
     async readingProgressPercent(
-      article: { id: string; articleReadingProgress?: number },
+      article: { id: string; readingProgressPercent?: number },
       _: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
-      if ('articleReadingProgress' in article) {
-        return article.articleReadingProgress
+      if ('readingProgressPercent' in article) {
+        return article.readingProgressPercent
       }
       return (
         await getPageByParam({
@@ -402,12 +402,12 @@ export const functionResolvers = {
       )?.readingProgressPercent
     },
     async readingProgressAnchorIndex(
-      article: { id: string; articleReadingProgressAnchorIndex?: number },
+      article: { id: string; readingProgressAnchorIndex?: number },
       _: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
-      if ('articleReadingProgressAnchorIndex' in article) {
-        return article.articleReadingProgressAnchorIndex
+      if ('readingProgressAnchorIndex' in article) {
+        return article.readingProgressAnchorIndex
       }
       return (
         await getPageByParam({
