@@ -26,6 +26,7 @@ const schema = gql`
 
   enum SortBy {
     UPDATED_TIME
+    SCORE
   }
 
   enum ContentReader {

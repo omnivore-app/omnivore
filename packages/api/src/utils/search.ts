@@ -9,7 +9,7 @@ import {
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
 } from 'search-query-parser'
-import { PageType } from '../generated/graphql'
+import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
 
 export enum ReadFilter {
   ALL,
@@ -29,6 +29,7 @@ export type SearchFilter = {
   readFilter: ReadFilter
   typeFilter?: PageType | undefined
   labelFilters: LabelFilter[]
+  sortParams?: SortParams
 }
 
 export enum LabelFilterType {
@@ -112,6 +113,29 @@ const parseLabelFilter = (
   }
 }
 
+const parseSortParams = (str?: string): SortParams | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  const [sort, order] = str.split(':')
+  const sortOrder =
+    order?.toUpperCase() === 'ASC' ? SortOrder.Ascending : SortOrder.Descending
+
+  switch (sort.toUpperCase()) {
+    case 'UPDATED_AT':
+      return {
+        by: SortBy.UpdatedTime,
+        order: sortOrder,
+      }
+    case 'SCORE':
+      return {
+        by: SortBy.Score,
+        order: sortOrder,
+      }
+  }
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -131,7 +155,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   }
 
   const parsed = parse(searchQuery, {
-    keywords: ['in', 'is', 'type', 'label'],
+    keywords: ['in', 'is', 'type', 'label', 'sort'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -173,6 +197,10 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'label': {
           const labelFilter = parseLabelFilter(keyword.value, parsed.exclude)
           labelFilter && result.labelFilters.push(labelFilter)
+          break
+        }
+        case 'sort': {
+          result.sortParams = parseSortParams(keyword.value)
           break
         }
       }

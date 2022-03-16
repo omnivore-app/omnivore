@@ -454,6 +454,7 @@ export const getArticlesResolver = authorized<
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
       labelFilters: searchQuery.labelFilters,
+      sortParams: searchQuery.sortParams,
       env: env.server.apiEnv,
     },
   })
@@ -466,7 +467,7 @@ export const getArticlesResolver = authorized<
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      sort: params.sort || undefined,
+      sort: searchQuery.sortParams || params.sort || undefined,
       query: searchQuery.query,
       inFilter: searchQuery.inFilter,
       readFilter: searchQuery.readFilter,

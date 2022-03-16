@@ -67,18 +67,7 @@ export interface SearchBody {
       )[]
     }
   }
-  sort: [
-    {
-      savedAt: {
-        order: string
-      }
-    },
-    {
-      createdAt: {
-        order: string
-      }
-    }
-  ]
+  sort: [Record<string, { order: string }>]
   from: number
   size: number
   _source: {

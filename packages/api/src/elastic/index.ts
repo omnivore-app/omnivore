@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
-import { PageType, SortOrder, SortParams } from '../generated/graphql'
+import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
 import {
   InFilter,
   LabelFilter,
@@ -352,6 +352,7 @@ export const searchPages = async (
       inFilter,
     } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
+    const sortField = sort?.by === SortBy.Score ? '_score' : 'updatedAt'
     const includeLabels = labelFilters.filter(
       (filter) => filter.type === LabelFilterType.INCLUDE
     )
@@ -375,12 +376,7 @@ export const searchPages = async (
       },
       sort: [
         {
-          savedAt: {
-            order: sortOrder,
-          },
-        },
-        {
-          createdAt: {
+          [sortField]: {
             order: sortOrder,
           },
         },
