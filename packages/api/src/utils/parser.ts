@@ -14,6 +14,7 @@ import { AxiosHandler } from './axios-handler'
 import { BloombergHandler } from './bloomberg-handler'
 import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
+import { decode } from 'html-entities'
 
 const logger = buildLogger('utils.parse')
 
@@ -333,10 +334,10 @@ const getJSONLdLinkMetadata = async (
     const jsonLd =
       (await axios.get(jsonLdLink.href, { timeout: 5000 })).data || {}
 
-    result.byline = jsonLd['author_name']
-    result.previewImage = jsonLd['thumbnail_url']
-    result.siteName = jsonLd['provider_name']
-    result.title = jsonLd['title']
+    result.byline = decode(jsonLd['author_name'])
+    result.previewImage = decode(jsonLd['thumbnail_url'])
+    result.siteName = decode(jsonLd['provider_name'])
+    result.title = decode(jsonLd['title'])
 
     return result
   } catch (error) {

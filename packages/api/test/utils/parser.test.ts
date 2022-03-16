@@ -1,9 +1,9 @@
 import 'mocha'
 import { expect } from 'chai'
 import 'chai/register-should'
-import { JSDOM } from 'jsdom'
 import fs from 'fs'
 import { findNewsletterUrl, isProbablyNewsletter, parsePageMetadata, parsePreparedContent } from '../../src/utils/parser'
+import nock from 'nock'
 
 const load = (path: string): string => {
   return fs.readFileSync(path, 'utf8')
@@ -69,5 +69,32 @@ describe('parsePreparedContent', async () => {
       },
     )
     expect(result.parsedContent?.publishedDate?.getTime()).to.equal(new Date('2016-04-05T15:27:51+00:00').getTime())
+  })
+})
+
+describe('parsePreparedContent', async () => {
+  nock('https://oembeddata').get('/').reply(200, {
+    "version":"1.0",
+    "provider_name":"Hippocratic Adventures",
+    "provider_url":"https:\/\/www.hippocraticadventures.com",
+    "title":"The Ultimate Guide to Practicing Medicine in Singapore &#8211; Part 2"
+  })
+
+  it('gets metadata from external JSONLD if available', async () => {
+    const html = `<html>
+                    <head>
+                    <link rel="alternate" type="application/json+oembed" href="https://oembeddata">
+                    </link
+                    </head>
+                    <body>body</body>
+                    </html>`
+                    const result = await parsePreparedContent(
+                      'https://example.com/',
+                      {
+                        document: html,
+                        pageInfo: { }
+                      },
+                    )
+    expect(result.parsedContent?.title).to.equal('The Ultimate Guide to Practicing Medicine in Singapore – Part 2')
   })
 })
