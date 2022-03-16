@@ -395,6 +395,7 @@ export const functionResolvers = {
       if (article.readingProgressPercent != null) {
         return article.readingProgressPercent
       }
+      console.log('looking up reading progress for article', article.id, article)
       return (
         await getPageByParam({
           userId: ctx.claims.uid,
