@@ -386,6 +386,47 @@ export const functionResolvers = {
         ? ContentReader.Pdf
         : ContentReader.Web
     },
+    async readingProgressPercent(
+      article: { id: string; readingProgressPercent?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext & { claims: Claims }
+    ) {
+      // != used here to check for null or undefined
+      if (article.readingProgressPercent != null) {
+        return article.readingProgressPercent
+      }
+      console.log(
+        'looking up reading progress for article',
+        article.id,
+        article
+      )
+      return (
+        (
+          await getPageByParam({
+            userId: ctx.claims.uid,
+            _id: article.id,
+          })
+        )?.readingProgressPercent || 0
+      )
+    },
+    async readingProgressAnchorIndex(
+      article: { id: string; readingProgressAnchorIndex?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext & { claims: Claims }
+    ) {
+      // != used here to check for null or undefined
+      if (article.readingProgressAnchorIndex != null) {
+        return article.readingProgressAnchorIndex
+      }
+      return (
+        (
+          await getPageByParam({
+            userId: ctx.claims.uid,
+            _id: article.id,
+          })
+        )?.readingProgressAnchorIndex || 0
+      )
+    },
     async highlights(
       article: { id: string; userId?: string },
       _: { input: ArticleHighlightsInput },
