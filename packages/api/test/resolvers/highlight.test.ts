@@ -72,7 +72,7 @@ describe('Highlights API', () => {
   after(async () => {
     await deleteTestUser(username)
     if (pageId) {
-      await deletePage(pageId, ctx)
+      await deletePage(pageId, user.id, ctx)
     }
   })
 
