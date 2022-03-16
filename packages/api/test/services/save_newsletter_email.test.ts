@@ -1,14 +1,10 @@
 import 'mocha'
 import { expect } from 'chai'
 import 'chai/register-should'
-import {
-  createTestUser,
-  deleteTestUser,
-} from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import { createNewsletterEmail } from '../../src/services/newsletters'
 import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
-import { getRepository } from 'typeorm'
-import { Link } from '../../src/entity/link'
+import { getPageByParam } from '../../src/elastic'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'
@@ -28,17 +24,15 @@ describe('saveNewsletterEmail', () => {
       author: 'fake author',
     })
 
-    const links = await getRepository(Link).find({
-      where: {
-        user: user,
-      },
-      relations: ['page'],
+    setTimeout(async () => {
+      const page = await getPageByParam({ userId: user.id })
+      if (!page) {
+        expect.fail('page not found')
+      }
+      expect(page.url).to.equal('https://example.com')
+      expect(page.title).to.equal('fake title')
+      expect(page.author).to.equal('fake author')
+      expect(page.content).to.contain('fake content')
     })
-    
-    expect(links.length).to.equal(1)
-    expect(links[0].page.url).to.equal('https://example.com')
-    expect(links[0].page.title).to.equal('fake title')
-    expect(links[0].page.author).to.equal('fake author')
-    expect(links[0].page.content).to.contain('fake content')
-  }).timeout(10000)
+  })
 })

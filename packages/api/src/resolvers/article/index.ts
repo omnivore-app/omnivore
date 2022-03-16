@@ -330,13 +330,13 @@ export const createArticleResolver = authorized<
         existingPage.url = uploadFileUrlOverride || articleToSave.url
         existingPage.hash = articleToSave.hash
 
-        await updatePage(existingPage.id, existingPage, ctx)
+        await updatePage(existingPage.id, existingPage, { ...ctx, uid })
 
         log.info('page updated in elastic', existingPage.id)
         articleToSave = existingPage
       } else {
         // create new page in elastic
-        const pageId = await createPage(articleToSave, ctx)
+        const pageId = await createPage(articleToSave, { ...ctx, uid })
 
         if (!pageId) {
           return articleSavingRequestError(
@@ -626,7 +626,7 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      await deletePage(userArticleRemoved.id, uid, { pubsub })
+      await deletePage(userArticleRemoved.id, { pubsub, uid })
 
       const highlightsUnshared = await authTrx(async (tx) => {
         return models.highlight.unshareAllHighlights(articleID, uid, tx)
@@ -660,7 +660,7 @@ export const setBookmarkArticleResolver = authorized<
           userId: uid,
           slug: generateSlug(article.title),
         }
-        await updatePage(articleID, userArticle, { pubsub })
+        await updatePage(articleID, userArticle, { pubsub, uid })
 
         log.info('Article bookmarked', {
           article: Object.assign({}, article, {
@@ -737,7 +737,7 @@ export const saveArticleReadingProgressResolver = authorized<
         : userArticleRecord.readingProgressAnchorIndex,
     })
 
-    shouldUpdate && (await updatePage(id, updatedArticle, { pubsub }))
+    shouldUpdate && (await updatePage(id, updatedArticle, { pubsub, uid }))
 
     return {
       updatedArticle: {

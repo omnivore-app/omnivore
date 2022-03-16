@@ -151,4 +151,5 @@ export type ParamSet = PickTuple<Page, typeof keys>
 export interface PageContext {
   pubsub: PubsubClient
   refresh?: boolean
+  uid: string
 }

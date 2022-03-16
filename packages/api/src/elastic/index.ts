@@ -19,6 +19,7 @@ import {
 } from './types'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { Label } from '../entity/label'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -161,7 +162,11 @@ export const createPage = async (
     const { body } = await client.index({
       id: page.id || undefined,
       index: INDEX_ALIAS,
-      body: page,
+      body: {
+        ...page,
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      },
       refresh: ctx.refresh,
     })
 
@@ -184,14 +189,17 @@ export const updatePage = async (
       index: INDEX_ALIAS,
       id,
       body: {
-        doc: page,
+        doc: {
+          ...page,
+          updatedAt: new Date(),
+        },
       },
       refresh: ctx.refresh,
     })
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.pageSaved(page)
+    await ctx.pubsub.pageSaved(page, ctx.uid)
 
     return true
   } catch (e) {
@@ -200,9 +208,40 @@ export const updatePage = async (
   }
 }
 
+export const addLabelInPage = async (
+  id: string,
+  label: Label,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.update({
+      index: INDEX_ALIAS,
+      id,
+      body: {
+        script: {
+          source:
+            'if (!ctx._source.labels.contains(params.label)) { ctx._source.labels.add(label) }',
+          lang: 'painless',
+          params: {
+            label: label,
+          },
+        },
+        doc: {
+          updatedAt: new Date(),
+        },
+      },
+      refresh: ctx.refresh,
+    })
+
+    return body.result === 'updated'
+  } catch (e) {
+    console.error('failed to update a page in elastic', e)
+    return false
+  }
+}
+
 export const deletePage = async (
   id: string,
-  userId: string,
   ctx: PageContext
 ): Promise<boolean> => {
   try {
@@ -214,7 +253,7 @@ export const deletePage = async (
 
     if (body.deleted === 0) return false
 
-    await ctx.pubsub.pageDeleted(id, userId)
+    await ctx.pubsub.pageDeleted(id, ctx.uid)
 
     return true
   } catch (e) {

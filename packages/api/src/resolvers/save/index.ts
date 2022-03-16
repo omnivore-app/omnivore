@@ -29,7 +29,7 @@ export const savePageResolver = authorized<
   }
 
   return savePage(
-    ctx,
+    { ...ctx, uid },
     { userId: user.id, username: user.profile.username },
     input
   )
@@ -70,5 +70,5 @@ export const saveFileResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return (await saveFile(ctx, user, input)) as SaveSuccess
+  return (await saveFile({ ...ctx, uid }, user, input)) as SaveSuccess
 })

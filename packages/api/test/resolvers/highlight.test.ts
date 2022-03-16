@@ -12,10 +12,10 @@ import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { deletePage } from '../../src/elastic'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { PageContext } from '../../src/elastic/types'
 
 chai.use(chaiString)
 
-const ctx = { pubsub: createPubSubClient() }
 const createHighlightQuery = (
   authToken: string,
   linkId: string,
@@ -57,6 +57,7 @@ describe('Highlights API', () => {
   let authToken: string
   let user: User
   let pageId: string
+  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -67,12 +68,13 @@ describe('Highlights API', () => {
 
     authToken = res.body.authToken
     pageId = (await createTestElasticPage(user)).id
+    ctx = { pubsub: createPubSubClient(), uid: user.id }
   })
 
   after(async () => {
     await deleteTestUser(username)
     if (pageId) {
-      await deletePage(pageId, user.id, ctx)
+      await deletePage(pageId, ctx)
     }
   })
 

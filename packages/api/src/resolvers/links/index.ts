@@ -81,7 +81,7 @@ export const setLinkArchivedResolver = authorized<
       {
         archivedAt: args.input.archived ? new Date() : null,
       },
-      { pubsub }
+      { pubsub, uid: claims.uid }
     )
   } catch (e) {
     return {
