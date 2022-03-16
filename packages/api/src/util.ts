@@ -111,6 +111,7 @@ const nullableEnvVars = [
   'TWITTER_BEARER_TOKEN',
   'ELASTIC_USERNAME',
   'ELASTIC_PASSWORD',
+  'GCS_UPLOAD_PRIVATE_BUCKET',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
