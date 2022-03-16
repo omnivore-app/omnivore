@@ -6,8 +6,8 @@ let package = Package(
   name: "OmnivoreKit",
   defaultLocalization: "en",
   platforms: [
-    .iOS(.v14),
-    .macOS(.v11)
+    .iOS(.v15),
+    .macOS(.v12)
   ],
   products: [
     .library(name: "App", targets: ["App"]),
