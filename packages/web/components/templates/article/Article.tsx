@@ -151,7 +151,11 @@ export function Article(props: ArticleProps): JSX.Element {
         return 0
       }
 
-      props.scrollElementRef.current?.scroll(0, calculateOffset(anchorElement))
+      if (props.scrollElementRef.current) {
+        props.scrollElementRef.current?.scroll(0, calculateOffset(anchorElement))
+      } else {
+        window.document.documentElement.scroll(0, calculateOffset(anchorElement))
+      }
     }
   }, [
     props.initialAnchorIndex,
