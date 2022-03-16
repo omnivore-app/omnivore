@@ -19,15 +19,6 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      if #available(macOS 12.0, *) {
-        innerBody
-      } else {
-        innerBodyMac11
-      }
-    }
-
-    @available(macOS 12.0, *)
-    var innerBody: some View {
       List {
         Section {
           ForEach(viewModel.items) { item in
@@ -116,42 +107,6 @@ import Views
               ProgressView()
             }
           }
-        }
-      }
-      .onAppear {
-        if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-        }
-      }
-    }
-
-    var innerBodyMac11: some View {
-      List {
-        Section {
-          ForEach(viewModel.items) { item in
-            FeedCardNavigationLink(
-              item: item,
-              searchQuery: searchQuery,
-              selectedLinkItem: $selectedLinkItem,
-              viewModel: viewModel
-            )
-          }
-        }
-
-        if viewModel.isLoading {
-          LoadingSection()
-        }
-      }
-      .listStyle(PlainListStyle())
-      .navigationTitle("Home")
-      .toolbar {
-        ToolbarItem {
-          Button(
-            action: {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
-            },
-            label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-          )
         }
       }
       .onAppear {

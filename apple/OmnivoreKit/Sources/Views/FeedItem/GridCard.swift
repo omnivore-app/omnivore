@@ -63,21 +63,9 @@ public struct GridCard: View {
       VStack(alignment: .leading, spacing: 16) {
         // Progress Bar
         Group {
-          // Remove os check when dropping macOS 11
-          #if os(iOS)
-            if #available(iOS 15.0, *) {
-              ProgressView(value: min(abs(item.readingProgress) / 100, 1))
-                .tint(.appYellow48)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-              Color.clear
-                .contentShape(Rectangle())
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-          #else
-            ProgressView(value: max(abs(item.readingProgress) / 100, 1))
-              .frame(maxWidth: .infinity, alignment: .leading)
-          #endif
+          ProgressView(value: min(abs(item.readingProgress) / 100, 1))
+            .tint(.appYellow48)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .onTapGesture { tapHandler() }
 

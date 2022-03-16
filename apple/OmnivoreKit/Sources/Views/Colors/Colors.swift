@@ -22,13 +22,7 @@ public extension Color {
     static var systemBackground: Color { Color(.systemBackground) }
     static var systemPlaceholder: Color { Color(.placeholderText) }
     static var secondarySystemGroupedBackground: Color { Color(.secondarySystemGroupedBackground) }
-    static var systemLabel: Color {
-      if #available(iOS 15.0, *) {
-        return Color(uiColor: .label)
-      } else {
-        return Color.appGrayTextContrast
-      }
-    }
+    static var systemLabel: Color { Color(uiColor: .label) }
 
   #elseif os(macOS)
     static var systemBackground: Color { Color(.windowBackgroundColor) }
