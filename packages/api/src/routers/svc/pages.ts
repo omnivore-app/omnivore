@@ -5,6 +5,8 @@ import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { generateUploadSignedUrl, uploadToSignedUrl } from '../../utils/uploads'
 import { v4 as uuidv4 } from 'uuid'
+import { env } from '../../env'
+import { Page } from '../../elastic/types'
 
 export function pageServiceRouter() {
   const router = express.Router()
@@ -25,10 +27,21 @@ export function pageServiceRouter() {
     }
 
     try {
+      const data: Partial<Page> = JSON.parse(msgStr)
+      if (!data.userId) {
+        console.log('No userId found in message')
+        res.status(400).send('Bad Request')
+        return
+      }
+
       const contentType = 'application/json'
+      const bucketName = env.fileUpload.gcsUploadPrivateBucket
       const uploadUrl = await generateUploadSignedUrl(
-        `${req.params.folder}/${new Date().toDateString()}/${uuidv4()}.json`,
-        contentType
+        `${req.params.folder}/${
+          data.userId
+        }/${new Date().toDateString()}/${uuidv4()}.json`,
+        contentType,
+        bucketName
       )
       await uploadToSignedUrl(
         uploadUrl,

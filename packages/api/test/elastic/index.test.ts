@@ -15,6 +15,7 @@ import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 describe('elastic api', () => {
   const ctx: PageContext = { pubsub: createPubSubClient(), refresh: true }
+  const userId = 'userId'
 
   let page: Page
 
@@ -23,7 +24,7 @@ describe('elastic api', () => {
     page = {
       id: '',
       hash: 'test hash',
-      userId: 'test userId',
+      userId: userId,
       pageType: PageType.Article,
       title: 'test title',
       content: '<p>test</p>',
@@ -58,7 +59,7 @@ describe('elastic api', () => {
 
   after(async () => {
     // delete the testing page
-    await deletePage(page.id, ctx)
+    await deletePage(page.id, userId, ctx)
   })
 
   describe('createPage', () => {
@@ -66,7 +67,7 @@ describe('elastic api', () => {
 
     after(async () => {
       if (newPageId) {
-        await deletePage(newPageId, ctx)
+        await deletePage(newPageId, userId, ctx)
       }
     })
 

@@ -202,6 +202,7 @@ export const updatePage = async (
 
 export const deletePage = async (
   id: string,
+  userId: string,
   ctx: PageContext
 ): Promise<boolean> => {
   try {
@@ -213,7 +214,7 @@ export const deletePage = async (
 
     if (body.deleted === 0) return false
 
-    await ctx.pubsub.pageDeleted(id)
+    await ctx.pubsub.pageDeleted(id, userId)
 
     return true
   } catch (e) {

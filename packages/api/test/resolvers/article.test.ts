@@ -281,7 +281,7 @@ describe('Article API', () => {
       })
 
       after(async () => {
-        await deletePage(pageId, ctx)
+        await deletePage(pageId, user.id, ctx)
       })
 
       it('should create an article', async () => {
@@ -320,7 +320,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId, ctx)
+        await deletePage(pageId, user.id, ctx)
       }
     })
 
@@ -564,7 +564,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId, ctx)
+        await deletePage(pageId, user.id, ctx)
       }
     })
 
@@ -612,7 +612,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId, ctx)
+        await deletePage(pageId, user.id, ctx)
       }
     })
 

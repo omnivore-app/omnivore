@@ -17,7 +17,8 @@ const bucketName = env.fileUpload.gcsUploadBucket
 
 export const generateUploadSignedUrl = async (
   filePathName: string,
-  contentType: string
+  contentType: string,
+  selectedBucket?: string
 ): Promise<string> => {
   if (env.dev.isLocal) {
     return 'http://localhost:3000/uploads/' + filePathName
@@ -33,7 +34,7 @@ export const generateUploadSignedUrl = async (
 
   // Get a v4 signed URL for uploading file
   const [url] = await storage
-    .bucket(bucketName)
+    .bucket(selectedBucket || bucketName)
     .file(filePathName)
     .getSignedUrl(options)
   return url

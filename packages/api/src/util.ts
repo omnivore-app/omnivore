@@ -65,6 +65,7 @@ interface BackendEnv {
   fileUpload: {
     gcsUploadBucket: string
     gcsUploadSAKeyFilePath: string
+    gcsUploadPrivateBucket: string
   }
   elastic: {
     url: string
@@ -202,6 +203,7 @@ export function getEnv(): BackendEnv {
   const fileUpload = {
     gcsUploadBucket: parse('GCS_UPLOAD_BUCKET'),
     gcsUploadSAKeyFilePath: parse('GCS_UPLOAD_SA_KEY_FILE_PATH'),
+    gcsUploadPrivateBucket: parse('GCS_UPLOAD_PRIVATE_BUCKET'),
   }
   const elastic = {
     url: parse('ELASTIC_URL'),

@@ -626,7 +626,7 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      await deletePage(userArticleRemoved.id, { pubsub })
+      await deletePage(userArticleRemoved.id, uid, { pubsub })
 
       const highlightsUnshared = await authTrx(async (tx) => {
         return models.highlight.unshareAllHighlights(articleID, uid, tx)
