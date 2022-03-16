@@ -65,6 +65,7 @@ interface BackendEnv {
   fileUpload: {
     gcsUploadBucket: string
     gcsUploadSAKeyFilePath: string
+    gcsUploadPrivateBucket: string
   }
   elastic: {
     url: string
@@ -110,6 +111,7 @@ const nullableEnvVars = [
   'TWITTER_BEARER_TOKEN',
   'ELASTIC_USERNAME',
   'ELASTIC_PASSWORD',
+  'GCS_UPLOAD_PRIVATE_BUCKET',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -202,6 +204,7 @@ export function getEnv(): BackendEnv {
   const fileUpload = {
     gcsUploadBucket: parse('GCS_UPLOAD_BUCKET'),
     gcsUploadSAKeyFilePath: parse('GCS_UPLOAD_SA_KEY_FILE_PATH'),
+    gcsUploadPrivateBucket: parse('GCS_UPLOAD_PRIVATE_BUCKET'),
   }
   const elastic = {
     url: parse('ELASTIC_URL'),
