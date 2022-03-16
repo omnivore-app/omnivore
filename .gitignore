@@ -59,3 +59,9 @@ omnivore-app-sa-gcs*
 
 # Emacs temp files
 *~
+
+# code coverage files
+.nyc_output
+
+# data migration file
+data.json

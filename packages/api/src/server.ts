@@ -39,6 +39,8 @@ import { remindersServiceRouter } from './routers/svc/reminders'
 import { ApolloServer } from 'apollo-server-express'
 import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
 import { corsConfig } from './utils/corsConfig'
+import { initElasticsearch } from './elastic'
+import { pageServiceRouter } from './routers/svc/pages'
 
 const PORT = process.env.PORT || 4000
 
@@ -98,6 +100,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
   app.use('/svc/pubsub/emails', emailsServiceRouter())
+  app.use('/svc/pubsub/pages', pageServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
 
@@ -123,6 +126,8 @@ const main = async (): Promise<void> => {
   // so the container will be restarted and not come online
   // as healthy.
   await initEntities()
+
+  await initElasticsearch()
 
   const { app, apollo, httpServer } = createApp()
 

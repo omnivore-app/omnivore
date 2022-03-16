@@ -61,13 +61,21 @@ import { traceAs } from '../../tracing'
 import { createImageProxyUrl } from '../../utils/imageproxy'
 import normalizeUrl from 'normalize-url'
 import { WithDataSourcesContext } from '../types'
-import { UserArticleData } from '../../datalayer/links/model'
 
 import { parseSearchQuery } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import {
+  createPage,
+  deletePage,
+  getPageById,
+  getPageByParam,
+  searchPages,
+  updatePage,
+} from '../../elastic'
+import { Page } from '../../elastic/types'
 
 export type PartialArticle = Omit<
   Article,
@@ -240,7 +248,9 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      const articleToSave = {
+      let articleToSave: Page = {
+        id: '',
+        userId: uid,
         originalHtml: domContent,
         content: parsedContent?.content || '',
         description: parsedContent?.excerpt,
@@ -258,10 +268,10 @@ export const createArticleResolver = authorized<
         image: parsedContent?.previewImage,
         publishedAt: validatedDate(parsedContent?.publishedDate),
         uploadFileId: uploadFileId,
-      }
-
-      if (canonicalUrl && domContent) {
-        await ctx.pubsub.pageSaved(uid, canonicalUrl, domContent)
+        slug,
+        createdAt: saveTime,
+        savedAt: saveTime,
+        siteName: parsedContent?.siteName,
       }
 
       let archive = false
@@ -272,114 +282,6 @@ export const createArticleResolver = authorized<
         )
         if (reminder) {
           archive = reminder.archiveUntil || false
-        }
-      }
-
-      const existingArticle = await models.article.getByUrlAndHash({
-        url: articleToSave.url,
-        hash: articleToSave.hash,
-      })
-
-      if (existingArticle) {
-        let uploadFileUrlOverride = ''
-        if (existingArticle.uploadFileId) {
-          /* Grab the public URL from the existing uploaded Article, we ignore
-           * the duplicate uploaded file record, leave it in initialized/unused
-           * state (the duplicate uploaded file in GCS will remain private).
-           */
-          const uploadFileData = await models.uploadFile.get(
-            existingArticle.uploadFileId
-          )
-          uploadFileUrlOverride = await makeStorageFilePublic(
-            uploadFileData.id,
-            uploadFileData.fileName
-          )
-        }
-
-        // Checking if either a user article pointing to existing article or with the same URL exists
-        const matchedUserArticleRecord =
-          (await models.userArticle.getByParameters(uid, {
-            articleId: existingArticle.id,
-          })) ||
-          (await models.userArticle.getByParameters(uid, {
-            articleUrl: articleToSave.url,
-          }))
-
-        if (matchedUserArticleRecord) {
-          log.info('Article exists, updating user article', {
-            existingArticleId: existingArticle.id,
-            matchedUserArticleRecord,
-            uploadFileId: existingArticle.uploadFileId,
-            uploadFileUrlOverride,
-            labels: {
-              source: 'resolver',
-              resolver: 'createArticleResolver',
-              articleId: existingArticle.id,
-              userId: uid,
-            },
-          })
-
-          // If the user already has the article saved, we just update savedAt
-          // and we unarchive the article by updating archivedAt, unless they have
-          // a reminder set to archive the article.
-          const updatedArticle = await authTrx((tx) =>
-            models.userArticle.update(
-              matchedUserArticleRecord.id,
-              {
-                slug: slug,
-                archivedAt: archive ? saveTime : null,
-                savedAt: saveTime,
-                articleId: existingArticle.id,
-                articleUrl: uploadFileUrlOverride || existingArticle.url,
-                articleHash: existingArticle.hash,
-              },
-              tx
-            )
-          )
-
-          const createdArticle = { ...existingArticle, ...updatedArticle }
-          return articleSavingRequestPopulate(
-            {
-              user,
-              created: false,
-              createdArticle: createdArticle,
-            },
-            ctx,
-            articleSavingRequest?.id,
-            createdArticle.articleId || undefined
-          )
-        } else {
-          log.info('Article exists, creating user article', {
-            existingArticleId: existingArticle.id,
-            uploadFileId: existingArticle.uploadFileId,
-            uploadFileUrlOverride,
-            labels: {
-              source: 'resolver',
-              resolver: 'createArticleResolver',
-              articleId: existingArticle.id,
-              userId: uid,
-            },
-          })
-
-          const updatedArticle = await models.userArticle.create({
-            slug: slug,
-            userId: uid,
-            articleId: existingArticle.id,
-            articleUrl: uploadFileUrlOverride || existingArticle.url,
-            articleHash: existingArticle.hash,
-          })
-
-          const createdArticle = { ...existingArticle, ...updatedArticle }
-          return articleSavingRequestPopulate(
-            {
-              user,
-              created: false,
-              createdArticle: createdArticle,
-            },
-            ctx,
-            articleSavingRequest?.id,
-            createdArticle.articleId || undefined
-          )
         }
       }
 
@@ -416,48 +318,43 @@ export const createArticleResolver = authorized<
         )
       }
 
-      const [articleRecord, matchedUserArticleRecord] = await Promise.all([
-        models.article.create(articleToSave),
-        models.userArticle.getByParameters(uid, {
-          articleUrl: articleToSave.url,
-        }),
-      ])
+      const existingPage = await getPageByParam({
+        userId: uid,
+        url: articleToSave.url,
+      })
+      if (existingPage) {
+        //  update existing page in elastic
+        existingPage.slug = slug
+        existingPage.savedAt = saveTime
+        existingPage.archivedAt = archive ? saveTime : undefined
+        existingPage.url = uploadFileUrlOverride || articleToSave.url
+        existingPage.hash = articleToSave.hash
 
-      if (!matchedUserArticleRecord && canonicalUrl && domContent) {
-        await ctx.pubsub.pageCreated(uid, canonicalUrl, domContent)
+        await updatePage(existingPage.id, existingPage, ctx)
+
+        log.info('page updated in elastic', existingPage.id)
+        articleToSave = existingPage
+      } else {
+        // create new page in elastic
+        const pageId = await createPage(articleToSave, ctx)
+
+        if (!pageId) {
+          return articleSavingRequestError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            articleSavingRequest
+          )
+        }
+        log.info('page created in elastic', articleToSave)
+        articleToSave.id = pageId
       }
 
-      // Updating already existing user_article record with the new saved_at date and the new article record
-      // or creating the new one.
-      const userArticle = await authTrx<Promise<UserArticleData>>((tx) =>
-        matchedUserArticleRecord
-          ? models.userArticle.update(
-              matchedUserArticleRecord.id,
-              {
-                slug: slug,
-                savedAt: saveTime,
-                articleId: articleRecord.id,
-                archivedAt: archive ? saveTime : null,
-                articleUrl: uploadFileUrlOverride || articleRecord.url,
-                articleHash: articleRecord.hash,
-              },
-              tx
-            )
-          : models.userArticle.create(
-              {
-                userId: uid,
-                slug: slug,
-                savedAt: saveTime,
-                articleId: articleRecord.id,
-                archivedAt: archive ? saveTime : null,
-                articleUrl: uploadFileUrlOverride || articleRecord.url,
-                articleHash: articleRecord.hash,
-              },
-              tx
-            )
-      )
-
-      const createdArticle = { ...userArticle, ...articleRecord }
+      const createdArticle: PartialArticle = {
+        ...articleToSave,
+        isArchived: !!articleToSave.archivedAt,
+      }
       return articleSavingRequestPopulate(
         {
           user,
@@ -466,7 +363,7 @@ export const createArticleResolver = authorized<
         },
         ctx,
         articleSavingRequest?.id,
-        createdArticle.articleId || undefined
+        createdArticle.id || undefined
       )
     } catch (error) {
       if (
@@ -493,7 +390,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims, models }) => {
+> = async (_obj, { slug }, { claims }) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -509,16 +406,19 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    const article = await models.userArticle.getByUserIdAndSlug(
-      claims.uid,
-      slug
-    )
+    console.log('start to get article', Date.now())
 
-    if (!article) {
+    const page = await getPageByParam({ userId: claims.uid, slug })
+
+    console.log('get article from elastic', Date.now())
+
+    if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
-    return { article: article }
+    return {
+      article: { ...page, isArchived: !!page.archivedAt, linkId: page.id },
+    }
   } catch (error) {
     return { errorCodes: [ArticleErrorCode.BadData] }
   }
@@ -533,10 +433,12 @@ export const getArticlesResolver = authorized<
   PaginatedPartialArticles,
   ArticlesError,
   QueryArticlesArgs
->(async (_obj, params, { models, claims, authTrx }) => {
+>(async (_obj, params, { claims }) => {
   const notNullField = params.sharedOnly ? 'sharedAt' : null
   const startCursor = params.after || ''
   const first = params.first || 10
+
+  console.log('getArticlesResolver starts', Date.now())
 
   // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
   // so queries can contain phrases like "human race";
@@ -552,33 +454,36 @@ export const getArticlesResolver = authorized<
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
       labelFilters: searchQuery.labelFilters,
+      sortParams: searchQuery.sortParams,
       env: env.server.apiEnv,
     },
   })
+
+  console.log('parsed search query', Date.now())
+
   await createIntercomEvent('search', claims.uid)
 
-  const [userArticles, totalCount] = (await authTrx((tx) =>
-    models.userArticle.getPaginated(
-      {
-        cursor: startCursor,
-        first: first + 1, // fetch one more item to get next cursor
-        sort: params.sort || undefined,
-        query: searchQuery.query,
-        inFilter: searchQuery.inFilter,
-        readFilter: searchQuery.readFilter,
-        typeFilter: searchQuery.typeFilter,
-        labelFilters: searchQuery.labelFilters,
-      },
-      claims.uid,
-      tx,
-      notNullField
-    )
+  const [pages, totalCount] = (await searchPages(
+    {
+      from: Number(startCursor),
+      size: first + 1, // fetch one more item to get next cursor
+      sort: searchQuery.sortParams || params.sort || undefined,
+      query: searchQuery.query,
+      inFilter: searchQuery.inFilter,
+      readFilter: searchQuery.readFilter,
+      typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
+    },
+    claims.uid,
+    notNullField
   )) || [[], 0]
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-  const hasNextPage = userArticles.length > first
-  const endCursor = String(start + userArticles.length - (hasNextPage ? 1 : 0))
+  const hasNextPage = pages.length > first
+  const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
+
+  console.log('get search result', Date.now())
 
   console.log(
     'start',
@@ -586,18 +491,22 @@ export const getArticlesResolver = authorized<
     'returning end cursor',
     endCursor,
     'length',
-    userArticles.length - 1
+    pages.length - 1
   )
 
   //TODO: refactor so that the lastCursor included
   if (hasNextPage) {
     // remove an extra if exists
-    userArticles.pop()
+    pages.pop()
   }
 
-  const edges = userArticles.map((a) => {
+  const edges = pages.map((a) => {
     return {
-      node: { ...a, image: a.image && createImageProxyUrl(a.image, 88, 88) },
+      node: {
+        ...a,
+        image: a.image && createImageProxyUrl(a.image, 88, 88),
+        isArchived: !!a.archivedAt,
+      },
       cursor: endCursor,
     }
   })
@@ -700,37 +609,28 @@ export const setBookmarkArticleResolver = authorized<
   async (
     _,
     { input: { articleID, bookmark } },
-    { models, authTrx, claims: { uid }, log }
+    { models, authTrx, claims: { uid }, log, pubsub }
   ) => {
-    const article = await models.article.get(articleID)
+    const article = await getPageById(articleID)
     if (!article) {
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
     if (!bookmark) {
-      const { userArticleRemoved, highlightsUnshared } = await authTrx(
-        async (tx) => {
-          const userArticleRemoved = await models.userArticle.getForUser(
-            uid,
-            article.id,
-            tx
-          )
-
-          await models.userArticle.deleteWhere(
-            { userId: uid, articleId: article.id },
-            tx
-          )
-
-          const highlightsUnshared =
-            await models.highlight.unshareAllHighlights(articleID, uid, tx)
-
-          return { userArticleRemoved, highlightsUnshared }
-        }
-      )
+      const userArticleRemoved = await getPageByParam({
+        userId: uid,
+        _id: articleID,
+      })
 
       if (!userArticleRemoved) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
+
+      await deletePage(userArticleRemoved.id, { pubsub })
+
+      const highlightsUnshared = await authTrx(async (tx) => {
+        return models.highlight.unshareAllHighlights(articleID, uid, tx)
+      })
 
       log.info('Article unbookmarked', {
         article: Object.assign({}, article, {
@@ -749,25 +649,19 @@ export const setBookmarkArticleResolver = authorized<
       return {
         bookmarkedArticle: {
           ...userArticleRemoved,
-          ...article,
+          isArchived: false,
           savedByViewer: false,
           postedByViewer: false,
         },
       }
     } else {
       try {
-        const userArticle = await authTrx((tx) => {
-          return models.userArticle.create(
-            {
-              userId: uid,
-              articleId: article.id,
-              slug: generateSlug(article.title),
-              articleUrl: article.url,
-              articleHash: article.hash,
-            },
-            tx
-          )
-        })
+        const userArticle: Partial<Page> = {
+          userId: uid,
+          slug: generateSlug(article.title),
+        }
+        await updatePage(articleID, userArticle, { pubsub })
+
         log.info('Article bookmarked', {
           article: Object.assign({}, article, {
             content: undefined,
@@ -785,6 +679,7 @@ export const setBookmarkArticleResolver = authorized<
           bookmarkedArticle: {
             ...userArticle,
             ...article,
+            isArchived: false,
             savedByViewer: true,
             postedByViewer: false,
           },
@@ -808,11 +703,9 @@ export const saveArticleReadingProgressResolver = authorized<
   async (
     _,
     { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
-    { models, authTrx, claims: { uid } }
+    { claims: { uid }, pubsub }
   ) => {
-    const userArticleRecord = await authTrx((tx) =>
-      models.userArticle.getByParameters(uid, { articleId: id }, tx)
-    )
+    const userArticleRecord = await getPageByParam({ userId: uid, _id: id })
 
     if (!userArticleRecord) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
@@ -830,32 +723,28 @@ export const saveArticleReadingProgressResolver = authorized<
     // be greater than the current reading progress.
     const shouldUpdate =
       readingProgressPercent === 0 ||
-      userArticleRecord.articleReadingProgress < readingProgressPercent ||
-      userArticleRecord.articleReadingProgressAnchorIndex <
+      (userArticleRecord.readingProgressPercent || 0) <
+        readingProgressPercent ||
+      (userArticleRecord.readingProgressAnchorIndex || 0) <
         readingProgressAnchorIndex
 
-    const updatedArticle = Object.assign(await models.article.get(id), {
+    const updatedArticle = Object.assign(userArticleRecord, {
       readingProgressPercent: shouldUpdate
         ? readingProgressPercent
-        : userArticleRecord.articleReadingProgress,
+        : userArticleRecord.readingProgressPercent,
       readingProgressAnchorIndex: shouldUpdate
         ? readingProgressAnchorIndex
-        : userArticleRecord.articleReadingProgressAnchorIndex,
+        : userArticleRecord.readingProgressAnchorIndex,
     })
 
-    shouldUpdate &&
-      (await authTrx((tx) =>
-        models.userArticle.update(
-          userArticleRecord.id,
-          {
-            articleReadingProgress: readingProgressPercent,
-            articleReadingProgressAnchorIndex: readingProgressAnchorIndex,
-          },
-          tx
-        )
-      ))
+    shouldUpdate && (await updatePage(id, updatedArticle, { pubsub }))
 
-    return { updatedArticle: { ...userArticleRecord, ...updatedArticle } }
+    return {
+      updatedArticle: {
+        ...updatedArticle,
+        isArchived: !!updatedArticle.archivedAt,
+      },
+    }
   }
 )
 
@@ -864,7 +753,7 @@ export const getReadingProgressForArticleResolver: ResolverFn<
   Article,
   WithDataSourcesContext,
   Record<string, unknown>
-> = async (article, _params, { models, claims }) => {
+> = async (article, _params, { claims }) => {
   if (!claims?.uid) {
     return 0
   }
@@ -877,8 +766,8 @@ export const getReadingProgressForArticleResolver: ResolverFn<
   }
 
   const articleReadingProgress = (
-    await models.userArticle.getByArticleId(claims.uid, article.id)
-  )?.articleReadingProgress
+    await getPageByParam({ userId: claims.uid, _id: article.id })
+  )?.readingProgressPercent
 
   return articleReadingProgress || 0
 }
@@ -888,7 +777,7 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
   Article,
   WithDataSourcesContext,
   Record<string, unknown>
-> = async (article, _params, { models, claims }) => {
+> = async (article, _params, { claims }) => {
   if (!claims?.uid) {
     return 0
   }
@@ -901,8 +790,8 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
   }
 
   const articleReadingProgressAnchorIndex = (
-    await models.userArticle.getByArticleId(claims.uid, article.id)
-  )?.articleReadingProgressAnchorIndex
+    await getPageByParam({ userId: claims.uid, _id: article.id })
+  )?.readingProgressAnchorIndex
 
   return articleReadingProgressAnchorIndex || 0
 }

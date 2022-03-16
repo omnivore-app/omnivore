@@ -1,7 +1,5 @@
 import { MulticastMessage } from 'firebase-admin/messaging'
-import { ArticleData } from '../datalayer/article/model'
 import { kx } from '../datalayer/knex_config'
-import { UserArticleData } from '../datalayer/links/model'
 import { createPubSubClient } from '../datalayer/pubsub'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
@@ -12,6 +10,8 @@ import { sendMulticastPushNotifications } from '../utils/sendNotification'
 import { getNewsletterEmail } from './newsletters'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { getDeviceTokensByUserId } from './user_device_tokens'
+import { getPageByParam } from '../elastic'
+import { Page } from '../elastic/types'
 
 interface NewsletterMessage {
   email: string
@@ -70,10 +70,10 @@ export const saveNewsletterEmail = async (
     return true
   }
 
-  const link = await ctx.models.userArticle.getForUser(
-    newsletterEmail.user.id,
-    result.articleId
-  )
+  const link = await getPageByParam({
+    _id: result.articleId,
+    userId: newsletterEmail.user.id,
+  })
 
   if (!link) {
     console.log(
@@ -97,7 +97,7 @@ export const saveNewsletterEmail = async (
 }
 
 const messageForLink = (
-  link: ArticleData & UserArticleData,
+  link: Page,
   deviceTokens: UserDeviceToken[]
 ): MulticastMessage => {
   let title = '📫 - An article was added to your Omnivore Inbox'
@@ -117,10 +117,10 @@ const messageForLink = (
             title: link.title,
             image: link.image,
             author: link.author,
-            isArchived: link.isArchived,
+            isArchived: !!link.archivedAt,
             contentReader: ContentReader.Web,
-            readingProgressPercent: link.articleReadingProgress,
-            readingProgressAnchorIndex: link.articleReadingProgressAnchorIndex,
+            readingProgressPercent: link.readingProgressPercent,
+            readingProgressAnchorIndex: link.readingProgressAnchorIndex,
           })
         ).toString('base64'),
       }

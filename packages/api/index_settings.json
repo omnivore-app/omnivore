@@ -1,0 +1,79 @@
+{
+  "aliases": {
+    "pages_alias": {}
+  },
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "strip_html_analyzer": {
+          "tokenizer": "standard",
+          "char_filter": ["html_strip"]
+        }
+      },
+      "normalizer": {
+        "lowercase_normalizer": {
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "userId": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text"
+      },
+      "author": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "strip_html_analyzer"
+      },
+      "url": {
+        "type": "keyword"
+      },
+      "uploadFileId": {
+        "type": "keyword"
+      },
+      "pageType": {
+        "type": "keyword"
+      },
+      "slug": {
+        "type": "keyword"
+      },
+      "labels": {
+        "type": "nested",
+        "properties": {
+          "name": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+          }
+        }
+      },
+      "readingProgressPercent": {
+        "type": "float"
+      },
+      "readingProgressAnchorIndex": {
+        "type": "integer"
+      },
+      "createdAt": {
+        "type": "date"
+      },
+      "savedAt": {
+        "type": "date"
+      },
+      "archivedAt": {
+        "type": "date"
+      },
+      "siteName": {
+        "type": "text"
+      }
+    }
+  }
+}

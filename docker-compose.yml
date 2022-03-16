@@ -28,9 +28,41 @@ services:
       - PG_USER=postgres
       - PG_PASSWORD=postgres
       - PG_DB=omnivore
+      - ES_URL=http://elastic:9200
+      - ES_USERNAME=blank
+      - ES_PASSWORD=blank
     depends_on:
       postgres:
         condition: service_healthy
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    container_name: "omnivore-elastic"
+    healthcheck:
+      test: curl 0.0.0.0:9200/_cat/health >/dev/null || exit 1
+      interval: 2s
+      timeout: 2s
+      retries: 5
+    environment:
+      - discovery.type=single-node
+      - http.cors.allow-origin=*
+      - http.cors.enabled=true
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+    volumes:
+      - ./.docker/elastic-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.1
+    container_name: "omnivore-kibana"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    depends_on:
+      - elastic
+    ports:
+      - "5601:5601"
 
   api:
     build:
@@ -62,6 +94,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      elastic:
+        condition: service_healthy
 
   web:
     build:

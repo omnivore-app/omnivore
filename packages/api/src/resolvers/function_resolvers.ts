@@ -37,8 +37,6 @@ import {
   getFollowersResolver,
   getFollowingResolver,
   getMeUserResolver,
-  getReadingProgressAnchorIndexForArticleResolver,
-  getReadingProgressForArticleResolver,
   getSharedArticleResolver,
   getUserFeedArticlesResolver,
   getUserPersonalizationResolver,
@@ -79,8 +77,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { Label } from '../entity/label'
-import { labelsLoader } from '../services/labels'
+import { getPageById, getPageByParam } from '../elastic'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -294,11 +291,13 @@ export const functionResolvers = {
   },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
-      if (article.pageType == PageType.File && ctx.claims) {
-        const upload = await ctx.models.uploadFile.uploadFileForArticle(
-          article.id
-        )
-        if (!upload || !upload.fileName || !upload.fileName) {
+      if (
+        article.pageType == PageType.File &&
+        ctx.claims &&
+        article.uploadFileId
+      ) {
+        const upload = await ctx.models.uploadFile.get(article.uploadFileId)
+        if (!upload || !upload.fileName) {
           return undefined
         }
         const filePath = generateUploadFilePathName(upload.id, upload.fileName)
@@ -316,11 +315,11 @@ export const functionResolvers = {
         return article.savedByViewer
       }
       if (!ctx.claims?.uid) return undefined
-      const userArticle = await ctx.models.userArticle.getByArticleId(
-        ctx.claims.uid,
-        article.id
-      )
-      return !!userArticle
+      const page = await getPageByParam({
+        userId: ctx.claims.uid,
+        _id: article.id,
+      })
+      return !!page
     },
     async postedByViewer(
       article: { id: string; postedByViewer?: boolean },
@@ -331,11 +330,11 @@ export const functionResolvers = {
         return article.postedByViewer
       }
       if (!ctx.claims?.uid) return false
-      const userArticle = await ctx.models.userArticle.getByArticleId(
-        ctx.claims.uid,
-        article.id
-      )
-      return !!userArticle?.sharedAt
+      const page = await getPageByParam({
+        userId: ctx.claims.uid,
+        _id: article.id,
+      })
+      return !!page?.sharedAt
     },
     async savedAt(
       article: { id: string; savedAt?: Date; createdAt?: Date },
@@ -343,13 +342,13 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
       if (!ctx.claims?.uid) return new Date()
-      if (!article.savedAt) return new Date()
+      if (article.savedAt) return article.savedAt
       return (
         (
-          await ctx.models.userArticle.getByArticleId(
-            ctx.claims.uid,
-            article.id
-          )
+          await getPageByParam({
+            userId: ctx.claims.uid,
+            _id: article.id,
+          })
         )?.savedAt ||
         article.createdAt ||
         new Date()
@@ -365,18 +364,22 @@ export const functionResolvers = {
       return validatedDate(article.publishedAt)
     },
     async isArchived(
-      article: { id: string; isArchived?: boolean | null },
+      article: {
+        id: string
+        isArchived?: boolean | null
+        archivedAt?: Date | undefined
+      },
       __: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
       if ('isArchived' in article) return article.isArchived
+      if ('archivedAt' in article) return !!article.archivedAt
       if (!ctx.claims?.uid) return false
-      const userArticle = await ctx.models.userArticle.getForUser(
-        ctx.claims.uid,
-        article.id,
-        ctx.kx
-      )
-      return userArticle?.isArchived || false
+      const page = await getPageByParam({
+        userId: ctx.claims.uid,
+        _id: article.id,
+      })
+      return !!page?.archivedAt || false
     },
     contentReader(article: { pageType: PageType }) {
       return article.pageType === PageType.File
@@ -384,28 +387,34 @@ export const functionResolvers = {
         : ContentReader.Web
     },
     async readingProgressPercent(
-      article: { id: string; articleReadingProgress?: number },
+      article: { id: string; readingProgressPercent?: number },
       _: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
-      if ('articleReadingProgress' in article) {
-        return article.articleReadingProgress
+      if ('readingProgressPercent' in article) {
+        return article.readingProgressPercent
       }
       return (
-        await ctx.models.userArticle.getByArticleId(ctx.claims.uid, article.id)
-      )?.articleReadingProgress
+        await getPageByParam({
+          userId: ctx.claims.uid,
+          _id: article.id,
+        })
+      )?.readingProgressPercent
     },
     async readingProgressAnchorIndex(
-      article: { id: string; articleReadingProgressAnchorIndex?: number },
+      article: { id: string; readingProgressAnchorIndex?: number },
       _: unknown,
       ctx: WithDataSourcesContext & { claims: Claims }
     ) {
-      if ('articleReadingProgressAnchorIndex' in article) {
-        return article.articleReadingProgressAnchorIndex
+      if ('readingProgressAnchorIndex' in article) {
+        return article.readingProgressAnchorIndex
       }
       return (
-        await ctx.models.userArticle.getByArticleId(ctx.claims.uid, article.id)
-      )?.articleReadingProgressAnchorIndex
+        await getPageByParam({
+          userId: ctx.claims.uid,
+          _id: article.id,
+        })
+      )?.readingProgressAnchorIndex
     },
     async highlights(
       article: { id: string; userId?: string },
@@ -449,31 +458,20 @@ export const functionResolvers = {
         ctx.models
       )
     },
-    async labels(article: { linkId: string }): Promise<Label[]> {
-      // retrieve labels for the link
-      return labelsLoader.load(article.linkId)
-    },
   },
   ArticleSavingRequest: {
-    async article(
-      request: { userId: string; articleId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const article = await ctx.models.userArticle.getForUser(
-        request.userId,
-        request.articleId
-      )
-      return article
+    async article(request: { userId: string; articleId: string }, __: unknown) {
+      if (!request.userId || !request.articleId) return undefined
+
+      return getPageByParam({
+        userId: request.userId,
+        _id: request.articleId,
+      })
     },
   },
   Highlight: {
-    async article(
-      highlight: { articleId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      return ctx.models.article.get(highlight.articleId)
+    async article(highlight: { articleId: string }, __: unknown) {
+      return getPageById(highlight.articleId)
     },
     async user(
       highlight: { userId: string },

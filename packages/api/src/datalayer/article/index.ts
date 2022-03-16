@@ -39,25 +39,6 @@ class ArticleModel extends DataModel<ArticleData, CreateSet, UpdateSet> {
     this.loader.prime(row.id, row)
     return row
   }
-
-  @logMethod
-  async updateContent(
-    id: string,
-    content: string,
-    title?: string,
-    author?: string,
-    description?: string,
-    tx = this.kx
-  ): Promise<boolean> {
-    const items = { content, title, author, description }
-    if (!title) delete items.title
-    if (!author) delete items.author
-    if (!description) delete items.description
-
-    const stmt = tx(this.tableName).update(items).where({ id }).returning('*')
-    const [row] = await stmt
-    return !!row
-  }
 }
 
 export default ArticleModel

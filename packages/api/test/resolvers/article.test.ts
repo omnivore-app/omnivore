@@ -1,23 +1,31 @@
+import { createTestLabel, createTestUser, deleteTestUser } from '../db'
 import {
-  createTestLabel,
-  createTestLink,
-  createTestPage,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
-import { Link } from '../../src/entity/link'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { getRepository } from 'typeorm'
-import { LinkLabel } from '../../src/entity/link_label'
 import { Label } from '../../src/entity/label'
+import {
+  createPage,
+  deletePage,
+  getPageById,
+  updatePage,
+} from '../../src/elastic'
+import { PageType, UploadFileStatus } from '../../src/generated/graphql'
+import { Page, PageContext } from '../../src/elastic/types'
+import { getRepository } from 'typeorm'
+import { UploadFile } from '../../src/entity/upload_file'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 chai.use(chaiString)
 
+const ctx: PageContext = { pubsub: createPubSubClient(), refresh: true }
 const archiveLink = async (authToken: string, linkId: string) => {
   const query = `
   mutation {
@@ -37,6 +45,45 @@ const archiveLink = async (authToken: string, linkId: string) => {
   }
   `
   return graphqlRequest(query, authToken).expect(200)
+}
+
+const createArticleQuery = (
+  url: string,
+  source: string,
+  document: string,
+  title: string
+) => {
+  return `
+  mutation {
+    createArticle(input: {
+      url: "${url}"
+      source: "${source}"
+      preparedDocument: {
+        document: "${document}"
+        pageInfo: {
+          contentType: "text/html"
+          title: "${title}"
+        }
+      }
+    }) {
+      ... on CreateArticleSuccess {
+        createdArticle {
+          id
+          title
+          content
+        }
+        user {
+          id
+          name
+        }
+        created
+      }
+      ... on CreateArticleError {
+        errorCodes
+      }
+    }
+  }
+  `
 }
 
 const articlesQuery = (after = '', order = 'ASCENDING') => {
@@ -81,6 +128,24 @@ const articlesQuery = (after = '', order = 'ASCENDING') => {
   `
 }
 
+const getArticleQuery = (slug: string) => {
+  return `
+  query {
+    article(slug: "${slug}", username: "") {
+      ... on ArticleSuccess {
+        article {
+          id
+          slug
+        }
+      }
+      ... on ArticleError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 const savePageQuery = (url: string, title: string, originalContent: string) => {
   return `
     mutation {
@@ -104,12 +169,81 @@ const savePageQuery = (url: string, title: string, originalContent: string) => {
     `
 }
 
+const saveFileQuery = (url: string, uploadFileId: string) => {
+  return `
+    mutation {
+      saveFile (
+        input: {
+          url: "${url}",
+          source: "test",
+          clientRequestId: "${generateFakeUuid()}",
+          uploadFileId: "${uploadFileId}",
+        }
+      ) {
+        ... on SaveSuccess {
+          url
+        }
+        ... on SaveError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
+const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
+  return `
+    mutation {
+      setBookmarkArticle(
+        input: {
+          articleID: "${articleId}",
+          bookmark: ${bookmark}
+        }
+      ) {
+        ... on SetBookmarkArticleSuccess {
+          bookmarkedArticle {
+            id
+          }
+        }
+        ... on SetBookmarkArticleError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
+const saveArticleReadingProgressQuery = (
+  articleId: string,
+  progress: number
+) => {
+  return `
+    mutation {
+      saveArticleReadingProgress(
+        input: {
+          id: "${articleId}",
+          readingProgressPercent: ${progress}
+          readingProgressAnchorIndex: 0
+        }
+      ) {
+        ... on SaveArticleReadingProgressSuccess {
+          updatedArticle {
+            id
+            readingProgressPercent
+          }
+        }
+        ... on SaveArticleReadingProgressError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
 describe('Article API', () => {
   const username = 'fakeUser'
   let authToken: string
   let user: User
-  let links: Link[] = []
-  let label: Label
 
   before(async () => {
     // create test user and login
@@ -117,20 +251,6 @@ describe('Article API', () => {
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
-
-    // Create some test links
-    for (let i = 0; i < 15; i++) {
-      const page = await createTestPage()
-      const link = await createTestLink(user, page)
-      links.push(link)
-    }
-    //  create testing labels
-    label = await createTestLabel(user, 'label', '#ffffff')
-    //  set label to a link
-    await getRepository(LinkLabel).save({
-      link: links[0],
-      label: label,
-    })
 
     authToken = res.body.authToken
   })
@@ -140,18 +260,145 @@ describe('Article API', () => {
     await deleteTestUser(username)
   })
 
+  describe('CreateArticle', () => {
+    let query = ''
+    let url = ''
+    let source = ''
+    let document = ''
+    let title = ''
+    let pageId = ''
+
+    beforeEach(async () => {
+      query = createArticleQuery(url, source, document, title)
+    })
+
+    context('when saving from document', () => {
+      before(() => {
+        url = 'https://blog.omnivore.app/p/testing-is-fun-with-omnivore'
+        source = 'puppeteer-parse'
+        document = '<p>test</p>'
+        title = 'new title'
+      })
+
+      after(async () => {
+        await deletePage(pageId, ctx)
+      })
+
+      it('should create an article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
+        pageId = res.body.data.createArticle.createdArticle.id
+      })
+    })
+  })
+
+  describe('GetArticle', () => {
+    const realSlug = 'testing-is-really-fun-with-omnivore'
+    let query = ''
+    let slug = ''
+    let pageId: string | undefined
+
+    before(async () => {
+      const page = {
+        id: '',
+        hash: 'test hash',
+        userId: user.id,
+        pageType: PageType.Article,
+        title: 'test title',
+        content: '<p>test</p>',
+        slug: realSlug,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        readingProgressPercent: 100,
+        readingProgressAnchorIndex: 0,
+        url: 'https://blog.omnivore.app/test-with-omnivore',
+        savedAt: new Date(),
+      } as Page
+      pageId = await createPage(page, ctx)
+    })
+
+    after(async () => {
+      if (pageId) {
+        await deletePage(pageId, ctx)
+      }
+    })
+
+    beforeEach(async () => {
+      query = getArticleQuery(slug)
+    })
+
+    context('when article exists', () => {
+      before(() => {
+        slug = realSlug
+      })
+
+      it('should return the article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.article.article.slug).to.eql(slug)
+      })
+    })
+
+    context('when article does not exist', () => {
+      before(() => {
+        slug = 'not-a-real-slug'
+      })
+
+      it('should return an error', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.article.errorCodes).to.eql(['NOT_FOUND'])
+      })
+    })
+  })
+
   describe('GetArticles', () => {
     let query = ''
     let after = ''
+    let pages: Page[] = []
+    let label: Label
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 15; i++) {
+        const page = {
+          id: '',
+          hash: 'test hash',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'test title',
+          content: '<p>test</p>',
+          slug: 'test slug',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgressPercent: 100,
+          readingProgressAnchorIndex: 0,
+          url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
+          savedAt: new Date(),
+        } as Page
+        const pageId = await createPage(page, ctx)
+        if (!pageId) {
+          expect.fail('Failed to create page')
+        }
+        page.id = pageId
+        pages.push(page)
+      }
+      //  create testing labels
+      label = await createTestLabel(user, 'label', '#ffffff')
+      //  set label to a link
+      await updatePage(
+        pages[0].id,
+        {
+          ...pages[0],
+          labels: [{ id: label.id, name: label.name, color: label.color }],
+        },
+        ctx
+      )
+    })
 
     beforeEach(async () => {
       query = articlesQuery(after)
-    })
-
-    it('should return linkId', async () => {
-      const res = await graphqlRequest(query, authToken).expect(200)
-
-      expect(res.body.data.articles.edges[0].node.linkId).to.eql(links[0].id)
     })
 
     it('should return labels', async () => {
@@ -166,11 +413,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(links[0].page.id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(links[1].page.id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(links[2].page.id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(links[3].page.id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(links[4].page.id)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[0].id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[1].id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[2].id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[3].id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[4].id)
       })
 
       it('should set the pageInfo', async () => {
@@ -197,11 +444,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(links[5].page.id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(links[6].page.id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(links[7].page.id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(links[8].page.id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(links[9].page.id)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[5].id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[6].id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[7].id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[8].id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[9].id)
       })
 
       it('should set the pageInfo', async () => {
@@ -253,31 +500,203 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
+        let allLinks
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(
-          articlesQuery('', 'DESCENDING'),
-          authToken
-        ).expect(200)
-        const justSavedId = allLinks.body.data.articles.edges[0].node.id
-        await archiveLink(authToken, justSavedId)
+        // set a slight delay to make sure the page is updated
+        setTimeout(async () => {
+          let allLinks = await graphqlRequest(
+            articlesQuery('', 'DESCENDING'),
+            authToken
+          ).expect(200)
+          const justSavedId = allLinks.body.data.articles.edges[0].node.id
+          await archiveLink(authToken, justSavedId)
+        }, 100)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(
-          articlesQuery('', 'DESCENDING'),
-          authToken
-        ).expect(200)
-        expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(
+            articlesQuery('', 'DESCENDING'),
+            authToken
+          ).expect(200)
+          expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
+        }, 100)
 
         // Now save the link again, and ensure it is returned
-        const resaved = await graphqlRequest(
+        await graphqlRequest(
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
-        allLinks = await graphqlRequest(
-          articlesQuery('', 'DESCENDING'),
-          authToken
-        ).expect(200)
-        expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(
+            articlesQuery('', 'DESCENDING'),
+            authToken
+          ).expect(200)
+          expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+        }, 100)
+      })
+    })
+  })
+
+  describe('setBookmarkArticle', () => {
+    let query = ''
+    let articleId = ''
+    let bookmark = true
+    let pageId = ''
+
+    before(async () => {
+      const page: Page = {
+        id: '',
+        hash: 'test hash',
+        userId: user.id,
+        pageType: PageType.Article,
+        title: 'test title',
+        content: '<p>test</p>',
+        createdAt: new Date(),
+        url: 'https://blog.omnivore.app/setBookmarkArticle',
+        slug: 'test-with-omnivore',
+      }
+      const newPageId = await createPage(page, ctx)
+      if (newPageId) {
+        pageId = newPageId
+      }
+    })
+
+    after(async () => {
+      if (pageId) {
+        await deletePage(pageId, ctx)
+      }
+    })
+
+    beforeEach(() => {
+      query = setBookmarkQuery(articleId, bookmark)
+    })
+
+    context('when we set a bookmark on an article', () => {
+      before(async () => {
+        articleId = pageId
+        bookmark = true
+      })
+
+      it('should bookmark an article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.setBookmarkArticle.bookmarkedArticle.id).to.eq(
+          articleId
+        )
+      })
+    })
+
+    context('when we unset a bookmark on an article', () => {
+      before(async () => {
+        articleId = pageId
+        bookmark = false
+      })
+
+      it('should delete an article', async () => {
+        await graphqlRequest(query, authToken).expect(200)
+        const pageId = await getPageById(articleId)
+        expect(pageId).to.undefined
+      })
+    })
+  })
+
+  describe('saveArticleReadingProgressResolver', () => {
+    let query = ''
+    let articleId = ''
+    let progress = 0.5
+    let pageId = ''
+
+    before(async () => {
+      pageId = (await createTestElasticPage(user)).id
+    })
+
+    after(async () => {
+      if (pageId) {
+        await deletePage(pageId, ctx)
+      }
+    })
+
+    beforeEach(() => {
+      query = saveArticleReadingProgressQuery(articleId, progress)
+    })
+
+    context('when we save a reading progress on an article', () => {
+      before(async () => {
+        articleId = pageId
+        progress = 0.5
+      })
+
+      it('should save a reading progress on an article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(
+          res.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(progress)
+      })
+
+      it('should not allow setting the reading progress lower than current progress', async () => {
+        const firstQuery = saveArticleReadingProgressQuery(articleId, 75)
+        const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
+        expect(
+          firstRes.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(75)
+
+        // Now try to set to a lower value (50), value should not be updated
+        // have a slight delay to ensure the reading progress is updated
+        setTimeout(async () => {
+          const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
+          const secondRes = await graphqlRequest(secondQuery, authToken).expect(
+            200
+          )
+          expect(
+            secondRes.body.data.saveArticleReadingProgress.updatedArticle
+              .readingProgressPercent
+          ).to.eq(75)
+        }, 100)
+      })
+    })
+  })
+
+  describe('SaveFile', () => {
+    let query = ''
+    let url = ''
+    let uploadFileId = ''
+
+    beforeEach(() => {
+      query = saveFileQuery(url, uploadFileId)
+    })
+
+    context('when the file is not uploaded', () => {
+      before(async () => {
+        url = 'fake url'
+        uploadFileId = generateFakeUuid()
+      })
+
+      it('should return Unauthorized error', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.saveFile.errorCodes).to.eql(['UNAUTHORIZED'])
+      })
+    })
+
+    context('when the file is uploaded', () => {
+      before(async () => {
+        url = 'https://example.com/'
+        const uploadFile = await getRepository(UploadFile).save({
+          fileName: 'test.pdf',
+          contentType: 'application/pdf',
+          url: url,
+          user: user,
+          status: UploadFileStatus.Initialized,
+        })
+        uploadFileId = uploadFile.id
+      })
+
+      it('should return the new url', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.saveFile.url).to.startsWith(
+          'http://localhost:3000/fakeUser/links'
+        )
       })
     })
   })

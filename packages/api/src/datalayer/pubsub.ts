@@ -2,6 +2,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import { env } from '../env'
 import { ReportType } from '../generated/graphql'
 import express from 'express'
+import { Page } from '../elastic/types'
 
 export const createPubSubClient = (): PubsubClient => {
   const client = new PubSub()
@@ -15,7 +16,7 @@ export const createPubSubClient = (): PubsubClient => {
     console.log(`Publishing ${topicName}`, msg)
     return client
       .topic(topicName)
-      .publish(msg)
+      .publishMessage({ data: msg })
       .catch((err) => {
         console.error(`[PubSub] error: ${topicName}`, err)
       })
@@ -36,25 +37,14 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    pageSaved: (
-      userId: string,
-      url: string,
-      content: string
-    ): Promise<void> => {
-      return publish(
-        'pageSaved',
-        Buffer.from(JSON.stringify({ userId, url, content }))
-      )
+    pageSaved: (page: Partial<Page>): Promise<void> => {
+      return publish('pageSaved', Buffer.from(JSON.stringify(page)))
     },
-    pageCreated: (
-      userId: string | undefined,
-      url: string,
-      content: string
-    ): Promise<void> => {
-      return publish(
-        'pageCreated',
-        Buffer.from(JSON.stringify({ userId, url, content }))
-      )
+    pageCreated: (page: Page): Promise<void> => {
+      return publish('pageCreated', Buffer.from(JSON.stringify(page)))
+    },
+    pageDeleted: (id: string): Promise<void> => {
+      return publish('pageDeleted', Buffer.from(JSON.stringify({ id })))
     },
     reportSubmitted: (
       submitterId: string,
@@ -79,8 +69,9 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  pageCreated: (userId: string, url: string, content: string) => Promise<void>
-  pageSaved: (userId: string, url: string, content: string) => Promise<void>
+  pageCreated: (page: Page) => Promise<void>
+  pageSaved: (page: Partial<Page>) => Promise<void>
+  pageDeleted: (id: string) => Promise<void>
   reportSubmitted(
     submitterId: string | undefined,
     itemUrl: string,

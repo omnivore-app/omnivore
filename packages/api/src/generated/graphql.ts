@@ -68,6 +68,7 @@ export type Article = {
   shareInfo?: Maybe<LinkShareInfo>;
   slug: Scalars['String'];
   title: Scalars['String'];
+  uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
 
@@ -168,6 +169,7 @@ export type CreateArticleError = {
 };
 
 export enum CreateArticleErrorCode {
+  ElasticError = 'ELASTIC_ERROR',
   NotAllowedToParse = 'NOT_ALLOWED_TO_PARSE',
   PayloadTooLarge = 'PAYLOAD_TOO_LARGE',
   UnableToFetch = 'UNABLE_TO_FETCH',
@@ -629,7 +631,7 @@ export type HighlightStats = {
 export type Label = {
   __typename?: 'Label';
   color: Scalars['String'];
-  createdAt: Scalars['Date'];
+  createdAt?: Maybe<Scalars['Date']>;
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -1510,6 +1512,7 @@ export type SignupSuccess = {
 };
 
 export enum SortBy {
+  Score = 'SCORE',
   UpdatedTime = 'UPDATED_TIME'
 }
 
@@ -2404,6 +2407,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -2805,7 +2809,7 @@ export type HighlightStatsResolvers<ContextType = ResolverContext, ParentType ex
 
 export type LabelResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = {
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

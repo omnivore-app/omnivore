@@ -24,7 +24,7 @@ export interface HighlightData {
   id: string
   shortId: string
   userId: string
-  articleId: string
+  articleId?: string
   quote: string
   prefix?: string | null
   suffix?: string | null
@@ -34,6 +34,7 @@ export interface HighlightData {
   createdAt: Date
   updatedAt?: Date | null
   sharedAt?: Date | null
+  elasticPageId: string
 }
 
 export const keys = [
@@ -50,6 +51,7 @@ export const keys = [
   'createdAt',
   'updatedAt',
   'sharedAt',
+  'elasticPageId',
 ] as const
 
 export const defaultedKeys = [

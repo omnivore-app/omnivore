@@ -2,9 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
-import { kx } from '../../datalayer/knex_config'
-import ArticleModel from '../../datalayer/article'
+import {
+  createPubSubClient,
+  readPushSubscription,
+} from '../../datalayer/pubsub'
+import { getPageByParam, updatePage } from '../../elastic'
+import { Page } from '../../elastic/types'
 
 interface UpdateContentMessage {
   fileId: string
@@ -50,21 +53,21 @@ export function contentServiceRouter() {
       return
     }
 
-    const model = new ArticleModel(kx)
-    const page = await model.getByUploadFileId(fileId)
+    const page = await getPageByParam({ uploadFileId: fileId })
     if (!page) {
       console.log('No upload file found for id:', fileId)
       res.status(400).send('Bad Request')
       return
     }
 
-    const result = await model.updateContent(
-      page.id,
-      msg.content,
-      msg.title,
-      msg.author,
-      msg.description
-    )
+    const pageToUpdate: Partial<Page> = { content: msg.content }
+    if (msg.title) pageToUpdate.title = msg.title
+    if (msg.author) pageToUpdate.author = msg.author
+    if (msg.description) pageToUpdate.description = msg.description
+
+    const result = await updatePage(page.id, pageToUpdate, {
+      pubsub: createPubSubClient(),
+    })
     console.log(
       'Updating article text',
       page.id,

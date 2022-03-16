@@ -4,11 +4,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
+  ISearchParserDictionary,
   parse,
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
 } from 'search-query-parser'
-import { PageType } from '../generated/graphql'
+import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
 
 export enum ReadFilter {
   ALL,
@@ -27,7 +28,18 @@ export type SearchFilter = {
   inFilter: InFilter
   readFilter: ReadFilter
   typeFilter?: PageType | undefined
-  labelFilters?: string[]
+  labelFilters: LabelFilter[]
+  sortParams?: SortParams
+}
+
+export enum LabelFilterType {
+  INCLUDE,
+  EXCLUDE,
+}
+
+export type LabelFilter = {
+  type: LabelFilterType
+  labels: string[]
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -78,18 +90,50 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
   return undefined
 }
 
-const parseLabelFilters = (
-  str: string | undefined,
-  labelFilters: string[] | undefined
-): string[] | undefined => {
+const parseLabelFilter = (
+  str?: string,
+  exclude?: ISearchParserDictionary
+): LabelFilter | undefined => {
   if (str === undefined) {
-    return labelFilters
+    return undefined
   }
 
   // use lower case for label names
-  const label = str.toLowerCase()
+  const labels = str.toLocaleLowerCase().split(',')
 
-  return labelFilters ? labelFilters.concat(label) : [label]
+  // check if the labels are in the exclude list
+  const excluded =
+    exclude &&
+    exclude.label &&
+    labels.every((label) => exclude.label.includes(label))
+
+  return {
+    type: excluded ? LabelFilterType.EXCLUDE : LabelFilterType.INCLUDE,
+    labels,
+  }
+}
+
+const parseSortParams = (str?: string): SortParams | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  const [sort, order] = str.split(':')
+  const sortOrder =
+    order?.toUpperCase() === 'ASC' ? SortOrder.Ascending : SortOrder.Descending
+
+  switch (sort.toUpperCase()) {
+    case 'UPDATED_AT':
+      return {
+        by: SortBy.UpdatedTime,
+        order: sortOrder,
+      }
+    case 'SCORE':
+      return {
+        by: SortBy.Score,
+        order: sortOrder,
+      }
+  }
 }
 
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
@@ -98,6 +142,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     query: searchQuery,
     readFilter: ReadFilter.ALL,
     inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
+    labelFilters: [],
   }
 
   if (!searchQuery) {
@@ -105,11 +150,12 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       query: undefined,
       inFilter: InFilter.INBOX,
       readFilter: ReadFilter.ALL,
+      labelFilters: [],
     }
   }
 
   const parsed = parse(searchQuery, {
-    keywords: ['in', 'is', 'type', 'label'],
+    keywords: ['in', 'is', 'type', 'label', 'sort'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -148,12 +194,15 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'type':
           result.typeFilter = parseTypeFilter(keyword.value)
           break
-        case 'label':
-          result.labelFilters = parseLabelFilters(
-            keyword.value,
-            result.labelFilters
-          )
+        case 'label': {
+          const labelFilter = parseLabelFilter(keyword.value, parsed.exclude)
+          labelFilter && result.labelFilters.push(labelFilter)
           break
+        }
+        case 'sort': {
+          result.sortParams = parseSortParams(keyword.value)
+          break
+        }
       }
     }
   }

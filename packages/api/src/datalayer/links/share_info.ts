@@ -3,6 +3,7 @@
 import Knex from 'knex'
 import { LinkShareInfo } from '../../generated/graphql'
 import { DataModels } from '../../resolvers/types'
+import { getPageByParam } from '../../elastic'
 
 // once we have links setup properly in the API we will remove this method
 // and have a getShareInfoForLink method
@@ -15,15 +16,15 @@ export const getShareInfoForArticle = async (
   // TEMP: because the old API uses articles instead of Links, we are actually
   // getting an article ID here and need to map it to a link ID. When the API
   // is updated to use Links instead of Articles this will be removed.
-  const link = await models.userArticle.getByArticleId(userId, articleId, kx)
+  const page = await getPageByParam({ userId, _id: articleId })
 
-  if (!link) {
+  if (!page) {
     return undefined
   }
 
   const result = await kx('omnivore.link_share_info')
     .select('*')
-    .where({ linkId: link.id })
+    .where({ elastic_page_id: page.id })
     .first()
 
   return result

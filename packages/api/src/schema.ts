@@ -26,6 +26,7 @@ const schema = gql`
 
   enum SortBy {
     UPDATED_TIME
+    SCORE
   }
 
   enum ContentReader {
@@ -335,6 +336,7 @@ const schema = gql`
     isArchived: Boolean!
     linkId: ID
     labels: [Label!]
+    uploadFileId: ID
   }
 
   # Query: article
@@ -436,6 +438,7 @@ const schema = gql`
     NOT_ALLOWED_TO_PARSE
     PAYLOAD_TOO_LARGE
     UPLOAD_FILE_MISSING
+    ELASTIC_ERROR
   }
   type CreateArticleError {
     errorCodes: [CreateArticleErrorCode!]!
@@ -1246,7 +1249,7 @@ const schema = gql`
     name: String!
     color: String!
     description: String
-    createdAt: Date!
+    createdAt: Date
   }
 
   type LabelsSuccess {

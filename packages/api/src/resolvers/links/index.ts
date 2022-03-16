@@ -1,20 +1,20 @@
 import { createOrUpdateLinkShareInfo } from '../../datalayer/links/share_info'
 
 import {
-  UpdateLinkShareInfoError,
-  UpdateLinkShareInfoSuccess,
-  UpdateLinkShareInfoErrorCode,
-  MutationUpdateLinkShareInfoArgs,
-  ArchiveLinkSuccess,
   ArchiveLinkError,
-  MutationSetLinkArchivedArgs,
   ArchiveLinkErrorCode,
+  ArchiveLinkSuccess,
+  MutationSetLinkArchivedArgs,
+  MutationUpdateLinkShareInfoArgs,
+  UpdateLinkShareInfoError,
+  UpdateLinkShareInfoErrorCode,
+  UpdateLinkShareInfoSuccess,
 } from '../../generated/graphql'
-import { setLinkArchived } from '../../services/archive_link'
 
 import { authorized } from '../../utils/helpers'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import { updatePage } from '../../elastic'
 
 export const updateLinkShareInfoResolver = authorized<
   UpdateLinkShareInfoSuccess,
@@ -64,7 +64,7 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkSuccess,
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
->(async (_obj, args, { models, claims, authTrx }) => {
+>(async (_obj, args, { claims, pubsub }) => {
   console.log('setLinkArchivedResolver', args.input.linkId)
 
   analytics.track({
@@ -75,22 +75,14 @@ export const setLinkArchivedResolver = authorized<
     },
   })
 
-  // TEMP: because the old API uses articles instead of Links, we are actually
-  // getting an article ID here and need to map it to a link ID. When the API
-  // is updated to use Links instead of Articles this will be removed.
-  const link = await authTrx((tx) =>
-    models.userArticle.getByArticleId(claims.uid, args.input.linkId, tx)
-  )
-
-  if (!link?.id) {
-    return {
-      message: 'An error occurred',
-      errorCodes: [ArchiveLinkErrorCode.BadRequest],
-    }
-  }
-
   try {
-    await setLinkArchived(claims.uid, link.id, args.input.archived)
+    await updatePage(
+      args.input.linkId,
+      {
+        archivedAt: args.input.archived ? new Date() : null,
+      },
+      { pubsub }
+    )
   } catch (e) {
     return {
       message: 'An error occurred',
@@ -99,7 +91,7 @@ export const setLinkArchivedResolver = authorized<
   }
 
   return {
-    linkId: link.id,
+    linkId: args.input.linkId,
     message: 'Link Archived',
   }
 })

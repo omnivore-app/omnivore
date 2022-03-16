@@ -49,6 +49,7 @@ type Article {
   shareInfo: LinkShareInfo
   slug: String!
   title: String!
+  uploadFileId: ID
   url: String!
 }
 
@@ -134,6 +135,7 @@ type CreateArticleError {
 }
 
 enum CreateArticleErrorCode {
+  ELASTIC_ERROR
   NOT_ALLOWED_TO_PARSE
   PAYLOAD_TOO_LARGE
   UNABLE_TO_FETCH
@@ -553,7 +555,7 @@ type HighlightStats {
 
 type Label {
   color: String!
-  createdAt: Date!
+  createdAt: Date
   description: String
   id: ID!
   name: String!
@@ -1131,6 +1133,7 @@ type SignupSuccess {
 }
 
 enum SortBy {
+  SCORE
   UPDATED_TIME
 }
 

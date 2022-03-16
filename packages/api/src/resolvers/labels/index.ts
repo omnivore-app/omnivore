@@ -22,9 +22,8 @@ import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
 import { getManager, getRepository, ILike } from 'typeorm'
 import { setClaims } from '../../entity/utils'
-import { Link } from '../../entity/link'
-import { LinkLabel } from '../../entity/link_label'
-import { labelsLoader } from '../../services/labels'
+import { deleteLabelInPages, getPageById, updatePage } from '../../elastic'
+import { createPubSubClient } from '../../datalayer/pubsub'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -161,6 +160,9 @@ export const deleteLabelResolver = authorized<
       }
     }
 
+    // delete label in elastic pages
+    await deleteLabelInPages(uid, label.name, { pubsub: createPubSubClient() })
+
     analytics.track({
       userId: uid,
       event: 'deleteLabel',
@@ -185,10 +187,10 @@ export const setLabelsResolver = authorized<
   SetLabelsSuccess,
   SetLabelsError,
   MutationSetLabelsArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { claims: { uid }, log, pubsub }) => {
   log.info('setLabelsResolver')
 
-  const { linkId, labelIds } = input
+  const { linkId: pageId, labelIds } = input
 
   try {
     const user = await getRepository(User).findOne(uid)
@@ -198,8 +200,8 @@ export const setLabelsResolver = authorized<
       }
     }
 
-    const link = await getRepository(Link).findOne(linkId)
-    if (!link) {
+    const page = await getPageById(pageId)
+    if (!page) {
       return {
         errorCodes: [SetLabelsErrorCode.NotFound],
       }
@@ -217,24 +219,20 @@ export const setLabelsResolver = authorized<
       }
     }
 
-    // delete all existing labels of the link
-    await getManager().transaction(async (t) => {
-      await t.getRepository(LinkLabel).delete({ link })
-
-      // add new labels
-      await t
-        .getRepository(LinkLabel)
-        .save(labels.map((label) => ({ link, label })))
-    })
-
-    // clear cache
-    labelsLoader.clear(linkId)
+    // update labels in the page
+    await updatePage(
+      pageId,
+      {
+        labels,
+      },
+      { pubsub }
+    )
 
     analytics.track({
       userId: uid,
       event: 'setLabels',
       properties: {
-        linkId,
+        pageId,
         labelIds,
         env: env.server.apiEnv,
       },

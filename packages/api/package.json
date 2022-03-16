@@ -8,9 +8,10 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
-    "test": "yarn mocha -r ts-node/register --config mocha-config.json --exit --timeout 10000"
+    "test": "nyc mocha -r ts-node/register --config mocha-config.json --exit --timeout 10000"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "~7.12.0",
     "@google-cloud/logging-winston": "^4.1.2",
     "@google-cloud/monitoring": "^2.3.5",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^1.1.0",
@@ -101,6 +102,7 @@
   },
   "devDependencies": {
     "@babel/register": "^7.14.5",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/analytics-node": "^3.1.7",
     "@types/highlightjs": "^9.12.2",
     "@types/nanoid": "^3.0.0",
@@ -110,6 +112,7 @@
     "circular-dependency-plugin": "^5.2.0",
     "mocha": "^9.0.1",
     "nock": "^13.2.4",
+    "nyc": "^15.1.0",
     "postgrator": "^4.2.0",
     "ts-node-dev": "^1.1.8"
   },

@@ -206,7 +206,10 @@ export const articleSavingRequestPopulate = async (
   await ctx.authTrx((tx) =>
     ctx.models.articleSavingRequest.update(
       articleSavingReqestId,
-      { status: ArticleSavingRequestStatus.Succeeded, articleId: articleId },
+      {
+        status: ArticleSavingRequestStatus.Succeeded,
+        elasticPageId: articleId,
+      },
       tx
     )
   )

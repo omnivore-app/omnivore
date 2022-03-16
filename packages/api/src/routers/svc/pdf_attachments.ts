@@ -14,6 +14,9 @@ import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { setClaims } from '../../datalayer/helpers'
 import { generateSlug } from '../../utils/helpers'
+import { createPage } from '../../elastic'
+import { createPubSubClient } from '../../datalayer/pubsub'
+import { Page } from '../../elastic/types'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -141,30 +144,24 @@ export function pdfAttachmentsRouter() {
       const uploadFileHash = uploadFileDetails.md5Hash
       const pageType = PageType.File
       const title = subject || uploadFileData.fileName
-      const articleToSave = {
+      const articleToSave: Page = {
         url: uploadFileUrlOverride,
         pageType: pageType,
         hash: uploadFileHash,
         uploadFileId: uploadFileId,
         title: title,
         content: '',
+        userId: user.id,
+        slug: generateSlug(title),
+        id: '',
+        createdAt: new Date(),
       }
 
-      const link = await kx.transaction(async (tx) => {
-        await setClaims(tx, user.id)
-        const articleRecord = await models.article.create(articleToSave, tx)
-        return models.userArticle.create(
-          {
-            userId: user.id,
-            slug: generateSlug(title),
-            articleId: articleRecord.id,
-            articleUrl: uploadFileUrlOverride,
-            articleHash: articleRecord.hash,
-          },
-          tx
-        )
+      const pageId = await createPage(articleToSave, {
+        pubsub: createPubSubClient(),
       })
-      res.send({ id: link.id })
+
+      res.send({ id: pageId })
     } catch (err) {
       console.log(err)
       res.status(500).send(err)

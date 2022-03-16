@@ -1,19 +1,17 @@
+import { createTestLabel, createTestUser, deleteTestUser } from '../db'
 import {
-  createTestLabel,
-  createTestLink,
-  createTestPage,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { Link } from '../../src/entity/link'
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
-import { Page } from '../../src/entity/page'
 import { getRepository } from 'typeorm'
 import 'mocha'
-import { LinkLabel } from '../../src/entity/link_label'
 import { User } from '../../src/entity/user'
+import { Page } from '../../src/elastic/types'
+import { getPageById } from '../../src/elastic'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -21,7 +19,6 @@ describe('Labels API', () => {
   let user: User
   let authToken: string
   let page: Page
-  let link: Link
   let labels: Label[]
 
   before(async () => {
@@ -38,18 +35,13 @@ describe('Labels API', () => {
     const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
     labels = [label1, label2]
 
-    page = await createTestPage()
-    link = await createTestLink(user, page)
+    // create a page with label
     const existingLabelOfLink = await createTestLabel(
       user,
       'different_label',
       '#dddddd'
     )
-    //  set another label to link
-    await getRepository(LinkLabel).save({
-      link,
-      label: existingLabelOfLink,
-    })
+    page = await createTestElasticPage(user, [existingLabelOfLink])
   })
 
   after(async () => {
@@ -245,7 +237,7 @@ describe('Labels API', () => {
 
   describe('Set labels', () => {
     let query: string
-    let linkId: string
+    let pageId: string
     let labelIds: string[] = []
 
     beforeEach(() => {
@@ -253,7 +245,7 @@ describe('Labels API', () => {
         mutation {
           setLabels(
             input: {
-              linkId: "${linkId}",
+              linkId: "${pageId}",
               labelIds: [
                 "${labelIds[0]}",
                 "${labelIds[1]}"
@@ -276,22 +268,20 @@ describe('Labels API', () => {
 
     context('when labels exists', () => {
       before(() => {
-        linkId = link.id
+        pageId = page.id
         labelIds = [labels[0].id, labels[1].id]
       })
 
       it('should set labels', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const link = await getRepository(Link).findOne(linkId, {
-          relations: ['labels'],
-        })
-        expect(link?.labels?.map((l) => l.id)).to.eql(labelIds)
+        const page = await getPageById(pageId)
+        expect(page?.labels?.map((l) => l.id)).to.eql(labelIds)
       })
     })
 
     context('when labels not exist', () => {
       before(() => {
-        linkId = link.id
+        pageId = page.id
         labelIds = [generateFakeUuid(), generateFakeUuid()]
       })
 
@@ -303,7 +293,7 @@ describe('Labels API', () => {
 
     context('when link not exist', () => {
       before(() => {
-        linkId = generateFakeUuid()
+        pageId = generateFakeUuid()
         labelIds = [labels[0].id, labels[1].id]
       })
 
