@@ -1,17 +1,15 @@
 import { MulticastMessage } from 'firebase-admin/messaging'
-import { kx } from '../datalayer/knex_config'
 import { createPubSubClient } from '../datalayer/pubsub'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { ContentReader } from '../generated/graphql'
-import { initModels } from '../server'
 import { analytics } from '../utils/analytics'
 import { sendMulticastPushNotifications } from '../utils/sendNotification'
 import { getNewsletterEmail } from './newsletters'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { getDeviceTokensByUserId } from './user_device_tokens'
-import { getPageByParam } from '../elastic'
 import { Page } from '../elastic/types'
+import { addLabelToPage } from './labels'
 
 interface NewsletterMessage {
   email: string
@@ -46,9 +44,10 @@ export const saveNewsletterEmail = async (
   })
 
   const ctx: SaveContext = {
-    models: initModels(kx, false),
     pubsub: createPubSubClient(),
+    uid: newsletterEmail.user.id,
   }
+
   const input: SaveEmailInput = {
     url: data.url,
     originalContent: data.content,
@@ -56,11 +55,18 @@ export const saveNewsletterEmail = async (
     author: data.author,
   }
 
-  const result = await saveEmail(ctx, newsletterEmail.user.id, input)
-  if (!result) {
+  const page = await saveEmail(ctx, input)
+  if (!page) {
     console.log('newsletter not created:', input)
     return false
   }
+
+  // add newsletters label to page
+  const result = await addLabelToPage(ctx, page.id, {
+    name: 'Newsletter',
+    color: '#07D2D1',
+  })
+  console.log('newsletter label added:', result)
 
   // send push notification
   const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)
@@ -70,22 +76,8 @@ export const saveNewsletterEmail = async (
     return true
   }
 
-  const link = await getPageByParam({
-    _id: result.articleId,
-    userId: newsletterEmail.user.id,
-  })
-
-  if (!link) {
-    console.log(
-      'Newsletter link not found:',
-      newsletterEmail.user.id,
-      result.articleId
-    )
-    return true
-  }
-
   if (deviceTokens.length) {
-    const multicastMessage = messageForLink(link, deviceTokens)
+    const multicastMessage = messageForLink(page, deviceTokens)
     await sendMulticastPushNotifications(
       newsletterEmail.user.id,
       multicastMessage,

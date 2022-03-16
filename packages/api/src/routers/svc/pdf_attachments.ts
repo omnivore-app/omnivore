@@ -159,6 +159,7 @@ export function pdfAttachmentsRouter() {
 
       const pageId = await createPage(articleToSave, {
         pubsub: createPubSubClient(),
+        uid: user.id,
       })
 
       res.send({ id: pageId })

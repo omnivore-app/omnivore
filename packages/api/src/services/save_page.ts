@@ -20,6 +20,7 @@ import { Page } from '../elastic/types'
 type SaveContext = {
   pubsub: PubsubClient
   models: DataModels
+  uid: string
 }
 
 type SaverUserData = {
@@ -56,11 +57,10 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 
 export const createSavingRequest = (
   ctx: SaveContext,
-  userId: string,
   clientRequestId: string
 ) => {
   return ctx.models.articleSavingRequest.create({
-    userId: userId,
+    userId: ctx.uid,
     id: clientRequestId,
   })
 }
@@ -70,11 +70,7 @@ export const savePage = async (
   saver: SaverUserData,
   input: SavePageInput
 ): Promise<SaveResult> => {
-  const savingRequest = await createSavingRequest(
-    ctx,
-    saver.userId,
-    input.clientRequestId
-  )
+  const savingRequest = await createSavingRequest(ctx, input.clientRequestId)
 
   const [slug, croppedPathname] = createSlug(input.url, input.title)
   const parseResult = await parsePreparedContent(input.url, {

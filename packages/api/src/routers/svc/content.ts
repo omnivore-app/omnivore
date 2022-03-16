@@ -67,6 +67,7 @@ export function contentServiceRouter() {
 
     const result = await updatePage(page.id, pageToUpdate, {
       pubsub: createPubSubClient(),
+      uid: page.userId,
     })
     console.log(
       'Updating article text',

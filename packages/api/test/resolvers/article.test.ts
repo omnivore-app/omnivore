@@ -25,7 +25,6 @@ import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 chai.use(chaiString)
 
-const ctx: PageContext = { pubsub: createPubSubClient(), refresh: true }
 const archiveLink = async (authToken: string, linkId: string) => {
   const query = `
   mutation {
@@ -244,6 +243,7 @@ describe('Article API', () => {
   const username = 'fakeUser'
   let authToken: string
   let user: User
+  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -253,6 +253,12 @@ describe('Article API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
+
+    ctx = {
+      pubsub: createPubSubClient(),
+      refresh: true,
+      uid: user.id,
+    }
   })
 
   after(async () => {
@@ -281,7 +287,7 @@ describe('Article API', () => {
       })
 
       after(async () => {
-        await deletePage(pageId, user.id, ctx)
+        await deletePage(pageId, ctx)
       })
 
       it('should create an article', async () => {
@@ -320,7 +326,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId, user.id, ctx)
+        await deletePage(pageId, ctx)
       }
     })
 
@@ -390,7 +396,6 @@ describe('Article API', () => {
       await updatePage(
         pages[0].id,
         {
-          ...pages[0],
           labels: [{ id: label.id, name: label.name, color: label.color }],
         },
         ctx
@@ -564,7 +569,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId, user.id, ctx)
+        await deletePage(pageId, ctx)
       }
     })
 
@@ -612,7 +617,7 @@ describe('Article API', () => {
 
     after(async () => {
       if (pageId) {
-        await deletePage(pageId, user.id, ctx)
+        await deletePage(pageId, ctx)
       }
     })
 

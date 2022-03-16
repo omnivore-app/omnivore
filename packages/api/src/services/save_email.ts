@@ -1,5 +1,3 @@
-import { PubsubClient } from '../datalayer/pubsub'
-import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
 import {
   parseOriginalContent,
@@ -7,13 +5,13 @@ import {
   parseUrlMetadata,
 } from '../utils/parser'
 import normalizeUrl from 'normalize-url'
-import { kx } from '../datalayer/knex_config'
-import { UserArticleData } from '../datalayer/links/model'
-import { setClaims } from '../datalayer/helpers'
+import { PubsubClient } from '../datalayer/pubsub'
+import { Page } from '../elastic/types'
+import { createPage, getPageByParam, updatePage } from '../elastic'
 
 export type SaveContext = {
   pubsub: PubsubClient
-  models: DataModels
+  uid: string
 }
 
 export type SaveEmailInput = {
@@ -25,9 +23,8 @@ export type SaveEmailInput = {
 
 export const saveEmail = async (
   ctx: SaveContext,
-  saverId: string,
   input: SaveEmailInput
-): Promise<UserArticleData | undefined> => {
+): Promise<Page | undefined> => {
   const url = input.url
   const parseResult = await parsePreparedContent(
     url,
@@ -47,7 +44,9 @@ export const saveEmail = async (
   const pageType = parseOriginalContent(url, input.originalContent)
   const metadata = await parseUrlMetadata(url)
 
-  const articleToSave = {
+  const articleToSave: Page = {
+    id: '',
+    userId: ctx.uid,
     originalHtml: input.originalContent,
     content: content,
     description: metadata?.description || parseResult.parsedContent?.excerpt,
@@ -62,58 +61,27 @@ export const saveEmail = async (
     hash: stringToHash(content),
     image: metadata?.previewImage || parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
+    slug: slug,
+    createdAt: new Date(),
   }
 
-  if (parseResult.canonicalUrl && parseResult.domContent) {
-    // await ctx.pubsub.pageSaved(
-    //   saverId,
-    //   parseResult.canonicalUrl,
-    //   parseResult.domContent
-    // )
+  const page = await getPageByParam({ url: articleToSave.url })
+  if (page) {
+    const result = await updatePage(page.id, { archivedAt: null }, ctx)
+    console.log('updated page from email', result)
+
+    return page
   }
 
-  const matchedUserArticleRecord = await ctx.models.userArticle.getByParameters(
-    saverId,
-    {
-      articleUrl: articleToSave.url,
-    }
-  )
+  const pageId = await createPage(articleToSave, ctx)
+  if (!pageId) {
+    console.log('failed to create new page')
 
-  let result: UserArticleData | undefined = undefined
-  if (matchedUserArticleRecord) {
-    // await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
-
-    await kx.transaction(async (tx) => {
-      await setClaims(tx, saverId)
-      result = await ctx.models.userArticle.update(
-        matchedUserArticleRecord.id,
-        {
-          savedAt: new Date(),
-          archivedAt: null,
-        }
-      )
-    })
-    console.log('created matched email', result)
-  } else {
-    // await ctx.pubsub.pageCreated(saverId, url, input.originalContent)
-
-    await kx.transaction(async (tx) => {
-      await setClaims(tx, saverId)
-
-      const articleRecord = await ctx.models.article.create(articleToSave, tx)
-      result = await ctx.models.userArticle.create(
-        {
-          userId: saverId,
-          slug: slug,
-          articleId: articleRecord.id,
-          articleUrl: articleRecord.url,
-          articleHash: articleRecord.hash,
-        },
-        tx
-      )
-      console.log('created new email', result)
-    })
+    return undefined
   }
 
-  return result
+  console.log('created new page from email', pageId)
+  articleToSave.id = pageId
+
+  return articleToSave
 }

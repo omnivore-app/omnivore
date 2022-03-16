@@ -22,6 +22,7 @@ type SaveContext = {
     cb: (tx: Knex.Transaction) => TResult,
     userRole?: string
   ) => Promise<TResult>
+  uid: string
 }
 
 export const saveFile = async (
@@ -44,11 +45,7 @@ export const saveFile = async (
     }
   }
 
-  const savingRequest = await createSavingRequest(
-    ctx,
-    saver.id,
-    input.clientRequestId
-  )
+  const savingRequest = await createSavingRequest(ctx, input.clientRequestId)
 
   const uploadFileDetails = await getStorageFileDetails(
     input.uploadFileId,

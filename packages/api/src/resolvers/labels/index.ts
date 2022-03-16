@@ -79,6 +79,7 @@ export const createLabelResolver = authorized<
     // Check if label already exists ignoring case of name
     const existingLabel = await getRepository(Label).findOne({
       where: {
+        user,
         name: ILike(name),
       },
     })
@@ -161,7 +162,10 @@ export const deleteLabelResolver = authorized<
     }
 
     // delete label in elastic pages
-    await deleteLabelInPages(uid, label.name, { pubsub: createPubSubClient() })
+    await deleteLabelInPages(uid, label.name, {
+      pubsub: createPubSubClient(),
+      uid,
+    })
 
     analytics.track({
       userId: uid,
@@ -225,7 +229,7 @@ export const setLabelsResolver = authorized<
       {
         labels,
       },
-      { pubsub }
+      { pubsub, uid }
     )
 
     analytics.track({
