@@ -5,22 +5,9 @@
   "settings": {
     "analysis": {
       "analyzer": {
-        "ngrams": {
-          "tokenizer": "ngrams",
-          "filter": ["lowercase"]
-        },
-        "stripHTMLWithNgrams": {
-          "tokenizer": "ngrams",
-          "filter": ["lowercase"],
+        "strip_html_analyzer": {
+          "tokenizer": "standard",
           "char_filter": ["html_strip"]
-        }
-      },
-      "tokenizer": {
-        "ngrams": {
-          "type": "ngram",
-          "min_gram": 3,
-          "max_gram": 3,
-          "token_chars": ["letter", "digit"]
         }
       },
       "normalizer": {
@@ -36,52 +23,17 @@
         "type": "keyword"
       },
       "title": {
-        "type": "text",
-        "analyzer": "pattern",
-        "fields": {
-          "raw": {
-            "type": "text",
-            "analyzer": "pattern"
-          },
-          "ngram": {
-            "type": "text",
-            "analyzer": "ngrams"
-          }
-        }
+        "type": "text"
       },
       "author": {
-        "type": "text",
-        "analyzer": "pattern",
-        "fields": {
-          "raw": {
-            "type": "text",
-            "analyzer": "pattern"
-          },
-          "ngram": {
-            "type": "text",
-            "analyzer": "ngrams"
-          }
-        }
+        "type": "text"
       },
       "description": {
-        "type": "text",
-        "analyzer": "ngrams",
-        "fields": {
-          "raw": {
-            "type": "text",
-            "analyzer": "pattern"
-          }
-        }
+        "type": "text"
       },
       "content": {
         "type": "text",
-        "analyzer": "stripHTMLWithNgrams",
-        "fields": {
-          "raw": {
-            "type": "text",
-            "analyzer": "pattern"
-          }
-        }
+        "analyzer": "strip_html_analyzer"
       },
       "url": {
         "type": "keyword"
