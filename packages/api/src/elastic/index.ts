@@ -161,7 +161,11 @@ export const createPage = async (
     const { body } = await client.index({
       id: page.id || undefined,
       index: INDEX_ALIAS,
-      body: page,
+      body: {
+        ...page,
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      },
       refresh: ctx.refresh,
     })
 
@@ -184,7 +188,10 @@ export const updatePage = async (
       index: INDEX_ALIAS,
       id,
       body: {
-        doc: page,
+        doc: {
+          ...page,
+          updatedAt: new Date(),
+        },
       },
       refresh: ctx.refresh,
     })

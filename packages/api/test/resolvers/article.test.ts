@@ -392,9 +392,9 @@ describe('Article API', () => {
       }
       //  create testing labels
       label = await createTestLabel(user, 'label', '#ffffff')
-      //  set label to a link
+      //  set label to the last page
       await updatePage(
-        pages[0].id,
+        pages[14].id,
         {
           labels: [{ id: label.id, name: label.name, color: label.color }],
         },
@@ -406,15 +406,27 @@ describe('Article API', () => {
       query = articlesQuery(after)
     })
 
-    it('should return labels', async () => {
-      const res = await graphqlRequest(query, authToken).expect(200)
+    context('when there are pages with labels', () => {
+      before(() => {
+        // get the last page
+        after = '14'
+      })
 
-      expect(res.body.data.articles.edges[0].node.labels[0].id).to.eql(label.id)
+      it('should return labels', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.articles.edges[0].node.labels[0].id).to.eql(
+          label.id
+        )
+      })
     })
 
     context('when we fetch the first page', () => {
-      it('should return the first five items', async () => {
+      before(() => {
         after = ''
+      })
+
+      it('should return the first five items', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.articles.edges.length).to.eql(5)
@@ -426,7 +438,6 @@ describe('Article API', () => {
       })
 
       it('should set the pageInfo', async () => {
-        after = ''
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.articles.pageInfo.endCursor).to.eql('5')
         expect(res.body.data.articles.pageInfo.startCursor).to.eql('')
