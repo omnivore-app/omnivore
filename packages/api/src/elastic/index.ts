@@ -19,6 +19,7 @@ import {
 } from './types'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { Label } from '../entity/label'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -201,6 +202,38 @@ export const updatePage = async (
     await ctx.pubsub.pageSaved(page, ctx.uid)
 
     return true
+  } catch (e) {
+    console.error('failed to update a page in elastic', e)
+    return false
+  }
+}
+
+export const addLabelInPage = async (
+  id: string,
+  label: Label,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.update({
+      index: INDEX_ALIAS,
+      id,
+      body: {
+        script: {
+          source:
+            'if (!ctx._source.labels.contains(params.label)) { ctx._source.labels.add(label) }',
+          lang: 'painless',
+          params: {
+            label: label,
+          },
+        },
+        doc: {
+          updatedAt: new Date(),
+        },
+      },
+      refresh: ctx.refresh,
+    })
+
+    return body.result === 'updated'
   } catch (e) {
     console.error('failed to update a page in elastic', e)
     return false

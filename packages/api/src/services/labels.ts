@@ -2,9 +2,9 @@ import DataLoader from 'dataloader'
 import { Label } from '../entity/label'
 import { getRepository, ILike, In } from 'typeorm'
 import { Link } from '../entity/link'
-import { updatePage } from '../elastic'
 import { PageContext } from '../elastic/types'
 import { User } from '../entity/user'
+import { addLabelInPage } from '../elastic'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -50,11 +50,5 @@ export const addLabelToPage = async (
 
   console.log('adding label to page', label.name, pageId)
 
-  return updatePage(
-    pageId,
-    {
-      labels: [labelEntity],
-    },
-    ctx
-  )
+  return addLabelInPage(pageId, labelEntity, ctx)
 }
