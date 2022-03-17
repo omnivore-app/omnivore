@@ -155,6 +155,8 @@ export function pdfAttachmentsRouter() {
         slug: generateSlug(title),
         id: '',
         createdAt: new Date(),
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
       }
 
       const pageId = await createPage(articleToSave, {

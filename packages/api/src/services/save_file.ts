@@ -106,6 +106,8 @@ export const saveFile = async (
         userId: saver.id,
         id: '',
         createdAt: new Date(),
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
       },
       ctx
     )

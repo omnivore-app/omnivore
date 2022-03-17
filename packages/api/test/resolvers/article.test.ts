@@ -571,6 +571,8 @@ describe('Article API', () => {
         createdAt: new Date(),
         url: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
       }
       const newPageId = await createPage(page, ctx)
       if (newPageId) {

@@ -50,6 +50,8 @@ export const createTestElasticPage = async (
     url: 'https://example.com/test-url',
     slug: 'test-with-omnivore',
     labels: labels,
+    readingProgressPercent: 0,
+    readingProgressAnchorIndex: 0,
   }
 
   const pageId = await createPage(page, {

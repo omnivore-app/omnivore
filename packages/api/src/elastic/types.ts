@@ -132,8 +132,8 @@ export interface Page {
   originalHtml?: string | null
   slug: string
   labels?: Label[]
-  readingProgressPercent?: number
-  readingProgressAnchorIndex?: number
+  readingProgressPercent: number
+  readingProgressAnchorIndex: number
   createdAt: Date
   updatedAt?: Date
   publishedAt?: Date
