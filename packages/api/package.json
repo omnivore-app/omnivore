@@ -75,6 +75,7 @@
     "graphql-middleware": "^6.0.10",
     "graphql-shield": "^7.5.0",
     "highlightjs": "^9.16.2",
+    "html-entities": "^2.3.2",
     "intercom-client": "^3.1.4",
     "jsdom": "^16.4.0",
     "jsonwebtoken": "^8.5.1",
