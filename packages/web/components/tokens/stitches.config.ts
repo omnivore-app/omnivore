@@ -111,6 +111,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
+        cardItemLightShadow: '0px 8px 32px rgba(32, 31, 29, 0.33)',
+        cardItemDarkShadow: '0px 8px 32px rgba(255, 255, 255, 0.33)',
       },
       zIndices: {},
       transitions: {},

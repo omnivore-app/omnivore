@@ -8,6 +8,7 @@ import { theme } from './../tokens/stitches.config'
 import { CardMenu } from './../patterns/CardMenu'
 import { LayoutType } from '../templates/homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
+import { Label } from './../elements/Label'
 
 export type LinkedItemCardAction =
   | 'showDetail'
@@ -45,6 +46,23 @@ export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
   }
 }
 
+// Dummy Data
+const Labels = [
+  {
+    text: 'Tag 1',
+    color: "#B20042"
+  },
+  {
+    text: 'Tag 2',
+    color: "#01A800"
+  },
+  {
+    text: 'Tag 3',
+    color: "#007E9E"
+  },
+]
+
+
 export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
   const originText = siteName(props.item.originalArticleUrl, props.item.url)
 
@@ -63,13 +81,33 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
           overflow: 'clip',
           border: '1px solid $grayBorder',
           boxShadow: '0px 3px 11px rgba(32, 31, 29, 0.04)',
+          position: 'relative',
         }}
         alignment='start'
         distribution='start'
         onClick={() => {
           props.handleAction('showDetail')
         }}
+        className="grid-item-card"
       >
+        <Box css={{
+          position: 'absolute',
+          top: '1px',
+          left: '1px',
+          width: 'calc(100% - 2px)',
+          '& > div': {
+            borderRadius: '100vmax 100vmax 0 0',
+          }
+        }}>
+          <ProgressBar
+            fillPercentage={props.item.readingProgressPercent}
+            fillColor={theme.colors.highlight.toString()}
+            backgroundColor={theme.colors.grayTextContrast.toString()}
+            borderRadius={props.item.readingProgressPercent===100 ?
+              '0' : '0px 8px 8px 0px'
+            }
+          />
+        </Box>
         <VStack
           distribution="start"
           alignment="start"
@@ -79,9 +117,21 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
             pl: '$1',
           }}
         >
-          <HStack alignment='start' distribution='between' css={{ width: '100%', p: '0px', mr: '-12px' }}>
-            <StyledText style="caption" css={{ my: '$1' }}>
-              {originText}
+          <HStack alignment='start' distribution='between' css={{ width: '100%', p: '0px', mr: '-12px',  mt: '15px'}}>
+            <StyledText
+              style="listTitle"
+              css={{ 
+                mt: '0',
+                mb:'0',
+                fontWeight: '700',
+                textAlign: 'left',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+                width: '100%',
+                overflow: 'hidden'
+              }}  
+            >
+              {props.item.title}
             </StyledText>
             <Box
               css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
@@ -98,61 +148,74 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
                   <MoreOptionsIcon
                     size={24}
                     strokeColor={theme.colors.grayTextContrast.toString()}
-                    orientation="vertical"
+                    orientation="horizontal"
                   />
                 }
                 actionHandler={props.handleAction}
               />
             </Box>
           </HStack>
-          <StyledText
-            style="listTitle"
-            css={{ mt: '0px', mb: '$1', textAlign: 'left', pr: '24px' }}
-          >
-            {props.item.title}
-          </StyledText>
+          <HStack alignment='start' distribution='between'>
+            <StyledText style="caption" css={{ my: '0', mt:'-$2' }}>
+              {props.item.author && (
+                <SpanBox css={{ mr: '8px' }}>
+                  {authoredByText(props.item.author)}
+                </SpanBox>
+              )
+              }
+              <SpanBox css={{ textDecorationLine: 'underline' }}>
+                {originText}
+              </SpanBox>
+            </StyledText>
+          </HStack>
+          
         </VStack>
         <HStack alignment='start' distribution='between' css={{
           width: '100%',
           pt: '$2',
           px: '$1',
           pr: '12px',
+          mt: '7px',
           flexGrow: '1',
         }}>
           <StyledText
-            style="caption"
             css={{
               m: 0,
               py: '0px',
+              mr: '$2',
+              fontStyle: 'normal',
+              fontWeight: '400',
+              fontSize: '14px',
+              lineHeight: '125%',
+              color: '$grayTextContrast',
               flexGrow: '4',
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 5,
+              WebkitBoxOrient: "vertical",
             }}
           >
-            {props.item.author && (
-              <SpanBox css={{ my: '$1' }}>
-                {authoredByText(props.item.author)}
-                {props.item.description ? ' \u2013 ' : ''}
-              </SpanBox>
-            )}
-            {props.item.description?.substring(0, 300)}
+            {props.item.description}
           </StyledText>
-          {props.item.image && (
+          {/* {props.item.image && ( */}
             <CoverImage
-              src={props.item.image}
+              // src={props.item.image}
+              src={"https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg"}
               alt="Link Preview Image"
-              width={88}
-              height={88}
-              css={{ ml: '8px', mb: '8px', mt: '8px' }}
+              width={135}
+              height={90}
+              css={{ ml: '10px', mb: '8px', borderRadius: '3px' }}
               onError={(e) => {
-                ;(e.target as HTMLElement).style.display = 'none'
+                // (e.target as HTMLElement).style.display = 'none'
               }}
             />
-          )}
+          {/* )} */}
         </HStack>
-        <ProgressBar
-          fillPercentage={props.item.readingProgressPercent}
-          fillColor={theme.colors.highlight.toString()}
-          backgroundColor={theme.colors.grayTextContrast.toString()}
-        />
+        <HStack css={{ mt: '8px' }}>
+              {
+                Labels.map(({text, color}, index) => <Label key={index} text={text} color={color} />)
+              }
+        </HStack>
       </VStack>
     // </Link>
   )
@@ -163,30 +226,26 @@ export function ListLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
 
   return (
     // <Link href={`/${username}/${props.item.slug}`} passHref={true}>
-      <VStack
-        css={{
-          p: '$2',
-          height: '100%',
-          width: '100%',
-          maxWidth: '100%',
-          borderRadius: 0,
-          cursor: 'pointer',
-          wordBreak: 'break-word',
-          borderTop: '1px solid $grayBorder',
-          boxShadow: '0px 3px 11px rgba(32, 31, 29, 0.04)',
-        }}
-        onClick={() => {
-          props.handleAction('showDetail')
-        }}
-      >
         <HStack
-          distribution="start"
-          alignment="start"
-          css={{ width: '100%', justifySelf: 'start' }}
+          css={{
+            p: '$3',
+            height: '100%',
+            width: '100%',
+            maxWidth: '100%',
+            borderRadius: 0,
+            cursor: 'pointer',
+            wordBreak: 'break-word',
+            border: '1px solid $grayBorder',
+            borderBottom: 'none',
+            alignItems: "center",
+          }}
+          onClick={() => {
+            props.handleAction('showDetail')
+          }}
         >
-          <VStack
+          <HStack
             distribution="start"
-            alignment="start"
+            alignment="end"
             css={{
               px: '$2',
               flexGrow: 1,
@@ -195,21 +254,46 @@ export function ListLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
           >
             <StyledText
               style="listTitle"
-              css={{ mt: '0px', mb: '$1', textAlign: 'left' }}
+              css={{ mt: '0px', mb: '$1', textAlign: 'left', lineHeight: 'normal' }}
             >
               {props.item.title}
             </StyledText>
             {props.item.author && (
-              <StyledText style="caption" css={{ my: '$1' }}>
+              <StyledText style="caption" css={{ my: '$1', ml: '8px' }}>
                 {authoredByText(props.item.author)}
               </StyledText>
             )}
-            <StyledText style="caption" css={{ my: '$1' }}>
+            <StyledText style="caption" css={{ my: '$1', ml: '8px', textDecorationLine: 'underline' }}>
               {originText}
             </StyledText>
-          </VStack>
+          </HStack>
           <Box
-            css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
+            css={{
+              width: '40px',
+              height: '8px',
+              mr: '$2',
+              backgroundColor: "$grayBase",
+              display: 'grid',
+              placeItems: 'center',
+              borderRadius: '6px',
+              border:  '1px solid $grayBorder',
+              px: '1px'
+            }}
+          >
+            <ProgressBar
+              fillPercentage={props.item.readingProgressPercent}
+              fillColor={theme.colors.highlight.toString()}
+              backgroundColor={theme.colors.grayTextContrast.toString()}
+              borderRadius={'8px'}
+            />  
+          </Box>
+          <Box
+            css={{ 
+              alignSelf: 'end',
+              alignItems: 'center',
+              display: 'grid',
+              placeItems: 'center',
+            }}
             onClick={(e) => {
               // This is here to prevent menu click events from bubbling
               // up and causing us to "click" on the link item.
@@ -223,19 +307,13 @@ export function ListLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
                 <MoreOptionsIcon
                   size={24}
                   strokeColor={theme.colors.grayTextContrast.toString()}
-                  orientation="vertical"
+                  orientation="horizontal"
                 />
               }
               actionHandler={props.handleAction}
             />
           </Box>
         </HStack>
-        <ProgressBar
-          fillPercentage={props.item.readingProgressPercent}
-          fillColor={theme.colors.highlight.toString()}
-          backgroundColor={theme.colors.grayTextContrast.toString()}
-        />
-      </VStack>
     // </Link>
   )
 }
@@ -244,6 +322,7 @@ type ProgressBarProps = {
   fillPercentage: number
   fillColor: string
   backgroundColor: string
+  borderRadius: string
 }
 
 function ProgressBar(props: ProgressBarProps): JSX.Element {
@@ -253,9 +332,7 @@ function ProgressBar(props: ProgressBarProps): JSX.Element {
         height: '4px',
         width: '100%',
         borderRadius: '$1',
-        backgroundColor: props.backgroundColor,
         overflow: 'hidden',
-        mt: '$1',
       }}
     >
       <Box
@@ -263,6 +340,7 @@ function ProgressBar(props: ProgressBarProps): JSX.Element {
           height: '100%',
           width: `${props.fillPercentage}%`,
           backgroundColor: props.fillColor,
+          borderRadius: props.borderRadius,
         }}
       />
     </Box>
