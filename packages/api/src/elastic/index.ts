@@ -393,7 +393,8 @@ export const searchPages = async (
       inFilter,
     } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
-    const sortField = sort?.by === SortBy.Score ? '_score' : 'updatedAt'
+    // default sort by saved_at
+    const sortField = sort?.by === SortBy.Score ? '_score' : 'savedAt'
     const includeLabels = labelFilters.filter(
       (filter) => filter.type === LabelFilterType.INCLUDE
     )

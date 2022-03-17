@@ -1512,6 +1512,7 @@ export type SignupSuccess = {
 };
 
 export enum SortBy {
+  SavedAt = 'SAVED_AT',
   Score = 'SCORE',
   UpdatedTime = 'UPDATED_TIME'
 }
