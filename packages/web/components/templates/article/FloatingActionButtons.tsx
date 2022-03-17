@@ -29,8 +29,8 @@ const ContainerStyles = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  height: 48,
-  width: 48,
+  height: 56,
+  width: 56,
 }
 
 const ButtonCss = {
@@ -110,7 +110,7 @@ export function FloatingActionButtons(
       }
       }}>
       <ActionContainerButton style="plainIcon" css={{...BgStyles, ...BorderStyles}} onClick={handleOpenClose}>
-        {showButtons ? <X size={24} color='#000000' /> : <DotsThree size={24} color='#000000' />}
+        {showButtons ? <X size={28} color='#000000' /> : <DotsThree size={32} color='#000000' />}
       </ActionContainerButton>
       {(showButtons && !currentAction) && (
         <HStack distribution="evenly" alignment='end' css={{gap: '$2'}}>
