@@ -166,6 +166,7 @@ export const createPage = async (
         ...page,
         updatedAt: new Date(),
         createdAt: new Date(),
+        savedAt: new Date(),
       },
       refresh: ctx.refresh,
     })

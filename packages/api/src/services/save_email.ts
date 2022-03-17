@@ -63,6 +63,8 @@ export const saveEmail = async (
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
     slug: slug,
     createdAt: new Date(),
+    readingProgressAnchorIndex: 0,
+    readingProgressPercent: 0,
   }
 
   const page = await getPageByParam({ url: articleToSave.url })

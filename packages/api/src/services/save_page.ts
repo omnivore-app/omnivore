@@ -101,6 +101,8 @@ export const savePage = async (
     image: parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
     createdAt: new Date(),
+    readingProgressPercent: 0,
+    readingProgressAnchorIndex: 0,
   }
 
   const existingPage = await getPageByParam({

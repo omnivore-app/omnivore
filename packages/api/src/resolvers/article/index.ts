@@ -272,6 +272,8 @@ export const createArticleResolver = authorized<
         createdAt: saveTime,
         savedAt: saveTime,
         siteName: parsedContent?.siteName,
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
       }
 
       let archive = false
