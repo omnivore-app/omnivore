@@ -1,5 +1,6 @@
 import 'mocha'
 import {
+  addLabelInPage,
   createPage,
   deletePage,
   getPageById,
@@ -143,6 +144,38 @@ describe('elastic api', () => {
         page.userId
       )
       expect(searchResults).not.undefined
+    })
+  })
+
+  describe('addLabelInPage', () => {
+    context('when the label not exist in the page', () => {
+      it('adds the label to the page', async () => {
+        const newLabel = {
+          id: 'new label id',
+          name: 'new label',
+          color: '#07D2D1',
+        }
+
+        const result = await addLabelInPage(page.id, newLabel, ctx)
+        expect(result).to.be.true
+
+        const updatedPage = await getPageById(page.id)
+        expect(updatedPage?.labels).to.deep.include(newLabel)
+      })
+    })
+
+    context('when the label exists in the page', () => {
+      it('does not add the label to the page', async () => {
+        const newLabel = {
+          id: 'Test label id',
+          name: 'test label',
+          color: '#07D2D1',
+        }
+
+        const result = await addLabelInPage(page.id, newLabel, ctx)
+
+        expect(result).to.be.false
+      })
     })
   })
 })

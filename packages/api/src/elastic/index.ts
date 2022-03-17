@@ -3,7 +3,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
-import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
+import {
+  Label,
+  PageType,
+  SortBy,
+  SortOrder,
+  SortParams,
+} from '../generated/graphql'
 import {
   InFilter,
   LabelFilter,
@@ -19,7 +25,6 @@ import {
 } from './types'
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { Label } from '../entity/label'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -220,15 +225,15 @@ export const addLabelInPage = async (
       id,
       body: {
         script: {
-          source:
-            'if (!ctx._source.labels.contains(params.label)) { ctx._source.labels.add(label) }',
+          source: `if (ctx._source.labels == null) { 
+                    ctx._source.labels = [params.label]
+                  } else if (!ctx._source.labels.any(label -> label.name == params.label.name)) {
+                    ctx._source.labels.add(params.label) 
+                  } else { ctx.op = 'none' }`,
           lang: 'painless',
           params: {
             label: label,
           },
-        },
-        doc: {
-          updatedAt: new Date(),
         },
       },
       refresh: ctx.refresh,
