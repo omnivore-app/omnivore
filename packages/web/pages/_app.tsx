@@ -1,5 +1,6 @@
 import '../styles/globals.css'
 import '../styles/articleInnerStyling.css'
+import '../styles/sliderstyles.css'
 import type { AppProps } from 'next/app'
 import { IntlProvider } from 'react-intl'
 import { IdProvider } from '@radix-ui/react-id'
@@ -8,6 +9,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
 import { segmentApiKey } from '../lib/appConfig'
+import { TooltipProvider } from '../components/elements/Tooltip'
 
 function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
@@ -48,7 +50,9 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
         defaultLocale="en"
         messages={englishTranslations}
       >
-        <Component {...pageProps} />
+        <TooltipProvider delayDuration={200}>
+          <Component {...pageProps} />
+        </TooltipProvider>
       </IntlProvider>
     </IdProvider>
   )

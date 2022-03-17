@@ -23,6 +23,7 @@
     "@radix-ui/react-id": "^0.1.1",
     "@radix-ui/react-popover": "^0.1.1",
     "@radix-ui/react-separator": "^0.1.0",
+    "@radix-ui/react-tooltip": "^0.1.7",
     "@segment/analytics-next": "^1.33.5",
     "@sentry/nextjs": "^6.16.1",
     "@stitches/react": "^1.2.5",
