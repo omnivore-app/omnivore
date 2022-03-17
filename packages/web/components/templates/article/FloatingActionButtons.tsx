@@ -6,7 +6,6 @@ import { TooltipWrapped } from '../../elements/Tooltip'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { styled, theme } from '../../tokens/stitches.config'
 import { DotsThree, X, TextAa } from 'phosphor-react'
-import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 
 type FloatingActionButtonsProps = {
