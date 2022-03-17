@@ -6,6 +6,8 @@ import { TooltipWrapped } from '../../elements/Tooltip'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { styled, theme } from '../../tokens/stitches.config'
 import { DotsThree, X, TextAa } from 'phosphor-react'
+import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
+import { isDarkTheme } from '../../../lib/themeUpdater'
 
 type FloatingActionButtonsProps = {
   onFontSizeChange: (value: number) => any
@@ -19,10 +21,6 @@ const BorderStyles = {
   borderRadius: 32,
   borderStyle: 'solid',
   borderColor: theme.colors.grayBorder,
-}
-
-const BgStyles = {
-  backgroundColor: 'white',
 }
 
 const ContainerStyles = {
@@ -57,6 +55,7 @@ const ActionContainerHStack = styled(HStack, {
 export function FloatingActionButtons(
   props: FloatingActionButtonsProps
 ): JSX.Element {
+  const isDarkMode = isDarkTheme()
 
   const [showButtons, setShowButtons] = useState(false);
   const [currentAction, setCurrentAction] = useState<Actions>(undefined);
@@ -75,17 +74,22 @@ export function FloatingActionButtons(
     props.onFontSizeChange(value);
   }
 
+  const iconColor = isDarkMode ? theme.colors.grayText.toString() : theme.colors.utilityTextContrast.toString();
+  const BgStyles = {
+    backgroundColor: isDarkMode ? 'black' : 'white',
+  }
+
   const showCurrentActionButton = (action: Actions) => {
     switch (action) {
       case 'font':
         return (
           <ActionContainerHStack distribution='between' css={{$gap: '$2', alignItems: 'center', px: 12, ...BgStyles, ...BorderStyles}}>
             <Box css={{pt: 7}}>
-              <AIcon style={{padding: 3}} color='#000000' size={24} />
+              <AIcon style={{padding: 3}} color={iconColor} size={24} />
             </Box>
             <TickedRangeSlider value={fontSize} onChange={handleFontChange} />
             <Box css={{pt: 6}}>
-              <AIcon color='#000000' size={24} />
+              <AIcon color={iconColor} size={24} />
             </Box>
           </ActionContainerHStack>
         )
@@ -108,14 +112,14 @@ export function FloatingActionButtons(
       }
       }}>
       <ActionContainerButton style="plainIcon" css={{...BgStyles, ...BorderStyles}} onClick={handleOpenClose}>
-        {showButtons ? <X size={28} color='#000000' /> : <DotsThree size={32} color='#000000' />}
+        {showButtons ? <X size={28} color={iconColor} /> : <DotsThree size={32} color={iconColor} />}
       </ActionContainerButton>
       {(showButtons && !currentAction) && (
         <HStack distribution="evenly" alignment='end' css={{gap: '$2'}}>
           <TooltipWrapped tooltipContent='Increase or Decrease Font Sizes' side='top' align='center'>
             <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('font')}>
               <FlexContainer>
-                <TextAa color='#000000' size={24} />
+                <TextAa color={iconColor} size={24} />
               </FlexContainer>
             </ActionContainerButton>
           </TooltipWrapped>
