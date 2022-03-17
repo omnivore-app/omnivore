@@ -40,8 +40,6 @@ const ButtonCss = {
   borderRadius: 32,
 
   '&:hover': {
-    height: 55,
-    width: 55,
     boxShadow: '0px 4px 16px rgba(32, 31, 29, 0.33)',
   }
 }
