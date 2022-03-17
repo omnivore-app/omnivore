@@ -123,15 +123,16 @@ const parseSortParams = (str?: string): SortParams | undefined => {
     order?.toUpperCase() === 'ASC' ? SortOrder.Ascending : SortOrder.Descending
 
   switch (sort.toUpperCase()) {
-    case 'UPDATED_AT':
+    case 'UPDATED_TIME':
+    case 'SAVED_AT':
       return {
-        by: SortBy.UpdatedTime,
+        by: SortBy.SavedAt,
         order: sortOrder,
       }
     case 'SCORE':
+      // sort by score does not need an order
       return {
         by: SortBy.Score,
-        order: sortOrder,
       }
   }
 }
