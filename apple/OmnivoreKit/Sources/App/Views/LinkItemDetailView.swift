@@ -145,10 +145,10 @@ struct LinkItemDetailView: View {
 
   var body: some View {
     #if os(iOS)
-      if FeatureFlag.useLocalWebView {
-        WebReaderContainerView(item: viewModel.item)
-      } else if viewModel.item.isPDF {
+      if viewModel.item.isPDF  {
         fixedNavBarReader
+      } else if FeatureFlag.useLocalWebView {
+        WebReaderContainerView(item: viewModel.item)
       } else {
         hidingNavBarReader
       }
