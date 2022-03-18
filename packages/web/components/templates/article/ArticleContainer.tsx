@@ -17,8 +17,6 @@ import { userPersonalizationMutation } from '../../../lib/networking/mutations/u
 import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
-import Script from 'next/script'
-import { useRouter } from 'next/router'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -33,7 +31,6 @@ type ArticleContainerProps = {
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
-  const router = useRouter()
   const [showShareModal, setShowShareModal] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
@@ -49,7 +46,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   }
 
   useKeyboardShortcuts(
-    articleKeyboardCommands(router, async (action) => {
+    articleKeyboardCommands(async (action) => {
       switch (action) {
         case 'openOriginalArticle':
           const url = props.article.url
@@ -121,12 +118,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   return (
     <>
-      <Script async src="/static/scripts/mathJaxConfiguration.js" />
-      <Script
-        async
-        id="MathJax-script"
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-      />
       <Box
         id="article-container"
         css={{

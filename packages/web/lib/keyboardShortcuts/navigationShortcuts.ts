@@ -210,7 +210,6 @@ type ArticleKeyboardAction =
   | 'editLabels'
 
 export function articleKeyboardCommands(
-  router: NextRouter | undefined,
   actionHandler: (action: ArticleKeyboardAction) => void
 ): KeyboardCommand[] {
   return [
@@ -224,7 +223,7 @@ export function articleKeyboardCommands(
       shortcutKeys: ['u'],
       actionDescription: 'Back to library',
       shortcutKeyDescription: 'u',
-      callback: () => router?.push('/home'),
+      callback: () => window.location.href = '/home',
     },
     {
       shortcutKeys: ['+'],

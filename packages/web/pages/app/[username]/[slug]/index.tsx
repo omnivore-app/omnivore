@@ -66,31 +66,39 @@ function AppArticleEmbedContent(
 
   if (articleData) {
     return (
-      <Box
-        css={{
-          overflowY: 'auto',
-          height: '100%',
-          width: '100vw',
-        }}
-      >
-        <VStack
-          alignment="center"
-          distribution="center"
-          className="disable-webkit-callout"
+      <>
+        <Script async src="/static/scripts/mathJaxConfiguration.js" />
+        <Script
+          async
+          id="MathJax-script"
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        />
+        <Box
+          css={{
+            overflowY: 'auto',
+            height: '100%',
+            width: '100vw',
+          }}
         >
-          <ArticleContainer
-            article={articleData.article.article}
-            scrollElementRef={scrollRef}
-            isAppleAppEmbed={true}
-            highlightBarDisabled={props.highlightBarDisabled}
-            viewerUsername={props.username}
-            highlightsBaseURL={`${webBaseURL}/${props.username}/${props.slug}/highlights`}
-            fontSize={props.fontSize}
-            margin={props.margin}
-            fontFamily={props.fontFamily}
-          />
-        </VStack>
-      </Box>
+          <VStack
+            alignment="center"
+            distribution="center"
+            className="disable-webkit-callout"
+          >
+            <ArticleContainer
+              article={articleData.article.article}
+              scrollElementRef={scrollRef}
+              isAppleAppEmbed={true}
+              highlightBarDisabled={props.highlightBarDisabled}
+              viewerUsername={props.username}
+              highlightsBaseURL={`${webBaseURL}/${props.username}/${props.slug}/highlights`}
+              fontSize={props.fontSize}
+              margin={props.margin}
+              fontFamily={props.fontFamily}
+            />
+          </VStack>
+        </Box>
+      </>
     )
   }
 

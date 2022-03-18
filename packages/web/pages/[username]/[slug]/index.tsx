@@ -13,6 +13,7 @@ import dynamic from 'next/dynamic'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
+import Script from 'next/script'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -38,42 +39,50 @@ export default function Home(): JSX.Element {
 
   if (article && viewerData?.me) {
     return (
-      <PrimaryLayout
-        pageTestId="home-page-tag"
-        scrollElementRef={scrollRef}
-        displayFontStepper={true}
-        pageMetaDataProps={{
-          title: article.title,
-          path: router.pathname,
-          description: article.description,
-        }}
-      >
-        <Toaster />
+      <>
+        <Script async src="/static/scripts/mathJaxConfiguration.js" />
+        <Script
+          async
+          id="MathJax-script"
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        />
+        <PrimaryLayout
+          pageTestId="home-page-tag"
+          scrollElementRef={scrollRef}
+          displayFontStepper={true}
+          pageMetaDataProps={{
+            title: article.title,
+            path: router.pathname,
+            description: article.description,
+          }}
+        >
+          <Toaster />
 
-          {article.contentReader == 'PDF' ? (
-            <PdfArticleContainerNoSSR
-              article={article}
-              viewerUsername={viewerData.me?.profile?.username}
-            />
-          ) : (
-            <VStack
-            alignment="center"
-            distribution="center"
-            ref={scrollRef}
-            className="disable-webkit-callout"
-            >
-              <ArticleContainer
+            {article.contentReader == 'PDF' ? (
+              <PdfArticleContainerNoSSR
                 article={article}
-                scrollElementRef={scrollRef}
-                isAppleAppEmbed={false}
-                highlightBarDisabled={false}
                 viewerUsername={viewerData.me?.profile?.username}
-                highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
-                fontSize={preferencesData?.fontSize}
               />
-            </VStack>
-          )}
-      </PrimaryLayout>
+            ) : (
+              <VStack
+              alignment="center"
+              distribution="center"
+              ref={scrollRef}
+              className="disable-webkit-callout"
+              >
+                <ArticleContainer
+                  article={article}
+                  scrollElementRef={scrollRef}
+                  isAppleAppEmbed={false}
+                  highlightBarDisabled={false}
+                  viewerUsername={viewerData.me?.profile?.username}
+                  highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
+                  fontSize={preferencesData?.fontSize}
+                />
+              </VStack>
+            )}
+        </PrimaryLayout>
+      </>
     )
   }
 
