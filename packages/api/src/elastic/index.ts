@@ -238,6 +238,7 @@ export const addLabelInPage = async (
         },
       },
       refresh: ctx.refresh,
+      retry_on_conflict: 3,
     })
 
     return body.result === 'updated'
