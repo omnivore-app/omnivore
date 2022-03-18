@@ -66,7 +66,8 @@ export function Article(props: ArticleProps): JSX.Element {
       if (!readingProgress) return
       await articleReadingProgressMutation({
         id: props.articleId,
-        readingProgressPercent: readingProgress,
+        // round reading progress to 100% if more than that
+        readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,
         readingProgressAnchorIndex: readingAnchorIndex,
       })
     })()
