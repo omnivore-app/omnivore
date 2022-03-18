@@ -1,4 +1,4 @@
-import { Box } from './../../../components/elements/LayoutPrimitives'
+import { Box } from '../../elements/LayoutPrimitives'
 import { useReadingProgressAnchor } from '../../../lib/hooks/useReadingProgressAnchor'
 import {
   ScrollOffsetChangeset,
@@ -44,29 +44,37 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
 
-  const debouncedReadingProgress = useMemo(
+  const debouncedSetReadingProgress = useMemo(
     () =>
-      debounce(async () => {
-        if (!readingProgress) return
-
-        await articleReadingProgressMutation({
-          id: props.articleId,
-          readingProgressPercent: readingProgress,
-          readingProgressAnchorIndex: readingAnchorIndex,
-        })
-      }, 3000),
-    [readingProgress]
+      debounce((readingProgress: number) => {
+        console.log('setReadingProgress', readingProgress)
+        setReadingProgress(readingProgress)
+      }, 2000),
+    []
   )
+
+  // Stop the invocation of the debounced function
+  // after unmounting
+  useEffect(() => {
+    return () => {
+      debouncedSetReadingProgress.cancel()
+    }
+  }, [])
 
   useEffect(() => {
     ;(async () => {
-      await debouncedReadingProgress()
+      if (!readingProgress) return
+      await articleReadingProgressMutation({
+        id: props.articleId,
+        readingProgressPercent: readingProgress,
+        readingProgressAnchorIndex: readingAnchorIndex,
+      })
     })()
 
     // We don't react to changes to readingAnchorIndex we
     // only care about the progress (scroll position) changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.articleId, readingProgress, readingAnchorIndex])
+  }, [props.articleId, readingProgress])
 
   // Post message to webkit so apple app embeds get progress updates
   useEffect(() => {
@@ -85,13 +93,13 @@ export function Article(props: ArticleProps): JSX.Element {
           (changeset.current.y + scrollContainer.clientHeight) /
           scrollContainer.scrollHeight
 
-        setReadingProgress(newReadingProgress * 100)
+        debouncedSetReadingProgress(newReadingProgress * 100)
       } else if (window && window.document.scrollingElement) {
         const newReadingProgress =
           window.scrollY / window.document.scrollingElement.scrollHeight
         const adjustedReadingProgress =
           newReadingProgress > 0.92 ? 1 : newReadingProgress
-        setReadingProgress(adjustedReadingProgress * 100)
+        debouncedSetReadingProgress(adjustedReadingProgress * 100)
       }
     },
     1000
