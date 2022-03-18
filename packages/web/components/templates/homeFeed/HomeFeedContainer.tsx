@@ -207,6 +207,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       scrollToActiveCard(activeCardId)
       alreadyScrolled.current = true
     }
+    if (activeItem) {
+      performActionOnItem('refresh', activeItem)
+    }
   }, [activeCardId, scrollToActiveCard])
 
   const handleCardAction = async (
