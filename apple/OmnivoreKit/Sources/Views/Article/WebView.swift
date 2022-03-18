@@ -7,7 +7,7 @@ enum WebViewAction: String, CaseIterable {
   case readingProgressUpdate
 }
 
-final class WebView: WKWebView {
+public final class WebView: WKWebView {
   #if os(iOS)
     private var panGestureRecognizer: UIPanGestureRecognizer?
     private var tapGestureRecognizer: UITapGestureRecognizer?
@@ -43,7 +43,7 @@ final class WebView: WKWebView {
   }
 
   #if os(iOS)
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
       super.traitCollectionDidChange(previousTraitCollection)
       guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
 
@@ -81,7 +81,7 @@ final class WebView: WKWebView {
       setDefaultMenu()
     }
 
-    func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
+    public func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
       guard let messageBody = message.body as? [String: Any] else { return }
       guard let actionID = messageBody["actionID"] as? String else { return }
 
@@ -115,7 +115,7 @@ final class WebView: WKWebView {
       UIMenuController.shared.menuItems = [remove, /* share, */ annotate]
     }
 
-    override var canBecomeFirstResponder: Bool {
+    override public var canBecomeFirstResponder: Bool {
       true
     }
 
@@ -123,11 +123,11 @@ final class WebView: WKWebView {
       setDefaultMenu()
     }
 
-    func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {
+    public func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {
       true
     }
 
-    override func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
+    override public func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
       switch action {
       case #selector(annotateSelection): return true
       case #selector(highlightSelection): return true
@@ -163,7 +163,7 @@ final class WebView: WKWebView {
       hideMenu()
     }
 
-    @objc override func copy(_ sender: Any?) {
+    @objc override public func copy(_ sender: Any?) {
       super.copy(sender)
       dispatchEvent("copyHighlight")
       hideMenu()

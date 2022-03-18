@@ -4,6 +4,7 @@ import Services
 import SwiftUI
 import UIKit
 import Utils
+import Views
 import WebKit
 
 final class WebReaderViewModel: ObservableObject {
@@ -48,6 +49,9 @@ struct WebReaderContainerView: View {
             }
           }
       }
+    }.onDisappear {
+      // Clear the shared webview content when exiting
+      WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
     }
   }
 }
@@ -57,8 +61,7 @@ struct WebReader: UIViewRepresentable {
   let item: FeedItem
 
   func makeUIView(context _: Context) -> WKWebView {
-    print(WebReaderResources.bundleURL)
-    let webView = WKWebView()
+    let webView = WebViewManager.create()
     webView.loadHTMLString(
       WebReaderContent(htmlContent: htmlContent, item: item).styledContent,
       baseURL: WebReaderResources.bundleURL

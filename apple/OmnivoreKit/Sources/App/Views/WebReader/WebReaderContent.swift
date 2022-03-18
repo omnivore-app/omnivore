@@ -44,7 +44,6 @@ struct WebReaderContent {
       </head>
       <body>
         <div id="root" style="\(styleString)">
-          <div>React App\(WebReaderResources.bundleURL)</div>
           <script type="text/javascript">
             function loadArticle() {
               window.omnivoreArticle = {
