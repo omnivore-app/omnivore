@@ -201,6 +201,7 @@ export const updatePage = async (
         },
       },
       refresh: ctx.refresh,
+      retry_on_conflict: 3,
     })
 
     if (body.result !== 'updated') return false
