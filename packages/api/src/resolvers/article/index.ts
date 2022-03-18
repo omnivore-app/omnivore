@@ -707,9 +707,9 @@ export const saveArticleReadingProgressResolver = authorized<
     { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
     { claims: { uid }, pubsub }
   ) => {
-    const userArticleRecord = await getPageByParam({ userId: uid, _id: id })
+    const page = await getPageByParam({ userId: uid, _id: id })
 
-    if (!userArticleRecord) {
+    if (!page) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
     }
 
@@ -725,26 +725,25 @@ export const saveArticleReadingProgressResolver = authorized<
     // be greater than the current reading progress.
     const shouldUpdate =
       readingProgressPercent === 0 ||
-      (userArticleRecord.readingProgressPercent || 0) <
-        readingProgressPercent ||
-      (userArticleRecord.readingProgressAnchorIndex || 0) <
-        readingProgressAnchorIndex
+      page.readingProgressPercent < readingProgressPercent ||
+      page.readingProgressAnchorIndex < readingProgressAnchorIndex
 
-    const updatedArticle = Object.assign(userArticleRecord, {
+    const updatedPart = {
       readingProgressPercent: shouldUpdate
         ? readingProgressPercent
-        : userArticleRecord.readingProgressPercent,
+        : page.readingProgressPercent,
       readingProgressAnchorIndex: shouldUpdate
         ? readingProgressAnchorIndex
-        : userArticleRecord.readingProgressAnchorIndex,
-    })
+        : page.readingProgressAnchorIndex,
+    }
 
-    shouldUpdate && (await updatePage(id, updatedArticle, { pubsub, uid }))
+    shouldUpdate && (await updatePage(id, updatedPart, { pubsub, uid }))
 
     return {
       updatedArticle: {
-        ...updatedArticle,
-        isArchived: !!updatedArticle.archivedAt,
+        ...page,
+        ...updatedPart,
+        isArchived: !!page.archivedAt,
       },
     }
   }

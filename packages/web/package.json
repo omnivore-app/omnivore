@@ -50,6 +50,7 @@
     "@types/cookie": "^0.4.1",
     "@types/diff-match-patch": "^1.0.32",
     "@types/jest": "^27.0.2",
+    "@types/lodash.debounce": "^4.0.6",
     "@types/react": "17.0.2",
     "@types/react-dom": "^17.0.2",
     "@types/segment-analytics": "^0.0.34",
