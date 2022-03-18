@@ -106,7 +106,7 @@ export function FloatingActionButtons(
       right: 24,
 
       "@smDown": {
-        bottom: 101,
+        bottom: 42,
         right: 18,
       }
       }}>
