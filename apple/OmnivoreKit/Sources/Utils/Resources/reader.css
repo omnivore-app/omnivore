@@ -1,0 +1,355 @@
+:root {
+  color-scheme: light dark;
+  --text-font-family: inter;
+  --line-height: 150%;
+  --blockquote-padding: 0.5em 1em;
+  --blockquote-icon-font-size: 1.3rem;
+  --figure-margin: 1.6rem auto;
+  --hr-margin: 1em;
+}
+
+@media screen and (min-width: 576px) {
+  :root {
+    --blockquote-padding: 1em 2em;
+    --blockquote-icon-font-size: 1.7rem;
+    --figure-margin: 2.6875rem auto;
+    --hr-margin: 2em;
+    margin: 30px calc(var(--app-margin) / 2);
+  }
+}
+
+@media screen and (min-width: 768px) {
+  :root {
+    max-width: 92%;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  :root {
+    margin: 30px 0;
+    width: auto;
+    max-width: calc(1024px - var(--app-margin));
+  }
+}
+
+.page * {
+  padding: 16px;
+  max-width: 94%;
+}
+
+.highlight {
+  color: var(--colors-highlightText);
+  background-color: var(--colors-highlightBackground);
+  cursor: pointer;
+}
+
+.highlight_with_note {
+  color: var(--colors-highlightText);
+  border-bottom: 2px var(--colors-highlightBackground) solid;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.page .highlight_with_note .highlight_note_button {
+  display: unset !important;
+  margin: 0px !important;
+  max-width: unset !important;
+  height: unset !important;
+  padding: 0px 8px;
+  cursor: pointer;
+}
+
+.page h1,
+.page h2,
+.page h3,
+.page h4,
+.page h5,
+.page h6 {
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  line-height: var(--line-height);
+  font-size: var(--text-font-size);
+  color: var(--headers-color);
+  font-weight: bold;
+}
+.page h1 {
+  font-size: 1.5em !important;
+  line-height: 1.4em !important;
+}
+.page h2 {
+  font-size: 1.43em !important;
+}
+.page h3 {
+  font-size: 1.25em !important;
+}
+.page h4,
+.page h5,
+.page h6 {
+  font-size: 1em !important;
+  margin: 1em 0 !important;
+}
+
+.page .scrollable {
+  overflow: auto;
+}
+
+.page div {
+  line-height: var(--line-height);
+  /* font-size: var(--text-font-size); */
+  color: var(--font-color);
+}
+
+.page p {
+  font-family: var(--text-font-family);
+  font-style: normal;
+  font-weight: normal;
+
+  color: var(--font-color);
+
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+
+  > img {
+    display: block;
+    margin: 0.5em auto !important;
+    max-width: 100% !important;
+  }
+
+  > iframe {
+    width: 100%;
+    height: 350px;
+  }
+}
+
+.page section {
+  line-height: 1.65em;
+  font-size: var(--text-font-size);
+}
+
+.page blockquote {
+  display: block;
+  border-left: 1px solid var(--font-color-transparent);
+  padding-left: 16px;
+  font-style: italic;
+  margin-inline-start: 0px;
+  > * {
+    font-style: italic;
+  }
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.page a {
+  color: var(--font-color-readerFont);
+}
+
+.page .highlight a {
+  color: var(--colors-highlightText);
+}
+
+.page figure {
+  * {
+    color: var(--font-color-transparent);
+  }
+
+  margin: 30px 0;
+  font-size: 0.75em;
+  line-height: 1.5em;
+
+  figcaption {
+    color: var(--font-color);
+    opacity: 0.7;
+    margin: 10px 20px 10px 0;
+  }
+
+  figcaption * {
+    color: var(--font-color);
+    opacity: 0.7;
+  }
+  figcaption a {
+    color: var(--font-color);
+    /* margin: 10px 20px 10px 0; */
+    opacity: 0.6;
+  }
+
+  > div {
+    max-width: 100%;
+  }
+}
+
+.page figure[aria-label='media'] {
+  margin: var(--figure-margin);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page hr {
+  margin-bottom: var(--hr-margin);
+  border: none;
+}
+
+.page table {
+  display: block;
+  word-break: normal;
+  white-space: nowrap;
+  border: 1px solid rgb(216, 216, 216);
+  border-spacing: 0;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin: auto;
+  line-height: 1.5em;
+  font-size: 0.9em;
+  max-width: -moz-fit-content;
+  max-width: fit-content;
+  margin: 0 auto;
+  overflow-x: auto;
+  caption {
+    margin: 0.5em 0;
+  }
+  th {
+    border: 1px solid rgb(216, 216, 216);
+    background-color: var(--table-header-color);
+    padding: 5px;
+  }
+  td {
+    border: 1px solid rgb(216, 216, 216);
+    padding: 0.5em;
+    padding: 5px;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  img {
+    display: block;
+    margin: 0.5em auto !important;
+    max-width: 100% !important;
+  }
+}
+
+.page ul,
+.page ol {
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+  margin-top: 18px;
+
+  font-family: var(--text-font-family);
+  font-style: normal;
+  font-weight: normal;
+
+  line-height: var(--line-height);
+  font-size: var(--text-font-size);
+
+  color: var(--font-color);
+}
+
+.page li {
+  word-break: break-word;
+  ol,
+  ul {
+    margin: 0;
+  }
+}
+
+.page sup,
+.page sub {
+  position: relative;
+  a {
+    color: inherit;
+    pointer-events: none;
+  }
+}
+
+.page sup {
+  top: -0.3em;
+}
+
+.page sub {
+  bottom: 0.3em;
+}
+
+.page cite {
+  font-style: normal;
+}
+
+.page .page {
+  width: 100%;
+}
+
+/* Collapse excess whitespace. */
+.page p > p:empty,
+.page div > p:empty,
+.page p > div:empty,
+.page div > div:empty,
+.page p + br,
+.page p > br:only-child,
+.page div > br:only-child,
+.page img + br {
+  display: none;
+}
+
+.page video {
+  max-width: 100%;
+}
+
+.page dl {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.page dd {
+  display: block;
+  margin-inline-start: 40px;
+}
+
+.page pre,
+.page code {
+  vertical-align: bottom;
+  word-wrap: initial;
+  font-family: 'SF Mono', monospace !important;
+  white-space: pre;
+  direction: ltr;
+  unicode-bidi: embed;
+  color: var(--font-color);
+  max-width: -moz-fit-content;
+  margin: 0;
+  overflow-x: auto;
+  word-wrap: normal;
+  border-radius: 4px;
+}
+
+.page img {
+  display: block;
+  margin: 0.5em auto !important;
+  max-width: 100% !important;
+  height: auto;
+}
+
+.page .page {
+  text-align: start;
+  word-wrap: break-word;
+
+  font-size: var(--text-font-size);
+  line-height: var(--line-height);
+}
+
+.page .omnivore-instagram-embed {
+  img {
+    margin: 0 !important;
+  }
+}
