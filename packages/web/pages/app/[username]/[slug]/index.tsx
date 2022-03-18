@@ -7,6 +7,7 @@ import { webBaseURL } from '../../../../lib/appConfig'
 import { LoadingView } from '../../../../components/patterns/LoadingView'
 import { cookieValue } from '../../../../lib/cookieHelpers'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
+import Script from 'next/script'
 
 type AppArticleEmbedContentProps = {
   slug: string
