@@ -64,9 +64,8 @@ struct WebReader: UIViewRepresentable {
     let webView = WebViewManager.create()
     webView.loadHTMLString(
       WebReaderContent(htmlContent: htmlContent, item: item).styledContent,
-      baseURL: WebReaderResources.bundleURL
+      baseURL: UtilsPackage.bundleURL
     )
-//    webView.configuration.userContentController.addUserScript(WebReaderResources.cssScript)
 
     return webView
   }
