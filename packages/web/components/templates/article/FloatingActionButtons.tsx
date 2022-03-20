@@ -7,6 +7,7 @@ import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { styled, theme } from '../../tokens/stitches.config'
 import { DotsThree, X, TextAa } from 'phosphor-react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
+import { OutsideClickWrapper } from '../../elements/OutsideClickWrapper'
 
 type FloatingActionButtonsProps = {
   onFontSizeChange: (value: number) => any
@@ -97,34 +98,41 @@ export function FloatingActionButtons(
     }
   }
 
-  return (
-    <HStack distribution="between" alignment="end" css={{
-      gap: '$2',
-      position: 'fixed',
-      flexDirection: 'row-reverse',
-      bottom: 82,
-      right: 24,
+  const closeButtons = () => {
+    setCurrentAction(undefined)
+    setShowButtons(false);
+  }
 
-      "@smDown": {
-        bottom: 42,
-        right: 18,
-      }
-      }}>
-      <ActionContainerButton style="plainIcon" css={{...BgStyles, ...BorderStyles}} onClick={handleOpenClose}>
-        {showButtons ? <X size={28} color={iconColor} /> : <DotsThree size={32} color={iconColor} />}
-      </ActionContainerButton>
-      {(showButtons && !currentAction) && (
-        <HStack distribution="evenly" alignment='end' css={{gap: '$2'}}>
-          <TooltipWrapped tooltipContent='Increase or Decrease Font Sizes' side='top' align='center'>
-            <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('font')}>
-              <FlexContainer>
-                <TextAa color={iconColor} size={24} />
-              </FlexContainer>
-            </ActionContainerButton>
-          </TooltipWrapped>
-        </HStack>
-      )}
-      {showCurrentActionButton(currentAction)}
-    </HStack>
+  return (
+    <OutsideClickWrapper onOutsideClick={closeButtons}>
+      <HStack distribution="between" alignment="end" css={{
+        gap: '$2',
+        position: 'fixed',
+        flexDirection: 'row-reverse',
+        bottom: 82,
+        right: 24,
+
+        "@smDown": {
+          bottom: 42,
+          right: 18,
+        }
+        }}>
+        <ActionContainerButton style="plainIcon" css={{...BgStyles, ...BorderStyles}} onClick={handleOpenClose}>
+          {showButtons ? <X size={28} color={iconColor} /> : <DotsThree size={32} color={iconColor} />}
+        </ActionContainerButton>
+        {(showButtons && !currentAction) && (
+          <HStack distribution="evenly" alignment='end' css={{gap: '$2'}}>
+            <TooltipWrapped tooltipContent='Increase or Decrease Font Sizes' side='top' align='center'>
+              <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('font')}>
+                <FlexContainer>
+                  <TextAa color={iconColor} size={24} />
+                </FlexContainer>
+              </ActionContainerButton>
+            </TooltipWrapped>
+          </HStack>
+        )}
+        {showCurrentActionButton(currentAction)}
+      </HStack>
+    </OutsideClickWrapper>
   )
 }

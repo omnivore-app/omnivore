@@ -5,7 +5,7 @@
   height: 1px;
   background: var(--colors-grayBorderHover);
 }
-  
+
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -15,7 +15,7 @@
   background: var(--colors-utilityTextContrast);
   cursor: pointer;
 }
-  
+
 .slider::-moz-range-thumb {
   -webkit-appearance: none;
   width: 16px !important;
