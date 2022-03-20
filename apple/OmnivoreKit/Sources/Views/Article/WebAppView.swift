@@ -5,6 +5,27 @@ import WebKit
 
 public let readerViewNavBarHeight = 50.0
 
+enum WebViewConfigurationManager {
+  private static let processPool = WKProcessPool()
+  static func create() -> WKWebViewConfiguration {
+    let config = WKWebViewConfiguration()
+    config.processPool = processPool
+    // config.limitsNavigationsToAppBoundDomains = true
+    return config
+  }
+}
+
+enum WebViewManager {
+  public static let sharedView = create()
+  public static func shared() -> WebView {
+    sharedView
+  }
+
+  public static func create() -> WebView {
+    WebView(frame: CGRect.zero, configuration: WebViewConfigurationManager.create())
+  }
+}
+
 #if os(iOS)
   struct WebAppView: UIViewRepresentable {
     let request: URLRequest
@@ -28,7 +49,7 @@ public let readerViewNavBarHeight = 50.0
     }
 
     func makeUIView(context: Context) -> WKWebView {
-      let webView = WebView(frame: CGRect.zero)
+      let webView = WebViewManager.create()
       let contentController = WKUserContentController()
 
       webView.navigationDelegate = context.coordinator

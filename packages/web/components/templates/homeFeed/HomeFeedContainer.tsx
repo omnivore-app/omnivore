@@ -206,6 +206,12 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
     if (activeCardId && !alreadyScrolled.current) {
       scrollToActiveCard(activeCardId)
       alreadyScrolled.current = true
+
+      if (activeItem) {
+        console.log('refreshing')
+        // refresh items on home feed
+        performActionOnItem('refresh', activeItem)
+      }
     }
   }, [activeCardId, scrollToActiveCard])
 

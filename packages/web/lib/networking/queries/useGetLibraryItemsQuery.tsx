@@ -6,7 +6,6 @@ import { articleFragment } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { labelFragment } from '../fragments/labelFragment'
 import { Label } from './useGetLabelsQuery'
 
 export type LibraryItemsQueryInput = {
@@ -34,6 +33,7 @@ type LibraryItemAction =
   | 'delete'
   | 'mark-read'
   | 'mark-unread'
+  | 'refresh'
 
 export type LibraryItemsData = {
   articles: LibraryItems
@@ -259,6 +259,8 @@ export function useGetLibraryItemsQuery({
           readingProgressAnchorIndex: 0,
         })
         break
+      case 'refresh':
+        await mutate()
     }
   }
 

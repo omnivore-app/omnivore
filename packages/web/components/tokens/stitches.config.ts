@@ -169,10 +169,10 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',
       xl: '(min-width: 1200px)',
-    }
+    },
   })
 
-export const darkTheme = createTheme(ThemeId.Dark, {
+const darkThemeSpec = {
   colors: {
     ...yellowDark, // Brand
     ...orangeDark, //Accent
@@ -206,90 +206,21 @@ export const darkTheme = createTheme(ThemeId.Dark, {
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
   },
-})
+}
 
-export const darkerTheme = createTheme(ThemeId.Darker, {
-  colors: {
-    ...yellowDark, // Brand
-    ...orangeDark, //Accent
+// Dark and Darker theme now match each other.
+// Use the darkThemeSpec object to make updates.
+export const darkTheme = createTheme(ThemeId.Dark, darkThemeSpec)
+export const darkerTheme = createTheme(ThemeId.Darker, darkThemeSpec)
 
-    // Grayscale
-    grayBase: grayDark.gray1,
-    grayBgSubtle: grayDark.gray2,
-    grayBg: grayDark.gray3,
-    grayBgHover: grayDark.gray4,
-    grayBgActive: grayDark.gray5,
-    grayLine: grayDark.gray6,
-    grayBorder: grayDark.gray7,
-    grayBorderHover: grayDark.gray8,
-    graySolid: grayDark.gray9,
-    graySolidHover: grayDark.gray10,
-    grayText: grayDark.gray11,
-    grayTextContrast: grayDark.gray12,
-
-    // Semantic Colors
-    overlay: blackA.blackA9,
-    highlightBackground: 'rgb(255,234,159)',
-    highlight: '#FFD234',
-    highlightText: 'rgba(255, 210, 52)',
-    error: '#FA5E4A',
-
-    // Brand Colors
-    loginBg: '#FFD492',
-
-    // Reader Colors
-    readerBg: '#000000',
-    readerFont: '#888888',
-    readerFontTransparent: 'rgba(136,136,136,0.65)',
-    readerHeader: '#888888',
-    readerTableHeader: '',
-  },
-})
-
-export const lighterTheme = createTheme(ThemeId.Lighter, {
-  colors: {
-    ...yellow, // Brand
-    ...orange, //Accent
-
-    // Grayscale
-    grayBase: '#F8F8F8',
-    grayBgActive: '#FFFFFF',
-    grayBorder: 'rgba(0, 0, 0, 0.06)',
-    grayTextContrast: '#3A3939',
-
-    // Grayscale
-    grayBgSubtle: gray.gray2,
-    grayBg: gray.gray3,
-    grayBgHover: gray.gray4,
-    grayLine: gray.gray6,
-    grayBorderHover: gray.gray8,
-    graySolid: gray.gray9,
-    graySolidHover: gray.gray10,
-    grayText: gray.gray11,
-
-    // Semantic Colors
-    overlay: blackA.blackA9,
-    highlightBackground: 'rgb(255,234,159)',
-    highlight: '#FFD234',
-    error: '#FA5E4A',
-
-    // Brand Colors
-    loginBg: '#FFD492',
-
-    // Reader Colors
-    readerBg: '#E5DDD5',
-    readerFont: '#3D3D3D',
-    readerFontTransparent: 'rgba(61,61,61,0.65)',
-    readerHeader: '',
-    readerTableHeader: '',
-  },
-})
+// Lighter theme now matches the default theme.
+// This only exists for users that might still have a lighter theme set
+export const lighterTheme = createTheme(ThemeId.Lighter, {})
 
 // Apply global styles in here
 export const globalStyles = globalCss({
   '*': {
     '&:focus': {
-
       outline: 'none',
     },
     '&:focus-visible': {
@@ -300,6 +231,6 @@ export const globalStyles = globalCss({
   '.article-inner-css': {
     '::selection': {
       background: '$highlightBackground',
-    }
-  }
+    },
+  },
 })
