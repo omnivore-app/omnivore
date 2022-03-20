@@ -2,7 +2,7 @@ import WebKit
 
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.
-enum WebViewAction: String, CaseIterable {
+public enum WebViewAction: String, CaseIterable {
   case highlightAction
   case readingProgressUpdate
 }
@@ -26,11 +26,11 @@ public final class WebView: WKWebView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func increaseFontSize() {
+  public func increaseFontSize() {
     dispatchEvent("increaseFontSize")
   }
 
-  func decreaseFontSize() {
+  public func decreaseFontSize() {
     dispatchEvent("decreaseFontSize")
   }
 
@@ -123,6 +123,7 @@ public final class WebView: WKWebView {
       setDefaultMenu()
     }
 
+    // swiftlint:disable:next line_length
     public func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {
       true
     }
@@ -209,7 +210,7 @@ public final class WebView: WKWebView {
       UIMenuController.shared.showMenu(from: self, rect: rect)
     }
 
-    func saveAnnotation(annotation: String) {
+    public func saveAnnotation(annotation: String) {
       // swiftlint:disable:next line_length
       let dispatch = "var event = new Event('saveAnnotation');event.annotation = '\(annotation)';document.dispatchEvent(event);"
       evaluateJavaScript(dispatch) { obj, err in

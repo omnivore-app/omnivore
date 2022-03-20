@@ -11,10 +11,13 @@ struct WebReaderContent {
   let margin: String
   let content: String
   let item: FeedItem
+  let themeKey: String
+  let authToken: String
 
   init(
     htmlContent: String,
     item: FeedItem,
+    authToken: String,
     isDark: Bool = false,
     fontSize: String = "16px",
     margin: String = "24px"
@@ -27,12 +30,16 @@ struct WebReaderContent {
     self.margin = margin
     self.content = htmlContent
     self.item = item
+    self.themeKey = isDark ? "Gray" : "LightGray"
+    self.authToken = authToken
   }
 
   var styleString: String {
     // swiftlint:disable line_length
     "--text-font-size:\(textFontSize);--font-color:\(fontColor);--font-color-transparent\(fontColorTransparent);--table-header-color:\(tableHeaderColor);--headers-color:\(headerColor);--app-margin:\(margin);"
   }
+
+  // TODO: pass in fontSize and theme
 
   var styledContent: String {
     """
@@ -64,6 +71,7 @@ struct WebReaderContent {
             }
 
             loadArticle()
+            window.localStorage.setItem("authToken", "\(authToken)")
           </script>
         </div>
         <script src="bundle.js"></script>
