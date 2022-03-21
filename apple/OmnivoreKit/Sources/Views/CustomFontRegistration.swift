@@ -3,15 +3,16 @@ import SwiftUI
 @discardableResult
 public func registerFonts() -> Bool {
   [
-    registerFont(bundle: .module, fontName: "Inter-Black", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-ExtraBold", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-Bold", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-SemiBold", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-Medium", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-Regular", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-Light", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-ExtraLight", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "Inter-Thin", fontExtension: "ttf")
+    registerFont(bundle: .module, fontName: "Inter-Black-900", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-ExtraBold-800", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-Bold-700", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-SemiBold-600", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-Medium-500", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-Regular-400", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-Light-300", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-ExtraLight-200", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Inter-Thin", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "SFMonoRegular", fontExtension: "otf")
   ]
   .allSatisfy { $0 }
 }
