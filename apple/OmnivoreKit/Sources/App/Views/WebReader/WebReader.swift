@@ -169,6 +169,7 @@ struct WebReaderContainerView: View {
             navBarVisibilityRatio = $0
           },
           authToken: authenticator.authToken ?? "",
+          appEnv: dataService.appEnvironment,
           increaseFontActionID: $increaseFontActionID,
           decreaseFontActionID: $decreaseFontActionID,
           annotationSaveTransactionID: nil
@@ -249,6 +250,7 @@ struct WebReader: UIViewRepresentable {
   let webViewActionHandler: (WKScriptMessage) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
   let authToken: String
+  let appEnv: AppEnvironment
 
   @Binding var increaseFontActionID: UUID?
   @Binding var decreaseFontActionID: UUID?
@@ -275,7 +277,8 @@ struct WebReader: UIViewRepresentable {
         item: item,
         authToken: authToken,
         isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-        fontSize: fontSize()
+        fontSize: fontSize(),
+        appEnv: appEnv
       )
       .styledContent,
       baseURL: ViewsPackage.bundleURL
