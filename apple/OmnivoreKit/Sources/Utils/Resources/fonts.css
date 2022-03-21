@@ -1,0 +1,62 @@
+@font-face {
+  font-family: 'Inter';
+  font-weight: 200;
+  font-style: normal;
+  src: url('Inter-ExtraLight-200.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 300;
+  font-style: normal;
+  src: url('Inter-Light-300.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-style: normal;
+  src: url('Inter-Regular-400.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 500;
+  font-style: normal;
+  src: url('Inter-Medium-500.ttf');
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-weight: 400;
+  font-style: normal;
+  src: url('SFMonoRegular.otf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 600;
+  font-style: normal;
+  src: url('Inter-SemiBold-600.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 700;
+  font-style: normal;
+  src: url('Inter-Bold-700.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 800;
+  font-style: normal;
+  src: url('Inter-ExtraBold-800.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-weight: 900;
+  font-style: normal;
+  src: url('Inter-Black-900.ttf');
+}

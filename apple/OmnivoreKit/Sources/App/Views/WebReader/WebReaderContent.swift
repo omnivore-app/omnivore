@@ -48,6 +48,9 @@ struct WebReaderContent {
       <head>
         <meta charset="utf-8" />
         <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
+        <style>
+            @import url("fonts.css");
+        </style>
       </head>
       <body>
         <div id="root" style="\(styleString)">
