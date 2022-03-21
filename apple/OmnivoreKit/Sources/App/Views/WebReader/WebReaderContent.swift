@@ -3,12 +3,7 @@ import Models
 import Utils
 
 struct WebReaderContent {
-  let textFontSize: String
-  let fontColor: String
-  let fontColorTransparent: String
-  let tableHeaderColor: String
-  let headerColor: String
-  let margin: String
+  let textFontSize: Int
   let content: String
   let item: FeedItem
   let themeKey: String
@@ -18,29 +13,17 @@ struct WebReaderContent {
     htmlContent: String,
     item: FeedItem,
     authToken: String,
-    isDark: Bool = false,
-    fontSize: String = "16px",
-    margin: String = "24px"
+    isDark: Bool,
+    fontSize: Int
   ) {
     self.textFontSize = fontSize
-    self.fontColor = isDark ? "#B9B9B9" : "#3D3D3D"
-    self.fontColorTransparent = isDark ? "rgba(185,185,185,0.65)" : "rgba(185,185,185,0.65)"
-    self.tableHeaderColor = "#FFFFFF"
-    self.headerColor = isDark ? "#B9B9B9" : "#3D3D3D"
-    self.margin = margin
     self.content = htmlContent
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
     self.authToken = authToken
   }
 
-  var styleString: String {
-    // swiftlint:disable line_length
-    "--text-font-size:\(textFontSize);--font-color:\(fontColor);--font-color-transparent\(fontColorTransparent);--table-header-color:\(tableHeaderColor);--headers-color:\(headerColor);--app-margin:\(margin);"
-  }
-
-  // TODO: pass in fontSize and theme
-
+  // swiftlint:disable line_length
   var styledContent: String {
     """
     <!DOCTYPE html>
@@ -53,7 +36,7 @@ struct WebReaderContent {
         </style>
       </head>
       <body>
-        <div id="root" style="\(styleString)">
+        <div id="root">
           <script type="text/javascript">
             function loadArticle() {
               window.omnivoreArticle = {
@@ -74,7 +57,9 @@ struct WebReaderContent {
             }
 
             loadArticle()
+            window.fontSize = \(textFontSize)
             window.localStorage.setItem("authToken", "\(authToken)")
+            window.localStorage.setItem("theme", "\(themeKey)")
           </script>
         </div>
         <script src="bundle.js"></script>

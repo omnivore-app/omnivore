@@ -275,8 +275,7 @@ struct WebReader: UIViewRepresentable {
         item: item,
         authToken: authToken,
         isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-        fontSize: "\(fontSize())px",
-        margin: "0"
+        fontSize: fontSize()
       )
       .styledContent,
       baseURL: ViewsPackage.bundleURL
