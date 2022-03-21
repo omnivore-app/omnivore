@@ -67,13 +67,13 @@ extension Font {
 }
 
 private enum InterFont: String {
-  case black = "Inter-Black"
-  case extraBold = "Inter-ExtraBold"
-  case bold = "Inter-Bold"
-  case semiBold = "Inter-SemiBold"
-  case medium = "Inter-Medium"
-  case regular = "Inter-Regular"
-  case light = "Inter-Light"
-  case extraLight = "Inter-ExtraLight"
+  case black = "Inter-Black-900"
+  case extraBold = "Inter-ExtraBold-800"
+  case bold = "Inter-Bold-700"
+  case semiBold = "Inter-SemiBold-600"
+  case medium = "Inter-Medium-500"
+  case regular = "Inter-Regular-400"
+  case light = "Inter-Light-300"
+  case extraLight = "Inter-ExtraLight-200"
   case thin = "Inter-Thin"
 }
