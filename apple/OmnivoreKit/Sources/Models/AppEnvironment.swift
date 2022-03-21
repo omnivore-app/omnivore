@@ -27,7 +27,11 @@ private let prodBaseURL = "https://api-prod.omnivore.app"
 
 private let devWebURL = "https://web-dev.omnivore.app"
 private let demoWebURL = "https://demo.omnivore.app"
-private let prodWebURL = "https://web-prod.omnivore.app"
+private let prodWebURL = "https://omnivore.app"
+
+private let devHighlightsServerURL = "https://highlights-dev.omnivore.app"
+private let demoHighlightsServerURL = "https://highlights-demo.omnivore.app"
+private let prodHighlightsServerURL = "https://highlights.omnivore.app"
 
 public extension AppEnvironment {
   var graphqlPath: String {
@@ -57,6 +61,19 @@ public extension AppEnvironment {
       return URL(string: prodWebURL)!
     case .test, .local:
       return URL(string: "http://localhost:3000")!
+    }
+  }
+
+  var highlightsServerBaseURL: URL {
+    switch self {
+    case .dev:
+      return URL(string: devHighlightsServerURL)!
+    case .demo:
+      return URL(string: demoHighlightsServerURL)!
+    case .prod:
+      return URL(string: prodHighlightsServerURL)!
+    case .test, .local:
+      return URL(string: "http://localhost:8080")!
     }
   }
 }

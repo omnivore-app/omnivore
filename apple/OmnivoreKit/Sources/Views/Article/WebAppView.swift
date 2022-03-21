@@ -15,7 +15,7 @@ enum WebViewConfigurationManager {
   }
 }
 
-enum WebViewManager {
+public enum WebViewManager {
   public static let sharedView = create()
   public static func shared() -> WebView {
     sharedView
