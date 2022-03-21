@@ -1,24 +1,14 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { Box, VStack } from '@omnivore/web/components/elements/LayoutPrimitives'
 import { ArticleContainer } from '@omnivore/web/components/templates/article/ArticleContainer'
-import { ArticleAttributes } from "@omnivore/web/lib/networking/queries/useGetArticleQuery";
+import { ArticleAttributes } from '@omnivore/web/lib/networking/queries/useGetArticleQuery'
+import { applyStoredTheme } from '@omnivore/web/lib/themeUpdater'
 import '@omnivore/web/styles/globals.css'
 import '@omnivore/web/styles/articleInnerStyling.css'
 
 const App = () => {
-  var themeId = window.localStorage.getItem('theme')
-
-  if (themeId) {
-    document.body.classList.remove(
-      'theme-default',
-      'White',
-      'Gray',
-      'LightGray',
-      'Dark'
-    )
-    document.body.classList.add(themeId)
-  }
+  applyStoredTheme(false) // false to skip serevr sync
 
   return (
     <>
@@ -50,7 +40,4 @@ const App = () => {
   )
 }
 
-ReactDOM.render(
-  <App />,
-  document.getElementById("root")
-);
+ReactDOM.render(<App />, document.getElementById('root'))
