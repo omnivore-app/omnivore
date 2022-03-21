@@ -39,7 +39,7 @@ const App = () => {
             article={window.omnivoreArticle as ArticleAttributes}
             scrollElementRef={React.createRef()}
             isAppleAppEmbed={true}
-            highlightBarDisabled={false}
+            highlightBarDisabled={true}
             highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
             margin={0}
