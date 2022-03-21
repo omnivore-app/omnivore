@@ -263,7 +263,7 @@ struct WebReader: UIViewRepresentable {
         margin: "0"
       )
       .styledContent,
-      baseURL: UtilsPackage.bundleURL
+      baseURL: ViewsPackage.bundleURL
     )
 
     webView.navigationDelegate = context.coordinator
