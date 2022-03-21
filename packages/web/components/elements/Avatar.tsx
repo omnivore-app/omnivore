@@ -29,12 +29,18 @@ const StyledAvatar = styled(Root, {
   verticalAlign: 'middle',
   overflow: 'hidden',
   userSelect: 'none',
+  border: '1px solid $grayBorder',
 })
 
 const StyledImage = styled(Image, {
   width: '100%',
   height: '100%',
   objectFit: 'cover',
+  opacity: '48%',
+
+  '&:hover': {
+    opacity: '100%',
+  },
 })
 
 const StyledFallback = styled(Fallback, {
@@ -43,5 +49,8 @@ const StyledFallback = styled(Fallback, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'dodgerblue',
+  fontSize: '$2',
+  fontWeight: 700,
+  backgroundColor: '$avatarBg',
+  color: '$avatarFont',
 })
