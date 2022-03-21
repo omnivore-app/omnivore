@@ -40,9 +40,9 @@ struct WebReaderContent {
           <script type="text/javascript">
             window.omnivoreEnv = {
               "NEXT_PUBLIC_APP_ENV": "\(appEnv.rawValue)",
-              "NEXT_PUBLIC_LOCAL_BASE_URL": "\(appEnv.webAppBaseURL.absoluteString)",
-              "NEXT_PUBLIC_LOCAL_SERVER_BASE_URL": "\(appEnv.serverBaseURL.absoluteString)",
-              "NEXT_PUBLIC_LOCAL_HIGHLIGHTS_BASE_URL": "\(appEnv.highlightsServerBaseURL.absoluteString)"
+              "NEXT_PUBLIC_\(appEnv.rawValue.uppercased())_BASE_URL": "\(appEnv.webAppBaseURL.absoluteString)",
+              "NEXT_PUBLIC_\(appEnv.rawValue.uppercased())_SERVER_BASE_URL": "\(appEnv.serverBaseURL.absoluteString)",
+              "NEXT_PUBLIC_\(appEnv.rawValue.uppercased())_HIGHLIGHTS_BASE_URL": "\(appEnv.highlightsServerBaseURL.absoluteString)"
             }
 
             window.omnivoreArticle = {
