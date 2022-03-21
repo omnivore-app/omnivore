@@ -44,6 +44,7 @@ struct WebReaderContainerView: View {
   @State var safariWebLink: SafariWebLink?
   @State private var navBarVisibilityRatio = 1.0
   @State private var showDeleteConfirmation = false
+  @State private var showOverlay = true
   @State var increaseFontActionID: UUID?
   @State var decreaseFontActionID: UUID?
 
@@ -171,6 +172,21 @@ struct WebReaderContainerView: View {
           increaseFontActionID: $increaseFontActionID,
           decreaseFontActionID: $decreaseFontActionID,
           annotationSaveTransactionID: nil
+        )
+        .overlay(
+          Group {
+            if showOverlay {
+              Color.systemBackground
+                .transition(.opacity)
+                .onAppear {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
+                    withAnimation(.linear(duration: 0.2)) {
+                      showOverlay = false
+                    }
+                  }
+                }
+            }
+          }
         )
       } else {
         Color.clear
