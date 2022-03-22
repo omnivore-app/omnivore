@@ -441,8 +441,6 @@ export const getArticlesResolver = authorized<
   const startCursor = params.after || ''
   const first = params.first || 10
 
-  console.log('getArticlesResolver starts', Date.now())
-
   // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
   // so queries can contain phrases like "human race";
   // We can also split out terms like "label:unread".
