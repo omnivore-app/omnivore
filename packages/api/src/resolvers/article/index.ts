@@ -349,7 +349,13 @@ export const createArticleResolver = authorized<
             articleSavingRequest
           )
         }
-        log.info('page created in elastic', articleToSave)
+        log.info(
+          'page created in elastic',
+          pageId,
+          articleToSave.url,
+          articleToSave.slug,
+          articleToSave.title
+        )
         articleToSave.id = pageId
       }
 
@@ -408,12 +414,7 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    console.log('start to get article', Date.now())
-
     const page = await getPageByParam({ userId: claims.uid, slug })
-
-    console.log('get article from elastic', Date.now())
-
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
