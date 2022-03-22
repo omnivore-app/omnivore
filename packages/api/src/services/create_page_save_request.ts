@@ -9,8 +9,18 @@ import {
 } from '../generated/graphql'
 import { articleSavingRequestDataToArticleSavingRequest } from '../utils/helpers'
 import * as privateIpLib from 'private-ip'
+import { countByCreatedAt } from '../elastic'
 
 const isPrivateIP = privateIpLib.default
+
+// 5 articles added in the last minute: use low queue
+// default: use normal queue
+const getPriorityByRateLimit = async (
+  userId: string
+): Promise<'low' | 'high'> => {
+  const count = await countByCreatedAt(userId, Date.now() - 60 * 1000)
+  return count >= 5 ? 'low' : 'high'
+}
 
 export const validateUrl = (url: string): URL => {
   const u = new URL(url)
@@ -43,8 +53,8 @@ export const createPageSaveRequest = async (
   userId: string,
   url: string,
   models: DataModels,
-  priority: 'low' | 'high' = 'high',
-  articleSavingRequestId = uuidv4()
+  articleSavingRequestId = uuidv4(),
+  priority?: 'low' | 'high'
 ): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -62,6 +72,9 @@ export const createPageSaveRequest = async (
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
   }
+
+  // get priority by checking rate limit if not specified
+  priority = priority || (await getPriorityByRateLimit(userId))
 
   const createdTaskName = await enqueueParseRequest(
     url,

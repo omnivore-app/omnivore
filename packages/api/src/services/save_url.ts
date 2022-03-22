@@ -20,7 +20,6 @@ export const saveUrl = async (
       saver.id,
       input.url,
       ctx.models,
-      'high',
       input.clientRequestId
     )
   } catch (error) {
