@@ -22,6 +22,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
+import Link from 'next/link'
 
 enum TextType {
   EmailAddress,
@@ -88,7 +89,7 @@ const CopyTextBtnWrapper = styled(Box, {
 const MobileBtnWrapper = styled(Box, {
   display: 'flex',
   position: 'fixed',
-  bottom: '0',
+  bottom: '16px',
   right: '25px',
   '@md': {
     display: 'none',
@@ -208,12 +209,14 @@ export default function EmailsPage(): JSX.Element {
           maxWidth: '865px',
           color: '$grayText',
           paddingBottom: '5rem',
+          paddingTop: '2rem',
 
           '@md': {
             m: '16px',
             alignSelf: 'center',
             maxWidth: '72%',
             mx: '42px',
+            paddingTop: '0',
           },
         }}
       >
@@ -231,14 +234,18 @@ export default function EmailsPage(): JSX.Element {
               </StyledText>
             </Box>
             <Box style={{ flex: '1', marginLeft: '9px' }}>
-              <TooltipWrapped
-                tooltipContent="Learn More"
-                tooltipSide={'top'}
-                style={TooltipStyle}
-                arrowStyles={{ fill: '#F9D354' }}
-              >
-                <InfoIcon size={24} className="infoIcon" />
-              </TooltipWrapped>
+              <Link passHref href="https://omnivore.app/help/newsletters">
+                <a style={{ textDecoration: 'none' }}>
+                  <TooltipWrapped
+                    tooltipContent="Learn More"
+                    tooltipSide={'top'}
+                    style={TooltipStyle}
+                    arrowStyles={{ fill: '#F9D354' }}
+                  >
+                    <InfoIcon size={24} css={{ color: '$grayText' }} />
+                  </TooltipWrapped>
+                </a>
+              </Link>
             </Box>
             <Box>
               <Button
@@ -293,6 +300,9 @@ export default function EmailsPage(): JSX.Element {
                   '&:hover': {
                     background: 'rgba(255, 234, 159, 0.12)',
                   },
+                  '@mdDown': {
+                    borderRadius: i === 0 ? '5px 5px 0 0 ' : '',
+                  },
                   borderRadius: isLastChild ? '0 0 5px 5px' : '',
                 }}
               >
@@ -326,7 +336,14 @@ export default function EmailsPage(): JSX.Element {
                         },
                       }}
                     ></Input>
-                    <CopyTextBtnWrapper>
+                    <CopyTextBtnWrapper
+                      css={{
+                        '@mdDown': {
+                          marginRight: '10px',
+                          marginLeft: '18px',
+                        },
+                      }}
+                    >
                       <CopyTextButton
                         text={address}
                         type={TextType.EmailAddress}
@@ -368,7 +385,6 @@ export default function EmailsPage(): JSX.Element {
                           <CopyTextBtnWrapper
                             css={{
                               border: 'none',
-                              '@md': {},
                             }}
                           >
                             <CopyTextButton
