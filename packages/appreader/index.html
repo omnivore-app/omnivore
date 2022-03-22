@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
+  </head>
+  <body>
+    <div id="root">
+      <!-- {{INJECT_SWIFT_STRING_HERE!!}} -->
+      <script type="text/javascript">
+        function loadEnv() {
+          window.omnivoreEnv = {
+            "NEXT_PUBLIC_APP_ENV":"local",
+            "NEXT_PUBLIC_LOCAL_BASE_URL":"http://localhost:3000",
+            "NEXT_PUBLIC_LOCAL_SERVER_BASE_URL":"http://localhost:4000",
+            "NEXT_PUBLIC_LOCAL_HIGHLIGHTS_BASE_URL":"http://localhost:4000"
+          }
+        }
+
+        function loadArticle() {
+          const CONTENT = `
+            <div class="page" id="readability-page-1" data-omnivore-anchor-idx="1"><div data-omnivore-anchor-idx="2">
+              <p data-omnivore-anchor-idx="3">I didn't have time to write a short email so I scheduled a long meeting.</p><p data-omnivore-anchor-idx="4">
+              — <a href="https://twitter.com/jacksonh" data-omnivore-anchor-idx="5">jacksonh</a> Jackson Harper <a href="https://twitter.com/jacksonh/status/1069798258141159425" data-omnivore-anchor-idx="6">December 4, 2018, 3:39 AM UTC</a>
+            </p></div></div>
+          `;
+
+          window.omnivoreArticle = {
+            id: "test",
+            linkId: "test",
+            slug: "test-slug",
+            createdAt: new Date().toISOString(),
+            savedAt: new Date().toISOString(),
+            url: "https://example.com",
+            title: "Test Article",
+            content: CONTENT,
+            originalArticleUrl: "https://example.com",
+            contentReader: "WEB",
+            readingProgressPercent: 0,
+            readingProgressAnchorIndex: 0,
+            highlights: [],
+          }
+        }
+
+        loadEnv()
+        loadArticle()
+      </script>
+    </div>
+    <script src="bundle.js"></script>
+  </body>
+</html>
