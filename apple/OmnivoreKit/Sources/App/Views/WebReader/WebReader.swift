@@ -28,7 +28,7 @@ struct WebReader: UIViewRepresentable {
   }
 
   func makeUIView(context: Context) -> WKWebView {
-    let webView = WebViewManager.create()
+    let webView = WebViewManager.shared()
     let contentController = WKUserContentController()
 
     webView.loadHTMLString(
@@ -51,6 +51,8 @@ struct WebReader: UIViewRepresentable {
     webView.scrollView.delegate = context.coordinator
     webView.scrollView.contentInset.top = readerViewNavBarHeight
     webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
+
+    webView.configuration.userContentController.removeAllScriptMessageHandlers()
 
     for action in WebViewAction.allCases {
       webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
