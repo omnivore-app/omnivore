@@ -217,7 +217,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       // }
     },
     [
-      handleNativeShare,
       highlights,
       openNoteModal,
       props.articleId,
@@ -306,47 +305,46 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             })
           }
           break
-        case 'share':
-          if (props.isAppleAppEmbed) {
-            // send action to native app (naive app doesn't handle this yet so it's a no-op)
-            window?.webkit?.messageHandlers.highlightAction?.postMessage({
-              actionID: 'share',
-              highlightID: focusedHighlight?.id,
-            })
-          }
+      //   case 'share':
+      //     if (props.isAppleAppEmbed) {
+      //       // send action to native app (naive app doesn't handle this yet so it's a no-op)
+      //       window?.webkit?.messageHandlers.highlightAction?.postMessage({
+      //         actionID: 'share',
+      //         highlightID: focusedHighlight?.id,
+      //       })
+      //     }
 
-          if (focusedHighlight) {
-            if (canShareNative) {
-              handleNativeShare(focusedHighlight.shortId)
-            } else {
-              setHighlightModalAction({
-                highlight: focusedHighlight,
-                highlightModalAction: 'share',
-              })
-            }
-          } else {
-            createHighlightCallback('share')
-          }
-          break
-        case 'post':
-          if (focusedHighlight) {
-            setHighlightModalAction({
-              highlight: focusedHighlight,
-              highlightModalAction: 'postToFeed',
-            })
-          } else {
-            createHighlightCallback('postToFeed')
-          }
-          break
-        case 'unshare':
-          console.log('unshare')
-          break // TODO: implement -- need to show confirmation dialog
+      //     if (focusedHighlight) {
+      //       if (canShareNative) {
+      //         handleNativeShare(focusedHighlight.shortId)
+      //       } else {
+      //         setHighlightModalAction({
+      //           highlight: focusedHighlight,
+      //           highlightModalAction: 'share',
+      //         })
+      //       }
+      //     } else {
+      //       createHighlightCallback('share')
+      //     }
+      //     break
+      //   case 'post':
+      //     if (focusedHighlight) {
+      //       setHighlightModalAction({
+      //         highlight: focusedHighlight,
+      //         highlightModalAction: 'postToFeed',
+      //       })
+      //     } else {
+      //       createHighlightCallback('postToFeed')
+      //     }
+      //     break
+      //   case 'unshare':
+      //     console.log('unshare')
+      //     break // TODO: implement -- need to show confirmation dialog
       }
     },
     [
       createHighlightCallback,
       focusedHighlight,
-      handleNativeShare,
       openNoteModal,
       props.highlightBarDisabled,
       props.isAppleAppEmbed,
