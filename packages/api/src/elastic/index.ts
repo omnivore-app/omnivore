@@ -352,7 +352,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.log('failed to search pages in elastic', e)
+    console.error('failed to search pages in elastic', e)
     return undefined
   }
 }
