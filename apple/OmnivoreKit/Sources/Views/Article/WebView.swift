@@ -2,12 +2,12 @@ import WebKit
 
 /// Describes actions that can be sent from the WebView back to native views.
 /// The names on the javascript side must match for an action to be handled.
-enum WebViewAction: String, CaseIterable {
+public enum WebViewAction: String, CaseIterable {
   case highlightAction
   case readingProgressUpdate
 }
 
-final class WebView: WKWebView {
+public final class WebView: WKWebView {
   #if os(iOS)
     private var panGestureRecognizer: UIPanGestureRecognizer?
     private var tapGestureRecognizer: UITapGestureRecognizer?
@@ -26,11 +26,11 @@ final class WebView: WKWebView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func increaseFontSize() {
+  public func increaseFontSize() {
     dispatchEvent("increaseFontSize")
   }
 
-  func decreaseFontSize() {
+  public func decreaseFontSize() {
     dispatchEvent("decreaseFontSize")
   }
 
@@ -43,7 +43,7 @@ final class WebView: WKWebView {
   }
 
   #if os(iOS)
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
       super.traitCollectionDidChange(previousTraitCollection)
       guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
 
@@ -81,7 +81,7 @@ final class WebView: WKWebView {
       setDefaultMenu()
     }
 
-    func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
+    public func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
       guard let messageBody = message.body as? [String: Any] else { return }
       guard let actionID = messageBody["actionID"] as? String else { return }
 
@@ -115,7 +115,7 @@ final class WebView: WKWebView {
       UIMenuController.shared.menuItems = [remove, /* share, */ annotate]
     }
 
-    override var canBecomeFirstResponder: Bool {
+    override public var canBecomeFirstResponder: Bool {
       true
     }
 
@@ -123,11 +123,12 @@ final class WebView: WKWebView {
       setDefaultMenu()
     }
 
-    func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {
+    // swiftlint:disable:next line_length
+    public func gestureRecognizer(_: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer) -> Bool {
       true
     }
 
-    override func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
+    override public func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
       switch action {
       case #selector(annotateSelection): return true
       case #selector(highlightSelection): return true
@@ -163,7 +164,7 @@ final class WebView: WKWebView {
       hideMenu()
     }
 
-    @objc override func copy(_ sender: Any?) {
+    @objc override public func copy(_ sender: Any?) {
       super.copy(sender)
       dispatchEvent("copyHighlight")
       hideMenu()
@@ -209,7 +210,7 @@ final class WebView: WKWebView {
       UIMenuController.shared.showMenu(from: self, rect: rect)
     }
 
-    func saveAnnotation(annotation: String) {
+    public func saveAnnotation(annotation: String) {
       // swiftlint:disable:next line_length
       let dispatch = "var event = new Event('saveAnnotation');event.annotation = '\(annotation)';document.dispatchEvent(event);"
       evaluateJavaScript(dispatch) { obj, err in

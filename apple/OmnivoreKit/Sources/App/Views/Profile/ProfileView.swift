@@ -11,6 +11,14 @@ final class ProfileContainerViewModel: ObservableObject {
 
   var subscriptions = Set<AnyCancellable>()
 
+  var appVersionString: String {
+    if let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
+      return "Omnivore Version \(appVersion)"
+    } else {
+      return ""
+    }
+  }
+
   func loadProfileData(dataService: DataService) {
     dataService.viewerPublisher().sink(
       receiveCompletion: { _ in },
@@ -81,7 +89,7 @@ struct ProfileView: View {
         #endif
       }
 
-      Section {
+      Section(footer: Text(viewModel.appVersionString)) {
         if FeatureFlag.showAccountDeletion {
           NavigationLink(
             destination: ManageAccountView(handleAccountDeletion: {

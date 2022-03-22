@@ -52,6 +52,43 @@ const createHighlightQuery = (
   `
 }
 
+const mergeHighlightQuery = (
+  pageId: string,
+  highlightId: string,
+  shortHighlightId: string,
+  overlapHighlightIdList: string[],
+  prefix = '_prefix',
+  suffix = '_suffix',
+  quote = '_quote',
+  patch = '_patch'
+) => {
+  return `
+  mutation {
+    mergeHighlight(
+      input: {
+        prefix: "${prefix}",
+        suffix: "${suffix}",
+        quote: "${quote}",
+        id: "${highlightId}",
+        shortId: "${shortHighlightId}",
+        patch: "${patch}",
+        articleId: "${pageId}",
+        overlapHighlightIdList: "${overlapHighlightIdList}"
+      }
+    ) {
+      ... on MergeHighlightSuccess {
+        highlight {
+          id
+        }
+      }
+      ... on MergeHighlightError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 describe('Highlights API', () => {
   const username = 'fakeUser'
   let authToken: string
@@ -91,6 +128,37 @@ describe('Highlights API', () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.createHighlight.highlight.id).to.eq(highlightId)
+    })
+  })
+
+  context('mergeHighlightMutation', () => {
+    let highlightId: string
+
+    before(async () => {
+      // create test highlight
+      highlightId = generateFakeUuid()
+      const shortHighlightId = '_short_id'
+      const query = createHighlightQuery(
+        authToken,
+        pageId,
+        highlightId,
+        shortHighlightId
+      )
+      await graphqlRequest(query, authToken).expect(200)
+    })
+
+    it('should not fail', async () => {
+      const newHighlightId = generateFakeUuid()
+      const newShortHighlightId = '_short_id_1'
+      const query = mergeHighlightQuery(
+        pageId,
+        newHighlightId,
+        newShortHighlightId,
+        [highlightId]
+      )
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.mergeHighlight.highlight.id).to.eq(newHighlightId)
     })
   })
 })

@@ -159,6 +159,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         // Utility Colors
         utilityTextContrast: '#0A0806',
+        // Avatar Fallback color
+        avatarBg: '#FFFFFF',
+        avatarFont: '#0A0806',
       },
     },
     media: {
@@ -205,6 +208,10 @@ const darkThemeSpec = {
     readerFontTransparent: 'rgba(185,185,185,0.65)',
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
+
+    // Avatar Fallback color
+    avatarBg: '#000000',
+    avatarFont: 'rgba(255, 255, 255, 0.8)',
   },
 }
 

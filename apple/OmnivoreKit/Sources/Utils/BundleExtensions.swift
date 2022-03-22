@@ -12,3 +12,10 @@ public extension Bundle {
     #endif
   }
 }
+
+// Convenience for locating package resources externally
+public enum UtilsPackage {
+  public static var bundleURL: URL {
+    Bundle.module.bundleURL
+  }
+}

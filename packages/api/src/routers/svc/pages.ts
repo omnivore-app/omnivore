@@ -7,6 +7,7 @@ import { generateUploadSignedUrl, uploadToSignedUrl } from '../../utils/uploads'
 import { v4 as uuidv4 } from 'uuid'
 import { env } from '../../env'
 import { Page } from '../../elastic/types'
+import { DateTime } from 'luxon'
 
 export function pageServiceRouter() {
   const router = express.Router()
@@ -37,9 +38,9 @@ export function pageServiceRouter() {
       const contentType = 'application/json'
       const bucketName = env.fileUpload.gcsUploadPrivateBucket
       const uploadUrl = await generateUploadSignedUrl(
-        `${req.params.folder}/${
-          data.userId
-        }/${new Date().toDateString()}/${uuidv4()}.json`,
+        `${req.params.folder}/${data.userId}/${DateTime.now().toFormat(
+          'yyyy-LL-dd'
+        )}/${uuidv4()}.json`,
         contentType,
         bucketName
       )
