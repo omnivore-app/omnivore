@@ -6,11 +6,13 @@ import { applyStoredTheme } from '@omnivore/web/lib/themeUpdater'
 import '@omnivore/web/styles/globals.css'
 import '@omnivore/web/styles/articleInnerStyling.css'
 
-const mutation = (name, input) => {
-  window?.webkit?.messageHandlers.viewerAction?.postMessage({
+const mutation = async (name, input) => {
+  const result = await window?.webkit?.messageHandlers.articleAction?.postMessage({
     actionID: name,
     ...input
   })
+  console.log('action result', result, result.result)
+  return result.result
 }
 
 const App = () => {

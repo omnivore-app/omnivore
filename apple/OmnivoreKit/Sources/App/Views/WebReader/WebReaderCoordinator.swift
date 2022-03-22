@@ -38,6 +38,40 @@ extension WebReaderCoordinator: WKScriptMessageHandler {
   }
 }
 
+extension WebReaderCoordinator: WKScriptMessageHandlerWithReply {
+  func userContentController(_: WKUserContentController,
+                             didReceive message: WKScriptMessage,
+                             replyHandler: @escaping (Any?, String?) -> Void)
+  {
+    guard let messageBody = message.body as? [String: Any] else { return }
+    guard let actionID = messageBody["actionID"] as? String else { return }
+
+    print("handling message", actionID, messageBody)
+    switch actionID {
+    case "deleteHighlight":
+      // TODO: make API call here, web expects a boolean result.
+      // we pass results back to JS as the `result` property.
+
+      // We are just passing true as an example here. It should
+      // be false if the API has an error.
+      replyHandler(["result": true], nil)
+
+// TODO:
+//    case "createHighlight":
+//      break
+//    case "mergeHighlightMutation":
+//      break
+//    case "updateHighlightMutation":
+//      break
+//    case "articleReadingProgressMutation":
+//      break
+
+    default:
+      replyHandler(nil, "Unknown actionID: \(actionID)")
+    }
+  }
+}
+
 extension WebReaderCoordinator: WKNavigationDelegate {
   // swiftlint:disable:next line_length
   func webView(_: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {

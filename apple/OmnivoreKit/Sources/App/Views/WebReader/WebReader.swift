@@ -60,6 +60,8 @@ struct WebReader: UIViewRepresentable {
 
     webView.configuration.userContentController.add(webView, name: "viewerAction")
 
+    webView.configuration.userContentController.addScriptMessageHandler(context.coordinator, contentWorld: .page, name: "articleAction")
+
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
