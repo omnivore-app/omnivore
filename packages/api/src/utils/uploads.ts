@@ -109,5 +109,6 @@ export const uploadToSignedUrl = async (
     },
     maxBodyLength: 1000000000,
     maxContentLength: 100000000,
+    timeout: 60000,
   })
 }
