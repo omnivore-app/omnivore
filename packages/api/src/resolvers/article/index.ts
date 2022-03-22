@@ -462,8 +462,6 @@ export const getArticlesResolver = authorized<
     },
   })
 
-  console.log('parsed search query', Date.now())
-
   await createIntercomEvent('search', claims.uid)
 
   const [pages, totalCount] = (await searchPages(
@@ -485,8 +483,6 @@ export const getArticlesResolver = authorized<
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
   const hasNextPage = pages.length > first
   const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
-
-  console.log('get search result', Date.now())
 
   console.log(
     'start',
