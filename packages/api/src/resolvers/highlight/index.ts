@@ -131,6 +131,7 @@ export const mergeHighlightResolver = authorized<
       await models.highlight.deleteMany(overlapHighlightIdList, tx)
       return await models.highlight.create({
         ...newHighlightInput,
+        articleId: undefined,
         annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
         userId: claims.uid,
         elasticPageId: newHighlightInput.articleId,

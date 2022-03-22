@@ -57,7 +57,8 @@ public final class PDFViewerViewModel: ObservableObject {
         prefix: nil,
         suffix: nil,
         patch: patch,
-        annotation: nil
+        annotation: nil,
+        createdByMe: true
       )
     )
 
@@ -94,7 +95,8 @@ public final class PDFViewerViewModel: ObservableObject {
         prefix: nil,
         suffix: nil,
         patch: patch,
-        annotation: nil
+        annotation: nil,
+        createdByMe: true
       )
     )
 

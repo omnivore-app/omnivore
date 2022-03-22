@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Box, VStack } from '@omnivore/web/components/elements/LayoutPrimitives'
 import { ArticleContainer } from '@omnivore/web/components/templates/article/ArticleContainer'
-import { ArticleAttributes } from '@omnivore/web/lib/networking/queries/useGetArticleQuery'
 import { applyStoredTheme } from '@omnivore/web/lib/themeUpdater'
 import '@omnivore/web/styles/globals.css'
 import '@omnivore/web/styles/articleInnerStyling.css'
@@ -26,7 +25,7 @@ const App = () => {
         >
           <ArticleContainer
             viewerUsername="test"
-            article={window.omnivoreArticle as ArticleAttributes}
+            article={window.omnivoreArticle}
             scrollElementRef={React.createRef()}
             isAppleAppEmbed={true}
             highlightBarDisabled={true}
