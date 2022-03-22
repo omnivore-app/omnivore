@@ -55,7 +55,7 @@ export function pageServiceRouter() {
         Buffer.from(msgStr, 'utf8'),
         contentType
       )
-      res.status(200)
+      res.status(200).send('OK')
     } catch (err) {
       console.log('upload page data failed', err)
       res.status(500).send(err)
