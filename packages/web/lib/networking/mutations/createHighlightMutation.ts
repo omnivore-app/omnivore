@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 import { Highlight } from './../fragments/highlightFragment'
 
-type CreateHighlightInput = {
+export type CreateHighlightInput = {
   prefix: string
   suffix: string
   quote: string
