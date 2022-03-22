@@ -2,7 +2,7 @@ import { request } from '../util'
 import 'mocha'
 
 describe('Pages Router', () => {
-  const token = process.env.PUBSUB_VERIFICATION_TOKEN
+  const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
 
   describe('upload', () => {
     it('upload data to GCS', async () => {
