@@ -67,8 +67,6 @@ export default function Home(): JSX.Element {
                 scrollElementRef={scrollRef}
                 isAppleAppEmbed={false}
                 highlightBarDisabled={false}
-                viewerUsername={viewerData.me?.profile?.username}
-                highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
                 fontSize={preferencesData?.fontSize}
               />
             </VStack>

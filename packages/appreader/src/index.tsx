@@ -25,12 +25,10 @@ const App = () => {
           className="disable-webkit-callout"
         >
           <ArticleContainer
-            viewerUsername="test"
             article={window.omnivoreArticle as ArticleAttributes}
             scrollElementRef={React.createRef()}
             isAppleAppEmbed={true}
             highlightBarDisabled={true}
-            highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
             margin={0}
           />

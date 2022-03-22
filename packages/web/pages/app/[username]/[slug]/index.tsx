@@ -83,8 +83,6 @@ function AppArticleEmbedContent(
             scrollElementRef={scrollRef}
             isAppleAppEmbed={true}
             highlightBarDisabled={props.highlightBarDisabled}
-            viewerUsername={props.username}
-            highlightsBaseURL={`${webBaseURL}/${props.username}/${props.slug}/highlights`}
             fontSize={props.fontSize}
             margin={props.margin}
             fontFamily={props.fontFamily}

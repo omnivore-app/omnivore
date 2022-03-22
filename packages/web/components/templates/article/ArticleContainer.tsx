@@ -21,12 +21,10 @@ import Script from 'next/script'
 import { useRouter } from 'next/router'
 
 type ArticleContainerProps = {
-  viewerUsername: string
   article: ArticleAttributes
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
-  highlightsBaseURL: string
   margin?: number
   fontSize?: number
   fontFamily?: string
@@ -176,7 +174,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           />
           <ArticleHeaderToolbar
             articleTitle={props.article.title}
-            articleShareURL={props.highlightsBaseURL}
             setShowNotesSidebar={setShowNotesSidebar}
             setShowShareArticleModal={setShowShareModal}
             hasHighlights={props.article.highlights?.length > 0}
@@ -206,7 +203,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <Box css={{ height: '100px' }} />
       </Box>
       <HighlightsLayer
-        viewerUsername={props.viewerUsername}
         highlights={props.article.highlights}
         articleTitle={props.article.title}
         articleAuthor={props.article.author ?? ''}
@@ -214,7 +210,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
         showNotesSidebar={showNotesSidebar}
-        highlightsBaseURL={props.highlightsBaseURL}
         setShowNotesSidebar={setShowNotesSidebar}
       />
       {showReportIssuesModal ? (
@@ -230,7 +225,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           onOpenChange={(open: boolean) => setShowReportIssuesModal(open)}
         />
       ) : null}
-      {showShareModal && (
+      {/* {showShareModal && (
         <ShareArticleModal
           url={`${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights?r=true`}
           title={props.article.title}
@@ -241,7 +236,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           originalArticleUrl={props.article.originalArticleUrl}
           onOpenChange={(open: boolean) => setShowShareModal(open)}
         />
-      )}
+      )} */}
       {showLabelsModal && (
         <EditLabelsModal
           labels={labels}

@@ -23,7 +23,6 @@ import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import toast from 'react-hot-toast'
 
 type HighlightsLayerProps = {
-  viewerUsername: string
   highlights: Highlight[]
   articleId: string
   articleTitle: string
@@ -31,7 +30,6 @@ type HighlightsLayerProps = {
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
   showNotesSidebar: boolean
-  highlightsBaseURL: string
   setShowNotesSidebar: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -137,24 +135,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       setHighlights([...unmutatedHighlights, mutatedHighlight])
     },
     [highlights]
-  )
-
-  const handleNativeShare = useCallback(
-    (highlightID: string) => {
-      navigator
-        ?.share({
-          title: props.articleTitle,
-          url: `${props.highlightsBaseURL}/${highlightID}`,
-        })
-        .then(() => {
-          setFocusedHighlight(undefined)
-        })
-        .catch((error) => {
-          console.log(error)
-          setFocusedHighlight(undefined)
-        })
-    },
-    [props.articleTitle, props.highlightsBaseURL]
   )
 
   const openNoteModal = useCallback(
@@ -477,22 +457,22 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     )
   }
 
-  if (
-    highlightModalAction?.highlightModalAction == 'share' &&
-    highlightModalAction.highlight
-  ) {
-    return (
-      <ShareHighlightModal
-        url={`${props.highlightsBaseURL}/${highlightModalAction.highlight.shortId}`}
-        title={props.articleTitle}
-        author={props.articleAuthor}
-        highlight={highlightModalAction.highlight}
-        onOpenChange={() => {
-          setHighlightModalAction({ highlightModalAction: 'none' })
-        }}
-      />
-    )
-  }
+  // if (
+  //   highlightModalAction?.highlightModalAction == 'share' &&
+  //   highlightModalAction.highlight
+  // ) {
+  //   return (
+  //     <ShareHighlightModal
+  //       url={`${props.highlightsBaseURL}/${highlightModalAction.highlight.shortId}`}
+  //       title={props.articleTitle}
+  //       author={props.articleAuthor}
+  //       highlight={highlightModalAction.highlight}
+  //       onOpenChange={() => {
+  //         setHighlightModalAction({ highlightModalAction: 'none' })
+  //       }}
+  //     />
+  //   )
+  // }
 
   // Display the button bar if we are not in the native app and there
   // is a focused highlight or selection data

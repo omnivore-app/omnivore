@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 import { captureException, flush } from '@sentry/nextjs'
 import { ArticleHighlights } from '../../../../components/templates/ArticleHighlights'
-import { highlightsBaseURL, webBaseURL } from '../../../../lib/appConfig'
+import { webBaseURL } from '../../../../lib/appConfig'
 import objectToHash from '../../../../lib/highlights/objectToHash'
 import {
   PublicArticleAttributes,
@@ -67,7 +67,7 @@ export const getServerSideProps: GetServerSideProps<
         }
         const previewImageHash = objectToHash(previewImageMeta)
         const previewServiceUrl = `${webBaseURL}/${username}/${slug}/highlights/${selectedHighlightId}/preview?pih=${previewImageHash}`
-        const previewImagePath = `${highlightsBaseURL}/preview?url=${encodeURIComponent(
+        const previewImagePath = `${webBaseURL}/preview?url=${encodeURIComponent(
           previewServiceUrl
         )}`
 
