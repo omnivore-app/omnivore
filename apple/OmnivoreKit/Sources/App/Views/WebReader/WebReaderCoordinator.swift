@@ -114,31 +114,3 @@ extension WebReaderCoordinator: WKNavigationDelegate {
     }
   }
 #endif
-
-struct WebViewConfig {
-  let url: URL
-  let themeId: String
-  let margin: Int
-  let fontSize: Int
-  let fontFamily: String
-  let rawAuthCookie: String?
-}
-
-extension WKWebView {
-  func configureForOmnivoreAppEmbed(config: WebViewConfig) {
-    // Set cookies to pass article preferences to web view
-    injectCookie(cookieString: "theme=\(config.themeId); Max-Age=31536000;", url: config.url)
-    injectCookie(cookieString: "margin=\(config.margin); Max-Age=31536000;", url: config.url)
-    injectCookie(cookieString: "fontSize=\(config.fontSize); Max-Age=31536000;", url: config.url)
-    injectCookie(cookieString: "fontFamily=\(config.fontFamily); Max-Age=31536000;", url: config.url)
-    injectCookie(cookieString: config.rawAuthCookie, url: config.url)
-  }
-
-  func injectCookie(cookieString: String?, url: URL) {
-    if let cookieString = cookieString {
-      for cookie in HTTPCookie.cookies(withResponseHeaderFields: ["Set-Cookie": cookieString], for: url) {
-        configuration.websiteDataStore.httpCookieStore.setCookie(cookie) {}
-      }
-    }
-  }
-}
