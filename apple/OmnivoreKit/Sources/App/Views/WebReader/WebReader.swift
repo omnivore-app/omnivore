@@ -38,6 +38,7 @@ final class WebReaderViewModel: ObservableObject {
 
 struct WebReaderContainerView: View {
   let item: FeedItem
+  let homeFeedViewModel: HomeFeedViewModel
 
   @State private var showFontSizePopover = false
   @State var showHighlightAnnotationModal = false
@@ -119,7 +120,13 @@ struct WebReaderContainerView: View {
         content: {
           Group {
             Button(
-              action: {}, // ,viewModel.handleArchiveAction(dataService: dataService) },
+              action: {
+                homeFeedViewModel.setLinkArchived(
+                  dataService: dataService,
+                  linkId: item.id,
+                  archived: !item.isArchived
+                )
+              },
               label: {
                 Label(
                   item.isArchived ? "Unarchive" : "Archive",
@@ -148,7 +155,7 @@ struct WebReaderContainerView: View {
     }
     .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
       Button("Remove Link", role: .destructive) {
-//        viewModel.handleDeleteAction(dataService: dataService)
+        homeFeedViewModel.removeLink(dataService: dataService, linkId: item.id)
       }
       Button("Cancel", role: .cancel, action: {})
     }
@@ -242,7 +249,6 @@ struct WebReaderContainerView: View {
   }
 }
 
-// TODO: implement things WebAppWrapperView does
 struct WebReader: UIViewRepresentable {
   let htmlContent: String
   let item: FeedItem
@@ -297,17 +303,6 @@ struct WebReader: UIViewRepresentable {
     }
 
     webView.configuration.userContentController.add(webView, name: "viewerAction")
-
-//    webView.configureForOmnivoreAppEmbed(
-//      config: WebViewConfig(
-//        url: dataService.appEnvironment.webAppBaseURL,
-//        themeId: UITraitCollection.current.userInterfaceStyle == .dark ? "Gray" : "LightGray",
-//        margin: 0,
-//        fontSize: fontSize(),
-//        fontFamily: "inter",
-//        rawAuthCookie: rawAuthCookie
-//      )
-//    )
 
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
