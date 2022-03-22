@@ -37,6 +37,9 @@ export function pageServiceRouter() {
 
       const contentType = 'application/json'
       const bucketName = env.fileUpload.gcsUploadPrivateBucket
+
+      console.log('generate upload url')
+
       const uploadUrl = await generateUploadSignedUrl(
         `${req.params.folder}/${data.userId}/${DateTime.now().toFormat(
           'yyyy-LL-dd'
@@ -44,6 +47,9 @@ export function pageServiceRouter() {
         contentType,
         bucketName
       )
+
+      console.log('start uploading', uploadUrl)
+
       await uploadToSignedUrl(
         uploadUrl,
         Buffer.from(msgStr, 'utf8'),
