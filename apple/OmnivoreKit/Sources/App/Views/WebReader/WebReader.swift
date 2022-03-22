@@ -5,7 +5,7 @@ import Views
 import WebKit
 
 struct WebReader: UIViewRepresentable {
-  let htmlContent: String
+  let articleContent: ArticleContent
   let item: FeedItem
   let openLinkAction: (URL) -> Void
   let webViewActionHandler: (WKScriptMessage) -> Void
@@ -33,7 +33,7 @@ struct WebReader: UIViewRepresentable {
 
     webView.loadHTMLString(
       WebReaderContent(
-        htmlContent: htmlContent,
+        articleContent: articleContent,
         item: item,
         authToken: authToken,
         isDark: UITraitCollection.current.userInterfaceStyle == .dark,

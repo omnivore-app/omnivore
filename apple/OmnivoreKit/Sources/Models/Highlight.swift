@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Highlight: Identifiable, Hashable {
+public struct Highlight: Identifiable, Hashable, Codable {
   public let id: String
   public let shortId: String
   public let quote: String
@@ -8,6 +8,8 @@ public struct Highlight: Identifiable, Hashable {
   public let suffix: String?
   public let patch: String
   public let annotation: String?
+  public let createdAt: Date?
+  public let updatedAt: Date?
 
   public init(
     id: String,
@@ -16,7 +18,9 @@ public struct Highlight: Identifiable, Hashable {
     prefix: String?,
     suffix: String?,
     patch: String,
-    annotation: String?
+    annotation: String?,
+    createdAt: Date? = nil,
+    updatedAt: Date? = nil
   ) {
     self.id = id
     self.shortId = shortId
@@ -25,5 +29,7 @@ public struct Highlight: Identifiable, Hashable {
     self.suffix = suffix
     self.patch = patch
     self.annotation = annotation
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
   }
 }

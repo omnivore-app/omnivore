@@ -4,14 +4,14 @@ import Utils
 
 struct WebReaderContent {
   let textFontSize: Int
-  let content: String
+  let articleContent: ArticleContent
   let item: FeedItem
   let themeKey: String
   let authToken: String
   let appEnv: AppEnvironment
 
   init(
-    htmlContent: String,
+    articleContent: ArticleContent,
     item: FeedItem,
     authToken: String,
     isDark: Bool,
@@ -19,7 +19,7 @@ struct WebReaderContent {
     appEnv: AppEnvironment
   ) {
     self.textFontSize = fontSize
-    self.content = htmlContent
+    self.articleContent = articleContent
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
     self.authToken = authToken
@@ -53,12 +53,12 @@ struct WebReaderContent {
               savedAt: new Date().toISOString(),
               url: "https://example.com",
               title: `\(item.title)`,
-              content: `\(content)`,
+              content: `\(articleContent.htmlContent)`,
               originalArticleUrl: "https://example.com",
               contentReader: "WEB",
               readingProgressPercent: \(item.readingProgress),
               readingProgressAnchorIndex: \(item.readingProgressAnchor),
-              highlights: [],
+              highlights: \(articleContent.highlightsJSONString),
             }
 
             window.fontSize = \(textFontSize)

@@ -13,7 +13,7 @@ struct SafariWebLink: Identifiable {
 // TODO: load highlights
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var htmlContent: String?
+  @Published var articleContent: ArticleContent?
 
   var subscriptions = Set<AnyCancellable>()
 
@@ -27,8 +27,8 @@ final class WebReaderViewModel: ObservableObject {
         guard case .failure = completion else { return }
         self?.isLoading = false
       },
-      receiveValue: { [weak self] htmlContent in
-        self?.htmlContent = htmlContent
+      receiveValue: { [weak self] articleContent in
+        self?.articleContent = articleContent
       }
     )
     .store(in: &subscriptions)
@@ -189,9 +189,9 @@ struct WebReaderContainerView: View {
 
   var body: some View {
     ZStack {
-      if let htmlContent = viewModel.htmlContent {
+      if let articleContent = viewModel.articleContent {
         WebReader(
-          htmlContent: htmlContent,
+          articleContent: articleContent,
           item: item,
           openLinkAction: {
             #if os(macOS)

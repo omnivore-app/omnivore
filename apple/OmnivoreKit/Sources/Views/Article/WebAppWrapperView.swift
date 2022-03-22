@@ -121,7 +121,9 @@ public struct WebAppWrapperView: View {
       self.url = url
     }
 
-    public func makeUIViewController(context _: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
+    public func makeUIViewController(
+      context _: UIViewControllerRepresentableContext<SafariView>
+    ) -> SFSafariViewController {
       SFSafariViewController(url: url)
     }
 
