@@ -474,6 +474,7 @@ export const searchPages = async (
     return [
       response.body.hits.hits.map((hit: { _source: Page; _id: string }) => ({
         ...hit._source,
+        content: '',
         id: hit._id,
       })),
       response.body.hits.total.value,
