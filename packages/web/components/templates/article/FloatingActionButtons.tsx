@@ -109,11 +109,11 @@ export function FloatingActionButtons(
         gap: '$2',
         position: 'fixed',
         flexDirection: 'row-reverse',
-        bottom: 82,
-        right: 24,
+        bottom: 42,
+        right: 42,
 
         "@smDown": {
-          bottom: 42,
+          bottom: 18,
           right: 18,
         }
         }}>
