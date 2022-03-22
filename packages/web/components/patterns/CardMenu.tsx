@@ -34,7 +34,7 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
           title="Unarchive"
         />
       )}
-      {isVipUser(props.viewer) && (
+      {isVipUser(props.viewer.profile.username) && (
         <DropdownOption
           onSelect={() => {
             props.actionHandler('snooze')

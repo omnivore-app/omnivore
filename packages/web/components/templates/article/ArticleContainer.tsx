@@ -20,6 +20,7 @@ import { EditLabelsModal } from './EditLabelsModal'
 import { FloatingActionButtons } from './FloatingActionButtons'
 import Script from 'next/script'
 import { useRouter } from 'next/router'
+import { isVipUser } from '../../../lib/featureFlag'
 
 type ArticleContainerProps = {
   viewerUsername: string
@@ -255,7 +256,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           }}
         />
       )}
-      <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
+      {isVipUser(props.viewerUsername) && !props.isAppleAppEmbed && (
+        <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
+      )}
     </>
   )
 }
