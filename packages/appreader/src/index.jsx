@@ -6,8 +6,15 @@ import { applyStoredTheme } from '@omnivore/web/lib/themeUpdater'
 import '@omnivore/web/styles/globals.css'
 import '@omnivore/web/styles/articleInnerStyling.css'
 
+const mutation = (name, input) => {
+  window?.webkit?.messageHandlers.viewerAction?.postMessage({
+    actionID: name,
+    ...input
+  })
+}
+
 const App = () => {
-  applyStoredTheme(false) // false to skip serevr sync
+  applyStoredTheme(false)
 
   return (
     <>
@@ -32,6 +39,13 @@ const App = () => {
             highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
             margin={0}
+            articleMutations={{
+              createHighlightMutation: (input) => mutation('createHighlight', input),
+              deleteHighlightMutation: (highlightId) => mutation('deleteHighlight', { highlightId }),
+              mergeHighlightMutation: (input) => mutation('mergeHighlight', input),
+              updateHighlightMutation: (input) => mutation('updateHighlight', input),
+              articleReadingProgressMutation: (input) => mutation('articleReadingProgress', input),
+            }}
           />
         </VStack>
       </Box>
