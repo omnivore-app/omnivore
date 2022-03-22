@@ -26,6 +26,8 @@ struct WebReaderContent {
     self.appEnv = appEnv
   }
 
+//  <link rel="stylesheet" type="text/css" href="highlight\(themeKey == "Gray" ? "-dark" : "").css" />
+
   // swiftlint:disable line_length
   var styledContent: String {
     """
@@ -72,7 +74,8 @@ struct WebReaderContent {
           window.localStorage.setItem("theme", "\(themeKey)")
         </script>
         <script src="bundle.js"></script>
-
+        <script src="mathJaxConfiguration.js" id="MathJax-script"></script>
+        <script src="mathjax.js" id="MathJax-script"></script>
       </body>
     </html>
     """
