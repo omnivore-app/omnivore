@@ -234,7 +234,7 @@ export default function EmailsPage(): JSX.Element {
               </StyledText>
             </Box>
             <Box style={{ flex: '1', marginLeft: '9px' }}>
-              <Link passHref href="https://omnivore.app/help/newsletters">
+              <Link passHref href="/help/newsletters">
                 <a style={{ textDecoration: 'none' }}>
                   <TooltipWrapped
                     tooltipContent="Learn More"
