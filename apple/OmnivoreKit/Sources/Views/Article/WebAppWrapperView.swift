@@ -114,21 +114,30 @@ public struct WebAppWrapperView: View {
 }
 
 #if os(iOS)
-  struct SafariView: UIViewControllerRepresentable {
+  public struct SafariView: UIViewControllerRepresentable {
     let url: URL
 
-    func makeUIViewController(context _: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
+    public init(url: URL) {
+      self.url = url
+    }
+
+    public func makeUIViewController(context _: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
       SFSafariViewController(url: url)
     }
 
     // swiftlint:disable:next line_length
-    func updateUIViewController(_: SFSafariViewController, context _: UIViewControllerRepresentableContext<SafariView>) {}
+    public func updateUIViewController(_: SFSafariViewController, context _: UIViewControllerRepresentableContext<SafariView>) {}
   }
 
 #elseif os(macOS)
-  struct SafariView: View {
+  public struct SafariView: View {
     let url: URL
-    var body: some View {
+
+    public init(url: URL) {
+      self.url = url
+    }
+
+    public var body: some View {
       Color.clear
     }
   }

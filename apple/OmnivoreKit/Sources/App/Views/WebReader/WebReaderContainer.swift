@@ -3,6 +3,7 @@ import Models
 import Services
 import SwiftUI
 import Views
+import WebKit
 
 struct SafariWebLink: Identifiable {
   let id: UUID
@@ -46,6 +47,8 @@ struct WebReaderContainerView: View {
   @State private var showOverlay = true
   @State var increaseFontActionID: UUID?
   @State var decreaseFontActionID: UUID?
+  @State var annotationSaveTransactionID: UUID?
+  @State var annotation = String()
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var authenticator: Authenticator
@@ -57,6 +60,31 @@ struct WebReaderContainerView: View {
       increaseFontAction: { increaseFontActionID = UUID() },
       decreaseFontAction: { decreaseFontActionID = UUID() }
     )
+  }
+
+  func webViewActionHandler(message: WKScriptMessage) {
+    if message.name == WebViewAction.highlightAction.rawValue {
+      handleHighlightAction(message: message)
+    }
+
+    if message.name == WebViewAction.readingProgressUpdate.rawValue {
+      guard let messageBody = message.body as? [String: Double] else { return }
+      guard let progress = messageBody["progress"] else { return }
+      homeFeedViewModel.updateProgress(itemID: item.id, progress: Double(progress))
+    }
+  }
+
+  private func handleHighlightAction(message: WKScriptMessage) {
+    guard let messageBody = message.body as? [String: String] else { return }
+    guard let actionID = messageBody["actionID"] else { return }
+
+    switch actionID {
+    case "annotate":
+      annotation = messageBody["annotation"] ?? ""
+      showHighlightAnnotationModal = true
+    default:
+      break
+    }
   }
 
   var navBariOS14: some View {
@@ -165,8 +193,14 @@ struct WebReaderContainerView: View {
         WebReader(
           htmlContent: htmlContent,
           item: item,
-          openLinkAction: { url in print(url) },
-          webViewActionHandler: { _ in },
+          openLinkAction: {
+            #if os(macOS)
+              NSWorkspace.shared.open($0)
+            #elseif os(iOS)
+              safariWebLink = SafariWebLink(id: UUID(), url: $0)
+            #endif
+          },
+          webViewActionHandler: webViewActionHandler,
           navBarVisibilityRatioUpdater: {
             if $0 < 1 {
               showFontSizePopover = false
@@ -177,7 +211,8 @@ struct WebReaderContainerView: View {
           appEnv: dataService.appEnvironment,
           increaseFontActionID: $increaseFontActionID,
           decreaseFontActionID: $decreaseFontActionID,
-          annotationSaveTransactionID: nil
+          annotationSaveTransactionID: $annotationSaveTransactionID,
+          annotation: $annotation
         )
         .overlay(
           Group {
@@ -194,6 +229,21 @@ struct WebReaderContainerView: View {
             }
           }
         )
+        .sheet(item: $safariWebLink) {
+          SafariView(url: $0.url)
+        }
+        .sheet(isPresented: $showHighlightAnnotationModal) {
+          HighlightAnnotationSheet(
+            annotation: $annotation,
+            onSave: {
+              annotationSaveTransactionID = UUID()
+              showHighlightAnnotationModal = false
+            },
+            onCancel: {
+              showHighlightAnnotationModal = false
+            }
+          )
+        }
       } else {
         Color.clear
           .contentShape(Rectangle())

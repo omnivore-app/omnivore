@@ -15,9 +15,8 @@ struct WebReader: UIViewRepresentable {
 
   @Binding var increaseFontActionID: UUID?
   @Binding var decreaseFontActionID: UUID?
-
-  @State var annotationSaveTransactionID: UUID?
-  @State private var annotation = String()
+  @Binding var annotationSaveTransactionID: UUID?
+  @Binding var annotation: String
 
   func makeCoordinator() -> WebReaderCoordinator {
     WebReaderCoordinator()
