@@ -10,6 +10,7 @@ public struct Highlight: Identifiable, Hashable, Codable {
   public let annotation: String?
   public let createdAt: Date?
   public let updatedAt: Date?
+  public let createdByMe: Bool
 
   public init(
     id: String,
@@ -19,6 +20,7 @@ public struct Highlight: Identifiable, Hashable, Codable {
     suffix: String?,
     patch: String,
     annotation: String?,
+    createdByMe: Bool,
     createdAt: Date? = nil,
     updatedAt: Date? = nil
   ) {
@@ -31,5 +33,6 @@ public struct Highlight: Identifiable, Hashable, Codable {
     self.annotation = annotation
     self.createdAt = createdAt
     self.updatedAt = updatedAt
+    self.createdByMe = createdByMe
   }
 }
