@@ -17,6 +17,7 @@ import { userPersonalizationMutation } from '../../../lib/networking/mutations/u
 import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
+import { FloatingActionButtons } from './FloatingActionButtons'
 import Script from 'next/script'
 import { useRouter } from 'next/router'
 import { ArticleMutations } from '../../../lib/articleActions'
@@ -258,6 +259,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           }}
         />
       )}
+      <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
     </>
   )
 }

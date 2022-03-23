@@ -157,6 +157,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         readerHeader: '3D3D3D',
         readerTableHeader: '#FFFFFF',
 
+        // Utility Colors
+        utilityTextContrast: '#0A0806',
+
         // Avatar Fallback color
         avatarBg: '#FFFFFF',
         avatarFont: '#0A0806',
