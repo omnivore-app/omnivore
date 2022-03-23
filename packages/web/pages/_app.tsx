@@ -49,7 +49,7 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
         defaultLocale="en"
         messages={englishTranslations}
       >
-        <TooltipProvider delayDuration={200}>
+        <TooltipProvider>
           <Component {...pageProps} />
         </TooltipProvider>
       </IntlProvider>

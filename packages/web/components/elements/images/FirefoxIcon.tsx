@@ -11,7 +11,7 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_444_32066)">
+      <g clipPath="url(#clip0_444_32066)">
         <path
           d="M21.5832 4.95995C20.5149 3.54311 19.1419 2.38447 17.5656 1.56968C15.9893 0.754894 14.2501 0.304792 12.4764 0.252648C9.69 0.196848 7.7652 1.03415 6.6762 1.70735C8.1333 0.862248 10.242 0.382848 12.0882 0.406548C16.8372 0.466548 21.9378 3.70085 22.6953 9.53045C23.5653 16.2222 18.9042 21.8073 12.3474 21.8244C5.1339 21.8427 0.746397 15.4557 1.8933 9.71885C1.91463 9.43755 1.95603 9.15814 2.0172 8.88275C2.15872 7.41242 2.58601 5.98389 3.2751 4.67735C2.4444 5.10725 1.3866 6.46685 0.864598 7.72625C0.10473 9.64776 -0.163178 11.7286 0.0851976 13.7799C0.103198 13.9353 0.119398 14.0904 0.139798 14.2446C0.450869 16.0358 1.16424 17.7331 2.2262 19.2087C3.28817 20.6843 4.67105 21.8997 6.27073 22.7635C7.87042 23.6273 9.64522 24.1169 11.4615 24.1956C13.2778 24.2742 15.0883 23.9397 16.7566 23.2173C18.4249 22.495 19.9077 21.4035 21.0931 20.0252C22.2786 18.6469 23.1359 17.0176 23.6006 15.2599C24.0652 13.5023 24.1251 11.6622 23.7757 9.87809C23.4262 8.09399 22.6766 6.41241 21.5832 4.95995Z"
           fill="url(#paint0_radial_444_32066)"
@@ -79,9 +79,9 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(23.0396 3.84352) scale(21.6041 21.5611)"
         >
-          <stop stop-color="#FFF36E" />
-          <stop offset="0.5" stop-color="#FC4055" />
-          <stop offset="1" stop-color="#E31587" />
+          <stop stopColor="#FFF36E" />
+          <stop offset="0.5" stopColor="#FC4055" />
+          <stop offset="1" stopColor="#E31587" />
         </radialGradient>
         <radialGradient
           id="paint1_radial_444_32066"
@@ -91,8 +91,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(2.39569 4.56222) scale(16.8032 16.7698)"
         >
-          <stop stop-color="#C60084" />
-          <stop offset="1" stop-color="#FC4055" stop-opacity="0" />
+          <stop stopColor="#C60084" />
+          <stop offset="1" stopColor="#FC4055" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint2_radial_444_32066"
@@ -102,8 +102,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(26.4002 2.16654) scale(31.926 31.8625)"
         >
-          <stop stop-color="#FFDE67" stop-opacity="0.6" />
-          <stop offset="0.66" stop-color="#FC4055" stop-opacity="0" />
+          <stop stopColor="#FFDE67" stopOpacity="0.6" />
+          <stop offset="0.66" stopColor="#FC4055" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint3_radial_444_32066"
@@ -113,8 +113,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(10.5572 12.468) scale(42.0079 41.9244)"
         >
-          <stop offset="0.15" stop-color="#810220" />
-          <stop offset="0.27" stop-color="#FC4055" stop-opacity="0" />
+          <stop offset="0.15" stopColor="#810220" />
+          <stop offset="0.27" stopColor="#FC4055" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint4_radial_444_32066"
@@ -124,8 +124,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(12.7176 13.4262) scale(38.4072 38.3309)"
         >
-          <stop offset="0.12" stop-color="#810220" />
-          <stop offset="0.3" stop-color="#FC4055" stop-opacity="0" />
+          <stop offset="0.12" stopColor="#810220" />
+          <stop offset="0.3" stopColor="#FC4055" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint5_radial_444_32066"
@@ -135,8 +135,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(20.9387 2.77398) scale(23.8353 23.8926)"
         >
-          <stop stop-color="#FF9640" />
-          <stop offset="0.8" stop-color="#FC4055" />
+          <stop stopColor="#FF9640" />
+          <stop offset="0.8" stopColor="#FC4055" />
         </radialGradient>
         <radialGradient
           id="paint6_radial_444_32066"
@@ -146,8 +146,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(21.1535 4.28072) scale(24.2648 24.323)"
         >
-          <stop offset="0.09" stop-color="#FFDE67" />
-          <stop offset="0.82" stop-color="#FF9640" stop-opacity="0" />
+          <stop offset="0.09" stopColor="#FFDE67" />
+          <stop offset="0.82" stopColor="#FF9640" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint7_radial_444_32066"
@@ -157,8 +157,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(15.141 10.9534) scale(11.5956 11.6234)"
         >
-          <stop offset="0.36" stop-color="#FC4055" />
-          <stop offset="0.59" stop-color="#FF9640" stop-opacity="0" />
+          <stop offset="0.36" stopColor="#FC4055" />
+          <stop offset="0.59" stopColor="#FF9640" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint8_radial_444_32066"
@@ -168,8 +168,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(12.9936 11.5992) scale(11.5956 11.6234)"
         >
-          <stop offset="0.22" stop-color="#FC4055" stop-opacity="0.8" />
-          <stop offset="0.47" stop-color="#FF9640" stop-opacity="0" />
+          <stop offset="0.22" stopColor="#FC4055" stopOpacity="0.8" />
+          <stop offset="0.47" stopColor="#FF9640" stopOpacity="0" />
         </radialGradient>
         <radialGradient
           id="paint9_radial_444_32066"
@@ -179,9 +179,9 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(23.7268 1.0104) scale(28.2449 28.8162)"
         >
-          <stop offset="0.05" stop-color="#FFF36E" />
-          <stop offset="0.55" stop-color="#FF9640" />
-          <stop offset="0.7" stop-color="#FF9640" />
+          <stop offset="0.05" stopColor="#FFF36E" />
+          <stop offset="0.55" stopColor="#FF9640" />
+          <stop offset="0.7" stopColor="#FF9640" />
         </radialGradient>
         <linearGradient
           id="paint10_linear_444_32066"
@@ -191,9 +191,9 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           y2="12.3537"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#B833E1" />
-          <stop offset="0.37" stop-color="#9059FF" />
-          <stop offset="1" stop-color="#0090ED" />
+          <stop stopColor="#B833E1" />
+          <stop offset="0.37" stopColor="#9059FF" />
+          <stop offset="1" stopColor="#0090ED" />
         </linearGradient>
         <linearGradient
           id="paint11_linear_444_32066"
@@ -203,8 +203,8 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           y2="-1.92598"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#592ACB" stop-opacity="0.5" />
-          <stop offset="0.24" stop-color="#722291" stop-opacity="0" />
+          <stop stopColor="#592ACB" stopOpacity="0.5" />
+          <stop offset="0.24" stopColor="#722291" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint12_linear_444_32066"
@@ -214,9 +214,9 @@ export function FirefoxIcon(props: FirefoxIconProps): JSX.Element {
           y2="25.1164"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFF36E" stop-opacity="0.8" />
-          <stop offset="0.09" stop-color="#FFF36E" stop-opacity="0.7" />
-          <stop offset="0.75" stop-color="#FFF36E" stop-opacity="0" />
+          <stop stopColor="#FFF36E" stopOpacity="0.8" />
+          <stop offset="0.09" stopColor="#FFF36E" stopOpacity="0.7" />
+          <stop offset="0.75" stopColor="#FFF36E" stopOpacity="0" />
         </linearGradient>
         <clipPath id="clip0_444_32066">
           <rect

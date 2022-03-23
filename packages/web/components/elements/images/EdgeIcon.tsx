@@ -11,7 +11,7 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_444_32057)">
+      <g clipPath="url(#clip0_444_32057)">
         <path
           d="M21.6609 18.613C21.3409 18.7803 21.0109 18.9278 20.6728 19.0545C19.5965 19.4572 18.4564 19.6624 17.3072 19.6601C12.8709 19.6601 9.00655 16.6086 9.00655 12.6926C9.01223 12.1674 9.15798 11.6532 9.42875 11.2031C9.69952 10.7531 10.0855 10.3834 10.5469 10.1323C6.53436 10.3011 5.50311 14.4823 5.50311 16.932C5.50311 23.8583 11.8866 24.5604 13.2619 24.5604C14.0034 24.5604 15.1219 24.3448 15.7931 24.1329L15.9159 24.0917C18.499 23.1987 20.701 21.4529 22.1597 19.1417C22.2044 19.0713 22.2243 18.988 22.2164 18.9051C22.2084 18.8221 22.1731 18.7441 22.1159 18.6834C22.0587 18.6228 21.9829 18.5829 21.9005 18.5702C21.8181 18.5574 21.7338 18.5725 21.6609 18.613Z"
           fill="url(#paint0_linear_444_32057)"
@@ -48,8 +48,8 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
           y2="17.3483"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#0C59A4" />
-          <stop offset="1" stop-color="#114A8B" />
+          <stop stopColor="#0C59A4" />
+          <stop offset="1" stopColor="#114A8B" />
         </linearGradient>
         <radialGradient
           id="paint1_radial_444_32057"
@@ -59,8 +59,8 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(14.7375 17.48) scale(8.94188 8.49478)"
         >
-          <stop offset="0.72" stop-opacity="0" />
-          <stop offset="0.95" stop-opacity="0.53" />
+          <stop offset="0.72" stopOpacity="0" />
+          <stop offset="0.95" stopOpacity="0.53" />
           <stop offset="1" />
         </radialGradient>
         <linearGradient
@@ -71,10 +71,10 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
           y2="21.4707"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#1B9DE2" />
-          <stop offset="0.16" stop-color="#1595DF" />
-          <stop offset="0.67" stop-color="#0680D7" />
-          <stop offset="1" stop-color="#0078D4" />
+          <stop stopColor="#1B9DE2" />
+          <stop offset="0.16" stopColor="#1595DF" />
+          <stop offset="0.67" stopColor="#0680D7" />
+          <stop offset="1" stopColor="#0078D4" />
         </linearGradient>
         <radialGradient
           id="paint3_radial_444_32057"
@@ -84,8 +84,8 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(6.61635 19.4071) rotate(-81.3844) scale(13.4462 10.8632)"
         >
-          <stop offset="0.76" stop-opacity="0" />
-          <stop offset="0.95" stop-opacity="0.5" />
+          <stop offset="0.76" stopOpacity="0" />
+          <stop offset="0.95" stopOpacity="0.5" />
           <stop offset="1" />
         </radialGradient>
         <radialGradient
@@ -96,11 +96,11 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(2.42272 5.19158) rotate(92.2906) scale(18.993 40.4511)"
         >
-          <stop stop-color="#35C1F1" />
-          <stop offset="0.11" stop-color="#34C1ED" />
-          <stop offset="0.23" stop-color="#2FC2DF" />
-          <stop offset="0.31" stop-color="#2BC3D2" />
-          <stop offset="0.67" stop-color="#36C752" />
+          <stop stopColor="#35C1F1" />
+          <stop offset="0.11" stopColor="#34C1ED" />
+          <stop offset="0.23" stopColor="#2FC2DF" />
+          <stop offset="0.31" stopColor="#2BC3D2" />
+          <stop offset="0.67" stopColor="#36C752" />
         </radialGradient>
         <radialGradient
           id="paint5_radial_444_32057"
@@ -110,8 +110,8 @@ export function EdgeIcon(props: EdgeIconProps): JSX.Element {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(22.5049 8.00682) rotate(73.7398) scale(9.12563 7.42096)"
         >
-          <stop stop-color="#66EB6E" />
-          <stop offset="1" stop-color="#66EB6E" stop-opacity="0" />
+          <stop stopColor="#66EB6E" />
+          <stop offset="1" stopColor="#66EB6E" stopOpacity="0" />
         </radialGradient>
         <clipPath id="clip0_444_32057">
           <rect
