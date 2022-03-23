@@ -73,11 +73,16 @@ def assertData(conn, client):
         for row in result:
             userId = row['id']
             cursor.execute(
-                f'''SELECT COUNT(id) FROM omnivore.links WHERE user_id = "{userId}"''')
-            countInPostgres = cursor.fetchone()
+                f'SELECT COUNT(*) FROM omnivore.links WHERE user_id = \'{userId}\'''')
+            countInPostgres = cursor.fetchone()['count']
             countInElastic = client.count(
                 index='pages', body={'query': {'term': {'userId': userId}}})['count']
-            assert countInPostgres == countInElastic
+
+            if countInPostgres == countInElastic:
+                print(f'User {userId} OK')
+            else:
+                print(
+                    f'User {userId} ERROR: postgres: {countInPostgres}, elastic: {countInElastic}')
         cursor.close()
     except Exception as err:
         print('Assert data ERROR:', err)
@@ -203,15 +208,15 @@ conn = psycopg2.connect(
     password={PG_PASSWORD}')
 print('Postgres connection:', conn.info)
 
-# create_index(client)
+create_index(client)
 
 # ingest data from postgres to es and json file (for debugging)
-# ingest_data_to_elastic(conn, QUERY, DATA_FILE)
+ingest_data_to_elastic(conn, QUERY, DATA_FILE)
 
 # update existing tables
-# update_postgres_data(conn, UPDATE_ARTICLE_SAVING_REQUEST_SQL,
-#                      'article_saving_request')
-# update_postgres_data(conn, UPDATE_HIGHLIGHT_SQL, 'highlight')
+update_postgres_data(conn, UPDATE_ARTICLE_SAVING_REQUEST_SQL,
+                     'article_saving_request')
+update_postgres_data(conn, UPDATE_HIGHLIGHT_SQL, 'highlight')
 
 assertData(conn, client)
 
