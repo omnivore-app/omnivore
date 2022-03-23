@@ -13,6 +13,11 @@ import dynamic from 'next/dynamic'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
+import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
+import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
+import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
+import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
+import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -70,6 +75,13 @@ export default function Home(): JSX.Element {
                 viewerUsername={viewerData.me?.profile?.username}
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
                 fontSize={preferencesData?.fontSize}
+                articleMutations={{
+                  createHighlightMutation,
+                  deleteHighlightMutation,
+                  mergeHighlightMutation,
+                  updateHighlightMutation,
+                  articleReadingProgressMutation,
+                }}
               />
             </VStack>
           )}

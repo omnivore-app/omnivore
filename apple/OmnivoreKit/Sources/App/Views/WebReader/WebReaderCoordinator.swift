@@ -7,8 +7,10 @@ import Utils
 import Views
 import WebKit
 
+typealias WKScriptMessageReplyHandler = (Any?, String?) -> Void
+
 final class WebReaderCoordinator: NSObject {
-  var webViewActionHandler: (WKScriptMessage) -> Void = { _ in }
+  var webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void = { _, _ in }
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = true
   var lastSavedAnnotationID: UUID?
@@ -34,7 +36,17 @@ final class WebReaderCoordinator: NSObject {
 
 extension WebReaderCoordinator: WKScriptMessageHandler {
   func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
-    webViewActionHandler(message)
+    webViewActionHandler(message, nil)
+  }
+}
+
+extension WebReaderCoordinator: WKScriptMessageHandlerWithReply {
+  func userContentController(
+    _: WKUserContentController,
+    didReceive message: WKScriptMessage,
+    replyHandler: @escaping (Any?, String?) -> Void
+  ) {
+    webViewActionHandler(message, replyHandler)
   }
 }
 

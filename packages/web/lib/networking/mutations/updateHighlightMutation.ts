@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
-type UpdateHighlightInput = {
+export type UpdateHighlightInput = {
   highlightId: string
   annotation?: string
   sharedAt?: string

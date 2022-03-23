@@ -9,7 +9,8 @@ public extension DataService {
     highlightID: String,
     quote: String,
     patch: String,
-    articleId: String
+    articleId: String,
+    annotation: String? = nil
   ) -> AnyPublisher<String, BasicError> {
     enum MutationResult {
       case saved(id: String)
@@ -28,7 +29,12 @@ public extension DataService {
     let mutation = Selection.Mutation {
       try $0.createHighlight(
         input: InputObjects.CreateHighlightInput(
-          id: highlightID, shortId: shortId, articleId: articleId, patch: patch, quote: quote
+          id: highlightID,
+          shortId: shortId,
+          articleId: articleId,
+          patch: patch,
+          quote: quote,
+          annotation: OptionalArgument(annotation)
         ),
         selection: selection
       )
