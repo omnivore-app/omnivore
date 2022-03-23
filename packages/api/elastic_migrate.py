@@ -22,7 +22,7 @@ INDEX_SETTINGS = os.getenv('INDEX_SETTINGS', 'index_settings.json')
 DATETIME_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'
 QUERY = f'''
    SELECT
-     p.id,
+     l.id,
      title,
      description,
      to_char(l.created_at, '{DATETIME_FORMAT}') as "createdAt",
@@ -43,25 +43,35 @@ QUERY = f'''
      to_char(saved_at, '{DATETIME_FORMAT}') as "savedAt",
      slug,
      to_char(archived_at, '{DATETIME_FORMAT}') as "archivedAt"
-   FROM omnivore.pages p
-   LEFT JOIN omnivore.links l ON p.id = l.article_id
-   WHERE p.updated_at > '{UPDATE_TIME}'
+   FROM omnivore.links l
+   INNER JOIN omnivore.pages p ON p.id = l.article_id
+   WHERE l.updated_at > '{UPDATE_TIME}'
 '''
 
 UPDATE_ARTICLE_SAVING_REQUEST_SQL = f'''
-UPDATE omnivore.article_saving_request
-    SET elastic_page_id = article_id
-    WHERE elastic_page_id is NULL
-        AND article_id is NOT NULL
-        AND updated_at > '{UPDATE_TIME}';
+    UPDATE
+        omnivore.article_saving_request a
+    SET
+        elastic_page_id = l.id
+    FROM
+        omnivore.links l
+    WHERE
+        a.article_id = l.article_id
+        AND a.user_id = l.user_id
+        AND a.updated_at > '{UPDATE_TIME}'
 '''
 
 UPDATE_HIGHLIGHT_SQL = f'''
-UPDATE omnivore.highlight
-    SET elastic_page_id = article_id
-    WHERE elastic_page_id is NULL
-        AND article_id is NOT NULL
-        AND updated_at > '{UPDATE_TIME}';
+    UPDATE
+        omnivore.highlight h
+    SET
+        elastic_page_id = l.id
+    FROM
+        omnivore.links l
+    WHERE
+        h.article_id = l.article_id
+        AND h.user_id = l.user_id
+        AND h.updated_at > '{UPDATE_TIME}'
 '''
 
 
