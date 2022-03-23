@@ -8,7 +8,7 @@ struct WebReader: UIViewRepresentable {
   let articleContent: ArticleContent
   let item: FeedItem
   let openLinkAction: (URL) -> Void
-  let webViewActionHandler: (WKScriptMessage) -> Void
+  let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
   let authToken: String
   let appEnv: AppEnvironment

@@ -7,8 +7,10 @@ import Utils
 import Views
 import WebKit
 
+typealias WKScriptMessageReplyHandler = (Any?, String?) -> Void
+
 final class WebReaderCoordinator: NSObject {
-  var webViewActionHandler: (WKScriptMessage) -> Void = { _ in }
+  var webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void = { _, _ in }
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = true
   var lastSavedAnnotationID: UUID?
@@ -34,41 +36,17 @@ final class WebReaderCoordinator: NSObject {
 
 extension WebReaderCoordinator: WKScriptMessageHandler {
   func userContentController(_: WKUserContentController, didReceive message: WKScriptMessage) {
-    webViewActionHandler(message)
+    webViewActionHandler(message, nil)
   }
 }
 
 extension WebReaderCoordinator: WKScriptMessageHandlerWithReply {
-  func userContentController(_: WKUserContentController,
-                             didReceive message: WKScriptMessage,
-                             replyHandler: @escaping (Any?, String?) -> Void)
-  {
-    guard let messageBody = message.body as? [String: Any] else { return }
-    guard let actionID = messageBody["actionID"] as? String else { return }
-
-    print("handling message", actionID, messageBody)
-    switch actionID {
-    case "deleteHighlight":
-      // TODO: make API call here, web expects a boolean result.
-      // we pass results back to JS as the `result` property.
-
-      // We are just passing true as an example here. It should
-      // be false if the API has an error.
-      replyHandler(["result": true], nil)
-
-// TODO:
-//    case "createHighlight":
-//      break
-//    case "mergeHighlightMutation":
-//      break
-//    case "updateHighlightMutation":
-//      break
-//    case "articleReadingProgressMutation":
-//      break
-
-    default:
-      replyHandler(nil, "Unknown actionID: \(actionID)")
-    }
+  func userContentController(
+    _: WKUserContentController,
+    didReceive message: WKScriptMessage,
+    replyHandler: @escaping (Any?, String?) -> Void
+  ) {
+    webViewActionHandler(message, replyHandler)
   }
 }
 

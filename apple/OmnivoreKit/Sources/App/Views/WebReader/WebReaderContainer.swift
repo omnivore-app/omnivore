@@ -5,36 +5,6 @@ import SwiftUI
 import Views
 import WebKit
 
-struct SafariWebLink: Identifiable {
-  let id: UUID
-  let url: URL
-}
-
-// TODO: load highlights
-final class WebReaderViewModel: ObservableObject {
-  @Published var isLoading = false
-  @Published var articleContent: ArticleContent?
-
-  var subscriptions = Set<AnyCancellable>()
-
-  func loadContent(dataService: DataService, slug: String) {
-    isLoading = true
-
-    guard let viewer = dataService.currentViewer else { return }
-
-    dataService.articleContentPublisher(username: viewer.username, slug: slug).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] articleContent in
-        self?.articleContent = articleContent
-      }
-    )
-    .store(in: &subscriptions)
-  }
-}
-
 struct WebReaderContainerView: View {
   let item: FeedItem
   let homeFeedViewModel: HomeFeedViewModel
@@ -62,7 +32,24 @@ struct WebReaderContainerView: View {
     )
   }
 
-  func webViewActionHandler(message: WKScriptMessage) {
+  func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
+    if message.name == WebViewAction.readingProgressUpdate.rawValue {
+      let messageBody = message.body as? [String: Double]
+
+      if let messageBody = messageBody, let progress = messageBody["progress"] {
+        homeFeedViewModel.updateProgress(itemID: item.id, progress: Double(progress))
+      }
+    }
+
+    if let replyHandler = replyHandler {
+      viewModel.webViewActionWithReplyHandler(
+        message: message,
+        replyHandler: replyHandler,
+        dataService: dataService
+      )
+      return
+    }
+
     if message.name == WebViewAction.highlightAction.rawValue {
       handleHighlightAction(message: message)
     }

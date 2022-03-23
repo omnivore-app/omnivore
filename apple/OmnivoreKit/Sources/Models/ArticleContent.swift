@@ -10,8 +10,6 @@ public struct ArticleContent {
   ) {
     self.htmlContent = htmlContent
     self.highlights = highlights
-
-    print(highlightsJSONString)
   }
 
   public var highlightsJSONString: String {
