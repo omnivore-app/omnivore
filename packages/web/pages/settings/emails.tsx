@@ -301,9 +301,12 @@ export default function EmailsPage(): JSX.Element {
                     background: 'rgba(255, 234, 159, 0.12)',
                   },
                   '@mdDown': {
-                    borderRadius: i === 0 ? '5px 5px 0 0 ' : '',
+                    borderTopLeftRadius: i === 0 ? '5px' : '',
+                    borderTopRightRadius: i === 0 ? '5px' : '',
+
                   },
-                  borderRadius: isLastChild ? '0 0 5px 5px' : '',
+                  borderBottomLeftRadius: isLastChild ? '5px' : '',
+                  borderBottomRightRadius: isLastChild ? '5px' : '',
                 }}
               >
                 <Box
