@@ -136,7 +136,7 @@ export function useSelection(
       document.removeEventListener('touchend', handleFinishTouch)
       document.removeEventListener('contextmenu', handleFinishTouch)
     }
-  }, [JSON.stringify(highlightLocations), handleFinishTouch, disabled])
+  }, [highlightLocations, handleFinishTouch, disabled])
 
   return [selectionAttributes, setSelectionAttributes]
 }

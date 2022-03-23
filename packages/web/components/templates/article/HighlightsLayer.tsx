@@ -3,7 +3,6 @@ import { makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGe
 import type { HighlightLocation } from '../../../lib/highlights/highlightGenerator'
 import { useSelection } from '../../../lib/highlights/useSelection'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { shareHighlightToFeedMutation } from '../../../lib/networking/mutations/shareHighlightToFeedMutation'
 import { shareHighlightCommentMutation } from '../../../lib/networking/mutations/updateShareHighlightCommentMutation'
 import {
@@ -18,9 +17,9 @@ import { HighlightNoteModal } from './HighlightNoteModal'
 import { ShareHighlightModal } from './ShareHighlightModal'
 import { HighlightPostToFeedModal } from './HighlightPostToFeedModal'
 import { HighlightsModal } from './HighlightsModal'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import toast from 'react-hot-toast'
+import { ArticleMutations } from '../../../lib/articleActions'
 
 type HighlightsLayerProps = {
   viewerUsername: string
@@ -33,6 +32,7 @@ type HighlightsLayerProps = {
   showNotesSidebar: boolean
   highlightsBaseURL: string
   setShowNotesSidebar: React.Dispatch<React.SetStateAction<boolean>>
+  articleMutations: ArticleMutations
 }
 
 type HighlightModalAction = 'none' | 'addComment' | 'postToFeed' | 'share'
@@ -88,7 +88,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const highlightId = id || focusedHighlight?.id
       if (!highlightId) return
 
-      const didDeleteHighlight = await deleteHighlightMutation(highlightId)
+      const didDeleteHighlight = await props.articleMutations.deleteHighlightMutation(highlightId)
 
       if (didDeleteHighlight) {
         removeHighlights(
@@ -191,7 +191,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       existingHighlights: highlights,
       highlightStartEndOffsets: highlightLocations,
       annotation: note,
-    })
+    }, props.articleMutations)
 
     if (!result.highlights || result.highlights.length == 0) {
       // TODO: show an error message
@@ -407,7 +407,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       if (focusedHighlight) {
         const annotation = event.annotation ?? ''
 
-        const result = await updateHighlightMutation({
+        const result = await props.articleMutations.updateHighlightMutation({
           highlightId: focusedHighlight.id,
           annotation: event.annotation ?? '',
         })

@@ -46,8 +46,8 @@ struct WebReaderContent {
           }
 
           window.omnivoreArticle = {
-            id: "test",
-            linkId: "test",
+            id: "\(item.id)",
+            linkId: "\(item.id)",
             slug: "test-slug",
             createdAt: new Date().toISOString(),
             savedAt: new Date().toISOString(),

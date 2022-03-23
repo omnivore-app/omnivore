@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
-type ArticleReadingProgressMutationInput = {
+export type ArticleReadingProgressMutationInput = {
   id: string
   readingProgressPercent: number
   readingProgressAnchorIndex: number
