@@ -2,7 +2,11 @@ import { diff_match_patch as DiffMatchPatch } from 'diff-match-patch'
 import { RefObject } from 'react'
 import type { Highlight } from '../networking/fragments/highlightFragment'
 import { interpolationSearch } from './interpolationSearch'
-import { highlightIdAttribute, highlightNoteIdAttribute } from './highlightHelpers'
+import {
+  highlightIdAttribute,
+  highlightNoteIdAttribute,
+  noteImage,
+} from './highlightHelpers'
 
 const highlightTag = 'omnivore_highlight'
 const highlightClassname = 'highlight'
@@ -10,7 +14,8 @@ const highlightWithNoteClassName = 'highlight_with_note'
 const articleContainerId = 'article-container'
 export const maxHighlightLength = 2000
 
-const nonParagraphTagsRegEx = /^(a|b|basefont|bdo|big|em|font|i|s|small|span|strike|strong|su[bp]|tt|u|code|mark)$/i
+const nonParagraphTagsRegEx =
+  /^(a|b|basefont|bdo|big|em|font|i|s|small|span|strike|strong|su[bp]|tt|u|code|mark)$/i
 const highlightContentRegex = new RegExp(
   `<${highlightTag}>([\\s\\S]*)<\\/${highlightTag}>`,
   'i'
@@ -47,10 +52,8 @@ export type HighlightNodeAttributes = {
 export function makeHighlightStartEndOffset(
   highlight: Highlight
 ): HighlightLocation {
-  const {
-    startLocation: highlightTextStart,
-    endLocation: highlightTextEnd,
-  } = nodeAttributesFromHighlight(highlight)
+  const { startLocation: highlightTextStart, endLocation: highlightTextEnd } =
+    nodeAttributesFromHighlight(highlight)
   return {
     id: highlight.id,
     start: highlightTextStart,
@@ -129,7 +132,9 @@ export function makeHighlightNodeAttributes(
         }
 
         const newHighlightSpan = document.createElement('span')
-        newHighlightSpan.className = withNote ? highlightWithNoteClassName : highlightClassname
+        newHighlightSpan.className = withNote
+          ? highlightWithNoteClassName
+          : highlightClassname
         newHighlightSpan.setAttribute(highlightIdAttribute, id)
         customColor &&
           newHighlightSpan.setAttribute(
@@ -146,6 +151,7 @@ export function makeHighlightNodeAttributes(
   }
   if (withNote && lastElement) {
     lastElement.classList.add('last_element')
+
     const button = document.createElement('img')
     button.className = 'highlight_note_button'
     button.src = '/static/icons/highlight-note-icon.svg'
@@ -153,6 +159,10 @@ export function makeHighlightNodeAttributes(
     button.setAttribute(highlightNoteIdAttribute, id)
 
     lastElement.appendChild(button)
+
+    // const svg = noteImage()
+    // svg.setAttribute(highlightNoteIdAttribute, id)
+    // lastElement.appendChild(svg)
   }
 
   return {
@@ -199,9 +209,8 @@ export function generateDiffPatch(range: Range): string {
 
 export function wrapHighlightTagAroundRange(range: Range): [number, number] {
   const patch = generateDiffPatch(range)
-  const { highlightTextStart, highlightTextEnd } = selectionOffsetsFromPatch(
-    patch
-  )
+  const { highlightTextStart, highlightTextEnd } =
+    selectionOffsetsFromPatch(patch)
   return [highlightTextStart, highlightTextEnd]
 }
 
@@ -290,11 +299,7 @@ const selectionOffsetsFromPatch = (
   }
 }
 
-export function getPrefixAndSuffix({
-  patch,
-}: {
-  patch: string
-}): {
+export function getPrefixAndSuffix({ patch }: { patch: string }): {
   prefix: string
   suffix: string
   highlightTextStart: number
@@ -305,9 +310,8 @@ export function getPrefixAndSuffix({
   if (!patch) throw new Error('Invalid patch')
   const { textNodes } = getArticleTextNodes()
 
-  const { highlightTextStart, highlightTextEnd } = selectionOffsetsFromPatch(
-    patch
-  )
+  const { highlightTextStart, highlightTextEnd } =
+    selectionOffsetsFromPatch(patch)
   // Searching for the starting text node using interpolation search algorithm
   const textNodeIndex = interpolationSearch(
     textNodes.map(({ startIndex: startIndex }) => startIndex),
@@ -360,9 +364,11 @@ const fillHighlight = ({
   highlightTextStart: number
   highlightTextEnd: number
 }): FillNodeResponse => {
-  const { node, startIndex: startIndex, startsParagraph } = textNodes[
-    startingTextNodeIndex
-  ]
+  const {
+    node,
+    startIndex: startIndex,
+    startsParagraph,
+  } = textNodes[startingTextNodeIndex]
   const text = node.nodeValue || ''
 
   const textBeforeHighlightLenght = highlightTextStart - startIndex
