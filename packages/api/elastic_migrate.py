@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from datetime import datetime
 import os
 import json
 import psycopg2
@@ -178,6 +179,7 @@ def import_data_to_es(client, docs) -> int:
 
     doc_list = []
     for doc in docs:
+        doc['publishedAt'] = validated_date(doc['publishedAt'])
         # convert the string to a dict object
         dict_doc = {
             '_index': 'pages',
@@ -189,6 +191,22 @@ def import_data_to_es(client, docs) -> int:
     count = elastic_bulk_insert(client, doc_list)
     print(f'Imported {count} docs to elasticsearch')
     return count
+
+
+def validated_date(date):
+    try:
+        if date is None:
+            return None
+
+        datetime_object = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ')
+        # Make sure the date year is not greater than 9999
+        if datetime_object.year > 9999:
+            return None
+
+        return date
+    except Exception as err:
+        print('error validating date', err)
+        return None
 
 
 print('Starting migration')
