@@ -12,11 +12,11 @@ import {
   useRef,
   useState,
 } from 'react'
-import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { debounce } from 'lodash'
+import { ArticleMutations } from '../../../lib/articleActions'
 
 export type ArticleProps = {
   articleId: string
@@ -24,6 +24,7 @@ export type ArticleProps = {
   initialAnchorIndex: number
   initialReadingProgress?: number
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
+  articleMutations: ArticleMutations
 }
 
 export function Article(props: ArticleProps): JSX.Element {
@@ -64,7 +65,7 @@ export function Article(props: ArticleProps): JSX.Element {
   useEffect(() => {
     ;(async () => {
       if (!readingProgress) return
-      await articleReadingProgressMutation({
+      await props.articleMutations.articleReadingProgressMutation({
         id: props.articleId,
         // round reading progress to 100% if more than that
         readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,

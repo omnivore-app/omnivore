@@ -8,7 +8,7 @@ struct WebReader: UIViewRepresentable {
   let articleContent: ArticleContent
   let item: FeedItem
   let openLinkAction: (URL) -> Void
-  let webViewActionHandler: (WKScriptMessage) -> Void
+  let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
   let authToken: String
   let appEnv: AppEnvironment
@@ -59,6 +59,8 @@ struct WebReader: UIViewRepresentable {
     }
 
     webView.configuration.userContentController.add(webView, name: "viewerAction")
+
+    webView.configuration.userContentController.addScriptMessageHandler(context.coordinator, contentWorld: .page, name: "articleAction")
 
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler

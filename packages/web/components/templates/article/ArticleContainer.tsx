@@ -19,10 +19,12 @@ import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
 import Script from 'next/script'
 import { useRouter } from 'next/router'
+import { ArticleMutations } from '../../../lib/articleActions'
 
 type ArticleContainerProps = {
   viewerUsername: string
   article: ArticleAttributes
+  articleMutations: ArticleMutations
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
@@ -187,6 +189,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           content={props.article.content}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           scrollElementRef={props.scrollElementRef}
+          articleMutations={props.articleMutations}
         />
         <Button
           style="ghost"
@@ -216,6 +219,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         showNotesSidebar={showNotesSidebar}
         highlightsBaseURL={props.highlightsBaseURL}
         setShowNotesSidebar={setShowNotesSidebar}
+        articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (
         <ReportIssuesModal
