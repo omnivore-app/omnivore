@@ -152,17 +152,17 @@ export function makeHighlightNodeAttributes(
   if (withNote && lastElement) {
     lastElement.classList.add('last_element')
 
-    const button = document.createElement('img')
-    button.className = 'highlight_note_button'
-    button.src = '/static/icons/highlight-note-icon.svg'
-    button.alt = 'Add note'
-    button.setAttribute(highlightNoteIdAttribute, id)
+    const svg = noteImage()
+    svg.setAttribute(highlightNoteIdAttribute, id)
 
-    lastElement.appendChild(button)
+    const ctr = document.createElement('div')
+    ctr.className = 'highlight_note_button'
+    ctr.appendChild(svg)
+    ctr.setAttribute(highlightNoteIdAttribute, id)
+    ctr.setAttribute('width', '14px')
+    ctr.setAttribute('height', '14px')
 
-    // const svg = noteImage()
-    // svg.setAttribute(highlightNoteIdAttribute, id)
-    // lastElement.appendChild(svg)
+    lastElement.appendChild(ctr)
   }
 
   return {

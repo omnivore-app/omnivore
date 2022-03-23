@@ -32,7 +32,6 @@ export function noteImage(): SVGSVGElement {
   svg.setAttribute('width', '14')
   svg.setAttribute('height', '14')
   svg.setAttribute('fill', 'none')
-  svg.setAttribute('class', 'highlight_note_button')
 
   const path = document.createElementNS(svgURI, 'path')
   path.setAttribute(
