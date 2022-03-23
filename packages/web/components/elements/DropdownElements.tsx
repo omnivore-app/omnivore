@@ -71,7 +71,7 @@ export type DropdownAlignment =
 type DropdownProps = {
   labelText?: string
   triggerElement: React.ReactNode
-  children: React.ReactNode,
+  children: React.ReactNode
   styledArrow?: boolean
   align?: DropdownAlignment 
 }
