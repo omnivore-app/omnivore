@@ -1,25 +1,220 @@
-import { Box, VStack } from '../elements/LayoutPrimitives'
-import { StyledText } from '../elements/StyledText'
+import {
+  Desktop,
+  DeviceTabletSpeaker,
+  DeviceMobileCamera,
+} from 'phosphor-react'
+import { Box, HStack } from '../elements/LayoutPrimitives'
+import { StyledText, StyledImg } from '../elements/StyledText'
+import { TooltipWrapped } from './Tooltip'
+
+const TooltipStyle = {
+  backgroundColor: '#F9D354',
+  color: '#0A0806',
+}
 
 export default function MobileInstallHelp(): JSX.Element {
+  const platformSizes = [
+    {
+      label: 'Available for Mac',
+      icon: <Desktop color="#F9D354" />,
+    },
+    {
+      label: 'Available for Tablet',
+      icon: <DeviceTabletSpeaker color="#F9D354" />,
+    },
+    {
+      label: 'Available for Phone',
+      icon: <DeviceMobileCamera color="#F9D354" />,
+    },
+  ]
   return (
-    <VStack
+    <Box
       css={{
-        px: '$1',
-        py: '$3',
-        maxWidth: '30em',
+        display: 'grid',
+        gridTemplateColumns: '1fr 2fr',
+        gridTemplateRows: '.5fr .5fr .5fr',
+        backgroundColor: '$grayBg',
+        padding: '15px',
+        '@md': {
+          marginTop: '0',
+          paddingTop: '0',
+          gridTemplateColumns: '1fr 2fr 1fr',
+          gridTemplateRows: '1fr',
+          height: '9rem',
+        },
       }}
     >
-      <StyledText style="boldHeadline">Install Omnivore for iOS</StyledText>
-      <StyledText style="body" css={{ width: '100%' }}>
-      With the Omnivore iOS app installed you can save any link using our share extension.
-      Learn more about the share extension <a href="https://omnivore.app/help/saving-links#savingfromyouriphone">here.</a>
+      <StyledImg
+        css={{
+          gridColumn: 1 / 2,
+          gridRow: 1 / 2,
+          marginRight: '$3',
+          '@mdDown': {
+            width: '146px',
+          },
+          '@md': {
+            gridColumn: '1',
+            gridRow: '1',
+          },
+        }}
+        src="/static/images/installation.png"
+        alt="Save articles"
+      />
+      <Box
+        css={{
+          gridColumn: '2',
+          gridRow: '1',
+          '@md': {
+            marginTop: '$4',
+          },
+        }}
+      >
+        <StyledText
+          css={{
+            fontWeight: '600',
+            fontSize: '12px',
+            lineHeight: '18px',
+            textAlign: 'right',
+            color: '$grayTextContrast',
+            '@md': {
+              display: 'none',
+            },
+          }}
+        >
+          Learn more
+        </StyledText>
+        <StyledText
+          as={'h3'}
+          css={{
+            fontSize: '18px',
+            fontWeight: 700,
+            marginTop: 0,
+            marginBottom: 0,
+            color: '$grayTextContrast',
+            lineHeight: '22.5px',
+            '@md': {
+              fontSize: '16px',
+              lineHeight: '20px',
+            },
+          }}
+        >
+          Install Omnivore for iOS
+        </StyledText>
+      </Box>
+      <StyledText
+        css={{
+          size: '14px',
+          my: '$2',
+          fontWeight: 400,
+          color: '$grayTextContrast',
+          maxWidth: '20rem',
+          lineHeight: '21px',
+          gridColumn: '1 / span 3',
+          gridRow: '2 / 3',
+          alignSelf: 'center',
+          '@md': {
+            gridColumn: '2',
+            gridRow: '1',
+            alignSelf: 'center',
+            marginTop: '$4',
+          },
+        }}
+      >
+        With the Omnivore iOS app installed you can save any link using our
+        share extension.
+        <br />
+        <StyledText
+          // as={Link}
+          css={{
+            color: '$grayTextContrast',
+            fontSize: '14px',
+            fontWeight: 600,
+            display: 'none',
+            '@md': {
+              display: 'initial',
+              textDecoration: 'underline',
+            },
+          }}
+          // href="/"
+        >
+          Learn more about the share extension here.
+        </StyledText>
       </StyledText>
-      <VStack alignment="center" css={{ mt: '16px', width: '100%' }}>
-        <a href="https://omnivore.app/install/ios" style={{ display: 'inlineBlock', overflow: 'hidden', borderTopLeftRadius: '13px', borderTopRightRadius: '13px', borderBottomRightRadius: '13px', borderBottomLeftRadius: '13px', width: '250px', height: '83px' }}>
-          <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3" alt="Download on the App Store" style={{ borderTopLeftRadius: '13px', borderTopRightRadius: '13px', borderBottomRightRadius: '13px', borderBottomLeftRadius: '13px', width: '250px', height: '83px'}} />
-        </a>
-      </VStack>
-    </VStack>
+      <HStack
+        css={{
+          gridRow: '3',
+          display: 'flex',
+          alignItems: 'center',
+          gridColumn: '1 / span 2',
+          justifyContent: 'space-between',
+          '@md': {
+            flexDirection: 'row-reverse',
+            gridColumn: '3',
+            gridRow: '1',
+          },
+        }}
+      >
+        <StyledImg
+          css={{
+            width: '45%',
+            '@md': {
+              marginLeft: '$3',
+              width: '50%',
+            },
+          }}
+          src="/static/media/appStoreBadge.png"
+          alt="Save articles"
+        />
+        <HStack
+          css={{
+            width: '40%',
+            justifyContent: 'space-between',
+            '@md': {
+              width: '100%',
+            },
+          }}
+        >
+          {platformSizes.map((item, idx) => (
+            <TooltipWrapped
+              key={`platformSize-${idx}`}
+              tooltipContent={item.label}
+              tooltipSide={'top'}
+              style={TooltipStyle}
+              arrowStyles={{ fill: '#F9D354' }}
+            >
+              <Box
+                css={{
+                  borderRadius: '50%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 35,
+                  width: 35,
+                  ml: '$1',
+                  cursor: 'pointer',
+                  backgroundColor: '#F5F5F4',
+                  filter: 'grayscale(1)',
+                  '&:focus': {
+                    filter: 'grayscale(0)',
+                  },
+                  '&:active': {
+                    filter: 'grayscale(0)',
+                  },
+                  '@md': {
+                    backgroundColor: '$tooltipIcons',
+                    transition: 'filter .3s linear',
+                    '&:hover': {
+                      filter: 'grayscale(0)',
+                    },
+                  },
+                }}
+              >
+                {item.icon}
+              </Box>
+            </TooltipWrapped>
+          ))}
+        </HStack>
+      </HStack>
+    </Box>
   )
 }

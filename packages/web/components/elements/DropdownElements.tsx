@@ -46,10 +46,11 @@ const StyledTriggerItem = styled(TriggerItem, {
 
 const DropdownContent = styled(Content, {
   minWidth: 130,
-  backgroundColor: '$grayBase',
+  backgroundColor: '$grayBg',
   borderRadius: '0.5em',
   padding: 5,
   border: '1px solid $grayBorder',
+  boxShadow: '$cardBoxShadow'
 })
 
 const StyledArrow = styled(Arrow, {
@@ -64,9 +65,10 @@ const StyledLabel = styled(Label, {
 })
 
 type DropdownProps = {
-  labelText?: string
-  triggerElement: React.ReactNode
-  children: React.ReactNode
+  labelText?: string;
+  showArrow?: boolean;
+  triggerElement: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export const DropdownSeparator = styled(Separator, {
@@ -91,11 +93,11 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   )
 }
 
-export function Dropdown(props: DropdownProps): JSX.Element {
+export function Dropdown({children, triggerElement, labelText, showArrow = true}: DropdownProps): JSX.Element {
   return (
     <Root modal={false}>
       <DropdownTrigger>
-        {props.triggerElement}
+        {triggerElement}
       </DropdownTrigger>
       <DropdownContent
         onInteractOutside={(event) => {
@@ -103,9 +105,9 @@ export function Dropdown(props: DropdownProps): JSX.Element {
           ;(document.activeElement as HTMLElement).blur()
         }}
       >
-        {props.labelText && <StyledLabel>{props.labelText}</StyledLabel>}
-        {props.children}
-        <StyledArrow offset={20} />
+        {labelText && <StyledLabel>{labelText}</StyledLabel>}
+        {children}
+        {showArrow && <StyledArrow offset={20} />}
       </DropdownContent>
     </Root>
   )

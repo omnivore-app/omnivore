@@ -8,6 +8,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
 import { segmentApiKey } from '../lib/appConfig'
+import { TooltipProvider } from '../components/elements/Tooltip'
 
 function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
@@ -48,7 +49,9 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
         defaultLocale="en"
         messages={englishTranslations}
       >
-        <Component {...pageProps} />
+        <TooltipProvider delayDuration={200}>
+          <Component {...pageProps} />
+        </TooltipProvider>
       </IntlProvider>
     </IdProvider>
   )

@@ -151,3 +151,6 @@ export const StyledList = styled('ul', {
   lineHeight: '1.35',
   color: '$grayTextContrast',
 })
+
+export const StyledImg = styled('img', {
+})
