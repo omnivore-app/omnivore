@@ -63,10 +63,17 @@ const StyledLabel = styled(Label, {
   cursor: 'default',
 })
 
+export type DropdownAlignment = 
+  | 'start'
+  | 'end'
+  | 'center'
+
 type DropdownProps = {
   labelText?: string
   triggerElement: React.ReactNode
   children: React.ReactNode
+  styledArrow?: boolean
+  align?: DropdownAlignment 
 }
 
 export const DropdownSeparator = styled(Separator, {
@@ -102,10 +109,11 @@ export function Dropdown(props: DropdownProps): JSX.Element {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}
+        align={props.align ? props.align : 'center'}
       >
         {props.labelText && <StyledLabel>{props.labelText}</StyledLabel>}
         {props.children}
-        <StyledArrow offset={20} />
+        {props.styledArrow && <StyledArrow offset={20} />}
       </DropdownContent>
     </Root>
   )
