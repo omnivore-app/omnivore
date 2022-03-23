@@ -2785,7 +2785,7 @@ Readability.prototype = {
   _isProbablyVisible: function(node) {
     // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
     return (!node.style || node.style.display !== "none")
-      && node.style.visibility !== 'hidden'
+      && (node.style && node.style.visibility !== 'hidden')
       && !node.hasAttribute("hidden")
       //check for "fallback-image" so that wikimedia math images are displayed
       && (!node.hasAttribute("aria-hidden")
