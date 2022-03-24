@@ -41,15 +41,6 @@ export async function mergeHighlightMutation(
             updatedAt
             annotation
             sharedAt
-            user {
-              id
-              name
-              profile {
-                id
-                pictureUrl
-                username
-              }
-            }
             createdByMe
           }
           overlapHighlightIdList
