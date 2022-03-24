@@ -10,6 +10,8 @@ export const highlightFragment = gql`
     patch
     annotation
     createdByMe
+    updatedAt
+    sharedAt
   }
 `
 
@@ -22,6 +24,8 @@ export type Highlight = {
   patch: string
   annotation?: string
   createdByMe: boolean
+  updatedAt: string
+  sharedAt: string
 }
 
 export type User = {
