@@ -37,6 +37,12 @@ struct WebReaderContent {
       </head>
       <body>
         <div id="root" />
+        <div id='_omnivore-htmlContent' style="display: none;">
+          \(articleContent.htmlContent)
+        </div>
+        <div id='_omnivore-title' style="display: none;">
+          \(item.title)
+        </div>
         <script type="text/javascript">
           window.omnivoreEnv = {
             "NEXT_PUBLIC_APP_ENV": "\(appEnv.rawValue)",
@@ -48,13 +54,13 @@ struct WebReaderContent {
           window.omnivoreArticle = {
             id: "\(item.id)",
             linkId: "\(item.id)",
-            slug: "test-slug",
+            slug: "\(item.slug)",
             createdAt: new Date().toISOString(),
             savedAt: new Date().toISOString(),
-            url: "https://example.com",
-            title: `\(item.title)`,
-            content: `\(articleContent.htmlContent)`,
-            originalArticleUrl: "https://example.com",
+            url: `\(item.pageURLString)`,
+            title: document.getElementById('_omnivore-title').innerHTML,
+            content: document.getElementById('_omnivore-htmlContent').innerHTML,
+            originalArticleUrl: "\(item.pageURLString)",
             contentReader: "WEB",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
@@ -66,6 +72,7 @@ struct WebReaderContent {
           window.localStorage.setItem("theme", "\(themeKey)")
         </script>
         <script src="bundle.js"></script>
+
       </body>
     </html>
     """
