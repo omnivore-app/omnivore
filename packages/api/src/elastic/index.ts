@@ -201,6 +201,7 @@ export const updatePage = async (
         },
       },
       refresh: ctx.refresh,
+      retry_on_conflict: 3,
     })
 
     if (body.result !== 'updated') return false
@@ -237,6 +238,7 @@ export const addLabelInPage = async (
         },
       },
       refresh: ctx.refresh,
+      retry_on_conflict: 3,
     })
 
     return body.result === 'updated'
@@ -350,7 +352,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.log('failed to search pages in elastic', e)
+    console.error('failed to search pages in elastic', e)
     return undefined
   }
 }
@@ -472,6 +474,7 @@ export const searchPages = async (
     return [
       response.body.hits.hits.map((hit: { _source: Page; _id: string }) => ({
         ...hit._source,
+        content: '',
         id: hit._id,
       })),
       response.body.hits.total.value,

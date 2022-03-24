@@ -9,9 +9,8 @@ import {
 import type { HighlightLocation } from './highlightGenerator'
 import { extendRangeToWordBoundaries } from './normalizeHighlightRange'
 import type { Highlight } from '../networking/fragments/highlightFragment'
-import { createHighlightMutation } from '../networking/mutations/createHighlightMutation'
 import { removeHighlights } from './deleteHighlight'
-import { mergeHighlightMutation } from '../networking/mutations/mergeHighlightMutation'
+import { ArticleMutations } from '../articleActions'
 
 type CreateHighlightInput = {
   selection: SelectionAttributes
@@ -28,7 +27,8 @@ type CreateHighlightOutput = {
 }
 
 export async function createHighlight(
-  input: CreateHighlightInput
+  input: CreateHighlightInput,
+  articleMutations: ArticleMutations
 ): Promise<CreateHighlightOutput> {
 
   if (!input.selection.selection) {
@@ -89,7 +89,7 @@ export async function createHighlight(
   let keptHighlights = input.existingHighlights
 
   if (shouldMerge) {
-    const result = await mergeHighlightMutation({
+    const result = await articleMutations.mergeHighlightMutation({
       ...newHighlightAttributes,
       overlapHighlightIdList: input.selection.overlapHighlights,
     })
@@ -99,7 +99,7 @@ export async function createHighlight(
       ($0) => !input.selection.overlapHighlights.includes($0.id)
     )
   } else {
-    highlight = await createHighlightMutation(newHighlightAttributes)
+    highlight = await articleMutations.createHighlightMutation(newHighlightAttributes)
   }
 
   if (highlight) {

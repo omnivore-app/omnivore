@@ -1,13 +1,13 @@
 import Introspect
 import SwiftUI
 
-struct HighlightAnnotationSheet: View {
+public struct HighlightAnnotationSheet: View {
   @Binding var annotation: String
 
   let onSave: () -> Void
   let onCancel: () -> Void
 
-  init(
+  public init(
     annotation: Binding<String>,
     onSave: @escaping () -> Void,
     onCancel: @escaping () -> Void
@@ -17,7 +17,7 @@ struct HighlightAnnotationSheet: View {
     self.onCancel = onCancel
   }
 
-  var body: some View {
+  public var body: some View {
     VStack {
       HStack {
         Button("Cancel", action: onCancel)

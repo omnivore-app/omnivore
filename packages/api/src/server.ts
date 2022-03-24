@@ -122,6 +122,7 @@ export const createApp = (): {
 }
 
 const main = async (): Promise<void> => {
+  console.log('starting with log levels', config.syslog.levels)
   // If creating the DB entities fails, we want this to throw
   // so the container will be restarted and not come online
   // as healthy.

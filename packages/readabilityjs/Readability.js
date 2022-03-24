@@ -167,9 +167,9 @@ Readability.prototype = {
     lazyLoadingElements: /\S*loading\S*/i,
     // NOTE: These two regular expressions are duplicated in
     // Readability-readerable.js. Please keep both copies in sync.
-    articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils/i,
-    articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_/i,
-    unlikelyCandidates: /-ad-|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder/i,
+    articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
+    articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_/i,
+    unlikelyCandidates: /-ad-|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
       return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed`, 'i')
@@ -2785,7 +2785,7 @@ Readability.prototype = {
   _isProbablyVisible: function(node) {
     // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
     return (!node.style || node.style.display !== "none")
-      && node.style.visibility !== 'hidden'
+      && (node.style && node.style.visibility !== 'hidden')
       && !node.hasAttribute("hidden")
       //check for "fallback-image" so that wikimedia math images are displayed
       && (!node.hasAttribute("aria-hidden")

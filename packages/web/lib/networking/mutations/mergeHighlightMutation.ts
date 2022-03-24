@@ -2,7 +2,7 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 import { Highlight } from './../fragments/highlightFragment'
 
-type MergeHighlightInput = {
+export type MergeHighlightInput = {
   id: string
   shortId: string
   articleId: string
@@ -14,7 +14,7 @@ type MergeHighlightInput = {
   overlapHighlightIdList: string[]
 }
 
-type MergeHighlightOutput = {
+export type MergeHighlightOutput = {
   mergeHighlight: InnerMergeHighlightOutput
 }
 

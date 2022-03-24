@@ -18,7 +18,8 @@ public extension DataService {
         prefix: try $0.prefix(),
         suffix: try $0.suffix(),
         patch: try $0.patch(),
-        annotation: try $0.annotation()
+        annotation: try $0.annotation(),
+        createdByMe: try $0.createdByMe()
       )
     }
 

@@ -1,21 +1,22 @@
-import { Box } from './../../../components/elements/LayoutPrimitives'
+import { Box } from '../../elements/LayoutPrimitives'
 import { useReadingProgressAnchor } from '../../../lib/hooks/useReadingProgressAnchor'
 import {
-  useScrollWatcher,
   ScrollOffsetChangeset,
+  useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
 import {
-  useRef,
-  useState,
-  useEffect,
   MutableRefObject,
   useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react'
-import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
-import useDebounce from '../../../lib/hooks/useDebounce'
+import { debounce } from 'lodash'
+import { ArticleMutations } from '../../../lib/articleActions'
 
 export type ArticleProps = {
   articleId: string
@@ -23,12 +24,15 @@ export type ArticleProps = {
   initialAnchorIndex: number
   initialReadingProgress?: number
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
+  articleMutations: ArticleMutations
 }
 
 export function Article(props: ArticleProps): JSX.Element {
   const highlightTheme = isDarkTheme() ? 'dark' : 'default'
 
-  const [readingProgress, setReadingProgress] = useState(props.initialReadingProgress)
+  const [readingProgress, setReadingProgress] = useState(
+    props.initialReadingProgress
+  )
 
   const [readingAnchorIndex, setReadingAnchorIndex] = useState(
     props.initialAnchorIndex
@@ -41,14 +45,30 @@ export function Article(props: ArticleProps): JSX.Element {
 
   useReadingProgressAnchor(articleContentRef, setReadingAnchorIndex)
 
-  const debouncedReadingProgress = useDebounce(readingProgress, 1000);
+  const debouncedSetReadingProgress = useMemo(
+    () =>
+      debounce((readingProgress: number) => {
+        console.log('setReadingProgress', readingProgress)
+        setReadingProgress(readingProgress)
+      }, 2000),
+    []
+  )
+
+  // Stop the invocation of the debounced function
+  // after unmounting
+  useEffect(() => {
+    return () => {
+      debouncedSetReadingProgress.cancel()
+    }
+  }, [])
 
   useEffect(() => {
     ;(async () => {
-      if (!debouncedReadingProgress) return
-      await articleReadingProgressMutation({
+      if (!readingProgress) return
+      await props.articleMutations.articleReadingProgressMutation({
         id: props.articleId,
-        readingProgressPercent: debouncedReadingProgress,
+        // round reading progress to 100% if more than that
+        readingProgressPercent: readingProgress > 100 ? 100 : readingProgress,
         readingProgressAnchorIndex: readingAnchorIndex,
       })
     })()
@@ -56,20 +76,16 @@ export function Article(props: ArticleProps): JSX.Element {
     // We don't react to changes to readingAnchorIndex we
     // only care about the progress (scroll position) changed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    props.articleId,
-    debouncedReadingProgress,
-    readingAnchorIndex,
-  ])
+  }, [props.articleId, readingProgress])
 
   // Post message to webkit so apple app embeds get progress updates
   useEffect(() => {
     if (typeof window?.webkit != 'undefined') {
       window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
-        progress: debouncedReadingProgress,
+        progress: readingProgress,
       })
     }
-  }, [readingProgress, debouncedReadingProgress])
+  }, [readingProgress])
 
   const setScrollWatchedElement = useScrollWatcher(
     (changeset: ScrollOffsetChangeset) => {
@@ -79,13 +95,13 @@ export function Article(props: ArticleProps): JSX.Element {
           (changeset.current.y + scrollContainer.clientHeight) /
           scrollContainer.scrollHeight
 
-        setReadingProgress(newReadingProgress * 100)
+        debouncedSetReadingProgress(newReadingProgress * 100)
       } else if (window && window.document.scrollingElement) {
         const newReadingProgress =
           window.scrollY / window.document.scrollingElement.scrollHeight
         const adjustedReadingProgress =
           newReadingProgress > 0.92 ? 1 : newReadingProgress
-        setReadingProgress(adjustedReadingProgress * 100)
+        debouncedSetReadingProgress(adjustedReadingProgress * 100)
       }
     },
     1000
@@ -152,9 +168,15 @@ export function Article(props: ArticleProps): JSX.Element {
       }
 
       if (props.scrollElementRef.current) {
-        props.scrollElementRef.current?.scroll(0, calculateOffset(anchorElement))
+        props.scrollElementRef.current?.scroll(
+          0,
+          calculateOffset(anchorElement)
+        )
       } else {
-        window.document.documentElement.scroll(0, calculateOffset(anchorElement))
+        window.document.documentElement.scroll(
+          0,
+          calculateOffset(anchorElement)
+        )
       }
     }
   }, [

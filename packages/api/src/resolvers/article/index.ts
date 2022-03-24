@@ -349,7 +349,13 @@ export const createArticleResolver = authorized<
             articleSavingRequest
           )
         }
-        log.info('page created in elastic', articleToSave)
+        log.info(
+          'page created in elastic',
+          pageId,
+          articleToSave.url,
+          articleToSave.slug,
+          articleToSave.title
+        )
         articleToSave.id = pageId
       }
 
@@ -408,12 +414,7 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    console.log('start to get article', Date.now())
-
     const page = await getPageByParam({ userId: claims.uid, slug })
-
-    console.log('get article from elastic', Date.now())
-
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
@@ -440,8 +441,6 @@ export const getArticlesResolver = authorized<
   const startCursor = params.after || ''
   const first = params.first || 10
 
-  console.log('getArticlesResolver starts', Date.now())
-
   // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
   // so queries can contain phrases like "human race";
   // We can also split out terms like "label:unread".
@@ -460,8 +459,6 @@ export const getArticlesResolver = authorized<
       env: env.server.apiEnv,
     },
   })
-
-  console.log('parsed search query', Date.now())
 
   await createIntercomEvent('search', claims.uid)
 
@@ -484,8 +481,6 @@ export const getArticlesResolver = authorized<
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
   const hasNextPage = pages.length > first
   const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
-
-  console.log('get search result', Date.now())
 
   console.log(
     'start',
@@ -707,9 +702,9 @@ export const saveArticleReadingProgressResolver = authorized<
     { input: { id, readingProgressPercent, readingProgressAnchorIndex } },
     { claims: { uid }, pubsub }
   ) => {
-    const userArticleRecord = await getPageByParam({ userId: uid, _id: id })
+    const page = await getPageByParam({ userId: uid, _id: id })
 
-    if (!userArticleRecord) {
+    if (!page) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
     }
 
@@ -725,26 +720,25 @@ export const saveArticleReadingProgressResolver = authorized<
     // be greater than the current reading progress.
     const shouldUpdate =
       readingProgressPercent === 0 ||
-      (userArticleRecord.readingProgressPercent || 0) <
-        readingProgressPercent ||
-      (userArticleRecord.readingProgressAnchorIndex || 0) <
-        readingProgressAnchorIndex
+      page.readingProgressPercent < readingProgressPercent ||
+      page.readingProgressAnchorIndex < readingProgressAnchorIndex
 
-    const updatedArticle = Object.assign(userArticleRecord, {
+    const updatedPart = {
       readingProgressPercent: shouldUpdate
         ? readingProgressPercent
-        : userArticleRecord.readingProgressPercent,
+        : page.readingProgressPercent,
       readingProgressAnchorIndex: shouldUpdate
         ? readingProgressAnchorIndex
-        : userArticleRecord.readingProgressAnchorIndex,
-    })
+        : page.readingProgressAnchorIndex,
+    }
 
-    shouldUpdate && (await updatePage(id, updatedArticle, { pubsub, uid }))
+    shouldUpdate && (await updatePage(id, updatedPart, { pubsub, uid }))
 
     return {
       updatedArticle: {
-        ...updatedArticle,
-        isArchived: !!updatedArticle.archivedAt,
+        ...page,
+        ...updatedPart,
+        isArchived: !!page.archivedAt,
       },
     }
   }

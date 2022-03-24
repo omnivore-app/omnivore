@@ -207,26 +207,17 @@ function onResponseReceived(error, source, destRoot) {
 
 function runReadability(source, destPath, metadataDestPath) {
   var uri = "http://fakehost/test/page.html";
-  var doc = new JSDOM(source, {
-    url: uri,
-  }).window.document;
   var myReader, result, readerable;
   try {
-    // We pass `caption` as a class to check that passing in extra classes works,
-    // given that it appears in some of the test documents.
-    myReader = new Readability(doc, { classesToPreserve: ["caption"] });
-    result = myReader.parse();
-  } catch (ex) {
-    console.error(ex);
-    ex.stack.forEach(console.log.bind(console));
-  }
-  // Use jsdom for isProbablyReaderable because it supports querySelectorAll
-  try {
-    var jsdomDoc = new JSDOM(source, {
+    // Use jsdom for isProbablyReaderable because it supports querySelectorAll
+    var jsdom = new JSDOM(source, {
       url: uri,
     }).window.document;
-    myReader = new Readability(jsdomDoc);
-    readerable = isProbablyReaderable(jsdomDoc);
+    // We pass `caption` as a class to check that passing in extra classes works,
+    // given that it appears in some of the test documents.
+    myReader = new Readability(jsdom, { classesToPreserve: ["caption"]});
+    result = myReader.parse();
+    readerable = isProbablyReaderable(jsdom);
   } catch (ex) {
     console.error(ex);
     ex.stack.forEach(console.log.bind(console));

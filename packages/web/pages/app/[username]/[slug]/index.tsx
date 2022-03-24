@@ -7,6 +7,11 @@ import { webBaseURL } from '../../../../lib/appConfig'
 import { LoadingView } from '../../../../components/patterns/LoadingView'
 import { cookieValue } from '../../../../lib/cookieHelpers'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
+import { createHighlightMutation } from '../../../../lib/networking/mutations/createHighlightMutation'
+import { deleteHighlightMutation } from '../../../../lib/networking/mutations/deleteHighlightMutation'
+import { mergeHighlightMutation } from '../../../../lib/networking/mutations/mergeHighlightMutation'
+import { updateHighlightMutation } from '../../../../lib/networking/mutations/updateHighlightMutation'
+import { articleReadingProgressMutation } from '../../../../lib/networking/mutations/articleReadingProgressMutation'
 
 type AppArticleEmbedContentProps = {
   slug: string
@@ -88,6 +93,13 @@ function AppArticleEmbedContent(
             fontSize={props.fontSize}
             margin={props.margin}
             fontFamily={props.fontFamily}
+            articleMutations={{
+              createHighlightMutation,
+              deleteHighlightMutation,
+              mergeHighlightMutation,
+              updateHighlightMutation,
+              articleReadingProgressMutation,
+            }}
           />
         </VStack>
       </Box>

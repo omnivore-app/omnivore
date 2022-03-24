@@ -16,6 +16,18 @@ All operations on the database must be wrapped in Knex transaction on a resolver
 
 Because we make use of Row Level Security in the database, - all operations typically begin with assuming the role for which policies exist via `omnivore.set_claims` database function.
 
+## ElasticSearch
+
+We use ElasticSearch to store page data in a distributed manner. This is a great way to store data that is not easily searchable.
+All the page data is stored in a single index `pages`. This index is then queried by the app to display the data.
+You need to make sure you have an elasticsearch instance running locally (or just use docker-compose).
+ES url is specified by `ES_URL` environment variable (username `ES_USERNAME` and password `ES_PASSWORD` can be random strings in local environment).
+
+When you're running elastic for the very first time, you need to create indices and ingest existing data. This can be done by running `python elastic_migrate.py`.
+This operation is idempotent, so you can always run `python elastic_migrate.py` again to re-ingest all the data.
+
+You can run ElasticSearch separately by using `docker-compose -f docker-compose.yml up -d elastic`.
+
 ## Image Proxy (optional for local dev)
 
 Backend API server returns article image links using image proxy
