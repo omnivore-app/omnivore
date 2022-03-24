@@ -9,6 +9,14 @@ struct SafariWebLink: Identifiable {
   let url: URL
 }
 
+func encodeHighlightResult(_ highlight: Highlight) -> [String: Any]? {
+  let data = try? JSONEncoder().encode(highlight)
+  if let data = data, let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] {
+    return dictionary
+  }
+  return nil
+}
+
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var articleContent: ArticleContent?
@@ -46,9 +54,13 @@ final class WebReaderViewModel: ObservableObject {
     )
     .sink { completion in
       guard case .failure = completion else { return }
-      replyHandler(["result": false], nil)
-    } receiveValue: { _ in
-      replyHandler(["result": true], nil)
+      replyHandler([], "createHighlight: Error encoding response")
+    } receiveValue: { highlight in
+      if let highlight = encodeHighlightResult(highlight) {
+        replyHandler(["result": highlight], nil)
+      } else {
+        replyHandler([], "createHighlight: Error encoding response")
+      }
     }
     .store(in: &subscriptions)
   }
@@ -85,9 +97,13 @@ final class WebReaderViewModel: ObservableObject {
     )
     .sink { completion in
       guard case .failure = completion else { return }
-      replyHandler(["result": false], nil)
-    } receiveValue: { _ in
-      replyHandler(["result": true], nil)
+      replyHandler([], "mergeHighlight: Error encoding response")
+    } receiveValue: { highlight in
+      if let highlight = encodeHighlightResult(highlight) {
+        replyHandler(["result": highlight], nil)
+      } else {
+        replyHandler([], "mergeHighlight: Error encoding response")
+      }
     }
     .store(in: &subscriptions)
   }
@@ -104,9 +120,10 @@ final class WebReaderViewModel: ObservableObject {
     )
     .sink { completion in
       guard case .failure = completion else { return }
-      replyHandler(["result": false], nil)
-    } receiveValue: { _ in
-      replyHandler(["result": true], nil)
+      replyHandler([], "updateHighlight: Error encoding response")
+    } receiveValue: { highlight in
+      // Update highlight JS code just expects the highlight ID back
+      replyHandler(["result": highlight.id], nil)
     }
     .store(in: &subscriptions)
   }

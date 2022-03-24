@@ -25,7 +25,7 @@ type InnerMergeHighlightOutput = {
 
 export async function mergeHighlightMutation(
   input: MergeHighlightInput
-): Promise<MergeHighlightOutput | undefined> {
+): Promise<Highlight | undefined> {
   const mutation = gql`
     mutation MergeHighlight($input: MergeHighlightInput!) {
       mergeHighlight(input: $input) {
@@ -54,7 +54,8 @@ export async function mergeHighlightMutation(
 
   try {
     const data = await gqlFetcher(mutation, { input })
-    return data as MergeHighlightOutput | undefined
+    const output = data as MergeHighlightOutput | undefined
+    return output?.mergeHighlight.highlight
   } catch {
     return undefined
   }
