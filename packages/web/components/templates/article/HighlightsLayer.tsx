@@ -18,7 +18,7 @@ import { ShareHighlightModal } from './ShareHighlightModal'
 import { HighlightPostToFeedModal } from './HighlightPostToFeedModal'
 import { HighlightsModal } from './HighlightsModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
-import toast from 'react-hot-toast'
+import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 type HighlightsLayerProps = {
@@ -220,7 +220,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         annotation
       )
       if (!result) {
-        toast.error('Error saving highlight', { position: 'bottom-right' })
+        showErrorToast('Error saving highlight', { position: 'bottom-right' })
       }
       // if (successAction === 'share' && canShareNative) {
       //   handleNativeShare(highlight.shortId)

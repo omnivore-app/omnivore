@@ -22,6 +22,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showSuccessToast } from '../../lib/toastHelpers'
 import Link from 'next/link'
 
 enum TextType {
@@ -165,11 +166,7 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 
   const copy = useCallback(() => {
     copyLink()
-    toast(
-      props.type == TextType.EmailAddress
-        ? 'Email Address Copied'
-        : 'Confirmation Code Copied'
-    )
+    showSuccessToast(props.type == TextType.EmailAddress ? 'Email Address Copied' : 'Confirmation Code Copied');
   }, [])
 
   return (
@@ -186,14 +183,14 @@ export default function EmailsPage(): JSX.Element {
   applyStoredTheme(false)
 
   async function createEmail(): Promise<void> {
+    showSuccessToast('Email Created!')
     await createNewsletterEmailMutation()
     revalidate()
-    toast.success('Email Created')
   }
   async function deleteEmail(id: string): Promise<void> {
     await deleteNewsletterEmailMutation(id)
     revalidate()
-    toast.success('Email Deleted!')
+    showSuccessToast('Email Deleted!')
   }
   return (
     <PrimaryLayout pageTestId="settings-emails-tag">
