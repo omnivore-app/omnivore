@@ -1,7 +1,6 @@
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import { isDarkTheme } from '../../../lib/themeUpdater'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
@@ -572,12 +571,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 },
                 '&:focus': {
                   '> div': {
-                    boxShadow: isDarkTheme() ? '$cardItemDarkShadow' : '$cardItemLightShadow',
+                    boxShadow: layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
                   }
                 },
                 '&:hover': {
-                  '> div.grid-item-card': {
-                    boxShadow: isDarkTheme() ? '$cardItemDarkShadow' : '$cardItemLightShadow',
+                  '> div': {
+                    boxShadow:  layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
                   }
                 },
               }}

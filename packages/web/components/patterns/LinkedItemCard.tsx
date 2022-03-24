@@ -88,7 +88,6 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
         onClick={() => {
           props.handleAction('showDetail')
         }}
-        className="grid-item-card"
       >
         <Box css={{
           position: 'absolute',
@@ -183,6 +182,7 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
               m: 0,
               py: '0px',
               mr: '$2',
+              maxWidth:'50%',
               fontStyle: 'normal',
               fontWeight: '400',
               fontSize: '14px',
@@ -197,23 +197,22 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
           >
             {props.item.description}
           </StyledText>
-          {/* {props.item.image && ( */}
+          {props.item.image && (
             <CoverImage
-              // src={props.item.image}
-              src={"https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg"}
+              src={props.item.image}
               alt="Link Preview Image"
               width={135}
               height={90}
               css={{ ml: '10px', mb: '8px', borderRadius: '3px' }}
               onError={(e) => {
-                // (e.target as HTMLElement).style.display = 'none'
+                (e.target as HTMLElement).style.display = 'none'
               }}
             />
-          {/* )} */}
+          )}
         </HStack>
         <HStack css={{ mt: '8px' }}>
               {
-                Labels.map(({text, color}, index) => <Label key={index} text={text} color={color} />)
+                props.item.labels?.map(({description, color}, index) => <Label key={index} text={description || ''} color={color} />)
               }
         </HStack>
       </VStack>
