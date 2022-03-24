@@ -41,6 +41,13 @@ struct WebReaderContent {
           \(item.title)
         </div>
         <script type="text/javascript">
+          window.omnivoreEnv = {
+            "NEXT_PUBLIC_APP_ENV": "prod",
+            "NEXT_PUBLIC_BASE_URL": "unset",
+            "NEXT_PUBLIC_SERVER_BASE_URL": "unset",
+            "NEXT_PUBLIC_HIGHLIGHTS_BASE_URL": "unset"
+          }
+
           window.omnivoreArticle = {
             id: "\(item.id)",
             linkId: "\(item.id)",

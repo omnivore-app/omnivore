@@ -123,12 +123,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   return (
     <>
-      <Script async src="/static/scripts/mathJaxConfiguration.js" />
-      <Script
-        async
-        id="MathJax-script"
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-      />
+      {!props.isAppleAppEmbed && (
+        <>
+          <Script async src="/static/scripts/mathJaxConfiguration.js" />
+          <Script
+            async
+            id="MathJax-script"
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+          />
+        </>
+      )}
       <Box
         id="article-container"
         css={{
