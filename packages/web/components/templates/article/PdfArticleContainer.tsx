@@ -125,7 +125,7 @@ export default function PdfArticleContainer(
             instance.setSelectedAnnotation(null)
           },
         }
-        return [copy, remove, share]
+        return [copy, remove]
       }
 
       instance = await PSPDFKit.load({
