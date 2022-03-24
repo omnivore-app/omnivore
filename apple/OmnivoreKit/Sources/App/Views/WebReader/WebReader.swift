@@ -10,8 +10,6 @@ struct WebReader: UIViewRepresentable {
   let openLinkAction: (URL) -> Void
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
-  let authToken: String
-  let appEnv: AppEnvironment
 
   @Binding var increaseFontActionID: UUID?
   @Binding var decreaseFontActionID: UUID?
@@ -35,10 +33,8 @@ struct WebReader: UIViewRepresentable {
       WebReaderContent(
         articleContent: articleContent,
         item: item,
-        authToken: authToken,
         isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-        fontSize: fontSize(),
-        appEnv: appEnv
+        fontSize: fontSize()
       )
       .styledContent,
       baseURL: ViewsPackage.bundleURL

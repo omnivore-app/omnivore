@@ -3,6 +3,7 @@ import Foundation
 import Models
 import SwiftGraphQL
 
+// swiftlint:disable:next function_body_length
 public extension DataService {
   func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContent, ServerError> {
     enum QueryResult {
