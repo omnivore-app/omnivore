@@ -50,7 +50,8 @@ final class WebReaderViewModel: ObservableObject {
       highlightID: messageBody["id"] as? String ?? "",
       quote: messageBody["quote"] as? String ?? "",
       patch: messageBody["patch"] as? String ?? "",
-      articleId: messageBody["articleId"] as? String ?? ""
+      articleId: messageBody["articleId"] as? String ?? "",
+      annotation: messageBody["annotation"] as? String ?? ""
     )
     .sink { completion in
       guard case .failure = completion else { return }
