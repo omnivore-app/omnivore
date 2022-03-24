@@ -17,7 +17,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@google-cloud/functions-framework": "^1.7.1"
+    "@google-cloud/functions-framework": "^3.0.0"
   },
   "scripts": {
     "start": "npx functions-framework --port=9090 --target=puppeteer",
