@@ -3,8 +3,6 @@ import { makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGe
 import type { HighlightLocation } from '../../../lib/highlights/highlightGenerator'
 import { useSelection } from '../../../lib/highlights/useSelection'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { shareHighlightToFeedMutation } from '../../../lib/networking/mutations/shareHighlightToFeedMutation'
-import { shareHighlightCommentMutation } from '../../../lib/networking/mutations/updateShareHighlightCommentMutation'
 import {
   highlightIdAttribute,
   highlightNoteIdAttribute,

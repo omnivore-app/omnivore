@@ -10,11 +10,8 @@ import { MutableRefObject, useEffect, useState } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
-import { ShareArticleModal } from './ShareArticleModal'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
-import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
-import { EditLabelsModal } from './EditLabelsModal'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 type ArticleContainerProps = {
