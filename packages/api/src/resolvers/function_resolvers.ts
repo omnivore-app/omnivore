@@ -306,7 +306,7 @@ export const functionResolvers = {
       }
       return article.url
     },
-    async originalArticleUrl(article: Article) {
+    async originalArticleUrl(article: { url: string }) {
       return article.url
     },
     async savedByViewer(
