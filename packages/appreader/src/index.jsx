@@ -33,7 +33,6 @@ const App = () => {
           className="disable-webkit-callout"
         >
           <ArticleContainer
-            viewerUsername="test"
             article={window.omnivoreArticle}
             scrollElementRef={React.createRef()}
             isAppleAppEmbed={true}

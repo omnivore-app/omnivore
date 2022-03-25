@@ -10,15 +10,16 @@ import { CrossIcon } from '../../elements/images/CrossIcon'
 import { theme } from '../../tokens/stitches.config'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { ChangeEvent, useCallback, useState } from 'react'
-import { Label } from '../../elements/Label'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { LabelChip } from '../../elements/LabelChip'
 
 type EditLabelsModalProps = {
-  labels: string[]
+  labels: Label[]
   article: ArticleAttributes
   onOpenChange: (open: boolean) => void
-  setLabels: (labels: string[]) => void
+  setLabels: (labels: Label[]) => void
 }
 
 export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
@@ -26,7 +27,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
   const { labels } = useGetLabelsQuery()
 
   const saveAndExit = useCallback(async () => {
-    const result = await setLabelsMutation(props.article.id, selectedLabels)
+    const result = await setLabelsMutation(props.article.id, selectedLabels.map((l) => l.id))
     console.log('result of setting labels', result)
     props.onOpenChange(false)
     props.setLabels(selectedLabels)
@@ -34,12 +35,12 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const label = event.target.value
-      if (event.target.checked) {
-        setSelectedLabels([...selectedLabels, label])
-      } else {
-        setSelectedLabels(selectedLabels.filter((l) => l !== label))
-      }
+      // const label = event.target.value
+      // if (event.target.checked) {
+      //   setSelectedLabels([...selectedLabels, label])
+      // } else {
+      //   setSelectedLabels(selectedLabels.filter((l) => l !== label))
+      // }
     },
     [selectedLabels]
   )
@@ -81,21 +82,21 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
                 key={label.id}
                 css={{ height: '50px', verticalAlign: 'middle' }}
                 onClick={() => {
-                  if (selectedLabels.includes(label.id)) {
-                    setSelectedLabels(
-                      selectedLabels.filter((id) => id !== label.id)
-                    )
-                  } else {
-                    setSelectedLabels([...selectedLabels, label.id])
-                  }
+                  // if (selectedLabels.includes(label.id)) {
+                  //   setSelectedLabels(
+                  //     selectedLabels.filter((id) => id !== label.id)
+                  //   )
+                  // } else {
+                  //   setSelectedLabels([...selectedLabels, label.id])
+                  // }
                 }}
               >
-                <Label color={label.color} text={label.name} />
+                <LabelChip color={label.color} text={label.name} />
                 <input
                   type="checkbox"
                   value={label.id}
                   onChange={handleChange}
-                  checked={selectedLabels.includes(label.id)}
+                  checked={selectedLabels.includes(label)}
                 />
               </HStack>
             ))}
