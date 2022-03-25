@@ -7,6 +7,7 @@ import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { Label } from './useGetLabelsQuery'
+import { showErrorToast, showSuccessToast } from '../../toastHelpers'
 
 export type LibraryItemsQueryInput = {
   limit: number
@@ -206,6 +207,12 @@ export function useGetLibraryItemsQuery({
         setLinkArchivedMutation({
           linkId: item.node.id,
           archived: true,
+        }).then((res) => {
+          if (res) {
+            showSuccessToast('Link archived', { position: 'bottom-right' })
+          } else {
+            showErrorToast('Error archiving link', { position: 'bottom-right' })
+          }
         })
 
         break
@@ -225,11 +232,24 @@ export function useGetLibraryItemsQuery({
         setLinkArchivedMutation({
           linkId: item.node.id,
           archived: false,
+        }).then((res) => {
+          if (res) {
+            showSuccessToast('Link unarchived', { position: 'bottom-right' })
+          } else {
+            showErrorToast('Error unarchiving link', { position: 'bottom-right' })
+          }
         })
         break
       case 'delete':
         updateData(undefined)
         deleteLinkMutation(item.node.id)
+        .then((res) => {
+          if (res) {
+            showSuccessToast('Link removed', { position: 'bottom-right' })
+          } else {
+            showErrorToast('Error removing link', { position: 'bottom-right' })
+          }
+        })
         break
       case 'mark-read':
         updateData({
