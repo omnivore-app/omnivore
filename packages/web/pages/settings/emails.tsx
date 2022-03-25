@@ -183,14 +183,14 @@ export default function EmailsPage(): JSX.Element {
   applyStoredTheme(false)
 
   async function createEmail(): Promise<void> {
-    showSuccessToast('Email Created!')
+    showSuccessToast('Email Created')
     await createNewsletterEmailMutation()
     revalidate()
   }
   async function deleteEmail(id: string): Promise<void> {
     await deleteNewsletterEmailMutation(id)
     revalidate()
-    showSuccessToast('Email Deleted!')
+    showSuccessToast('Email Deleted')
   }
   return (
     <PrimaryLayout pageTestId="settings-emails-tag">
