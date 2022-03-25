@@ -8,7 +8,7 @@ import { UpdateHighlightInput } from "./networking/mutations/updateHighlightMuta
 export type ArticleMutations = {
   createHighlightMutation: (input: CreateHighlightInput) => Promise<Highlight | undefined>
   deleteHighlightMutation: (highlightId: string) => Promise<boolean>
-  mergeHighlightMutation: (input: MergeHighlightInput) => Promise<MergeHighlightOutput | undefined>
+  mergeHighlightMutation: (input: MergeHighlightInput) => Promise<Highlight | undefined>
   updateHighlightMutation: (input: UpdateHighlightInput) => Promise<string | undefined>
   articleReadingProgressMutation: (input: ArticleReadingProgressMutationInput) => Promise<boolean>
 }

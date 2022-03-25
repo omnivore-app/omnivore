@@ -12,16 +12,16 @@ public extension DataService {
     patch: String,
     articleId: String,
     overlapHighlightIdList: [String]
-  ) -> AnyPublisher<String, BasicError> {
+  ) -> AnyPublisher<Highlight, BasicError> {
     enum MutationResult {
-      case saved(id: String)
+      case saved(highlight: Highlight)
       case error(errorCode: Enums.MergeHighlightErrorCode)
     }
 
     let selection = Selection<MutationResult, Unions.MergeHighlightResult> {
       try $0.on(
         mergeHighlightSuccess: .init {
-          .saved(id: try $0.highlight(selection: Selection.Highlight { try $0.id() }))
+          .saved(highlight: try $0.highlight(selection: highlightSelection))
         },
         mergeHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) }
       )
@@ -57,8 +57,8 @@ public extension DataService {
             }
 
             switch payload.data {
-            case let .saved(id: id):
-              promise(.success(id))
+            case let .saved(highlight: highlight):
+              promise(.success(highlight))
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))
             }
