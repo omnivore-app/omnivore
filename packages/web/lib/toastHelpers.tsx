@@ -16,7 +16,7 @@ const toastStyles = {
 }
 
 const messageStyles = {
-  fontSize: 16,
+  fontSize: 14,
   fontWeight: 'bolder',
   color: 'white',
   flex: 1,
@@ -42,7 +42,7 @@ const showToast = (
         {type === 'success' ? <CheckCircle size={24} color='white' /> : <WarningCircle size={24} color='white' />}
         <MessageContainer>{message}</MessageContainer>
         <HStack distribution='end' css={{marginLeft: 16}}>
-          <X size={16} style={{cursor: 'pointer'}} color='#CCEAC4' onClick={() => toast.dismiss(id)} />
+          <X size={18} style={{cursor: 'pointer'}} color='#CCEAC4' weight='bold' onClick={() => toast.dismiss(id)} />
         </HStack>
       </FullWidthContainer>
     ),
