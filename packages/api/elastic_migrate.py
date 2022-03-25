@@ -78,6 +78,8 @@ UPDATE_HIGHLIGHT_SQL = f'''
 def assertData(conn, client):
     # get all users from postgres
     try:
+        success = 0
+        failure = 0
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute('''SELECT id FROM omnivore.user''')
         result = cursor.fetchall()
@@ -90,11 +92,14 @@ def assertData(conn, client):
                 index='pages', body={'query': {'term': {'userId': userId}}})['count']
 
             if countInPostgres == countInElastic:
+                success += 1
                 print(f'User {userId} OK')
             else:
+                failure += 1
                 print(
                     f'User {userId} ERROR: postgres: {countInPostgres}, elastic: {countInElastic}')
         cursor.close()
+        print(f'Asserted data, success: {success}, failure: {failure}')
     except Exception as err:
         print('Assert data ERROR:', err)
         exit(1)
