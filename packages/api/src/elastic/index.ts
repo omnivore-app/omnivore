@@ -206,7 +206,7 @@ export const updatePage = async (
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.pageSaved(page, ctx.uid)
+    await ctx.pubsub.pageUpdated({ ...page, id }, ctx.uid)
 
     return true
   } catch (e) {
