@@ -21,7 +21,6 @@ import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 type HighlightsLayerProps = {
-  viewerUsername: string
   highlights: Highlight[]
   articleId: string
   articleTitle: string

@@ -6,9 +6,9 @@ import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import { articleKeyboardCommands, navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
@@ -18,6 +18,8 @@ import { deleteHighlightMutation } from '../../../lib/networking/mutations/delet
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
+import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
+import Script from 'next/script'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -38,8 +40,36 @@ export default function Home(): JSX.Element {
   })
   const { preferencesData } = useGetUserPreferences()
   const article = articleData?.article.article
+  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
 
   useKeyboardShortcuts(navigationCommands(router))
+
+  const updateFontSize = async (newFontSize: number) => {
+    setFontSize(newFontSize)
+    await userPersonalizationMutation({ fontSize: newFontSize })
+  }
+
+  useKeyboardShortcuts(
+    articleKeyboardCommands(router, async (action) => {
+      switch (action) {
+        case 'openOriginalArticle':
+          const url = article?.url
+          if (url) {
+            window.open(url, '_blank')
+          }
+          break
+        case 'incrementFontSize':
+          await updateFontSize(Math.min(fontSize + 2, 28))
+          break
+        case 'decrementFontSize':
+          await updateFontSize(Math.max(fontSize - 2, 10))
+          break
+        case 'editLabels':
+          setShowLabelsModal(true)
+          break
+      }
+    })
+  )
 
   if (article && viewerData?.me) {
     return (
@@ -53,6 +83,12 @@ export default function Home(): JSX.Element {
           description: article.description,
         }}
       >
+        <Script async src="/static/scripts/mathJaxConfiguration.js" />
+        <Script
+          async
+          id="MathJax-script"
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        />
         <Toaster />
 
           {article.contentReader == 'PDF' ? (
@@ -72,9 +108,8 @@ export default function Home(): JSX.Element {
                 scrollElementRef={scrollRef}
                 isAppleAppEmbed={false}
                 highlightBarDisabled={false}
-                viewerUsername={viewerData.me?.profile?.username}
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
-                fontSize={preferencesData?.fontSize}
+                fontSize={fontSize}
                 articleMutations={{
                   createHighlightMutation,
                   deleteHighlightMutation,
