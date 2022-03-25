@@ -20,6 +20,9 @@ import { articleReadingProgressMutation } from '../../../lib/networking/mutation
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import Script from 'next/script'
+import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { isVipUser } from '../../../lib/featureFlag'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -30,6 +33,7 @@ export default function Home(): JSX.Element {
   const router = useRouter()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
+  const [showLabelsModal, setShowLabelsModal] = useState(false)
 
   // Populate data cache
   const { viewerData } = useGetViewerQuery()
@@ -65,7 +69,9 @@ export default function Home(): JSX.Element {
           await updateFontSize(Math.max(fontSize - 2, 10))
           break
         case 'editLabels':
-          setShowLabelsModal(true)
+          if (viewerData?.me && isVipUser(viewerData?.me)) {
+            setShowLabelsModal(true)
+          }
           break
       }
     })
@@ -118,6 +124,18 @@ export default function Home(): JSX.Element {
                   articleReadingProgressMutation,
                 }}
               />
+              {showLabelsModal && (
+                <EditLabelsModal
+                  labels={article.labels || []}
+                  article={article}
+                  onOpenChange={() => {
+                    setShowLabelsModal(false)
+                  }}
+                  setLabels={(labels: Label[]) => {
+                    // setLabels(labels)
+                  }}
+                />
+              )}
             </VStack>
           )}
       </PrimaryLayout>

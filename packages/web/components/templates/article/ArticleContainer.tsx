@@ -211,18 +211,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           onOpenChange={(open: boolean) => setShowShareModal(open)}
         />
       )} */}
-      {showLabelsModal && (
-        <EditLabelsModal
-          labels={labels}
-          article={props.article}
-          onOpenChange={() => {
-            setShowLabelsModal(false)
-          }}
-          setLabels={(labels: string[]) => {
-            setLabels(labels)
-          }}
-        />
-      )}
     </>
   )
 }
