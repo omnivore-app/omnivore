@@ -15,7 +15,7 @@ import {
 import { Tweet } from 'react-twitter-widgets'
 import { render } from 'react-dom'
 import { isDarkTheme } from '../../../lib/themeUpdater'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 export type ArticleProps = {
