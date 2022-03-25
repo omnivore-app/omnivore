@@ -30,7 +30,10 @@ export const createNewsletterEmail = async (
 export const getNewsletterEmails = async (
   userId: string
 ): Promise<NewsletterEmail[]> => {
-  return getRepository(NewsletterEmail).find({ where: { user: userId } })
+  return getRepository(NewsletterEmail).find({
+    where: { user: userId },
+    order: { createdAt: 'DESC' },
+  })
 }
 
 export const deleteNewsletterEmail = async (id: string): Promise<boolean> => {

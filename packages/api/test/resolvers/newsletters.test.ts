@@ -61,16 +61,18 @@ describe('Newsletters API', () => {
       }
     `
 
-    it('responds with newsletter emails', async () => {
+    it('responds with newsletter emails sort by created_at desc', async () => {
       const response = await graphqlRequest(query, authToken).expect(200)
       expect(response.body.data.newsletterEmails.newsletterEmails).to.eqls(
-        newsletterEmails.map((value) => {
-          return {
-            id: value.id,
-            address: value.address,
-            confirmationCode: value.confirmationCode,
-          }
-        })
+        newsletterEmails
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+          .map((value) => {
+            return {
+              id: value.id,
+              address: value.address,
+              confirmationCode: value.confirmationCode,
+            }
+          })
       )
     })
 
