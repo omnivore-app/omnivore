@@ -24,7 +24,7 @@ struct WebReaderContent {
   var styledContent: String {
     let savedAt = "new Date(\(item.savedAt.timeIntervalSince1970 * 1000)).toISOString()"
     let createdAt = "new Date(\(item.createdAt.timeIntervalSince1970 * 1000)).toISOString()"
-    let publishAt = item.publishDate != nil ? "new Date(\(item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" : "undefined"
+    let publishedAt = item.publishDate != nil ? "new Date(\(item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" : "undefined"
 
     return """
     <!DOCTYPE html>
@@ -58,7 +58,7 @@ struct WebReaderContent {
             slug: "\(item.slug)",
             createdAt: \(createdAt),
             savedAt: \(savedAt),
-            publishedAt: \(publishAt),
+            publishedAt: \(publishedAt),
             url: `\(item.pageURLString)`,
             title: document.getElementById('_omnivore-title').innerHTML,
             content: document.getElementById('_omnivore-htmlContent').innerHTML,
