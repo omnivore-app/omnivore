@@ -14,6 +14,8 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   public let id: String
   public let renderID = UUID()
   public let title: String
+  public let createdAt: Date
+  public let savedAt: Date
   public var readingProgress: Double
   public var readingProgressAnchor: Int
   public let imageURLString: String?
@@ -31,6 +33,8 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   public init(
     id: String,
     title: String,
+    createdAt: Date,
+    savedAt: Date,
     readingProgress: Double,
     readingProgressAnchor: Int,
     imageURLString: String?,
@@ -47,6 +51,8 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   ) {
     self.id = id
     self.title = title
+    self.createdAt = createdAt
+    self.savedAt = savedAt
     self.readingProgress = readingProgress
     self.readingProgressAnchor = readingProgressAnchor
     self.imageURLString = imageURLString
@@ -63,13 +69,15 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   }
 
   enum CodingKeys: String, CodingKey {
-    case id, title, image, isArchived, readingProgressPercent, readingProgressAnchorIndex, slug, contentReader, url
+    case id, title, createdAt, savedAt, image, isArchived, readingProgressPercent, readingProgressAnchorIndex, slug, contentReader, url
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     id = try container.decode(String.self, forKey: .id)
     title = try container.decode(String.self, forKey: .title)
+    createdAt = try container.decode(Date.self, forKey: .createdAt)
+    savedAt = try container.decode(Date.self, forKey: .savedAt)
     description = try container.decode(String?.self, forKey: .title)
     imageURLString = try container.decode(String?.self, forKey: .image)
     readingProgress = try container.decode(Double.self, forKey: .readingProgressPercent)
