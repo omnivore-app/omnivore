@@ -51,6 +51,7 @@ const showToast = (
       ...toastStyles,
       background: background,
     },
+    duration: 2000,
     ...options,
   })
 }
