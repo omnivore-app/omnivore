@@ -25,6 +25,7 @@ import {
 } from './types'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -210,6 +211,13 @@ export const updatePage = async (
 
     return true
   } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.info('page has been deleted', id)
+      return false
+    }
     console.error('failed to update a page in elastic', e)
     return false
   }
