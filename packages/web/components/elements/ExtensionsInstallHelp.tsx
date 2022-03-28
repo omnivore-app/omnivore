@@ -106,7 +106,8 @@ export default function ExtensionsInstallHelp(): JSX.Element {
             height: '130px',
           }}
         >
-          <SaveArticleIcon />
+          <img srcSet="/static/images/extension-preview.png,
+             /static/images/extension-preview@2x.png 2x" />
         </Box>
       </Box>
       <Box
@@ -217,7 +218,6 @@ export default function ExtensionsInstallHelp(): JSX.Element {
                 borderRadius: '6px',
                 height: '38px',
                 border: '1px solid #F9D354',
-                width: '60vw',
                 '@lg': {
                   width: '190px',
                 },

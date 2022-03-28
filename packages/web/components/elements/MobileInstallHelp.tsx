@@ -72,10 +72,10 @@ export default function MobileInstallHelp(): JSX.Element {
           css={{
             position: 'absolute',
             top: '-15px',
-            height: '130px',
           }}
         >
-          <InstallationIcon />
+          <img srcSet="/static/images/mobile-app-preview.png,
+             /static/images/mobile-app-preview@2x.png 2x" />
         </Box>
       </Box>
       <Box
@@ -193,8 +193,10 @@ export default function MobileInstallHelp(): JSX.Element {
             width: '40%',
             justifyContent: 'space-between',
             maxWidth: '13rem',
+            visibility: 'collapse',
             '@lg': {
               width: '100%',
+              visibility: 'unset',
             },
           }}
         >
