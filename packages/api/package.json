@@ -30,7 +30,7 @@
     "@opentelemetry/instrumentation-pg": "^0.24.0",
     "@opentelemetry/node": "^0.24.0",
     "@opentelemetry/resources": "^0.24.0",
-    "@opentelemetry/semantic-conventions": "^0.24.0",
+    "@opentelemetry/semantic-conventions": "^1.0.1",
     "@opentelemetry/tracing": "^0.24.0",
     "@sendgrid/mail": "^7.6.0",
     "@sentry/integrations": "^6.19.1",
