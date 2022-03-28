@@ -1,5 +1,4 @@
 // Define the type of the body for the Search request
-import { Label, PageType } from '../generated/graphql'
 import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
 
@@ -117,6 +116,36 @@ export interface SearchResponse<T> {
   aggregations?: never
 }
 
+export enum PageType {
+  Article = 'ARTICLE',
+  Book = 'BOOK',
+  File = 'FILE',
+  Profile = 'PROFILE',
+  Unknown = 'UNKNOWN',
+  Website = 'WEBSITE',
+}
+
+export interface Label {
+  id: string
+  name: string
+  color: string
+  description?: string
+  createdAt?: Date
+}
+
+export interface Highlight {
+  id: string
+  shortId: string
+  patch: string
+  quote: string
+  createdAt: Date
+  prefix?: string
+  suffix?: string
+  annotation?: string
+  sharedAt?: Date
+  updatedAt?: Date
+}
+
 export interface Page {
   id: string
   userId: string
@@ -143,6 +172,7 @@ export interface Page {
   siteName?: string
   _id?: string
   siteIcon?: string
+  highlights?: Highlight[]
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const
