@@ -1,22 +1,19 @@
 import { getRepository } from 'typeorm'
 import { ReportItemInput, ReportType } from '../generated/graphql'
 import { ContentDisplayReport } from '../entity/reports/content_display_report'
-import ArticleModel from '../datalayer/article'
-import Knex from 'knex'
 import { AbuseReport } from '../entity/reports/abuse_report'
+import { getPageById } from '../elastic'
 
 export const saveContentDisplayReport = async (
-  kx: Knex,
   uid: string,
   input: ReportItemInput
 ): Promise<boolean> => {
   const repo = getRepository(ContentDisplayReport)
 
-  const am = new ArticleModel(kx)
-  const article = await am.get(input.pageId)
+  const page = await getPageById(input.pageId)
 
-  if (!article) {
-    console.log('unable to submit report, article not found', input)
+  if (!page) {
+    console.log('unable to submit report, page not found', input)
     return false
   }
 
@@ -26,10 +23,10 @@ export const saveContentDisplayReport = async (
   const result = await repo
     .create({
       userId: uid,
-      pageId: input.pageId,
-      content: article.content,
-      originalHtml: article.originalHtml || undefined,
-      originalUrl: article.url,
+      elasticPageId: input.pageId,
+      content: page.content,
+      originalHtml: page.originalHtml || undefined,
+      originalUrl: page.url,
       reportComment: input.reportComment,
     })
     .save()
@@ -38,17 +35,15 @@ export const saveContentDisplayReport = async (
 }
 
 export const saveAbuseReport = async (
-  kx: Knex,
   uid: string,
   input: ReportItemInput
 ): Promise<boolean> => {
   const repo = getRepository(AbuseReport)
 
-  const am = new ArticleModel(kx)
-  const article = await am.get(input.pageId)
+  const page = await getPageById(input.pageId)
 
-  if (!article) {
-    console.log('unable to submit report, article not found', input)
+  if (!page) {
+    console.log('unable to submit report, page not found', input)
     return false
   }
 
@@ -64,7 +59,7 @@ export const saveAbuseReport = async (
     .create({
       reportedBy: uid,
       sharedBy: input.sharedBy,
-      pageId: input.pageId,
+      elasticPageId: input.pageId,
       itemUrl: input.itemUrl,
       reportTypes: [ReportType.Abusive],
       reportComment: input.reportComment,
