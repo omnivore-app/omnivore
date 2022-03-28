@@ -14,7 +14,7 @@ export default function Installation(): JSX.Element {
           marginBottom: '100px',
           padding: '10px',
           borderRadius: '6px',
-          '@md': {
+          '@lg': {
             backgroundColor: '$grayBg',
             border: '1px solid #0000000F',
             boxShadow: '0px 3px 11px 0px #201F1D0A',
@@ -25,7 +25,7 @@ export default function Installation(): JSX.Element {
         <Box
           css={{
             my: '$2',
-            '@md': {
+            '@lg': {
               my: '12px',
               height: '1px',
               backgroundColor: '$grayBorder',
