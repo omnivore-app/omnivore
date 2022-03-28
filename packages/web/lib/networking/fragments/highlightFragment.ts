@@ -9,19 +9,9 @@ export const highlightFragment = gql`
     suffix
     patch
     annotation
-    createdAt
+    createdByMe
     updatedAt
     sharedAt
-    user {
-      id
-      name
-      profile {
-        id
-        pictureUrl
-        username
-      }
-    }
-    createdByMe
   }
 `
 
@@ -33,11 +23,9 @@ export type Highlight = {
   suffix?: string
   patch: string
   annotation?: string
-  createdAt: string
-  updatedAt: string
-  user: User
   createdByMe: boolean
-  sharedAt?: string
+  updatedAt: string
+  sharedAt: string
 }
 
 export type User = {

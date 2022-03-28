@@ -27,7 +27,7 @@ import { ShareArticleModal } from '../article/ShareArticleModal'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
-import toast, { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { SnoozeLinkModal } from '../article/SnoozeLinkModal'
 import {
   createReminderMutation,
@@ -35,6 +35,7 @@ import {
 } from '../../../lib/networking/mutations/createReminderMutation'
 import { useFetchMoreScroll } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -654,10 +655,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 return props.actionHandler('archive', props.snoozeTarget)
               })
               .then(() => {
-                toast.success(msg, { position: 'bottom-right' })
+                showSuccessToast(msg, { position: 'bottom-right' })
               })
               .catch((error) => {
-                toast.error('There was an error snoozing your link.', {
+                showErrorToast('There was an error snoozing your link.', {
                   position: 'bottom-right',
                 })
               })

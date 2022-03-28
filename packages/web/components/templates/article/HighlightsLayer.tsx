@@ -3,8 +3,6 @@ import { makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGe
 import type { HighlightLocation } from '../../../lib/highlights/highlightGenerator'
 import { useSelection } from '../../../lib/highlights/useSelection'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { shareHighlightToFeedMutation } from '../../../lib/networking/mutations/shareHighlightToFeedMutation'
-import { shareHighlightCommentMutation } from '../../../lib/networking/mutations/updateShareHighlightCommentMutation'
 import {
   highlightIdAttribute,
   highlightNoteIdAttribute,
@@ -15,14 +13,12 @@ import { removeHighlights } from '../../../lib/highlights/deleteHighlight'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { ShareHighlightModal } from './ShareHighlightModal'
-import { HighlightPostToFeedModal } from './HighlightPostToFeedModal'
 import { HighlightsModal } from './HighlightsModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
-import toast from 'react-hot-toast'
+import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 type HighlightsLayerProps = {
-  viewerUsername: string
   highlights: Highlight[]
   articleId: string
   articleTitle: string
@@ -35,7 +31,7 @@ type HighlightsLayerProps = {
   articleMutations: ArticleMutations
 }
 
-type HighlightModalAction = 'none' | 'addComment' | 'postToFeed' | 'share'
+type HighlightModalAction = 'none' | 'addComment' | 'share'
 
 type HighlightActionProps = {
   highlight?: Highlight
@@ -111,32 +107,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       setHighlights([...keptHighlights, highlight])
     },
     [highlights, highlightLocations]
-  )
-
-  const postToFeedCallback = useCallback(
-    async (highlight: Highlight, annotation: string | undefined) => {
-      await shareHighlightToFeedMutation({
-        id: highlight.id,
-        share: highlight.sharedAt == undefined,
-      })
-
-      await shareHighlightCommentMutation({
-        highlightId: highlight.id,
-        annotation,
-      })
-
-      // Toggle the sharedAt field after mutating the highlight
-      const mutatedHighlight = highlight
-      mutatedHighlight.sharedAt = highlight.sharedAt
-        ? undefined
-        : new Date().toISOString()
-      mutatedHighlight.annotation = annotation
-      const unmutatedHighlights = highlights.filter(
-        ($0) => $0.id !== highlight.id
-      )
-      setHighlights([...unmutatedHighlights, mutatedHighlight])
-    },
-    [highlights]
   )
 
   const handleNativeShare = useCallback(
@@ -220,7 +190,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         annotation
       )
       if (!result) {
-        toast.error('Error saving highlight', { position: 'bottom-right' })
+        showErrorToast('Error saving highlight', { position: 'bottom-right' })
       }
       // if (successAction === 'share' && canShareNative) {
       //   handleNativeShare(highlight.shortId)
@@ -348,16 +318,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             createHighlightCallback('share')
           }
           break
-        case 'post':
-          if (focusedHighlight) {
-            setHighlightModalAction({
-              highlight: focusedHighlight,
-              highlightModalAction: 'postToFeed',
-            })
-          } else {
-            createHighlightCallback('postToFeed')
-          }
-          break
         case 'unshare':
           console.log('unshare')
           break // TODO: implement -- need to show confirmation dialog
@@ -456,23 +416,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           setHighlightModalAction({ highlightModalAction: 'none' })
         }
         createHighlightForNote={highlightModalAction?.createHighlightForNote}
-      />
-    )
-  }
-
-  if (
-    highlightModalAction?.highlightModalAction == 'postToFeed' &&
-    highlightModalAction.highlight
-  ) {
-    return (
-      <HighlightPostToFeedModal
-        highlight={highlightModalAction.highlight}
-        author={props.articleAuthor}
-        title={props.articleTitle}
-        onCommit={postToFeedCallback}
-        onOpenChange={() =>
-          setHighlightModalAction({ highlightModalAction: 'none' })
-        }
       />
     )
   }

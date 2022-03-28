@@ -104,6 +104,7 @@ const articlesQuery = (after = '', order = 'ASCENDING') => {
             id
             url
             linkId
+            originalArticleUrl
             labels {
               id
               name
@@ -360,6 +361,8 @@ describe('Article API', () => {
   })
 
   describe('GetArticles', () => {
+    const url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
+
     let query = ''
     let after = ''
     let pages: Page[] = []
@@ -380,7 +383,7 @@ describe('Article API', () => {
           updatedAt: new Date(),
           readingProgressPercent: 100,
           readingProgressAnchorIndex: 0,
-          url: 'https://blog.omnivore.app/p/getting-started-with-omnivore',
+          url: url,
           savedAt: new Date(),
         } as Page
         const pageId = await createPage(page, ctx)
@@ -404,6 +407,14 @@ describe('Article API', () => {
 
     beforeEach(async () => {
       query = articlesQuery(after)
+    })
+
+    it('should return originalArticleUrl', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.articles.edges[0].node.originalArticleUrl).to.eql(
+        url
+      )
     })
 
     context('when there are pages with labels', () => {

@@ -13,6 +13,7 @@ import { useState, useCallback } from 'react'
 import { createArticleFromURLMutation } from '../../../lib/networking/mutations/createArticleFromURLMutation'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import toast from 'react-hot-toast'
+import { showErrorToast } from '../../../lib/toastHelpers'
 
 type AddLinkModalProps = {
   onOpenChange: (open: boolean) => void
@@ -42,7 +43,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
         </Box>
       ), { position: 'bottom-right' })
     } else {
-      toast.error('Error saving link', { position: 'bottom-right' })
+      showErrorToast('Error saving link', { position: 'bottom-right' })
     }
   }, [link])
 
@@ -100,7 +101,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                   // `https` to give the link a protocol.
                   const newLink = `https://${link}`
                   if (!validateLink(newLink)) {
-                    toast.error('Invalid link', { position: 'bottom-right' })
+                    showErrorToast('Invalid link', { position: 'bottom-right' })
                     return
                   }
                   setLink(newLink)

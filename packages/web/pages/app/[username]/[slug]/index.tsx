@@ -12,6 +12,7 @@ import { deleteHighlightMutation } from '../../../../lib/networking/mutations/de
 import { mergeHighlightMutation } from '../../../../lib/networking/mutations/mergeHighlightMutation'
 import { updateHighlightMutation } from '../../../../lib/networking/mutations/updateHighlightMutation'
 import { articleReadingProgressMutation } from '../../../../lib/networking/mutations/articleReadingProgressMutation'
+import Script from 'next/script'
 
 type AppArticleEmbedContentProps = {
   slug: string
@@ -78,6 +79,12 @@ function AppArticleEmbedContent(
           width: '100vw',
         }}
       >
+        <Script async src="/static/scripts/mathJaxConfiguration.js" />
+        <Script
+          async
+          id="MathJax-script"
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        />
         <VStack
           alignment="center"
           distribution="center"
@@ -88,7 +95,6 @@ function AppArticleEmbedContent(
             scrollElementRef={scrollRef}
             isAppleAppEmbed={true}
             highlightBarDisabled={props.highlightBarDisabled}
-            viewerUsername={props.username}
             highlightsBaseURL={`${webBaseURL}/${props.username}/${props.slug}/highlights`}
             fontSize={props.fontSize}
             margin={props.margin}

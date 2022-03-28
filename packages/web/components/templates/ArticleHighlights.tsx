@@ -69,10 +69,10 @@ function LoadedContent(props: LoadedContentProps): JSX.Element {
     return props.publicArticle.highlights.length - 1
   }, [props.publicArticle.highlights])
 
-  const sharedBy = useMemo(() => {
-    if (moreHighlightsCount < 1) return undefined
-    return props.publicArticle.highlights[0].user
-  }, [moreHighlightsCount, props.publicArticle.highlights])
+  // const sharedBy = useMemo(() => {
+  //   if (moreHighlightsCount < 1) return undefined
+  //   return props.publicArticle.highlights[0].user
+  // }, [moreHighlightsCount, props.publicArticle.highlights])
 
   const articleSite = useMemo(() => {
     try {
@@ -124,7 +124,7 @@ function LoadedContent(props: LoadedContentProps): JSX.Element {
         site={articleSite}
       />
 
-      {!showAllHighlights && moreHighlightsCount > 0 && sharedBy && (
+      {!showAllHighlights && moreHighlightsCount > 0 && (
         <Button onClick={() => setShowAllHighlights(true)}>
           <Box
             css={{ width: '8px', color: '$grayBackground', mr: '4px' }}
@@ -132,7 +132,7 @@ function LoadedContent(props: LoadedContentProps): JSX.Element {
           />
           Read {moreHighlightsCount} more highlight
           {moreHighlightsCount > 1 ? 's ' : ' '}
-          from {sharedBy.name}
+          {/* from {sharedBy.name} */}
         </Button>
       )}
 
