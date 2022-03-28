@@ -1,11 +1,11 @@
 import { StyledText } from './StyledText'
 
-type LabelProps = {
+type LabelChipProps = {
   text: string
   color: string // expected to be a RGB hex color string
 }
 
-export function Label(props: LabelProps): JSX.Element {
+export function LabelChip(props: LabelChipProps): JSX.Element {
   const hexToRgb = (hex: string) => {
     const bigint = parseInt(hex.substring(1), 16)
     const r = (bigint >> 16) & 255

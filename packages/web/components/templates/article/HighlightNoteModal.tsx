@@ -17,7 +17,7 @@ import { readableUpdatedAtMessage } from './../../../lib/dateFormatting'
 import { useConfirmListener } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { createHighlight } from '../../../lib/highlights/createHighlight'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import toast from 'react-hot-toast'
+import { showErrorToast } from '../../../lib/toastHelpers'
 
 type HighlightNoteModalProps = {
   author: string
@@ -59,14 +59,14 @@ export function HighlightNoteModal(
         props.onUpdate({ ...props.highlight, annotation: noteContent })
         props.onOpenChange(false)
       } else {
-        toast.error('Error updating your note', { position: 'bottom-right' })
+        showErrorToast('Error updating your note', { position: 'bottom-right' })
       }
     } if (!props.highlight && props.createHighlightForNote) {
       const result = await props.createHighlightForNote(noteContent)
       if (result) {
         props.onOpenChange(true)
       } else {
-        toast.error('Error saving highlight', { position: 'bottom-right' })
+        showErrorToast('Error saving highlight', { position: 'bottom-right' })
       }
     } else {
       props.onOpenChange(false)

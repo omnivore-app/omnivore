@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { Highlight } from './../fragments/highlightFragment'
+import { Highlight, highlightFragment } from './../fragments/highlightFragment'
 
 export type CreateHighlightInput = {
   prefix: string
@@ -28,7 +28,7 @@ export async function createHighlightMutation(
       createHighlight(input: $input) {
         ... on CreateHighlightSuccess {
           highlight {
-            ...NewHighlight
+            ...HighlightFields
           }
         }
 
@@ -37,7 +37,7 @@ export async function createHighlightMutation(
         }
       }
     }
-    ${NewHighlightFragment}
+    ${highlightFragment}
   `
 
   try {
@@ -48,28 +48,3 @@ export async function createHighlightMutation(
     return undefined
   }
 }
-
-const NewHighlightFragment = gql`
-  fragment NewHighlight on Highlight {
-    id
-    shortId
-    quote
-    prefix
-    suffix
-    patch
-    createdAt
-    updatedAt
-    annotation
-    sharedAt
-    user {
-      id
-      name
-      profile {
-        id
-        pictureUrl
-        username
-      }
-    }
-    createdByMe
-  }
-`

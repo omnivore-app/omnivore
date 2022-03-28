@@ -4,7 +4,7 @@ import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { X, Check } from 'phosphor-react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
+import { showErrorToast } from '../../../lib/toastHelpers'
 
 type ShareArticleModalProps = {
   onOpenChange: (open: boolean) => void
@@ -149,7 +149,7 @@ export function SnoozeLinkModal(
                   props.submit(snoozeOption, sendReminder, msg)
                   props.onOpenChange(false)
                 } else {
-                  toast.error('No option selected', { position: 'bottom-right' })
+                  showErrorToast('No option selected', { position: 'bottom-right' })
                 }
               }}
             >Save</Button>
