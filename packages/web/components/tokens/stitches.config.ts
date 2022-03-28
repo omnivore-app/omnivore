@@ -213,7 +213,7 @@ const darkThemeSpec = {
     avatarFont: 'rgba(255, 255, 255, 0.8)',
   },
   shadows: {
-    cardBoxShadow: '0px 0px 9px -2px rgba(255, 255, 255, 0.16), 0px 7px 12px rgba(255, 255, 255, 0.13)',
+    cardBoxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)'
   }
 }
 
