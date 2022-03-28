@@ -431,17 +431,8 @@ type HomeFeedContentProps = {
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
-  const viewerData  = {
-    me: {
-      id: '1',
-      name: 'youssouf',
-      isFullUser: true,
-      profile: {
-        id: '1',
-        username: 'marzouk'
-      }
-    }
-  }
+  const { viewerData } = useGetViewerQuery()
+
   const { preferencesData, isValidating: isValidatingPreferences } =
     useGetUserPreferences()
   const [layout, setLayout] = useState<LayoutType>(
