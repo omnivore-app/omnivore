@@ -129,6 +129,8 @@ let homeFeedItemSelection = Selection.Article {
   FeedItem(
     id: try $0.id(),
     title: try $0.title(),
+    createdAt: try $0.createdAt().value ?? Date(),
+    savedAt: try $0.savedAt().value ?? Date(),
     readingProgress: try $0.readingProgressPercent(),
     readingProgressAnchor: try $0.readingProgressAnchorIndex(),
     imageURLString: try $0.image(),
