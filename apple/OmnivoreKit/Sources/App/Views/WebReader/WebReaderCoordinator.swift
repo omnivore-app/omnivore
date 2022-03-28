@@ -69,6 +69,10 @@ extension WebReaderCoordinator: WKNavigationDelegate {
       webView.backgroundColor = .systemBackground
     #endif
   }
+
+  func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+    self.needsReload = true
+  }
 }
 
 #if os(iOS)
