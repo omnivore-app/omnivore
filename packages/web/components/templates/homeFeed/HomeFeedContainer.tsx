@@ -431,7 +431,17 @@ type HomeFeedContentProps = {
 }
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
+  const viewerData  = {
+    me: {
+      id: '1',
+      name: 'youssouf',
+      isFullUser: true,
+      profile: {
+        id: '1',
+        username: 'marzouk'
+      }
+    }
+  }
   const { preferencesData, isValidating: isValidatingPreferences } =
     useGetUserPreferences()
   const [layout, setLayout] = useState<LayoutType>(
@@ -591,7 +601,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                     props.actionHandler(action, linkedItem)
                   }}
                 />
-              )}
+               )}
             </Box>
           ))}
         </Box>
