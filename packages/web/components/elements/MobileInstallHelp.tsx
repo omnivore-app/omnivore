@@ -223,7 +223,7 @@ export default function MobileInstallHelp(): JSX.Element {
                       height: 35,
                       width: 35,
                       cursor: 'pointer',
-                      backgroundColor: '#F5F5F4',
+                      backgroundColor: '$tooltipIcons',
                       ...(selectedTooltip !== item.label && {
                         filter: 'grayscale(1)',
                       }),
@@ -234,7 +234,6 @@ export default function MobileInstallHelp(): JSX.Element {
                         filter: 'grayscale(0)',
                       },
                       '@lg': {
-                        backgroundColor: '$tooltipIcons',
                         transition: 'filter .3s linear',
                         '&:hover': {
                           filter: 'grayscale(0)',
