@@ -53,7 +53,8 @@ export const TooltipContent = StyledContent
 export const TooltipArrow = StyledArrow
 
 type TooltipWrappedProps = {
-  tooltipContent: string
+  tooltipContent: string;
+  active?: boolean;
   tooltipSide?: TooltipPrimitive.TooltipContentProps['side']
   align?: TooltipPrimitive.TooltipContentProps['align']
   alignOffset?: TooltipPrimitive.TooltipContentProps['alignOffset']
@@ -63,12 +64,13 @@ type TooltipWrappedProps = {
 
 export const TooltipWrapped: FC<TooltipWrappedProps> = ({
   children,
+  active,
   tooltipContent,
   tooltipSide,
   ...props
 }) => {
   return (
-    <Tooltip>
+    <Tooltip open={active}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent sideOffset={5} side={tooltipSide} {...props}>
         {tooltipContent}

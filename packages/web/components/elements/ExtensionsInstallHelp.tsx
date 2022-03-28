@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, HStack } from '../elements/LayoutPrimitives'
-import { StyledImg, StyledText } from '../elements/StyledText'
+import { StyledText, StyledAnchor } from '../elements/StyledText'
 import { AngleDownIcon } from '../tokens/icons/AngleDownIcon'
 import { Button } from './Button'
 import { Dropdown, DropdownOption, DropdownSeparator } from './DropdownElements'
@@ -8,12 +8,21 @@ import { ChromeIcon } from './images/ChromeIcon'
 import { EdgeIcon } from './images/EdgeIcon'
 import { FirefoxIcon } from './images/FirefoxIcon'
 import { SafariIcon } from './images/SafariIcon'
+import Link from 'next/link'
+import { SaveArticleIcon } from './images/SaveArticleIcon'
 
 const icons = {
   'Google Chrome': <ChromeIcon />,
   'Microsoft Edge': <EdgeIcon />,
   Firefox: <FirefoxIcon />,
   Safari: <SafariIcon />,
+}
+
+const extensionDownloadLinks = {
+  'Google Chrome': 'https://omnivore.app/install/chrome',
+  Safari: 'https://omnivore.app/install/mac',
+  'Microsoft Edge': 'https://omnivore.app/install/edge',
+  Firefox: 'https://omnivore.app/install/firefox',
 }
 
 const browserOptions = [
@@ -55,9 +64,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
   const [browserValue, setBrowserValue] = React.useState<browserType>(
     browserOptions[0]
   )
-  const handleBrowserUpdate = (e: any) => {
-    setBrowserValue(e)
-  }
+
   return (
     <Box
       css={{
@@ -66,51 +73,69 @@ export default function ExtensionsInstallHelp(): JSX.Element {
         gridTemplateRows: '.5fr .5fr .5fr',
         backgroundColor: '$grayBg',
         padding: '15px',
-        '@md': {
+        '@lg': {
           gridTemplateColumns: '1fr 2fr 1fr',
           gridTemplateRows: '1fr',
           height: '9rem',
         },
       }}
     >
-      <StyledImg
+      <Box
         css={{
           gridColumn: 1 / 2,
           gridRow: 1 / 2,
-          width: 146,
           marginRight: '$3',
-          '@md': {
-            width: 211,
+          minWidth: '170px',
+          maxWidth: '200px',
+          alignSelf: 'center',
+          '@lg': {
+            minWidth: '200px',
             gridColumn: '1',
             gridRow: '1',
           },
+          backgroundColor: '$grayBase',
+          display: 'flex',
+          position: 'relative',
+          height: '116px',
         }}
-        src="/static/media/about/save-article.png"
-        alt="Save articles"
-      />
+      >
+        <Box
+          css={{
+            position: 'absolute',
+            top: '-15px',
+            height: '130px',
+          }}
+        >
+          <SaveArticleIcon />
+        </Box>
+      </Box>
       <Box
         css={{
           gridColumn: '2',
           gridRow: '1',
-          '@md': {
+          display: 'flex',
+          flexDirection: 'column',
+          '@lg': {
             marginTop: '$3',
           },
         }}
       >
-        <StyledText
-          css={{
-            fontWeight: '600',
-            fontSize: '12px',
-            lineHeight: '18px',
-            textAlign: 'right',
-            color: '$grayTextContrast',
-            '@md': {
-              display: 'none',
-            },
-          }}
-        >
-          Learn more
-        </StyledText>
+        <Link passHref href="/help/saving-links">
+          <StyledAnchor
+            css={{
+              fontWeight: '600',
+              fontSize: '12px',
+              lineHeight: '18px',
+              textAlign: 'right',
+              color: '$grayTextContrast',
+              '@lg': {
+                display: 'none',
+              },
+            }}
+          >
+            Learn more
+          </StyledAnchor>
+        </Link>
         <StyledText
           as={'h3'}
           css={{
@@ -120,7 +145,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
             marginBottom: 0,
             color: '$grayTextContrast',
             lineHeight: '22.5px',
-            '@md': {
+            '@lg': {
               fontSize: '16px',
               lineHeight: '20px',
             },
@@ -139,7 +164,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
           gridColumn: '1 / span 3',
           gridRow: '2 / 3',
           alignSelf: 'center',
-          '@md': {
+          '@lg': {
             gridColumn: '2',
             gridRow: '1',
             alignSelf: 'center',
@@ -150,22 +175,22 @@ export default function ExtensionsInstallHelp(): JSX.Element {
         Installing the Omnivore browser extension is the best way to save pages
         to Omnivore from your computer.
         <br />
-        <StyledText
-          // as={Link}
-          css={{
-            color: '$grayTextContrast',
-            fontSize: '14px',
-            fontWeight: 600,
-            display: 'none',
-            '@md': {
-              display: 'initial',
-              textDecoration: 'underline',
-            },
-          }}
-          // href="/"
-        >
-          Learn more about the browser extension here.
-        </StyledText>
+        <Link passHref href="/help/saving-links">
+          <StyledAnchor
+            css={{
+              color: '$grayTextContrast',
+              fontSize: '14px',
+              fontWeight: 600,
+              display: 'none',
+              '@lg': {
+                display: 'initial',
+                textDecoration: 'underline',
+              },
+            }}
+          >
+            Learn more about the browser extension here.
+          </StyledAnchor>
+        </Link>
       </StyledText>
       <HStack
         css={{
@@ -175,7 +200,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
           gridColumn: '1 / span 2',
           width: '100%',
           justifyContent: 'space-between',
-          '@md': {
+          '@lg': {
             gridColumn: '3',
             gridRow: '1',
           },
@@ -193,9 +218,8 @@ export default function ExtensionsInstallHelp(): JSX.Element {
                 height: '38px',
                 border: '1px solid #F9D354',
                 width: '60vw',
-                '@md': {
+                '@lg': {
                   width: '190px',
-                  boxShadow: '$cardBoxShadow',
                 },
               }}
             >
@@ -244,10 +268,14 @@ export default function ExtensionsInstallHelp(): JSX.Element {
           ))}
         </Dropdown>
         <Button
+          as="a"
+          target="_blank"
+          href={extensionDownloadLinks[browserValue]}
           css={{
             marginLeft: '8px',
             height: 'min-content',
-            '@mdDown': {
+            textDecoration: 'none',
+            '@lgDown': {
               width: '27vw',
             },
           }}

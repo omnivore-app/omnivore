@@ -154,3 +154,7 @@ export const StyledList = styled('ul', {
 
 export const StyledImg = styled('img', {
 })
+
+export const StyledAnchor = styled('a', {
+  textDecoration: 'none'
+})

@@ -1,11 +1,14 @@
+import React from 'react'
 import {
   Desktop,
   DeviceTabletSpeaker,
   DeviceMobileCamera,
 } from 'phosphor-react'
 import { Box, HStack } from '../elements/LayoutPrimitives'
-import { StyledText, StyledImg } from '../elements/StyledText'
+import { StyledText, StyledImg, StyledAnchor } from '../elements/StyledText'
 import { TooltipWrapped } from './Tooltip'
+import Link from 'next/link'
+import { InstallationIcon } from './images/InstallationIcon'
 
 const TooltipStyle = {
   backgroundColor: '#F9D354',
@@ -13,6 +16,8 @@ const TooltipStyle = {
 }
 
 export default function MobileInstallHelp(): JSX.Element {
+  const [selectedTooltip, setSelectedTooltip] =
+    React.useState<string>('Available for Mac')
   const platformSizes = [
     {
       label: 'Available for Mac',
@@ -35,7 +40,7 @@ export default function MobileInstallHelp(): JSX.Element {
         gridTemplateRows: '.5fr .5fr .5fr',
         backgroundColor: '$grayBg',
         padding: '15px',
-        '@md': {
+        '@lg': {
           marginTop: '0',
           paddingTop: '0',
           gridTemplateColumns: '1fr 2fr 1fr',
@@ -44,45 +49,62 @@ export default function MobileInstallHelp(): JSX.Element {
         },
       }}
     >
-      <StyledImg
+      <Box
         css={{
           gridColumn: 1 / 2,
           gridRow: 1 / 2,
           marginRight: '$3',
-          '@mdDown': {
-            width: '146px',
-          },
-          '@md': {
+          minWidth: '170px',
+          maxWidth: '200px',
+          alignSelf: 'center',
+          '@lg': {
+            minWidth: '200px',
             gridColumn: '1',
             gridRow: '1',
           },
+          backgroundColor: '$grayBase',
+          display: 'flex',
+          position: 'relative',
+          height: '116px',
         }}
-        src="/static/images/installation.png"
-        alt="Save articles"
-      />
+      >
+        <Box
+          css={{
+            position: 'absolute',
+            top: '-15px',
+            height: '130px',
+          }}
+        >
+          <InstallationIcon />
+        </Box>
+      </Box>
       <Box
         css={{
           gridColumn: '2',
           gridRow: '1',
-          '@md': {
+          display: 'flex',
+          flexDirection: 'column',
+          '@lg': {
             marginTop: '$4',
           },
         }}
       >
-        <StyledText
-          css={{
-            fontWeight: '600',
-            fontSize: '12px',
-            lineHeight: '18px',
-            textAlign: 'right',
-            color: '$grayTextContrast',
-            '@md': {
-              display: 'none',
-            },
-          }}
-        >
-          Learn more
-        </StyledText>
+        <Link passHref href="/help/saving-links">
+          <StyledAnchor
+            css={{
+              fontWeight: '600',
+              fontSize: '12px',
+              lineHeight: '18px',
+              textAlign: 'right',
+              color: '$grayTextContrast',
+              '@lg': {
+                display: 'none',
+              },
+            }}
+          >
+            Learn more
+          </StyledAnchor>
+        </Link>
         <StyledText
           as={'h3'}
           css={{
@@ -92,7 +114,7 @@ export default function MobileInstallHelp(): JSX.Element {
             marginBottom: 0,
             color: '$grayTextContrast',
             lineHeight: '22.5px',
-            '@md': {
+            '@lg': {
               fontSize: '16px',
               lineHeight: '20px',
             },
@@ -112,7 +134,7 @@ export default function MobileInstallHelp(): JSX.Element {
           gridColumn: '1 / span 3',
           gridRow: '2 / 3',
           alignSelf: 'center',
-          '@md': {
+          '@lg': {
             gridColumn: '2',
             gridRow: '1',
             alignSelf: 'center',
@@ -123,22 +145,22 @@ export default function MobileInstallHelp(): JSX.Element {
         With the Omnivore iOS app installed you can save any link using our
         share extension.
         <br />
-        <StyledText
-          // as={Link}
-          css={{
-            color: '$grayTextContrast',
-            fontSize: '14px',
-            fontWeight: 600,
-            display: 'none',
-            '@md': {
-              display: 'initial',
-              textDecoration: 'underline',
-            },
-          }}
-          // href="/"
-        >
-          Learn more about the share extension here.
-        </StyledText>
+        <Link passHref href="/help/saving-links">
+          <StyledAnchor
+            css={{
+              color: '$grayTextContrast',
+              fontSize: '14px',
+              fontWeight: 600,
+              display: 'none',
+              '@lg': {
+                display: 'initial',
+                textDecoration: 'underline',
+              },
+            }}
+          >
+            Learn more about the share extension here.
+          </StyledAnchor>
+        </Link>
       </StyledText>
       <HStack
         css={{
@@ -147,7 +169,7 @@ export default function MobileInstallHelp(): JSX.Element {
           alignItems: 'center',
           gridColumn: '1 / span 2',
           justifyContent: 'space-between',
-          '@md': {
+          '@lg': {
             flexDirection: 'row-reverse',
             gridColumn: '3',
             gridRow: '1',
@@ -157,7 +179,8 @@ export default function MobileInstallHelp(): JSX.Element {
         <StyledImg
           css={{
             width: '45%',
-            '@md': {
+            maxWidth: '150px',
+            '@lg': {
               marginLeft: '$3',
               width: '50%',
             },
@@ -169,7 +192,8 @@ export default function MobileInstallHelp(): JSX.Element {
           css={{
             width: '40%',
             justifyContent: 'space-between',
-            '@md': {
+            maxWidth: '13rem',
+            '@lg': {
               width: '100%',
             },
           }}
@@ -184,32 +208,43 @@ export default function MobileInstallHelp(): JSX.Element {
             >
               <Box
                 css={{
-                  borderRadius: '50%',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 35,
-                  width: 35,
                   ml: '$1',
-                  cursor: 'pointer',
-                  backgroundColor: '#F5F5F4',
-                  filter: 'grayscale(1)',
-                  '&:focus': {
-                    filter: 'grayscale(0)',
-                  },
-                  '&:active': {
-                    filter: 'grayscale(0)',
-                  },
-                  '@md': {
-                    backgroundColor: '$tooltipIcons',
-                    transition: 'filter .3s linear',
-                    '&:hover': {
-                      filter: 'grayscale(0)',
-                    },
-                  },
                 }}
               >
-                {item.icon}
+                <Link href="/install/apple" passHref>
+                  <StyledAnchor
+                    onClick={() => setSelectedTooltip(item.label)}
+                    css={{
+                      mx: 'auto',
+                      borderRadius: '50%',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: 35,
+                      width: 35,
+                      cursor: 'pointer',
+                      backgroundColor: '#F5F5F4',
+                      ...(selectedTooltip !== item.label && {
+                        filter: 'grayscale(1)',
+                      }),
+                      '&:focus': {
+                        filter: 'grayscale(0)',
+                      },
+                      '&:active': {
+                        filter: 'grayscale(0)',
+                      },
+                      '@lg': {
+                        backgroundColor: '$tooltipIcons',
+                        transition: 'filter .3s linear',
+                        '&:hover': {
+                          filter: 'grayscale(0)',
+                        },
+                      },
+                    }}
+                  >
+                    {item.icon}
+                  </StyledAnchor>
+                </Link>
               </Box>
             </TooltipWrapped>
           ))}
