@@ -171,7 +171,6 @@ export const createPage = async (
       body: {
         ...page,
         updatedAt: new Date(),
-        createdAt: new Date(),
         savedAt: new Date(),
       },
       refresh: ctx.refresh,
@@ -490,6 +489,44 @@ export const searchPages = async (
   } catch (e) {
     console.error('failed to search pages in elastic', e)
     return undefined
+  }
+}
+
+export const countByCreatedAt = async (
+  userId: string,
+  from?: number,
+  to?: number
+): Promise<number> => {
+  try {
+    const { body } = await client.count({
+      index: INDEX_ALIAS,
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                range: {
+                  createdAt: {
+                    gte: from,
+                    lte: to,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    return body.count as number
+  } catch (e) {
+    console.error('failed to count pages in elastic', e)
+    return 0
   }
 }
 
