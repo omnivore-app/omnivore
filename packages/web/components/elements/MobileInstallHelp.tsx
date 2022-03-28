@@ -24,11 +24,11 @@ export default function MobileInstallHelp(): JSX.Element {
       icon: <Desktop color="#F9D354" />,
     },
     {
-      label: 'Available for Tablet',
+      label: 'Available for iPad',
       icon: <DeviceTabletSpeaker color="#F9D354" />,
     },
     {
-      label: 'Available for Phone',
+      label: 'Available for iPhone',
       icon: <DeviceMobileCamera color="#F9D354" />,
     },
   ]
@@ -211,39 +211,37 @@ export default function MobileInstallHelp(): JSX.Element {
                   ml: '$1',
                 }}
               >
-                <Link href="/install/apple" passHref>
-                  <StyledAnchor
-                    onClick={() => setSelectedTooltip(item.label)}
-                    css={{
-                      mx: 'auto',
-                      borderRadius: '50%',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: 35,
-                      width: 35,
-                      cursor: 'pointer',
-                      backgroundColor: '$tooltipIcons',
-                      ...(selectedTooltip !== item.label && {
-                        filter: 'grayscale(1)',
-                      }),
-                      '&:focus': {
+                <StyledAnchor
+                  onClick={() => setSelectedTooltip(item.label)}
+                  css={{
+                    mx: 'auto',
+                    borderRadius: '50%',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 35,
+                    width: 35,
+                    cursor: 'pointer',
+                    backgroundColor: '$tooltipIcons',
+                    ...(selectedTooltip !== item.label && {
+                      filter: 'grayscale(1)',
+                    }),
+                    '&:focus': {
+                      filter: 'grayscale(0)',
+                    },
+                    '&:active': {
+                      filter: 'grayscale(0)',
+                    },
+                    '@lg': {
+                      transition: 'filter .3s linear',
+                      '&:hover': {
                         filter: 'grayscale(0)',
                       },
-                      '&:active': {
-                        filter: 'grayscale(0)',
-                      },
-                      '@lg': {
-                        transition: 'filter .3s linear',
-                        '&:hover': {
-                          filter: 'grayscale(0)',
-                        },
-                      },
-                    }}
-                  >
-                    {item.icon}
-                  </StyledAnchor>
-                </Link>
+                    },
+                  }}
+                >
+                  {item.icon}
+                </StyledAnchor>
               </Box>
             </TooltipWrapped>
           ))}
