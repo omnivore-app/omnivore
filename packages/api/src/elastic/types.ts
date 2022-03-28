@@ -184,6 +184,7 @@ export interface Page {
   siteName?: string
   _id?: string
   siteIcon?: string
+  highlights?: Highlight[]
 }
 
 export interface SearchItem {
