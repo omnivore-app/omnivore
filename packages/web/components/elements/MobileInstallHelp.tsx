@@ -176,18 +176,13 @@ export default function MobileInstallHelp(): JSX.Element {
           },
         }}
       >
-        <StyledImg
-          css={{
-            width: '45%',
-            maxWidth: '150px',
-            '@lg': {
-              marginLeft: '$3',
-              width: '50%',
-            },
-          }}
-          src="/static/media/appStoreBadge.png"
-          alt="Save articles"
-        />
+        <Box css={{ width: '100%', height: '37px', '@lg': {
+          pl: '16px',
+        }}}>
+        <a href="/install/ios" style={{ display: 'inlineBlock', overflow: 'hidden' }}>
+          <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=90x37&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3" alt="Download on the App Store" style={{  }} />
+        </a>
+        </Box>
         <HStack
           css={{
             width: '40%',
