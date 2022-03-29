@@ -5,7 +5,7 @@ import { Button } from '../../elements/Button'
 import { TooltipWrapped } from '../../elements/Tooltip'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { styled, theme } from '../../tokens/stitches.config'
-import { DotsThree, X, TextAa } from 'phosphor-react'
+import { DotsThree, X, TextAa, ArchiveBox, Tag } from 'phosphor-react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { OutsideClickWrapper } from '../../elements/OutsideClickWrapper'
 
@@ -14,7 +14,7 @@ type FloatingActionButtonsProps = {
   fontSize: number,
 }
 
-type Actions = 'font' | undefined;
+type Actions = 'font' | 'archive' | 'label' | undefined;
 
 const BorderStyles = {
   borderWidth: 1,
@@ -121,10 +121,24 @@ export function FloatingActionButtons(
         </ActionContainerButton>
         {(showButtons && !currentAction) && (
           <HStack distribution="evenly" alignment='end' css={{gap: '$2'}}>
-            <TooltipWrapped tooltipContent='Increase or Decrease Font Sizes' side='top' align='center'>
+            <TooltipWrapped tooltipContent='Increase or decrease font sizes' side='top' align='center'>
               <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('font')}>
                 <FlexContainer>
                   <TextAa color={iconColor} size={24} />
+                </FlexContainer>
+              </ActionContainerButton>
+            </TooltipWrapped>
+            <TooltipWrapped tooltipContent='Move to archive' side='top' align='center'>
+              <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('archive')}>
+                <FlexContainer>
+                  <ArchiveBox color={iconColor} size={24} />
+                </FlexContainer>
+              </ActionContainerButton>
+            </TooltipWrapped>
+            <TooltipWrapped tooltipContent='Add labels' side='top' align='center'>
+              <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('label')}>
+                <FlexContainer>
+                  <Tag color={iconColor} size={24} />
                 </FlexContainer>
               </ActionContainerButton>
             </TooltipWrapped>
