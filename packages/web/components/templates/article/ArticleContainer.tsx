@@ -185,6 +185,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         setShowNotesSidebar={setShowNotesSidebar}
         articleMutations={props.articleMutations}
       />
+      {!props.isAppleAppEmbed && (
+        <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
+      )}
       {showReportIssuesModal ? (
         <ReportIssuesModal
           onCommit={(comment: string) => {
@@ -198,7 +201,18 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           onOpenChange={(open: boolean) => setShowReportIssuesModal(open)}
         />
       ) : null}
-      <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
+      {showLabelsModal && (
+        <EditLabelsModal
+          labels={props.article.labels || []}
+          article={props.article}
+          onOpenChange={() => {
+            setShowLabelsModal(false)
+          }}
+          setLabels={(labels: Label[]) => {
+            setLabels(labels)
+          }}
+        />
+      )}
       {/* {showShareModal && (
         <ShareArticleModal
           url={`${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights?r=true`}
@@ -209,18 +223,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           description={props.article.description}
           originalArticleUrl={props.article.originalArticleUrl}
           onOpenChange={(open: boolean) => setShowShareModal(open)}
-        />
-      )}
-      {showLabelsModal && (
-        <EditLabelsModal
-          labels={labels}
-          article={props.article}
-          onOpenChange={() => {
-            setShowLabelsModal(false)
-          }}
-          setLabels={(labels: string[]) => {
-            setLabels(labels)
-          }}
         />
       )} */}
     </>

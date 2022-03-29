@@ -65,17 +65,6 @@ type TooltipWrappedProps = {
   style?: TooltipPrimitive.TooltipContentProps['style']
 }
 
-const StyledArrow = styled(TooltipPrimitive.Arrow, {
-  fill: '#1C1C1E',
-})
-
-export const TooltipProvider = TooltipPrimitive.Provider
-export const Tooltip = TooltipPrimitive.Root
-export const TooltipTrigger = TooltipPrimitive.Trigger
-export const TooltipContent = StyledContent
-export const TooltipArrow = StyledArrow
-
-
 export const TooltipWrapped: FC<TooltipWrappedProps> = ({
   children,
   active,
