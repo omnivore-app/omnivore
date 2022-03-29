@@ -29,6 +29,7 @@ type HighlightsLayerProps = {
   highlightsBaseURL: string
   setShowNotesSidebar: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
+  setShowActionButtons?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type HighlightModalAction = 'none' | 'addComment' | 'share'
@@ -64,6 +65,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   )
 
   const canShareNative = useCanShareNative()
+
+  useEffect(() => {
+    const show = !focusedHighlight && !selectionData
+    if (props.setShowActionButtons) {
+      props.setShowActionButtons(show)
+    }
+  }, [focusedHighlight, selectionData])
 
   // Load the highlights
   useEffect(() => {

@@ -34,6 +34,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const [showActionButtons, setShowActionButtons] = useState(true)
   const [labels, setLabels] = useState(
     props.article.labels?.map((l) => l.id) || []
   )
@@ -184,8 +185,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         highlightsBaseURL={props.highlightsBaseURL}
         setShowNotesSidebar={setShowNotesSidebar}
         articleMutations={props.articleMutations}
+        setShowActionButtons={setShowActionButtons}
       />
-      {!props.isAppleAppEmbed && (
+      {!props.isAppleAppEmbed && showActionButtons && (
         <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
       )}
       {showReportIssuesModal ? (
