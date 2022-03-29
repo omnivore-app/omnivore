@@ -272,6 +272,7 @@ export const createArticleResolver = authorized<
         createdAt: saveTime,
         savedAt: saveTime,
         siteName: parsedContent?.siteName,
+        siteIcon: parsedContent?.siteIcon,
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
       }

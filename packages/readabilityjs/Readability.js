@@ -1880,6 +1880,16 @@ Readability.prototype = {
     metadata.siteName = jsonld.siteName ||
       values["og:site_name"];
 
+    // get website icon
+    const iconLink = this._doc.querySelector(
+      "link[rel='apple-touch-icon']"
+    ) || this._doc.querySelector(
+      "link[rel='shortcut icon']"
+    ) || this._doc.querySelector(
+      "link[rel='icon']"
+    );
+    metadata.siteIcon = iconLink ? iconLink.href : '';
+
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
       values["date"] ||
@@ -1907,6 +1917,7 @@ Readability.prototype = {
     metadata.byline = this._unescapeHtmlEntities(metadata.byline);
     metadata.excerpt = this._unescapeHtmlEntities(metadata.excerpt);
     metadata.siteName = this._unescapeHtmlEntities(metadata.siteName);
+    metadata.siteIcon = this._unescapeHtmlEntities(metadata.siteIcon);
     metadata.previewImage = this._unescapeHtmlEntities(metadata.previewImage);
 
     if (metadata.previewImage) {
@@ -2876,6 +2887,7 @@ Readability.prototype = {
       length: textContent.length,
       excerpt: metadata.excerpt,
       siteName: metadata.siteName || this._articleSiteName,
+      siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
     };

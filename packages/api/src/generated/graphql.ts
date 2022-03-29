@@ -66,6 +66,8 @@ export type Article = {
   savedByViewer?: Maybe<Scalars['Boolean']>;
   sharedComment?: Maybe<Scalars['String']>;
   shareInfo?: Maybe<LinkShareInfo>;
+  siteIcon?: Maybe<Scalars['String']>;
+  siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   title: Scalars['String'];
   uploadFileId?: Maybe<Scalars['ID']>;
@@ -2406,6 +2408,8 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
+  siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
