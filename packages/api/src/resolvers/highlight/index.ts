@@ -30,7 +30,11 @@ import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
 import { Highlight as HighlightData } from '../../elastic/types'
 import { getPageById, updatePage } from '../../elastic/pages'
-import { addHighlightToPage } from '../../elastic/highlights'
+import {
+  addHighlightToPage,
+  deleteHighlight,
+  getHighlightById,
+} from '../../elastic/highlights'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
@@ -241,8 +245,8 @@ export const deleteHighlightResolver = authorized<
   DeleteHighlightSuccess,
   DeleteHighlightError,
   MutationDeleteHighlightArgs
->(async (_, { highlightId }, { authTrx, models, claims, log }) => {
-  const highlight = await models.highlight.get(highlightId)
+>(async (_, { highlightId }, { claims, log, pubsub }) => {
+  const highlight = await getHighlightById(highlightId)
 
   if (!highlight?.id) {
     return {
@@ -256,18 +260,19 @@ export const deleteHighlightResolver = authorized<
     }
   }
 
-  const deletedHighlight = await authTrx((tx) =>
-    models.highlight.delete(highlightId, tx)
-  )
+  const deleted = await deleteHighlight(highlightId, {
+    pubsub,
+    uid: claims.uid,
+  })
 
-  if ('error' in deletedHighlight) {
+  if (!deleted) {
     return {
       errorCodes: [DeleteHighlightErrorCode.NotFound],
     }
   }
 
   log.info('Deleting a highlight', {
-    deletedHighlight,
+    highlight,
     labels: {
       source: 'resolver',
       resolver: 'deleteHighlightResolver',
@@ -275,7 +280,7 @@ export const deleteHighlightResolver = authorized<
     },
   })
 
-  return { highlight: highlightDataToHighlight(deletedHighlight) }
+  return { highlight: highlightDataToHighlight(highlight) }
 })
 
 export const setShareHighlightResolver = authorized<
