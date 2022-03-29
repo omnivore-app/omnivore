@@ -29,7 +29,6 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
     const result = await setLabelsMutation(props.article.id, selectedLabels.map((l) => l.id))
     console.log('result of setting labels', result)
     props.onOpenChange(false)
-    props.setLabels(selectedLabels)
   }, [props, selectedLabels])
 
   const handleChange = useCallback(
