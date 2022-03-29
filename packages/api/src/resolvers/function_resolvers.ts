@@ -394,32 +394,33 @@ export const functionResolvers = {
         : ContentReader.Web
     },
     async highlights(
-      article: { id: string; userId?: string },
+      article: { id: string; userId?: string; highlights?: Highlight[] },
       _: { input: ArticleHighlightsInput },
       ctx: WithDataSourcesContext
     ) {
-      const includeFriends = false
-      // TODO: this is a temporary solution until we figure out how collaborative approach would look like
-      // article has userId only if it's returned by getSharedArticle resolver
-      if (article.userId) {
-        const result = await ctx.models.highlight.getForUserArticle(
-          article.userId,
-          article.id
-        )
-        return result
-      }
-
-      const friendsIds =
-        ctx.claims?.uid && includeFriends
-          ? await ctx.models.userFriends.getFriends(ctx.claims?.uid)
-          : []
-
-      // FIXME: Move this filtering logic to the datalayer
-      return (await ctx.models.highlight.batchGet(article.id)).filter((h) =>
-        [...(includeFriends ? friendsIds : []), ctx.claims?.uid || ''].some(
-          (u) => u === h.userId
-        )
-      )
+      // const includeFriends = false
+      // // TODO: this is a temporary solution until we figure out how collaborative approach would look like
+      // // article has userId only if it's returned by getSharedArticle resolver
+      // if (article.userId) {
+      //   const result = await ctx.models.highlight.getForUserArticle(
+      //     article.userId,
+      //     article.id
+      //   )
+      //   return result
+      // }
+      //
+      // const friendsIds =
+      //   ctx.claims?.uid && includeFriends
+      //     ? await ctx.models.userFriends.getFriends(ctx.claims?.uid)
+      //     : []
+      //
+      // // FIXME: Move this filtering logic to the datalayer
+      // return (await ctx.models.highlight.batchGet(article.id)).filter((h) =>
+      //   [...(includeFriends ? friendsIds : []), ctx.claims?.uid || ''].some(
+      //     (u) => u === h.userId
+      //   )
+      // )
+      return article.highlights || []
     },
     async shareInfo(
       article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },

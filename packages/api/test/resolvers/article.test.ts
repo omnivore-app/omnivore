@@ -136,6 +136,9 @@ const getArticleQuery = (slug: string) => {
         article {
           id
           slug
+          highlights {
+            id
+          }
         }
       }
       ... on ArticleError {
@@ -302,6 +305,7 @@ describe('Article API', () => {
 
   describe('GetArticle', () => {
     const realSlug = 'testing-is-really-fun-with-omnivore'
+
     let query = ''
     let slug = ''
     let pageId: string | undefined
@@ -321,6 +325,15 @@ describe('Article API', () => {
         readingProgressAnchorIndex: 0,
         url: 'https://blog.omnivore.app/test-with-omnivore',
         savedAt: new Date(),
+        highlights: [
+          {
+            id: 'test id',
+            shortId: 'test short id',
+            createdAt: new Date(),
+            patch: 'test patch',
+            quote: 'test quote',
+          },
+        ],
       } as Page
       pageId = await createPage(page, ctx)
     })
@@ -335,19 +348,25 @@ describe('Article API', () => {
       query = getArticleQuery(slug)
     })
 
-    context('when article exists', () => {
+    context('when page exists', () => {
       before(() => {
         slug = realSlug
       })
 
-      it('should return the article', async () => {
+      it('should return the page', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.article.article.slug).to.eql(slug)
       })
+
+      it('should return highlights', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.article.article.highlights).to.length(1)
+      })
     })
 
-    context('when article does not exist', () => {
+    context('when page does not exist', () => {
       before(() => {
         slug = 'not-a-real-slug'
       })

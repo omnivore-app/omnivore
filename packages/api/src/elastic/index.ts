@@ -3,13 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
-import {
-  Label,
-  PageType,
-  SortBy,
-  SortOrder,
-  SortParams,
-} from '../generated/graphql'
+import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
 import {
   InFilter,
   LabelFilter,
@@ -17,6 +11,8 @@ import {
   ReadFilter,
 } from '../utils/search'
 import {
+  Highlight,
+  Label,
   Page,
   PageContext,
   ParamSet,
@@ -251,6 +247,46 @@ export const addLabelInPage = async (
     return body.result === 'updated'
   } catch (e) {
     console.error('failed to update a page in elastic', e)
+    return false
+  }
+}
+
+export const addHighlightToPage = async (
+  id: string,
+  highlight: Highlight,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.update({
+      index: INDEX_ALIAS,
+      id,
+      body: {
+        script: {
+          source: `if (ctx._source.highlights == null) { 
+                    ctx._source.highlights = [params.highlight]
+                  } else {
+                    ctx._source.highlights.add(params.highlight) 
+                  }`,
+          lang: 'painless',
+          params: {
+            highlight: highlight,
+          },
+        },
+      },
+      refresh: ctx.refresh,
+      retry_on_conflict: 3,
+    })
+
+    return body.result === 'updated'
+  } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('page has been deleted', id)
+      return false
+    }
+    console.error('failed to add highlight to a page in elastic', e)
     return false
   }
 }
