@@ -139,11 +139,11 @@ export interface Highlight {
   patch: string
   quote: string
   createdAt: Date
-  prefix?: string
-  suffix?: string
-  annotation?: string
-  sharedAt?: Date
-  updatedAt?: Date
+  prefix?: string | null
+  suffix?: string | null
+  annotation?: string | null
+  sharedAt?: Date | null
+  updatedAt?: Date | null
 }
 
 export interface Page {

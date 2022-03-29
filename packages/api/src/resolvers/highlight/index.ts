@@ -27,10 +27,11 @@ import {
   UpdateHighlightSuccess,
   User,
 } from '../../generated/graphql'
-import { HighlightData } from '../../datalayer/highlight/model'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-import { getPageById } from '../../elastic'
+import { addHighlightToPage, getPageById } from '../../elastic'
+import { v4 as uuidv4 } from 'uuid'
+import { HighlightData } from '../../datalayer/highlight/model'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
@@ -46,13 +47,19 @@ export const createHighlightResolver = authorized<
   CreateHighlightSuccess,
   CreateHighlightError,
   MutationCreateHighlightArgs
->(async (_, { input }, { models, claims, log }) => {
-  const { articleId } = input
-  const article = await getPageById(articleId)
+>(async (_, { input }, { claims, log, pubsub }) => {
+  const { articleId: pageId } = input
+  const page = await getPageById(pageId)
 
-  if (!article) {
+  if (!page) {
     return {
       errorCodes: [CreateHighlightErrorCode.NotFound],
+    }
+  }
+
+  if (page.userId !== claims.uid) {
+    return {
+      errorCodes: [CreateHighlightErrorCode.Unauthorized],
     }
   }
 
@@ -60,7 +67,7 @@ export const createHighlightResolver = authorized<
     userId: claims.uid,
     event: 'highlight_created',
     properties: {
-      articleId: article.id,
+      pageId: page.id,
       env: env.server.apiEnv,
     },
   })
@@ -72,12 +79,26 @@ export const createHighlightResolver = authorized<
   }
 
   try {
-    const highlight = await models.highlight.create({
+    const highlight: HighlightData = {
       ...input,
-      articleId: undefined,
+      id: uuidv4(),
+      createdAt: new Date(),
       userId: claims.uid,
-      elasticPageId: article.id,
-    })
+      articleId: page.id,
+      deleted: false,
+      elasticPageId: page.id,
+    }
+
+    if (
+      !(await addHighlightToPage(pageId, highlight, {
+        pubsub,
+        uid: claims.uid,
+      }))
+    ) {
+      return {
+        errorCodes: [CreateHighlightErrorCode.NotFound],
+      }
+    }
 
     log.info('Creating a new highlight', {
       highlight,
