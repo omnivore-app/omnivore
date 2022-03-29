@@ -41,9 +41,6 @@ struct WebReaderContent {
         <div id='_omnivore-htmlContent' style="display: none;">
           \(articleContent.htmlContent)
         </div>
-        <div id='_omnivore-title' style="display: none;">
-          \(item.title)
-        </div>
         <script type="text/javascript">
           window.omnivoreEnv = {
             "NEXT_PUBLIC_APP_ENV": "prod",
@@ -60,7 +57,7 @@ struct WebReaderContent {
             savedAt: \(savedAt),
             publishedAt: \(publishedAt),
             url: `\(item.pageURLString)`,
-            title: document.getElementById('_omnivore-title').innerHTML,
+            title: `\(item.title.replacingOccurrences(of: "`", with: "\\`"))`,
             content: document.getElementById('_omnivore-htmlContent').innerHTML,
             originalArticleUrl: "\(item.pageURLString)",
             contentReader: "WEB",
