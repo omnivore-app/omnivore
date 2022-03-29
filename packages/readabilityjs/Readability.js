@@ -1882,11 +1882,7 @@ Readability.prototype = {
 
     // get website icon
     const iconLink = this._doc.querySelector(
-      "link[rel='apple-touch-icon']"
-    ) || this._doc.querySelector(
-      "link[rel='shortcut icon']"
-    ) || this._doc.querySelector(
-      "link[rel='icon']"
+      "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
     );
     metadata.siteIcon = iconLink ? iconLink.href : '';
 
