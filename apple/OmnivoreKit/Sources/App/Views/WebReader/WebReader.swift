@@ -52,25 +52,12 @@ struct WebReader: UIViewRepresentable {
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
+    loadContent(webView: webView)
 
     return webView
   }
 
   func updateUIView(_ webView: WKWebView, context: Context) {
-    if context.coordinator.needsReload {
-      webView.loadHTMLString(
-        WebReaderContent(
-          articleContent: articleContent,
-          item: item,
-          isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-          fontSize: fontSize()
-        )
-        .styledContent,
-        baseURL: ViewsPackage.bundleURL
-      )
-      context.coordinator.needsReload = false
-    }
-
     if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
       context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
       (webView as? WebView)?.saveAnnotation(annotation: annotation)
@@ -85,5 +72,39 @@ struct WebReader: UIViewRepresentable {
       context.coordinator.previousDecreaseFontActionID = decreaseFontActionID
       (webView as? WebView)?.decreaseFontSize()
     }
+
+    // If the webview had been terminated `needsReload` will have been set to true
+    if context.coordinator.needsReload {
+      loadContent(webView: webView)
+      context.coordinator.needsReload = false
+      return
+    }
+
+    if webView.isLoading { return }
+
+    // If the root element is not detected then `WKWebView` may have unloaded the content
+    // so we need to load it again.
+    webView.evaluateJavaScript("document.getElementById('root') ? true : false") { hasRootElement, _ in
+      guard let hasRootElement = hasRootElement as? Bool else { return }
+
+      if !hasRootElement {
+        DispatchQueue.main.async {
+          loadContent(webView: webView)
+        }
+      }
+    }
+  }
+
+  func loadContent(webView: WKWebView) {
+    webView.loadHTMLString(
+      WebReaderContent(
+        articleContent: articleContent,
+        item: item,
+        isDark: UITraitCollection.current.userInterfaceStyle == .dark,
+        fontSize: fontSize()
+      )
+      .styledContent,
+      baseURL: ViewsPackage.bundleURL
+    )
   }
 }
