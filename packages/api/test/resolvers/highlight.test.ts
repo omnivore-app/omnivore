@@ -147,7 +147,7 @@ describe('Highlights API', () => {
       await graphqlRequest(query, authToken).expect(200)
     })
 
-    xit('should not fail', async () => {
+    it('should not fail', async () => {
       const newHighlightId = generateFakeUuid()
       const newShortHighlightId = '_short_id_2'
       const query = mergeHighlightQuery(
