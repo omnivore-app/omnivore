@@ -47,13 +47,7 @@ export function articleRouter() {
 
     const requestId = uuidv4()
     const models = initModels(kx, false)
-    const result = await createPageSaveRequest(
-      uid,
-      url,
-      models,
-      'high',
-      requestId
-    )
+    const result = await createPageSaveRequest(uid, url, models, requestId)
 
     if (isSiteBlockedForParse(url)) {
       return res

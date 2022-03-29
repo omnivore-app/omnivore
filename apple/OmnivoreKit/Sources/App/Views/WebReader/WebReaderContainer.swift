@@ -21,7 +21,6 @@ struct WebReaderContainerView: View {
   @State var annotation = String()
 
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var authenticator: Authenticator
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   @StateObject var viewModel = WebReaderViewModel()
 
@@ -194,8 +193,6 @@ struct WebReaderContainerView: View {
             }
             navBarVisibilityRatio = $0
           },
-          authToken: authenticator.authToken ?? "",
-          appEnv: dataService.appEnvironment,
           increaseFontActionID: $increaseFontActionID,
           decreaseFontActionID: $decreaseFontActionID,
           annotationSaveTransactionID: $annotationSaveTransactionID,

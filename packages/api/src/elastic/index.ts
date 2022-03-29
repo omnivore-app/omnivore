@@ -25,6 +25,7 @@ import {
 } from './types'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 
 const INDEX_NAME = 'pages'
 const INDEX_ALIAS = 'pages_alias'
@@ -170,7 +171,6 @@ export const createPage = async (
       body: {
         ...page,
         updatedAt: new Date(),
-        createdAt: new Date(),
         savedAt: new Date(),
       },
       refresh: ctx.refresh,
@@ -206,10 +206,17 @@ export const updatePage = async (
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.pageSaved(page, ctx.uid)
+    await ctx.pubsub.pageUpdated({ ...page, id }, ctx.uid)
 
     return true
   } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.info('page has been deleted', id)
+      return false
+    }
     console.error('failed to update a page in elastic', e)
     return false
   }
@@ -482,6 +489,44 @@ export const searchPages = async (
   } catch (e) {
     console.error('failed to search pages in elastic', e)
     return undefined
+  }
+}
+
+export const countByCreatedAt = async (
+  userId: string,
+  from?: number,
+  to?: number
+): Promise<number> => {
+  try {
+    const { body } = await client.count({
+      index: INDEX_ALIAS,
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                range: {
+                  createdAt: {
+                    gte: from,
+                    lte: to,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    return body.count as number
+  } catch (e) {
+    console.error('failed to count pages in elastic', e)
+    return 0
   }
 }
 

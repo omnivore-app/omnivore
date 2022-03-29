@@ -1,9 +1,9 @@
 import {
-  Entity,
   BaseEntity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { ReportType } from '../../generated/graphql'
@@ -14,7 +14,7 @@ export class AbuseReport extends BaseEntity {
   id?: string
 
   @Column('text')
-  pageId!: string
+  pageId?: string
 
   @Column('text')
   sharedBy!: string
@@ -36,4 +36,7 @@ export class AbuseReport extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date
+
+  @Column('text')
+  elasticPageId?: string
 }

@@ -6,6 +6,7 @@ export const labelFragment = gql`
     name
     color
     description
+    createdAt
   }
 `
 

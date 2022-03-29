@@ -12,7 +12,7 @@ typealias WKScriptMessageReplyHandler = (Any?, String?) -> Void
 final class WebReaderCoordinator: NSObject {
   var webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void = { _, _ in }
   var linkHandler: (URL) -> Void = { _ in }
-  var needsReload = true
+  var needsReload = false
   var lastSavedAnnotationID: UUID?
   var previousIncreaseFontActionID: UUID?
   var previousDecreaseFontActionID: UUID?
@@ -68,6 +68,10 @@ extension WebReaderCoordinator: WKNavigationDelegate {
       webView.isOpaque = true
       webView.backgroundColor = .systemBackground
     #endif
+  }
+
+  func webViewWebContentProcessDidTerminate(_: WKWebView) {
+    needsReload = true
   }
 }
 

@@ -10,8 +10,6 @@ struct WebReader: UIViewRepresentable {
   let openLinkAction: (URL) -> Void
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
-  let authToken: String
-  let appEnv: AppEnvironment
 
   @Binding var increaseFontActionID: UUID?
   @Binding var decreaseFontActionID: UUID?
@@ -31,19 +29,6 @@ struct WebReader: UIViewRepresentable {
     let webView = WebViewManager.shared()
     let contentController = WKUserContentController()
 
-    webView.loadHTMLString(
-      WebReaderContent(
-        articleContent: articleContent,
-        item: item,
-        authToken: authToken,
-        isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-        fontSize: fontSize(),
-        appEnv: appEnv
-      )
-      .styledContent,
-      baseURL: ViewsPackage.bundleURL
-    )
-
     webView.navigationDelegate = context.coordinator
     webView.isOpaque = false
     webView.backgroundColor = .clear
@@ -60,11 +45,14 @@ struct WebReader: UIViewRepresentable {
 
     webView.configuration.userContentController.add(webView, name: "viewerAction")
 
-    webView.configuration.userContentController.addScriptMessageHandler(context.coordinator, contentWorld: .page, name: "articleAction")
+    webView.configuration.userContentController.addScriptMessageHandler(
+      context.coordinator, contentWorld: .page, name: "articleAction"
+    )
 
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
+    loadContent(webView: webView)
 
     return webView
   }
@@ -84,5 +72,39 @@ struct WebReader: UIViewRepresentable {
       context.coordinator.previousDecreaseFontActionID = decreaseFontActionID
       (webView as? WebView)?.decreaseFontSize()
     }
+
+    // If the webview had been terminated `needsReload` will have been set to true
+    if context.coordinator.needsReload {
+      loadContent(webView: webView)
+      context.coordinator.needsReload = false
+      return
+    }
+
+    if webView.isLoading { return }
+
+    // If the root element is not detected then `WKWebView` may have unloaded the content
+    // so we need to load it again.
+    webView.evaluateJavaScript("document.getElementById('root') ? true : false") { hasRootElement, _ in
+      guard let hasRootElement = hasRootElement as? Bool else { return }
+
+      if !hasRootElement {
+        DispatchQueue.main.async {
+          loadContent(webView: webView)
+        }
+      }
+    }
+  }
+
+  func loadContent(webView: WKWebView) {
+    webView.loadHTMLString(
+      WebReaderContent(
+        articleContent: articleContent,
+        item: item,
+        isDark: UITraitCollection.current.userInterfaceStyle == .dark,
+        fontSize: fontSize()
+      )
+      .styledContent,
+      baseURL: ViewsPackage.bundleURL
+    )
   }
 }

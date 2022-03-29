@@ -1454,7 +1454,7 @@
 				CODE_SIGN_ENTITLEMENTS = Entitlements/Omnivore.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = InfoPlists/Omnivore.plist;
@@ -1463,7 +1463,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1483,7 +1483,7 @@
 				CODE_SIGN_ENTITLEMENTS = "SafariExtension (iOS).entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "InfoPlists/SafariExtension-iOS.plist";
@@ -1495,7 +1495,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -1522,7 +1522,7 @@
 				CODE_SIGN_ENTITLEMENTS = "SafariExtension (iOS)Release.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "InfoPlists/SafariExtension-iOS.plist";
@@ -1534,7 +1534,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1687,7 +1687,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Entitlements/ShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				INFOPLIST_FILE = InfoPlists/ShareExtension.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -1696,7 +1696,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				SDKROOT = iphoneos;
@@ -1741,7 +1741,7 @@
 				CODE_SIGN_ENTITLEMENTS = Entitlements/Omnivore.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = InfoPlists/Omnivore.plist;
@@ -1750,7 +1750,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1769,7 +1769,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Entitlements/ShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = QJF2XZ86HB;
 				INFOPLIST_FILE = InfoPlists/ShareExtension.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -1778,7 +1778,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				SDKROOT = iphoneos;

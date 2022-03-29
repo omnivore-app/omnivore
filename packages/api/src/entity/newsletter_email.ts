@@ -1,10 +1,12 @@
 import {
-  Entity,
   BaseEntity,
   Column,
-  ManyToOne,
+  CreateDateColumn,
+  Entity,
   JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
 
@@ -22,4 +24,10 @@ export class NewsletterEmail extends BaseEntity {
 
   @Column('varchar', { nullable: true })
   confirmationCode?: string
+
+  @CreateDateColumn()
+  createdAt!: Date
+
+  @UpdateDateColumn()
+  updatedAt!: Date
 }

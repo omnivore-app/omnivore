@@ -1,12 +1,13 @@
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { Box, VStack } from '../../components/elements/LayoutPrimitives'
-import { toast, Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
 import { useState } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 export default function LabelsPage(): JSX.Element {
   const { labels, revalidate, isValidating } = useGetLabelsQuery()
@@ -20,16 +21,16 @@ export default function LabelsPage(): JSX.Element {
     const res = await createLabelMutation(name, color, description)
     if (res) {
       if (res.createLabel.errorCodes && res.createLabel.errorCodes.length > 0) {
-        toast.error(res.createLabel.errorCodes[0])
+        showErrorToast(res.createLabel.errorCodes[0])
       } else {
-        toast.success('Label created')
+        showSuccessToast('Label created')
         setName('')
         setColor('')
         setDescription('')
         revalidate()
       }
     } else {
-      toast.error('Failed to create label')
+      showErrorToast('Failed to create label')
     }
   }
 

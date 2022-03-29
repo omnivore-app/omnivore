@@ -1,6 +1,7 @@
 import 'mocha'
 import {
   addLabelInPage,
+  countByCreatedAt,
   createPage,
   deletePage,
   getPageById,
@@ -176,6 +177,33 @@ describe('elastic api', () => {
 
         expect(result).to.be.false
       })
+    })
+  })
+
+  describe('countByCreatedAt', () => {
+    const createdAt = Date.now() - 60 * 60 * 24 * 1000
+
+    before(async () => {
+      const newPageData: Page = {
+        id: '',
+        hash: 'hash',
+        userId: userId,
+        pageType: PageType.Article,
+        title: 'test',
+        content: 'test',
+        slug: 'test',
+        createdAt: new Date(createdAt),
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
+        url: 'https://blog.omnivore.app/testCount',
+      }
+
+      await createPage(newPageData, ctx)
+    })
+
+    it('counts pages by createdAt', async () => {
+      const count = await countByCreatedAt(userId, createdAt, createdAt)
+      expect(count).to.eq(1)
     })
   })
 })

@@ -161,13 +161,13 @@ export function libraryListCommands(
     {
       shortcutKeys: ['arrowdown'],
       actionDescription: 'Move cursor to the next row',
-      shortcutKeyDescription: 'v',
+      shortcutKeyDescription: 'Arrow Down',
       callback: () => actionHandler('moveFocusToNextRowItem'),
     },
     {
       shortcutKeys: ['arrowup'],
       actionDescription: 'Move cursor to the previous row',
-      shortcutKeyDescription: 'f',
+      shortcutKeyDescription: 'Arrow Up',
       callback: () => actionHandler('moveFocusToPreviousRowItem'),
     }
   ]

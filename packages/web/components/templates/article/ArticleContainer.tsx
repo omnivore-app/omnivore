@@ -10,20 +10,13 @@ import { MutableRefObject, useEffect, useState } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
-import { articleKeyboardCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { ShareArticleModal } from './ShareArticleModal'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
-import { webBaseURL } from '../../../lib/appConfig'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
 import { FloatingActionButtons } from './FloatingActionButtons'
-import Script from 'next/script'
-import { useRouter } from 'next/router'
 import { ArticleMutations } from '../../../lib/articleActions'
 
 type ArticleContainerProps = {
-  viewerUsername: string
   article: ArticleAttributes
   articleMutations: ArticleMutations
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
@@ -36,7 +29,6 @@ type ArticleContainerProps = {
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
-  const router = useRouter()
   const [showShareModal, setShowShareModal] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
@@ -50,28 +42,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     setFontSize(newFontSize)
     await userPersonalizationMutation({ fontSize: newFontSize })
   }
-
-  useKeyboardShortcuts(
-    articleKeyboardCommands(router, async (action) => {
-      switch (action) {
-        case 'openOriginalArticle':
-          const url = props.article.url
-          if (url) {
-            window.open(url, '_blank')
-          }
-          break
-        case 'incrementFontSize':
-          await updateFontSize(Math.min(fontSize + 2, 28))
-          break
-        case 'decrementFontSize':
-          await updateFontSize(Math.max(fontSize - 2, 10))
-          break
-        case 'editLabels':
-          setShowLabelsModal(true)
-          break
-      }
-    })
-  )
 
   // Listen for font size and color mode change events sent from host apps (ios, macos...)
   useEffect(() => {
@@ -124,12 +94,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   return (
     <>
-      <Script async src="/static/scripts/mathJaxConfiguration.js" />
-      <Script
-        async
-        id="MathJax-script"
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-      />
       <Box
         id="article-container"
         css={{
@@ -210,7 +174,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <Box css={{ height: '100px' }} />
       </Box>
       <HighlightsLayer
-        viewerUsername={props.viewerUsername}
         highlights={props.article.highlights}
         articleTitle={props.article.title}
         articleAuthor={props.article.author ?? ''}
@@ -235,7 +198,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           onOpenChange={(open: boolean) => setShowReportIssuesModal(open)}
         />
       ) : null}
-      {showShareModal && (
+      <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
+      {/* {showShareModal && (
         <ShareArticleModal
           url={`${webBaseURL}/${props.viewerUsername}/${props.article.slug}/highlights?r=true`}
           title={props.article.title}
@@ -258,8 +222,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             setLabels(labels)
           }}
         />
-      )}
-      <FloatingActionButtons onFontSizeChange={updateFontSize} fontSize={fontSize} />
+      )} */}
     </>
   )
 }

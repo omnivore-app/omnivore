@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
+import { Label, labelFragment } from '../fragments/labelFragment'
 import { publicGqlFetcher } from '../networkHelpers'
 
 type LabelsQueryResponse = {
@@ -16,25 +17,13 @@ type LabelsData = {
   labels?: unknown
 }
 
-export type Label = {
-  id: string
-  name: string
-  color: string
-  description?: string
-  createdAt: Date
-}
-
 export function useGetLabelsQuery(): LabelsQueryResponse {
   const query = gql`
     query GetLabels {
       labels {
         ... on LabelsSuccess {
           labels {
-            id
-            name
-            color
-            description
-            createdAt
+            ...LabelFields
           }
         }
         ... on LabelsError {
@@ -42,6 +31,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
         }
       }
     }
+    ${labelFragment}
   `
 
   const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)

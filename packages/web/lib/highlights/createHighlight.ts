@@ -89,12 +89,11 @@ export async function createHighlight(
   let keptHighlights = input.existingHighlights
 
   if (shouldMerge) {
-    const result = await articleMutations.mergeHighlightMutation({
+    highlight = await articleMutations.mergeHighlightMutation({
       ...newHighlightAttributes,
       overlapHighlightIdList: input.selection.overlapHighlights,
     })
 
-    highlight = result?.mergeHighlight.highlight
     keptHighlights = input.existingHighlights.filter(
       ($0) => !input.selection.overlapHighlights.includes($0.id)
     )

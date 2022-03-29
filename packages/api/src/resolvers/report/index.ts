@@ -45,7 +45,7 @@ export const reportItemResolver: ResolverFn<
     const uid = ctx.claims?.uid || ''
     const value = { sharedBy: uid, reportedBy: uid, ...args.input }
 
-    const report = await saveAbuseReport(ctx.kx, uid, value)
+    const report = await saveAbuseReport(uid, value)
     const message = report ? SUCCESS_MESSAGE : FAILURE_MESSAGE
     return {
       message: message,
@@ -58,7 +58,7 @@ export const reportItemResolver: ResolverFn<
         message: FAILURE_MESSAGE,
       }
     }
-    const report = await saveContentDisplayReport(ctx.kx, uid, args.input)
+    const report = await saveContentDisplayReport(uid, args.input)
     const message = report ? SUCCESS_MESSAGE : FAILURE_MESSAGE
     return {
       message: message,
