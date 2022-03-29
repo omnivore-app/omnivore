@@ -30,7 +30,6 @@ import {
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
 import { addHighlightToPage, getPageById } from '../../elastic'
-import { v4 as uuidv4 } from 'uuid'
 import { HighlightData } from '../../datalayer/highlight/model'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
@@ -80,13 +79,11 @@ export const createHighlightResolver = authorized<
 
   try {
     const highlight: HighlightData = {
-      ...input,
-      id: uuidv4(),
       createdAt: new Date(),
       userId: claims.uid,
-      articleId: page.id,
       deleted: false,
       elasticPageId: page.id,
+      ...input,
     }
 
     if (
