@@ -569,7 +569,6 @@ const schema = gql`
     # used for simplified url format
     shortId: String!
     user: User!
-    article: Article!
     quote: String!
     # piece of content before the quote
     prefix: String

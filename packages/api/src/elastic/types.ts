@@ -138,6 +138,7 @@ export interface Highlight {
   shortId: string
   patch: string
   quote: string
+  userId: string
   createdAt: Date
   prefix?: string | null
   suffix?: string | null

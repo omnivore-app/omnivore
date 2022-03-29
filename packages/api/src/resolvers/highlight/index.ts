@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { authorized } from '../../utils/helpers'
 import {
-  Article,
   CreateHighlightError,
   CreateHighlightErrorCode,
   CreateHighlightSuccess,
@@ -30,12 +29,11 @@ import {
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
 import { addHighlightToPage, getPageById } from '../../elastic'
-import { HighlightData } from '../../datalayer/highlight/model'
+import { Highlight as HighlightData } from '../../elastic/types'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
   user: highlight.userId as unknown as User,
-  article: highlight.articleId as unknown as Article,
   updatedAt: highlight.updatedAt || highlight.createdAt,
   replies: [],
   reactions: [],
@@ -79,10 +77,9 @@ export const createHighlightResolver = authorized<
 
   try {
     const highlight: HighlightData = {
+      updatedAt: new Date(),
       createdAt: new Date(),
       userId: claims.uid,
-      deleted: false,
-      elasticPageId: page.id,
       ...input,
     }
 

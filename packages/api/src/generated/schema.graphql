@@ -540,7 +540,6 @@ type GoogleSignupSuccess {
 
 type Highlight {
   annotation: String
-  article: Article!
   createdAt: Date!
   createdByMe: Boolean!
   id: ID!
