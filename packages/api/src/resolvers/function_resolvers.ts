@@ -78,7 +78,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { getPageById, getPageByParam } from '../elastic'
+import { getPageByParam } from '../elastic'
 import { generateApiKeyResolver } from './api_key'
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -448,9 +448,9 @@ export const functionResolvers = {
     },
   },
   Highlight: {
-    async article(highlight: { articleId: string }, __: unknown) {
-      return getPageById(highlight.articleId)
-    },
+    // async article(highlight: { articleId: string }, __: unknown) {
+    //   return getPageById(highlight.articleId)
+    // },
     async user(
       highlight: { userId: string },
       __: unknown,
