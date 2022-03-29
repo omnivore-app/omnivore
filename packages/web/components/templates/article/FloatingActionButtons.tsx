@@ -121,21 +121,21 @@ export function FloatingActionButtons(
         </ActionContainerButton>
         {(showButtons && !currentAction) && (
           <HStack distribution="evenly" alignment='end' css={{gap: '$2'}}>
-            <TooltipWrapped tooltipContent='Increase or decrease font sizes' side='top' align='center'>
+            <TooltipWrapped tooltipContent='Increase or decrease font sizes' align='center'>
               <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('font')}>
                 <FlexContainer>
                   <TextAa color={iconColor} size={24} />
                 </FlexContainer>
               </ActionContainerButton>
             </TooltipWrapped>
-            <TooltipWrapped tooltipContent='Move to archive' side='top' align='center'>
+            <TooltipWrapped tooltipContent='Move to archive' align='center'>
               <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('archive')}>
                 <FlexContainer>
                   <ArchiveBox color={iconColor} size={24} />
                 </FlexContainer>
               </ActionContainerButton>
             </TooltipWrapped>
-            <TooltipWrapped tooltipContent='Add labels' side='top' align='center'>
+            <TooltipWrapped tooltipContent='Add labels' align='center'>
               <ActionContainerButton style='plainIcon' css={{...BgStyles, ...BorderStyles}} onClick={() => setCurrentAction('label')}>
                 <FlexContainer>
                   <Tag color={iconColor} size={24} />
