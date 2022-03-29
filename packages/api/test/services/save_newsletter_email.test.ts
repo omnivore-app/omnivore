@@ -4,11 +4,11 @@ import 'chai/register-should'
 import { createTestUser, deleteTestUser } from '../db'
 import { createNewsletterEmail } from '../../src/services/newsletters'
 import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
-import { getPageByParam } from '../../src/elastic'
 import { User } from '../../src/entity/user'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { SaveContext } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { getPageByParam } from '../../src/elastic/pages'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'

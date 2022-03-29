@@ -4,7 +4,7 @@ import 'chai/register-should'
 import { createTestUser, deleteTestUser } from '../db'
 import { SaveContext, saveEmail } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getPageByParam } from '../../src/elastic'
+import { getPageByParam } from '../../src/elastic/pages'
 
 describe('saveEmail', () => {
   const username = 'fakeUser'

@@ -77,7 +77,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { getPageByParam } from '../elastic'
+import { getPageByParam } from '../elastic/pages'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {

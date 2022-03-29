@@ -1,6 +1,10 @@
 import 'mocha'
+import { PageType } from '../../src/generated/graphql'
+import { expect } from 'chai'
+import { InFilter, ReadFilter } from '../../src/utils/search'
+import { Page, PageContext } from '../../src/elastic/types'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
-  addLabelInPage,
   countByCreatedAt,
   createPage,
   deletePage,
@@ -8,12 +12,8 @@ import {
   getPageByParam,
   searchPages,
   updatePage,
-} from '../../src/elastic'
-import { PageType } from '../../src/generated/graphql'
-import { expect } from 'chai'
-import { InFilter, ReadFilter } from '../../src/utils/search'
-import { Page, PageContext } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+} from '../../src/elastic/pages'
+import { addLabelInPage } from '../../src/elastic/labels'
 
 describe('elastic api', () => {
   const userId = 'userId'

@@ -67,6 +67,8 @@ import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+
+import { Page } from '../../elastic/types'
 import {
   createPage,
   deletePage,
@@ -74,8 +76,7 @@ import {
   getPageByParam,
   searchPages,
   updatePage,
-} from '../../elastic'
-import { Page } from '../../elastic/types'
+} from '../../elastic/pages'
 
 export type PartialArticle = Omit<
   Article,

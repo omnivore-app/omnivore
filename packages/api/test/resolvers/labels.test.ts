@@ -10,8 +10,8 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
-import { getPageById } from '../../src/elastic'
 import { getRepository } from '../../src/entity/utils'
+import { getPageById } from '../../src/elastic/pages'
 
 describe('Labels API', () => {
   const username = 'fakeUser'

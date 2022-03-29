@@ -14,7 +14,7 @@ import {
 import { authorized } from '../../utils/helpers'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { updatePage } from '../../elastic'
+import { updatePage } from '../../elastic/pages'
 
 export const updateLinkShareInfoResolver = authorized<
   UpdateLinkShareInfoSuccess,

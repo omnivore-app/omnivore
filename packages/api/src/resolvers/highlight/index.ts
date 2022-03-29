@@ -28,8 +28,9 @@ import {
 } from '../../generated/graphql'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-import { addHighlightToPage, getPageById, updatePage } from '../../elastic'
 import { Highlight as HighlightData } from '../../elastic/types'
+import { getPageById, updatePage } from '../../elastic/pages'
+import { addHighlightToPage } from '../../elastic/highlights'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
