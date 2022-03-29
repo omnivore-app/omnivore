@@ -131,9 +131,6 @@ export default function Home(): JSX.Element {
                   onOpenChange={() => {
                     setShowLabelsModal(false)
                   }}
-                  setLabels={(labels: Label[]) => {
-                    // setLabels(labels)
-                  }}
                 />
               )}
             </VStack>
