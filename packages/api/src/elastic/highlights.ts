@@ -41,3 +41,87 @@ export const addHighlightToPage = async (
     return false
   }
 }
+
+export const getHighlightById = async (
+  id: string
+): Promise<Highlight | undefined> => {
+  try {
+    const { body } = await client.search({
+      index: INDEX_ALIAS,
+      body: {
+        query: {
+          nested: {
+            path: 'highlights',
+            query: {
+              match: {
+                'highlights.id': id,
+              },
+            },
+            inner_hits: {},
+          },
+        },
+        _source: false,
+      },
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (body.hits.total.value === 0) {
+      return undefined
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+    return body.hits.hits[0].inner_hits.highlights.hits.hits[0]._source
+  } catch (e) {
+    console.error('failed to get highlight from a page in elastic', e)
+    return undefined
+  }
+}
+
+export const deleteHighlight = async (
+  highlightId: string,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      body: {
+        script: {
+          source:
+            'ctx._source.highlights.removeIf(h -> h.id == params.highlightId)',
+          lang: 'painless',
+          params: {
+            highlightId: highlightId,
+          },
+        },
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId: ctx.uid,
+                },
+              },
+              {
+                nested: {
+                  path: 'highlights',
+                  query: {
+                    term: {
+                      'highlights.id': highlightId,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      refresh: ctx.refresh,
+    })
+
+    return body.result === 'updated'
+  } catch (e) {
+    console.error('failed to delete a highlight in elastic', e)
+
+    return false
+  }
+}
