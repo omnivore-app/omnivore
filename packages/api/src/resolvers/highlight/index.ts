@@ -28,7 +28,7 @@ import {
 } from '../../generated/graphql'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-import { addHighlightToPage, getPageById } from '../../elastic'
+import { addHighlightToPage, getPageById, updatePage } from '../../elastic'
 import { Highlight as HighlightData } from '../../elastic/types'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
@@ -47,16 +47,9 @@ export const createHighlightResolver = authorized<
 >(async (_, { input }, { claims, log, pubsub }) => {
   const { articleId: pageId } = input
   const page = await getPageById(pageId)
-
   if (!page) {
     return {
       errorCodes: [CreateHighlightErrorCode.NotFound],
-    }
-  }
-
-  if (page.userId !== claims.uid) {
-    return {
-      errorCodes: [CreateHighlightErrorCode.Unauthorized],
     }
   }
 
@@ -64,7 +57,7 @@ export const createHighlightResolver = authorized<
     userId: claims.uid,
     event: 'highlight_created',
     properties: {
-      pageId: page.id,
+      pageId,
       env: env.server.apiEnv,
     },
   })
@@ -116,22 +109,27 @@ export const mergeHighlightResolver = authorized<
   MergeHighlightSuccess,
   MergeHighlightError,
   MutationMergeHighlightArgs
->(async (_, { input }, { authTrx, models, claims, log }) => {
-  const { articleId } = input
+>(async (_, { input }, { claims, log, pubsub }) => {
+  const { articleId: pageId } = input
   const { overlapHighlightIdList, ...newHighlightInput } = input
-  const articleHighlights = await models.highlight.batchGet(articleId)
-
-  if (!articleHighlights.length) {
+  const page = await getPageById(pageId)
+  if (!page || !page.highlights) {
     return {
       errorCodes: [MergeHighlightErrorCode.NotFound],
     }
   }
 
+  const articleHighlights = page.highlights
+
   /* Compute merged annotation form the order of highlights appearing on page */
   const overlapAnnotations: { [id: string]: string } = {}
-  articleHighlights.forEach((highlight) => {
-    if (overlapHighlightIdList.includes(highlight.id) && highlight.annotation) {
-      overlapAnnotations[highlight.id] = highlight.annotation
+  articleHighlights.forEach((highlight, index) => {
+    if (overlapHighlightIdList.includes(highlight.id)) {
+      articleHighlights.splice(index, 1)
+
+      if (highlight.annotation) {
+        overlapAnnotations[highlight.id] = highlight.annotation
+      }
     }
   })
   const mergedAnnotation: string[] = []
@@ -142,17 +140,20 @@ export const mergeHighlightResolver = authorized<
   })
 
   try {
-    const highlight = await authTrx(async (tx) => {
-      await models.highlight.deleteMany(overlapHighlightIdList, tx)
-      return await models.highlight.create({
-        ...newHighlightInput,
-        articleId: undefined,
-        annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
-        userId: claims.uid,
-        elasticPageId: newHighlightInput.articleId,
-      })
-    })
-    if (!highlight) {
+    const highlight: HighlightData = {
+      ...newHighlightInput,
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      userId: claims.uid,
+      annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
+    }
+
+    const merged = await updatePage(
+      pageId,
+      { highlights: articleHighlights.concat(highlight) },
+      { pubsub, uid: claims.uid }
+    )
+    if (!merged) {
       throw new Error('Failed to create merged highlight')
     }
 
@@ -162,7 +163,7 @@ export const mergeHighlightResolver = authorized<
         source: 'resolver',
         resolver: 'mergeHighlightResolver',
         uid: claims.uid,
-        articleId: articleId,
+        pageId,
       },
     })
 
