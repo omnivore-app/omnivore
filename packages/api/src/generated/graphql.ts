@@ -599,7 +599,6 @@ export type GoogleSignupSuccess = {
 export type Highlight = {
   __typename?: 'Highlight';
   annotation?: Maybe<Scalars['String']>;
-  article: Article;
   createdAt: Scalars['Date'];
   createdByMe: Scalars['Boolean'];
   id: Scalars['ID'];
@@ -2780,7 +2779,6 @@ export type GoogleSignupSuccessResolvers<ContextType = ResolverContext, ParentTy
 
 export type HighlightResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Highlight'] = ResolversParentTypes['Highlight']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   createdByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

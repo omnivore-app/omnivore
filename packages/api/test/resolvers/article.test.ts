@@ -138,6 +138,14 @@ const getArticleQuery = (slug: string) => {
           slug
           highlights {
             id
+            shortId
+            quote
+            prefix
+            suffix
+            patch
+            annotation
+            sharedAt
+            createdAt
           }
         }
       }

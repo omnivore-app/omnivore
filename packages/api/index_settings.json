@@ -62,7 +62,14 @@
           "id": {
             "type": "keyword"
           },
+          "userId": {
+            "type": "keyword"
+          },
           "quote": {
+            "type": "text",
+            "analyzer": "strip_html_analyzer"
+          },
+          "annotation": {
             "type": "text",
             "analyzer": "strip_html_analyzer"
           },
