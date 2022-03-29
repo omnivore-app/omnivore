@@ -29,17 +29,6 @@ struct WebReader: UIViewRepresentable {
     let webView = WebViewManager.shared()
     let contentController = WKUserContentController()
 
-    webView.loadHTMLString(
-      WebReaderContent(
-        articleContent: articleContent,
-        item: item,
-        isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-        fontSize: fontSize()
-      )
-      .styledContent,
-      baseURL: ViewsPackage.bundleURL
-    )
-
     webView.navigationDelegate = context.coordinator
     webView.isOpaque = false
     webView.backgroundColor = .clear
@@ -68,6 +57,20 @@ struct WebReader: UIViewRepresentable {
   }
 
   func updateUIView(_ webView: WKWebView, context: Context) {
+    if context.coordinator.needsReload {
+      webView.loadHTMLString(
+        WebReaderContent(
+          articleContent: articleContent,
+          item: item,
+          isDark: UITraitCollection.current.userInterfaceStyle == .dark,
+          fontSize: fontSize()
+        )
+        .styledContent,
+        baseURL: ViewsPackage.bundleURL
+      )
+      context.coordinator.needsReload = false
+    }
+
     if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
       context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
       (webView as? WebView)?.saveAnnotation(annotation: annotation)

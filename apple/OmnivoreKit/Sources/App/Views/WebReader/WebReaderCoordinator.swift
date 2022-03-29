@@ -70,8 +70,8 @@ extension WebReaderCoordinator: WKNavigationDelegate {
     #endif
   }
 
-  func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-    self.needsReload = true
+  func webViewWebContentProcessDidTerminate(_: WKWebView) {
+    needsReload = true
   }
 }
 
