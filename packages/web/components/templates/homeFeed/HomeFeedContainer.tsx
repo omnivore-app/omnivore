@@ -5,10 +5,8 @@ import type {
   LibraryItem,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import {
-  LinkedItemCard,
-  LinkedItemCardAction,
-} from '../../patterns/LinkedItemCard'
+import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
+import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
 import { useRouter } from 'next/router'
 import { Button } from '../../elements/Button'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -573,13 +571,15 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 },
                 '&:focus': {
                   '> div': {
-                    boxShadow: layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
-                  }
+                    boxShadow:
+                      layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
+                  },
                 },
                 '&:hover': {
                   '> div': {
-                    boxShadow:  layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
-                  }
+                    boxShadow:
+                      layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
+                  },
                 },
               }}
             >
@@ -592,7 +592,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                     props.actionHandler(action, linkedItem)
                   }}
                 />
-               )}
+              )}
             </Box>
           ))}
         </Box>
