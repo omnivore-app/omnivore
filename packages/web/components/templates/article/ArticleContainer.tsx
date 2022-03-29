@@ -15,6 +15,7 @@ import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { EditLabelsModal } from './EditLabelsModal'
 import { FloatingActionButtons } from './FloatingActionButtons'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -209,9 +210,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           article={props.article}
           onOpenChange={() => {
             setShowLabelsModal(false)
-          }}
-          setLabels={(labels: Label[]) => {
-            setLabels(labels)
           }}
         />
       )}

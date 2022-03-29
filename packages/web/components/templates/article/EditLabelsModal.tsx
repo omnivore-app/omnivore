@@ -19,7 +19,6 @@ type EditLabelsModalProps = {
   labels: Label[]
   article: ArticleAttributes
   onOpenChange: (open: boolean) => void
-  setLabels: (labels: Label[]) => void
 }
 
 export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
