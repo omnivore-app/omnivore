@@ -11,17 +11,17 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { Label } from '../../src/entity/label'
-import {
-  createPage,
-  deletePage,
-  getPageById,
-  updatePage,
-} from '../../src/elastic'
 import { PageType, UploadFileStatus } from '../../src/generated/graphql'
 import { Page, PageContext } from '../../src/elastic/types'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getRepository } from '../../src/entity/utils'
+import {
+  createPage,
+  deletePage,
+  getPageById,
+  updatePage,
+} from '../../src/elastic/pages'
 
 chai.use(chaiString)
 

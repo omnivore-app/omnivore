@@ -4,10 +4,11 @@ import { v4 } from 'uuid'
 import { corsConfig } from '../src/utils/corsConfig'
 import { Page } from '../src/elastic/types'
 import { PageType } from '../src/generated/graphql'
-import { createPage, getPageById } from '../src/elastic'
+import { getPageById } from '../src/elastic'
 import { User } from '../src/entity/user'
 import { Label } from '../src/entity/label'
 import { createPubSubClient } from '../src/datalayer/pubsub'
+import { createPage } from '../src/elastic/pages'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)
