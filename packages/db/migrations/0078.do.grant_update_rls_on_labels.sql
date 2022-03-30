@@ -8,4 +8,6 @@ CREATE POLICY update_labels on omnivore.labels
     FOR UPDATE TO omnivore_user
     USING (user_id = omnivore.get_current_user_id());
 
+GRANT UPDATE ON omnivore.labels TO omnivore_user;
+
 COMMIT;
