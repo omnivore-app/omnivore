@@ -1,6 +1,7 @@
-import { Highlight, PageContext } from './types'
+import { Highlight, Page, PageContext, SearchResponse } from './types'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 import { client, INDEX_ALIAS } from './index'
+import { SortBy, SortOrder, SortParams } from '../generated/graphql'
 
 export const addHighlightToPage = async (
   id: string,
@@ -123,5 +124,96 @@ export const deleteHighlight = async (
     console.error('failed to delete a highlight in elastic', e)
 
     return false
+  }
+}
+
+export const searchHighlights = async (
+  args: {
+    from?: number
+    size?: number
+    sort?: SortParams
+    query?: string
+  },
+  userId: string
+): Promise<[any[], number] | undefined> => {
+  try {
+    const { from = 0, size = 10, sort, query } = args
+    const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
+    // default sort by updatedAt
+    const sortField = sort?.by === SortBy.Score ? '_score' : 'updatedAt'
+
+    const searchBody = {
+      query: {
+        nested: {
+          path: 'highlights',
+          query: {
+            bool: {
+              filter: [
+                {
+                  term: {
+                    userId,
+                  },
+                },
+              ],
+              should: [
+                {
+                  multi_match: {
+                    query,
+                    fields: ['quote', 'annotation'],
+                    operator: 'and',
+                    type: 'cross_fields',
+                  },
+                },
+              ],
+              minimum_should_match: 1,
+            },
+          },
+          sort: [
+            {
+              [sortField]: {
+                order: sortOrder,
+              },
+            },
+          ],
+          from,
+          size,
+          inner_hits: {},
+        },
+      },
+      _source: ['highlights', 'title', 'slug', 'url', 'createdAt'],
+    }
+
+    console.log('searching highlights in elastic', JSON.stringify(searchBody))
+
+    const response = await client.search<SearchResponse<Page>>({
+      index: INDEX_ALIAS,
+      body: searchBody,
+    })
+
+    if (response.body.hits.total.value === 0) {
+      return [[], 0]
+    }
+
+    const results: any[] = []
+    response.body.hits.hits.forEach((hit) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+      hit.inner_hits.highlights.hits.hits.forEach(
+        (innerHit: { _source: Highlight }) => {
+          results.push({
+            ...hit._source,
+            ...innerHit._source,
+          })
+        }
+      )
+    })
+
+    return [
+      results,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      response.body.hits.total.value,
+    ]
+  } catch (e) {
+    console.error('failed to search highlights in elastic', e)
+    return undefined
   }
 }
