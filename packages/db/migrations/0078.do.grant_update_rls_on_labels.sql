@@ -6,6 +6,6 @@ BEGIN;
 
 CREATE POLICY update_labels on omnivore.labels
     FOR UPDATE TO omnivore_user
-    WITH CHECK (true);
+    USING (user_id = omnivore.get_current_user_id());
 
 COMMIT;
