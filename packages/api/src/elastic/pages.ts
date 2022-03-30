@@ -317,7 +317,7 @@ export const searchPages = async (
       from,
       size,
       _source: {
-        excludes: ['originalHtml', 'content'],
+        excludes: ['originalHtml', 'content', 'highlights'],
       },
     }
 
