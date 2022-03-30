@@ -585,12 +585,9 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             padding: '0 5px',
           }}
         >
-          {(showInput && !label) ? null : (
-            <HStack alignment="center">
-              <Button style="plainIcon" css={{marginRight: '10px'}}>
-                <DotsSixVertical size={16} />
-              </Button>
-                <LabelChip color={label.color} text={label.name} />
+          {(showInput || !label) ? null : (
+            <HStack alignment="center" css={{ ml: '16px' }}>
+              <LabelChip color={label.color} text={label.name} />
             </HStack>
           )}
           {(showInput && !label) ? (
