@@ -1,5 +1,13 @@
 import Foundation
 
+public class CachedPageContent: NSObject {
+  public let value: ArticleContent
+
+  public init(_ content: ArticleContent) {
+    self.value = content
+  }
+}
+
 public struct ArticleContent {
   public let htmlContent: String
   public let highlights: [Highlight]

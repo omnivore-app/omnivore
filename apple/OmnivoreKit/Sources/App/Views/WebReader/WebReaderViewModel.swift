@@ -28,6 +28,15 @@ final class WebReaderViewModel: ObservableObject {
 
     guard let viewer = dataService.currentViewer else { return }
 
+    if let content = dataService.pageCache.object(forKey: NSString(string: slug)) {
+      print("RETRIEVED FORM CACHE", slug)
+      isLoading = false
+      articleContent = content.value
+      return
+    } else {
+      print("MISSED CACHE", slug)
+    }
+
     dataService.articleContentPublisher(username: viewer.username, slug: slug).sink(
       receiveCompletion: { [weak self] completion in
         guard case .failure = completion else { return }
@@ -35,6 +44,7 @@ final class WebReaderViewModel: ObservableObject {
       },
       receiveValue: { [weak self] articleContent in
         self?.articleContent = articleContent
+        dataService.pageCache.setObject(CachedPageContent(articleContent), forKey: NSString(string: slug))
       }
     )
     .store(in: &subscriptions)
