@@ -792,6 +792,7 @@ export type Mutation = {
   signup: SignupResult;
   updateHighlight: UpdateHighlightResult;
   updateHighlightReply: UpdateHighlightReplyResult;
+  updateLabel: UpdateLabelResult;
   updateLinkShareInfo: UpdateLinkShareInfoResult;
   updateReminder: UpdateReminderResult;
   updateSharedComment: UpdateSharedCommentResult;
@@ -963,6 +964,11 @@ export type MutationUpdateHighlightArgs = {
 
 export type MutationUpdateHighlightReplyArgs = {
   input: UpdateHighlightReplyInput;
+};
+
+
+export type MutationUpdateLabelArgs = {
+  input: UpdateLabelInput;
 };
 
 
@@ -1577,6 +1583,32 @@ export type UpdateHighlightSuccess = {
   highlight: Highlight;
 };
 
+export type UpdateLabelError = {
+  __typename?: 'UpdateLabelError';
+  errorCodes: Array<UpdateLabelErrorCode>;
+};
+
+export enum UpdateLabelErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Forbidden = 'FORBIDDEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateLabelInput = {
+  color: Scalars['String'];
+  description?: InputMaybe<Scalars['String']>;
+  labelId: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type UpdateLabelResult = UpdateLabelError | UpdateLabelSuccess;
+
+export type UpdateLabelSuccess = {
+  __typename?: 'UpdateLabelSuccess';
+  label: Label;
+};
+
 export type UpdateLinkShareInfoError = {
   __typename?: 'UpdateLinkShareInfoError';
   errorCodes: Array<UpdateLinkShareInfoErrorCode>;
@@ -2095,6 +2127,11 @@ export type ResolversTypes = {
   UpdateHighlightReplySuccess: ResolverTypeWrapper<UpdateHighlightReplySuccess>;
   UpdateHighlightResult: ResolversTypes['UpdateHighlightError'] | ResolversTypes['UpdateHighlightSuccess'];
   UpdateHighlightSuccess: ResolverTypeWrapper<UpdateHighlightSuccess>;
+  UpdateLabelError: ResolverTypeWrapper<UpdateLabelError>;
+  UpdateLabelErrorCode: UpdateLabelErrorCode;
+  UpdateLabelInput: UpdateLabelInput;
+  UpdateLabelResult: ResolversTypes['UpdateLabelError'] | ResolversTypes['UpdateLabelSuccess'];
+  UpdateLabelSuccess: ResolverTypeWrapper<UpdateLabelSuccess>;
   UpdateLinkShareInfoError: ResolverTypeWrapper<UpdateLinkShareInfoError>;
   UpdateLinkShareInfoErrorCode: UpdateLinkShareInfoErrorCode;
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
@@ -2326,6 +2363,10 @@ export type ResolversParentTypes = {
   UpdateHighlightReplySuccess: UpdateHighlightReplySuccess;
   UpdateHighlightResult: ResolversParentTypes['UpdateHighlightError'] | ResolversParentTypes['UpdateHighlightSuccess'];
   UpdateHighlightSuccess: UpdateHighlightSuccess;
+  UpdateLabelError: UpdateLabelError;
+  UpdateLabelInput: UpdateLabelInput;
+  UpdateLabelResult: ResolversParentTypes['UpdateLabelError'] | ResolversParentTypes['UpdateLabelSuccess'];
+  UpdateLabelSuccess: UpdateLabelSuccess;
   UpdateLinkShareInfoError: UpdateLinkShareInfoError;
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoError'] | ResolversParentTypes['UpdateLinkShareInfoSuccess'];
@@ -2937,6 +2978,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
+  updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
   updateLinkShareInfo?: Resolver<ResolversTypes['UpdateLinkShareInfoResult'], ParentType, ContextType, RequireFields<MutationUpdateLinkShareInfoArgs, 'input'>>;
   updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
   updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
@@ -3257,6 +3299,20 @@ export type UpdateHighlightSuccessResolvers<ContextType = ResolverContext, Paren
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateLabelErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLabelError'] = ResolversParentTypes['UpdateLabelError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateLabelErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateLabelResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLabelResult'] = ResolversParentTypes['UpdateLabelResult']> = {
+  __resolveType: TypeResolveFn<'UpdateLabelError' | 'UpdateLabelSuccess', ParentType, ContextType>;
+};
+
+export type UpdateLabelSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLabelSuccess'] = ResolversParentTypes['UpdateLabelSuccess']> = {
+  label?: Resolver<ResolversTypes['Label'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdateLinkShareInfoErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLinkShareInfoError'] = ResolversParentTypes['UpdateLinkShareInfoError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdateLinkShareInfoErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3551,6 +3607,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateHighlightReplySuccess?: UpdateHighlightReplySuccessResolvers<ContextType>;
   UpdateHighlightResult?: UpdateHighlightResultResolvers<ContextType>;
   UpdateHighlightSuccess?: UpdateHighlightSuccessResolvers<ContextType>;
+  UpdateLabelError?: UpdateLabelErrorResolvers<ContextType>;
+  UpdateLabelResult?: UpdateLabelResultResolvers<ContextType>;
+  UpdateLabelSuccess?: UpdateLabelSuccessResolvers<ContextType>;
   UpdateLinkShareInfoError?: UpdateLinkShareInfoErrorResolvers<ContextType>;
   UpdateLinkShareInfoResult?: UpdateLinkShareInfoResultResolvers<ContextType>;
   UpdateLinkShareInfoSuccess?: UpdateLinkShareInfoSuccessResolvers<ContextType>;

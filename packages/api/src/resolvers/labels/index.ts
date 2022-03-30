@@ -12,9 +12,13 @@ import {
   MutationCreateLabelArgs,
   MutationDeleteLabelArgs,
   MutationSetLabelsArgs,
+  MutationUpdateLabelArgs,
   SetLabelsError,
   SetLabelsErrorCode,
   SetLabelsSuccess,
+  UpdateLabelError,
+  UpdateLabelErrorCode,
+  UpdateLabelSuccess,
 } from '../../generated/graphql'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
@@ -116,6 +120,74 @@ export const createLabelResolver = authorized<
     log.error(error)
     return {
       errorCodes: [CreateLabelErrorCode.BadRequest],
+    }
+  }
+})
+
+export const updateLabelResolver = authorized<
+  UpdateLabelSuccess,
+  UpdateLabelError,
+  MutationUpdateLabelArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  log.info('updateLabelResolver')
+
+  try {
+    const { name, color, description, labelId } = input
+
+    const user = await getRepository(User).findOne(uid)
+    if (!user) {
+      return {
+        errorCodes: [UpdateLabelErrorCode.Unauthorized],
+      }
+    }
+
+    const label = await getRepository(Label).findOne({
+      where: {
+        id: labelId,
+        user,
+      },
+    })
+
+    if (!label) {
+      return {
+        errorCodes: [UpdateLabelErrorCode.NotFound],
+      }
+    }
+
+    const result = await getManager().transaction(async (t) => {
+      await setClaims(t, uid)
+      return await t.getRepository(Label).update(
+        { id: labelId },
+        {
+          name: name,
+          description: description || undefined,
+          color: color,
+        }
+      )
+    })
+
+    log.info('Updating a label', {
+      result,
+      labels: {
+        source: 'resolver',
+        resolver: 'updateLabelResolver',
+      },
+    })
+
+    if (!result) {
+      log.info('failed to update')
+      return {
+        errorCodes: [UpdateLabelErrorCode.BadRequest],
+      }
+    }
+
+    log.info('updated successfully')
+
+    return { label: label }
+  } catch (error) {
+    log.error('error', error)
+    return {
+      errorCodes: [UpdateLabelErrorCode.BadRequest],
     }
   }
 })

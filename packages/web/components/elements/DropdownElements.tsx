@@ -8,6 +8,7 @@ import {
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
+import { CSS } from '@stitches/react';
 import { styled } from './../tokens/stitches.config'
 
 const itemStyles = {
@@ -43,7 +44,7 @@ const StyledTriggerItem = styled(TriggerItem, {
   ...itemStyles,
 })
 
-const DropdownContent = styled(Content, {
+export const DropdownContent = styled(Content, {
   minWidth: 130,
   backgroundColor: '$grayBg',
   borderRadius: '0.5em',
@@ -69,13 +70,16 @@ type DropdownProps = {
   labelText?: string
   showArrow?: boolean
   triggerElement: React.ReactNode
-  children: React.ReactNode
-  align?: DropdownAlignment
+  children: React.ReactNode,
+  styledArrow?: boolean
+  align?: DropdownAlignment 
+  css?: CSS
 }
 
 export const DropdownSeparator = styled(Separator, {
-  height: 0,
+  height: '1px',
   margin: 0,
+  backgroundColor: '$grayBorder',
 })
 
 type DropdownOptionProps = {
@@ -91,6 +95,7 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
       <StyledItem onSelect={props.onSelect}>
         {props.title ?? props.children}
       </StyledItem>
+      {props.hideSeparator ? null : <DropdownSeparator />}
     </>
   )
 }
@@ -101,12 +106,14 @@ export function Dropdown({
   triggerElement,
   labelText,
   showArrow = true,
+  css
 }: DropdownProps): JSX.Element {
   return (
     <Root modal={false}>
       <DropdownTrigger>{triggerElement}</DropdownTrigger>
       <DropdownContent
-        onInteractOutside={() => {
+        css={css}
+        onInteractOutside={(event) => {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}

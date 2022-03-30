@@ -705,6 +705,7 @@ type Mutation {
   signup(input: SignupInput!): SignupResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
+  updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
   updateLinkShareInfo(input: UpdateLinkShareInfoInput!): UpdateLinkShareInfoResult!
   updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
   updateSharedComment(input: UpdateSharedCommentInput!): UpdateSharedCommentResult!
@@ -1192,6 +1193,30 @@ union UpdateHighlightResult = UpdateHighlightError | UpdateHighlightSuccess
 
 type UpdateHighlightSuccess {
   highlight: Highlight!
+}
+
+type UpdateLabelError {
+  errorCodes: [UpdateLabelErrorCode!]!
+}
+
+enum UpdateLabelErrorCode {
+  BAD_REQUEST
+  FORBIDDEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateLabelInput {
+  color: String!
+  description: String
+  labelId: ID!
+  name: String!
+}
+
+union UpdateLabelResult = UpdateLabelError | UpdateLabelSuccess
+
+type UpdateLabelSuccess {
+  label: Label!
 }
 
 type UpdateLinkShareInfoError {
