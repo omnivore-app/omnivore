@@ -36,7 +36,6 @@ type CopyTextButtonProps = {
 }
 
 const HeaderWrapper = styled(Box, {
-  display: 'none',
   width: '863px',
   '@md': {
     display: 'block',
@@ -63,11 +62,14 @@ const TableCard = styled(Box, {
 const TableHeading = styled(Box, {
   backgroundColor: '$grayBgActive',
   border: '1px solid rgba(0, 0, 0, 0.06)',
-  display: 'flex',
+  display: 'none',
   alignItems: 'center',
   padding: '14px 0 14px 40px',
   borderRadius: '5px 5px 0px 0px',
   width: '863px',
+  '@md': {
+    display: 'flex',
+  }
 })
 
 const Input = styled('input', {
@@ -244,7 +246,12 @@ export default function EmailsPage(): JSX.Element {
                 </a>
               </Link>
             </Box>
-            <Box>
+            <Box css={{
+              display: 'none',
+              '@md': {
+                display: 'unset',
+              },
+            }}>
               <Button
                 onClick={createEmail}
                 style="ctaDarkYellow"
