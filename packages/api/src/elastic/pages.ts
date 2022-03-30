@@ -1,12 +1,14 @@
 import {
   Page,
   PageContext,
+  PageType,
   ParamSet,
   SearchBody,
   SearchResponse,
 } from './types'
-import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
+import { SortBy, SortOrder, SortParams } from '../generated/graphql'
 import {
+  HasFilter,
   InFilter,
   LabelFilter,
   LabelFilterType,
@@ -74,11 +76,29 @@ const appendInFilter = (body: SearchBody, filter: InFilter): void => {
   }
 }
 
-const appendNotNullField = (body: SearchBody, field: string): void => {
-  body.query.bool.filter.push({
-    exists: {
-      field,
-    },
+const appendHasFilters = (body: SearchBody, filters: HasFilter[]): void => {
+  filters.forEach((filter) => {
+    switch (filter) {
+      case HasFilter.HIGHLIGHTS:
+        body.query.bool.filter.push({
+          nested: {
+            path: 'highlights',
+            query: {
+              exists: {
+                field: 'highlights',
+              },
+            },
+          },
+        })
+        break
+      case HasFilter.SHARED_AT:
+        body.query.bool.filter.push({
+          exists: {
+            field: 'sharedAt',
+          },
+        })
+        break
+    }
   })
 }
 
@@ -268,9 +288,9 @@ export const searchPages = async (
     readFilter: ReadFilter
     typeFilter?: PageType
     labelFilters: LabelFilter[]
+    hasFilters: HasFilter[]
   },
-  userId: string,
-  notNullField: string | null = null
+  userId: string
 ): Promise<[Page[], number] | undefined> => {
   try {
     const {
@@ -282,6 +302,7 @@ export const searchPages = async (
       typeFilter,
       labelFilters,
       inFilter,
+      hasFilters,
     } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
     // default sort by saved_at
@@ -334,8 +355,8 @@ export const searchPages = async (
     if (readFilter !== ReadFilter.ALL) {
       appendReadFilter(body, readFilter)
     }
-    if (notNullField) {
-      appendNotNullField(body, notNullField)
+    if (hasFilters.length > 0) {
+      appendHasFilters(body, hasFilters)
     }
     if (includeLabels.length > 0) {
       appendIncludeLabelFilter(body, includeLabels)

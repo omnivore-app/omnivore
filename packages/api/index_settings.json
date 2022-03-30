@@ -70,8 +70,7 @@
             "analyzer": "strip_html_analyzer"
           },
           "annotation": {
-            "type": "text",
-            "analyzer": "strip_html_analyzer"
+            "type": "text"
           },
           "createdAt": {
             "type": "date"

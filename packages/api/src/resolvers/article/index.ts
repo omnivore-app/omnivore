@@ -62,7 +62,7 @@ import { createImageProxyUrl } from '../../utils/imageproxy'
 import normalizeUrl from 'normalize-url'
 import { WithDataSourcesContext } from '../types'
 
-import { parseSearchQuery } from '../../utils/search'
+import { HasFilter, parseSearchQuery } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
@@ -439,7 +439,6 @@ export const getArticlesResolver = authorized<
   ArticlesError,
   QueryArticlesArgs
 >(async (_obj, params, { claims }) => {
-  const notNullField = params.sharedOnly ? 'sharedAt' : null
   const startCursor = params.after || ''
   const first = params.first || 10
 
@@ -447,6 +446,8 @@ export const getArticlesResolver = authorized<
   // so queries can contain phrases like "human race";
   // We can also split out terms like "label:unread".
   const searchQuery = parseSearchQuery(params.query || undefined)
+
+  params.sharedOnly && searchQuery.hasFilters.push(HasFilter.SHARED_AT)
 
   analytics.track({
     userId: claims.uid,
@@ -458,6 +459,7 @@ export const getArticlesResolver = authorized<
       typeFilter: searchQuery.typeFilter,
       labelFilters: searchQuery.labelFilters,
       sortParams: searchQuery.sortParams,
+      hasFilters: searchQuery.hasFilters,
       env: env.server.apiEnv,
     },
   })
@@ -474,9 +476,9 @@ export const getArticlesResolver = authorized<
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
       labelFilters: searchQuery.labelFilters,
+      hasFilters: searchQuery.hasFilters,
     },
-    claims.uid,
-    notNullField
+    claims.uid
   )) || [[], 0]
 
   const start =
