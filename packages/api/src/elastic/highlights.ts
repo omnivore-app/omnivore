@@ -1,4 +1,10 @@
-import { Highlight, Page, PageContext, SearchResponse } from './types'
+import {
+  Highlight,
+  Page,
+  PageContext,
+  SearchItem,
+  SearchResponse,
+} from './types'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 import { client, INDEX_ALIAS } from './index'
 import { SortBy, SortOrder, SortParams } from '../generated/graphql'
@@ -135,7 +141,7 @@ export const searchHighlights = async (
     query?: string
   },
   userId: string
-): Promise<[any[], number] | undefined> => {
+): Promise<[SearchItem[], number] | undefined> => {
   try {
     const { from = 0, size = 10, sort, query } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
@@ -194,7 +200,7 @@ export const searchHighlights = async (
       return [[], 0]
     }
 
-    const results: any[] = []
+    const results: SearchItem[] = []
     response.body.hits.hits.forEach((hit) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
       hit.inner_hits.highlights.hits.hits.forEach(
@@ -202,16 +208,13 @@ export const searchHighlights = async (
           results.push({
             ...hit._source,
             ...innerHit._source,
+            pageId: hit._id,
           })
         }
       )
     })
 
-    return [
-      results,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      response.body.hits.total.value,
-    ]
+    return [results, response.body.hits.total.value]
   } catch (e) {
     console.error('failed to search highlights in elastic', e)
     return undefined

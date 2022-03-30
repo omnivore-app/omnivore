@@ -28,6 +28,7 @@ import {
   SaveArticleReadingProgressErrorCode,
   SaveArticleReadingProgressSuccess,
   SearchError,
+  SearchItem,
   SearchSuccess,
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
@@ -71,7 +72,7 @@ import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 
-import { Page } from '../../elastic/types'
+import { Page, SearchItem as SearchItemData } from '../../elastic/types'
 import {
   createPage,
   deletePage,
@@ -807,10 +808,13 @@ export const searchResolver = authorized<
 
   await createIntercomEvent('search', claims.uid)
 
+  let results: (SearchItemData | Page)[]
+  let totalCount: number
+
   const searchType = searchQuery.typeFilter
   // search highlights if type:highlights
   if (searchType === PageType.Highlights) {
-    const [highlights, totalCount] = (await searchHighlights(
+    ;[results, totalCount] = (await searchHighlights(
       {
         from: Number(startCursor),
         size: first + 1, // fetch one more item to get next cursor
@@ -819,75 +823,49 @@ export const searchResolver = authorized<
       },
       claims.uid
     )) || [[], 0]
-
-    const start =
-      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-    const hasNextPage = highlights.length > first
-    const endCursor = String(start + highlights.length - (hasNextPage ? 1 : 0))
-
-    if (hasNextPage) {
-      // remove an extra if exists
-      highlights.pop()
-    }
-
-    const edges = highlights.map((a) => {
-      return {
-        node: {
-          ...a,
-          image: a.image && createImageProxyUrl(a.image, 88, 88),
-          isArchived: !!a.archivedAt,
-        },
-        cursor: endCursor,
-      }
-    })
-    return {
-      edges,
-      pageInfo: {
-        hasPreviousPage: false,
-        startCursor,
-        hasNextPage: hasNextPage,
-        endCursor,
-        totalCount,
+  } else {
+    // otherwise, search pages
+    ;[results, totalCount] = (await searchPages(
+      {
+        from: Number(startCursor),
+        size: first + 1, // fetch one more item to get next cursor
+        sort: searchQuery.sortParams,
+        query: searchQuery.query,
+        inFilter: searchQuery.inFilter,
+        readFilter: searchQuery.readFilter,
+        typeFilter: searchQuery.typeFilter,
+        labelFilters: searchQuery.labelFilters,
+        hasFilters: searchQuery.hasFilters,
       },
-    }
+      claims.uid
+    )) || [[], 0]
   }
-
-  // otherwise, search pages
-  const [pages, totalCount] = (await searchPages(
-    {
-      from: Number(startCursor),
-      size: first + 1, // fetch one more item to get next cursor
-      sort: searchQuery.sortParams,
-      query: searchQuery.query,
-      inFilter: searchQuery.inFilter,
-      readFilter: searchQuery.readFilter,
-      typeFilter: searchQuery.typeFilter,
-      labelFilters: searchQuery.labelFilters,
-      hasFilters: searchQuery.hasFilters,
-    },
-    claims.uid
-  )) || [[], 0]
 
   const start =
     startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-  const hasNextPage = pages.length > first
-  const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
+  const hasNextPage = results.length > first
+  const endCursor = String(start + results.length - (hasNextPage ? 1 : 0))
 
   if (hasNextPage) {
     // remove an extra if exists
-    pages.pop()
+    results.pop()
   }
 
-  const edges = pages.map((a) => {
+  const edges = results.map((r) => {
     return {
       node: {
-        ...a,
-        image: a.image && createImageProxyUrl(a.image, 88, 88),
-        isArchived: !!a.archivedAt,
-      },
+        ...r,
+        image: r.image && createImageProxyUrl(r.image, 88, 88),
+        isArchived: !!r.archivedAt,
+        contentReader:
+          r.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
+        originalArticleUrl: r.url,
+        publishedAt: validatedDate(r.publishedAt),
+      } as SearchItem,
       cursor: endCursor,
     }
   })
+
   return {
     edges,
     pageInfo: {
