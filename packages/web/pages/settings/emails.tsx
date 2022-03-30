@@ -224,10 +224,6 @@ export default function EmailsPage(): JSX.Element {
             <Box>
               <StyledText
                 style="fixedHeadline"
-                css={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                }}
               >
                 Email Addresses{' '}
               </StyledText>
