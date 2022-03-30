@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { PlusIcon } from '../../components/elements/images/PlusIcon'
@@ -13,11 +14,9 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
-import { Label } from '../../lib/networking/queries/useGetLabelsQuery'
 import { isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-
-import { useEffect, useState } from 'react'
+import { Label } from '../../lib/networking/fragments/labelFragment'
 import { StyledText } from '../../components/elements/StyledText'
 import {
   ArrowClockwise,
@@ -41,16 +40,17 @@ import {
   Dropdown,
   DropdownOption,
 } from '../../components/elements/DropdownElements'
+import { LabelChip } from '../../components/elements/LabelChip'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
 })
 
 const TableCard = styled(Box, {
+  padding: '0px',
   backgroundColor: '$grayBg',
   display: 'flex',
   alignItems: 'center',
-  padding: '8px 12px',
   border: '0.3px solid $grayBgActive',
   width: '100%',
 
@@ -549,7 +549,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
       '@mdDown': {
         borderTopLeftRadius: isFirstChild ? '5px' : '',
         borderTopRightRadius: isFirstChild ? '5px' : '',
-
       },
       borderBottomLeftRadius: isLastChild ? '5px' : '',
       borderBottomRightRadius: isLastChild ? '5px' : '',
@@ -589,27 +588,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               <Button style="plainIcon" css={{marginRight: '10px'}}>
                 <DotsSixVertical size={16} />
               </Button>
-              <StyledText
-                style="body"
-                css={{
-                  color: text,
-                  fontSize: '14px',
-                  whiteSpace: 'nowrap',
-                  textAlign: 'left',
-                }}
-              >
-                <SpanBox
-                  css={{
-                    border: '1px solid',
-                    borderColor: border,
-                    backgroundColor: background,
-                    borderRadius: '32px',
-                    padding: '4px 8px',
-                  }}
-                >
-                  {labelName}
-                </SpanBox>
-              </StyledText>
+                <LabelChip color={label.color} text={label.name} />
             </HStack>
           )}
           {(showInput && !label) ? (
