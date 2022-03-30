@@ -14,9 +14,9 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
-import { isDarkTheme } from '../../lib/themeUpdater'
+import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { Label } from '../../lib/networking/fragments/labelFragment'
+import { Label } from '../../lib/networking/queries/useGetLabelsQuery'
 import { StyledText } from '../../components/elements/StyledText'
 import {
   ArrowClockwise,
@@ -161,6 +161,8 @@ export default function LabelsPage(): JSX.Element {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
   const breakpoint = 768
+
+  applyStoredTheme(false)
 
   useEffect(() => {
     const handleResizeWindow = () => setWindowWidth(window.innerWidth)
