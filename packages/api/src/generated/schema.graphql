@@ -47,6 +47,8 @@ type Article {
   savedByViewer: Boolean
   sharedComment: String
   shareInfo: LinkShareInfo
+  siteIcon: String
+  siteName: String
   slug: String!
   title: String!
   uploadFileId: ID

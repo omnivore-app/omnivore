@@ -227,7 +227,7 @@ describe("Readability API", function() {
     });
 
     it("should run _cleanClasses with default configuration", function() {
-      var doc = new JSDOMParser().parse(exampleSource);
+      var doc = new JSDOM(exampleSource).window.document;
       var parser = new Readability(doc);
 
       parser._cleanClasses = sinon.fake();
@@ -238,7 +238,7 @@ describe("Readability API", function() {
     });
 
     it("should run _cleanClasses when option keepClasses = false", function() {
-      var doc = new JSDOMParser().parse(exampleSource);
+      var doc = new JSDOM(exampleSource).window.document;
       var parser = new Readability(doc, {keepClasses: false});
 
       parser._cleanClasses = sinon.fake();
@@ -249,7 +249,7 @@ describe("Readability API", function() {
     });
 
     it("shouldn't run _cleanClasses when option keepClasses = true", function() {
-      var doc = new JSDOMParser().parse(exampleSource);
+      var doc = new JSDOM(exampleSource).window.document;
       var parser = new Readability(doc, {keepClasses: true});
 
       parser._cleanClasses = sinon.fake();
