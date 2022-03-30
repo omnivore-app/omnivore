@@ -3,7 +3,7 @@ import os
 import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 
 PG_HOST = os.getenv('PG_HOST', 'localhost')
 PG_PORT = os.getenv('PG_PORT', 5432)
@@ -50,7 +50,7 @@ def assertData(conn, client: Elasticsearch, pages):
                     index='pages_alias',
                     id=pageId,
                     _source=['highlights'])['_source']['highlights'])
-            except Exception as err:
+            except NotFoundError as err:
                 print('Elasticsearch get ERROR:', err)
                 # if page is not found in elasticsearch, skip testing
                 skip += 1
