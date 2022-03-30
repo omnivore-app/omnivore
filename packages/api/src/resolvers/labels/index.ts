@@ -43,14 +43,11 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
 
     try {
       const user = await getRepository(User)
-              .createQueryBuilder("user")
-              .innerJoinAndSelect(
-                "user.labels",
-                "labels",
-              )
-              .where("user.id = :uid", { uid })
-              .orderBy("labels.createdAt", "DESC")
-              .getOne()
+        .createQueryBuilder('user')
+        .innerJoinAndSelect('user.labels', 'labels')
+        .where('user.id = :uid', { uid })
+        .orderBy('labels.createdAt', 'DESC')
+        .getOne()
 
       if (!user) {
         return {
@@ -59,7 +56,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
       }
 
       return {
-        labels: user.labels?.sort((a,b) => a.createdAt.getTime() - b.createdAt.getTime()) || [],
+        labels: user.labels || [],
       }
     } catch (error) {
       log.error(error)
