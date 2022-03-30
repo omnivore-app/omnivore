@@ -32,6 +32,16 @@ export interface SearchBody {
               }
             }
           }
+        | {
+            nested: {
+              path: 'highlights'
+              query: {
+                exists: {
+                  field: 'highlights'
+                }
+              }
+            }
+          }
       )[]
       should: {
         multi_match: {

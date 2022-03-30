@@ -30,6 +30,7 @@ export type SearchFilter = {
   typeFilter?: PageType | undefined
   labelFilters: LabelFilter[]
   sortParams?: SortParams
+  hasFilters: HasFilter[]
 }
 
 export enum LabelFilterType {
@@ -40,6 +41,11 @@ export enum LabelFilterType {
 export type LabelFilter = {
   type: LabelFilterType
   labels: string[]
+}
+
+export enum HasFilter {
+  HIGHLIGHTS,
+  SHARED_AT,
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -134,6 +140,17 @@ const parseSortParams = (str?: string): SortParams | undefined => {
   }
 }
 
+const parseHasFilter = (str?: string): HasFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  switch (str.toUpperCase()) {
+    case 'HIGHLIGHTS':
+      return HasFilter.HIGHLIGHTS
+  }
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -141,6 +158,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     readFilter: ReadFilter.ALL,
     inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
     labelFilters: [],
+    hasFilters: [],
   }
 
   if (!searchQuery) {
@@ -149,11 +167,12 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       inFilter: InFilter.INBOX,
       readFilter: ReadFilter.ALL,
       labelFilters: [],
+      hasFilters: [],
     }
   }
 
   const parsed = parse(searchQuery, {
-    keywords: ['in', 'is', 'type', 'label', 'sort'],
+    keywords: ['in', 'is', 'type', 'label', 'sort', 'has'],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -197,8 +216,12 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           labelFilter && result.labelFilters.push(labelFilter)
           break
         }
-        case 'sort': {
+        case 'sort':
           result.sortParams = parseSortParams(keyword.value)
+          break
+        case 'has': {
+          const hasFilter = parseHasFilter(keyword.value)
+          hasFilter !== undefined && result.hasFilters.push(hasFilter)
           break
         }
       }
