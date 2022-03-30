@@ -118,7 +118,7 @@ export interface SearchResponse<T> {
       _explanation?: Explanation
       fields?: never
       highlight?: never
-      inner_hits?: never
+      inner_hits?: any
       matched_queries?: string[]
       sort?: string[]
     }>
@@ -133,6 +133,7 @@ export enum PageType {
   Profile = 'PROFILE',
   Unknown = 'UNKNOWN',
   Website = 'WEBSITE',
+  Highlights = 'HIGHLIGHTS',
 }
 
 export interface Label {

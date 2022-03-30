@@ -286,6 +286,7 @@ const schema = gql`
     FILE
     PROFILE
     WEBSITE
+    HIGHLIGHTS
     UNKNOWN
   }
 
@@ -1354,6 +1355,53 @@ const schema = gql`
     NOT_FOUND
   }
 
+  # Query: search
+  union SearchResult = SearchSuccess | SearchError
+
+  type SearchItem {
+    # used for pages
+    id: ID!
+    title: String!
+    slug: String!
+    # for uploaded file articles (PDFs), the URL here is the saved omnivore link in GCS
+    url: String!
+    pageType: PageType!
+    contentReader: ContentReader!
+    createdAt: Date!
+    isArchived: Boolean!
+    author: String
+    image: String
+    description: String
+    publishedAt: Date
+    ownedByViewer: Boolean
+    # for uploaded file articles (PDFs), we track the original article URL separately!
+    originalArticleUrl: String
+    uploadFileId: ID
+    # used for highlights
+    pageId: ID
+    shortId: String
+    quote: String
+    annotation: String
+  }
+
+  type SearchItemEdge {
+    cursor: String!
+    node: SearchItem!
+  }
+
+  type SearchSuccess {
+    edges: [SearchItemEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  enum SearchErrorCode {
+    UNAUTHORIZED
+  }
+
+  type SearchError {
+    errorCodes: [SearchErrorCode!]!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1449,6 +1497,7 @@ const schema = gql`
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
+    search(after: String, first: Int, query: String): SearchResult!
   }
 `
 

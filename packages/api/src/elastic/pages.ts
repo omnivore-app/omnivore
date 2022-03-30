@@ -284,11 +284,11 @@ export const searchPages = async (
     size?: number
     sort?: SortParams
     query?: string
-    inFilter: InFilter
-    readFilter: ReadFilter
+    inFilter?: InFilter
+    readFilter?: ReadFilter
     typeFilter?: PageType
-    labelFilters: LabelFilter[]
-    hasFilters: HasFilter[]
+    labelFilters?: LabelFilter[]
+    hasFilters?: HasFilter[]
   },
   userId: string
 ): Promise<[Page[], number] | undefined> => {
@@ -298,11 +298,11 @@ export const searchPages = async (
       size = 10,
       sort,
       query,
-      readFilter,
-      typeFilter,
-      labelFilters,
-      inFilter,
-      hasFilters,
+      readFilter = ReadFilter.ALL,
+      typeFilter = PageType.Article,
+      labelFilters = [],
+      inFilter = InFilter.ALL,
+      hasFilters = [],
     } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
     // default sort by saved_at
