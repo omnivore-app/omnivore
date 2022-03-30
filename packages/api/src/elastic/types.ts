@@ -187,6 +187,25 @@ export interface Page {
   highlights?: Highlight[]
 }
 
+export interface SearchItem {
+  annotation?: string | null
+  author?: string | null
+  createdAt: Date
+  description?: string | null
+  id: string
+  image?: string | null
+  pageId?: string
+  pageType: PageType
+  publishedAt?: Date
+  quote?: string | null
+  shortId?: string | null
+  slug: string
+  title: string
+  uploadFileId?: string | null
+  url: string
+  archivedAt?: Date | null
+}
+
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>

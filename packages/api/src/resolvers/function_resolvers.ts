@@ -16,6 +16,7 @@ import {
   LinkShareInfo,
   PageType,
   Reaction,
+  SearchItem,
   User,
 } from './../generated/graphql'
 
@@ -476,6 +477,19 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext
     ) {
       return userDataToUser(await ctx.models.user.get(reaction.userId))
+    },
+  },
+  SearchItem: {
+    async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
+      if (item.pageType == PageType.File && ctx.claims && item.uploadFileId) {
+        const upload = await ctx.models.uploadFile.get(item.uploadFileId)
+        if (!upload || !upload.fileName) {
+          return undefined
+        }
+        const filePath = generateUploadFilePathName(upload.id, upload.fileName)
+        return generateDownloadSignedUrl(filePath)
+      }
+      return item.url
     },
   },
   ...resultResolveTypeResolver('Login'),
