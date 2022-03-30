@@ -1,7 +1,7 @@
 import { ReportItemInput, ReportType } from '../generated/graphql'
 import { ContentDisplayReport } from '../entity/reports/content_display_report'
 import { AbuseReport } from '../entity/reports/abuse_report'
-import { getPageById } from '../elastic'
+import { getPageById } from '../elastic/pages'
 import { getRepository } from '../entity/utils'
 
 export const saveContentDisplayReport = async (

@@ -9,7 +9,7 @@ import {
 } from '../generated/graphql'
 import { articleSavingRequestDataToArticleSavingRequest } from '../utils/helpers'
 import * as privateIpLib from 'private-ip'
-import { countByCreatedAt } from '../elastic'
+import { countByCreatedAt } from '../elastic/pages'
 
 const isPrivateIP = privateIpLib.default
 
