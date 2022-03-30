@@ -4564,9 +4564,9 @@
     any-observable "^0.3.0"
 
 "@segment/analytics-next@^1.33.5":
-  version "1.33.5"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.33.5.tgz#798e20229ec524deeb4f6311c008543c0fa3c175"
-  integrity sha512-HgyBB0vqWnVCrZ3gJY3tPq11J8RWR2Vs3OuRFg5Exf1+oVtjcQwcR09okKursx0UsvVXYG7mHKQM9yiRVYxqJA==
+  version "1.34.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.34.0.tgz#dfc0ec53a39f3131adf7181d6f6cc74a84f7e8c5"
+  integrity sha512-3hbpLhMqgBrdv8WWB+qZY34F0SE4qx+zbx28D5YHpI5U1u0dEd34IjNSoBigkEHVNOV2Z1Rkyr1UBbQtZVb6Xw==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics.js-video-plugins" "^0.2.1"
@@ -14914,12 +14914,12 @@ node-domexception@1.0.0:
   resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
   integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
 
-node-fetch@2.6.1, node-fetch@^2.3.0, node-fetch@^2.6.1:
+node-fetch@2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
 
-node-fetch@2.6.7, node-fetch@^2.6.7:
+node-fetch@2.6.7, node-fetch@^2.3.0, node-fetch@^2.6.1, node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
