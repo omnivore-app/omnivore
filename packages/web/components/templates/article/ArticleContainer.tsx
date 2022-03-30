@@ -1,6 +1,6 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
@@ -13,6 +13,11 @@ import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { LabelChip } from '../../elements/LabelChip'
+import { EditIcon } from '../../elements/images/EditIcon'
+import { Tag } from 'phosphor-react'
+
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -143,6 +148,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             author={props.article.author}
             href={props.article.url}
           />
+          <HStack>
+            {(props.article.labels?.map((label: Label) =>
+              <LabelChip key={label.id} text={label.name} color={label.color} />
+            ))}
+            {/* <Button style='ctaLightGray' onClick={() => setShowLabelsModal(true)} css={{ height: '100%' }}>
+              <Tag width={22} height={22} color={theme.colors.grayText.toString()} /> Edit Labels
+            </Button> */}
+          </HStack>
           <ArticleHeaderToolbar
             articleTitle={props.article.title}
             articleShareURL={props.highlightsBaseURL}

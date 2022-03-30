@@ -117,6 +117,7 @@ export function makeApolloServer(): ApolloServer {
     formatError: (err) => {
       Sentry.captureException(err)
       // hide error messages from frontend on prod
+      console.log('error', err)
       return new Error('Unexpected server error')
     },
   })

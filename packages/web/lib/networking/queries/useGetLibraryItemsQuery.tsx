@@ -6,7 +6,7 @@ import { articleFragment } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { Label } from './../fragments/labelFragment'
+import { Label, labelFragment } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
 
 export type LibraryItemsQueryInput = {
@@ -94,6 +94,9 @@ export function useGetLibraryItemsQuery({
             node {
               ...ArticleFields
               originalArticleUrl
+              labels {
+                ...LabelFields
+              }
             }
           }
           pageInfo {
@@ -110,6 +113,7 @@ export function useGetLibraryItemsQuery({
       }
     }
     ${articleFragment}
+    ${labelFragment}
   `
 
   const variables = {

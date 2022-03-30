@@ -202,7 +202,7 @@ export const setLabelsResolver = authorized<
 >(async (_, { input }, { claims: { uid }, log, pubsub }) => {
   log.info('setLabelsResolver')
 
-  const { linkId: pageId, labelIds } = input
+  const { pageId, labelIds } = input
 
   try {
     const user = await getRepository(User).findOneBy({ id: uid })
