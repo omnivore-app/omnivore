@@ -444,9 +444,6 @@ export const functionResolvers = {
     },
   },
   Highlight: {
-    // async article(highlight: { articleId: string }, __: unknown) {
-    //   return getPageById(highlight.articleId)
-    // },
     async user(
       highlight: { userId: string },
       __: unknown,

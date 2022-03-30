@@ -89,7 +89,7 @@ def assertData(conn, client):
                 f'SELECT COUNT(*) FROM omnivore.links WHERE user_id = \'{userId}\'''')
             countInPostgres = cursor.fetchone()['count']
             countInElastic = client.count(
-                index='pages', body={'query': {'term': {'userId': userId}}})['count']
+                index='pages_alias', body={'query': {'term': {'userId': userId}}})['count']
 
             if countInPostgres == countInElastic:
                 success += 1
@@ -197,7 +197,7 @@ def import_data_to_es(client, docs) -> int:
         doc['publishedAt'] = validated_date(doc['publishedAt'])
         # convert the string to a dict object
         dict_doc = {
-            '_index': 'pages',
+            '_index': 'pages_alias',
             '_id': doc['id'],
             '_source': doc
         }
