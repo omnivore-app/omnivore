@@ -59,7 +59,7 @@ export default function Newsletters(): JSX.Element {
           it will be forwarded to the email address you used when you registered for Omnivore.
         </p>
 
-        <p>There are multiple ways to have newsletters added directly to your Omnivore library:</p>
+        <p>There are multiple ways to add newsletters to your Omnivore library:</p>
         <ul>
           <li><a href="#updating">Updating your account email to an Omnivore email address</a></li>
           <li><a href="#directly">Subscribe to the newsletter with an Omnivore email address</a></li>
