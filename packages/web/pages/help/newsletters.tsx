@@ -124,31 +124,48 @@ export default function Newsletters(): JSX.Element {
 
         <h2 id="forwarding">Create a Forwarding Rule</h2>
 
-        <p>If you are a Gmail user you can create a forwarding rule to send email from your regular account to your Omnivore email address. This is useful if you have an existing paid newsletter subscription. For free newsletters we recommend subscribing directly to the newsletter with your Omnivore email address.</p>
+        <p>
+          If you are a Gmail user you can create a forwarding rule to send email from your regular account
+          to your Omnivore email address. This is useful if you have an existing paid newsletter subscription and
+          don't want to update your account email address.
+        </p>
+
+        <p>
+          For free newsletters we recommend subscribing directly to the newsletter with your Omnivore email address
+          instead of setting up forwarding rules.
+        </p>
 
         <p>Before you start:</p>
         <ul>
-          <li>Create an Omnivore Email Address by clicking the <HighlightText>Create New Email</HighlightText> button on the <Link href='/settings/emails'>emails page</Link>.</li>
+          <li>Create an Omnivore Email Address by clicking the <AddEmailButton /> button on the <Link href='/settings/emails'>emails page</Link>.</li>
           <li>Make a note of the Newsletter&apos;s sender email address. For example <code>omnivore@substack.com</code>.</li>
         </ul>
 
         <p>Create a forwarding rule:</p>
         <ul>
-          <li>On a computer open your <Link href="https://mail.google.com/mail/u/0/#settings/fwdandpop">Gmail Forwarding Rules</Link>. <code>If clicking the Gmail Forwarding Rules link does not work: click on the Gear icon in the upper right corner of Gmail and select All Settings, then click the Forwarding and POP/IMAP tab</code></li>
-          <li>In the <HighlightText>Forwarding</HighlightText> section click <HighlightText>Add a forwarding address</HighlightText>.</li>
+          <li>
+            On a computer open your <Link href="https://mail.google.com/mail/u/0/#settings/fwdandpop">Gmail Forwarding Rules</Link>.
+            If this link does not work: click on the Gear icon in the upper right corner of Gmail
+              and select All Settings, then click the Forwarding and POP/IMAP tab.
+          </li>
+          <li>In the <b>Forwarding</b> section click <b>Add a forwarding address</b>.</li>
           <li>Enter your Omnivore Email Address (eg <code>username-sdfsd@inbox.omnivore.app</code>) and click Next.</li>
-          <li>Click Proceed</li>
-          <li>Click OK</li>
-          <li><HighlightText>Refresh the Omnivore Newsletter Emails page and you should see a code appear beside your address</HighlightText> (eg 663421251). Copy this code to your clipboard.</li>
-          <li>Return to your forwarding rules section and look for the confirm code text box. Enter the confirmation code you copied and click <code>Verify</code>.</li>
-          <li>In the forwarding section of Gmail, Click on <HighlightText>Creating a Filter</HighlightText></li>
+          <li>Click Proceed and OK</li>
+          <li>Refresh the Omnivore Newsletter Emails page and you should see a code appear beside your address (eg 663421251).
+            Copy this code to your clipboard (click the <CopyButton /> button).
+          </li>
+          <li>
+            Return to your forwarding rules section and look for the confirm code text box.
+            Enter the confirmation code you copied and click <b>Verify</b>.
+          </li>
+          <li>In the forwarding section of Gmail, Click on <b>Creating a Filter</b></li>
           <li>Add the email address of your newsletter (eg omnivore@substack.app) in the <code>From</code> section.</li>
           <li>Click <code>Create Filter</code></li>
-          <li>Choose <HighlightText>Forward it to</HighlightText> and enter your Omnivore Email Address (eg  <code>username-sdfsd@inbox.omnivore.app</code>)</li>
+          <li>Choose <b>Forward it to</b> and enter your Omnivore Email Address (eg  <code>username-sdfsd@inbox.omnivore.app</code>)</li>
           <li>Click <code>Create Filter</code> at the bottom of the dialog.</li>
         </ul>
-
       </Box>
+      <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
 }
