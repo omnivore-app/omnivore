@@ -2085,9 +2085,9 @@
     semver "^7.3.5"
 
 "@google-cloud/logging-winston@^4.1.2":
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/@google-cloud/logging-winston/-/logging-winston-4.1.2.tgz#e49c7119629fb0c73c7b14b079acdc95ac2dbbb6"
-  integrity sha512-jyKkbNbRyxUXWnyygfP9o9IiWERrw4bxOCWhTU+Js0ZpCXiCOCUvVV2zry/THJEi+Gg+I6tmQlz7YIcI2UsK1A==
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/@google-cloud/logging-winston/-/logging-winston-4.2.2.tgz#372b5c17a3ab00a9628c5ae4924f564829c0b3bb"
+  integrity sha512-KUg1VIrUjPyK1+mWNrKjcjCBoMONZSK0qYbGb41WYnhPAECKvjeWDXumO/Zwr66qa7ktvQDnFKRk7ASVmUPWrg==
   dependencies:
     "@google-cloud/logging" "^9.6.9"
     google-auth-library "^7.0.0"
