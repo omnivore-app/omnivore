@@ -37,16 +37,14 @@ export default function Newsletters(): JSX.Element {
       >
         <h1>Read Newsletters in Omnivore</h1>
         <hr />
-        <p>
-          Currently Omnivore supports newsletters from the following providers.
-          <ul>
-            <li>Newsletters hosted on <a href="https://substack.com" target="_blank" rel="noreferrer">substack.com</a></li>
-            <li>The <a href="https://www.axios.com/newsletters" target="_blank" rel="noreferrer">Axios Daily</a> newsletters</li>
-            <li><a href="https://golangweekly.com/" target="_blank" rel="noreferrer">Golang Weekly</a></li>
-          </ul>
-          If there is a newsletter you would like to read in Omnivore, please let us know.
-        </p>
-        
+        <p>Currently Omnivore supports newsletters from the following providers.</p>
+        <ul>
+          <li>Newsletters hosted on <a href="https://substack.com" target="_blank" rel="noreferrer">substack.com</a></li>
+          <li>The <a href="https://www.axios.com/newsletters" target="_blank" rel="noreferrer">Axios Daily</a> newsletters</li>
+          <li><a href="https://golangweekly.com/" target="_blank" rel="noreferrer">Golang Weekly</a></li>
+        </ul>
+        <p>If there is a newsletter you would like to read in Omnivore, please let us know.</p>
+
         <h2>Omnivore Email Addresses</h2>
         <p>
            Omnivore allows you to create unique email addresses for subscribing to newsletters.
@@ -60,12 +58,16 @@ export default function Newsletters(): JSX.Element {
 
         <p>There are multiple ways to have newsletters added directly to your Omnivore library:</p>
         <ul>
-          <li><Link href="#directly">Subscribe to the newsletter with an Omnivore email address</Link></li>
-          <li><Link href="#forwarding">Create a forwarding rule from your email account</Link></li>
+          <li><a href="#updating">Updating your account email to an Omnivore email address</a></li>
+          <li><a href="#directly">Subscribe to the newsletter with an Omnivore email address</a></li>
+          <li><a href="#forwarding">Create a forwarding rule from your email account</a></li>
         </ul>
 
-        {/* <h2>Notifications</h2>
-        <p>If you are a registered iOS user and have granted push notification permission to Omnivore, you will be sent a notification when a newsletter is added to your library. Otherwise, you will be notified via your registered email address.</p> */}
+        <h2 id="updating">Updating your account email</h2>
+        <p>
+        If you want all your substack newsletters sent to Omnivore, you can login and change the
+        address on <a href="https://substack.com/account/settings">your account page</a> in Substack.
+        </p>
 
         <h2 id="directly">Subscribing Directly</h2>
         <p>Create your first email address by clicking the <HighlightText>Create New Email</HighlightText> button on
@@ -79,11 +81,6 @@ export default function Newsletters(): JSX.Element {
             alt="Animated image setting up an Omnivore Email Address"
           />
         </HStack>
-
-        <p>
-        If you want all your substack newsletters sent to Omnivore, you can login and change the
-        address on <a href="https://substack.com/account/settings">your account page</a> in Substack.
-        </p>
 
         <h2 id="forwarding">Create a Forwarding Rule</h2>
 
