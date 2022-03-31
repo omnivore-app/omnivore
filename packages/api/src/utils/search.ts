@@ -92,6 +92,8 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
       return PageType.Website
     case 'unknown':
       return PageType.Unknown
+    case 'highlights':
+      return PageType.Highlights
   }
   return undefined
 }

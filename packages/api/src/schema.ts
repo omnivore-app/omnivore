@@ -1474,6 +1474,7 @@ const schema = gql`
       sort: SortParams
       after: String
       first: Int
+      query: String
     ): ArticlesResult!
     article(username: String!, slug: String!): ArticleResult!
     sharedArticle(

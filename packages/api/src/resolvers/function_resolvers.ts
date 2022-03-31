@@ -55,6 +55,7 @@ import {
   saveFileResolver,
   savePageResolver,
   saveUrlResolver,
+  searchResolver,
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFollowResolver,
@@ -154,6 +155,7 @@ export const functionResolvers = {
     newsletterEmails: newsletterEmailsResolver,
     reminder: reminderResolver,
     labels: labelsResolver,
+    search: searchResolver,
   },
   User: {
     async sharedArticles(
@@ -539,4 +541,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('Signup'),
   ...resultResolveTypeResolver('SetLabels'),
+  ...resultResolveTypeResolver('Search'),
 }
