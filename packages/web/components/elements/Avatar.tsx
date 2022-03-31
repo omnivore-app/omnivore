@@ -52,5 +52,5 @@ const StyledFallback = styled(Fallback, {
   fontSize: '$2',
   fontWeight: 700,
   backgroundColor: '$avatarBg',
-  color: '$avatarFont',
+  color: '$toolColor',
 })

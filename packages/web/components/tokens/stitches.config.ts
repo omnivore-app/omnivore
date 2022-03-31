@@ -160,7 +160,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         // Avatar Fallback color
         avatarBg: '#FFFFFF',
-        avatarFont: '#0A0806',
+        toolColor: '#0A0806',
 
         labelButtonsBg: '#F5F5F4',
         tooltipIcons: '#FDFAEC'
@@ -212,7 +212,7 @@ const darkThemeSpec = {
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
-    avatarFont: 'rgba(255, 255, 255, 0.8)',
+    toolColor: 'rgba(255, 255, 255, 0.8)',
 
     labelButtonsBg: '#5F5E58',
   },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { styled } from '../tokens/stitches.config'
+import { styled, theme } from '../tokens/stitches.config'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { HexColorPicker } from 'react-colorful'
 import { Button } from './Button'
@@ -17,6 +17,7 @@ import {
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
 import { DropdownOption } from './DropdownElements'
 import { isDarkTheme } from '../../lib/themeUpdater'
+import { useDarkModeListener } from '../../lib/hooks/useDarkModeListener'
 
 const DropdownMenuContent = styled(DropdownMenuPrimitive.Content, {
   maxWidth: 190,
@@ -77,8 +78,6 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
     setLabelColorHex,
   } = props
 
-  const isDarkMode = isDarkTheme()
-  const iconColor = isDarkMode ? '#FFFFFF': '#0A0806'
   const [open, setOpen] = useState<boolean | undefined>(false);
 
   const handleCustomColorChange = (color: string) => {
@@ -147,7 +146,7 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
             )}
           </SpanBox>
 
-          <CaretDown size={16} color={iconColor} weight="bold" />
+          <CaretDown size={16} color={theme.colors.toolColor.toString()} weight="bold" />
         </Button>
       </DropdownMenuTrigger>
 

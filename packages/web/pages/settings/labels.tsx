@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { PlusIcon } from '../../components/elements/images/PlusIcon'
-import { styled } from '../../components/tokens/stitches.config'
+import { styled, theme } from '../../components/tokens/stitches.config'
 import {
   Box,
   SpanBox,
@@ -14,7 +14,7 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
-import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
+import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label } from '../../lib/networking/queries/useGetLabelsQuery'
 import { StyledText } from '../../components/elements/StyledText'
@@ -24,7 +24,6 @@ import {
   PencilSimple,
   Trash,
   Plus,
-  DotsSixVertical,
 } from 'phosphor-react'
 import {
   LabelColor,
@@ -470,9 +469,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
     editingLabelId === label?.id || (isCreateMode && !label)
   const labelName = label?.name || nameInputText
 
-  const isDarkMode = isDarkTheme()
-  const iconColor = isDarkMode ? '#D8D7D5': '#5F5E58'
-
   const handleEdit = () => {
     editingLabelId && updateLabel(editingLabelId)
     setEditingLabelId(null)
@@ -492,7 +488,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
         disabled={isCreateMode}
       >
         <Dropdown
-          triggerElement={<DotsThree size={24} color={iconColor} />}
+          triggerElement={<DotsThree size={24} color={theme.colors.toolColor.toString()} />}
         >
           <DropdownOption onSelect={() => null}>
             <Button
@@ -507,7 +503,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               onClick={() => onEditPress(label)}
               disabled={isCreateMode}
             >
-              <PencilSimple size={24} color={iconColor} />
+              <PencilSimple size={24} color={theme.colors.toolColor.toString()} />
               <StyledText
                 color="$grayText"
                 css={{ fontSize: '$5', marginLeft: '$2' }}
@@ -683,7 +679,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                 onClick={() => handleGenerateRandomColor(label?.id)}
                 disabled={!(isCreateMode && !label) && !(editingLabelId === label?.id)}
               >
-                <ArrowClockwise size={16} color={iconColor} />
+                <ArrowClockwise size={16} color={theme.colors.toolColor.toString()} />
               </IconButton>
             </Box>
           </TooltipWrapped>
@@ -741,7 +737,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                   onClick={() => onEditPress(label)}
                   disabled={isCreateMode}
                 >
-                  <PencilSimple size={16} color={iconColor} />
+                  <PencilSimple size={16} color={theme.colors.toolColor.toString()} />
                 </IconButton>
                 <IconButton
                   style="ctaWhite"
@@ -749,7 +745,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                   onClick={() => deleteLabel(label.id)}
                   disabled={isCreateMode}
                 >
-                  <Trash size={16} color={iconColor} />
+                  <Trash size={16} color={theme.colors.toolColor.toString()} />
                 </IconButton>
                 {moreActionsButton()}
               </HStack>
