@@ -1382,6 +1382,7 @@ const schema = gql`
     shortId: String
     quote: String
     annotation: String
+    labels: [Label!]
   }
 
   type SearchItemEdge {
