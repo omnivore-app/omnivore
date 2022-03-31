@@ -1,0 +1,14 @@
+{
+  "name": "@omnivore/cypress",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {},
+  "dependencies": {
+    "cypress": "^9.5.3"
+  },
+  "devDependencies": {},
+  "volta": {
+    "node": "14.18.0",
+    "yarn": "1.22.10"
+  }
+}
