@@ -70,9 +70,10 @@ type DropdownProps = {
   labelText?: string
   showArrow?: boolean
   triggerElement: React.ReactNode
-  children: React.ReactNode,
+  children: React.ReactNode
   styledArrow?: boolean
-  align?: DropdownAlignment 
+  align?: DropdownAlignment
+  disabled?: boolean
   css?: CSS
 }
 
@@ -106,11 +107,12 @@ export function Dropdown({
   triggerElement,
   labelText,
   showArrow = true,
+  disabled = false,
   css
 }: DropdownProps): JSX.Element {
   return (
     <Root modal={false}>
-      <DropdownTrigger>{triggerElement}</DropdownTrigger>
+      <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
       <DropdownContent
         css={css}
         onInteractOutside={(event) => {

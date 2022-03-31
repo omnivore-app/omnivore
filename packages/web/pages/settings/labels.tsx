@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import { PlusIcon } from '../../components/elements/images/PlusIcon'
-import { styled, theme } from '../../components/tokens/stitches.config'
+import { styled } from '../../components/tokens/stitches.config'
 import {
   Box,
   SpanBox,
@@ -14,9 +14,10 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label } from '../../lib/networking/queries/useGetLabelsQuery'
+
 import { StyledText } from '../../components/elements/StyledText'
 import {
   ArrowClockwise,
@@ -24,6 +25,7 @@ import {
   PencilSimple,
   Trash,
   Plus,
+  DotsSixVertical,
 } from 'phosphor-react'
 import {
   LabelColor,
@@ -126,18 +128,37 @@ const inputStyles = {
   },
 }
 
+const ActionsWrapper = styled(Box, {
+  mr: '$1',
+  display: 'flex',
+  width: 40,
+  height: 40,
+  alignItems: 'center',
+  bg: 'transparent',
+  cursor: 'pointer',
+  fontFamily: 'inter',
+  fontSize: '$2',
+  lineHeight: '1.25',
+  color: '$grayText',
+  '&:hover': {
+    opacity: 0.8,
+  },
+})
+
 const IconButton = styled(Button, {
   variants: {
     style: {
       ctaWhite: {
         color: 'red',
-        padding: '14px',
+        padding: '10px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         border: '1px solid $grayBorder',
         boxSizing: 'border-box',
         borderRadius: 6,
+        width: 40,
+        height: 40,
       },
     },
   },
@@ -270,13 +291,16 @@ export default function LabelsPage(): JSX.Element {
                     }}
                     style="ctaDarkYellow"
                     css={{
+                      alignItems: 'center',
                       display: 'none',
                       '@md': {
                         display: 'flex',
                       },
                     }}
                   >
-                    <PlusIcon size={20} strokeColor={'#0A0806'} />
+                    <Box style={{ display: 'flex', marginTop: 4, }}>
+                      <PlusIcon size={20} strokeColor={'#0A0806'} />
+                    </Box>
                     <SpanBox>Create New Label</SpanBox>
                   </Button>
                   <Box
@@ -309,40 +333,28 @@ export default function LabelsPage(): JSX.Element {
                 style="highlightTitle"
                 css={{
                   color: '$grayTextContrast',
-                  padding: '0 5px 0 60px',
+                  padding: '0 5px 0 30px',
                 }}
               >
                 Name
               </StyledText>
             </Box>
-            <Box style={{ flex: '35%' }}>
+            <Box>
               <StyledText
                 style="highlightTitle"
                 css={{
                   color: '$grayTextContrast',
+                  ml: 5,
                 }}
               >
                 Description
               </StyledText>
             </Box>
-            {/* <Box>
+            <Box>
               <StyledText
                 style="highlightTitle"
                 css={{
                   color: '$grayTextContrast',
-                  textAlign: 'right',
-                  paddingRight: '40px',
-                }}
-              >
-                Uses
-              </StyledText>
-            </Box> */}
-            <Box style={{ flex: '30%' }}>
-              <StyledText
-                style="highlightTitle"
-                css={{
-                  color: '$grayTextContrast',
-                  paddingLeft: '15px',
                 }}
               >
                 Color
@@ -354,7 +366,7 @@ export default function LabelsPage(): JSX.Element {
                 css={{
                   color: '$grayTextContrast',
                   display: 'flex',
-                  justifyContent: 'center',
+                  ml: 5,
                 }}
               >
                 Actions
@@ -469,6 +481,9 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
     editingLabelId === label?.id || (isCreateMode && !label)
   const labelName = label?.name || nameInputText
 
+  const isDarkMode = isDarkTheme()
+  const iconColor = isDarkMode ? '#D8D7D5': '#5F5E58'
+
   const handleEdit = () => {
     editingLabelId && updateLabel(editingLabelId)
     setEditingLabelId(null)
@@ -476,19 +491,10 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
 
   const moreActionsButton = () => {
     return (
-      <Button
-        style="plainIcon"
-        css={{
-          mr: '$1',
-          display: 'flex',
-          background: 'transparent',
-          border: 'none',
-        }}
-        onClick={() => true}
-        disabled={isCreateMode}
-      >
+      <ActionsWrapper>
         <Dropdown
-          triggerElement={<DotsThree size={24} color={theme.colors.toolColor.toString()} />}
+          disabled={isCreateMode}
+          triggerElement={<DotsThree size={24} color={iconColor} />}
         >
           <DropdownOption onSelect={() => null}>
             <Button
@@ -503,7 +509,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               onClick={() => onEditPress(label)}
               disabled={isCreateMode}
             >
-              <PencilSimple size={24} color={theme.colors.toolColor.toString()} />
+              <PencilSimple size={24} color={iconColor} />
               <StyledText
                 color="$grayText"
                 css={{ fontSize: '$5', marginLeft: '$2' }}
@@ -534,7 +540,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             </Button>
           </DropdownOption>
         </Dropdown>
-      </Button>
+      </ActionsWrapper>
     )
   }
 
@@ -570,7 +576,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           },
           '@md': {
             // gridTemplateColumns: '20% 15% 1fr 1fr 1fr',
-            gridTemplateColumns: '20% 30% 1fr 1fr',
+            gridTemplateColumns: '20% 28% 1fr 1fr',
           },
         }}
       >
@@ -581,9 +587,9 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             padding: '0 5px',
           }}
         >
-          {(showInput || !label) ? null : (
+          {(showInput && !label) ? null : (
             <HStack alignment="center" css={{ ml: '16px' }}>
-              <LabelChip color={label.color} text={label.name} />
+              <LabelChip color={label?.color || ''} text={label?.name || ''} />
             </HStack>
           )}
           {(showInput && !label) ? (
@@ -628,22 +634,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           )}
         </HStack>
 
-        {/* <HStack
-          distribution="end"
-          alignment="center"
-          css={{
-            display: 'none',
-            '@md': {
-              display: 'flex',
-              paddingRight: '30px',
-            },
-          }}
-        >
-          <StyledText css={{ fontSize: '$2' }}>
-            {isCreateMode && !label ? '-' : 536}
-          </StyledText>
-        </HStack> */}
-
         <HStack
           distribution="start"
           css={{
@@ -672,14 +662,14 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                 style="ctaWhite"
                 css={{
                   mr: '$1',
-                  width: 46,
-                  height: 46,
+                  width: 40,
+                  height: 40,
                   background: '$labelButtonsBg',
                 }}
                 onClick={() => handleGenerateRandomColor(label?.id)}
                 disabled={!(isCreateMode && !label) && !(editingLabelId === label?.id)}
               >
-                <ArrowClockwise size={16} color={theme.colors.toolColor.toString()} />
+                <ArrowClockwise size={16} color={iconColor} />
               </IconButton>
             </Box>
           </TooltipWrapped>
@@ -693,9 +683,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           alignment="center"
           css={{
             padding: '4px 8px',
-            '@md': {
-              justifyContent: 'center',
-            },
           }}
         >
             {editingLabelId === label?.id || !label ? (
@@ -721,8 +708,8 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               </>
             ) : (
               <HStack
-                distribution="end"
-                alignment="center"
+                distribution="start"
+                alignment="start"
                 css={{
                   display: 'none',
                   '@md': {
@@ -737,7 +724,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                   onClick={() => onEditPress(label)}
                   disabled={isCreateMode}
                 >
-                  <PencilSimple size={16} color={theme.colors.toolColor.toString()} />
+                  <PencilSimple size={16} color={iconColor} />
                 </IconButton>
                 <IconButton
                   style="ctaWhite"
@@ -745,29 +732,12 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                   onClick={() => deleteLabel(label.id)}
                   disabled={isCreateMode}
                 >
-                  <Trash size={16} color={theme.colors.toolColor.toString()} />
+                  <Trash size={16} color={iconColor} />
                 </IconButton>
                 {moreActionsButton()}
               </HStack>
             )}
         </HStack>
-        {/* <Box className="showHidden">
-          <StyledText
-            style="body"
-            css={{
-              color: '$grayTextContrast',
-              fontSize: '14px',
-              marginBottom: '$2',
-            }}
-          >
-            {label?.description}
-          </StyledText>
-          <StyledText
-            css={{ fontSize: '$2', textAlign: 'right', color: '$grayText' }}
-          >
-            {536} Uses
-          </StyledText>
-        </Box> */}
       </TableCardBox>
     </TableCard>
   )
