@@ -13,7 +13,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:build": "jest && next build",
-    "upgrade-psdpdfkit": "cp -R '../../node_modules/pspdfkit/dist/pspdfkit-lib' public/pspdfkit-lib"
+    "upgrade-psdpdfkit": "cp -R '../../node_modules/pspdfkit/dist/pspdfkit-lib' public/pspdfkit-lib",
+    "storybook": "start-storybook -p 6006 -s ./public",
+    "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
     "@radix-ui/colors": "^0.1.7",
@@ -45,6 +47,15 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@storybook/addon-actions": "^6.4.19",
+    "@storybook/addon-essentials": "^6.4.19",
+    "@storybook/addon-interactions": "^6.4.19",
+    "@storybook/addon-links": "^6.4.19",
+    "@storybook/builder-webpack5": "^6.4.19",
+    "@storybook/manager-webpack5": "^6.4.19",
+    "@storybook/react": "^6.4.19",
+    "@storybook/testing-library": "^0.0.9",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "13.5.0",
@@ -57,11 +68,13 @@
     "@types/segment-analytics": "^0.0.34",
     "@types/uuid": "^8.3.1",
     "babel-jest": "^27.4.5",
+    "babel-loader": "^8.2.3",
     "eslint-config-next": "12.0.7",
     "eslint-plugin-functional": "^4.0.2",
     "eslint-plugin-react": "^7.28.0",
     "graphql": "^15.6.1",
-    "jest": "^27.4.5"
+    "jest": "^27.4.5",
+    "storybook-addon-next-router": "^3.1.1"
   },
   "volta": {
     "node": "14.18.0",
