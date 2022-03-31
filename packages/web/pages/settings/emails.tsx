@@ -22,7 +22,7 @@ import { toast, Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showSuccessToast } from '../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import Link from 'next/link'
 
 enum TextType {
@@ -185,9 +185,15 @@ export default function EmailsPage(): JSX.Element {
   applyStoredTheme(false)
 
   async function createEmail(): Promise<void> {
-    showSuccessToast('Email Created')
-    await createNewsletterEmailMutation()
-    revalidate()
+    try {
+      const email = await createNewsletterEmailMutation()
+      if (email) {
+        showSuccessToast('Email Created')
+        revalidate()
+        return
+      }
+    } catch { }
+    showErrorToast('Error Creating Email')
   }
   async function deleteEmail(id: string): Promise<void> {
     await deleteNewsletterEmailMutation(id)
