@@ -204,7 +204,7 @@ struct WebReaderContainerView: View {
               Color.systemBackground
                 .transition(.opacity)
                 .onAppear {
-                  DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
                     withAnimation(.linear(duration: 0.2)) {
                       showOverlay = false
                     }
