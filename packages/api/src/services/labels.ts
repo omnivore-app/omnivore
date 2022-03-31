@@ -1,9 +1,26 @@
 import { Label } from '../entity/label'
-import { ILike } from 'typeorm'
+import { ILike, In } from 'typeorm'
 import { PageContext } from '../elastic/types'
 import { User } from '../entity/user'
 import { addLabelInPage } from '../elastic'
-import { AppDataSource } from '../server'
+import { getRepository } from '../entity/utils'
+import { Link } from '../entity/link'
+import DataLoader from 'dataloader'
+
+const batchGetLabelsFromLinkIds = async (
+  linkIds: readonly string[]
+): Promise<Label[][]> => {
+  const links = await getRepository(Link).find({
+    where: { id: In(linkIds as string[]) },
+    relations: ['labels'],
+  })
+
+  return linkIds.map(
+    (linkId) => links.find((link) => link.id === linkId)?.labels || []
+  )
+}
+
+export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
 
 export const addLabelToPage = async (
   ctx: PageContext,
@@ -14,14 +31,14 @@ export const addLabelToPage = async (
     description?: string
   }
 ): Promise<boolean> => {
-  const user = await AppDataSource.getRepository(User).findOneBy({
+  const user = await getRepository(User).findOneBy({
     id: ctx.uid,
   })
   if (!user) {
     return false
   }
 
-  let labelEntity = await AppDataSource.getRepository(Label).findOneBy({
+  let labelEntity = await getRepository(Label).findOneBy({
     user: user,
     name: ILike(label.name),
   })
@@ -29,7 +46,7 @@ export const addLabelToPage = async (
   if (!labelEntity) {
     console.log('creating new label', label.name)
 
-    labelEntity = await AppDataSource.getRepository(Label).save({
+    labelEntity = await getRepository(Label).save({
       ...label,
       user,
     })

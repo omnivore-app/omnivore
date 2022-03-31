@@ -4,6 +4,7 @@ import { User } from '../entity/user'
 import { CreateNewsletterEmailErrorCode } from '../generated/graphql'
 import { env } from '../env'
 import { AppDataSource } from '../server'
+import { getRepository } from '../entity/utils'
 
 import addressparser = require('nodemailer/lib/addressparser')
 
@@ -18,7 +19,7 @@ const parsedAddress = (emailAddress: string): string | undefined => {
 export const createNewsletterEmail = async (
   userId: string
 ): Promise<NewsletterEmail> => {
-  const user = await AppDataSource.getRepository(User).findOne({
+  const user = await getRepository(User).findOne({
     where: { id: userId },
     relations: ['profile'],
   })
@@ -30,7 +31,7 @@ export const createNewsletterEmail = async (
   // generate a random email address with username prefix
   const emailAddress = createRandomEmailAddress(user.profile.username, 8)
 
-  return AppDataSource.getRepository(NewsletterEmail).save({
+  return getRepository(NewsletterEmail).save({
     address: emailAddress,
     user: user,
   })
@@ -39,14 +40,14 @@ export const createNewsletterEmail = async (
 export const getNewsletterEmails = async (
   user: User
 ): Promise<NewsletterEmail[]> => {
-  return AppDataSource.getRepository(NewsletterEmail).find({
+  return getRepository(NewsletterEmail).find({
     where: { user: { id: user.id } },
     order: { createdAt: 'DESC' },
   })
 }
 
 export const deleteNewsletterEmail = async (id: string): Promise<boolean> => {
-  const result = await AppDataSource.getRepository(NewsletterEmail).delete(id)
+  const result = await getRepository(NewsletterEmail).delete(id)
 
   return !!result.affected
 }
@@ -56,7 +57,7 @@ export const updateConfirmationCode = async (
   confirmationCode: string
 ): Promise<boolean> => {
   const address = parsedAddress(emailAddress)
-  const result = await AppDataSource.getRepository(NewsletterEmail)
+  const result = await getRepository(NewsletterEmail)
     .createQueryBuilder()
     .where('address ILIKE :address', { address })
     .update({
@@ -71,7 +72,7 @@ export const getNewsletterEmail = async (
   emailAddress: string
 ): Promise<NewsletterEmail | null> => {
   const address = parsedAddress(emailAddress)
-  return AppDataSource.getRepository(NewsletterEmail)
+  return getRepository(NewsletterEmail)
     .createQueryBuilder('newsletter_email')
     .innerJoinAndSelect('newsletter_email.user', 'user')
     .where('address ILIKE :address', { address })

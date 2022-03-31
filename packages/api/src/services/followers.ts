@@ -1,6 +1,6 @@
 import { User } from '../entity/user'
 import { Follower } from '../entity/follower'
-import { AppDataSource } from '../server'
+import { getRepository } from '../entity/utils'
 
 export const getUserFollowers = async (
   user: User,
@@ -8,7 +8,7 @@ export const getUserFollowers = async (
   count?: number
 ): Promise<User[]> => {
   return (
-    await AppDataSource.getRepository(Follower).find({
+    await getRepository(Follower).find({
       where: { user: user },
       relations: ['user', 'followee'],
       skip: offset,
@@ -23,7 +23,7 @@ export const getUserFollowing = async (
   count?: number
 ): Promise<User[]> => {
   return (
-    await AppDataSource.getRepository(Follower).find({
+    await getRepository(Follower).find({
       where: { followee: user },
       relations: ['user', 'followee'],
       skip: offset,

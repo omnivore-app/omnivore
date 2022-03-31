@@ -3,6 +3,7 @@ import {
   createTestPage,
   createTestUser,
   deleteTestUser,
+  getRepository,
 } from '../db'
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
@@ -10,7 +11,6 @@ import { SharedArticleErrorCode } from '../../src/generated/graphql'
 import { Page } from '../../src/entity/page'
 import { Link } from '../../src/entity/link'
 import { Highlight } from '../../src/entity/highlight'
-import { getRepository } from 'typeorm'
 import 'mocha'
 
 describe('User feed article API', () => {

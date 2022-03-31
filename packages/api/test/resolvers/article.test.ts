@@ -1,4 +1,9 @@
-import { createTestLabel, createTestUser, deleteTestUser } from '../db'
+import {
+  createTestLabel,
+  createTestUser,
+  deleteTestUser,
+  getRepository,
+} from '../db'
 import {
   createTestElasticPage,
   generateFakeUuid,
@@ -19,7 +24,6 @@ import {
 } from '../../src/elastic'
 import { PageType, UploadFileStatus } from '../../src/generated/graphql'
 import { Page, PageContext } from '../../src/elastic/types'
-import { getRepository } from 'typeorm'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 

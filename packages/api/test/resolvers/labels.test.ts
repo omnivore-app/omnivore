@@ -1,4 +1,9 @@
-import { createTestLabel, createTestUser, deleteTestUser } from '../db'
+import {
+  createTestLabel,
+  createTestUser,
+  deleteTestUser,
+  getRepository,
+} from '../db'
 import {
   createTestElasticPage,
   generateFakeUuid,
@@ -7,7 +12,6 @@ import {
 } from '../util'
 import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
-import { getRepository } from 'typeorm'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
@@ -203,7 +207,7 @@ describe('Labels API', () => {
 
       it('should delete label', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const label = await getRepository(Label).findOne(labelId)
+        const label = await getRepository(Label).findOneBy({ id: labelId })
         expect(label).to.not.exist
       })
     })

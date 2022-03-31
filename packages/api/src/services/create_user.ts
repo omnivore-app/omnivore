@@ -8,6 +8,7 @@ import { validateUsername } from '../utils/usernamePolicy'
 import { Invite } from '../entity/groups/invite'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { AppDataSource } from '../server'
+import { getRepository } from '../entity/utils'
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -29,7 +30,7 @@ export const createUser = async (input: {
     }
 
     // create profile if user exists but profile does not exist
-    const profile = await AppDataSource.getRepository(Profile).save({
+    const profile = await getRepository(Profile).save({
       username: input.username,
       pictureUrl: input.pictureUrl,
       bio: input.bio,
@@ -109,7 +110,7 @@ const validateInvite = async (
 }
 
 const getUser = async (email: string): Promise<User | null> => {
-  const userRepo = AppDataSource.getRepository(User)
+  const userRepo = getRepository(User)
 
   return userRepo.findOne({
     where: { email: email },

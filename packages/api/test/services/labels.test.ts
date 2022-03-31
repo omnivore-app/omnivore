@@ -1,18 +1,18 @@
 import 'mocha'
 import { expect } from 'chai'
 import 'chai/register-should'
-import { labelsLoader } from '../../src/services/labels'
 import {
   createTestLabel,
   createTestLink,
   createTestPage,
   createTestUser,
   deleteTestUser,
+  getRepository,
 } from '../db'
-import { getRepository } from 'typeorm'
 import { LinkLabel } from '../../src/entity/link_label'
 import { Label } from '../../src/entity/label'
 import { Link } from '../../src/entity/link'
+import { labelsLoader } from '../../src/services/labels'
 
 describe('batch get labels from linkIds', () => {
   let username = 'testUser'
