@@ -1,5 +1,15 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
+import { NewsletterEmail } from '../queries/useGetNewsletterEmailsQuery'
+
+type CreateNewsletterEmailResult = {
+  createNewsletterEmail: CreateNewsletterEmail
+  errorCodes?: unknown[]
+}
+
+type CreateNewsletterEmail = {
+  newsletterEmail: NewsletterEmail
+}
 
 export async function createNewsletterEmailMutation(): Promise<string | undefined> {
   const mutation = gql`
@@ -19,9 +29,9 @@ export async function createNewsletterEmailMutation(): Promise<string | undefine
   `
 
   try {
-    const data = await gqlFetcher(mutation)
+    const data = await gqlFetcher(mutation) as CreateNewsletterEmailResult
     console.log('created email', data)
-    return 'data'
+    return data.errorCodes ? undefined : data.createNewsletterEmail.newsletterEmail.id
   } catch (error) {
     console.log('createNewsletterEmailMutation error', error)
     return undefined
