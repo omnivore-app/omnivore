@@ -146,7 +146,8 @@ export const searchHighlights = async (
     const { from = 0, size = 10, sort, query } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
     // default sort by updatedAt
-    const sortField = sort?.by === SortBy.Score ? '_score' : 'updatedAt'
+    const sortField =
+      sort?.by === SortBy.Score ? '_score' : 'highlights.updatedAt'
 
     const searchBody = {
       query: {
@@ -157,7 +158,7 @@ export const searchHighlights = async (
               filter: [
                 {
                   term: {
-                    userId,
+                    'highlights.userId': userId,
                   },
                 },
               ],
@@ -165,7 +166,7 @@ export const searchHighlights = async (
                 {
                   multi_match: {
                     query,
-                    fields: ['quote', 'annotation'],
+                    fields: ['highlights.quote', 'highlights.annotation'],
                     operator: 'and',
                     type: 'cross_fields',
                   },
@@ -174,19 +175,19 @@ export const searchHighlights = async (
               minimum_should_match: 1,
             },
           },
-          sort: [
-            {
-              [sortField]: {
-                order: sortOrder,
-              },
-            },
-          ],
-          from,
-          size,
           inner_hits: {},
         },
       },
-      _source: ['highlights', 'title', 'slug', 'url', 'createdAt'],
+      sort: [
+        {
+          [sortField]: {
+            order: sortOrder,
+          },
+        },
+      ],
+      from,
+      size,
+      _source: ['title', 'slug', 'url', 'createdAt'],
     }
 
     console.log('searching highlights in elastic', JSON.stringify(searchBody))
