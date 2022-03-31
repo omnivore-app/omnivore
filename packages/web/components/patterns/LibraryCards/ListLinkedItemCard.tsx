@@ -25,7 +25,7 @@ export function ListLinkedItemCardNarrow(
   props: LinkedItemCardProps
 ): JSX.Element {
   return (
-    <HStack
+    <Box
       css={{
         p: '$3',
         height: '100%',
@@ -37,6 +37,9 @@ export function ListLinkedItemCardNarrow(
         border: '1px solid $grayBorder',
         borderBottom: 'none',
         alignItems: 'center',
+        display: 'grid',
+        gridTemplateColumns: '1fr 24px',
+        gridTemplateRows: '1fr',
       }}
       onClick={() => {
         props.handleAction('showDetail')
@@ -47,7 +50,6 @@ export function ListLinkedItemCardNarrow(
         alignment="end"
         css={{
           px: '$2',
-          flexGrow: 1,
           pl: '0px',
         }}
       >
@@ -108,7 +110,7 @@ export function ListLinkedItemCardNarrow(
           actionHandler={props.handleAction}
         />
       </Box>
-    </HStack>
+    </Box>
   )
 }
 
