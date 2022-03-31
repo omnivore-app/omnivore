@@ -3,14 +3,11 @@ import { Box, HStack, SpanBox } from '../../components/elements/LayoutPrimitives
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import Link from 'next/link'
-import { StyledText } from '../../components/elements/StyledText'
-import { styled } from '@stitches/react'
 import { Copy, Plus } from 'phosphor-react'
 import { theme } from '../../components/tokens/stitches.config'
 
 const AddEmailButton = () => {
   return (<Button
-    onClick={() => {}}
     style="ctaDarkYellow"
     css={{
       cursor: 'default',
@@ -31,7 +28,6 @@ const CopyButton = () => {
       cursor: 'default',
       display: 'inline-flex',
     }}
-    onClick={() => {}}
   >
     <Copy color={theme.colors.grayTextContrast.toString()} />
   </Button>)
@@ -122,7 +118,7 @@ export default function Newsletters(): JSX.Element {
         <p>
           If you are a Gmail user you can create a forwarding rule to send email from your regular account
           to your Omnivore email address. This is useful if you have an existing paid newsletter subscription and
-          don't want to update your account email address.
+          don&apos;t want to update your account email address.
         </p>
 
         <p>

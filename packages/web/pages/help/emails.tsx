@@ -1,41 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-import { Box, HStack, SpanBox } from '../../components/elements/LayoutPrimitives'
+import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
 import Link from 'next/link'
-import { StyledText } from '../../components/elements/StyledText'
-import { styled } from '@stitches/react'
-import { Copy, Plus } from 'phosphor-react'
-import { theme } from '../../components/tokens/stitches.config'
-
-const AddEmailButton = () => {
-  return (<Button
-    onClick={() => {}}
-    style="ctaDarkYellow"
-    css={{
-      cursor: 'default',
-      display: 'inline-flex',
-      alignItems: 'center',
-    }}
-  >
-    <Plus size={18} style={{ marginRight: '6.5px' }} />
-    <SpanBox>Add Email</SpanBox>
-  </Button>)
-}
-
-const CopyButton = () => {
-  return (
-    <Button style="plainIcon" css={{
-      pl: '2px',
-      pr: '4px',
-      cursor: 'default',
-      display: 'inline-flex',
-    }}
-    onClick={() => {}}
-  >
-    <Copy color={theme.colors.grayTextContrast.toString()} />
-  </Button>)
-}
 
 export default function Emails(): JSX.Element {
   return (
@@ -68,7 +35,7 @@ export default function Emails(): JSX.Element {
           and add the content to your library.
         </p>
         <p>
-          If Omnivore doesn't think the item should be added to your library, 
+          If Omnivore doesn&apos;t think the item should be added to your library,
           it will be forwarded to the email address you used when you registered
           for Omnivore (from <code>msgs@omnivore.app</code>).
         </p>
@@ -86,7 +53,7 @@ export default function Emails(): JSX.Element {
           will be added to your library when we receive them.
         </p>
 
-        <p><a href="/help/newsletters">Learn more about setting up newsletters</a></p>
+        <p><Link href="/help/newsletters">Learn more about setting up newsletters</Link></p>
 
         <HStack alignment="center" css={{ mb: '32px', width: '100%' }}>
           <Link passHref href="/settings/emails">
