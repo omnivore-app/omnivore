@@ -11,8 +11,8 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { Label } from '../../src/entity/label'
-import { PageType, UploadFileStatus } from '../../src/generated/graphql'
-import { Page, PageContext } from '../../src/elastic/types'
+import { UploadFileStatus } from '../../src/generated/graphql'
+import { Highlight, Page, PageContext, PageType } from '../../src/elastic/types'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getRepository } from '../../src/entity/utils'
@@ -22,6 +22,7 @@ import {
   getPageById,
   updatePage,
 } from '../../src/elastic/pages'
+import { addHighlightToPage } from '../../src/elastic/highlights'
 
 chai.use(chaiString)
 
@@ -150,6 +151,37 @@ const getArticleQuery = (slug: string) => {
         }
       }
       ... on ArticleError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
+const searchQuery = (keyword = '') => {
+  return `
+  query {
+    search(
+      after: ""
+      first: 5
+      query: "${keyword}") {
+      ... on SearchSuccess {
+        edges {
+          cursor
+          node {
+            id
+            url
+          }
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+          totalCount
+        }
+      }
+      ... on SearchError {
         errorCodes
       }
     }
@@ -753,6 +785,92 @@ describe('Article API', () => {
         expect(res.body.data.saveFile.url).to.startsWith(
           'http://localhost:3000/fakeUser/links'
         )
+      })
+    })
+  })
+
+  describe('Search API', () => {
+    const url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
+    const pages: Page[] = []
+    const highlights: Highlight[] = []
+
+    let query = ''
+    let keyword = ''
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        const page: Page = {
+          id: '',
+          hash: 'test hash',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'test title',
+          content: '<p>search page</p>',
+          slug: 'test slug',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgressPercent: 0,
+          readingProgressAnchorIndex: 0,
+          url: url,
+          savedAt: new Date(),
+        }
+        const pageId = await createPage(page, ctx)
+        if (!pageId) {
+          expect.fail('Failed to create page')
+        }
+        page.id = pageId
+        pages.push(page)
+
+        // Create some test highlights
+        const highlight: Highlight = {
+          id: `highlight-${i}`,
+          patch: 'test patch',
+          shortId: 'test shortId',
+          userId: user.id,
+          quote: '<p>search highlight</p>',
+          createdAt: new Date(),
+        }
+        await addHighlightToPage(pageId, highlight, ctx)
+        highlights.push(highlight)
+      }
+    })
+
+    beforeEach(async () => {
+      query = searchQuery(keyword)
+    })
+
+    context('when type:highlights is not in the query', () => {
+      before(() => {
+        keyword = 'search sort:updated_time:asc'
+      })
+
+      it('should return pages', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges.length).to.eql(5)
+        expect(res.body.data.search.edges[0].node.id).to.eq(pages[0].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(pages[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(pages[3].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(pages[4].id)
+      })
+    })
+
+    context('when type:highlights is in the query', () => {
+      before(() => {
+        keyword = 'search type:highlights sort:updated_time:asc'
+      })
+
+      it('should return highlights', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges.length).to.eq(5)
+        expect(res.body.data.search.edges[0].node.id).to.eq(highlights[0].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(highlights[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(highlights[2].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(highlights[3].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(highlights[4].id)
       })
     })
   })
