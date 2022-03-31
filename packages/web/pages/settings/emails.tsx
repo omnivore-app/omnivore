@@ -185,18 +185,21 @@ export default function EmailsPage(): JSX.Element {
   applyStoredTheme(false)
 
   async function createEmail(): Promise<void> {
-    try {
-      const email = await createNewsletterEmailMutation()
-      if (email) {
-        showSuccessToast('Email Created')
-        revalidate()
-        return
-      }
-    } catch { }
-    showErrorToast('Error Creating Email')
+    const email = await createNewsletterEmailMutation()
+    if (!email) {
+      showErrorToast('Error Creating Email')
+      return
+    }
+    showSuccessToast('Email Created')
+    revalidate()
   }
+
   async function deleteEmail(id: string): Promise<void> {
-    await deleteNewsletterEmailMutation(id)
+    const result = await deleteNewsletterEmailMutation(id)
+    if (!result) {
+      showErrorToast('Error Deleting Email')
+      return
+    }
     revalidate()
     showSuccessToast('Email Deleted')
   }
