@@ -37,24 +37,27 @@ export default function Newsletters(): JSX.Element {
       >
         <h1>Read Newsletters in Omnivore</h1>
         <hr />
-        <p>Currently Omnivore supports newsletters from the following providers.</p>
+        <p>Omnivore supports newsletters from the following providers:</p>
         <ul>
           <li>Newsletters hosted on <a href="https://substack.com" target="_blank" rel="noreferrer">substack.com</a></li>
+          <li>Newsletters hosted on <a href="https://www.beehiiv.com/" target="_blank" rel="noreferrer">beehiiv.com</a></li>
           <li>The <a href="https://www.axios.com/newsletters" target="_blank" rel="noreferrer">Axios Daily</a> newsletters</li>
           <li><a href="https://golangweekly.com/" target="_blank" rel="noreferrer">Golang Weekly</a></li>
+          <li><a href="https://www.bloomberg.com/account/newsletters" target="_blank" rel="noreferrer">Bloomberg Newsletters</a></li>
         </ul>
         <p>If there is a newsletter you would like to read in Omnivore, please let us know.</p>
 
         <h2>Omnivore Email Addresses</h2>
         <p>
-           Omnivore allows you to create unique email addresses for subscribing to newsletters.
-           You can reuse one address for all your newsletters, or you can create a unique address
-           for each.
+          Omnivore allows you to create unique email addresses for subscribing to newsletters.
+          You can reuse one address for all your newsletters, or you can create a unique address
+          for each.
         </p>
         <p>
-           An Omnivore email address will receive email, detect whether the email is a newsletter,
-           and add the newsletter content to your library. If the email does not appear to be a newsletter,
-           it will be forwarded to the email address you used when you registered for Omnivore.</p>
+          An Omnivore email address will receive email, detect whether the email is a newsletter,
+          and add the newsletter content to your library. If the email does not appear to be a newsletter,
+          it will be forwarded to the email address you used when you registered for Omnivore.
+        </p>
 
         <p>There are multiple ways to have newsletters added directly to your Omnivore library:</p>
         <ul>
@@ -65,15 +68,17 @@ export default function Newsletters(): JSX.Element {
 
         <h2 id="updating">Updating your account email</h2>
         <p>
-        If you want all your substack newsletters sent to Omnivore, you can login and change the
-        address on <a href="https://substack.com/account/settings">your account page</a> in Substack.
+          If you want all your substack newsletters sent to Omnivore, you can login and change the
+          address on <a href="https://substack.com/account/settings">your account page</a> in Substack.
         </p>
 
         <h2 id="directly">Subscribing Directly</h2>
-        <p>Create your first email address by clicking the <HighlightText>Create New Email</HighlightText> button on
-           the <Link href='/settings/emails'>emails page</Link>. Copy the email address to your clipboard using the
-           copy button, and enter that email address into an email subscription box. If you are already logged into
-           Substack you might need to logout to use your new email address.</p>
+        <p>
+          Create your first email address by clicking the <HighlightText>Create New Email</HighlightText> button on
+          the <Link href='/settings/emails'>emails page</Link>. Copy the email address to your clipboard using the
+          copy button, and enter that email address into an email subscription box. If you are already logged into
+          Substack you might need to logout to use your new email address.
+        </p>
 
         <HStack distribution="center" css={{ width: '100%', my: '32px' }}>
           <img
