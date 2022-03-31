@@ -12,7 +12,7 @@ import { getPageById } from '../../src/elastic'
 
 describe('PDF attachments Router', () => {
   const username = 'fakeUser'
-  const newsletterEmail = 'fakeEmail'
+  const newsletterEmail = 'fakeEmail@fake-email.com'
 
   let user: User
   let authToken: string

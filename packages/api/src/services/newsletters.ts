@@ -4,6 +4,15 @@ import { nanoid } from 'nanoid'
 import { User } from '../entity/user'
 import { CreateNewsletterEmailErrorCode } from '../generated/graphql'
 import { env } from '../env'
+import addressparser from 'nodemailer/lib/addressparser'
+
+const parsedAddress = (emailAddress: string): string | undefined => {
+  const res = addressparser(emailAddress, { flatten: true })
+  if (!res || res.length < 1) {
+    return undefined
+  }
+  return res[0].address
+}
 
 export const createNewsletterEmail = async (
   userId: string
@@ -46,9 +55,10 @@ export const updateConfirmationCode = async (
   emailAddress: string,
   confirmationCode: string
 ): Promise<boolean> => {
+  const address = parsedAddress(emailAddress)
   const result = await getRepository(NewsletterEmail)
     .createQueryBuilder()
-    .where('address ILIKE :address', { address: emailAddress })
+    .where('address ILIKE :address', { address })
     .update({
       confirmationCode: confirmationCode,
     })
@@ -60,10 +70,11 @@ export const updateConfirmationCode = async (
 export const getNewsletterEmail = async (
   emailAddress: string
 ): Promise<NewsletterEmail | undefined> => {
+  const address = parsedAddress(emailAddress)
   return getRepository(NewsletterEmail)
     .createQueryBuilder('newsletter_email')
     .innerJoinAndSelect('newsletter_email.user', 'user')
-    .where('address ILIKE :address', { address: emailAddress })
+    .where('address ILIKE :address', { address })
     .getOne()
 }
 

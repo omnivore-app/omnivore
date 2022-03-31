@@ -4,7 +4,7 @@ import { v4 } from 'uuid'
 import { corsConfig } from '../src/utils/corsConfig'
 import { Page } from '../src/elastic/types'
 import { PageType } from '../src/generated/graphql'
-import { createPage } from '../src/elastic'
+import { createPage, getPageById } from '../src/elastic'
 import { User } from '../src/entity/user'
 import { Label } from '../src/entity/label'
 import { createPubSubClient } from '../src/datalayer/pubsub'
@@ -62,5 +62,11 @@ export const createTestElasticPage = async (
   if (pageId) {
     page.id = pageId
   }
-  return page
+
+  const res = await getPageById(page.id)
+  console.log('got page', res)
+  if (!res) {
+    throw new Error('Failed to create page')
+  }
+  return res
 }

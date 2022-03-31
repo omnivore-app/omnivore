@@ -68,7 +68,6 @@ const extractPublishedDateFromAuthor = (author)=> {
  * @param {Object}       options The options object.
  */
 function Readability(doc, options) {
-  console.log("\nOmnivore Inc. v.0.1.9");
   // In some older versions, people passed a URI as the first argument. Cope:
   if (options && options.documentElement) {
     doc = options;
