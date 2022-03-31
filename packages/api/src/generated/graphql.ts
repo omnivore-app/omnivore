@@ -1350,6 +1350,7 @@ export type SearchItem = {
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
+  labels?: Maybe<Array<Label>>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
@@ -3259,6 +3260,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;

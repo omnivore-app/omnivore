@@ -969,6 +969,7 @@ type SearchItem {
   id: ID!
   image: String
   isArchived: Boolean!
+  labels: [Label!]
   originalArticleUrl: String
   ownedByViewer: Boolean
   pageId: ID
