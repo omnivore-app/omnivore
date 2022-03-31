@@ -153,7 +153,6 @@ export const createPage = async (
       body: {
         ...page,
         updatedAt: new Date(),
-        createdAt: new Date(),
         savedAt: new Date(),
       },
       refresh: ctx.refresh,
