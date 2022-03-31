@@ -1,16 +1,15 @@
 import {
-  Entity,
-  BaseEntity,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  OneToOne,
+  Entity,
   JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm'
 
 import { User } from './user'
 
 @Entity({ name: 'user_friends' })
-export class Follower extends BaseEntity {
+export class Follower {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 

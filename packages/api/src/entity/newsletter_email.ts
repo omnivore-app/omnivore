@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,7 +10,7 @@ import {
 import { User } from './user'
 
 @Entity({ name: 'newsletter_emails' })
-export class NewsletterEmail extends BaseEntity {
+export class NewsletterEmail {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 

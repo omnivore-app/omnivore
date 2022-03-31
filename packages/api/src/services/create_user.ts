@@ -1,12 +1,13 @@
 import { AuthProvider } from '../routers/auth/auth_types'
 import { MembershipTier } from '../datalayer/user/model'
-import { EntityManager, getManager, getRepository } from 'typeorm'
+import { EntityManager } from 'typeorm'
 import { User } from '../entity/user'
 import { Profile } from '../entity/profile'
 import { SignupErrorCode } from '../generated/graphql'
 import { validateUsername } from '../utils/usernamePolicy'
 import { Invite } from '../entity/groups/invite'
 import { GroupMembership } from '../entity/groups/group_membership'
+import { AppDataSource } from '../server'
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -28,15 +29,12 @@ export const createUser = async (input: {
     }
 
     // create profile if user exists but profile does not exist
-    const profile = await getManager()
-      .getRepository(Profile)
-      .create({
-        username: input.username,
-        pictureUrl: input.pictureUrl,
-        bio: input.bio,
-        user: existingUser,
-      })
-      .save()
+    const profile = await AppDataSource.getRepository(Profile).save({
+      username: input.username,
+      pictureUrl: input.pictureUrl,
+      bio: input.bio,
+      user: existingUser,
+    })
 
     return [existingUser, profile]
   }
@@ -45,10 +43,10 @@ export const createUser = async (input: {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }
 
-  const [user, profile] = await getManager().transaction<[User, Profile]>(
+  const [user, profile] = await AppDataSource.transaction<[User, Profile]>(
     async (t) => {
       let hasInvite = false
-      let invite: Invite | undefined = undefined
+      let invite: Invite | null = null
 
       if (input.inviteCode) {
         const inviteCodeRepo = t.getRepository(Invite)
@@ -60,37 +58,28 @@ export const createUser = async (input: {
           hasInvite = true
         }
       }
-      const user = await t
-        .getRepository(User)
-        .create({
-          source: input.provider,
-          membership:
-            input.membershipTier ||
-            (hasInvite ? MembershipTier.Beta : MembershipTier.WaitList),
-          name: input.name,
-          email: input.email,
-          sourceUserId: input.sourceUserId,
-          password: input.password,
-        })
-        .save()
-      const profile = await t
-        .getRepository(Profile)
-        .create({
-          username: input.username,
-          pictureUrl: input.pictureUrl,
-          bio: input.bio,
-          user,
-        })
-        .save()
+      const user = await t.getRepository(User).save({
+        source: input.provider,
+        membership:
+          input.membershipTier ||
+          (hasInvite ? MembershipTier.Beta : MembershipTier.WaitList),
+        name: input.name,
+        email: input.email,
+        sourceUserId: input.sourceUserId,
+        password: input.password,
+      })
+      const profile = await t.getRepository(Profile).save({
+        username: input.username,
+        pictureUrl: input.pictureUrl,
+        bio: input.bio,
+        user,
+      })
       if (hasInvite && invite) {
-        await t
-          .getRepository(GroupMembership)
-          .create({
-            user: user,
-            invite: invite,
-            group: invite.group,
-          })
-          .save()
+        await t.getRepository(GroupMembership).save({
+          user: user,
+          invite: invite,
+          group: invite.group,
+        })
       }
       return [user, profile]
     }
@@ -119,8 +108,8 @@ const validateInvite = async (
   return true
 }
 
-const getUser = async (email: string): Promise<User | undefined> => {
-  const userRepo = getRepository(User)
+const getUser = async (email: string): Promise<User | null> => {
+  const userRepo = AppDataSource.getRepository(User)
 
   return userRepo.findOne({
     where: { email: email },

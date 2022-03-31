@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -12,7 +11,7 @@ import { User } from './user'
 import { Page } from './page'
 
 @Entity({ name: 'highlight' })
-export class Highlight extends BaseEntity {
+export class Highlight {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
