@@ -5,6 +5,37 @@ import { Button } from '../../components/elements/Button'
 import Link from 'next/link'
 import { StyledText } from '../../components/elements/StyledText'
 import { styled } from '@stitches/react'
+import { Copy, Plus } from 'phosphor-react'
+import { theme } from '../../components/tokens/stitches.config'
+
+const AddEmailButton = () => {
+  return (<Button
+    onClick={() => {}}
+    style="ctaDarkYellow"
+    css={{
+      cursor: 'default',
+      display: 'inline-flex',
+      alignItems: 'center',
+    }}
+  >
+    <Plus size={18} style={{ marginRight: '6.5px' }} />
+    <SpanBox>Add Email</SpanBox>
+  </Button>)
+}
+
+const CopyButton = () => {
+  return (
+    <Button style="plainIcon" css={{
+      pl: '2px',
+      pr: '4px',
+      cursor: 'default',
+      display: 'inline-flex',
+    }}
+    onClick={() => {}}
+  >
+    <Copy color={theme.colors.grayTextContrast.toString()} />
+  </Button>)
+}
 
 export default function Newsletters(): JSX.Element {
   const HighlightText = styled(SpanBox, {
@@ -74,10 +105,10 @@ export default function Newsletters(): JSX.Element {
 
         <h2 id="directly">Subscribing Directly</h2>
         <p>
-          Create your first email address by clicking the <HighlightText>Create New Email</HighlightText> button on
-          the <Link href='/settings/emails'>emails page</Link>. Copy the email address to your clipboard using the
-          copy button, and enter that email address into an email subscription box. If you are already logged into
-          Substack you might need to logout to use your new email address.
+          Create your first email address by clicking the <AddEmailButton /> button on
+          the <Link href='/settings/emails'>emails page</Link>. Copy the email address 
+          to your clipboard using the <CopyButton />
+          copy button, and enter that email address into an email subscription box.
         </p>
 
         <HStack distribution="center" css={{ width: '100%', my: '32px' }}>
@@ -86,6 +117,10 @@ export default function Newsletters(): JSX.Element {
             alt="Animated image setting up an Omnivore Email Address"
           />
         </HStack>
+
+        <p>
+          If you are already logged into Substack you might need to logout to use your new email address.
+        </p>
 
         <h2 id="forwarding">Create a Forwarding Rule</h2>
 
