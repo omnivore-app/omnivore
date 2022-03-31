@@ -4,7 +4,10 @@ import Models
 
 public class CacheManager: NSObject, NSCacheDelegate {
   public func cache(_: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
-    print("evicting object", obj)
+    // This is just used for debugging
+    if let content = obj as? CachedPageContent {
+      print("evicting page from cache", content.slug)
+    }
   }
 }
 
@@ -32,23 +35,6 @@ public final class DataService: ObservableObject {
     pageCache.delegate = cacheManager
   }
 
-  public func prefetchPages(items: [FeedItem]) {
-    print("prefetching items", items, "cost limit", pageCache.countLimit)
-
-    guard let viewer = currentViewer else { return }
-
-    for item in items {
-      let slug = item.slug
-      articleContentPublisher(username: viewer.username, slug: slug).sink(
-        receiveCompletion: { _ in },
-        receiveValue: { [weak self] articleContent in
-          self?.pageCache.setObject(CachedPageContent(articleContent), forKey: NSString(string: slug))
-        }
-      )
-      .store(in: &subscriptions)
-    }
-  }
-
   public func clearHighlights() {
     highlightsCache.removeAllObjects()
   }
@@ -59,6 +45,40 @@ public final class DataService: ObservableObject {
       fatalError("App environment changed -- restarting app")
     } catch {
       fatalError("Unable to write to Keychain: \(error)")
+    }
+  }
+}
+
+public extension DataService {
+  func prefetchPages(items: [FeedItem]) {
+    print("prefetching pages")
+    guard let viewer = currentViewer else { return }
+
+    for item in items {
+      let slug = item.slug
+      articleContentPublisher(username: viewer.username, slug: slug).sink(
+        receiveCompletion: { _ in },
+        receiveValue: { [weak self] articleContent in
+          self?.pageCache.setObject(CachedPageContent(slug, articleContent), forKey: NSString(string: slug))
+        }
+      )
+      .store(in: &subscriptions)
+    }
+  }
+
+  func pageFromCache(slug: String) -> ArticleContent? {
+    if let content = pageCache.object(forKey: NSString(string: slug)) {
+      print("cache hit", slug)
+      return content.value
+    } else {
+      print("cache miss", slug)
+    }
+    return nil
+  }
+
+  func invalidateCachedPage(slug: String?) {
+    if let slug = slug {
+      pageCache.removeObject(forKey: NSString(string: slug))
     }
   }
 }

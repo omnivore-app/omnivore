@@ -1,9 +1,11 @@
 import Foundation
 
 public class CachedPageContent: NSObject {
+  public let slug: String
   public let value: ArticleContent
 
-  public init(_ content: ArticleContent) {
+  public init(_ slug: String, _ content: ArticleContent) {
+    self.slug = slug
     self.value = content
   }
 }
