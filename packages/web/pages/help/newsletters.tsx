@@ -38,11 +38,6 @@ const CopyButton = () => {
 }
 
 export default function Newsletters(): JSX.Element {
-  const HighlightText = styled(SpanBox, {
-    padding: '2px',
-    background: '$highlightBackground',
-  })
-
   return (
     <PrimaryLayout
       pageMetaDataProps={{
