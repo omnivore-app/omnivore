@@ -25,19 +25,23 @@ final class LabelsViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func createLabel(dataService _: DataService) {
+  func createLabel(dataService: DataService, name: String, color: String, description: String?) {
     isLoading = true
 
-//    dataService.createNewsletterEmailPublisher().sink(
-//      receiveCompletion: { [weak self] _ in
-//        self?.isLoading = false
-//      },
-//      receiveValue: { [weak self] result in
-//        self?.isLoading = false
-//        self?.emails.insert(result, at: 0)
-//      }
-//    )
-//    .store(in: &subscriptions)
+    dataService.createLabelPublisher(
+      name: name,
+      color: color,
+      description: description
+    ).sink(
+      receiveCompletion: { [weak self] _ in
+        self?.isLoading = false
+      },
+      receiveValue: { [weak self] result in
+        self?.isLoading = false
+        self?.labels.insert(result, at: 0)
+      }
+    )
+    .store(in: &subscriptions)
   }
 }
 
@@ -67,7 +71,12 @@ struct LabelsView: View {
       Section(footer: Text(footerText)) {
         Button(
           action: {
-            viewModel.createLabel(dataService: dataService)
+            viewModel.createLabel(
+              dataService: dataService,
+              name: "ios-test",
+              color: "#F9D354",
+              description: "hardcoded test label"
+            )
           },
           label: {
             HStack {
