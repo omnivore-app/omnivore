@@ -11,18 +11,18 @@ final class LabelsViewModel: ObservableObject {
 
   var subscriptions = Set<AnyCancellable>()
 
-  func loadLabels(dataService _: DataService) {
+  func loadLabels(dataService: DataService) {
     isLoading = true
 
-//    dataService.newsletterEmailsPublisher().sink(
-//      receiveCompletion: { _ in },
-//      receiveValue: { [weak self] result in
-//        self?.isLoading = false
-//        self?.emails = result
-//        self?.hasLoadedInitialLabels = true
-//      }
-//    )
-//    .store(in: &subscriptions)
+    dataService.labelsPublisher().sink(
+      receiveCompletion: { _ in },
+      receiveValue: { [weak self] result in
+        self?.isLoading = false
+        self?.labels = result
+        self?.hasLoadedInitialLabels = true
+      }
+    )
+    .store(in: &subscriptions)
   }
 
   func createLabel(dataService _: DataService) {
