@@ -25,12 +25,12 @@ final class LabelsViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func createLabel(dataService: DataService, name: String, color: String, description: String?) {
+  func createLabel(dataService: DataService, name: String, color: Color, description: String?) {
     isLoading = true
 
     dataService.createLabelPublisher(
       name: name,
-      color: color,
+      color: color.hex ?? "",
       description: description
     ).sink(
       receiveCompletion: { [weak self] _ in
@@ -48,6 +48,10 @@ final class LabelsViewModel: ObservableObject {
 struct LabelsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = LabelsViewModel()
+
+  @State private var newLabelName = ""
+  @State private var newLabelColor = Color.clear
+
   let footerText = "Use labels to create curated collections of links."
 
   var body: some View {
@@ -69,24 +73,23 @@ struct LabelsView: View {
   private var innerBody: some View {
     Group {
       Section(footer: Text(footerText)) {
+        TextField("Label Name", text: $newLabelName)
+        ColorPicker(
+          newLabelColor == .clear ? "Select Color" : newLabelColor.description,
+          selection: $newLabelColor
+        )
         Button(
           action: {
             viewModel.createLabel(
               dataService: dataService,
-              name: "ios-test",
-              color: "#F9D354",
-              description: "hardcoded test label"
+              name: newLabelName,
+              color: newLabelColor,
+              description: nil
             )
           },
-          label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new label")
-              Spacer()
-            }
-          }
+          label: { Text("Create Label") }
         )
-        .disabled(viewModel.isLoading)
+        .disabled(viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear)
       }
 
       if !viewModel.labels.isEmpty {

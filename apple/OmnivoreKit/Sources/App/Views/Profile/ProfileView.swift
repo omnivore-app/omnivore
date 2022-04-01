@@ -63,8 +63,10 @@ struct ProfileView: View {
       }
 
       Section {
-        NavigationLink(destination: LabelsView()) {
-          Text("Labels")
+        if FeatureFlag.enableLabels {
+          NavigationLink(destination: LabelsView()) {
+            Text("Labels")
+          }
         }
 
         NavigationLink(destination: NewsletterEmailsView()) {

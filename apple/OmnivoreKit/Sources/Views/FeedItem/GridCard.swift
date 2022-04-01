@@ -156,7 +156,7 @@ public struct GridCard: View {
         .onTapGesture { tapHandler() }
 
         // Category Labels
-        if FeatureFlag.showFeedItemTags {
+        if FeatureFlag.enableLabels {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
               TextChip(text: "label", color: .red)
