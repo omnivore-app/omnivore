@@ -34,6 +34,7 @@ import {
   addHighlightToPage,
   deleteHighlight,
   getHighlightById,
+  updateHighlight,
 } from '../../elastic/highlights'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
@@ -196,9 +197,9 @@ export const updateHighlightResolver = authorized<
   UpdateHighlightSuccess,
   UpdateHighlightError,
   MutationUpdateHighlightArgs
->(async (_, { input }, { authTrx, models, claims, log }) => {
+>(async (_, { input }, { pubsub, claims, log }) => {
   const { highlightId } = input
-  const highlight = await models.highlight.get(highlightId)
+  const highlight = await getHighlightById(highlightId)
 
   if (!highlight?.id) {
     return {
@@ -218,16 +219,11 @@ export const updateHighlightResolver = authorized<
     }
   }
 
-  const updatedHighlight = await authTrx((tx) =>
-    models.highlight.update(
-      highlightId,
-      {
-        annotation: input.annotation,
-        sharedAt: input.sharedAt,
-      },
-      tx
-    )
-  )
+  const updatedHighlight: HighlightData = {
+    ...highlight,
+    annotation: input.annotation,
+    updatedAt: new Date(),
+  }
 
   log.info('Updating a highlight', {
     updatedHighlight,
@@ -237,6 +233,17 @@ export const updateHighlightResolver = authorized<
       uid: claims.uid,
     },
   })
+
+  const updated = await updateHighlight(updatedHighlight, {
+    pubsub,
+    uid: claims.uid,
+  })
+
+  if (!updated) {
+    return {
+      errorCodes: [UpdateHighlightErrorCode.NotFound],
+    }
+  }
 
   return { highlight: highlightDataToHighlight(updatedHighlight) }
 })
@@ -287,8 +294,8 @@ export const setShareHighlightResolver = authorized<
   SetShareHighlightSuccess,
   SetShareHighlightError,
   MutationSetShareHighlightArgs
->(async (_, { input: { id, share } }, { authTrx, models, claims, log }) => {
-  const highlight = await models.highlight.get(id)
+>(async (_, { input: { id, share } }, { pubsub, claims, log }) => {
+  const highlight = await getHighlightById(id)
 
   if (!highlight?.id) {
     return {
@@ -309,16 +316,21 @@ export const setShareHighlightResolver = authorized<
     labels: {
       source: 'resolver',
       resolver: 'setShareHighlightResolver',
-      articleId: highlight.articleId,
       userId: highlight.userId,
     },
   })
 
-  const updatedHighlight = await authTrx((tx) =>
-    models.highlight.update(id, { sharedAt }, tx)
-  )
+  const updatedHighlight: HighlightData = {
+    ...highlight,
+    sharedAt,
+  }
 
-  if (!updatedHighlight || 'error' in updatedHighlight) {
+  const updated = await updateHighlight(updatedHighlight, {
+    pubsub,
+    uid: claims.uid,
+  })
+
+  if (!updated) {
     return {
       errorCodes: [SetShareHighlightErrorCode.NotFound],
     }
