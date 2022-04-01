@@ -182,6 +182,9 @@ export const searchHighlights = async (
         {
           [sortField]: {
             order: sortOrder,
+            nested: {
+              path: 'highlights',
+            },
           },
         },
       ],

@@ -830,6 +830,7 @@ describe('Article API', () => {
           userId: user.id,
           quote: '<p>search highlight</p>',
           createdAt: new Date(),
+          updatedAt: new Date(),
         }
         await addHighlightToPage(pageId, highlight, ctx)
         highlights.push(highlight)
@@ -842,35 +843,35 @@ describe('Article API', () => {
 
     context('when type:highlights is not in the query', () => {
       before(() => {
-        keyword = 'search sort:updated_time:asc'
+        keyword = 'search'
       })
 
-      it('should return pages', async () => {
+      it('should return pages in descending order', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.edges.length).to.eql(5)
-        expect(res.body.data.search.edges[0].node.id).to.eq(pages[0].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(pages[1].id)
+        expect(res.body.data.search.edges[0].node.id).to.eq(pages[4].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(pages[3].id)
         expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
-        expect(res.body.data.search.edges[3].node.id).to.eq(pages[3].id)
-        expect(res.body.data.search.edges[4].node.id).to.eq(pages[4].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
       })
     })
 
     context('when type:highlights is in the query', () => {
       before(() => {
-        keyword = 'search type:highlights sort:updated_time:asc'
+        keyword = 'search type:highlights'
       })
 
-      it('should return highlights', async () => {
+      it('should return highlights in descending order', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.edges.length).to.eq(5)
-        expect(res.body.data.search.edges[0].node.id).to.eq(highlights[0].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(highlights[1].id)
+        expect(res.body.data.search.edges[0].node.id).to.eq(highlights[4].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(highlights[3].id)
         expect(res.body.data.search.edges[2].node.id).to.eq(highlights[2].id)
-        expect(res.body.data.search.edges[3].node.id).to.eq(highlights[3].id)
-        expect(res.body.data.search.edges[4].node.id).to.eq(highlights[4].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(highlights[1].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(highlights[0].id)
       })
     })
   })

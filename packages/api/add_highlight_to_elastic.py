@@ -84,7 +84,7 @@ def ingest_highlights(conn, pages):
                     quote,
                     prefix,
                     to_char(created_at, '{DATETIME_FORMAT}') as "createdAt",
-                    to_char(updated_at, '{DATETIME_FORMAT}') as "updatedAt",
+                    to_char(COALESCE(updated_at, current_timestamp), '{DATETIME_FORMAT}') as "updatedAt",
                     suffix,
                     patch,
                     annotation,

@@ -323,6 +323,7 @@ export const setShareHighlightResolver = authorized<
   const updatedHighlight: HighlightData = {
     ...highlight,
     sharedAt,
+    updatedAt: new Date(),
   }
 
   const updated = await updateHighlight(updatedHighlight, {
