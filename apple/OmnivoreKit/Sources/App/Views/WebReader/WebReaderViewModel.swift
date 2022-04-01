@@ -10,11 +10,8 @@ struct SafariWebLink: Identifiable {
 }
 
 func encodeHighlightResult(_ highlight: Highlight) -> [String: Any]? {
-  let data = try? JSONEncoder().encode(highlight)
-  if let data = data, let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] {
-    return dictionary
-  }
-  return nil
+  guard let data = try? JSONEncoder().encode(highlight) else { return nil }
+  return try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any]
 }
 
 final class WebReaderViewModel: ObservableObject {

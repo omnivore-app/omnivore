@@ -70,8 +70,8 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     self.labels = labels
   }
 
-  // swiftlint:disable:next line_length
   enum CodingKeys: String, CodingKey {
+    // swiftlint:disable:next line_length
     case id, title, createdAt, savedAt, image, isArchived, readingProgressPercent, readingProgressAnchorIndex, slug, contentReader, url, labels
   }
 
