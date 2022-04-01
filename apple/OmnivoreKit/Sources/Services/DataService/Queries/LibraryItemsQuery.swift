@@ -143,7 +143,18 @@ let homeFeedItemSelection = Selection.Article {
     publishDate: try $0.publishedAt()?.value,
     slug: try $0.slug(),
     isArchived: try $0.isArchived(),
-    contentReader: try $0.contentReader().rawValue
+    contentReader: try $0.contentReader().rawValue,
+    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+  )
+}
+
+private let feedItemLabelSelection = Selection.Label {
+  FeedItemLabel(
+    id: try $0.id(),
+    name: try $0.name(),
+    color: try $0.color(),
+    createdAt: try $0.createdAt()?.value,
+    description: try $0.description()
   )
 }
 
