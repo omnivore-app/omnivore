@@ -63,6 +63,10 @@ struct ProfileView: View {
       }
 
       Section {
+        NavigationLink(destination: LabelsView()) {
+          Text("Labels")
+        }
+
         NavigationLink(destination: NewsletterEmailsView()) {
           Text("Emails")
         }
