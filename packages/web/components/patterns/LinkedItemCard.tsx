@@ -115,6 +115,16 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
         >
           {props.item.title}
         </StyledText>
+        {props.item.quote && (
+          <StyledText style="bodyBold" css={{ my: '$1' }}>
+            {props.item.quote}
+          </StyledText>
+        )}
+        {props.item.annotation && (
+          <StyledText style="footnote" css={{ my: '$1' }}>
+            {props.item.annotation}
+          </StyledText>
+        )}
       </VStack>
       <HStack
         alignment="start"
@@ -154,16 +164,6 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
               ;(e.target as HTMLElement).style.display = 'none'
             }}
           />
-        )}
-        {props.item.quote && (
-          <StyledText style="bodyBold" css={{ my: '$1' }}>
-            {props.item.quote}
-          </StyledText>
-        )}
-        {props.item.annotation && (
-          <StyledText style="footnote" css={{ my: '$1' }}>
-            {props.item.annotation}
-          </StyledText>
         )}
       </HStack>
       <ProgressBar
