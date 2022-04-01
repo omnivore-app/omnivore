@@ -76,6 +76,9 @@ final class HomeFeedViewModel: ObservableObject {
         if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
           return
         }
+
+        dataService.prefetchPages(items: result.items)
+
         self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
         self?.isLoading = false
         self?.receivedIdx = thisSearchIdx
