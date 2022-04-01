@@ -84,6 +84,7 @@ services:
       - PG_PORT=5432
       - PG_POOL_MAX=20
       - ELASTIC_URL=http://elastic:9200
+      - JAEGER_HOST=jaeger
       - IMAGE_PROXY_URL=http://localhost:9999
       - IMAGE_PROXY_SECRET=some-secret
       - JWT_SECRET=some_secret

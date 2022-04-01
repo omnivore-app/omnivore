@@ -33,6 +33,7 @@ ENV NODE_OPTIONS=--max-old-space-size=4096
 ENV PORT=8080
 
 COPY --from=builder /app/packages/api/dist /app/packages/api/dist
+COPY --from=builder /app/packages/api/index_settings.json /app/packages/api/index_settings.json
 COPY --from=builder /app/packages/readabilityjs/ /app/packages/readabilityjs/
 COPY --from=builder /app/packages/api/package.json /app/packages/api/package.json
 COPY --from=builder /app/packages/api/node_modules /app/packages/api/node_modules
