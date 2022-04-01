@@ -1329,6 +1329,8 @@ export type SearchItem = {
   pageType: PageType;
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
+  readingProgressAnchorIndex?: Maybe<Scalars['Int']>;
+  readingProgressPercent?: Maybe<Scalars['Float']>;
   shortId?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   title: Scalars['String'];
@@ -3181,6 +3183,8 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  readingProgressAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

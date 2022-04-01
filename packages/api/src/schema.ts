@@ -1369,6 +1369,8 @@ const schema = gql`
     contentReader: ContentReader!
     createdAt: Date!
     isArchived: Boolean!
+    readingProgressPercent: Float
+    readingProgressAnchorIndex: Int
     author: String
     image: String
     description: String

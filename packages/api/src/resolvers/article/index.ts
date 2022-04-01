@@ -861,6 +861,7 @@ export const searchResolver = authorized<
           r.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
         originalArticleUrl: r.url,
         publishedAt: validatedDate(r.publishedAt),
+        ownedByViewer: r.userId === claims.uid,
       } as SearchItem,
       cursor: endCursor,
     }

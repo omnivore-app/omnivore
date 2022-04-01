@@ -90,23 +90,23 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setQueryInputs, router.isReady, router.query])
 
-  const { articlesPages, size, setSize, isValidating, performActionOnItem } =
+  const { itemsPages, size, setSize, isValidating, performActionOnItem } =
     useGetLibraryItemsQuery(queryInputs)
 
   const hasMore = useMemo(() => {
-    if (!articlesPages) {
+    if (!itemsPages) {
       return false
     }
-    return articlesPages[articlesPages.length - 1].articles.pageInfo.hasNextPage
-  }, [articlesPages])
+    return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
+  }, [itemsPages])
 
   const libraryItems = useMemo(() => {
     const items =
-      articlesPages?.flatMap((ad) => {
-        return ad.articles.edges
+      itemsPages?.flatMap((ad) => {
+        return ad.search.edges
       }) || []
     return items
-  }, [articlesPages, performActionOnItem])
+  }, [itemsPages, performActionOnItem])
 
   const handleFetchMore = useCallback(() => {
     if (isValidating || !hasMore) {
@@ -396,8 +396,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         setSize(size + 1)
       }}
       hasMore={hasMore}
-      hasData={!!articlesPages}
-      totalItems={articlesPages?.[0].articles.pageInfo.totalCount || 0}
+      hasData={!!itemsPages}
+      totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
       shareTarget={shareTarget}
       setShareTarget={setShareTarget}

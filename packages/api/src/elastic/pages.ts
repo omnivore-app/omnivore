@@ -298,7 +298,7 @@ export const searchPages = async (
       sort,
       query,
       readFilter = ReadFilter.ALL,
-      typeFilter = PageType.Article,
+      typeFilter,
       labelFilters = [],
       inFilter = InFilter.ALL,
       hasFilters = [],
