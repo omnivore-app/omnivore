@@ -19,12 +19,5 @@ const password = 'testpassword'
     cy.wait(2000)
 
     cy.reload()
-    // cy.get('[data-testid="add-link-button"]').click();
-    // cy.get('[data-testid="link-input"]').type('https://www.google.com');
-    // cy.get('[data-testid="link-input"]').type('{enter}');
-    // cy.get('[data-testid="link-input"]').should('have.value', '');
-    // cy.get('[data-testid="link-input"]').type('https://www.google.com');
-    // cy.get('[data-testid="link-input"]').type('{enter}');
-    // cy.get('[data-testid="link-input"]').should('have.value', '');
   });
 });

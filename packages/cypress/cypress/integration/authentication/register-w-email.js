@@ -32,11 +32,3 @@ describe('Login with email', () => {
     cy.location('pathname').should('include', '/home')
   })
 })
-/*
-
-    // our auth cookie should be present
-    
-
-    // UI should reflect this user being logged in
-    cy.get('h1').should('contain', 'jane.lane')
-    */
