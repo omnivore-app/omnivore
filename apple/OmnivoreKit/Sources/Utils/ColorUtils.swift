@@ -38,8 +38,8 @@ public extension Color {
   }
 
   var hex: String? {
-    if let hex = toHex() {
-      return "#\(hex)"
+    if let hexValue = toHex() {
+      return "#\(hexValue)"
     } else {
       return nil
     }
