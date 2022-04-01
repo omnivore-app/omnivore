@@ -125,7 +125,7 @@ export const deleteHighlight = async (
       refresh: ctx.refresh,
     })
 
-    return body.result === 'updated'
+    return !!body.updated
   } catch (e) {
     console.error('failed to delete a highlight in elastic', e)
 
@@ -219,5 +219,60 @@ export const searchHighlights = async (
   } catch (e) {
     console.error('failed to search highlights in elastic', e)
     return undefined
+  }
+}
+
+export const updateHighlight = async (
+  highlight: Highlight,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      body: {
+        script: {
+          source: `ctx._source.highlights.removeIf(h -> h.id == params.highlight.id);
+                   ctx._source.highlights.add(params.highlight)`,
+          lang: 'painless',
+          params: {
+            highlight: highlight,
+          },
+        },
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId: ctx.uid,
+                },
+              },
+              {
+                nested: {
+                  path: 'highlights',
+                  query: {
+                    term: {
+                      'highlights.id': highlight.id,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      refresh: ctx.refresh,
+    })
+
+    return !!body.updated
+  } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('page has been deleted')
+      return false
+    }
+    console.error('failed to update highlight in elastic', e)
+    return false
   }
 }
