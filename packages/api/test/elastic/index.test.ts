@@ -113,7 +113,6 @@ describe('elastic api', () => {
   describe('getPageById', () => {
     it('gets a page by id', async () => {
       const pageFound = await getPageById(page.id)
-
       expect(pageFound).not.undefined
     })
   })
@@ -128,7 +127,6 @@ describe('elastic api', () => {
       await updatePage(page.id, updatedPageData, ctx)
 
       const updatedPage = await getPageById(page.id)
-
       expect(updatedPage?.title).to.eql(newTitle)
     })
   })
