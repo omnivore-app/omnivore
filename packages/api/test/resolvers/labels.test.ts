@@ -22,40 +22,31 @@ describe('Labels API', () => {
   let labels: Label[]
 
   before(async () => {
-    try {
-      // create test user and login
-      user = await createTestUser(username)
-      const res = await request
-        .post('/local/debug/fake-user-login')
-        .send({ fakeEmail: user.email })
+    // create test user and login
+    user = await createTestUser(username)
+    const res = await request
+      .post('/local/debug/fake-user-login')
+      .send({ fakeEmail: user.email })
 
-      authToken = res.body.authToken
+    authToken = res.body.authToken
 
-      //  create testing labels
-      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
-      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
-      labels = [label1, label2]
+    //  create testing labels
+    const label1 = await createTestLabel(user, 'label_1', '#ffffff')
+    const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+    labels = [label1, label2]
 
-      // create a page with label
-      const existingLabelOfLink = await createTestLabel(
-        user,
-        'different_label',
-        '#dddddd'
-      )
-      page = await createTestElasticPage(user, [existingLabelOfLink])
-      console.log('created elastic page', page)
-    } catch (err) {
-      console.log('error in setup', err)
-    }
+    // create a page with label
+    const existingLabelOfLink = await createTestLabel(
+      user,
+      'different_label',
+      '#dddddd'
+    )
+    page = await createTestElasticPage(user, [existingLabelOfLink])
   })
 
   after(async () => {
     // clean up
-    try {
-      await deleteTestUser(username)
-    } catch (err) {
-      console.log('error in cleanup', err)
-    }
+    await deleteTestUser(username)
   })
 
   describe('GET labels', () => {
@@ -229,20 +220,18 @@ describe('Labels API', () => {
       })
     })
 
-    context('error states', () => {
-      it('responds status code 400 when invalid query', async () => {
-        const invalidQuery = `
-          mutation {
-            deleteLabel {}
-          }
-        `
-        return graphqlRequest(invalidQuery, authToken).expect(400)
-      })
+    it('responds status code 400 when invalid query', async () => {
+      const invalidQuery = `
+        mutation {
+          deleteLabel {}
+        }
+      `
+      return graphqlRequest(invalidQuery, authToken).expect(400)
+    })
 
-      it('responds status code 500 when invalid user', async () => {
-        const invalidAuthToken = 'Fake token'
-        return graphqlRequest(query, invalidAuthToken).expect(500)
-      })
+    it('responds status code 500 when invalid user', async () => {
+      const invalidAuthToken = 'Fake token'
+      return graphqlRequest(query, invalidAuthToken).expect(500)
     })
   })
 
@@ -277,28 +266,21 @@ describe('Labels API', () => {
       `
     })
 
-    // context('when labels exists', () => {
-    //   before(() => {
-    //     pageId = page.id
-    //     labelIds = [labels[0].id, labels[1].id]
-    //   })
+    context('when labels exists', () => {
+      before(() => {
+        pageId = page.id
+        labelIds = [labels[0].id, labels[1].id]
+      })
 
-    //   it('should set labels', async () => {
-    //     await graphqlRequest(query, authToken).expect(200)
-    //     return new Promise((resolve, reject) => {
-    //       setTimeout(async () => {
-    //         const page = await getPageById(pageId)
-    //         console.log('got page', page, pageId)
-    //         expect(page?.labels?.map((l) => l.id)).to.eql(labelIds)
-    //         resolve()
-    //       }, 1000)
-    //     })
-    //   })
-    // })
+      it('should set labels', async () => {
+        await graphqlRequest(query, authToken).expect(200)
+        const page = await getPageById(pageId)
+        expect(page?.labels?.map((l) => l.id)).to.eql(labelIds)
+      })
+    })
 
     context('when labels not exist', () => {
       before(() => {
-        console.log('page id', page)
         pageId = page.id
         labelIds = [generateFakeUuid(), generateFakeUuid()]
       })
@@ -321,24 +303,18 @@ describe('Labels API', () => {
       })
     })
 
-    context('invalid request', () => {
-      before(() => {
-        pageId = generateFakeUuid()
-        labelIds = [labels[0].id, labels[1].id]
-      })
-      it('responds status code 400 when invalid query', async () => {
-        const invalidQuery = `
-          mutation {
-            setLabels {}
-          }
-        `
-        return graphqlRequest(invalidQuery, authToken).expect(400)
-      })
+    it('responds status code 400 when invalid query', async () => {
+      const invalidQuery = `
+        mutation {
+          setLabels {}
+        }
+      `
+      return graphqlRequest(invalidQuery, authToken).expect(400)
+    })
 
-      it('responds status code 500 when invalid user', async () => {
-        const invalidAuthToken = 'Fake token'
-        return graphqlRequest(query, invalidAuthToken).expect(500)
-      })
+    it('responds status code 500 when invalid user', async () => {
+      const invalidAuthToken = 'Fake token'
+      return graphqlRequest(query, invalidAuthToken).expect(500)
     })
   })
 })

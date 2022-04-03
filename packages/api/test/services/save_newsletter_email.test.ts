@@ -7,28 +7,16 @@ import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
 import { getPageByParam } from '../../src/elastic'
 import { User } from '../../src/entity/user'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
-import { SaveContext } from '../../src/services/save_email'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import nock from 'nock'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'
 
   let user: User
   let email: NewsletterEmail
-  let ctx: SaveContext
 
   before(async () => {
     user = await createTestUser(username)
     email = await createNewsletterEmail(user.id)
-    ctx = {
-      pubsub: createPubSubClient(),
-      uid: user.id,
-      refresh: true,
-    }
-    nock('https://example.com')
-      .get(/\/(.*)?$/)
-      .reply(200);
   })
 
   after(async () => {
@@ -42,16 +30,18 @@ describe('saveNewsletterEmail', () => {
       url: 'https://example.com',
       title: 'fake title',
       author: 'fake author',
-    }, ctx)
+    })
 
-    const page = await getPageByParam({ userId: user.id })
-    if (!page) {
-      expect.fail('page not found')
-    }
-    expect(page.url).to.equal('https://example.com')
-    expect(page.title).to.equal('fake title')
-    expect(page.author).to.equal('fake author')
-    expect(page.content).to.contain('fake content')
+    setTimeout(async () => {
+      const page = await getPageByParam({ userId: user.id })
+      if (!page) {
+        expect.fail('page not found')
+      }
+      expect(page.url).to.equal('https://example.com')
+      expect(page.title).to.equal('fake title')
+      expect(page.author).to.equal('fake author')
+      expect(page.content).to.contain('fake content')
+    })
   })
 
   it('should adds a Newsletter label to that page', async () => {
@@ -66,11 +56,11 @@ describe('saveNewsletterEmail', () => {
       url: 'https://example.com/2',
       title: 'fake title',
       author: 'fake author',
-    }, ctx)
+    })
 
-    const page = await getPageByParam({ userId: user.id })
-    const newsletterLabel = page?.labels?.find(l => l.name === 'Newsletter')
-    expect(newsletterLabel).to.exist
-    expect(newsletterLabel?.color).to.equal(newLabel.color)
+    setTimeout(async () => {
+      const page = await getPageByParam({ userId: user.id })
+      expect(page?.labels).to.deep.include(newLabel)
+    })
   })
 })
