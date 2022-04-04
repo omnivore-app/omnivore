@@ -1,10 +1,5 @@
 import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
-import {
-  gray,
-  grayDark,
-  blackA,
-} from '@radix-ui/colors'
 
 export enum ThemeId {
   Lighter = 'White',
@@ -120,15 +115,13 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
 
-        grayBgSubtle: gray.gray2,
-        grayBgHover: gray.gray4,
-        grayLine: gray.gray6,
-        grayBorderHover: gray.gray8,
-        graySolidHover: gray.gray10,
-        grayText: gray.gray11,
+        grayBgSubtle: 'hsl(0 0% 97.3%)',
+        grayBgHover: 'hsl(0 0% 93.0%)',
+        grayLine: 'hsl(0 0% 88.7%)',
+        grayBorderHover: 'hsl(0 0% 78.0%)',
+        grayText: 'hsl(0 0% 43.5%)',
 
         // Semantic Colors
-        overlay: blackA.blackA9,
         highlightBackground: 'rgba(255, 210, 52, 0.65)',
         highlight: '#FFD234',
         highlightText: '#3D3D3D',
@@ -177,15 +170,13 @@ const darkThemeSpec = {
     grayBorder: 'rgba(255, 255, 255, 0.06)',
     graySolid: '#9C9B9A',
 
-    grayBgSubtle: grayDark.gray2,
-    grayBgHover: grayDark.gray4,
-    grayLine: grayDark.gray6,
-    grayBorderHover: grayDark.gray8,
-    graySolidHover: grayDark.gray10,
-    grayText: grayDark.gray11,
+    grayBgSubtle: 'hsl(0 0% 9.8%)',
+    grayBgHover: 'hsl(0 0% 13.8%)',
+    grayLine: 'hsl(0 0% 19.9%)',
+    grayBorderHover: 'hsl(0 0% 31.2%)',
+    grayText: 'hsl(0 0% 62.8%)',
 
     // Semantic Colors
-    overlay: blackA.blackA9,
     highlightBackground: '#867740',
     highlight: '#FFD234',
     highlightText: 'white',
