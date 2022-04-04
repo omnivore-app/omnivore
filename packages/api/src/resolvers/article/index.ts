@@ -802,6 +802,8 @@ export const searchResolver = authorized<
       labelFilters: searchQuery.labelFilters,
       sortParams: searchQuery.sortParams,
       hasFilters: searchQuery.hasFilters,
+      savedDateFilter: searchQuery.savedDateFilter,
+      publishedDateFilter: searchQuery.publishedDateFilter,
       env: env.server.apiEnv,
     },
   })
@@ -836,6 +838,8 @@ export const searchResolver = authorized<
         typeFilter: searchQuery.typeFilter,
         labelFilters: searchQuery.labelFilters,
         hasFilters: searchQuery.hasFilters,
+        savedDateFilter: searchQuery.savedDateFilter,
+        publishedDateFilter: searchQuery.publishedDateFilter,
       },
       claims.uid
     )) || [[], 0]

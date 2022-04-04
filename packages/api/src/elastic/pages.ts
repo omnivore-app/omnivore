@@ -8,6 +8,7 @@ import {
 } from './types'
 import { SortBy, SortOrder, SortParams } from '../generated/graphql'
 import {
+  DateRangeFilter,
   HasFilter,
   InFilter,
   LabelFilter,
@@ -137,6 +138,34 @@ const appendIncludeLabelFilter = (
             }
           }),
         },
+      },
+    },
+  })
+}
+
+const appendSavedDateFilter = (
+  body: SearchBody,
+  filter: DateRangeFilter
+): void => {
+  body.query.bool.filter.push({
+    range: {
+      savedAt: {
+        gt: filter.startDate,
+        lt: filter.endDate,
+      },
+    },
+  })
+}
+
+const appendPublishedDateFilter = (
+  body: SearchBody,
+  filter: DateRangeFilter
+): void => {
+  body.query.bool.filter.push({
+    range: {
+      publishedAt: {
+        gt: filter.startDate,
+        lt: filter.endDate,
       },
     },
   })
@@ -288,6 +317,8 @@ export const searchPages = async (
     typeFilter?: PageType
     labelFilters?: LabelFilter[]
     hasFilters?: HasFilter[]
+    savedDateFilter?: DateRangeFilter
+    publishedDateFilter?: DateRangeFilter
   },
   userId: string
 ): Promise<[Page[], number] | undefined> => {
@@ -302,6 +333,8 @@ export const searchPages = async (
       labelFilters = [],
       inFilter = InFilter.ALL,
       hasFilters = [],
+      savedDateFilter,
+      publishedDateFilter,
     } = args
     const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
     // default sort by saved_at
@@ -362,6 +395,12 @@ export const searchPages = async (
     }
     if (excludeLabels.length > 0) {
       appendExcludeLabelFilter(body, excludeLabels)
+    }
+    if (savedDateFilter) {
+      appendSavedDateFilter(body, savedDateFilter)
+    }
+    if (publishedDateFilter) {
+      appendPublishedDateFilter(body, publishedDateFilter)
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))
