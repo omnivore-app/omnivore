@@ -36,7 +36,6 @@ struct GridCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
 
   @State private var scale = 1.0
-  @State private var isActive = false
 
   let item: FeedItem
   let searchQuery: String
@@ -51,7 +50,8 @@ struct GridCardNavigationLink: View {
     ZStack {
       NavigationLink(
         destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
-        isActive: $isActive
+        tag: item,
+        selection: $selectedLinkItem
       ) {
         EmptyView()
       }
@@ -60,7 +60,7 @@ struct GridCardNavigationLink: View {
           scale = 0.95
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
             scale = 1.0
-            isActive = true
+            selectedLinkItem = item
           }
         }
       })
