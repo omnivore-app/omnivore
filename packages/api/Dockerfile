@@ -2,7 +2,7 @@ FROM node:14.18-alpine as builder
 
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV development
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 COPY package.json .
@@ -14,7 +14,7 @@ COPY .eslintrc .
 COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/api/package.json ./packages/api/package.json
 
-RUN yarn install --pure-lockfile --production
+RUN yarn install --pure-lockfile --development
 
 ADD /packages/readabilityjs ./packages/readabilityjs
 ADD /packages/api ./packages/api
