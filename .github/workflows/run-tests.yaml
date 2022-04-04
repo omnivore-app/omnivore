@@ -85,4 +85,4 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build the API docker image
-        run: 'docker build --file packages/api .'
+        run: 'docker build --file packages/api/Dockerfile .'
