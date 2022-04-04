@@ -19,7 +19,6 @@ ADD /packages/readabilityjs ./packages/readabilityjs
 ADD /packages/api ./packages/api
 
 RUN yarn
-RUN yarn clean
 RUN yarn workspace @omnivore/api build
 
 
