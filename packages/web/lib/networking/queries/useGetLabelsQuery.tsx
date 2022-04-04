@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
 import { LabelColor } from '../../../utils/settings-page/labels/types';
-import { Label, labelFragment } from '../fragments/labelFragment'
+import { labelFragment } from '../fragments/labelFragment'
 import { publicGqlFetcher } from '../networkHelpers'
 
 type LabelsQueryResponse = {
