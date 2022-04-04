@@ -12,7 +12,7 @@
     "dotenv": "^8.2.0",
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
-    "luxon": "^1.26.0",
+    "luxon": "^2.3.1",
     "puppeteer-core": "^7.1.0",
     "winston": "^3.3.3"
   },
