@@ -8,6 +8,7 @@ final class LabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
   @Published var isLoading = false
   @Published var labels = [FeedItemLabel]()
+  @Published var showCreateEmailModal = false
 
   var subscriptions = Set<AnyCancellable>()
 
@@ -39,6 +40,7 @@ final class LabelsViewModel: ObservableObject {
       receiveValue: { [weak self] result in
         self?.isLoading = false
         self?.labels.insert(result, at: 0)
+        self?.showCreateEmailModal = false
       }
     )
     .store(in: &subscriptions)
@@ -48,9 +50,6 @@ final class LabelsViewModel: ObservableObject {
 struct LabelsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = LabelsViewModel()
-
-  @State private var newLabelName = ""
-  @State private var newLabelColor = Color.clear
 
   let footerText = "Use labels to create curated collections of links."
 
@@ -73,7 +72,47 @@ struct LabelsView: View {
   private var innerBody: some View {
     Group {
       Section(footer: Text(footerText)) {
+        Button(
+          action: { viewModel.showCreateEmailModal = true },
+          label: {
+            HStack {
+              Image(systemName: "plus.circle.fill").foregroundColor(.green)
+              Text("Create a new Label")
+              Spacer()
+            }
+          }
+        )
+        .disabled(viewModel.isLoading)
+      }
+
+      if !viewModel.labels.isEmpty {
+        Section(header: Text("Labels")) {
+          ForEach(viewModel.labels, id: \.id) { label in
+            Text(label.name)
+          }
+        }
+      }
+    }
+    .navigationTitle("Labels")
+    .sheet(isPresented: $viewModel.showCreateEmailModal) {
+      CreateLabelView(viewModel: viewModel)
+    }
+  }
+}
+
+struct CreateLabelView: View {
+  @EnvironmentObject var dataService: DataService
+  @ObservedObject var viewModel: LabelsViewModel
+
+  @State private var newLabelName = ""
+  @State private var newLabelColor = Color.clear
+
+  var body: some View {
+    NavigationView {
+      VStack(spacing: 16) {
         TextField("Label Name", text: $newLabelName)
+          .keyboardType(.alphabet)
+          .textFieldStyle(StandardTextFieldStyle())
         ColorPicker(
           newLabelColor == .clear ? "Select Color" : newLabelColor.description,
           selection: $newLabelColor
@@ -87,19 +126,26 @@ struct LabelsView: View {
               description: nil
             )
           },
-          label: { Text("Create Label") }
+          label: { Text("Create") }
         )
+        .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
         .disabled(viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear)
+        Spacer()
       }
-
-      if !viewModel.labels.isEmpty {
-        Section(header: Text("Labels")) {
-          ForEach(viewModel.labels, id: \.id) { label in
-            Text(label.name)
-          }
+      .padding()
+      .toolbar {
+        ToolbarItem(placement: .automatic) {
+          Button(
+            action: { viewModel.showCreateEmailModal = false },
+            label: {
+              Image(systemName: "xmark")
+                .foregroundColor(.appGrayTextContrast)
+            }
+          )
         }
       }
+      .navigationTitle("Create New Label")
+      .navigationBarTitleDisplayMode(.inline)
     }
-    .navigationTitle("Labels")
   }
 }
