@@ -164,7 +164,7 @@ describe('Newsletters API', () => {
         const newsletterEmail = await getNewsletterEmail(
           response.body.data.deleteNewsletterEmail.newsletterEmail.id
         )
-        expect(newsletterEmail).to.be.undefined
+        expect(newsletterEmail).to.be.null
       })
     })
 

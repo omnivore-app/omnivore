@@ -38,10 +38,10 @@ export const createNewsletterEmail = async (
 }
 
 export const getNewsletterEmails = async (
-  user: User
+  userId: string
 ): Promise<NewsletterEmail[]> => {
   return getRepository(NewsletterEmail).find({
-    where: { user: { id: user.id } },
+    where: { user: { id: userId } },
     order: { createdAt: 'DESC' },
   })
 }

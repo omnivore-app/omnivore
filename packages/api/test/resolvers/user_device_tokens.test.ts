@@ -75,7 +75,7 @@ describe('Device tokens API', () => {
           const deviceToken = await getDeviceToken(
             response.body.data.setDeviceToken.deviceToken.id
           )
-          expect(deviceToken).to.be.undefined
+          expect(deviceToken).to.be.null
         })
       })
 
@@ -105,7 +105,7 @@ describe('Device tokens API', () => {
         const deviceToken = await getDeviceToken(
           response.body.data.setDeviceToken.deviceToken.id
         )
-        expect(deviceToken).not.to.be.undefined
+        expect(deviceToken).not.to.be.null
       })
     })
 

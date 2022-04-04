@@ -7,12 +7,12 @@ import {
   createTestPage,
   createTestUser,
   deleteTestUser,
-  getRepository,
 } from '../db'
 import { LinkLabel } from '../../src/entity/link_label'
 import { Label } from '../../src/entity/label'
 import { Link } from '../../src/entity/link'
 import { labelsLoader } from '../../src/services/labels'
+import { getRepository } from '../../src/entity/utils'
 
 describe('batch get labels from linkIds', () => {
   let username = 'testUser'

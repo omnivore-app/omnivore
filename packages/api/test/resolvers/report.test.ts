@@ -1,10 +1,11 @@
 import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
-import { createTestUser, deleteTestUser, getRepository } from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import { createTestElasticPage, graphqlRequest, request } from '../util'
 import { ReportType } from '../../src/generated/graphql'
 import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
 import { expect } from 'chai'
+import { getRepository } from '../../src/entity/utils'
 
 describe('Report API', () => {
   const username = 'fakeUser'

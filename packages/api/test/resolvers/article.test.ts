@@ -1,9 +1,4 @@
-import {
-  createTestLabel,
-  createTestUser,
-  deleteTestUser,
-  getRepository,
-} from '../db'
+import { createTestLabel, createTestUser, deleteTestUser } from '../db'
 import {
   createTestElasticPage,
   generateFakeUuid,
@@ -26,6 +21,7 @@ import { PageType, UploadFileStatus } from '../../src/generated/graphql'
 import { Page, PageContext } from '../../src/elastic/types'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { getRepository } from '../../src/entity/utils'
 
 chai.use(chaiString)
 

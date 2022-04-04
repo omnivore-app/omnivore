@@ -79,11 +79,9 @@ export const createLabelResolver = authorized<
     }
 
     // Check if label already exists ignoring case of name
-    const existingLabel = await getRepository(Label).findOne({
-      where: {
-        user,
-        name: ILike(name),
-      },
+    const existingLabel = await getRepository(Label).findOneBy({
+      user: { id: user.id },
+      name: ILike(name),
     })
     if (existingLabel) {
       return {
@@ -213,7 +211,7 @@ export const setLabelsResolver = authorized<
     }
 
     const labels = await getRepository(Label).find({
-      where: { id: In(labelIds), user },
+      where: { id: In(labelIds), user: { id: user.id } },
       relations: ['user'],
     })
     if (labels.length !== labelIds.length) {

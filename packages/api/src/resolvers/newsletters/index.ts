@@ -66,7 +66,7 @@ export const newsletterEmailsResolver = authorized<
       })
     }
 
-    const newsletterEmails = await getNewsletterEmails(user)
+    const newsletterEmails = await getNewsletterEmails(user.id)
 
     return {
       newsletterEmails: newsletterEmails,

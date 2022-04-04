@@ -3,7 +3,6 @@ import {
   createTestPage,
   createTestUser,
   deleteTestUser,
-  getRepository,
 } from '../db'
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
@@ -12,6 +11,7 @@ import { Page } from '../../src/entity/page'
 import { Link } from '../../src/entity/link'
 import { Highlight } from '../../src/entity/highlight'
 import 'mocha'
+import { getRepository } from '../../src/entity/utils'
 
 describe('User feed article API', () => {
   const existingUsername = 'fakeUser'

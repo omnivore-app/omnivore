@@ -9,7 +9,7 @@ export const getUserFollowers = async (
 ): Promise<User[]> => {
   return (
     await getRepository(Follower).find({
-      where: { user: user },
+      where: { user: { id: user.id } },
       relations: ['user', 'followee'],
       skip: offset,
       take: count,
@@ -24,7 +24,7 @@ export const getUserFollowing = async (
 ): Promise<User[]> => {
   return (
     await getRepository(Follower).find({
-      where: { followee: user },
+      where: { followee: { id: user.id } },
       relations: ['user', 'followee'],
       skip: offset,
       take: count,

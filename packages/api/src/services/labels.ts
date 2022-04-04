@@ -39,7 +39,7 @@ export const addLabelToPage = async (
   }
 
   let labelEntity = await getRepository(Label).findOneBy({
-    user: user,
+    user: { id: user.id },
     name: ILike(label.name),
   })
 

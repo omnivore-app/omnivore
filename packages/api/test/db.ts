@@ -1,5 +1,3 @@
-import { DataSource, EntityTarget, Repository } from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import Postgrator from 'postgrator'
 import { User } from '../src/entity/user'
 import { Profile } from '../src/entity/profile'
@@ -9,20 +7,9 @@ import { Reminder } from '../src/entity/reminder'
 import { NewsletterEmail } from '../src/entity/newsletter_email'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
 import { Label } from '../src/entity/label'
-
-export const appDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.PG_HOST,
-  port: Number(process.env.PG_PORT),
-  schema: 'omnivore',
-  username: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DB,
-  logging: ['query', 'info'],
-  entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
-  subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
-  namingStrategy: new SnakeNamingStrategy(),
-})
+import { AppDataSource } from '../src/server'
+import { getRepository } from '../src/entity/utils'
+import { createUser } from '../src/services/create_user'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -53,21 +40,16 @@ const runMigrations = async () => {
 
 export const createTestConnection = async (): Promise<void> => {
   try {
-    await appDataSource.initialize()
+    await AppDataSource.initialize()
+
+    await runMigrations()
   } catch (error) {
-    console.log('error initializing appDataSource', error)
+    console.log('error creating test connection', error)
   }
-
-  await runMigrations()
-}
-
-export const getRepository = <T>(entity: EntityTarget<T>): Repository<T> => {
-  return appDataSource.getRepository(entity)
 }
 
 export const deleteTestUser = async (name: string) => {
-  await appDataSource
-    .createQueryBuilder()
+  await AppDataSource.createQueryBuilder()
     .delete()
     .from(User)
     .where({ email: `${name}@fake.com` })
@@ -79,7 +61,7 @@ export const createTestUser = async (
   invite?: string | undefined,
   password?: string
 ): Promise<User> => {
-  const input = {
+  const [newUser] = await createUser({
     provider: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
     email: `${name}@fake.com`,
@@ -88,23 +70,9 @@ export const createTestUser = async (
     name: name,
     inviteCode: invite,
     password: password,
-  }
-
-  return appDataSource.transaction<User>(async (t) => {
-    const user = await t.getRepository(User).save({
-      source: input.provider,
-      name: input.name,
-      email: input.email,
-      sourceUserId: input.sourceUserId,
-      password: input.password,
-    })
-    await t.getRepository(Profile).save({
-      username: input.username,
-      bio: input.bio,
-      user,
-    })
-    return user
   })
+
+  return newUser
 }
 
 export const createUserWithoutProfile = async (name: string): Promise<User> => {
@@ -117,7 +85,7 @@ export const createUserWithoutProfile = async (name: string): Promise<User> => {
 }
 
 export const getProfile = async (user: User): Promise<Profile | null> => {
-  return getRepository(Profile).findOne({ where: { user: user } })
+  return getRepository(Profile).findOneBy({ user: { id: user.id } })
 }
 
 export const createTestPage = async (): Promise<Page> => {

@@ -1,6 +1,6 @@
-import { appDataSource } from './db'
+import { AppDataSource } from '../src/server'
 
 export const mochaGlobalTeardown = async () => {
-  await appDataSource.destroy()
+  await AppDataSource.destroy()
   console.log('db connection closed')
 }

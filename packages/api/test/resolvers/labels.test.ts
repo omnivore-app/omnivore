@@ -1,9 +1,4 @@
-import {
-  createTestLabel,
-  createTestUser,
-  deleteTestUser,
-  getRepository,
-} from '../db'
+import { createTestLabel, createTestUser, deleteTestUser } from '../db'
 import {
   createTestElasticPage,
   generateFakeUuid,
@@ -16,6 +11,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
 import { getPageById } from '../../src/elastic'
+import { getRepository } from '../../src/entity/utils'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -80,7 +76,9 @@ describe('Labels API', () => {
     it('should return labels', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      const labels = await getRepository(Label).find({ where: { user } })
+      const labels = await getRepository(Label).findBy({
+        user: { id: user.id },
+      })
       expect(res.body.data.labels.labels).to.eql(
         labels.map((label) => ({
           id: label.id,
@@ -141,9 +139,9 @@ describe('Labels API', () => {
 
       it('should create label', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        const label = await getRepository(Label).findOne(
-          res.body.data.createLabel.label.id
-        )
+        const label = await getRepository(Label).findOneBy({
+          id: res.body.data.createLabel.label.id,
+        })
         expect(label).to.exist
       })
     })
