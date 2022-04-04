@@ -103,8 +103,8 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       case 'navigate-to-install':
         router.push('/settings/installation')
         break
-      case 'navigate-to-feedback':
-        console.log('navigate to feedback - unimplemented') // TODO: implement intercom
+      case 'navigate-to-emails':
+        router.push('/settings/emails')
         break
       case 'navigate-to-profile':
         if (props.user) {
