@@ -10,6 +10,7 @@ import { Label } from '../src/entity/label'
 import { AppDataSource } from '../src/server'
 import { getRepository } from '../src/entity/utils'
 import { createUser } from '../src/services/create_user'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -40,6 +41,20 @@ const runMigrations = async () => {
 
 export const createTestConnection = async (): Promise<void> => {
   try {
+    AppDataSource.setOptions({
+      type: 'postgres',
+      host: process.env.PG_HOST,
+      port: Number(process.env.PG_PORT),
+      schema: 'omnivore',
+      username: process.env.PG_USER,
+      password: process.env.PG_PASSWORD,
+      database: process.env.PG_DB,
+      logging: ['query', 'info'],
+      entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
+      subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
+      namingStrategy: new SnakeNamingStrategy(),
+    })
+
     await AppDataSource.initialize()
 
     await runMigrations()
