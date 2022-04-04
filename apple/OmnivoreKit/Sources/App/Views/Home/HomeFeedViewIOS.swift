@@ -100,6 +100,9 @@ import Views
           viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
         }
       }
+      .onChange(of: selectedLinkItem) { _ in
+        viewModel.commitProgressUpdates()
+      }
     }
   }
 
@@ -326,7 +329,7 @@ import Views
     var body: some View {
       ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 24)], spacing: 24) {
-          ForEach(viewModel.items, id: \.renderID) { item in
+          ForEach(viewModel.items) { item in
             let link = GridCardNavigationLink(
               item: item,
               searchQuery: searchQuery,
