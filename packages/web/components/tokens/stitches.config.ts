@@ -4,10 +4,6 @@ import {
   gray,
   grayDark,
   blackA,
-  yellow,
-  yellowDark,
-  orange,
-  orangeDark,
 } from '@radix-ui/colors'
 
 export enum ThemeId {
@@ -116,10 +112,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       zIndices: {},
       transitions: {},
       colors: {
-        // Radix Color Scales
-        ...yellow, // Brand
-        ...orange, //Accent
-
         // Grayscale
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
@@ -177,9 +169,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
 const darkThemeSpec = {
   colors: {
-    ...yellowDark, // Brand
-    ...orangeDark, //Accent
-
     // Grayscale (top ones have been updated from new designs)
     grayBase: '#252525',
     grayBg: '#3B3938',
