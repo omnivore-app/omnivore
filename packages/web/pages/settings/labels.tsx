@@ -147,16 +147,6 @@ const IconButton = styled(Button, {
   },
 })
 
-const MobileBtnWrapper = styled(Box, {
-  display: 'flex',
-  position: 'fixed',
-  bottom: '16px',
-  right: '25px',
-  '@md': {
-    display: 'none',
-  },
-})
-
 const Input = styled('input', { ...inputStyles })
 
 const TextArea = styled('textarea', { ...inputStyles })
@@ -273,7 +263,7 @@ export default function LabelsPage(): JSX.Element {
             <Box style={{ flex: '1' }}>
               <StyledText style="fixedHeadline">Labels</StyledText>
             </Box>
-            <Box css={{ minWidth: '178px', display: 'flex', justifyContent: 'flex-end' }}>
+            <Box css={{display: 'flex', justifyContent: 'flex-end' }}>
               {isCreateMode ? null : (
                 <>
                   <Button
@@ -283,29 +273,28 @@ export default function LabelsPage(): JSX.Element {
                     }}
                     style="ctaDarkYellow"
                     css={{
-                      display: 'none',
+                      display: 'flex',
                       alignItems: 'center',
+                    }}
+                  >
+                    <SpanBox css={{
+                      display: 'none',
                       '@md': {
                         display: 'flex',
                       },
-                    }}
-                  >
-                    <Plus size={18} style={{ marginRight: '6.5px' }} />
-                    <SpanBox>Add Label</SpanBox>
-                  </Button>
-                  <MobileBtnWrapper>
-                    <Button
-                      onClick={() => setIsCreateMode(true)}
-                      style="ctaDarkYellow"
-                      css={{
-                        display: 'flex',
-                        border: '1px solid $grayBorder',
-                        borderRadius: '8px',
-                      }}
-                    >
+                    }}>
+                      <SpanBox>Add Label</SpanBox>
+                    </SpanBox>
+                    <SpanBox css={{
+                      p: '0',
+                      display: 'flex',
+                      '@md': {
+                        display: 'none',
+                      },
+                    }}>
                       <Plus size={24} />
-                    </Button>
-                  </MobileBtnWrapper>
+                    </SpanBox>
+                  </Button>
                 </>
               )}
             </Box>
@@ -497,8 +486,8 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           display: 'grid',
           width: '100%',
           gridGap: '$1',
-          height: '56px',
           gridTemplateColumns: '3fr 1fr',
+          height: editingLabelId === label?.id ? '280px' : '56px',
           '.showHidden': {
             display: 'none',
           },
@@ -511,7 +500,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             },
           },
           '@md': {
-            // gridTemplateColumns: '20% 15% 1fr 1fr 1fr',
+            height: '56px',
             gridTemplateColumns: '20% 28% 1fr 1fr',
           },
         }}

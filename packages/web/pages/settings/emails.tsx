@@ -18,7 +18,7 @@ import {
   VStack,
 } from '../../components/elements/LayoutPrimitives'
 import { useCopyLink } from '../../lib/hooks/useCopyLink'
-import { toast, Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { useCallback } from 'react'
 import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
@@ -36,7 +36,7 @@ type CopyTextButtonProps = {
 }
 
 const HeaderWrapper = styled(Box, {
-  width: '863px',
+  width: '100%',
   '@md': {
     display: 'block',
   },
@@ -55,7 +55,6 @@ const TableCard = styled(Box, {
   },
   '@md': {
     paddingLeft: '0',
-    width: '863px',
   },
 })
 
@@ -66,7 +65,7 @@ const TableHeading = styled(Box, {
   alignItems: 'center',
   padding: '14px 0 14px 40px',
   borderRadius: '5px 5px 0px 0px',
-  width: '863px',
+  width: '100%',
   '@md': {
     display: 'flex',
   }
@@ -87,16 +86,6 @@ const CopyTextBtnWrapper = styled(Box, {
   background: '$grayBgActive',
   borderRadius: '6px',
   border: '1px solid rgba(0, 0, 0, 0.06)',
-})
-
-const MobileBtnWrapper = styled(Box, {
-  display: 'flex',
-  position: 'fixed',
-  bottom: '16px',
-  right: '25px',
-  '@md': {
-    display: 'none',
-  },
 })
 
 const InfoIcon = styled(Info, {
@@ -209,11 +198,9 @@ export default function EmailsPage(): JSX.Element {
           color: '$grayText',
           paddingBottom: '5rem',
           paddingTop: '2rem',
-
           '@md': {
             m: '16px',
             alignSelf: 'center',
-            maxWidth: '72%',
             mx: '42px',
             paddingTop: '0',
           },
@@ -242,27 +229,36 @@ export default function EmailsPage(): JSX.Element {
                 </a>
               </Link>
             </Box>
-            <Box css={{
-              display: 'none',
-              '@md': {
-                display: 'unset',
-              },
-            }}>
-              <Button
-                onClick={createEmail}
-                style="ctaDarkYellow"
-                css={{
+            <Button
+              onClick={createEmail}
+              style="ctaDarkYellow"
+              css={{
+                display: 'flex',
+                alignItems: 'center',
+                marginLeft: 'auto',
+              }}
+            >
+              <SpanBox css={{
+                display: 'none',
+                '@md': {
                   display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <Plus size={18} style={{ marginRight: '6.5px' }} />
+                },
+              }}>
                 <SpanBox>Add Email</SpanBox>
-              </Button>
-            </Box>
+              </SpanBox>
+              <SpanBox css={{
+                p: '0',
+                display: 'flex',
+                '@md': {
+                  display: 'none',
+                },
+              }}>
+                <Plus size={24} />
+              </SpanBox>
+            </Button>
           </Box>
           <TableHeading>
-            <Box
+          <Box
               css={{
                 flex: '49%',
               }}
@@ -312,8 +308,8 @@ export default function EmailsPage(): JSX.Element {
                 <Box
                   css={{
                     display: 'flex',
-                    flexDirection: 'column',
                     width: '100%',
+                    flexDirection: 'column',
                     '@md': {
                       flexDirection: 'row',
                     },
@@ -354,6 +350,7 @@ export default function EmailsPage(): JSX.Element {
                     </CopyTextBtnWrapper>
                     <Box
                       css={{
+                        marginLeft: 'auto',
                         textAlign: 'right',
                         display: 'flex',
                         '@md': {
@@ -373,6 +370,7 @@ export default function EmailsPage(): JSX.Element {
                         borderRadius: '6px',
                         padding: '8px 4px 4px 7px',
                         '@md': {
+                          padding: 'unset',
                           backgroundColor: 'transparent',
                         },
                       }}
@@ -387,7 +385,9 @@ export default function EmailsPage(): JSX.Element {
                         <Box>
                           <CopyTextBtnWrapper
                             css={{
-                              border: 'none',
+                              '@mdDown': {
+                                border: 'none',
+                              }
                             }}
                           >
                             <CopyTextButton
@@ -400,7 +400,7 @@ export default function EmailsPage(): JSX.Element {
                     </HStack>
                   )}
                 </Box>
-                <HStack distribution={'start'}>
+                <HStack distribution={'start'} css={{ marginLeft: 'auto' }}>
                   <Box
                     css={{
                       textAlign: 'right',
@@ -416,19 +416,6 @@ export default function EmailsPage(): JSX.Element {
               </TableCard>
             )
           })}
-        <MobileBtnWrapper>
-          <Button
-            onClick={createEmail}
-            style="ctaDarkYellow"
-            css={{
-              display: 'flex',
-              border: '1px solid $grayBorder',
-              borderRadius: '8px',
-            }}
-          >
-            <Plus size={24} />
-          </Button>
-        </MobileBtnWrapper>
       </VStack>
     </PrimaryLayout>
   )
