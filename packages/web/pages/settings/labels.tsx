@@ -438,7 +438,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               <PencilSimple size={24} color={iconColor} />
               <StyledText
                 color="$grayText"
-                css={{ fontSize: '$5', marginLeft: '$2' }}
+                css={{ m: '0px', fontSize: '$5', marginLeft: '$2' }}
               >
                 Edit
               </StyledText>
@@ -459,7 +459,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             >
               <Trash size={24} color="#AA2D11" />
               <StyledText
-                css={{ fontSize: '$5', marginLeft: '$2', color: '#AA2D11' }}
+                css={{ m: '0px', fontSize: '$5', marginLeft: '$2', color: '#AA2D11' }}
               >
                 Delete
               </StyledText>
