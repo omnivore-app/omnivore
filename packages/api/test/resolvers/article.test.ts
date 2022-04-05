@@ -294,9 +294,7 @@ describe('Article API', () => {
       it('should create an article', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
-        expect(res.body.data.createArticle.createdArticle.title).not.to.eql(
-          title
-        )
+        expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
         pageId = res.body.data.createArticle.createdArticle.id
       })
     })
