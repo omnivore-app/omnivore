@@ -339,6 +339,7 @@ export default function LabelsPage(): JSX.Element {
                 setIsCreateMode={setIsCreateMode}
                 createLabel={createLabel}
                 resetState={resetLabelState}
+                updateLabel={updateLabel}
               />
             )
           ) : null}
@@ -348,32 +349,53 @@ export default function LabelsPage(): JSX.Element {
             const isLastChild = i === labels.length - 1
             const isFirstChild = i === 0
 
+            if (windowWidth <= breakpoint && editingLabelId == label.id) {
               return (
-                <GenericTableCard
-                  key={label.id}
-                  isLastChild={isLastChild}
-                  isFirstChild={isFirstChild}
-                  label={label as unknown as Label}
-                  labelColorHex={labelColorHex}
-                  editingLabelId={editingLabelId}
-                  isCreateMode={isCreateMode}
-                  handleGenerateRandomColor={handleGenerateRandomColor}
-                  setEditingLabelId={setEditingLabelId}
-                  setLabelColorHex={setLabelColorHex}
-                  deleteLabel={deleteLabel}
-                  nameInputText={nameInputText}
-                  descriptionInputText={descriptionInputText}
-                  setNameInputText={setNameInputText}
-                  setDescriptionInputText={setDescriptionInputText}
-                  setIsCreateMode={setIsCreateMode}
-                  createLabel={createLabel}
-                  updateLabel={updateLabel}
-                  onEditPress={onEditPress}
-                  resetState={resetLabelState}
-                />
-              )
-            })
-          : null}
+                <MobileEditCard
+                label={label}
+                labelColorHex={labelColorHex}
+                editingLabelId={editingLabelId}
+                isCreateMode={isCreateMode}
+                handleGenerateRandomColor={handleGenerateRandomColor}
+                setEditingLabelId={setEditingLabelId}
+                setLabelColorHex={setLabelColorHex}
+                deleteLabel={deleteLabel}
+                nameInputText={nameInputText}
+                descriptionInputText={descriptionInputText}
+                setNameInputText={setNameInputText}
+                setDescriptionInputText={setDescriptionInputText}
+                setIsCreateMode={setIsCreateMode}
+                createLabel={createLabel}
+                resetState={resetLabelState}
+                updateLabel={updateLabel}
+              />)
+            }
+
+            return (
+              <GenericTableCard
+                key={label.id}
+                isLastChild={isLastChild}
+                isFirstChild={isFirstChild}
+                label={label as unknown as Label}
+                labelColorHex={labelColorHex}
+                editingLabelId={editingLabelId}
+                isCreateMode={isCreateMode}
+                handleGenerateRandomColor={handleGenerateRandomColor}
+                setEditingLabelId={setEditingLabelId}
+                setLabelColorHex={setLabelColorHex}
+                deleteLabel={deleteLabel}
+                nameInputText={nameInputText}
+                descriptionInputText={descriptionInputText}
+                setNameInputText={setNameInputText}
+                setDescriptionInputText={setDescriptionInputText}
+                setIsCreateMode={setIsCreateMode}
+                createLabel={createLabel}
+                updateLabel={updateLabel}
+                onEditPress={onEditPress}
+                resetState={resetLabelState}
+              />
+            )
+          }) : null}
       </VStack>
     </PrimaryLayout>
   )
@@ -709,15 +731,26 @@ function MobileEditCard(props: any) {
     setNameInputText,
     setDescriptionInputText,
     createLabel,
-    resetState
+    resetState,
+    updateLabel
   } = props
+
+  const handleEdit = () => {
+    editingLabelId && updateLabel(editingLabelId)
+    setEditingLabelId(null)
+  }
+
   return (
     <TableCard>
-      <VStack distribution="center" css={{ width: '100%' }}>
-        <StyledText>{editingLabelId ? 'Edit Label' : 'New Label'}</StyledText>
+      <VStack distribution="center" css={{ width: '100%', margin: '8px' }}>
+        {nameInputText && (
+          <SpanBox css={{ ml: '13px', mt: '1px' }}>
+            <LabelChip color={labelColorHex.value} text={nameInputText} />
+          </SpanBox>
+        )}
         <Input
           type="text"
-          value={nameInputText || label?.name}
+          value={nameInputText}
           onChange={(event) => setNameInputText(event.target.value)}
           autoFocus
         />
@@ -731,7 +764,8 @@ function MobileEditCard(props: any) {
           setLabelColorHex={setLabelColorHex}
         />
         <TextArea
-          value={descriptionInputText || label?.description}
+          placeholder={label?.description}
+          value={descriptionInputText}
           onChange={(event) => setDescriptionInputText(event.target.value)}
           rows={5}
         />
@@ -741,13 +775,6 @@ function MobileEditCard(props: any) {
           css={{ width: '100%', margin: '$1 0' }}
         >
           <Button
-            style="ctaDarkYellow"
-            css={{ mr: '$1' }}
-            onClick={() => (label ? setEditingLabelId(null) : createLabel())}
-          >
-            Save
-          </Button>
-          <Button
             style="plainIcon"
             css={{ mr: '$1' }}
             onClick={() => {
@@ -755,6 +782,13 @@ function MobileEditCard(props: any) {
             }}
           >
             Cancel
+          </Button>
+          <Button
+            style="ctaDarkYellow"
+            css={{ mr: '$1' }}
+            onClick={() => label ? handleEdit() : createLabel()}
+          >
+            Save
           </Button>
         </HStack>
       </VStack>
