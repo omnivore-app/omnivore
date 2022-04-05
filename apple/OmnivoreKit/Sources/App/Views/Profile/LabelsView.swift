@@ -46,20 +46,53 @@ final class LabelsViewModel: ObservableObject {
     )
     .store(in: &subscriptions)
   }
+
+  func deleteLabel(dataService: DataService, labelID: String) {
+    isLoading = true
+
+    dataService.removeLabelPublisher(labelID: labelID).sink(
+      receiveCompletion: { [weak self] _ in
+        self?.isLoading = false
+      },
+      receiveValue: { [weak self] _ in
+        self?.isLoading = false
+        self?.labels.removeAll { $0.id == labelID }
+      }
+    )
+    .store(in: &subscriptions)
+  }
 }
 
 struct LabelsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = LabelsViewModel()
+  @State private var showDeleteConfirmation = false
+  @State private var labelToRemoveID: String?
 
   let footerText = "Use labels to create curated collections of links."
 
   var body: some View {
     Group {
       #if os(iOS)
-        Form {
-          innerBody
+        if #available(iOS 15.0, *) {
+          Form {
+            innerBody
+              .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
+                Button("Remove Link", role: .destructive) {
+                  if let labelID = labelToRemoveID {
+                    withAnimation {
+                      viewModel.deleteLabel(dataService: dataService, labelID: labelID)
+                    }
+                  }
+                  self.labelToRemoveID = nil
+                }
+                Button("Cancel", role: .cancel) { self.labelToRemoveID = nil }
+              }
+          }
+        } else {
+          Form { innerBody }
         }
+
       #elseif os(macOS)
         List {
           innerBody
@@ -89,7 +122,17 @@ struct LabelsView: View {
       if !viewModel.labels.isEmpty {
         Section(header: Text("Labels")) {
           ForEach(viewModel.labels, id: \.id) { label in
-            Text(label.name)
+            HStack {
+              Text(label.name)
+              Spacer()
+              Button(
+                action: {
+                  labelToRemoveID = label.id
+                  showDeleteConfirmation = true
+                },
+                label: { Image(systemName: "trash") }
+              )
+            }
           }
         }
       }
