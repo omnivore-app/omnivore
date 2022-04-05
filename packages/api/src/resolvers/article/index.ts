@@ -461,7 +461,6 @@ export const getArticlesResolver = authorized<
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      sort: params.sort || undefined,
     },
     claims.uid
   )) || [[], 0]

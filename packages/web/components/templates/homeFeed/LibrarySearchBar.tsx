@@ -20,6 +20,7 @@ type LibraryFilter =
   | 'type:file'
   | 'type:highlights'
   | `saved:${string}`
+  | `sort:updated`
 
 // get last week's date
 const recentlySavedStartDate = new Date(
@@ -160,6 +161,11 @@ export function DropdownFilterMenu(
       <DropdownOption
         onSelect={() => props.onFilterChange(`saved:${recentlySavedStartDate}`)}
         title="Recently Saved"
+        hideSeparator
+      />
+      <DropdownOption
+        onSelect={() => props.onFilterChange(`sort:updated`)}
+        title="Recently Read"
         hideSeparator
       />
     </Dropdown>

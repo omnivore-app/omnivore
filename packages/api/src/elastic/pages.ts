@@ -6,7 +6,6 @@ import {
   SearchBody,
   SearchResponse,
 } from './types'
-import { SortBy, SortOrder, SortParams } from '../generated/graphql'
 import {
   DateRangeFilter,
   HasFilter,
@@ -14,6 +13,9 @@ import {
   LabelFilter,
   LabelFilterType,
   ReadFilter,
+  SortBy,
+  SortOrder,
+  SortParams,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 
@@ -336,9 +338,10 @@ export const searchPages = async (
       savedDateFilter,
       publishedDateFilter,
     } = args
-    const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
+    // default order is descending
+    const sortOrder = sort?.order || SortOrder.DESCENDING
     // default sort by saved_at
-    const sortField = sort?.by === SortBy.Score ? '_score' : 'savedAt'
+    const sortField = sort?.by || SortBy.SAVED
     const includeLabels = labelFilters.filter(
       (filter) => filter.type === LabelFilterType.INCLUDE
     )
