@@ -52,7 +52,7 @@ const createEntityConnection = async (): Promise<void> => {
     username: process.env.PG_USER,
     password: process.env.PG_PASSWORD,
     database: process.env.PG_DB,
-    logging: ['error'],
+    logging: ['query', 'info'],
     entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
     subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
     namingStrategy: new SnakeNamingStrategy(),
