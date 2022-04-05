@@ -106,7 +106,7 @@ describe('elastic api', () => {
         url: page.url,
       })
 
-      expect(pageFound).not.undefined
+      expect(pageFound).to.undefined
     })
   })
 
