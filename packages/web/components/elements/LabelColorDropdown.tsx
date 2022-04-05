@@ -59,10 +59,6 @@ const DropdownMenuTrigger = styled(DropdownMenuPrimitive.Trigger, {
   border: 0,
   padding: 0,
   marginRight: '$2',
-  '&[data-state="open"]': {
-    border: '2px solid $omnivoreYellow',
-    borderRadius: 6,
-  },
 })
 const Box = styled('div', {})
 
