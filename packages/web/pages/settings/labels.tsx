@@ -406,6 +406,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
   const showInput =
     editingLabelId === label?.id || (isCreateMode && !label)
   const labelName = label?.name || nameInputText
+  const labelColor = editingLabelId === label?.id ? labelColorHex.value : label?.color
 
   const isDarkMode = isDarkTheme()
   const iconColor = isDarkMode ? '#D8D7D5': '#5F5E58'
@@ -514,7 +515,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
         >
           {(showInput && !label) ? null : (
             <HStack alignment="center" css={{ ml: '16px' }}>
-              <LabelChip color={label?.color || ''} text={label?.name || ''} />
+              <LabelChip color={labelColor || ''} text={label?.name || ''} />
             </HStack>
           )}
           {(showInput && !label) ? (
