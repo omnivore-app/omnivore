@@ -417,6 +417,7 @@ export default function EmailsPage(): JSX.Element {
             )
           })}
       </VStack>
+      <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
 }

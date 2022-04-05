@@ -354,6 +354,8 @@ export default function LabelsPage(): JSX.Element {
                 labelColorHex={labelColorHex}
                 editingLabelId={editingLabelId}
                 isCreateMode={isCreateMode}
+                isLastChild={isLastChild}
+                isFirstChild={isFirstChild}
                 handleGenerateRandomColor={handleGenerateRandomColor}
                 setEditingLabelId={setEditingLabelId}
                 setLabelColorHex={setLabelColorHex}
@@ -395,6 +397,7 @@ export default function LabelsPage(): JSX.Element {
             )
           }) : null}
       </VStack>
+      <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
 }
@@ -486,7 +489,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
   }
 
   return (
-    <TableCard 
+    <TableCard
     css={{
       '&:hover': {
         background: 'rgba(255, 234, 159, 0.12)',
@@ -528,7 +531,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           }}
         >
           {(showInput && !label) ? null : (
-            <HStack alignment="center" css={{ ml: '16px' }}>
+            <HStack alignment="center" css={{ ml: '16px', '@smDown': { ml: '6px' } }}>
               <LabelChip color={labelColor || ''} text={label?.name || ''} />
             </HStack>
           )}
@@ -730,7 +733,9 @@ function MobileEditCard(props: any) {
     setDescriptionInputText,
     createLabel,
     resetState,
-    updateLabel
+    updateLabel,
+    isFirstChild,
+    isLastChild,
   } = props
 
   const handleEdit = () => {
@@ -739,10 +744,16 @@ function MobileEditCard(props: any) {
   }
 
   return (
-    <TableCard>
+    <TableCard 
+    css={{
+      borderTopLeftRadius: isFirstChild ? '5px' : '',
+      borderTopRightRadius: isFirstChild ? '5px' : '',
+      borderBottomLeftRadius: isLastChild ? '5px' : '',
+      borderBottomRightRadius: isLastChild ? '5px' : '',
+    }}>
       <VStack distribution="center" css={{ width: '100%', margin: '8px' }}>
         {nameInputText && (
-          <SpanBox css={{ ml: '13px', mt: '1px' }}>
+          <SpanBox css={{ ml: '-1px', mt: '1px' }}>
             <LabelChip color={labelColorHex.value} text={nameInputText} />
           </SpanBox>
         )}
