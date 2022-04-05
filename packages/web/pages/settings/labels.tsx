@@ -487,10 +487,8 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
       '&:hover': {
         background: 'rgba(255, 234, 159, 0.12)',
       },
-      '@mdDown': {
-        borderTopLeftRadius: isFirstChild ? '5px' : '',
-        borderTopRightRadius: isFirstChild ? '5px' : '',
-      },
+      borderTopLeftRadius: isFirstChild ? '5px' : '',
+      borderTopRightRadius: isFirstChild ? '5px' : '',
       borderBottomLeftRadius: isLastChild ? '5px' : '',
       borderBottomRightRadius: isLastChild ? '5px' : '',
     }}>
