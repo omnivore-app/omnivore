@@ -5,6 +5,7 @@ import Utils
 public enum GridCardAction {
   case toggleArchiveStatus
   case delete
+  case editLabels
 }
 
 public struct GridCard: View {
@@ -42,6 +43,10 @@ public struct GridCard: View {
 
   var contextMenuView: some View {
     Group {
+      Button(
+        action: { menuActionHandler(.editLabels) },
+        label: { Label("Edit Labels", systemImage: "tag") }
+      )
       Button(
         action: { menuActionHandler(.toggleArchiveStatus) },
         label: {

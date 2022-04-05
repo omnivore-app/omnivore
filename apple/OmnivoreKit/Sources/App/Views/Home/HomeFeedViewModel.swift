@@ -14,6 +14,7 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var items = [FeedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
+  @Published var itemUnderLabelEdit: FeedItem?
   var cursor: String?
   var sendProgressUpdates = false
 

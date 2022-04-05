@@ -167,6 +167,9 @@ import Views
             }
           }
         }
+        .sheet(item: $viewModel.itemUnderLabelEdit, onDismiss: { print("edit label modal dismissed") }) { item in
+          Text("editing item with id: \(item.id)")
+        }
       }
     }
   }
@@ -323,6 +326,8 @@ import Views
       case .delete:
         itemToRemove = item
         confirmationShown = true
+      case .editLabels:
+        viewModel.itemUnderLabelEdit = item
       }
     }
 
