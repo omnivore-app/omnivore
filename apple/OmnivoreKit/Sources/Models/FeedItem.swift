@@ -28,7 +28,7 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   public let slug: String
   public let isArchived: Bool
   public let contentReader: String?
-  public let labels: [FeedItemLabel]
+  public var labels: [FeedItemLabel]
 
   public init(
     id: String,

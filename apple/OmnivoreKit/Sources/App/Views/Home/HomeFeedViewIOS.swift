@@ -167,8 +167,10 @@ import Views
             }
           }
         }
-        .sheet(item: $viewModel.itemUnderLabelEdit, onDismiss: { print("edit label modal dismissed") }) { item in
-          ApplyLabelsView(item: item)
+        .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+          ApplyLabelsView(item: item) { labels in
+            viewModel.updateLabels(itemID: item.id, labels: labels)
+          }
         }
       }
     }

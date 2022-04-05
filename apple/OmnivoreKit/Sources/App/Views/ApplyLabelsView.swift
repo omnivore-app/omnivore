@@ -2,6 +2,7 @@ import Combine
 import Models
 import Services
 import SwiftUI
+import Views
 
 final class ApplyLabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
@@ -25,10 +26,20 @@ final class ApplyLabelsViewModel: ObservableObject {
     )
     .store(in: &subscriptions)
   }
+
+  func saveChanges(itemID: String, dataService: DataService, onComplete: @escaping ([FeedItemLabel]) -> Void) {
+    dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabels.map(\.id)).sink(
+      receiveCompletion: { _ in },
+      receiveValue: { onComplete($0) }
+    )
+    .store(in: &subscriptions)
+  }
 }
 
 struct ApplyLabelsView: View {
   let item: FeedItem
+  let commitLabelChanges: ([FeedItemLabel]) -> Void
+
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = ApplyLabelsViewModel()
@@ -39,7 +50,11 @@ struct ApplyLabelsView: View {
         EmptyView()
       } else {
         List(viewModel.labels, id: \.self, selection: $viewModel.selectedLabels) { label in
-          Text(label.name)
+          if let textChip = TextChip(feedItemLabel: label) {
+            textChip
+          } else {
+            Text(label.name)
+          }
         }
         .environment(\.editMode, .constant(EditMode.active))
         .navigationTitle("Apply Labels")
@@ -54,8 +69,10 @@ struct ApplyLabelsView: View {
           ToolbarItem(placement: .navigationBarTrailing) {
             Button(
               action: {
-                print("saving")
-                presentationMode.wrappedValue.dismiss()
+                viewModel.saveChanges(itemID: item.id, dataService: dataService) { labels in
+                  commitLabelChanges(labels)
+                  presentationMode.wrappedValue.dismiss()
+                }
               },
               label: { Text("Save") }
             )

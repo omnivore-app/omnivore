@@ -164,8 +164,9 @@ public struct GridCard: View {
         if FeatureFlag.enableLabels {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-              TextChip(text: "label", color: .red)
-              TextChip(text: "longer label", color: .blue)
+              ForEach(item.labels, id: \.self) {
+                TextChip(feedItemLabel: $0)
+              }
               Spacer()
             }
             .frame(height: 30)

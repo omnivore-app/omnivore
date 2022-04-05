@@ -183,4 +183,11 @@ final class HomeFeedViewModel: ObservableObject {
       items[index].readingProgress = progress
     }
   }
+
+  func updateLabels(itemID: String, labels: [FeedItemLabel]) {
+    guard let item = items.first(where: { $0.id == itemID }) else { return }
+    if let index = items.firstIndex(of: item) {
+      items[index].labels = labels
+    }
+  }
 }
