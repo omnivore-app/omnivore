@@ -73,7 +73,7 @@ describe('Report API', () => {
           await getRepository(ContentDisplayReport).findBy({
             elasticPageId: pageId,
           })
-        ).to.exist
+        ).not.to.exist
       })
     })
   })
