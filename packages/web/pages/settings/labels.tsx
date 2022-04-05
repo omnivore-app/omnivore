@@ -400,8 +400,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
     onEditPress,
     resetState,
   } = props
-  const colorObject =
-    labelColorObjects[label?.color || ''] || labelColorObjects['custom color']
   const showInput =
     editingLabelId === label?.id || (isCreateMode && !label)
   const labelColor = editingLabelId === label?.id ? labelColorHex.value : label?.color
