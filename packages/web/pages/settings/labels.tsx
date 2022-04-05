@@ -274,7 +274,7 @@ export default function LabelsPage(): JSX.Element {
               <StyledText style="fixedHeadline">Labels</StyledText>
             </Box>
             <Box css={{ minWidth: '178px', display: 'flex', justifyContent: 'flex-end' }}>
-              {editingLabelId || isCreateMode ? null : (
+              {isCreateMode ? null : (
                 <>
                   <Button
                     onClick={() => {
