@@ -613,7 +613,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             </Box>
           </TooltipWrapped>
           )}
-          <Box css={{'@md': { display: 'none' }}}>
+          <Box css={{ marginLeft: 'auto', '@md': { display: 'none' }}}>
             {moreActionsButton()}
           </Box>
         </HStack>
