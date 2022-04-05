@@ -1,5 +1,5 @@
 {
   "extension": ["ts"],
-  "spec": ["test/resolvers/article.test.ts", "test/resolvers/highlight.test.ts", "test/resolvers/newsletters.test.ts", "test/resolvers/reminders.test.ts"],
+  "spec": "test/**/*.test.ts",
   "require": ["test/babel-register.js", "test/global-setup.ts", "test/global-teardown.ts"]
 }
