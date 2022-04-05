@@ -52,10 +52,8 @@ const TableCard = styled(Box, {
   alignItems: 'center',
   border: '0.3px solid $grayBgActive',
   width: '100%',
-
   '&:hover': {
     border: '0.3px solid #FFD234',
-    backgroundColor: '#FFFDF4',
   },
   '@md': {
     paddingLeft: '0',
