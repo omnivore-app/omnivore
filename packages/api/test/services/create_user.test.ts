@@ -33,7 +33,7 @@ describe('create a user with an invite', () => {
     expect(await getUserFollowers(user)).to.eql([adminUser])
     expect(await getUserFollowing(user)).to.eql([adminUser])
     expect(await getUserFollowers(adminUser)).to.eql([user])
-    expect(await getUserFollowing(adminUser)).not.to.eql([user])
+    expect(await getUserFollowing(adminUser)).to.eql([user])
   }).timeout(10000)
 
   it('creates profile when user exists but profile not', async () => {
