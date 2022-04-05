@@ -706,8 +706,8 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               </>
             ) : (
               <HStack
-                distribution="start"
-                alignment="start"
+                distribution="end"
+                alignment="end"
                 css={{
                   display: 'none',
                   '@md': {
@@ -732,7 +732,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                 >
                   <Trash size={16} color={iconColor} />
                 </IconButton>
-                {moreActionsButton()}
               </HStack>
             )}
         </HStack>
