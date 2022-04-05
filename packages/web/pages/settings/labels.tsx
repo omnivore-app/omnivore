@@ -95,7 +95,7 @@ const inputStyles = {
   margin: '$2 0',
   border: '1px solid $grayBorder',
   borderRadius: '6px',
-  fontSize: '13px',
+  fontSize: '16px',
   FontFamily: '$fontFamily',
   width: '100%',
   '@md': {

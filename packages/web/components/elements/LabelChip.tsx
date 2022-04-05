@@ -24,7 +24,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         fontSize: '12px',
         fontWeight: 'bold',
         padding: '4px 8px 4px 8px',
-        border: `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.40)`,
+        border: `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
         backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`,
       }}
     >
