@@ -41,6 +41,8 @@ const runMigrations = async () => {
 
 export const createTestConnection = async (): Promise<void> => {
   try {
+    await runMigrations()
+
     AppDataSource.setOptions({
       type: 'postgres',
       host: process.env.PG_HOST,
@@ -56,8 +58,6 @@ export const createTestConnection = async (): Promise<void> => {
     })
 
     await AppDataSource.initialize()
-
-    await runMigrations()
   } catch (error) {
     console.log('error creating test connection', error)
   }
