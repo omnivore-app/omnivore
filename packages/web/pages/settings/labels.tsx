@@ -88,21 +88,6 @@ const TableCardBox = styled(Box, {
   },
 })
 
-const TableHeading = styled(Box, {
-  backgroundColor: '$grayBgActive',
-  // gridTemplateColumns: '20% 30% 1fr 230px 1fr',
-  gridTemplateColumns: '20% 30% 1fr 1fr',
-  alignItems: 'center',
-  padding: '12px 0px',
-  borderRadius: '5px 5px 0px 0px',
-  width: '100%',
-  textTransform: 'uppercase',
-  display: 'none',
-  '@md': {
-    display: 'grid',
-  },
-})
-
 const inputStyles = {
   backgroundColor: 'transparent',
   color: '$grayTextContrast',
@@ -325,52 +310,6 @@ export default function LabelsPage(): JSX.Element {
               )}
             </Box>
           </Box>
-          <TableHeading>
-            <Box>
-              <StyledText
-                style="highlightTitle"
-                css={{
-                  color: '$grayTextContrast',
-                  padding: '0 5px 0 30px',
-                }}
-              >
-                Name
-              </StyledText>
-            </Box>
-            <Box>
-              <StyledText
-                style="highlightTitle"
-                css={{
-                  color: '$grayTextContrast',
-                  ml: 5,
-                }}
-              >
-                Description
-              </StyledText>
-            </Box>
-            <Box>
-              <StyledText
-                style="highlightTitle"
-                css={{
-                  color: '$grayTextContrast',
-                }}
-              >
-                Color
-              </StyledText>
-            </Box>
-            <Box>
-              <StyledText
-                style="highlightTitle"
-                css={{
-                  color: '$grayTextContrast',
-                  display: 'flex',
-                  ml: 5,
-                }}
-              >
-                Actions
-              </StyledText>
-            </Box>
-          </TableHeading>
         </HeaderWrapper>
         <>
           {isCreateMode ? (
@@ -560,6 +499,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           display: 'grid',
           width: '100%',
           gridGap: '$1',
+          height: '56px',
           gridTemplateColumns: '3fr 1fr',
           '.showHidden': {
             display: 'none',
@@ -640,15 +580,18 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             alignItems: 'center',
           }}
         >
-          <LabelColorDropdown
-            isCreateMode={isCreateMode && !label}
-            canEdit={editingLabelId === label?.id}
-            labelColorHexRowId={labelColorHex.rowId}
-            labelColorHexValue={labelColorHex.value}
-            labelId={label?.id || ''}
-            labelColor={label?.color || 'custom color'}
-            setLabelColorHex={setLabelColorHex}
-          />
+          {showInput && (
+            <LabelColorDropdown
+              isCreateMode={isCreateMode && !label}
+              canEdit={editingLabelId === label?.id}
+              labelColorHexRowId={labelColorHex.rowId}
+              labelColorHexValue={labelColorHex.value}
+              labelId={label?.id || ''}
+              labelColor={label?.color || 'custom color'}
+              setLabelColorHex={setLabelColorHex}
+            />
+          )}
+          {showInput && (
           <TooltipWrapped
             tooltipSide={'top'}
             tooltipContent='Random Color'
@@ -671,23 +614,24 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               </IconButton>
             </Box>
           </TooltipWrapped>
+          )}
           <Box css={{'@md': { display: 'none' }}}>
             {moreActionsButton()}
           </Box>
         </HStack>
 
         <HStack
-          distribution="start"
+          distribution="end"
           alignment="center"
           css={{
-            padding: '4px 8px',
+            padding: '0px 8px',
           }}
         >
             {editingLabelId === label?.id || !label ? (
               <>
                 <Button
                   style="ctaDarkYellow"
-                  css={{ mr: '$1' }}
+                  css={{ my: '0px', mr: '$1' }}
                   onClick={() =>
                     label ? handleEdit() : createLabel()
                   }
