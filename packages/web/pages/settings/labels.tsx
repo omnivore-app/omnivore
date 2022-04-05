@@ -481,8 +481,8 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           display: 'grid',
           width: '100%',
           gridGap: '$1',
-          gridTemplateColumns: '3fr 1fr',
-          height: editingLabelId === label?.id ? '280px' : '56px',
+          gridTemplateColumns: '3fr 2fr',
+          height: editingLabelId == label?.id ? '120px' : '56px',
           '.showHidden': {
             display: 'none',
           },
@@ -513,13 +513,19 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             </HStack>
           )}
           {(showInput && !label) ? (
-            <Input
-              type="text"
-              value={nameInputText}
-              onChange={(event) => setNameInputText(event.target.value)}
-              required
-              autoFocus
-            />
+            <SpanBox css={{
+              '@smDown': {
+                display: 'none',
+              },
+            }}>
+              <Input
+                type="text"
+                value={nameInputText}
+                onChange={(event) => setNameInputText(event.target.value)}
+                required
+                autoFocus
+              />
+            </SpanBox>
           ) : null}
         </HStack>
 
@@ -605,6 +611,28 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
         </HStack>
 
         <HStack
+          distribution="start"
+          alignment="center"
+          css={{
+            ml: '8px',
+            display: 'flex',
+            '@md': {
+              display: 'none',
+            },
+          }}
+        >
+          {showInput && (
+            <Input
+              type="text"
+              placeholder='What this label is about...'
+              value={descriptionInputText}
+              onChange={(event) => setDescriptionInputText(event.target.value)}
+              autoFocus={!!label}
+            />
+          )}
+        </HStack>
+
+        <HStack
           distribution="end"
           alignment="center"
           css={{
@@ -614,15 +642,6 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             {editingLabelId === label?.id || !label ? (
               <>
                 <Button
-                  style="ctaDarkYellow"
-                  css={{ my: '0px', mr: '$1' }}
-                  onClick={() =>
-                    label ? handleEdit() : createLabel()
-                  }
-                >
-                  Save
-                </Button>
-                <Button
                   style="plainIcon"
                   css={{ mr: '$1' }}
                   onClick={() => {
@@ -630,6 +649,15 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                   }}
                 >
                   Cancel
+                </Button>
+                <Button
+                  style="ctaDarkYellow"
+                  css={{ my: '0px', mr: '$1' }}
+                  onClick={() =>
+                    label ? handleEdit() : createLabel()
+                  }
+                >
+                  Save
                 </Button>
               </>
             ) : (
@@ -713,6 +741,13 @@ function MobileEditCard(props: any) {
           css={{ width: '100%', margin: '$1 0' }}
         >
           <Button
+            style="ctaDarkYellow"
+            css={{ mr: '$1' }}
+            onClick={() => (label ? setEditingLabelId(null) : createLabel())}
+          >
+            Save
+          </Button>
+          <Button
             style="plainIcon"
             css={{ mr: '$1' }}
             onClick={() => {
@@ -720,13 +755,6 @@ function MobileEditCard(props: any) {
             }}
           >
             Cancel
-          </Button>
-          <Button
-            style="ctaDarkYellow"
-            css={{ mr: '$1' }}
-            onClick={() => (label ? setEditingLabelId(null) : createLabel())}
-          >
-            Save
           </Button>
         </HStack>
       </VStack>
