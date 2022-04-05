@@ -402,14 +402,10 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
   } = props
   const colorObject =
     labelColorObjects[label?.color || ''] || labelColorObjects['custom color']
-  const { text, border, background } = colorObject
   const showInput =
     editingLabelId === label?.id || (isCreateMode && !label)
-  const labelName = label?.name || nameInputText
   const labelColor = editingLabelId === label?.id ? labelColorHex.value : label?.color
-
-  const isDarkMode = isDarkTheme()
-  const iconColor = isDarkMode ? '#D8D7D5': '#5F5E58'
+  const iconColor = isDarkTheme() ? '#D8D7D5': '#5F5E58'
 
   const handleEdit = () => {
     editingLabelId && updateLabel(editingLabelId)
