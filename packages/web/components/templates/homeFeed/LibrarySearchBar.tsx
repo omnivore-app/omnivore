@@ -7,7 +7,6 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { DateTime } from 'luxon'
 
 type LibrarySearchBarProps = {
   searchTerm?: string
@@ -22,7 +21,10 @@ type LibraryFilter =
   | 'type:highlights'
   | `saved:${string}`
 
-const recentlySavedStartDate = DateTime.now().minus({ days: 7 }).toISODate()
+// get last week's date
+const recentlySavedStartDate = new Date(
+  new Date().getTime() - 7 * 24 * 60 * 60 * 1000
+).toLocaleDateString('en-US')
 
 const FOCUSED_BOXSHADOW = '0px 0px 2px 2px rgba(255, 234, 159, 0.56)'
 
