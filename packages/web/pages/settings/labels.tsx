@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
-import { PlusIcon } from '../../components/elements/images/PlusIcon'
 import { styled } from '../../components/tokens/stitches.config'
 import {
   Box,
@@ -25,7 +24,6 @@ import {
   PencilSimple,
   Trash,
   Plus,
-  DotsSixVertical,
 } from 'phosphor-react'
 import {
   LabelColor,
@@ -164,6 +162,16 @@ const IconButton = styled(Button, {
   },
 })
 
+const MobileBtnWrapper = styled(Box, {
+  display: 'flex',
+  position: 'fixed',
+  bottom: '16px',
+  right: '25px',
+  '@md': {
+    display: 'none',
+  },
+})
+
 const Input = styled('input', { ...inputStyles })
 
 const TextArea = styled('textarea', { ...inputStyles })
@@ -174,7 +182,6 @@ export default function LabelsPage(): JSX.Element {
     rowId: '',
     value: 'custom color',
   })
-  console.log('LabelsPage ~ labelColorHex', labelColorHex)
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null)
   const [nameInputText, setNameInputText] = useState<string>('')
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
@@ -291,38 +298,29 @@ export default function LabelsPage(): JSX.Element {
                     }}
                     style="ctaDarkYellow"
                     css={{
-                      alignItems: 'center',
                       display: 'none',
+                      alignItems: 'center',
                       '@md': {
                         display: 'flex',
                       },
                     }}
                   >
-                    <Box style={{ display: 'flex', marginTop: 4, }}>
-                      <PlusIcon size={20} strokeColor={'#0A0806'} />
-                    </Box>
-                    <SpanBox>Create New Label</SpanBox>
+                    <Plus size={18} style={{ marginRight: '6.5px' }} />
+                    <SpanBox>Add Label</SpanBox>
                   </Button>
-                  <Box
-                    css={{
-                      position: 'fixed',
-                      bottom: '58px',
-                      right: '16px',
-                      zIndex: '1',
-                      '@md': {
-                        display: 'none',
-                      },
-                    }}
-                  >
+                  <MobileBtnWrapper>
                     <Button
+                      onClick={() => setIsCreateMode(true)}
                       style="ctaDarkYellow"
-                      onClick={() => {
-                        setIsCreateMode(true)
+                      css={{
+                        display: 'flex',
+                        border: '1px solid $grayBorder',
+                        borderRadius: '8px',
                       }}
                     >
                       <Plus size={24} />
                     </Button>
-                  </Box>
+                  </MobileBtnWrapper>
                 </>
               )}
             </Box>
