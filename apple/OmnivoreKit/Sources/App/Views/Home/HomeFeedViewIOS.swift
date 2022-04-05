@@ -168,7 +168,7 @@ import Views
           }
         }
         .sheet(item: $viewModel.itemUnderLabelEdit, onDismiss: { print("edit label modal dismissed") }) { item in
-          Text("editing item with id: \(item.id)")
+          ApplyLabelsView(item: item)
         }
       }
     }

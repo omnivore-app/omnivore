@@ -13,6 +13,7 @@ final class LabelsViewModel: ObservableObject {
   var subscriptions = Set<AnyCancellable>()
 
   func loadLabels(dataService: DataService) {
+    guard !hasLoadedInitialLabels else { return }
     isLoading = true
 
     dataService.labelsPublisher().sink(
