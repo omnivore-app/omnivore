@@ -1,5 +1,6 @@
 import { createTestConnection } from './db'
 import { initElasticsearch } from '../src/elastic'
+import { startApolloServer } from './util'
 
 export const mochaGlobalSetup = async () => {
   await createTestConnection()
@@ -7,4 +8,7 @@ export const mochaGlobalSetup = async () => {
 
   await initElasticsearch()
   console.log('elasticsearch initialized')
+
+  await startApolloServer()
+  console.log('apollo server started')
 }

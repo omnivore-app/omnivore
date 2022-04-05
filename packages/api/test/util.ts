@@ -12,10 +12,14 @@ import { createPage, getPageById } from '../src/elastic/pages'
 const { app, apollo } = createApp()
 export const request = supertest(app)
 
-before(async () => {
+export const startApolloServer = async () => {
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
-})
+}
+
+export const stopApolloServer = async () => {
+  await apollo.stop()
+}
 
 export const graphqlRequest = (
   query: string,
