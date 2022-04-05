@@ -69,7 +69,6 @@ jobs:
           yarn build
           yarn lint
           yarn test
-        continue-on-error: true
         env:
           PG_HOST: localhost
           PG_PORT: ${{ job.services.postgres.ports[5432] }}
