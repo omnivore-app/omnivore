@@ -228,7 +228,6 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
   //   Boolean(isCreateMode)
   // )
   const isCreating = isCreateMode && !labelId
-  const textDisplay = !isCreating && !isDropdownOption ? 'none' : 'unset'
   const { text, border, colorName, background } = getLabelColorObject(
     color as LabelColor
   )
@@ -268,7 +267,6 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
         css={{
           m: '$1',
           color: '$grayText',
-          display: textDisplay,
           fontSize: '$3',
           whiteSpace: 'nowrap',
           textTransform: 'capitalize',
@@ -283,7 +281,6 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
         css={{
           m: '$1',
           color: '$grayText',
-          display: textDisplay,
           fontSize: '$3',
           whiteSpace: 'nowrap',
           '@md': {
@@ -296,9 +293,6 @@ function LabelOption(props: LabelOptionProps): JSX.Element {
       {isDropdownOption ? <Box css={{ pr: '$2' }} /> : null}
     </HStack>
   )
-  // colorName,
-  // color: hexCode,
-  // icon: <LabelColorIcon fillColor={fillColor} strokeColor={strokeColor} />,
 }
 
 function getLabelColorObject(color: LabelColor) {
