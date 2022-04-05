@@ -7,16 +7,24 @@ import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
 import { getPageByParam } from '../../src/elastic'
 import { User } from '../../src/entity/user'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import { SaveContext } from '../../src/services/save_email'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'
 
   let user: User
   let email: NewsletterEmail
+  let ctx: SaveContext
 
   before(async () => {
     user = await createTestUser(username)
     email = await createNewsletterEmail(user.id)
+    ctx = {
+      pubsub: createPubSubClient(),
+      refresh: true,
+      uid: user.id,
+    }
   })
 
   after(async () => {
@@ -30,7 +38,7 @@ describe('saveNewsletterEmail', () => {
       url: 'https://example.com',
       title: 'fake title',
       author: 'fake author',
-    })
+    }, ctx)
 
     setTimeout(async () => {
       const page = await getPageByParam({ userId: user.id })
@@ -56,7 +64,7 @@ describe('saveNewsletterEmail', () => {
       url: 'https://example.com/2',
       title: 'fake title',
       author: 'fake author',
-    })
+    }, ctx)
 
     setTimeout(async () => {
       const page = await getPageByParam({ userId: user.id })
