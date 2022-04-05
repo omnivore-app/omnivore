@@ -8,7 +8,7 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
-    "test": "nyc mocha -r ts-node/register --config mocha-config.json --exit --timeout 10000"
+    "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000"
   },
   "dependencies": {
     "@elastic/elasticsearch": "~7.12.0",
