@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { Label, labelFragment } from '../fragments/labelFragment'
+import { LabelColor } from '../../../utils/settings-page/labels/types';
+import { labelFragment } from '../fragments/labelFragment'
 import { publicGqlFetcher } from '../networkHelpers'
 
 type LabelsQueryResponse = {
@@ -15,6 +16,14 @@ type LabelsResponseData = {
 
 type LabelsData = {
   labels?: unknown
+}
+
+export type Label = {
+  id: string
+  name: string
+  color: LabelColor
+  description?: string
+  createdAt: Date
 }
 
 export function useGetLabelsQuery(): LabelsQueryResponse {

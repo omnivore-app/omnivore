@@ -21,9 +21,11 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         margin: '4px',
         borderRadius: '32px',
         color: props.color,
+        fontSize: '12px',
+        fontWeight: 'bold',
         padding: '4px 8px 4px 8px',
-        border: `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.40)`,
-        backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.05)`,
+        border: `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
+        backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`,
       }}
     >
       {props.text}
