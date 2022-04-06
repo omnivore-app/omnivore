@@ -22,7 +22,8 @@ interface NewsletterMessage {
 // Returns true if the link was created successfully. Can still fail to
 // send the push but that is ok and we wont retry in that case.
 export const saveNewsletterEmail = async (
-  data: NewsletterMessage
+  data: NewsletterMessage,
+  ctx?: SaveContext
 ): Promise<boolean> => {
   // get user from newsletter email
   const newsletterEmail = await getNewsletterEmail(data.email)
@@ -43,7 +44,7 @@ export const saveNewsletterEmail = async (
     },
   })
 
-  const ctx: SaveContext = {
+  const saveCtx = ctx || {
     pubsub: createPubSubClient(),
     uid: newsletterEmail.user.id,
   }
@@ -55,14 +56,14 @@ export const saveNewsletterEmail = async (
     author: data.author,
   }
 
-  const page = await saveEmail(ctx, input)
+  const page = await saveEmail(saveCtx, input)
   if (!page) {
     console.log('newsletter not created:', input)
     return false
   }
 
   // add newsletters label to page
-  const result = await addLabelToPage(ctx, page.id, {
+  const result = await addLabelToPage(saveCtx, page.id, {
     name: 'Newsletter',
     color: '#07D2D1',
   })

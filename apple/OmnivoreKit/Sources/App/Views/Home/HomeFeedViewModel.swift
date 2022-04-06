@@ -8,9 +8,13 @@ import Views
 final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
 
+  /// Track progress updates to be committed when user navigates back to grid view
+  var uncommittedReadingProgressUpdates = [String: Double]()
+
   @Published var items = [FeedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
+  @Published var itemUnderLabelEdit: FeedItem?
   var cursor: String?
   var sendProgressUpdates = false
 
@@ -76,6 +80,9 @@ final class HomeFeedViewModel: ObservableObject {
         if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
           return
         }
+
+        dataService.prefetchPages(items: result.items)
+
         self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
         self?.isLoading = false
         self?.receivedIdx = thisSearchIdx
@@ -160,10 +167,27 @@ final class HomeFeedViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func updateProgress(itemID: String, progress: Double) {
+  /// Update `FeedItem`s with the cached reading progress values so it can animate when the
+  /// user navigates back to the grid view (and also avoid mutations of the grid items
+  /// that can cause the `NavigationView` to pop.
+  func commitProgressUpdates() {
+    for (key, value) in uncommittedReadingProgressUpdates {
+      updateProgress(itemID: key, progress: value)
+    }
+    uncommittedReadingProgressUpdates = [:]
+  }
+
+  private func updateProgress(itemID: String, progress: Double) {
     guard sendProgressUpdates, let item = items.first(where: { $0.id == itemID }) else { return }
     if let index = items.firstIndex(of: item) {
       items[index].readingProgress = progress
+    }
+  }
+
+  func updateLabels(itemID: String, labels: [FeedItemLabel]) {
+    guard let item = items.first(where: { $0.id == itemID }) else { return }
+    if let index = items.firstIndex(of: item) {
+      items[index].labels = labels
     }
   }
 }

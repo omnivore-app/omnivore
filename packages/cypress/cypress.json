@@ -1,0 +1,8 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "experimentalSessionSupport": true,
+    "fixturesFolder": false,
+  "supportFile": "cypress/support/index.js",
+  "pluginsFile": false,
+  "video": false
+}

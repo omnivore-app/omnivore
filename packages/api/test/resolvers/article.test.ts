@@ -19,9 +19,9 @@ import {
 } from '../../src/elastic'
 import { PageType, UploadFileStatus } from '../../src/generated/graphql'
 import { Page, PageContext } from '../../src/elastic/types'
-import { getRepository } from 'typeorm'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { getRepository } from '../../src/entity/utils'
 
 chai.use(chaiString)
 

@@ -1,8 +1,8 @@
-import { getRepository } from 'typeorm'
 import { ReportItemInput, ReportType } from '../generated/graphql'
 import { ContentDisplayReport } from '../entity/reports/content_display_report'
 import { AbuseReport } from '../entity/reports/abuse_report'
 import { getPageById } from '../elastic'
+import { getRepository } from '../entity/utils'
 
 export const saveContentDisplayReport = async (
   uid: string,
@@ -20,16 +20,14 @@ export const saveContentDisplayReport = async (
   // We capture the article content and original html now, in case it
   // reparsed or updated later, this gives us a view of exactly
   // what the user saw.
-  const result = await repo
-    .create({
-      userId: uid,
-      elasticPageId: input.pageId,
-      content: page.content,
-      originalHtml: page.originalHtml || undefined,
-      originalUrl: page.url,
-      reportComment: input.reportComment,
-    })
-    .save()
+  const result = await repo.save({
+    userId: uid,
+    elasticPageId: input.pageId,
+    content: page.content,
+    originalHtml: page.originalHtml || undefined,
+    originalUrl: page.url,
+    reportComment: input.reportComment,
+  })
 
   return !!result
 }
@@ -55,16 +53,14 @@ export const saveAbuseReport = async (
   // We capture the article content and original html now, in case it
   // reparsed or updated later, this gives us a view of exactly
   // what the user saw.
-  const result = await repo
-    .create({
-      reportedBy: uid,
-      sharedBy: input.sharedBy,
-      elasticPageId: input.pageId,
-      itemUrl: input.itemUrl,
-      reportTypes: [ReportType.Abusive],
-      reportComment: input.reportComment,
-    })
-    .save()
+  const result = await repo.save({
+    reportedBy: uid,
+    sharedBy: input.sharedBy,
+    elasticPageId: input.pageId,
+    itemUrl: input.itemUrl,
+    reportTypes: [ReportType.Abusive],
+    reportComment: input.reportComment,
+  })
 
   return !!result
 }

@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -10,7 +9,7 @@ import { Link } from './link'
 import { Label } from './label'
 
 @Entity({ name: 'link_labels' })
-export class LinkLabel extends BaseEntity {
+export class LinkLabel {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 

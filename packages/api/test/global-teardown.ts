@@ -1,6 +1,6 @@
-import { getConnection } from 'typeorm'
+import { AppDataSource } from '../src/server'
 
 export const mochaGlobalTeardown = async () => {
-  await getConnection().close()
+  await AppDataSource.destroy()
   console.log('db connection closed')
 }

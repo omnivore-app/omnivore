@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,7 +9,7 @@ import {
 import { User } from './user'
 
 @Entity({ name: 'user_device_tokens' })
-export class UserDeviceToken extends BaseEntity {
+export class UserDeviceToken {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
