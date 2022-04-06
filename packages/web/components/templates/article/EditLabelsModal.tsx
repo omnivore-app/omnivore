@@ -8,13 +8,13 @@ import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { styled, theme } from '../../tokens/stitches.config'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
+import { Label, useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { ChangeEvent, useCallback, useRef, useState, useMemo } from 'react'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { LabelChip } from '../../elements/LabelChip'
 import { Check, Circle } from 'phosphor-react'
+import Link from 'next/link'
 
 type EditLabelsModalProps = {
   labels: Label[]
@@ -232,11 +232,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
             </Button>)}
             {/* Footer */}
           <HStack css={{ width: '100%', flex: '0 0 20px' }} alignment="center">
-            <Button style="modalOption" onClick={() => {
-
-            }}>
-              Edit labels
-            </Button>
+            <Link href="/settings/labels">Edit labels</Link>
           </HStack>
         </VStack>
       </ModalContent>
