@@ -188,7 +188,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
             alignment="center"
             css={{ display: 'flex', alignItems: 'center' }}
           >
-            <Box css={{ '@xsmDown': { visibility: 'collapse' } }}>
+            <Box css={{ '@smDown': { visibility: 'collapse' } }}>
               <a href="https://github.com/omnivore-app/omnivore" target='_blank' rel="noreferrer">
                 <Button style="ctaLightGray" css={{ background: 'unset', mr: '32px' }}>
                   <HStack css={{ height: '100%' }}>
