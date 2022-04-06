@@ -400,7 +400,7 @@ export default function LabelsPage(): JSX.Element {
               }
             }
 
-            return (<GenericTableCard {...cardProps} onEditPress={onEditPress} />)
+            return (<GenericTableCard key={label.id} {...cardProps} onEditPress={onEditPress} />)
           }) : null}
       </VStack>
       <Box css={{ height: '120px' }} />
