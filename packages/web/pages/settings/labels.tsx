@@ -267,6 +267,7 @@ export default function LabelsPage(): JSX.Element {
                   <Button
                     onClick={() => {
                       resetLabelState()
+                      handleGenerateRandomColor()
                       setIsCreateMode(true)
                     }}
                     style="ctaDarkYellow"
