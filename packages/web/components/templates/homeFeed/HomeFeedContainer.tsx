@@ -1,14 +1,12 @@
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import {
-  LinkedItemCard,
-  LinkedItemCardAction,
-} from '../../patterns/LinkedItemCard'
+import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
+import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
 import { useRouter } from 'next/router'
 import { Button } from '../../elements/Button'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -110,6 +108,13 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
 
   const handleFetchMore = useCallback(() => {
     if (isValidating || !hasMore) {
+      return
+    }
+    setSize(size + 1)
+  }, [size, isValidating])
+
+  useEffect(() => {
+    if (isValidating || !hasMore || size !== 1) {
       return
     }
     setSize(size + 1)
@@ -433,6 +438,7 @@ type HomeFeedContentProps = {
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
+
   const { preferencesData, isValidating: isValidatingPreferences } =
     useGetUserPreferences()
   const [layout, setLayout] = useState<LayoutType>(
@@ -553,19 +559,15 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             gridAutoRows: 'auto',
             borderRadius: '8px',
             gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
-            border:
-              props.hasData && layout == 'LIST_LAYOUT'
-                ? '1px solid $grayBorder'
-                : 'none',
             marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
             marginBottom: '0px',
-            paddingTop: layout == 'LIST_LAYOUT' ? '2px' : '21px',
+            paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
             paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
-            overflow: 'visible',
+            overflow: 'hidden',
             '@smDown': {
               border: 'unset',
               width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-              margin: layout == 'LIST_LAYOUT' ? '0 -16px' : undefined,
+              margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
               borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
             },
             '@md': {
@@ -577,24 +579,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             },
           }}
         >
-          {props.hasData && layout === 'LIST_LAYOUT' && (
-            // list view gets a title
-            <Box
-              css={{
-                height: '42px',
-                paddingLeft: '9px',
-                paddingBottom: '8px',
-                '@smDown': { height: '20px' },
-              }}
-            >
-              <StyledText
-                style="caption"
-                css={{ '@smDown': { visibility: 'collapse' } }}
-              >
-                {props.totalItems} links
-              </StyledText>
-            </Box>
-          )}
           {props.items.map((linkedItem) => (
             <Box
               className="linkedItemCard"
@@ -602,6 +586,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               tabIndex={0}
               key={linkedItem.node.id}
               css={{
+                width: '100%',
                 '&> div': {
                   bg: '$grayBg',
                 },

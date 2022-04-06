@@ -51,7 +51,7 @@ function articleSubtitle(url: string, author?: string): string {
 }
 
 export function authoredByText(author: string): string {
-  return `By ${removeHTMLTags(author)}`
+  return `by ${removeHTMLTags(author)}`
 }
 
 function removeHTMLTags(str: string | null | undefined): string {

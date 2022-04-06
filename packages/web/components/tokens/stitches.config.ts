@@ -102,7 +102,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
-        cardBoxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)'
+        cardBoxShadow:
+          '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)',
       },
       zIndices: {},
       transitions: {},
@@ -148,7 +149,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         avatarFont: '#0A0806',
 
         labelButtonsBg: '#F5F5F4',
-        tooltipIcons: '#FDFAEC'
+        tooltipIcons: '#FDFAEC',
       },
     },
     media: {
@@ -197,8 +198,9 @@ const darkThemeSpec = {
     labelButtonsBg: '#5F5E58',
   },
   shadows: {
-    cardBoxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)'
-  }
+    cardBoxShadow:
+      '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)',
+  },
 }
 
 // Avatar Fallback color
