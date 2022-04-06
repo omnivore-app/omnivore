@@ -1,9 +1,11 @@
-import { getRepository } from 'typeorm'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { nanoid } from 'nanoid'
 import { User } from '../entity/user'
 import { CreateNewsletterEmailErrorCode } from '../generated/graphql'
 import { env } from '../env'
+import { AppDataSource } from '../server'
+import { getRepository } from '../entity/utils'
+
 import addressparser = require('nodemailer/lib/addressparser')
 
 const parsedAddress = (emailAddress: string): string | undefined => {
@@ -17,7 +19,8 @@ const parsedAddress = (emailAddress: string): string | undefined => {
 export const createNewsletterEmail = async (
   userId: string
 ): Promise<NewsletterEmail> => {
-  const user = await getRepository(User).findOne(userId, {
+  const user = await getRepository(User).findOne({
+    where: { id: userId },
     relations: ['profile'],
   })
   if (!user) {
@@ -28,19 +31,17 @@ export const createNewsletterEmail = async (
   // generate a random email address with username prefix
   const emailAddress = createRandomEmailAddress(user.profile.username, 8)
 
-  return getRepository(NewsletterEmail)
-    .create({
-      address: emailAddress,
-      user: user,
-    })
-    .save()
+  return getRepository(NewsletterEmail).save({
+    address: emailAddress,
+    user: user,
+  })
 }
 
 export const getNewsletterEmails = async (
   userId: string
 ): Promise<NewsletterEmail[]> => {
   return getRepository(NewsletterEmail).find({
-    where: { user: userId },
+    where: { user: { id: userId } },
     order: { createdAt: 'DESC' },
   })
 }
@@ -69,7 +70,7 @@ export const updateConfirmationCode = async (
 
 export const getNewsletterEmail = async (
   emailAddress: string
-): Promise<NewsletterEmail | undefined> => {
+): Promise<NewsletterEmail | null> => {
   const address = parsedAddress(emailAddress)
   return getRepository(NewsletterEmail)
     .createQueryBuilder('newsletter_email')

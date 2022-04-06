@@ -32,8 +32,7 @@ export class FollowOmnivoreUser implements EntitySubscriberInterface<Profile> {
 
     await event.manager
       .getRepository(Follower)
-      .create({ user: event.entity.user, followee: omnivoreProfile.user })
-      .save()
+      .save({ user: event.entity.user, followee: omnivoreProfile.user })
 
     await event.manager.query(
       `insert into omnivore.links (user_id, article_id, article_url, article_hash, slug)

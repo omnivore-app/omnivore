@@ -1,18 +1,17 @@
 import {
-  Entity,
-  BaseEntity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  OneToOne,
+  Entity,
   JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { User } from '../user'
 
 @Entity()
-export class Group extends BaseEntity {
+export class Group {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 

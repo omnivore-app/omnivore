@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -9,7 +8,7 @@ import {
 import { ReportType } from '../../generated/graphql'
 
 @Entity()
-export class AbuseReport extends BaseEntity {
+export class AbuseReport {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 

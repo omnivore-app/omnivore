@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -8,7 +7,7 @@ import {
 } from 'typeorm'
 
 @Entity()
-export class ContentDisplayReport extends BaseEntity {
+export class ContentDisplayReport {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 

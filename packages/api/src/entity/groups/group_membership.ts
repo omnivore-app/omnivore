@@ -1,11 +1,10 @@
 import {
-  Entity,
-  BaseEntity,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  OneToOne,
+  Entity,
   JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { User } from '../user'
@@ -13,7 +12,7 @@ import { Group } from './group'
 import { Invite } from './invite'
 
 @Entity()
-export class GroupMembership extends BaseEntity {
+export class GroupMembership {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 

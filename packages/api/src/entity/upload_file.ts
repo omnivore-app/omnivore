@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,7 +10,7 @@ import {
 import { User } from './user'
 
 @Entity({ name: 'upload_files' })
-export class UploadFile extends BaseEntity {
+export class UploadFile {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 

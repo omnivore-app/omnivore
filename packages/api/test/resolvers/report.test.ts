@@ -3,9 +3,9 @@ import { Page } from '../../src/elastic/types'
 import { createTestUser, deleteTestUser } from '../db'
 import { createTestElasticPage, graphqlRequest, request } from '../util'
 import { ReportType } from '../../src/generated/graphql'
-import { getRepository } from 'typeorm'
 import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
 import { expect } from 'chai'
+import { getRepository } from '../../src/entity/utils'
 
 describe('Report API', () => {
   const username = 'fakeUser'
@@ -70,7 +70,7 @@ describe('Report API', () => {
         await graphqlRequest(query, authToken).expect(200)
 
         expect(
-          await getRepository(ContentDisplayReport).find({
+          await getRepository(ContentDisplayReport).findBy({
             elasticPageId: pageId,
           })
         ).to.exist

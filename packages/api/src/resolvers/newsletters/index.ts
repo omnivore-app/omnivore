@@ -1,15 +1,15 @@
 import { authorized } from '../../utils/helpers'
 import {
-  CreateNewsletterEmailSuccess,
   CreateNewsletterEmailError,
   CreateNewsletterEmailErrorCode,
-  NewsletterEmailsSuccess,
-  NewsletterEmailsError,
-  NewsletterEmailsErrorCode,
+  CreateNewsletterEmailSuccess,
+  DeleteNewsletterEmailError,
   DeleteNewsletterEmailErrorCode,
   DeleteNewsletterEmailSuccess,
-  DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs,
+  NewsletterEmailsError,
+  NewsletterEmailsErrorCode,
+  NewsletterEmailsSuccess,
 } from '../../generated/graphql'
 import {
   createNewsletterEmail,
@@ -19,6 +19,8 @@ import {
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import { AppDataSource } from '../../server'
+import { User } from '../../entity/user'
 
 export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailSuccess,
@@ -55,7 +57,16 @@ export const newsletterEmailsResolver = authorized<
   console.log('newsletterEmailsResolver')
 
   try {
-    const newsletterEmails = await getNewsletterEmails(claims.uid)
+    const user = await AppDataSource.getRepository(User).findOneBy({
+      id: claims.uid,
+    })
+    if (!user) {
+      return Promise.reject({
+        errorCode: NewsletterEmailsErrorCode.Unauthorized,
+      })
+    }
+
+    const newsletterEmails = await getNewsletterEmails(user.id)
 
     return {
       newsletterEmails: newsletterEmails,
@@ -84,10 +95,14 @@ export const deleteNewsletterEmailResolver = authorized<
   })
 
   try {
-    const newsletterEmail = await NewsletterEmail.findOne(
-      args.newsletterEmailId,
-      { relations: ['user'] }
-    )
+    const newsletterEmail = await AppDataSource.getRepository(
+      NewsletterEmail
+    ).findOne({
+      where: {
+        id: args.newsletterEmailId,
+      },
+      relations: ['user'],
+    })
 
     if (!newsletterEmail) {
       return {
