@@ -41,6 +41,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     await userPersonalizationMutation({ fontSize: newFontSize })
   }
 
+  useEffect(() => {
+    updateFontSize(props.fontSize ?? 20)
+  }, [props.fontSize])
+
   // Listen for font size and color mode change events sent from host apps (ios, macos...)
   useEffect(() => {
     const increaseFontSize = async () => {
