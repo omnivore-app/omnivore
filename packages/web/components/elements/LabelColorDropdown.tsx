@@ -75,7 +75,7 @@ const MainContainer = styled(Box, {
   width: '180px',
   borderRadius: '$3',
   px: '$3',
-  py: '$2',
+  py: '0px',
   cursor: 'pointer',
   '&:hover': {
     border: '1px solid $grayBorderHover',

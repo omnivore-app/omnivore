@@ -40,6 +40,7 @@ import {
   DropdownOption,
 } from '../../components/elements/DropdownElements'
 import { LabelChip } from '../../components/elements/LabelChip'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -52,9 +53,6 @@ const TableCard = styled(Box, {
   alignItems: 'center',
   border: '0.3px solid $grayBgActive',
   width: '100%',
-  '&:hover': {
-    border: '0.3px solid #FFD234',
-  },
   '@md': {
     paddingLeft: '0',
   },
@@ -89,7 +87,7 @@ const TableCardBox = styled(Box, {
 const inputStyles = {
   backgroundColor: 'transparent',
   color: '$grayTextContrast',
-  padding: '13px 6px',
+  padding: '6px 6px',
   margin: '$2 0',
   border: '1px solid $grayBorder',
   borderRadius: '6px',
@@ -160,6 +158,7 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<string | null>(null)
   const breakpoint = 768
 
   applyStoredTheme(false)
@@ -224,9 +223,18 @@ export default function LabelsPage(): JSX.Element {
     }
   }
 
-  async function deleteLabel(id: string): Promise<void> {
-    await deleteLabelMutation(id)
+  async function onDeleteLabel(id: string): Promise<void> {
+    const result = await deleteLabelMutation(id)
+    if (result) {
+      showSuccessToast('Label deleted', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to delete label', { position: 'bottom-right' })
+    }
     revalidate()
+  }
+
+  async function deleteLabel(id: string): Promise<void> {
+    setConfirmRemoveLabelId(id)
   }
 
   const handleGenerateRandomColor = (rowId?: string) => {
@@ -256,6 +264,16 @@ export default function LabelsPage(): JSX.Element {
           color: '$grayText',
         }}
       >
+        {confirmRemoveLabelId ? (
+          <ConfirmationModal
+            message={'Are you sure? Deleting a label will remove it from all pages.'}
+            onAccept={() => {
+              onDeleteLabel(confirmRemoveLabelId)
+              setConfirmRemoveLabelId(null)}
+            }
+            onOpenChange={() => setConfirmRemoveLabelId(null)}
+          />
+        ) : null}
         <HeaderWrapper>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
             <Box style={{ flex: '1' }}>
@@ -302,7 +320,7 @@ export default function LabelsPage(): JSX.Element {
         <>
           {isCreateMode ? (
             windowWidth > breakpoint ? (
-              <GenericTableCard
+              <DesktopEditCard
                 label={null}
                 labelColorHex={labelColorHex}
                 editingLabelId={editingLabelId}
@@ -347,55 +365,36 @@ export default function LabelsPage(): JSX.Element {
           ? labels.map((label, i) => {
             const isLastChild = i === labels.length - 1
             const isFirstChild = i === 0
-
-            if (windowWidth <= breakpoint && editingLabelId == label.id) {
-              return (
-                <MobileEditCard
-                label={label}
-                labelColorHex={labelColorHex}
-                editingLabelId={editingLabelId}
-                isCreateMode={isCreateMode}
-                isLastChild={isLastChild}
-                isFirstChild={isFirstChild}
-                handleGenerateRandomColor={handleGenerateRandomColor}
-                setEditingLabelId={setEditingLabelId}
-                setLabelColorHex={setLabelColorHex}
-                deleteLabel={deleteLabel}
-                nameInputText={nameInputText}
-                descriptionInputText={descriptionInputText}
-                setNameInputText={setNameInputText}
-                setDescriptionInputText={setDescriptionInputText}
-                setIsCreateMode={setIsCreateMode}
-                createLabel={createLabel}
-                resetState={resetLabelState}
-                updateLabel={updateLabel}
-              />)
+            const cardProps = {
+              label: label,
+              labelColorHex: labelColorHex,
+              editingLabelId: editingLabelId,
+              isCreateMode: isCreateMode,
+              isLastChild: isLastChild,
+              isFirstChild: isFirstChild,
+              handleGenerateRandomColor: handleGenerateRandomColor,
+              setEditingLabelId: setEditingLabelId,
+              setLabelColorHex: setLabelColorHex,
+              deleteLabel: deleteLabel,
+              nameInputText: nameInputText,
+              descriptionInputText: descriptionInputText,
+              setNameInputText: setNameInputText,
+              setDescriptionInputText: setDescriptionInputText,
+              setIsCreateMode: setIsCreateMode,
+              createLabel: createLabel,
+              resetState: resetLabelState,
+              updateLabel: updateLabel,
             }
 
-            return (
-              <GenericTableCard
-                key={label.id}
-                isLastChild={isLastChild}
-                isFirstChild={isFirstChild}
-                label={label as unknown as Label}
-                labelColorHex={labelColorHex}
-                editingLabelId={editingLabelId}
-                isCreateMode={isCreateMode}
-                handleGenerateRandomColor={handleGenerateRandomColor}
-                setEditingLabelId={setEditingLabelId}
-                setLabelColorHex={setLabelColorHex}
-                deleteLabel={deleteLabel}
-                nameInputText={nameInputText}
-                descriptionInputText={descriptionInputText}
-                setNameInputText={setNameInputText}
-                setDescriptionInputText={setDescriptionInputText}
-                setIsCreateMode={setIsCreateMode}
-                createLabel={createLabel}
-                updateLabel={updateLabel}
-                onEditPress={onEditPress}
-                resetState={resetLabelState}
-              />
-            )
+            if (editingLabelId == label.id) {
+              if (windowWidth >= breakpoint) {
+                return <DesktopEditCard {...cardProps} />
+              } else {
+                return <MobileEditCard {...cardProps} />
+              }
+            }
+
+            return (<GenericTableCard {...cardProps} onEditPress={onEditPress} />)
           }) : null}
       </VStack>
       <Box css={{ height: '120px' }} />
@@ -445,7 +444,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             <Button
               style="plainIcon"
               css={{
-                mr: '$1',
+                mr: '0px',
                 display: 'flex',
                 alignItems: 'center',
                 backgroundColor: 'transparent',
@@ -532,7 +531,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           }}
         >
           {(showInput && !label) ? null : (
-            <HStack alignment="center" css={{ ml: '16px', '@smDown': { ml: '6px' } }}>
+            <HStack alignment="center" css={{ ml: '16px', '@smDown': { ml: '0px' } }}>
               <LabelChip color={labelColor || ''} text={label?.name || ''} />
             </HStack>
           )}
@@ -566,7 +565,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           {showInput ? (
             <Input
               type="text"
-              placeholder='What this label is about...'
+              placeholder='Label name (optional)'
               value={descriptionInputText}
               onChange={(event) => setDescriptionInputText(event.target.value)}
               autoFocus={!!label}
@@ -745,7 +744,7 @@ function MobileEditCard(props: any) {
   }
 
   return (
-    <TableCard 
+    <TableCard
     css={{
       borderTopLeftRadius: isFirstChild ? '5px' : '',
       borderTopRightRadius: isFirstChild ? '5px' : '',
@@ -754,7 +753,7 @@ function MobileEditCard(props: any) {
     }}>
       <VStack distribution="center" css={{ width: '100%', margin: '8px' }}>
         {nameInputText && (
-          <SpanBox css={{ ml: '-1px', mt: '1px' }}>
+          <SpanBox css={{ ml: '-2px', mt: '0px' }}>
             <LabelChip color={labelColorHex.value} text={nameInputText} />
           </SpanBox>
         )}
@@ -774,7 +773,7 @@ function MobileEditCard(props: any) {
           setLabelColorHex={setLabelColorHex}
         />
         <TextArea
-          placeholder={label?.description}
+          placeholder='Label name (optional)'
           value={descriptionInputText}
           onChange={(event) => setDescriptionInputText(event.target.value)}
           rows={5}
@@ -800,6 +799,99 @@ function MobileEditCard(props: any) {
           >
             Save
           </Button>
+        </HStack>
+      </VStack>
+    </TableCard>
+  )
+}
+
+function DesktopEditCard(props: any) {
+  const {
+    label,
+    editingLabelId,
+    labelColorHex,
+    isCreateMode,
+    nameInputText,
+    descriptionInputText,
+    setLabelColorHex,
+    setEditingLabelId,
+    setNameInputText,
+    setDescriptionInputText,
+    createLabel,
+    resetState,
+    updateLabel,
+    isFirstChild,
+    isLastChild,
+  } = props
+
+  const handleEdit = () => {
+    editingLabelId && updateLabel(editingLabelId)
+    setEditingLabelId(null)
+  }
+
+  return (
+    <TableCard 
+    css={{
+      width: '100%',
+      borderTopLeftRadius: isFirstChild ? '5px' : '',
+      borderTopRightRadius: isFirstChild ? '5px' : '',
+      borderBottomLeftRadius: isLastChild ? '5px' : '',
+      borderBottomRightRadius: isLastChild ? '5px' : '',
+    }}>
+      <VStack distribution="center" css={{ width: '100%', my: '8px', ml: '8px', mr: '0px' }}>
+        {nameInputText && (
+          <SpanBox css={{ px: '11px', mt: '3px' }}>
+            <LabelChip color={labelColorHex.value} text={nameInputText} />
+          </SpanBox>
+        )}
+        <HStack
+          distribution="start"
+          alignment="center"
+          css={{ pt: '6px', px: '13px', width: '100%', gap: '16px' }}
+        >
+        <Input
+          type="text"
+          value={nameInputText}
+          onChange={(event) => setNameInputText(event.target.value)}
+          autoFocus
+        />
+        <LabelColorDropdown
+          isCreateMode={isCreateMode && !label}
+          canEdit={editingLabelId === label?.id}
+          labelColorHexRowId={labelColorHex.rowId}
+          labelColorHexValue={labelColorHex.value}
+          labelId={label?.id || ''}
+          labelColor={label?.color || 'custom color'}
+          setLabelColorHex={setLabelColorHex}
+        />
+        <Input
+          type="text"
+          placeholder='Label name (optional)'
+          value={descriptionInputText}
+          onChange={(event) => setDescriptionInputText(event.target.value)}
+        />
+        <HStack
+          distribution="end"
+          alignment="center"
+          css={{ marginLeft: 'auto', width: '100%' }}
+        >
+          <Button
+            style="plainIcon"
+            css={{ mr: '12px' }}
+            onClick={() => {
+              resetState()
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            style="ctaDarkYellow"
+            css={{ }}
+            onClick={() => label ? handleEdit() : createLabel()}
+          >
+            Save
+          </Button>
+        </HStack>
         </HStack>
       </VStack>
     </TableCard>
