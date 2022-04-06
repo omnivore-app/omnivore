@@ -193,7 +193,7 @@ export default function LabelsPage(): JSX.Element {
       if (res.createLabel.errorCodes && res.createLabel.errorCodes.length > 0) {
         showErrorToast(res.createLabel.errorCodes[0])
       } else {
-        showSuccessToast('Label created')
+        showSuccessToast('Label created', { position: 'bottom-right' })
         resetLabelState()
         revalidate()
       }
