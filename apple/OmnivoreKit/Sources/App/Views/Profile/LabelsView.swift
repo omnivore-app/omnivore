@@ -123,7 +123,7 @@ struct LabelsView: View {
         Section(header: Text("Labels")) {
           ForEach(viewModel.labels, id: \.id) { label in
             HStack {
-              Text(label.name)
+              TextChip(feedItemLabel: label)
               Spacer()
               Button(
                 action: {
