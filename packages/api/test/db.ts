@@ -40,27 +40,22 @@ const runMigrations = async () => {
 }
 
 export const createTestConnection = async (): Promise<void> => {
-  try {
-    await runMigrations()
+  await runMigrations()
 
-    AppDataSource.setOptions({
-      type: 'postgres',
-      host: process.env.PG_HOST,
-      port: Number(process.env.PG_PORT),
-      schema: 'omnivore',
-      username: process.env.PG_USER,
-      password: process.env.PG_PASSWORD,
-      database: process.env.PG_DB,
-      logging: ['query', 'info'],
-      entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
-      subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
-      namingStrategy: new SnakeNamingStrategy(),
-    })
-
-    await AppDataSource.initialize()
-  } catch (error) {
-    console.log('error creating test connection', error)
-  }
+  AppDataSource.setOptions({
+    type: 'postgres',
+    host: process.env.PG_HOST,
+    port: Number(process.env.PG_PORT),
+    schema: 'omnivore',
+    username: process.env.PG_USER,
+    password: process.env.PG_PASSWORD,
+    database: process.env.PG_DB,
+    logging: ['query', 'info'],
+    entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
+    subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
+    namingStrategy: new SnakeNamingStrategy(),
+  })
+  await AppDataSource.initialize()
 }
 
 export const deleteTestUser = async (name: string) => {
