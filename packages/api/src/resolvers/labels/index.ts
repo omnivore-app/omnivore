@@ -50,7 +50,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
           labels: {
             createdAt: 'DESC',
           },
-        }
+        },
       })
       if (!user) {
         return {
@@ -288,11 +288,13 @@ export const updateLabelResolver = authorized<
     const result = await AppDataSource.transaction(async (t) => {
       await setClaims(t, uid)
       return await t.getRepository(Label).update(
-        { id: labelId }, {
+        { id: labelId },
+        {
           name: name,
           description: description || undefined,
           color: color,
-        })
+        }
+      )
     })
 
     log.info('Updating a label', {
