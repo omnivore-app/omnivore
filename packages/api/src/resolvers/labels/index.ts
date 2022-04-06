@@ -24,8 +24,8 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
-import { getRepository, ILike, In } from 'typeorm'
-import { setClaims } from '../../entity/utils'
+import { ILike, In } from 'typeorm'
+import { getRepository, setClaims } from '../../entity/utils'
 import { deleteLabelInPages, getPageById, updatePage } from '../../elastic'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
@@ -46,6 +46,11 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
       const user = await getRepository(User).findOne({
         where: { id: uid },
         relations: ['labels'],
+        order: {
+          labels: {
+            createdAt: 'DESC',
+          },
+        }
       })
       if (!user) {
         return {
@@ -118,75 +123,6 @@ export const createLabelResolver = authorized<
     log.error(error)
     return {
       errorCodes: [CreateLabelErrorCode.BadRequest],
-    }
-  }
-})
-
-export const updateLabelResolver = authorized<
-  UpdateLabelSuccess,
-  UpdateLabelError,
-  MutationUpdateLabelArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('updateLabelResolver')
-
-  try {
-    const { name, color, description, labelId } = input
-
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UpdateLabelErrorCode.Unauthorized],
-      }
-    }
-
-    const label = await getRepository(Label).findOne({
-      where: { id: labelId },
-      relations: ['user'],
-    })
-    if (!label) {
-      return {
-        errorCodes: [UpdateLabelErrorCode.NotFound],
-      }
-    }
-
-    if (!label) {
-      return {
-        errorCodes: [UpdateLabelErrorCode.NotFound],
-      }
-    }
-
-    const result = await AppDataSource.transaction(async (t) => {
-      await setClaims(t, uid)
-      return await t.getRepository(Label).update(
-        { id: labelId }, {
-          name: name,
-          description: description || undefined,
-          color: color,
-        })
-    })
-
-    log.info('Updating a label', {
-      result,
-      labels: {
-        source: 'resolver',
-        resolver: 'updateLabelResolver',
-      },
-    })
-
-    if (!result) {
-      log.info('failed to update')
-      return {
-        errorCodes: [UpdateLabelErrorCode.BadRequest],
-      }
-    }
-
-    log.info('updated successfully')
-
-    return { label: label }
-  } catch (error) {
-    log.error('error', error)
-    return {
-      errorCodes: [UpdateLabelErrorCode.BadRequest],
     }
   }
 })
@@ -319,6 +255,68 @@ export const setLabelsResolver = authorized<
     log.error(error)
     return {
       errorCodes: [SetLabelsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const updateLabelResolver = authorized<
+  UpdateLabelSuccess,
+  UpdateLabelError,
+  MutationUpdateLabelArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  log.info('updateLabelResolver')
+
+  try {
+    const { name, color, description, labelId } = input
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [UpdateLabelErrorCode.Unauthorized],
+      }
+    }
+
+    const label = await getRepository(Label).findOne({
+      where: { id: labelId },
+      relations: ['user'],
+    })
+    if (!label) {
+      return {
+        errorCodes: [UpdateLabelErrorCode.NotFound],
+      }
+    }
+
+    const result = await AppDataSource.transaction(async (t) => {
+      await setClaims(t, uid)
+      return await t.getRepository(Label).update(
+        { id: labelId }, {
+          name: name,
+          description: description || undefined,
+          color: color,
+        })
+    })
+
+    log.info('Updating a label', {
+      result,
+      labels: {
+        source: 'resolver',
+        resolver: 'updateLabelResolver',
+      },
+    })
+
+    if (!result) {
+      log.info('failed to update')
+      return {
+        errorCodes: [UpdateLabelErrorCode.BadRequest],
+      }
+    }
+
+    log.info('updated successfully')
+
+    return { label: label }
+  } catch (error) {
+    log.error('error updating label', error)
+    return {
+      errorCodes: [UpdateLabelErrorCode.BadRequest],
     }
   }
 })
