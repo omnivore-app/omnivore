@@ -114,7 +114,6 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
   }, [size, isValidating])
 
   useEffect(() => {
-    console.log('size, hasMore, isValidating', size, hasMore, isValidating)
     if (isValidating || !hasMore || size !== 1) {
       return
     }
