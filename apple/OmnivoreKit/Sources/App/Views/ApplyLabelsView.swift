@@ -7,8 +7,8 @@ import Views
 final class ApplyLabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
   @Published var isLoading = true
-  @Published var selectedLabels = Set<FeedItemLabel>()
-  @Published var labels = [FeedItemLabel]()
+  @Published var selectedLabels = [FeedItemLabel]()
+  @Published var unselectedLabels = [FeedItemLabel]()
 
   var subscriptions = Set<AnyCancellable>()
 
@@ -17,11 +17,11 @@ final class ApplyLabelsViewModel: ObservableObject {
 
     dataService.labelsPublisher().sink(
       receiveCompletion: { _ in },
-      receiveValue: { [weak self] result in
+      receiveValue: { [weak self] allLabels in
         self?.isLoading = false
-        self?.labels = result
         self?.hasLoadedInitialLabels = true
-        self?.selectedLabels = Set(item.labels)
+        self?.selectedLabels = item.labels
+        self?.unselectedLabels = allLabels.filter { !item.labels.contains($0) }
       }
     )
     .store(in: &subscriptions)
@@ -33,6 +33,16 @@ final class ApplyLabelsViewModel: ObservableObject {
       receiveValue: { onComplete($0) }
     )
     .store(in: &subscriptions)
+  }
+
+  func addLabel(_ label: FeedItemLabel) {
+    selectedLabels.insert(label, at: 0)
+    unselectedLabels.removeAll { $0.id == label.id }
+  }
+
+  func removeLabel(_ label: FeedItemLabel) {
+    unselectedLabels.insert(label, at: 0)
+    selectedLabels.removeAll { $0.id == label.id }
   }
 }
 
@@ -49,15 +59,44 @@ struct ApplyLabelsView: View {
       if viewModel.isLoading {
         EmptyView()
       } else {
-        List(viewModel.labels, id: \.self, selection: $viewModel.selectedLabels) { label in
-          if let textChip = TextChip(feedItemLabel: label) {
-            textChip
-          } else {
-            Text(label.name)
+        List {
+          Section(header: Text("Assigned Labels")) {
+            if viewModel.selectedLabels.isEmpty {
+              Text("No labels are currently assigned.")
+            }
+            ForEach(viewModel.selectedLabels, id: \.self) { label in
+              HStack {
+                TextChip(feedItemLabel: label)
+                Spacer()
+                Button(
+                  action: {
+                    withAnimation {
+                      viewModel.removeLabel(label)
+                    }
+                  },
+                  label: { Image(systemName: "trash") }
+                )
+              }
+            }
+          }
+          Section(header: Text("Available Labels")) {
+            ForEach(viewModel.unselectedLabels, id: \.self) { label in
+              HStack {
+                TextChip(feedItemLabel: label)
+                Spacer()
+                Button(
+                  action: {
+                    withAnimation {
+                      viewModel.addLabel(label)
+                    }
+                  },
+                  label: { Image(systemName: "plus") }
+                )
+              }
+            }
           }
         }
-        .environment(\.editMode, .constant(EditMode.active))
-        .navigationTitle("Apply Labels")
+        .navigationTitle("Assign Labels")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .navigationBarLeading) {
