@@ -571,7 +571,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           {showInput ? (
             <Input
               type="text"
-              placeholder='Label description (optional)'
+              placeholder='Description (optional)'
               value={descriptionInputText}
               onChange={(event) => setDescriptionInputText(event.target.value)}
               autoFocus={!!label}
@@ -779,7 +779,7 @@ function MobileEditCard(props: any) {
           setLabelColorHex={setLabelColorHex}
         />
         <TextArea
-          placeholder='Label description (optional)'
+          placeholder='Description (optional)'
           value={descriptionInputText}
           onChange={(event) => setDescriptionInputText(event.target.value)}
           rows={5}
@@ -872,7 +872,7 @@ function DesktopEditCard(props: any) {
         />
         <Input
           type="text"
-          placeholder='Label description (optional)'
+          placeholder='Description (optional)'
           value={descriptionInputText}
           onChange={(event) => setDescriptionInputText(event.target.value)}
         />
