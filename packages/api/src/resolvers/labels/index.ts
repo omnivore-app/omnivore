@@ -24,8 +24,8 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
-import { ILike, In } from 'typeorm'
-import { getRepository, setClaims } from '../../entity/utils'
+import { getRepository, ILike, In } from 'typeorm'
+import { setClaims } from '../../entity/utils'
 import { deleteLabelInPages, getPageById, updatePage } from '../../elastic'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
@@ -43,13 +43,10 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
     })
 
     try {
-      const user = await getRepository(User)
-        .createQueryBuilder('user')
-        .innerJoinAndSelect('user.labels', 'labels')
-        .where('user.id = :uid', { uid })
-        .orderBy('labels.createdAt', 'DESC')
-        .getOne()
-
+      const user = await getRepository(User).findOne({
+        where: { id: uid },
+        relations: ['labels'],
+      })
       if (!user) {
         return {
           errorCodes: [LabelsErrorCode.Unauthorized],
@@ -57,10 +54,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
       }
 
       return {
-        labels:
-          user.labels?.sort(
-            (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-          ) || [],
+        labels: user.labels || [],
       }
     } catch (error) {
       log.error(error)
@@ -138,7 +132,7 @@ export const updateLabelResolver = authorized<
   try {
     const { name, color, description, labelId } = input
 
-    const user = await getRepository(User).findOne(uid)
+    const user = await getRepository(User).findOneBy({ id: uid })
     if (!user) {
       return {
         errorCodes: [UpdateLabelErrorCode.Unauthorized],
@@ -146,11 +140,14 @@ export const updateLabelResolver = authorized<
     }
 
     const label = await getRepository(Label).findOne({
-      where: {
-        id: labelId,
-        user,
-      },
+      where: { id: labelId },
+      relations: ['user'],
     })
+    if (!label) {
+      return {
+        errorCodes: [UpdateLabelErrorCode.NotFound],
+      }
+    }
 
     if (!label) {
       return {
@@ -158,16 +155,14 @@ export const updateLabelResolver = authorized<
       }
     }
 
-    const result = await getManager().transaction(async (t) => {
+    const result = await AppDataSource.transaction(async (t) => {
       await setClaims(t, uid)
       return await t.getRepository(Label).update(
-        { id: labelId },
-        {
+        { id: labelId }, {
           name: name,
           description: description || undefined,
           color: color,
-        }
-      )
+        })
     })
 
     log.info('Updating a label', {
