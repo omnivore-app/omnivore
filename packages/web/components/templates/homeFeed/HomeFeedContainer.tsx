@@ -585,14 +585,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 },
                 '&:focus': {
                   '> div': {
-                    boxShadow:
-                      layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
+                    bg: '$grayBgActive',
                   },
                 },
                 '&:hover': {
                   '> div': {
-                    boxShadow:
-                      layout === 'LIST_LAYOUT' ? 'none' : '$cardItemShadow',
+                    bg: '$grayBgActive',
                   },
                 },
               }}
