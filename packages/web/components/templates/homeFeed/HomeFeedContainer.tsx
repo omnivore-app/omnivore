@@ -560,7 +560,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             '@smDown': {
               border: 'unset',
               width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-              margin: layout == 'LIST_LAYOUT' ? '0 -16px' : undefined,
+              margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
               borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
             },
             '@md': {
