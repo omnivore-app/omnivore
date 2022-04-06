@@ -4,7 +4,7 @@ import addressparser from 'addressparser'
 export class SubstackHandler extends NewsletterHandler {
   constructor() {
     super()
-    this.defaultUrl = 'https://www.substack.com/'
+    this.defaultUrl = 'https://www.substack.com'
   }
 
   getNewsletterUrl(rawUrl: string, _html: string): string | undefined {
@@ -15,7 +15,7 @@ export class SubstackHandler extends NewsletterHandler {
       : undefined
   }
 
-  isNewsletter(rawUrl: string, _from: string): boolean {
-    return !!rawUrl
+  isNewsletter(rawUrl: string, _from: string, rawUnSubUrl: string): boolean {
+    return !!rawUrl || !!rawUnSubUrl
   }
 }

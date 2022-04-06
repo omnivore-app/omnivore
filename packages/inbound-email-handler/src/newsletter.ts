@@ -1,4 +1,5 @@
 import { PubSub } from '@google-cloud/pubsub'
+import { v4 as uuidv4 } from 'uuid'
 import addressparser from 'addressparser'
 
 const pubsub = new PubSub()
@@ -14,10 +15,10 @@ export class NewsletterHandler {
   protected urlRegex = /NEWSLETTER_URL_REGEX/
   protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
 
-  isNewsletter(_rawUrl: string, from: string): boolean {
+  isNewsletter(rawUrl: string, from: string, rawUnSubUrl: string): boolean {
     // Axios newsletter is from <xx@axios.com>
     const re = new RegExp(this.senderRegex)
-    return re.test(from)
+    return re.test(from) && (!!rawUrl || !!rawUnSubUrl)
   }
 
   getNewsletterUrl(_rawUrl: string, html: string): string | undefined {
@@ -55,8 +56,11 @@ export class NewsletterHandler {
     }
 
     // fallback to default url if newsletter url does not exist
-    const url = this.getNewsletterUrl(rawUrl, html) || this.defaultUrl
-    const author = this.getAuthor(from)
+    // assign a random uuid to the default url to avoid duplicate url
+    const url =
+      this.getNewsletterUrl(rawUrl, html) ||
+      `${this.defaultUrl}?source=newsletters&id=${uuidv4()}`
+    const author = this.getAuthor(from) || 'Unknown'
 
     const message = {
       email: email,
