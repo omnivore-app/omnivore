@@ -41,7 +41,7 @@ struct LabelsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .onAppear { viewModel.loadLabels(dataService: dataService) }
+    .onAppear { viewModel.loadLabels(dataService: dataService, item: nil) }
   }
 
   private var innerBody: some View {

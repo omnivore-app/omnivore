@@ -93,7 +93,7 @@ struct ApplyLabelsView: View {
       }
     }
     .onAppear {
-      viewModel.loadLabelForItem(item: item, dataService: dataService)
+      viewModel.loadLabels(dataService: dataService, item: item)
     }
   }
 }

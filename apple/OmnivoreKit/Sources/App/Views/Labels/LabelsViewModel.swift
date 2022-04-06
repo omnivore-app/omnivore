@@ -14,31 +14,22 @@ final class LabelsViewModel: ObservableObject {
 
   var subscriptions = Set<AnyCancellable>()
 
-  func loadLabels(dataService: DataService) {
+  func loadLabels(dataService: DataService, item: FeedItem?) {
     guard !hasLoadedInitialLabels else { return }
     isLoading = true
 
     dataService.labelsPublisher().sink(
       receiveCompletion: { _ in },
-      receiveValue: { [weak self] result in
-        self?.isLoading = false
-        self?.labels = result
-        self?.hasLoadedInitialLabels = true
-      }
-    )
-    .store(in: &subscriptions)
-  }
-
-  func loadLabelForItem(item: FeedItem, dataService: DataService) {
-    guard !hasLoadedInitialLabels else { return }
-
-    dataService.labelsPublisher().sink(
-      receiveCompletion: { _ in },
       receiveValue: { [weak self] allLabels in
         self?.isLoading = false
+        self?.labels = allLabels
         self?.hasLoadedInitialLabels = true
-        self?.selectedLabelsForItemInContext = item.labels
-        self?.unselectedLabelsForItemInContext = allLabels.filter { !item.labels.contains($0) }
+        if let item = item {
+          self?.selectedLabelsForItemInContext = item.labels
+          self?.unselectedLabelsForItemInContext = allLabels.filter { label in
+            !item.labels.contains(where: { $0.id == label.id })
+          }
+        }
       }
     )
     .store(in: &subscriptions)
