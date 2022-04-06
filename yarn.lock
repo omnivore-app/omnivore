@@ -16535,6 +16535,11 @@ react-apple-login@^1.1.3:
   resolved "https://registry.yarnpkg.com/react-apple-login/-/react-apple-login-1.1.3.tgz#5cb047a52a251fc52d920c7b4d9151d411994997"
   integrity sha512-I6/2WQEfum9QGowHs9Maea5JhzsOjl8dMCqFP5got+jnnNZRimLE6wGambAvDXdiOuLr+gwMQx5W4JeBGKJHTA==
 
+react-colorful@^5.5.1:
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/react-colorful/-/react-colorful-5.5.1.tgz#29d9c4e496f2ca784dd2bb5053a3a4340cfaf784"
+  integrity sha512-M1TJH2X3RXEt12sWkpa6hLc/bbYS0H6F4rIqjQZ+RxNBstpY67d9TrFXtqdZwhpmBXcCwEi7stKqFue3ZRkiOg==
+
 react-dom@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"

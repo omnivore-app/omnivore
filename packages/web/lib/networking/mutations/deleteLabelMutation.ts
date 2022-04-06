@@ -1,5 +1,15 @@
 import { gql } from 'graphql-request'
+import { Label } from '../fragments/labelFragment'
 import { gqlFetcher } from '../networkHelpers'
+
+type DeleteLabelResult = {
+  deleteLabel: DeleteLabel
+  errorCodes?: unknown[]
+}
+
+type DeleteLabel = {
+  label: Label
+}
 
 export async function deleteLabelMutation(
   labelId: string
@@ -24,9 +34,8 @@ export async function deleteLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation)
-    console.log('deleted label', data)
-    return data
+    const data = await gqlFetcher(mutation) as DeleteLabelResult
+    return data.errorCodes ? undefined : data.deleteLabel.label.id
   } catch (error) {
     console.log('deleteLabelMutation error', error)
     return undefined

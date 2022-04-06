@@ -124,7 +124,7 @@ export default function Home(): JSX.Element {
                   articleReadingProgressMutation,
                 }}
               />
-              {showLabelsModal && (
+              {/* {showLabelsModal && (
                 <EditLabelsModal
                   labels={article.labels || []}
                   article={article}
@@ -135,7 +135,7 @@ export default function Home(): JSX.Element {
                     // setLabels(labels)
                   }}
                 />
-              )}
+              )} */}
             </VStack>
           )}
       </PrimaryLayout>

@@ -67,6 +67,7 @@ export const TooltipWrapped: FC<TooltipWrappedProps> = ({
   active,
   tooltipContent,
   tooltipSide,
+  arrowStyles,
   ...props
 }) => {
   return (
@@ -74,7 +75,7 @@ export const TooltipWrapped: FC<TooltipWrappedProps> = ({
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent sideOffset={5} side={tooltipSide} {...props}>
         {tooltipContent}
-        <TooltipArrow style={props.arrowStyles} />
+        <TooltipArrow style={arrowStyles} />
       </TooltipContent>
     </Tooltip>
   )

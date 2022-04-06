@@ -8,11 +8,10 @@ import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { theme } from '../../tokens/stitches.config'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
+import { Label, useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { ChangeEvent, useCallback, useState } from 'react'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { LabelChip } from '../../elements/LabelChip'
 
 type EditLabelsModalProps = {

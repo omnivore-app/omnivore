@@ -71,6 +71,7 @@ import {
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
+  updateLabelResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
@@ -132,6 +133,7 @@ export const functionResolvers = {
     deleteReminder: deleteReminderResolver,
     setDeviceToken: setDeviceTokenResolver,
     createLabel: createLabelResolver,
+    updateLabel: updateLabelResolver,
     deleteLabel: deleteLabelResolver,
     login: loginResolver,
     signup: signupResolver,

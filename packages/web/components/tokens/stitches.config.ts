@@ -146,6 +146,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // Avatar Fallback color
         avatarBg: '#FFFFFF',
         avatarFont: '#0A0806',
+
+        labelButtonsBg: '#F5F5F4',
         tooltipIcons: '#FDFAEC'
       },
     },
@@ -191,6 +193,8 @@ const darkThemeSpec = {
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
     avatarFont: 'rgba(255, 255, 255, 0.8)',
+
+    labelButtonsBg: '#5F5E58',
   },
   shadows: {
     cardBoxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)'

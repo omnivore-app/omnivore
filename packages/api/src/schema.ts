@@ -1310,6 +1310,30 @@ const schema = gql`
 
   union DeleteLabelResult = DeleteLabelSuccess | DeleteLabelError
 
+  input UpdateLabelInput {
+    labelId: ID!
+    color: String!
+    description: String
+    name: String!
+  }
+
+  type UpdateLabelSuccess {
+    label: Label!
+  }
+
+  enum UpdateLabelErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    FORBIDDEN
+  }
+
+  type UpdateLabelError {
+    errorCodes: [UpdateLabelErrorCode!]!
+  }
+
+  union UpdateLabelResult = UpdateLabelSuccess | UpdateLabelError
+
   input LoginInput {
     password: String!
     email: String!
@@ -1410,6 +1434,7 @@ const schema = gql`
     deleteReminder(id: ID!): DeleteReminderResult!
     setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
     createLabel(input: CreateLabelInput!): CreateLabelResult!
+    updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
     deleteLabel(id: ID!): DeleteLabelResult!
     login(input: LoginInput!): LoginResult!
     signup(input: SignupInput!): SignupResult!
