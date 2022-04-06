@@ -24,6 +24,7 @@ import { StyledText } from '../../components/elements/StyledText'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showSuccessToast } from '../../lib/toastHelpers'
 import Link from 'next/link'
+import { InfoLink } from '../../components/elements/InfoLink'
 
 enum TextType {
   EmailAddress,
@@ -215,20 +216,7 @@ export default function EmailsPage(): JSX.Element {
                 Email Addresses{' '}
               </StyledText>
             </Box>
-            <Box style={{ flex: '1', marginLeft: '9px' }}>
-              <Link passHref href="/help/newsletters">
-                <a style={{ textDecoration: 'none' }}>
-                  <TooltipWrapped
-                    tooltipContent="Learn More"
-                    tooltipSide={'top'}
-                    style={TooltipStyle}
-                    arrowStyles={{ fill: '#F9D354' }}
-                  >
-                    <InfoIcon size={24} css={{ color: '$grayText' }} />
-                  </TooltipWrapped>
-                </a>
-              </Link>
-            </Box>
+            <InfoLink href="/help/newsletters" />
             <Button
               onClick={createEmail}
               style="ctaDarkYellow"

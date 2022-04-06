@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
-import { styled } from '../../components/tokens/stitches.config'
+import { styled, theme } from '../../components/tokens/stitches.config'
 import {
   Box,
   SpanBox,
@@ -41,6 +41,7 @@ import {
 } from '../../components/elements/DropdownElements'
 import { LabelChip } from '../../components/elements/LabelChip'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import { InfoLink } from '../../components/elements/InfoLink'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -276,9 +277,14 @@ export default function LabelsPage(): JSX.Element {
         ) : null}
         <HeaderWrapper>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <Box style={{ flex: '1' }}>
-              <StyledText style="fixedHeadline">Labels</StyledText>
+            <Box>
+              <StyledText
+                style="fixedHeadline"
+              >
+                Labels{' '}
+              </StyledText>
             </Box>
+            <InfoLink href="/help/labels" />
             <Box css={{display: 'flex', justifyContent: 'flex-end' }}>
               {isCreateMode ? null : (
                 <>
