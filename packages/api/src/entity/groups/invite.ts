@@ -1,19 +1,18 @@
 import {
-  Entity,
-  BaseEntity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  OneToOne,
+  Entity,
   JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { User } from '../user'
 import { Group } from './group'
 
 @Entity()
-export class Invite extends BaseEntity {
+export class Invite {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 

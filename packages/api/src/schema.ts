@@ -338,6 +338,8 @@ const schema = gql`
     linkId: ID
     labels: [Label!]
     uploadFileId: ID
+    siteName: String
+    siteIcon: String
   }
 
   # Query: article

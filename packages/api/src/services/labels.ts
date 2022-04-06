@@ -1,10 +1,11 @@
-import DataLoader from 'dataloader'
 import { Label } from '../entity/label'
-import { getRepository, ILike, In } from 'typeorm'
-import { Link } from '../entity/link'
+import { ILike, In } from 'typeorm'
 import { PageContext } from '../elastic/types'
 import { User } from '../entity/user'
 import { addLabelInPage } from '../elastic'
+import { getRepository } from '../entity/utils'
+import { Link } from '../entity/link'
+import DataLoader from 'dataloader'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -30,13 +31,16 @@ export const addLabelToPage = async (
     description?: string
   }
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOne(ctx.uid)
+  const user = await getRepository(User).findOneBy({
+    id: ctx.uid,
+  })
+  if (!user) {
+    return false
+  }
 
-  let labelEntity = await getRepository(Label).findOne({
-    where: {
-      user: user,
-      name: ILike(label.name),
-    },
+  let labelEntity = await getRepository(Label).findOneBy({
+    user: { id: user.id },
+    name: ILike(label.name),
   })
 
   if (!labelEntity) {

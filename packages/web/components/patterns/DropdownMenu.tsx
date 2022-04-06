@@ -15,7 +15,7 @@ export type HeaderDropdownAction =
   | 'apply-light-theme'
   | 'apply-lighter-theme'
   | 'navigate-to-install'
-  | 'navigate-to-feedback'
+  | 'navigate-to-emails'
   | 'navigate-to-profile'
   | 'increaseFontSize'
   | 'decreaseFontSize'
@@ -41,7 +41,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         <StyledText style='menuTitle'>Theme</StyledText>
         <HStack css={{ mt: '6px', mb: '6px', width: '100%', gap: '8px' }}>
           <Button style='themeSwitch' css={{ background: "#FFFFFF", width: '50%' }} onClick={() => {
-            props.actionHandler('apply-light-theme')
+            props.actionHandler('apply-lighter-theme')
             setCurrentTheme(currentThemeName())
           }}>
             { isDark ? '' : '✓' }
@@ -76,6 +76,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-install')}
         title="Install"
+      />
+      <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-emails')}
+        title="Emails"
       />
       <DropdownOption
         onSelect={() => window.Intercom('show')}

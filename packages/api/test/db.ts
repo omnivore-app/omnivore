@@ -1,13 +1,5 @@
-import {
-  createConnection,
-  getConnection,
-  getManager,
-  getRepository,
-} from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import Postgrator from 'postgrator'
 import { User } from '../src/entity/user'
-import { createUser } from '../src/services/create_user'
 import { Profile } from '../src/entity/profile'
 import { Page } from '../src/entity/page'
 import { Link } from '../src/entity/link'
@@ -15,6 +7,10 @@ import { Reminder } from '../src/entity/reminder'
 import { NewsletterEmail } from '../src/entity/newsletter_email'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
 import { Label } from '../src/entity/label'
+import { AppDataSource } from '../src/server'
+import { getRepository } from '../src/entity/utils'
+import { createUser } from '../src/services/create_user'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -43,8 +39,10 @@ const runMigrations = async () => {
   }
 }
 
-const createEntityConnection = async (): Promise<void> => {
-  await createConnection({
+export const createTestConnection = async (): Promise<void> => {
+  await runMigrations()
+
+  AppDataSource.setOptions({
     type: 'postgres',
     host: process.env.PG_HOST,
     port: Number(process.env.PG_PORT),
@@ -57,21 +55,11 @@ const createEntityConnection = async (): Promise<void> => {
     subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
     namingStrategy: new SnakeNamingStrategy(),
   })
-}
-
-export const createTestConnection = async (): Promise<void> => {
-  try {
-    getConnection()
-    // eslint-disable-next-line no-empty
-  } catch (error) {}
-
-  await runMigrations()
-  await createEntityConnection()
+  await AppDataSource.initialize()
 }
 
 export const deleteTestUser = async (name: string) => {
-  await getConnection()
-    .createQueryBuilder()
+  await AppDataSource.createQueryBuilder()
     .delete()
     .from(User)
     .where({ email: `${name}@fake.com` })
@@ -93,68 +81,58 @@ export const createTestUser = async (
     inviteCode: invite,
     password: password,
   })
+
   return newUser
 }
 
 export const createUserWithoutProfile = async (name: string): Promise<User> => {
-  return getManager()
-    .getRepository(User)
-    .create({
-      source: 'GOOGLE',
-      sourceUserId: 'fake-user-id-' + name,
-      email: `${name}@fake.com`,
-      name: name,
-    })
-    .save()
+  return getRepository(User).save({
+    source: 'GOOGLE',
+    sourceUserId: 'fake-user-id-' + name,
+    email: `${name}@fake.com`,
+    name: name,
+  })
 }
 
-export const getProfile = async (user: User): Promise<Profile | undefined> => {
-  return Profile.findOne({ where: { user: user } })
+export const getProfile = async (user: User): Promise<Profile | null> => {
+  return getRepository(Profile).findOneBy({ user: { id: user.id } })
 }
 
 export const createTestPage = async (): Promise<Page> => {
-  return getRepository(Page)
-    .create({
-      originalHtml: 'html',
-      content: 'Test content',
-      description: 'Test description',
-      title: 'Test title',
-      author: 'Test author',
-      url: 'Test url',
-      hash: 'Test hash',
-    })
-    .save()
+  return getRepository(Page).save({
+    originalHtml: 'html',
+    content: 'Test content',
+    description: 'Test description',
+    title: 'Test title',
+    author: 'Test author',
+    url: 'Test url',
+    hash: 'Test hash',
+  })
 }
 
 export const createTestLink = async (user: User, page: Page): Promise<Link> => {
-  return getRepository(Link)
-    .create({
-      user: user,
-      page: page,
-      slug: 'Test slug',
-      articleUrl: 'Test url',
-      articleHash: 'Test hash',
-    })
-    .save()
+  return getRepository(Link).save({
+    user: user,
+    page: page,
+    slug: 'Test slug',
+    articleUrl: 'Test url',
+    articleHash: 'Test hash',
+  })
 }
 
 export const createTestReminder = async (
   user: User,
   link?: string
 ): Promise<Reminder> => {
-  return getRepository(Reminder)
-    .create({
-      user: user,
-      link: link,
-      remindAt: new Date(),
-    })
-    .save()
+  return getRepository(Reminder).save({
+    user: user,
+    link: link,
+    remindAt: new Date(),
+  })
 }
 
-export const getReminder = async (
-  id: string
-): Promise<Reminder | undefined> => {
-  return getRepository(Reminder).findOne(id)
+export const getReminder = async (id: string): Promise<Reminder | null> => {
+  return getRepository(Reminder).findOneBy({ id })
 }
 
 export const createTestNewsletterEmail = async (
@@ -162,44 +140,40 @@ export const createTestNewsletterEmail = async (
   emailAddress?: string,
   confirmationCode?: string
 ): Promise<NewsletterEmail> => {
-  return getRepository(NewsletterEmail)
-    .create({
-      user: user,
-      address: emailAddress,
-      confirmationCode: confirmationCode,
-    })
-    .save()
+  return getRepository(NewsletterEmail).save({
+    user: user,
+    address: emailAddress,
+    confirmationCode: confirmationCode,
+  })
 }
 
 export const getNewsletterEmail = async (
   id: string
-): Promise<NewsletterEmail | undefined> => {
-  return getRepository(NewsletterEmail).findOne(id)
+): Promise<NewsletterEmail | null> => {
+  return getRepository(NewsletterEmail).findOneBy({ id })
 }
 
 export const createTestDeviceToken = async (
   user: User
 ): Promise<UserDeviceToken> => {
-  return getRepository(UserDeviceToken)
-    .create({
-      user: user,
-      token: 'Test token',
-    })
-    .save()
+  return getRepository(UserDeviceToken).save({
+    user: user,
+    token: 'Test token',
+  })
 }
 
 export const getDeviceToken = async (
   id: string
-): Promise<UserDeviceToken | undefined> => {
-  return getRepository(UserDeviceToken).findOne(id)
+): Promise<UserDeviceToken | null> => {
+  return getRepository(UserDeviceToken).findOneBy({ id })
 }
 
-export const getUser = async (id: string): Promise<User | undefined> => {
-  return getRepository(User).findOne(id)
+export const getUser = async (id: string): Promise<User | null> => {
+  return getRepository(User).findOneBy({ id })
 }
 
-export const getLink = async (id: string): Promise<Link | undefined> => {
-  return getRepository(Link).findOne(id)
+export const getLink = async (id: string): Promise<Link | null> => {
+  return getRepository(Link).findOneBy({ id })
 }
 
 export const createTestLabel = async (
@@ -207,11 +181,9 @@ export const createTestLabel = async (
   name: string,
   color: string
 ): Promise<Label> => {
-  return getRepository(Label)
-    .create({
-      user: user,
-      name: name,
-      color: color,
-    })
-    .save()
+  return getRepository(Label).save({
+    user: user,
+    name: name,
+    color: color,
+  })
 }

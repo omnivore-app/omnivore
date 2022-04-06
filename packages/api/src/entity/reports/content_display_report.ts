@@ -1,14 +1,13 @@
 import {
-  Entity,
-  BaseEntity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 
 @Entity()
-export class ContentDisplayReport extends BaseEntity {
+export class ContentDisplayReport {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
@@ -16,7 +15,7 @@ export class ContentDisplayReport extends BaseEntity {
   userId!: string
 
   @Column('text')
-  pageId!: string
+  pageId?: string
 
   @Column('text')
   content!: string
@@ -35,4 +34,7 @@ export class ContentDisplayReport extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt?: Date
+
+  @Column('text')
+  elasticPageId?: string
 }

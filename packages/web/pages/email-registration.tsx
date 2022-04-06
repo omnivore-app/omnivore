@@ -32,7 +32,7 @@ export default function EmailRegistration(): JSX.Element {
         </div>
         <div>
           <label>Password</label>
-          <input type="password" name={'password'} required />
+          <input type="password" name={'password'} required maxLength={40} />
         </div>
         <div>
           <label>Full Name</label>

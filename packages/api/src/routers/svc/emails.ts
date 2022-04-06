@@ -4,6 +4,7 @@ import { sendEmail } from '../../utils/sendEmail'
 import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { env } from '../../env'
+import { v4 as uuid } from 'uuid'
 import { findNewsletterUrl, isProbablyNewsletter } from '../../utils/parser'
 import { saveNewsletterEmail } from '../../services/save_newsletter_email'
 
@@ -59,7 +60,7 @@ export function emailsServiceRouter() {
           author: data.from,
           url:
             (await findNewsletterUrl(data.html)) ||
-            'https://omnivore.app/no_url',
+            'https://omnivore.app/no_url?q' + uuid(),
         })
         res.status(200).send('Newsletter')
         return

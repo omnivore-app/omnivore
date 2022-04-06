@@ -9,7 +9,6 @@ import {
   Label,
 } from '@radix-ui/react-dropdown-menu'
 import { styled } from './../tokens/stitches.config'
-import { Button } from './Button'
 
 const itemStyles = {
   fontSize: 13,
@@ -46,10 +45,11 @@ const StyledTriggerItem = styled(TriggerItem, {
 
 const DropdownContent = styled(Content, {
   minWidth: 130,
-  backgroundColor: '$grayBase',
+  backgroundColor: '$grayBg',
   borderRadius: '0.5em',
   padding: 5,
   border: '1px solid $grayBorder',
+  boxShadow: '$cardBoxShadow',
 })
 
 const StyledArrow = styled(Arrow, {
@@ -63,17 +63,14 @@ const StyledLabel = styled(Label, {
   cursor: 'default',
 })
 
-export type DropdownAlignment = 
-  | 'start'
-  | 'end'
-  | 'center'
+export type DropdownAlignment = 'start' | 'end' | 'center'
 
 type DropdownProps = {
   labelText?: string
+  showArrow?: boolean
   triggerElement: React.ReactNode
   children: React.ReactNode
-  styledArrow?: boolean
-  align?: DropdownAlignment 
+  align?: DropdownAlignment
 }
 
 export const DropdownSeparator = styled(Separator, {
@@ -98,22 +95,26 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   )
 }
 
-export function Dropdown(props: DropdownProps): JSX.Element {
+export function Dropdown({
+  children,
+  align,
+  triggerElement,
+  labelText,
+  showArrow = true,
+}: DropdownProps): JSX.Element {
   return (
     <Root modal={false}>
-      <DropdownTrigger>
-        {props.triggerElement}
-      </DropdownTrigger>
+      <DropdownTrigger>{triggerElement}</DropdownTrigger>
       <DropdownContent
-        onInteractOutside={(event) => {
+        onInteractOutside={() => {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}
-        align={props.align ? props.align : 'center'}
+        align={align ? align : 'center'}
       >
-        {props.labelText && <StyledLabel>{props.labelText}</StyledLabel>}
-        {props.children}
-        {props.styledArrow && <StyledArrow offset={20} />}
+        {labelText && <StyledLabel>{labelText}</StyledLabel>}
+        {children}
+        {showArrow && <StyledArrow offset={20} />}
       </DropdownContent>
     </Root>
   )

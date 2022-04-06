@@ -1,11 +1,25 @@
+import Models
 import SwiftUI
+import Utils
 
-struct TextChip: View {
+public struct TextChip: View {
+  public init(text: String, color: Color) {
+    self.text = text
+    self.color = color
+  }
+
+  public init?(feedItemLabel: FeedItemLabel) {
+    guard let color = Color(hex: feedItemLabel.color) else { return nil }
+
+    self.text = feedItemLabel.name
+    self.color = color
+  }
+
   let text: String
   let color: Color
   let cornerRadius = 20.0
 
-  var body: some View {
+  public var body: some View {
     Text(text)
       .padding(.horizontal, 10)
       .padding(.vertical, 5)

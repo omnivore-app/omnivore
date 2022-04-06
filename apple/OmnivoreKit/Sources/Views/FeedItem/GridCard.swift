@@ -5,6 +5,7 @@ import Utils
 public enum GridCardAction {
   case toggleArchiveStatus
   case delete
+  case editLabels
 }
 
 public struct GridCard: View {
@@ -42,6 +43,10 @@ public struct GridCard: View {
 
   var contextMenuView: some View {
     Group {
+      Button(
+        action: { menuActionHandler(.editLabels) },
+        label: { Label("Edit Labels", systemImage: "tag") }
+      )
       Button(
         action: { menuActionHandler(.toggleArchiveStatus) },
         label: {
@@ -156,11 +161,12 @@ public struct GridCard: View {
         .onTapGesture { tapHandler() }
 
         // Category Labels
-        if FeatureFlag.showFeedItemTags {
+        if FeatureFlag.enableLabels {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-              TextChip(text: "label", color: .red)
-              TextChip(text: "longer label", color: .blue)
+              ForEach(item.labels, id: \.self) {
+                TextChip(feedItemLabel: $0)
+              }
               Spacer()
             }
             .frame(height: 30)

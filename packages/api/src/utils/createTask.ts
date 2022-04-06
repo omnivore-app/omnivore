@@ -204,6 +204,7 @@ export const deleteTask = async (
  * @param url - URL address of the article to parse
  * @param userId - Id of the user authorized
  * @param saveRequestId - Id of the article_saving_request table record
+ * @param priority - Priority of the task
  * @returns Name of the task created
  */
 export const enqueueParseRequest = async (

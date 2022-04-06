@@ -42,12 +42,7 @@ export function linkServiceRouter() {
     const models = initModels(kx, false)
 
     try {
-      const request = await createPageSaveRequest(
-        msg.userId,
-        msg.url,
-        models,
-        'low'
-      )
+      const request = await createPageSaveRequest(msg.userId, msg.url, models)
       console.log('create link request', request)
 
       res.status(200).send(request)

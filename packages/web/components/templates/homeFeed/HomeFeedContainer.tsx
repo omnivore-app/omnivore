@@ -34,6 +34,7 @@ import {
 import { useFetchMoreScroll } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -436,6 +437,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const [layout, setLayout] = useState<LayoutType>(
     (preferencesData?.libraryLayoutType as LayoutType) || 'GRID_LAYOUT'
   )
+  const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
+    useState(false)
+  const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -461,6 +465,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       bg: 'rgb(43, 43, 43)',
     },
   })
+
+  const removeItem = () => {
+    if (!linkToRemove) {
+      return
+    }
+
+    props.actionHandler('delete', linkToRemove)
+    setLinkToRemove(undefined)
+    setShowRemoveLinkConfirmation(false)
+  }
 
   return (
     <>
@@ -589,7 +603,12 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                   item={linkedItem.node}
                   viewer={viewerData.me}
                   handleAction={(action: LinkedItemCardAction) => {
-                    props.actionHandler(action, linkedItem)
+                    if (action === 'delete') {
+                      setShowRemoveLinkConfirmation(true)
+                      setLinkToRemove(linkedItem)
+                    } else {
+                      props.actionHandler(action, linkedItem)
+                    }
                   }}
                 />
               )}
@@ -673,6 +692,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               props.setSnoozeTarget(undefined)
             }
           }}
+        />
+      )}
+      {showRemoveLinkConfirmation && (
+        <ConfirmationModal
+          message={'Are you sure you want to remove this link?'}
+          onAccept={removeItem}
+          onOpenChange={() => setShowRemoveLinkConfirmation(false)}
         />
       )}
     </>

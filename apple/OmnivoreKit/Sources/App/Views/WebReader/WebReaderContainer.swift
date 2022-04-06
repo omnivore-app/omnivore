@@ -36,7 +36,7 @@ struct WebReaderContainerView: View {
       let messageBody = message.body as? [String: Double]
 
       if let messageBody = messageBody, let progress = messageBody["progress"] {
-        homeFeedViewModel.updateProgress(itemID: item.id, progress: Double(progress))
+        homeFeedViewModel.uncommittedReadingProgressUpdates[item.id] = Double(progress)
       }
     }
 
@@ -56,7 +56,7 @@ struct WebReaderContainerView: View {
     if message.name == WebViewAction.readingProgressUpdate.rawValue {
       guard let messageBody = message.body as? [String: Double] else { return }
       guard let progress = messageBody["progress"] else { return }
-      homeFeedViewModel.updateProgress(itemID: item.id, progress: Double(progress))
+      homeFeedViewModel.uncommittedReadingProgressUpdates[item.id] = Double(progress)
     }
   }
 
@@ -204,7 +204,7 @@ struct WebReaderContainerView: View {
               Color.systemBackground
                 .transition(.opacity)
                 .onAppear {
-                  DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
                     withAnimation(.linear(duration: 0.2)) {
                       showOverlay = false
                     }

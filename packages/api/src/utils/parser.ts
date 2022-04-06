@@ -286,6 +286,7 @@ export const parsePreparedContent = async (
       title: article?.title || jsonLdLinkMetadata.title,
       previewImage: article?.previewImage || jsonLdLinkMetadata.previewImage,
       siteName: article?.siteName || jsonLdLinkMetadata.siteName,
+      siteIcon: article?.siteIcon,
       byline: article?.byline || jsonLdLinkMetadata.byline,
     })
     logRecord.parseSuccess = true

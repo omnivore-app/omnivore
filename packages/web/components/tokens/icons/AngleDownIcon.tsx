@@ -1,15 +1,17 @@
 import { config } from '../stitches.config'
 
 type AngleDownIconProps = {
-  color?: string
+  color?: string;
+  width?: number;
+  height?: number
 }
 
-export function AngleDownIcon(props: AngleDownIconProps): JSX.Element {
-  const strokeColor = props.color || config.theme.colors.graySolid
+export function AngleDownIcon({color, height, width}: AngleDownIconProps): JSX.Element {
+  const strokeColor = color || config.theme.colors.graySolid
   return (
     <svg
-      width='9'
-      height='6'
+      width={width ?? '9'}
+      height={height ?? '6'}
       viewBox="0 0 9 6"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

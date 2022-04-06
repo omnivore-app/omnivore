@@ -142,6 +142,7 @@ export interface Page {
   archivedAt?: Date | null
   siteName?: string
   _id?: string
+  siteIcon?: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const

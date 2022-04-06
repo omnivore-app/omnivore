@@ -30,12 +30,22 @@ describe('isProbablyNewsletter', () => {
 
 describe('findNewsletterUrl', async () => {
   it('gets the URL from the header if it is a substack newsletter', async () => {
+    nock('https://newsletter.slowchinese.net')
+    .head('/p/companies-that-eat-people-217?token=eyJ1c2VyX2lkIjoxMTU0MzM0NSwicG9zdF9pZCI6NDg3MjA5NDAsImlhdCI6MTY0NTI1NzQ1MSwiaXNzIjoicHViLTI4MDUzMSIsInN1YiI6InBvc3QtcmVhY3Rpb24ifQ.l5F3Kx6K9tvy9cRAXx3MepobQBCJDJQgAxOpA0INIZA')
+    .reply(200, '');
     const html = load('./test/utils/data/substack-forwarded-newsletter.html')
     const url = await findNewsletterUrl(html)
     // Not sure if the redirects from substack expire, this test could eventually fail
     expect(url).to.startWith('https://newsletter.slowchinese.net/p/companies-that-eat-people-217')
   })
   it('gets the URL from the header if it is a beehiiv newsletter', async () => {
+    nock('https://u23463625.ct.sendgrid.net')
+    .head('/ss/c/AX1lEgEQaxtvFxLaVo0GBo_geajNrlI1TGeIcmMViR3pL3fEDZnbbkoeKcaY62QZk0KPFudUiUXc_uMLerV4nA/3k5/3TFZmreTR0qKSCgowABnVg/h30/zzLik7UXd1H_n4oyd5W8Xu639AYQQB2UXz-CsssSnno')
+    .reply(302, undefined,{
+      'Location': 'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
+    })
+    .get('/p/talked-guy-spent-30m-beeple')
+    .reply(200, '');
     const html = load('./test/utils/data/beehiiv-newsletter.html')
     const url = await findNewsletterUrl(html)
     expect(url).to.startWith('https://www.milkroad.com/p/talked-guy-spent-30m-beeple')
