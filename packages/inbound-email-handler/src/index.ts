@@ -31,10 +31,10 @@ const NEWSLETTER_HANDLERS = [
 export const getNewsletterHandler = (
   rawUrl: string,
   from: string,
-  rawUnSubUrl: string
+  unSubRawUrl: string
 ): NewsletterHandler | undefined => {
   return NEWSLETTER_HANDLERS.find((h) => {
-    return h.isNewsletter(rawUrl, from, rawUnSubUrl)
+    return h.isNewsletter(rawUrl, from, unSubRawUrl)
   })
 }
 
@@ -73,12 +73,12 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         ? forwardedAddress.toString()
         : parsed.to
       const rawUrl = headers['list-post'] ? headers['list-post'].toString() : ''
-      const rawUnSubUrl = headers['list-unsubscribe']
+      const unSubRawUrl = headers['list-unsubscribe']
         ? headers['list-unsubscribe'].toString()
         : ''
 
       // check if it is a forwarding confirmation email or newsletter
-      const newsletterHandler = getNewsletterHandler(rawUrl, from, rawUnSubUrl)
+      const newsletterHandler = getNewsletterHandler(rawUrl, from, unSubRawUrl)
       try {
         if (newsletterHandler) {
           console.log('handleNewsletter', from, recipientAddress)

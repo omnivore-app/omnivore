@@ -15,7 +15,7 @@ export class SubstackHandler extends NewsletterHandler {
       : undefined
   }
 
-  isNewsletter(rawUrl: string, _from: string, rawUnSubUrl: string): boolean {
-    return !!rawUrl || !!rawUnSubUrl
+  isNewsletter(rawUrl: string, _from: string, _unSubRawUrl: string): boolean {
+    return !!rawUrl
   }
 }

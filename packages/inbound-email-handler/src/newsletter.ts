@@ -15,10 +15,10 @@ export class NewsletterHandler {
   protected urlRegex = /NEWSLETTER_URL_REGEX/
   protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
 
-  isNewsletter(rawUrl: string, from: string, rawUnSubUrl: string): boolean {
+  isNewsletter(rawUrl: string, from: string, unSubRawUrl: string): boolean {
     // Axios newsletter is from <xx@axios.com>
     const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!rawUrl || !!rawUnSubUrl)
+    return re.test(from) && (!!rawUrl || !!unSubRawUrl)
   }
 
   getNewsletterUrl(_rawUrl: string, html: string): string | undefined {
