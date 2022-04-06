@@ -38,15 +38,12 @@ export async function updateLabelMutation(
   `
 
   try {
-    console.log('here', input)
     const data = await gqlFetcher(mutation)
-    console.log('here 3')
     console.log(input, data);
     const output = data as any
     console.log(output)
     return output?.updatedLabel
   } catch (err) {
-    console.log('here 3', err)
     return undefined
   }
 }
