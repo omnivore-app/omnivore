@@ -18,36 +18,36 @@ struct ApplyLabelsView: View {
       } else {
         List {
           Section(header: Text("Assigned Labels")) {
-            if viewModel.selectedLabels.isEmpty {
+            if viewModel.selectedLabelsForItemInContext.isEmpty {
               Text("No labels are currently assigned.")
             }
-            ForEach(viewModel.selectedLabels, id: \.self) { label in
+            ForEach(viewModel.selectedLabelsForItemInContext, id: \.self) { label in
               HStack {
                 TextChip(feedItemLabel: label)
                 Spacer()
                 Button(
                   action: {
                     withAnimation {
-                      viewModel.removeLabel(label)
+                      viewModel.removeLabelFromItem(label)
                     }
                   },
-                  label: { Image(systemName: "trash") }
+                  label: { Image(systemName: "trash").foregroundColor(.appGrayTextContrast) }
                 )
               }
             }
           }
           Section(header: Text("Available Labels")) {
-            ForEach(viewModel.unselectedLabels, id: \.self) { label in
+            ForEach(viewModel.unselectedLabelsForItemInContext, id: \.self) { label in
               HStack {
                 TextChip(feedItemLabel: label)
                 Spacer()
                 Button(
                   action: {
                     withAnimation {
-                      viewModel.addLabel(label)
+                      viewModel.addLabelToItem(label)
                     }
                   },
-                  label: { Image(systemName: "plus") }
+                  label: { Image(systemName: "plus").foregroundColor(.appGrayTextContrast) }
                 )
               }
             }
@@ -58,7 +58,7 @@ struct ApplyLabelsView: View {
               label: {
                 HStack {
                   Image(systemName: "plus.circle.fill").foregroundColor(.green)
-                  Text("Create a new Label")
+                  Text("Create a new Label").foregroundColor(.appGrayTextContrast)
                   Spacer()
                 }
               }
@@ -72,18 +72,18 @@ struct ApplyLabelsView: View {
           ToolbarItem(placement: .navigationBarLeading) {
             Button(
               action: { presentationMode.wrappedValue.dismiss() },
-              label: { Text("Cancel") }
+              label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
             )
           }
           ToolbarItem(placement: .navigationBarTrailing) {
             Button(
               action: {
-                viewModel.saveChanges(itemID: item.id, dataService: dataService) { labels in
+                viewModel.saveItemLabelChanges(itemID: item.id, dataService: dataService) { labels in
                   commitLabelChanges(labels)
                   presentationMode.wrappedValue.dismiss()
                 }
               },
-              label: { Text("Save") }
+              label: { Text("Save").foregroundColor(.appGrayTextContrast) }
             )
           }
         }
@@ -93,7 +93,7 @@ struct ApplyLabelsView: View {
       }
     }
     .onAppear {
-      viewModel.load(item: item, dataService: dataService)
+      viewModel.loadLabelForItem(item: item, dataService: dataService)
     }
   }
 }

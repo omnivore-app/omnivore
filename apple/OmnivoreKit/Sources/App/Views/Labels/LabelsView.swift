@@ -52,7 +52,7 @@ struct LabelsView: View {
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new Label")
+              Text("Create a new Label").foregroundColor(.appGrayTextContrast)
               Spacer()
             }
           }
