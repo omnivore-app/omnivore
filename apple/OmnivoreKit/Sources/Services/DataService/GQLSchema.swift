@@ -2970,8 +2970,11 @@ extension Objects {
     let savedByViewer: [String: Bool]
     let shareInfo: [String: Objects.LinkShareInfo]
     let sharedComment: [String: String]
+    let siteIcon: [String: String]
+    let siteName: [String: String]
     let slug: [String: String]
     let title: [String: String]
+    let uploadFileId: [String: String]
     let url: [String: String]
 
     enum TypeName: String, Codable {
@@ -3088,11 +3091,23 @@ extension Objects.Article: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "siteIcon":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "siteName":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "slug":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "title":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "uploadFileId":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -3134,8 +3149,11 @@ extension Objects.Article: Decodable {
     savedByViewer = map["savedByViewer"]
     shareInfo = map["shareInfo"]
     sharedComment = map["sharedComment"]
+    siteIcon = map["siteIcon"]
+    siteName = map["siteName"]
     slug = map["slug"]
     title = map["title"]
+    uploadFileId = map["uploadFileId"]
     url = map["url"]
   }
 }
@@ -3585,6 +3603,51 @@ extension Fields where TypeLock == Objects.Article {
       return try selection.decode(data: data.labels[field.alias!])
     case .mocking:
       return selection.mock()
+    }
+  }
+
+  func uploadFileId() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "uploadFileId",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.uploadFileId[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func siteName() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "siteName",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.siteName[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func siteIcon() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "siteIcon",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.siteIcon[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 }
@@ -10784,7 +10847,7 @@ extension Fields where TypeLock == Objects.Label {
     }
   }
 
-  func createdAt() throws -> DateTime {
+  func createdAt() throws -> DateTime? {
     let field = GraphQLField.leaf(
       name: "createdAt",
       arguments: []
@@ -10793,12 +10856,9 @@ extension Fields where TypeLock == Objects.Label {
 
     switch response {
     case let .decoding(data):
-      if let data = data.createdAt[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.createdAt[field.alias!]
     case .mocking:
-      return DateTime.mockValue
+      return nil
     }
   }
 }
@@ -16779,6 +16839,10 @@ extension Enums {
   /// SortBy
   enum SortBy: String, CaseIterable, Codable {
     case updatedTime = "UPDATED_TIME"
+
+    case score = "SCORE"
+
+    case savedAt = "SAVED_AT"
   }
 }
 
@@ -16956,6 +17020,8 @@ extension Enums {
     case payloadTooLarge = "PAYLOAD_TOO_LARGE"
 
     case uploadFileMissing = "UPLOAD_FILE_MISSING"
+
+    case elasticError = "ELASTIC_ERROR"
   }
 }
 

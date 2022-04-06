@@ -4,32 +4,23 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContent, ServerError> {
+  func labelsPublisher() -> AnyPublisher<[FeedItemLabel], ServerError> {
     enum QueryResult {
-      case success(result: ArticleContent)
+      case success(result: [FeedItemLabel])
       case error(error: String)
     }
 
-    let articleSelection = Selection.Article {
-      ArticleContent(
-        htmlContent: try $0.content(),
-        highlights: try $0.highlights(selection: highlightSelection.list)
-      )
-    }
-
-    let selection = Selection<QueryResult, Unions.ArticleResult> {
-      try $0.on(
-        articleSuccess: .init {
-          QueryResult.success(result: try $0.article(selection: articleSelection))
-        },
-        articleError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
-        }
-      )
+    let selection = Selection<QueryResult, Unions.LabelsResult> {
+      try $0.on(labelsSuccess: .init {
+        QueryResult.success(result: try $0.labels(selection: feedItemLabelSelection.list))
+      },
+      labelsError: .init {
+        QueryResult.error(error: try $0.errorCodes().description)
+      })
     }
 
     let query = Selection.Query {
-      try $0.article(username: username, slug: slug, selection: selection)
+      try $0.labels(selection: selection)
     }
 
     let path = appEnvironment.graphqlPath

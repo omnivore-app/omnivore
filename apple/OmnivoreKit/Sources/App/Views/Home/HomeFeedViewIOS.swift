@@ -167,6 +167,11 @@ import Views
             }
           }
         }
+        .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+          ApplyLabelsView(item: item) { labels in
+            viewModel.updateLabels(itemID: item.id, labels: labels)
+          }
+        }
       }
     }
   }
@@ -323,6 +328,8 @@ import Views
       case .delete:
         itemToRemove = item
         confirmationShown = true
+      case .editLabels:
+        viewModel.itemUnderLabelEdit = item
       }
     }
 

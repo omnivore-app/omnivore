@@ -28,6 +28,7 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
   public let slug: String
   public let isArchived: Bool
   public let contentReader: String?
+  public var labels: [FeedItemLabel]
 
   public init(
     id: String,
@@ -46,7 +47,8 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     publishDate: Date?,
     slug: String,
     isArchived: Bool,
-    contentReader: String?
+    contentReader: String?,
+    labels: [FeedItemLabel]
   ) {
     self.id = id
     self.title = title
@@ -65,10 +67,12 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     self.slug = slug
     self.isArchived = isArchived
     self.contentReader = contentReader
+    self.labels = labels
   }
 
   enum CodingKeys: String, CodingKey {
-    case id, title, createdAt, savedAt, image, isArchived, readingProgressPercent, readingProgressAnchorIndex, slug, contentReader, url
+    // swiftlint:disable:next line_length
+    case id, title, createdAt, savedAt, image, isArchived, readingProgressPercent, readingProgressAnchorIndex, slug, contentReader, url, labels
   }
 
   public init(from decoder: Decoder) throws {
@@ -85,6 +89,7 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     contentReader = try container.decode(String.self, forKey: .contentReader)
     pageURLString = try container.decode(String.self, forKey: .url)
     isArchived = try container.decode(Bool.self, forKey: .isArchived)
+    labels = try container.decode([FeedItemLabel].self, forKey: .labels)
 
     self.onDeviceImageURLString = nil
     self.documentDirectoryPath = nil

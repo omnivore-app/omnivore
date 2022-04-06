@@ -14,6 +14,7 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var items = [FeedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
+  @Published var itemUnderLabelEdit: FeedItem?
   var cursor: String?
   var sendProgressUpdates = false
 
@@ -180,6 +181,13 @@ final class HomeFeedViewModel: ObservableObject {
     guard sendProgressUpdates, let item = items.first(where: { $0.id == itemID }) else { return }
     if let index = items.firstIndex(of: item) {
       items[index].readingProgress = progress
+    }
+  }
+
+  func updateLabels(itemID: String, labels: [FeedItemLabel]) {
+    guard let item = items.first(where: { $0.id == itemID }) else { return }
+    if let index = items.firstIndex(of: item) {
+      items[index].labels = labels
     }
   }
 }
