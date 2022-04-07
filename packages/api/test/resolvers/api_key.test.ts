@@ -24,7 +24,7 @@ describe('generate api key', () => {
     await deleteTestUser(username)
   })
 
-  it('should return api key', async () => {
+  it('should return api key which could be used to make api calls', async () => {
     const query = `
       mutation {
         generateApiKey {
@@ -38,6 +38,10 @@ describe('generate api key', () => {
       }
     `
     const response = await graphqlRequest(query, authToken).expect(200)
+
     expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
+
+    const apiKey = response.body.data.generateApiKey.apiKey
+    return graphqlRequest(query, apiKey).expect(200)
   })
 })
