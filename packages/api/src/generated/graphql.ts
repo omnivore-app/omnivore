@@ -521,6 +521,22 @@ export type FeedArticlesSuccess = {
   pageInfo: PageInfo;
 };
 
+export type GenerateApiKeyError = {
+  __typename?: 'GenerateApiKeyError';
+  errorCodes: Array<GenerateApiKeyErrorCode>;
+};
+
+export enum GenerateApiKeyErrorCode {
+  BadRequest = 'BAD_REQUEST'
+}
+
+export type GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess;
+
+export type GenerateApiKeySuccess = {
+  __typename?: 'GenerateApiKeySuccess';
+  apiKey: Scalars['String'];
+};
+
 export type GetFollowersError = {
   __typename?: 'GetFollowersError';
   errorCodes: Array<GetFollowersErrorCode>;
@@ -771,6 +787,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteReaction: DeleteReactionResult;
   deleteReminder: DeleteReminderResult;
+  generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
   login: LoginResult;
@@ -863,6 +880,11 @@ export type MutationDeleteReactionArgs = {
 
 export type MutationDeleteReminderArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationGenerateApiKeyArgs = {
+  scope?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -1957,6 +1979,10 @@ export type ResolversTypes = {
   FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
+  GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
+  GenerateApiKeyResult: ResolversTypes['GenerateApiKeyError'] | ResolversTypes['GenerateApiKeySuccess'];
+  GenerateApiKeySuccess: ResolverTypeWrapper<GenerateApiKeySuccess>;
   GetFollowersError: ResolverTypeWrapper<GetFollowersError>;
   GetFollowersErrorCode: GetFollowersErrorCode;
   GetFollowersResult: ResolversTypes['GetFollowersError'] | ResolversTypes['GetFollowersSuccess'];
@@ -2215,6 +2241,9 @@ export type ResolversParentTypes = {
   FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: FeedArticlesSuccess;
   Float: Scalars['Float'];
+  GenerateApiKeyError: GenerateApiKeyError;
+  GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
+  GenerateApiKeySuccess: GenerateApiKeySuccess;
   GetFollowersError: GetFollowersError;
   GetFollowersResult: ResolversParentTypes['GetFollowersError'] | ResolversParentTypes['GetFollowersSuccess'];
   GetFollowersSuccess: GetFollowersSuccess;
@@ -2722,6 +2751,20 @@ export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GenerateApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyError'] = ResolversParentTypes['GenerateApiKeyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GenerateApiKeyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GenerateApiKeyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyResult'] = ResolversParentTypes['GenerateApiKeyResult']> = {
+  __resolveType: TypeResolveFn<'GenerateApiKeyError' | 'GenerateApiKeySuccess', ParentType, ContextType>;
+};
+
+export type GenerateApiKeySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeySuccess'] = ResolversParentTypes['GenerateApiKeySuccess']> = {
+  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GetFollowersErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetFollowersError'] = ResolversParentTypes['GetFollowersError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['GetFollowersErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2916,6 +2959,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
   deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
+  generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, Partial<MutationGenerateApiKeyArgs>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
@@ -3465,6 +3509,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   FeedArticlesError?: FeedArticlesErrorResolvers<ContextType>;
   FeedArticlesResult?: FeedArticlesResultResolvers<ContextType>;
   FeedArticlesSuccess?: FeedArticlesSuccessResolvers<ContextType>;
+  GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
+  GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
+  GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
   GetFollowersError?: GetFollowersErrorResolvers<ContextType>;
   GetFollowersResult?: GetFollowersResultResolvers<ContextType>;
   GetFollowersSuccess?: GetFollowersSuccessResolvers<ContextType>;

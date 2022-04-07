@@ -1355,6 +1355,20 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union GenerateApiKeyResult = GenerateApiKeySuccess | GenerateApiKeyError
+
+  type GenerateApiKeySuccess {
+    apiKey: String!
+  }
+
+  type GenerateApiKeyError {
+    errorCodes: [GenerateApiKeyErrorCode!]!
+  }
+
+  enum GenerateApiKeyErrorCode {
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1414,6 +1428,7 @@ const schema = gql`
     login(input: LoginInput!): LoginResult!
     signup(input: SignupInput!): SignupResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
+    generateApiKey(scope: String): GenerateApiKeyResult!
   }
 
   # FIXME: remove sort from feedArticles after all cahced tabs are closed
