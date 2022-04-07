@@ -49,6 +49,11 @@ import Views
           .onSubmit(of: .search) {
             viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
           }
+          .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+            ApplyLabelsView(item: item) { labels in
+              viewModel.updateLabels(itemID: item.id, labels: labels)
+            }
+          }
         } else {
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
@@ -58,6 +63,11 @@ import Views
             itemToSnooze: $itemToSnooze,
             viewModel: viewModel
           )
+          .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+            ApplyLabelsView(item: item) { labels in
+              viewModel.updateLabels(itemID: item.id, labels: labels)
+            }
+          }
           .toolbar {
             ToolbarItem {
               if viewModel.isLoading {
@@ -165,11 +175,6 @@ import Views
                 }
               )
             }
-          }
-        }
-        .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(item: item) { labels in
-            viewModel.updateLabels(itemID: item.id, labels: labels)
           }
         }
       }
