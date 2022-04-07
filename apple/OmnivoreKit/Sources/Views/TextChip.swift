@@ -24,13 +24,9 @@ public struct TextChip: View {
       .padding(.horizontal, 10)
       .padding(.vertical, 5)
       .font(.appFootnote)
-      .foregroundColor(color)
+      .foregroundColor(color.isDark ? .white : .black)
       .lineLimit(1)
-      .background(color.opacity(0.1))
+      .background(color)
       .cornerRadius(cornerRadius)
-      .overlay(
-        RoundedRectangle(cornerRadius: cornerRadius)
-          .stroke(color.opacity(0.3), lineWidth: 1)
-      )
   }
 }
