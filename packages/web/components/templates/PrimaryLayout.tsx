@@ -62,7 +62,14 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <Box css={{ bg: '$grayBase', height: '100vh', width: '100vw' }}>
+      <Box css={{
+        height: '100vh',
+        width: '100vw',
+        bg: 'transparent',
+        '@smDown': {
+          bg: '$grayBase',
+        }
+      }}>
         <PrimaryHeader
           user={viewerData?.me}
           hideHeader={props.hideHeader}

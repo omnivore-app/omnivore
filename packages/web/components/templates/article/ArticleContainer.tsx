@@ -32,18 +32,32 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const [margin, setMargin] = useState(props.margin ?? 140)
   const [labels, setLabels] = useState(
     props.article.labels?.map((l) => l.id) || []
   )
 
   const updateFontSize = async (newFontSize: number) => {
-    setFontSize(newFontSize)
-    await userPersonalizationMutation({ fontSize: newFontSize })
+    if (fontSize !== newFontSize) {
+      setFontSize(newFontSize)
+      await userPersonalizationMutation({ fontSize: newFontSize })
+    }
+  }
+
+  const updateMargin = async (newMargin: number) => {
+    if (margin !== newMargin) {
+      setMargin(newMargin)
+      await userPersonalizationMutation({ margin: newMargin })
+    }
   }
 
   useEffect(() => {
     updateFontSize(props.fontSize ?? 20)
   }, [props.fontSize])
+
+  useEffect(() => {
+    updateMargin(props.margin ?? 140)
+  }, [props.margin])
 
   // Listen for font size and color mode change events sent from host apps (ios, macos...)
   useEffect(() => {
@@ -101,6 +115,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         css={{
           padding: '16px',
           maxWidth: '94%',
+          background: props.isAppleAppEmbed ? 'unset' : theme.colors.grayBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `150%`,
@@ -112,12 +127,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '--font-color-transparent': styles.readerFontColorTransparent,
           '--table-header-color': styles.readerTableHeaderColor,
           '--headers-color': styles.readerHeadersColor,
+          margin: `30px 0px`,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',
             '--figure-margin': '2.6875rem auto',
             '--hr-margin': '2em',
-            margin: `30px ${styles.margin / 2}px`,
+            margin: `30px 0px`,
           },
           '@md': {
             maxWidth: '92%',
@@ -125,7 +141,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '@lg': {
             margin: `30px 0`,
             width: 'auto',
-            maxWidth: 1024 - styles.margin,
+            maxWidth: 1024 - (styles.margin),
           },
         }}
       >

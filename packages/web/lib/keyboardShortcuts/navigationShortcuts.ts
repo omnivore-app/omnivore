@@ -207,6 +207,8 @@ type ArticleKeyboardAction =
   | 'openOriginalArticle'
   | 'incrementFontSize'
   | 'decrementFontSize'
+  | 'incrementMarginWidth'
+  | 'decrementMarginWidth'
   | 'editLabels'
 
 export function articleKeyboardCommands(
@@ -237,6 +239,18 @@ export function articleKeyboardCommands(
       actionDescription: 'Decrease font size',
       shortcutKeyDescription: '-',
       callback: () => actionHandler('decrementFontSize'),
+    },
+    {
+      shortcutKeys: [']'],
+      actionDescription: 'Increase margin width',
+      shortcutKeyDescription: ']',
+      callback: () => actionHandler('incrementMarginWidth'),
+    },
+    {
+      shortcutKeys: ['['],
+      actionDescription: 'Decrease margin width',
+      shortcutKeyDescription: '[',
+      callback: () => actionHandler('decrementMarginWidth'),
     },
     {
       shortcutKeys: ['l'],

@@ -23,6 +23,7 @@ import Script from 'next/script'
 import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
+import { theme } from '../../../components/tokens/stitches.config'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -45,12 +46,16 @@ export default function Home(): JSX.Element {
   const { preferencesData } = useGetUserPreferences()
   const article = articleData?.article.article
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
+  const [marginWidth, setMarginWidth] = useState(preferencesData?.fontSize ?? 20)
 
   useKeyboardShortcuts(navigationCommands(router))
 
   const updateFontSize = async (newFontSize: number) => {
     setFontSize(newFontSize)
-    await userPersonalizationMutation({ fontSize: newFontSize })
+  }
+
+  const updateMarginWidth = async (newMargin: number) => {
+    setMarginWidth(newMargin)
   }
 
   useKeyboardShortcuts(
@@ -67,6 +72,12 @@ export default function Home(): JSX.Element {
           break
         case 'decrementFontSize':
           await updateFontSize(Math.max(fontSize - 2, 10))
+          break
+        case 'incrementMarginWidth':
+          updateMarginWidth(Math.min(marginWidth + 50, 560))
+          break
+        case 'decrementMarginWidth':
+          updateMarginWidth(Math.max(marginWidth - 50, 0))
           break
         case 'editLabels':
           if (viewerData?.me && isVipUser(viewerData?.me)) {
@@ -108,6 +119,11 @@ export default function Home(): JSX.Element {
             distribution="center"
             ref={scrollRef}
             className="disable-webkit-callout"
+            css={{
+              '@smDown': {
+                background: theme.colors.grayBg.toString(),
+              }
+            }}
             >
               <ArticleContainer
                 article={article}
@@ -116,6 +132,7 @@ export default function Home(): JSX.Element {
                 highlightBarDisabled={false}
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
                 fontSize={fontSize}
+                margin={marginWidth}
                 articleMutations={{
                   createHighlightMutation,
                   deleteHighlightMutation,
