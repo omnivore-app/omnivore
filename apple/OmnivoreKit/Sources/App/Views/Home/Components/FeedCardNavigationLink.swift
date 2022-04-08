@@ -8,8 +8,6 @@ struct FeedCardNavigationLink: View {
 
   let item: FeedItem
 
-  @Binding var selectedLinkItem: FeedItem?
-
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
@@ -17,7 +15,7 @@ struct FeedCardNavigationLink: View {
       NavigationLink(
         destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
         tag: item,
-        selection: $selectedLinkItem
+        selection: $viewModel.selectedLinkItem
       ) {
         EmptyView()
       }
@@ -39,7 +37,6 @@ struct GridCardNavigationLink: View {
   let item: FeedItem
   let actionHandler: (GridCardAction) -> Void
 
-  @Binding var selectedLinkItem: FeedItem?
   @Binding var isContextMenuOpen: Bool
 
   @ObservedObject var viewModel: HomeFeedViewModel
@@ -49,7 +46,7 @@ struct GridCardNavigationLink: View {
       NavigationLink(
         destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
         tag: item,
-        selection: $selectedLinkItem
+        selection: $viewModel.selectedLinkItem
       ) {
         EmptyView()
       }
@@ -58,7 +55,7 @@ struct GridCardNavigationLink: View {
           scale = 0.95
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
             scale = 1.0
-            selectedLinkItem = item
+            viewModel.selectedLinkItem = item
           }
         }
       })

@@ -17,7 +17,8 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var itemUnderLabelEdit: FeedItem?
   @Published var searchQuery = ""
   @Published var snoozePresented = false
-  @Published var itemToSnooze: FeedItem?
+  @Published var itemToSnooze: FeedItem? // TODO: maybe combine itemToSnooze and snoozePresented?
+  @Published var selectedLinkItem: FeedItem?
 
   var cursor: String?
   var sendProgressUpdates = false

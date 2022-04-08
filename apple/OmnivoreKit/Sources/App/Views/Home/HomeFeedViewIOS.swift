@@ -10,7 +10,6 @@ import Views
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
-    @State private var selectedLinkItem: FeedItem?
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
@@ -18,7 +17,6 @@ import Views
         if #available(iOS 15.0, *) {
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
-            selectedLinkItem: $selectedLinkItem,
             viewModel: viewModel
           )
           .refreshable {
@@ -51,7 +49,6 @@ import Views
         } else {
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
-            selectedLinkItem: $selectedLinkItem,
             viewModel: viewModel
           )
           .sheet(item: $viewModel.itemUnderLabelEdit) { item in
@@ -76,14 +73,14 @@ import Views
       .navigationTitle("Home")
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
-        if selectedLinkItem == nil {
+        if viewModel.selectedLinkItem == nil {
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
         if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
           viewModel.pushFeedItem(item: feedItem)
-          self.selectedLinkItem = feedItem
+          viewModel.selectedLinkItem = feedItem
         }
       }
       .formSheet(isPresented: $viewModel.snoozePresented) {
@@ -101,7 +98,7 @@ import Views
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
-      .onChange(of: selectedLinkItem) { _ in
+      .onChange(of: viewModel.selectedLinkItem) { _ in
         viewModel.commitProgressUpdates()
       }
     }
@@ -111,54 +108,46 @@ import Views
     @EnvironmentObject var dataService: DataService
 
     @Binding var prefersListLayout: Bool
-    @Binding var selectedLinkItem: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
       if prefersListLayout {
-        HomeFeedListView(
-          prefersListLayout: $prefersListLayout,
-          selectedLinkItem: $selectedLinkItem,
-          viewModel: viewModel
-        )
+        HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
       } else {
-        HomeFeedGridView(
-          selectedLinkItem: $selectedLinkItem,
-          viewModel: viewModel
-        )
-        .toolbar {
-          ToolbarItem {
-            if #available(iOS 15.0, *) {
-              Button("", action: {})
-                .disabled(true)
-                .overlay {
-                  if viewModel.isLoading {
-                    ProgressView()
+        HomeFeedGridView(viewModel: viewModel)
+          .toolbar {
+            ToolbarItem {
+              if #available(iOS 15.0, *) {
+                Button("", action: {})
+                  .disabled(true)
+                  .overlay {
+                    if viewModel.isLoading {
+                      ProgressView()
+                    }
                   }
-                }
-            } else {
-              if viewModel.isLoading {
-                Button(action: {}, label: { ProgressView() })
               } else {
+                if viewModel.isLoading {
+                  Button(action: {}, label: { ProgressView() })
+                } else {
+                  Button(
+                    action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
+                    label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                  )
+                }
+              }
+            }
+            ToolbarItem {
+              if UIDevice.isIPad {
                 Button(
-                  action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
-                  label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                  action: { prefersListLayout.toggle() },
+                  label: {
+                    Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                  }
                 )
               }
             }
           }
-          ToolbarItem {
-            if UIDevice.isIPad {
-              Button(
-                action: { prefersListLayout.toggle() },
-                label: {
-                  Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                }
-              )
-            }
-          }
-        }
       }
     }
   }
@@ -166,7 +155,6 @@ import Views
   struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
-    @Binding var selectedLinkItem: FeedItem?
 
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
@@ -179,7 +167,6 @@ import Views
           ForEach(viewModel.items) { item in
             let link = FeedCardNavigationLink(
               item: item,
-              selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
             .contextMenu {
@@ -293,7 +280,6 @@ import Views
 
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
-    @Binding var selectedLinkItem: FeedItem?
 
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
@@ -320,7 +306,6 @@ import Views
             let link = GridCardNavigationLink(
               item: item,
               actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-              selectedLinkItem: $selectedLinkItem,
               isContextMenuOpen: $isContextMenuOpen,
               viewModel: viewModel
             )

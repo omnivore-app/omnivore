@@ -9,7 +9,6 @@ import Views
 #if os(macOS)
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-    @State private var selectedLinkItem: FeedItem?
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
 
@@ -30,7 +29,6 @@ import Views
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
-              selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
             .contextMenu {
@@ -127,7 +125,6 @@ import Views
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
-              selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
           }
