@@ -4,65 +4,6 @@ import Services
 import SwiftUI
 import Views
 
-final class LabelsViewModel: ObservableObject {
-  private var hasLoadedInitialLabels = false
-  @Published var isLoading = false
-  @Published var labels = [FeedItemLabel]()
-  @Published var showCreateEmailModal = false
-
-  var subscriptions = Set<AnyCancellable>()
-
-  func loadLabels(dataService: DataService) {
-    guard !hasLoadedInitialLabels else { return }
-    isLoading = true
-
-    dataService.labelsPublisher().sink(
-      receiveCompletion: { _ in },
-      receiveValue: { [weak self] result in
-        self?.isLoading = false
-        self?.labels = result
-        self?.hasLoadedInitialLabels = true
-      }
-    )
-    .store(in: &subscriptions)
-  }
-
-  func createLabel(dataService: DataService, name: String, color: Color, description: String?) {
-    isLoading = true
-
-    dataService.createLabelPublisher(
-      name: name,
-      color: color.hex ?? "",
-      description: description
-    ).sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] result in
-        self?.isLoading = false
-        self?.labels.insert(result, at: 0)
-        self?.showCreateEmailModal = false
-      }
-    )
-    .store(in: &subscriptions)
-  }
-
-  func deleteLabel(dataService: DataService, labelID: String) {
-    isLoading = true
-
-    dataService.removeLabelPublisher(labelID: labelID).sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] _ in
-        self?.isLoading = false
-        self?.labels.removeAll { $0.id == labelID }
-      }
-    )
-    .store(in: &subscriptions)
-  }
-}
-
 struct LabelsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = LabelsViewModel()
@@ -100,7 +41,7 @@ struct LabelsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .onAppear { viewModel.loadLabels(dataService: dataService) }
+    .onAppear { viewModel.loadLabels(dataService: dataService, item: nil) }
   }
 
   private var innerBody: some View {
@@ -111,7 +52,7 @@ struct LabelsView: View {
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new Label")
+              Text("Create a new Label").foregroundColor(.appGrayTextContrast)
               Spacer()
             }
           }
@@ -123,7 +64,7 @@ struct LabelsView: View {
         Section(header: Text("Labels")) {
           ForEach(viewModel.labels, id: \.id) { label in
             HStack {
-              Text(label.name)
+              TextChip(feedItemLabel: label)
               Spacer()
               Button(
                 action: {

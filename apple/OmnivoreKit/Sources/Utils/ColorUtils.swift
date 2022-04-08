@@ -45,8 +45,7 @@ public extension Color {
   }
 
   private func toHex() -> String? {
-    let uic = UIColor(self)
-    guard let components = uic.cgColor.components, components.count >= 3 else {
+    guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
       return nil
     }
     let red = Float(components[0])
@@ -59,5 +58,14 @@ public extension Color {
       lroundf(green * 255),
       lroundf(blue * 255)
     )
+  }
+
+  var isDark: Bool {
+    guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
+      return false
+    }
+
+    let lum = 0.2126 * Float(components[0]) + 0.7152 * Float(components[1]) + 0.0722 * Float(components[2])
+    return lum < 0.50
   }
 }
