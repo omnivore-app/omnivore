@@ -158,6 +158,7 @@ export default function Home(): JSX.Element {
         >
           <ArticleActionsMenu
             layout='vertical'
+            userPreferences={preferencesData}
             articleActionHandler={actionHandler}
           />
         </VStack>

@@ -13,7 +13,6 @@ import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
-import { TextAa } from 'phosphor-react'
 
 type ArticleContainerProps = {
   article: ArticleAttributes

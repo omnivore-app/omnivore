@@ -18,9 +18,11 @@ import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Minus, Pen, Plus, Trash } from 'phosphor-react'
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
+import { UserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 
 type ReaderSettingsProps = {
-
+  userPreferences?: UserPreferences
+  articleActionHandler: (action: string, arg?: number) => void
 }
 
 export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
@@ -34,40 +36,42 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
       <HStack 
         alignment='center'
         css={{
-        width: '265px',
-        height: '70px',
-        borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
-      }}>
-        <Button style='plainIcon' onClick={() => {}}>
+          width: '265px',
+          height: '70px',
+          borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
+        }}
+      >
+        <Button style='plainIcon' onClick={() => props.articleActionHandler('decrementFontSize')}>
           <AIcon size={28} color={theme.colors.readerFont.toString()} />
           <Minus size={28} color={theme.colors.readerFont.toString()}/>
         </Button>
         <VerticalDivider />
-        <Button style='plainIcon' onClick={() => {}}>
+        <Button style='plainIcon' onClick={() => props.articleActionHandler('incrementFontSize')}>
           <AIcon size={44} color={theme.colors.readerFont.toString()} />
           <Plus size={28} color={theme.colors.readerFont.toString()} />
         </Button>
       </HStack>
-      <VStack css={{
-        p: '0px',
-        m: '0px',
-        pb: '8px',
-        width: '100%',
-        height: '100%',
-        borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
-      }}>
+      <VStack
+        css={{
+          p: '0px',
+          m: '0px',
+          pb: '14px',
+          width: '100%',
+          height: '100%',
+        }}
+      >
         <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Margin:</StyledText>
         <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
-          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
+          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => props.articleActionHandler('decrementMarginWidth')}>
             <ArrowsInLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
           </Button>
-          <TickedRangeSlider value={14} onChange={() => {}} />
-          <Button style='plainIcon'  css={{ pt: '10px', px: '4px' }}>
+          <TickedRangeSlider min={10} max={28} value={props.userPreferences.margin} onChange={() => {}} />
+          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => props.articleActionHandler('incrementMarginWidth')}>
             <ArrowsOutLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
           </Button>
         </HStack>
       </VStack>
-      <VStack css={{
+      {/* <VStack css={{
         p: '0px',
         m: '0px',
         pb: '12px',
@@ -84,7 +88,7 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
         </HStack>
-      </VStack>
+      </VStack> */}
     </VStack>
   )
 }

@@ -1,5 +1,6 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
+import { UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
@@ -10,6 +11,7 @@ export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
 type ArticleActionsMenuProps = {
   layout: ArticleActionsMenuLayout
+  userPreferences?: UserPreferences
   articleActionHandler: (action: string, arg?: number) => void
 }
 
@@ -54,7 +56,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         }
         css={{  m: '0px', p: '0px', outlineStyle: 'solid', outlineWidth: '1px', outlineColor: theme.colors.grayLine.toString() }}
       >
-        <ReaderSettings />
+        <ReaderSettings userPreferences={props.userPreferences} articleActionHandler={props.articleActionHandler} />
       </Dropdown>
 
       <MenuSeparator layout={props.layout} />

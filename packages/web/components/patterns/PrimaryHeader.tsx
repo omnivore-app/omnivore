@@ -195,7 +195,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
   mr: '16px',
   }}
 >
-        <ArticleActionsMenu layout='horizontal' />
+        {/* <ArticleActionsMenu layout='horizontal' /> */}
 
       </HStack>
 
