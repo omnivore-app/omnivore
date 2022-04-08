@@ -19,6 +19,16 @@ export interface SearchBody {
             }
           }
         | {
+            range: {
+              savedAt: { gt: Date | undefined } | { lt: Date | undefined }
+            }
+          }
+        | {
+            range: {
+              publishedAt: { gt: Date | undefined } | { lt: Date | undefined }
+            }
+          }
+        | {
             nested: {
               path: 'labels'
               query: {

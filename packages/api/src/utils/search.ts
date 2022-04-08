@@ -31,6 +31,8 @@ export type SearchFilter = {
   labelFilters: LabelFilter[]
   sortParams?: SortParams
   hasFilters: HasFilter[]
+  savedDateFilter?: DateRangeFilter
+  publishedDateFilter?: DateRangeFilter
 }
 
 export enum LabelFilterType {
@@ -46,6 +48,11 @@ export type LabelFilter = {
 export enum HasFilter {
   HIGHLIGHTS,
   SHARED_AT,
+}
+
+export type DateRangeFilter = {
+  startDate?: Date
+  endDate?: Date
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -153,6 +160,21 @@ const parseHasFilter = (str?: string): HasFilter | undefined => {
   }
 }
 
+const parseDateRangeFilter = (str?: string): DateRangeFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  const [start, end] = str.split('..')
+  const startDate = start && start !== '*' ? new Date(start) : undefined
+  const endDate = end && end !== '*' ? new Date(end) : undefined
+
+  return {
+    startDate,
+    endDate,
+  }
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -174,7 +196,16 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   }
 
   const parsed = parse(searchQuery, {
-    keywords: ['in', 'is', 'type', 'label', 'sort', 'has'],
+    keywords: [
+      'in',
+      'is',
+      'type',
+      'label',
+      'sort',
+      'has',
+      'saved',
+      'published',
+    ],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -226,6 +257,12 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           hasFilter !== undefined && result.hasFilters.push(hasFilter)
           break
         }
+        case 'saved':
+          result.savedDateFilter = parseDateRangeFilter(keyword.value)
+          break
+        case 'published':
+          result.publishedDateFilter = parseDateRangeFilter(keyword.value)
+          break
       }
     }
   }
