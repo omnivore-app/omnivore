@@ -99,3 +99,39 @@ div#appleid-signin {
   border-bottom-color: transparent;
   border-left-color: transparent;
 }
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1px;
+  background: var(--colors-grayBorderHover);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px !important;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--colors-utilityTextContrast);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  -webkit-appearance: none;
+  width: 16px !important;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--colors-utilityTextContrast);
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--colors-grayTextContrast);
+}

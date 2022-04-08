@@ -1,20 +1,26 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
 import { Button } from "../../elements/Button"
-import { Box } from "../../elements/LayoutPrimitives"
+import { Dropdown } from "../../elements/DropdownElements"
+import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { styled, theme } from "../../tokens/stitches.config"
+import { ReaderSettings } from "./ReaderSettingsModal"
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
 type ArticleActionsMenuProps = {
   layout: ArticleActionsMenuLayout
+  articleActionHandler: (action: string, arg?: number) => void
 }
 
-export function MenuSeparator(props: ArticleActionsMenuProps) {
+type MenuSeparatorProps = {
+  layout: ArticleActionsMenuLayout
+}
+
+export function MenuSeparator(props: MenuSeparatorProps) {
   const LineSeparator = styled(Separator, {
     width: '100%',
     margin: 0,
-    backgroundColor: 'red',
     borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
     my: '8px',
   })
@@ -23,12 +29,12 @@ export function MenuSeparator(props: ArticleActionsMenuProps) {
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
   return (
+    <>
     <Box
       css={{
         display: 'flex',
-
         flexDirection: props.layout == 'vertical' ? 'column' : 'row',
-        alignItems: props.layout == 'vertical' ? 'flex-start' : 'center',
+        alignItems: 'center',
         justifyContent: props.layout == 'vertical' ? 'center' : 'flex-end',
         gap: props.layout == 'vertical' ? '8px' : '4px',
         paddingTop: '6px',
@@ -37,21 +43,40 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         m: '0px',
       }}
     >
-      <Button style='articleActionIcon'>
-        <TextAa size={24} color={theme.colors.readerFont.toString()} />
-      </Button>
+      <Dropdown
+        side='right'
+        sideOffset={18}
+        align='start'
+        triggerElement={
+          <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
+            <TextAa size={24} color={theme.colors.readerFont.toString()} />
+          </SpanBox>
+        }
+        css={{  m: '0px', p: '0px', outlineStyle: 'solid', outlineWidth: '1px', outlineColor: theme.colors.grayLine.toString() }}
+      >
+        <ReaderSettings />
+      </Dropdown>
+
       <MenuSeparator layout={props.layout} />
 
-      <Button style='articleActionIcon'>
-        <TagSimple size={24} color={theme.colors.readerFont.toString()} />
-      </Button>
+      <Dropdown
+        side='right'
+        triggerElement={
+          <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
+            <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+          </SpanBox>
+        }
+        css={{ background: 'red' }}
+      >
+        {/* <EditLabelsModal> */}
+      </Dropdown>
 
-      <Button style='articleActionIcon'>
+      <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
         <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       <MenuSeparator layout={props.layout} />
 
-      <Button style='articleActionIcon'>
+      <Button style='articleActionIcon' onClick={() => props.articleActionHandler('archive')}>
         <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       {/* <MenuSeparator layout={props.layout} />
@@ -60,5 +85,6 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}
     </Box>
+    </>
   )
 }

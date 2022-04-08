@@ -65,6 +65,7 @@ const StyledLabel = styled(Label, {
 })
 
 export type DropdownAlignment = 'start' | 'end' | 'center'
+export type DropdownSide = 'top' | 'right' | 'bottom' | 'left'
 
 type DropdownProps = {
   labelText?: string
@@ -73,6 +74,8 @@ type DropdownProps = {
   children: React.ReactNode
   styledArrow?: boolean
   align?: DropdownAlignment
+  side?: DropdownSide
+  sideOffset?: number
   disabled?: boolean
   css?: CSS
 }
@@ -108,8 +111,11 @@ export function Dropdown({
   labelText,
   showArrow = true,
   disabled = false,
+  side = 'bottom',
+  sideOffset = 0,
   css
 }: DropdownProps): JSX.Element {
+  console.log('side', side)
   return (
     <Root modal={false}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
@@ -119,6 +125,8 @@ export function Dropdown({
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}
+        side={side}
+        sideOffset={sideOffset}
         align={align ? align : 'center'}
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}

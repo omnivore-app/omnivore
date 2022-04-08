@@ -29,6 +29,8 @@ import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from 'pho
 import { Separator } from '@radix-ui/react-separator'
 import { Article } from '../../../components/templates/article/Article'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
+import { HighlightsModal } from '../../../components/templates/article/HighlightsModal'
+import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 
 const MenuSeparator = styled(Separator, {
   width: '100%',
@@ -48,6 +50,7 @@ export default function Home(): JSX.Element {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
   const [showLabelsModal, setShowLabelsModal] = useState(false)
+  const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
   // Populate data cache
   const { viewerData } = useGetViewerQuery()
@@ -73,33 +76,51 @@ export default function Home(): JSX.Element {
     setMarginWidth(newMargin)
   }
 
+  const actionHandler = async (action: string, arg?: number) => {
+    switch (action) {
+      case 'archive':
+        if (article) {
+          await setLinkArchivedMutation({
+            linkId: article.id,
+            archived: true,
+          })
+          // TODO: merge from article actions PR
+          // removeItemFromCache(cache, mutate, props.article.id)
+          router.push(`/home`)
+        }
+        break
+      case 'openOriginalArticle':
+        const url = article?.url
+        if (url) {
+          window.open(url, '_blank')
+        }
+        break
+      case 'showHighlights':
+        setShowHighlightsModal(true)
+        break
+      case 'incrementFontSize':
+        await updateFontSize(Math.min(fontSize + 2, 28))
+        break
+      case 'decrementFontSize':
+        await updateFontSize(Math.max(fontSize - 2, 10))
+        break
+      case 'incrementMarginWidth':
+        updateMarginWidth(Math.min(marginWidth + 50, 560))
+        break
+      case 'decrementMarginWidth':
+        updateMarginWidth(Math.max(marginWidth - 50, 200))
+        break
+      case 'editLabels':
+        if (viewerData?.me && isVipUser(viewerData?.me)) {
+          setShowLabelsModal(true)
+        }
+        break
+    }
+  };
+
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
-      switch (action) {
-        case 'openOriginalArticle':
-          const url = article?.url
-          if (url) {
-            window.open(url, '_blank')
-          }
-          break
-        case 'incrementFontSize':
-          await updateFontSize(Math.min(fontSize + 2, 28))
-          break
-        case 'decrementFontSize':
-          await updateFontSize(Math.max(fontSize - 2, 10))
-          break
-        case 'incrementMarginWidth':
-          updateMarginWidth(Math.min(marginWidth + 50, 560))
-          break
-        case 'decrementMarginWidth':
-          updateMarginWidth(Math.max(marginWidth - 50, 200))
-          break
-        case 'editLabels':
-          if (viewerData?.me && isVipUser(viewerData?.me)) {
-            setShowLabelsModal(true)
-          }
-          break
-      }
+      actionHandler(action)
     })
   )
 
@@ -124,19 +145,22 @@ export default function Home(): JSX.Element {
         <Toaster />
 
         <VStack distribution="between" alignment="center" css={{
-  position: 'fixed',
-  flexDirection: 'row-reverse',
-  top: '-120px',
-  left: 8,
-  height: '100%',
-  width: '48px',
-  '@lgDown': {
-    display: 'none',
-  },
-  }}
->
-        <ArticleActionsMenu layout='vertical' />
-      </VStack>
+          position: 'fixed',
+          flexDirection: 'row-reverse',
+          top: '-120px',
+          left: 8,
+          height: '100%',
+          width: '48px',
+          '@lgDown': {
+            display: 'none',
+          },
+          }}
+        >
+          <ArticleActionsMenu
+            layout='vertical'
+            articleActionHandler={actionHandler}
+          />
+        </VStack>
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR
               article={article}
@@ -170,6 +194,17 @@ export default function Home(): JSX.Element {
                   articleReadingProgressMutation,
                 }}
               />
+              </VStack>
+            )}
+            {showHighlightsModal && (
+              <HighlightsModal
+                highlights={article.highlights}
+                onOpenChange={() => setShowHighlightsModal(false)}
+                deleteHighlightAction={(highlightId: string) => {
+                  // removeHighlightCallback(highlightId)
+                }}
+              />
+            )}
               {/* {showLabelsModal && (
                 <EditLabelsModal
                   labels={article.labels || []}
@@ -182,8 +217,6 @@ export default function Home(): JSX.Element {
                   }}
                 />
               )} */}
-            </VStack>
-          )}
       </PrimaryLayout>
     )
   }

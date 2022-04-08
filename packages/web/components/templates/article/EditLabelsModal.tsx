@@ -15,7 +15,6 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { LabelChip } from '../../elements/LabelChip'
 
 type EditLabelsModalProps = {
-  labels: Label[]
   article: ArticleAttributes
   onOpenChange: (open: boolean) => void
   setLabels: (labels: Label[]) => void
