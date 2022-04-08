@@ -44,25 +44,25 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       }}
     >
       <Button style='articleActionIcon'>
-        <TextAa size={24} color='#5D5C5B' />
+        <TextAa size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       <MenuSeparator layout={props.layout} />
 
       <Button style='articleActionIcon'>
-        <TagSimple size={24} color='#5D5C5B' />
+        <TagSimple size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       <Button style='articleActionIcon'>
-        <HighlighterCircle size={24} color='#5D5C5B' />
-      </Button>
-      <MenuSeparator layout={props.layout} />
-
-      <Button style='articleActionIcon'>
-        <ArchiveBox size={24} color='#5D5C5B' />
+        <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       <MenuSeparator layout={props.layout} />
 
       <Button style='articleActionIcon'>
-        <DotsThree size={24} color='#5D5C5B' />
+        <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
+      </Button>
+      <MenuSeparator layout={props.layout} />
+
+      <Button style='articleActionIcon'>
+        <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button>
     </Box>
   )
