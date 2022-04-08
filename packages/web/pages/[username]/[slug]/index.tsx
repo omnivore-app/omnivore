@@ -27,6 +27,8 @@ import { styled, theme } from '../../../components/tokens/stitches.config'
 import { Button } from '../../../components/elements/Button'
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from 'phosphor-react'
 import { Separator } from '@radix-ui/react-separator'
+import { Article } from '../../../components/templates/article/Article'
+import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
 
 const MenuSeparator = styled(Separator, {
   width: '100%',
@@ -124,7 +126,7 @@ export default function Home(): JSX.Element {
         <VStack distribution="between" alignment="center" css={{
   position: 'fixed',
   flexDirection: 'row-reverse',
-  top: '-68px',
+  top: '-120px',
   left: 8,
   height: '100%',
   width: '48px',
@@ -133,38 +135,8 @@ export default function Home(): JSX.Element {
   },
   }}
 >
-        <VStack distribution="start" alignment="center" css={{
-  gap: '4px',
-  // background: 'red',
-  height: '200px',
-  width: '100%',
-  m: '0px',
-  }}
->
-          <Button style='plainIcon'>
-            <TextAa size={24} color='#5D5C5B' />
-          </Button>
-          <MenuSeparator />
-
-          <Button style='plainIcon'>
-            <TagSimple size={24} color='#5D5C5B' />
-          </Button>
-          <Button style='plainIcon'>
-            <HighlighterCircle size={24} color='#5D5C5B' />
-          </Button>
-          <MenuSeparator />
-
-          <Button style='plainIcon'>
-            <ArchiveBox size={24} color='#5D5C5B' />
-          </Button>
-          <MenuSeparator />
-
-          <Button style='plainIcon'>
-            <DotsThree size={24} color='#5D5C5B' />
-          </Button>
-        </VStack>
+        <ArticleActionsMenu layout='vertical' />
       </VStack>
-
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR
               article={article}

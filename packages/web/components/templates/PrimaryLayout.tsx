@@ -84,8 +84,6 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
         <Box
           ref={props.scrollElementRef}
           css={{
-            // top: '68px',
-            // '@smDown': { top: '48px' },
             position: 'fixed',
             overflowY: 'auto',
             height: '100%',
@@ -96,9 +94,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
                   <Box
           ref={props.scrollElementRef}
           css={{
-            height: '68px',
+            height: '48px',
             bg: '$grayBase',
-            '@smDown': { height: '48px' },
           }}
         ></Box>
           {props.children}
