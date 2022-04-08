@@ -64,26 +64,28 @@ struct ApplyLabelsView: View {
       }
     }
     .navigationTitle("Assign Labels")
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItem(placement: .navigationBarLeading) {
-        Button(
-          action: { presentationMode.wrappedValue.dismiss() },
-          label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
-        )
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarLeading) {
+          Button(
+            action: { presentationMode.wrappedValue.dismiss() },
+            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+          )
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button(
+            action: {
+              viewModel.saveItemLabelChanges(itemID: item.id, dataService: dataService) { labels in
+                commitLabelChanges(labels)
+                presentationMode.wrappedValue.dismiss()
+              }
+            },
+            label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+          )
+        }
       }
-      ToolbarItem(placement: .navigationBarTrailing) {
-        Button(
-          action: {
-            viewModel.saveItemLabelChanges(itemID: item.id, dataService: dataService) { labels in
-              commitLabelChanges(labels)
-              presentationMode.wrappedValue.dismiss()
-            }
-          },
-          label: { Text("Save").foregroundColor(.appGrayTextContrast) }
-        )
-      }
-    }
+    #endif
     .sheet(isPresented: $viewModel.showCreateEmailModal) {
       CreateLabelView(viewModel: viewModel)
     }
@@ -93,17 +95,20 @@ struct ApplyLabelsView: View {
     NavigationView {
       if viewModel.isLoading {
         EmptyView()
-
       } else {
-        if #available(iOS 15.0, *) {
+        #if os(iOS)
+          if #available(iOS 15.0, *) {
+            innerBody
+              .searchable(
+                text: $labelSearchFilter,
+                placement: .navigationBarDrawer(displayMode: .always)
+              )
+          } else {
+            innerBody
+          }
+        #else
           innerBody
-            .searchable(
-              text: $labelSearchFilter,
-              placement: .navigationBarDrawer(displayMode: .always)
-            )
-        } else {
-          innerBody
-        }
+        #endif
       }
     }
     .onAppear {

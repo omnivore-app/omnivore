@@ -45,9 +45,17 @@ public extension Color {
   }
 
   private func toHex() -> String? {
-    guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
-      return nil
-    }
+    #if os(iOS)
+      guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
+        return nil
+      }
+    #endif
+
+    #if os(macOS)
+      guard let components = NSColor(self).cgColor.components, components.count >= 3 else {
+        return nil
+      }
+    #endif
     let red = Float(components[0])
     let green = Float(components[1])
     let blue = Float(components[2])
@@ -61,9 +69,17 @@ public extension Color {
   }
 
   var isDark: Bool {
-    guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
-      return false
-    }
+    #if os(iOS)
+      guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
+        return false
+      }
+    #endif
+
+    #if os(macOS)
+      guard let components = NSColor(self).cgColor.components, components.count >= 3 else {
+        return false
+      }
+    #endif
 
     let lum = 0.2126 * Float(components[0]) + 0.7152 * Float(components[1]) + 0.0722 * Float(components[2])
     return lum < 0.50
