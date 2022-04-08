@@ -9,7 +9,6 @@ import Views
 #if os(macOS)
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-    @State var searchQuery = ""
     @State private var selectedLinkItem: FeedItem?
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
@@ -82,17 +81,17 @@ import Views
       .listStyle(PlainListStyle())
       .navigationTitle("Home")
       .searchable(
-        text: $searchQuery,
+        text: $viewModel.searchQuery,
         placement: .toolbar
       ) {
-        if searchQuery.isEmpty {
+        if viewModel.searchQuery.isEmpty {
           Text("Inbox").searchCompletion("in:inbox ")
           Text("All").searchCompletion("in:all ")
           Text("Archived").searchCompletion("in:archive ")
           Text("Files").searchCompletion("type:file ")
         }
       }
-      .onChange(of: searchQuery) { _ in
+      .onChange(of: viewModel.searchQuery) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
         viewModel.loadItems(dataService: dataService, isRefresh: true)
