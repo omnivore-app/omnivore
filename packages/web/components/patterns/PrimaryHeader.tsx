@@ -159,15 +159,16 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           zIndex: 5,
           width: '100%',
           boxShadow: props.isDisplayingShadow ? '$panelShadow' : 'unset',
-          bg: '$grayBase',
           p: '0px $3 0px $3',
           height: '68px',
           position: 'fixed',
-          minHeight: '68px',
+          bg: 'transparent',
           '@smDown': {
             height: '48px',
-            minHeight: '48px',
             p: '0px 18px 0px 16px',
+          },
+          '@lgDown': {
+            bg: '$grayBase',
           },
         }}
       >
