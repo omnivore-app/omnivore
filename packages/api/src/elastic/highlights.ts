@@ -7,7 +7,7 @@ import {
 } from './types'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 import { client, INDEX_ALIAS } from './index'
-import { SortBy, SortOrder, SortParams } from '../generated/graphql'
+import { SortBy, SortOrder, SortParams } from '../utils/search'
 
 export const addHighlightToPage = async (
   id: string,
@@ -144,10 +144,10 @@ export const searchHighlights = async (
 ): Promise<[SearchItem[], number] | undefined> => {
   try {
     const { from = 0, size = 10, sort, query } = args
-    const sortOrder = sort?.order === SortOrder.Ascending ? 'asc' : 'desc'
+    const sortOrder = sort?.order || SortOrder.DESCENDING
     // default sort by updatedAt
     const sortField =
-      sort?.by === SortBy.Score ? '_score' : 'highlights.updatedAt'
+      sort?.by === SortBy.SCORE ? SortBy.SCORE : 'highlights.updatedAt'
 
     const searchBody = {
       query: {
