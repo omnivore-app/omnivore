@@ -13,7 +13,7 @@ public enum FeatureFlag {
   public static let enableRemindersFromShareExtension = false
   public static let enablePushNotifications = false
   public static let enableShareButton = false
-  public static let enableSnooze = true
+  public static let enableSnooze = false
   public static let enableLabels = true
   public static let useLocalWebView = true
 }
