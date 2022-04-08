@@ -96,8 +96,10 @@ struct CreateLabelView: View {
     NavigationView {
       VStack(spacing: 16) {
         TextField("Label Name", text: $newLabelName)
+        #if os(iOS)
           .keyboardType(.alphabet)
-          .textFieldStyle(StandardTextFieldStyle())
+        #endif
+        .textFieldStyle(StandardTextFieldStyle())
         ColorPicker(
           newLabelColor == .clear ? "Select Color" : newLabelColor.description,
           selection: $newLabelColor
@@ -130,7 +132,9 @@ struct CreateLabelView: View {
         }
       }
       .navigationTitle("Create New Label")
-      .navigationBarTitleDisplayMode(.inline)
+      #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+      #endif
     }
   }
 }

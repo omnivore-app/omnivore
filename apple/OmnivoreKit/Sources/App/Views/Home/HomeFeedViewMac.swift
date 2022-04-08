@@ -33,7 +33,6 @@ import Views
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
-              searchQuery: searchQuery,
               selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
@@ -96,16 +95,16 @@ import Views
       .onChange(of: searchQuery) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
-        viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+        viewModel.loadItems(dataService: dataService, isRefresh: true)
       }
       .onSubmit(of: .search) {
-        viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+        viewModel.loadItems(dataService: dataService, isRefresh: true)
       }
       .toolbar {
         ToolbarItem {
           Button(
             action: {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+              viewModel.loadItems(dataService: dataService, isRefresh: true)
             },
             label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
           )
@@ -120,7 +119,7 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
     }
@@ -131,7 +130,6 @@ import Views
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
-              searchQuery: searchQuery,
               selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
@@ -148,7 +146,7 @@ import Views
         ToolbarItem {
           Button(
             action: {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+              viewModel.loadItems(dataService: dataService, isRefresh: true)
             },
             label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
           )
@@ -156,7 +154,7 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
     }
