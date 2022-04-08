@@ -15,7 +15,8 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: FeedItem?
-  @Published var searchQuery = ""
+  @Published var searchTerm = ""
+  @Published var selectedLabels = [FeedItemLabel]()
   @Published var snoozePresented = false
   @Published var itemToSnooze: FeedItem?
   @Published var selectedLinkItem: FeedItem?
@@ -68,7 +69,7 @@ final class HomeFeedViewModel: ObservableObject {
     dataService.libraryItemsPublisher(
       limit: 10,
       sortDescending: true,
-      searchQuery: searchQuery.isEmpty ? nil : searchQuery,
+      searchQuery: searchQuery,
       cursor: isRefresh ? nil : cursor
     )
     .sink(
@@ -194,5 +195,19 @@ final class HomeFeedViewModel: ObservableObject {
     if let index = items.firstIndex(of: item) {
       items[index].labels = labels
     }
+  }
+
+  private var searchQuery: String? {
+    if searchTerm.isEmpty, selectedLabels.isEmpty {
+      return nil
+    }
+
+    var query = searchTerm
+
+    for label in selectedLabels {
+      query.append(" label:\(label.name)")
+    }
+
+    return query
   }
 }
