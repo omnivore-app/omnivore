@@ -862,6 +862,7 @@ export const searchResolver = authorized<
         originalArticleUrl: r.url,
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
+        pageType: r.pageType || PageType.Highlights,
       } as SearchItem,
       cursor: endCursor,
     }
