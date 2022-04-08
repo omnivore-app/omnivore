@@ -1,22 +1,30 @@
-import { ReactNode, useEffect } from 'react'
-import { useState, useRef } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { SearchIcon } from '../../elements/images/SearchIcon'
 import { theme } from '../../tokens/stitches.config'
-import { DropdownOption, Dropdown } from '../../elements/DropdownElements'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button } from '../../elements/Button'
 import { X } from 'phosphor-react'
+import { DateTime } from 'luxon'
 
 type LibrarySearchBarProps = {
   searchTerm?: string
   applySearchQuery: (searchQuery: string) => void
 }
 
-type LibraryFilter = 'in:inbox' | 'in:all' | 'in:archive' | 'type:file'
+type LibraryFilter =
+  | 'in:inbox'
+  | 'in:all'
+  | 'in:archive'
+  | 'type:file'
+  | 'type:highlights'
+  | `saved:${string}`
+
+const recentlySavedStartDate = DateTime.now().minus({ days: 7 }).toISODate()
 
 const FOCUSED_BOXSHADOW = '0px 0px 2px 2px rgba(255, 234, 159, 0.56)'
 
@@ -151,6 +159,16 @@ export function DropdownFilterMenu(
       <DropdownOption
         onSelect={() => props.onFilterChange('type:file')}
         title="Files"
+        hideSeparator
+      />
+      <DropdownOption
+        onSelect={() => props.onFilterChange('type:highlights')}
+        title="Highlights"
+        hideSeparator
+      />
+      <DropdownOption
+        onSelect={() => props.onFilterChange(`saved:${recentlySavedStartDate}`)}
+        title="Recently Saved"
         hideSeparator
       />
     </Dropdown>
