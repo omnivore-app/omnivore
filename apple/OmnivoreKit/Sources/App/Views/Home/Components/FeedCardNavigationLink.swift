@@ -7,7 +7,6 @@ struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
 
   let item: FeedItem
-  let searchQuery: String
 
   @Binding var selectedLinkItem: FeedItem?
 
@@ -25,7 +24,7 @@ struct FeedCardNavigationLink: View {
       .opacity(0)
       .buttonStyle(PlainButtonStyle())
       .onAppear {
-        viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
+        viewModel.itemAppeared(item: item, dataService: dataService)
       }
       FeedCard(item: item)
     }
@@ -38,7 +37,6 @@ struct GridCardNavigationLink: View {
   @State private var scale = 1.0
 
   let item: FeedItem
-  let searchQuery: String
   let actionHandler: (GridCardAction) -> Void
 
   @Binding var selectedLinkItem: FeedItem?
@@ -65,7 +63,7 @@ struct GridCardNavigationLink: View {
         }
       })
         .onAppear {
-          viewModel.itemAppeared(item: item, searchQuery: searchQuery, dataService: dataService)
+          viewModel.itemAppeared(item: item, dataService: dataService)
         }
     }
     .aspectRatio(1.8, contentMode: .fill)
