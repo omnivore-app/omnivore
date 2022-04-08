@@ -10,7 +10,6 @@ import Views
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
-    @State private var itemToSnooze: FeedItem?
     @State private var selectedLinkItem: FeedItem?
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -20,7 +19,6 @@ import Views
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
             selectedLinkItem: $selectedLinkItem,
-            itemToSnooze: $itemToSnooze,
             viewModel: viewModel
           )
           .refreshable {
@@ -54,7 +52,6 @@ import Views
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
             selectedLinkItem: $selectedLinkItem,
-            itemToSnooze: $itemToSnooze,
             viewModel: viewModel
           )
           .sheet(item: $viewModel.itemUnderLabelEdit) { item in
@@ -90,7 +87,7 @@ import Views
         }
       }
       .formSheet(isPresented: $viewModel.snoozePresented) {
-        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnooze: $itemToSnooze) {
+        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnooze: $viewModel.itemToSnooze) {
           viewModel.snoozeUntil(
             dataService: dataService,
             linkId: $0.feedItemId,
@@ -115,7 +112,6 @@ import Views
 
     @Binding var prefersListLayout: Bool
     @Binding var selectedLinkItem: FeedItem?
-    @Binding var itemToSnooze: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -124,13 +120,11 @@ import Views
         HomeFeedListView(
           prefersListLayout: $prefersListLayout,
           selectedLinkItem: $selectedLinkItem,
-          itemToSnooze: $itemToSnooze,
           viewModel: viewModel
         )
       } else {
         HomeFeedGridView(
           selectedLinkItem: $selectedLinkItem,
-          itemToSnooze: $itemToSnooze,
           viewModel: viewModel
         )
         .toolbar {
@@ -173,7 +167,6 @@ import Views
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
     @Binding var selectedLinkItem: FeedItem?
-    @Binding var itemToSnooze: FeedItem?
 
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
@@ -209,7 +202,7 @@ import Views
               )
               if FeatureFlag.enableSnooze {
                 Button {
-                  itemToSnooze = item
+                  viewModel.itemToSnooze = item
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
@@ -262,7 +255,7 @@ import Views
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                   if FeatureFlag.enableSnooze {
                     Button {
-                      itemToSnooze = item
+                      viewModel.itemToSnooze = item
                       viewModel.snoozePresented = true
                     } label: {
                       Label { Text("Snooze") } icon: { Image.moon }
@@ -301,7 +294,6 @@ import Views
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var selectedLinkItem: FeedItem?
-    @Binding var itemToSnooze: FeedItem?
 
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
