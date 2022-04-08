@@ -976,6 +976,8 @@ type SearchItem {
   pageType: PageType!
   publishedAt: Date
   quote: String
+  readingProgressAnchorIndex: Int
+  readingProgressPercent: Float
   shortId: String
   slug: String!
   title: String!

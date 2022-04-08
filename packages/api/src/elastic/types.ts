@@ -203,6 +203,9 @@ export interface SearchItem {
   uploadFileId?: string | null
   url: string
   archivedAt?: Date | null
+  readingProgressPercent?: number
+  readingProgressAnchorIndex?: number
+  userId: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const

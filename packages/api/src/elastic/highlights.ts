@@ -165,14 +165,14 @@ export const searchHighlights = async (
               should: [
                 {
                   multi_match: {
-                    query,
+                    query: query || '',
                     fields: ['highlights.quote', 'highlights.annotation'],
                     operator: 'and',
                     type: 'cross_fields',
                   },
                 },
               ],
-              minimum_should_match: 1,
+              minimum_should_match: query ? 1 : 0,
             },
           },
           inner_hits: {},

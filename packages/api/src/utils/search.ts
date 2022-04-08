@@ -27,7 +27,7 @@ export type SearchFilter = {
   query: string | undefined
   inFilter: InFilter
   readFilter: ReadFilter
-  typeFilter?: PageType | undefined
+  typeFilter?: PageType
   labelFilters: LabelFilter[]
   sortParams?: SortParams
   hasFilters: HasFilter[]
