@@ -12,7 +12,6 @@ import Views
     @State private var selectedLinkItem: FeedItem?
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
-    @State private var snoozePresented = false
     @State private var itemToSnooze: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -54,7 +53,7 @@ import Views
               if FeatureFlag.enableSnooze {
                 Button {
                   itemToSnooze = item
-                  snoozePresented = true
+                  viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
                 }

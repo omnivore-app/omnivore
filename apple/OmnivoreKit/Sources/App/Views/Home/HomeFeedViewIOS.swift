@@ -10,7 +10,6 @@ import Views
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
-    @State private var snoozePresented = false
     @State private var itemToSnooze: FeedItem?
     @State private var selectedLinkItem: FeedItem?
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -21,7 +20,6 @@ import Views
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
             selectedLinkItem: $selectedLinkItem,
-            snoozePresented: $snoozePresented,
             itemToSnooze: $itemToSnooze,
             viewModel: viewModel
           )
@@ -56,7 +54,6 @@ import Views
           HomeFeedView(
             prefersListLayout: $prefersListLayout,
             selectedLinkItem: $selectedLinkItem,
-            snoozePresented: $snoozePresented,
             itemToSnooze: $itemToSnooze,
             viewModel: viewModel
           )
@@ -92,8 +89,8 @@ import Views
           self.selectedLinkItem = feedItem
         }
       }
-      .formSheet(isPresented: $snoozePresented) {
-        SnoozeView(snoozePresented: $snoozePresented, itemToSnooze: $itemToSnooze) {
+      .formSheet(isPresented: $viewModel.snoozePresented) {
+        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnooze: $itemToSnooze) {
           viewModel.snoozeUntil(
             dataService: dataService,
             linkId: $0.feedItemId,
@@ -118,7 +115,6 @@ import Views
 
     @Binding var prefersListLayout: Bool
     @Binding var selectedLinkItem: FeedItem?
-    @Binding var snoozePresented: Bool
     @Binding var itemToSnooze: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -128,14 +124,12 @@ import Views
         HomeFeedListView(
           prefersListLayout: $prefersListLayout,
           selectedLinkItem: $selectedLinkItem,
-          snoozePresented: $snoozePresented,
           itemToSnooze: $itemToSnooze,
           viewModel: viewModel
         )
       } else {
         HomeFeedGridView(
           selectedLinkItem: $selectedLinkItem,
-          snoozePresented: $snoozePresented,
           itemToSnooze: $itemToSnooze,
           viewModel: viewModel
         )
@@ -179,7 +173,6 @@ import Views
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
     @Binding var selectedLinkItem: FeedItem?
-    @Binding var snoozePresented: Bool
     @Binding var itemToSnooze: FeedItem?
 
     @State private var itemToRemove: FeedItem?
@@ -217,7 +210,7 @@ import Views
               if FeatureFlag.enableSnooze {
                 Button {
                   itemToSnooze = item
-                  snoozePresented = true
+                  viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
                 }
@@ -270,7 +263,7 @@ import Views
                   if FeatureFlag.enableSnooze {
                     Button {
                       itemToSnooze = item
-                      snoozePresented = true
+                      viewModel.snoozePresented = true
                     } label: {
                       Label { Text("Snooze") } icon: { Image.moon }
                     }.tint(.appYellow48)
@@ -308,7 +301,6 @@ import Views
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
     @Binding var selectedLinkItem: FeedItem?
-    @Binding var snoozePresented: Bool
     @Binding var itemToSnooze: FeedItem?
 
     @State private var itemToRemove: FeedItem?

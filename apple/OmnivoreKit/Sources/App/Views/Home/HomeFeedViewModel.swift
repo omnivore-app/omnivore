@@ -16,6 +16,7 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: FeedItem?
   @Published var searchQuery = ""
+  @Published var snoozePresented = false
 
   var cursor: String?
   var sendProgressUpdates = false
