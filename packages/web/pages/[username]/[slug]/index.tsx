@@ -141,25 +141,25 @@ export default function Home(): JSX.Element {
   m: '0px',
   }}
 >
-          <Button onClick={() => {}} style='plainIcon'>
+          <Button style='plainIcon'>
             <TextAa size={24} color='#5D5C5B' />
           </Button>
           <MenuSeparator />
 
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <TagSimple size={24} color='#5D5C5B' />
           </Button>
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <HighlighterCircle size={24} color='#5D5C5B' />
           </Button>
-          <MenuSeparator css={{ width: '100%',  }}/>
+          <MenuSeparator />
 
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <ArchiveBox size={24} color='#5D5C5B' />
           </Button>
-          <MenuSeparator css={{ width: '100%', backgroundColor: '#D3D3D3' }}/>
+          <MenuSeparator />
 
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <DotsThree size={24} color='#5D5C5B' />
           </Button>
         </VStack>

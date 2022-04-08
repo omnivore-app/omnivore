@@ -202,22 +202,22 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
   m: '0px',
   }}
 >
-          <Button onClick={() => {}} style='plainIcon'>
+          <Button style='plainIcon'>
             <TextAa size={24} color='#5D5C5B' />
           </Button>
 
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <TagSimple size={24} color='#5D5C5B' />
           </Button>
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <HighlighterCircle size={24} color='#5D5C5B' />
           </Button>
 
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <ArchiveBox size={24} color='#5D5C5B' />
           </Button>
 
-          <Button style='plainIcon' onClick={() => {}} >
+          <Button style='plainIcon'>
             <DotsThree size={24} color='#5D5C5B' />
           </Button>
         </HStack>
