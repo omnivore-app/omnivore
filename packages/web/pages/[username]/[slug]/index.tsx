@@ -23,7 +23,18 @@ import Script from 'next/script'
 import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
-import { theme } from '../../../components/tokens/stitches.config'
+import { styled, theme } from '../../../components/tokens/stitches.config'
+import { Button } from '../../../components/elements/Button'
+import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from 'phosphor-react'
+import { Separator } from '@radix-ui/react-separator'
+
+const MenuSeparator = styled(Separator, {
+  width: '100%',
+  margin: 0,
+  backgroundColor: 'red',
+  borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
+  my: '8px',
+})
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -46,15 +57,17 @@ export default function Home(): JSX.Element {
   const { preferencesData } = useGetUserPreferences()
   const article = articleData?.article.article
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
-  const [marginWidth, setMarginWidth] = useState(preferencesData?.fontSize ?? 20)
+  const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
 
   useKeyboardShortcuts(navigationCommands(router))
 
   const updateFontSize = async (newFontSize: number) => {
     setFontSize(newFontSize)
+    await userPersonalizationMutation({ fontSize: newFontSize })
   }
 
   const updateMarginWidth = async (newMargin: number) => {
+    console.log('margin', newMargin)
     setMarginWidth(newMargin)
   }
 
@@ -77,7 +90,7 @@ export default function Home(): JSX.Element {
           updateMarginWidth(Math.min(marginWidth + 50, 560))
           break
         case 'decrementMarginWidth':
-          updateMarginWidth(Math.max(marginWidth - 50, 0))
+          updateMarginWidth(Math.max(marginWidth - 50, 200))
           break
         case 'editLabels':
           if (viewerData?.me && isVipUser(viewerData?.me)) {
@@ -107,6 +120,50 @@ export default function Home(): JSX.Element {
           src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
         />
         <Toaster />
+
+        <VStack distribution="between" alignment="center" css={{
+  position: 'fixed',
+  flexDirection: 'row-reverse',
+  top: '-68px',
+  left: 8,
+  height: '100%',
+  width: '48px',
+  '@lgDown': {
+    display: 'none',
+  },
+  }}
+>
+        <VStack distribution="start" alignment="center" css={{
+  gap: '4px',
+  // background: 'red',
+  height: '200px',
+  width: '100%',
+  m: '0px',
+  }}
+>
+          <Button onClick={() => {}} style='plainIcon'>
+            <TextAa size={24} color='#5D5C5B' />
+          </Button>
+          <MenuSeparator />
+
+          <Button style='plainIcon' onClick={() => {}} >
+            <TagSimple size={24} color='#5D5C5B' />
+          </Button>
+          <Button style='plainIcon' onClick={() => {}} >
+            <HighlighterCircle size={24} color='#5D5C5B' />
+          </Button>
+          <MenuSeparator css={{ width: '100%',  }}/>
+
+          <Button style='plainIcon' onClick={() => {}} >
+            <ArchiveBox size={24} color='#5D5C5B' />
+          </Button>
+          <MenuSeparator css={{ width: '100%', backgroundColor: '#D3D3D3' }}/>
+
+          <Button style='plainIcon' onClick={() => {}} >
+            <DotsThree size={24} color='#5D5C5B' />
+          </Button>
+        </VStack>
+      </VStack>
 
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR

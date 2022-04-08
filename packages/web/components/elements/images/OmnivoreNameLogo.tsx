@@ -2,6 +2,7 @@ import { config } from '../../tokens/stitches.config'
 import Image from 'next/image'
 import { StyledText } from '../../elements/StyledText'
 import Link from 'next/link'
+import { SpanBox } from '../LayoutPrimitives'
 
 export function OmnivoreNameLogoImage(): JSX.Element {
   return (
@@ -51,7 +52,7 @@ export function OmnivoreNameLogo(props: OmnivoreNameLogoProps): JSX.Element {
     <Link passHref href={href}>
       <a style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
         <OmnivoreLogoIcon size={27} strokeColor={fillColor}></OmnivoreLogoIcon>
-        <StyledText style="logoTitle" css={{ color: fillColor, paddingLeft: '12px' }}>Omnivore</StyledText>
+        {/* <StyledText style="logoTitle" css={{ color: fillColor, paddingLeft: '12px' }}>Omnivore</StyledText> */}
       </a>
     </Link>
   )

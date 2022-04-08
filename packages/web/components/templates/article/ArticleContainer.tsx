@@ -13,6 +13,7 @@ import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { TextAa } from 'phosphor-react'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -32,7 +33,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
-  const [margin, setMargin] = useState(props.margin ?? 140)
+  const [margin, setMargin] = useState(props.margin ?? 360)
   const [labels, setLabels] = useState(
     props.article.labels?.map((l) => l.id) || []
   )
@@ -99,7 +100,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   }, [props.article])
 
   const styles = {
-    margin: props.margin ?? 140,
+    margin: props.margin ?? 360,
     fontSize,
     fontFamily: props.fontFamily ?? 'inter',
     readerFontColor: theme.colors.readerFont.toString(),
@@ -114,7 +115,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '16px',
-          maxWidth: '94%',
+          maxWidth: '100%',
           background: props.isAppleAppEmbed ? 'unset' : theme.colors.grayBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
@@ -127,7 +128,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           '--font-color-transparent': styles.readerFontColorTransparent,
           '--table-header-color': styles.readerTableHeaderColor,
           '--headers-color': styles.readerHeadersColor,
-          margin: `30px 0px`,
           '@sm': {
             '--blockquote-padding': '1em 2em',
             '--blockquote-icon-font-size': '1.7rem',
@@ -136,7 +136,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: '92%',
+            maxWidth: 1024 - (styles.margin),
           },
           '@lg': {
             margin: `30px 0`,

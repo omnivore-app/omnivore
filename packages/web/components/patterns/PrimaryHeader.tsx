@@ -17,7 +17,7 @@ import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
 import { Button } from '../elements/Button'
 import Link from 'next/link'
-import { ArrowSquareOut } from 'phosphor-react'
+import { ArchiveBox, ArrowSquareOut, DotsThree, HighlighterCircle, TagSimple, TextAa } from 'phosphor-react'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -183,12 +183,53 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           </Box>
           <NavLinks currentPath={currentPath} isLoggedIn={!!props.username} />
         </HStack>
+
+        <HStack distribution="end" alignment="center" css={{
+  height: '100%',
+  width: '100%',
+  display: 'none',
+  '@lgDown': {
+    display: 'flex',
+  },
+  mr: '16px',
+  }}
+>
+        <HStack distribution="end" alignment="center" css={{
+  gap: '4px',
+  // background: 'red',
+  height: '100%',
+  width: '100%',
+  m: '0px',
+  }}
+>
+          <Button onClick={() => {}} style='plainIcon'>
+            <TextAa size={24} color='#5D5C5B' />
+          </Button>
+
+          <Button style='plainIcon' onClick={() => {}} >
+            <TagSimple size={24} color='#5D5C5B' />
+          </Button>
+          <Button style='plainIcon' onClick={() => {}} >
+            <HighlighterCircle size={24} color='#5D5C5B' />
+          </Button>
+
+          <Button style='plainIcon' onClick={() => {}} >
+            <ArchiveBox size={24} color='#5D5C5B' />
+          </Button>
+
+          <Button style='plainIcon' onClick={() => {}} >
+            <DotsThree size={24} color='#5D5C5B' />
+          </Button>
+        </HStack>
+      </HStack>
+
+
         {props.username ? (
           <HStack
             alignment="center"
             css={{ display: 'flex', alignItems: 'center' }}
           >
-            <Box css={{ '@smDown': { visibility: 'collapse' } }}>
+            {/* <Box css={{ '@smDown': { visibility: 'collapse' } }}>
               <a href="https://github.com/omnivore-app/omnivore" target='_blank' rel="noreferrer">
                 <Button style="ctaLightGray" css={{ background: 'unset', mr: '32px' }}>
                   <HStack css={{ height: '100%' }}>
@@ -202,7 +243,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
                   </HStack>
                 </Button>
               </a>
-            </Box>
+            </Box> */}
             <DropdownMenu
               username={props.username}
               triggerElement={
