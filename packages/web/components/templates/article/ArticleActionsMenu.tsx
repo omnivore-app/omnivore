@@ -48,9 +48,9 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       }}
     >
       <Dropdown
-        side='right'
-        sideOffset={18}
-        align='start'
+        side={props.layout == 'vertical' ? 'right' : 'bottom'}
+        sideOffset={props.layout == 'vertical' ? 8 : 0}
+        align={props.layout == 'vertical' ? 'start' : 'center'}
         triggerElement={
           <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
             <TextAa size={24} color={theme.colors.readerFont.toString()} />
@@ -64,9 +64,10 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       <MenuSeparator layout={props.layout} />
 
       <Dropdown
-        side='right'
-        sideOffset={18}
-        align='start'
+        side={props.layout == 'vertical' ? 'right' : 'bottom'}
+        sideOffset={props.layout == 'vertical' ? 8 : 0}
+        showArrow={true}
+        align={props.layout == 'vertical' ? 'start' : 'center'}
         triggerElement={
           <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
             <TagSimple size={24} color={theme.colors.readerFont.toString()} />
