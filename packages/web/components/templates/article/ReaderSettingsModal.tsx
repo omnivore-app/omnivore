@@ -36,8 +36,9 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
       <HStack 
         alignment='center'
         css={{
-          width: '265px',
+          width: '100%',
           height: '70px',
+          minWidth: '265px',
           borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
         }}
       >
@@ -65,7 +66,9 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => props.articleActionHandler('decrementMarginWidth')}>
             <ArrowsInLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
           </Button>
-          <TickedRangeSlider min={10} max={28} value={props.userPreferences?.margin || 0} onChange={() => {}} />
+          <TickedRangeSlider min={10} max={28} value={props.userPreferences?.margin || 0} onChange={() => {
+            console.log('range changed')
+          }} />
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => props.articleActionHandler('incrementMarginWidth')}>
             <ArrowsOutLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
           </Button>

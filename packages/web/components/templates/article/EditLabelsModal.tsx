@@ -241,7 +241,8 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
     //   >
         <VStack distribution="start" css={{ 
           p: '0', maxHeight: '400px',
-          width: '265px',
+          width: '100%',
+          minWidth: '265px',
         }}>
           <Header setFilterText={setFilterText} filterText={filterText} />
           <LabelsList
