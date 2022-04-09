@@ -5,6 +5,7 @@ import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { styled, theme } from "../../tokens/stitches.config"
+import { EditLabelsModal } from "./EditLabelsModal"
 import { ReaderSettings } from "./ReaderSettingsModal"
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
@@ -54,7 +55,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
             <TextAa size={24} color={theme.colors.readerFont.toString()} />
           </SpanBox>
         }
-        css={{  m: '0px', p: '0px', outlineStyle: 'solid', outlineWidth: '1px', outlineColor: theme.colors.grayLine.toString() }}
+        css={{  m: '0px', p: '0px' }}
       >
         <ReaderSettings userPreferences={props.userPreferences} articleActionHandler={props.articleActionHandler} />
       </Dropdown>
@@ -63,13 +64,16 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
 
       <Dropdown
         side='right'
+        sideOffset={18}
+        align='start'
         triggerElement={
           <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
             <TagSimple size={24} color={theme.colors.readerFont.toString()} />
           </SpanBox>
         }
-        css={{ background: 'red' }}
+        css={{  m: '0px', p: '0px' }}
       >
+        <EditLabelsModal />
         {/* <EditLabelsModal> */}
       </Dropdown>
 
