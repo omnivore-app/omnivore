@@ -1,6 +1,6 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
-import { UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
+import { useGetUserPreferences, UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
@@ -12,7 +12,6 @@ export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
 type ArticleActionsMenuProps = {
   layout: ArticleActionsMenuLayout
-  userPreferences?: UserPreferences
   articleActionHandler: (action: string, arg?: number) => void
 }
 
@@ -31,6 +30,8 @@ export function MenuSeparator(props: MenuSeparatorProps) {
 }
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
+  const { preferencesData } = useGetUserPreferences()
+
   return (
     <>
     <Box
@@ -39,7 +40,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         flexDirection: props.layout == 'vertical' ? 'column' : 'row',
         alignItems: 'center',
         justifyContent: props.layout == 'vertical' ? 'center' : 'flex-end',
-        gap: props.layout == 'vertical' ? '8px' : '4px',
+        gap: props.layout == 'vertical' ? '8px' : '20px',
         paddingTop: '6px',
         height: '100%',
         width: '100%',
@@ -57,7 +58,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         }
         css={{  m: '0px', p: '0px' }}
       >
-        <ReaderSettings userPreferences={props.userPreferences} articleActionHandler={props.articleActionHandler} />
+        <ReaderSettings userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
       </Dropdown>
 
       <MenuSeparator layout={props.layout} />

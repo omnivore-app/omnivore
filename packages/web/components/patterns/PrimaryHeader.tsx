@@ -186,19 +186,17 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
         </HStack>
 
         <HStack distribution="end" alignment="center" css={{
-  height: '100%',
-  width: '100%',
-  display: 'none',
-  '@lgDown': {
-    display: 'flex',
-  },
-  mr: '16px',
-  }}
->
-        {/* <ArticleActionsMenu layout='horizontal' /> */}
-
-      </HStack>
-
+          height: '100%',
+          width: '100%',
+          display: 'none',
+          '@lgDown': {
+            display: 'flex',
+          },
+          mr: '16px',
+          }}
+        >
+          <ArticleActionsMenu layout='horizontal' articleActionHandler={() => {}} />
+        </HStack>
 
         {props.username ? (
           <HStack
