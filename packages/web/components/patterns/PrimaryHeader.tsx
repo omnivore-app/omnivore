@@ -195,7 +195,9 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           mr: '16px',
           }}
         >
-          <ArticleActionsMenu layout='horizontal' articleActionHandler={() => {}} />
+          <ArticleActionsMenu layout='horizontal' articleActionHandler={() => {
+            console.log('action handler')
+          }} />
         </HStack>
 
         {props.username ? (
