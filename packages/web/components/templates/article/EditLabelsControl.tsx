@@ -83,8 +83,7 @@ function Header(props: HeaderProps): JSX.Element {
   }, [props.focused])
 
   return (
-    <VStack css={{ width: '100%', my: '0px',        borderBottom: '1px solid $grayBorder',
-  }}>
+    <VStack css={{ width: '100%', my: '0px', borderBottom: '1px solid $grayBorder'}}>
       <Box css={{ 
         width: '100%',
         my: '14px',
@@ -97,20 +96,7 @@ function Header(props: HeaderProps): JSX.Element {
           autoFocus={!isTouchScreenDevice()}
           value={props.filterText}
           placeholder="Filter for label"
-          onFocus={(event) => {
-            event.target.select()
-            //setFocused(true)
-            console.log('input::focused()')
-          }}
-          onBlur={() => {
-            // setFocused(false)
-            console.log('input::blurred')
-          }}
-          onKeyDown={(event) => {
-            console.log('keydown', event.key)
-          }}
           onChange={(event) => {
-            console.log('event', event)
             props.setFilterText(event.target.value)
           }}
           css={{
@@ -119,11 +105,8 @@ function Header(props: HeaderProps): JSX.Element {
             width: '100%',
             bg: 'transparent',
             fontSize: '16px',
-            fontFamily: 'inter',
-            fontWeight: 'normal',
-            marginBottom: '2px',
             textIndent: '8px',
-            paddingLeft: '8px',
+            marginBottom: '2px',
             color: '$grayTextContrast',
             '&:focus': {
               outline: 'none',
@@ -261,15 +244,12 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       onKeyDown={handleKeyDown}
       css={{ 
         p: '0',
-        width: '265px',
         maxHeight: '92%',
+        maxWidth: '265px',
         '@mdDown': {
+          maxWidth: '100%',
           maxHeight: '92%',
         },
-        '@smDown': {
-          maxHeight: '92%',
-          maxWidth: '92%',
-        }
     }}>
       <Header
         parentRef={parentRef}

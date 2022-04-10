@@ -20,7 +20,7 @@ import { articleReadingProgressMutation } from '../../../lib/networking/mutation
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import Script from 'next/script'
-import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
+import { EditLabelsControl } from '../../../components/templates/article/EditLabelsControl'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
 import { styled, theme } from '../../../components/tokens/stitches.config'

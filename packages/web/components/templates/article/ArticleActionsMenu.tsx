@@ -6,7 +6,7 @@ import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { styled, theme } from "../../tokens/stitches.config"
-import { EditLabelsModal } from "./EditLabelsModal"
+import { EditLabelsControl } from "./EditLabelsControl"
 import { ReaderSettings } from "./ReaderSettingsModal"
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
@@ -89,7 +89,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           </SpanBox>
         }
       >
-        <EditLabelsModal />
+        <EditLabelsControl />
       </ActionDropdown>
 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
