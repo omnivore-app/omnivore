@@ -15,6 +15,7 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { LabelChip } from '../../elements/LabelChip'
 import { Check, Circle, Pen, PencilSimple, PencilSimpleLine, Plus, TagSimple } from 'phosphor-react'
 import Link from 'next/link'
+import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 type EditLabelsModalProps = {
   // labels: Label[]
@@ -96,7 +97,7 @@ function Header(props: HeaderProps): JSX.Element {
         <FormInput
           ref={inputRef}
           type="text"
-          autoFocus={true}
+          autoFocus={isTouchScreenDevice()}
           value={props.filterText}
           placeholder="Filter for label"
           onFocus={(event) => {
