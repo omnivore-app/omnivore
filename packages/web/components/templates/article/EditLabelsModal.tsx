@@ -97,6 +97,7 @@ function Header(props: HeaderProps): JSX.Element {
         <FormInput
           ref={inputRef}
           type="text"
+          tabIndex={0}
           autoFocus={!isTouchScreenDevice()}
           value={props.filterText}
           placeholder="Filter for label"
@@ -242,7 +243,11 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
     //   >
         <VStack distribution="start" css={{ 
           p: '0', maxHeight: '400px',
-          width: '265px',
+          maxWidth: '265px',
+          '@mdDown': {
+            maxWidth: '100%',
+            maxHeight: '280px',
+          },
         }}>
           <Header setFilterText={setFilterText} filterText={filterText} />
           <LabelsList
