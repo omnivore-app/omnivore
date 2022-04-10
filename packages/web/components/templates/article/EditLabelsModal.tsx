@@ -246,7 +246,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
           maxWidth: '265px',
           '@mdDown': {
             maxWidth: '100%',
-            maxHeight: '280px',
+            maxHeight: '320px',
           },
         }}>
           <Header setFilterText={setFilterText} filterText={filterText} />
