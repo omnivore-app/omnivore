@@ -9,7 +9,7 @@ import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Label, useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { ChangeEvent, useCallback, useRef, useState, useMemo, useEffect } from 'react'
+import { ChangeEvent, useCallback, useRef, useState, useMemo, useEffect, MouseEventHandler } from 'react'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { LabelChip } from '../../elements/LabelChip'
@@ -47,9 +47,6 @@ const StyledLabel = styled('label', {
   display: 'flex',
   justifyContent: 'flex-start',
   '&:focus': {
-    bg: '$grayBgActive',
-  },
-  'input:&:focus-within': {
     bg: '$grayBgActive',
   },
 })
@@ -142,6 +139,7 @@ type LabelListItemProps = {
   label: Label
   focused: boolean
   selected: boolean
+  toggleLabel: (label: Label) => void
 }
 
 function LabelListItem(props: LabelListItemProps): JSX.Element {
@@ -164,8 +162,10 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
         bg: props.focused ? '$grayBgActive' : 'unset',
       }}
       tabIndex={props.focused ? 0 : -1}
-      onClick={async () => {
-        console.log('toggling label')
+      onClick={(event) => {
+        event.preventDefault()
+        props.toggleLabel(label)
+        ref.current?.blur()
       }}
     >
       <input autoFocus={focused} hidden={true} type="checkbox" checked={selected} readOnly />
@@ -260,13 +260,16 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
       distribution="start"
       onKeyDown={handleKeyDown}
       css={{ 
-      p: '0',
-      maxHeight: '92%',
-      maxWidth: '265px',
-      '@mdDown': {
-        maxWidth: '100%',
+        p: '0',
+        width: '265px',
         maxHeight: '92%',
-      },
+        '@mdDown': {
+          maxHeight: '92%',
+        },
+        '@smDown': {
+          maxHeight: '92%',
+          maxWidth: '92%',
+        }
     }}>
       <Header
         parentRef={parentRef}
@@ -274,13 +277,14 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
         setFilterText={setFilterText} filterText={filterText}
       />
       <VStack css={{ flexGrow: '1', overflow: 'scroll', width: '100%', height: '100%', maxHeight: '400px',  }}>
-        {labels &&
-          labels.map((label, idx) => (
+        {filteredLabels &&
+          filteredLabels.map((label, idx) => (
             <LabelListItem
               key={label.id}
               label={label}
               focused={idx === focusedIndex}
               selected={isSelected(label)}
+              toggleLabel={toggleLabel}
             />
           ))}
       </VStack>
