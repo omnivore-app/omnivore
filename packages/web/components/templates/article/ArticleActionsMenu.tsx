@@ -1,5 +1,6 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
+import { useRef } from "react"
 import { useGetUserPreferences, UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
