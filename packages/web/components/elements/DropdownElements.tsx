@@ -115,6 +115,7 @@ export function Dropdown({
   sideOffset = 0,
   css
 }: DropdownProps): JSX.Element {
+  console.log('side', side)
   return (
     <Root modal={false}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>

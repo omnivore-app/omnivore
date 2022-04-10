@@ -1,7 +1,5 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
-import { useState } from "react"
-import { BottomSheet } from "react-spring-bottom-sheet"
 import { useGetUserPreferences, UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
@@ -9,10 +7,6 @@ import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { styled, theme } from "../../tokens/stitches.config"
 import { EditLabelsModal } from "./EditLabelsModal"
 import { ReaderSettings } from "./ReaderSettingsModal"
-
-// if setting up the CSS is tricky, you can add this to your page somewhere:
-// <link rel="stylesheet" href="https://unpkg.com/react-spring-bottom-sheet/dist/style.css" crossorigin="anonymous">
-import 'react-spring-bottom-sheet/dist/style.css'
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
@@ -37,7 +31,6 @@ export function MenuSeparator(props: MenuSeparatorProps) {
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
   const { preferencesData } = useGetUserPreferences()
-  const [open, setOpen] = useState(false)
 
   return (
     <>
@@ -63,7 +56,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
             <TextAa size={24} color={theme.colors.readerFont.toString()} />
           </SpanBox>
         }
-        css={{ m: '0px', p: '0px' }}
+        css={{  m: '0px', p: '0px' }}
       >
         <ReaderSettings userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
       </Dropdown>
@@ -90,8 +83,8 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       <MenuSeparator layout={props.layout} />
-{/* // props.articleActionHandler('archive') */}
-      <Button style='articleActionIcon' onClick={() => setOpen(true)}>
+
+      <Button style='articleActionIcon' onClick={() => props.articleActionHandler('archive')}>
         <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
       </Button>
       {/* <MenuSeparator layout={props.layout} />
@@ -99,12 +92,6 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       <Button style='articleActionIcon'>
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}
-      <BottomSheet 
-          snapPoints={({ minHeight }) => minHeight}
-          open={open} onDismiss={() => setOpen(false)}>
-        <EditLabelsModal />
-        {/* <ReaderSettings userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} /> */}
-      </BottomSheet>
     </Box>
     </>
   )
