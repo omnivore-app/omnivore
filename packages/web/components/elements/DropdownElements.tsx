@@ -49,12 +49,12 @@ export const DropdownContent = styled(Content, {
   backgroundColor: '$grayBg',
   borderRadius: '0.5em',
   padding: 5,
-  border: '1px solid $grayBorder',
+  outline: '1px solid $grayBorder',
   boxShadow: '$cardBoxShadow',
 })
 
 const StyledArrow = styled(Arrow, {
-  fill: '$grayBase',
+  fill: '$grayBg',
 })
 
 const StyledLabel = styled(Label, {
@@ -131,7 +131,7 @@ export function Dropdown({
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}
         {children}
-        {showArrow && <StyledArrow offset={20} />}
+        {showArrow && <StyledArrow offset={20} width={20} height={10} />}
       </DropdownContent>
     </Root>
   )

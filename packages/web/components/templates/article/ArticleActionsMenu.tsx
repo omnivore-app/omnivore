@@ -48,6 +48,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       }}
     >
       <Dropdown
+        showArrow={true}
         side={props.layout == 'vertical' ? 'right' : 'bottom'}
         sideOffset={props.layout == 'vertical' ? 8 : 0}
         align={props.layout == 'vertical' ? 'start' : 'center'}
