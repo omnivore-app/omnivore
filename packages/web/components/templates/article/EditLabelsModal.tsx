@@ -97,7 +97,7 @@ function Header(props: HeaderProps): JSX.Element {
         <FormInput
           ref={inputRef}
           type="text"
-          autoFocus={isTouchScreenDevice()}
+          autoFocus={!isTouchScreenDevice()}
           value={props.filterText}
           placeholder="Filter for label"
           onFocus={(event) => {

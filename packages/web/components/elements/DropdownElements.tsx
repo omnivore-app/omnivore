@@ -8,6 +8,7 @@ import {
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
+import { PopperContentProps } from '@radix-ui/react-popover';
 import { CSS } from '@stitches/react';
 import { styled } from './../tokens/stitches.config'
 
@@ -104,18 +105,19 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
   )
 }
 
-export function Dropdown({
-  children,
-  align,
-  triggerElement,
-  labelText,
-  showArrow = true,
-  disabled = false,
-  side = 'bottom',
-  sideOffset = 0,
-  css
-}: DropdownProps): JSX.Element {
-  console.log('side', side)
+export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element {
+  const {
+    children,
+    align,
+    triggerElement,
+    labelText,
+    showArrow = true,
+    disabled = false,
+    side = 'bottom',
+    sideOffset = 0,
+    alignOffset = 0,
+    css
+  } = props
   return (
     <Root modal={false}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
@@ -128,6 +130,7 @@ export function Dropdown({
         side={side}
         sideOffset={sideOffset}
         align={align ? align : 'center'}
+        alignOffset={alignOffset}
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}
         {children}

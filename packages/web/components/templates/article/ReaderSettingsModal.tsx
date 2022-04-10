@@ -73,7 +73,7 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           </Button>
         </HStack>
       </VStack>
-      {/* <VStack css={{
+      <VStack css={{
         p: '0px',
         m: '0px',
         pb: '12px',
@@ -85,12 +85,14 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
-          <TickedRangeSlider value={14} onChange={() => {}} />
+          <TickedRangeSlider value={14} onChange={(value) => {
+            console.log('changed line spacing')
+          }} />
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
         </HStack>
-      </VStack> */}
+      </VStack>
     </VStack>
   )
 }

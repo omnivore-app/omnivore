@@ -19,7 +19,7 @@ type MenuSeparatorProps = {
   layout: ArticleActionsMenuLayout
 }
 
-export function MenuSeparator(props: MenuSeparatorProps) {
+const MenuSeparator = (props: MenuSeparatorProps): JSX.Element => {
   const LineSeparator = styled(Separator, {
     width: '100%',
     margin: 0,
@@ -27,6 +27,26 @@ export function MenuSeparator(props: MenuSeparatorProps) {
     my: '8px',
   })
   return (props.layout == 'vertical' ? <LineSeparator /> : <></>)
+}
+
+type ActionDropdownProps = {
+  layout: ArticleActionsMenuLayout
+  triggerElement: JSX.Element
+  children: JSX.Element
+}
+
+const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
+  return <Dropdown
+    showArrow={true}
+    css={{  m: '0px', p: '0px' }}
+    side={props.layout == 'vertical' ? 'right' : 'bottom'}
+    sideOffset={props.layout == 'vertical' ? 8 : 0}
+    align={props.layout == 'vertical' ? 'start' : 'center'}
+    alignOffset={props.layout == 'vertical' ? -18 : undefined}
+    triggerElement={props.triggerElement}
+  >
+    {props.children}
+  </Dropdown>
 }
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
@@ -47,38 +67,29 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         m: '0px',
       }}
     >
-      <Dropdown
-        showArrow={true}
-        side={props.layout == 'vertical' ? 'right' : 'bottom'}
-        sideOffset={props.layout == 'vertical' ? 8 : 0}
-        align={props.layout == 'vertical' ? 'start' : 'center'}
+      <ActionDropdown
+        layout={props.layout}
         triggerElement={
           <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
             <TextAa size={24} color={theme.colors.readerFont.toString()} />
           </SpanBox>
         }
-        css={{  m: '0px', p: '0px' }}
       >
         <ReaderSettings userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
-      </Dropdown>
+      </ActionDropdown>
 
       <MenuSeparator layout={props.layout} />
 
-      <Dropdown
-        side={props.layout == 'vertical' ? 'right' : 'bottom'}
-        sideOffset={props.layout == 'vertical' ? 8 : 0}
-        showArrow={true}
-        align={props.layout == 'vertical' ? 'start' : 'center'}
+      <ActionDropdown
+        layout={props.layout}
         triggerElement={
           <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
             <TagSimple size={24} color={theme.colors.readerFont.toString()} />
           </SpanBox>
         }
-        css={{  m: '0px', p: '0px' }}
       >
         <EditLabelsModal />
-        {/* <EditLabelsModal> */}
-      </Dropdown>
+      </ActionDropdown>
 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
         <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
