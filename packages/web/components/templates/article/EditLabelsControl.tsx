@@ -92,7 +92,7 @@ function Header(props: HeaderProps): JSX.Element {
         <FormInput
           ref={inputRef}
           type="text"
-          tabIndex={props.focused ? 0 : -1}
+          tabIndex={props.focused && !isTouchScreenDevice() ? 0 : -1}
           autoFocus={!isTouchScreenDevice()}
           value={props.filterText}
           placeholder="Filter for label"
