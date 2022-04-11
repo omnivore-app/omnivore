@@ -183,8 +183,12 @@ function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element
 export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
   const router = useRouter()
   const [filterText, setFilterText] = useState('')
-  const { labels } = useGetLabelsQuery()
+  const { labels, revalidate } = useGetLabelsQuery()
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.article.labels || [])
+
+  useEffect(() => {
+    setFocusedIndex(undefined)
+  }, [filterText])
 
   const isSelected = useCallback((label: Label): boolean => {
     return selectedLabels.some((other) => {
@@ -207,8 +211,11 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       props.article.linkId,
       newSelectedLabels.map((label) => label.id)
     )
+
     props.article.labels = result
     props.articleActionHandler('refreshLabels', result)
+
+    revalidate()
   }, [isSelected, selectedLabels, setSelectedLabels])
 
   const filteredLabels = useMemo(() => {
@@ -220,13 +227,9 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
     })
   }, [labels, filterText])
 
-  useEffect(() => {
-    setFocusedIndex(undefined)
-  }, [filterText])
-
   // Move focus through the labels list on tab or arrow up/down keys
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(undefined)
-  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback(async (event: React.KeyboardEvent<HTMLInputElement>) => {
     const maxIndex = filteredLabels.length + 1
     if (event.key === 'ArrowUp') {
       event.preventDefault()
@@ -264,6 +267,10 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         router.push('/settings/labels')
         return
       }
+      if (focusedIndex === maxIndex - 1) {
+        await createLabelFromFilterText()
+        return
+      }
       if (focusedIndex !== undefined) {
         const label = filteredLabels[focusedIndex]
         if (label) {
@@ -271,7 +278,17 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         }
       }
     }
-  }, [filteredLabels, focusedIndex, isSelected, selectedLabels, setSelectedLabels])
+  }, [filterText, filteredLabels, focusedIndex, isSelected, selectedLabels, setSelectedLabels])
+
+  const createLabelFromFilterText = useCallback(async () => {
+    const label = await createLabelMutation(filterText, randomLabelColorHex(), '')
+    if (label) {
+      showSuccessToast(`Created label ${label.name}`, { position: 'bottom-right' })
+      toggleLabel(label)
+    } else {
+      showErrorToast('Failed to create label', { position: 'bottom-right' })
+    }
+  }, [filterText, selectedLabels, setSelectedLabels, toggleLabel])
 
   return (
     <VStack
@@ -311,15 +328,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
           borderBottom: '1px solid $grayBorder',
           bg: focusedIndex === filteredLabels.length ? '$grayBgActive' : 'unset',
         }} 
-          onClick={async () => {
-            const label = await createLabelMutation(filterText, randomLabelColorHex(), '')
-            if (label) {
-              showSuccessToast(`Created label ${label.name}`, { position: 'bottom-right' })
-              toggleLabel(label)
-            } else {
-              showErrorToast('Failed to create label', { position: 'bottom-right' })
-            }
-          }}
+          onClick={createLabelFromFilterText}
         >
           <HStack alignment='center' distribution='start' css={{ gap: '8px' }}>
             <Plus size={18} color={theme.colors.grayText.toString()} />
