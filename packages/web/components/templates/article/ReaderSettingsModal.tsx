@@ -32,8 +32,8 @@ const VerticalDivider = styled(SpanBox, {
 })
 
 export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
-  const [lineHeight, setLineHeight] = useState(props.userPreferences?.lineHeight ?? 1.5)
   const [marginWidth, setMarginWidth] = useState(props.userPreferences?.margin ?? 0)
+  const [lineHeight, setLineHeight] = useState(props.userPreferences?.lineHeight ?? 150)
 
   return (
     <VStack>
@@ -102,7 +102,7 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
-          <TickedRangeSlider min={1} max={3} step={0.5} value={lineHeight} onChange={(value) => {
+          <TickedRangeSlider min={100} max={300} step={25} value={lineHeight} onChange={(value) => {
             setLineHeight(value)
             props.articleActionHandler('setLineHeight', value)
           }} />

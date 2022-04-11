@@ -38,14 +38,13 @@ export default function Home(): JSX.Element {
   const { slug } = router.query
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
-  // Populate data cache
   const { viewerData } = useGetViewerQuery()
-
   const { preferencesData } = useGetUserPreferences()
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
   const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
+  const [lineHeight, setLineHeight] = useState(preferencesData?.lineHeight ?? 150)
 
-  const { articleData, mutate } = useGetArticleQuery({
+  const { articleData } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
     includeFriendsHighlights: false,
@@ -103,7 +102,7 @@ export default function Home(): JSX.Element {
         break
       case 'setMarginWidth': {
         const value = Number(arg)
-        if (value > 200 && value < 560) {
+        if (value >= 200 && value <= 560) {
           updateMarginWidth(value)
         }
         break
@@ -114,6 +113,13 @@ export default function Home(): JSX.Element {
       case 'decrementMarginWidth':
         updateMarginWidth(Math.max(marginWidth - 45, 200))
         break
+      case 'setLineHeight': {
+        const value = Number(arg)
+        if (value >= 100 && value <= 300) {
+          setLineHeight(value)
+        }
+        break
+      }
     }
   };
 
@@ -193,6 +199,7 @@ export default function Home(): JSX.Element {
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
                 fontSize={fontSize}
                 margin={marginWidth}
+                lineHeight={lineHeight}
                 labels={labels}
                 articleMutations={{
                   createHighlightMutation,

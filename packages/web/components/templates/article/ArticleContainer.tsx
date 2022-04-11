@@ -1,6 +1,6 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
+import { Box, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
@@ -27,6 +27,7 @@ type ArticleContainerProps = {
   margin?: number
   fontSize?: number
   fontFamily?: string
+  lineHeight?: number
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
@@ -34,7 +35,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
-  const [margin, setMargin] = useState(props.margin ?? 360)
 
   const updateFontSize = async (newFontSize: number) => {
     if (fontSize !== newFontSize) {
@@ -43,20 +43,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
   }
 
-  const updateMargin = async (newMargin: number) => {
-    if (margin !== newMargin) {
-      setMargin(newMargin)
-      await userPersonalizationMutation({ margin: newMargin })
-    }
-  }
-
   useEffect(() => {
     updateFontSize(props.fontSize ?? 20)
   }, [props.fontSize])
-
-  useEffect(() => {
-    updateMargin(props.margin ?? 140)
-  }, [props.margin])
 
   // Listen for font size and color mode change events sent from host apps (ios, macos...)
   useEffect(() => {
@@ -98,8 +87,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   }, [props.article])
 
   const styles = {
-    margin: props.margin ?? 360,
     fontSize,
+    margin: props.margin ?? 360,
+    lineHeight: props.lineHeight ?? 150,
     fontFamily: props.fontFamily ?? 'inter',
     readerFontColor: theme.colors.readerFont.toString(),
     readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
@@ -117,7 +107,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           background: props.isAppleAppEmbed ? 'unset' : theme.colors.grayBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
-          '--line-height': `150%`,
+          '--line-height': `${styles.lineHeight}%`,
           '--blockquote-padding': '0.5em 1em',
           '--blockquote-icon-font-size': '1.3rem',
           '--figure-margin': '1.6rem auto',
