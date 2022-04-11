@@ -98,18 +98,15 @@ const parseLabelFilter = (
     return undefined
   }
 
-  // use lower case for label names
-  const labels = str.toLocaleLowerCase().split(',')
+  const labels = str.split(',')
 
-  // check if the labels are in the exclude list
-  const excluded =
-    exclude &&
-    exclude.label &&
-    labels.every((label) => exclude.label.includes(label))
+  // check if the labels are on the exclusion list
+  const excluded = exclude?.label && exclude.label.includes(...labels)
 
   return {
     type: excluded ? LabelFilterType.EXCLUDE : LabelFilterType.INCLUDE,
-    labels,
+    // use lower case for label names
+    labels: labels.map((label) => label.toLowerCase()),
   }
 }
 
