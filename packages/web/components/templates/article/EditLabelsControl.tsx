@@ -12,6 +12,9 @@ import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
 
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 
 type EditLabelsControlProps = {
   article: ArticleAttributes
@@ -194,8 +197,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
     )
     props.article.labels = result
     props.articleActionHandler('refreshLabels', result)
-
-    console.log('refreshing article with labels', props.article.labels)
   }, [isSelected, selectedLabels])
 
   const filteredLabels = useMemo(() => {
@@ -276,17 +277,23 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         <Button style='modalOption' css={{
           pl: '26px', color: theme.colors.grayText.toString(), height: '42px', borderBottom: '1px solid $grayBorder'
         }} 
-          onClick={() => {
-            // props.createLabel(filterText)
-            // setFilterText('')
+          onClick={async () => {
+            const label = await createLabelMutation(filterText, randomLabelColorHex(), '')
+            if (label) {
+              showSuccessToast(`Created label ${label.name}`, { position: 'bottom-right' })
+              toggleLabel(label)
+            } else {
+              showErrorToast('Failed to create label', { position: 'bottom-right' })
+            }
           }}
         >
           <HStack alignment='center' distribution='start' css={{ gap: '8px' }}>
             <Plus size={18} color={theme.colors.grayText.toString()} />
             <SpanBox css={{ fontSize: '12px' }}>{`Create new label "${filterText}"`}</SpanBox>
             </HStack>
-        </Button>)}
-        {/* Footer */}
+        </Button>
+      )}
+
       <HStack  distribution="start"  alignment="center" css={{
           ml: '20px', gap: '8px', width: '100%', fontSize: '12px', p: '8px', height: '42px',
           'a:link': {
