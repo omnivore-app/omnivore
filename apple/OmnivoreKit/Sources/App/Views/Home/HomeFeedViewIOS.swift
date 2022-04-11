@@ -24,7 +24,7 @@ import Views
           }
           .searchable(
             text: $viewModel.searchTerm,
-            placement: .sidebar
+            placement: .navigationBarDrawer
           ) {
             if viewModel.searchTerm.isEmpty {
               Text("Inbox").searchCompletion("in:inbox ")
@@ -71,6 +71,7 @@ import Views
         }
       }
       .navigationTitle("Home")
+      .navigationBarTitleDisplayMode(.inline)
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
         if viewModel.selectedLinkItem == nil {
@@ -106,48 +107,74 @@ import Views
 
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-
     @Binding var prefersListLayout: Bool
-
+    @State private var showLabelsSheet = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    // TODO: remove stub
+    let demoFilterChips = [
+      FeedItemLabel(id: "1", name: "Inbox", color: "#039466", createdAt: nil, description: nil),
+      FeedItemLabel(id: "2", name: "NotInbox", color: "#039466", createdAt: nil, description: nil),
+      FeedItemLabel(id: "3", name: "Atari", color: "#039466", createdAt: nil, description: nil),
+      FeedItemLabel(id: "4", name: "iOS", color: "#039466", createdAt: nil, description: nil)
+    ]
+
     var body: some View {
-      if prefersListLayout {
-        HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
-      } else {
-        HomeFeedGridView(viewModel: viewModel)
-          .toolbar {
-            ToolbarItem {
-              if #available(iOS 15.0, *) {
-                Button("", action: {})
-                  .disabled(true)
-                  .overlay {
-                    if viewModel.isLoading {
-                      ProgressView()
+      VStack {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            TextChipButton.makeAddLabelButton {
+              showLabelsSheet = true
+            }
+            ForEach(demoFilterChips, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label) {
+                print("tapped label named \(label.name)")
+              }
+            }
+            Spacer()
+          }
+          .padding(.horizontal)
+          .sheet(isPresented: $showLabelsSheet) {
+            Text("select labels stub")
+          }
+        }
+        if prefersListLayout {
+          HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
+        } else {
+          HomeFeedGridView(viewModel: viewModel)
+            .toolbar {
+              ToolbarItem {
+                if #available(iOS 15.0, *) {
+                  Button("", action: {})
+                    .disabled(true)
+                    .overlay {
+                      if viewModel.isLoading {
+                        ProgressView()
+                      }
                     }
-                  }
-              } else {
-                if viewModel.isLoading {
-                  Button(action: {}, label: { ProgressView() })
                 } else {
+                  if viewModel.isLoading {
+                    Button(action: {}, label: { ProgressView() })
+                  } else {
+                    Button(
+                      action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
+                      label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                    )
+                  }
+                }
+              }
+              ToolbarItem {
+                if UIDevice.isIPad {
                   Button(
-                    action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
-                    label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                    action: { prefersListLayout.toggle() },
+                    label: {
+                      Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                    }
                   )
                 }
               }
             }
-            ToolbarItem {
-              if UIDevice.isIPad {
-                Button(
-                  action: { prefersListLayout.toggle() },
-                  label: {
-                    Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                  }
-                )
-              }
-            }
-          }
+        }
       }
     }
   }
