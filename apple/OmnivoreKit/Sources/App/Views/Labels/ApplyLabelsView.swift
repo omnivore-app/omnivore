@@ -51,7 +51,7 @@ struct ApplyLabelsView: View {
                   viewModel.removeLabelFromItem(label)
                 }
               },
-              label: { Image(systemName: "trash").foregroundColor(.appGrayTextContrast) }
+              label: { Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast) }
             )
           }
         }
