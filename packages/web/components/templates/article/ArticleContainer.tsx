@@ -157,13 +157,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               )}
             </SpanBox>
           ) : null}
-          <ArticleHeaderToolbar
-            articleTitle={props.article.title}
-            articleShareURL={props.highlightsBaseURL}
-            setShowShareArticleModal={setShowShareModal}
-            setShowHighlightsModal={props.setShowHighlightsModal}
-            hasHighlights={props.article.highlights?.length > 0}
-          />
+          {props.isAppleAppEmbed && (
+            <ArticleHeaderToolbar
+              articleTitle={props.article.title}
+              articleShareURL={props.highlightsBaseURL}
+              setShowShareArticleModal={setShowShareModal}
+              setShowHighlightsModal={props.setShowHighlightsModal}
+              hasHighlights={props.article.highlights?.length > 0}
+            />
+          )}
         </VStack>
         <Article
           articleId={props.article.id}
