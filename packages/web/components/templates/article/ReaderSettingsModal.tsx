@@ -32,6 +32,7 @@ const VerticalDivider = styled(SpanBox, {
 })
 
 export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
+  const [lineHeight, setLineHeight] = useState(props.userPreferences?.lineHeight ?? 1.5)
   const [marginWidth, setMarginWidth] = useState(props.userPreferences?.margin ?? 0)
 
   return (
@@ -61,23 +62,32 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           pb: '14px',
           width: '100%',
           height: '100%',
-          '@smDown': {
+          '@mdDown': {
             display: 'none',
           },
         }}
       >
         <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Margin:</StyledText>
         <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
-          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => props.articleActionHandler('decrementMarginWidth')}>
-            <ArrowsInLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
+          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
+            const newMarginWith = Math.max(marginWidth - 45, 200)
+            setMarginWidth(newMarginWith)
+            props.articleActionHandler('setMarginWidth', newMarginWith)
+          }}>
+            <ArrowsOutLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
           </Button>
           <TickedRangeSlider min={200} max={560} step={45} value={marginWidth} onChange={(value) => {
             setMarginWidth(value)
             props.articleActionHandler('setMarginWidth', value)
           }} />
-          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => props.articleActionHandler('incrementMarginWidth')}>
-            <ArrowsOutLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
+          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
+            const newMarginWith = Math.min(marginWidth + 45, 560)
+            setMarginWidth(newMarginWith)
+            props.articleActionHandler('setMarginWidth', newMarginWith)
+          }}>
+            <ArrowsInLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
           </Button>
+
         </HStack>
       </VStack>
       <VStack css={{
@@ -92,8 +102,9 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
-          <TickedRangeSlider value={14} onChange={(value) => {
-            console.log('changed line spacing')
+          <TickedRangeSlider min={1} max={3} step={0.5} value={lineHeight} onChange={(value) => {
+            setLineHeight(value)
+            props.articleActionHandler('setLineHeight', value)
           }} />
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />

@@ -25,6 +25,7 @@ export type UserPreferences = {
   fontSize: number
   fontFamily: string
   margin: number
+  lineHeight?: number
   libraryLayoutType: string
   librarySortOrder?: SortOrder
 }
