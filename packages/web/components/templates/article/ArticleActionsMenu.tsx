@@ -4,7 +4,8 @@ import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticle
 import { useGetUserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
-import { Box, SpanBox } from "../../elements/LayoutPrimitives"
+import { Box } from "../../elements/LayoutPrimitives"
+import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
 import { EditLabelsControl } from "./EditLabelsControl"
 import { ReaderSettings } from "./ReaderSettingsModal"
@@ -59,22 +60,23 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
     <Box
       css={{
         display: 'flex',
-        flexDirection: props.layout == 'vertical' ? 'column' : 'row',
         alignItems: 'center',
+        flexDirection: props.layout == 'vertical' ? 'column' : 'row',
         justifyContent: props.layout == 'vertical' ? 'center' : 'flex-end',
         gap: props.layout == 'vertical' ? '8px' : '20px',
         paddingTop: '6px',
-        height: '100%',
-        width: '100%',
         m: '0px',
       }}
     >
       <ActionDropdown
         layout={props.layout}
         triggerElement={
-          <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
-            <TextAa size={24} color={theme.colors.readerFont.toString()} />
-          </SpanBox>
+          <TooltipWrapped
+            tooltipContent="Adjust Display Settings"
+            tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+          >
+          <TextAa size={24} color={theme.colors.readerFont.toString()} />
+        </TooltipWrapped>
         }
       >
         <ReaderSettings userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
@@ -85,9 +87,12 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       <ActionDropdown
         layout={props.layout}
         triggerElement={
-          <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
-            <TagSimple size={24} color={theme.colors.readerFont.toString()} />
-          </SpanBox>
+          <TooltipWrapped
+            tooltipContent="Edit Tags"
+            tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+        >
+          <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+        </TooltipWrapped>
         }
       >
         <EditLabelsControl
@@ -106,13 +111,23 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         </SpanBox>
       </Button> */}
 
-      <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
-        <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
-      </Button>
+      <TooltipWrapped
+        tooltipContent="View Highlights"
+        tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+      >
+        <Button style='articleActionIcon'>
+          <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
+        </Button>
+      </TooltipWrapped>
       <MenuSeparator layout={props.layout} />
 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('archive')}>
-        <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
+        <TooltipWrapped
+          tooltipContent="Archive"
+          tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+        >
+          <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
+        </TooltipWrapped>
       </Button>
       {/* <MenuSeparator layout={props.layout} />
 
