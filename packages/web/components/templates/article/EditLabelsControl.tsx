@@ -227,22 +227,36 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
   // Move focus through the labels list on tab or arrow up/down keys
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(undefined)
   const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
-    const maxIndex = filteredLabels.length + 2
+    const maxIndex = filteredLabels.length + 1
     if (event.key === 'ArrowUp') {
       event.preventDefault()
+      let newIndex = focusedIndex
       if (focusedIndex) {
-        setFocusedIndex(Math.max(0, focusedIndex - 1))
+        newIndex = Math.max(0, focusedIndex - 1)
       } else {
-        setFocusedIndex(undefined)
+        newIndex = undefined
       }
+      // If the `Create New label` button isn't visible we skip it
+      // when navigating with the arrow keys
+      if (focusedIndex === maxIndex && !filterText) {
+        newIndex = maxIndex - 2
+      }
+      setFocusedIndex(newIndex)
     }
     if (event.key === 'ArrowDown' || event.key === 'Tab') {
       event.preventDefault()
+      let newIndex = focusedIndex
       if (focusedIndex === undefined) {
-        setFocusedIndex(0)
+        newIndex = 0
       } else {
-        setFocusedIndex(Math.min(maxIndex, focusedIndex + 1))
+        newIndex = Math.min(maxIndex, focusedIndex + 1)
       }
+      // If the `Create New label` button isn't visible we skip it
+      // when navigating with the arrow keys
+      if (focusedIndex === maxIndex - 2 && !filterText) {
+        newIndex = maxIndex
+      }
+      setFocusedIndex(newIndex)
     }
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -310,7 +324,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
           <HStack alignment='center' distribution='start' css={{ gap: '8px' }}>
             <Plus size={18} color={theme.colors.grayText.toString()} />
             <SpanBox css={{ fontSize: '12px' }}>{`Create new label "${filterText}"`}</SpanBox>
-            </HStack>
+          </HStack>
         </Button>
       )}
 
