@@ -24,6 +24,7 @@ type EditLabelsControlProps = {
 type HeaderProps = {
   filterText: string
   focused: boolean
+  resetFocusedIndex: () => void
   setFilterText: (text: string) => void
 }
 
@@ -46,28 +47,6 @@ const StyledLabel = styled('label', {
     bg: '$grayBgActive',
   },
 })
-
-const useToggleLabels = () => {
-  const [selectedLabels, setSelectedLabels] = useState<Label[]>([])
-
-  const isSelected = useCallback((label: Label): boolean => {
-    return selectedLabels.some((other) => {
-      return other.id === label.id
-    })
-  }, [selectedLabels])
-
-  const toggleLabel = useCallback((label: Label) => {
-    if (isSelected(label)) {
-      setSelectedLabels(selectedLabels.filter((other) => {
-        return other.id !== label.id
-      }))
-    } else {
-      setSelectedLabels([...selectedLabels, label])
-    }
-  }, [isSelected, selectedLabels])
-
-  return [isSelected, toggleLabel]
-}
 
 function Header(props: HeaderProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -94,6 +73,9 @@ function Header(props: HeaderProps): JSX.Element {
           placeholder="Filter for label"
           onChange={(event) => {
             props.setFilterText(event.target.value)
+          }}
+          onFocus={() => {
+            props.resetFocusedIndex()
           }}
           css={{
             border: '1px solid $grayBorder',
@@ -213,6 +195,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
   // Move focus through the labels list on tab or arrow up/down keys
   const [focusedIndex, setFocusedIndex] = useState<number | undefined>(undefined)
   const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    const maxIndex = filteredLabels.length + 2
     if (event.key === 'ArrowUp') {
       event.preventDefault()
       if (focusedIndex) {
@@ -226,8 +209,9 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       if (focusedIndex === undefined) {
         setFocusedIndex(0)
       } else {
-        setFocusedIndex(Math.min(filteredLabels.length - 1, focusedIndex + 1))
+        setFocusedIndex(Math.min(maxIndex, focusedIndex + 1))
       }
+      console.log('focusedIndex', focusedIndex)
     }
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -255,6 +239,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
     }}>
       <Header
         focused={focusedIndex === undefined}
+        resetFocusedIndex={() => setFocusedIndex(undefined)}
         setFilterText={setFilterText} filterText={filterText}
       />
       <VStack css={{ flexGrow: '1', overflow: 'scroll', width: '100%', height: '100%', maxHeight: '400px',  }}>
@@ -290,7 +275,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         </Button>
       )}
 
-      <HStack  distribution="start"  alignment="center" css={{
+      <HStack distribution="start"  alignment="center" css={{
           ml: '20px', gap: '8px', width: '100%', fontSize: '12px', p: '8px', height: '42px',
           'a:link': {
             textDecoration: 'none',
