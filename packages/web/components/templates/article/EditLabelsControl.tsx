@@ -43,9 +43,6 @@ const FormInput = styled('input', {
 const StyledLabel = styled('label', {
   display: 'flex',
   justifyContent: 'flex-start',
-  '&:focus': {
-    bg: '$grayBgActive',
-  },
 })
 
 function Header(props: HeaderProps): JSX.Element {
@@ -149,6 +146,39 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
   )
 }
 
+type EditLabelsButtonFooterProps = {
+  focused: boolean
+}
+
+function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (props.focused && ref.current) {
+      ref.current.focus()
+    }
+  }, [props.focused])
+
+  return (
+    <HStack
+      ref={ref}
+      distribution="start"  alignment="center" css={{
+      ml: '20px', gap: '8px', width: '100%', fontSize: '12px', p: '8px', height: '42px',
+      bg: props.focused ? '$grayBgActive' : 'unset',
+      'a:link': {
+        textDecoration: 'none',
+      },
+      'a:visited': {
+        color: theme.colors.grayText.toString(),
+      },
+    }}
+  >
+    <PencilSimple size={18} color={theme.colors.grayText.toString()} />
+    <Link href="/settings/labels">Edit labels</Link>
+  </HStack>
+  )
+}
+
 export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
   const [filterText, setFilterText] = useState('')
   const { labels } = useGetLabelsQuery()
@@ -211,7 +241,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       } else {
         setFocusedIndex(Math.min(maxIndex, focusedIndex + 1))
       }
-      console.log('focusedIndex', focusedIndex)
     }
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -275,19 +304,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         </Button>
       )}
 
-      <HStack distribution="start"  alignment="center" css={{
-          ml: '20px', gap: '8px', width: '100%', fontSize: '12px', p: '8px', height: '42px',
-          'a:link': {
-            textDecoration: 'none',
-          },
-          'a:visited': {
-            color: theme.colors.grayText.toString(),
-          },
-        }}
-      >
-        <PencilSimple size={18} color={theme.colors.grayText.toString()} /> 
-        <Link href="/settings/labels">Edit labels</Link>
-      </HStack>
+      <EditLabelsButtonFooter focused={focusedIndex === (filteredLabels.length + 1)} />
     </VStack>
   )
 }
