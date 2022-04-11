@@ -297,7 +297,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       css={{ 
         p: '0',
         maxHeight: '92%',
-        maxWidth: '265px',
         '@mdDown': {
           maxWidth: '100%',
           maxHeight: '92%',
