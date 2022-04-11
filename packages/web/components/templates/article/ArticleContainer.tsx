@@ -29,14 +29,14 @@ type ArticleContainerProps = {
   fontSize?: number
   fontFamily?: string
   lineHeight?: number
-  showHighlightsModal?: boolean
-  setShowHighlightsModal?: (show: boolean) => void
+  showHighlightsModal: boolean
+  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
+  const [showHighlightsModal, setShowHighlightsModal] = useState(props.showHighlightsModal)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
 
   const updateFontSize = async (newFontSize: number) => {
@@ -160,8 +160,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           <ArticleHeaderToolbar
             articleTitle={props.article.title}
             articleShareURL={props.highlightsBaseURL}
-            setShowHighlightsModal={setShowHighlightsModal}
             setShowShareArticleModal={setShowShareModal}
+            setShowHighlightsModal={props.setShowHighlightsModal}
             hasHighlights={props.article.highlights?.length > 0}
           />
         </VStack>
@@ -195,10 +195,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         articleAuthor={props.article.author ?? ''}
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
-        highlightBarDisabled={props.highlightBarDisabled}
-        showHighlightsModal={showHighlightsModal}
         highlightsBaseURL={props.highlightsBaseURL}
-        setShowHighlightsModal={setShowHighlightsModal}
+        highlightBarDisabled={props.highlightBarDisabled}
+        showHighlightsModal={props.showHighlightsModal}
+        setShowHighlightsModal={props.setShowHighlightsModal}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (
