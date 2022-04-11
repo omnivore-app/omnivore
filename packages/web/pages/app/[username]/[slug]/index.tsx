@@ -99,6 +99,7 @@ function AppArticleEmbedContent(
             fontSize={props.fontSize}
             margin={props.margin}
             fontFamily={props.fontFamily}
+            labels={[]}
             articleMutations={{
               createHighlightMutation,
               deleteHighlightMutation,
