@@ -14,13 +14,12 @@ final class LabelsViewModel: ObservableObject {
 
   var subscriptions = Set<AnyCancellable>()
 
-  
   /// Loads initial set of labels when a edit labels list is displayed
   /// - Parameters:
   ///   - dataService: `DataService` reference
   ///   - item: Optional `FeedItem` for applying labels to a single item
-  ///   - initiallySelectedLabels: Optional `[FeedItem]` for filtering a list of items
-  func loadLabels(dataService: DataService, item: FeedItem?, initiallySelectedLabels: [FeedItem]?) {
+  ///   - initiallySelectedLabels: Optional `[FeedItemLabel]` for filtering a list of items
+  func loadLabels(dataService: DataService, item: FeedItem? = nil, initiallySelectedLabels: [FeedItemLabel]? = nil) {
     guard !hasLoadedInitialLabels else { return }
     isLoading = true
 

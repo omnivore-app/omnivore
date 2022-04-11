@@ -38,11 +38,14 @@ import Views
             // it feels like it works ok without
             viewModel.loadItems(dataService: dataService, isRefresh: true)
           }
+          .onChange(of: viewModel.selectedLabels) { _ in
+            viewModel.loadItems(dataService: dataService, isRefresh: true)
+          }
           .onSubmit(of: .search) {
             viewModel.loadItems(dataService: dataService, isRefresh: true)
           }
           .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-            ApplyLabelsView(item: item) { labels in
+            ApplyLabelsView(mode: .item(item)) { labels in
               viewModel.updateLabels(itemID: item.id, labels: labels)
             }
           }
@@ -52,7 +55,7 @@ import Views
             viewModel: viewModel
           )
           .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-            ApplyLabelsView(item: item) { labels in
+            ApplyLabelsView(mode: .item(item)) { labels in
               viewModel.updateLabels(itemID: item.id, labels: labels)
             }
           }
@@ -111,14 +114,6 @@ import Views
     @State private var showLabelsSheet = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    // TODO: remove stub
-    let demoFilterChips = [
-      FeedItemLabel(id: "1", name: "Inbox", color: "#039466", createdAt: nil, description: nil),
-      FeedItemLabel(id: "2", name: "NotInbox", color: "#039466", createdAt: nil, description: nil),
-      FeedItemLabel(id: "3", name: "Atari", color: "#039466", createdAt: nil, description: nil),
-      FeedItemLabel(id: "4", name: "iOS", color: "#039466", createdAt: nil, description: nil)
-    ]
-
     var body: some View {
       VStack {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -126,16 +121,18 @@ import Views
             TextChipButton.makeAddLabelButton {
               showLabelsSheet = true
             }
-            ForEach(demoFilterChips, id: \.self) { label in
+            ForEach(viewModel.selectedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label) {
-                print("tapped label named \(label.name)")
+                viewModel.selectedLabels.removeAll { $0.id == label.id }
               }
             }
             Spacer()
           }
           .padding(.horizontal)
           .sheet(isPresented: $showLabelsSheet) {
-            Text("select labels stub")
+            ApplyLabelsView(mode: .list(viewModel.selectedLabels)) { labels in
+              viewModel.selectedLabels = labels
+            }
           }
         }
         if prefersListLayout {
