@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
@@ -38,9 +39,11 @@ export function LandingHeader(): JSX.Element {
       <OmnivoreNameLogo color={theme.colors.omnivoreGray.toString()} href='/login' />
       <Box css={linkStyles}>
         <Box>
-          <a href="/login" style={{textDecoration: 'none', color: 'black'}}>
-            <SpanBox css={textStyles}>Log in</SpanBox>
-          </a>
+          <Link passHref href="/login">
+            <a style={{textDecoration: 'none', color: 'black'}}>
+              <SpanBox css={textStyles}>Log in</SpanBox>
+            </a>
+          </Link>
         </Box>
       </Box>
     </Box>

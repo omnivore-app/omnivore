@@ -1,4 +1,6 @@
 import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo';
+import Link from 'next/link'
+import Image from 'next/image'
 import { Box, HStack } from '../../elements/LayoutPrimitives';
 
 const containerStyles = {
@@ -67,8 +69,13 @@ const supportStyles = {
 }
 
 const imageStyles = {
-  maxWidth: 180,
+  maxWidth: 190,
   width: '100%',
+}
+
+const socialIconContainerStyles = {
+  maxWidth: 32,
+  maxHeight: 32,
 }
 
 export function LandingFooter(): JSX.Element {
@@ -78,30 +85,46 @@ export function LandingFooter(): JSX.Element {
         <OmnivoreNameLogo color='white' />
         <Box css={titleStyles}>Everything you read. Safe, organized, and easy to share.</Box>
         <HStack distribution='between' css={socialsContainerStyles}>
-          <a href='#'>
-            <img src='/static/media/twitter.png' alt='twitter'/>
-          </a>
-          <a href='#'>
-            <img src='/static/media/github.png' alt='github'/>
-          </a>
-          <a href='#'>
-            <img src='/static/media/discord.png' alt='discord'/>
-          </a>
+          <Box style={socialIconContainerStyles}>
+            <Link passHref href="#">
+              <a>
+                <Image src='/static/media/twitter.png' width={32} height={32} alt='twitter'/>
+              </a>
+            </Link>
+          </Box>
+          <Box style={socialIconContainerStyles}>
+            <Link passHref href="#">
+              <a>
+                <Image src='/static/media/github.png' width={32} height={32} alt='github'/>
+              </a>
+            </Link>
+          </Box>
+          <Box style={socialIconContainerStyles}>
+            <Link passHref href="#">
+              <a>
+                <Image src='/static/media/discord.png' width={32} height={32} alt='discord'/>
+              </a>
+            </Link>
+          </Box>
         </HStack>
         <Box css={copyrightStyles}>© 2022 Omnivore</Box>
       </Box>
       <Box css={sectionTwo}>
         <Box css={{height: 215}}>
-          <a href='#'>
-            <img src='/static/media/appStoreBadge.png' alt='app-store' style={{
-              marginBottom: 24,
-              ...imageStyles,
-            }} />
-          </a>
-          <br />
-          <a href='#'>
-            <img src='/static/media/googlePlayBadge.png' alt='play-store' style={imageStyles} />
-          </a>
+          <Box style={{marginBottom: 5, ...imageStyles}}>
+            <Link passHref href="#">
+              <a>
+                <Image src='/static/media/appStoreBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
+              </a>
+            </Link>
+          </Box>
+          <Box style={imageStyles}>
+            <Link passHref href="#">
+              <a>
+                <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
+              </a>
+            </Link>
+          </Box>
         </Box>
         <Box css={contactStyles}>
           Contact
