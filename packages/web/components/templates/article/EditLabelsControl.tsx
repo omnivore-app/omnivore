@@ -15,6 +15,7 @@ import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMu
 import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
+import Router, { useRouter } from 'next/router'
 
 type EditLabelsControlProps = {
   article: ArticleAttributes
@@ -180,6 +181,7 @@ function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element
 }
 
 export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
+  const router = useRouter()
   const [filterText, setFilterText] = useState('')
   const { labels } = useGetLabelsQuery()
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.article.labels || [])
@@ -207,7 +209,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
     )
     props.article.labels = result
     props.articleActionHandler('refreshLabels', result)
-  }, [isSelected, selectedLabels])
+  }, [isSelected, selectedLabels, setSelectedLabels])
 
   const filteredLabels = useMemo(() => {
     if (!labels) {
@@ -244,6 +246,10 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
     }
     if (event.key === 'Enter') {
       event.preventDefault()
+      if (focusedIndex === maxIndex) {
+        router.push('/settings/labels')
+        return
+      }
       if (focusedIndex !== undefined) {
         const label = filteredLabels[focusedIndex]
         if (label) {
@@ -251,7 +257,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         }
       }
     }
-  }, [filteredLabels, focusedIndex])
+  }, [filteredLabels, focusedIndex, isSelected, selectedLabels, setSelectedLabels])
 
   return (
     <VStack
@@ -285,7 +291,11 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       </VStack>
       {filterText && (
         <Button style='modalOption' css={{
-          pl: '26px', color: theme.colors.grayText.toString(), height: '42px', borderBottom: '1px solid $grayBorder'
+          pl: '26px',
+          color: theme.colors.grayText.toString(),
+          height: '42px',
+          borderBottom: '1px solid $grayBorder',
+          bg: focusedIndex === filteredLabels.length ? '$grayBgActive' : 'unset',
         }} 
           onClick={async () => {
             const label = await createLabelMutation(filterText, randomLabelColorHex(), '')
