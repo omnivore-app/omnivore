@@ -31,7 +31,7 @@ const titleStyles = {
 
 const socialsContainerStyles = {
   maxWidth: 140,
-  marginBottom: 77
+  marginBottom: 79
 }
 
 const copyrightStyles = {
