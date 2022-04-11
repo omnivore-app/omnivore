@@ -19,6 +19,7 @@ import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHoriz
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { UserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
+import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type ReaderSettingsProps = {
   userPreferences?: UserPreferences
@@ -124,6 +125,7 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
             setMarginWidth(360)
             setLineHeight(150)
             props.articleActionHandler('resetReaderSettings')
+            showSuccessToast('Display settings reset', { position: 'bottom-right' })
           }}
         >
          <X size={14} color={theme.colors.grayText.toString()} />
