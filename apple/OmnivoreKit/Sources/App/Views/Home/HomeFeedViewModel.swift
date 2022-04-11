@@ -15,6 +15,11 @@ final class HomeFeedViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: FeedItem?
+  @Published var searchQuery = ""
+  @Published var snoozePresented = false
+  @Published var itemToSnooze: FeedItem?
+  @Published var selectedLinkItem: FeedItem?
+
   var cursor: String?
   var sendProgressUpdates = false
 
@@ -27,14 +32,14 @@ final class HomeFeedViewModel: ObservableObject {
 
   init() {}
 
-  func itemAppeared(item: FeedItem, searchQuery: String, dataService: DataService) {
+  func itemAppeared(item: FeedItem, dataService: DataService) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: false)
+      loadItems(dataService: dataService, isRefresh: false)
     }
   }
 
@@ -42,7 +47,7 @@ final class HomeFeedViewModel: ObservableObject {
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, searchQuery: String?, isRefresh: Bool) {
+  func loadItems(dataService: DataService, isRefresh: Bool) {
     // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
     dataService.clearHighlights()
 
@@ -63,7 +68,7 @@ final class HomeFeedViewModel: ObservableObject {
     dataService.libraryItemsPublisher(
       limit: 10,
       sortDescending: true,
-      searchQuery: searchQuery,
+      searchQuery: searchQuery.isEmpty ? nil : searchQuery,
       cursor: isRefresh ? nil : cursor
     )
     .sink(

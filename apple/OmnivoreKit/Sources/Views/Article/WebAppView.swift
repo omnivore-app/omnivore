@@ -10,7 +10,9 @@ enum WebViewConfigurationManager {
   static func create() -> WKWebViewConfiguration {
     let config = WKWebViewConfiguration()
     config.processPool = processPool
-    config.allowsInlineMediaPlayback = true
+    #if os(iOS)
+      config.allowsInlineMediaPlayback = true
+    #endif
     config.mediaTypesRequiringUserActionForPlayback = .audio
     return config
   }

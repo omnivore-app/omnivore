@@ -55,7 +55,7 @@ public final class WebView: WKWebView {
     }
 
   #elseif os(macOS)
-    override func viewDidChangeEffectiveAppearance() {
+    override public func viewDidChangeEffectiveAppearance() {
       super.viewDidChangeEffectiveAppearance()
       switch effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) {
       case .some(.darkAqua):

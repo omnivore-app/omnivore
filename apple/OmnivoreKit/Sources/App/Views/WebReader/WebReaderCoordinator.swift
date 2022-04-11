@@ -2,7 +2,9 @@ import Combine
 import Models
 import Services
 import SwiftUI
-import UIKit
+#if os(iOS)
+  import UIKit
+#endif
 import Utils
 import Views
 import WebKit

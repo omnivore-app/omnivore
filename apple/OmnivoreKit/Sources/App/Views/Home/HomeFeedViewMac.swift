@@ -9,12 +9,8 @@ import Views
 #if os(macOS)
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-    @State var searchQuery = ""
-    @State private var selectedLinkItem: FeedItem?
     @State private var itemToRemove: FeedItem?
     @State private var confirmationShown = false
-    @State private var snoozePresented = false
-    @State private var itemToSnooze: FeedItem?
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -33,8 +29,6 @@ import Views
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
-              searchQuery: searchQuery,
-              selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
             .contextMenu {
@@ -55,8 +49,8 @@ import Views
               )
               if FeatureFlag.enableSnooze {
                 Button {
-                  itemToSnooze = item
-                  snoozePresented = true
+                  viewModel.itemToSnooze = item
+                  viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
                 }
@@ -83,29 +77,29 @@ import Views
       .listStyle(PlainListStyle())
       .navigationTitle("Home")
       .searchable(
-        text: $searchQuery,
+        text: $viewModel.searchQuery,
         placement: .toolbar
       ) {
-        if searchQuery.isEmpty {
+        if viewModel.searchQuery.isEmpty {
           Text("Inbox").searchCompletion("in:inbox ")
           Text("All").searchCompletion("in:all ")
           Text("Archived").searchCompletion("in:archive ")
           Text("Files").searchCompletion("type:file ")
         }
       }
-      .onChange(of: searchQuery) { _ in
+      .onChange(of: viewModel.searchQuery) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
-        viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+        viewModel.loadItems(dataService: dataService, isRefresh: true)
       }
       .onSubmit(of: .search) {
-        viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+        viewModel.loadItems(dataService: dataService, isRefresh: true)
       }
       .toolbar {
         ToolbarItem {
           Button(
             action: {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+              viewModel.loadItems(dataService: dataService, isRefresh: true)
             },
             label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
           )
@@ -120,7 +114,7 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
     }
@@ -131,8 +125,6 @@ import Views
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
-              searchQuery: searchQuery,
-              selectedLinkItem: $selectedLinkItem,
               viewModel: viewModel
             )
           }
@@ -148,7 +140,7 @@ import Views
         ToolbarItem {
           Button(
             action: {
-              viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+              viewModel.loadItems(dataService: dataService, isRefresh: true)
             },
             label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
           )
@@ -156,7 +148,7 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: true)
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
     }
