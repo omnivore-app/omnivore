@@ -15,7 +15,7 @@ import { HighlightView } from '../../patterns/HighlightView'
 import { useCallback, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Minus, Pen, Plus, Trash } from 'phosphor-react'
+import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Minus, Pen, Plus, Trash, X } from 'phosphor-react'
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { UserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
@@ -99,17 +99,36 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
       }}>
         <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Line Height:</StyledText>
         <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
-          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
+          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
+            const newLineHeight = Math.max(lineHeight - 25, 100)
+            setLineHeight(newLineHeight)
+            props.articleActionHandler('setLineHeight', newLineHeight)
+          }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
           <TickedRangeSlider min={100} max={300} step={25} value={lineHeight} onChange={(value) => {
             setLineHeight(value)
             props.articleActionHandler('setLineHeight', value)
           }} />
-          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }}>
+          <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
+            const newLineHeight = Math.min(lineHeight + 25, 300)
+            setLineHeight(newLineHeight)
+            props.articleActionHandler('setLineHeight', newLineHeight)
+          }}>
             <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
           </Button>
         </HStack>
+
+        <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '8px', pb: '0px', pt: '16px', height: '42px', alignItems: 'center' }}
+          onClick={() => {
+            setMarginWidth(360)
+            setLineHeight(150)
+            props.articleActionHandler('resetReaderSettings')
+          }}
+        >
+         <X size={14} color={theme.colors.grayText.toString()} />
+        Reset to default
+      </Button>
       </VStack>
     </VStack>
   )

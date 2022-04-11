@@ -120,6 +120,12 @@ export default function Home(): JSX.Element {
         }
         break
       }
+      case 'resetReaderSettings': {
+        updateFontSize(20)
+        updateMarginWidth(360)
+        setLineHeight(150)
+        break
+      }
     }
   };
 
