@@ -111,14 +111,15 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         </SpanBox>
       </Button> */}
 
-      <TooltipWrapped
-        tooltipContent="View Highlights"
-        tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
-      >
-        <Button style='articleActionIcon'>
+      <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
+        <TooltipWrapped
+          tooltipContent="View Highlights"
+          tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+        >
           <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
-        </Button>
-      </TooltipWrapped>
+        </TooltipWrapped>
+      </Button>
+
       <MenuSeparator layout={props.layout} />
 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('archive')}>
