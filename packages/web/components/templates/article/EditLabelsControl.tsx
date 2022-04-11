@@ -297,10 +297,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       css={{ 
         p: '0',
         maxHeight: '92%',
-        '@mdDown': {
-          maxWidth: '100%',
-          maxHeight: '92%',
-        },
     }}>
       <Header
         focused={focusedIndex === undefined}
