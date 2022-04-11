@@ -79,6 +79,7 @@ type DropdownProps = {
   sideOffset?: number
   disabled?: boolean
   css?: CSS
+  modal?: boolean
 }
 
 export const DropdownSeparator = styled(Separator, {
@@ -116,10 +117,11 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
     side = 'bottom',
     sideOffset = 0,
     alignOffset = 0,
-    css
+    css,
+    modal
   } = props
   return (
-    <Root modal={false}>
+    <Root modal={modal}>
       <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
       <DropdownContent
         css={css}
