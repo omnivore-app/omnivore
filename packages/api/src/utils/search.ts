@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
-  ISearchParserDictionary,
   parse,
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
@@ -91,22 +90,22 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
 }
 
 const parseLabelFilter = (
-  str?: string,
-  exclude?: ISearchParserDictionary
+  excludedLabels: string[],
+  str?: string
 ): LabelFilter | undefined => {
   if (str === undefined) {
     return undefined
   }
 
-  const labels = str.split(',')
+  // use lower case for label names
+  const labels = str.toLowerCase().split(',')
 
-  // check if the labels are on the exclusion list
-  const excluded = exclude?.label && exclude.label.includes(...labels)
+  // check if all the labels are on the exclusion list
+  const excluded = labels.every((label) => excludedLabels.includes(label))
 
   return {
     type: excluded ? LabelFilterType.EXCLUDE : LabelFilterType.INCLUDE,
-    // use lower case for label names
-    labels: labels.map((label) => label.toLowerCase()),
+    labels: labels,
   }
 }
 
@@ -177,6 +176,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       result.query = undefined
     }
 
+    // lowercase the excluded labels
+    const excludedLabels: string[] = parsed.exclude?.label
+      ? parsed.exclude.label.map((label: string) => label.toLowerCase())
+      : []
+
     const keywords = parsed.offsets
       .filter((offset) => 'keyword' in offset)
       .map((offset) => offset as SearchParserKeyWordOffset)
@@ -193,7 +197,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           result.typeFilter = parseTypeFilter(keyword.value)
           break
         case 'label': {
-          const labelFilter = parseLabelFilter(keyword.value, parsed.exclude)
+          const labelFilter = parseLabelFilter(excludedLabels, keyword.value)
           labelFilter && result.labelFilters.push(labelFilter)
           break
         }
