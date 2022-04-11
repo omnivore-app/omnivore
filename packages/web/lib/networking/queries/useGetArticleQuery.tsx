@@ -112,7 +112,6 @@ export function useGetArticleQuery({
   // it will be nested in the data pages, if there is one error,
   // we invalidate the data and return the error. We also zero out
   // the response in the case of an error.
-  console.log('result data', resultData)
   if (!error && resultData && resultData.article.errorCodes) {
     resultError = resultData.article.errorCodes
     resultData = undefined
