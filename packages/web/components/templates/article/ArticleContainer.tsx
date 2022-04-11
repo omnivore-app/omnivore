@@ -148,7 +148,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             href={props.article.url}
           />
           {props.labels ? (
-            <SpanBox css={{ py: '16px', width: '100%' }}>
+            <SpanBox css={{ pb: '16px', width: '100%', '&:empty': { display: 'none' } }}>
               {props.labels?.map((label) =>
                 <LabelChip key={label.id} text={label.name} color={label.color} />
               )}
