@@ -17,8 +17,6 @@ import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
 import { Button } from '../elements/Button'
 import Link from 'next/link'
-import { ArchiveBox, ArrowSquareOut, DotsThree, HighlighterCircle, TagSimple, TextAa } from 'phosphor-react'
-import { ArticleActionsMenu } from '../templates/article/ArticleActionsMenu'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -28,6 +26,7 @@ type HeaderProps = {
   isFixedPosition: boolean
   scrollElementRef?: React.RefObject<HTMLDivElement>
   displayFontStepper?: boolean
+  toolbarControl?: JSX.Element
   setShowLogoutConfirmation: (showShareModal: boolean) => void
   setShowKeyboardCommandsModal: (showShareModal: boolean) => void
 }
@@ -56,9 +55,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     (changeset: ScrollOffsetChangeset) => {
       const isScrolledBeyondMinThreshold = changeset.current.y >= 50
       const isScrollingDown = changeset.current.y > changeset.previous.y
-
-      // setIsScrolled(isScrolledBeyondMinThreshold)
-      // setShowHeader(!(isScrollingDown && isScrolledBeyondMinThreshold))
     },
     0
   )
@@ -129,6 +125,7 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
         isDisplayingShadow={isScrolled}
         isVisible={true}
         isFixedPosition={true}
+        toolbarControl={props.toolbarControl}
         displayFontStepper={props.displayFontStepper}
       />
     </>
@@ -145,6 +142,7 @@ type NavHeaderProps = {
   isVisible?: boolean
   isFixedPosition: boolean
   displayFontStepper?: boolean
+  toolbarControl?: JSX.Element
 }
 
 function NavHeader(props: NavHeaderProps): JSX.Element {
@@ -185,20 +183,19 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           <NavLinks currentPath={currentPath} isLoggedIn={!!props.username} />
         </HStack>
 
-        <HStack distribution="end" alignment="center" css={{
-          height: '100%',
-          width: '100%',
-          display: 'none',
-          '@lgDown': {
-            display: 'flex',
-          },
-          mr: '16px',
-          }}
-        >
-          <ArticleActionsMenu layout='horizontal' articleActionHandler={() => {
-            console.log('action handler')
-          }} />
-        </HStack>
+        {props.toolbarControl && (
+          <HStack distribution="end" alignment="center" css={{
+            height: '100%', width: '100%',
+            mr: '16px',
+            display: 'none',
+            '@lgDown': {
+              display: 'flex',
+            },
+            }}
+          >
+            {props.toolbarControl}
+          </HStack>
+        )}
 
         {props.username ? (
           <HStack

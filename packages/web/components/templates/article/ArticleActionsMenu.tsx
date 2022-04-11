@@ -1,6 +1,7 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
 import { useRef } from "react"
+import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticleQuery"
 import { useGetUserPreferences, UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
@@ -12,6 +13,7 @@ import { ReaderSettings } from "./ReaderSettingsModal"
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
 type ArticleActionsMenuProps = {
+  article: ArticleAttributes
   layout: ArticleActionsMenuLayout
   articleActionHandler: (action: string, arg?: number) => void
 }
@@ -39,7 +41,7 @@ type ActionDropdownProps = {
 const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
   return <Dropdown
     showArrow={true}
-    css={{  m: '0px', p: '0px' }}
+    css={{ m: '0px', p: '0px' }}
     side={props.layout == 'vertical' ? 'right' : 'bottom'}
     sideOffset={props.layout == 'vertical' ? 8 : 0}
     align={props.layout == 'vertical' ? 'start' : 'center'}
@@ -91,6 +93,16 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       >
         <EditLabelsControl />
       </ActionDropdown>
+{/* 
+      <Button onClick={() => props.articleActionHandler('editLabels')} css={{
+        // '@smDown': {
+        //   display: 'none',
+        // },
+      }}>
+        <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
+          <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+        </SpanBox>
+      </Button> */}
 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
         <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />

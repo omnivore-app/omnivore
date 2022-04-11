@@ -4,7 +4,6 @@ import {
   ReactNode,
   MutableRefObject,
   useEffect,
-  useContext,
   useState,
 } from 'react'
 import { PrimaryHeader } from './../patterns/PrimaryHeader'
@@ -24,6 +23,7 @@ type PrimaryLayoutProps = {
   pageMetaDataProps?: PageMetaDataProps
   scrollElementRef?: MutableRefObject<HTMLDivElement | null>
   displayFontStepper?: boolean
+  headerToolbarControl?: JSX.Element
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
@@ -76,6 +76,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           userInitials={viewerData?.me?.name.charAt(0) ?? ''}
           profileImageURL={viewerData?.me?.profile.pictureUrl}
           isFixedPosition={true}
+          toolbarControl={props.headerToolbarControl}
           scrollElementRef={props.scrollElementRef}
           displayFontStepper={props.displayFontStepper}
           setShowLogoutConfirmation={setShowLogoutConfirmation}

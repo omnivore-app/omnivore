@@ -31,6 +31,7 @@ import { Article } from '../../../components/templates/article/Article'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
 import { HighlightsModal } from '../../../components/templates/article/HighlightsModal'
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
+import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
 
 const MenuSeparator = styled(Separator, {
   width: '100%',
@@ -111,9 +112,8 @@ export default function Home(): JSX.Element {
         updateMarginWidth(Math.max(marginWidth - 50, 200))
         break
       case 'editLabels':
-        if (viewerData?.me && isVipUser(viewerData?.me)) {
-          setShowLabelsModal(true)
-        }
+        setShowLabelsModal(true)
+        console.log('showing labels modal')
         break
     }
   };
@@ -130,6 +130,13 @@ export default function Home(): JSX.Element {
         pageTestId="home-page-tag"
         scrollElementRef={scrollRef}
         displayFontStepper={true}
+        headerToolbarControl={
+          <ArticleActionsMenu
+            article={article}
+            layout='horizontal'
+            articleActionHandler={actionHandler}
+          />
+        }
         pageMetaDataProps={{
           title: article.title,
           path: router.pathname,
@@ -157,6 +164,7 @@ export default function Home(): JSX.Element {
           }}
         >
           <ArticleActionsMenu
+            article={article}
             layout='vertical'
             articleActionHandler={actionHandler}
           />
@@ -205,18 +213,9 @@ export default function Home(): JSX.Element {
                 }}
               />
             )}
-              {/* {showLabelsModal && (
-                <EditLabelsModal
-                  labels={article.labels || []}
-                  article={article}
-                  onOpenChange={() => {
-                    setShowLabelsModal(false)
-                  }}
-                  setLabels={(labels: Label[]) => {
-                    // setLabels(labels)
-                  }}
-                />
-              )} */}
+            {showLabelsModal && (
+              <EditLabelsModal />
+            )}
       </PrimaryLayout>
     )
   }
