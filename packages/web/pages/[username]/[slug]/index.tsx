@@ -85,7 +85,7 @@ export default function Home(): JSX.Element {
             if (res) {
               showSuccessToast('Link archived', { position: 'bottom-right' })
             } else {
-              // todo: 
+              // todo: revalidate or put back in cache?
               showErrorToast('Error archiving link', { position: 'bottom-right' })
             }
           })
