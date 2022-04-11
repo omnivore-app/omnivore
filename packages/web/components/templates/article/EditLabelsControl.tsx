@@ -24,7 +24,6 @@ type EditLabelsControlProps = {
 type HeaderProps = {
   filterText: string
   focused: boolean
-  parentRef: React.RefObject<HTMLDivElement>
   setFilterText: (text: string) => void
 }
 
@@ -169,7 +168,6 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
 }
 
 export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
-  const parentRef = useRef<HTMLDivElement>(null)
   const [filterText, setFilterText] = useState('')
   const { labels } = useGetLabelsQuery()
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.article.labels || [])
@@ -244,7 +242,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
 
   return (
     <VStack
-      ref={parentRef}
       distribution="start"
       onKeyDown={handleKeyDown}
       css={{ 
@@ -257,7 +254,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         },
     }}>
       <Header
-        parentRef={parentRef}
         focused={focusedIndex === undefined}
         setFilterText={setFilterText} filterText={filterText}
       />
