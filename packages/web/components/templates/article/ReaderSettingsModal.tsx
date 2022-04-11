@@ -1,20 +1,8 @@
-import {
-  ModalRoot,
-  ModalOverlay,
-  ModalContent,
-} from '../../elements/ModalPrimitives'
-import { Box, HStack, VStack, Separator, SpanBox } from '../../elements/LayoutPrimitives'
+import { HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { CrossIcon } from '../../elements/images/CrossIcon'
-import { CommentIcon } from '../../elements/images/CommentIcon'
-import { TrashIcon } from '../../elements/images/TrashIcon'
 import { styled, theme } from '../../tokens/stitches.config'
-import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { HighlightView } from '../../patterns/HighlightView'
-import { useCallback, useState } from 'react'
-import { StyledTextArea } from '../../elements/StyledTextArea'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { useState } from 'react'
 import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Minus, Pen, Plus, Trash, X } from 'phosphor-react'
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
@@ -128,7 +116,6 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
             showSuccessToast('Display settings reset', { position: 'bottom-right' })
           }}
         >
-         <X size={14} color={theme.colors.grayText.toString()} />
         Reset to default
       </Button>
       </VStack>
