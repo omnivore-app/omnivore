@@ -218,6 +218,8 @@ export default function Home(): JSX.Element {
                 margin={marginWidth}
                 lineHeight={lineHeight}
                 labels={labels}
+                showHighlightsModal={showHighlightsModal}
+                setShowHighlightsModal={setShowHighlightsModal}
                 articleMutations={{
                   createHighlightMutation,
                   deleteHighlightMutation,
@@ -227,15 +229,6 @@ export default function Home(): JSX.Element {
                 }}
               />
               </VStack>
-            )}
-            {showHighlightsModal && (
-              <HighlightsModal
-                highlights={article.highlights}
-                onOpenChange={() => setShowHighlightsModal(false)}
-                deleteHighlightAction={(highlightId: string) => {
-                  // removeHighlightCallback(highlightId)
-                }}
-              />
             )}
       </PrimaryLayout>
     )

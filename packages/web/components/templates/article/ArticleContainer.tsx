@@ -15,6 +15,7 @@ import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { HighlightsModal } from './HighlightsModal'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -28,11 +29,13 @@ type ArticleContainerProps = {
   fontSize?: number
   fontFamily?: string
   lineHeight?: number
+  showHighlightsModal?: boolean
+  setShowHighlightsModal?: (show: boolean) => void
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showNotesSidebar, setShowNotesSidebar] = useState(false)
+  const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
 
@@ -157,7 +160,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           <ArticleHeaderToolbar
             articleTitle={props.article.title}
             articleShareURL={props.highlightsBaseURL}
-            setShowNotesSidebar={setShowNotesSidebar}
+            setShowHighlightsModal={setShowHighlightsModal}
             setShowShareArticleModal={setShowShareModal}
             hasHighlights={props.article.highlights?.length > 0}
           />
@@ -193,9 +196,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
-        showNotesSidebar={showNotesSidebar}
+        showHighlightsModal={showHighlightsModal}
         highlightsBaseURL={props.highlightsBaseURL}
-        setShowNotesSidebar={setShowNotesSidebar}
+        setShowHighlightsModal={setShowHighlightsModal}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (
