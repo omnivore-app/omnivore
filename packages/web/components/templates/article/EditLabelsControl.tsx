@@ -1,25 +1,20 @@
-import {
-  ModalContent,
-  ModalOverlay,
-  ModalRoot,
-} from '../../elements/ModalPrimitives'
+import { useCallback, useRef, useState, useMemo, useEffect } from 'react'
+import Link from 'next/link'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { styled, theme } from '../../tokens/stitches.config'
-import { Label, useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { ChangeEvent, useCallback, useRef, useState, useMemo, useEffect, MouseEventHandler } from 'react'
-import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
-import { LabelChip } from '../../elements/LabelChip'
-import { Check, Circle, Pen, PencilSimple, PencilSimpleLine, Plus, TagSimple } from 'phosphor-react'
-import Link from 'next/link'
+import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
+
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 type EditLabelsControlProps = {
   // labels: Label[]
-  // article: ArticleAttributes
+  article: ArticleAttributes
   // onOpenChange: (open: boolean) => void
   // setLabels: (labels: Label[]) => void
 }
@@ -176,7 +171,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
   const [filterText, setFilterText] = useState('')
   const { labels } = useGetLabelsQuery()
 
-  const [selectedLabels, setSelectedLabels] = useState<Label[]>([])
+  const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.article.labels || [])
 
   const isSelected = useCallback((label: Label): boolean => {
     return selectedLabels.some((other) => {

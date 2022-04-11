@@ -91,7 +91,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           </SpanBox>
         }
       >
-        <EditLabelsControl />
+        <EditLabelsControl article={props.article} />
       </ActionDropdown>
 {/* 
       <Button onClick={() => props.articleActionHandler('editLabels')} css={{

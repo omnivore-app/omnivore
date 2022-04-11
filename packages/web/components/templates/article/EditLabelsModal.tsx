@@ -15,7 +15,7 @@ export function EditLabelsModal(): JSX.Element {
         }}
         css={{ overflow: 'auto', p: '0' }}
       >
-        <EditLabelsControl />
+        {/* <EditLabelsControl /> */}
       </ModalContent>
     </ModalRoot>
   )

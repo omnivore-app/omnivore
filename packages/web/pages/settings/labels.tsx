@@ -15,8 +15,7 @@ import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelM
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
 import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { Label } from '../../lib/networking/queries/useGetLabelsQuery'
-
+import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { StyledText } from '../../components/elements/StyledText'
 import {
   ArrowClockwise,
@@ -26,7 +25,6 @@ import {
   Plus,
 } from 'phosphor-react'
 import {
-  LabelColor,
   GenericTableCardProps,
   LabelColorHex,
 } from '../../utils/settings-page/labels/types'

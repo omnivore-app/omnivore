@@ -176,15 +176,15 @@ export default function Home(): JSX.Element {
             />
           ) : (
             <VStack
-            alignment="center"
-            distribution="center"
-            ref={scrollRef}
-            className="disable-webkit-callout"
-            css={{
-              '@smDown': {
-                background: theme.colors.grayBg.toString(),
-              }
-            }}
+              alignment="center"
+              distribution="center"
+              ref={scrollRef}
+              className="disable-webkit-callout"
+              css={{
+                '@smDown': {
+                  background: theme.colors.grayBg.toString(),
+                }
+              }}
             >
               <ArticleContainer
                 article={article}

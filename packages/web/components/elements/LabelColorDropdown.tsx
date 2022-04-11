@@ -2,21 +2,18 @@ import React, { useState } from 'react'
 import { styled } from '../tokens/stitches.config'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { HexColorPicker } from 'react-colorful'
-import { Button } from './Button'
 import { HStack, SpanBox } from './LayoutPrimitives'
 import { CaretDown } from 'phosphor-react'
 import { StyledText } from './StyledText'
 import {
-  ColorDetailsProps,
-  LabelColor,
   LabelColorDropdownProps,
-  LabelColorHex,
   LabelColorObject,
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
 import { DropdownOption } from './DropdownElements'
 import { isDarkTheme } from '../../lib/themeUpdater'
+import { LabelColor } from '../../lib/networking/fragments/labelFragment'
 
 const DropdownMenuContent = styled(DropdownMenuPrimitive.Content, {
   maxWidth: 190,

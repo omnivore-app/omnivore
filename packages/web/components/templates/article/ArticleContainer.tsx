@@ -1,6 +1,6 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
@@ -13,6 +13,7 @@ import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { LabelChip } from '../../elements/LabelChip'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -158,6 +159,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             author={props.article.author}
             href={props.article.url}
           />
+          <HStack>
+            {props.article.labels?.map((label) =>
+              <LabelChip key={label.id} text={label.name} color={label.color} />
+            )}
+          </HStack>
           <ArticleHeaderToolbar
             articleTitle={props.article.title}
             articleShareURL={props.highlightsBaseURL}
