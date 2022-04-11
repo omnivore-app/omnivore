@@ -15,10 +15,10 @@ struct ApplyLabelsView: View {
   var innerBody: some View {
     List {
       Section(header: Text("Assigned Labels")) {
-        if viewModel.selectedLabelsForItemInContext.isEmpty {
+        if viewModel.selectedLabels.isEmpty {
           Text("No labels are currently assigned.")
         }
-        ForEach(viewModel.selectedLabelsForItemInContext.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.selectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -34,7 +34,7 @@ struct ApplyLabelsView: View {
         }
       }
       Section(header: Text("Available Labels")) {
-        ForEach(viewModel.unselectedLabelsForItemInContext.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.unselectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
