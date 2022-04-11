@@ -61,6 +61,9 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           pb: '14px',
           width: '100%',
           height: '100%',
+          '@smDown': {
+            display: 'none',
+          },
         }}
       >
         <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Margin:</StyledText>
