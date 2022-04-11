@@ -101,11 +101,18 @@ export default function Home(): JSX.Element {
       case 'decrementFontSize':
         await updateFontSize(Math.max(fontSize - 2, 10))
         break
+      case 'setMarginWidth': {
+        const value = Number(arg)
+        if (value > 200 && value < 560) {
+          updateMarginWidth(value)
+        }
+        break
+      }
       case 'incrementMarginWidth':
-        updateMarginWidth(Math.min(marginWidth + 50, 560))
+        updateMarginWidth(Math.min(marginWidth + 45, 560))
         break
       case 'decrementMarginWidth':
-        updateMarginWidth(Math.max(marginWidth - 50, 200))
+        updateMarginWidth(Math.max(marginWidth - 45, 200))
         break
     }
   };
