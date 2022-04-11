@@ -204,8 +204,9 @@ final class HomeFeedViewModel: ObservableObject {
 
     var query = searchTerm
 
-    for label in selectedLabels {
-      query.append(" label:\(label.name)")
+    if !selectedLabels.isEmpty {
+      query.append(" label:")
+      query.append(selectedLabels.map(\.name).joined(separator: ","))
     }
 
     return query
