@@ -1,7 +1,7 @@
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
+import { removeItemFromCache, useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
@@ -25,6 +25,8 @@ import { ArticleActionsMenu } from '../../../components/templates/article/Articl
 import { HighlightsModal } from '../../../components/templates/article/HighlightsModal'
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { useSWRConfig } from 'swr'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -34,6 +36,7 @@ const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
 
 export default function Home(): JSX.Element {
   const router = useRouter()
+  const { cache, mutate } = useSWRConfig()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
@@ -73,12 +76,20 @@ export default function Home(): JSX.Element {
     switch (action) {
       case 'archive':
         if (article) {
+          removeItemFromCache(cache, mutate, article.id)
+
           await setLinkArchivedMutation({
             linkId: article.id,
             archived: true,
+          }).then((res) => {
+            if (res) {
+              showSuccessToast('Link archived', { position: 'bottom-right' })
+            } else {
+              // todo: 
+              showErrorToast('Error archiving link', { position: 'bottom-right' })
+            }
           })
-          // TODO: merge from article actions PR
-          // removeItemFromCache(cache, mutate, props.article.id)
+
           router.push(`/home`)
         }
         break

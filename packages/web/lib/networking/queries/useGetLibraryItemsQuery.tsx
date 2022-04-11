@@ -40,7 +40,7 @@ export type LibraryItemsData = {
   articles: LibraryItems
 }
 
-type LibraryItems = {
+export type LibraryItems = {
   edges: LibraryItem[]
   pageInfo: PageInfo
   errorCodes?: string[]
