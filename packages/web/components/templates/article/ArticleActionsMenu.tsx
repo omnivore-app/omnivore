@@ -1,8 +1,7 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
-import { useRef } from "react"
 import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticleQuery"
-import { useGetUserPreferences, UserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
+import { useGetUserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
@@ -15,7 +14,7 @@ export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 type ArticleActionsMenuProps = {
   article: ArticleAttributes
   layout: ArticleActionsMenuLayout
-  articleActionHandler: (action: string, arg?: number) => void
+  articleActionHandler: (action: string, arg?: unknown) => void
 }
 
 type MenuSeparatorProps = {
@@ -91,7 +90,10 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           </SpanBox>
         }
       >
-        <EditLabelsControl article={props.article} />
+        <EditLabelsControl
+          article={props.article}
+          articleActionHandler={props.articleActionHandler}
+        />
       </ActionDropdown>
 {/* 
       <Button onClick={() => props.articleActionHandler('editLabels')} css={{

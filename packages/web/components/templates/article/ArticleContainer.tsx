@@ -1,6 +1,6 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
@@ -14,9 +14,11 @@ import { userPersonalizationMutation } from '../../../lib/networking/mutations/u
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
+  labels: Label[]
   articleMutations: ArticleMutations
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
   isAppleAppEmbed: boolean
@@ -29,14 +31,10 @@ type ArticleContainerProps = {
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   const [margin, setMargin] = useState(props.margin ?? 360)
-  const [labels, setLabels] = useState(
-    props.article.labels?.map((l) => l.id) || []
-  )
 
   const updateFontSize = async (newFontSize: number) => {
     if (fontSize !== newFontSize) {
@@ -159,11 +157,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             author={props.article.author}
             href={props.article.url}
           />
-          <HStack>
-            {props.article.labels?.map((label) =>
-              <LabelChip key={label.id} text={label.name} color={label.color} />
-            )}
-          </HStack>
+          {props.labels ? (
+            <SpanBox css={{ py: '16px', width: '100%' }}>
+              {props.labels?.map((label) =>
+                <LabelChip key={label.id} text={label.name} color={label.color} />
+              )}
+            </SpanBox>
+          ) : null}
           <ArticleHeaderToolbar
             articleTitle={props.article.title}
             articleShareURL={props.highlightsBaseURL}

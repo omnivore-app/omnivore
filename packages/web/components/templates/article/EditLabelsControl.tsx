@@ -11,12 +11,11 @@ import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticle
 import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
 
 import { isTouchScreenDevice } from '../../../lib/deviceType'
+import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 
 type EditLabelsControlProps = {
-  // labels: Label[]
   article: ArticleAttributes
-  // onOpenChange: (open: boolean) => void
-  // setLabels: (labels: Label[]) => void
+  articleActionHandler: (action: string, arg?: unknown) => void
 }
 
 type HeaderProps = {
@@ -170,7 +169,6 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
   const parentRef = useRef<HTMLDivElement>(null)
   const [filterText, setFilterText] = useState('')
   const { labels } = useGetLabelsQuery()
-
   const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.article.labels || [])
 
   const isSelected = useCallback((label: Label): boolean => {
@@ -179,14 +177,25 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
     })
   }, [selectedLabels])
 
-  const toggleLabel = useCallback((label: Label) => {
+  const toggleLabel = useCallback(async (label: Label) => {
+    let newSelectedLabels = [...selectedLabels]
     if (isSelected(label)) {
-      setSelectedLabels(selectedLabels.filter((other) => {
+      newSelectedLabels = selectedLabels.filter((other) => {
         return other.id !== label.id
-      }))
+      })
     } else {
-      setSelectedLabels([...selectedLabels, label])
+      newSelectedLabels = [...selectedLabels, label]
     }
+    setSelectedLabels(newSelectedLabels)
+
+    const result = await setLabelsMutation(
+      props.article.linkId,
+      newSelectedLabels.map((label) => label.id)
+    )
+    props.article.labels = result
+    props.articleActionHandler('refreshLabels', result)
+
+    console.log('refreshing article with labels', props.article.labels)
   }, [isSelected, selectedLabels])
 
   const filteredLabels = useMemo(() => {

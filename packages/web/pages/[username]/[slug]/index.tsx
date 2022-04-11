@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { articleKeyboardCommands, navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
@@ -20,26 +20,12 @@ import { articleReadingProgressMutation } from '../../../lib/networking/mutation
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import Script from 'next/script'
-import { EditLabelsControl } from '../../../components/templates/article/EditLabelsControl'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { isVipUser } from '../../../lib/featureFlag'
-import { styled, theme } from '../../../components/tokens/stitches.config'
-import { Button } from '../../../components/elements/Button'
-import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from 'phosphor-react'
-import { Separator } from '@radix-ui/react-separator'
-import { Article } from '../../../components/templates/article/Article'
+import { theme } from '../../../components/tokens/stitches.config'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
 import { HighlightsModal } from '../../../components/templates/article/HighlightsModal'
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
-import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
-const MenuSeparator = styled(Separator, {
-  width: '100%',
-  margin: 0,
-  backgroundColor: 'red',
-  borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
-  my: '8px',
-})
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -50,20 +36,28 @@ export default function Home(): JSX.Element {
   const router = useRouter()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
-  const [showLabelsModal, setShowLabelsModal] = useState(false)
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
   // Populate data cache
   const { viewerData } = useGetViewerQuery()
-  const { articleData } = useGetArticleQuery({
+
+  const { preferencesData } = useGetUserPreferences()
+  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
+  const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
+
+  const { articleData, mutate } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
     includeFriendsHighlights: false,
   })
-  const { preferencesData } = useGetUserPreferences()
   const article = articleData?.article.article
-  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
-  const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
+
+  const [labels, setLabels] = useState<Label[]>([])
+  useEffect(() => {
+    if (article?.labels) {
+      setLabels(article.labels)
+    }
+  }, [article])
 
   useKeyboardShortcuts(navigationCommands(router))
 
@@ -73,11 +67,10 @@ export default function Home(): JSX.Element {
   }
 
   const updateMarginWidth = async (newMargin: number) => {
-    console.log('margin', newMargin)
     setMarginWidth(newMargin)
   }
 
-  const actionHandler = async (action: string, arg?: number) => {
+  const actionHandler = async (action: string, arg?: unknown) => {
     switch (action) {
       case 'archive':
         if (article) {
@@ -96,6 +89,9 @@ export default function Home(): JSX.Element {
           window.open(url, '_blank')
         }
         break
+      case 'refreshLabels':
+        setLabels(arg as Label[])
+        break
       case 'showHighlights':
         setShowHighlightsModal(true)
         break
@@ -110,10 +106,6 @@ export default function Home(): JSX.Element {
         break
       case 'decrementMarginWidth':
         updateMarginWidth(Math.max(marginWidth - 50, 200))
-        break
-      case 'editLabels':
-        setShowLabelsModal(true)
-        console.log('showing labels modal')
         break
     }
   };
@@ -194,6 +186,7 @@ export default function Home(): JSX.Element {
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
                 fontSize={fontSize}
                 margin={marginWidth}
+                labels={labels}
                 articleMutations={{
                   createHighlightMutation,
                   deleteHighlightMutation,
@@ -212,9 +205,6 @@ export default function Home(): JSX.Element {
                   // removeHighlightCallback(highlightId)
                 }}
               />
-            )}
-            {showLabelsModal && (
-              <EditLabelsModal />
             )}
       </PrimaryLayout>
     )

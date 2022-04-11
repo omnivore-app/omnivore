@@ -1,9 +1,10 @@
 import { gql } from 'graphql-request'
 import useSWRImmutable from 'swr'
+import useSWR from 'swr'
 import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
 import { articleFragment, ContentReader } from '../fragments/articleFragment'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
-import { ScopedMutator } from 'swr/dist/types'
+import { KeyedMutator, ScopedMutator } from 'swr/dist/types'
 import { Label, labelFragment } from '../fragments/labelFragment'
 
 type ArticleQueryInput = {
@@ -16,6 +17,7 @@ type ArticleQueryOutput = {
   articleData?: ArticleData
   articleFetchError: unknown
   isLoading: boolean
+  mutate: KeyedMutator<unknown>
 }
 
 type ArticleData = {
@@ -99,7 +101,7 @@ export function useGetArticleQuery({
     includeFriendsHighlights,
   }
 
-  const { data, error } = useSWRImmutable(
+  const { data, error, mutate } = useSWR(
     slug ? [query, username, slug, includeFriendsHighlights] : null,
     makeGqlFetcher(variables)
   )
@@ -110,12 +112,14 @@ export function useGetArticleQuery({
   // it will be nested in the data pages, if there is one error,
   // we invalidate the data and return the error. We also zero out
   // the response in the case of an error.
+  console.log('result data', resultData)
   if (!error && resultData && resultData.article.errorCodes) {
     resultError = resultData.article.errorCodes
     resultData = undefined
   }
 
   return {
+    mutate,
     articleData: resultData,
     articleFetchError: resultError as unknown,
     isLoading: !error && !data,
