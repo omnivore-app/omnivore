@@ -23,10 +23,11 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
+        css={{ overflow: 'auto' }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
+          props.onOpenChange(false)
         }}
-        css={{ overflow: 'auto', p: '0', width: '100%' }}
       >
         <VStack css={{ width: '100%' }}>
           <HStack
