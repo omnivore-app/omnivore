@@ -200,7 +200,7 @@ const darkThemeSpec = {
   },
   shadows: {
     cardBoxShadow:
-      '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)',
+      '0px 0px 9px -2px rgba(255, 255, 255, 0.09), 0px 7px 12px rgba(255, 255, 255, 0.07)',
   },
 }
 
