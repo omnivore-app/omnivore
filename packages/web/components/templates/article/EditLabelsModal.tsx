@@ -23,7 +23,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ overflow: 'auto' }}
+        css={{ border: '1px solid $grayBorder' }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
           props.onOpenChange(false)
