@@ -142,7 +142,8 @@ def get_pages_with_highlights(conn):
                 elastic_page_id as "pageId"
             FROM omnivore.highlight
             WHERE
-                deleted = false
+                elastic_page_id IS NOT NULL
+                AND deleted = false
                 AND created_at > '{UPDATE_TIME}'
         '''
         cursor = conn.cursor(cursor_factory=RealDictCursor)
