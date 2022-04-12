@@ -1272,9 +1272,9 @@ const schema = gql`
   union LabelsResult = LabelsSuccess | LabelsError
 
   input CreateLabelInput {
-    name: String!
+    name: String! @sanitize(maxLength: 64)
     color: String!
-    description: String
+    description: String @sanitize(maxLength: 100)
   }
 
   type CreateLabelSuccess {
