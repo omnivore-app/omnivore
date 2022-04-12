@@ -102,7 +102,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
-        cardBoxShadow: '0px 0px 4px 0px rgb(255 255 255 / 10%)',
+        cardBoxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.1)',
       },
       zIndices: {},
       transitions: {},
