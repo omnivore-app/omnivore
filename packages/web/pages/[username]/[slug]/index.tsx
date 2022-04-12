@@ -29,6 +29,7 @@ import { useSWRConfig } from 'swr'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { EditLabelsControl } from '../../../components/templates/article/EditLabelsControl'
 import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
+import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -49,7 +50,8 @@ export default function Home(): JSX.Element {
   const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
   const [lineHeight, setLineHeight] = useState(preferencesData?.lineHeight ?? 150)
   const [showEditLabelsModal, setShowEditLabelsModal] = useState(false)
-
+  const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
+  
   const { articleData } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
@@ -132,6 +134,10 @@ export default function Home(): JSX.Element {
         if (value >= 100 && value <= 300) {
           setLineHeight(value)
         }
+        break
+      }
+      case 'editDisplaySettings': {
+        setShowEditDisplaySettingsModal(true)
         break
       }
       case 'editLabels': {
@@ -243,6 +249,14 @@ export default function Home(): JSX.Element {
             article={article}
             articleActionHandler={actionHandler}
             onOpenChange={() => setShowEditLabelsModal(false)}
+          />
+        )}
+
+        {showEditDisplaySettingsModal && (
+          <DisplaySettingsModal
+            userPreferences={preferencesData}
+            articleActionHandler={actionHandler}
+            onOpenChange={() => setShowEditDisplaySettingsModal(false)}
           />
         )}
       </PrimaryLayout>

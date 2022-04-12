@@ -29,7 +29,7 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
       <HStack 
         alignment='center'
         css={{
-          width: '265px',
+          width: '100%',
           height: '70px',
           borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
         }}
@@ -56,7 +56,7 @@ export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
           },
         }}
       >
-        <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Margin:</StyledText>
+        <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '8px', m: '0px', pt: '14px' }}>Margin:</StyledText>
         <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
             const newMarginWith = Math.max(marginWidth - 45, 200)

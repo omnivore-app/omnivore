@@ -41,7 +41,7 @@ type ActionDropdownProps = {
 const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
   return <Dropdown
     showArrow={true}
-    css={{ m: '0px', p: '0px', overflow: 'hidden', width: '265px', maxWidth: '265px' }}
+    css={{ m: '0px', p: '0px', overflow: 'hidden', width: '265px', maxWidth: '265px', '@smDown': { width: '230px' } }}
     side={props.layout == 'vertical' ? 'right' : 'bottom'}
     sideOffset={props.layout == 'vertical' ? 8 : 0}
     align={props.layout == 'vertical' ? 'start' : 'center'}
@@ -68,6 +68,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         m: '0px',
       }}
     >
+
       <ActionDropdown
         layout={props.layout}
         triggerElement={
