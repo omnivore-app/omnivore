@@ -15,7 +15,7 @@ import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMu
 import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 
 type EditLabelsControlProps = {
   article: ArticleAttributes
@@ -163,19 +163,22 @@ function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element
   return (
     <HStack
       ref={ref}
-      distribution="start"  alignment="center" css={{
-      ml: '20px', gap: '8px', width: '100%', fontSize: '12px', p: '8px', height: '42px',
-      bg: props.focused ? '$grayBgActive' : 'unset',
-      'a:link': {
-        textDecoration: 'none',
-      },
-      'a:visited': {
-        color: theme.colors.grayText.toString(),
-      },
-    }}
+      distribution="start"  alignment="center"
+      css={{
+        width: '100%', height: '42px',
+        bg: props.focused ? '$grayBgActive' : 'unset',
+        'a:link': {
+          textDecoration: 'none',
+        },
+        'a:visited': {
+          color: theme.colors.grayText.toString(),
+        },
+      }}
   >
-    <PencilSimple size={18} color={theme.colors.grayText.toString()} />
-    <Link href="/settings/labels">Edit labels</Link>
+    <SpanBox css={{ display: 'flex', fontSize: '12px', padding: '33px', gap: '8px' }}>
+      <PencilSimple size={18} color={theme.colors.grayText.toString()} />
+      <Link href="/settings/labels">Edit labels</Link>
+    </SpanBox>
   </HStack>
   )
 }
@@ -296,7 +299,8 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       onKeyDown={handleKeyDown}
       css={{ 
         p: '0',
-        maxHeight: '92%',
+        width: '100%',
+        maxHeight: '80%',
     }}>
       <Header
         focused={focusedIndex === undefined}

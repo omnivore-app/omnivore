@@ -15,7 +15,6 @@ import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { HighlightsModal } from './HighlightsModal'
 
 type ArticleContainerProps = {
   article: ArticleAttributes

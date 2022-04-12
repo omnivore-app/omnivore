@@ -27,6 +27,8 @@ import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLi
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useSWRConfig } from 'swr'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { EditLabelsControl } from '../../../components/templates/article/EditLabelsControl'
+import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -46,6 +48,7 @@ export default function Home(): JSX.Element {
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
   const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
   const [lineHeight, setLineHeight] = useState(preferencesData?.lineHeight ?? 150)
+  const [showEditLabelsModal, setShowEditLabelsModal] = useState(false)
 
   const { articleData } = useGetArticleQuery({
     username: router.query.username as string,
@@ -129,6 +132,10 @@ export default function Home(): JSX.Element {
         if (value >= 100 && value <= 300) {
           setLineHeight(value)
         }
+        break
+      }
+      case 'editLabels': {
+        setShowEditLabelsModal(true)
         break
       }
       case 'resetReaderSettings': {
@@ -230,6 +237,14 @@ export default function Home(): JSX.Element {
               />
               </VStack>
             )}
+
+        {showEditLabelsModal && (
+          <EditLabelsModal
+            article={article}
+            articleActionHandler={actionHandler}
+            onOpenChange={() => setShowEditLabelsModal(false)}
+          />
+        )}
       </PrimaryLayout>
     )
   }

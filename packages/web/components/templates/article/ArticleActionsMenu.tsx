@@ -4,7 +4,7 @@ import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticle
 import { useGetUserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
-import { Box } from "../../elements/LayoutPrimitives"
+import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
 import { EditLabelsControl } from "./EditLabelsControl"
@@ -84,32 +84,40 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
 
       <MenuSeparator layout={props.layout} />
 
-      <ActionDropdown
-        layout={props.layout}
-        triggerElement={
-          <TooltipWrapped
-            tooltipContent="Edit Tags"
-            tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
-        >
-          <TagSimple size={24} color={theme.colors.readerFont.toString()} />
-        </TooltipWrapped>
-        }
+      <SpanBox css={{
+        'display': 'flex',
+        '@smDown': {
+          display: 'none',
+        }}}
       >
-        <EditLabelsControl
-          article={props.article}
-          articleActionHandler={props.articleActionHandler}
-        />
-      </ActionDropdown>
-{/* 
-      <Button onClick={() => props.articleActionHandler('editLabels')} css={{
-        // '@smDown': {
-        //   display: 'none',
-        // },
+        <ActionDropdown
+          layout={props.layout}
+          triggerElement={
+            <TooltipWrapped
+              tooltipContent="Edit Tags"
+              tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+          >
+            <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+          </TooltipWrapped>
+          }
+        >
+          <EditLabelsControl
+            article={props.article}
+            articleActionHandler={props.articleActionHandler}
+          />
+        </ActionDropdown>
+      </SpanBox>
+
+      <Button style='articleActionIcon'
+        onClick={() => props.articleActionHandler('editLabels')}
+        css={{
+          'display': 'none',
+          '@smDown': {
+            display: 'flex',
+          },
       }}>
-        <SpanBox css={{ width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
           <TagSimple size={24} color={theme.colors.readerFont.toString()} />
-        </SpanBox>
-      </Button> */}
+      </Button>
 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
         <TooltipWrapped
