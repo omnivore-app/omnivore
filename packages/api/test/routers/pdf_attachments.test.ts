@@ -8,7 +8,7 @@ import { User } from '../../src/entity/user'
 import 'mocha'
 import * as jwt from 'jsonwebtoken'
 import { expect } from 'chai'
-import { getPageById } from '../../src/elastic'
+import { getPageById } from '../../src/elastic/pages'
 
 describe('PDF attachments Router', () => {
   const username = 'fakeUser'

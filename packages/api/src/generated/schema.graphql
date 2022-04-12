@@ -540,7 +540,6 @@ type GoogleSignupSuccess {
 
 type Highlight {
   annotation: String
-  article: Article!
   createdAt: Date!
   createdByMe: Boolean!
   id: ID!
@@ -788,6 +787,7 @@ enum PageType {
   ARTICLE
   BOOK
   FILE
+  HIGHLIGHTS
   PROFILE
   UNKNOWN
   WEBSITE
@@ -819,6 +819,7 @@ type Query {
   me: User
   newsletterEmails: NewsletterEmailsResult!
   reminder(linkId: ID!): ReminderResult!
+  search(after: String, first: Int, query: String): SearchResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
@@ -949,6 +950,51 @@ input SaveUrlInput {
   clientRequestId: ID!
   source: String!
   url: String!
+}
+
+type SearchError {
+  errorCodes: [SearchErrorCode!]!
+}
+
+enum SearchErrorCode {
+  UNAUTHORIZED
+}
+
+type SearchItem {
+  annotation: String
+  author: String
+  contentReader: ContentReader!
+  createdAt: Date!
+  description: String
+  id: ID!
+  image: String
+  isArchived: Boolean!
+  labels: [Label!]
+  originalArticleUrl: String
+  ownedByViewer: Boolean
+  pageId: ID
+  pageType: PageType!
+  publishedAt: Date
+  quote: String
+  readingProgressAnchorIndex: Int
+  readingProgressPercent: Float
+  shortId: String
+  slug: String!
+  title: String!
+  uploadFileId: ID
+  url: String!
+}
+
+type SearchItemEdge {
+  cursor: String!
+  node: SearchItem!
+}
+
+union SearchResult = SearchError | SearchSuccess
+
+type SearchSuccess {
+  edges: [SearchItemEdge!]!
+  pageInfo: PageInfo!
 }
 
 type SetBookmarkArticleError {

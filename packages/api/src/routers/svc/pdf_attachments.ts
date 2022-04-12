@@ -14,9 +14,9 @@ import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { setClaims } from '../../datalayer/helpers'
 import { generateSlug } from '../../utils/helpers'
-import { createPage } from '../../elastic'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { Page } from '../../elastic/types'
+import { createPage } from '../../elastic/pages'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()

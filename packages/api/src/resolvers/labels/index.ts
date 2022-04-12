@@ -26,9 +26,10 @@ import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
 import { ILike, In } from 'typeorm'
 import { getRepository, setClaims } from '../../entity/utils'
-import { deleteLabelInPages, getPageById, updatePage } from '../../elastic'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
+import { getPageById, updatePage } from '../../elastic/pages'
+import { deleteLabelInPages } from '../../elastic/labels'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {

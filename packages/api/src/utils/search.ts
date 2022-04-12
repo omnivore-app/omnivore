@@ -9,7 +9,7 @@ import {
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
 } from 'search-query-parser'
-import { PageType, SortBy, SortOrder, SortParams } from '../generated/graphql'
+import { PageType } from '../generated/graphql'
 
 export enum ReadFilter {
   ALL,
@@ -27,9 +27,12 @@ export type SearchFilter = {
   query: string | undefined
   inFilter: InFilter
   readFilter: ReadFilter
-  typeFilter?: PageType | undefined
+  typeFilter?: PageType
   labelFilters: LabelFilter[]
   sortParams?: SortParams
+  hasFilters: HasFilter[]
+  savedDateFilter?: DateRangeFilter
+  publishedDateFilter?: DateRangeFilter
 }
 
 export enum LabelFilterType {
@@ -40,6 +43,32 @@ export enum LabelFilterType {
 export type LabelFilter = {
   type: LabelFilterType
   labels: string[]
+}
+
+export enum HasFilter {
+  HIGHLIGHTS,
+  SHARED_AT,
+}
+
+export type DateRangeFilter = {
+  startDate?: Date
+  endDate?: Date
+}
+
+export enum SortBy {
+  SAVED = 'savedAt',
+  UPDATED = 'updatedAt',
+  SCORE = '_score',
+}
+
+export enum SortOrder {
+  ASCENDING = 'asc',
+  DESCENDING = 'desc',
+}
+
+export type SortParams = {
+  by: SortBy
+  order?: SortOrder
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -72,7 +101,7 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
     return undefined
   }
 
-  switch (str) {
+  switch (str.toLowerCase()) {
     case 'article':
       return PageType.Article
     case 'book':
@@ -86,6 +115,8 @@ const parseTypeFilter = (str: string | undefined): PageType | undefined => {
       return PageType.Website
     case 'unknown':
       return PageType.Unknown
+    case 'highlights':
+      return PageType.Highlights
   }
   return undefined
 }
@@ -115,22 +146,52 @@ const parseSortParams = (str?: string): SortParams | undefined => {
     return undefined
   }
 
-  const [sort, order] = str.split(':')
+  const [sort, order] = str.split('-')
   const sortOrder =
-    order?.toUpperCase() === 'ASC' ? SortOrder.Ascending : SortOrder.Descending
+    order?.toUpperCase() === 'ASC' ? SortOrder.ASCENDING : SortOrder.DESCENDING
 
   switch (sort.toUpperCase()) {
-    case 'UPDATED_TIME':
-    case 'SAVED_AT':
+    case 'UPDATED':
       return {
-        by: SortBy.SavedAt,
+        by: SortBy.UPDATED,
+        order: sortOrder,
+      }
+    case 'SAVED':
+      return {
+        by: SortBy.SAVED,
         order: sortOrder,
       }
     case 'SCORE':
       // sort by score does not need an order
       return {
-        by: SortBy.Score,
+        by: SortBy.SCORE,
       }
+  }
+}
+
+const parseHasFilter = (str?: string): HasFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  switch (str.toUpperCase()) {
+    case 'HIGHLIGHTS':
+      return HasFilter.HIGHLIGHTS
+  }
+}
+
+const parseDateRangeFilter = (str?: string): DateRangeFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  const [start, end] = str.split('..')
+  const startDate = start && start !== '*' ? new Date(start) : undefined
+  const endDate = end && end !== '*' ? new Date(end) : undefined
+
+  return {
+    startDate,
+    endDate,
   }
 }
 
@@ -141,6 +202,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     readFilter: ReadFilter.ALL,
     inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
     labelFilters: [],
+    hasFilters: [],
   }
 
   if (!searchQuery) {
@@ -149,11 +211,21 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       inFilter: InFilter.INBOX,
       readFilter: ReadFilter.ALL,
       labelFilters: [],
+      hasFilters: [],
     }
   }
 
   const parsed = parse(searchQuery, {
-    keywords: ['in', 'is', 'type', 'label', 'sort'],
+    keywords: [
+      'in',
+      'is',
+      'type',
+      'label',
+      'sort',
+      'has',
+      'saved',
+      'published',
+    ],
     tokenize: true,
   })
   if (parsed.offsets) {
@@ -197,10 +269,20 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           labelFilter && result.labelFilters.push(labelFilter)
           break
         }
-        case 'sort': {
+        case 'sort':
           result.sortParams = parseSortParams(keyword.value)
           break
+        case 'has': {
+          const hasFilter = parseHasFilter(keyword.value)
+          hasFilter !== undefined && result.hasFilters.push(hasFilter)
+          break
         }
+        case 'saved':
+          result.savedDateFilter = parseDateRangeFilter(keyword.value)
+          break
+        case 'published':
+          result.publishedDateFilter = parseDateRangeFilter(keyword.value)
+          break
       }
     }
   }

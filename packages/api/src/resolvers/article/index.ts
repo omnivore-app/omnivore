@@ -22,10 +22,14 @@ import {
   PageType,
   QueryArticleArgs,
   QueryArticlesArgs,
+  QuerySearchArgs,
   ResolverFn,
   SaveArticleReadingProgressError,
   SaveArticleReadingProgressErrorCode,
   SaveArticleReadingProgressSuccess,
+  SearchError,
+  SearchItem,
+  SearchSuccess,
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
   SetBookmarkArticleSuccess,
@@ -67,6 +71,8 @@ import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+
+import { Page, SearchItem as SearchItemData } from '../../elastic/types'
 import {
   createPage,
   deletePage,
@@ -74,8 +80,8 @@ import {
   getPageByParam,
   searchPages,
   updatePage,
-} from '../../elastic'
-import { Page } from '../../elastic/types'
+} from '../../elastic/pages'
+import { searchHighlights } from '../../elastic/highlights'
 
 export type PartialArticle = Omit<
   Article,
@@ -438,44 +444,45 @@ export const getArticlesResolver = authorized<
   ArticlesError,
   QueryArticlesArgs
 >(async (_obj, params, { claims }) => {
-  const notNullField = params.sharedOnly ? 'sharedAt' : null
   const startCursor = params.after || ''
   const first = params.first || 10
 
-  // Perform basic sanitization. Right now we just allow alphanumeric, space and quote
-  // so queries can contain phrases like "human race";
-  // We can also split out terms like "label:unread".
   const searchQuery = parseSearchQuery(params.query || undefined)
 
   analytics.track({
     userId: claims.uid,
-    event: 'search',
+    event: 'get_articles',
     properties: {
+      env: env.server.apiEnv,
       query: searchQuery.query,
       inFilter: searchQuery.inFilter,
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
       labelFilters: searchQuery.labelFilters,
       sortParams: searchQuery.sortParams,
-      env: env.server.apiEnv,
+      hasFilters: searchQuery.hasFilters,
+      savedDateFilter: searchQuery.savedDateFilter,
+      publishedDateFilter: searchQuery.publishedDateFilter,
     },
   })
 
-  await createIntercomEvent('search', claims.uid)
+  await createIntercomEvent('get_articles', claims.uid)
 
   const [pages, totalCount] = (await searchPages(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      sort: searchQuery.sortParams || params.sort || undefined,
+      sort: searchQuery.sortParams,
       query: searchQuery.query,
       inFilter: searchQuery.inFilter,
       readFilter: searchQuery.readFilter,
       typeFilter: searchQuery.typeFilter,
       labelFilters: searchQuery.labelFilters,
+      hasFilters: searchQuery.hasFilters,
+      savedDateFilter: searchQuery.savedDateFilter,
+      publishedDateFilter: searchQuery.publishedDateFilter,
     },
-    claims.uid,
-    notNullField
+    claims.uid
   )) || [[], 0]
 
   const start =
@@ -792,3 +799,106 @@ export const getReadingProgressAnchorIndexForArticleResolver: ResolverFn<
 
   return articleReadingProgressAnchorIndex || 0
 }
+
+export const searchResolver = authorized<
+  SearchSuccess,
+  SearchError,
+  QuerySearchArgs
+>(async (_obj, params, { claims }) => {
+  const startCursor = params.after || ''
+  const first = params.first || 10
+
+  const searchQuery = parseSearchQuery(params.query || undefined)
+
+  analytics.track({
+    userId: claims.uid,
+    event: 'search',
+    properties: {
+      query: searchQuery.query,
+      inFilter: searchQuery.inFilter,
+      readFilter: searchQuery.readFilter,
+      typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
+      sortParams: searchQuery.sortParams,
+      hasFilters: searchQuery.hasFilters,
+      savedDateFilter: searchQuery.savedDateFilter,
+      publishedDateFilter: searchQuery.publishedDateFilter,
+      env: env.server.apiEnv,
+    },
+  })
+
+  await createIntercomEvent('search', claims.uid)
+
+  let results: (SearchItemData | Page)[]
+  let totalCount: number
+
+  const searchType = searchQuery.typeFilter
+  // search highlights if type:highlights
+  if (searchType === PageType.Highlights) {
+    ;[results, totalCount] = (await searchHighlights(
+      {
+        from: Number(startCursor),
+        size: first + 1, // fetch one more item to get next cursor
+        sort: searchQuery.sortParams,
+        query: searchQuery.query,
+      },
+      claims.uid
+    )) || [[], 0]
+  } else {
+    // otherwise, search pages
+    ;[results, totalCount] = (await searchPages(
+      {
+        from: Number(startCursor),
+        size: first + 1, // fetch one more item to get next cursor
+        sort: searchQuery.sortParams,
+        query: searchQuery.query,
+        inFilter: searchQuery.inFilter,
+        readFilter: searchQuery.readFilter,
+        typeFilter: searchQuery.typeFilter,
+        labelFilters: searchQuery.labelFilters,
+        hasFilters: searchQuery.hasFilters,
+        savedDateFilter: searchQuery.savedDateFilter,
+        publishedDateFilter: searchQuery.publishedDateFilter,
+      },
+      claims.uid
+    )) || [[], 0]
+  }
+
+  const start =
+    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+  const hasNextPage = results.length > first
+  const endCursor = String(start + results.length - (hasNextPage ? 1 : 0))
+
+  if (hasNextPage) {
+    // remove an extra if exists
+    results.pop()
+  }
+
+  const edges = results.map((r) => {
+    return {
+      node: {
+        ...r,
+        image: r.image && createImageProxyUrl(r.image, 88, 88),
+        isArchived: !!r.archivedAt,
+        contentReader:
+          r.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
+        originalArticleUrl: r.url,
+        publishedAt: validatedDate(r.publishedAt),
+        ownedByViewer: r.userId === claims.uid,
+        pageType: r.pageType || PageType.Highlights,
+      } as SearchItem,
+      cursor: endCursor,
+    }
+  })
+
+  return {
+    edges,
+    pageInfo: {
+      hasPreviousPage: false,
+      startCursor,
+      hasNextPage: hasNextPage,
+      endCursor,
+      totalCount,
+    },
+  }
+})
