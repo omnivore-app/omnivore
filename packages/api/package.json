@@ -50,7 +50,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "firebase-admin": "^10.0.2",
-    "googleapis": "^59.0.0",
+    "googleapis": "^100.0.0",
     "graphql": "^15.3.0",
     "graphql-middleware": "^6.0.10",
     "graphql-shield": "^7.5.0",
