@@ -9,6 +9,7 @@ import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { UserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
+
 type ReaderSettingsProps = {
   userPreferences?: UserPreferences
   articleActionHandler: (action: string, arg?: number) => void
@@ -20,7 +21,7 @@ const VerticalDivider = styled(SpanBox, {
   background: `${theme.colors.grayLine.toString()}`,
 })
 
-export function ReaderSettings(props: ReaderSettingsProps): JSX.Element {
+export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
   const [marginWidth, setMarginWidth] = useState(props.userPreferences?.margin ?? 0)
   const [lineHeight, setLineHeight] = useState(props.userPreferences?.lineHeight ?? 150)
 

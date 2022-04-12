@@ -11,8 +11,7 @@ import {
 } from '../../elements/ModalPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
-import { EditLabelsControl } from './EditLabelsControl'
-import { ReaderSettings } from './ReaderSettingsModal'
+import { ReaderSettingsControl } from './ReaderSettingsControl'
 
 type DisplaySettingsModalProps = {
   onOpenChange: (open: boolean) => void
@@ -51,7 +50,7 @@ export function DisplaySettingsModal(props: DisplaySettingsModalProps): JSX.Elem
                 />
               </Button>
           </HStack>
-          <ReaderSettings {...props} />
+          <ReaderSettingsControl {...props} />
         </VStack>
       </ModalContent>
     </ModalRoot>

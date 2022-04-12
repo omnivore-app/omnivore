@@ -8,7 +8,7 @@ import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
 import { EditLabelsControl } from "./EditLabelsControl"
-import { ReaderSettings } from "./ReaderSettingsModal"
+import { ReaderSettingsControl } from "./ReaderSettingsControl"
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
@@ -80,7 +80,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         </TooltipWrapped>
         }
       >
-        <ReaderSettings userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
+        <ReaderSettingsControl userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
       </ActionDropdown>
 
       <MenuSeparator layout={props.layout} />
