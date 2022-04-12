@@ -92,6 +92,10 @@ struct CreateLabelView: View {
   @State private var newLabelName = ""
   @State private var newLabelColor = Color.clear
 
+  var shouldDisableCreateButton: Bool {
+    viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear
+  }
+
   var body: some View {
     NavigationView {
       VStack(spacing: 16) {
@@ -104,31 +108,23 @@ struct CreateLabelView: View {
           newLabelColor == .clear ? "Select Color" : newLabelColor.description,
           selection: $newLabelColor
         )
-        Button(
-          action: {
-            viewModel.createLabel(
-              dataService: dataService,
-              name: newLabelName,
-              color: newLabelColor,
-              description: nil
-            )
-          },
-          label: { Text("Create") }
-        )
-        .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
-        .disabled(viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear)
         Spacer()
       }
       .padding()
       .toolbar {
-        ToolbarItem(placement: .automatic) {
+        ToolbarItem(placement: .navigationBarLeading) {
           Button(
             action: { viewModel.showCreateEmailModal = false },
-            label: {
-              Image(systemName: "xmark")
-                .foregroundColor(.appGrayTextContrast)
-            }
+            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
           )
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button(
+            action: {},
+            label: { Text("Create").foregroundColor(.appGrayTextContrast) }
+          )
+          .opacity(shouldDisableCreateButton ? 0.2 : 1)
+          .disabled(shouldDisableCreateButton)
         }
       }
       .navigationTitle("Create New Label")
