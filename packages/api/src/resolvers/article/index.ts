@@ -447,11 +447,22 @@ export const getArticlesResolver = authorized<
   const startCursor = params.after || ''
   const first = params.first || 10
 
+  const searchQuery = parseSearchQuery(params.query || undefined)
+
   analytics.track({
     userId: claims.uid,
     event: 'get_articles',
     properties: {
       env: env.server.apiEnv,
+      query: searchQuery.query,
+      inFilter: searchQuery.inFilter,
+      readFilter: searchQuery.readFilter,
+      typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
+      sortParams: searchQuery.sortParams,
+      hasFilters: searchQuery.hasFilters,
+      savedDateFilter: searchQuery.savedDateFilter,
+      publishedDateFilter: searchQuery.publishedDateFilter,
     },
   })
 
@@ -461,6 +472,15 @@ export const getArticlesResolver = authorized<
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
+      sort: searchQuery.sortParams,
+      query: searchQuery.query,
+      inFilter: searchQuery.inFilter,
+      readFilter: searchQuery.readFilter,
+      typeFilter: searchQuery.typeFilter,
+      labelFilters: searchQuery.labelFilters,
+      hasFilters: searchQuery.hasFilters,
+      savedDateFilter: searchQuery.savedDateFilter,
+      publishedDateFilter: searchQuery.publishedDateFilter,
     },
     claims.uid
   )) || [[], 0]
