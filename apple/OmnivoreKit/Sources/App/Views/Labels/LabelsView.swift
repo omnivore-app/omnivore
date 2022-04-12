@@ -19,7 +19,7 @@ struct LabelsView: View {
           Form {
             innerBody
               .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
-                Button("Remove Link", role: .destructive) {
+                Button("Delete Label", role: .destructive) {
                   if let labelID = labelToRemoveID {
                     withAnimation {
                       viewModel.deleteLabel(dataService: dataService, labelID: labelID)
@@ -96,18 +96,53 @@ struct CreateLabelView: View {
     viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear
   }
 
+  let rows = [
+    GridItem(.fixed(60)),
+    GridItem(.fixed(60)),
+    GridItem(.fixed(60))
+  ]
+
+  let swatches = (0 ... 200).map { _ in Color.random }
+
   var body: some View {
     NavigationView {
-      VStack(spacing: 16) {
+      VStack {
+        HStack {
+          if !newLabelName.isEmpty, newLabelColor != .clear {
+            TextChip(text: newLabelName, color: newLabelColor)
+          } else {
+            Text("Assign a name and color.")
+          }
+          Spacer()
+        }
+
         TextField("Label Name", text: $newLabelName)
         #if os(iOS)
           .keyboardType(.alphabet)
         #endif
         .textFieldStyle(StandardTextFieldStyle())
-        ColorPicker(
-          newLabelColor == .clear ? "Select Color" : newLabelColor.description,
-          selection: $newLabelColor
-        )
+
+        ScrollView(.horizontal, showsIndicators: false) {
+          LazyHGrid(rows: rows, alignment: .top, spacing: 20) {
+            ForEach(swatches, id: \.self) { swatch in
+              ZStack {
+                Circle()
+                  .fill(swatch)
+                  .frame(width: 50, height: 50)
+                  .onTapGesture {
+                    newLabelColor = swatch
+                  }
+                  .padding(10)
+
+                if newLabelColor == swatch {
+                  Circle()
+                    .stroke(swatch, lineWidth: 5)
+                    .frame(width: 60, height: 60)
+                }
+              }
+            }
+          }
+        }
         Spacer()
       }
       .padding()
@@ -120,7 +155,14 @@ struct CreateLabelView: View {
         }
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(
-            action: {},
+            action: {
+              viewModel.createLabel(
+                dataService: dataService,
+                name: newLabelName,
+                color: newLabelColor,
+                description: nil
+              )
+            },
             label: { Text("Create").foregroundColor(.appGrayTextContrast) }
           )
           .opacity(shouldDisableCreateButton ? 0.2 : 1)
@@ -132,5 +174,11 @@ struct CreateLabelView: View {
         .navigationBarTitleDisplayMode(.inline)
       #endif
     }
+  }
+}
+
+extension Color {
+  static var random: Color {
+    Color(hue: .random(in: 0 ... 1), saturation: .random(in: 0.2 ... 0.8), brightness: .random(in: 0.5 ... 0.8))
   }
 }
