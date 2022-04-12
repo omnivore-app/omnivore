@@ -79,6 +79,7 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { getPageById, getPageByParam } from '../elastic'
+import { generateApiKeyResolver } from './api_key'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -138,6 +139,7 @@ export const functionResolvers = {
     login: loginResolver,
     signup: signupResolver,
     setLabels: setLabelsResolver,
+    generateApiKey: generateApiKeyResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -529,4 +531,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('Signup'),
   ...resultResolveTypeResolver('SetLabels'),
+  ...resultResolveTypeResolver('GenerateApiKey'),
 }

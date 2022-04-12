@@ -457,6 +457,20 @@ type FeedArticlesSuccess {
   pageInfo: PageInfo!
 }
 
+type GenerateApiKeyError {
+  errorCodes: [GenerateApiKeyErrorCode!]!
+}
+
+enum GenerateApiKeyErrorCode {
+  BAD_REQUEST
+}
+
+union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
+
+type GenerateApiKeySuccess {
+  apiKey: String!
+}
+
 type GetFollowersError {
   errorCodes: [GetFollowersErrorCode!]!
 }
@@ -684,6 +698,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
+  generateApiKey(scope: String): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   login(input: LoginInput!): LoginResult!
