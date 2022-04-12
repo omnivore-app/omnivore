@@ -115,6 +115,7 @@ struct CreateLabelView: View {
           }
           Spacer()
         }
+        .padding(.bottom, 8)
 
         TextField("Label Name", text: $newLabelName)
         #if os(iOS)
