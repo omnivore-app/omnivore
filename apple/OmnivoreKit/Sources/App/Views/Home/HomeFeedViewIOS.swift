@@ -103,7 +103,7 @@ import Views
         }
       }
       .onChange(of: viewModel.selectedLinkItem) { _ in
-        viewModel.commitProgressUpdates()
+        viewModel.commitItemUpdates()
       }
     }
   }

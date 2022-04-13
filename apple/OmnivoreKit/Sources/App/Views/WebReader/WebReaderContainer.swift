@@ -133,6 +133,10 @@ import WebKit
           content: {
             Group {
               Button(
+                action: { homeFeedViewModel.itemUnderLabelEdit = item },
+                label: { Label("Edit Labels", systemImage: "tag") }
+              )
+              Button(
                 action: {
                   homeFeedViewModel.setLinkArchived(
                     dataService: dataService,
