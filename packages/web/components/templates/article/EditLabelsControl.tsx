@@ -301,14 +301,17 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
       css={{ 
         p: '0',
         width: '100%',
-        maxHeight: '380px',
     }}>
       <Header
         focused={focusedIndex === undefined}
         resetFocusedIndex={() => setFocusedIndex(undefined)}
         setFilterText={setFilterText} filterText={filterText}
       />
-      <VStack css={{ flexGrow: '1', overflow: 'scroll', width: '100%', height: '100%', maxHeight: '400px',  }}>
+      <VStack
+        distribution="start"
+        alignment="start"
+        css={{ flexGrow: '1', overflow: 'scroll', width: '100%', height: '100%', maxHeight: '294px'
+      }}>
         {filteredLabels &&
           filteredLabels.map((label, idx) => (
             <LabelListItem
