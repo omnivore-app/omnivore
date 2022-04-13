@@ -96,7 +96,7 @@ public struct TextChipButton: View {
         Image(systemName: actionType.systemIconName)
       }
       .padding(.horizontal, 10)
-      .padding(.vertical, 5)
+      .padding(.vertical, 8)
       .font(.appFootnote)
       .foregroundColor(foregroundColor)
       .lineLimit(1)
