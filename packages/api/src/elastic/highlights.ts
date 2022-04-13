@@ -35,7 +35,11 @@ export const addHighlightToPage = async (
       retry_on_conflict: 3,
     })
 
-    return body.result === 'updated'
+    if (body.result !== 'updated') return false
+
+    await ctx.pubsub.highlightCreated(highlight)
+
+    return true
   } catch (e) {
     if (
       e instanceof ResponseError &&
@@ -125,7 +129,11 @@ export const deleteHighlight = async (
       refresh: ctx.refresh,
     })
 
-    return !!body.updated
+    if (body.result !== 'updated') return false
+
+    await ctx.pubsub.highlightDeleted(highlightId, ctx.uid)
+
+    return true
   } catch (e) {
     console.error('failed to delete a highlight in elastic', e)
 
@@ -266,7 +274,11 @@ export const updateHighlight = async (
       refresh: ctx.refresh,
     })
 
-    return !!body.updated
+    if (body.result !== 'updated') return false
+
+    await ctx.pubsub.highlightUpdated(highlight, ctx.uid)
+
+    return true
   } catch (e) {
     if (
       e instanceof ResponseError &&

@@ -6,14 +6,13 @@ import { readPushSubscription } from '../../datalayer/pubsub'
 import { generateUploadSignedUrl, uploadToSignedUrl } from '../../utils/uploads'
 import { v4 as uuidv4 } from 'uuid'
 import { env } from '../../env'
-import { Page } from '../../elastic/types'
 import { DateTime } from 'luxon'
 
-export function pageServiceRouter() {
+export function uploadServiceRouter() {
   const router = express.Router()
 
   router.post('/upload/:folder', async (req, res) => {
-    console.log('upload page data req', req.params.folder)
+    console.log('upload data req', req.params.folder)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -28,7 +27,7 @@ export function pageServiceRouter() {
     }
 
     try {
-      const data: Partial<Page> = JSON.parse(msgStr)
+      const data: { userId: string } = JSON.parse(msgStr)
       if (!data.userId) {
         console.log('No userId found in message')
         res.status(400).send('Bad Request')

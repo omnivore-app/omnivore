@@ -2,7 +2,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import { env } from '../env'
 import { ReportType } from '../generated/graphql'
 import express from 'express'
-import { Page } from '../elastic/types'
+import { Highlight, Page } from '../elastic/types'
 
 export const createPubSubClient = (): PubsubClient => {
   const client = new PubSub()
@@ -49,6 +49,24 @@ export const createPubSubClient = (): PubsubClient => {
     pageDeleted: (id: string, userId: string): Promise<void> => {
       return publish('pageDeleted', Buffer.from(JSON.stringify({ id, userId })))
     },
+    highlightCreated: (highlight: Highlight): Promise<void> => {
+      return publish('highlightCreated', Buffer.from(JSON.stringify(highlight)))
+    },
+    highlightUpdated: (
+      highlight: Partial<Highlight>,
+      userId: string
+    ): Promise<void> => {
+      return publish(
+        'highlightUpdated',
+        Buffer.from(JSON.stringify({ ...highlight, userId }))
+      )
+    },
+    highlightDeleted: (id: string, userId: string): Promise<void> => {
+      return publish(
+        'highlightDeleted',
+        Buffer.from(JSON.stringify({ id, userId }))
+      )
+    },
     reportSubmitted: (
       submitterId: string,
       itemUrl: string,
@@ -75,6 +93,12 @@ export interface PubsubClient {
   pageCreated: (page: Page) => Promise<void>
   pageUpdated: (page: Partial<Page>, userId: string) => Promise<void>
   pageDeleted: (id: string, userId: string) => Promise<void>
+  highlightCreated: (highlight: Highlight) => Promise<void>
+  highlightUpdated: (
+    highlight: Partial<Highlight>,
+    userId: string
+  ) => Promise<void>
+  highlightDeleted: (id: string, userId: string) => Promise<void>
   reportSubmitted(
     submitterId: string | undefined,
     itemUrl: string,
