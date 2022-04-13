@@ -128,6 +128,7 @@ import Views
             }
             Spacer()
           }
+          .padding(.bottom, 5)
           .padding(.horizontal)
           .sheet(isPresented: $showLabelsSheet) {
             ApplyLabelsView(mode: .list(viewModel.selectedLabels)) { labels in

@@ -33,7 +33,7 @@ public struct TextChip: View {
 
 public struct TextChipButton: View {
   public static func makeAddLabelButton(onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: "Label Filter", color: .appYellow48, actionType: .add, onTap: onTap)
+    TextChipButton(title: "Labels", color: Color(.systemGray6), actionType: .show, onTap: onTap)
   }
 
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
@@ -74,6 +74,12 @@ public struct TextChipButton: View {
     self.color = color
     self.onTap = onTap
     self.actionType = actionType
+    self.foregroundColor = {
+      if actionType == .show {
+        return .appGrayText
+      }
+      return color.isDark ? .white : .black
+    }()
   }
 
   let text: String
@@ -81,6 +87,7 @@ public struct TextChipButton: View {
   let onTap: () -> Void
   let actionType: ActionType
   let cornerRadius = 20.0
+  let foregroundColor: Color
 
   public var body: some View {
     Button(action: onTap) {
@@ -91,7 +98,7 @@ public struct TextChipButton: View {
       .padding(.horizontal, 10)
       .padding(.vertical, 5)
       .font(.appFootnote)
-      .foregroundColor(color.isDark ? .white : .black)
+      .foregroundColor(foregroundColor)
       .lineLimit(1)
       .background(color)
       .cornerRadius(cornerRadius)
