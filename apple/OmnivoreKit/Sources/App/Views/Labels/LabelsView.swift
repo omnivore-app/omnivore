@@ -99,10 +99,10 @@ struct CreateLabelView: View {
   let rows = [
     GridItem(.fixed(60)),
     GridItem(.fixed(60)),
-    GridItem(.fixed(60))
+    GridItem(.fixed(70))
   ]
 
-  let swatches = (0 ... 200).map { _ in Color.random }
+  let swatches = swatchHexes.map { Color(hex: $0) ?? .clear }.shuffled()
 
   var body: some View {
     NavigationView {
@@ -111,7 +111,7 @@ struct CreateLabelView: View {
           if !newLabelName.isEmpty, newLabelColor != .clear {
             TextChip(text: newLabelName, color: newLabelColor)
           } else {
-            Text("Assign a name and color.")
+            Text("Assign a name and color.").font(.appBody)
           }
           Spacer()
         }
@@ -178,8 +178,38 @@ struct CreateLabelView: View {
   }
 }
 
-extension Color {
-  static var random: Color {
-    Color(hue: .random(in: 0 ... 1), saturation: .random(in: 0.2 ... 0.8), brightness: .random(in: 0.5 ... 0.8))
-  }
-}
+private let swatchHexes = [
+  "#fff034",
+  "#efff34",
+  "#d1ff34",
+  "#b2ff34",
+  "#94ff34",
+  "#75ff34",
+  "#57ff34",
+  "#38ff34",
+  "#34ff4e",
+  "#34ff6d",
+  "#34ff8b",
+  "#34ffa9",
+  "#34ffc8",
+  "#34ffe6",
+  "#34f9ff",
+  "#34dbff",
+  "#34bcff",
+  "#349eff",
+  "#347fff",
+  "#3461ff",
+  "#3443ff",
+  "#4434ff",
+  "#6234ff",
+  "#8134ff",
+  "#9f34ff",
+  "#be34ff",
+  "#dc34ff",
+  "#fb34ff",
+  "#ff34e5",
+  "#ff34c7",
+  "#ff34a8",
+  "#ff348a",
+  "#ff346b"
+]
