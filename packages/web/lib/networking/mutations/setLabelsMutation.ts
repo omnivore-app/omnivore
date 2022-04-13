@@ -12,7 +12,7 @@ type SetLabels = {
 }
 
 export async function setLabelsMutation(
-  linkId: string,
+  pageId: string,
   labelIds: string[]
 ): Promise<Label[] | undefined> {
   const mutation = gql`
@@ -32,7 +32,7 @@ export async function setLabelsMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation, { input: { linkId, labelIds } }) as SetLabelsResult
+    const data = await gqlFetcher(mutation, { input: { pageId, labelIds } }) as SetLabelsResult
     return data.errorCodes ? undefined : data.setLabels.labels
   } catch (error) {
     console.log('SetLabelsOutput error', error)
