@@ -64,7 +64,7 @@ export default function Labels(): JSX.Element {
         </p>
         <h2>Searching by label with Advanced Search</h2>
         <p>
-          Omnivore's advanced search syntax supports searching for multiple labels using
+          Omnivore&apos;s advanced search syntax supports searching for multiple labels using
           <code>AND</code> and <code>OR</code> clauses. You can also negate a label search
           to find all pages that do not have a certain label.
         </p>
