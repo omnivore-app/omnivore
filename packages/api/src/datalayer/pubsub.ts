@@ -2,7 +2,6 @@ import { PubSub } from '@google-cloud/pubsub'
 import { env } from '../env'
 import { ReportType } from '../generated/graphql'
 import express from 'express'
-import { Highlight, Page } from '../elastic/types'
 
 export const createPubSubClient = (): PubsubClient => {
   const client = new PubSub()
@@ -37,34 +36,34 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    pageUpdated: (page: Partial<Page>, userId: string): Promise<void> => {
-      return publish(
-        'pageUpdated',
-        Buffer.from(JSON.stringify({ ...page, userId }))
-      )
-    },
-    pageCreated: (page: Page): Promise<void> => {
-      return publish('pageCreated', Buffer.from(JSON.stringify(page)))
-    },
-    pageDeleted: (id: string, userId: string): Promise<void> => {
-      return publish('pageDeleted', Buffer.from(JSON.stringify({ id, userId })))
-    },
-    highlightCreated: (highlight: Highlight): Promise<void> => {
-      return publish('highlightCreated', Buffer.from(JSON.stringify(highlight)))
-    },
-    highlightUpdated: (
-      highlight: Partial<Highlight>,
+    entityCreated: <T>(
+      type: EntityType,
+      data: T,
       userId: string
     ): Promise<void> => {
       return publish(
-        'highlightUpdated',
-        Buffer.from(JSON.stringify({ ...highlight, userId }))
+        'entityCreated',
+        Buffer.from(JSON.stringify({ type, userId, ...data }))
       )
     },
-    highlightDeleted: (id: string, userId: string): Promise<void> => {
+    entityUpdated: <T>(
+      type: EntityType,
+      data: T,
+      userId: string
+    ): Promise<void> => {
       return publish(
-        'highlightDeleted',
-        Buffer.from(JSON.stringify({ id, userId }))
+        'entityUpdated',
+        Buffer.from(JSON.stringify({ type, userId, ...data }))
+      )
+    },
+    entityDeleted: (
+      type: EntityType,
+      id: string,
+      userId: string
+    ): Promise<void> => {
+      return publish(
+        'entityDeleted',
+        Buffer.from(JSON.stringify({ type, id, userId }))
       )
     },
     reportSubmitted: (
@@ -83,6 +82,12 @@ export const createPubSubClient = (): PubsubClient => {
   }
 }
 
+export enum EntityType {
+  PAGE = 'page',
+  HIGHLIGHT = 'highlight',
+  LABEL = 'label',
+}
+
 export interface PubsubClient {
   userCreated: (
     userId: string,
@@ -90,15 +95,9 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  pageCreated: (page: Page) => Promise<void>
-  pageUpdated: (page: Partial<Page>, userId: string) => Promise<void>
-  pageDeleted: (id: string, userId: string) => Promise<void>
-  highlightCreated: (highlight: Highlight) => Promise<void>
-  highlightUpdated: (
-    highlight: Partial<Highlight>,
-    userId: string
-  ) => Promise<void>
-  highlightDeleted: (id: string, userId: string) => Promise<void>
+  entityCreated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
+  entityUpdated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
+  entityDeleted: (type: EntityType, id: string, userId: string) => Promise<void>
   reportSubmitted(
     submitterId: string | undefined,
     itemUrl: string,

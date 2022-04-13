@@ -11,8 +11,8 @@ import { DateTime } from 'luxon'
 export function uploadServiceRouter() {
   const router = express.Router()
 
-  router.post('/upload/:folder', async (req, res) => {
-    console.log('upload data req', req.params.folder)
+  router.post('/:folder', async (req, res) => {
+    console.log('upload data to folder', req.params.folder)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
@@ -27,9 +27,9 @@ export function uploadServiceRouter() {
     }
 
     try {
-      const data: { userId: string } = JSON.parse(msgStr)
-      if (!data.userId) {
-        console.log('No userId found in message')
+      const data: { userId: string; type: string } = JSON.parse(msgStr)
+      if (!data.userId || !data.type) {
+        console.log('No userId or type found in message')
         res.status(400).send('Bad Request')
         return
       }
@@ -40,9 +40,9 @@ export function uploadServiceRouter() {
       console.log('generate upload url')
 
       const uploadUrl = await generateUploadSignedUrl(
-        `${req.params.folder}/${data.userId}/${DateTime.now().toFormat(
-          'yyyy-LL-dd'
-        )}/${uuidv4()}.json`,
+        `${req.params.folder}/${data.type}/${
+          data.userId
+        }/${DateTime.now().toFormat('yyyy-LL-dd')}/${uuidv4()}.json`,
         contentType,
         bucketName
       )

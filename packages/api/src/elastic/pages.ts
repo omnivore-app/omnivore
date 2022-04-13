@@ -18,6 +18,7 @@ import {
   SortParams,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
+import { EntityType } from '../datalayer/pubsub'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -189,7 +190,7 @@ export const createPage = async (
       refresh: ctx.refresh,
     })
 
-    await ctx.pubsub.pageCreated(page)
+    await ctx.pubsub.entityCreated<Page>(EntityType.PAGE, page, ctx.uid)
 
     return body._id as string
   } catch (e) {
@@ -219,7 +220,11 @@ export const updatePage = async (
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.pageUpdated({ ...page, id }, ctx.uid)
+    await ctx.pubsub.entityUpdated<Partial<Page>>(
+      EntityType.PAGE,
+      { ...page, id },
+      ctx.uid
+    )
 
     return true
   } catch (e) {
@@ -241,7 +246,7 @@ export const deletePage = async (
 
     if (body.deleted === 0) return false
 
-    await ctx.pubsub.pageDeleted(id, ctx.uid)
+    await ctx.pubsub.entityDeleted(EntityType.PAGE, id, ctx.uid)
 
     return true
   } catch (e) {

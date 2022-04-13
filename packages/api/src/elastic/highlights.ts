@@ -8,6 +8,7 @@ import {
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 import { client, INDEX_ALIAS } from './index'
 import { SortBy, SortOrder, SortParams } from '../utils/search'
+import { EntityType } from '../datalayer/pubsub'
 
 export const addHighlightToPage = async (
   id: string,
@@ -37,7 +38,11 @@ export const addHighlightToPage = async (
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.highlightCreated(highlight)
+    await ctx.pubsub.entityCreated<Highlight>(
+      EntityType.HIGHLIGHT,
+      highlight,
+      ctx.uid
+    )
 
     return true
   } catch (e) {
@@ -131,7 +136,7 @@ export const deleteHighlight = async (
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.highlightDeleted(highlightId, ctx.uid)
+    await ctx.pubsub.entityDeleted(EntityType.HIGHLIGHT, highlightId, ctx.uid)
 
     return true
   } catch (e) {
@@ -276,7 +281,11 @@ export const updateHighlight = async (
 
     if (body.result !== 'updated') return false
 
-    await ctx.pubsub.highlightUpdated(highlight, ctx.uid)
+    await ctx.pubsub.entityUpdated<Highlight>(
+      EntityType.HIGHLIGHT,
+      highlight,
+      ctx.uid
+    )
 
     return true
   } catch (e) {
