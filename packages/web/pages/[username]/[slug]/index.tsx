@@ -164,7 +164,6 @@ export default function Home(): JSX.Element {
       <PrimaryLayout
         pageTestId="home-page-tag"
         scrollElementRef={scrollRef}
-        displayFontStepper={true}
         headerToolbarControl={
           <ArticleActionsMenu
             article={article}

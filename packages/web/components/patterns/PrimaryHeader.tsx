@@ -25,7 +25,6 @@ type HeaderProps = {
   profileImageURL?: string
   isFixedPosition: boolean
   scrollElementRef?: React.RefObject<HTMLDivElement>
-  displayFontStepper?: boolean
   toolbarControl?: JSX.Element
   setShowLogoutConfirmation: (showShareModal: boolean) => void
   setShowKeyboardCommandsModal: (showShareModal: boolean) => void
@@ -126,7 +125,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
         isVisible={true}
         isFixedPosition={true}
         toolbarControl={props.toolbarControl}
-        displayFontStepper={props.displayFontStepper}
       />
     </>
   )
@@ -141,7 +139,6 @@ type NavHeaderProps = {
   isDisplayingShadow?: boolean
   isVisible?: boolean
   isFixedPosition: boolean
-  displayFontStepper?: boolean
   toolbarControl?: JSX.Element
 }
 
@@ -211,7 +208,6 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
                 />
               }
               actionHandler={props.actionHandler}
-              displayFontStepper={props.displayFontStepper}
             />
           </HStack>
         ) : (

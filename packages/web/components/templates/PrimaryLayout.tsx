@@ -22,7 +22,6 @@ type PrimaryLayoutProps = {
   hideHeader?: boolean
   pageMetaDataProps?: PageMetaDataProps
   scrollElementRef?: MutableRefObject<HTMLDivElement | null>
-  displayFontStepper?: boolean
   headerToolbarControl?: JSX.Element
 }
 
@@ -78,7 +77,6 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           isFixedPosition={true}
           toolbarControl={props.headerToolbarControl}
           scrollElementRef={props.scrollElementRef}
-          displayFontStepper={props.displayFontStepper}
           setShowLogoutConfirmation={setShowLogoutConfirmation}
           setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
         />
