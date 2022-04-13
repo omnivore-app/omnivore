@@ -167,6 +167,7 @@ function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element
       css={{
         width: '100%', height: '42px',
         bg: props.focused ? '$grayBgActive' : 'unset',
+        color: theme.colors.grayText.toString(),
         'a:link': {
           textDecoration: 'none',
         },
