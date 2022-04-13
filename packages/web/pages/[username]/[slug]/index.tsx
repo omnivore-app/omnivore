@@ -196,11 +196,13 @@ export default function Home(): JSX.Element {
           },
           }}
         >
-          <ArticleActionsMenu
-            article={article}
-            layout='vertical'
-            articleActionHandler={actionHandler}
-          />
+          {article.contentReader !== 'PDF' ? (
+              <ArticleActionsMenu
+              article={article}
+              layout='vertical'
+              articleActionHandler={actionHandler}
+            />
+          ) : null}
         </VStack>
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR
