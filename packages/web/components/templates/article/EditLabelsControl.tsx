@@ -50,14 +50,14 @@ function Header(props: HeaderProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (props.focused && inputRef.current) {
+    if (!isTouchScreenDevice() && props.focused && inputRef.current) {
       inputRef.current.focus()
     }
   }, [props.focused])
 
   return (
     <VStack css={{ width: '100%', my: '0px', borderBottom: '1px solid $grayBorder'}}>
-      <Box css={{ 
+      <Box css={{
         width: '100%',
         my: '14px',
         px: '14px',
