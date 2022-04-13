@@ -15,7 +15,7 @@ const MainContainer = styled(HStack, {
 
 const titleTextStyles = {
   fontWeight: '700',
-  color: '$omnivoreGray',
+  color: '#3D3D3D',
   lineHeight: '53px',
   '@mdDown': {
     fontSize: 24,
@@ -29,7 +29,7 @@ const titleTextStyles = {
 }
 
 const descriptionTextStyles = {
-  color: '$omnivoreLightGray',
+  color: 'rgb(125, 125, 125)',
 }
 
 const iconContainerStyles = {

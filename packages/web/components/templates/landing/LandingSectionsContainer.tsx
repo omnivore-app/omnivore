@@ -1,14 +1,16 @@
+import Link from 'next/link'
 import { VStack, Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { CurvedUnderlineIcon } from '../../elements/images/CurvedUnderlineIcon'
 import { Button } from '../../elements/Button'
 import { MagnifyingGlass, Palette, MegaphoneSimple, Binoculars, ArrowRight } from 'phosphor-react'
 import { LandingSection } from './LandingSection'
-import { theme } from '../../tokens/stitches.config'
 
 const buttonStyles = {
   display: 'flex',
   borderRadius: 4,
   px: 30,
+  background: 'rgb(255, 210, 52)',
+  color: '#3D3D3D'
 }
 
 const arrowStyles = {
@@ -19,9 +21,11 @@ const arrowStyles = {
 export function GetStartedButton(): JSX.Element {
   return (
     <Button style='ctaDarkYellow' css={buttonStyles}>
-      <Box>
-        Get Started
-      </Box>
+      <Link passHref href='/login'>
+        <a style={{textDecoration: 'none', color: '#3D3D3D'}}>
+          Get Started
+        </a>
+      </Link>
       <ArrowRight size={18} style={arrowStyles} color='white' fontWeight='700' />
     </Button>
   )
@@ -49,7 +53,7 @@ const titleStyles = {
   fontSize: '24',
   textAlign: 'center',
   lineHeight: '36px',
-  color: '$omnivoreOrange',
+  color: '#FF9B3E',
   '@mdDown': {
     fontSize: 16,
     letterSpacing: '0.02em'
@@ -95,7 +99,7 @@ const callToActionStyles = {
 }
 
 const callToActionText = {
-  color: '$omnivoreGray',
+  color: '#3D3D3D',
   fontWeight: '700',
   fontSize: 64,
   lineHeight: '70px',
@@ -123,7 +127,7 @@ export function LandingSectionsContainer({
   hideThird = false,
   hideFourth = false,
 }: LandingSectionsContainerProps): JSX.Element {
-  const iconColor = theme.colors.omnivoreCtaYellow.toString()
+  const iconColor = 'rgb(255, 210, 52)'
   return (
     <VStack alignment='center' distribution='start' css={containerStyles}>
       <VStack distribution='center'>

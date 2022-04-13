@@ -2,6 +2,7 @@ import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo';
 import Link from 'next/link'
 import Image from 'next/image'
 import { Box, HStack } from '../../elements/LayoutPrimitives';
+import { GithubLogo, DiscordLogo, TwitterLogo } from 'phosphor-react'
 
 const containerStyles = {
   padding: '5vw',
@@ -86,23 +87,23 @@ export function LandingFooter(): JSX.Element {
         <Box css={titleStyles}>Everything you read. Safe, organized, and easy to share.</Box>
         <HStack distribution='between' css={socialsContainerStyles}>
           <Box style={socialIconContainerStyles}>
-            <Link passHref href="#">
+            <Link passHref href="https://twitter.com/OmnivoreApp">
               <a>
-                <Image src='/static/media/twitter.png' width={32} height={32} alt='twitter'/>
+                <TwitterLogo width={32} height={32} color='white' />
               </a>
             </Link>
           </Box>
           <Box style={socialIconContainerStyles}>
-            <Link passHref href="#">
+            <Link passHref href="https://github.com/omnivore-app/omnivore">
               <a>
-                <Image src='/static/media/github.png' width={32} height={32} alt='github'/>
+                <GithubLogo width={32} height={32} color='white' />
               </a>
             </Link>
           </Box>
           <Box style={socialIconContainerStyles}>
-            <Link passHref href="#">
+            <Link passHref href="https://discord.gg/h2z5rppzz9">
               <a>
-                <Image src='/static/media/discord.png' width={32} height={32} alt='discord'/>
+                <DiscordLogo width={32} height={32} color='white' />
               </a>
             </Link>
           </Box>
@@ -112,19 +113,19 @@ export function LandingFooter(): JSX.Element {
       <Box css={sectionTwo}>
         <Box css={{height: 215}}>
           <Box style={{marginBottom: 5, ...imageStyles}}>
-            <Link passHref href="#">
+            <Link passHref href="https://omnivore.app/install/ios">
               <a>
                 <Image src='/static/media/appStoreBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
               </a>
             </Link>
           </Box>
-          <Box style={imageStyles}>
+          {/* <Box style={imageStyles}>
             <Link passHref href="#">
               <a>
                 <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
               </a>
             </Link>
-          </Box>
+          </Box> */}
         </Box>
         <Box css={contactStyles}>
           Contact
