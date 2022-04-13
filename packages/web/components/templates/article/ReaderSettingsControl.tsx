@@ -6,12 +6,12 @@ import { useState } from 'react'
 import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Minus, Pen, Plus, Trash, X } from 'phosphor-react'
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
-import { UserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 
 type ReaderSettingsProps = {
-  userPreferences?: UserPreferences
+  marginWidth: number
+  lineHeight: number
   articleActionHandler: (action: string, arg?: number) => void
 }
 
@@ -22,8 +22,8 @@ const VerticalDivider = styled(SpanBox, {
 })
 
 export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
-  const [marginWidth, setMarginWidth] = useState(props.userPreferences?.margin ?? 0)
-  const [lineHeight, setLineHeight] = useState(props.userPreferences?.lineHeight ?? 150)
+  const [lineHeight, setLineHeight] = useState(props.lineHeight)
+  const [marginWidth, setMarginWidth] = useState(props.marginWidth)
 
   return (
     <VStack>
@@ -87,7 +87,7 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
         width: '100%',
         height: '100%',
       }}>
-        <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Line Height:</StyledText>
+        <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Line Spacing:</StyledText>
         <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
           <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
             const newLineHeight = Math.max(lineHeight - 25, 100)
@@ -111,7 +111,7 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
 
         <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '8px', pb: '0px', pt: '16px', height: '42px', alignItems: 'center' }}
           onClick={() => {
-            setMarginWidth(360)
+            setMarginWidth(200)
             setLineHeight(150)
             props.articleActionHandler('resetReaderSettings')
             showSuccessToast('Display settings reset', { position: 'bottom-right' })

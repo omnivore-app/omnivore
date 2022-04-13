@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { articleKeyboardCommands, navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
@@ -22,13 +22,13 @@ import { userPersonalizationMutation } from '../../../lib/networking/mutations/u
 import Script from 'next/script'
 import { theme } from '../../../components/tokens/stitches.config'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
-import { HighlightsModal } from '../../../components/templates/article/HighlightsModal'
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useSWRConfig } from 'swr'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -46,11 +46,11 @@ export default function Home(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const { preferencesData } = useGetUserPreferences()
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
-  const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
-  const [lineHeight, setLineHeight] = useState(preferencesData?.lineHeight ?? 150)
+  const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
+  const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
-  
+
   const { articleData } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
@@ -67,14 +67,21 @@ export default function Home(): JSX.Element {
 
   useKeyboardShortcuts(navigationCommands(router))
 
-  const updateFontSize = async (newFontSize: number) => {
+  const updateFontSize = useCallback(async(newFontSize: number) => {
+    window?.localStorage.setItem("fontSize", newFontSize.toString())
     setFontSize(newFontSize)
     await userPersonalizationMutation({ fontSize: newFontSize })
-  }
+  }, [fontSize, setFontSize])
 
-  const updateMarginWidth = async (newMargin: number) => {
+  const updateLineHeight = useCallback(async(newLineHeight: number) => {
+    window?.localStorage.setItem("lineHeight", newLineHeight.toString())
+    setLineHeight(newLineHeight)
+  }, [lineHeight, setLineHeight])
+
+  const updateMarginWidth = useCallback(async(newMargin: number) => {
+    window?.localStorage.setItem("marginWidth", newMargin.toString())
     setMarginWidth(newMargin)
-  }
+  }, [marginWidth, setMarginWidth])
 
   const actionHandler = async (action: string, arg?: unknown) => {
     switch (action) {
@@ -131,7 +138,7 @@ export default function Home(): JSX.Element {
       case 'setLineHeight': {
         const value = Number(arg)
         if (value >= 100 && value <= 300) {
-          setLineHeight(value)
+          updateLineHeight(arg as number)
         }
         break
       }
@@ -145,8 +152,8 @@ export default function Home(): JSX.Element {
       }
       case 'resetReaderSettings': {
         updateFontSize(20)
-        updateMarginWidth(360)
-        setLineHeight(150)
+        updateMarginWidth(200)
+        updateLineHeight(150)
         break
       }
     }
@@ -197,7 +204,7 @@ export default function Home(): JSX.Element {
           }}
         >
           {article.contentReader !== 'PDF' ? (
-              <ArticleActionsMenu
+            <ArticleActionsMenu
               article={article}
               layout='vertical'
               articleActionHandler={actionHandler}
@@ -254,7 +261,8 @@ export default function Home(): JSX.Element {
 
         {showEditDisplaySettingsModal && (
           <DisplaySettingsModal
-            userPreferences={preferencesData}
+            lineHeight={lineHeight}
+            marginWidth={marginWidth}
             articleActionHandler={actionHandler}
             onOpenChange={() => setShowEditDisplaySettingsModal(false)}
           />

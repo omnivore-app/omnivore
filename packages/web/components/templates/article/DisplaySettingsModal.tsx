@@ -15,7 +15,8 @@ import { ReaderSettingsControl } from './ReaderSettingsControl'
 
 type DisplaySettingsModalProps = {
   onOpenChange: (open: boolean) => void
-  userPreferences?: UserPreferences
+  lineHeight: number
+  marginWidth: number
   articleActionHandler: (action: string, arg?: number) => void
 }
 
@@ -50,7 +51,11 @@ export function DisplaySettingsModal(props: DisplaySettingsModalProps): JSX.Elem
                 />
               </Button>
           </HStack>
-          <ReaderSettingsControl {...props} />
+          <ReaderSettingsControl
+            lineHeight={props.lineHeight}
+            marginWidth={props.marginWidth}
+            articleActionHandler={props.articleActionHandler}
+          />
         </VStack>
       </ModalContent>
     </ModalRoot>

@@ -9,6 +9,7 @@ import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
 import { SetLabelsControl } from "./SetLabelsControl"
 import { ReaderSettingsControl } from "./ReaderSettingsControl"
+import { usePersistedState } from "../../../lib/hooks/usePersistedState"
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 
@@ -53,7 +54,8 @@ const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
 }
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
-  const { preferencesData } = useGetUserPreferences()
+  const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
+  const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
 
   return (
     <>
@@ -79,7 +81,11 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           </TooltipWrapped>
         }
       >
-        <ReaderSettingsControl userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />
+        <ReaderSettingsControl
+          lineHeight={lineHeight}
+          marginWidth={marginWidth}
+          articleActionHandler={props.articleActionHandler}
+        />
       </ActionDropdown>
 
       <MenuSeparator layout={props.layout} />
