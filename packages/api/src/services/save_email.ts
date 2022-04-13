@@ -7,7 +7,7 @@ import {
 import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { Page } from '../elastic/types'
-import { createPage, getPageByParam, updatePage } from '../elastic'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 export type SaveContext = {
   pubsub: PubsubClient

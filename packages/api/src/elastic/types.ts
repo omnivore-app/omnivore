@@ -1,5 +1,4 @@
 // Define the type of the body for the Search request
-import { Label, PageType } from '../generated/graphql'
 import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
 
@@ -20,6 +19,16 @@ export interface SearchBody {
             }
           }
         | {
+            range: {
+              savedAt: { gt: Date | undefined } | { lt: Date | undefined }
+            }
+          }
+        | {
+            range: {
+              publishedAt: { gt: Date | undefined } | { lt: Date | undefined }
+            }
+          }
+        | {
             nested: {
               path: 'labels'
               query: {
@@ -29,6 +38,16 @@ export interface SearchBody {
                       'labels.name': string[]
                     }
                   }[]
+                }
+              }
+            }
+          }
+        | {
+            nested: {
+              path: 'highlights'
+              query: {
+                exists: {
+                  field: 'highlights'
                 }
               }
             }
@@ -109,12 +128,44 @@ export interface SearchResponse<T> {
       _explanation?: Explanation
       fields?: never
       highlight?: never
-      inner_hits?: never
+      inner_hits?: any
       matched_queries?: string[]
       sort?: string[]
     }>
   }
   aggregations?: never
+}
+
+export enum PageType {
+  Article = 'ARTICLE',
+  Book = 'BOOK',
+  File = 'FILE',
+  Profile = 'PROFILE',
+  Unknown = 'UNKNOWN',
+  Website = 'WEBSITE',
+  Highlights = 'HIGHLIGHTS',
+}
+
+export interface Label {
+  id: string
+  name: string
+  color: string
+  description?: string
+  createdAt?: Date
+}
+
+export interface Highlight {
+  id: string
+  shortId: string
+  patch: string
+  quote: string
+  userId: string
+  createdAt: Date
+  prefix?: string | null
+  suffix?: string | null
+  annotation?: string | null
+  sharedAt?: Date | null
+  updatedAt?: Date | null
 }
 
 export interface Page {
@@ -143,6 +194,29 @@ export interface Page {
   siteName?: string
   _id?: string
   siteIcon?: string
+  highlights?: Highlight[]
+}
+
+export interface SearchItem {
+  annotation?: string | null
+  author?: string | null
+  createdAt: Date
+  description?: string | null
+  id: string
+  image?: string | null
+  pageId?: string
+  pageType: PageType
+  publishedAt?: Date
+  quote?: string | null
+  shortId?: string | null
+  slug: string
+  title: string
+  uploadFileId?: string | null
+  url: string
+  archivedAt?: Date | null
+  readingProgressPercent?: number
+  readingProgressAnchorIndex?: number
+  userId: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const

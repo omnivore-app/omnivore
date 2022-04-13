@@ -13,7 +13,7 @@ import { DataModels } from '../resolvers/types'
 import { generateSlug } from '../utils/helpers'
 import { getStorageFileDetails, makeStorageFilePublic } from '../utils/uploads'
 import { createSavingRequest } from './save_page'
-import { createPage, getPageByParam, updatePage } from '../elastic'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 type SaveContext = {
   pubsub: PubsubClient

@@ -3,7 +3,7 @@
 import Knex from 'knex'
 import { LinkShareInfo } from '../../generated/graphql'
 import { DataModels } from '../../resolvers/types'
-import { getPageByParam } from '../../elastic'
+import { getPageByParam } from '../../elastic/pages'
 
 // once we have links setup properly in the API we will remove this method
 // and have a getShareInfoForLink method

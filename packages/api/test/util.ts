@@ -4,18 +4,22 @@ import { v4 } from 'uuid'
 import { corsConfig } from '../src/utils/corsConfig'
 import { Page } from '../src/elastic/types'
 import { PageType } from '../src/generated/graphql'
-import { createPage, getPageById } from '../src/elastic'
 import { User } from '../src/entity/user'
 import { Label } from '../src/entity/label'
 import { createPubSubClient } from '../src/datalayer/pubsub'
+import { createPage, getPageById } from '../src/elastic/pages'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)
 
-before(async () => {
+export const startApolloServer = async () => {
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
-})
+}
+
+export const stopApolloServer = async () => {
+  await apollo.stop()
+}
 
 export const graphqlRequest = (
   query: string,

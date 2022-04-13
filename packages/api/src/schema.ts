@@ -286,6 +286,7 @@ const schema = gql`
     FILE
     PROFILE
     WEBSITE
+    HIGHLIGHTS
     UNKNOWN
   }
 
@@ -569,7 +570,6 @@ const schema = gql`
     # used for simplified url format
     shortId: String!
     user: User!
-    article: Article!
     quote: String!
     # piece of content before the quote
     prefix: String
@@ -1272,9 +1272,9 @@ const schema = gql`
   union LabelsResult = LabelsSuccess | LabelsError
 
   input CreateLabelInput {
-    name: String!
+    name: String! @sanitize(maxLength: 64)
     color: String!
-    description: String
+    description: String @sanitize(maxLength: 100)
   }
 
   type CreateLabelSuccess {
@@ -1359,7 +1359,7 @@ const schema = gql`
   union SignupResult = SignupSuccess | SignupError
 
   input SetLabelsInput {
-    linkId: ID!
+    pageId: ID!
     labelIds: [ID!]!
   }
 
@@ -1377,6 +1377,70 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+  }
+
+  union GenerateApiKeyResult = GenerateApiKeySuccess | GenerateApiKeyError
+
+  type GenerateApiKeySuccess {
+    apiKey: String!
+  }
+
+  type GenerateApiKeyError {
+    errorCodes: [GenerateApiKeyErrorCode!]!
+  }
+
+  enum GenerateApiKeyErrorCode {
+    BAD_REQUEST
+  }
+
+  # Query: search
+  union SearchResult = SearchSuccess | SearchError
+
+  type SearchItem {
+    # used for pages
+    id: ID!
+    title: String!
+    slug: String!
+    # for uploaded file articles (PDFs), the URL here is the saved omnivore link in GCS
+    url: String!
+    pageType: PageType!
+    contentReader: ContentReader!
+    createdAt: Date!
+    isArchived: Boolean!
+    readingProgressPercent: Float
+    readingProgressAnchorIndex: Int
+    author: String
+    image: String
+    description: String
+    publishedAt: Date
+    ownedByViewer: Boolean
+    # for uploaded file articles (PDFs), we track the original article URL separately!
+    originalArticleUrl: String
+    uploadFileId: ID
+    # used for highlights
+    pageId: ID
+    shortId: String
+    quote: String
+    annotation: String
+    labels: [Label!]
+  }
+
+  type SearchItemEdge {
+    cursor: String!
+    node: SearchItem!
+  }
+
+  type SearchSuccess {
+    edges: [SearchItemEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  enum SearchErrorCode {
+    UNAUTHORIZED
+  }
+
+  type SearchError {
+    errorCodes: [SearchErrorCode!]!
   }
 
   # Mutations
@@ -1439,6 +1503,7 @@ const schema = gql`
     login(input: LoginInput!): LoginResult!
     signup(input: SignupInput!): SignupResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
+    generateApiKey(scope: String): GenerateApiKeyResult!
   }
 
   # FIXME: remove sort from feedArticles after all cahced tabs are closed
@@ -1475,6 +1540,7 @@ const schema = gql`
     newsletterEmails: NewsletterEmailsResult!
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
+    search(after: String, first: Int, query: String): SearchResult!
   }
 `
 

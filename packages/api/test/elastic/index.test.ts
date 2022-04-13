@@ -1,6 +1,9 @@
 import 'mocha'
+import { expect } from 'chai'
+import { InFilter, ReadFilter } from '../../src/utils/search'
+import { Highlight, Page, PageContext, PageType } from '../../src/elastic/types'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
-  addLabelInPage,
   countByCreatedAt,
   createPage,
   deletePage,
@@ -8,12 +11,12 @@ import {
   getPageByParam,
   searchPages,
   updatePage,
-} from '../../src/elastic'
-import { PageType } from '../../src/generated/graphql'
-import { expect } from 'chai'
-import { InFilter, ReadFilter } from '../../src/utils/search'
-import { Page, PageContext } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+} from '../../src/elastic/pages'
+import { addLabelInPage } from '../../src/elastic/labels'
+import {
+  addHighlightToPage,
+  searchHighlights,
+} from '../../src/elastic/highlights'
 
 describe('elastic api', () => {
   const userId = 'userId'
@@ -202,6 +205,35 @@ describe('elastic api', () => {
     it('counts pages by createdAt', async () => {
       const count = await countByCreatedAt(userId, createdAt, createdAt)
       expect(count).to.eq(1)
+    })
+  })
+
+  describe('searchHighlights', () => {
+    const highlightId = 'highlightId'
+
+    before(async () => {
+      const highlightData: Highlight = {
+        patch: 'test patch',
+        quote: 'test content',
+        shortId: 'test shortId',
+        id: highlightId,
+        userId: page.userId,
+        createdAt: new Date(),
+      }
+
+      await addHighlightToPage(page.id, highlightData, ctx)
+    })
+
+    it('searches highlights', async () => {
+      const [searchResults, count] = (await searchHighlights(
+        {
+          query: 'test',
+        },
+        page.userId
+      )) || [[], 0]
+
+      expect(count).to.eq(1)
+      expect(searchResults[0].id).to.eq(highlightId)
     })
   })
 })

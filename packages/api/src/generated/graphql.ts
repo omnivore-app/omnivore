@@ -521,6 +521,22 @@ export type FeedArticlesSuccess = {
   pageInfo: PageInfo;
 };
 
+export type GenerateApiKeyError = {
+  __typename?: 'GenerateApiKeyError';
+  errorCodes: Array<GenerateApiKeyErrorCode>;
+};
+
+export enum GenerateApiKeyErrorCode {
+  BadRequest = 'BAD_REQUEST'
+}
+
+export type GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess;
+
+export type GenerateApiKeySuccess = {
+  __typename?: 'GenerateApiKeySuccess';
+  apiKey: Scalars['String'];
+};
+
 export type GetFollowersError = {
   __typename?: 'GetFollowersError';
   errorCodes: Array<GetFollowersErrorCode>;
@@ -599,7 +615,6 @@ export type GoogleSignupSuccess = {
 export type Highlight = {
   __typename?: 'Highlight';
   annotation?: Maybe<Scalars['String']>;
-  article: Article;
   createdAt: Scalars['Date'];
   createdByMe: Scalars['Boolean'];
   id: Scalars['ID'];
@@ -771,6 +786,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteReaction: DeleteReactionResult;
   deleteReminder: DeleteReminderResult;
+  generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
   login: LoginResult;
@@ -864,6 +880,11 @@ export type MutationDeleteReactionArgs = {
 
 export type MutationDeleteReminderArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationGenerateApiKeyArgs = {
+  scope?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -1065,6 +1086,7 @@ export enum PageType {
   Article = 'ARTICLE',
   Book = 'BOOK',
   File = 'FILE',
+  Highlights = 'HIGHLIGHTS',
   Profile = 'PROFILE',
   Unknown = 'UNKNOWN',
   Website = 'WEBSITE'
@@ -1098,6 +1120,7 @@ export type Query = {
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
   reminder: ReminderResult;
+  search: SearchResult;
   sharedArticle: SharedArticleResult;
   user: UserResult;
   users: UsersResult;
@@ -1145,6 +1168,13 @@ export type QueryGetFollowingArgs = {
 
 export type QueryReminderArgs = {
   linkId: Scalars['ID'];
+};
+
+
+export type QuerySearchArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  query?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -1301,6 +1331,55 @@ export type SaveUrlInput = {
   url: Scalars['String'];
 };
 
+export type SearchError = {
+  __typename?: 'SearchError';
+  errorCodes: Array<SearchErrorCode>;
+};
+
+export enum SearchErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SearchItem = {
+  __typename?: 'SearchItem';
+  annotation?: Maybe<Scalars['String']>;
+  author?: Maybe<Scalars['String']>;
+  contentReader: ContentReader;
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
+  isArchived: Scalars['Boolean'];
+  labels?: Maybe<Array<Label>>;
+  originalArticleUrl?: Maybe<Scalars['String']>;
+  ownedByViewer?: Maybe<Scalars['Boolean']>;
+  pageId?: Maybe<Scalars['ID']>;
+  pageType: PageType;
+  publishedAt?: Maybe<Scalars['Date']>;
+  quote?: Maybe<Scalars['String']>;
+  readingProgressAnchorIndex?: Maybe<Scalars['Int']>;
+  readingProgressPercent?: Maybe<Scalars['Float']>;
+  shortId?: Maybe<Scalars['String']>;
+  slug: Scalars['String'];
+  title: Scalars['String'];
+  uploadFileId?: Maybe<Scalars['ID']>;
+  url: Scalars['String'];
+};
+
+export type SearchItemEdge = {
+  __typename?: 'SearchItemEdge';
+  cursor: Scalars['String'];
+  node: SearchItem;
+};
+
+export type SearchResult = SearchError | SearchSuccess;
+
+export type SearchSuccess = {
+  __typename?: 'SearchSuccess';
+  edges: Array<SearchItemEdge>;
+  pageInfo: PageInfo;
+};
+
 export type SetBookmarkArticleError = {
   __typename?: 'SetBookmarkArticleError';
   errorCodes: Array<SetBookmarkArticleErrorCode>;
@@ -1381,7 +1460,7 @@ export enum SetLabelsErrorCode {
 
 export type SetLabelsInput = {
   labelIds: Array<Scalars['ID']>;
-  linkId: Scalars['ID'];
+  pageId: Scalars['ID'];
 };
 
 export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;
@@ -1989,6 +2068,10 @@ export type ResolversTypes = {
   FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
+  GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
+  GenerateApiKeyResult: ResolversTypes['GenerateApiKeyError'] | ResolversTypes['GenerateApiKeySuccess'];
+  GenerateApiKeySuccess: ResolverTypeWrapper<GenerateApiKeySuccess>;
   GetFollowersError: ResolverTypeWrapper<GetFollowersError>;
   GetFollowersErrorCode: GetFollowersErrorCode;
   GetFollowersResult: ResolversTypes['GetFollowersError'] | ResolversTypes['GetFollowersSuccess'];
@@ -2068,6 +2151,12 @@ export type ResolversTypes = {
   SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
   SaveUrlInput: SaveUrlInput;
+  SearchError: ResolverTypeWrapper<SearchError>;
+  SearchErrorCode: SearchErrorCode;
+  SearchItem: ResolverTypeWrapper<SearchItem>;
+  SearchItemEdge: ResolverTypeWrapper<SearchItemEdge>;
+  SearchResult: ResolversTypes['SearchError'] | ResolversTypes['SearchSuccess'];
+  SearchSuccess: ResolverTypeWrapper<SearchSuccess>;
   SetBookmarkArticleError: ResolverTypeWrapper<SetBookmarkArticleError>;
   SetBookmarkArticleErrorCode: SetBookmarkArticleErrorCode;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
@@ -2252,6 +2341,9 @@ export type ResolversParentTypes = {
   FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: FeedArticlesSuccess;
   Float: Scalars['Float'];
+  GenerateApiKeyError: GenerateApiKeyError;
+  GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
+  GenerateApiKeySuccess: GenerateApiKeySuccess;
   GetFollowersError: GetFollowersError;
   GetFollowersResult: ResolversParentTypes['GetFollowersError'] | ResolversParentTypes['GetFollowersSuccess'];
   GetFollowersSuccess: GetFollowersSuccess;
@@ -2317,6 +2409,11 @@ export type ResolversParentTypes = {
   SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
   SaveUrlInput: SaveUrlInput;
+  SearchError: SearchError;
+  SearchItem: SearchItem;
+  SearchItemEdge: SearchItemEdge;
+  SearchResult: ResolversParentTypes['SearchError'] | ResolversParentTypes['SearchSuccess'];
+  SearchSuccess: SearchSuccess;
   SetBookmarkArticleError: SetBookmarkArticleError;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
   SetBookmarkArticleResult: ResolversParentTypes['SetBookmarkArticleError'] | ResolversParentTypes['SetBookmarkArticleSuccess'];
@@ -2763,6 +2860,20 @@ export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GenerateApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyError'] = ResolversParentTypes['GenerateApiKeyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GenerateApiKeyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GenerateApiKeyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyResult'] = ResolversParentTypes['GenerateApiKeyResult']> = {
+  __resolveType: TypeResolveFn<'GenerateApiKeyError' | 'GenerateApiKeySuccess', ParentType, ContextType>;
+};
+
+export type GenerateApiKeySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeySuccess'] = ResolversParentTypes['GenerateApiKeySuccess']> = {
+  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GetFollowersErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetFollowersError'] = ResolversParentTypes['GetFollowersError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['GetFollowersErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2821,7 +2932,6 @@ export type GoogleSignupSuccessResolvers<ContextType = ResolverContext, ParentTy
 
 export type HighlightResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Highlight'] = ResolversParentTypes['Highlight']> = {
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   createdByMe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -2957,6 +3067,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
   deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
+  generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, Partial<MutationGenerateApiKeyArgs>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
@@ -3056,6 +3167,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
+  search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
@@ -3133,6 +3245,53 @@ export type SaveResultResolvers<ContextType = ResolverContext, ParentType extend
 export type SaveSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveSuccess'] = ResolversParentTypes['SaveSuccess']> = {
   clientRequestId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SearchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchError'] = ResolversParentTypes['SearchError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SearchErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
+  annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
+  originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  readingProgressAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SearchItemEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItemEdge'] = ResolversParentTypes['SearchItemEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['SearchItem'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SearchResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchResult'] = ResolversParentTypes['SearchResult']> = {
+  __resolveType: TypeResolveFn<'SearchError' | 'SearchSuccess', ParentType, ContextType>;
+};
+
+export type SearchSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchSuccess'] = ResolversParentTypes['SearchSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['SearchItemEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3521,6 +3680,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   FeedArticlesError?: FeedArticlesErrorResolvers<ContextType>;
   FeedArticlesResult?: FeedArticlesResultResolvers<ContextType>;
   FeedArticlesSuccess?: FeedArticlesSuccessResolvers<ContextType>;
+  GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
+  GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
+  GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
   GetFollowersError?: GetFollowersErrorResolvers<ContextType>;
   GetFollowersResult?: GetFollowersResultResolvers<ContextType>;
   GetFollowersSuccess?: GetFollowersSuccessResolvers<ContextType>;
@@ -3573,6 +3735,11 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveError?: SaveErrorResolvers<ContextType>;
   SaveResult?: SaveResultResolvers<ContextType>;
   SaveSuccess?: SaveSuccessResolvers<ContextType>;
+  SearchError?: SearchErrorResolvers<ContextType>;
+  SearchItem?: SearchItemResolvers<ContextType>;
+  SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;
+  SearchResult?: SearchResultResolvers<ContextType>;
+  SearchSuccess?: SearchSuccessResolvers<ContextType>;
   SetBookmarkArticleError?: SetBookmarkArticleErrorResolvers<ContextType>;
   SetBookmarkArticleResult?: SetBookmarkArticleResultResolvers<ContextType>;
   SetBookmarkArticleSuccess?: SetBookmarkArticleSuccessResolvers<ContextType>;

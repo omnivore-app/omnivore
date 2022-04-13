@@ -14,8 +14,8 @@ import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { kx } from '../datalayer/knex_config'
 import { setClaims } from '../datalayer/helpers'
-import { createPage, getPageByParam, updatePage } from '../elastic'
 import { Page } from '../elastic/types'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 type SaveContext = {
   pubsub: PubsubClient

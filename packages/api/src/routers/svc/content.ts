@@ -6,8 +6,8 @@ import {
   createPubSubClient,
   readPushSubscription,
 } from '../../datalayer/pubsub'
-import { getPageByParam, updatePage } from '../../elastic'
 import { Page } from '../../elastic/types'
+import { getPageByParam, updatePage } from '../../elastic/pages'
 
 interface UpdateContentMessage {
   fileId: string

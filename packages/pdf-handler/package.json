@@ -23,7 +23,7 @@
     "@types/node": "^14.11.2"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "3.0.0",
+    "@google-cloud/functions-framework": "3.1.0",
     "@google-cloud/pubsub": "^2.16.3",
     "@google-cloud/storage": "^5.18.1",
     "axios": "^0.26.0",

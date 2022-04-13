@@ -56,6 +56,30 @@
           }
         }
       },
+      "highlights": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "userId": {
+            "type": "keyword"
+          },
+          "quote": {
+            "type": "text",
+            "analyzer": "strip_html_analyzer"
+          },
+          "annotation": {
+            "type": "text"
+          },
+          "createdAt": {
+            "type": "date"
+          },
+          "updatedAt": {
+            "type": "date"
+          }
+        }
+      },
       "readingProgressPercent": {
         "type": "float"
       },
