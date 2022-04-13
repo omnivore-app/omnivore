@@ -6,7 +6,7 @@ import { articleFragment } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { Label } from './../fragments/labelFragment'
+import { Label, labelFragment } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
 
 export type LibraryItemsQueryInput = {
@@ -67,6 +67,30 @@ export type PageInfo = {
   totalCount: number
 }
 
+const libraryItemFragment = gql`
+  fragment ArticleFields on Article {
+    id
+    title
+    url
+    author
+    image
+    savedAt
+    createdAt
+    publishedAt
+    contentReader
+    originalArticleUrl
+    readingProgressPercent
+    readingProgressAnchorIndex
+    slug
+    isArchived
+    description
+    linkId
+    labels {
+      ...LabelFields
+    }
+  }
+`
+
 export function useGetLibraryItemsQuery({
   limit,
   sortDescending,
@@ -109,7 +133,8 @@ export function useGetLibraryItemsQuery({
         }
       }
     }
-    ${articleFragment}
+    ${libraryItemFragment}
+    ${labelFragment}
   `
 
   const variables = {
