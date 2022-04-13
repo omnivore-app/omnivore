@@ -102,7 +102,12 @@ struct CreateLabelView: View {
     GridItem(.fixed(70))
   ]
 
-  let swatches = swatchHexes.map { Color(hex: $0) ?? .clear }.shuffled()
+  let swatches: [Color] = {
+    let webSwatches = webSwatchHexes.map { Color(hex: $0) ?? .clear }
+    var additionalSwatches = swatchHexes.map { Color(hex: $0) ?? .clear }.shuffled()
+    let firstSwatch = additionalSwatches.remove(at: 0)
+    return [firstSwatch] + webSwatches + additionalSwatches
+  }()
 
   var body: some View {
     NavigationView {
@@ -174,9 +179,21 @@ struct CreateLabelView: View {
       #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
       #endif
+      .onAppear {
+        newLabelColor = swatches.first ?? .clear
+      }
     }
   }
 }
+
+private let webSwatchHexes = [
+  "#FF5D99",
+  "#7CFF7B",
+  "#FFD234",
+  "#7BE4FF",
+  "#CE88EF",
+  "#EF8C43"
+]
 
 private let swatchHexes = [
   "#fff034",
