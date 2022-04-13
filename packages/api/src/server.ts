@@ -40,7 +40,7 @@ import { ApolloServer } from 'apollo-server-express'
 import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
 import { corsConfig } from './utils/corsConfig'
 import { initElasticsearch } from './elastic'
-import { pageServiceRouter } from './routers/svc/pages'
+import { uploadServiceRouter } from './routers/svc/upload'
 
 const PORT = process.env.PORT || 4000
 
@@ -98,7 +98,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
   app.use('/svc/pubsub/emails', emailsServiceRouter())
-  app.use('/svc/pubsub/pages', pageServiceRouter())
+  app.use('/svc/pubsub/upload', uploadServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
 
