@@ -1,4 +1,4 @@
-import { mapSchema, getDirective, MapperKind } from '@graphql-tools/utils'
+import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils'
 import { GraphQLNonNull, GraphQLScalarType, GraphQLSchema } from 'graphql'
 import { SanitizedString } from './scalars'
 
@@ -14,19 +14,26 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
       const allowedTags = sanitizeDirective[0].allowedTags as
         | string[]
         | undefined
+      const pattern = sanitizeDirective[0].pattern as RegExp | undefined
 
       if (
         fieldConfig.type instanceof GraphQLNonNull &&
         fieldConfig.type.ofType instanceof GraphQLScalarType
       ) {
         fieldConfig.type = new GraphQLNonNull(
-          new SanitizedString(fieldConfig.type.ofType, allowedTags, maxLength)
+          new SanitizedString(
+            fieldConfig.type.ofType,
+            allowedTags,
+            maxLength,
+            pattern
+          )
         )
       } else if (fieldConfig.type instanceof GraphQLScalarType) {
         fieldConfig.type = new SanitizedString(
           fieldConfig.type,
           allowedTags,
-          maxLength
+          maxLength,
+          pattern
         )
       } else {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

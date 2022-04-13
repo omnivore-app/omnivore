@@ -2501,6 +2501,7 @@ export type ResolversParentTypes = {
 export type SanitizeDirectiveArgs = {
   allowedTags?: Maybe<Array<Maybe<Scalars['String']>>>;
   maxLength?: Maybe<Scalars['Int']>;
+  pattern?: Maybe<Scalars['String']>;
 };
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
