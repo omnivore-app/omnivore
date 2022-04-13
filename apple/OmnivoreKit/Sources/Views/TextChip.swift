@@ -91,17 +91,23 @@ public struct TextChipButton: View {
 
   public var body: some View {
     Button(action: onTap) {
-      HStack {
-        Text(text)
-        Image(systemName: actionType.systemIconName)
+      VStack(spacing: 0) {
+        HStack {
+          Text(text)
+            .padding(.leading, 3)
+          Image(systemName: actionType.systemIconName)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .font(.appFootnote)
+        .foregroundColor(foregroundColor)
+        .lineLimit(1)
+        .background(color)
+        .cornerRadius(cornerRadius)
+
+        Color.clear.contentShape(Rectangle()).frame(height: 15)
       }
-      .padding(.horizontal, 10)
-      .padding(.vertical, 8)
-      .font(.appFootnote)
-      .foregroundColor(foregroundColor)
-      .lineLimit(1)
-      .background(color)
-      .cornerRadius(cornerRadius)
+      .contentShape(Rectangle())
     }
   }
 }

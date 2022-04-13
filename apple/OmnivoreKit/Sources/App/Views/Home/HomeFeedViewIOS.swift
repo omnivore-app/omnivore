@@ -115,7 +115,7 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      VStack {
+      VStack(spacing: 0) {
         ScrollView(.horizontal, showsIndicators: false) {
           HStack {
             TextChipButton.makeAddLabelButton {
@@ -128,7 +128,6 @@ import Views
             }
             Spacer()
           }
-          .padding(.bottom, 5)
           .padding(.horizontal)
           .sheet(isPresented: $showLabelsSheet) {
             ApplyLabelsView(mode: .list(viewModel.selectedLabels)) { labels in
