@@ -25,7 +25,8 @@ export class SanitizedString extends GraphQLScalarType {
           throw new Error(
             `Specified value cannot be longer than ${maxLength} characters`
           )
-        } else if (pattern && !pattern.test(value)) {
+        }
+        if (pattern && !pattern.test(value)) {
           throw new Error(`Specified value does not match pattern`)
         }
         return sanitize(value, { allowedTags: allowedTags || [] })
@@ -38,7 +39,8 @@ export class SanitizedString extends GraphQLScalarType {
           throw new Error(
             `Specified value cannot be longer than ${maxLength} characters`
           )
-        } else if (pattern && !pattern.test(value)) {
+        }
+        if (pattern && !pattern.test(value)) {
           throw new Error(`Specified value does not match pattern`)
         }
         return sanitize(value, { allowedTags: allowedTags || [] })
