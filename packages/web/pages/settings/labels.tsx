@@ -183,18 +183,14 @@ export default function LabelsPage(): JSX.Element {
 
   async function createLabel(): Promise<void> {
     const res = await createLabelMutation(
-      nameInputText,
+      nameInputText.trim(),
       labelColorHex.value,
       descriptionInputText
     )
     if (res) {
-      if (res.createLabel.errorCodes && res.createLabel.errorCodes.length > 0) {
-        showErrorToast(res.createLabel.errorCodes[0])
-      } else {
-        showSuccessToast('Label created', { position: 'bottom-right' })
-        resetLabelState()
-        revalidate()
-      }
+      showSuccessToast('Label created', { position: 'bottom-right' })
+      resetLabelState()
+      revalidate()
     } else {
       showErrorToast('Failed to create label')
     }
