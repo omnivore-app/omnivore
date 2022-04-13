@@ -16,6 +16,7 @@ export type HeaderDropdownAction =
   | 'apply-lighter-theme'
   | 'navigate-to-install'
   | 'navigate-to-emails'
+  | 'navigate-to-labels'
   | 'navigate-to-profile'
   | 'increaseFontSize'
   | 'decreaseFontSize'
@@ -61,6 +62,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-emails')}
         title="Emails"
+      />
+      <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-labels')}
+        title="Labels"
       />
       <DropdownOption
         onSelect={() => window.Intercom('show')}

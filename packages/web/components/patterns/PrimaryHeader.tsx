@@ -102,6 +102,9 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       case 'navigate-to-emails':
         router.push('/settings/emails')
         break
+      case 'navigate-to-labels':
+        router.push('/settings/labels')
+        break
       case 'navigate-to-profile':
         if (props.user) {
           router.push(`/${props.user.profile.username}`)
