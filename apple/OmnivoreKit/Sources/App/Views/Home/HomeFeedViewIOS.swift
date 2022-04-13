@@ -195,6 +195,10 @@ import Views
               viewModel: viewModel
             )
             .contextMenu {
+              Button(
+                action: { viewModel.itemUnderLabelEdit = item },
+                label: { Label("Edit Labels", systemImage: "tag") }
+              )
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
                   viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
@@ -223,7 +227,13 @@ import Views
             }
             if #available(iOS 15.0, *) {
               link
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                  Button(
+                    action: { viewModel.itemUnderLabelEdit = item },
+                    label: { Label("Edit Labels", systemImage: "tag") }
+                  )
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                   if !item.isArchived {
                     Button {
                       withAnimation(.linear(duration: 0.4)) {
@@ -242,7 +252,7 @@ import Views
                     }.tint(.indigo)
                   }
                 }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                   Button(
                     role: .destructive,
                     action: {
