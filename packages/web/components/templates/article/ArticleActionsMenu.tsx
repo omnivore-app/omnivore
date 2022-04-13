@@ -95,7 +95,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           layout={props.layout}
           triggerElement={
             <TooltipWrapped
-              tooltipContent="Edit Tags"
+              tooltipContent="Edit labels"
               tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
           >
             <TagSimple size={24} color={theme.colors.readerFont.toString()} />
