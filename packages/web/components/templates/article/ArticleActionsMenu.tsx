@@ -63,9 +63,8 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         alignItems: 'center',
         flexDirection: props.layout == 'vertical' ? 'column' : 'row',
         justifyContent: props.layout == 'vertical' ? 'center' : 'flex-end',
-        gap: props.layout == 'vertical' ? '8px' : '20px',
+        gap: props.layout == 'vertical' ? '8px' : '24px',
         paddingTop: '6px',
-        m: '0px',
       }}
     >
 
@@ -76,8 +75,8 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
             tooltipContent="Adjust Display Settings"
             tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
           >
-          <TextAa size={24} color={theme.colors.readerFont.toString()} />
-        </TooltipWrapped>
+            <TextAa size={24} color={theme.colors.readerFont.toString()} />
+          </TooltipWrapped>
         }
       >
         <ReaderSettingsControl userPreferences={preferencesData} articleActionHandler={props.articleActionHandler} />

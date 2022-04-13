@@ -135,3 +135,8 @@ input[type=range]::-webkit-slider-thumb {
   border-radius: 50%;
   background: var(--colors-grayTextContrast);
 }
+
+button {
+  padding: 0px;
+  margin: 0px;
+}
