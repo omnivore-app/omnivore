@@ -7,7 +7,7 @@ import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
-import { EditLabelsControl } from "./EditLabelsControl"
+import { SetLabelsControl } from "./SetLabelsControl"
 import { ReaderSettingsControl } from "./ReaderSettingsControl"
 
 export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
@@ -101,7 +101,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           </TooltipWrapped>
           }
         >
-          <EditLabelsControl
+          <SetLabelsControl
             article={props.article}
             articleActionHandler={props.articleActionHandler}
           />
@@ -109,7 +109,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       </SpanBox>
 
       <Button style='articleActionIcon'
-        onClick={() => props.articleActionHandler('editLabels')}
+        onClick={() => props.articleActionHandler('setLabels')}
         css={{
           'display': 'none',
           '@smDown': {

@@ -27,8 +27,7 @@ import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLi
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useSWRConfig } from 'swr'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { EditLabelsControl } from '../../../components/templates/article/EditLabelsControl'
-import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
+import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 
 
@@ -49,7 +48,7 @@ export default function Home(): JSX.Element {
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
   const [marginWidth, setMarginWidth] = useState(preferencesData?.margin ?? 360)
   const [lineHeight, setLineHeight] = useState(preferencesData?.lineHeight ?? 150)
-  const [showEditLabelsModal, setShowEditLabelsModal] = useState(false)
+  const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
   
   const { articleData } = useGetArticleQuery({
@@ -140,8 +139,8 @@ export default function Home(): JSX.Element {
         setShowEditDisplaySettingsModal(true)
         break
       }
-      case 'editLabels': {
-        setShowEditLabelsModal(true)
+      case 'setLabels': {
+        setShowSetLabelsModal(true)
         break
       }
       case 'resetReaderSettings': {
@@ -243,11 +242,11 @@ export default function Home(): JSX.Element {
               </VStack>
             )}
 
-        {showEditLabelsModal && (
-          <EditLabelsModal
+        {showSetLabelsModal && (
+          <SetLabelsModal
             article={article}
             articleActionHandler={actionHandler}
-            onOpenChange={() => setShowEditLabelsModal(false)}
+            onOpenChange={() => setShowSetLabelsModal(false)}
           />
         )}
 

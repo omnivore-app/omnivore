@@ -9,7 +9,6 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
-
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
 import { createLabelMutation } from '../../../lib/networking/mutations/createLabelMutation'
@@ -17,7 +16,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { useRouter } from 'next/router'
 
-type EditLabelsControlProps = {
+type SetLabelsControlProps = {
   article: ArticleAttributes
   articleActionHandler: (action: string, arg?: unknown) => void
 }
@@ -147,11 +146,11 @@ function LabelListItem(props: LabelListItemProps): JSX.Element {
   )
 }
 
-type EditLabelsButtonFooterProps = {
+type FooterProps = {
   focused: boolean
 }
 
-function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element {
+function Footer(props: FooterProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -184,7 +183,7 @@ function EditLabelsButtonFooter(props: EditLabelsButtonFooterProps): JSX.Element
   )
 }
 
-export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
+export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const router = useRouter()
   const [filterText, setFilterText] = useState('')
   const { labels, revalidate } = useGetLabelsQuery()
@@ -340,7 +339,7 @@ export function EditLabelsControl(props: EditLabelsControlProps): JSX.Element {
         </Button>
       )}
 
-      <EditLabelsButtonFooter focused={focusedIndex === (filteredLabels.length + 1)} />
+      <Footer focused={focusedIndex === (filteredLabels.length + 1)} />
     </VStack>
   )
 }

@@ -1,8 +1,7 @@
-import { X } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { CrossIcon } from '../../elements/images/CrossIcon'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import {
   ModalRoot,
   ModalOverlay,
@@ -10,15 +9,15 @@ import {
 } from '../../elements/ModalPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
-import { EditLabelsControl } from './EditLabelsControl'
+import { SetLabelsControl } from './SetLabelsControl'
 
-type EditLabelsModalProps = {
+type SetLabelsModalProps = {
   article: ArticleAttributes
   onOpenChange: (open: boolean) => void
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
-export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
+export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
@@ -49,7 +48,7 @@ export function EditLabelsModal(props: EditLabelsModalProps): JSX.Element {
                 />
               </Button>
           </HStack>
-          <EditLabelsControl {...props} />
+          <SetLabelsControl {...props} />
         </VStack>
       </ModalContent>
     </ModalRoot>

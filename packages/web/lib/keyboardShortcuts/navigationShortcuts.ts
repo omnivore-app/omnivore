@@ -209,7 +209,7 @@ type ArticleKeyboardAction =
   | 'decrementFontSize'
   | 'incrementMarginWidth'
   | 'decrementMarginWidth'
-  | 'editLabels'
+  | 'setLabels'
 
 export function articleKeyboardCommands(
   router: NextRouter | undefined,
@@ -256,7 +256,7 @@ export function articleKeyboardCommands(
       shortcutKeys: ['l'],
       actionDescription: 'Edit labels',
       shortcutKeyDescription: 'l',
-      callback: () => actionHandler('editLabels'),
+      callback: () => actionHandler('setLabels'),
     },
   ]
 }
