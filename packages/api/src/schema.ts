@@ -8,6 +8,7 @@ const schema = gql`
   directive @sanitize(
     allowedTags: [String]
     maxLength: Int
+    pattern: String
   ) on INPUT_FIELD_DEFINITION
 
   enum SortOrder {
@@ -1273,7 +1274,7 @@ const schema = gql`
 
   input CreateLabelInput {
     name: String! @sanitize(maxLength: 64)
-    color: String!
+    color: String! @sanitize(pattern: "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
     description: String @sanitize(maxLength: 100)
   }
 
