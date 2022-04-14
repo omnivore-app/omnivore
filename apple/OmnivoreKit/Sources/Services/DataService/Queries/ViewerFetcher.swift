@@ -44,23 +44,8 @@ public extension DataService {
   }
 }
 
-public extension DataService {
-  @available(*, deprecated, message: "use async version instead")
-  func viewerPublisher() -> AnyPublisher<Viewer, BasicError> {
-    internalViewerPublisher()
-      .handleEvents(receiveOutput: {
-        // Persist ID so AppDelegate can use it to register Intercom users at launch time
-        if UserDefaults.standard.string(forKey: Keys.userIdKey) == nil {
-          UserDefaults.standard.setValue($0.userID, forKey: Keys.userIdKey)
-          DataService.registerIntercomUser?($0.userID)
-        }
-      })
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
-  }
-}
-
 extension DataService {
+  @available(*, deprecated, message: "use async version instead")
   func internalViewerPublisher() -> AnyPublisher<Viewer, BasicError> {
     let selection = Selection<Viewer, Objects.User> {
       Viewer(
