@@ -511,10 +511,10 @@ Readability.prototype = {
       const images = articleContent.getElementsByTagName('img');
       Array.from(images).forEach(image => {
         const src = image.getAttribute("src");
-        const dataUrlRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
+        const dataUriRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
 
-        // ignore data uri
-        if (src && !dataUrlRegex.test(src)) {
+        // do not proxy data uri
+        if (src && !dataUriRegex.test(src)) {
           const absoluteSrc = this.toAbsoluteURI(src);
           const attToNumber = (str) => {
             if (!str) { return 0; }
