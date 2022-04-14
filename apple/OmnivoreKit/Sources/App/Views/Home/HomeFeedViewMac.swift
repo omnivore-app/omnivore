@@ -77,17 +77,17 @@ import Views
       .listStyle(PlainListStyle())
       .navigationTitle("Home")
       .searchable(
-        text: $viewModel.searchQuery,
+        text: $viewModel.searchTerm,
         placement: .toolbar
       ) {
-        if viewModel.searchQuery.isEmpty {
+        if viewModel.searchTerm.isEmpty {
           Text("Inbox").searchCompletion("in:inbox ")
           Text("All").searchCompletion("in:all ")
           Text("Archived").searchCompletion("in:archive ")
           Text("Files").searchCompletion("type:file ")
         }
       }
-      .onChange(of: viewModel.searchQuery) { _ in
+      .onChange(of: viewModel.searchTerm) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
         viewModel.loadItems(dataService: dataService, isRefresh: true)

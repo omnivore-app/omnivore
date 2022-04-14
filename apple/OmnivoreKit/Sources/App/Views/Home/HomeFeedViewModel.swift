@@ -11,11 +11,15 @@ final class HomeFeedViewModel: ObservableObject {
   /// Track progress updates to be committed when user navigates back to grid view
   var uncommittedReadingProgressUpdates = [String: Double]()
 
+  /// Track label updates to be committed when user navigates back to grid view
+  var uncommittedLabelUpdates = [String: [FeedItemLabel]]()
+
   @Published var items = [FeedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: FeedItem?
-  @Published var searchQuery = ""
+  @Published var searchTerm = ""
+  @Published var selectedLabels = [FeedItemLabel]()
   @Published var snoozePresented = false
   @Published var itemToSnooze: FeedItem?
   @Published var selectedLinkItem: FeedItem?
@@ -68,7 +72,7 @@ final class HomeFeedViewModel: ObservableObject {
     dataService.libraryItemsPublisher(
       limit: 10,
       sortDescending: true,
-      searchQuery: searchQuery.isEmpty ? nil : searchQuery,
+      searchQuery: searchQuery,
       cursor: isRefresh ? nil : cursor
     )
     .sink(
@@ -172,14 +176,18 @@ final class HomeFeedViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  /// Update `FeedItem`s with the cached reading progress values so it can animate when the
+  /// Update `FeedItem`s with the cached reading progress and label values so it can animate when the
   /// user navigates back to the grid view (and also avoid mutations of the grid items
   /// that can cause the `NavigationView` to pop.
-  func commitProgressUpdates() {
+  func commitItemUpdates() {
     for (key, value) in uncommittedReadingProgressUpdates {
       updateProgress(itemID: key, progress: value)
     }
+    for (key, value) in uncommittedLabelUpdates {
+      updateLabels(itemID: key, labels: value)
+    }
     uncommittedReadingProgressUpdates = [:]
+    uncommittedLabelUpdates = [:]
   }
 
   private func updateProgress(itemID: String, progress: Double) {
@@ -190,9 +198,31 @@ final class HomeFeedViewModel: ObservableObject {
   }
 
   func updateLabels(itemID: String, labels: [FeedItemLabel]) {
+    // If item is being being displayed then delay the state update of labels until
+    // user is no longer reading the item.
+    if selectedLinkItem != nil {
+      uncommittedLabelUpdates[itemID] = labels
+      return
+    }
+
     guard let item = items.first(where: { $0.id == itemID }) else { return }
     if let index = items.firstIndex(of: item) {
       items[index].labels = labels
     }
+  }
+
+  private var searchQuery: String? {
+    if searchTerm.isEmpty, selectedLabels.isEmpty {
+      return nil
+    }
+
+    var query = searchTerm
+
+    if !selectedLabels.isEmpty {
+      query.append(" label:")
+      query.append(selectedLabels.map(\.name).joined(separator: ","))
+    }
+
+    return query
   }
 }

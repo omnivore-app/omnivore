@@ -4,7 +4,30 @@ import SwiftUI
 import Views
 
 struct ApplyLabelsView: View {
-  let item: FeedItem
+  enum Mode {
+    case item(FeedItem)
+    case list([FeedItemLabel])
+
+    var navTitle: String {
+      switch self {
+      case .item:
+        return "Assign Labels"
+      case .list:
+        return "Apply Label Filters"
+      }
+    }
+
+    var confirmButtonText: String {
+      switch self {
+      case .item:
+        return "Save"
+      case .list:
+        return "Apply"
+      }
+    }
+  }
+
+  let mode: Mode
   let commitLabelChanges: ([FeedItemLabel]) -> Void
 
   @EnvironmentObject var dataService: DataService
@@ -15,10 +38,10 @@ struct ApplyLabelsView: View {
   var innerBody: some View {
     List {
       Section(header: Text("Assigned Labels")) {
-        if viewModel.selectedLabelsForItemInContext.isEmpty {
+        if viewModel.selectedLabels.isEmpty {
           Text("No labels are currently assigned.")
         }
-        ForEach(viewModel.selectedLabelsForItemInContext.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.selectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -28,13 +51,13 @@ struct ApplyLabelsView: View {
                   viewModel.removeLabelFromItem(label)
                 }
               },
-              label: { Image(systemName: "trash").foregroundColor(.appGrayTextContrast) }
+              label: { Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast) }
             )
           }
         }
       }
       Section(header: Text("Available Labels")) {
-        ForEach(viewModel.unselectedLabelsForItemInContext.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.unselectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -63,7 +86,7 @@ struct ApplyLabelsView: View {
         .disabled(viewModel.isLoading)
       }
     }
-    .navigationTitle("Assign Labels")
+    .navigationTitle(mode.navTitle)
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -76,12 +99,18 @@ struct ApplyLabelsView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(
             action: {
-              viewModel.saveItemLabelChanges(itemID: item.id, dataService: dataService) { labels in
-                commitLabelChanges(labels)
+              switch mode {
+              case let .item(feedItem):
+                viewModel.saveItemLabelChanges(itemID: feedItem.id, dataService: dataService) { labels in
+                  commitLabelChanges(labels)
+                  presentationMode.wrappedValue.dismiss()
+                }
+              case .list:
+                commitLabelChanges(viewModel.selectedLabels)
                 presentationMode.wrappedValue.dismiss()
               }
             },
-            label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+            label: { Text(mode.confirmButtonText).foregroundColor(.appGrayTextContrast) }
           )
         }
       }
@@ -112,7 +141,12 @@ struct ApplyLabelsView: View {
       }
     }
     .onAppear {
-      viewModel.loadLabels(dataService: dataService, item: item)
+      switch mode {
+      case let .item(feedItem):
+        viewModel.loadLabels(dataService: dataService, item: feedItem)
+      case let .list(labels):
+        viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+      }
     }
   }
 }

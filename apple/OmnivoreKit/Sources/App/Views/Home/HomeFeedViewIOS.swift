@@ -23,26 +23,29 @@ import Views
             viewModel.loadItems(dataService: dataService, isRefresh: true)
           }
           .searchable(
-            text: $viewModel.searchQuery,
-            placement: .sidebar
+            text: $viewModel.searchTerm,
+            placement: .navigationBarDrawer
           ) {
-            if viewModel.searchQuery.isEmpty {
+            if viewModel.searchTerm.isEmpty {
               Text("Inbox").searchCompletion("in:inbox ")
               Text("All").searchCompletion("in:all ")
               Text("Archived").searchCompletion("in:archive ")
               Text("Files").searchCompletion("type:file ")
             }
           }
-          .onChange(of: viewModel.searchQuery) { _ in
+          .onChange(of: viewModel.searchTerm) { _ in
             // Maybe we should debounce this, but
             // it feels like it works ok without
+            viewModel.loadItems(dataService: dataService, isRefresh: true)
+          }
+          .onChange(of: viewModel.selectedLabels) { _ in
             viewModel.loadItems(dataService: dataService, isRefresh: true)
           }
           .onSubmit(of: .search) {
             viewModel.loadItems(dataService: dataService, isRefresh: true)
           }
           .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-            ApplyLabelsView(item: item) { labels in
+            ApplyLabelsView(mode: .item(item)) { labels in
               viewModel.updateLabels(itemID: item.id, labels: labels)
             }
           }
@@ -52,7 +55,7 @@ import Views
             viewModel: viewModel
           )
           .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-            ApplyLabelsView(item: item) { labels in
+            ApplyLabelsView(mode: .item(item)) { labels in
               viewModel.updateLabels(itemID: item.id, labels: labels)
             }
           }
@@ -71,6 +74,7 @@ import Views
         }
       }
       .navigationTitle("Home")
+      .navigationBarTitleDisplayMode(.inline)
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
         if viewModel.selectedLinkItem == nil {
@@ -99,55 +103,75 @@ import Views
         }
       }
       .onChange(of: viewModel.selectedLinkItem) { _ in
-        viewModel.commitProgressUpdates()
+        viewModel.commitItemUpdates()
       }
     }
   }
 
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-
     @Binding var prefersListLayout: Bool
-
+    @State private var showLabelsSheet = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      if prefersListLayout {
-        HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
-      } else {
-        HomeFeedGridView(viewModel: viewModel)
-          .toolbar {
-            ToolbarItem {
-              if #available(iOS 15.0, *) {
-                Button("", action: {})
-                  .disabled(true)
-                  .overlay {
-                    if viewModel.isLoading {
-                      ProgressView()
+      VStack(spacing: 0) {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            TextChipButton.makeAddLabelButton {
+              showLabelsSheet = true
+            }
+            ForEach(viewModel.selectedLabels, id: \.self) { label in
+              TextChipButton.makeRemovableLabelButton(feedItemLabel: label) {
+                viewModel.selectedLabels.removeAll { $0.id == label.id }
+              }
+            }
+            Spacer()
+          }
+          .padding(.horizontal)
+          .sheet(isPresented: $showLabelsSheet) {
+            ApplyLabelsView(mode: .list(viewModel.selectedLabels)) { labels in
+              viewModel.selectedLabels = labels
+            }
+          }
+        }
+        if prefersListLayout {
+          HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
+        } else {
+          HomeFeedGridView(viewModel: viewModel)
+            .toolbar {
+              ToolbarItem {
+                if #available(iOS 15.0, *) {
+                  Button("", action: {})
+                    .disabled(true)
+                    .overlay {
+                      if viewModel.isLoading {
+                        ProgressView()
+                      }
                     }
-                  }
-              } else {
-                if viewModel.isLoading {
-                  Button(action: {}, label: { ProgressView() })
                 } else {
+                  if viewModel.isLoading {
+                    Button(action: {}, label: { ProgressView() })
+                  } else {
+                    Button(
+                      action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
+                      label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                    )
+                  }
+                }
+              }
+              ToolbarItem {
+                if UIDevice.isIPad {
                   Button(
-                    action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
-                    label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+                    action: { prefersListLayout.toggle() },
+                    label: {
+                      Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                    }
                   )
                 }
               }
             }
-            ToolbarItem {
-              if UIDevice.isIPad {
-                Button(
-                  action: { prefersListLayout.toggle() },
-                  label: {
-                    Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                  }
-                )
-              }
-            }
-          }
+        }
       }
     }
   }
@@ -170,6 +194,10 @@ import Views
               viewModel: viewModel
             )
             .contextMenu {
+              Button(
+                action: { viewModel.itemUnderLabelEdit = item },
+                label: { Label("Edit Labels", systemImage: "tag") }
+              )
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
                   viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
