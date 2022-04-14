@@ -165,7 +165,6 @@ export default function Home(): JSX.Element {
           <ArticleActionsMenu
             article={article}
             layout='top'
-            alwaysDisplay={true}
             lineHeight={lineHeight}
             marginWidth={marginWidth}
             articleActionHandler={actionHandler}
