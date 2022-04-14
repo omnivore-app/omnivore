@@ -23,18 +23,18 @@ export default {
 
 const Template = ({ showToast, position }: { showToast: () => void; position?: ToastPosition }) => (
   <div>
-      <Toaster position={position} />
-      <div
-        style={{
-          height: '15rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <button onClick={showToast}>Show Toast</button>
-      </div>
+    <Toaster position={position} />
+    <div
+      style={{
+        height: '15rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <button onClick={showToast}>Show Toast</button>
     </div>
+  </div>
 )
 
 export const SuccessSnackbar: ComponentStory<typeof Toaster> = (args: any) => {
