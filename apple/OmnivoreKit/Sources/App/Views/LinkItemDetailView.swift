@@ -9,7 +9,7 @@ enum PDFProvider {
   static var pdfViewerProvider: ((URL, FeedItem) -> AnyView)?
 }
 
-final class LinkItemDetailViewModel: ObservableObject {
+@MainActor final class LinkItemDetailViewModel: ObservableObject {
   let homeFeedViewModel: HomeFeedViewModel
   @Published var item: FeedItem
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
@@ -45,31 +45,22 @@ final class LinkItemDetailViewModel: ObservableObject {
       .store(in: &subscriptions)
   }
 
-  func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) {
-    // Attempt to get `Viewer` from DataService
-    if let currentViewer = dataService.currentViewer {
+  func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) async {
+    let viewer: Viewer? = await {
+      if let currentViewer = dataService.currentViewer {
+        return currentViewer
+      }
+
+      return try? await dataService.fetchViewer()
+    }()
+
+    if let viewer = viewer {
       createWebAppWrapperViewModel(
-        username: currentViewer.username,
+        username: viewer.username,
         dataService: dataService,
         rawAuthCookie: rawAuthCookie
       )
-      return
     }
-
-    dataService.viewerPublisher().sink(
-      receiveCompletion: { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      },
-      receiveValue: { [weak self] viewer in
-        self?.createWebAppWrapperViewModel(
-          username: viewer.username,
-          dataService: dataService,
-          rawAuthCookie: rawAuthCookie
-        )
-      }
-    )
-    .store(in: &subscriptions)
   }
 
   private func createWebAppWrapperViewModel(username: String, dataService: DataService, rawAuthCookie: String?) {
@@ -265,8 +256,8 @@ struct LinkItemDetailView: View {
           navBar
           Spacer()
         }
-        .onAppear {
-          viewModel.loadWebAppWrapper(
+        .task {
+          await viewModel.loadWebAppWrapper(
             dataService: dataService,
             rawAuthCookie: authenticator.omnivoreAuthCookieString
           )
@@ -311,8 +302,8 @@ struct LinkItemDetailView: View {
         Text("Loading...")
         Spacer()
       }
-      .onAppear {
-        viewModel.loadWebAppWrapper(
+      .task {
+        await viewModel.loadWebAppWrapper(
           dataService: dataService,
           rawAuthCookie: authenticator.omnivoreAuthCookieString
         )
