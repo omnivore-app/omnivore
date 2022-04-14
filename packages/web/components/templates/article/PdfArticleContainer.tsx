@@ -15,10 +15,13 @@ import { ShareHighlightModal } from './ShareHighlightModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { webBaseURL } from '../../../lib/appConfig'
 import { pspdfKitKey } from '../../../lib/appConfig'
+import { HighlightsModal } from './HighlightsModal'
 
 export type PdfArticleContainerProps = {
   viewerUsername: string
   article: ArticleAttributes
+  showHighlightsModal: boolean
+  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function PdfArticleContainer(
@@ -346,6 +349,12 @@ export default function PdfArticleContainer(
           onOpenChange={() => {
             setShareTarget(undefined)
           }}
+        />
+      )}
+      {props.showHighlightsModal && (
+        <HighlightsModal
+          highlights={props.article.highlights}
+          onOpenChange={() => props.setShowHighlightsModal(false)}
         />
       )}
     </Box>

@@ -19,7 +19,7 @@ import { Pen, Trash } from 'phosphor-react'
 
 type HighlightsModalProps = {
   highlights: Highlight[]
-  deleteHighlightAction: (highlightId: string) => void
+  deleteHighlightAction?: (highlightId: string) => void
   onOpenChange: (open: boolean) => void
 }
 
@@ -59,9 +59,12 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
               <ModalHighlightView
                 key={highlight.id}
                 highlight={highlight}
-                deleteHighlightAction={() =>
-                  props.deleteHighlightAction(highlight.id)
-                }
+                showDelete={!!props.deleteHighlightAction}
+                deleteHighlightAction={() => {
+                  if (props.deleteHighlightAction) {
+                    props.deleteHighlightAction(highlight.id)
+                  }
+                }}
               />
             ))}
             {props.highlights.length === 0 && (
@@ -78,6 +81,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
 
 type ModalHighlightViewProps = {
   highlight: Highlight
+  showDelete: boolean
   deleteHighlightAction: () => void
 }
 
@@ -112,9 +116,11 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
           />
         )}
       </Button> */}
-      <Button style="ghost" onClick={() => setShowDeleteConfirmation(true)}>
-        <Trash width={18} height={18} color={theme.colors.grayText.toString()} />
-      </Button>
+      {props.showDelete && (
+        <Button style="ghost" onClick={() => setShowDeleteConfirmation(true)}>
+          <Trash width={18} height={18} color={theme.colors.grayText.toString()} />
+        </Button>
+      )}
     </HStack>
   )
 

@@ -209,6 +209,8 @@ export default function Home(): JSX.Element {
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR
               article={article}
+              showHighlightsModal={showHighlightsModal}
+              setShowHighlightsModal={setShowHighlightsModal}
               viewerUsername={viewerData.me?.profile?.username}
             />
           ) : (
