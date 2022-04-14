@@ -20,8 +20,6 @@ public final class RootViewModel: ObservableObject {
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false
 
-  public var subscriptions = Set<AnyCancellable>()
-
   public init() {
     registerFonts()
 
@@ -57,7 +55,7 @@ public final class RootViewModel: ObservableObject {
     )
   }
 
-  func onOpenURL(url: URL) {
+  @MainActor func onOpenURL(url: URL) async {
     guard let linkRequestID = DeepLink.make(from: url)?.linkRequestID else { return }
 
     if let username = services.dataService.currentViewer?.username {
@@ -66,17 +64,10 @@ public final class RootViewModel: ObservableObject {
       return
     }
 
-    services.dataService.viewerPublisher().sink(
-      receiveCompletion: { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      },
-      receiveValue: { [weak self] viewer in
-        let path = self?.linkRequestPath(username: viewer.username, requestID: linkRequestID) ?? ""
-        self?.webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
-      }
-    )
-    .store(in: &subscriptions)
+    if let viewer = try? await services.dataService.fetchViewer() {
+      let path = linkRequestPath(username: viewer.username, requestID: linkRequestID)
+      webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
+    }
   }
 
   func triggerPushNotificationRequestIfNeeded() {
