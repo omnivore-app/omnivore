@@ -74,39 +74,6 @@ import WebKit
       }
     }
 
-    var navBariOS14: some View {
-      HStack(alignment: .center) {
-        Button(
-          action: { self.presentationMode.wrappedValue.dismiss() },
-          label: {
-            Image(systemName: "chevron.backward")
-              .font(.appTitleTwo)
-              .foregroundColor(.appGrayTextContrast)
-              .padding(.horizontal)
-          }
-        )
-        .scaleEffect(navBarVisibilityRatio)
-        Spacer()
-        Button(
-          action: { showFontSizePopover.toggle() },
-          label: {
-            Image(systemName: "textformat.size")
-              .font(.appTitleTwo)
-          }
-        )
-        .padding(.horizontal)
-        .scaleEffect(navBarVisibilityRatio)
-      }
-      .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
-      .opacity(navBarVisibilityRatio)
-      .background(Color.systemBackground)
-      .onTapGesture {
-        showFontSizePopover = false
-      }
-    }
-
-    @available(macOS 12.0, *)
-    @available(iOS 15.0, *)
     var navBar: some View {
       HStack(alignment: .center) {
         Button(
@@ -264,19 +231,11 @@ import WebKit
               }
           )
         }
-        if #available(iOS 15.0, *) {
-          VStack(spacing: 0) {
-            navBar
-            Spacer()
-          }
-          .navigationBarHidden(true)
-        } else {
-          VStack(spacing: 0) {
-            navBariOS14
-            Spacer()
-          }
-          .navigationBarHidden(true)
+        VStack(spacing: 0) {
+          navBar
+          Spacer()
         }
+        .navigationBarHidden(true)
 
       }.onDisappear {
         // Clear the shared webview content when exiting

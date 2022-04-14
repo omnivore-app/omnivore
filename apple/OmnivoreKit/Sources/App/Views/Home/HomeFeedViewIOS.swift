@@ -14,62 +14,38 @@ import Views
 
     var body: some View {
       Group {
-        if #available(iOS 15.0, *) {
-          HomeFeedView(
-            prefersListLayout: $prefersListLayout,
-            viewModel: viewModel
-          )
-          .refreshable {
-            viewModel.loadItems(dataService: dataService, isRefresh: true)
+        HomeFeedView(
+          prefersListLayout: $prefersListLayout,
+          viewModel: viewModel
+        )
+        .refreshable {
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
+        }
+        .searchable(
+          text: $viewModel.searchTerm,
+          placement: .navigationBarDrawer
+        ) {
+          if viewModel.searchTerm.isEmpty {
+            Text("Inbox").searchCompletion("in:inbox ")
+            Text("All").searchCompletion("in:all ")
+            Text("Archived").searchCompletion("in:archive ")
+            Text("Files").searchCompletion("type:file ")
           }
-          .searchable(
-            text: $viewModel.searchTerm,
-            placement: .navigationBarDrawer
-          ) {
-            if viewModel.searchTerm.isEmpty {
-              Text("Inbox").searchCompletion("in:inbox ")
-              Text("All").searchCompletion("in:all ")
-              Text("Archived").searchCompletion("in:archive ")
-              Text("Files").searchCompletion("type:file ")
-            }
-          }
-          .onChange(of: viewModel.searchTerm) { _ in
-            // Maybe we should debounce this, but
-            // it feels like it works ok without
-            viewModel.loadItems(dataService: dataService, isRefresh: true)
-          }
-          .onChange(of: viewModel.selectedLabels) { _ in
-            viewModel.loadItems(dataService: dataService, isRefresh: true)
-          }
-          .onSubmit(of: .search) {
-            viewModel.loadItems(dataService: dataService, isRefresh: true)
-          }
-          .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-            ApplyLabelsView(mode: .item(item)) { labels in
-              viewModel.updateLabels(itemID: item.id, labels: labels)
-            }
-          }
-        } else {
-          HomeFeedView(
-            prefersListLayout: $prefersListLayout,
-            viewModel: viewModel
-          )
-          .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-            ApplyLabelsView(mode: .item(item)) { labels in
-              viewModel.updateLabels(itemID: item.id, labels: labels)
-            }
-          }
-          .toolbar {
-            ToolbarItem {
-              if viewModel.isLoading {
-                Button(action: {}, label: { ProgressView() })
-              } else {
-                Button(
-                  action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
-                  label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-                )
-              }
-            }
+        }
+        .onChange(of: viewModel.searchTerm) { _ in
+          // Maybe we should debounce this, but
+          // it feels like it works ok without
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
+        }
+        .onChange(of: viewModel.selectedLabels) { _ in
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
+        }
+        .onSubmit(of: .search) {
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
+        }
+        .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+          ApplyLabelsView(mode: .item(item)) { labels in
+            viewModel.updateLabels(itemID: item.id, labels: labels)
           }
         }
       }
@@ -141,24 +117,13 @@ import Views
           HomeFeedGridView(viewModel: viewModel)
             .toolbar {
               ToolbarItem {
-                if #available(iOS 15.0, *) {
-                  Button("", action: {})
-                    .disabled(true)
-                    .overlay {
-                      if viewModel.isLoading {
-                        ProgressView()
-                      }
+                Button("", action: {})
+                  .disabled(true)
+                  .overlay {
+                    if viewModel.isLoading {
+                      ProgressView()
                     }
-                } else {
-                  if viewModel.isLoading {
-                    Button(action: {}, label: { ProgressView() })
-                  } else {
-                    Button(
-                      action: { viewModel.loadItems(dataService: dataService, isRefresh: true) },
-                      label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-                    )
                   }
-                }
               }
               ToolbarItem {
                 if UIDevice.isIPad {
@@ -189,7 +154,7 @@ import Views
       List {
         Section {
           ForEach(viewModel.items) { item in
-            let link = FeedCardNavigationLink(
+            FeedCardNavigationLink(
               item: item,
               viewModel: viewModel
             )
@@ -224,61 +189,56 @@ import Views
                 }
               }
             }
-            if #available(iOS 15.0, *) {
-              link
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                  if !item.isArchived {
-                    Button {
-                      withAnimation(.linear(duration: 0.4)) {
-                        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
-                      }
-                    } label: {
-                      Label("Archive", systemImage: "archivebox")
-                    }.tint(.green)
-                  } else {
-                    Button {
-                      withAnimation(.linear(duration: 0.4)) {
-                        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
-                      }
-                    } label: {
-                      Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                    }.tint(.indigo)
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+              if !item.isArchived {
+                Button {
+                  withAnimation(.linear(duration: 0.4)) {
+                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
+                  }
+                } label: {
+                  Label("Archive", systemImage: "archivebox")
+                }.tint(.green)
+              } else {
+                Button {
+                  withAnimation(.linear(duration: 0.4)) {
+                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
+                  }
+                } label: {
+                  Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
+                }.tint(.indigo)
+              }
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+              Button(
+                role: .destructive,
+                action: {
+                  itemToRemove = item
+                  confirmationShown = true
+                },
+                label: {
+                  Image(systemName: "trash")
+                }
+              )
+            }.alert("Are you sure?", isPresented: $confirmationShown) {
+              Button("Remove Link", role: .destructive) {
+                if let itemToRemove = itemToRemove {
+                  withAnimation {
+                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
                   }
                 }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                  Button(
-                    role: .destructive,
-                    action: {
-                      itemToRemove = item
-                      confirmationShown = true
-                    },
-                    label: {
-                      Image(systemName: "trash")
-                    }
-                  )
-                }.alert("Are you sure?", isPresented: $confirmationShown) {
-                  Button("Remove Link", role: .destructive) {
-                    if let itemToRemove = itemToRemove {
-                      withAnimation {
-                        viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
-                      }
-                    }
-                    self.itemToRemove = nil
-                  }
-                  Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-                }
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                  if FeatureFlag.enableSnooze {
-                    Button {
-                      viewModel.itemToSnooze = item
-                      viewModel.snoozePresented = true
-                    } label: {
-                      Label { Text("Snooze") } icon: { Image.moon }
-                    }.tint(.appYellow48)
-                  }
-                }
-            } else {
-              link
+                self.itemToRemove = nil
+              }
+              Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+            }
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+              if FeatureFlag.enableSnooze {
+                Button {
+                  viewModel.itemToSnooze = item
+                  viewModel.snoozePresented = true
+                } label: {
+                  Label { Text("Snooze") } icon: { Image.moon }
+                }.tint(.appYellow48)
+              }
             }
           }
         }
@@ -331,27 +291,22 @@ import Views
       ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 24)], spacing: 24) {
           ForEach(viewModel.items) { item in
-            let link = GridCardNavigationLink(
+            GridCardNavigationLink(
               item: item,
               actionHandler: { contextMenuActionHandler(item: item, action: $0) },
               isContextMenuOpen: $isContextMenuOpen,
               viewModel: viewModel
             )
-            if #available(iOS 15.0, *) {
-              link
-                .alert("Are you sure?", isPresented: $confirmationShown) {
-                  Button("Remove Link", role: .destructive) {
-                    if let itemToRemove = itemToRemove {
-                      withAnimation {
-                        viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
-                      }
-                    }
-                    self.itemToRemove = nil
+            .alert("Are you sure?", isPresented: $confirmationShown) {
+              Button("Remove Link", role: .destructive) {
+                if let itemToRemove = itemToRemove {
+                  withAnimation {
+                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
                   }
-                  Button("Cancel", role: .cancel) { self.itemToRemove = nil }
                 }
-            } else {
-              link
+                self.itemToRemove = nil
+              }
+              Button("Cancel", role: .cancel) { self.itemToRemove = nil }
             }
           }
         }
