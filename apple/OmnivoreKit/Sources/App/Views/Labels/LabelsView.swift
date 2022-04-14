@@ -16,25 +16,20 @@ struct LabelsView: View {
   var body: some View {
     Group {
       #if os(iOS)
-        if #available(iOS 15.0, *) {
-          Form {
-            innerBody
-              .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
-                Button("Delete Label", role: .destructive) {
-                  if let labelID = labelToRemoveID {
-                    withAnimation {
-                      viewModel.deleteLabel(dataService: dataService, labelID: labelID)
-                    }
+        Form {
+          innerBody
+            .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
+              Button("Delete Label", role: .destructive) {
+                if let labelID = labelToRemoveID {
+                  withAnimation {
+                    viewModel.deleteLabel(dataService: dataService, labelID: labelID)
                   }
-                  self.labelToRemoveID = nil
                 }
-                Button("Cancel", role: .cancel) { self.labelToRemoveID = nil }
+                self.labelToRemoveID = nil
               }
-          }
-        } else {
-          Form { innerBody }
+              Button("Cancel", role: .cancel) { self.labelToRemoveID = nil }
+            }
         }
-
       #elseif os(macOS)
         List {
           innerBody

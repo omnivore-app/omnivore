@@ -30,14 +30,13 @@ import SwiftUI
       let controller = UIHostingController(rootView: content())
 
       if controller.traitCollection.userInterfaceIdiom == .phone {
-        if #available(iOS 15, *) {
-          if let sheet = controller.sheetPresentationController {
-            sheet.preferredCornerRadius = 16
-            sheet.prefersGrabberVisible = false
-            sheet.detents = [.medium()]
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-          }
+        if let sheet = controller.sheetPresentationController {
+          sheet.preferredCornerRadius = 16
+          sheet.prefersGrabberVisible = false
+          sheet.detents = [.medium()]
+          sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
+
         controller.modalPresentationStyle = .pageSheet
       } else {
         controller.view.sizeToFit()

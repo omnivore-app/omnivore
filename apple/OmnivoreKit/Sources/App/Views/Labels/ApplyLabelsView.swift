@@ -126,15 +126,11 @@ struct ApplyLabelsView: View {
         EmptyView()
       } else {
         #if os(iOS)
-          if #available(iOS 15.0, *) {
-            innerBody
-              .searchable(
-                text: $labelSearchFilter,
-                placement: .navigationBarDrawer(displayMode: .always)
-              )
-          } else {
-            innerBody
-          }
+          innerBody
+            .searchable(
+              text: $labelSearchFilter,
+              placement: .navigationBarDrawer(displayMode: .always)
+            )
         #else
           innerBody
         #endif

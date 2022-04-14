@@ -6,8 +6,8 @@ let package = Package(
   name: "OmnivoreKit",
   defaultLocalization: "en",
   platforms: [
-    .iOS(.v14),
-    .macOS(.v11)
+    .iOS(.v15),
+    .macOS(.v12)
   ],
   products: [
     .library(name: "App", targets: ["App"]),
@@ -17,7 +17,7 @@ let package = Package(
     .library(name: "Utils", targets: ["Utils"])
   ],
   dependencies: [
-    .package(name: "AppAuth", url: "https://github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "1.4.0")),
+    .package(url: "https://github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "1.4.0")),
     .package(url: "https://github.com/Square/Valet", from: "4.1.2"),
     .package(url: "https://github.com/maticzav/swift-graphql", from: "2.3.1"),
     .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4")
@@ -37,7 +37,7 @@ let package = Package(
     .target(
       name: "Services",
       dependencies: [
-        "AppAuth",
+        .product(name: "AppAuth", package: "AppAuth-iOS"),
         "Valet",
         .product(name: "SwiftGraphQL", package: "swift-graphql"),
         "Models",
