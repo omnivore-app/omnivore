@@ -44,7 +44,7 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'pdf-attachment-upload',
+      event: 'pdf_attachment_upload',
       properties: {
         env: env.server.apiEnv,
       },
@@ -107,7 +107,7 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'pdf-attachment-create-article',
+      event: 'pdf_attachment_create_article',
       properties: {
         env: env.server.apiEnv,
       },
