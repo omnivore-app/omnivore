@@ -226,13 +226,7 @@ import Views
             }
             if #available(iOS 15.0, *) {
               link
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                  Button(
-                    action: { viewModel.itemUnderLabelEdit = item },
-                    label: { Label("Edit Labels", systemImage: "tag") }
-                  )
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                   if !item.isArchived {
                     Button {
                       withAnimation(.linear(duration: 0.4)) {
@@ -251,7 +245,7 @@ import Views
                     }.tint(.indigo)
                   }
                 }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                   Button(
                     role: .destructive,
                     action: {
