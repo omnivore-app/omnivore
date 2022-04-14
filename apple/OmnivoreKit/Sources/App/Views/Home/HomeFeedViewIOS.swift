@@ -19,7 +19,7 @@ import Views
           viewModel: viewModel
         )
         .refreshable {
-          Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
         .searchable(
           text: $viewModel.searchTerm,
@@ -35,13 +35,13 @@ import Views
         .onChange(of: viewModel.searchTerm) { _ in
           // Maybe we should debounce this, but
           // it feels like it works ok without
-          Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
         .onChange(of: viewModel.selectedLabels) { _ in
-          Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
         .onSubmit(of: .search) {
-          Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item)) { labels in
@@ -54,7 +54,7 @@ import Views
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
         if viewModel.selectedLinkItem == nil {
-          Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
@@ -75,7 +75,7 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+          viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
       .onChange(of: viewModel.selectedLinkItem) { _ in
@@ -322,7 +322,7 @@ import Views
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
           DispatchQueue.main.async {
             if !viewModel.isLoading, offset > 240 {
-              Task { await viewModel.loadItems(dataService: dataService, isRefresh: true) }
+              viewModel.loadItems(dataService: dataService, isRefresh: true)
             }
           }
         }

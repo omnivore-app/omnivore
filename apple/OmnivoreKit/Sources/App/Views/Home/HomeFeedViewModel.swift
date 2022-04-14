@@ -36,14 +36,14 @@ import Views
 
   init() {}
 
-  func itemAppeared(item: FeedItem, dataService: DataService) async {
+  func itemAppeared(item: FeedItem, dataService: DataService) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      await loadItems(dataService: dataService, isRefresh: false)
+      Task { await loadItems(dataService: dataService, isRefresh: false) }
     }
   }
 
@@ -51,7 +51,7 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, isRefresh: Bool) {
     // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
     dataService.clearHighlights()
 
@@ -61,8 +61,9 @@ import Views
     isLoading = true
 
     // Cache the viewer
+
     if dataService.currentViewer == nil {
-      _ = try? await dataService.fetchViewer()
+      Task { _ = try? await dataService.fetchViewer() }
     }
 
     dataService.libraryItemsPublisher(
