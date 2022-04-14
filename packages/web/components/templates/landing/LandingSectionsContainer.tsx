@@ -145,7 +145,13 @@ export function LandingSectionsContainer({
         <LandingSection
           titleText='Simply reader-friendly'
           descriptionText='With a single click using Omnivore’s extension or mobile app, save any link you come across on the Internet. Your links are saved forever, so you will never lose anything. We also strip out the unnecessary content to give you a reader-friendly view of your saved pages.'
-          image={<img src='/static/landing/landing-1.png' alt='landing-1' style={{height: '50vw', maxHeight: 560}} />}
+          image={
+            <img
+              srcSet="/static/landing/landing-1.png, /static/landing/landing-1@2x.png 2x"
+              alt='landing-1'
+              style={{height: '50vw', maxHeight: 560}}
+            />
+          }
           icon={<MagnifyingGlass size={32} color={iconColor} weight='duotone' />}
         />
       )}
@@ -153,7 +159,13 @@ export function LandingSectionsContainer({
         <LandingSection
           titleText='Make it your own'
           descriptionText='Curate your own personal collection of saved links and annotate these links with your thoughts. Omnivore lets you highlight any text you find inspiring and attach personal notes to these highlights.'
-          image={<img src='/static/landing/landing-2.png' alt='landing-2' style={{width: '100%', marginRight: 40}} />}
+          image={
+            <img
+              srcSet="/static/landing/landing-2.png, /static/landing/landing-2@2x.png 2x"
+              alt='landing-2'
+              style={{width: '100%', marginRight: 40}}
+            />
+          }
           icon={<Palette size={32} color={iconColor} weight='duotone' />}
           containerStyles={reversedSectionStyles}
         />  
@@ -162,7 +174,13 @@ export function LandingSectionsContainer({
         <LandingSection
           titleText='A better way to share'
           descriptionText='With Omnivore’s highlight and notes feature, you can share specific snippets from a link with your friends. Our share feature is integrated with top social media sites so sharing with your friends is just one click away.'
-          image={<img src='/static/landing/landing-3.png' alt='landing-3' style={{height: '50vw', maxHeight: 560}} />}
+          image={
+            <img
+              srcSet="/static/landing/landing-3.png, /static/landing/landing-3@2x.png 2x"
+              alt='landing-3'
+              style={{height: '50vw', maxHeight: 560}}
+            />
+          }
           icon={<MegaphoneSimple size={32} color={iconColor} weight='duotone' />}
         />
       )}
@@ -170,7 +188,13 @@ export function LandingSectionsContainer({
         <LandingSection
           titleText='Discover new content'
           descriptionText='Follow friends and people you admire and see what they are reading. With our highlight and notes feature, you can read through the eyes of others and see what others have highlighted and commented.'
-          image={<img src='/static/landing/landing-4.png' alt='landing-4' style={{width: '100%', marginRight: 40}} />}
+          image={
+            <img
+              srcSet="/static/landing/landing-4.png, /static/landing/landing-4@2x.png 2x"
+              alt='landing-4'
+              style={{width: '100%', marginRight: 40}}
+            />
+          }
           icon={<Binoculars size={32} color={iconColor} weight='duotone' />}
           containerStyles={reversedSectionStyles}
         />
