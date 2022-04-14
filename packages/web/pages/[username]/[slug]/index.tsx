@@ -167,6 +167,7 @@ export default function Home(): JSX.Element {
             layout='top'
             lineHeight={lineHeight}
             marginWidth={marginWidth}
+            showReaderDisplaySettings={article.contentReader != 'PDF'}
             articleActionHandler={actionHandler}
           />
         }
@@ -203,7 +204,7 @@ export default function Home(): JSX.Element {
               layout='side'
               lineHeight={lineHeight}
               marginWidth={marginWidth}
-              showReaderDisplaySettings={false}
+              showReaderDisplaySettings={true}
               articleActionHandler={actionHandler}
             />
           ) : null}
