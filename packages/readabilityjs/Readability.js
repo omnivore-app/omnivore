@@ -504,15 +504,17 @@ Readability.prototype = {
     });
   },
 
-  /** Creates imageproxy links for all article images */
+  /** Creates imageproxy links for all article images with href source */
   _createImageProxyLinks: function (articleContent) {
     if (this.createImageProxyUrl !== undefined) {
-      // replace all image src's
+      // replace all images' href source
       const images = articleContent.getElementsByTagName('img');
       Array.from(images).forEach(image => {
         const src = image.getAttribute("src");
+        const dataUrlRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
 
-        if (src) {
+        // ignore data uri
+        if (src && !dataUrlRegex.test(src)) {
           const absoluteSrc = this.toAbsoluteURI(src);
           const attToNumber = (str) => {
             if (!str) { return 0; }

@@ -270,6 +270,17 @@ describe("Readability API", function() {
       }).parse().content;
       expect(content).eql(expected_xhtml);
     });
+
+    it("should not proxy image with data source", function() {
+      var dom = new JSDOM("My cat: <img src=\"data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA" +
+        "AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==\"" +
+        " alt=\"Red dot\" />");
+      var expected_xhtml = "<div id=\"readability-page-1\" class=\"page\">My cat: <img src=\"data:image/png;base64," +
+        " iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0" +
+        "Y4OHwAAAABJRU5ErkJggg==\" alt=\"Red dot\"></div>";
+      var content = new Readability(dom.window.document).parse().content;
+      expect(content).eql(expected_xhtml);
+    });
   });
 });
 
