@@ -108,7 +108,7 @@ export const createLabelResolver = authorized<
 
     analytics.track({
       userId: uid,
-      event: 'createLabel',
+      event: 'label_created',
       properties: {
         name,
         color,
@@ -178,7 +178,7 @@ export const deleteLabelResolver = authorized<
 
     analytics.track({
       userId: uid,
-      event: 'deleteLabel',
+      event: 'label_deleted',
       properties: {
         labelId,
         env: env.server.apiEnv,
@@ -243,7 +243,7 @@ export const setLabelsResolver = authorized<
 
     analytics.track({
       userId: uid,
-      event: 'setLabels',
+      event: 'labels_set',
       properties: {
         pageId,
         labelIds,
