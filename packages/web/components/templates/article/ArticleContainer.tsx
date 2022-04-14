@@ -1,6 +1,6 @@
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
-import { Box, VStack } from './../../elements/LayoutPrimitives'
+import { Box, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
 import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
@@ -13,9 +13,12 @@ import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { LabelChip } from '../../elements/LabelChip'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
+  labels: Label[]
   articleMutations: ArticleMutations
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
   isAppleAppEmbed: boolean
@@ -24,21 +27,22 @@ type ArticleContainerProps = {
   margin?: number
   fontSize?: number
   fontFamily?: string
+  lineHeight?: number
+  showHighlightsModal: boolean
+  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showLabelsModal, setShowLabelsModal] = useState(false)
-  const [showNotesSidebar, setShowNotesSidebar] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
+  const [showHighlightsModal, setShowHighlightsModal] = useState(props.showHighlightsModal)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
-  const [labels, setLabels] = useState(
-    props.article.labels?.map((l) => l.id) || []
-  )
 
   const updateFontSize = async (newFontSize: number) => {
-    setFontSize(newFontSize)
-    await userPersonalizationMutation({ fontSize: newFontSize })
+    if (fontSize !== newFontSize) {
+      setFontSize(newFontSize)
+      await userPersonalizationMutation({ fontSize: newFontSize })
+    }
   }
 
   useEffect(() => {
@@ -85,8 +89,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   }, [props.article])
 
   const styles = {
-    margin: props.margin ?? 140,
     fontSize,
+    margin: props.margin ?? 360,
+    lineHeight: props.lineHeight ?? 150,
     fontFamily: props.fontFamily ?? 'inter',
     readerFontColor: theme.colors.readerFont.toString(),
     readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
@@ -100,10 +105,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '16px',
-          maxWidth: '94%',
+          maxWidth: '100%',
+          background: props.isAppleAppEmbed ? 'unset' : theme.colors.grayBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
-          '--line-height': `150%`,
+          '--line-height': `${styles.lineHeight}%`,
           '--blockquote-padding': '0.5em 1em',
           '--blockquote-icon-font-size': '1.3rem',
           '--figure-margin': '1.6rem auto',
@@ -117,15 +123,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             '--blockquote-icon-font-size': '1.7rem',
             '--figure-margin': '2.6875rem auto',
             '--hr-margin': '2em',
-            margin: `30px ${styles.margin / 2}px`,
+            margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: '92%',
+            maxWidth: 1024 - (styles.margin),
           },
           '@lg': {
             margin: `30px 0`,
             width: 'auto',
-            maxWidth: 1024 - styles.margin,
+            maxWidth: 1024 - (styles.margin),
           },
         }}
       >
@@ -143,13 +149,22 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             author={props.article.author}
             href={props.article.url}
           />
-          <ArticleHeaderToolbar
-            articleTitle={props.article.title}
-            articleShareURL={props.highlightsBaseURL}
-            setShowNotesSidebar={setShowNotesSidebar}
-            setShowShareArticleModal={setShowShareModal}
-            hasHighlights={props.article.highlights?.length > 0}
-          />
+          {props.labels ? (
+            <SpanBox css={{ pb: '16px', width: '100%', '&:empty': { display: 'none' } }}>
+              {props.labels?.map((label) =>
+                <LabelChip key={label.id} text={label.name} color={label.color} />
+              )}
+            </SpanBox>
+          ) : null}
+          {props.isAppleAppEmbed && (
+            <ArticleHeaderToolbar
+              articleTitle={props.article.title}
+              articleShareURL={props.highlightsBaseURL}
+              setShowShareArticleModal={setShowShareModal}
+              setShowHighlightsModal={props.setShowHighlightsModal}
+              hasHighlights={props.article.highlights?.length > 0}
+            />
+          )}
         </VStack>
         <Article
           articleId={props.article.id}
@@ -181,10 +196,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         articleAuthor={props.article.author ?? ''}
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
-        highlightBarDisabled={props.highlightBarDisabled}
-        showNotesSidebar={showNotesSidebar}
         highlightsBaseURL={props.highlightsBaseURL}
-        setShowNotesSidebar={setShowNotesSidebar}
+        highlightBarDisabled={props.highlightBarDisabled}
+        showHighlightsModal={props.showHighlightsModal}
+        setShowHighlightsModal={props.setShowHighlightsModal}
         articleMutations={props.articleMutations}
       />
       {showReportIssuesModal ? (

@@ -1,10 +1,11 @@
 import { gql } from 'graphql-request'
-import useSWRImmutable from 'swr'
+import useSWRImmutable, { Cache } from 'swr'
 import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
 import { articleFragment, ContentReader } from '../fragments/articleFragment'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { ScopedMutator } from 'swr/dist/types'
 import { Label, labelFragment } from '../fragments/labelFragment'
+import { LibraryItems } from './useGetLibraryItemsQuery'
 
 type ArticleQueryInput = {
   username?: string
@@ -77,16 +78,7 @@ const query = gql`
   ${highlightFragment}
   ${labelFragment}
 `
-export const cacheArticle = (
-  mutate: ScopedMutator,
-  username: string,
-  article: ArticleAttributes,
-  includeFriendsHighlights = false
-) => {
-  mutate([query, username, article.slug, includeFriendsHighlights], {
-    article: { article: { ...article, cached: true } },
-  })
-}
+
 
 export function useGetArticleQuery({
   username,
@@ -99,7 +91,7 @@ export function useGetArticleQuery({
     includeFriendsHighlights,
   }
 
-  const { data, error } = useSWRImmutable(
+  const { data, error, mutate } = useSWRImmutable(
     slug ? [query, username, slug, includeFriendsHighlights] : null,
     makeGqlFetcher(variables)
   )
@@ -132,4 +124,47 @@ export async function articleQuery(
   }
 
   return Promise.reject()
+}
+
+export const cacheArticle = (
+  mutate: ScopedMutator,
+  username: string,
+  article: ArticleAttributes,
+  includeFriendsHighlights = false
+) => {
+  mutate([query, username, article.slug, includeFriendsHighlights], {
+    article: { article: { ...article, cached: true } },
+  })
+}
+
+
+export const removeItemFromCache = (
+  cache: Cache<unknown>,
+  mutate: ScopedMutator,
+  itemId: string,
+) => {
+  try {
+    const mappedCache = cache as Map<string, unknown>
+    mappedCache.forEach((value: any, key) => {
+      if (typeof value == 'object' && 'articles' in value) {
+        const articles = value.articles as LibraryItems
+        const idx = articles.edges.findIndex((edge) => edge.node.id == itemId)
+        if (idx > -1) {
+          value.articles.edges.splice(idx, 1)
+          mutate(key, value, false)
+        }
+      }
+    })
+
+    mappedCache.forEach((value: any, key) => {
+      if (Array.isArray(value)) {
+        const idx = value.findIndex((item) => 'articles' in item)
+        if (idx > -1) {
+          mutate(key, value, false)
+        }
+      }
+    })
+  } catch (error) {
+    console.log('error removing item from cache', error)
+  }
 }

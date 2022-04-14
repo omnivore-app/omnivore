@@ -153,6 +153,14 @@ export const Button = styled('button', {
           opacity: 0.8,
         },
       },
+      articleActionIcon: {
+        bg: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        '&:hover': {
+          opacity: 0.8,
+        },
+      },
       ghost: {
         color: 'transparent',
         border: 'none',

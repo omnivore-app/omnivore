@@ -16,6 +16,7 @@ export type HeaderDropdownAction =
   | 'apply-lighter-theme'
   | 'navigate-to-install'
   | 'navigate-to-emails'
+  | 'navigate-to-labels'
   | 'navigate-to-profile'
   | 'increaseFontSize'
   | 'decreaseFontSize'
@@ -24,7 +25,6 @@ export type HeaderDropdownAction =
 type DropdownMenuProps = {
   username?: string
   triggerElement: ReactNode
-  displayFontStepper?: boolean
   actionHandler: (action: HeaderDropdownAction) => void
 }
 
@@ -53,24 +53,6 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
             { isDark ? '✓' : '' }
           </Button>
         </HStack>
-
-        {props.displayFontStepper && (
-          <>
-          <HStack css={{ mt: '8px', width: '100%', height: '26px', gap: '8px', borderRadius: '6px', border: '1px solid $grayTextContrast', }}>
-            <Button style='plainIcon' css={{ display: 'inline-block', verticalAlign: 'baseline', width: '50%', height: '100%', bg: 'unset' }} onClick={() => {
-              props.actionHandler('decreaseFontSize')
-            }}>
-              <StyledText css={{ fontSize: '14px', m: '0px' }}>A</StyledText>
-            </Button>
-            <Box css={{ width: '1px', height: '100%', bg: '$grayTextContrast' }} />
-            <Button style='plainIcon' css={{ display: 'inline-block', verticalAlign: 'baseline', width: '50%', height: '100%', bg: 'unset' }} onClick={() => {
-              props.actionHandler('increaseFontSize')
-            }}>
-              <StyledText css={{ fontSize: '18px', m: '0px'  }}>A</StyledText>
-            </Button>
-          </HStack>
-          </>
-        )}
       </VStack>
       <DropdownSeparator />
       <DropdownOption
@@ -80,6 +62,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-emails')}
         title="Emails"
+      />
+      <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-labels')}
+        title="Labels"
       />
       <DropdownOption
         onSelect={() => window.Intercom('show')}

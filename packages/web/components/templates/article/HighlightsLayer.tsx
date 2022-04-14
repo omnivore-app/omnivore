@@ -25,9 +25,9 @@ type HighlightsLayerProps = {
   articleAuthor: string
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
-  showNotesSidebar: boolean
+  showHighlightsModal: boolean
   highlightsBaseURL: string
-  setShowNotesSidebar: React.Dispatch<React.SetStateAction<boolean>>
+  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
 }
 
@@ -466,11 +466,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     )
   }
 
-  if (props.showNotesSidebar) {
+  if (props.showHighlightsModal) {
     return (
       <HighlightsModal
         highlights={highlights}
-        onOpenChange={() => props.setShowNotesSidebar(false)}
+        onOpenChange={() => props.setShowHighlightsModal(false)}
         deleteHighlightAction={(highlightId: string) => {
           removeHighlightCallback(highlightId)
         }}
