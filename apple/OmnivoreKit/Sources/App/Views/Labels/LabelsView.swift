@@ -2,6 +2,7 @@ import Combine
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 struct LabelsView: View {
@@ -153,13 +154,13 @@ struct CreateLabelView: View {
       }
       .padding()
       .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
+        ToolbarItem(placement: .barLeading) {
           Button(
             action: { viewModel.showCreateEmailModal = false },
             label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
           )
         }
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .barTrailing) {
           Button(
             action: {
               viewModel.createLabel(

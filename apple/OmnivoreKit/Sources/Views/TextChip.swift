@@ -33,7 +33,7 @@ public struct TextChip: View {
 
 public struct TextChipButton: View {
   public static func makeAddLabelButton(onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: "Labels", color: Color(.systemGray6), actionType: .show, onTap: onTap)
+    TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, onTap: onTap)
   }
 
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
