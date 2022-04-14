@@ -271,7 +271,7 @@ describe("Readability API", function() {
       expect(content).eql(expected_xhtml);
     });
 
-    it("should not proxy image with data source", function() {
+    it("should not proxy image with data uri", function() {
       var dom = new JSDOM("My cat: <img src=\"data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA" +
         "AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==\"" +
         " alt=\"Red dot\" />");
