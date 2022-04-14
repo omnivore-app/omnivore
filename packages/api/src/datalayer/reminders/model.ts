@@ -32,6 +32,7 @@ export interface ReminderData {
   createdAt: Date
   updatedAt?: Date
   remindAt: Date
+  elasticPageId?: string
 }
 
 export const keys = [
@@ -46,6 +47,7 @@ export const keys = [
   'status',
   'createdAt',
   'updatedAt',
+  'elasticPageId',
 ] as const
 
 export const defaultedKeys = ['id', 'updatedAt', 'status'] as const
