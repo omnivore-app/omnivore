@@ -23,9 +23,10 @@ import { env } from '../../env'
 import { ReminderData } from '../../datalayer/reminders/model'
 import { DataModels } from '../types'
 import { DateTime } from 'luxon'
-import { UserArticleData } from '../../datalayer/links/model'
 import { ArticleSavingRequestData } from '../../datalayer/article_saving_request/model'
 import { setLinkArchived } from '../../services/archive_link'
+import { getPageById } from '../../elastic/pages'
+import { Page } from '../../elastic/types'
 
 const validScheduleTime = (str: string): Date | undefined => {
   const scheduleTime = DateTime.fromISO(str, { setZone: true }).set({
@@ -87,17 +88,25 @@ export const createReminderResolver = authorized<
   try {
     if (articleId) {
       // saving from web
-      const link = await models.userArticle.getByArticleId(uid, articleId)
-      if (!link) {
-        log.error('link not found', articleId)
+      const page = await getPageById(articleId)
+      if (!page) {
+        log.error('page not found', articleId)
 
         return {
           errorCodes: [CreateReminderErrorCode.NotFound],
         }
       }
-      linkId = link.id
+
+      if (page.userId !== uid) {
+        log.error('user not authorized', uid)
+
+        return {
+          errorCodes: [CreateReminderErrorCode.Unauthorized],
+        }
+      }
+      linkId = page.id
       if (archiveUntil) {
-        await archiveLinkOrRequest(uid, link, undefined, models)
+        await archiveLinkOrRequest(uid, page, undefined)
       }
     }
 
@@ -116,7 +125,7 @@ export const createReminderResolver = authorized<
 
       articleSavingRequestId = articleSavingRequest.id
       if (articleSavingRequest.articleId) {
-        await archiveLinkOrRequest(uid, undefined, articleSavingRequest, models)
+        await archiveLinkOrRequest(uid, undefined, articleSavingRequest)
       }
     }
 
@@ -126,7 +135,6 @@ export const createReminderResolver = authorized<
     // insert reminder to db
     const reminder = await models.reminder.create({
       userId: uid,
-      linkId: linkId ? linkId : undefined,
       articleSavingRequestId: articleSavingRequestId
         ? articleSavingRequestId
         : undefined,
@@ -135,6 +143,7 @@ export const createReminderResolver = authorized<
       sendNotification: sendNotification,
       createdAt: new Date(),
       remindAt: scheduledTime,
+      elasticPageId: linkId,
     })
     console.log('created reminder', reminder)
 
@@ -161,16 +170,13 @@ export const createReminderResolver = authorized<
 // case it will be archived when the link is created.
 const archiveLinkOrRequest = async (
   uid: string,
-  link: UserArticleData | undefined,
-  request: ArticleSavingRequestData | undefined,
-  models: DataModels
+  page: Page | undefined,
+  request: ArticleSavingRequestData | undefined
 ) => {
-  let target: UserArticleData | undefined = link || undefined
-  if (!link && request && request.articleId) {
+  let target: Page | undefined = page || undefined
+  if (!page && request && request.articleId) {
     // this linkId is actually an article.id
-    target =
-      (await models.userArticle.getByArticleId(uid, request.articleId)) ||
-      undefined
+    target = (await getPageById(request.articleId)) || undefined
   }
   console.log('archiving target', target)
   if (target) {
@@ -200,9 +206,9 @@ export const reminderResolver = authorized<
 
   try {
     let reminder: ReminderData | null
-    // get link from articleId
-    const link = await models.userArticle.getByArticleId(uid, articleId)
-    if (!link) {
+    // get page from articleId
+    const page = await getPageById(articleId)
+    if (!page) {
       // link may not be saved yet
       // check savingArticleRequest table
       const articleSavingRequest =
@@ -224,7 +230,7 @@ export const reminderResolver = authorized<
       })
     } else {
       reminder = await models.reminder.getCreatedByParameters(uid, {
-        linkId: link.id,
+        elasticPageId: page.id,
       })
     }
 
