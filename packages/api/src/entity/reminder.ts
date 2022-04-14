@@ -44,4 +44,7 @@ export class Reminder {
 
   @UpdateDateColumn()
   updatedAt?: Date
+
+  @Column('text')
+  elasticPageId?: string
 }

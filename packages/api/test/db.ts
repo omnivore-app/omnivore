@@ -1,16 +1,16 @@
-import Postgrator from 'postgrator'
-import { User } from '../src/entity/user'
-import { Profile } from '../src/entity/profile'
-import { Page } from '../src/entity/page'
-import { Link } from '../src/entity/link'
-import { Reminder } from '../src/entity/reminder'
-import { NewsletterEmail } from '../src/entity/newsletter_email'
-import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { Label } from '../src/entity/label'
-import { AppDataSource } from '../src/server'
-import { getRepository } from '../src/entity/utils'
-import { createUser } from '../src/services/create_user'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
+import Postgrator from "postgrator";
+import { User } from "../src/entity/user";
+import { Profile } from "../src/entity/profile";
+import { Page } from "../src/entity/page";
+import { Link } from "../src/entity/link";
+import { Reminder } from "../src/entity/reminder";
+import { NewsletterEmail } from "../src/entity/newsletter_email";
+import { UserDeviceToken } from "../src/entity/user_device_tokens";
+import { Label } from "../src/entity/label";
+import { AppDataSource } from "../src/server";
+import { getRepository } from "../src/entity/utils";
+import { createUser } from "../src/services/create_user";
+import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -122,11 +122,11 @@ export const createTestLink = async (user: User, page: Page): Promise<Link> => {
 
 export const createTestReminder = async (
   user: User,
-  link?: string
+  pageId?: string
 ): Promise<Reminder> => {
   return getRepository(Reminder).save({
     user: user,
-    link: link,
+    elasticPageId: pageId,
     remindAt: new Date(),
   })
 }
