@@ -5,11 +5,9 @@ import SwiftUI
 import Utils
 import Views
 
-final class ProfileContainerViewModel: ObservableObject {
+@MainActor final class ProfileContainerViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var profileCardData = ProfileCardData()
-
-  var subscriptions = Set<AnyCancellable>()
 
   var appVersionString: String {
     if let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
@@ -19,18 +17,14 @@ final class ProfileContainerViewModel: ObservableObject {
     }
   }
 
-  func loadProfileData(dataService: DataService) {
-    dataService.viewerPublisher().sink(
-      receiveCompletion: { _ in },
-      receiveValue: { [weak self] viewer in
-        self?.profileCardData = ProfileCardData(
-          name: viewer.name,
-          username: viewer.username,
-          imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
-        )
-      }
+  func loadProfileData(dataService: DataService) async {
+    guard let viewer = try? await dataService.fetchViewer() else { return }
+
+    profileCardData = ProfileCardData(
+      name: viewer.name,
+      username: viewer.username,
+      imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
     )
-    .store(in: &subscriptions)
   }
 }
 
@@ -59,7 +53,9 @@ struct ProfileView: View {
     Group {
       Section {
         ProfileCard(data: viewModel.profileCardData)
-          .onAppear { viewModel.loadProfileData(dataService: dataService) }
+          .task {
+            await viewModel.loadProfileData(dataService: dataService)
+          }
       }
 
       Section {
