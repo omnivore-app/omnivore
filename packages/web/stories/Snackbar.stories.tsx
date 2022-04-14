@@ -37,13 +37,13 @@ const Template = ({ showToast, position }: { showToast: () => void; position?: T
     </div>
 )
 
-export const SuccessSnackbar: ComponentStory<typeof Toaster> = (args) => {
+export const SuccessSnackbar: ComponentStory<typeof Toaster> = (args: any) => {
   return (
     <Template {...args} showToast={() => showSuccessToast('Success Message')} />
   )
 }
 
-export const ErrorSnackbar: ComponentStory<typeof Toaster> = (args) => {
+export const ErrorSnackbar: ComponentStory<typeof Toaster> = (args: any) => {
   return (
     <Template {...args} showToast={() => showErrorToast('Error Message!')} />
   )
