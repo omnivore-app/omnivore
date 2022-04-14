@@ -14,9 +14,9 @@ import { analytics } from '../../utils/analytics'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { setClaims } from '../../datalayer/helpers'
 import { generateSlug } from '../../utils/helpers'
-import { createPage } from '../../elastic'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { Page } from '../../elastic/types'
+import { createPage } from '../../elastic/pages'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -44,7 +44,7 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'pdf-attachment-upload',
+      event: 'pdf_attachment_upload',
       properties: {
         env: env.server.apiEnv,
       },
@@ -107,7 +107,7 @@ export function pdfAttachmentsRouter() {
 
     analytics.track({
       userId: user.id,
-      event: 'pdf-attachment-create-article',
+      event: 'pdf_attachment_create_article',
       properties: {
         env: env.server.apiEnv,
       },

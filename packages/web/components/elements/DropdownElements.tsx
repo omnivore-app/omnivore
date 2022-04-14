@@ -8,6 +8,8 @@ import {
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
+import { PopperContentProps } from '@radix-ui/react-popover';
+import { CSS } from '@stitches/react';
 import { styled } from './../tokens/stitches.config'
 
 const itemStyles = {
@@ -43,17 +45,17 @@ const StyledTriggerItem = styled(TriggerItem, {
   ...itemStyles,
 })
 
-const DropdownContent = styled(Content, {
+export const DropdownContent = styled(Content, {
   minWidth: 130,
   backgroundColor: '$grayBg',
   borderRadius: '0.5em',
   padding: 5,
-  border: '1px solid $grayBorder',
+  outline: '1px solid $grayBorder',
   boxShadow: '$cardBoxShadow',
 })
 
 const StyledArrow = styled(Arrow, {
-  fill: '$grayBase',
+  fill: '$grayBg',
 })
 
 const StyledLabel = styled(Label, {
@@ -64,18 +66,26 @@ const StyledLabel = styled(Label, {
 })
 
 export type DropdownAlignment = 'start' | 'end' | 'center'
+export type DropdownSide = 'top' | 'right' | 'bottom' | 'left'
 
 type DropdownProps = {
   labelText?: string
   showArrow?: boolean
   triggerElement: React.ReactNode
   children: React.ReactNode
+  styledArrow?: boolean
   align?: DropdownAlignment
+  side?: DropdownSide
+  sideOffset?: number
+  disabled?: boolean
+  css?: CSS
+  modal?: boolean
 }
 
 export const DropdownSeparator = styled(Separator, {
-  height: 0,
+  height: '1px',
   margin: 0,
+  backgroundColor: '$grayBorder',
 })
 
 type DropdownOptionProps = {
@@ -91,30 +101,42 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
       <StyledItem onSelect={props.onSelect}>
         {props.title ?? props.children}
       </StyledItem>
+      {props.hideSeparator ? null : <DropdownSeparator />}
     </>
   )
 }
 
-export function Dropdown({
-  children,
-  align,
-  triggerElement,
-  labelText,
-  showArrow = true,
-}: DropdownProps): JSX.Element {
+export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element {
+  const {
+    children,
+    align,
+    triggerElement,
+    labelText,
+    showArrow = true,
+    disabled = false,
+    side = 'bottom',
+    sideOffset = 0,
+    alignOffset = 0,
+    css,
+    modal
+  } = props
   return (
-    <Root modal={false}>
-      <DropdownTrigger>{triggerElement}</DropdownTrigger>
+    <Root modal={modal}>
+      <DropdownTrigger disabled={disabled}>{triggerElement}</DropdownTrigger>
       <DropdownContent
-        onInteractOutside={() => {
+        css={css}
+        onInteractOutside={(event) => {
           // remove focus from dropdown
           ;(document.activeElement as HTMLElement).blur()
         }}
+        side={side}
+        sideOffset={sideOffset}
         align={align ? align : 'center'}
+        alignOffset={alignOffset}
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}
         {children}
-        {showArrow && <StyledArrow offset={20} />}
+        {showArrow && <StyledArrow offset={20} width={20} height={10} />}
       </DropdownContent>
     </Root>
   )

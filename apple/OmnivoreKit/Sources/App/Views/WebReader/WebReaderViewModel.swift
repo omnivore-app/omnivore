@@ -10,23 +10,27 @@ struct SafariWebLink: Identifiable {
 }
 
 func encodeHighlightResult(_ highlight: Highlight) -> [String: Any]? {
-  let data = try? JSONEncoder().encode(highlight)
-  if let data = data, let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] {
-    return dictionary
-  }
-  return nil
+  guard let data = try? JSONEncoder().encode(highlight) else { return nil }
+  return try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any]
 }
 
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var articleContent: ArticleContent?
 
+  var slug: String?
   var subscriptions = Set<AnyCancellable>()
 
   func loadContent(dataService: DataService, slug: String) {
+    self.slug = slug
     isLoading = true
 
     guard let viewer = dataService.currentViewer else { return }
+
+    if let content = dataService.pageFromCache(slug: slug) {
+      articleContent = content
+      // continue to load from the web if possible
+    }
 
     dataService.articleContentPublisher(username: viewer.username, slug: slug).sink(
       receiveCompletion: { [weak self] completion in
@@ -35,6 +39,7 @@ final class WebReaderViewModel: ObservableObject {
       },
       receiveValue: { [weak self] articleContent in
         self?.articleContent = articleContent
+        dataService.pageCache.setObject(CachedPageContent(slug, articleContent), forKey: NSString(string: slug))
       }
     )
     .store(in: &subscriptions)
@@ -167,12 +172,16 @@ final class WebReaderViewModel: ObservableObject {
 
     switch actionID {
     case "deleteHighlight":
+      dataService.invalidateCachedPage(slug: slug)
       deleteHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "createHighlight":
+      dataService.invalidateCachedPage(slug: slug)
       createHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "mergeHighlight":
+      dataService.invalidateCachedPage(slug: slug)
       mergeHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "updateHighlight":
+      dataService.invalidateCachedPage(slug: slug)
       updateHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "articleReadingProgress":
       updateReadingProgress(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)

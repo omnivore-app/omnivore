@@ -1,12 +1,5 @@
-import { createTestUser, deleteTestUser, getProfile, getUser } from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
-import { expect } from 'chai'
-import {
-  LoginErrorCode,
-  SignupErrorCode,
-  UpdateUserErrorCode,
-  UpdateUserProfileErrorCode,
-} from '../../src/generated/graphql'
 import { User } from '../../src/entity/user'
 import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
@@ -33,7 +26,7 @@ describe('Sanitize Directive', () => {
   })
 
   describe('Update user with a bio that is too long', () => {
-    let bio = "".padStart(500, '*');
+    let bio = ''.padStart(500, '*')
     let query: string
 
     beforeEach(() => {

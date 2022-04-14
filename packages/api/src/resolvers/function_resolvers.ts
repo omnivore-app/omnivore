@@ -16,6 +16,7 @@ import {
   LinkShareInfo,
   PageType,
   Reaction,
+  SearchItem,
   User,
 } from './../generated/graphql'
 
@@ -54,6 +55,7 @@ import {
   saveFileResolver,
   savePageResolver,
   saveUrlResolver,
+  searchResolver,
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFollowResolver,
@@ -71,13 +73,15 @@ import {
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
+  updateLabelResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { getPageById, getPageByParam } from '../elastic'
+import { getPageByParam } from '../elastic/pages'
+import { generateApiKeyResolver } from './api_key'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -132,10 +136,12 @@ export const functionResolvers = {
     deleteReminder: deleteReminderResolver,
     setDeviceToken: setDeviceTokenResolver,
     createLabel: createLabelResolver,
+    updateLabel: updateLabelResolver,
     deleteLabel: deleteLabelResolver,
     login: loginResolver,
     signup: signupResolver,
     setLabels: setLabelsResolver,
+    generateApiKey: generateApiKeyResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -153,6 +159,7 @@ export const functionResolvers = {
     newsletterEmails: newsletterEmailsResolver,
     reminder: reminderResolver,
     labels: labelsResolver,
+    search: searchResolver,
   },
   User: {
     async sharedArticles(
@@ -390,32 +397,33 @@ export const functionResolvers = {
         : ContentReader.Web
     },
     async highlights(
-      article: { id: string; userId?: string },
+      article: { id: string; userId?: string; highlights?: Highlight[] },
       _: { input: ArticleHighlightsInput },
       ctx: WithDataSourcesContext
     ) {
-      const includeFriends = false
-      // TODO: this is a temporary solution until we figure out how collaborative approach would look like
-      // article has userId only if it's returned by getSharedArticle resolver
-      if (article.userId) {
-        const result = await ctx.models.highlight.getForUserArticle(
-          article.userId,
-          article.id
-        )
-        return result
-      }
-
-      const friendsIds =
-        ctx.claims?.uid && includeFriends
-          ? await ctx.models.userFriends.getFriends(ctx.claims?.uid)
-          : []
-
-      // FIXME: Move this filtering logic to the datalayer
-      return (await ctx.models.highlight.batchGet(article.id)).filter((h) =>
-        [...(includeFriends ? friendsIds : []), ctx.claims?.uid || ''].some(
-          (u) => u === h.userId
-        )
-      )
+      // const includeFriends = false
+      // // TODO: this is a temporary solution until we figure out how collaborative approach would look like
+      // // article has userId only if it's returned by getSharedArticle resolver
+      // if (article.userId) {
+      //   const result = await ctx.models.highlight.getForUserArticle(
+      //     article.userId,
+      //     article.id
+      //   )
+      //   return result
+      // }
+      //
+      // const friendsIds =
+      //   ctx.claims?.uid && includeFriends
+      //     ? await ctx.models.userFriends.getFriends(ctx.claims?.uid)
+      //     : []
+      //
+      // // FIXME: Move this filtering logic to the datalayer
+      // return (await ctx.models.highlight.batchGet(article.id)).filter((h) =>
+      //   [...(includeFriends ? friendsIds : []), ctx.claims?.uid || ''].some(
+      //     (u) => u === h.userId
+      //   )
+      // )
+      return article.highlights || []
     },
     async shareInfo(
       article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
@@ -443,9 +451,6 @@ export const functionResolvers = {
     },
   },
   Highlight: {
-    async article(highlight: { articleId: string }, __: unknown) {
-      return getPageById(highlight.articleId)
-    },
     async user(
       highlight: { userId: string },
       __: unknown,
@@ -478,6 +483,19 @@ export const functionResolvers = {
       ctx: WithDataSourcesContext
     ) {
       return userDataToUser(await ctx.models.user.get(reaction.userId))
+    },
+  },
+  SearchItem: {
+    async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
+      if (item.pageType == PageType.File && ctx.claims && item.uploadFileId) {
+        const upload = await ctx.models.uploadFile.get(item.uploadFileId)
+        if (!upload || !upload.fileName) {
+          return undefined
+        }
+        const filePath = generateUploadFilePathName(upload.id, upload.fileName)
+        return generateDownloadSignedUrl(filePath)
+      }
+      return item.url
     },
   },
   ...resultResolveTypeResolver('Login'),
@@ -527,4 +545,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Login'),
   ...resultResolveTypeResolver('Signup'),
   ...resultResolveTypeResolver('SetLabels'),
+  ...resultResolveTypeResolver('GenerateApiKey'),
+  ...resultResolveTypeResolver('Search'),
 }

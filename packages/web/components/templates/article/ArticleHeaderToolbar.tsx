@@ -14,7 +14,7 @@ type ArticleHeaderToolbarProps = {
   articleTitle: string
   articleShareURL: string
   hasHighlights: boolean
-  setShowNotesSidebar: (showNotesSidebar: boolean) => void
+  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   setShowShareArticleModal: (showShareModal: boolean) => void
 }
 
@@ -46,7 +46,12 @@ export function ArticleHeaderToolbar(
   return (
     <HStack distribution="between" alignment="center" css={{ gap: '$2' }}>
       {props.hasHighlights && (
-        <Button style="plainIcon" onClick={() => props.setShowNotesSidebar(true)} title="View all your highlights and notes">
+        <Button style="plainIcon" onClick={() => {
+          if (props.setShowHighlightsModal) {
+            props.setShowHighlightsModal(true)
+          }
+        }}
+          title="View all your highlights and notes">
           <CommentIcon
             size={24}
             strokeColor={theme.colors.grayTextContrast.toString()}

@@ -29,7 +29,7 @@ const textVariants = {
       },
     },
     fixedHeadline: {
-      fontSize: '$6',
+      fontSize: '24px',
       fontWeight: '500',
     },
     subHeadline: {

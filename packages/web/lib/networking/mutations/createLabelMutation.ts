@@ -1,5 +1,15 @@
 import { gql } from 'graphql-request'
+import { Label } from '../fragments/labelFragment'
 import { gqlFetcher } from '../networkHelpers'
+
+type CreateLabelResult = {
+  createLabel: CreateLabel
+  errorCodes?: unknown[]
+}
+
+type CreateLabel = {
+  label: Label
+}
 
 export async function createLabelMutation(
   name: string,
@@ -32,9 +42,9 @@ export async function createLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation)
+    const data = await gqlFetcher(mutation) as CreateLabelResult
     console.log('created label', data)
-    return data
+    return data.errorCodes ? undefined : data.createLabel.label
   } catch (error) {
     console.log('createLabelMutation error', error)
     return undefined

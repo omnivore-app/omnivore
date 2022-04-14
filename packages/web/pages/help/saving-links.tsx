@@ -162,6 +162,7 @@ export default function Colors(): JSX.Element {
           </Link>
         </HStack>
       </Box>
+      <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
 }

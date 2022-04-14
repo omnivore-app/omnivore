@@ -28,11 +28,11 @@ describe('Newsletters API', () => {
     //  create test newsletter emails
     const newsletterEmail1 = await createTestNewsletterEmail(
       user,
-      'Test_email_address_1'
+      'Test_email_address_1@fake-email.com'
     )
     const newsletterEmail2 = await createTestNewsletterEmail(
       user,
-      'Test_email_address_2'
+      'Test_email_address_2@fake-email.com'
     )
     newsletterEmails = [newsletterEmail1, newsletterEmail2]
   })
@@ -164,7 +164,7 @@ describe('Newsletters API', () => {
         const newsletterEmail = await getNewsletterEmail(
           response.body.data.deleteNewsletterEmail.newsletterEmail.id
         )
-        expect(newsletterEmail).to.be.undefined
+        expect(newsletterEmail).to.be.null
       })
     })
 

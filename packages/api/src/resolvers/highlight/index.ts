@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { authorized } from '../../utils/helpers'
 import {
-  Article,
   CreateHighlightError,
   CreateHighlightErrorCode,
   CreateHighlightSuccess,
@@ -27,15 +26,20 @@ import {
   UpdateHighlightSuccess,
   User,
 } from '../../generated/graphql'
-import { HighlightData } from '../../datalayer/highlight/model'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
-import { getPageById } from '../../elastic'
+import { Highlight as HighlightData } from '../../elastic/types'
+import { getPageById, updatePage } from '../../elastic/pages'
+import {
+  addHighlightToPage,
+  deleteHighlight,
+  getHighlightById,
+  updateHighlight,
+} from '../../elastic/highlights'
 
 const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   ...highlight,
   user: highlight.userId as unknown as User,
-  article: highlight.articleId as unknown as Article,
   updatedAt: highlight.updatedAt || highlight.createdAt,
   replies: [],
   reactions: [],
@@ -46,11 +50,10 @@ export const createHighlightResolver = authorized<
   CreateHighlightSuccess,
   CreateHighlightError,
   MutationCreateHighlightArgs
->(async (_, { input }, { models, claims, log }) => {
-  const { articleId } = input
-  const article = await getPageById(articleId)
-
-  if (!article) {
+>(async (_, { input }, { claims, log, pubsub }) => {
+  const { articleId: pageId } = input
+  const page = await getPageById(pageId)
+  if (!page) {
     return {
       errorCodes: [CreateHighlightErrorCode.NotFound],
     }
@@ -60,7 +63,7 @@ export const createHighlightResolver = authorized<
     userId: claims.uid,
     event: 'highlight_created',
     properties: {
-      articleId: article.id,
+      pageId,
       env: env.server.apiEnv,
     },
   })
@@ -72,12 +75,23 @@ export const createHighlightResolver = authorized<
   }
 
   try {
-    const highlight = await models.highlight.create({
-      ...input,
-      articleId: undefined,
+    const highlight: HighlightData = {
+      updatedAt: new Date(),
+      createdAt: new Date(),
       userId: claims.uid,
-      elasticPageId: article.id,
-    })
+      ...input,
+    }
+
+    if (
+      !(await addHighlightToPage(pageId, highlight, {
+        pubsub,
+        uid: claims.uid,
+      }))
+    ) {
+      return {
+        errorCodes: [CreateHighlightErrorCode.NotFound],
+      }
+    }
 
     log.info('Creating a new highlight', {
       highlight,
@@ -101,22 +115,27 @@ export const mergeHighlightResolver = authorized<
   MergeHighlightSuccess,
   MergeHighlightError,
   MutationMergeHighlightArgs
->(async (_, { input }, { authTrx, models, claims, log }) => {
-  const { articleId } = input
+>(async (_, { input }, { claims, log, pubsub }) => {
+  const { articleId: pageId } = input
   const { overlapHighlightIdList, ...newHighlightInput } = input
-  const articleHighlights = await models.highlight.batchGet(articleId)
-
-  if (!articleHighlights.length) {
+  const page = await getPageById(pageId)
+  if (!page || !page.highlights) {
     return {
       errorCodes: [MergeHighlightErrorCode.NotFound],
     }
   }
 
+  const articleHighlights = page.highlights
+
   /* Compute merged annotation form the order of highlights appearing on page */
   const overlapAnnotations: { [id: string]: string } = {}
-  articleHighlights.forEach((highlight) => {
-    if (overlapHighlightIdList.includes(highlight.id) && highlight.annotation) {
-      overlapAnnotations[highlight.id] = highlight.annotation
+  articleHighlights.forEach((highlight, index) => {
+    if (overlapHighlightIdList.includes(highlight.id)) {
+      articleHighlights.splice(index, 1)
+
+      if (highlight.annotation) {
+        overlapAnnotations[highlight.id] = highlight.annotation
+      }
     }
   })
   const mergedAnnotation: string[] = []
@@ -127,17 +146,20 @@ export const mergeHighlightResolver = authorized<
   })
 
   try {
-    const highlight = await authTrx(async (tx) => {
-      await models.highlight.deleteMany(overlapHighlightIdList, tx)
-      return await models.highlight.create({
-        ...newHighlightInput,
-        articleId: undefined,
-        annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
-        userId: claims.uid,
-        elasticPageId: newHighlightInput.articleId,
-      })
-    })
-    if (!highlight) {
+    const highlight: HighlightData = {
+      ...newHighlightInput,
+      updatedAt: new Date(),
+      createdAt: new Date(),
+      userId: claims.uid,
+      annotation: mergedAnnotation ? mergedAnnotation.join('\n') : null,
+    }
+
+    const merged = await updatePage(
+      pageId,
+      { highlights: articleHighlights.concat(highlight) },
+      { pubsub, uid: claims.uid }
+    )
+    if (!merged) {
       throw new Error('Failed to create merged highlight')
     }
 
@@ -147,7 +169,7 @@ export const mergeHighlightResolver = authorized<
         source: 'resolver',
         resolver: 'mergeHighlightResolver',
         uid: claims.uid,
-        articleId: articleId,
+        pageId,
       },
     })
 
@@ -175,9 +197,9 @@ export const updateHighlightResolver = authorized<
   UpdateHighlightSuccess,
   UpdateHighlightError,
   MutationUpdateHighlightArgs
->(async (_, { input }, { authTrx, models, claims, log }) => {
+>(async (_, { input }, { pubsub, claims, log }) => {
   const { highlightId } = input
-  const highlight = await models.highlight.get(highlightId)
+  const highlight = await getHighlightById(highlightId)
 
   if (!highlight?.id) {
     return {
@@ -197,16 +219,11 @@ export const updateHighlightResolver = authorized<
     }
   }
 
-  const updatedHighlight = await authTrx((tx) =>
-    models.highlight.update(
-      highlightId,
-      {
-        annotation: input.annotation,
-        sharedAt: input.sharedAt,
-      },
-      tx
-    )
-  )
+  const updatedHighlight: HighlightData = {
+    ...highlight,
+    annotation: input.annotation,
+    updatedAt: new Date(),
+  }
 
   log.info('Updating a highlight', {
     updatedHighlight,
@@ -217,6 +234,17 @@ export const updateHighlightResolver = authorized<
     },
   })
 
+  const updated = await updateHighlight(updatedHighlight, {
+    pubsub,
+    uid: claims.uid,
+  })
+
+  if (!updated) {
+    return {
+      errorCodes: [UpdateHighlightErrorCode.NotFound],
+    }
+  }
+
   return { highlight: highlightDataToHighlight(updatedHighlight) }
 })
 
@@ -224,8 +252,8 @@ export const deleteHighlightResolver = authorized<
   DeleteHighlightSuccess,
   DeleteHighlightError,
   MutationDeleteHighlightArgs
->(async (_, { highlightId }, { authTrx, models, claims, log }) => {
-  const highlight = await models.highlight.get(highlightId)
+>(async (_, { highlightId }, { claims, log, pubsub }) => {
+  const highlight = await getHighlightById(highlightId)
 
   if (!highlight?.id) {
     return {
@@ -239,18 +267,19 @@ export const deleteHighlightResolver = authorized<
     }
   }
 
-  const deletedHighlight = await authTrx((tx) =>
-    models.highlight.delete(highlightId, tx)
-  )
+  const deleted = await deleteHighlight(highlightId, {
+    pubsub,
+    uid: claims.uid,
+  })
 
-  if ('error' in deletedHighlight) {
+  if (!deleted) {
     return {
       errorCodes: [DeleteHighlightErrorCode.NotFound],
     }
   }
 
   log.info('Deleting a highlight', {
-    deletedHighlight,
+    highlight,
     labels: {
       source: 'resolver',
       resolver: 'deleteHighlightResolver',
@@ -258,15 +287,15 @@ export const deleteHighlightResolver = authorized<
     },
   })
 
-  return { highlight: highlightDataToHighlight(deletedHighlight) }
+  return { highlight: highlightDataToHighlight(highlight) }
 })
 
 export const setShareHighlightResolver = authorized<
   SetShareHighlightSuccess,
   SetShareHighlightError,
   MutationSetShareHighlightArgs
->(async (_, { input: { id, share } }, { authTrx, models, claims, log }) => {
-  const highlight = await models.highlight.get(id)
+>(async (_, { input: { id, share } }, { pubsub, claims, log }) => {
+  const highlight = await getHighlightById(id)
 
   if (!highlight?.id) {
     return {
@@ -287,16 +316,22 @@ export const setShareHighlightResolver = authorized<
     labels: {
       source: 'resolver',
       resolver: 'setShareHighlightResolver',
-      articleId: highlight.articleId,
       userId: highlight.userId,
     },
   })
 
-  const updatedHighlight = await authTrx((tx) =>
-    models.highlight.update(id, { sharedAt }, tx)
-  )
+  const updatedHighlight: HighlightData = {
+    ...highlight,
+    sharedAt,
+    updatedAt: new Date(),
+  }
 
-  if (!updatedHighlight || 'error' in updatedHighlight) {
+  const updated = await updateHighlight(updatedHighlight, {
+    pubsub,
+    uid: claims.uid,
+  })
+
+  if (!updated) {
     return {
       errorCodes: [SetShareHighlightErrorCode.NotFound],
     }

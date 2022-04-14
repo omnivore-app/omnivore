@@ -68,7 +68,6 @@ const extractPublishedDateFromAuthor = (author)=> {
  * @param {Object}       options The options object.
  */
 function Readability(doc, options) {
-  console.log("\nOmnivore Inc. v.0.1.9");
   // In some older versions, people passed a URI as the first argument. Cope:
   if (options && options.documentElement) {
     doc = options;
@@ -505,15 +504,17 @@ Readability.prototype = {
     });
   },
 
-  /** Creates imageproxy links for all article images */
+  /** Creates imageproxy links for all article images with href source */
   _createImageProxyLinks: function (articleContent) {
     if (this.createImageProxyUrl !== undefined) {
-      // replace all image src's
+      // replace all images' href source
       const images = articleContent.getElementsByTagName('img');
       Array.from(images).forEach(image => {
         const src = image.getAttribute("src");
+        const dataUriRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
 
-        if (src) {
+        // do not proxy data uri
+        if (src && !dataUriRegex.test(src)) {
           const absoluteSrc = this.toAbsoluteURI(src);
           const attToNumber = (str) => {
             if (!str) { return 0; }
@@ -898,6 +899,9 @@ Readability.prototype = {
         }
       }
     });
+
+    // replace tables of article content with divs for newsletters
+    this._keepTables && this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]), "div");
 
     // Final clean up of nodes that might pass readability conditions but still contain redundant text
     // For example, this article (https://www.sciencedirect.com/science/article/abs/pii/S0047248498902196)

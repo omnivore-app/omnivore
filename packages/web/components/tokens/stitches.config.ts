@@ -1,14 +1,5 @@
 import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
-import {
-  gray,
-  grayDark,
-  blackA,
-  yellow,
-  yellowDark,
-  orange,
-  orangeDark,
-} from '@radix-ui/colors'
 
 export enum ThemeId {
   Lighter = 'White',
@@ -111,15 +102,11 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
-        cardBoxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)'
+        cardBoxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.1)',
       },
       zIndices: {},
       transitions: {},
       colors: {
-        // Radix Color Scales
-        ...yellow, // Brand
-        ...orange, //Accent
-
         // Grayscale
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
@@ -128,15 +115,13 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
 
-        grayBgSubtle: gray.gray2,
-        grayBgHover: gray.gray4,
-        grayLine: gray.gray6,
-        grayBorderHover: gray.gray8,
-        graySolidHover: gray.gray10,
-        grayText: gray.gray11,
+        grayBgSubtle: 'hsl(0 0% 97.3%)',
+        grayBgHover: 'hsl(0 0% 93.0%)',
+        grayLine: 'hsl(0 0% 88.7%)',
+        grayBorderHover: 'hsl(0 0% 78.0%)',
+        grayText: 'hsl(0 0% 43.5%)',
 
         // Semantic Colors
-        overlay: blackA.blackA9,
         highlightBackground: 'rgba(255, 210, 52, 0.65)',
         highlight: '#FFD234',
         highlightText: '#3D3D3D',
@@ -161,13 +146,16 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // Avatar Fallback color
         avatarBg: '#FFFFFF',
         avatarFont: '#0A0806',
-        tooltipIcons: '#FDFAEC'
+
+        labelButtonsBg: '#F5F5F4',
+        tooltipIcons: '#FDFAEC',
       },
     },
     media: {
       xsmDown: '(max-width: 375px)',
       smDown: '(max-width: 575px)',
       mdDown: '(max-width: 768px)',
+      lgDown: '(max-width: 992px)',
       sm: '(min-width: 576px)',
       md: '(min-width: 768px)',
       lg: '(min-width: 992px)',
@@ -177,9 +165,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
 const darkThemeSpec = {
   colors: {
-    ...yellowDark, // Brand
-    ...orangeDark, //Accent
-
     // Grayscale (top ones have been updated from new designs)
     grayBase: '#252525',
     grayBg: '#3B3938',
@@ -188,15 +173,13 @@ const darkThemeSpec = {
     grayBorder: 'rgba(255, 255, 255, 0.06)',
     graySolid: '#9C9B9A',
 
-    grayBgSubtle: grayDark.gray2,
-    grayBgHover: grayDark.gray4,
-    grayLine: grayDark.gray6,
-    grayBorderHover: grayDark.gray8,
-    graySolidHover: grayDark.gray10,
-    grayText: grayDark.gray11,
+    grayBgSubtle: 'hsl(0 0% 9.8%)',
+    grayBgHover: 'hsl(0 0% 13.8%)',
+    grayLine: 'hsl(0 0% 19.9%)',
+    grayBorderHover: 'hsl(0 0% 31.2%)',
+    grayText: 'hsl(0 0% 62.8%)',
 
     // Semantic Colors
-    overlay: blackA.blackA9,
     highlightBackground: '#867740',
     highlight: '#FFD234',
     highlightText: 'white',
@@ -211,10 +194,13 @@ const darkThemeSpec = {
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
     avatarFont: 'rgba(255, 255, 255, 0.8)',
+
+    labelButtonsBg: '#5F5E58',
   },
   shadows: {
-    cardBoxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)'
-  }
+    cardBoxShadow:
+      '0px 0px 9px -2px rgba(255, 255, 255, 0.09), 0px 7px 12px rgba(255, 255, 255, 0.07)',
+  },
 }
 
 // Avatar Fallback color

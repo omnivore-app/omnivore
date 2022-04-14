@@ -2,7 +2,6 @@ import { PubSub } from '@google-cloud/pubsub'
 import { env } from '../env'
 import { ReportType } from '../generated/graphql'
 import express from 'express'
-import { Page } from '../elastic/types'
 
 export const createPubSubClient = (): PubsubClient => {
   const client = new PubSub()
@@ -37,17 +36,35 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    pageUpdated: (page: Partial<Page>, userId: string): Promise<void> => {
+    entityCreated: <T>(
+      type: EntityType,
+      data: T,
+      userId: string
+    ): Promise<void> => {
       return publish(
-        'pageUpdated',
-        Buffer.from(JSON.stringify({ ...page, userId }))
+        'entityCreated',
+        Buffer.from(JSON.stringify({ type, userId, ...data }))
       )
     },
-    pageCreated: (page: Page): Promise<void> => {
-      return publish('pageCreated', Buffer.from(JSON.stringify(page)))
+    entityUpdated: <T>(
+      type: EntityType,
+      data: T,
+      userId: string
+    ): Promise<void> => {
+      return publish(
+        'entityUpdated',
+        Buffer.from(JSON.stringify({ type, userId, ...data }))
+      )
     },
-    pageDeleted: (id: string, userId: string): Promise<void> => {
-      return publish('pageDeleted', Buffer.from(JSON.stringify({ id, userId })))
+    entityDeleted: (
+      type: EntityType,
+      id: string,
+      userId: string
+    ): Promise<void> => {
+      return publish(
+        'entityDeleted',
+        Buffer.from(JSON.stringify({ type, id, userId }))
+      )
     },
     reportSubmitted: (
       submitterId: string,
@@ -65,6 +82,12 @@ export const createPubSubClient = (): PubsubClient => {
   }
 }
 
+export enum EntityType {
+  PAGE = 'page',
+  HIGHLIGHT = 'highlight',
+  LABEL = 'label',
+}
+
 export interface PubsubClient {
   userCreated: (
     userId: string,
@@ -72,9 +95,9 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  pageCreated: (page: Page) => Promise<void>
-  pageUpdated: (page: Partial<Page>, userId: string) => Promise<void>
-  pageDeleted: (id: string, userId: string) => Promise<void>
+  entityCreated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
+  entityUpdated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
+  entityDeleted: (type: EntityType, id: string, userId: string) => Promise<void>
   reportSubmitted(
     submitterId: string | undefined,
     itemUrl: string,

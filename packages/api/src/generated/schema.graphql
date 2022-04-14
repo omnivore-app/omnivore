@@ -1,4 +1,4 @@
-directive @sanitize(allowedTags: [String], maxLength: Int) on INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!
@@ -457,6 +457,20 @@ type FeedArticlesSuccess {
   pageInfo: PageInfo!
 }
 
+type GenerateApiKeyError {
+  errorCodes: [GenerateApiKeyErrorCode!]!
+}
+
+enum GenerateApiKeyErrorCode {
+  BAD_REQUEST
+}
+
+union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
+
+type GenerateApiKeySuccess {
+  apiKey: String!
+}
+
 type GetFollowersError {
   errorCodes: [GetFollowersErrorCode!]!
 }
@@ -526,7 +540,6 @@ type GoogleSignupSuccess {
 
 type Highlight {
   annotation: String
-  article: Article!
   createdAt: Date!
   createdByMe: Boolean!
   id: ID!
@@ -684,6 +697,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
+  generateApiKey(scope: String): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   login(input: LoginInput!): LoginResult!
@@ -705,6 +719,7 @@ type Mutation {
   signup(input: SignupInput!): SignupResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
+  updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
   updateLinkShareInfo(input: UpdateLinkShareInfoInput!): UpdateLinkShareInfoResult!
   updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
   updateSharedComment(input: UpdateSharedCommentInput!): UpdateSharedCommentResult!
@@ -772,6 +787,7 @@ enum PageType {
   ARTICLE
   BOOK
   FILE
+  HIGHLIGHTS
   PROFILE
   UNKNOWN
   WEBSITE
@@ -803,6 +819,7 @@ type Query {
   me: User
   newsletterEmails: NewsletterEmailsResult!
   reminder(linkId: ID!): ReminderResult!
+  search(after: String, first: Int, query: String): SearchResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
@@ -935,6 +952,51 @@ input SaveUrlInput {
   url: String!
 }
 
+type SearchError {
+  errorCodes: [SearchErrorCode!]!
+}
+
+enum SearchErrorCode {
+  UNAUTHORIZED
+}
+
+type SearchItem {
+  annotation: String
+  author: String
+  contentReader: ContentReader!
+  createdAt: Date!
+  description: String
+  id: ID!
+  image: String
+  isArchived: Boolean!
+  labels: [Label!]
+  originalArticleUrl: String
+  ownedByViewer: Boolean
+  pageId: ID
+  pageType: PageType!
+  publishedAt: Date
+  quote: String
+  readingProgressAnchorIndex: Int
+  readingProgressPercent: Float
+  shortId: String
+  slug: String!
+  title: String!
+  uploadFileId: ID
+  url: String!
+}
+
+type SearchItemEdge {
+  cursor: String!
+  node: SearchItem!
+}
+
+union SearchResult = SearchError | SearchSuccess
+
+type SearchSuccess {
+  edges: [SearchItemEdge!]!
+  pageInfo: PageInfo!
+}
+
 type SetBookmarkArticleError {
   errorCodes: [SetBookmarkArticleErrorCode!]!
 }
@@ -1008,7 +1070,7 @@ enum SetLabelsErrorCode {
 
 input SetLabelsInput {
   labelIds: [ID!]!
-  linkId: ID!
+  pageId: ID!
 }
 
 union SetLabelsResult = SetLabelsError | SetLabelsSuccess
@@ -1192,6 +1254,30 @@ union UpdateHighlightResult = UpdateHighlightError | UpdateHighlightSuccess
 
 type UpdateHighlightSuccess {
   highlight: Highlight!
+}
+
+type UpdateLabelError {
+  errorCodes: [UpdateLabelErrorCode!]!
+}
+
+enum UpdateLabelErrorCode {
+  BAD_REQUEST
+  FORBIDDEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateLabelInput {
+  color: String!
+  description: String
+  labelId: ID!
+  name: String!
+}
+
+union UpdateLabelResult = UpdateLabelError | UpdateLabelSuccess
+
+type UpdateLabelSuccess {
+  label: Label!
 }
 
 type UpdateLinkShareInfoError {

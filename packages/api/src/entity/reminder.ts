@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,7 +10,7 @@ import {
 import { User } from './user'
 
 @Entity({ name: 'reminders' })
-export class Reminder extends BaseEntity {
+export class Reminder {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 

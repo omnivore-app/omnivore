@@ -7,11 +7,12 @@ import {
 import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { Page } from '../elastic/types'
-import { createPage, getPageByParam, updatePage } from '../elastic'
+import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 export type SaveContext = {
   pubsub: PubsubClient
   uid: string
+  refresh?: boolean
 }
 
 export type SaveEmailInput = {
@@ -67,7 +68,7 @@ export const saveEmail = async (
     readingProgressPercent: 0,
   }
 
-  const page = await getPageByParam({ url: articleToSave.url })
+  const page = await getPageByParam({ userId: ctx.uid, url: articleToSave.url })
   if (page) {
     const result = await updatePage(page.id, { archivedAt: null }, ctx)
     console.log('updated page from email', result)
@@ -82,7 +83,6 @@ export const saveEmail = async (
     return undefined
   }
 
-  console.log('created new page from email', pageId)
   articleToSave.id = pageId
 
   return articleToSave

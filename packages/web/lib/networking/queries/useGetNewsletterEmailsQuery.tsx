@@ -51,7 +51,7 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
         isValidating,
         emailAddresses,
         revalidate: () => {
-          mutate()
+          mutate(undefined, true)
         }
       }
     }

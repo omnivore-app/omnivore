@@ -10,7 +10,6 @@
 // shared_with_highlights                | boolean                  |           |          | false
 
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -27,7 +26,7 @@ import { Page } from './page'
 import { Label } from './label'
 
 @Entity({ name: 'links' })
-export class Link extends BaseEntity {
+export class Link {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 

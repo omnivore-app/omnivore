@@ -4,7 +4,7 @@ import 'chai/register-should'
 import { createTestUser, deleteTestUser } from '../db'
 import { SaveContext, saveEmail } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getPageByParam } from '../../src/elastic'
+import { getPageByParam } from '../../src/elastic/pages'
 
 describe('saveEmail', () => {
   const username = 'fakeUser'
@@ -17,6 +17,7 @@ describe('saveEmail', () => {
     const ctx: SaveContext = {
       pubsub: createPubSubClient(),
       uid: user.id,
+      refresh: true,
     }
 
     await saveEmail(ctx, {
@@ -36,15 +37,11 @@ describe('saveEmail', () => {
     })
     expect(secondResult).to.not.be.undefined
 
-    setTimeout(async () => {
-      const page = await getPageByParam({ userId: user.id })
-      if (!page) {
-        expect.fail('page not found')
-      }
-      expect(page.url).to.equal('https://example.com')
-      expect(page.title).to.equal('fake title')
-      expect(page.author).to.equal('fake author')
-      expect(page.content).to.contain('fake content')
-    })
+    const page = await getPageByParam({ userId: user.id })
+    expect(page).to.exist
+    expect(page?.url).to.equal('https://example.com')
+    expect(page?.title).to.equal('fake title')
+    expect(page?.author).to.equal('fake author')
+    expect(page?.content).to.contain('fake content')
   })
 })

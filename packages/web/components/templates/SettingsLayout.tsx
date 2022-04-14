@@ -54,8 +54,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
         />
         <Box
           css={{
-            top: '68px',
-            '@smDown': { top: '48px' },
+            top: '48px',
             position: 'fixed',
             overflowY: 'auto',
             height: '100%',

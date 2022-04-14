@@ -18,6 +18,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 RUN yarn install
 
+ADD /packages/db ./packages/db
 ADD /packages/readabilityjs ./packages/readabilityjs
 ADD /packages/api ./packages/api
 

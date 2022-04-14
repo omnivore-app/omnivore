@@ -7,11 +7,11 @@ import {
 } from '../util'
 import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
-import { getRepository } from 'typeorm'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
-import { getPageById } from '../../src/elastic'
+import { getRepository } from '../../src/entity/utils'
+import { getPageById } from '../../src/elastic/pages'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -76,9 +76,11 @@ describe('Labels API', () => {
     it('should return labels', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      const labels = await getRepository(Label).find({ where: { user } })
+      const labels = await getRepository(Label).findBy({
+        user: { id: user.id },
+      })
       expect(res.body.data.labels.labels).to.eql(
-        labels.map((label) => ({
+        labels.reverse().map((label) => ({
           id: label.id,
           name: label.name,
           color: label.color,
@@ -137,9 +139,9 @@ describe('Labels API', () => {
 
       it('should create label', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        const label = await getRepository(Label).findOne(
-          res.body.data.createLabel.label.id
-        )
+        const label = await getRepository(Label).findOneBy({
+          id: res.body.data.createLabel.label.id,
+        })
         expect(label).to.exist
       })
     })
@@ -203,7 +205,7 @@ describe('Labels API', () => {
 
       it('should delete label', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const label = await getRepository(Label).findOne(labelId)
+        const label = await getRepository(Label).findOneBy({ id: labelId })
         expect(label).to.not.exist
       })
     })
@@ -245,7 +247,7 @@ describe('Labels API', () => {
         mutation {
           setLabels(
             input: {
-              linkId: "${pageId}",
+              pageId: "${pageId}",
               labelIds: [
                 "${labelIds[0]}",
                 "${labelIds[1]}"

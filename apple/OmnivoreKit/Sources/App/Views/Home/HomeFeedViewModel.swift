@@ -8,9 +8,22 @@ import Views
 final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
 
+  /// Track progress updates to be committed when user navigates back to grid view
+  var uncommittedReadingProgressUpdates = [String: Double]()
+
+  /// Track label updates to be committed when user navigates back to grid view
+  var uncommittedLabelUpdates = [String: [FeedItemLabel]]()
+
   @Published var items = [FeedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
+  @Published var itemUnderLabelEdit: FeedItem?
+  @Published var searchTerm = ""
+  @Published var selectedLabels = [FeedItemLabel]()
+  @Published var snoozePresented = false
+  @Published var itemToSnooze: FeedItem?
+  @Published var selectedLinkItem: FeedItem?
+
   var cursor: String?
   var sendProgressUpdates = false
 
@@ -23,14 +36,14 @@ final class HomeFeedViewModel: ObservableObject {
 
   init() {}
 
-  func itemAppeared(item: FeedItem, searchQuery: String, dataService: DataService) {
+  func itemAppeared(item: FeedItem, dataService: DataService) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      loadItems(dataService: dataService, searchQuery: searchQuery, isRefresh: false)
+      loadItems(dataService: dataService, isRefresh: false)
     }
   }
 
@@ -38,7 +51,7 @@ final class HomeFeedViewModel: ObservableObject {
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, searchQuery: String?, isRefresh: Bool) {
+  func loadItems(dataService: DataService, isRefresh: Bool) {
     // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
     dataService.clearHighlights()
 
@@ -76,6 +89,9 @@ final class HomeFeedViewModel: ObservableObject {
         if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
           return
         }
+
+        dataService.prefetchPages(items: result.items)
+
         self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
         self?.isLoading = false
         self?.receivedIdx = thisSearchIdx
@@ -160,10 +176,53 @@ final class HomeFeedViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func updateProgress(itemID: String, progress: Double) {
+  /// Update `FeedItem`s with the cached reading progress and label values so it can animate when the
+  /// user navigates back to the grid view (and also avoid mutations of the grid items
+  /// that can cause the `NavigationView` to pop.
+  func commitItemUpdates() {
+    for (key, value) in uncommittedReadingProgressUpdates {
+      updateProgress(itemID: key, progress: value)
+    }
+    for (key, value) in uncommittedLabelUpdates {
+      updateLabels(itemID: key, labels: value)
+    }
+    uncommittedReadingProgressUpdates = [:]
+    uncommittedLabelUpdates = [:]
+  }
+
+  private func updateProgress(itemID: String, progress: Double) {
     guard sendProgressUpdates, let item = items.first(where: { $0.id == itemID }) else { return }
     if let index = items.firstIndex(of: item) {
       items[index].readingProgress = progress
     }
+  }
+
+  func updateLabels(itemID: String, labels: [FeedItemLabel]) {
+    // If item is being being displayed then delay the state update of labels until
+    // user is no longer reading the item.
+    if selectedLinkItem != nil {
+      uncommittedLabelUpdates[itemID] = labels
+      return
+    }
+
+    guard let item = items.first(where: { $0.id == itemID }) else { return }
+    if let index = items.firstIndex(of: item) {
+      items[index].labels = labels
+    }
+  }
+
+  private var searchQuery: String? {
+    if searchTerm.isEmpty, selectedLabels.isEmpty {
+      return nil
+    }
+
+    var query = searchTerm
+
+    if !selectedLabels.isEmpty {
+      query.append(" label:")
+      query.append(selectedLabels.map(\.name).joined(separator: ","))
+    }
+
+    return query
   }
 }

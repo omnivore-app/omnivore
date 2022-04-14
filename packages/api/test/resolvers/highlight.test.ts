@@ -10,9 +10,9 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { deletePage } from '../../src/elastic'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { PageContext } from '../../src/elastic/types'
+import { deletePage } from '../../src/elastic/pages'
 
 chai.use(chaiString)
 
@@ -137,7 +137,7 @@ describe('Highlights API', () => {
     before(async () => {
       // create test highlight
       highlightId = generateFakeUuid()
-      const shortHighlightId = '_short_id'
+      const shortHighlightId = '_short_id_1'
       const query = createHighlightQuery(
         authToken,
         pageId,
@@ -149,7 +149,7 @@ describe('Highlights API', () => {
 
     it('should not fail', async () => {
       const newHighlightId = generateFakeUuid()
-      const newShortHighlightId = '_short_id_1'
+      const newShortHighlightId = '_short_id_2'
       const query = mergeHighlightQuery(
         pageId,
         newHighlightId,

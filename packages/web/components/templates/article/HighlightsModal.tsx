@@ -30,6 +30,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
       <ModalContent
         onPointerDownOutside={(event) => {
           event.preventDefault()
+          props.onOpenChange(false)
         }}
         css={{ overflow: 'auto', p: '0' }}
       >

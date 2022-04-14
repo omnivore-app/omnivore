@@ -1,6 +1,12 @@
-import { getConnection } from 'typeorm'
+import { AppDataSource } from '../src/server'
+import { stopApolloServer } from './util'
+import { kx } from '../src/datalayer/knex_config'
 
 export const mochaGlobalTeardown = async () => {
-  await getConnection().close()
+  await AppDataSource.destroy()
+  await kx.destroy()
   console.log('db connection closed')
+
+  await stopApolloServer()
+  console.log('apollo server stopped')
 }

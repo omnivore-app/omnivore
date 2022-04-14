@@ -34,26 +34,36 @@ describe('Newsletter email test', () => {
     it('returns SubstackHandler when email is from SubStack', () => {
       const rawUrl = '<https://hongbo130.substack.com/p/tldr>'
 
-      expect(getNewsletterHandler(rawUrl, '')).to.be.instanceof(SubstackHandler)
+      expect(getNewsletterHandler(rawUrl, '', '')).to.be.instanceof(
+        SubstackHandler
+      )
     })
 
     it('returns AxiosHandler when email is from Axios', () => {
       const from = 'Mike Allen <mike@axios.com>'
+      const unSubRawUrl =
+        '<https://axios.com/unsubscribe?email=mike%40axios.com&code=593781109>'
 
-      expect(getNewsletterHandler('', from)).to.be.instanceof(AxiosHandler)
+      expect(getNewsletterHandler('', from, unSubRawUrl)).to.be.instanceof(
+        AxiosHandler
+      )
     })
 
     context('when email is from Bloomberg', () => {
       it('should return BloombergHandler when email is from Bloomberg Business', () => {
         const from = 'From: Bloomberg <noreply@mail.bloombergbusiness.com>'
-        expect(getNewsletterHandler('', from)).to.be.instanceof(
+        const unSubRawUrl = '<https://bloomberg.com/unsubscribe>'
+
+        expect(getNewsletterHandler('', from, unSubRawUrl)).to.be.instanceof(
           BloombergHandler
         )
       })
 
       it('should return BloombergHandler when email is from Bloomberg View', () => {
         const from = 'From: Bloomberg <noreply@mail.bloombergview.com>'
-        expect(getNewsletterHandler('', from)).to.be.instanceof(
+        const unSubRawUrl = '<https://bloomberg.com/unsubscribe>'
+
+        expect(getNewsletterHandler('', from, unSubRawUrl)).to.be.instanceof(
           BloombergHandler
         )
       })
@@ -61,7 +71,11 @@ describe('Newsletter email test', () => {
 
     it('should return GolangHandler when email is from Golang Weekly', () => {
       const from = 'Golang Weekly <peter@golangweekly.com>'
-      expect(getNewsletterHandler('', from)).to.be.instanceof(GolangHandler)
+      const unSubRawUrl = '<https://golangweekly.com/unsubscribe>'
+
+      expect(getNewsletterHandler('', from, unSubRawUrl)).to.be.instanceof(
+        GolangHandler
+      )
     })
   })
 

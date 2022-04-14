@@ -19,7 +19,7 @@ import { articleRouter } from './routers/article_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
 import { contentServiceRouter } from './routers/svc/content'
 import { localDebugRouter } from './routers/local_debug_router'
-import { Connection, createConnection } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { linkServiceRouter } from './routers/svc/links'
 import UserModel from './datalayer/user'
@@ -40,7 +40,7 @@ import { ApolloServer } from 'apollo-server-express'
 import { pdfAttachmentsRouter } from './routers/svc/pdf_attachments'
 import { corsConfig } from './utils/corsConfig'
 import { initElasticsearch } from './elastic'
-import { pageServiceRouter } from './routers/svc/pages'
+import { uploadServiceRouter } from './routers/svc/upload'
 
 const PORT = process.env.PORT || 4000
 
@@ -57,21 +57,19 @@ export const initModels = (kx: Knex, cache = true): DataModels => ({
   reminder: new ReminderModel(kx, cache),
 })
 
-const initEntities = async (): Promise<Connection> => {
-  return createConnection({
-    type: 'postgres',
-    host: env.pg.host,
-    port: env.pg.port,
-    schema: 'omnivore',
-    username: env.pg.userName,
-    password: env.pg.password,
-    database: env.pg.dbName,
-    logging: ['query', 'info'],
-    entities: [__dirname + '/entity/**/*{.js,.ts}'],
-    subscribers: [__dirname + '/events/**/*{.js,.ts}'],
-    namingStrategy: new SnakeNamingStrategy(),
-  })
-}
+export const AppDataSource = new DataSource({
+  type: 'postgres',
+  host: env.pg.host,
+  port: env.pg.port,
+  schema: 'omnivore',
+  username: env.pg.userName,
+  password: env.pg.password,
+  database: env.pg.dbName,
+  logging: ['query', 'info'],
+  entities: [__dirname + '/entity/**/*{.js,.ts}'],
+  subscribers: [__dirname + '/events/**/*{.js,.ts}'],
+  namingStrategy: new SnakeNamingStrategy(),
+})
 
 export const createApp = (): {
   app: Express
@@ -100,7 +98,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
   app.use('/svc/pubsub/emails', emailsServiceRouter())
-  app.use('/svc/pubsub/pages', pageServiceRouter())
+  app.use('/svc/pubsub/upload', uploadServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
 
@@ -126,7 +124,7 @@ const main = async (): Promise<void> => {
   // If creating the DB entities fails, we want this to throw
   // so the container will be restarted and not come online
   // as healthy.
-  await initEntities()
+  await AppDataSource.initialize()
 
   await initElasticsearch()
 
