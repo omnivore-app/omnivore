@@ -33,7 +33,7 @@ export default function LandingPage(): JSX.Element {
   return (
     <>
       <LandingHeader />
-      <VStack>
+      <VStack css={{ background: '#C5C4BD', color: '#3D3D3D' }}>
         <VStack css={mobileContainerStyles}>
           <Box css={headingStyles}>Collect and share the best of the web</Box>
           <Box css={subHeadingStyles}>
