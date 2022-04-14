@@ -16,6 +16,8 @@ export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
 type ArticleActionsMenuProps = {
   article: ArticleAttributes
   layout: ArticleActionsMenuLayout
+  lineHeight: number
+  marginWidth: number
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
@@ -54,9 +56,6 @@ const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
 }
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
-  const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
-  const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
-
   return (
     <>
     <Box
@@ -82,8 +81,8 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         }
       >
         <ReaderSettingsControl
-          lineHeight={lineHeight}
-          marginWidth={marginWidth}
+          lineHeight={props.lineHeight}
+          marginWidth={props.marginWidth}
           articleActionHandler={props.articleActionHandler}
         />
       </ActionDropdown>

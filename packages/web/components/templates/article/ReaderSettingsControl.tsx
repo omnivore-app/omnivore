@@ -2,7 +2,7 @@ import { HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Minus, Pen, Plus, Trash, X } from 'phosphor-react'
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
@@ -24,6 +24,11 @@ const VerticalDivider = styled(SpanBox, {
 export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
   const [lineHeight, setLineHeight] = useState(props.lineHeight)
   const [marginWidth, setMarginWidth] = useState(props.marginWidth)
+
+  useEffect(() => {
+    setLineHeight(props.lineHeight)
+    setMarginWidth(props.marginWidth)
+  }, [props.lineHeight, props.marginWidth, setLineHeight, setMarginWidth])
 
   return (
     <VStack>
@@ -111,7 +116,7 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
 
         <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '8px', pb: '0px', pt: '16px', height: '42px', alignItems: 'center' }}
           onClick={() => {
-            setMarginWidth(200)
+            setMarginWidth(290)
             setLineHeight(150)
             props.articleActionHandler('resetReaderSettings')
             showSuccessToast('Display settings reset', { position: 'bottom-right' })

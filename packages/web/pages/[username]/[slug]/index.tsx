@@ -67,23 +67,12 @@ export default function Home(): JSX.Element {
 
   useKeyboardShortcuts(navigationCommands(router))
 
-  const updateFontSize = useCallback(async(newFontSize: number) => {
-    window?.localStorage.setItem("fontSize", newFontSize.toString())
-    setFontSize(newFontSize)
-    await userPersonalizationMutation({ fontSize: newFontSize })
-  }, [fontSize, setFontSize])
+  const actionHandler = useCallback(async(action: string, arg?: unknown) => {
+    const updateFontSize =  async(newFontSize: number) => {
+      setFontSize(newFontSize)
+      await userPersonalizationMutation({ fontSize: newFontSize })
+    }
 
-  const updateLineHeight = useCallback(async(newLineHeight: number) => {
-    window?.localStorage.setItem("lineHeight", newLineHeight.toString())
-    setLineHeight(newLineHeight)
-  }, [lineHeight, setLineHeight])
-
-  const updateMarginWidth = useCallback(async(newMargin: number) => {
-    window?.localStorage.setItem("marginWidth", newMargin.toString())
-    setMarginWidth(newMargin)
-  }, [marginWidth, setMarginWidth])
-
-  const actionHandler = async (action: string, arg?: unknown) => {
     switch (action) {
       case 'archive':
         if (article) {
@@ -125,20 +114,20 @@ export default function Home(): JSX.Element {
       case 'setMarginWidth': {
         const value = Number(arg)
         if (value >= 200 && value <= 560) {
-          updateMarginWidth(value)
+          setMarginWidth(value)
         }
         break
       }
       case 'incrementMarginWidth':
-        updateMarginWidth(Math.min(marginWidth + 45, 560))
+        setMarginWidth(Math.min(marginWidth + 45, 560))
         break
       case 'decrementMarginWidth':
-        updateMarginWidth(Math.max(marginWidth - 45, 200))
+        setMarginWidth(Math.max(marginWidth - 45, 200))
         break
       case 'setLineHeight': {
         const value = Number(arg)
         if (value >= 100 && value <= 300) {
-          updateLineHeight(arg as number)
+          setLineHeight(arg as number)
         }
         break
       }
@@ -152,12 +141,14 @@ export default function Home(): JSX.Element {
       }
       case 'resetReaderSettings': {
         updateFontSize(20)
-        updateMarginWidth(200)
-        updateLineHeight(150)
+        setMarginWidth(290)
+        setLineHeight(150)
         break
       }
     }
-  };
+  }, [article, cache, mutate, router,
+      fontSize, setFontSize, lineHeight,
+      setLineHeight, marginWidth, setMarginWidth])
 
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
@@ -174,6 +165,8 @@ export default function Home(): JSX.Element {
           <ArticleActionsMenu
             article={article}
             layout='horizontal'
+            lineHeight={lineHeight}
+            marginWidth={marginWidth}
             articleActionHandler={actionHandler}
           />
         }
@@ -207,6 +200,8 @@ export default function Home(): JSX.Element {
             <ArticleActionsMenu
               article={article}
               layout='vertical'
+              lineHeight={lineHeight}
+              marginWidth={marginWidth}
               articleActionHandler={actionHandler}
             />
           ) : null}
