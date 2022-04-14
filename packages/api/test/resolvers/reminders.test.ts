@@ -1,7 +1,10 @@
-import { generateFakeUuid, graphqlRequest, request } from '../util'
 import {
-  createTestLink,
-  createTestPage,
+  createTestElasticPage,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
+import {
   createTestReminder,
   createTestUser,
   deleteTestUser,
@@ -14,17 +17,15 @@ import {
   ReminderErrorCode,
   UpdateReminderErrorCode,
 } from '../../src/generated/graphql'
-import { Page } from '../../src/entity/page'
-import { Link } from '../../src/entity/link'
 import { DateTime } from 'luxon'
 import 'mocha'
+import { Page } from '../../src/elastic/types'
 
 describe('Reminders API', () => {
   const username = 'fakeUser'
 
   let authToken: string
   let page: Page
-  let link: Link
   let reminder: Reminder
 
   before(async () => {
@@ -37,9 +38,8 @@ describe('Reminders API', () => {
     authToken = res.body.authToken
 
     // create page, link and reminders test data
-    page = await createTestPage()
-    link = await createTestLink(user, page)
-    reminder = await createTestReminder(user, link.id)
+    page = await createTestElasticPage(user)
+    reminder = await createTestReminder(user, page.id)
   })
 
   after(async () => {

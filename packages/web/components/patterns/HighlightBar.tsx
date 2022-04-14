@@ -44,7 +44,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
           background: '$grayBg',
           borderRadius: '4px',
           border: '1px solid $grayBorder',
-          boxShadow: '0px 0px 9px -2px rgba(32, 31, 29, 0.09), 0px 7px 12px rgba(32, 31, 29, 0.07)',
+          boxShadow: theme.shadows.cardBoxShadow.toString(),
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
           '@smDown': {
             maxWidth: '80%',

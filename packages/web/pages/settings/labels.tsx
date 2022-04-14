@@ -15,8 +15,7 @@ import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelM
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
 import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { Label } from '../../lib/networking/queries/useGetLabelsQuery'
-
+import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { StyledText } from '../../components/elements/StyledText'
 import {
   ArrowClockwise,
@@ -26,7 +25,6 @@ import {
   Plus,
 } from 'phosphor-react'
 import {
-  LabelColor,
   GenericTableCardProps,
   LabelColorHex,
 } from '../../utils/settings-page/labels/types'
@@ -185,18 +183,14 @@ export default function LabelsPage(): JSX.Element {
 
   async function createLabel(): Promise<void> {
     const res = await createLabelMutation(
-      nameInputText,
+      nameInputText.trim(),
       labelColorHex.value,
       descriptionInputText
     )
     if (res) {
-      if (res.createLabel.errorCodes && res.createLabel.errorCodes.length > 0) {
-        showErrorToast(res.createLabel.errorCodes[0])
-      } else {
-        showSuccessToast('Label created', { position: 'bottom-right' })
-        resetLabelState()
-        revalidate()
-      }
+      showSuccessToast('Label created', { position: 'bottom-right' })
+      resetLabelState()
+      revalidate()
     } else {
       showErrorToast('Failed to create label')
     }

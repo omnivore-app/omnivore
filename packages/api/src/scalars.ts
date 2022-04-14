@@ -8,10 +8,15 @@ export class SanitizedString extends GraphQLScalarType {
   constructor(
     type: GraphQLScalarType,
     allowedTags?: string[],
-    maxLength?: number
+    maxLength?: number,
+    pattern?: string
   ) {
     super({
-      name: `SanitizedString_${allowedTags}_${maxLength}`,
+      // Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ as per graphql-js
+      name: `SanitizedString_${allowedTags}_${maxLength}_${pattern}`.replace(
+        /\W/g,
+        ''
+      ),
       description: 'Source string that was sanitized',
 
       serialize(value: string) {
@@ -25,6 +30,9 @@ export class SanitizedString extends GraphQLScalarType {
             `Specified value cannot be longer than ${maxLength} characters`
           )
         }
+        if (pattern && !new RegExp(pattern).test(value)) {
+          throw new Error(`Specified value does not match pattern`)
+        }
         return sanitize(value, { allowedTags: allowedTags || [] })
       },
 
@@ -35,6 +43,9 @@ export class SanitizedString extends GraphQLScalarType {
           throw new Error(
             `Specified value cannot be longer than ${maxLength} characters`
           )
+        }
+        if (pattern && !new RegExp(pattern).test(value)) {
+          throw new Error(`Specified value does not match pattern`)
         }
         return sanitize(value, { allowedTags: allowedTags || [] })
       },

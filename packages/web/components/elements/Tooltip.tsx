@@ -62,6 +62,15 @@ type TooltipWrappedProps = {
   style?: TooltipPrimitive.TooltipContentProps['style']
 }
 
+const DefaultTooltipStyle = {
+  backgroundColor: '#F9D354',
+  color: '#0A0806',
+}
+
+const DefaultArrowStyle = {
+  fill: '#F9D354'
+}
+
 export const TooltipWrapped: FC<TooltipWrappedProps> = ({
   children,
   active,
@@ -73,9 +82,14 @@ export const TooltipWrapped: FC<TooltipWrappedProps> = ({
   return (
     <Tooltip open={active}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent sideOffset={5} side={tooltipSide} {...props}>
+      <TooltipContent
+        sideOffset={5}
+        side={tooltipSide}
+        style={DefaultTooltipStyle}
+        {...props}
+      >
         {tooltipContent}
-        <TooltipArrow style={arrowStyles} />
+        <TooltipArrow style={arrowStyles ?? DefaultArrowStyle} />
       </TooltipContent>
     </Tooltip>
   )

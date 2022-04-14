@@ -14,7 +14,7 @@ import SwiftUI
       self.denyAction = denyAction
     }
 
-    var content: some View {
+    public var body: some View {
       VStack(alignment: .leading, spacing: 10) {
         HStack {
           Image
@@ -45,14 +45,7 @@ import SwiftUI
       .foregroundColor(Color.appTextDefault)
       .cornerRadius(8)
       .frame(maxWidth: min(UIScreen.main.bounds.width - 20, 320))
-    }
-
-    public var body: some View {
-      if #available(iOS 15.0, *) {
-        content.interactiveDismissDisabled()
-      } else {
-        content
-      }
+      .interactiveDismissDisabled()
     }
   }
 

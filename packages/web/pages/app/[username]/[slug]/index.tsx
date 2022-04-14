@@ -63,6 +63,7 @@ function AppArticleEmbedContent(
   props: AppArticleEmbedContentProps
 ): JSX.Element {
   const scrollRef = useRef<HTMLDivElement | null>(null)
+  const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
   const { articleData } = useGetArticleQuery({
     username: props.username,
@@ -99,6 +100,9 @@ function AppArticleEmbedContent(
             fontSize={props.fontSize}
             margin={props.margin}
             fontFamily={props.fontFamily}
+            labels={[]}
+            showHighlightsModal={showHighlightsModal}
+            setShowHighlightsModal={setShowHighlightsModal}
             articleMutations={{
               createHighlightMutation,
               deleteHighlightMutation,

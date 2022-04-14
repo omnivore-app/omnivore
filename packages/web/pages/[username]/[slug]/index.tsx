@@ -1,12 +1,12 @@
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
+import { removeItemFromCache, useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { articleKeyboardCommands, navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
@@ -20,9 +20,16 @@ import { articleReadingProgressMutation } from '../../../lib/networking/mutation
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import Script from 'next/script'
-import { EditLabelsModal } from '../../../components/templates/article/EditLabelsModal'
+import { theme } from '../../../components/tokens/stitches.config'
+import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
+import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { isVipUser } from '../../../lib/featureFlag'
+import { useSWRConfig } from 'swr'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
+import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -31,49 +38,121 @@ const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
 
 export default function Home(): JSX.Element {
   const router = useRouter()
+  const { cache, mutate } = useSWRConfig()
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
-  const [showLabelsModal, setShowLabelsModal] = useState(false)
+  const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
-  // Populate data cache
   const { viewerData } = useGetViewerQuery()
+  const { preferencesData } = useGetUserPreferences()
+  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
+  const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
+  const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
+  const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
+  const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
+
   const { articleData } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
     includeFriendsHighlights: false,
   })
-  const { preferencesData } = useGetUserPreferences()
   const article = articleData?.article.article
-  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
+
+  const [labels, setLabels] = useState<Label[]>([])
+  useEffect(() => {
+    if (article?.labels) {
+      setLabels(article.labels)
+    }
+  }, [article])
 
   useKeyboardShortcuts(navigationCommands(router))
 
-  const updateFontSize = async (newFontSize: number) => {
-    setFontSize(newFontSize)
-    await userPersonalizationMutation({ fontSize: newFontSize })
-  }
+  const actionHandler = useCallback(async(action: string, arg?: unknown) => {
+    const updateFontSize =  async(newFontSize: number) => {
+      setFontSize(newFontSize)
+      await userPersonalizationMutation({ fontSize: newFontSize })
+    }
+
+    switch (action) {
+      case 'archive':
+        if (article) {
+          removeItemFromCache(cache, mutate, article.id)
+
+          await setLinkArchivedMutation({
+            linkId: article.id,
+            archived: true,
+          }).then((res) => {
+            if (res) {
+              showSuccessToast('Link archived', { position: 'bottom-right' })
+            } else {
+              // todo: revalidate or put back in cache?
+              showErrorToast('Error archiving link', { position: 'bottom-right' })
+            }
+          })
+
+          router.push(`/home`)
+        }
+        break
+      case 'openOriginalArticle':
+        const url = article?.url
+        if (url) {
+          window.open(url, '_blank')
+        }
+        break
+      case 'refreshLabels':
+        setLabels(arg as Label[])
+        break
+      case 'showHighlights':
+        setShowHighlightsModal(true)
+        break
+      case 'incrementFontSize':
+        await updateFontSize(Math.min(fontSize + 2, 28))
+        break
+      case 'decrementFontSize':
+        await updateFontSize(Math.max(fontSize - 2, 10))
+        break
+      case 'setMarginWidth': {
+        const value = Number(arg)
+        if (value >= 200 && value <= 560) {
+          setMarginWidth(value)
+        }
+        break
+      }
+      case 'incrementMarginWidth':
+        setMarginWidth(Math.min(marginWidth + 45, 560))
+        break
+      case 'decrementMarginWidth':
+        setMarginWidth(Math.max(marginWidth - 45, 200))
+        break
+      case 'setLineHeight': {
+        const value = Number(arg)
+        if (value >= 100 && value <= 300) {
+          setLineHeight(arg as number)
+        }
+        break
+      }
+      case 'editDisplaySettings': {
+        setShowEditDisplaySettingsModal(true)
+        break
+      }
+      case 'setLabels': {
+        setShowSetLabelsModal(true)
+        break
+      }
+      case 'resetReaderSettings': {
+        updateFontSize(20)
+        setMarginWidth(290)
+        setLineHeight(150)
+        break
+      }
+    }
+  }, [article, cache, mutate, router,
+      fontSize, setFontSize, lineHeight,
+      setLineHeight, marginWidth, setMarginWidth])
 
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
-      switch (action) {
-        case 'openOriginalArticle':
-          const url = article?.url
-          if (url) {
-            window.open(url, '_blank')
-          }
-          break
-        case 'incrementFontSize':
-          await updateFontSize(Math.min(fontSize + 2, 28))
-          break
-        case 'decrementFontSize':
-          await updateFontSize(Math.max(fontSize - 2, 10))
-          break
-        case 'editLabels':
-          if (viewerData?.me && isVipUser(viewerData?.me)) {
-            setShowLabelsModal(true)
-          }
-          break
-      }
+      actionHandler(action)
     })
   )
 
@@ -82,7 +161,15 @@ export default function Home(): JSX.Element {
       <PrimaryLayout
         pageTestId="home-page-tag"
         scrollElementRef={scrollRef}
-        displayFontStepper={true}
+        headerToolbarControl={
+          <ArticleActionsMenu
+            article={article}
+            layout='horizontal'
+            lineHeight={lineHeight}
+            marginWidth={marginWidth}
+            articleActionHandler={actionHandler}
+          />
+        }
         pageMetaDataProps={{
           title: article.title,
           path: router.pathname,
@@ -97,6 +184,28 @@ export default function Home(): JSX.Element {
         />
         <Toaster />
 
+        <VStack distribution="between" alignment="center" css={{
+          position: 'fixed',
+          flexDirection: 'row-reverse',
+          top: '-120px',
+          left: 8,
+          height: '100%',
+          width: '48px',
+          '@lgDown': {
+            display: 'none',
+          },
+          }}
+        >
+          {article.contentReader !== 'PDF' ? (
+            <ArticleActionsMenu
+              article={article}
+              layout='vertical'
+              lineHeight={lineHeight}
+              marginWidth={marginWidth}
+              articleActionHandler={actionHandler}
+            />
+          ) : null}
+        </VStack>
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR
               article={article}
@@ -104,10 +213,15 @@ export default function Home(): JSX.Element {
             />
           ) : (
             <VStack
-            alignment="center"
-            distribution="center"
-            ref={scrollRef}
-            className="disable-webkit-callout"
+              alignment="center"
+              distribution="center"
+              ref={scrollRef}
+              className="disable-webkit-callout"
+              css={{
+                '@smDown': {
+                  background: theme.colors.grayBg.toString(),
+                }
+              }}
             >
               <ArticleContainer
                 article={article}
@@ -116,6 +230,11 @@ export default function Home(): JSX.Element {
                 highlightBarDisabled={false}
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
                 fontSize={fontSize}
+                margin={marginWidth}
+                lineHeight={lineHeight}
+                labels={labels}
+                showHighlightsModal={showHighlightsModal}
+                setShowHighlightsModal={setShowHighlightsModal}
                 articleMutations={{
                   createHighlightMutation,
                   deleteHighlightMutation,
@@ -124,20 +243,25 @@ export default function Home(): JSX.Element {
                   articleReadingProgressMutation,
                 }}
               />
-              {/* {showLabelsModal && (
-                <EditLabelsModal
-                  labels={article.labels || []}
-                  article={article}
-                  onOpenChange={() => {
-                    setShowLabelsModal(false)
-                  }}
-                  setLabels={(labels: Label[]) => {
-                    // setLabels(labels)
-                  }}
-                />
-              )} */}
-            </VStack>
-          )}
+              </VStack>
+            )}
+
+        {showSetLabelsModal && (
+          <SetLabelsModal
+            article={article}
+            articleActionHandler={actionHandler}
+            onOpenChange={() => setShowSetLabelsModal(false)}
+          />
+        )}
+
+        {showEditDisplaySettingsModal && (
+          <DisplaySettingsModal
+            lineHeight={lineHeight}
+            marginWidth={marginWidth}
+            articleActionHandler={actionHandler}
+            onOpenChange={() => setShowEditDisplaySettingsModal(false)}
+          />
+        )}
       </PrimaryLayout>
     )
   }

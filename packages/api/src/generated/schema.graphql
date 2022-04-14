@@ -1,4 +1,4 @@
-directive @sanitize(allowedTags: [String], maxLength: Int) on INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!

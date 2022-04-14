@@ -7,14 +7,19 @@ import Views
 final class LabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
   @Published var isLoading = false
-  @Published var selectedLabelsForItemInContext = [FeedItemLabel]()
-  @Published var unselectedLabelsForItemInContext = [FeedItemLabel]()
+  @Published var selectedLabels = [FeedItemLabel]()
+  @Published var unselectedLabels = [FeedItemLabel]()
   @Published var labels = [FeedItemLabel]()
   @Published var showCreateEmailModal = false
 
   var subscriptions = Set<AnyCancellable>()
 
-  func loadLabels(dataService: DataService, item: FeedItem?) {
+  /// Loads initial set of labels when a edit labels list is displayed
+  /// - Parameters:
+  ///   - dataService: `DataService` reference
+  ///   - item: Optional `FeedItem` for applying labels to a single item
+  ///   - initiallySelectedLabels: Optional `[FeedItemLabel]` for filtering a list of items
+  func loadLabels(dataService: DataService, item: FeedItem? = nil, initiallySelectedLabels: [FeedItemLabel]? = nil) {
     guard !hasLoadedInitialLabels else { return }
     isLoading = true
 
@@ -25,9 +30,15 @@ final class LabelsViewModel: ObservableObject {
         self?.labels = allLabels
         self?.hasLoadedInitialLabels = true
         if let item = item {
-          self?.selectedLabelsForItemInContext = item.labels
-          self?.unselectedLabelsForItemInContext = allLabels.filter { label in
+          self?.selectedLabels = item.labels
+          self?.unselectedLabels = allLabels.filter { label in
             !item.labels.contains(where: { $0.id == label.id })
+          }
+        }
+        if let initiallySelectedLabels = initiallySelectedLabels {
+          self?.selectedLabels = initiallySelectedLabels
+          self?.unselectedLabels = allLabels.filter { label in
+            !initiallySelectedLabels.contains(where: { $0.id == label.id })
           }
         }
       }
@@ -49,7 +60,7 @@ final class LabelsViewModel: ObservableObject {
       receiveValue: { [weak self] result in
         self?.isLoading = false
         self?.labels.insert(result, at: 0)
-        self?.unselectedLabelsForItemInContext.insert(result, at: 0)
+        self?.unselectedLabels.insert(result, at: 0)
         self?.showCreateEmailModal = false
       }
     )
@@ -73,7 +84,7 @@ final class LabelsViewModel: ObservableObject {
 
   func saveItemLabelChanges(itemID: String, dataService: DataService, onComplete: @escaping ([FeedItemLabel]) -> Void) {
     isLoading = true
-    dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabelsForItemInContext.map(\.id)).sink(
+    dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabels.map(\.id)).sink(
       receiveCompletion: { [weak self] _ in
         self?.isLoading = false
       },
@@ -83,12 +94,12 @@ final class LabelsViewModel: ObservableObject {
   }
 
   func addLabelToItem(_ label: FeedItemLabel) {
-    selectedLabelsForItemInContext.insert(label, at: 0)
-    unselectedLabelsForItemInContext.removeAll { $0.id == label.id }
+    selectedLabels.insert(label, at: 0)
+    unselectedLabels.removeAll { $0.id == label.id }
   }
 
   func removeLabelFromItem(_ label: FeedItemLabel) {
-    unselectedLabelsForItemInContext.insert(label, at: 0)
-    selectedLabelsForItemInContext.removeAll { $0.id == label.id }
+    unselectedLabels.insert(label, at: 0)
+    selectedLabels.removeAll { $0.id == label.id }
   }
 }

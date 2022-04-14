@@ -20,7 +20,7 @@ public extension DataService {
     let mutation = Selection.Mutation {
       try $0.setLabels(
         input: InputObjects.SetLabelsInput(
-          linkId: itemID,
+          pageId: itemID,
           labelIds: labelIDs
         ),
         selection: selection

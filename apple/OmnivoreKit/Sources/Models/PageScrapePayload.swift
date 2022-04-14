@@ -45,7 +45,7 @@ public enum PageScraper {
     }
 
     var pageScrapePayload: PageScrapePayload?
-    let propertyListKey = String(kUTTypePropertyList)
+    let propertyListKey = UTType.propertyList.identifier
 
     let group = DispatchGroup()
 
@@ -76,7 +76,7 @@ public enum PageScraper {
     extensionContext: NSExtensionContext?,
     completion: @escaping (Result<PageScrapePayload, PageScrapeError>) -> Void
   ) {
-    let urlKey = String(kUTTypeURL)
+    let urlKey = UTType.url.identifier
 
     // First look for a URL type
     let urlFound = extensionContext?.inputItems.first { inputItem in
@@ -108,7 +108,7 @@ public enum PageScraper {
       return
     }
 
-    let textKey = String(kUTTypeText)
+    let textKey = UTType.text.identifier
     // We didn't find a URL type, so check for a string that contains a URL
     let textUrlFound = extensionContext?.inputItems.first { inputItem in
       let itemProvider = (inputItem as? NSExtensionItem)?.attachments?.first(where: { attachment in
@@ -150,8 +150,8 @@ public enum PageScraper {
     extensionContext: NSExtensionContext?,
     completion: @escaping (Result<PageScrapePayload, PageScrapeError>) -> Void
   ) {
-    let urlKey = String(kUTTypeURL)
-    let textKey = String(kUTTypeUTF16PlainText)
+    let urlKey = UTType.url.identifier
+    let textKey = UTType.utf16PlainText.identifier
     let inputItem = extensionContext?.inputItems.first as? NSExtensionItem
     let itemProvider = inputItem?.attachments?.first(where: { attachment in
       attachment.hasItemConformingToTypeIdentifier(urlKey)

@@ -8,6 +8,7 @@ import {
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 import { client, INDEX_ALIAS } from './index'
 import { SortBy, SortOrder, SortParams } from '../utils/search'
+import { EntityType } from '../datalayer/pubsub'
 
 export const addHighlightToPage = async (
   id: string,
@@ -35,7 +36,15 @@ export const addHighlightToPage = async (
       retry_on_conflict: 3,
     })
 
-    return body.result === 'updated'
+    if (body.result !== 'updated') return false
+
+    await ctx.pubsub.entityCreated<Highlight>(
+      EntityType.HIGHLIGHT,
+      highlight,
+      ctx.uid
+    )
+
+    return true
   } catch (e) {
     if (
       e instanceof ResponseError &&
@@ -125,7 +134,11 @@ export const deleteHighlight = async (
       refresh: ctx.refresh,
     })
 
-    return !!body.updated
+    if (body.updated === 0) return false
+
+    await ctx.pubsub.entityDeleted(EntityType.HIGHLIGHT, highlightId, ctx.uid)
+
+    return true
   } catch (e) {
     console.error('failed to delete a highlight in elastic', e)
 
@@ -266,7 +279,15 @@ export const updateHighlight = async (
       refresh: ctx.refresh,
     })
 
-    return !!body.updated
+    if (body.updated === 0) return false
+
+    await ctx.pubsub.entityUpdated<Highlight>(
+      EntityType.HIGHLIGHT,
+      highlight,
+      ctx.uid
+    )
+
+    return true
   } catch (e) {
     if (
       e instanceof ResponseError &&

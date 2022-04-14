@@ -1,14 +1,4 @@
-import React from "react";
-import { Label } from "../../../lib/networking/queries/useGetLabelsQuery";
-
-export type LabelColor =
-  | '#FF5D99'
-  | '#7CFF7B'
-  | '#FFD234'
-  | '#7BE4FF'
-  | '#CE88EF'
-  | '#EF8C43'
-  | 'custom color';
+import { Label, LabelColor } from "../../../lib/networking/fragments/labelFragment";
 
 export type LabelOptionProps = {
   color: string;

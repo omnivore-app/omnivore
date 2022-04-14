@@ -2,6 +2,7 @@ import Combine
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 struct LabelsView: View {
@@ -15,25 +16,20 @@ struct LabelsView: View {
   var body: some View {
     Group {
       #if os(iOS)
-        if #available(iOS 15.0, *) {
-          Form {
-            innerBody
-              .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
-                Button("Remove Link", role: .destructive) {
-                  if let labelID = labelToRemoveID {
-                    withAnimation {
-                      viewModel.deleteLabel(dataService: dataService, labelID: labelID)
-                    }
+        Form {
+          innerBody
+            .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
+              Button("Delete Label", role: .destructive) {
+                if let labelID = labelToRemoveID {
+                  withAnimation {
+                    viewModel.deleteLabel(dataService: dataService, labelID: labelID)
                   }
-                  self.labelToRemoveID = nil
                 }
-                Button("Cancel", role: .cancel) { self.labelToRemoveID = nil }
+                self.labelToRemoveID = nil
               }
-          }
-        } else {
-          Form { innerBody }
+              Button("Cancel", role: .cancel) { self.labelToRemoveID = nil }
+            }
         }
-
       #elseif os(macOS)
         List {
           innerBody
@@ -92,49 +88,141 @@ struct CreateLabelView: View {
   @State private var newLabelName = ""
   @State private var newLabelColor = Color.clear
 
+  var shouldDisableCreateButton: Bool {
+    viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear
+  }
+
+  let rows = [
+    GridItem(.fixed(60)),
+    GridItem(.fixed(60)),
+    GridItem(.fixed(70))
+  ]
+
+  let swatches: [Color] = {
+    let webSwatches = webSwatchHexes.map { Color(hex: $0) ?? .clear }
+    var additionalSwatches = swatchHexes.map { Color(hex: $0) ?? .clear }.shuffled()
+    let firstSwatch = additionalSwatches.remove(at: 0)
+    return [firstSwatch] + webSwatches + additionalSwatches
+  }()
+
   var body: some View {
     NavigationView {
-      VStack(spacing: 16) {
+      VStack {
+        HStack {
+          if !newLabelName.isEmpty, newLabelColor != .clear {
+            TextChip(text: newLabelName, color: newLabelColor)
+          } else {
+            Text("Assign a name and color.").font(.appBody)
+          }
+          Spacer()
+        }
+        .padding(.bottom, 8)
+
         TextField("Label Name", text: $newLabelName)
         #if os(iOS)
           .keyboardType(.alphabet)
         #endif
         .textFieldStyle(StandardTextFieldStyle())
-        ColorPicker(
-          newLabelColor == .clear ? "Select Color" : newLabelColor.description,
-          selection: $newLabelColor
-        )
-        Button(
-          action: {
-            viewModel.createLabel(
-              dataService: dataService,
-              name: newLabelName,
-              color: newLabelColor,
-              description: nil
-            )
-          },
-          label: { Text("Create") }
-        )
-        .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
-        .disabled(viewModel.isLoading || newLabelName.isEmpty || newLabelColor == .clear)
+
+        ScrollView(.horizontal, showsIndicators: false) {
+          LazyHGrid(rows: rows, alignment: .top, spacing: 20) {
+            ForEach(swatches, id: \.self) { swatch in
+              ZStack {
+                Circle()
+                  .fill(swatch)
+                  .frame(width: 50, height: 50)
+                  .onTapGesture {
+                    newLabelColor = swatch
+                  }
+                  .padding(10)
+
+                if newLabelColor == swatch {
+                  Circle()
+                    .stroke(swatch, lineWidth: 5)
+                    .frame(width: 60, height: 60)
+                }
+              }
+            }
+          }
+        }
         Spacer()
       }
       .padding()
       .toolbar {
-        ToolbarItem(placement: .automatic) {
+        ToolbarItem(placement: .barLeading) {
           Button(
             action: { viewModel.showCreateEmailModal = false },
-            label: {
-              Image(systemName: "xmark")
-                .foregroundColor(.appGrayTextContrast)
-            }
+            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
           )
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: {
+              viewModel.createLabel(
+                dataService: dataService,
+                name: newLabelName,
+                color: newLabelColor,
+                description: nil
+              )
+            },
+            label: { Text("Create").foregroundColor(.appGrayTextContrast) }
+          )
+          .opacity(shouldDisableCreateButton ? 0.2 : 1)
+          .disabled(shouldDisableCreateButton)
         }
       }
       .navigationTitle("Create New Label")
       #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
       #endif
+      .onAppear {
+        newLabelColor = swatches.first ?? .clear
+      }
     }
   }
 }
+
+private let webSwatchHexes = [
+  "#FF5D99",
+  "#7CFF7B",
+  "#FFD234",
+  "#7BE4FF",
+  "#CE88EF",
+  "#EF8C43"
+]
+
+private let swatchHexes = [
+  "#fff034",
+  "#efff34",
+  "#d1ff34",
+  "#b2ff34",
+  "#94ff34",
+  "#75ff34",
+  "#57ff34",
+  "#38ff34",
+  "#34ff4e",
+  "#34ff6d",
+  "#34ff8b",
+  "#34ffa9",
+  "#34ffc8",
+  "#34ffe6",
+  "#34f9ff",
+  "#34dbff",
+  "#34bcff",
+  "#349eff",
+  "#347fff",
+  "#3461ff",
+  "#3443ff",
+  "#4434ff",
+  "#6234ff",
+  "#8134ff",
+  "#9f34ff",
+  "#be34ff",
+  "#dc34ff",
+  "#fb34ff",
+  "#ff34e5",
+  "#ff34c7",
+  "#ff34a8",
+  "#ff348a",
+  "#ff346b"
+]
