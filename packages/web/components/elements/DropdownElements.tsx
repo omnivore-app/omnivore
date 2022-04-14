@@ -78,7 +78,7 @@ type DropdownProps = {
   side?: DropdownSide
   sideOffset?: number
   disabled?: boolean
-  css?: any
+  css?: CSS
   modal?: boolean
 }
 
