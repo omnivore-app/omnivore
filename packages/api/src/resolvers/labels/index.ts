@@ -28,8 +28,8 @@ import { ILike, In } from 'typeorm'
 import { getRepository, setClaims } from '../../entity/utils'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
-import { getPageById, updatePage } from '../../elastic/pages'
-import { deleteLabelInPages } from '../../elastic/labels'
+import { getPageById } from '../../elastic/pages'
+import { deleteLabelInPages, updateLabelsInPage } from '../../elastic/labels'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -231,13 +231,15 @@ export const setLabelsResolver = authorized<
     }
 
     // update labels in the page
-    await updatePage(
-      pageId,
-      {
-        labels,
-      },
-      { pubsub, uid }
-    )
+    const updated = await updateLabelsInPage(pageId, labels, {
+      pubsub,
+      uid,
+    })
+    if (!updated) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
+      }
+    }
 
     analytics.track({
       userId: uid,
