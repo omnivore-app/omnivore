@@ -154,11 +154,11 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
           />
         )}
       </HStack>
-      {/* <HStack css={{ mt: '8px' }}>
+      <HStack css={{ mt: '8px' }}>
         {props.item.labels?.map(({ name, color }, index) => (
           <LabelChip key={index} text={name || ''} color={color} />
         ))}
-      </HStack> */}
+      </HStack>
     </VStack>
   )
 }
