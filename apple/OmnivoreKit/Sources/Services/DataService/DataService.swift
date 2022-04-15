@@ -3,6 +3,8 @@ import CoreData
 import Foundation
 import Models
 
+/// An `NSPersistentContainer` subclass that lives in the `Services` package so that
+/// the data model is looked for in the same package bundle (rather than the main bundle)
 final class PersistentContainer: NSPersistentContainer {}
 
 public final class DataService: ObservableObject {

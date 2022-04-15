@@ -10,7 +10,7 @@ public struct HomeFeedData {
   }
 }
 
-public struct FeedItem: Identifiable, Hashable, Decodable {
+public struct FeedItem: Identifiable, Hashable {
   public let id: String
   public let title: String
   public let createdAt: Date
@@ -70,39 +70,8 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     self.labels = labels
   }
 
-  enum CodingKeys: String, CodingKey {
-    // swiftlint:disable:next line_length
-    case id, title, createdAt, savedAt, image, isArchived, readingProgressPercent, readingProgressAnchorIndex, slug, contentReader, url, labels
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    id = try container.decode(String.self, forKey: .id)
-    title = try container.decode(String.self, forKey: .title)
-    createdAt = try container.decode(Date.self, forKey: .createdAt)
-    savedAt = try container.decode(Date.self, forKey: .savedAt)
-    description = try container.decode(String?.self, forKey: .title)
-    imageURLString = try container.decode(String?.self, forKey: .image)
-    readingProgress = try container.decode(Double.self, forKey: .readingProgressPercent)
-    readingProgressAnchor = try container.decode(Int.self, forKey: .readingProgressAnchorIndex)
-    slug = try container.decode(String.self, forKey: .slug)
-    contentReader = try container.decode(String.self, forKey: .contentReader)
-    pageURLString = try container.decode(String.self, forKey: .url)
-    isArchived = try container.decode(Bool.self, forKey: .isArchived)
-    labels = try container.decode([FeedItemLabel].self, forKey: .labels)
-
-    self.onDeviceImageURLString = nil
-    self.documentDirectoryPath = nil
-    self.publisherURLString = nil
-    self.author = nil
-    self.publishDate = nil
-  }
-
   public static func fromJsonArticle(linkData: Data) -> FeedItem? {
-    if let item = try? JSONDecoder().decode(FeedItem.self, from: linkData) {
-      return item
-    }
-    return nil
+    try? JSONDecoder().decode(JSONArticle.self, from: linkData).feedItem
   }
 
   public var isRead: Bool {
@@ -128,5 +97,43 @@ public struct FeedItem: Identifiable, Hashable, Decodable {
     guard isPDF else { return nil }
     let documentDirectoryURL = documentDirectoryPath.flatMap { URL(string: $0) }
     return documentDirectoryURL ?? URL(string: pageURLString)
+  }
+}
+
+/// Internal model used for parsing a push notification object only
+struct JSONArticle: Decodable {
+  let id: String
+  let title: String
+  let createdAt: Date
+  let savedAt: Date
+  let image: String
+  let readingProgressPercent: Double
+  let readingProgressAnchorIndex: Int
+  let slug: String
+  let contentReader: String
+  let url: String
+  let isArchived: Bool
+
+  var feedItem: FeedItem {
+    FeedItem(
+      id: id,
+      title: title,
+      createdAt: createdAt,
+      savedAt: savedAt,
+      readingProgress: readingProgressPercent,
+      readingProgressAnchor: readingProgressAnchorIndex,
+      imageURLString: image,
+      onDeviceImageURLString: nil,
+      documentDirectoryPath: nil,
+      pageURLString: url,
+      description: title,
+      publisherURLString: nil,
+      author: nil,
+      publishDate: nil,
+      slug: slug,
+      isArchived: isArchived,
+      contentReader: contentReader,
+      labels: []
+    )
   }
 }
