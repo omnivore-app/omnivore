@@ -43,7 +43,7 @@ import Views
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      Task { await loadItems(dataService: dataService, isRefresh: false) }
+      loadItems(dataService: dataService, isRefresh: false)
     }
   }
 

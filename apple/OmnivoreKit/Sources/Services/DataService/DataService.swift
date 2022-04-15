@@ -1,15 +1,9 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 
-public class CacheManager: NSObject, NSCacheDelegate {
-  public func cache(_: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
-    // This is just used for debugging
-    if let content = obj as? CachedPageContent {
-      print("evicting page from cache", content.slug)
-    }
-  }
-}
+final class PersistentContainer: NSPersistentContainer {}
 
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
@@ -25,14 +19,23 @@ public final class DataService: ObservableObject {
   let highlightsCache = NSCache<AnyObject, CachedPDFHighlights>()
   let highlightsCacheQueue = DispatchQueue(label: "app.omnivore.highlights.cache.queue", attributes: .concurrent)
 
-  let cacheManager: CacheManager
+  let persistentContainer: PersistentContainer
   var subscriptions = Set<AnyCancellable>()
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
-    self.cacheManager = CacheManager()
-    pageCache.delegate = cacheManager
+    self.persistentContainer = {
+      let modelURL = Bundle.module.url(forResource: "CoreDataModel", withExtension: "momd")!
+      let model = NSManagedObjectModel(contentsOf: modelURL)!
+      return PersistentContainer(name: "DataModel", managedObjectModel: model)
+    }()
+
+    persistentContainer.loadPersistentStores { _, error in
+      if let error = error {
+        fatalError("Core Data store failed to load with error: \(error)")
+      }
+    }
   }
 
   public func clearHighlights() {
@@ -51,7 +54,6 @@ public final class DataService: ObservableObject {
 
 public extension DataService {
   func prefetchPages(items: [FeedItem]) {
-    print("prefetching pages")
     guard let viewer = currentViewer else { return }
 
     for item in items {
@@ -67,13 +69,7 @@ public extension DataService {
   }
 
   func pageFromCache(slug: String) -> ArticleContent? {
-    if let content = pageCache.object(forKey: NSString(string: slug)) {
-      print("cache hit", slug)
-      return content.value
-    } else {
-      print("cache miss", slug)
-    }
-    return nil
+    pageCache.object(forKey: NSString(string: slug))?.value
   }
 
   func invalidateCachedPage(slug: String?) {
