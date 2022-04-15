@@ -2,7 +2,6 @@ import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { SpanBox } from './LayoutPrimitives'
 
-
 type LabelChipProps = {
   text: string
   color: string // expected to be a RGB hex color string
