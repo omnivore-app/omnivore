@@ -117,7 +117,7 @@ public struct GridCard: View {
 
         // Link description and image
         HStack(alignment: .top) {
-          Text(item.description ?? item.title)
+          Text(item.descriptionText ?? item.title)
             .font(.appSubheadline)
             .foregroundColor(.appGrayTextContrast)
             .lineLimit(nil)

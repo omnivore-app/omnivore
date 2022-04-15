@@ -7,6 +7,6 @@ let feedItemLabelSelection = Selection.Label {
     name: try $0.name(),
     color: try $0.color(),
     createdAt: try $0.createdAt()?.value,
-    description: try $0.description()
+    labelDescription: try $0.description()
   )
 }

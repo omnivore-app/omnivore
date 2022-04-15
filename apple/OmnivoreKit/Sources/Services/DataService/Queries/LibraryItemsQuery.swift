@@ -137,7 +137,7 @@ let homeFeedItemSelection = Selection.Article {
     onDeviceImageURLString: nil,
     documentDirectoryPath: nil,
     pageURLString: try $0.url(),
-    description: try $0.description(),
+    descriptionText: try $0.description(),
     publisherURLString: try $0.originalArticleUrl(),
     author: try $0.author(),
     publishDate: try $0.publishedAt()?.value,

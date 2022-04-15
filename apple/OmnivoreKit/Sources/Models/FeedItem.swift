@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 
 public struct HomeFeedData {
@@ -8,6 +9,29 @@ public struct HomeFeedData {
     self.items = items
     self.cursor = cursor
   }
+}
+
+public class FeedItemManagedObject: NSManagedObject {
+  static let entityName = "FeedItemManagedObject"
+
+  @NSManaged public var id: String
+  @NSManaged public var title: String
+  @NSManaged public var createdAt: Date
+  @NSManaged public var savedAt: Date
+  @NSManaged public var readingProgress: Double
+  @NSManaged public var readingProgressAnchor: Int
+  @NSManaged public var imageURLString: String?
+  @NSManaged public var onDeviceImageURLString: String?
+  @NSManaged public var documentDirectoryPath: String?
+  @NSManaged public var pageURLString: String
+  @NSManaged public var descriptionText: String?
+  @NSManaged public var publisherURLString: String?
+  @NSManaged public var author: String?
+  @NSManaged public var publishDate: Date?
+  @NSManaged public var slug: String
+  @NSManaged public var isArchived: Bool
+  @NSManaged public var contentReader: String?
+  @NSManaged public var labels: Set<FeedItemLabelManagedObject>
 }
 
 public struct FeedItem: Identifiable, Hashable {
@@ -21,7 +45,7 @@ public struct FeedItem: Identifiable, Hashable {
   public let onDeviceImageURLString: String?
   public let documentDirectoryPath: String?
   public let pageURLString: String
-  public let description: String?
+  public let descriptionText: String?
   public let publisherURLString: String?
   public let author: String?
   public let publishDate: Date?
@@ -41,7 +65,7 @@ public struct FeedItem: Identifiable, Hashable {
     onDeviceImageURLString: String?,
     documentDirectoryPath: String?,
     pageURLString: String,
-    description: String?,
+    descriptionText: String?,
     publisherURLString: String?,
     author: String?,
     publishDate: Date?,
@@ -60,7 +84,7 @@ public struct FeedItem: Identifiable, Hashable {
     self.onDeviceImageURLString = onDeviceImageURLString
     self.documentDirectoryPath = documentDirectoryPath
     self.pageURLString = pageURLString
-    self.description = description
+    self.descriptionText = descriptionText
     self.publisherURLString = publisherURLString
     self.author = author
     self.publishDate = publishDate
@@ -68,6 +92,40 @@ public struct FeedItem: Identifiable, Hashable {
     self.isArchived = isArchived
     self.contentReader = contentReader
     self.labels = labels
+  }
+
+  func toManagedObject(inContext context: NSManagedObjectContext) -> FeedItemManagedObject? {
+    guard let entityDescription = NSEntityDescription.entity(forEntityName: FeedItemManagedObject.entityName, in: context) else {
+      print("Failed to create \(FeedItemManagedObject.entityName)")
+      return nil
+    }
+
+    let object = FeedItemManagedObject(entity: entityDescription, insertInto: context)
+    object.id = id
+    object.title = title
+    object.createdAt = createdAt
+    object.savedAt = savedAt
+    object.readingProgress = readingProgress
+    object.readingProgressAnchor = readingProgressAnchor
+    object.imageURLString = imageURLString
+    object.onDeviceImageURLString = onDeviceImageURLString
+    object.documentDirectoryPath = documentDirectoryPath
+    object.pageURLString = pageURLString
+    object.descriptionText = descriptionText
+    object.publisherURLString = publisherURLString
+    object.author = author
+    object.publishDate = publishDate
+    object.slug = slug
+    object.isArchived = isArchived
+    object.contentReader = contentReader
+    
+    for label in labels {
+      if let managedLabel = label.toManagedObject(inContext: context) {
+        object.labels.insert(managedLabel)
+      }
+    }
+    
+    return object
   }
 
   public static func fromJsonArticle(linkData: Data) -> FeedItem? {
@@ -126,7 +184,7 @@ struct JSONArticle: Decodable {
       onDeviceImageURLString: nil,
       documentDirectoryPath: nil,
       pageURLString: url,
-      description: title,
+      descriptionText: title,
       publisherURLString: nil,
       author: nil,
       publishDate: nil,
