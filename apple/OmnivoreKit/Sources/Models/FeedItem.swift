@@ -118,13 +118,13 @@ public struct FeedItem: Identifiable, Hashable {
     object.slug = slug
     object.isArchived = isArchived
     object.contentReader = contentReader
-    
+
     for label in labels {
       if let managedLabel = label.toManagedObject(inContext: context) {
         object.labels.insert(managedLabel)
       }
     }
-    
+
     return object
   }
 

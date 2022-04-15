@@ -3,10 +3,6 @@ import CoreData
 import Foundation
 import Models
 
-/// An `NSPersistentContainer` subclass that lives in the `Services` package so that
-/// the data model is looked for in the same package bundle (rather than the main bundle)
-final class PersistentContainer: NSPersistentContainer {}
-
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
   public static var showIntercomMessenger: (() -> Void)?
@@ -27,11 +23,7 @@ public final class DataService: ObservableObject {
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
-    self.persistentContainer = {
-      let modelURL = Bundle.module.url(forResource: "CoreDataModel", withExtension: "momd")!
-      let model = NSManagedObjectModel(contentsOf: modelURL)!
-      return PersistentContainer(name: "DataModel", managedObjectModel: model)
-    }()
+    self.persistentContainer = PersistentContainer.make()
 
     persistentContainer.loadPersistentStores { _, error in
       if let error = error {
