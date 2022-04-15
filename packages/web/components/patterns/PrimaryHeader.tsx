@@ -26,6 +26,7 @@ type HeaderProps = {
   isFixedPosition: boolean
   scrollElementRef?: React.RefObject<HTMLDivElement>
   toolbarControl?: JSX.Element
+  alwaysDisplayToolbar?: boolean
   setShowLogoutConfirmation: (showShareModal: boolean) => void
   setShowKeyboardCommandsModal: (showShareModal: boolean) => void
 }
@@ -128,6 +129,7 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
         isVisible={true}
         isFixedPosition={true}
         toolbarControl={props.toolbarControl}
+        alwaysDisplayToolbar={props.alwaysDisplayToolbar}
       />
     </>
   )
@@ -143,6 +145,7 @@ type NavHeaderProps = {
   isVisible?: boolean
   isFixedPosition: boolean
   toolbarControl?: JSX.Element
+  alwaysDisplayToolbar?: boolean
 }
 
 function NavHeader(props: NavHeaderProps): JSX.Element {
@@ -187,7 +190,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           <HStack distribution="end" alignment="center" css={{
             height: '100%', width: '100%',
             mr: '16px',
-            display: 'none',
+            display: props.alwaysDisplayToolbar ? 'flex' : 'none',
             '@lgDown': {
               display: 'flex',
             },

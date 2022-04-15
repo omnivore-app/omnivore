@@ -164,12 +164,14 @@ export default function Home(): JSX.Element {
         headerToolbarControl={
           <ArticleActionsMenu
             article={article}
-            layout='horizontal'
+            layout='top'
             lineHeight={lineHeight}
             marginWidth={marginWidth}
+            showReaderDisplaySettings={article.contentReader != 'PDF'}
             articleActionHandler={actionHandler}
           />
         }
+        alwaysDisplayToolbar={article.contentReader == 'PDF'}
         pageMetaDataProps={{
           title: article.title,
           path: router.pathname,
@@ -199,9 +201,10 @@ export default function Home(): JSX.Element {
           {article.contentReader !== 'PDF' ? (
             <ArticleActionsMenu
               article={article}
-              layout='vertical'
+              layout='side'
               lineHeight={lineHeight}
               marginWidth={marginWidth}
+              showReaderDisplaySettings={true}
               articleActionHandler={actionHandler}
             />
           ) : null}
@@ -209,6 +212,8 @@ export default function Home(): JSX.Element {
           {article.contentReader == 'PDF' ? (
             <PdfArticleContainerNoSSR
               article={article}
+              showHighlightsModal={showHighlightsModal}
+              setShowHighlightsModal={setShowHighlightsModal}
               viewerUsername={viewerData.me?.profile?.username}
             />
           ) : (
