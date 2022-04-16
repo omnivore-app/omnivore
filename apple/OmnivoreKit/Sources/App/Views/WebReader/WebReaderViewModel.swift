@@ -39,7 +39,6 @@ final class WebReaderViewModel: ObservableObject {
       },
       receiveValue: { [weak self] articleContent in
         self?.articleContent = articleContent
-        dataService.pageCache.setObject(CachedPageContent(slug, articleContent), forKey: NSString(string: slug))
       }
     )
     .store(in: &subscriptions)

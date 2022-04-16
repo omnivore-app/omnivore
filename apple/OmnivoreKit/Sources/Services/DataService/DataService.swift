@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 
@@ -9,9 +10,6 @@ public final class DataService: ObservableObject {
   public let appEnvironment: AppEnvironment
   public internal(set) var currentViewer: Viewer?
   let networker: Networker
-
-  public let pageCache = NSCache<NSString, CachedPageContent>()
-  let pageCacheQueue = DispatchQueue.global(qos: .background)
 
   let highlightsCache = NSCache<AnyObject, CachedPDFHighlights>()
   let highlightsCacheQueue = DispatchQueue(label: "app.omnivore.highlights.cache.queue", attributes: .concurrent)
@@ -53,21 +51,23 @@ public extension DataService {
       let slug = item.slug
       articleContentPublisher(username: viewer.username, slug: slug).sink(
         receiveCompletion: { _ in },
-        receiveValue: { [weak self] articleContent in
-          self?.pageCache.setObject(CachedPageContent(slug, articleContent), forKey: NSString(string: slug))
-        }
+        receiveValue: { _ in }
       )
       .store(in: &subscriptions)
     }
   }
 
   func pageFromCache(slug: String) -> ArticleContent? {
-    pageCache.object(forKey: NSString(string: slug))?.value
-  }
-
-  func invalidateCachedPage(slug: String?) {
-    if let slug = slug {
-      pageCache.removeObject(forKey: NSString(string: slug))
+    let fetchRequest: NSFetchRequest<Models.PersistedArticleContent> = PersistedArticleContent.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "slug = %@", slug
+    )
+    if let htmlContent = try? persistentContainer.viewContext.fetch(fetchRequest).first?.htmlContent {
+      return ArticleContent(htmlContent: htmlContent, highlights: [])
+    } else {
+      return nil
     }
   }
+
+  func invalidateCachedPage(slug _: String?) {}
 }

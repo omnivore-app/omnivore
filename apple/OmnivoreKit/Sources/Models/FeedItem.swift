@@ -1,4 +1,3 @@
-// import CoreData
 import Foundation
 
 public struct HomeFeedData {
@@ -10,33 +9,6 @@ public struct HomeFeedData {
     self.cursor = cursor
   }
 }
-
-// public class FeedItemManagedObject: NSManagedObject {
-//  static let entityName = "FeedItemManagedObject"
-//
-//  @nonobjc public class func fetchRequest() -> NSFetchRequest<FeedItemManagedObject> {
-//    NSFetchRequest<FeedItemManagedObject>(entityName: entityName)
-//  }
-//
-//  @NSManaged public var id: String
-//  @NSManaged public var title: String
-//  @NSManaged public var createdAt: Date
-//  @NSManaged public var savedAt: Date
-//  @NSManaged public var readingProgress: Double
-//  @NSManaged public var readingProgressAnchor: Int
-//  @NSManaged public var imageURLString: String?
-//  @NSManaged public var onDeviceImageURLString: String?
-//  @NSManaged public var documentDirectoryPath: String?
-//  @NSManaged public var pageURLString: String
-//  @NSManaged public var descriptionText: String?
-//  @NSManaged public var publisherURLString: String?
-//  @NSManaged public var author: String?
-//  @NSManaged public var publishDate: Date?
-//  @NSManaged public var slug: String
-//  @NSManaged public var isArchived: Bool
-//  @NSManaged public var contentReader: String?
-//  @NSManaged public var labels: Set<FeedItemLabelManagedObject>
-// }
 
 public struct FeedItem: Identifiable, Hashable {
   public let id: String
@@ -97,41 +69,6 @@ public struct FeedItem: Identifiable, Hashable {
     self.contentReader = contentReader
     self.labels = labels
   }
-
-//  func toManagedObject(inContext context: NSManagedObjectContext) -> FeedItemManagedObject? {
-//    let entityName = FeedItemManagedObject.entityName
-//    guard let entityDescription = NSEntityDescription.entity(forEntityName: entityName, in: context) else {
-//      print("Failed to create \(entityName)")
-//      return nil
-//    }
-//
-//    let object = FeedItemManagedObject(entity: entityDescription, insertInto: context)
-//    object.id = id
-//    object.title = title
-//    object.createdAt = createdAt
-//    object.savedAt = savedAt
-//    object.readingProgress = readingProgress
-//    object.readingProgressAnchor = readingProgressAnchor
-//    object.imageURLString = imageURLString
-//    object.onDeviceImageURLString = onDeviceImageURLString
-//    object.documentDirectoryPath = documentDirectoryPath
-//    object.pageURLString = pageURLString
-//    object.descriptionText = descriptionText
-//    object.publisherURLString = publisherURLString
-//    object.author = author
-//    object.publishDate = publishDate
-//    object.slug = slug
-//    object.isArchived = isArchived
-//    object.contentReader = contentReader
-//
-//    for label in labels {
-//      if let managedLabel = label.toManagedObject(inContext: context) {
-//        object.labels.insert(managedLabel)
-//      }
-//    }
-//
-//    return object
-//  }
 
   public static func fromJsonArticle(linkData: Data) -> FeedItem? {
     try? JSONDecoder().decode(JSONArticle.self, from: linkData).feedItem

@@ -37,11 +37,13 @@ public extension DataService {
 
     return Deferred {
       Future { promise in
-        send(query, to: path, headers: headers) { result in
+        send(query, to: path, headers: headers) { [weak self] result in
           switch result {
           case let .success(payload):
             switch payload.data {
             case let .success(result: result):
+              // store result in core data
+              self?.persistArticleContent(htmlContent: result.htmlContent, slug: slug)
               promise(.success(result))
             case .error:
               promise(.failure(.unknown))
@@ -54,5 +56,21 @@ public extension DataService {
     }
     .receive(on: DispatchQueue.main)
     .eraseToAnyPublisher()
+  }
+}
+
+extension DataService {
+  func persistArticleContent(htmlContent: String, slug: String) {
+    let persistedArticleContent = PersistedArticleContent(context: persistentContainer.viewContext)
+    persistedArticleContent.htmlContent = htmlContent
+    persistedArticleContent.slug = slug
+
+    do {
+      try persistentContainer.viewContext.save()
+      print("PersistedArticleContent saved succesfully")
+    } catch {
+      persistentContainer.viewContext.rollback()
+      print("Failed to save PersistedArticleContent: \(error)")
+    }
   }
 }
