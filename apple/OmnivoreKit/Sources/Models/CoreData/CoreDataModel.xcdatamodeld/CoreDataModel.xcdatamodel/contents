@@ -1,4 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <elements/>
+    <entity name="PersistedArticleContent" representedClassName="PersistedArticleContent" syncable="YES" codeGenerationType="class">
+        <attribute name="htmlContent" attributeType="String"/>
+        <attribute name="slug" attributeType="String"/>
+    </entity>
+    <entity name="PersistedFeedItem" representedClassName="PersistedFeedItem" syncable="YES" codeGenerationType="class">
+        <attribute name="author" optional="YES" attributeType="String"/>
+        <attribute name="contentReader" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="descriptionText" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="imageURLString" optional="YES" attributeType="String"/>
+        <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
+        <attribute name="pageURLString" attributeType="String"/>
+        <attribute name="publishDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="publisherURLString" optional="YES" attributeType="String"/>
+        <attribute name="readingProgress" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="readingProgressAnchor" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="savedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="slug" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="PersistedFeedItemLabel"/>
+    </entity>
+    <entity name="PersistedFeedItemLabel" representedClassName="PersistedFeedItemLabel" syncable="YES" codeGenerationType="class">
+        <attribute name="color" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="labelDescription" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+    </entity>
+    <elements>
+        <element name="PersistedFeedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
+        <element name="PersistedFeedItem" positionX="-18" positionY="63" width="128" height="14"/>
+        <element name="PersistedArticleContent" positionX="9" positionY="108" width="128" height="59"/>
+    </elements>
 </model>
