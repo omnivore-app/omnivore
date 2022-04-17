@@ -1,57 +1,53 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 
-final class CachedPDFHighlights {
-  init(pdfID: String, highlights: [Highlight], removedHighlightIDs: [String]) {
-    self.pdfID = pdfID
-    self.highlights = highlights
-    self.removedHighlightIDs = removedHighlightIDs
-  }
-
-  let pdfID: String
-  var highlights: [Highlight]
-  var removedHighlightIDs: [String]
-}
-
 public extension DataService {
   func cachedHighlights(pdfID: String) -> [Highlight] {
-    fetchCachedHighlights(pdfID: pdfID as NSString)?.highlights ?? []
-  }
+    let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "associatedItemId = %@ AND markedForDeletion = %@", pdfID, false
+    )
 
-  func fetchRemovedHighlightIds(pdfID: String) -> [String] {
-    fetchCachedHighlights(pdfID: pdfID as NSString)?.removedHighlightIDs ?? []
+    let highlights = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
+    return highlights.map { Highlight.make(from: $0) }
   }
 
   func persistHighlight(pdfID: String, highlight: Highlight) {
-    let cachedHighlights =
-      fetchCachedHighlights(pdfID: pdfID as NSString)
-        ?? CachedPDFHighlights(pdfID: pdfID, highlights: [], removedHighlightIDs: [])
+    _ = highlight.toManagedObject(
+      context: persistentContainer.viewContext,
+      associatedItemID: pdfID
+    )
 
-    cachedHighlights.highlights.append(highlight)
-    insertCachedHighlights(highlights: cachedHighlights, pdfID: pdfID as NSString)
-  }
-
-  func removeHighlights(pdfID: String, highlightIds: [String]) {
-    let cachedHighlights =
-      fetchCachedHighlights(pdfID: pdfID as NSString)
-        ?? CachedPDFHighlights(pdfID: pdfID, highlights: [], removedHighlightIDs: [])
-
-    cachedHighlights.removedHighlightIDs.append(contentsOf: highlightIds)
-    insertCachedHighlights(highlights: cachedHighlights, pdfID: pdfID as NSString)
-  }
-
-  private func fetchCachedHighlights(pdfID: NSString) -> CachedPDFHighlights? {
-    var cachedHighlights: CachedPDFHighlights?
-    highlightsCacheQueue.sync {
-      cachedHighlights = highlightsCache.object(forKey: pdfID as NSString)
+    do {
+      try persistentContainer.viewContext.save()
+      print("PersistedHighlight saved succesfully")
+    } catch {
+      persistentContainer.viewContext.rollback()
+      print("Failed to save PersistedHighlight: \(error)")
     }
-    return cachedHighlights
   }
 
-  private func insertCachedHighlights(highlights: CachedPDFHighlights, pdfID: NSString) {
-    highlightsCacheQueue.async(flags: .barrier) {
-      self.highlightsCache.setObject(highlights, forKey: pdfID as AnyObject)
+  func removeHighlights(highlightIds: [String]) {
+    for highlightID in highlightIds {
+      deletedHighlightsIDs.insert(highlightID)
+    }
+
+    let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "id IN %@", highlightIds)
+    guard let highlights = try? persistentContainer.viewContext.fetch(fetchRequest) else { return }
+
+    for highlight in highlights {
+      highlight.markedForDeletion = true
+    }
+
+    do {
+      try persistentContainer.viewContext.save()
+      print("PersistedHighlight(s) updated succesfully")
+    } catch {
+      persistentContainer.viewContext.rollback()
+      print("Failed to update PersistedHighlight(s): \(error)")
     }
   }
 }

@@ -41,7 +41,7 @@ public final class PDFViewerViewModel: ObservableObject {
     for highlight in fetchedHighlights {
       resultSet[highlight.id] = highlight
     }
-    for highlightId in services.dataService.fetchRemovedHighlightIds(pdfID: feedItem.id) {
+    for highlightId in services.dataService.deletedHighlightsIDs {
       resultSet.removeValue(forKey: highlightId)
     }
     return Array(resultSet.values)
@@ -164,6 +164,6 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   private func removeLocalHighlights(highlightIds: [String]) {
-    services.dataService.removeHighlights(pdfID: feedItem.id, highlightIds: highlightIds)
+    services.dataService.removeHighlights(highlightIds: highlightIds)
   }
 }

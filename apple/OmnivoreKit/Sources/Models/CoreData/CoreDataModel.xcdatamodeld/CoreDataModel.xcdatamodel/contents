@@ -3,6 +3,11 @@
     <entity name="PersistedArticleContent" representedClassName="PersistedArticleContent" syncable="YES" codeGenerationType="class">
         <attribute name="htmlContent" attributeType="String"/>
         <attribute name="slug" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="slug"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="PersistedFeedItem" representedClassName="PersistedFeedItem" syncable="YES" codeGenerationType="class">
         <attribute name="author" optional="YES" attributeType="String"/>
@@ -22,6 +27,11 @@
         <attribute name="slug" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="PersistedFeedItemLabel"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="PersistedFeedItemLabel" representedClassName="PersistedFeedItemLabel" syncable="YES" codeGenerationType="class">
         <attribute name="color" attributeType="String"/>
@@ -29,23 +39,35 @@
         <attribute name="id" attributeType="String"/>
         <attribute name="labelDescription" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="PersistedHighlight" representedClassName="PersistedHighlight" syncable="YES" codeGenerationType="class">
         <attribute name="annotation" optional="YES" attributeType="String"/>
+        <attribute name="associatedItemId" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="createdByMe" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="markedForDeletion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="patch" attributeType="String"/>
         <attribute name="prefix" optional="YES" attributeType="String"/>
         <attribute name="quote" attributeType="String"/>
         <attribute name="shortId" attributeType="String"/>
         <attribute name="suffix" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <elements>
         <element name="PersistedFeedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
         <element name="PersistedFeedItem" positionX="-18" positionY="63" width="128" height="284"/>
         <element name="PersistedArticleContent" positionX="9" positionY="108" width="128" height="59"/>
-        <element name="PersistedHighlight" positionX="27" positionY="225" width="128" height="14"/>
+        <element name="PersistedHighlight" positionX="27" positionY="225" width="128" height="209"/>
     </elements>
 </model>

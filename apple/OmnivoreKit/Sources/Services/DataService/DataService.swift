@@ -11,11 +11,9 @@ public final class DataService: ObservableObject {
   public internal(set) var currentViewer: Viewer?
   let networker: Networker
 
-  let highlightsCache = NSCache<AnyObject, CachedPDFHighlights>()
-  let highlightsCacheQueue = DispatchQueue(label: "app.omnivore.highlights.cache.queue", attributes: .concurrent)
-
   let persistentContainer: PersistentContainer
   var subscriptions = Set<AnyCancellable>()
+  public var deletedHighlightsIDs = Set<String>()
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
@@ -30,7 +28,21 @@ public final class DataService: ObservableObject {
   }
 
   public func clearHighlights() {
-    highlightsCache.removeAllObjects()
+    deletedHighlightsIDs.removeAll()
+
+    let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
+
+    let highlights = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
+
+    for highlight in highlights {
+      persistentContainer.viewContext.delete(highlight)
+    }
+
+    do {
+      try persistentContainer.viewContext.save()
+    } catch {
+      print("failed to delete objects")
+    }
   }
 
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {

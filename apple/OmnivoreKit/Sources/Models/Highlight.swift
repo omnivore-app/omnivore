@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 
 public struct Highlight: Identifiable, Hashable, Codable {
@@ -34,5 +35,37 @@ public struct Highlight: Identifiable, Hashable, Codable {
     self.createdAt = createdAt
     self.updatedAt = updatedAt
     self.createdByMe = createdByMe
+  }
+
+  public func toManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> PersistedHighlight {
+    let persistedHighlight = PersistedHighlight(context: context)
+    persistedHighlight.associatedItemId = associatedItemID
+    persistedHighlight.markedForDeletion = false
+    persistedHighlight.id = id
+    persistedHighlight.shortId = shortId
+    persistedHighlight.quote = quote
+    persistedHighlight.prefix = prefix
+    persistedHighlight.suffix = suffix
+    persistedHighlight.patch = patch
+    persistedHighlight.annotation = annotation
+    persistedHighlight.createdAt = createdAt
+    persistedHighlight.updatedAt = updatedAt
+    persistedHighlight.createdByMe = createdByMe
+    return persistedHighlight
+  }
+
+  public static func make(from persistedHighlight: PersistedHighlight) -> Highlight {
+    Highlight(
+      id: persistedHighlight.id ?? "",
+      shortId: persistedHighlight.shortId ?? "",
+      quote: persistedHighlight.quote ?? "",
+      prefix: persistedHighlight.prefix,
+      suffix: persistedHighlight.suffix,
+      patch: persistedHighlight.patch ?? "",
+      annotation: persistedHighlight.annotation,
+      createdByMe: persistedHighlight.createdByMe,
+      createdAt: persistedHighlight.createdAt,
+      updatedAt: persistedHighlight.updatedAt
+    )
   }
 }
