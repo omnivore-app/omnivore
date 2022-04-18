@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="NewsletterEmail" representedClassName="NewsletterEmail" syncable="YES" codeGenerationType="class">
+        <attribute name="confirmationCode" optional="YES" attributeType="String"/>
+        <attribute name="email" attributeType="String"/>
+        <attribute name="emailId" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="emailId"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <entity name="PersistedArticleContent" representedClassName="PersistedArticleContent" syncable="YES" codeGenerationType="class">
         <attribute name="htmlContent" attributeType="String"/>
         <attribute name="slug" attributeType="String"/>
@@ -81,5 +91,6 @@
         <element name="PersistedFeedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
         <element name="PersistedHighlight" positionX="27" positionY="225" width="128" height="209"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
+        <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
     </elements>
 </model>

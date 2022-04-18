@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
@@ -6,7 +7,7 @@ import SwiftGraphQL
 public extension DataService {
   func createNewsletterEmailPublisher() -> AnyPublisher<NewsletterEmail, BasicError> {
     enum MutationResult {
-      case saved(newsletterEmail: NewsletterEmail)
+      case saved(newsletterEmail: InternalNewsletterEmail)
       case error(errorCode: Enums.CreateNewsletterEmailErrorCode)
     }
 
@@ -14,7 +15,7 @@ public extension DataService {
       try $0.on(
         createNewsletterEmailSuccess: .init {
           .saved(newsletterEmail: try $0.newsletterEmail(selection: Selection.NewsletterEmail {
-            NewsletterEmail(
+            InternalNewsletterEmail(
               emailId: try $0.id(),
               email: try $0.address(),
               confirmationCode: try $0.confirmationCode()
@@ -44,7 +45,11 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(newsletterEmail: newsletterEmail):
-              promise(.success(newsletterEmail))
+              if let newsletterEmailObject = newsletterEmail.persist(context: self.persistentContainer.viewContext) {
+                promise(.success(newsletterEmailObject))
+              } else {
+                promise(.failure(.message(messageText: "coredata error")))
+              }
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))
             }

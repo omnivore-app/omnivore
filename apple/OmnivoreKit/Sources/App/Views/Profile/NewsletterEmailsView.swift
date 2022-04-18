@@ -97,7 +97,7 @@ struct NewsletterEmailsView: View {
 
                 Snackbar.show(message: "Email copied")
               },
-              label: { Text(newsletterEmail.email) }
+              label: { Text(newsletterEmail.unwrappedEmail) }
             )
           }
         }

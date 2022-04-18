@@ -6,12 +6,12 @@ import SwiftGraphQL
 public extension DataService {
   func newsletterEmailsPublisher() -> AnyPublisher<[NewsletterEmail], ServerError> {
     enum QueryResult {
-      case success(result: [NewsletterEmail])
+      case success(result: [InternalNewsletterEmail])
       case error(error: String)
     }
 
     let newsletterEmailSelection = Selection.NewsletterEmail {
-      NewsletterEmail(
+      InternalNewsletterEmail(
         emailId: try $0.id(),
         email: try $0.address(),
         confirmationCode: try $0.confirmationCode()
@@ -43,7 +43,11 @@ public extension DataService {
           case let .success(payload):
             switch payload.data {
             case let .success(result: result):
-              promise(.success(result))
+              if let newsletterEmailObject = result.persist(context: self.persistentContainer.viewContext) {
+                promise(.success(newsletterEmailObject))
+              } else {
+                promise(.failure(.unknown))
+              }
             case .error:
               promise(.failure(.unknown))
             }
