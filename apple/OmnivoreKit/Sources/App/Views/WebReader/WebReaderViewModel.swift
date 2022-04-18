@@ -25,14 +25,14 @@ final class WebReaderViewModel: ObservableObject {
     self.slug = slug
     isLoading = true
 
-    guard let viewer = dataService.currentViewer else { return }
+    guard let username = dataService.currentViewer?.username else { return }
 
     if let content = dataService.pageFromCache(slug: slug) {
       articleContent = content
       // continue to load from the web if possible
     }
 
-    dataService.articleContentPublisher(username: viewer.username, slug: slug).sink(
+    dataService.articleContentPublisher(username: username, slug: slug).sink(
       receiveCompletion: { [weak self] completion in
         guard case .failure = completion else { return }
         self?.isLoading = false

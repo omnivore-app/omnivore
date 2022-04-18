@@ -44,22 +44,3 @@ public extension UserProfile {
     return nil
   }
 }
-
-public struct Viewer {
-  public let userID: String
-  public let username: String
-  public let name: String
-  public let profileImageURL: String?
-
-  public init(
-    username: String,
-    name: String,
-    profileImageURL: String?,
-    userID: String
-  ) {
-    self.username = username
-    self.name = name
-    self.profileImageURL = profileImageURL
-    self.userID = userID
-  }
-}

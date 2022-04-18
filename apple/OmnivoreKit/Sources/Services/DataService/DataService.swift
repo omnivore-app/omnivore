@@ -2,14 +2,15 @@ import Combine
 import CoreData
 import Foundation
 import Models
+import OSLog
 
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
   public static var showIntercomMessenger: (() -> Void)?
 
   public let appEnvironment: AppEnvironment
-  public internal(set) var currentViewer: Viewer?
   let networker: Networker
+  static let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
   let persistentContainer: PersistentContainer
   var subscriptions = Set<AnyCancellable>()
@@ -27,6 +28,11 @@ public final class DataService: ObservableObject {
     }
   }
 
+  public var currentViewer: Viewer? {
+    let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
+    return try? persistentContainer.viewContext.fetch(fetchRequest).first
+  }
+
   public func clearHighlights() {
     deletedHighlightsIDs.removeAll()
 
@@ -41,7 +47,7 @@ public final class DataService: ObservableObject {
     do {
       try persistentContainer.viewContext.save()
     } catch {
-      print("failed to delete objects")
+      DataService.logger.debug("failed to delete objects")
     }
   }
 
@@ -57,11 +63,11 @@ public final class DataService: ObservableObject {
 
 public extension DataService {
   func prefetchPages(items: [FeedItem]) {
-    guard let viewer = currentViewer else { return }
+    guard let username = currentViewer?.username else { return }
 
     for item in items {
       let slug = item.slug
-      articleContentPublisher(username: viewer.username, slug: slug).sink(
+      articleContentPublisher(username: username, slug: slug).sink(
         receiveCompletion: { _ in },
         receiveValue: { _ in }
       )

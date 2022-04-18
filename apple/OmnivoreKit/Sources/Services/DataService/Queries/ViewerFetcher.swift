@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
@@ -6,16 +7,16 @@ import Utils
 
 public extension DataService {
   func fetchViewer() async throws -> Viewer {
-    let selection = Selection<Viewer, Objects.User> {
-      Viewer(
+    let selection = Selection<ViewerInternal, Objects.User> {
+      ViewerInternal(
+        userID: try $0.id(),
         username: try $0.profile(
           selection: .init { try $0.username() }
         ),
         name: try $0.name(),
         profileImageURL: try $0.profile(
           selection: .init { try $0.pictureUrl() }
-        ),
-        userID: try $0.id()
+        )
       )
     }
 
@@ -30,12 +31,16 @@ public extension DataService {
       send(query, to: path, headers: headers) { [weak self] result in
         switch result {
         case let .success(payload):
-          self?.currentViewer = payload.data
           if UserDefaults.standard.string(forKey: Keys.userIdKey) == nil {
             UserDefaults.standard.setValue(payload.data.userID, forKey: Keys.userIdKey)
             DataService.registerIntercomUser?(payload.data.userID)
           }
-          continuation.resume(returning: payload.data)
+
+          if let self = self, let viewer = payload.data.persist(context: self.persistentContainer.viewContext) {
+            continuation.resume(returning: viewer)
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "coredata error"))
+          }
         case .failure:
           continuation.resume(throwing: BasicError.message(messageText: "http error"))
         }
@@ -47,16 +52,16 @@ public extension DataService {
 extension DataService {
   @available(*, deprecated, message: "use async version instead")
   func internalViewerPublisher() -> AnyPublisher<Viewer, BasicError> {
-    let selection = Selection<Viewer, Objects.User> {
-      Viewer(
+    let selection = Selection<ViewerInternal, Objects.User> {
+      ViewerInternal(
+        userID: try $0.id(),
         username: try $0.profile(
           selection: .init { try $0.username() }
         ),
         name: try $0.name(),
         profileImageURL: try $0.profile(
           selection: .init { try $0.pictureUrl() }
-        ),
-        userID: try $0.id()
+        )
       )
     }
 
@@ -72,8 +77,11 @@ extension DataService {
         send(query, to: path, headers: headers) { result in
           switch result {
           case let .success(payload):
-            self?.currentViewer = payload.data
-            promise(.success(payload.data))
+            if let self = self, let viewer = payload.data.persist(context: self.persistentContainer.viewContext) {
+              promise(.success(viewer))
+            } else {
+              promise(.failure(.message(messageText: "coredata error")))
+            }
           case .failure:
             promise(.failure(.message(messageText: "http error")))
           }
@@ -81,5 +89,30 @@ extension DataService {
       }
     }
     .eraseToAnyPublisher()
+  }
+}
+
+private struct ViewerInternal {
+  let userID: String
+  let username: String
+  let name: String
+  let profileImageURL: String?
+
+  func persist(context: NSManagedObjectContext) -> Viewer? {
+    let viewer = Viewer(context: context)
+    viewer.userID = userID
+    viewer.username = username
+    viewer.name = name
+    viewer.profileImageURL = profileImageURL
+
+    do {
+      try context.save()
+      DataService.logger.debug("Viewer saved succesfully")
+      return viewer
+    } catch {
+      context.rollback()
+      DataService.logger.debug("Failed to save Viewer: \(error.localizedDescription)")
+      return nil
+    }
   }
 }

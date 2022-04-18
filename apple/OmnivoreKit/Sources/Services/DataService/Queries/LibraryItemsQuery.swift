@@ -6,7 +6,7 @@ import SwiftGraphQL
 public extension DataService {
   func articlePublisher(slug: String) -> AnyPublisher<FeedItem, BasicError> {
     internalViewerPublisher()
-      .flatMap { self.internalArticlePublisher(username: $0.username, slug: slug) }
+      .flatMap { self.internalArticlePublisher(username: $0.username ?? "", slug: slug) }
       .receive(on: DispatchQueue.main)
       .eraseToAnyPublisher()
   }

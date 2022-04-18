@@ -7,6 +7,14 @@ public class PersistentContainer: NSPersistentContainer {
   public static func make() -> PersistentContainer {
     let modelURL = Bundle.module.url(forResource: "CoreDataModel", withExtension: "momd")!
     let model = NSManagedObjectModel(contentsOf: modelURL)!
-    return PersistentContainer(name: "DataModel", managedObjectModel: model)
+    let container = PersistentContainer(name: "DataModel", managedObjectModel: model)
+
+    container.viewContext.automaticallyMergesChangesFromParent = false
+    container.viewContext.name = "viewContext"
+    container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+    container.viewContext.undoManager = nil
+    container.viewContext.shouldDeleteInaccessibleFaults = true
+
+    return container
   }
 }

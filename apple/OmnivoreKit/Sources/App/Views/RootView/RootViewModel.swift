@@ -64,8 +64,8 @@ public final class RootViewModel: ObservableObject {
       return
     }
 
-    if let viewer = try? await services.dataService.fetchViewer() {
-      let path = linkRequestPath(username: viewer.username, requestID: linkRequestID)
+    if let username = try? await services.dataService.fetchViewer().username {
+      let path = linkRequestPath(username: username, requestID: linkRequestID)
       webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
     }
   }

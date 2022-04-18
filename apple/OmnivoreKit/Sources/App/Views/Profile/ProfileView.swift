@@ -21,8 +21,8 @@ import Views
     guard let viewer = try? await dataService.fetchViewer() else { return }
 
     profileCardData = ProfileCardData(
-      name: viewer.name,
-      username: viewer.username,
+      name: viewer.name ?? "",
+      username: viewer.username ?? "",
       imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
     )
   }

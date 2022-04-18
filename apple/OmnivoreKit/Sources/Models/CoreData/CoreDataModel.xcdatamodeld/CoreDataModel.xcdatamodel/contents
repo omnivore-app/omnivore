@@ -64,10 +64,22 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
+        <attribute name="name" attributeType="String"/>
+        <attribute name="profileImageURL" optional="YES" attributeType="String"/>
+        <attribute name="userID" attributeType="String"/>
+        <attribute name="username" attributeType="String"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="userID"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <elements>
-        <element name="PersistedFeedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
-        <element name="PersistedFeedItem" positionX="-18" positionY="63" width="128" height="284"/>
         <element name="PersistedArticleContent" positionX="9" positionY="108" width="128" height="59"/>
+        <element name="PersistedFeedItem" positionX="-18" positionY="63" width="128" height="284"/>
+        <element name="PersistedFeedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
         <element name="PersistedHighlight" positionX="27" positionY="225" width="128" height="209"/>
+        <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
     </elements>
 </model>

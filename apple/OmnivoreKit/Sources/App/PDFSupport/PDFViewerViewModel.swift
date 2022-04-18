@@ -18,9 +18,9 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func loadHighlights(completion onComplete: @escaping ([Highlight]) -> Void) {
-    guard let viewer = services.dataService.currentViewer else { return }
+    guard let username = services.dataService.currentViewer?.username else { return }
 
-    services.dataService.pdfHighlightsPublisher(username: viewer.username, slug: feedItem.slug).sink(
+    services.dataService.pdfHighlightsPublisher(username: username, slug: feedItem.slug).sink(
       receiveCompletion: { [weak self] completion in
         guard case .failure = completion else { return }
         onComplete(self?.allHighlights(fetchedHighlights: []) ?? [])
