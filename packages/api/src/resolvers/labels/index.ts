@@ -288,9 +288,16 @@ export const updateLabelResolver = authorized<
       }
     }
 
+    log.info('Updating a label', {
+      labels: {
+        source: 'resolver',
+        resolver: 'updateLabelResolver',
+      },
+    })
+
     const result = await AppDataSource.transaction(async (t) => {
       await setClaims(t, uid)
-      return await t.getRepository(Label).update(
+      return t.getRepository(Label).update(
         { id: labelId },
         {
           name: name,
@@ -300,22 +307,12 @@ export const updateLabelResolver = authorized<
       )
     })
 
-    log.info('Updating a label', {
-      result,
-      labels: {
-        source: 'resolver',
-        resolver: 'updateLabelResolver',
-      },
-    })
-
-    if (!result) {
-      log.info('failed to update')
+    if (!result.affected) {
+      log.error('failed to update')
       return {
-        errorCodes: [UpdateLabelErrorCode.BadRequest],
+        errorCodes: [UpdateLabelErrorCode.NotFound],
       }
     }
-
-    log.info('updated successfully')
 
     return { label: label }
   } catch (error) {
