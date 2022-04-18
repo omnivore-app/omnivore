@@ -39,7 +39,7 @@ export function LandingHeader(): JSX.Element {
       <Box css={linkStyles}>
         <Box>
           <Link passHref href="/login">
-            <a style={{textDecoration: 'none', color: 'black'}}>
+            <a style={{textDecoration: 'none', color: '#3D3D3D', fontFamily: 'Inter', fontWeight: 500 }}>
               <SpanBox css={textStyles}>Log in</SpanBox>
             </a>
           </Link>
