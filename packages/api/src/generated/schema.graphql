@@ -1230,6 +1230,7 @@ type SubscriptionsError {
 }
 
 enum SubscriptionsErrorCode {
+  BAD_REQUEST
   UNAUTHORIZED
 }
 

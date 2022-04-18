@@ -1474,6 +1474,7 @@ const schema = gql`
 
   enum SubscriptionsErrorCode {
     UNAUTHORIZED
+    BAD_REQUEST
   }
 
   # Mutations

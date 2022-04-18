@@ -1634,6 +1634,7 @@ export type SubscriptionsError = {
 };
 
 export enum SubscriptionsErrorCode {
+  BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
 
