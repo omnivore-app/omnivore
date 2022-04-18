@@ -30,6 +30,7 @@ public final class DataService: ObservableObject {
 
   public var currentViewer: Viewer? {
     let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
+    fetchRequest.fetchLimit = 1 // we should only have one viewer saved
     return try? persistentContainer.viewContext.fetch(fetchRequest).first
   }
 

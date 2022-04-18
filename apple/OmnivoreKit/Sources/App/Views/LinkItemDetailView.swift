@@ -56,7 +56,7 @@ enum PDFProvider {
 
     if let viewer = viewer {
       createWebAppWrapperViewModel(
-        username: viewer.username ?? "",
+        username: viewer.unwrappedUsername,
         dataService: dataService,
         rawAuthCookie: rawAuthCookie
       )

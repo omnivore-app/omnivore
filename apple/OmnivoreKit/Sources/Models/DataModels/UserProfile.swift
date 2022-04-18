@@ -44,3 +44,13 @@ public extension UserProfile {
     return nil
   }
 }
+
+public extension Viewer {
+  var unwrappedUsername: String {
+    username ?? ""
+  }
+
+  var unwrappedName: String {
+    name ?? ""
+  }
+}

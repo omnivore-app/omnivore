@@ -154,8 +154,8 @@ public final class PDFViewerViewModel: ObservableObject {
     let baseURL = services.dataService.appEnvironment.serverBaseURL
     var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
 
-    if let viewer = services.dataService.currentViewer?.username {
-      components?.path = "/\(viewer)/\(feedItem.slug)/highlights/\(shortId)"
+    if let username = services.dataService.currentViewer?.username {
+      components?.path = "/\(username)/\(feedItem.slug)/highlights/\(shortId)"
     } else {
       return nil
     }
