@@ -83,7 +83,6 @@ export function LandingFooter(): JSX.Element {
   return (
     <HStack css={containerStyles}>
       <Box css={sectionOne}>
-        <OmnivoreNameLogo color='white' />
         <Box css={titleStyles}>Everything you read. Safe, organized, and easy to share.</Box>
         <HStack distribution='between' css={socialsContainerStyles}>
           <Box style={socialIconContainerStyles}>
@@ -113,11 +112,9 @@ export function LandingFooter(): JSX.Element {
       <Box css={sectionTwo}>
         <Box css={{height: 215}}>
           <Box style={{marginBottom: 5, ...imageStyles}}>
-            <Link passHref href="https://omnivore.app/install/ios">
-              <a>
-                <Image src='/static/media/appStoreBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
-              </a>
-            </Link>
+            <a href="https://omnivore.app/install/ios" target="_blank" rel="noreferrer" style={{ display: 'inlineBlock', overflow: 'hidden' }}>
+              <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=90x37&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3" alt="Download on the App Store" style={{  }} />
+            </a>
           </Box>
           {/* <Box style={imageStyles}>
             <Link passHref href="#">
@@ -131,7 +128,7 @@ export function LandingFooter(): JSX.Element {
           Contact
         </Box>
         <Box css={supportStyles}>
-          support@omnivore.com
+          <a href="mailto:support@omnivore.app">support@omnivore.app</a>
         </Box>
       </Box>
     </HStack>
