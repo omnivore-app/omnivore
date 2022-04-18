@@ -192,7 +192,7 @@ export default function Home(): JSX.Element {
           top: '-120px',
           left: 8,
           height: '100%',
-          width: '48px',
+          width: '35px',
           '@lgDown': {
             display: 'none',
           },
