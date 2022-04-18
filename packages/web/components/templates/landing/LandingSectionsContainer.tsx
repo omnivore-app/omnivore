@@ -124,8 +124,8 @@ type LandingSectionsContainerProps = {
 export function LandingSectionsContainer({
   hideFirst = false,
   hideSecond = false,
-  hideThird = false,
-  hideFourth = false,
+  hideThird = true,
+  hideFourth = true,
 }: LandingSectionsContainerProps): JSX.Element {
   const iconColor = 'rgb(255, 210, 52)'
   return (
