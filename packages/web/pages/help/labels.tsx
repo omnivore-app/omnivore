@@ -70,7 +70,7 @@ export default function Labels(): JSX.Element {
         </p>
         <p>Some examples:</p>
         <ul>
-          <li><code>-label:Newsletter</code> finds all pages that do not have the label <code>Newsletter</code></li>
+          <li><code>-label:Newsletter</code> finds all pages that have the label <code>Newsletter</code></li>
           <li><code>label:Cooking,Fitness</code> finds all your pages with either the <code>Cooking</code> or <code>Fitness</code> labels</li>
           <li><code>label:Newsletter label:Surfing</code> finds all pages with both the <code>Newsletter</code> and <code>Surfing</code> labels</li>
           <li><code>label:Coding -label:Newsletter</code> finds all pages with the <code>Coding</code> label that do not have the <code>Newsletter</code> label</li>
