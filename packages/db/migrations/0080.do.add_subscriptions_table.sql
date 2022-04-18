@@ -11,6 +11,7 @@ CREATE TABLE omnivore.subscriptions (
     user_id uuid NOT NULL REFERENCES omnivore.user (id) ON DELETE CASCADE,
     name text NOT NULL,
     description text,
+    url text,
     status subscription_status_type NOT NULL,
     unsubscribe_mail_to text,
     unsubscribe_http_url text,

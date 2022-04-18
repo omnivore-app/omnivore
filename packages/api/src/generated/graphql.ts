@@ -1122,6 +1122,7 @@ export type Query = {
   reminder: ReminderResult;
   search: SearchResult;
   sharedArticle: SharedArticleResult;
+  subscriptions: SubscriptionsResult;
   user: UserResult;
   users: UsersResult;
   validateUsername: Scalars['Boolean'];
@@ -1613,6 +1614,41 @@ export type SortParams = {
   by: SortBy;
   order?: InputMaybe<SortOrder>;
 };
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  status: SubscriptionStatus;
+  unsubscribeHttpUrl?: Maybe<Scalars['String']>;
+  unsubscribeMailTo?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['Date'];
+  url?: Maybe<Scalars['String']>;
+};
+
+export type SubscriptionsError = {
+  __typename?: 'SubscriptionsError';
+  errorCodes: Array<SubscriptionsErrorCode>;
+};
+
+export enum SubscriptionsErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SubscriptionsResult = SubscriptionsError | SubscriptionsSuccess;
+
+export type SubscriptionsSuccess = {
+  __typename?: 'SubscriptionsSuccess';
+  subscriptions: Array<Subscription>;
+};
+
+export enum SubscriptionStatus {
+  Active = 'ACTIVE',
+  Deleted = 'DELETED',
+  Unsubscribed = 'UNSUBSCRIBED'
+}
 
 export type UpdateHighlightError = {
   __typename?: 'UpdateHighlightError';
@@ -2206,6 +2242,12 @@ export type ResolversTypes = {
   SortOrder: SortOrder;
   SortParams: SortParams;
   String: ResolverTypeWrapper<Scalars['String']>;
+  Subscription: ResolverTypeWrapper<{}>;
+  SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
+  SubscriptionsErrorCode: SubscriptionsErrorCode;
+  SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
+  SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
+  SubscriptionStatus: SubscriptionStatus;
   UpdateHighlightError: ResolverTypeWrapper<UpdateHighlightError>;
   UpdateHighlightErrorCode: UpdateHighlightErrorCode;
   UpdateHighlightInput: UpdateHighlightInput;
@@ -2452,6 +2494,10 @@ export type ResolversParentTypes = {
   SignupSuccess: SignupSuccess;
   SortParams: SortParams;
   String: Scalars['String'];
+  Subscription: {};
+  SubscriptionsError: SubscriptionsError;
+  SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
+  SubscriptionsSuccess: SubscriptionsSuccess;
   UpdateHighlightError: UpdateHighlightError;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: UpdateHighlightReplyError;
@@ -3170,6 +3216,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
+  subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
@@ -3428,6 +3475,32 @@ export type SignupResultResolvers<ContextType = ResolverContext, ParentType exte
 
 export type SignupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = {
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
+  description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
+  id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
+  name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
+  status?: SubscriptionResolver<ResolversTypes['SubscriptionStatus'], "status", ParentType, ContextType>;
+  unsubscribeHttpUrl?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeHttpUrl", ParentType, ContextType>;
+  unsubscribeMailTo?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeMailTo", ParentType, ContextType>;
+  updatedAt?: SubscriptionResolver<ResolversTypes['Date'], "updatedAt", ParentType, ContextType>;
+  url?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "url", ParentType, ContextType>;
+};
+
+export type SubscriptionsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsError'] = ResolversParentTypes['SubscriptionsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SubscriptionsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscriptionsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsResult'] = ResolversParentTypes['SubscriptionsResult']> = {
+  __resolveType: TypeResolveFn<'SubscriptionsError' | 'SubscriptionsSuccess', ParentType, ContextType>;
+};
+
+export type SubscriptionsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsSuccess'] = ResolversParentTypes['SubscriptionsSuccess']> = {
+  subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3769,6 +3842,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   SignupError?: SignupErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
+  SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
+  SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
+  SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
   UpdateHighlightError?: UpdateHighlightErrorResolvers<ContextType>;
   UpdateHighlightReplyError?: UpdateHighlightReplyErrorResolvers<ContextType>;
   UpdateHighlightReplyResult?: UpdateHighlightReplyResultResolvers<ContextType>;

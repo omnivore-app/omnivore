@@ -1444,6 +1444,38 @@ const schema = gql`
     errorCodes: [SearchErrorCode!]!
   }
 
+  union SubscriptionsResult = SubscriptionsSuccess | SubscriptionsError
+
+  type SubscriptionsSuccess {
+    subscriptions: [Subscription!]!
+  }
+
+  type Subscription {
+    id: ID!
+    name: String!
+    url: String
+    description: String
+    status: SubscriptionStatus!
+    unsubscribeMailTo: String
+    unsubscribeHttpUrl: String
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  enum SubscriptionStatus {
+    ACTIVE
+    UNSUBSCRIBED
+    DELETED
+  }
+
+  type SubscriptionsError {
+    errorCodes: [SubscriptionsErrorCode!]!
+  }
+
+  enum SubscriptionsErrorCode {
+    UNAUTHORIZED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1542,6 +1574,7 @@ const schema = gql`
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
     search(after: String, first: Int, query: String): SearchResult!
+    subscriptions: SubscriptionsResult!
   }
 `
 
