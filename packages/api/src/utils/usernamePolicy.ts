@@ -82,6 +82,7 @@ const RESERVED_NAMES = new Set([
   'jobs',
   'join',
   'json',
+  'landing',
   'language',
   'languages',
   'lists',
