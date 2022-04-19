@@ -6,7 +6,7 @@ import Views
 struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
 
-  let item: FeedItem
+  let item: FeedItemDep
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -34,7 +34,7 @@ struct GridCardNavigationLink: View {
 
   @State private var scale = 1.0
 
-  let item: FeedItem
+  let item: FeedItemDep
   let actionHandler: (GridCardAction) -> Void
 
   @Binding var isContextMenuOpen: Bool

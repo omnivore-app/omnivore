@@ -5,12 +5,12 @@ import Utils
 struct WebReaderContent {
   let textFontSize: Int
   let articleContent: ArticleContentDep
-  let item: FeedItem
+  let item: FeedItemDep
   let themeKey: String
 
   init(
     articleContent: ArticleContentDep,
-    item: FeedItem,
+    item: FeedItemDep,
     isDark: Bool,
     fontSize: Int
   ) {

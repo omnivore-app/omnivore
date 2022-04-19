@@ -58,7 +58,7 @@ import Views
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
-        if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
+        if let feedItem = notification.userInfo?["feedItem"] as? FeedItemDep {
           viewModel.pushFeedItem(item: feedItem)
           viewModel.selectedLinkItem = feedItem
         }
@@ -145,7 +145,7 @@ import Views
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
 
-    @State private var itemToRemove: FeedItem?
+    @State private var itemToRemove: FeedItemDep?
     @State private var confirmationShown = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -269,13 +269,13 @@ import Views
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
 
-    @State private var itemToRemove: FeedItem?
+    @State private var itemToRemove: FeedItemDep?
     @State private var confirmationShown = false
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
+    func contextMenuActionHandler(item: FeedItemDep, action: GridCardAction) {
       switch action {
       case .toggleArchiveStatus:
         viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)

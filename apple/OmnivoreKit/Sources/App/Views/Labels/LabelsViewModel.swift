@@ -19,7 +19,7 @@ final class LabelsViewModel: ObservableObject {
   ///   - dataService: `DataService` reference
   ///   - item: Optional `FeedItem` for applying labels to a single item
   ///   - initiallySelectedLabels: Optional `[FeedItemLabel]` for filtering a list of items
-  func loadLabels(dataService: DataService, item: FeedItem? = nil, initiallySelectedLabels: [FeedItemLabelDep]? = nil) {
+  func loadLabels(dataService: DataService, item: FeedItemDep? = nil, initiallySelectedLabels: [FeedItemLabelDep]? = nil) {
     guard !hasLoadedInitialLabels else { return }
     isLoading = true
 

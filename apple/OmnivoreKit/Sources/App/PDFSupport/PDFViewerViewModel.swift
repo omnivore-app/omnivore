@@ -7,12 +7,12 @@ public final class PDFViewerViewModel: ObservableObject {
   @Published public var errorMessage: String?
   @Published public var readerView: Bool = false
 
-  public var feedItem: FeedItem
+  public var feedItem: FeedItemDep
 
   var subscriptions = Set<AnyCancellable>()
   let services: Services
 
-  public init(services: Services, feedItem: FeedItem) {
+  public init(services: Services, feedItem: FeedItemDep) {
     self.services = services
     self.feedItem = feedItem
   }

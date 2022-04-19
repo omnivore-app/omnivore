@@ -14,15 +14,15 @@ import Views
   /// Track label updates to be committed when user navigates back to grid view
   var uncommittedLabelUpdates = [String: [FeedItemLabelDep]]()
 
-  @Published var items = [FeedItem]()
+  @Published var items = [FeedItemDep]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
-  @Published var itemUnderLabelEdit: FeedItem?
+  @Published var itemUnderLabelEdit: FeedItemDep?
   @Published var searchTerm = ""
   @Published var selectedLabels = [FeedItemLabelDep]()
   @Published var snoozePresented = false
-  @Published var itemToSnooze: FeedItem?
-  @Published var selectedLinkItem: FeedItem?
+  @Published var itemToSnooze: FeedItemDep?
+  @Published var selectedLinkItem: FeedItemDep?
 
   var cursor: String?
   var sendProgressUpdates = false
@@ -36,7 +36,7 @@ import Views
 
   init() {}
 
-  func itemAppeared(item: FeedItem, dataService: DataService) {
+  func itemAppeared(item: FeedItemDep, dataService: DataService) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
@@ -47,7 +47,7 @@ import Views
     }
   }
 
-  func pushFeedItem(item: FeedItem) {
+  func pushFeedItem(item: FeedItemDep) {
     items.insert(item, at: 0)
   }
 

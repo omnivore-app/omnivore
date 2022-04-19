@@ -1,16 +1,16 @@
 import Foundation
 
 public struct HomeFeedData {
-  public let items: [FeedItem]
+  public let items: [FeedItemDep]
   public let cursor: String?
 
-  public init(items: [FeedItem], cursor: String?) {
+  public init(items: [FeedItemDep], cursor: String?) {
     self.items = items
     self.cursor = cursor
   }
 }
 
-public struct FeedItem: Identifiable, Hashable {
+public struct FeedItemDep: Identifiable, Hashable {
   public let id: String
   public let title: String
   public let createdAt: Date
@@ -70,7 +70,7 @@ public struct FeedItem: Identifiable, Hashable {
     self.labels = labels
   }
 
-  public static func fromJsonArticle(linkData: Data) -> FeedItem? {
+  public static func fromJsonArticle(linkData: Data) -> FeedItemDep? {
     try? JSONDecoder().decode(JSONArticle.self, from: linkData).feedItem
   }
 
@@ -114,8 +114,8 @@ struct JSONArticle: Decodable {
   let url: String
   let isArchived: Bool
 
-  var feedItem: FeedItem {
-    FeedItem(
+  var feedItem: FeedItemDep {
+    FeedItemDep(
       id: id,
       title: title,
       createdAt: createdAt,

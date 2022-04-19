@@ -7,7 +7,7 @@ import WebKit
 
 #if os(iOS)
   struct WebReaderContainerView: View {
-    let item: FeedItem
+    let item: FeedItemDep
     let homeFeedViewModel: HomeFeedViewModel
 
     @State private var showFontSizePopover = false

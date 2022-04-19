@@ -6,17 +6,17 @@ import Utils
 import Views
 
 enum PDFProvider {
-  static var pdfViewerProvider: ((URL, FeedItem) -> AnyView)?
+  static var pdfViewerProvider: ((URL, FeedItemDep) -> AnyView)?
 }
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   let homeFeedViewModel: HomeFeedViewModel
-  @Published var item: FeedItem
+  @Published var item: FeedItemDep
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: FeedItem, homeFeedViewModel: HomeFeedViewModel) {
+  init(item: FeedItemDep, homeFeedViewModel: HomeFeedViewModel) {
     self.item = item
     self.homeFeedViewModel = homeFeedViewModel
   }

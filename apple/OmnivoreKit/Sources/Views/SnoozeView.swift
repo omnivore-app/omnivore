@@ -3,12 +3,12 @@ import SwiftUI
 
 public struct SnoozeView: View {
   @Binding var snoozePresented: Bool
-  @Binding var itemToSnooze: FeedItem?
+  @Binding var itemToSnooze: FeedItemDep?
   let snoozeAction: (SnoozeActionParams) -> Void
 
   public init(
     snoozePresented: Binding<Bool>,
-    itemToSnooze: Binding<FeedItem?>,
+    itemToSnooze: Binding<FeedItemDep?>,
     snoozeAction: @escaping (SnoozeActionParams) -> Void
   ) {
     self._snoozePresented = snoozePresented

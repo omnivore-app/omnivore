@@ -5,7 +5,7 @@ import Views
 
 struct ApplyLabelsView: View {
   enum Mode {
-    case item(FeedItem)
+    case item(FeedItemDep)
     case list([FeedItemLabelDep])
 
     var navTitle: String {

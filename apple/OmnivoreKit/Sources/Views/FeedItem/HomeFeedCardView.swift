@@ -3,9 +3,9 @@ import SwiftUI
 import Utils
 
 public struct FeedCard: View {
-  let item: FeedItem
+  let item: FeedItemDep
 
-  public init(item: FeedItem) {
+  public init(item: FeedItemDep) {
     self.item = item
   }
 

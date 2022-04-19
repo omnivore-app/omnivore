@@ -8,9 +8,9 @@ public extension DataService {
     itemID: String,
     readingProgress: Double,
     anchorIndex: Int
-  ) -> AnyPublisher<FeedItem, SaveArticleError> {
+  ) -> AnyPublisher<FeedItemDep, SaveArticleError> {
     enum MutationResult {
-      case saved(feedItem: FeedItem)
+      case saved(feedItem: FeedItemDep)
       case error(errorCode: Enums.SaveArticleReadingProgressErrorCode)
     }
 

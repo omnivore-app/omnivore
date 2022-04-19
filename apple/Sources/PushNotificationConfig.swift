@@ -57,7 +57,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     let userInfo = response.notification.request.content.userInfo
     if let linkData = userInfo["link"] as? String {
       guard let jsonData = Data(base64Encoded: linkData) else { return }
-      if let item = FeedItem.fromJsonArticle(linkData: jsonData) {
+      if let item = FeedItemDep.fromJsonArticle(linkData: jsonData) {
         NSNotification.pushFeedItem(feedItem: item)
       }
     }

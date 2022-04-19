@@ -32,7 +32,7 @@ public extension NSNotification {
     return nil
   }
 
-  static func pushFeedItem(feedItem: FeedItem) {
+  static func pushFeedItem(feedItem: FeedItemDep) {
     NotificationCenter.default.post(name: NSNotification.PushFeedItem, object: nil, userInfo: ["feedItem": feedItem])
   }
 

@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func articlePublisher(slug: String) -> AnyPublisher<FeedItem, BasicError> {
+  func articlePublisher(slug: String) -> AnyPublisher<FeedItemDep, BasicError> {
     internalViewerPublisher()
       .flatMap { self.internalArticlePublisher(username: $0.username ?? "", slug: slug) }
       .receive(on: DispatchQueue.main)
@@ -13,9 +13,9 @@ public extension DataService {
 }
 
 extension DataService {
-  func internalArticlePublisher(username: String, slug: String) -> AnyPublisher<FeedItem, BasicError> {
+  func internalArticlePublisher(username: String, slug: String) -> AnyPublisher<FeedItemDep, BasicError> {
     enum QueryResult {
-      case success(result: FeedItem)
+      case success(result: FeedItemDep)
       case error(error: String)
     }
 
@@ -126,7 +126,7 @@ public extension DataService {
 }
 
 let homeFeedItemSelection = Selection.Article {
-  FeedItem(
+  FeedItemDep(
     id: try $0.id(),
     title: try $0.title(),
     createdAt: try $0.createdAt().value ?? Date(),

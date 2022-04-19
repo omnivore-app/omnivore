@@ -7,7 +7,7 @@ import WebKit
 #if os(iOS)
   struct WebReader: UIViewRepresentable {
     let articleContent: ArticleContentDep
-    let item: FeedItem
+    let item: FeedItemDep
     let openLinkAction: (URL) -> Void
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
     let navBarVisibilityRatioUpdater: (Double) -> Void

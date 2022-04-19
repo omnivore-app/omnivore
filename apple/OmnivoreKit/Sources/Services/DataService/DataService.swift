@@ -63,7 +63,7 @@ public final class DataService: ObservableObject {
 }
 
 public extension DataService {
-  func prefetchPages(items: [FeedItem]) {
+  func prefetchPages(items: [FeedItemDep]) {
     guard let username = currentViewer?.username else { return }
 
     for item in items {
