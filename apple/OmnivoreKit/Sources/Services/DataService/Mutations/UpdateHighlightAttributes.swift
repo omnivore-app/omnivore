@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
@@ -48,9 +49,14 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(highlight: highlight):
+              let context = self.persistentContainer.viewContext
+              let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+              fetchRequest.predicate = NSPredicate(format: "id == %@", highlight.id)
+              let itemID = (try? context.fetch(fetchRequest))?.first?.linkedItemId ?? ""
+
               _ = highlight.persist(
                 context: self.persistentContainer.viewContext,
-                associatedItemID: "" // TODO: pass in articleID or just use update core data func
+                associatedItemID: itemID
               )
               promise(.success(highlight.id))
             case let .error(errorCode: errorCode):

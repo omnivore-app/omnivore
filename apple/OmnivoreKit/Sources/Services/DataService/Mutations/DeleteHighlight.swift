@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
@@ -42,6 +43,7 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(id: id):
+              self.deletePersistedHighlight(objectID: id)
               promise(.success(id))
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))
@@ -54,5 +56,22 @@ public extension DataService {
     }
     .receive(on: DispatchQueue.main)
     .eraseToAnyPublisher()
+  }
+
+  func deletePersistedHighlight(objectID: String) {
+    let context = persistentContainer.viewContext
+    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "id == %@", objectID)
+    for highlight in (try? context.fetch(fetchRequest)) ?? [] {
+      context.delete(highlight)
+    }
+
+    do {
+      try context.save()
+      print("Highlight deleted succesfully")
+    } catch {
+      context.rollback()
+      print("Failed to delete Highlight: \(error.localizedDescription)")
+    }
   }
 }

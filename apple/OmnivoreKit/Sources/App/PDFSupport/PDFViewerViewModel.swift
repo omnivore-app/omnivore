@@ -32,6 +32,7 @@ public final class PDFViewerViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
+  // TODO: use core data instead
   private func allHighlights(fetchedHighlights: [HighlightDep]) -> [HighlightDep] {
     var resultSet = [String: HighlightDep]()
 
@@ -79,6 +80,7 @@ public final class PDFViewerViewModel: ObservableObject {
       .store(in: &subscriptions)
   }
 
+  // TODO: able to delete this now?
   public func mergeHighlight(
     shortId: String,
     highlightID: String,
@@ -86,22 +88,6 @@ public final class PDFViewerViewModel: ObservableObject {
     patch: String,
     overlapHighlightIdList: [String]
   ) {
-    services.dataService.persistHighlight(
-      pdfID: feedItem.id,
-      highlight: HighlightDep(
-        id: highlightID,
-        shortId: shortId,
-        quote: quote,
-        prefix: nil,
-        suffix: nil,
-        patch: patch,
-        annotation: nil,
-        createdByMe: true
-      )
-    )
-
-    removeLocalHighlights(highlightIds: overlapHighlightIdList)
-
     services.dataService
       .mergeHighlightPublisher(
         shortId: shortId,
@@ -121,8 +107,7 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func removeHighlights(highlightIds: [String]) {
-    removeLocalHighlights(highlightIds: highlightIds)
-
+    // TODO: update function to take an array?
     highlightIds.forEach { highlightId in
       services.dataService.deleteHighlightPublisher(highlightId: highlightId)
         .sink { [weak self] completion in
@@ -161,9 +146,5 @@ public final class PDFViewerViewModel: ObservableObject {
     }
 
     return components?.url
-  }
-
-  private func removeLocalHighlights(highlightIds: [String]) {
-    services.dataService.removeHighlights(highlightIds: highlightIds)
   }
 }

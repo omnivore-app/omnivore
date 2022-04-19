@@ -31,8 +31,20 @@ struct InternalHighlight: Encodable {
     return highlight
   }
 
-  func persist(context: NSManagedObjectContext, associatedItemID: String) -> Highlight? {
+  func persist(
+    context: NSManagedObjectContext,
+    associatedItemID: String,
+    oldHighlightsIds: [String] = []
+  ) -> Highlight? {
     let highlight = asManagedObject(context: context, associatedItemID: associatedItemID)
+
+    if !oldHighlightsIds.isEmpty {
+      let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "id IN %@", oldHighlightsIds)
+      for highlight in (try? context.fetch(fetchRequest)) ?? [] {
+        context.delete(highlight)
+      }
+    }
 
     do {
       try context.save()

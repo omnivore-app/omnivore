@@ -60,7 +60,8 @@ public extension DataService {
             case let .saved(highlight: highlight):
               _ = highlight.persist(
                 context: self.persistentContainer.viewContext,
-                associatedItemID: articleId
+                associatedItemID: articleId,
+                oldHighlightsIds: overlapHighlightIdList
               )
               promise(.success(highlight.encoded()))
             case let .error(errorCode: errorCode):
