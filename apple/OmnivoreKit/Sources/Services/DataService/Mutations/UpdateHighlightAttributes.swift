@@ -8,9 +8,9 @@ public extension DataService {
     highlightID: String,
     annotation: String?,
     sharedAt: Date?
-  ) -> AnyPublisher<HighlightDep, BasicError> {
+  ) -> AnyPublisher<String, BasicError> {
     enum MutationResult {
-      case saved(highlight: HighlightDep)
+      case saved(highlight: InternalHighlight)
       case error(errorCode: Enums.UpdateHighlightErrorCode)
     }
 
@@ -48,7 +48,11 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(highlight: highlight):
-              promise(.success(highlight))
+              _ = highlight.persist(
+                context: self.persistentContainer.viewContext,
+                associatedItemID: "" // TODO: pass in articleID or just use update core data func
+              )
+              promise(.success(highlight.id))
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))
             }

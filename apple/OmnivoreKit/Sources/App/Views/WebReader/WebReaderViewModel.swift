@@ -9,11 +9,6 @@ struct SafariWebLink: Identifiable {
   let url: URL
 }
 
-func encodeHighlightResult(_ highlight: HighlightDep) -> [String: Any]? {
-  guard let data = try? JSONEncoder().encode(highlight) else { return nil }
-  return try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any]
-}
-
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var articleContent: ArticleContentDep?
@@ -60,9 +55,9 @@ final class WebReaderViewModel: ObservableObject {
     .sink { completion in
       guard case .failure = completion else { return }
       replyHandler([], "createHighlight: Error encoding response")
-    } receiveValue: { highlight in
-      if let highlightValue = encodeHighlightResult(HighlightDep.make(from: highlight)) {
-        replyHandler(["result": highlightValue], nil)
+    } receiveValue: { result in
+      if let result = result {
+        replyHandler(["result": result], nil)
       } else {
         replyHandler([], "createHighlight: Error encoding response")
       }
@@ -103,8 +98,8 @@ final class WebReaderViewModel: ObservableObject {
     .sink { completion in
       guard case .failure = completion else { return }
       replyHandler([], "mergeHighlight: Error encoding response")
-    } receiveValue: { highlight in
-      if let highlightValue = encodeHighlightResult(HighlightDep.make(from: highlight)) {
+    } receiveValue: { result in
+      if let highlightValue = result {
         replyHandler(["result": highlightValue], nil)
       } else {
         replyHandler([], "createHighlight: Error encoding response")
@@ -126,9 +121,9 @@ final class WebReaderViewModel: ObservableObject {
     .sink { completion in
       guard case .failure = completion else { return }
       replyHandler([], "updateHighlight: Error encoding response")
-    } receiveValue: { highlight in
+    } receiveValue: { highlightID in
       // Update highlight JS code just expects the highlight ID back
-      replyHandler(["result": highlight.id], nil)
+      replyHandler(["result": highlightID], nil)
     }
     .store(in: &subscriptions)
   }

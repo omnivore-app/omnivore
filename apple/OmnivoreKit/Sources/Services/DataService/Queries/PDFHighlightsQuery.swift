@@ -10,21 +10,8 @@ public extension DataService {
       case error(error: String)
     }
 
-    let highlightSelection = Selection.Highlight {
-      HighlightDep(
-        id: try $0.id(),
-        shortId: try $0.shortId(),
-        quote: try $0.quote(),
-        prefix: try $0.prefix(),
-        suffix: try $0.suffix(),
-        patch: try $0.patch(),
-        annotation: try $0.annotation(),
-        createdByMe: try $0.createdByMe()
-      )
-    }
-
     let articleSelection = Selection.Article {
-      try $0.highlights(selection: highlightSelection.list)
+      try $0.highlights(selection: highlightDepSelection.list)
     }
 
     let selection = Selection<QueryResult, Unions.ArticleResult> {

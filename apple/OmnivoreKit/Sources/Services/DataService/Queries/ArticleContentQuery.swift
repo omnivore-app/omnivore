@@ -13,7 +13,7 @@ public extension DataService {
     let articleSelection = Selection.Article {
       ArticleContentDep(
         htmlContent: try $0.content(),
-        highlights: try $0.highlights(selection: highlightSelection.list),
+        highlights: try $0.highlights(selection: highlightDepSelection.list),
         storedHighlightsJSONString: nil
       )
     }
