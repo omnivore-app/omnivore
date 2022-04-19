@@ -14,10 +14,12 @@ import { createLabelMutation } from '../../../lib/networking/mutations/createLab
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { useRouter } from 'next/router'
+import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 
 type SetLabelsControlProps = {
   linkId: string
   labels: Label[] | undefined
+  article?: ArticleAttributes
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
@@ -215,7 +217,9 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       newSelectedLabels.map((label) => label.id)
     )
 
-//    props.article.labels = result
+    if (props.article) {
+      props.article.labels = result
+    }
     props.articleActionHandler('refreshLabels', result)
 
     revalidate()

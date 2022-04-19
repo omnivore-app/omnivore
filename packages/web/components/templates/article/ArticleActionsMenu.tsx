@@ -109,6 +109,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           }
         >
           <SetLabelsControl
+            article={props.article}
             linkId={props.article.linkId}
             labels={props.article.labels}
             articleActionHandler={props.articleActionHandler}

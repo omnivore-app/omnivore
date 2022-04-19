@@ -1,4 +1,5 @@
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { HStack, VStack } from '../../elements/LayoutPrimitives'
@@ -14,6 +15,7 @@ import { SetLabelsControl } from './SetLabelsControl'
 type SetLabelsModalProps = {
   linkId: string
   labels: Label[] | undefined
+  article?: ArticleAttributes
   onOpenChange: (open: boolean) => void
   articleActionHandler: (action: string, arg?: unknown) => void
 }

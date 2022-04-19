@@ -253,6 +253,7 @@ export default function Home(): JSX.Element {
 
         {showSetLabelsModal && (
           <SetLabelsModal
+            article={article}
             linkId={article.id}
             labels={article.labels}
             articleActionHandler={actionHandler}
