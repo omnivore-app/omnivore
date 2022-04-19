@@ -2,10 +2,10 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Highlight" representedClassName="Highlight" syncable="YES" codeGenerationType="class">
         <attribute name="annotation" optional="YES" attributeType="String"/>
-        <attribute name="associatedItemId" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="createdByMe" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="linkedItemId" attributeType="String"/>
         <attribute name="markedForDeletion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="patch" attributeType="String"/>
         <attribute name="prefix" optional="YES" attributeType="String"/>
@@ -24,6 +24,7 @@
         <attribute name="contentReader" optional="YES" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="descriptionText" optional="YES" attributeType="String"/>
+        <attribute name="htmlContent" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -36,6 +37,7 @@
         <attribute name="savedAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="slug" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
+        <relationship name="highlights" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Highlight"/>
         <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -86,11 +88,11 @@
         </uniquenessConstraints>
     </entity>
     <elements>
+        <element name="Highlight" positionX="27" positionY="225" width="128" height="209"/>
+        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="314"/>
         <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
         <element name="PersistedArticleContent" positionX="9" positionY="108" width="128" height="59"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="284"/>
-        <element name="Highlight" positionX="27" positionY="225" width="128" height="209"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
     </elements>
 </model>

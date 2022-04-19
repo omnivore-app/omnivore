@@ -39,7 +39,7 @@ public struct HighlightDep: Identifiable, Hashable, Codable {
 
   public func toManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> Highlight {
     let highlight = Highlight(context: context)
-    highlight.associatedItemId = associatedItemID
+    highlight.linkedItemId = associatedItemID
     highlight.markedForDeletion = false
     highlight.id = id
     highlight.shortId = shortId
