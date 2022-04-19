@@ -14,7 +14,15 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "types": ["node", "jest", "@testing-library/jest-dom"],
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@emotion/core": [
+        "./index.d.ts"
+      ],
+      "@storybook/theming": [
+        "./index.d.ts"
+      ]
+    }
   },
   "include": ["additional.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
