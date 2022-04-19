@@ -86,6 +86,7 @@ type LibraryListKeyboardAction =
   | 'sortAscending'
   | 'shareItem'
   | 'showAddLinkModal'
+  | 'showEditLabelsModal'
 
 export function libraryListCommands(
   actionHandler: (action: LibraryListKeyboardAction) => void
@@ -126,6 +127,12 @@ export function libraryListCommands(
       actionDescription: 'Archive item',
       shortcutKeyDescription: 'e',
       callback: () => actionHandler('archiveItem'),
+    },
+    {
+      shortcutKeys: ['l'],
+      actionDescription: 'Edit item labels',
+      shortcutKeyDescription: 'l',
+      callback: () => actionHandler('showEditLabelsModal'),
     },
     {
       shortcutKeys: ['shift', 'i'],

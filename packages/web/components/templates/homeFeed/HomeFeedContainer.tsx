@@ -364,6 +364,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         case 'markItemAsUnread':
           handleCardAction('mark-unread', activeItem)
           break
+        case 'showEditLabelsModal':
+          handleCardAction('set-labels', activeItem)
+          break
         case 'shareItem':
           setShareTarget(activeItem)
           break

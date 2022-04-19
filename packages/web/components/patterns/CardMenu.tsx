@@ -35,6 +35,12 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
           title="Unarchive"
         />
       )}
+      <DropdownOption
+        onSelect={() => {
+          props.actionHandler('set-labels')
+        }}
+        title="Set Labels"
+      />
       {isVipUser(props.viewer) && (
         <DropdownOption
           onSelect={() => {
@@ -64,12 +70,6 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
           title="Mark Unread"
         />
       )}
-      <DropdownOption
-        onSelect={() => {
-          props.actionHandler('set-labels')
-        }}
-        title="Set Labels"
-      />
       <DropdownOption
         onSelect={() => {
           props.actionHandler('delete')

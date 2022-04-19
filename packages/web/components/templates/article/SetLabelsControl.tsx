@@ -281,7 +281,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
         }
       }
     }
-    event.preventDefault()
   }, [filterText, filteredLabels, focusedIndex, isSelected, selectedLabels, setSelectedLabels])
 
   const createLabelFromFilterText = useCallback(async () => {
