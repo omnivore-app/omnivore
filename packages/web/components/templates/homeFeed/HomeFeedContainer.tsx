@@ -35,6 +35,7 @@ import { useFetchMoreScroll } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { SetLabelsModal } from '../article/SetLabelsModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -58,6 +59,10 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
   )
 
   const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
+
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
     undefined
   )
 
@@ -265,6 +270,10 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       case 'snooze':
         setSnoozeTarget(item)
         break
+      case 'set-labels':
+        console.log('setting labels target', item.node.id)
+        setLabelsTarget(item)
+        break
     }
   }
 
@@ -408,6 +417,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       setShareTarget={setShareTarget}
       snoozeTarget={snoozeTarget}
       setSnoozeTarget={setSnoozeTarget}
+      labelsTarget={labelsTarget}
+      setLabelsTarget={setLabelsTarget}
       showAddLinkModal={showAddLinkModal}
       setShowAddLinkModal={setShowAddLinkModal}
     />
@@ -428,6 +439,8 @@ type HomeFeedContentProps = {
   setShareTarget: (target: LibraryItem | undefined) => void
   snoozeTarget: LibraryItem | undefined
   setSnoozeTarget: (target: LibraryItem | undefined) => void
+  labelsTarget: LibraryItem | undefined
+  setLabelsTarget: (target: LibraryItem | undefined) => void
   showAddLinkModal: boolean
   setShowAddLinkModal: (show: boolean) => void
   actionHandler: (
@@ -704,6 +717,18 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           message={'Are you sure you want to remove this link?'}
           onAccept={removeItem}
           onOpenChange={() => setShowRemoveLinkConfirmation(false)}
+        />
+      )}
+      {props.labelsTarget?.node.id && (
+        <SetLabelsModal
+          linkId={props.labelsTarget.node.id}
+          labels={props.labelsTarget.node.labels}
+          articleActionHandler={() => {
+
+          }}
+          onOpenChange={() => {
+            props.setLabelsTarget(undefined)
+          }}
         />
       )}
     </>

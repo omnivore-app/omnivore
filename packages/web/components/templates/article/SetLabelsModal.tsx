@@ -1,4 +1,4 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Button } from '../../elements/Button'
 import { CrossIcon } from '../../elements/images/CrossIcon'
 import { HStack, VStack } from '../../elements/LayoutPrimitives'
@@ -12,7 +12,8 @@ import { theme } from '../../tokens/stitches.config'
 import { SetLabelsControl } from './SetLabelsControl'
 
 type SetLabelsModalProps = {
-  article: ArticleAttributes
+  linkId: string
+  labels: Label[] | undefined
   onOpenChange: (open: boolean) => void
   articleActionHandler: (action: string, arg?: unknown) => void
 }
