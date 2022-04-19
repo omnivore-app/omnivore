@@ -479,6 +479,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     [layout, setLayout]
   )
 
+  const [, updateState] = useState({})
+
   const StyledToggleButton = styled('button', {
     p: '0px',
     backgroundColor: 'transparent',
@@ -737,6 +739,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               case 'refreshLabels':
                 if (props.labelsTarget) {
                   props.labelsTarget.node.labels = value as (Label[] | undefined)
+                  updateState({})
                 }
                 break
             }
