@@ -36,6 +36,7 @@ import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { SetLabelsModal } from '../article/SetLabelsModal'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -726,8 +727,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         <SetLabelsModal
           linkId={props.labelsTarget.node.id}
           labels={props.labelsTarget.node.labels}
-          articleActionHandler={() => {
-
+          articleActionHandler={(action, value) => {
+            switch(action) {
+              case 'refreshLabels':
+                if (props.labelsTarget) {
+                  props.labelsTarget.node.labels = value as (Label[] | undefined)
+                }
+            }
           }}
           onOpenChange={() => {
             props.setLabelsTarget(undefined)
