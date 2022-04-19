@@ -21,7 +21,7 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - [Native iOS app](https://omnivore.app/install/ios)
 - Progressive web app for Android users
 - Browser extensions for [Chrome](https://omnivore.app/install/chrome), [Safari](https://omnivore.app/install/safari), [Firefox](https://omnivore.app/install/firefox), and [Edge](https://omnivore.app/install/edge)
-- Tagging (coming soon!)
+- Labels (aka tagging)
 - Offline support (coming soon!)
 
 Every single part is fully open source! Fork it, extend it, or deploy it to your own server.
