@@ -1,5 +1,7 @@
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import * as NextImage from 'next/image';
+import { getCssText } from '../components/tokens/stitches.config';
+import "../styles/globals.css";
 
 const OriginalNextImage = NextImage.default;
 
@@ -20,3 +22,21 @@ export const parameters = {
     Provider: RouterContext.Provider
   }
 }
+
+export const decorators = [
+  (Story, context) => {
+    return (
+      <>
+        <style
+          id="stitches"
+          dangerouslySetInnerHTML={{
+            __html: getCssText(),
+          }}
+        />
+        <div className='Gray'>
+          <Story {...context} />
+        </div>
+      </>
+    );
+  }
+]

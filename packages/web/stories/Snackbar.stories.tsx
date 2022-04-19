@@ -1,6 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Toaster, ToastPosition } from 'react-hot-toast'
 import { showErrorToast, showSuccessToast } from '../lib/toastHelpers'
+import { Button } from '../components/elements/Button'
 
 export default {
   title: 'Components/Snackbar',
@@ -32,7 +33,9 @@ const Template = ({ showToast, position }: { showToast: () => void; position?: T
         justifyContent: 'center',
       }}
     >
-      <button onClick={showToast}>Show Toast</button>
+      <Button style='ctaGray' onClick={showToast}>
+        Show Toast
+      </Button>
     </div>
   </div>
 )

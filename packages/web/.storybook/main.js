@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   stories: [
     "../stories/**/*.stories.mdx",
@@ -15,5 +17,14 @@ module.exports = {
   },
   typescript: {
     reactDocgen: false
-  }
+  },
+  webpackFinal: async (config, { configType }) => {
+    config.resolve.roots = [
+      path.resolve(__dirname, '../public'),
+      'node_modules',
+    ];
+  
+    // Return the altered config
+    return config;
+  },
 }
