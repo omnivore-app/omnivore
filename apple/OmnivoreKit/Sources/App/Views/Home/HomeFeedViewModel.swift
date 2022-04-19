@@ -5,7 +5,7 @@ import SwiftUI
 import Utils
 import Views
 
-final class HomeFeedViewModel: ObservableObject {
+@MainActor final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
 
   /// Track progress updates to be committed when user navigates back to grid view
@@ -43,7 +43,7 @@ final class HomeFeedViewModel: ObservableObject {
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      loadItems(dataService: dataService, isRefresh: false)
+      Task { await loadItems(dataService: dataService, isRefresh: false) }
     }
   }
 
@@ -61,12 +61,9 @@ final class HomeFeedViewModel: ObservableObject {
     isLoading = true
 
     // Cache the viewer
+
     if dataService.currentViewer == nil {
-      dataService.viewerPublisher().sink(
-        receiveCompletion: { _ in },
-        receiveValue: { _ in }
-      )
-      .store(in: &subscriptions)
+      Task { _ = try? await dataService.fetchViewer() }
     }
 
     dataService.libraryItemsPublisher(

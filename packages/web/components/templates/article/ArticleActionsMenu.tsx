@@ -1,7 +1,6 @@
 import { Separator } from "@radix-ui/react-separator"
 import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
 import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticleQuery"
-import { useGetUserPreferences } from "../../../lib/networking/queries/useGetUserPreferences"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
 import { Box, SpanBox } from "../../elements/LayoutPrimitives"
@@ -9,15 +8,15 @@ import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
 import { SetLabelsControl } from "./SetLabelsControl"
 import { ReaderSettingsControl } from "./ReaderSettingsControl"
-import { usePersistedState } from "../../../lib/hooks/usePersistedState"
 
-export type ArticleActionsMenuLayout = 'horizontal' | 'vertical'
+export type ArticleActionsMenuLayout = 'top' | 'side'
 
 type ArticleActionsMenuProps = {
   article: ArticleAttributes
   layout: ArticleActionsMenuLayout
   lineHeight: number
   marginWidth: number
+  showReaderDisplaySettings?: boolean
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
@@ -32,7 +31,7 @@ const MenuSeparator = (props: MenuSeparatorProps): JSX.Element => {
     borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
     my: '8px',
   })
-  return (props.layout == 'vertical' ? <LineSeparator /> : <></>)
+  return (props.layout == 'side' ? <LineSeparator /> : <></>)
 }
 
 type ActionDropdownProps = {
@@ -45,10 +44,10 @@ const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
   return <Dropdown
     showArrow={true}
     css={{ m: '0px', p: '0px', overflow: 'hidden', width: '265px', maxWidth: '265px', '@smDown': { width: '230px' } }}
-    side={props.layout == 'vertical' ? 'right' : 'bottom'}
-    sideOffset={props.layout == 'vertical' ? 8 : 0}
-    align={props.layout == 'vertical' ? 'start' : 'center'}
-    alignOffset={props.layout == 'vertical' ? -18 : undefined}
+    side={props.layout == 'side' ? 'right' : 'bottom'}
+    sideOffset={props.layout == 'side' ? 8 : 0}
+    align={props.layout == 'side' ? 'start' : 'center'}
+    alignOffset={props.layout == 'side' ? -18 : undefined}
     triggerElement={props.triggerElement}
   >
     {props.children}
@@ -62,32 +61,35 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       css={{
         display: 'flex',
         alignItems: 'center',
-        flexDirection: props.layout == 'vertical' ? 'column' : 'row',
-        justifyContent: props.layout == 'vertical' ? 'center' : 'flex-end',
-        gap: props.layout == 'vertical' ? '8px' : '24px',
+        flexDirection: props.layout == 'side' ? 'column' : 'row',
+        justifyContent: props.layout == 'side' ? 'center' : 'flex-end',
+        gap: props.layout == 'side' ? '8px' : '24px',
         paddingTop: '6px',
       }}
     >
-
-      <ActionDropdown
-        layout={props.layout}
-        triggerElement={
-          <TooltipWrapped
-            tooltipContent="Adjust Display Settings"
-            tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+      {props.showReaderDisplaySettings && (
+        <>
+          <ActionDropdown
+            layout={props.layout}
+            triggerElement={
+              <TooltipWrapped
+                tooltipContent="Adjust Display Settings"
+                tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+              >
+                <TextAa size={24} color={theme.colors.readerFont.toString()} />
+              </TooltipWrapped>
+            }
           >
-            <TextAa size={24} color={theme.colors.readerFont.toString()} />
-          </TooltipWrapped>
-        }
-      >
-        <ReaderSettingsControl
-          lineHeight={props.lineHeight}
-          marginWidth={props.marginWidth}
-          articleActionHandler={props.articleActionHandler}
-        />
-      </ActionDropdown>
+            <ReaderSettingsControl
+              lineHeight={props.lineHeight}
+              marginWidth={props.marginWidth}
+              articleActionHandler={props.articleActionHandler}
+            />
+          </ActionDropdown>
 
-      <MenuSeparator layout={props.layout} />
+          <MenuSeparator layout={props.layout} />
+        </>
+      )}
 
       <SpanBox css={{
         'display': 'flex',
@@ -100,7 +102,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           triggerElement={
             <TooltipWrapped
               tooltipContent="Edit labels"
-              tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
             <TagSimple size={24} color={theme.colors.readerFont.toString()} />
           </TooltipWrapped>
@@ -127,7 +129,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('showHighlights')}>
         <TooltipWrapped
           tooltipContent="View Highlights"
-          tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+          tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
         >
           <HighlighterCircle size={24} color={theme.colors.readerFont.toString()} />
         </TooltipWrapped>
@@ -138,7 +140,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       <Button style='articleActionIcon' onClick={() => props.articleActionHandler('archive')}>
         <TooltipWrapped
           tooltipContent="Archive"
-          tooltipSide={props.layout == 'vertical' ? 'right' : 'bottom'}
+          tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
         >
           <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
         </TooltipWrapped>

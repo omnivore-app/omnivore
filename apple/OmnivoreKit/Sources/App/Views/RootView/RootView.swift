@@ -91,10 +91,10 @@ struct InnerRootView: View {
           if viewModel.webLinkPath != nil {
             viewModel.webLinkPath = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-              viewModel.onOpenURL(url: url)
+              Task { await viewModel.onOpenURL(url: url) }
             }
           } else {
-            viewModel.onOpenURL(url: url)
+            Task { await viewModel.onOpenURL(url: url) }
           }
         }
       }

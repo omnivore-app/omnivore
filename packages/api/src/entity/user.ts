@@ -11,6 +11,7 @@ import { MembershipTier, RegistrationType } from '../datalayer/user/model'
 import { NewsletterEmail } from './newsletter_email'
 import { Profile } from './profile'
 import { Label } from './label'
+import { Subscription } from './subscription'
 
 @Entity()
 export class User {
@@ -49,4 +50,7 @@ export class User {
 
   @OneToMany(() => Label, (label) => label.user)
   labels?: Label[]
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  subscriptions?: Subscription[]
 }

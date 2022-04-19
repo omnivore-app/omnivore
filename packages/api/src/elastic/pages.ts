@@ -128,21 +128,17 @@ const appendIncludeLabelFilter = (
   body: SearchBody,
   filters: LabelFilter[]
 ): void => {
-  body.query.bool.filter.push({
-    nested: {
-      path: 'labels',
-      query: {
-        bool: {
-          filter: filters.map((filter) => {
-            return {
-              terms: {
-                'labels.name': filter.labels,
-              },
-            }
-          }),
+  filters.forEach((filter) => {
+    body.query.bool.filter.push({
+      nested: {
+        path: 'labels',
+        query: {
+          terms: {
+            'labels.name': filter.labels,
+          },
         },
       },
-    },
+    })
   })
 }
 

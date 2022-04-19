@@ -821,6 +821,7 @@ type Query {
   reminder(linkId: ID!): ReminderResult!
   search(after: String, first: Int, query: String): SearchResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
+  subscriptions: SubscriptionsResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1210,6 +1211,39 @@ enum SortOrder {
 input SortParams {
   by: SortBy!
   order: SortOrder
+}
+
+type Subscription {
+  createdAt: Date!
+  description: String
+  id: ID!
+  name: String!
+  status: SubscriptionStatus!
+  unsubscribeHttpUrl: String
+  unsubscribeMailTo: String
+  updatedAt: Date!
+  url: String
+}
+
+type SubscriptionsError {
+  errorCodes: [SubscriptionsErrorCode!]!
+}
+
+enum SubscriptionsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union SubscriptionsResult = SubscriptionsError | SubscriptionsSuccess
+
+type SubscriptionsSuccess {
+  subscriptions: [Subscription!]!
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  DELETED
+  UNSUBSCRIBED
 }
 
 type UpdateHighlightError {

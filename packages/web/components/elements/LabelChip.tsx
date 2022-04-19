@@ -1,6 +1,6 @@
-import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { Button } from './Button'
 import { SpanBox } from './LayoutPrimitives'
-import { StyledText } from './StyledText'
 
 type LabelChipProps = {
   text: string
@@ -8,6 +8,7 @@ type LabelChipProps = {
 }
 
 export function LabelChip(props: LabelChipProps): JSX.Element {
+  const router = useRouter()
   const hexToRgb = (hex: string) => {
     const bigint = parseInt(hex.substring(1), 16)
     const r = (bigint >> 16) & 255
@@ -17,8 +18,12 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
     return [r, g, b]
   }
   const color = hexToRgb(props.color)
+
   return (
-    <Link href={`/home?q=label:"${props.text}"`}>
+    <Button style="plainIcon" onClick={(e) => {
+      router.push(`/home?q=label:"${props.text}"`)
+      e.stopPropagation()
+    }}>
       <SpanBox
         css={{
           display: 'inline-table',
@@ -27,7 +32,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           color: props.color,
           fontSize: '12px',
           fontWeight: 'bold',
-          padding: '4px 8px 4px 8px',
+          padding: '2px 5px 2px 5px',
           whiteSpace: 'nowrap',
           cursor: 'pointer',
           backgroundClip: 'padding-box',
@@ -37,6 +42,6 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
       >
         {props.text}
       </SpanBox>
-    </Link>
+    </Button>
   )
 }

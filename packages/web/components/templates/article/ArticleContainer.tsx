@@ -35,7 +35,6 @@ type ArticleContainerProps = {
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
-  const [showHighlightsModal, setShowHighlightsModal] = useState(props.showHighlightsModal)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
 
   const updateFontSize = async (newFontSize: number) => {

@@ -23,6 +23,7 @@ type PrimaryLayoutProps = {
   pageMetaDataProps?: PageMetaDataProps
   scrollElementRef?: MutableRefObject<HTMLDivElement | null>
   headerToolbarControl?: JSX.Element
+  alwaysDisplayToolbar?: boolean
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
@@ -75,8 +76,9 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           userInitials={viewerData?.me?.name.charAt(0) ?? ''}
           profileImageURL={viewerData?.me?.profile.pictureUrl}
           isFixedPosition={true}
-          toolbarControl={props.headerToolbarControl}
           scrollElementRef={props.scrollElementRef}
+          toolbarControl={props.headerToolbarControl}
+          alwaysDisplayToolbar={props.alwaysDisplayToolbar}
           setShowLogoutConfirmation={setShowLogoutConfirmation}
           setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
         />

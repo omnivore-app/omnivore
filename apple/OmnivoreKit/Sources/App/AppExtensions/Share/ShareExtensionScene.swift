@@ -80,13 +80,14 @@ final class ShareExtensionViewModel: ObservableObject {
       .store(in: &subscriptions)
 
     // Using viewerPublisher to get fast feedback for auth/network errors
-    services.dataService.viewerPublisher()
-      .sink { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
-        self?.debugText = "saveArticleError: \(error)"
-        self?.status = .failed(error: .unknown(description: ""))
-      } receiveValue: { _ in }
-      .store(in: &subscriptions)
+    Task {
+      do {
+        _ = try await services.dataService.fetchViewer()
+      } catch {
+        debugText = "saveArticleError: \(error)"
+        status = .failed(error: .unknown(description: ""))
+      }
+    }
   }
 }
 

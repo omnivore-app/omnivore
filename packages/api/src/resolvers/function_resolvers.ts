@@ -66,6 +66,7 @@ import {
   setUserPersonalizationResolver,
   signupResolver,
   updateHighlightResolver,
+  updateLabelResolver,
   updateLinkShareInfoResolver,
   updateReminderResolver,
   updateSharedCommentResolver,
@@ -73,7 +74,6 @@ import {
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
-  updateLabelResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
@@ -82,6 +82,7 @@ import {
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
 import { generateApiKeyResolver } from './api_key'
+import { subscriptionsResolver } from './subscriptions'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -160,6 +161,7 @@ export const functionResolvers = {
     reminder: reminderResolver,
     labels: labelsResolver,
     search: searchResolver,
+    subscriptions: subscriptionsResolver,
   },
   User: {
     async sharedArticles(
@@ -547,4 +549,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('SetLabels'),
   ...resultResolveTypeResolver('GenerateApiKey'),
   ...resultResolveTypeResolver('Search'),
+  ...resultResolveTypeResolver('Subscriptions'),
 }

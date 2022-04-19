@@ -32,12 +32,8 @@ export interface SearchBody {
             nested: {
               path: 'labels'
               query: {
-                bool: {
-                  filter: {
-                    terms: {
-                      'labels.name': string[]
-                    }
-                  }[]
+                terms: {
+                  'labels.name': string[]
                 }
               }
             }
