@@ -26,6 +26,7 @@ export const saveSubscription = async (
   return getRepository(Subscription).save({
     name,
     user: { id: userId },
+    status: SubscriptionStatus.Active,
     unsubscribeHttpUrl,
     unsubscribeMailTo,
   })

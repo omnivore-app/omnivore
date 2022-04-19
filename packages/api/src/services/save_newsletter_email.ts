@@ -18,8 +18,8 @@ interface NewsletterMessage {
   url: string
   title: string
   author: string
-  unsubMailTo: string
-  unsubHttpUrl: string
+  unsubMailTo?: string
+  unsubHttpUrl?: string
 }
 
 // Returns true if the link was created successfully. Can still fail to

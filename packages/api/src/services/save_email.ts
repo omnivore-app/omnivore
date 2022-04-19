@@ -20,8 +20,8 @@ export type SaveEmailInput = {
   url: string
   title: string
   author: string
-  unsubMailTo: string
-  unsubHttpUrl: string
+  unsubMailTo?: string
+  unsubHttpUrl?: string
 }
 
 export const saveEmail = async (
