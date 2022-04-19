@@ -5,12 +5,10 @@ import { useState, useEffect } from 'react'
 import { LoginLayout } from './../components/templates/LoginLayout'
 import { parseErrorCodes } from '../lib/queryParamParser'
 import { PageMetaData } from '../components/patterns/PageMetaData'
-import { useIntl } from 'react-intl'
+import { formatMessage } from '../locales/en/messages'
 
 export default function Login(): JSX.Element {
   const router = useRouter()
-  const intl = useIntl()
-
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   )
@@ -19,10 +17,11 @@ export default function Login(): JSX.Element {
     if (!router.isReady) return
     const errorCode = parseErrorCodes(router.query)
     const message = errorCode
-      ? intl.formatMessage({ id: `error.${errorCode}` })
+      ? formatMessage({ id: `error.${errorCode}` })
       : undefined
     setErrorMessage(message)
-  }, [router.isReady, router.query, intl])
+    console.log('error message', message)
+  }, [router.isReady, router.query])
 
   const loginFormProps = {
     waitlistButtonClickHander: () => {

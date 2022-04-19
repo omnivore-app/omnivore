@@ -1,9 +1,7 @@
 import '../styles/globals.css'
 import '../styles/articleInnerStyling.css'
 import type { AppProps } from 'next/app'
-import { IntlProvider } from 'react-intl'
 import { IdProvider } from '@radix-ui/react-id'
-import { englishTranslations } from './../locales/en/messages'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
@@ -54,15 +52,9 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
 
   return (
     <IdProvider>
-      <IntlProvider
-        locale="en"
-        defaultLocale="en"
-        messages={englishTranslations}
-      >
-        <TooltipProvider delayDuration={200}>
-          <Component {...pageProps} />
-        </TooltipProvider>
-      </IntlProvider>
+      <TooltipProvider delayDuration={200}>
+        <Component {...pageProps} />
+      </TooltipProvider>
     </IdProvider>
   )
 }

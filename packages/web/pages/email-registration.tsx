@@ -2,25 +2,24 @@ import { PrimaryLayout } from '../components/templates/PrimaryLayout'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { StyledText } from '../components/elements/StyledText'
-import { useIntl } from 'react-intl'
 import { fetchEndpoint } from '../lib/appConfig'
 import { parseErrorCodes } from '../lib/queryParamParser'
+import { formatMessage } from '../locales/en/messages'
 
 export default function EmailRegistration(): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   )
   const router = useRouter()
-  const intl = useIntl()
 
   useEffect(() => {
     if (!router.isReady) return
     const errorCode = parseErrorCodes(router.query)
     const message = errorCode
-      ? intl.formatMessage({ id: `error.${errorCode}` })
+      ? formatMessage({ id: `error.${errorCode}` })
       : undefined
     setErrorMessage(message)
-  }, [router.isReady, router.query, intl])
+  }, [router.isReady, router.query])
 
   return (
     <PrimaryLayout pageTestId="email-registration">

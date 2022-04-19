@@ -1,4 +1,4 @@
-const errorMessages = {
+const errorMessages: Record<string, string> = {
   'error.AUTH_FAILED': 'Something went wrong, please try again in a moment',
   'error.USER_ALREADY_EXISTS': 'User with this email exists already',
   'error.INVALID_CREDENTIALS': 'Invalid email or password',
@@ -26,7 +26,7 @@ const errorMessages = {
   'error.USER_EXISTS': 'User with this email exists already',
 }
 
-const loginPageMessages = {
+const loginPageMessages: Record<string, string> = {
   'login.highlight': 'Highlight',
   'login.note': 'Note',
   'login.collaborate': 'Collaborate',
@@ -38,12 +38,12 @@ const loginPageMessages = {
   'login.SIGNUP_SUCCESS': 'Sign up successful',
 }
 
-const feedPageMessages = {
-  key: 'value',
-}
-
-export const englishTranslations = {
-  ...errorMessages,
-  ...loginPageMessages,
-  ...feedPageMessages,
+export const formatMessage = (p: { id: string}): string | undefined=> {
+  if (p.id in errorMessages) {
+    return errorMessages[p.id]
+  }
+  if (p.id in loginPageMessages) {
+    return loginPageMessages[p.id]
+  }
+  return undefined
 }
