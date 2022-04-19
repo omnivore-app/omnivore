@@ -37,35 +37,35 @@ public struct HighlightDep: Identifiable, Hashable, Codable {
     self.createdByMe = createdByMe
   }
 
-  public func toManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> PersistedHighlight {
-    let persistedHighlight = PersistedHighlight(context: context)
-    persistedHighlight.associatedItemId = associatedItemID
-    persistedHighlight.markedForDeletion = false
-    persistedHighlight.id = id
-    persistedHighlight.shortId = shortId
-    persistedHighlight.quote = quote
-    persistedHighlight.prefix = prefix
-    persistedHighlight.suffix = suffix
-    persistedHighlight.patch = patch
-    persistedHighlight.annotation = annotation
-    persistedHighlight.createdAt = createdAt
-    persistedHighlight.updatedAt = updatedAt
-    persistedHighlight.createdByMe = createdByMe
-    return persistedHighlight
+  public func toManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> Highlight {
+    let highlight = Highlight(context: context)
+    highlight.associatedItemId = associatedItemID
+    highlight.markedForDeletion = false
+    highlight.id = id
+    highlight.shortId = shortId
+    highlight.quote = quote
+    highlight.prefix = prefix
+    highlight.suffix = suffix
+    highlight.patch = patch
+    highlight.annotation = annotation
+    highlight.createdAt = createdAt
+    highlight.updatedAt = updatedAt
+    highlight.createdByMe = createdByMe
+    return highlight
   }
 
-  public static func make(from persistedHighlight: PersistedHighlight) -> HighlightDep {
+  public static func make(from highlight: Highlight) -> HighlightDep {
     HighlightDep(
-      id: persistedHighlight.id ?? "",
-      shortId: persistedHighlight.shortId ?? "",
-      quote: persistedHighlight.quote ?? "",
-      prefix: persistedHighlight.prefix,
-      suffix: persistedHighlight.suffix,
-      patch: persistedHighlight.patch ?? "",
-      annotation: persistedHighlight.annotation,
-      createdByMe: persistedHighlight.createdByMe,
-      createdAt: persistedHighlight.createdAt,
-      updatedAt: persistedHighlight.updatedAt
+      id: highlight.id ?? "",
+      shortId: highlight.shortId ?? "",
+      quote: highlight.quote ?? "",
+      prefix: highlight.prefix,
+      suffix: highlight.suffix,
+      patch: highlight.patch ?? "",
+      annotation: highlight.annotation,
+      createdByMe: highlight.createdByMe,
+      createdAt: highlight.createdAt,
+      updatedAt: highlight.updatedAt
     )
   }
 }

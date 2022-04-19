@@ -37,7 +37,7 @@ public final class DataService: ObservableObject {
   public func clearHighlights() {
     deletedHighlightsIDs.removeAll()
 
-    let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
+    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
 
     let highlights = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
 

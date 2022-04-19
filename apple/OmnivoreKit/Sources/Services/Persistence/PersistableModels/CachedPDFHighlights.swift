@@ -5,7 +5,7 @@ import Models
 
 public extension DataService {
   func cachedHighlights(pdfID: String) -> [HighlightDep] {
-    let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
+    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "associatedItemId = %@ AND markedForDeletion = %@", pdfID, false
     )
@@ -22,10 +22,10 @@ public extension DataService {
 
     do {
       try persistentContainer.viewContext.save()
-      print("PersistedHighlight saved succesfully")
+      print("Highlight saved succesfully")
     } catch {
       persistentContainer.viewContext.rollback()
-      print("Failed to save PersistedHighlight: \(error)")
+      print("Failed to save Highlight: \(error)")
     }
   }
 
@@ -34,7 +34,7 @@ public extension DataService {
       deletedHighlightsIDs.insert(highlightID)
     }
 
-    let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
+    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "id IN %@", highlightIds)
     guard let highlights = try? persistentContainer.viewContext.fetch(fetchRequest) else { return }
 
@@ -44,10 +44,10 @@ public extension DataService {
 
     do {
       try persistentContainer.viewContext.save()
-      print("PersistedHighlight(s) updated succesfully")
+      print("Highlight(s) updated succesfully")
     } catch {
       persistentContainer.viewContext.rollback()
-      print("Failed to update PersistedHighlight(s): \(error)")
+      print("Failed to update Highlight(s): \(error)")
     }
   }
 }
