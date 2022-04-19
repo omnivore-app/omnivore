@@ -236,8 +236,14 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       return
     }
 
+    // If any of the modals are open we disable handling keyboard shortcuts
+    if (labelsTarget || snoozeTarget || shareTarget) {
+      return
+    }
+
     switch (action) {
       case 'showDetail':
+
         const username = viewerData?.me?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
@@ -272,7 +278,6 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         setSnoozeTarget(item)
         break
       case 'set-labels':
-        console.log('setting labels target', item.node.id)
         setLabelsTarget(item)
         break
     }
@@ -733,6 +738,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 if (props.labelsTarget) {
                   props.labelsTarget.node.labels = value as (Label[] | undefined)
                 }
+                break
             }
           }}
           onOpenChange={() => {
