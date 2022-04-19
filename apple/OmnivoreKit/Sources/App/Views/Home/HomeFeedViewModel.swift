@@ -76,6 +76,9 @@ import Views
       receiveCompletion: { [weak self] completion in
         guard case .failure = completion else { return }
         self?.isLoading = false
+        // return cachedItems found in CoreData when request fails
+        self?.items = dataService.cachedFeedItems()
+        self?.cursor = nil
       },
       receiveValue: { [weak self] result in
         // Search results aren't guaranteed to return in order so this

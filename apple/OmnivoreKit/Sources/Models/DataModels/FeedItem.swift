@@ -166,6 +166,29 @@ public extension FeedItemDep {
 
     return linkedItem
   }
+
+  static func make(from item: LinkedItem) -> FeedItemDep {
+    FeedItemDep(
+      id: item.id ?? "",
+      title: item.title ?? "",
+      createdAt: item.createdAt ?? Date(),
+      savedAt: item.savedAt ?? Date(),
+      readingProgress: item.readingProgress,
+      readingProgressAnchor: Int(item.readingProgressAnchor),
+      imageURLString: item.imageURLString,
+      onDeviceImageURLString: item.onDeviceImageURLString,
+      documentDirectoryPath: nil,
+      pageURLString: item.pageURLString ?? "",
+      descriptionText: item.title,
+      publisherURLString: item.publisherURLString,
+      author: item.author,
+      publishDate: item.publishDate,
+      slug: item.slug ?? "",
+      isArchived: item.isArchived,
+      contentReader: item.contentReader,
+      labels: []
+    )
+  }
 }
 
 public extension Sequence where Element == FeedItemDep {

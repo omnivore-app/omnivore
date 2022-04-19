@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
@@ -73,6 +74,13 @@ public extension DataService {
     }
     .receive(on: DispatchQueue.main)
     .eraseToAnyPublisher()
+  }
+
+  func cachedFeedItems() -> [FeedItemDep] {
+    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    // TODO: set sort order?
+    let items = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
+    return items.map { FeedItemDep.make(from: $0) }
   }
 }
 
