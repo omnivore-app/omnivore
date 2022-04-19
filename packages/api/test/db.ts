@@ -1,16 +1,18 @@
-import Postgrator from "postgrator";
-import { User } from "../src/entity/user";
-import { Profile } from "../src/entity/profile";
-import { Page } from "../src/entity/page";
-import { Link } from "../src/entity/link";
-import { Reminder } from "../src/entity/reminder";
-import { NewsletterEmail } from "../src/entity/newsletter_email";
-import { UserDeviceToken } from "../src/entity/user_device_tokens";
-import { Label } from "../src/entity/label";
-import { AppDataSource } from "../src/server";
-import { getRepository } from "../src/entity/utils";
-import { createUser } from "../src/services/create_user";
-import { SnakeNamingStrategy } from "typeorm-naming-strategies";
+import Postgrator from 'postgrator'
+import { User } from '../src/entity/user'
+import { Profile } from '../src/entity/profile'
+import { Page } from '../src/entity/page'
+import { Link } from '../src/entity/link'
+import { Reminder } from '../src/entity/reminder'
+import { NewsletterEmail } from '../src/entity/newsletter_email'
+import { UserDeviceToken } from '../src/entity/user_device_tokens'
+import { Label } from '../src/entity/label'
+import { Subscription } from '../src/entity/subscription'
+import { AppDataSource } from '../src/server'
+import { getRepository } from '../src/entity/utils'
+import { createUser } from '../src/services/create_user'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
+import { SubscriptionStatus } from '../src/generated/graphql'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -185,5 +187,16 @@ export const createTestLabel = async (
     user: user,
     name: name,
     color: color,
+  })
+}
+
+export const createTestSubscription = async (
+  user: User,
+  name: string
+): Promise<Subscription> => {
+  return getRepository(Subscription).save({
+    user,
+    name,
+    status: SubscriptionStatus.Active,
   })
 }
