@@ -54,6 +54,20 @@ public struct HighlightDep: Identifiable, Hashable, Codable {
     return highlight
   }
 
+  public func persist(context: NSManagedObjectContext, associatedItemID: String) -> Highlight? {
+    let highlight = toManagedObject(context: context, associatedItemID: associatedItemID)
+
+    do {
+      try context.save()
+      print("Highlight saved succesfully")
+      return highlight
+    } catch {
+      context.rollback()
+      print("Failed to save Highlight: \(error.localizedDescription)")
+      return nil
+    }
+  }
+
   public static func make(from highlight: Highlight) -> HighlightDep {
     HighlightDep(
       id: highlight.id ?? "",

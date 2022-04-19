@@ -61,8 +61,8 @@ final class WebReaderViewModel: ObservableObject {
       guard case .failure = completion else { return }
       replyHandler([], "createHighlight: Error encoding response")
     } receiveValue: { highlight in
-      if let highlight = encodeHighlightResult(highlight) {
-        replyHandler(["result": highlight], nil)
+      if let highlightValue = encodeHighlightResult(HighlightDep.make(from: highlight)) {
+        replyHandler(["result": highlightValue], nil)
       } else {
         replyHandler([], "createHighlight: Error encoding response")
       }
@@ -104,10 +104,10 @@ final class WebReaderViewModel: ObservableObject {
       guard case .failure = completion else { return }
       replyHandler([], "mergeHighlight: Error encoding response")
     } receiveValue: { highlight in
-      if let highlight = encodeHighlightResult(highlight) {
-        replyHandler(["result": highlight], nil)
+      if let highlightValue = encodeHighlightResult(HighlightDep.make(from: highlight)) {
+        replyHandler(["result": highlightValue], nil)
       } else {
-        replyHandler([], "mergeHighlight: Error encoding response")
+        replyHandler([], "createHighlight: Error encoding response")
       }
     }
     .store(in: &subscriptions)

@@ -11,7 +11,7 @@ public extension DataService {
     patch: String,
     articleId: String,
     annotation: String? = nil
-  ) -> AnyPublisher<HighlightDep, BasicError> {
+  ) -> AnyPublisher<Highlight, BasicError> {
     enum MutationResult {
       case saved(highlight: HighlightDep)
       case error(errorCode: Enums.CreateHighlightErrorCode)
@@ -54,7 +54,14 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(highlight: highlight):
-              promise(.success(highlight))
+              if let highlightObject = highlight.persist(
+                context: self.persistentContainer.viewContext,
+                associatedItemID: articleId
+              ) {
+                promise(.success(highlightObject))
+              } else {
+                promise(.failure(.message(messageText: "core data error")))
+              }
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))
             }
