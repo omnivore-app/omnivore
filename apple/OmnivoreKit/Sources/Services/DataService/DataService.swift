@@ -81,8 +81,12 @@ public extension DataService {
     fetchRequest.predicate = NSPredicate(
       format: "slug = %@", slug
     )
-    if let htmlContent = try? persistentContainer.viewContext.fetch(fetchRequest).first?.htmlContent {
-      return ArticleContentDep(htmlContent: htmlContent, highlights: [])
+    if let articleContent = try? persistentContainer.viewContext.fetch(fetchRequest).first {
+      return ArticleContentDep(
+        htmlContent: articleContent.htmlContent ?? "",
+        highlights: [],
+        storedHighlightsJSONString: articleContent.highlightsJSONString
+      )
     } else {
       return nil
     }
