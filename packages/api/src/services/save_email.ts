@@ -20,6 +20,8 @@ export type SaveEmailInput = {
   url: string
   title: string
   author: string
+  unsubMailTo: string
+  unsubHttpUrl: string
 }
 
 export const saveEmail = async (
@@ -66,6 +68,9 @@ export const saveEmail = async (
     createdAt: new Date(),
     readingProgressAnchorIndex: 0,
     readingProgressPercent: 0,
+    subscription: input.author,
+    unsubHttpUrl: input.unsubHttpUrl,
+    unsubMailTo: input.unsubMailTo,
   }
 
   const page = await getPageByParam({ userId: ctx.uid, url: articleToSave.url })
