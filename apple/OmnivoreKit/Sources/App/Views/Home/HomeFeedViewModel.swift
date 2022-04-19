@@ -12,14 +12,14 @@ import Views
   var uncommittedReadingProgressUpdates = [String: Double]()
 
   /// Track label updates to be committed when user navigates back to grid view
-  var uncommittedLabelUpdates = [String: [FeedItemLabel]]()
+  var uncommittedLabelUpdates = [String: [FeedItemLabelDep]]()
 
   @Published var items = [FeedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: FeedItem?
   @Published var searchTerm = ""
-  @Published var selectedLabels = [FeedItemLabel]()
+  @Published var selectedLabels = [FeedItemLabelDep]()
   @Published var snoozePresented = false
   @Published var itemToSnooze: FeedItem?
   @Published var selectedLinkItem: FeedItem?
@@ -194,7 +194,7 @@ import Views
     }
   }
 
-  func updateLabels(itemID: String, labels: [FeedItemLabel]) {
+  func updateLabels(itemID: String, labels: [FeedItemLabelDep]) {
     // If item is being being displayed then delay the state update of labels until
     // user is no longer reading the item.
     if selectedLinkItem != nil {

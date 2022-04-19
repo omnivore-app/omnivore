@@ -6,7 +6,7 @@ import WebKit
 
 #if os(iOS)
   struct WebReader: UIViewRepresentable {
-    let articleContent: ArticleContent
+    let articleContent: ArticleContentDep
     let item: FeedItem
     let openLinkAction: (URL) -> Void
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void

@@ -8,9 +8,9 @@ public extension DataService {
     highlightID: String,
     annotation: String?,
     sharedAt: Date?
-  ) -> AnyPublisher<Highlight, BasicError> {
+  ) -> AnyPublisher<HighlightDep, BasicError> {
     enum MutationResult {
-      case saved(highlight: Highlight)
+      case saved(highlight: HighlightDep)
       case error(errorCode: Enums.UpdateHighlightErrorCode)
     }
 

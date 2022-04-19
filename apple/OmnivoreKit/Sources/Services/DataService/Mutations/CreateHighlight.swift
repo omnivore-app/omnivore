@@ -11,9 +11,9 @@ public extension DataService {
     patch: String,
     articleId: String,
     annotation: String? = nil
-  ) -> AnyPublisher<Highlight, BasicError> {
+  ) -> AnyPublisher<HighlightDep, BasicError> {
     enum MutationResult {
-      case saved(highlight: Highlight)
+      case saved(highlight: HighlightDep)
       case error(errorCode: Enums.CreateHighlightErrorCode)
     }
 

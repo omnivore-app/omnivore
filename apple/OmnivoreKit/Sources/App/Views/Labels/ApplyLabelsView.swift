@@ -6,7 +6,7 @@ import Views
 struct ApplyLabelsView: View {
   enum Mode {
     case item(FeedItem)
-    case list([FeedItemLabel])
+    case list([FeedItemLabelDep])
 
     var navTitle: String {
       switch self {
@@ -28,7 +28,7 @@ struct ApplyLabelsView: View {
   }
 
   let mode: Mode
-  let commitLabelChanges: ([FeedItemLabel]) -> Void
+  let commitLabelChanges: ([FeedItemLabelDep]) -> Void
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
@@ -147,8 +147,8 @@ struct ApplyLabelsView: View {
   }
 }
 
-private extension Sequence where Element == FeedItemLabel {
-  func applySearchFilter(_ searchFilter: String) -> [FeedItemLabel] {
+private extension Sequence where Element == FeedItemLabelDep {
+  func applySearchFilter(_ searchFilter: String) -> [FeedItemLabelDep] {
     if searchFilter.isEmpty {
       return map { $0 } // return the identity of the sequence
     }

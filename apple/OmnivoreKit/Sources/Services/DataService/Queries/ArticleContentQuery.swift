@@ -4,14 +4,14 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContent, ServerError> {
+  func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContentDep, ServerError> {
     enum QueryResult {
-      case success(result: ArticleContent)
+      case success(result: ArticleContentDep)
       case error(error: String)
     }
 
     let articleSelection = Selection.Article {
-      ArticleContent(
+      ArticleContentDep(
         htmlContent: try $0.content(),
         highlights: try $0.highlights(selection: highlightSelection.list)
       )

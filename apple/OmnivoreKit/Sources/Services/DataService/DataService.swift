@@ -76,13 +76,13 @@ public extension DataService {
     }
   }
 
-  func pageFromCache(slug: String) -> ArticleContent? {
+  func pageFromCache(slug: String) -> ArticleContentDep? {
     let fetchRequest: NSFetchRequest<Models.PersistedArticleContent> = PersistedArticleContent.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "slug = %@", slug
     )
     if let htmlContent = try? persistentContainer.viewContext.fetch(fetchRequest).first?.htmlContent {
-      return ArticleContent(htmlContent: htmlContent, highlights: [])
+      return ArticleContentDep(htmlContent: htmlContent, highlights: [])
     } else {
       return nil
     }

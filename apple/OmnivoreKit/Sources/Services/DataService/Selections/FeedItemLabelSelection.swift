@@ -2,7 +2,7 @@ import Models
 import SwiftGraphQL
 
 let feedItemLabelSelection = Selection.Label {
-  FeedItemLabel(
+  FeedItemLabelDep(
     id: try $0.id(),
     name: try $0.name(),
     color: try $0.color(),

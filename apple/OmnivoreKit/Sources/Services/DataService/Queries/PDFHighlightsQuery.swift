@@ -4,14 +4,14 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func pdfHighlightsPublisher(username: String, slug: String) -> AnyPublisher<[Highlight], ServerError> {
+  func pdfHighlightsPublisher(username: String, slug: String) -> AnyPublisher<[HighlightDep], ServerError> {
     enum QueryResult {
-      case success(result: [Highlight])
+      case success(result: [HighlightDep])
       case error(error: String)
     }
 
     let highlightSelection = Selection.Highlight {
-      Highlight(
+      HighlightDep(
         id: try $0.id(),
         shortId: try $0.shortId(),
         quote: try $0.quote(),

@@ -7,9 +7,9 @@ import Views
 final class LabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
   @Published var isLoading = false
-  @Published var selectedLabels = [FeedItemLabel]()
-  @Published var unselectedLabels = [FeedItemLabel]()
-  @Published var labels = [FeedItemLabel]()
+  @Published var selectedLabels = [FeedItemLabelDep]()
+  @Published var unselectedLabels = [FeedItemLabelDep]()
+  @Published var labels = [FeedItemLabelDep]()
   @Published var showCreateEmailModal = false
 
   var subscriptions = Set<AnyCancellable>()
@@ -19,7 +19,7 @@ final class LabelsViewModel: ObservableObject {
   ///   - dataService: `DataService` reference
   ///   - item: Optional `FeedItem` for applying labels to a single item
   ///   - initiallySelectedLabels: Optional `[FeedItemLabel]` for filtering a list of items
-  func loadLabels(dataService: DataService, item: FeedItem? = nil, initiallySelectedLabels: [FeedItemLabel]? = nil) {
+  func loadLabels(dataService: DataService, item: FeedItem? = nil, initiallySelectedLabels: [FeedItemLabelDep]? = nil) {
     guard !hasLoadedInitialLabels else { return }
     isLoading = true
 
@@ -82,7 +82,7 @@ final class LabelsViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func saveItemLabelChanges(itemID: String, dataService: DataService, onComplete: @escaping ([FeedItemLabel]) -> Void) {
+  func saveItemLabelChanges(itemID: String, dataService: DataService, onComplete: @escaping ([FeedItemLabelDep]) -> Void) {
     isLoading = true
     dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabels.map(\.id)).sink(
       receiveCompletion: { [weak self] _ in
@@ -93,12 +93,12 @@ final class LabelsViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func addLabelToItem(_ label: FeedItemLabel) {
+  func addLabelToItem(_ label: FeedItemLabelDep) {
     selectedLabels.insert(label, at: 0)
     unselectedLabels.removeAll { $0.id == label.id }
   }
 
-  func removeLabelFromItem(_ label: FeedItemLabel) {
+  func removeLabelFromItem(_ label: FeedItemLabelDep) {
     unselectedLabels.insert(label, at: 0)
     selectedLabels.removeAll { $0.id == label.id }
   }

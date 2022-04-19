@@ -8,7 +8,7 @@ public struct TextChip: View {
     self.color = color
   }
 
-  public init?(feedItemLabel: FeedItemLabel) {
+  public init?(feedItemLabel: FeedItemLabelDep) {
     guard let color = Color(hex: feedItemLabel.color) else { return nil }
 
     self.text = feedItemLabel.name
@@ -41,7 +41,7 @@ public struct TextChipButton: View {
   }
 
   public static func makeRemovableLabelButton(
-    feedItemLabel: FeedItemLabel,
+    feedItemLabel: FeedItemLabelDep,
     onTap: @escaping () -> Void
   ) -> TextChipButton {
     TextChipButton(

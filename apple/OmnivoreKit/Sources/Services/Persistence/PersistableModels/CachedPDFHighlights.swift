@@ -4,17 +4,17 @@ import Foundation
 import Models
 
 public extension DataService {
-  func cachedHighlights(pdfID: String) -> [Highlight] {
+  func cachedHighlights(pdfID: String) -> [HighlightDep] {
     let fetchRequest: NSFetchRequest<Models.PersistedHighlight> = PersistedHighlight.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "associatedItemId = %@ AND markedForDeletion = %@", pdfID, false
     )
 
     let highlights = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
-    return highlights.map { Highlight.make(from: $0) }
+    return highlights.map { HighlightDep.make(from: $0) }
   }
 
-  func persistHighlight(pdfID: String, highlight: Highlight) {
+  func persistHighlight(pdfID: String, highlight: HighlightDep) {
     _ = highlight.toManagedObject(
       context: persistentContainer.viewContext,
       associatedItemID: pdfID

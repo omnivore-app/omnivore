@@ -4,9 +4,9 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func labelsPublisher() -> AnyPublisher<[FeedItemLabel], ServerError> {
+  func labelsPublisher() -> AnyPublisher<[FeedItemLabelDep], ServerError> {
     enum QueryResult {
-      case success(result: [FeedItemLabel])
+      case success(result: [FeedItemLabelDep])
       case error(error: String)
     }
 

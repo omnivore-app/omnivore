@@ -1,12 +1,12 @@
 import Foundation
 
-public struct ArticleContent {
+public struct ArticleContentDep {
   public let htmlContent: String
-  public let highlights: [Highlight]
+  public let highlights: [HighlightDep]
 
   public init(
     htmlContent: String,
-    highlights: [Highlight]
+    highlights: [HighlightDep]
   ) {
     self.htmlContent = htmlContent
     self.highlights = highlights

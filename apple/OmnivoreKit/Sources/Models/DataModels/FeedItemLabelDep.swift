@@ -1,6 +1,6 @@
 import Foundation
 
-public struct FeedItemLabel: Decodable, Hashable {
+public struct FeedItemLabelDep: Decodable, Hashable {
   public let id: String
   public let name: String
   public let color: String

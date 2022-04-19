@@ -8,9 +8,9 @@ public extension DataService {
     name: String,
     color: String,
     description: String?
-  ) -> AnyPublisher<FeedItemLabel, BasicError> {
+  ) -> AnyPublisher<FeedItemLabelDep, BasicError> {
     enum MutationResult {
-      case saved(label: FeedItemLabel)
+      case saved(label: FeedItemLabelDep)
       case error(errorCode: Enums.CreateLabelErrorCode)
     }
 

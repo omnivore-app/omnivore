@@ -28,7 +28,7 @@ public struct FeedItem: Identifiable, Hashable {
   public let slug: String
   public let isArchived: Bool
   public let contentReader: String?
-  public var labels: [FeedItemLabel]
+  public var labels: [FeedItemLabelDep]
 
   public init(
     id: String,
@@ -48,7 +48,7 @@ public struct FeedItem: Identifiable, Hashable {
     slug: String,
     isArchived: Bool,
     contentReader: String?,
-    labels: [FeedItemLabel]
+    labels: [FeedItemLabelDep]
   ) {
     self.id = id
     self.title = title

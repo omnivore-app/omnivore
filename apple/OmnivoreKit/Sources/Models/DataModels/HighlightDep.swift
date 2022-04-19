@@ -1,7 +1,7 @@
 import CoreData
 import Foundation
 
-public struct Highlight: Identifiable, Hashable, Codable {
+public struct HighlightDep: Identifiable, Hashable, Codable {
   public let id: String
   public let shortId: String
   public let quote: String
@@ -54,8 +54,8 @@ public struct Highlight: Identifiable, Hashable, Codable {
     return persistedHighlight
   }
 
-  public static func make(from persistedHighlight: PersistedHighlight) -> Highlight {
-    Highlight(
+  public static func make(from persistedHighlight: PersistedHighlight) -> HighlightDep {
+    HighlightDep(
       id: persistedHighlight.id ?? "",
       shortId: persistedHighlight.shortId ?? "",
       quote: persistedHighlight.quote ?? "",

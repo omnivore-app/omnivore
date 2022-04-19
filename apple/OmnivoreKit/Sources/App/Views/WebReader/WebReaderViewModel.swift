@@ -9,14 +9,14 @@ struct SafariWebLink: Identifiable {
   let url: URL
 }
 
-func encodeHighlightResult(_ highlight: Highlight) -> [String: Any]? {
+func encodeHighlightResult(_ highlight: HighlightDep) -> [String: Any]? {
   guard let data = try? JSONEncoder().encode(highlight) else { return nil }
   return try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any]
 }
 
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var articleContent: ArticleContent?
+  @Published var articleContent: ArticleContentDep?
 
   var slug: String?
   var subscriptions = Set<AnyCancellable>()

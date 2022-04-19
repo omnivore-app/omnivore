@@ -17,7 +17,7 @@ public final class PDFViewerViewModel: ObservableObject {
     self.feedItem = feedItem
   }
 
-  public func loadHighlights(completion onComplete: @escaping ([Highlight]) -> Void) {
+  public func loadHighlights(completion onComplete: @escaping ([HighlightDep]) -> Void) {
     guard let username = services.dataService.currentViewer?.username else { return }
 
     services.dataService.pdfHighlightsPublisher(username: username, slug: feedItem.slug).sink(
@@ -32,8 +32,8 @@ public final class PDFViewerViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  private func allHighlights(fetchedHighlights: [Highlight]) -> [Highlight] {
-    var resultSet = [String: Highlight]()
+  private func allHighlights(fetchedHighlights: [HighlightDep]) -> [HighlightDep] {
+    var resultSet = [String: HighlightDep]()
 
     for highlight in services.dataService.cachedHighlights(pdfID: feedItem.id) {
       resultSet[highlight.id] = highlight
@@ -50,7 +50,7 @@ public final class PDFViewerViewModel: ObservableObject {
   public func createHighlight(shortId: String, highlightID: String, quote: String, patch: String) {
     services.dataService.persistHighlight(
       pdfID: feedItem.id,
-      highlight: Highlight(
+      highlight: HighlightDep(
         id: highlightID,
         shortId: shortId,
         quote: quote,
@@ -88,7 +88,7 @@ public final class PDFViewerViewModel: ObservableObject {
   ) {
     services.dataService.persistHighlight(
       pdfID: feedItem.id,
-      highlight: Highlight(
+      highlight: HighlightDep(
         id: highlightID,
         shortId: shortId,
         quote: quote,
