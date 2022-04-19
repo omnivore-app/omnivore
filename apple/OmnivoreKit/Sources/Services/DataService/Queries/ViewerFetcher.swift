@@ -49,49 +49,6 @@ public extension DataService {
   }
 }
 
-extension DataService {
-  @available(*, deprecated, message: "use async version instead")
-  func internalViewerPublisher() -> AnyPublisher<Viewer, BasicError> {
-    let selection = Selection<ViewerInternal, Objects.User> {
-      ViewerInternal(
-        userID: try $0.id(),
-        username: try $0.profile(
-          selection: .init { try $0.username() }
-        ),
-        name: try $0.name(),
-        profileImageURL: try $0.profile(
-          selection: .init { try $0.pictureUrl() }
-        )
-      )
-    }
-
-    let query = Selection.Query {
-      try $0.me(selection: selection.nonNullOrFail)
-    }
-
-    let path = appEnvironment.graphqlPath
-    let headers = networker.defaultHeaders
-
-    return Deferred {
-      Future { [weak self] promise in
-        send(query, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let self = self, let viewer = payload.data.persist(context: self.persistentContainer.viewContext) {
-              promise(.success(viewer))
-            } else {
-              promise(.failure(.message(messageText: "coredata error")))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "http error")))
-          }
-        }
-      }
-    }
-    .eraseToAnyPublisher()
-  }
-}
-
 private struct ViewerInternal {
   let userID: String
   let username: String

@@ -4,57 +4,6 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func articlePublisher(slug: String) -> AnyPublisher<FeedItemDep, BasicError> {
-    internalViewerPublisher()
-      .flatMap { self.internalArticlePublisher(username: $0.username ?? "", slug: slug) }
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
-  }
-}
-
-extension DataService {
-  func internalArticlePublisher(username: String, slug: String) -> AnyPublisher<FeedItemDep, BasicError> {
-    enum QueryResult {
-      case success(result: FeedItemDep)
-      case error(error: String)
-    }
-
-    let selection = Selection<QueryResult, Unions.ArticleResult> {
-      try $0.on(
-        articleSuccess: .init { QueryResult.success(result: try $0.article(selection: homeFeedItemSelection)) },
-        articleError: .init { QueryResult.error(error: try $0.errorCodes().description) }
-      )
-    }
-
-    let query = Selection.Query {
-      try $0.article(username: username, slug: slug, selection: selection)
-    }
-
-    let path = appEnvironment.graphqlPath
-    let headers = networker.defaultHeaders
-
-    return Deferred {
-      Future { promise in
-        send(query, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            switch payload.data {
-            case let .success(result: result):
-              promise(.success(result))
-            case let .error(error: error):
-              promise(.failure(.message(messageText: error.debugDescription)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "ger article fetch failed")))
-          }
-        }
-      }
-    }
-    .eraseToAnyPublisher()
-  }
-}
-
-public extension DataService {
   func libraryItemsPublisher(
     limit: Int,
     sortDescending: Bool,
