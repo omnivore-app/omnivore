@@ -42,6 +42,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
                 onClick={() => {
                   props.onOpenChange(false)
                 }}
+                tabIndex={-1}
               >
                 <CrossIcon
                   size={14}
