@@ -59,6 +59,8 @@ public extension DataService {
           case let .success(payload):
             switch payload.data {
             case let .success(result: result):
+              // save items to coredata
+              _ = result.items.persist(context: self.persistentContainer.viewContext)
               promise(.success(result))
             case .error:
               promise(.failure(.unknown))

@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 
 public struct HomeFeedData {
@@ -135,5 +136,50 @@ struct JSONArticle: Decodable {
       contentReader: contentReader,
       labels: []
     )
+  }
+}
+
+public extension FeedItemDep {
+  func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {
+    let linkedItem = LinkedItem(context: context)
+
+    linkedItem.id = id
+    linkedItem.title = title
+    linkedItem.createdAt = createdAt
+    linkedItem.savedAt = savedAt
+    linkedItem.readingProgress = readingProgress
+    linkedItem.readingProgressAnchor = Int64(readingProgressAnchor)
+    linkedItem.imageURLString = imageURLString
+    linkedItem.onDeviceImageURLString = onDeviceImageURLString
+    linkedItem.pageURLString = pageURLString
+    linkedItem.descriptionText = descriptionText
+    linkedItem.publisherURLString = publisherURLString
+    linkedItem.author = author
+    linkedItem.publishDate = publishDate
+    linkedItem.slug = slug
+    linkedItem.isArchived = isArchived
+    linkedItem.contentReader = contentReader
+
+    //    for label in item.labels {
+    // TODO: append labels
+    //    }
+
+    return linkedItem
+  }
+}
+
+public extension Sequence where Element == FeedItemDep {
+  func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
+    let linkedItems = map { $0.asManagedObject(inContext: context) }
+
+    do {
+      try context.save()
+      print("LinkedItems saved succesfully")
+      return linkedItems
+    } catch {
+      context.rollback()
+      print("Failed to save LinkedItems: \(error.localizedDescription)")
+      return nil
+    }
   }
 }
