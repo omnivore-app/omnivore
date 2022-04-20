@@ -38,9 +38,9 @@ export const Button = styled('button', {
         fontFamily: 'Inter',
         borderRadius: '8px',
         cursor: 'pointer',
-        color: '$omnivoreGray',
+        color: '$grayTextContrast',
         p: '10px 12px',
-        bg: 'rgb(125, 125, 125, 0)',
+        bg: 'rgb(125, 125, 125, 0.1)',
         '&:hover': {
           bg: 'rgb(47, 47, 47, 0.1)',
           '.ctaButtonIcon': {
