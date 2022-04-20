@@ -430,6 +430,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       setLabelsTarget={setLabelsTarget}
       showAddLinkModal={showAddLinkModal}
       setShowAddLinkModal={setShowAddLinkModal}
+      setActiveItem={(item: LibraryItem) => {
+        activateCard(item.node.id)
+      }}
     />
   )
 }
@@ -452,6 +455,7 @@ type HomeFeedContentProps = {
   setLabelsTarget: (target: LibraryItem | undefined) => void
   showAddLinkModal: boolean
   setShowAddLinkModal: (show: boolean) => void
+  setActiveItem: (item: LibraryItem) => void
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
@@ -745,7 +749,11 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }
           }}
           onOpenChange={() => {
-            props.setLabelsTarget(undefined)
+            if (props.labelsTarget) {
+              const activate = props.labelsTarget
+              props.setActiveItem(activate)
+              props.setLabelsTarget(undefined)
+            }
           }}
         />
       )}
