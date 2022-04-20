@@ -49,16 +49,15 @@ public extension DataService {
             switch payload.data {
             case let .success(result: result):
               // store result in core data
-              let highlightsJSONString = result.highlights.asJSONString
               self?.persistArticleContent(
                 htmlContent: result.htmlContent,
                 slug: slug,
-                highlightsJSONString: highlightsJSONString
+                highlights: result.highlights
               )
               promise(.success(
                 ArticleContent(
                   htmlContent: result.htmlContent,
-                  highlightsJSONString: highlightsJSONString
+                  highlightsJSONString: result.highlights.asJSONString
                 ))
               )
             case .error:
@@ -76,23 +75,24 @@ public extension DataService {
 }
 
 extension DataService {
-  func persistArticleContent(htmlContent: String, slug: String, highlightsJSONString: String) {
-    let persistedArticleContent = PersistedArticleContent(context: persistentContainer.viewContext)
+  func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
+    let persistedArticleContent = PersistedArticleContent(
+      entity: PersistedArticleContent.entity(),
+      insertInto: persistentContainer.viewContext
+    )
     persistedArticleContent.htmlContent = htmlContent
     persistedArticleContent.slug = slug
-    persistedArticleContent.highlightsJSONString = highlightsJSONString
 
-    // TODO: store highlights and create json string at call time
-//    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-//    fetchRequest.predicate = NSPredicate(
-//      format: "slug == %@", slug
-//    )
-//
-//    if let linkedItem = try? persistentContainer.viewContext.fetch(fetchRequest).first {
-//      _ = highlights.map {
-//        $0.asManagedObject(context: persistentContainer.viewContext, associatedItemID: linkedItem.id ?? "")
-//      }
-//    }
+    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "slug == %@", slug
+    )
+
+    if let linkedItemID = try? persistentContainer.viewContext.fetch(fetchRequest).first?.id {
+      _ = highlights.map {
+        $0.asManagedObject(context: persistentContainer.viewContext, associatedItemID: linkedItemID)
+      }
+    }
 
     do {
       try persistentContainer.viewContext.save()

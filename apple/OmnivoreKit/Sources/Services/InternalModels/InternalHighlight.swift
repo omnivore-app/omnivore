@@ -15,7 +15,7 @@ struct InternalHighlight: Encodable {
   let createdByMe: Bool
 
   func asManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> Highlight {
-    let highlight = Highlight(context: context)
+    let highlight = Highlight(entity: Highlight.entity(), insertInto: context)
     highlight.linkedItemId = associatedItemID
     highlight.markedForDeletion = false
     highlight.id = id

@@ -77,20 +77,21 @@ public extension DataService {
   }
 
   func pageFromCache(slug: String) -> ArticleContent? {
-    // TODO: cerate highlightsJSON from stored highlights
-//    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-//    fetchRequest.predicate = NSPredicate(
-//      format: "slug == %@", slug
-//    )
-//
-//    guard let linkedItem = try? persistentContainer.viewContext.fetch(fetchRequest).first else { return nil }
-//
-//    let highlightsFetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-//    fetchRequest.predicate = NSPredicate(
-//      format: "linkedItemId == %@", linkedItem.id ?? ""
-//    )
-//
-//    let highlights = (try? persistentContainer.viewContext.fetch(highlightsFetchRequest)) ?? []
+    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    linkedItemFetchRequest.predicate = NSPredicate(
+      format: "slug == %@", slug
+    )
+
+    guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
+
+    let highlightsFetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+    highlightsFetchRequest.predicate = NSPredicate(
+      format: "linkedItemId == %@", linkedItem.id ?? ""
+    )
+
+    guard let highlights = try? persistentContainer.viewContext.fetch(highlightsFetchRequest) else { return nil }
+
+    let highlightsJSONString = highlights.map { InternalHighlight.make(from: $0) }.asJSONString
 
     let fetchRequest: NSFetchRequest<Models.PersistedArticleContent> = PersistedArticleContent.fetchRequest()
     fetchRequest.predicate = NSPredicate(
@@ -100,7 +101,7 @@ public extension DataService {
     if let articleContent = (try? persistentContainer.viewContext.fetch(fetchRequest))?.first {
       return ArticleContent(
         htmlContent: articleContent.htmlContent ?? "",
-        highlightsJSONString: articleContent.highlightsJSONString ?? ""
+        highlightsJSONString: highlightsJSONString
       )
     } else {
       return nil
