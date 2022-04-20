@@ -587,12 +587,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           applySearchQuery={props.applySearchQuery}
         />
         {viewerData?.me && isVipUser(viewerData?.me) && (
-          <Box css={{ display: 'flex', width: '100%', height: '44px', marginTop: '16px', gap: '8px', flexDirection: 'row' }}>
+          <Box css={{ display: 'flex', width: '100%', height: '44px', marginTop: '16px', gap: '8px', flexDirection: 'row', overflowY: 'scroll', scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            }
+          }}>
             {Object.keys(SAVED_SEARCHES).map(key => {
               const searchQuery = SAVED_SEARCHES[key]
               const style = searchQuery === props.searchTerm || (!props.searchTerm && !searchQuery) ? 'ctaDarkYellow' : 'ctaLightGray'
               return (
-                <Button key={key} style={style} onClick={() => { props.applySearchQuery(searchQuery)}} css={{ p: '10px 12px', borderRadius: '6px' }}>
+                <Button key={key} style={style} onClick={() => { props.applySearchQuery(searchQuery)}} css={{ p: '10px 12px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
                   {key}
                 </Button>
               )
