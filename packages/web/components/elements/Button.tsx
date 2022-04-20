@@ -47,9 +47,6 @@ export const Button = styled('button', {
             visibility: 'visible',
           },
         },
-        '@md': {
-          bg: 'rgb(125, 125, 125, 0.1)',
-        },
         '.ctaButtonIcon': {
           visibility: 'hidden',
         }
