@@ -37,11 +37,20 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { isVipUser } from '../../../lib/featureFlag'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
 export type HomeFeedContainerProps = {
   scrollElementRef: React.RefObject<HTMLDivElement>
+}
+
+const SAVED_SEARCHES: Record<string,string> = {
+  'Inbox': '',
+  'All': 'in:all',
+  'Today': `in:inbox saved:${new Date(new Date().setDate(-1)).toISOString().split('T')[0]}..*`,
+  'Newsletter': `in:inbox label:Newsletter`,
+  'Non-Newsletter': `in:inbox -label:Newsletter`,
 }
 
 export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
@@ -577,6 +586,20 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           searchTerm={props.searchTerm}
           applySearchQuery={props.applySearchQuery}
         />
+        {viewerData?.me && isVipUser(viewerData?.me) && (
+          <Box css={{ display: 'flex', width: '100%', height: '44px', marginTop: '16px', gap: '8px', flexDirection: 'row' }}>
+            {Object.keys(SAVED_SEARCHES).map(key => {
+              const searchQuery = SAVED_SEARCHES[key]
+              const style = searchQuery === props.searchTerm || (!props.searchTerm && !searchQuery) ? 'ctaDarkYellow' : 'ctaLightGray'
+              return (
+                <Button key={key} style={style} onClick={() => { props.applySearchQuery(searchQuery)}} css={{ p: '10px 12px', borderRadius: '6px' }}>
+                  {key}
+                </Button>
+              )
+            })
+          }
+          </Box>
+        )}
         <Box
           ref={props.gridContainerRef}
           css={{

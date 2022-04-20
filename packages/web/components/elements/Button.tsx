@@ -38,17 +38,14 @@ export const Button = styled('button', {
         fontFamily: 'Inter',
         borderRadius: '8px',
         cursor: 'pointer',
-        color: '$omnivoreGray',
-        p: '10px 10px',
-        bg: 'rgb(125, 125, 125, 0)',
+        color: '$grayTextContrast',
+        p: '10px 12px',
+        bg: 'rgb(125, 125, 125, 0.1)',
         '&:hover': {
           bg: 'rgb(47, 47, 47, 0.1)',
           '.ctaButtonIcon': {
             visibility: 'visible',
           },
-        },
-        '@md': {
-          bg: 'rgb(125, 125, 125, 0.1)',
         },
         '.ctaButtonIcon': {
           visibility: 'hidden',
