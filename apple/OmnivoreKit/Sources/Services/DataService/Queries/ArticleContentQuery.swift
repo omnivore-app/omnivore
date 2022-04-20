@@ -1,20 +1,25 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
+  struct ArticleContent {
+    let htmlContent: String
+    let highlights: [InternalHighlight]
+  }
+
   func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContentDep, ServerError> {
     enum QueryResult {
-      case success(result: ArticleContentDep)
+      case success(result: ArticleContent)
       case error(error: String)
     }
 
     let articleSelection = Selection.Article {
-      ArticleContentDep(
+      ArticleContent(
         htmlContent: try $0.content(),
-        highlights: try $0.highlights(selection: highlightDepSelection.list),
-        storedHighlightsJSONString: nil
+        highlights: try $0.highlights(selection: highlightSelection.list)
       )
     }
 
@@ -44,8 +49,18 @@ public extension DataService {
             switch payload.data {
             case let .success(result: result):
               // store result in core data
-              self?.persistArticleContent(htmlContent: result.htmlContent, slug: slug, highlights: result.highlights)
-              promise(.success(result))
+              let highlightsJSONString = result.highlights.asJSONString
+              self?.persistArticleContent(
+                htmlContent: result.htmlContent,
+                slug: slug,
+                highlightsJSONString: highlightsJSONString
+              )
+              promise(.success(
+                ArticleContentDep(
+                  htmlContent: result.htmlContent,
+                  highlightsJSONString: highlightsJSONString
+                ))
+              )
             case .error:
               promise(.failure(.unknown))
             }
@@ -61,21 +76,30 @@ public extension DataService {
 }
 
 extension DataService {
-  func persistArticleContent(htmlContent: String, slug: String, highlights: [HighlightDep]) {
+  func persistArticleContent(htmlContent: String, slug: String, highlightsJSONString: String) {
     let persistedArticleContent = PersistedArticleContent(context: persistentContainer.viewContext)
     persistedArticleContent.htmlContent = htmlContent
     persistedArticleContent.slug = slug
+    persistedArticleContent.highlightsJSONString = highlightsJSONString
 
-    if let jsonData = try? JSONEncoder().encode(highlights) {
-      persistedArticleContent.highlightsJSONString = String(data: jsonData, encoding: .utf8)
-    }
+    // TODO: store highlights and create json string at call time
+//    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+//    fetchRequest.predicate = NSPredicate(
+//      format: "slug == %@", slug
+//    )
+//
+//    if let linkedItem = try? persistentContainer.viewContext.fetch(fetchRequest).first {
+//      _ = highlights.map {
+//        $0.asManagedObject(context: persistentContainer.viewContext, associatedItemID: linkedItem.id ?? "")
+//      }
+//    }
 
     do {
       try persistentContainer.viewContext.save()
-      print("PersistedArticleContent saved succesfully")
+      print("ArticleContent saved succesfully")
     } catch {
       persistentContainer.viewContext.rollback()
-      print("Failed to save PersistedArticleContent: \(error)")
+      print("Failed to save ArticleContent: \(error)")
     }
   }
 }

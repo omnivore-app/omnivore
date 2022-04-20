@@ -4,18 +4,21 @@ import Utils
 
 struct WebReaderContent {
   let textFontSize: Int
-  let articleContent: ArticleContentDep
+  let htmlContent: String
+  let highlightsJSONString: String
   let item: FeedItemDep
   let themeKey: String
 
   init(
-    articleContent: ArticleContentDep,
+    htmlContent: String,
+    highlightsJSONString: String,
     item: FeedItemDep,
     isDark: Bool,
     fontSize: Int
   ) {
     self.textFontSize = fontSize
-    self.articleContent = articleContent
+    self.htmlContent = htmlContent
+    self.highlightsJSONString = highlightsJSONString
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
   }
@@ -39,7 +42,7 @@ struct WebReaderContent {
       <body>
         <div id="root" />
         <div id='_omnivore-htmlContent' style="display: none;">
-          \(articleContent.htmlContent)
+          \(htmlContent)
         </div>
         <script type="text/javascript">
           window.omnivoreEnv = {
@@ -63,7 +66,7 @@ struct WebReaderContent {
             contentReader: "WEB",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
-            highlights: \(articleContent.highlightsJSONString),
+            highlights: \(highlightsJSONString),
           }
 
           window.fontSize = \(textFontSize)

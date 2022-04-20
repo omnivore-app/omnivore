@@ -24,7 +24,6 @@
         <attribute name="contentReader" optional="YES" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="descriptionText" optional="YES" attributeType="String"/>
-        <attribute name="htmlContent" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -90,7 +89,7 @@
     </entity>
     <elements>
         <element name="Highlight" positionX="27" positionY="225" width="128" height="209"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="314"/>
+        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="299"/>
         <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
         <element name="PersistedArticleContent" positionX="9" positionY="108" width="128" height="74"/>

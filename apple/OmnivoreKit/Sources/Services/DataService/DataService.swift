@@ -77,15 +77,30 @@ public extension DataService {
   }
 
   func pageFromCache(slug: String) -> ArticleContentDep? {
+    // TODO: cerate highlightsJSON from stored highlights
+//    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+//    fetchRequest.predicate = NSPredicate(
+//      format: "slug == %@", slug
+//    )
+//
+//    guard let linkedItem = try? persistentContainer.viewContext.fetch(fetchRequest).first else { return nil }
+//
+//    let highlightsFetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+//    fetchRequest.predicate = NSPredicate(
+//      format: "linkedItemId == %@", linkedItem.id ?? ""
+//    )
+//
+//    let highlights = (try? persistentContainer.viewContext.fetch(highlightsFetchRequest)) ?? []
+
     let fetchRequest: NSFetchRequest<Models.PersistedArticleContent> = PersistedArticleContent.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "slug = %@", slug
     )
-    if let articleContent = try? persistentContainer.viewContext.fetch(fetchRequest).first {
+
+    if let articleContent = (try? persistentContainer.viewContext.fetch(fetchRequest))?.first {
       return ArticleContentDep(
         htmlContent: articleContent.htmlContent ?? "",
-        highlights: [],
-        storedHighlightsJSONString: articleContent.highlightsJSONString
+        highlightsJSONString: articleContent.highlightsJSONString ?? ""
       )
     } else {
       return nil
@@ -93,4 +108,14 @@ public extension DataService {
   }
 
   func invalidateCachedPage(slug _: String?) {}
+}
+
+// TODO: move to util file
+extension Optional where Wrapped == NSSet {
+  func asArray<T: Hashable>(of _: T.Type) -> [T] {
+    if let set = self as? Set<T> {
+      return Array(set)
+    }
+    return [T]()
+  }
 }

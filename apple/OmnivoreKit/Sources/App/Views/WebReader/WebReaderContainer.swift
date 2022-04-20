@@ -149,7 +149,8 @@ import WebKit
       ZStack {
         if let articleContent = viewModel.articleContent {
           WebReader(
-            articleContent: articleContent,
+            htmlContent: articleContent.htmlContent,
+            highlightsJSONString: articleContent.highlightsJSONString,
             item: item,
             openLinkAction: {
               #if os(macOS)

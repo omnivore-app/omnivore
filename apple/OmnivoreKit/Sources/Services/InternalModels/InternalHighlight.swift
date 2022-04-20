@@ -31,6 +31,21 @@ struct InternalHighlight: Encodable {
     return highlight
   }
 
+  static func make(from highlight: Highlight) -> InternalHighlight {
+    InternalHighlight(
+      id: highlight.id ?? "",
+      shortId: highlight.shortId ?? "",
+      quote: highlight.quote ?? "",
+      prefix: highlight.prefix,
+      suffix: highlight.suffix,
+      patch: highlight.patch ?? "",
+      annotation: highlight.annotation,
+      createdAt: highlight.createdAt,
+      updatedAt: highlight.updatedAt,
+      createdByMe: highlight.createdByMe
+    )
+  }
+
   func persist(
     context: NSManagedObjectContext,
     associatedItemID: String,
@@ -60,5 +75,13 @@ struct InternalHighlight: Encodable {
   func encoded() -> [String: Any]? {
     guard let data = try? JSONEncoder().encode(self) else { return nil }
     return try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any]
+  }
+}
+
+extension Array where Element == InternalHighlight {
+  var asJSONString: String {
+    let jsonData = try? JSONEncoder().encode(self)
+    guard let jsonData = jsonData else { return "[]" }
+    return String(data: jsonData, encoding: .utf8) ?? "[]"
   }
 }

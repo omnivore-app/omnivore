@@ -8,7 +8,7 @@ public extension DataService {
   func cachedHighlights(pdfID: String) -> [HighlightDep] {
     let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
     fetchRequest.predicate = NSPredicate(
-      format: "linkedItemId = %@ AND markedForDeletion = %@", pdfID, false
+      format: "linkedItemId == %@ AND markedForDeletion == %@", pdfID, false
     )
 
     let highlights = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
