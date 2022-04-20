@@ -69,8 +69,6 @@ export const saveEmail = async (
     readingProgressAnchorIndex: 0,
     readingProgressPercent: 0,
     subscription: input.author,
-    unsubHttpUrl: input.unsubHttpUrl,
-    unsubMailTo: input.unsubMailTo,
   }
 
   const page = await getPageByParam({ userId: ctx.uid, url: articleToSave.url })

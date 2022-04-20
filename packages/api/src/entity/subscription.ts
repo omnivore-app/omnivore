@@ -28,6 +28,9 @@ export class Subscription {
   })
   status!: SubscriptionStatus
 
+  @Column('text')
+  newsletterEmail!: string
+
   @Column('text', { nullable: true })
   description?: string
 

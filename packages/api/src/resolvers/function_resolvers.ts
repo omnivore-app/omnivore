@@ -65,6 +65,8 @@ import {
   setShareHighlightResolver,
   setUserPersonalizationResolver,
   signupResolver,
+  subscriptionsResolver,
+  unsubscribeResolver,
   updateHighlightResolver,
   updateLabelResolver,
   updateLinkShareInfoResolver,
@@ -82,7 +84,6 @@ import {
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
 import { generateApiKeyResolver } from './api_key'
-import { subscriptionsResolver } from './subscriptions'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -143,6 +144,7 @@ export const functionResolvers = {
     signup: signupResolver,
     setLabels: setLabelsResolver,
     generateApiKey: generateApiKeyResolver,
+    unsubscribe: unsubscribeResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -550,4 +552,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('GenerateApiKey'),
   ...resultResolveTypeResolver('Search'),
   ...resultResolveTypeResolver('Subscriptions'),
+  ...resultResolveTypeResolver('Unsubscribe'),
 }
