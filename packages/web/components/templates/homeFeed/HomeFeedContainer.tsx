@@ -236,14 +236,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       return
     }
 
-    // If any of the modals are open we disable handling keyboard shortcuts
-    if (labelsTarget || snoozeTarget || shareTarget) {
-      return
-    }
-
     switch (action) {
       case 'showDetail':
-
         const username = viewerData?.me?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
@@ -291,6 +285,11 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
           .getPropertyValue('grid-template-columns')
           .split(' ').length
         return gridColumnCount
+      }
+
+      // If any of the modals are open we disable handling keyboard shortcuts
+      if (labelsTarget || snoozeTarget || shareTarget) {
+        return
       }
 
       switch (action) {
