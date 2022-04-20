@@ -5,19 +5,19 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  struct ArticleContent {
+  struct ArticleProps {
     let htmlContent: String
     let highlights: [InternalHighlight]
   }
 
-  func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContentDep, ServerError> {
+  func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContent, ServerError> {
     enum QueryResult {
-      case success(result: ArticleContent)
+      case success(result: ArticleProps)
       case error(error: String)
     }
 
     let articleSelection = Selection.Article {
-      ArticleContent(
+      ArticleProps(
         htmlContent: try $0.content(),
         highlights: try $0.highlights(selection: highlightSelection.list)
       )
@@ -56,7 +56,7 @@ public extension DataService {
                 highlightsJSONString: highlightsJSONString
               )
               promise(.success(
-                ArticleContentDep(
+                ArticleContent(
                   htmlContent: result.htmlContent,
                   highlightsJSONString: highlightsJSONString
                 ))

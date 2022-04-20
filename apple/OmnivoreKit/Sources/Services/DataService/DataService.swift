@@ -76,7 +76,7 @@ public extension DataService {
     }
   }
 
-  func pageFromCache(slug: String) -> ArticleContentDep? {
+  func pageFromCache(slug: String) -> ArticleContent? {
     // TODO: cerate highlightsJSON from stored highlights
 //    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
 //    fetchRequest.predicate = NSPredicate(
@@ -98,7 +98,7 @@ public extension DataService {
     )
 
     if let articleContent = (try? persistentContainer.viewContext.fetch(fetchRequest))?.first {
-      return ArticleContentDep(
+      return ArticleContent(
         htmlContent: articleContent.htmlContent ?? "",
         highlightsJSONString: articleContent.highlightsJSONString ?? ""
       )

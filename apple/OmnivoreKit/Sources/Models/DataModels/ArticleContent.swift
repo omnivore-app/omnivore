@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ArticleContentDep {
+public struct ArticleContent {
   public let htmlContent: String
   public let highlightsJSONString: String
 

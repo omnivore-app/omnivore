@@ -11,7 +11,7 @@ struct SafariWebLink: Identifiable {
 
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var articleContent: ArticleContentDep?
+  @Published var articleContent: ArticleContent?
 
   var slug: String?
   var subscriptions = Set<AnyCancellable>()
