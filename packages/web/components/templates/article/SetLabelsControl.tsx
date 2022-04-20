@@ -7,7 +7,6 @@ import { CrossIcon } from '../../elements/images/CrossIcon'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Check, Circle, PencilSimple, Plus } from 'phosphor-react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { setLabelsMutation } from '../../../lib/networking/mutations/setLabelsMutation'
@@ -15,9 +14,12 @@ import { createLabelMutation } from '../../../lib/networking/mutations/createLab
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { randomLabelColorHex } from '../../../utils/settings-page/labels/labelColorObjects'
 import { useRouter } from 'next/router'
+import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 
 type SetLabelsControlProps = {
-  article: ArticleAttributes
+  linkId: string
+  labels: Label[] | undefined
+  article?: ArticleAttributes
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
@@ -187,7 +189,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
   const router = useRouter()
   const [filterText, setFilterText] = useState('')
   const { labels, revalidate } = useGetLabelsQuery()
-  const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.article.labels || [])
+  const [selectedLabels, setSelectedLabels] = useState<Label[]>(props.labels || [])
 
   useEffect(() => {
     setFocusedIndex(undefined)
@@ -211,11 +213,13 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     setSelectedLabels(newSelectedLabels)
 
     const result = await setLabelsMutation(
-      props.article.linkId,
+      props.linkId,
       newSelectedLabels.map((label) => label.id)
     )
 
-    props.article.labels = result
+    if (props.article) {
+      props.article.labels = result
+    }
     props.articleActionHandler('refreshLabels', result)
 
     revalidate()

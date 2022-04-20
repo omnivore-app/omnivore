@@ -1,3 +1,4 @@
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { CrossIcon } from '../../elements/images/CrossIcon'
@@ -12,7 +13,9 @@ import { theme } from '../../tokens/stitches.config'
 import { SetLabelsControl } from './SetLabelsControl'
 
 type SetLabelsModalProps = {
-  article: ArticleAttributes
+  linkId: string
+  labels: Label[] | undefined
+  article?: ArticleAttributes
   onOpenChange: (open: boolean) => void
   articleActionHandler: (action: string, arg?: unknown) => void
 }
@@ -41,6 +44,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
                 onClick={() => {
                   props.onOpenChange(false)
                 }}
+                tabIndex={-1}
               >
                 <CrossIcon
                   size={14}

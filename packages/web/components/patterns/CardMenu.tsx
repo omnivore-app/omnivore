@@ -12,6 +12,7 @@ export type CardMenuDropdownAction =
   | 'delete'
   | 'share'
   | 'snooze'
+  | 'set-labels'
 
 type CardMenuProps = {
   item: LibraryItemNode
@@ -34,6 +35,12 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
           title="Unarchive"
         />
       )}
+      <DropdownOption
+        onSelect={() => {
+          props.actionHandler('set-labels')
+        }}
+        title="Set Labels"
+      />
       {isVipUser(props.viewer) && (
         <DropdownOption
           onSelect={() => {

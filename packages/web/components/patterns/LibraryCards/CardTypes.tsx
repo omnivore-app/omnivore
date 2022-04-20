@@ -12,6 +12,7 @@ export type LinkedItemCardAction =
   | 'mark-unread'
   | 'share'
   | 'snooze'
+  | 'set-labels'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode
