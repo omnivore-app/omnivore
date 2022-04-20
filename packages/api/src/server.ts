@@ -89,14 +89,16 @@ export const createApp = (): {
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
 
-  const apiLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 10, // Limit each IP to 10 requests per `window` (here, per minute)
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  })
-  // Apply the rate limiting middleware to API calls only
-  app.use('/api/', apiLimiter)
+  if (!env.dev.isLocal) {
+    const apiLimiter = rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 10, // Limit each IP to 10 requests per `window` (here, per minute)
+      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    })
+    // Apply the rate limiting middleware to API calls only
+    app.use('/api/', apiLimiter)
+  }
 
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
