@@ -39,7 +39,7 @@ export const Button = styled('button', {
         borderRadius: '8px',
         cursor: 'pointer',
         color: '$omnivoreGray',
-        p: '10px 10px',
+        p: '10px 12px',
         bg: 'rgb(125, 125, 125, 0)',
         '&:hover': {
           bg: 'rgb(47, 47, 47, 0.1)',
