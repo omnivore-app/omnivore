@@ -10,6 +10,7 @@ import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { getDeviceTokensByUserId } from './user_device_tokens'
 import { Page } from '../elastic/types'
 import { addLabelToPage } from './labels'
+import { saveSubscription } from './subscriptions'
 
 interface NewsletterMessage {
   email: string
@@ -17,6 +18,8 @@ interface NewsletterMessage {
   url: string
   title: string
   author: string
+  unsubMailTo?: string
+  unsubHttpUrl?: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -54,6 +57,8 @@ export const saveNewsletterEmail = async (
     originalContent: data.content,
     title: data.title,
     author: data.author,
+    unsubMailTo: data.unsubMailTo,
+    unsubHttpUrl: data.unsubHttpUrl,
   }
 
   const page = await saveEmail(saveCtx, input)
@@ -62,14 +67,23 @@ export const saveNewsletterEmail = async (
     return false
   }
 
-  // add newsletters label to page
+  // creates or updates subscription
+  const subscription = await saveSubscription(
+    newsletterEmail.user.id,
+    data.author,
+    data.unsubMailTo,
+    data.unsubHttpUrl
+  )
+  console.log('subscription', subscription)
+
+  // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {
     name: 'Newsletter',
     color: '#07D2D1',
   })
   console.log('newsletter label added:', result)
 
-  // send push notification
+  // sends push notification
   const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)
 
   if (!deviceTokens) {

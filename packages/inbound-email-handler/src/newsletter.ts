@@ -9,19 +9,26 @@ const EMAIL_FORWARDING_SENDER_ADDRESSES = [
   'Gmail Team <forwarding-noreply@google.com>',
 ]
 const CONFIRMATION_CODE_PATTERN = /^\(#\d+\)/
+const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
+const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
+
+interface Unsubscribe {
+  mailTo?: string
+  httpUrl?: string
+}
 
 export class NewsletterHandler {
   protected senderRegex = /NEWSLETTER_SENDER_REGEX/
   protected urlRegex = /NEWSLETTER_URL_REGEX/
   protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
 
-  isNewsletter(rawUrl: string, from: string, unSubRawUrl: string): boolean {
+  isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
     // Axios newsletter is from <xx@axios.com>
     const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!rawUrl || !!unSubRawUrl)
+    return re.test(from) && (!!postHeader || !!unSubHeader)
   }
 
-  getNewsletterUrl(_rawUrl: string, html: string): string | undefined {
+  parseNewsletterUrl(_postHeader: string, html: string): string | undefined {
     // get newsletter url from html
     const matches = html.match(this.urlRegex)
     if (matches) {
@@ -30,7 +37,7 @@ export class NewsletterHandler {
     return undefined
   }
 
-  getAuthor(from: string): string {
+  parseAuthor(from: string): string {
     // get author name from email
     // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
     // or 'Mike Allen <mike@axios.com>'
@@ -41,14 +48,24 @@ export class NewsletterHandler {
     return from
   }
 
+  parseUnsubscribe(unSubHeader: string): Unsubscribe {
+    // parse list-unsubscribe header
+    // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
+    return {
+      mailTo: unSubHeader.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
+      httpUrl: unSubHeader.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
+    }
+  }
+
   async handleNewsletter(
     email: string,
     html: string,
-    rawUrl: string,
+    postHeader: string,
     title: string,
-    from: string
+    from: string,
+    unSubHeader: string
   ): Promise<string | undefined> {
-    console.log('handleNewsletter', email, rawUrl, title, from)
+    console.log('handleNewsletter', email, postHeader, title, from)
 
     if (!email || !html || !title || !from) {
       console.log('invalid newsletter email')
@@ -58,17 +75,20 @@ export class NewsletterHandler {
     // fallback to default url if newsletter url does not exist
     // assign a random uuid to the default url to avoid duplicate url
     const url =
-      this.getNewsletterUrl(rawUrl, html) ||
+      this.parseNewsletterUrl(postHeader, html) ||
       `${this.defaultUrl}?source=newsletters&id=${uuidv4()}`
-    const author = this.getAuthor(from) || 'Unknown'
-
+    const author = this.parseAuthor(from) || 'Unknown'
+    const unsubscribe = this.parseUnsubscribe(unSubHeader)
     const message = {
-      email: email,
+      email,
       content: html,
-      url: url,
-      title: title,
-      author: author,
+      url,
+      title,
+      author,
+      unsubMailTo: unsubscribe.mailTo || '',
+      unsubHttpUrl: unsubscribe.httpUrl || '',
     }
+
     return publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, message)
   }
 }

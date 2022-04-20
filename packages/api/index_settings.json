@@ -97,6 +97,9 @@
       },
       "siteName": {
         "type": "text"
+      },
+      "subscription": {
+        "type": "keyword"
       }
     }
   }

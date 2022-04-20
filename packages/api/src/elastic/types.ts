@@ -191,6 +191,9 @@ export interface Page {
   _id?: string
   siteIcon?: string
   highlights?: Highlight[]
+  subscription?: string
+  unsubMailTo?: string
+  unsubHttpUrl?: string
 }
 
 export interface SearchItem {

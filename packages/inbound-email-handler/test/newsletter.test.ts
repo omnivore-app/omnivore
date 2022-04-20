@@ -92,7 +92,7 @@ describe('Newsletter email test', () => {
       const url = 'https://axios.com/blog/the-best-way-to-build-a-web-app'
       const html = `View in browser at <a>${url}</a>`
 
-      expect(new AxiosHandler().getNewsletterUrl('', html)).to.equal(url)
+      expect(new AxiosHandler().parseNewsletterUrl('', html)).to.equal(url)
     })
 
     it('returns url when email is from Bloomberg', () => {
@@ -103,7 +103,7 @@ describe('Newsletter email test', () => {
         </a>
       `
 
-      expect(new BloombergHandler().getNewsletterUrl('', html)).to.equal(url)
+      expect(new BloombergHandler().parseNewsletterUrl('', html)).to.equal(url)
     })
 
     it('returns url when email is from Golang Weekly', () => {
@@ -112,21 +112,42 @@ describe('Newsletter email test', () => {
         <a href="${url}" style="text-decoration: none">Read on the Web</a>
       `
 
-      expect(new GolangHandler().getNewsletterUrl('', html)).to.equal(url)
+      expect(new GolangHandler().parseNewsletterUrl('', html)).to.equal(url)
     })
   })
 
   describe('get author from email address', () => {
     it('returns author when email is from Substack', () => {
       const from = 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
-      expect(new NewsletterHandler().getAuthor(from)).to.equal(
+      expect(new NewsletterHandler().parseAuthor(from)).to.equal(
         'Jackson Harper from Omnivore App'
       )
     })
 
     it('returns author when email is from Axios', () => {
       const from = 'Mike Allen <mike@axios.com>'
-      expect(new NewsletterHandler().getAuthor(from)).to.equal('Mike Allen')
+      expect(new NewsletterHandler().parseAuthor(from)).to.equal('Mike Allen')
+    })
+  })
+
+  describe('get unsubscribe from header', () => {
+    const mailTo = 'unsub@omnivore.com'
+    const httpUrl = 'https://omnivore.com/unsubscribe'
+
+    it('returns mail to address if exists', () => {
+      const header = `<https://omnivore.com/unsub>, <mailto:${mailTo}>`
+
+      expect(new NewsletterHandler().parseUnsubscribe(header).mailTo).to.equal(
+        mailTo
+      )
+    })
+
+    it('returns http url if exists', () => {
+      const header = `<${httpUrl}>`
+
+      expect(new NewsletterHandler().parseUnsubscribe(header).httpUrl).to.equal(
+        httpUrl
+      )
     })
   })
 })
