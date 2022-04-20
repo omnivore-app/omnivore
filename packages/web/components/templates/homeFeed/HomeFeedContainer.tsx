@@ -236,14 +236,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       return
     }
 
-    // If any of the modals are open we disable handling keyboard shortcuts
-    if (labelsTarget || snoozeTarget || shareTarget) {
-      return
-    }
-
     switch (action) {
       case 'showDetail':
-
         const username = viewerData?.me?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
@@ -291,6 +285,11 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
           .getPropertyValue('grid-template-columns')
           .split(' ').length
         return gridColumnCount
+      }
+
+      // If any of the modals are open we disable handling keyboard shortcuts
+      if (labelsTarget || snoozeTarget || shareTarget) {
+        return
       }
 
       switch (action) {
@@ -430,6 +429,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       setLabelsTarget={setLabelsTarget}
       showAddLinkModal={showAddLinkModal}
       setShowAddLinkModal={setShowAddLinkModal}
+      setActiveItem={(item: LibraryItem) => {
+        activateCard(item.node.id)
+      }}
     />
   )
 }
@@ -452,6 +454,7 @@ type HomeFeedContentProps = {
   setLabelsTarget: (target: LibraryItem | undefined) => void
   showAddLinkModal: boolean
   setShowAddLinkModal: (show: boolean) => void
+  setActiveItem: (item: LibraryItem) => void
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
@@ -745,7 +748,11 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }
           }}
           onOpenChange={() => {
-            props.setLabelsTarget(undefined)
+            if (props.labelsTarget) {
+              const activate = props.labelsTarget
+              props.setActiveItem(activate)
+              props.setLabelsTarget(undefined)
+            }
           }}
         />
       )}
