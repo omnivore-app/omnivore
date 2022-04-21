@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { Subscription } from '@omnivore/api/src/generated/graphql'
+import { Subscription } from '../queries/useGetSubscriptionsQuery'
 
 type UnsubscribeResult = {
   unsubscribe: Unsubscribe

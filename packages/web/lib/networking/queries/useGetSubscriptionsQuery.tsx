@@ -1,7 +1,21 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
 import { publicGqlFetcher } from '../networkHelpers'
-import { Subscription } from '@omnivore/api/src/generated/graphql'
+
+export type SubscriptionStatus = 'ACTIVE' | 'DELETED' | 'UNSUBSCRIBED'
+
+export type Subscription = {
+  id: string
+  name: string
+  newsletterEmail: string
+
+  url?: string
+  description?: string
+
+  status: SubscriptionStatus
+  createdAt: Date
+  updatedAt: Date
+};
 
 type SubscriptionsQueryResponse = {
   isValidating: boolean
