@@ -38,6 +38,7 @@ import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
+import { EmptyLibrary } from './EmptyLibrary'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -604,95 +605,97 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           }
           </Box>
         )}
-        <Box
-          ref={props.gridContainerRef}
-          css={{
-            py: '$3',
-            display: 'grid',
-            width: '100%',
-            gridAutoRows: 'auto',
-            borderRadius: '8px',
-            gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
-            marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
-            marginBottom: '0px',
-            paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
-            paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
-            overflow: 'hidden',
-            '@smDown': {
-              border: 'unset',
-              width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-              margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-              borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
-            },
-            '@md': {
-              gridTemplateColumns: layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-            },
-            '@lg': {
-              gridTemplateColumns:
-                layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-            },
-          }}
-        >
-          {props.items.map((linkedItem) => (
-            <Box
-              className="linkedItemCard"
-              id={linkedItem.node.id}
-              tabIndex={0}
-              key={linkedItem.node.id}
-              css={{
-                width: '100%',
-                '&> div': {
-                  bg: '$grayBg',
-                },
-                '&:focus': {
-                  '> div': {
-                    bg: '$grayBgActive',
+        {props.items.length == 0 ? <EmptyLibrary onAddLinkClicked={() => { props.setShowAddLinkModal(true) }} /> : (
+          <Box
+            ref={props.gridContainerRef}
+            css={{
+              py: '$3',
+              display: 'grid',
+              width: '100%',
+              gridAutoRows: 'auto',
+              borderRadius: '8px',
+              gridGap: layout == 'LIST_LAYOUT' ? '0' : '$3',
+              marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
+              marginBottom: '0px',
+              paddingTop: layout == 'LIST_LAYOUT' ? '0' : '21px',
+              paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
+              overflow: 'hidden',
+              '@smDown': {
+                border: 'unset',
+                width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+                margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+                borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
+              },
+              '@md': {
+                gridTemplateColumns: layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+              },
+              '@lg': {
+                gridTemplateColumns:
+                  layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+              },
+            }}
+          >
+            {props.items.map((linkedItem) => (
+              <Box
+                className="linkedItemCard"
+                id={linkedItem.node.id}
+                tabIndex={0}
+                key={linkedItem.node.id}
+                css={{
+                  width: '100%',
+                  '&> div': {
+                    bg: '$grayBg',
                   },
-                },
-                '&:hover': {
-                  '> div': {
-                    bg: '$grayBgActive',
+                  '&:focus': {
+                    '> div': {
+                      bg: '$grayBgActive',
+                    },
                   },
-                },
-              }}
-            >
-              {viewerData?.me && (
-                <LinkedItemCard
-                  layout={layout}
-                  item={linkedItem.node}
-                  viewer={viewerData.me}
-                  handleAction={(action: LinkedItemCardAction) => {
-                    if (action === 'delete') {
-                      setShowRemoveLinkConfirmation(true)
-                      setLinkToRemove(linkedItem)
-                    } else {
-                      props.actionHandler(action, linkedItem)
-                    }
-                  }}
-                />
-              )}
-            </Box>
-          ))}
-        </Box>
-        <HStack
-          distribution="center"
-          css={{ width: '100%', mt: '$2', mb: '$4' }}
-        >
-          {props.hasMore ? (
-            <Button
-              style="ctaGray"
-              css={{
-                cursor: props.isValidating ? 'not-allowed' : 'pointer',
-              }}
-              onClick={props.loadMore}
-              disabled={props.isValidating}
-            >
-              {props.isValidating ? 'Loading' : 'Load More'}
-            </Button>
-          ) : (
-            <StyledText style="caption"></StyledText>
+                  '&:hover': {
+                    '> div': {
+                      bg: '$grayBgActive',
+                    },
+                  },
+                }}
+              >
+                {viewerData?.me && (
+                  <LinkedItemCard
+                    layout={layout}
+                    item={linkedItem.node}
+                    viewer={viewerData.me}
+                    handleAction={(action: LinkedItemCardAction) => {
+                      if (action === 'delete') {
+                        setShowRemoveLinkConfirmation(true)
+                        setLinkToRemove(linkedItem)
+                      } else {
+                        props.actionHandler(action, linkedItem)
+                      }
+                    }}
+                  />
+                )}
+              </Box>
+            ))}
+          </Box>
           )}
-        </HStack>
+          <HStack
+            distribution="center"
+            css={{ width: '100%', mt: '$2', mb: '$4' }}
+          >
+            {props.hasMore ? (
+              <Button
+                style="ctaGray"
+                css={{
+                  cursor: props.isValidating ? 'not-allowed' : 'pointer',
+                }}
+                onClick={props.loadMore}
+                disabled={props.isValidating}
+              >
+                {props.isValidating ? 'Loading' : 'Load More'}
+              </Button>
+            ) : (
+              <StyledText style="caption"></StyledText>
+            )}
+          </HStack>
       </VStack>
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
