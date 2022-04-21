@@ -7,7 +7,7 @@ export class SubstackHandler extends NewsletterHandler {
     this.defaultUrl = 'https://www.substack.com'
   }
 
-  getNewsletterUrl(postHeader: string, _html: string): string | undefined {
+  parseNewsletterUrl(postHeader: string, _html: string): string | undefined {
     // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
     // we need to get the real url from the raw url
     return addressparser(postHeader).length > 0
