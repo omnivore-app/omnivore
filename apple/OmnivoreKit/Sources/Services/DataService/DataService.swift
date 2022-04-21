@@ -14,13 +14,20 @@ public final class DataService: ObservableObject {
   let networker: Networker
 
   let persistentContainer: PersistentContainer
+  let backgroundContext: NSManagedObjectContext
   var subscriptions = Set<AnyCancellable>()
+
+  var viewContext: NSManagedObjectContext {
+    persistentContainer.viewContext
+  }
+
   public var deletedHighlightsIDs = Set<String>()
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
+    self.backgroundContext = persistentContainer.newBackgroundContext()
 
     persistentContainer.loadPersistentStores { _, error in
       if let error = error {

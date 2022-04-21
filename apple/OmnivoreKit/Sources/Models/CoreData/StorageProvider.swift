@@ -12,7 +12,7 @@ public class PersistentContainer: NSPersistentContainer {
     let model = NSManagedObjectModel(contentsOf: modelURL)!
     let container = PersistentContainer(name: "DataModel", managedObjectModel: model)
 
-    container.viewContext.automaticallyMergesChangesFromParent = false
+    container.viewContext.automaticallyMergesChangesFromParent = true
     container.viewContext.name = "viewContext"
     container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
     container.viewContext.undoManager = nil
