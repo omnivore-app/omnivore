@@ -9,6 +9,15 @@ import { useEffect, useState } from 'react'
 import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
 import { segmentApiKey } from '../lib/appConfig'
 import { TooltipProvider } from '../components/elements/Tooltip'
+import TopBarProgress from "react-topbar-progress-indicator";
+
+TopBarProgress.config({
+  barColors: {
+    "0": '#FFD234',
+    "1.0": '#FFD234',
+  },
+  shadowBlur: 0
+});
 
 function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
