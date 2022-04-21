@@ -76,12 +76,21 @@ public extension DataService {
 
 extension DataService {
   func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
-    let persistedArticleContent = PersistedArticleContent(
-      entity: PersistedArticleContent.entity(),
-      insertInto: persistentContainer.viewContext
+    let fetchContentRequest: NSFetchRequest<Models.PersistedArticleContent> = PersistedArticleContent.fetchRequest()
+    fetchContentRequest.predicate = NSPredicate(
+      format: "slug == %@", slug
     )
-    persistedArticleContent.htmlContent = htmlContent
-    persistedArticleContent.slug = slug
+
+    if let content = (try? persistentContainer.viewContext.fetch(fetchContentRequest))?.first {
+      content.htmlContent = htmlContent
+    } else {
+      let persistedArticleContent = PersistedArticleContent(
+        entity: PersistedArticleContent.entity(),
+        insertInto: persistentContainer.viewContext
+      )
+      persistedArticleContent.htmlContent = htmlContent
+      persistedArticleContent.slug = slug
+    }
 
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(
