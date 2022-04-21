@@ -717,6 +717,7 @@ type Mutation {
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   signup(input: SignupInput!): SignupResult!
+  unsubscribe(name: String!): UnsubscribeResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -821,7 +822,7 @@ type Query {
   reminder(linkId: ID!): ReminderResult!
   search(after: String, first: Int, query: String): SearchResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
-  subscriptions: SubscriptionsResult!
+  subscriptions(sort: SortParams): SubscriptionsResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1218,6 +1219,7 @@ type Subscription {
   description: String
   id: ID!
   name: String!
+  newsletterEmail: String!
   status: SubscriptionStatus!
   unsubscribeHttpUrl: String
   unsubscribeMailTo: String
@@ -1244,6 +1246,24 @@ enum SubscriptionStatus {
   ACTIVE
   DELETED
   UNSUBSCRIBED
+}
+
+type UnsubscribeError {
+  errorCodes: [UnsubscribeErrorCode!]!
+}
+
+enum UnsubscribeErrorCode {
+  ALREADY_UNSUBSCRIBED
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+  UNSUBSCRIBE_METHOD_NOT_FOUND
+}
+
+union UnsubscribeResult = UnsubscribeError | UnsubscribeSuccess
+
+type UnsubscribeSuccess {
+  subscription: Subscription!
 }
 
 type UpdateHighlightError {

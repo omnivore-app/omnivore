@@ -342,6 +342,9 @@ const schema = gql`
     uploadFileId: ID
     siteName: String
     siteIcon: String
+    subscription: String
+    unsubMailTo: String
+    unsubHttpUrl: String
   }
 
   # Query: article
@@ -1424,6 +1427,9 @@ const schema = gql`
     quote: String
     annotation: String
     labels: [Label!]
+    subscription: String
+    unsubMailTo: String
+    unsubHttpUrl: String
   }
 
   type SearchItemEdge {
@@ -1453,6 +1459,7 @@ const schema = gql`
   type Subscription {
     id: ID!
     name: String!
+    newsletterEmail: String!
     url: String
     description: String
     status: SubscriptionStatus!
@@ -1475,6 +1482,24 @@ const schema = gql`
   enum SubscriptionsErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
+  }
+
+  union UnsubscribeResult = UnsubscribeSuccess | UnsubscribeError
+
+  type UnsubscribeSuccess {
+    subscription: Subscription!
+  }
+
+  type UnsubscribeError {
+    errorCodes: [UnsubscribeErrorCode!]!
+  }
+
+  enum UnsubscribeErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    ALREADY_UNSUBSCRIBED
+    UNSUBSCRIBE_METHOD_NOT_FOUND
   }
 
   # Mutations
@@ -1538,6 +1563,7 @@ const schema = gql`
     signup(input: SignupInput!): SignupResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(scope: String): GenerateApiKeyResult!
+    unsubscribe(name: String!): UnsubscribeResult!
   }
 
   # FIXME: remove sort from feedArticles after all cahced tabs are closed
@@ -1575,7 +1601,7 @@ const schema = gql`
     reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
     search(after: String, first: Int, query: String): SearchResult!
-    subscriptions: SubscriptionsResult!
+    subscriptions(sort: SortParams): SubscriptionsResult!
   }
 `
 

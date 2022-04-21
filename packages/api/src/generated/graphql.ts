@@ -806,6 +806,7 @@ export type Mutation = {
   setShareHighlight: SetShareHighlightResult;
   setUserPersonalization: SetUserPersonalizationResult;
   signup: SignupResult;
+  unsubscribe: UnsubscribeResult;
   updateHighlight: UpdateHighlightResult;
   updateHighlightReply: UpdateHighlightReplyResult;
   updateLabel: UpdateLabelResult;
@@ -975,6 +976,11 @@ export type MutationSetUserPersonalizationArgs = {
 
 export type MutationSignupArgs = {
   input: SignupInput;
+};
+
+
+export type MutationUnsubscribeArgs = {
+  name: Scalars['String'];
 };
 
 
@@ -1183,6 +1189,11 @@ export type QuerySharedArticleArgs = {
   selectedHighlightId?: InputMaybe<Scalars['String']>;
   slug: Scalars['String'];
   username: Scalars['String'];
+};
+
+
+export type QuerySubscriptionsArgs = {
+  sort?: InputMaybe<SortParams>;
 };
 
 
@@ -1621,6 +1632,7 @@ export type Subscription = {
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
+  newsletterEmail: Scalars['String'];
   status: SubscriptionStatus;
   unsubscribeHttpUrl?: Maybe<Scalars['String']>;
   unsubscribeMailTo?: Maybe<Scalars['String']>;
@@ -1650,6 +1662,26 @@ export enum SubscriptionStatus {
   Deleted = 'DELETED',
   Unsubscribed = 'UNSUBSCRIBED'
 }
+
+export type UnsubscribeError = {
+  __typename?: 'UnsubscribeError';
+  errorCodes: Array<UnsubscribeErrorCode>;
+};
+
+export enum UnsubscribeErrorCode {
+  AlreadyUnsubscribed = 'ALREADY_UNSUBSCRIBED',
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED',
+  UnsubscribeMethodNotFound = 'UNSUBSCRIBE_METHOD_NOT_FOUND'
+}
+
+export type UnsubscribeResult = UnsubscribeError | UnsubscribeSuccess;
+
+export type UnsubscribeSuccess = {
+  __typename?: 'UnsubscribeSuccess';
+  subscription: Subscription;
+};
 
 export type UpdateHighlightError = {
   __typename?: 'UpdateHighlightError';
@@ -2249,6 +2281,10 @@ export type ResolversTypes = {
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
   SubscriptionStatus: SubscriptionStatus;
+  UnsubscribeError: ResolverTypeWrapper<UnsubscribeError>;
+  UnsubscribeErrorCode: UnsubscribeErrorCode;
+  UnsubscribeResult: ResolversTypes['UnsubscribeError'] | ResolversTypes['UnsubscribeSuccess'];
+  UnsubscribeSuccess: ResolverTypeWrapper<UnsubscribeSuccess>;
   UpdateHighlightError: ResolverTypeWrapper<UpdateHighlightError>;
   UpdateHighlightErrorCode: UpdateHighlightErrorCode;
   UpdateHighlightInput: UpdateHighlightInput;
@@ -2499,6 +2535,9 @@ export type ResolversParentTypes = {
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
+  UnsubscribeError: UnsubscribeError;
+  UnsubscribeResult: ResolversParentTypes['UnsubscribeError'] | ResolversParentTypes['UnsubscribeSuccess'];
+  UnsubscribeSuccess: UnsubscribeSuccess;
   UpdateHighlightError: UpdateHighlightError;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: UpdateHighlightReplyError;
@@ -3135,6 +3174,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
+  unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
@@ -3217,7 +3257,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
-  subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType>;
+  subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
@@ -3484,6 +3524,7 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
+  newsletterEmail?: SubscriptionResolver<ResolversTypes['String'], "newsletterEmail", ParentType, ContextType>;
   status?: SubscriptionResolver<ResolversTypes['SubscriptionStatus'], "status", ParentType, ContextType>;
   unsubscribeHttpUrl?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeHttpUrl", ParentType, ContextType>;
   unsubscribeMailTo?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeMailTo", ParentType, ContextType>;
@@ -3502,6 +3543,20 @@ export type SubscriptionsResultResolvers<ContextType = ResolverContext, ParentTy
 
 export type SubscriptionsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsSuccess'] = ResolversParentTypes['SubscriptionsSuccess']> = {
   subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UnsubscribeErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UnsubscribeError'] = ResolversParentTypes['UnsubscribeError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UnsubscribeErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UnsubscribeResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UnsubscribeResult'] = ResolversParentTypes['UnsubscribeResult']> = {
+  __resolveType: TypeResolveFn<'UnsubscribeError' | 'UnsubscribeSuccess', ParentType, ContextType>;
+};
+
+export type UnsubscribeSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UnsubscribeSuccess'] = ResolversParentTypes['UnsubscribeSuccess']> = {
+  subscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3847,6 +3902,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
+  UnsubscribeError?: UnsubscribeErrorResolvers<ContextType>;
+  UnsubscribeResult?: UnsubscribeResultResolvers<ContextType>;
+  UnsubscribeSuccess?: UnsubscribeSuccessResolvers<ContextType>;
   UpdateHighlightError?: UpdateHighlightErrorResolvers<ContextType>;
   UpdateHighlightReplyError?: UpdateHighlightReplyErrorResolvers<ContextType>;
   UpdateHighlightReplyResult?: UpdateHighlightReplyResultResolvers<ContextType>;
