@@ -7,6 +7,8 @@ import { applyStoredTheme } from '../../lib/themeUpdater'
 import { StyledText } from '../../components/elements/StyledText'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
+import { unsubscribeMutation } from '../../lib/networking/mutations/unsubscribeMutation'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -20,14 +22,13 @@ export default function SubscriptionsPage(): JSX.Element {
   applyStoredTheme(false)
 
   async function onUnsubscribe(name: string): Promise<void> {
-    // TODO: unsubscribe from the server
-    // const result = await deleteLabelMutation(name)
-    // if (result) {
-    //   showSuccessToast('Unsubscribed', { position: 'bottom-right' })
-    // } else {
-    //   showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
-    // }
-    // revalidate()
+    const result = await unsubscribeMutation(name)
+    if (result) {
+      showSuccessToast('Unsubscribed', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
+    }
+    revalidate()
   }
 
   return (
@@ -58,7 +59,7 @@ export default function SubscriptionsPage(): JSX.Element {
         <HeaderWrapper>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
             <Box>
-              <StyledText style="fixedHeadline">Subscriptions </StyledText>
+              <StyledText style="fixedHeadline">Subscriptions</StyledText>
             </Box>
           </Box>
         </HeaderWrapper>
@@ -68,7 +69,6 @@ export default function SubscriptionsPage(): JSX.Element {
             })
           : null}
       </VStack>
-      <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
 }
