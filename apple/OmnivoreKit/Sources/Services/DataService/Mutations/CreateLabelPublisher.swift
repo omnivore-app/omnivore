@@ -46,6 +46,7 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(label: label):
+              // TODO: update CoreData
               promise(.success(label))
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))

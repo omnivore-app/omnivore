@@ -44,6 +44,7 @@ public extension DataService {
 
             switch payload.data {
             case let .success(linkId):
+              // TODO: update CoreData
               promise(.success(linkId))
             case .error:
               promise(.failure(.message(messageText: "Error archiving link")))

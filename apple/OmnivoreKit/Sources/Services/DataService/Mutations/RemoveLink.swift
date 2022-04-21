@@ -51,6 +51,7 @@ public extension DataService {
 
             switch payload.data {
             case let .success(item):
+              // TODO: update CoreData
               promise(.success(item))
             case .error(errorCode: _):
               promise(.failure(.message(messageText: "Error removing link")))
