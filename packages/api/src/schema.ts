@@ -342,6 +342,9 @@ const schema = gql`
     uploadFileId: ID
     siteName: String
     siteIcon: String
+    subscription: String
+    unsubMailTo: String
+    unsubHttpUrl: String
   }
 
   # Query: article
@@ -1424,6 +1427,9 @@ const schema = gql`
     quote: String
     annotation: String
     labels: [Label!]
+    subscription: String
+    unsubMailTo: String
+    unsubHttpUrl: String
   }
 
   type SearchItemEdge {
