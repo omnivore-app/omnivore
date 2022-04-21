@@ -51,7 +51,9 @@ public extension DataService {
 
             switch payload.data {
             case let .success(item):
-              // TODO: update CoreData
+              if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.persistentContainer.viewContext) {
+                linkedItem.remove(inContext: self.persistentContainer.viewContext)
+              }
               promise(.success(item))
             case .error(errorCode: _):
               promise(.failure(.message(messageText: "Error removing link")))

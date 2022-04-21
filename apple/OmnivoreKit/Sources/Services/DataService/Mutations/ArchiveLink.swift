@@ -44,7 +44,12 @@ public extension DataService {
 
             switch payload.data {
             case let .success(linkId):
-              // TODO: update CoreData
+              if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.persistentContainer.viewContext) {
+                linkedItem.update(
+                  inContext: self.persistentContainer.viewContext,
+                  newIsArchivedValue: archived
+                )
+              }
               promise(.success(linkId))
             case .error:
               promise(.failure(.message(messageText: "Error archiving link")))

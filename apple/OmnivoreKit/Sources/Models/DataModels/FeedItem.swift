@@ -206,3 +206,55 @@ public extension Sequence where Element == FeedItemDep {
     }
   }
 }
+
+public extension LinkedItem {
+  static func lookup(byID itemID: String, inContext context: NSManagedObjectContext) -> LinkedItem? {
+    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "id == %@", itemID
+    )
+
+    return (try? context.fetch(fetchRequest))?.first
+  }
+
+  func update(
+    inContext context: NSManagedObjectContext,
+    newReadingProgress: Double? = nil,
+    newAnchorIndex: Int? = nil,
+    newIsArchivedValue: Bool? = nil
+  ) {
+    if let newReadingProgress = newReadingProgress {
+      readingProgress = newReadingProgress
+    }
+
+    if let newAnchorIndex = newAnchorIndex {
+      readingProgressAnchor = Int64(newAnchorIndex)
+    }
+
+    if let newIsArchivedValue = newIsArchivedValue {
+      isArchived = newIsArchivedValue
+    }
+
+    guard context.hasChanges else { return }
+
+    do {
+      try context.save()
+      print("LinkedItem updated succesfully")
+    } catch {
+      context.rollback()
+      print("Failed to update LinkedItem: \(error.localizedDescription)")
+    }
+  }
+
+  func remove(inContext context: NSManagedObjectContext) {
+    context.delete(self)
+
+    do {
+      try context.save()
+      print("LinkedItem removed")
+    } catch {
+      context.rollback()
+      print("Failed to remove LinkedItem: \(error.localizedDescription)")
+    }
+  }
+}

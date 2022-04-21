@@ -51,7 +51,13 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(feedItem):
-              self.updateManagedObject(itemID: itemID, readingProgress: readingProgress, anchorIndex: anchorIndex)
+              if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.persistentContainer.viewContext) {
+                linkedItem.update(
+                  inContext: self.persistentContainer.viewContext,
+                  newReadingProgress: readingProgress,
+                  newAnchorIndex: anchorIndex
+                )
+              }
               promise(.success(feedItem))
             case let .error(errorCode: errorCode):
               switch errorCode {
@@ -69,31 +75,5 @@ public extension DataService {
     }
     .receive(on: DispatchQueue.main)
     .eraseToAnyPublisher()
-  }
-
-  private func updateManagedObject(
-    itemID: String,
-    readingProgress: Double,
-    anchorIndex: Int
-  ) {
-    let context = persistentContainer.viewContext
-
-    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(
-      format: "id == %@", itemID
-    )
-
-    if let linkedItem = try? context.fetch(fetchRequest).first {
-      linkedItem.readingProgress = readingProgress
-      linkedItem.readingProgressAnchor = Int64(anchorIndex)
-    }
-
-    do {
-      try context.save()
-      DataService.logger.debug("LinkedItem updated succesfully")
-    } catch {
-      context.rollback()
-      DataService.logger.debug("Failed to update LinkedItem: \(error.localizedDescription)")
-    }
   }
 }
