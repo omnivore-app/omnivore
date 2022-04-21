@@ -141,7 +141,8 @@ struct JSONArticle: Decodable {
 
 public extension FeedItemDep {
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {
-    let linkedItem = LinkedItem(entity: LinkedItem.entity(), insertInto: context)
+    let existingItem = LinkedItem.lookup(byID: id, inContext: context)
+    let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: context)
 
     linkedItem.id = id
     linkedItem.title = title
