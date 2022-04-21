@@ -39,6 +39,8 @@ import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
 import { EmptyLibrary } from './EmptyLibrary'
+import TopBarProgress from "react-topbar-progress-indicator";
+
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -533,6 +535,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
       >
         <Toaster />
+        {(props.isValidating && <TopBarProgress />)}
         <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
           <StyledText
             style="subHeadline"
