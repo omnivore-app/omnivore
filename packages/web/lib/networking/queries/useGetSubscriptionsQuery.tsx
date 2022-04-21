@@ -56,6 +56,7 @@ export function useGetSubscriptionsQuery(): SubscriptionsQueryResponse {
   `
 
   const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
+  console.log('subscriptions data', data)
 
   try {
     if (data) {
