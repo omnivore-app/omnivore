@@ -25,6 +25,7 @@
         <attribute name="contentReader" optional="YES" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="descriptionText" optional="YES" attributeType="String"/>
+        <attribute name="htmlContent" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -67,15 +68,6 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <entity name="PersistedArticleContent" representedClassName="PersistedArticleContent" syncable="YES" codeGenerationType="class">
-        <attribute name="htmlContent" attributeType="String"/>
-        <attribute name="slug" attributeType="String"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="slug"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
-    </entity>
     <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String"/>
         <attribute name="profileImageURL" optional="YES" attributeType="String"/>
@@ -89,10 +81,9 @@
     </entity>
     <elements>
         <element name="Highlight" positionX="27" positionY="225" width="128" height="224"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="299"/>
+        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="314"/>
         <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="104"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
-        <element name="PersistedArticleContent" positionX="9" positionY="108" width="128" height="59"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
     </elements>
 </model>

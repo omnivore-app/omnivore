@@ -24,19 +24,18 @@ final class WebReaderViewModel: ObservableObject {
 
     if let content = dataService.pageFromCache(slug: slug) {
       articleContent = content
-      // continue to load from the web if possible
+    } else {
+      dataService.articleContentPublisher(username: username, slug: slug).sink(
+        receiveCompletion: { [weak self] completion in
+          guard case .failure = completion else { return }
+          self?.isLoading = false
+        },
+        receiveValue: { [weak self] articleContent in
+          self?.articleContent = articleContent
+        }
+      )
+      .store(in: &subscriptions)
     }
-
-    dataService.articleContentPublisher(username: username, slug: slug).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] articleContent in
-        self?.articleContent = articleContent
-      }
-    )
-    .store(in: &subscriptions)
   }
 
   func createHighlight(

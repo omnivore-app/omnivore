@@ -76,31 +76,18 @@ public extension DataService {
 
 extension DataService {
   func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
-    let fetchContentRequest: NSFetchRequest<Models.PersistedArticleContent> = PersistedArticleContent.fetchRequest()
-    fetchContentRequest.predicate = NSPredicate(
-      format: "slug == %@", slug
-    )
-
-    if let content = (try? persistentContainer.viewContext.fetch(fetchContentRequest))?.first {
-      content.htmlContent = htmlContent
-    } else {
-      let persistedArticleContent = PersistedArticleContent(
-        entity: PersistedArticleContent.entity(),
-        insertInto: persistentContainer.viewContext
-      )
-      persistedArticleContent.htmlContent = htmlContent
-      persistedArticleContent.slug = slug
-    }
-
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "slug == %@", slug
     )
 
-    if let linkedItemID = try? persistentContainer.viewContext.fetch(fetchRequest).first?.id {
+    let linkedItem = try? persistentContainer.viewContext.fetch(fetchRequest).first
+
+    if let linkedItem = linkedItem, let linkedItemID = linkedItem.id {
       _ = highlights.map {
         $0.asManagedObject(context: persistentContainer.viewContext, associatedItemID: linkedItemID)
       }
+      linkedItem.htmlContent = htmlContent
     }
 
     do {
