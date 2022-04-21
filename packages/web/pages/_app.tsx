@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
 import { segmentApiKey } from '../lib/appConfig'
 import { TooltipProvider } from '../components/elements/Tooltip'
-import TopBarProgress from "react-topbar-progress-indicator";
+import TopBarProgress from 'react-topbar-progress-indicator'
 
 TopBarProgress.config({
   barColors: {
