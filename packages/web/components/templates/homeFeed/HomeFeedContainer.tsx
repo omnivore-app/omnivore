@@ -608,7 +608,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           }
           </Box>
         )}
-        {props.items.length == 0 ? <EmptyLibrary onAddLinkClicked={() => { props.setShowAddLinkModal(true) }} /> : (
+        {!props.isValidating && props.items.length == 0 ? <EmptyLibrary onAddLinkClicked={() => { props.setShowAddLinkModal(true) }} /> : (
           <Box
             ref={props.gridContainerRef}
             css={{
