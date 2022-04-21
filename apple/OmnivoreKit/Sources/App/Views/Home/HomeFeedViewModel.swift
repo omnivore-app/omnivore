@@ -25,7 +25,6 @@ import Views
   @Published var selectedLinkItem: FeedItemDep?
 
   var cursor: String?
-  var sendProgressUpdates = false
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -191,7 +190,7 @@ import Views
   }
 
   private func updateProgress(itemID: String, progress: Double) {
-    guard sendProgressUpdates, let item = items.first(where: { $0.id == itemID }) else { return }
+    guard let item = items.first(where: { $0.id == itemID }) else { return }
     if let index = items.firstIndex(of: item) {
       items[index].readingProgress = progress
     }
