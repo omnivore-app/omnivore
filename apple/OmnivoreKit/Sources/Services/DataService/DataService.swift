@@ -4,13 +4,14 @@ import Foundation
 import Models
 import OSLog
 
+let logger = Logger(subsystem: "app.omnivore", category: "data-service")
+
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
   public static var showIntercomMessenger: (() -> Void)?
 
   public let appEnvironment: AppEnvironment
   let networker: Networker
-  static let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
   let persistentContainer: PersistentContainer
   var subscriptions = Set<AnyCancellable>()
@@ -48,7 +49,7 @@ public final class DataService: ObservableObject {
     do {
       try persistentContainer.viewContext.save()
     } catch {
-      DataService.logger.debug("failed to delete objects")
+      logger.debug("failed to delete objects")
     }
   }
 

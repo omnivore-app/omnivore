@@ -12,11 +12,11 @@ struct InternalNewsletterEmail {
 
     do {
       try context.save()
-      DataService.logger.debug("NewsletterEmail saved succesfully")
+      logger.debug("NewsletterEmail saved succesfully")
       return newsletterEmail
     } catch {
       context.rollback()
-      DataService.logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
+      logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
       return nil
     }
   }
@@ -36,11 +36,11 @@ extension Sequence where Element == InternalNewsletterEmail {
 
     do {
       try context.save()
-      DataService.logger.debug("NewsletterEmail saved succesfully")
+      logger.debug("NewsletterEmail saved succesfully")
       return newsletterEmails
     } catch {
       context.rollback()
-      DataService.logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
+      logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
       return nil
     }
   }

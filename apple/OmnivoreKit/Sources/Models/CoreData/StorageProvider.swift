@@ -1,5 +1,8 @@
 import CoreData
 import Foundation
+import OSLog
+
+let logger = Logger(subsystem: "app.omnivore", category: "models")
 
 /// An `NSPersistentContainer` subclass that lives in the `Models` package so that
 /// the data model is looked for in the same package bundle (rather than the main bundle)

@@ -64,11 +64,11 @@ private struct ViewerInternal {
 
     do {
       try context.save()
-      DataService.logger.debug("Viewer saved succesfully")
+      logger.debug("Viewer saved succesfully")
       return viewer
     } catch {
       context.rollback()
-      DataService.logger.debug("Failed to save Viewer: \(error.localizedDescription)")
+      logger.debug("Failed to save Viewer: \(error.localizedDescription)")
       return nil
     }
   }

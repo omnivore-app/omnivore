@@ -59,11 +59,11 @@ public struct HighlightDep: Identifiable, Hashable, Codable {
 
     do {
       try context.save()
-      print("Highlight saved succesfully")
+      logger.debug("Highlight saved succesfully")
       return highlight
     } catch {
       context.rollback()
-      print("Failed to save Highlight: \(error.localizedDescription)")
+      logger.debug("Failed to save Highlight: \(error.localizedDescription)")
       return nil
     }
   }

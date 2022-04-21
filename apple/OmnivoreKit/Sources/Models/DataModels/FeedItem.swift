@@ -197,11 +197,11 @@ public extension Sequence where Element == FeedItemDep {
 
     do {
       try context.save()
-      print("LinkedItems saved succesfully")
+      logger.debug("LinkedItems saved succesfully")
       return linkedItems
     } catch {
       context.rollback()
-      print("Failed to save LinkedItems: \(error.localizedDescription)")
+      logger.debug("Failed to save LinkedItems: \(error.localizedDescription)")
       return nil
     }
   }
@@ -239,10 +239,10 @@ public extension LinkedItem {
 
     do {
       try context.save()
-      print("LinkedItem updated succesfully")
+      logger.debug("LinkedItem updated succesfully")
     } catch {
       context.rollback()
-      print("Failed to update LinkedItem: \(error.localizedDescription)")
+      logger.debug("Failed to update LinkedItem: \(error.localizedDescription)")
     }
   }
 
@@ -251,10 +251,10 @@ public extension LinkedItem {
 
     do {
       try context.save()
-      print("LinkedItem removed")
+      logger.debug("LinkedItem removed")
     } catch {
       context.rollback()
-      print("Failed to remove LinkedItem: \(error.localizedDescription)")
+      logger.debug("Failed to remove LinkedItem: \(error.localizedDescription)")
     }
   }
 }
