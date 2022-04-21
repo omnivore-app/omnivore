@@ -83,7 +83,7 @@ describe('Newsletter email test', () => {
     it('returns url when email is from SubStack', () => {
       const rawUrl = '<https://hongbo130.substack.com/p/tldr>'
 
-      expect(new SubstackHandler().getNewsletterUrl(rawUrl, '')).to.equal(
+      expect(new SubstackHandler().parseNewsletterUrl(rawUrl, '')).to.equal(
         'https://hongbo130.substack.com/p/tldr'
       )
     })
