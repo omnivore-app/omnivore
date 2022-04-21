@@ -11,6 +11,11 @@ export interface SearchBody {
               userId: string
             }
           }
+        | {
+            term: {
+              subscription: string
+            }
+          }
         | { term: { pageType: string } }
         | { exists: { field: string } }
         | {
