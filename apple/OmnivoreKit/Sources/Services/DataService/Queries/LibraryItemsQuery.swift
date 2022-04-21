@@ -5,6 +5,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
+  // swiftlint:disable:next function_body_length
   func libraryItemsPublisher(
     limit: Int,
     sortDescending: Bool,

@@ -74,9 +74,7 @@ public final class PDFViewerViewModel: ObservableObject {
       .sink { [weak self] completion in
         guard case let .failure(error) = completion else { return }
         self?.errorMessage = error.localizedDescription
-      } receiveValue: { value in
-        print("highlight value", value)
-      }
+      } receiveValue: { _ in }
       .store(in: &subscriptions)
   }
 
@@ -100,9 +98,7 @@ public final class PDFViewerViewModel: ObservableObject {
       .sink { [weak self] completion in
         guard case let .failure(error) = completion else { return }
         self?.errorMessage = error.localizedDescription
-      } receiveValue: { value in
-        print("highlight value", value)
-      }
+      } receiveValue: { _ in }
       .store(in: &subscriptions)
   }
 

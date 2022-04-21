@@ -110,13 +110,3 @@ public extension DataService {
 
   func invalidateCachedPage(slug _: String?) {}
 }
-
-// TODO: move to util file
-extension Optional where Wrapped == NSSet {
-  func asArray<T: Hashable>(of _: T.Type) -> [T] {
-    if let set = self as? Set<T> {
-      return Array(set)
-    }
-    return [T]()
-  }
-}

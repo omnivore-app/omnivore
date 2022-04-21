@@ -4,7 +4,10 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func updateArticleLabelsPublisher(itemID: String, labelIDs: [String]) -> AnyPublisher<[FeedItemLabelDep], BasicError> {
+  func updateArticleLabelsPublisher(
+    itemID: String,
+    labelIDs: [String]
+  ) -> AnyPublisher<[FeedItemLabelDep], BasicError> {
     enum MutationResult {
       case saved(feedItem: [FeedItemLabelDep])
       case error(errorCode: Enums.SetLabelsErrorCode)

@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  // swiftlint:disable:next function_parameter_count
+  // swiftlint:disable:next function_parameter_count function_body_length
   func mergeHighlightPublisher(
     shortId: String,
     highlightID: String,
