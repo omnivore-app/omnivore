@@ -25,7 +25,7 @@ export function EmptyLibrary(props: EmptyLibraryProps): JSX.Element {
         </StyledText>
 
         <StyledText style="footnote" css={{ color: '$grayTextContrast' }}>
-          You can add a link or read more about Omnivore's <Link href="/help/search">advanced search</Link>.
+          You can add a link or read more about Omnivore&apos;s <Link href="/help/search">advanced search</Link>.
         </StyledText>
         
         <Button style="ctaDarkYellow" onClick={() => { props.onAddLinkClicked() }}>
