@@ -50,10 +50,10 @@ export type HomeFeedContainerProps = {
 
 const SAVED_SEARCHES: Record<string,string> = {
   'Inbox': '',
-  'All': 'in:all',
+  'Read Later': `in:inbox -label:Newsletter`,
+  'Highlighted': `in:inbox has:highlight`,
   'Today': `in:inbox saved:${new Date(new Date().getTime() - (24 * 3600000)).toISOString().split('T')[0]}..*`,
-  'Newsletter': `in:inbox label:Newsletter`,
-  'Non-Newsletter': `in:inbox -label:Newsletter`,
+  'Newsletters': `in:inbox label:Newsletter`,
 }
 
 export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
