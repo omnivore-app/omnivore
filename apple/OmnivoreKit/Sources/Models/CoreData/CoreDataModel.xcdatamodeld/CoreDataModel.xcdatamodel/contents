@@ -13,7 +13,7 @@
         <attribute name="shortId" attributeType="String"/>
         <attribute name="suffix" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="linkedItem" maxCount="1" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="highlights" inverseEntity="LinkedItem"/>
+        <relationship name="linkedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="highlights" inverseEntity="LinkedItem"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
