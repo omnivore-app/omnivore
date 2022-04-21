@@ -51,7 +51,7 @@ export type HomeFeedContainerProps = {
 const SAVED_SEARCHES: Record<string,string> = {
   'Inbox': '',
   'Read Later': `in:inbox -label:Newsletter`,
-  'Highlighted': `in:inbox has:highlight`,
+  'Highlighted': `in:inbox has:highlights`,
   'Today': `in:inbox saved:${new Date(new Date().getTime() - (24 * 3600000)).toISOString().split('T')[0]}..*`,
   'Newsletters': `in:inbox label:Newsletter`,
 }
