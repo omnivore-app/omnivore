@@ -79,7 +79,7 @@ public extension DataService {
 
   func cachedFeedItems() -> [FeedItemDep] {
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    // TODO: set sort order?
+    fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
     let items = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
     return items.map { FeedItemDep.make(from: $0) }
   }
