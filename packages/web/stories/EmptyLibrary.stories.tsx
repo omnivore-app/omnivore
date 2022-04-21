@@ -14,6 +14,8 @@ export default {
 
 export const EmptyLibraryStory: ComponentStory<typeof EmptyLibrary> = (args: any) => {
   return (
-    <EmptyLibrary />
+    <EmptyLibrary onAddLinkClicked={() => {
+      console.log('onAddLinkClicked')
+    }} />
   )
 }
