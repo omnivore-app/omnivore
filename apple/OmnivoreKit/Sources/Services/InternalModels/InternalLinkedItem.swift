@@ -75,6 +75,7 @@ struct InternalLinkedItem {
 }
 
 extension Sequence where Element == InternalLinkedItem {
+  // TODO: use batch update?
   func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
     let linkedItems = map { $0.asManagedObject(inContext: context) }
 

@@ -32,9 +32,10 @@ public extension NSNotification {
     return nil
   }
 
-  static func pushFeedItem(feedItem: FeedItemDep) {
-    NotificationCenter.default.post(name: NSNotification.PushFeedItem, object: nil, userInfo: ["feedItem": feedItem])
-  }
+  // TODO: re-enable later
+//  static func pushFeedItem(feedItem: FeedItem-----Dep) {
+//    NotificationCenter.default.post(name: NSNotification.PushFeedItem, object: nil, userInfo: ["feedItem": feedItem])
+//  }
 
   static func operationSuccess(message: String) {
     NotificationCenter.default.post(name: NSNotification.OperationSuccess, object: nil, userInfo: ["message": message])

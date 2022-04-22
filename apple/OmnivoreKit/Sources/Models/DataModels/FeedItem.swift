@@ -71,9 +71,9 @@ public struct FeedItemDep: Identifiable, Hashable {
     self.labels = labels
   }
 
-  public static func fromJsonArticle(linkData: Data) -> FeedItemDep? {
-    try? JSONDecoder().decode(JSONArticle.self, from: linkData).feedItem
-  }
+//  public static func fromJsonArticle(linkData: Data) -> FeedItemDe-----p? {
+//    try? JSONDecoder().decode(JSONArticle.self, from: linkData).feedItem
+//  }
 
   public var isRead: Bool {
     readingProgress >= 0.98
@@ -101,43 +101,44 @@ public struct FeedItemDep: Identifiable, Hashable {
   }
 }
 
-/// Internal model used for parsing a push notification object only
-struct JSONArticle: Decodable {
-  let id: String
-  let title: String
-  let createdAt: Date
-  let savedAt: Date
-  let image: String
-  let readingProgressPercent: Double
-  let readingProgressAnchorIndex: Int
-  let slug: String
-  let contentReader: String
-  let url: String
-  let isArchived: Bool
-
-  var feedItem: FeedItemDep {
-    FeedItemDep(
-      id: id,
-      title: title,
-      createdAt: createdAt,
-      savedAt: savedAt,
-      readingProgress: readingProgressPercent,
-      readingProgressAnchor: readingProgressAnchorIndex,
-      imageURLString: image,
-      onDeviceImageURLString: nil,
-      documentDirectoryPath: nil,
-      pageURLString: url,
-      descriptionText: title,
-      publisherURLString: nil,
-      author: nil,
-      publishDate: nil,
-      slug: slug,
-      isArchived: isArchived,
-      contentReader: contentReader,
-      labels: []
-    )
-  }
-}
+// TODO: delete this
+// Internal model used for parsing a push notification object only
+// struct JSONArticle: Decodable {
+//  let id: String
+//  let title: String
+//  let createdAt: Date
+//  let savedAt: Date
+//  let image: String
+//  let readingProgressPercent: Double
+//  let readingProgressAnchorIndex: Int
+//  let slug: String
+//  let contentReader: String
+//  let url: String
+//  let isArchived: Bool
+//
+//  var feedItem: FeedItem-----Dep {
+//    FeedItem--------Dep(
+//      id: id,
+//      title: title,
+//      createdAt: createdAt,
+//      savedAt: savedAt,
+//      readingProgress: readingProgressPercent,
+//      readingProgressAnchor: readingProgressAnchorIndex,
+//      imageURLString: image,
+//      onDeviceImageURLString: nil,
+//      documentDirectoryPath: nil,
+//      pageURLString: url,
+//      descriptionText: title,
+//      publisherURLString: nil,
+//      author: nil,
+//      publishDate: nil,
+//      slug: slug,
+//      isArchived: isArchived,
+//      contentReader: contentReader,
+//      labels: []
+//    )
+//  }
+// }
 
 public extension FeedItemDep {
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {

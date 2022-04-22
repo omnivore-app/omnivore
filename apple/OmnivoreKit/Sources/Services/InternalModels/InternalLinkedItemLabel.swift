@@ -17,11 +17,11 @@ struct InternalLinkedItemLabel {
 
       do {
         try context.save()
-        logger.debug("NewsletterEmail saved succesfully")
+        logger.debug("LinkedItemLabel saved succesfully")
         objectID = label.objectID
       } catch {
         context.rollback()
-        logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
+        logger.debug("Failed to save LinkedItemLabel: \(error.localizedDescription)")
       }
     }
 
@@ -54,5 +54,25 @@ extension LinkedItemLabel {
     }
 
     return label
+  }
+}
+
+extension Sequence where Element == InternalLinkedItemLabel {
+  func persist(context: NSManagedObjectContext) -> [NSManagedObjectID]? {
+    var result: [NSManagedObjectID]?
+
+    context.performAndWait {
+      let labels = map { $0.asManagedObject(inContext: context) }
+      do {
+        try context.save()
+        logger.debug("labels saved succesfully")
+        result = labels.map(\.objectID)
+      } catch {
+        context.rollback()
+        logger.debug("Failed to save labels: \(error.localizedDescription)")
+      }
+    }
+
+    return result
   }
 }
