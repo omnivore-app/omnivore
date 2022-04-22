@@ -39,8 +39,8 @@ enum PDFProvider {
       .sink { completion in
         guard case let .failure(error) = completion else { return }
         print(error)
-      } receiveValue: { [weak self] feedItem in
-        self?.item.readingProgress = feedItem.readingProgress
+      } receiveValue: { [weak self] readingProgress in
+        self?.item.readingProgress = readingProgress
       }
       .store(in: &subscriptions)
   }

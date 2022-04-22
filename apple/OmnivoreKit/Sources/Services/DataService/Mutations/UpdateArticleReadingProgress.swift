@@ -9,9 +9,9 @@ public extension DataService {
     itemID: String,
     readingProgress: Double,
     anchorIndex: Int
-  ) -> AnyPublisher<FeedItemDep, SaveArticleError> {
+  ) -> AnyPublisher<Double, SaveArticleError> {
     enum MutationResult {
-      case saved(feedItem: FeedItemDep)
+      case saved(readingProgress: Double)
       case error(errorCode: Enums.SaveArticleReadingProgressErrorCode)
     }
 
@@ -19,7 +19,7 @@ public extension DataService {
       try $0.on(
         saveArticleReadingProgressSuccess: .init {
           .saved(
-            feedItem: try $0.updatedArticle(selection: homeFeedItemSelection)
+            readingProgress: try $0.updatedArticle(selection: Selection.Article { try $0.readingProgressPercent() })
           )
         },
         saveArticleReadingProgressError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) }
@@ -50,7 +50,7 @@ public extension DataService {
             }
 
             switch payload.data {
-            case let .saved(feedItem):
+            case .saved:
               if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) {
                 linkedItem.update(
                   inContext: self.backgroundContext,
@@ -58,7 +58,7 @@ public extension DataService {
                   newAnchorIndex: anchorIndex
                 )
               }
-              promise(.success(feedItem))
+              promise(.success(readingProgress))
             case let .error(errorCode: errorCode):
               switch errorCode {
               case .unauthorized:
