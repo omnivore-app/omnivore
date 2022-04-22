@@ -33,8 +33,8 @@ export default function Search(): JSX.Element {
         <h1>Search</h1>
         <hr />
         <p>
-          Omnivore uses search to filter items in your library. You can use simple 
-          keyword search to find items or our advanced search syntax.
+          Omnivore uses search to filter items in your library. You can use a simple
+          keyword search or our advanced search syntax to find items.
         </p>
         <ul>
           <li><a href="#text">Searching for text</a></li>
@@ -99,7 +99,8 @@ export default function Search(): JSX.Element {
         </p>
         <ul>
           <li><code>type:article</code>: Show only articles</li>
-          <li><code>type:file</code> or <code>type:pdf</code>: Show only PDFs</li>
+          <li><code>type:file</code>: Show only files</li>
+          <li><code>type:pdf</code>: Show only PDFs</li>
           <li><code>type:highlights</code>: Show your highlights</li>
         </ul>
 
