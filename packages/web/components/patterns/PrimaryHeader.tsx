@@ -206,7 +206,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           </HStack>
         )}
 
-        {props.username ? (
+        {props.username && (
           <HStack
             alignment="center"
             css={{ display: 'flex', alignItems: 'center' }}
@@ -222,10 +222,6 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
               actionHandler={props.actionHandler}
             />
           </HStack>
-        ) : (
-          <Link passHref href="/login">
-            <Button style="ctaDarkYellow">Sign Up</Button>
-          </Link>
         )}
       </HStack>
     </nav>
