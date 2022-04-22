@@ -17,7 +17,7 @@ TopBarProgress.config({
     "1.0": '#FFD234',
   },
   shadowBlur: 0,
-  barThickness: 1,
+  barThickness: 2,
 });
 
 function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
