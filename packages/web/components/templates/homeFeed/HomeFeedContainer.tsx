@@ -535,7 +535,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
       >
         <Toaster />
-        {(props.isValidating && <TopBarProgress />)}
+        {(props.isValidating && props.items.length == 0 && <TopBarProgress />)}
         <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
           <StyledText
             style="subHeadline"
