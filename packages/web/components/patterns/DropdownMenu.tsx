@@ -76,10 +76,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onSelect={() => props.actionHandler('navigate-to-labels')}
         title="Labels"
       />
-      <DropdownOption
+      {/* <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-subscriptions')}
         title="Subscriptions"
-      />
+      /> */}
       <DropdownOption
         onSelect={() => window.Intercom('show')}
         title="Feedback"
