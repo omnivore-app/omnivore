@@ -19,6 +19,7 @@ import { Pen, Trash } from 'phosphor-react'
 
 type HighlightsModalProps = {
   highlights: Highlight[]
+  scrollToHighlight: (arg: string) => void;
   deleteHighlightAction?: (highlightId: string) => void
   onOpenChange: (open: boolean) => void
 }
@@ -60,6 +61,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
                 key={highlight.id}
                 highlight={highlight}
                 showDelete={!!props.deleteHighlightAction}
+                scrollToHighlight={props.scrollToHighlight}
                 deleteHighlightAction={() => {
                   if (props.deleteHighlightAction) {
                     props.deleteHighlightAction(highlight.id)
@@ -82,6 +84,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
 type ModalHighlightViewProps = {
   highlight: Highlight
   showDelete: boolean
+  scrollToHighlight: (arg: string) => void;
   deleteHighlightAction: () => void
 }
 
@@ -156,7 +159,7 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
   return (
     <>
       <VStack>
-        <HighlightView highlight={props.highlight} />
+        <HighlightView scrollToHighlight={props.scrollToHighlight} highlight={props.highlight} />
         {props.highlight.annotation && !isEditing ? (
           <StyledText css={{ px: '24px' }}>{props.highlight.annotation}</StyledText>
         ) : null}

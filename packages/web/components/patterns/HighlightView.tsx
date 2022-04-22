@@ -6,6 +6,7 @@ import { styled } from '../tokens/stitches.config'
 
 type HighlightViewProps = {
   highlight: Highlight
+  scrollToHighlight: (arg: string) => void;
   author?: string
   title?: string
 }
@@ -22,11 +23,14 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     lineHeight: '1.5',
     fontFamily: 'Inter',
     color: '$omnivoreGray',
+    cursor: 'pointer',
   })
+
+  const scrollToHighlight = () => props.scrollToHighlight(props.highlight.id)
 
   return (
     <VStack css={{ width: '100%', bg: '$omnivoreYellow', p: '20px' }}>
-      <StyledQuote>
+      <StyledQuote onClick={scrollToHighlight}>
         {props.highlight.prefix}
         <SpanBox css={{ bg: '$highlight', p: '1px', borderRadius: '2px' }}>
           {lines.map((line: string, index: number) => (
