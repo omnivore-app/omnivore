@@ -8,7 +8,7 @@ import {
   appleAuthRedirectURI,
 } from '../../lib/appConfig'
 import AppleLogin from 'react-apple-login'
-import { useIntl } from 'react-intl'
+import { formatMessage } from '../../locales/en/messages'
 
 export type LoginFormProps = {
   errorMessage?: string
@@ -73,7 +73,6 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
 }
 
 function LoginFormHeader() {
-  const intl = useIntl()
   const StyledTextHeadline = styled('h1', StyledText)
 
   return (
@@ -82,7 +81,7 @@ function LoginFormHeader() {
         style="fixedHeadline"
         css={{ mx: '$2', color: '$omnivoreGray', marginBlockEnd: '0px' }}
       >
-        {intl.formatMessage({ id: 'login.headline' })}
+        {formatMessage({ id: 'login.headline' })}
       </StyledTextHeadline>
       <Link passHref href="/about">
         <a style={{ textDecoration: 'none' }}>
