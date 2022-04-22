@@ -6,7 +6,7 @@ import { styled } from '../tokens/stitches.config'
 
 type HighlightViewProps = {
   highlight: Highlight
-  scrollToHighlight: (arg: string) => void;
+  scrollToHighlight?: (arg: string) => void;
   author?: string
   title?: string
 }
@@ -26,7 +26,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     cursor: 'pointer',
   })
 
-  const scrollToHighlight = () => props.scrollToHighlight(props.highlight.id)
+  const scrollToHighlight = () => props.scrollToHighlight ? props.scrollToHighlight(props.highlight.id) : null
 
   return (
     <VStack css={{ width: '100%', bg: '$omnivoreYellow', p: '20px' }}>
