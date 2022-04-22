@@ -7,18 +7,23 @@ struct InternalNewsletterEmail {
   let email: String
   let confirmationCode: String?
 
-  func persist(context: NSManagedObjectContext) -> NewsletterEmail? {
-    let newsletterEmail = asManagedObject(inContext: context)
+  func persist(context: NSManagedObjectContext) -> NSManagedObjectID? {
+    var objectID: NSManagedObjectID?
 
-    do {
-      try context.save()
-      logger.debug("NewsletterEmail saved succesfully")
-      return newsletterEmail
-    } catch {
-      context.rollback()
-      logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
-      return nil
+    context.performAndWait {
+      let newsletterEmail = asManagedObject(inContext: context)
+
+      do {
+        try context.save()
+        logger.debug("NewsletterEmail saved succesfully")
+        objectID = newsletterEmail.objectID
+      } catch {
+        context.rollback()
+        logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
+      }
     }
+
+    return objectID
   }
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> NewsletterEmail {
@@ -31,17 +36,21 @@ struct InternalNewsletterEmail {
 }
 
 extension Sequence where Element == InternalNewsletterEmail {
-  func persist(context: NSManagedObjectContext) -> [NewsletterEmail]? {
-    let newsletterEmails = map { $0.asManagedObject(inContext: context) }
+  func persist(context: NSManagedObjectContext) -> [NSManagedObjectID]? {
+    var result: [NSManagedObjectID]?
 
-    do {
-      try context.save()
-      logger.debug("NewsletterEmail saved succesfully")
-      return newsletterEmails
-    } catch {
-      context.rollback()
-      logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
-      return nil
+    context.performAndWait {
+      let newsletterEmails = map { $0.asManagedObject(inContext: context) }
+      do {
+        try context.save()
+        logger.debug("NewsletterEmail saved succesfully")
+        result = newsletterEmails.map(\.objectID)
+      } catch {
+        context.rollback()
+        logger.debug("Failed to save NewsletterEmail: \(error.localizedDescription)")
+      }
     }
+
+    return result
   }
 }

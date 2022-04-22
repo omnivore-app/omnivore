@@ -18,8 +18,21 @@ import Views
   }
 
   func loadProfileData(dataService: DataService) async {
-    guard let viewer = try? await dataService.fetchViewer() else { return }
+    if let currentViewer = dataService.currentViewer {
+      loadProfileCardData(viewer: currentViewer)
+      return
+    }
 
+    guard let viewerObjectID = try? await dataService.fetchViewer() else { return }
+
+    await dataService.viewContext.perform {
+      if let viewer = dataService.viewContext.object(with: viewerObjectID) as? Viewer {
+        self.loadProfileCardData(viewer: viewer)
+      }
+    }
+  }
+
+  private func loadProfileCardData(viewer: Viewer) {
     profileCardData = ProfileCardData(
       name: viewer.unwrappedName,
       username: viewer.unwrappedUsername,

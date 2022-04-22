@@ -6,7 +6,7 @@ import SwiftGraphQL
 import Utils
 
 public extension DataService {
-  func fetchViewer() async throws -> Viewer {
+  func fetchViewer() async throws -> NSManagedObjectID {
     let selection = Selection<ViewerInternal, Objects.User> {
       ViewerInternal(
         userID: try $0.id(),
@@ -36,8 +36,8 @@ public extension DataService {
             DataService.registerIntercomUser?(payload.data.userID)
           }
 
-          if let self = self, let viewer = payload.data.persist(context: self.persistentContainer.viewContext) {
-            continuation.resume(returning: viewer)
+          if let self = self, let viewerID = payload.data.persist(context: self.backgroundContext) {
+            continuation.resume(returning: viewerID)
           } else {
             continuation.resume(throwing: BasicError.message(messageText: "coredata error"))
           }
@@ -55,21 +55,26 @@ private struct ViewerInternal {
   let name: String
   let profileImageURL: String?
 
-  func persist(context: NSManagedObjectContext) -> Viewer? {
-    let viewer = Viewer(context: context)
-    viewer.userID = userID
-    viewer.username = username
-    viewer.name = name
-    viewer.profileImageURL = profileImageURL
+  func persist(context: NSManagedObjectContext) -> NSManagedObjectID? {
+    var objectID: NSManagedObjectID?
 
-    do {
-      try context.save()
-      logger.debug("Viewer saved succesfully")
-      return viewer
-    } catch {
-      context.rollback()
-      logger.debug("Failed to save Viewer: \(error.localizedDescription)")
-      return nil
+    context.performAndWait {
+      let viewer = Viewer(context: context)
+      viewer.userID = userID
+      viewer.username = username
+      viewer.name = name
+      viewer.profileImageURL = profileImageURL
+
+      do {
+        try context.save()
+        logger.debug("Viewer saved succesfully")
+        objectID = viewer.objectID
+      } catch {
+        context.rollback()
+        logger.debug("Failed to save Viewer: \(error.localizedDescription)")
+      }
     }
+
+    return objectID
   }
 }

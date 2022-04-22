@@ -16,9 +16,11 @@ final class NewsletterEmailsViewModel: ObservableObject {
 
     dataService.newsletterEmailsPublisher().sink(
       receiveCompletion: { _ in },
-      receiveValue: { [weak self] result in
+      receiveValue: { [weak self] objectIDs in
         self?.isLoading = false
-        self?.emails = result
+        dataService.viewContext.perform {
+          self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
+        }
         self?.hasLoadedInitialEmails = true
       }
     )
@@ -32,9 +34,13 @@ final class NewsletterEmailsViewModel: ObservableObject {
       receiveCompletion: { [weak self] _ in
         self?.isLoading = false
       },
-      receiveValue: { [weak self] result in
+      receiveValue: { [weak self] objectID in
         self?.isLoading = false
-        self?.emails.insert(result, at: 0)
+        dataService.viewContext.perform {
+          if let item = dataService.viewContext.object(with: objectID) as? NewsletterEmail {
+            self?.emails.insert(item, at: 0)
+          }
+        }
       }
     )
     .store(in: &subscriptions)

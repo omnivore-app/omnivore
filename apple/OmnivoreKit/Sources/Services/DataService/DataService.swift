@@ -17,7 +17,7 @@ public final class DataService: ObservableObject {
   let backgroundContext: NSManagedObjectContext
   var subscriptions = Set<AnyCancellable>()
 
-  var viewContext: NSManagedObjectContext {
+  public var viewContext: NSManagedObjectContext {
     persistentContainer.viewContext
   }
 

@@ -51,7 +51,15 @@ enum PDFProvider {
         return currentViewer
       }
 
-      return try? await dataService.fetchViewer()
+      guard let viewerObjectID = try? await dataService.fetchViewer() else { return nil }
+
+      var result: Viewer?
+
+      await dataService.viewContext.perform {
+        result = dataService.viewContext.object(with: viewerObjectID) as? Viewer
+      }
+
+      return result
     }()
 
     if let viewer = viewer {
