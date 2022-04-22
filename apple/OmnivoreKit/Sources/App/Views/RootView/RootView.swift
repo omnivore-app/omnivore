@@ -29,6 +29,7 @@ public struct RootView: View {
     InnerRootView(viewModel: viewModel)
       .environmentObject(viewModel.services.authenticator)
       .environmentObject(viewModel.services.dataService)
+      .environment(\.managedObjectContext, viewModel.services.dataService.viewContext)
       .onAppear {
         if let pdfViewerProvider = pdfViewerProvider {
           viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
