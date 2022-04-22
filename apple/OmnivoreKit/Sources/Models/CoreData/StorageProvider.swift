@@ -15,8 +15,6 @@ public class PersistentContainer: NSPersistentContainer {
     container.viewContext.automaticallyMergesChangesFromParent = true
     container.viewContext.name = "viewContext"
     container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
-    container.viewContext.undoManager = nil
-    container.viewContext.shouldDeleteInaccessibleFaults = true
 
     return container
   }

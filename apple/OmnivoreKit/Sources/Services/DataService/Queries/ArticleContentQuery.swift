@@ -76,26 +76,28 @@ public extension DataService {
 
 extension DataService {
   func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
-    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(
-      format: "slug == %@", slug
-    )
+    backgroundContext.perform {
+      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(
+        format: "slug == %@", slug
+      )
 
-    let linkedItem = try? persistentContainer.viewContext.fetch(fetchRequest).first
+      let linkedItem = try? self.backgroundContext.fetch(fetchRequest).first
 
-    if let linkedItem = linkedItem, let linkedItemID = linkedItem.id {
-      _ = highlights.map {
-        $0.asManagedObject(context: persistentContainer.viewContext, associatedItemID: linkedItemID)
+      if let linkedItem = linkedItem, let linkedItemID = linkedItem.id {
+        _ = highlights.map {
+          $0.asManagedObject(context: self.backgroundContext, associatedItemID: linkedItemID)
+        }
+        linkedItem.htmlContent = htmlContent
       }
-      linkedItem.htmlContent = htmlContent
-    }
 
-    do {
-      try persistentContainer.viewContext.save()
-      print("ArticleContent saved succesfully")
-    } catch {
-      persistentContainer.viewContext.rollback()
-      print("Failed to save ArticleContent: \(error)")
+      do {
+        try self.backgroundContext.save()
+        print("ArticleContent saved succesfully")
+      } catch {
+        self.backgroundContext.rollback()
+        print("Failed to save ArticleContent: \(error)")
+      }
     }
   }
 }

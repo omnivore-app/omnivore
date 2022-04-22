@@ -59,19 +59,20 @@ public extension DataService {
   }
 
   func deletePersistedHighlight(objectID: String) {
-    let context = persistentContainer.viewContext
-    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "id == %@", objectID)
-    for highlight in (try? context.fetch(fetchRequest)) ?? [] {
-      context.delete(highlight)
-    }
+    backgroundContext.perform {
+      let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "id == %@", objectID)
+      for highlight in (try? self.backgroundContext.fetch(fetchRequest)) ?? [] {
+        self.backgroundContext.delete(highlight)
+      }
 
-    do {
-      try context.save()
-      print("Highlight deleted succesfully")
-    } catch {
-      context.rollback()
-      print("Failed to delete Highlight: \(error.localizedDescription)")
+      do {
+        try self.backgroundContext.save()
+        print("Highlight deleted succesfully")
+      } catch {
+        self.backgroundContext.rollback()
+        print("Failed to delete Highlight: \(error.localizedDescription)")
+      }
     }
   }
 }

@@ -62,7 +62,7 @@ public extension DataService {
             switch payload.data {
             case let .success(result: result):
               // save items to coredata
-              _ = result.items.persist(context: self.persistentContainer.viewContext)
+              _ = result.items.persist(context: self.backgroundContext)
               promise(.success(result))
             case .error:
               promise(.failure(.unknown))
@@ -78,10 +78,16 @@ public extension DataService {
   }
 
   func cachedFeedItems() -> [FeedItemDep] {
-    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-    let items = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
-    return items.map { FeedItemDep.make(from: $0) }
+    var result = [FeedItemDep]()
+
+    backgroundContext.performAndWait {
+      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+      let items = (try? backgroundContext.fetch(fetchRequest)) ?? []
+      result = items.map { FeedItemDep.make(from: $0) }
+    }
+
+    return result
   }
 }
 

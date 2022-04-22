@@ -58,8 +58,8 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(highlight: highlight):
-              _ = highlight.persist(
-                context: self.persistentContainer.viewContext,
+              highlight.persist(
+                context: self.backgroundContext,
                 associatedItemID: articleId,
                 oldHighlightsIds: overlapHighlightIdList
               )

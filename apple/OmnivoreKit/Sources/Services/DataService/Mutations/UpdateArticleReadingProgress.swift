@@ -51,9 +51,9 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(feedItem):
-              if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.persistentContainer.viewContext) {
+              if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) {
                 linkedItem.update(
-                  inContext: self.persistentContainer.viewContext,
+                  inContext: self.backgroundContext,
                   newReadingProgress: readingProgress,
                   newAnchorIndex: anchorIndex
                 )

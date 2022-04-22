@@ -28,6 +28,7 @@ public final class DataService: ObservableObject {
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
     self.backgroundContext = persistentContainer.newBackgroundContext()
+    backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
     persistentContainer.loadPersistentStores { _, error in
       if let error = error {
@@ -43,20 +44,22 @@ public final class DataService: ObservableObject {
   }
 
   public func clearHighlights() {
-    deletedHighlightsIDs.removeAll()
+    backgroundContext.perform {
+      self.deletedHighlightsIDs.removeAll()
 
-    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+      let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
 
-    let highlights = (try? persistentContainer.viewContext.fetch(fetchRequest)) ?? []
+      let highlights = (try? self.backgroundContext.fetch(fetchRequest)) ?? []
 
-    for highlight in highlights {
-      persistentContainer.viewContext.delete(highlight)
-    }
+      for highlight in highlights {
+        self.backgroundContext.delete(highlight)
+      }
 
-    do {
-      try persistentContainer.viewContext.save()
-    } catch {
-      logger.debug("failed to delete objects")
+      do {
+        try self.backgroundContext.save()
+      } catch {
+        logger.debug("failed to delete objects")
+      }
     }
   }
 

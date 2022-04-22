@@ -50,25 +50,25 @@ struct InternalHighlight: Encodable {
     context: NSManagedObjectContext,
     associatedItemID: String,
     oldHighlightsIds: [String] = []
-  ) -> Highlight? {
-    let highlight = asManagedObject(context: context, associatedItemID: associatedItemID)
+  ) {
+    context.perform {
+      _ = asManagedObject(context: context, associatedItemID: associatedItemID)
 
-    if !oldHighlightsIds.isEmpty {
-      let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "id IN %@", oldHighlightsIds)
-      for highlight in (try? context.fetch(fetchRequest)) ?? [] {
-        context.delete(highlight)
+      if !oldHighlightsIds.isEmpty {
+        let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id IN %@", oldHighlightsIds)
+        for highlight in (try? context.fetch(fetchRequest)) ?? [] {
+          context.delete(highlight)
+        }
       }
-    }
 
-    do {
-      try context.save()
-      print("Highlight saved succesfully")
-      return highlight
-    } catch {
-      context.rollback()
-      print("Failed to save Highlight: \(error.localizedDescription)")
-      return nil
+      do {
+        try context.save()
+        print("Highlight saved succesfully")
+      } catch {
+        context.rollback()
+        print("Failed to save Highlight: \(error.localizedDescription)")
+      }
     }
   }
 

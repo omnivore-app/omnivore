@@ -194,17 +194,21 @@ public extension FeedItemDep {
 
 public extension Sequence where Element == FeedItemDep {
   func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
-    let linkedItems = map { $0.asManagedObject(inContext: context) }
+    var result: [LinkedItem]?
 
-    do {
-      try context.save()
-      logger.debug("LinkedItems saved succesfully")
-      return linkedItems
-    } catch {
-      context.rollback()
-      logger.debug("Failed to save LinkedItems: \(error.localizedDescription)")
-      return nil
+    context.performAndWait {
+      let linkedItems = map { $0.asManagedObject(inContext: context) }
+
+      do {
+        try context.save()
+        result = linkedItems
+        logger.debug("LinkedItems saved succesfully")
+      } catch {
+        context.rollback()
+        logger.debug("Failed to save LinkedItems: \(error.localizedDescription)")
+      }
     }
+    return result
   }
 }
 
@@ -215,7 +219,13 @@ public extension LinkedItem {
       format: "id == %@", itemID
     )
 
-    return (try? context.fetch(fetchRequest))?.first
+    var item: LinkedItem?
+
+    context.performAndWait {
+      item = (try? context.fetch(fetchRequest))?.first
+    }
+
+    return item
   }
 
   func update(
@@ -224,38 +234,42 @@ public extension LinkedItem {
     newAnchorIndex: Int? = nil,
     newIsArchivedValue: Bool? = nil
   ) {
-    if let newReadingProgress = newReadingProgress {
-      readingProgress = newReadingProgress
-    }
+    context.perform {
+      if let newReadingProgress = newReadingProgress {
+        self.readingProgress = newReadingProgress
+      }
 
-    if let newAnchorIndex = newAnchorIndex {
-      readingProgressAnchor = Int64(newAnchorIndex)
-    }
+      if let newAnchorIndex = newAnchorIndex {
+        self.readingProgressAnchor = Int64(newAnchorIndex)
+      }
 
-    if let newIsArchivedValue = newIsArchivedValue {
-      isArchived = newIsArchivedValue
-    }
+      if let newIsArchivedValue = newIsArchivedValue {
+        self.isArchived = newIsArchivedValue
+      }
 
-    guard context.hasChanges else { return }
+      guard context.hasChanges else { return }
 
-    do {
-      try context.save()
-      logger.debug("LinkedItem updated succesfully")
-    } catch {
-      context.rollback()
-      logger.debug("Failed to update LinkedItem: \(error.localizedDescription)")
+      do {
+        try context.save()
+        logger.debug("LinkedItem updated succesfully")
+      } catch {
+        context.rollback()
+        logger.debug("Failed to update LinkedItem: \(error.localizedDescription)")
+      }
     }
   }
 
   func remove(inContext context: NSManagedObjectContext) {
-    context.delete(self)
+    context.perform {
+      context.delete(self)
 
-    do {
-      try context.save()
-      logger.debug("LinkedItem removed")
-    } catch {
-      context.rollback()
-      logger.debug("Failed to remove LinkedItem: \(error.localizedDescription)")
+      do {
+        try context.save()
+        logger.debug("LinkedItem removed")
+      } catch {
+        context.rollback()
+        logger.debug("Failed to remove LinkedItem: \(error.localizedDescription)")
+      }
     }
   }
 }
