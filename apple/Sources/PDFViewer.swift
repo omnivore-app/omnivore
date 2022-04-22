@@ -301,10 +301,10 @@ import Utils
     }
 
     private func applyHighlights(documentProvider: PDFDocumentProvider) {
-      viewModel.loadHighlights { [weak self] highlights in
+      viewModel.loadHighlights { [weak self] highlightPatches in
         var annnotations: [Annotation] = []
-        for highlight in highlights {
-          guard let data = highlight.patch.data(using: String.Encoding.utf8) else { continue }
+        for patch in highlightPatches {
+          guard let data = patch.data(using: String.Encoding.utf8) else { continue }
           let annotation = try? Annotation(fromInstantJSON: data, documentProvider: documentProvider)
           guard let annotation = annotation else { continue }
           annnotations.append(annotation)

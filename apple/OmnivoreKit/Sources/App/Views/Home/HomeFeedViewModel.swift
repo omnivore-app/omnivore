@@ -51,9 +51,6 @@ import Views
   }
 
   func loadItems(dataService: DataService, isRefresh: Bool) {
-    // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
-    dataService.clearHighlights()
-
     let thisSearchIdx = searchIdx
     searchIdx += 1
 

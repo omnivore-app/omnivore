@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import Services
@@ -17,52 +18,17 @@ public final class PDFViewerViewModel: ObservableObject {
     self.feedItem = feedItem
   }
 
-  public func loadHighlights(completion onComplete: @escaping ([HighlightDep]) -> Void) {
-    guard let username = services.dataService.currentViewer?.username else { return }
-
-    services.dataService.pdfHighlightsPublisher(username: username, slug: feedItem.slug).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        onComplete(self?.allHighlights(fetchedHighlights: []) ?? [])
-      },
-      receiveValue: { [weak self] highlights in
-        onComplete(self?.allHighlights(fetchedHighlights: highlights) ?? [])
-      }
+  public func loadHighlights(completion onComplete: @escaping ([String]) -> Void) {
+    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "linkedItemId == %@", feedItem.id
     )
-    .store(in: &subscriptions)
-  }
 
-  // TODO: use core data instead
-  private func allHighlights(fetchedHighlights: [HighlightDep]) -> [HighlightDep] {
-    var resultSet = [String: HighlightDep]()
-
-    for highlight in services.dataService.cachedHighlights(pdfID: feedItem.id) {
-      resultSet[highlight.id] = highlight
-    }
-    for highlight in fetchedHighlights {
-      resultSet[highlight.id] = highlight
-    }
-    for highlightId in services.dataService.deletedHighlightsIDs {
-      resultSet.removeValue(forKey: highlightId)
-    }
-    return Array(resultSet.values)
+    let highlights = (try? services.dataService.viewContext.fetch(fetchRequest)) ?? []
+    onComplete(highlights.map { $0.patch ?? "" })
   }
 
   public func createHighlight(shortId: String, highlightID: String, quote: String, patch: String) {
-    services.dataService.persistHighlight(
-      pdfID: feedItem.id,
-      highlight: HighlightDep(
-        id: highlightID,
-        shortId: shortId,
-        quote: quote,
-        prefix: nil,
-        suffix: nil,
-        patch: patch,
-        annotation: nil,
-        createdByMe: true
-      )
-    )
-
     services.dataService
       .createHighlightPublisher(
         shortId: shortId,
@@ -78,7 +44,6 @@ public final class PDFViewerViewModel: ObservableObject {
       .store(in: &subscriptions)
   }
 
-  // TODO: able to delete this now?
   public func mergeHighlight(
     shortId: String,
     highlightID: String,
@@ -103,7 +68,6 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func removeHighlights(highlightIds: [String]) {
-    // TODO: update function to take an array?
     highlightIds.forEach { highlightId in
       services.dataService.deleteHighlightPublisher(highlightId: highlightId)
         .sink { [weak self] completion in

@@ -21,8 +21,6 @@ public final class DataService: ObservableObject {
     persistentContainer.viewContext
   }
 
-  public var deletedHighlightsIDs = Set<String>()
-
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
@@ -41,26 +39,6 @@ public final class DataService: ObservableObject {
     let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
     fetchRequest.fetchLimit = 1 // we should only have one viewer saved
     return try? persistentContainer.viewContext.fetch(fetchRequest).first
-  }
-
-  public func clearHighlights() {
-    backgroundContext.perform {
-      self.deletedHighlightsIDs.removeAll()
-
-      let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-
-      let highlights = (try? self.backgroundContext.fetch(fetchRequest)) ?? []
-
-      for highlight in highlights {
-        self.backgroundContext.delete(highlight)
-      }
-
-      do {
-        try self.backgroundContext.save()
-      } catch {
-        logger.debug("failed to delete objects")
-      }
-    }
   }
 
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {

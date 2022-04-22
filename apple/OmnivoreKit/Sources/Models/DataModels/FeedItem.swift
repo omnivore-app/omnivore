@@ -162,7 +162,7 @@ public extension FeedItemDep {
     linkedItem.contentReader = contentReader
 
     //    for label in item.labels {
-    // TODO: append labels
+    // TODO: append labels...and highlights?
     //    }
 
     return linkedItem
