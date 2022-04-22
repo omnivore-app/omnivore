@@ -178,6 +178,7 @@ export function Table(props: TableProps): JSX.Element {
             borderBottomLeftRadius: index == props.rows.length - 1 ? '5px' : '',
             borderBottomRightRadius:
               index == props.rows.length - 1 ? '5px' : '',
+            padding: '10px 20px 10px 40px',
           }}
         >
           <Box
@@ -214,7 +215,7 @@ export function Table(props: TableProps): JSX.Element {
                 style="ctaWhite"
                 css={{ mr: '$1', background: '$labelButtonsBg' }}
                 onClick={() => {
-                  props.onDelete(row[0])
+                  props.onDelete && props.onDelete(row[0])
                 }}
               >
                 <Trash size={16} color={iconColor} />
