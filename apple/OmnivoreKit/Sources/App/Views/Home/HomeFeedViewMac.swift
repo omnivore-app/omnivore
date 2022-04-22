@@ -40,7 +40,7 @@ import Views
               )
               if FeatureFlag.enableSnooze {
                 Button {
-                  viewModel.itemToSnooze = item
+                  viewModel.itemToSnoozeID = item.id
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }

@@ -21,7 +21,7 @@ import Views
   @Published var searchTerm = ""
   @Published var selectedLabels = [FeedItemLabelDep]()
   @Published var snoozePresented = false
-  @Published var itemToSnooze: FeedItemDep?
+  @Published var itemToSnoozeID: String?
   @Published var selectedLinkItem: FeedItemDep?
 
   var cursor: String?

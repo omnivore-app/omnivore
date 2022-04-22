@@ -64,7 +64,7 @@ import Views
         }
       }
       .formSheet(isPresented: $viewModel.snoozePresented) {
-        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnooze: $viewModel.itemToSnooze) {
+        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnoozeID: $viewModel.itemToSnoozeID) {
           viewModel.snoozeUntil(
             dataService: dataService,
             linkId: $0.feedItemId,
@@ -182,7 +182,7 @@ import Views
               )
               if FeatureFlag.enableSnooze {
                 Button {
-                  viewModel.itemToSnooze = item
+                  viewModel.itemToSnoozeID = item.id
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
@@ -233,7 +233,7 @@ import Views
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
               if FeatureFlag.enableSnooze {
                 Button {
-                  viewModel.itemToSnooze = item
+                  viewModel.itemToSnoozeID = item.id
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }

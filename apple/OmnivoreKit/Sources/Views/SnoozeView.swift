@@ -3,16 +3,16 @@ import SwiftUI
 
 public struct SnoozeView: View {
   @Binding var snoozePresented: Bool
-  @Binding var itemToSnooze: FeedItemDep?
+  @Binding var itemToSnoozeID: String?
   let snoozeAction: (SnoozeActionParams) -> Void
 
   public init(
     snoozePresented: Binding<Bool>,
-    itemToSnooze: Binding<FeedItemDep?>,
+    itemToSnoozeID: Binding<String?>,
     snoozeAction: @escaping (SnoozeActionParams) -> Void
   ) {
     self._snoozePresented = snoozePresented
-    self._itemToSnooze = itemToSnooze
+    self._itemToSnoozeID = itemToSnoozeID
     self.snoozeAction = snoozeAction
   }
 
@@ -36,18 +36,18 @@ public struct SnoozeView: View {
   }
 
   private func snoozeItem(_ snooze: Snooze) {
-    if let item = itemToSnooze {
+    if let itemID = itemToSnoozeID {
       withAnimation(.linear(duration: 0.4)) {
         snoozeAction(
           SnoozeActionParams(
-            feedItemId: item.id,
+            feedItemId: itemID,
             snoozeUntilDate: snooze.until,
             successMessage: "Snoozed until \(snooze.untilStr)"
           )
         )
       }
     }
-    itemToSnooze = nil
+    itemToSnoozeID = nil
     snoozePresented = false
   }
 }
