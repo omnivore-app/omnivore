@@ -463,6 +463,7 @@ export const getArticlesResolver = authorized<
       hasFilters: searchQuery.hasFilters,
       savedDateFilter: searchQuery.savedDateFilter,
       publishedDateFilter: searchQuery.publishedDateFilter,
+      subscriptionFilter: searchQuery.subscriptionFilter,
     },
   })
 
@@ -481,6 +482,7 @@ export const getArticlesResolver = authorized<
       hasFilters: searchQuery.hasFilters,
       savedDateFilter: searchQuery.savedDateFilter,
       publishedDateFilter: searchQuery.publishedDateFilter,
+      subscriptionFilter: searchQuery.subscriptionFilter,
     },
     claims.uid
   )) || [[], 0]
@@ -859,6 +861,7 @@ export const searchResolver = authorized<
         hasFilters: searchQuery.hasFilters,
         savedDateFilter: searchQuery.savedDateFilter,
         publishedDateFilter: searchQuery.publishedDateFilter,
+        subscriptionFilter: searchQuery.subscriptionFilter,
       },
       claims.uid
     )) || [[], 0]

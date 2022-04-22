@@ -16,6 +16,7 @@ import {
   SortBy,
   SortOrder,
   SortParams,
+  SubscriptionFilter,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
@@ -166,6 +167,17 @@ const appendPublishedDateFilter = (
         gt: filter.startDate,
         lt: filter.endDate,
       },
+    },
+  })
+}
+
+const appendSubscriptionFilter = (
+  body: SearchBody,
+  filter: SubscriptionFilter
+): void => {
+  body.query.bool.filter.push({
+    term: {
+      subscription: filter.name,
     },
   })
 }
@@ -322,6 +334,7 @@ export const searchPages = async (
     hasFilters?: HasFilter[]
     savedDateFilter?: DateRangeFilter
     publishedDateFilter?: DateRangeFilter
+    subscriptionFilter?: SubscriptionFilter
   },
   userId: string
 ): Promise<[Page[], number] | undefined> => {
@@ -338,6 +351,7 @@ export const searchPages = async (
       hasFilters = [],
       savedDateFilter,
       publishedDateFilter,
+      subscriptionFilter,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -405,6 +419,9 @@ export const searchPages = async (
     }
     if (publishedDateFilter) {
       appendPublishedDateFilter(body, publishedDateFilter)
+    }
+    if (subscriptionFilter) {
+      appendSubscriptionFilter(body, subscriptionFilter)
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))

@@ -33,6 +33,7 @@ export type SearchFilter = {
   hasFilters: HasFilter[]
   savedDateFilter?: DateRangeFilter
   publishedDateFilter?: DateRangeFilter
+  subscriptionFilter?: SubscriptionFilter
 }
 
 export enum LabelFilterType {
@@ -69,6 +70,10 @@ export enum SortOrder {
 export type SortParams = {
   by: SortBy
   order?: SortOrder
+}
+
+export type SubscriptionFilter = {
+  name: string
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -195,6 +200,18 @@ const parseDateRangeFilter = (str?: string): DateRangeFilter | undefined => {
   }
 }
 
+const parseSubscriptionFilter = (
+  str?: string
+): SubscriptionFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  return {
+    name: str.toLowerCase(),
+  }
+}
+
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
   const result: SearchFilter = {
@@ -225,6 +242,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'has',
       'saved',
       'published',
+      'subscription',
     ],
     tokenize: true,
   })
@@ -282,6 +300,9 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         case 'published':
           result.publishedDateFilter = parseDateRangeFilter(keyword.value)
+          break
+        case 'subscription':
+          result.subscriptionFilter = parseSubscriptionFilter(keyword.value)
           break
       }
     }

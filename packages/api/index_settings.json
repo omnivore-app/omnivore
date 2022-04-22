@@ -99,7 +99,8 @@
         "type": "text"
       },
       "subscription": {
-        "type": "keyword"
+        "type": "keyword",
+        "normalizer": "lowercase_normalizer"
       }
     }
   }
