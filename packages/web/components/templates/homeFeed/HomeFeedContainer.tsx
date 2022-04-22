@@ -600,7 +600,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               const searchQuery = SAVED_SEARCHES[key]
               const style = searchQuery === props.searchTerm || (!props.searchTerm && !searchQuery) ? 'ctaDarkYellow' : 'ctaLightGray'
               return (
-                <Button key={key} style={style} onClick={() => { props.applySearchQuery(searchQuery)}} css={{ p: '10px 12px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+                <Button key={key} style={style} onClick={() => { props.applySearchQuery(searchQuery)}} css={{ p: '10px 12px', height: '37.5px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
                   {key}
                 </Button>
               )
