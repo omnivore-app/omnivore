@@ -26,7 +26,7 @@ export function GetStartedButton(): JSX.Element {
           Get Started
         </a>
       </Link>
-      <ArrowRight size={18} style={arrowStyles} color='white' fontWeight='700' />
+      <ArrowRight size={18} width={18} height={18} style={arrowStyles} color='white' fontWeight='700' />
     </Button>
   )
 }
@@ -150,6 +150,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landing-1.png, /static/landing/landing-1@2x.png 2x"
               alt='landing-1'
               style={{height: '50vw', maxHeight: 560}}
+              sizes="auto 50vw, auto 50vw"
             />
           }
           icon={<MagnifyingGlass size={32} color={iconColor} weight='duotone' />}
@@ -164,6 +165,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landing-2.png, /static/landing/landing-2@2x.png 2x"
               alt='landing-2'
               style={{width: '100%', marginRight: 40}}
+              sizes="auto 50vw, auto 50vw"
             />
           }
           icon={<Palette size={32} color={iconColor} weight='duotone' />}
@@ -179,6 +181,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landing-3.png, /static/landing/landing-3@2x.png 2x"
               alt='landing-3'
               style={{height: '50vw', maxHeight: 560}}
+              sizes="auto 50vw, auto 50vw"
             />
           }
           icon={<MegaphoneSimple size={32} color={iconColor} weight='duotone' />}
@@ -193,6 +196,7 @@ export function LandingSectionsContainer({
               srcSet="/static/landing/landing-4.png, /static/landing/landing-4@2x.png 2x"
               alt='landing-4'
               style={{width: '100%', marginRight: 40}}
+              sizes="auto 50vw, auto 50vw"
             />
           }
           icon={<Binoculars size={32} color={iconColor} weight='duotone' />}
