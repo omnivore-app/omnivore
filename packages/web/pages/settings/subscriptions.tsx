@@ -1,23 +1,18 @@
 import { useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { styled } from '../../components/tokens/stitches.config'
-import { Box, VStack } from '../../components/elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { StyledText } from '../../components/elements/StyledText'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { unsubscribeMutation } from '../../lib/networking/mutations/unsubscribeMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-
-const HeaderWrapper = styled(Box, {
-  width: '100%',
-})
+import { Table } from '../../components/elements/Table'
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate } = useGetSubscriptionsQuery()
-  const [confirmUnsubscribeName, setConfirmUnsubscribeName] =
-    useState<string | null>(null)
+  const [confirmUnsubscribeName, setConfirmUnsubscribeName] = useState<
+    string | null
+  >(null)
 
   applyStoredTheme(false)
 
@@ -31,6 +26,13 @@ export default function SubscriptionsPage(): JSX.Element {
     revalidate()
   }
 
+  const headers = ['Name', 'Email', 'Updated Time']
+  const rows = subscriptions.map((subscription) => [
+    subscription.name,
+    subscription.newsletterEmail,
+    subscription.updatedAt.toString(),
+  ])
+
   return (
     <PrimaryLayout pageTestId="settings-subscriptions-tag">
       <Toaster
@@ -38,37 +40,25 @@ export default function SubscriptionsPage(): JSX.Element {
           top: '5rem',
         }}
       />
-      <VStack
-        css={{
-          mx: '10px',
-          color: '$grayText',
-        }}
-      >
-        {confirmUnsubscribeName ? (
-          <ConfirmationModal
-            message={
-              'Are you sure? You will stop receiving newsletters from this subscription.'
-            }
-            onAccept={async () => {
-              await onUnsubscribe(confirmUnsubscribeName)
-              setConfirmUnsubscribeName(null)
-            }}
-            onOpenChange={() => setConfirmUnsubscribeName(null)}
-          />
-        ) : null}
-        <HeaderWrapper>
-          <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <Box>
-              <StyledText style="fixedHeadline">Subscriptions</StyledText>
-            </Box>
-          </Box>
-        </HeaderWrapper>
-        {subscriptions
-          ? subscriptions.map((subscription, i) => {
-              return
-            })
-          : null}
-      </VStack>
+
+      {confirmUnsubscribeName ? (
+        <ConfirmationModal
+          message={
+            'Are you sure? You will stop receiving newsletters from this subscription.'
+          }
+          onAccept={async () => {
+            await onUnsubscribe(confirmUnsubscribeName)
+            setConfirmUnsubscribeName(null)
+          }}
+          onOpenChange={() => setConfirmUnsubscribeName(null)}
+        />
+      ) : null}
+      <Table
+        heading={'Subscriptions'}
+        headers={headers}
+        rows={rows}
+        onDelete={setConfirmUnsubscribeName}
+      />
     </PrimaryLayout>
   )
 }

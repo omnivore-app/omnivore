@@ -37,25 +37,22 @@ export const subscriptionsResolver = authorized<
   try {
     const sortBy = sort?.by === SortBy.UpdatedTime ? 'updatedAt' : 'createdAt'
     const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
-    const user = await getRepository(User).findOne({
-      where: { id: uid, subscriptions: { status: SubscriptionStatus.Active } },
-      relations: {
-        subscriptions: true,
-      },
-      order: {
-        subscriptions: {
-          [sortBy]: sortOrder,
-        },
-      },
-    })
+    const user = await getRepository(User).findOneBy({ id: uid })
     if (!user) {
       return {
         errorCodes: [SubscriptionsErrorCode.Unauthorized],
       }
     }
 
+    const subscriptions = await getRepository(Subscription).find({
+      where: { user: { id: uid }, status: SubscriptionStatus.Active },
+      order: {
+        [sortBy]: sortOrder,
+      },
+    })
+
     return {
-      subscriptions: user.subscriptions || [],
+      subscriptions,
     }
   } catch (error) {
     log.error(error)
@@ -73,9 +70,12 @@ export const unsubscribeResolver = authorized<
   log.info('unsubscribeResolver')
 
   try {
-    const subscription = await getRepository(Subscription).findOneBy({
-      name,
-      user: { id: uid },
+    const subscription = await getRepository(Subscription).findOne({
+      where: {
+        name,
+        user: { id: uid },
+      },
+      relations: ['user'],
     })
     if (!subscription) {
       return {

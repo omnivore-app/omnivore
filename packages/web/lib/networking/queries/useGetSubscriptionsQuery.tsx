@@ -15,7 +15,7 @@ export type Subscription = {
   status: SubscriptionStatus
   createdAt: Date
   updatedAt: Date
-};
+}
 
 type SubscriptionsQueryResponse = {
   isValidating: boolean
@@ -34,11 +34,12 @@ type SubscriptionsData = {
 export function useGetSubscriptionsQuery(): SubscriptionsQueryResponse {
   const query = gql`
     query GetSubscriptions {
-      subscriptions {
+      subscriptions(sort: { by: UPDATED_TIME }) {
         ... on SubscriptionsSuccess {
           subscriptions {
             id
             name
+            newsletterEmail
             url
             description
             status
