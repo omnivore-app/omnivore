@@ -34,7 +34,7 @@ export default function Search(): JSX.Element {
         <hr />
         <p>
           Omnivore uses search to filter items in your library. You can use simple 
-          keyword search to find items or our advances search syntax.
+          keyword search to find items or our advanced search syntax.
         </p>
         <ul>
           <li><a href="#text">Searching for text</a></li>
@@ -49,7 +49,7 @@ export default function Search(): JSX.Element {
 
         <h2 id="text">Searching for text</h2>
         <p>
-          Omnivore will perform full text search across an article&apos;s content, title, description,
+          Omnivore will perform full text search across library item&apos;s content, title, description,
           and site by default. You can search for specific terms by quoting your terms. By default
           all results that match your search will be returned in the order they were saved. To change
           your search to relevance use the <code>sort:score</code> parameter.
