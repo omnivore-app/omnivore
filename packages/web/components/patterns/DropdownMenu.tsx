@@ -1,9 +1,9 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { Box, HStack, VStack } from './../elements/LayoutPrimitives'
+import { HStack, VStack } from './../elements/LayoutPrimitives'
 import {
   Dropdown,
-  DropdownSeparator,
   DropdownOption,
+  DropdownSeparator,
 } from '../elements/DropdownElements'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
@@ -18,6 +18,7 @@ export type HeaderDropdownAction =
   | 'navigate-to-emails'
   | 'navigate-to-labels'
   | 'navigate-to-profile'
+  | 'navigate-to-subscriptions'
   | 'increaseFontSize'
   | 'decreaseFontSize'
   | 'logout'
@@ -38,19 +39,27 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   return (
     <Dropdown triggerElement={props.triggerElement}>
       <VStack css={{ p: '$2' }}>
-        <StyledText style='menuTitle'>Theme</StyledText>
+        <StyledText style="menuTitle">Theme</StyledText>
         <HStack css={{ mt: '6px', mb: '6px', width: '100%', gap: '8px' }}>
-          <Button style='themeSwitch' css={{ background: "#FFFFFF", width: '50%' }} onClick={() => {
-            props.actionHandler('apply-lighter-theme')
-            setCurrentTheme(currentThemeName())
-          }}>
-            { isDark ? '' : '✓' }
+          <Button
+            style="themeSwitch"
+            css={{ background: '#FFFFFF', width: '50%' }}
+            onClick={() => {
+              props.actionHandler('apply-lighter-theme')
+              setCurrentTheme(currentThemeName())
+            }}
+          >
+            {isDark ? '' : '✓'}
           </Button>
-          <Button style='themeSwitch' css={{ background: "#3D3D3D", width: '50%' }} onClick={() => {
-            props.actionHandler('apply-dark-theme')
-            setCurrentTheme(currentThemeName())
-          }}>
-            { isDark ? '✓' : '' }
+          <Button
+            style="themeSwitch"
+            css={{ background: '#3D3D3D', width: '50%' }}
+            onClick={() => {
+              props.actionHandler('apply-dark-theme')
+              setCurrentTheme(currentThemeName())
+            }}
+          >
+            {isDark ? '✓' : ''}
           </Button>
         </HStack>
       </VStack>
@@ -67,6 +76,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onSelect={() => props.actionHandler('navigate-to-labels')}
         title="Labels"
       />
+      {/* <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-subscriptions')}
+        title="Subscriptions"
+      /> */}
       <DropdownOption
         onSelect={() => window.Intercom('show')}
         title="Feedback"
