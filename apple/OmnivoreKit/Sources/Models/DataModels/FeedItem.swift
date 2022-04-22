@@ -161,9 +161,9 @@ public extension FeedItemDep {
     linkedItem.isArchived = isArchived
     linkedItem.contentReader = contentReader
 
-    //    for label in item.labels {
-    // TODO: append labels...and highlights?
-    //    }
+//    for label in labels {
+//      // TODO: fix
+//    }
 
     return linkedItem
   }

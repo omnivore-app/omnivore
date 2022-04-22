@@ -20,10 +20,11 @@ struct InternalLinkedItem {
   let slug: String
   let isArchived: Bool
   let contentReader: String?
-  var labels: [FeedItemLabelDep]
+  var labels: [InternalLinkedItemLabel]
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {
-    let linkedItem = LinkedItem(entity: LinkedItem.entity(), insertInto: context)
+    let existingItem = LinkedItem.lookup(byID: id, inContext: context)
+    let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: context)
 
     linkedItem.id = id
     linkedItem.title = title
@@ -42,9 +43,9 @@ struct InternalLinkedItem {
     linkedItem.isArchived = isArchived
     linkedItem.contentReader = contentReader
 
-    //    for label in item.labels {
-    // TODO: append labels
-    //    }
+    for label in labels {
+      linkedItem.addToLabels(label.asManagedObject(inContext: context))
+    }
 
     return linkedItem
   }
