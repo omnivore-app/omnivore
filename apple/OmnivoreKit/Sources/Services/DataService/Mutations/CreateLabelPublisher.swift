@@ -47,9 +47,11 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(label: label):
-              // TODO: -labels update CoreData and fix this label thing
-//              promise(.success(label))
-              promise(.failure(.message(messageText: "")))
+              if let labelObjectID = [label].persist(context: self.backgroundContext)?.first {
+                promise(.success(labelObjectID))
+              } else {
+                promise(.failure(.message(messageText: "core data error")))
+              }
             case let .error(errorCode: errorCode):
               promise(.failure(.message(messageText: errorCode.rawValue)))
             }

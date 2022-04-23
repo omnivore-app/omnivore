@@ -33,10 +33,12 @@ public extension DataService {
           switch result {
           case let .success(payload):
             switch payload.data {
-            case let .success(result: result):
-              // TODO: -labels update CoreData and fix this
-//              promise(.success(result))
-              promise(.failure(.unknown))
+            case let .success(result: labels):
+              if let labelObjectIDs = labels.persist(context: self.backgroundContext) {
+                promise(.success(labelObjectIDs))
+              } else {
+                promise(.failure(.unknown))
+              }
             case .error:
               promise(.failure(.unknown))
             }
