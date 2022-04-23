@@ -4,7 +4,7 @@ import Services
 import SwiftUI
 import Views
 
-// TODO: fix file
+// TODO: -labels fix file
 final class LabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
   @Published var isLoading = false

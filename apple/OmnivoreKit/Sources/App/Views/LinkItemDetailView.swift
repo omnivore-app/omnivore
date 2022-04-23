@@ -76,7 +76,7 @@ enum PDFProvider {
 
     let urlRequest = URLRequest.webRequest(
       baseURL: dataService.appEnvironment.webAppBaseURL,
-      urlPath: "/app/\(username)/\(item.slug)",
+      urlPath: "/app/\(username)/\(item.unwrappedSlug)",
       queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
     )
 

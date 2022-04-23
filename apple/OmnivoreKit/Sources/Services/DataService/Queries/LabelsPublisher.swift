@@ -34,7 +34,7 @@ public extension DataService {
           case let .success(payload):
             switch payload.data {
             case let .success(result: result):
-              // TODO: update CoreData and fix this
+              // TODO: -labels update CoreData and fix this
 //              promise(.success(result))
               promise(.failure(.unknown))
             case .error:

@@ -57,7 +57,7 @@ import Views
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
-      // TODO: fix this
+      // TODO: -push-notification fix this
 //      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
 //        if let feedItem = notification.userInfo?["feedItem"] as? FeedItemD---ep {
 //          viewModel.pushFeedItem(item: feedItem)
@@ -166,7 +166,11 @@ import Views
               )
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: !item.isArchived)
+                  viewModel.setLinkArchived(
+                    dataService: dataService,
+                    linkId: item.unwrappedID,
+                    archived: !item.isArchived
+                  )
                 }
               }, label: {
                 Label(

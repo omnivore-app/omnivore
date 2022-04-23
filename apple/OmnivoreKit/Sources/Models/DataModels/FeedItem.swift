@@ -11,7 +11,7 @@ public struct HomeFeedData {
   }
 }
 
-// TODO: delete this
+// TODO: -push-notification delete this?
 // Internal model used for parsing a push notification object only
 // struct JSONArticle: Decodable {
 //  let id: String

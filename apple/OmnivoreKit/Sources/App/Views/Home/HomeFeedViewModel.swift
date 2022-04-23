@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -71,10 +72,15 @@ import Views
     .sink(
       receiveCompletion: { [weak self] completion in
         guard case .failure = completion else { return }
-        self?.isLoading = false
-        // return cachedItems found in CoreData when request fails
-//        self?.items = dataService.cachedFeedItems() // TODO: fetch items from core data
-        self?.cursor = nil
+        dataService.viewContext.perform {
+          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+          fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+          if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
+            self?.items = fetchedItems
+            self?.cursor = nil
+            self?.isLoading = false
+          }
+        }
       },
       receiveValue: { [weak self] result in
         // Search results aren't guaranteed to return in order so this
@@ -200,7 +206,7 @@ import Views
   }
 
   func updateLabels(itemID _: String, labels _: [LinkedItemLabel]) {
-    // TODO: fix
+    // TODO: -labels fix
 //    // If item is being being displayed then delay the state update of labels until
 //    // user is no longer reading the item.
 //    if selectedLinkItem != nil {

@@ -37,7 +37,7 @@ public extension DataService {
 
             switch payload.data {
             case .success:
-              // TODO: update CoreData
+              // TODO: -labels update CoreData
               promise(.success(true))
             case .error:
               promise(.failure(.message(messageText: "Error removing label")))

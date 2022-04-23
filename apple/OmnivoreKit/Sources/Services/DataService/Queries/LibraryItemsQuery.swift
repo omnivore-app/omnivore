@@ -83,20 +83,6 @@ public extension DataService {
     .receive(on: DispatchQueue.main)
     .eraseToAnyPublisher()
   }
-
-  // TODO: delete
-//  func cachedFeedItems() -> [FeedItem---D----ep] {
-//    var result = [FeedItem------D---ep]()
-//
-//    backgroundContext.performAndWait {
-//      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-//      fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-//      let items = (try? backgroundContext.fetch(fetchRequest)) ?? []
-//      result = items.map { FeedItem-----D----ep.make(from: $0) }
-//    }
-//
-//    return result
-//  }
 }
 
 let homeFeedItemSelection = Selection.Article {

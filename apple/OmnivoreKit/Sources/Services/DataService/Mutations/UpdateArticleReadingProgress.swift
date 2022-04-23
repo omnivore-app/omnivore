@@ -5,6 +5,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
+  // swiftlint:disable function_body_length
   func updateArticleReadingProgressPublisher(
     itemID: String,
     readingProgress: Double,
