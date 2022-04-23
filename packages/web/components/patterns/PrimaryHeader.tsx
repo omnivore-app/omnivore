@@ -1,9 +1,9 @@
-import { Box, HStack, SpanBox } from '../elements/LayoutPrimitives'
+import { Box, HStack } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from './../elements/images/OmnivoreNameLogo'
 import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
-import { updateTheme } from '../../lib/themeUpdater'
+import { darkenTheme, lightenTheme, updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
-import { theme, ThemeId } from './../tokens/stitches.config'
+import { ThemeId } from './../tokens/stitches.config'
 import { useCallback, useEffect, useState } from 'react'
 import {
   ScrollOffsetChangeset,
@@ -12,7 +12,6 @@ import {
 import { useRouter } from 'next/router'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { darkenTheme, lightenTheme } from '../../lib/themeUpdater'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
 import { Button } from '../elements/Button'
@@ -111,6 +110,9 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
           router.push(`/${props.user.profile.username}`)
         }
         break
+      case 'navigate-to-subscriptions':
+        router.push('/settings/subscriptions')
+        break
       case 'logout':
         props.setShowLogoutConfirmation(true)
         break
@@ -187,20 +189,24 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
         </HStack>
 
         {props.toolbarControl && (
-          <HStack distribution="end" alignment="center" css={{
-            height: '100%', width: '100%',
-            mr: '16px',
-            display: props.alwaysDisplayToolbar ? 'flex' : 'none',
-            '@lgDown': {
-              display: 'flex',
-            },
+          <HStack
+            distribution="end"
+            alignment="center"
+            css={{
+              height: '100%',
+              width: '100%',
+              mr: '16px',
+              display: props.alwaysDisplayToolbar ? 'flex' : 'none',
+              '@lgDown': {
+                display: 'flex',
+              },
             }}
           >
             {props.toolbarControl}
           </HStack>
         )}
 
-        {props.username ? (
+        {props.username && (
           <HStack
             alignment="center"
             css={{ display: 'flex', alignItems: 'center' }}
@@ -216,10 +222,6 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
               actionHandler={props.actionHandler}
             />
           </HStack>
-        ) : (
-          <Link passHref href="/login">
-            <Button style="ctaDarkYellow">Sign Up</Button>
-          </Link>
         )}
       </HStack>
     </nav>
