@@ -33,9 +33,9 @@ public final class RootViewModel: ObservableObject {
   func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
     guard PDFProvider.pdfViewerProvider == nil else { return }
 
-    PDFProvider.pdfViewerProvider = { [weak self] url, feedItem in
+    PDFProvider.pdfViewerProvider = { [weak self] url, linkedItem in
       guard let self = self else { return AnyView(Text("")) }
-      return pdfViewerProvider(url, PDFViewerViewModel(services: self.services, feedItem: feedItem))
+      return pdfViewerProvider(url, PDFViewerViewModel(services: self.services, linkedItem: linkedItem))
     }
   }
 

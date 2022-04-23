@@ -6,13 +6,13 @@ struct WebReaderContent {
   let textFontSize: Int
   let htmlContent: String
   let highlightsJSONString: String
-  let item: FeedItemDep
+  let item: LinkedItem
   let themeKey: String
 
   init(
     htmlContent: String,
     highlightsJSONString: String,
-    item: FeedItemDep,
+    item: LinkedItem,
     isDark: Bool,
     fontSize: Int
   ) {
@@ -25,8 +25,8 @@ struct WebReaderContent {
 
   // swiftlint:disable line_length
   var styledContent: String {
-    let savedAt = "new Date(\(item.savedAt.timeIntervalSince1970 * 1000)).toISOString()"
-    let createdAt = "new Date(\(item.createdAt.timeIntervalSince1970 * 1000)).toISOString()"
+    let savedAt = "new Date(\(item.unwrappedSavedAt.timeIntervalSince1970 * 1000)).toISOString()"
+    let createdAt = "new Date(\(item.unwrappedCreatedAt.timeIntervalSince1970 * 1000)).toISOString()"
     let publishedAt = item.publishDate != nil ? "new Date(\(item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" : "undefined"
 
     return """
@@ -53,16 +53,16 @@ struct WebReaderContent {
           }
 
           window.omnivoreArticle = {
-            id: "\(item.id)",
-            linkId: "\(item.id)",
-            slug: "\(item.slug)",
+            id: "\(item.unwrappedID)",
+            linkId: "\(item.unwrappedID)",
+            slug: "\(item.unwrappedSlug)",
             createdAt: \(createdAt),
             savedAt: \(savedAt),
             publishedAt: \(publishedAt),
-            url: `\(item.pageURLString)`,
-            title: `\(item.title.replacingOccurrences(of: "`", with: "\\`"))`,
+            url: `\(item.unwrappedPageURLString)`,
+            title: `\(item.unwrappedTitle.replacingOccurrences(of: "`", with: "\\`"))`,
             content: document.getElementById('_omnivore-htmlContent').innerHTML,
-            originalArticleUrl: "\(item.pageURLString)",
+            originalArticleUrl: "\(item.unwrappedPageURLString)",
             contentReader: "WEB",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),

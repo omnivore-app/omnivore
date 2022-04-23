@@ -9,7 +9,7 @@ import Views
 #if os(macOS)
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-    @State private var itemToRemove: FeedItemDep?
+    @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
 
     @ObservedObject var viewModel: HomeFeedViewModel

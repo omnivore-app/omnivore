@@ -45,7 +45,7 @@ import Views
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item)) { labels in
-            viewModel.updateLabels(itemID: item.id, labels: labels)
+            viewModel.updateLabels(itemID: item.unwrappedID, labels: labels)
           }
         }
       }
@@ -57,12 +57,13 @@ import Views
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
-      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
-        if let feedItem = notification.userInfo?["feedItem"] as? FeedItemDep {
-          viewModel.pushFeedItem(item: feedItem)
-          viewModel.selectedLinkItem = feedItem
-        }
-      }
+      // TODO: fix this
+//      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
+//        if let feedItem = notification.userInfo?["feedItem"] as? FeedItemD---ep {
+//          viewModel.pushFeedItem(item: feedItem)
+//          viewModel.selectedLinkItem = feedItem
+//        }
+//      }
       .formSheet(isPresented: $viewModel.snoozePresented) {
         SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnoozeID: $viewModel.itemToSnoozeID) {
           viewModel.snoozeUntil(
@@ -145,7 +146,7 @@ import Views
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
 
-    @State private var itemToRemove: FeedItemDep?
+    @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -165,7 +166,7 @@ import Views
               )
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                  viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: !item.isArchived)
                 }
               }, label: {
                 Label(
@@ -193,7 +194,7 @@ import Views
               if !item.isArchived {
                 Button {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
+                    viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: true)
                   }
                 } label: {
                   Label("Archive", systemImage: "archivebox")
@@ -201,7 +202,7 @@ import Views
               } else {
                 Button {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
+                    viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: false)
                   }
                 } label: {
                   Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
@@ -223,7 +224,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.unwrappedID)
                   }
                 }
                 self.itemToRemove = nil
@@ -266,16 +267,16 @@ import Views
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
 
-    @State private var itemToRemove: FeedItemDep?
+    @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    func contextMenuActionHandler(item: FeedItemDep, action: GridCardAction) {
+    func contextMenuActionHandler(item: LinkedItem, action: GridCardAction) {
       switch action {
       case .toggleArchiveStatus:
-        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+        viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: !item.isArchived)
       case .delete:
         itemToRemove = item
         confirmationShown = true
@@ -298,7 +299,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.unwrappedID)
                   }
                 }
                 self.itemToRemove = nil

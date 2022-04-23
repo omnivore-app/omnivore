@@ -6,33 +6,33 @@ import Utils
 import Views
 
 enum PDFProvider {
-  static var pdfViewerProvider: ((URL, FeedItemDep) -> AnyView)?
+  static var pdfViewerProvider: ((URL, LinkedItem) -> AnyView)?
 }
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   let homeFeedViewModel: HomeFeedViewModel
-  @Published var item: FeedItemDep
+  @Published var item: LinkedItem
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: FeedItemDep, homeFeedViewModel: HomeFeedViewModel) {
+  init(item: LinkedItem, homeFeedViewModel: HomeFeedViewModel) {
     self.item = item
     self.homeFeedViewModel = homeFeedViewModel
   }
 
   func handleArchiveAction(dataService: DataService) {
-    homeFeedViewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+    homeFeedViewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: !item.isArchived)
   }
 
   func handleDeleteAction(dataService: DataService) {
-    homeFeedViewModel.removeLink(dataService: dataService, linkId: item.id)
+    homeFeedViewModel.removeLink(dataService: dataService, linkId: item.unwrappedID)
   }
 
   func updateItemReadStatus(dataService: DataService) {
     dataService
       .updateArticleReadingProgressPublisher(
-        itemID: item.id,
+        itemID: item.unwrappedID,
         readingProgress: item.isRead ? 0 : 100,
         anchorIndex: 0
       )

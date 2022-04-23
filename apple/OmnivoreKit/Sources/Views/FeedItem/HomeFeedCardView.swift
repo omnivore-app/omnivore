@@ -3,16 +3,16 @@ import SwiftUI
 import Utils
 
 public struct FeedCard: View {
-  let item: FeedItemDep
+  let item: LinkedItem
 
-  public init(item: FeedItemDep) {
+  public init(item: LinkedItem) {
     self.item = item
   }
 
   public var body: some View {
     HStack(alignment: .top, spacing: 6) {
       VStack(alignment: .leading, spacing: 6) {
-        Text(item.title)
+        Text(item.unwrappedTitle)
           .font(.appSubheadline)
           .foregroundColor(.appGrayTextContrast)
           .lineLimit(2)

@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
@@ -7,9 +8,9 @@ public extension DataService {
   func updateArticleLabelsPublisher(
     itemID: String,
     labelIDs: [String]
-  ) -> AnyPublisher<[FeedItemLabelDep], BasicError> {
+  ) -> AnyPublisher<[NSManagedObjectID], BasicError> {
     enum MutationResult {
-      case saved(feedItem: [FeedItemLabelDep])
+      case saved(feedItem: [InternalLinkedItemLabel])
       case error(errorCode: Enums.SetLabelsErrorCode)
     }
 
@@ -44,8 +45,9 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(labels):
-              // TODO: update CoreData
-              promise(.success(labels))
+              // TODO: update CoreData and fix dis
+              promise(.failure(.message(messageText: "failed to set labels")))
+//              promise(.success(labels))
             case .error:
               promise(.failure(.message(messageText: "failed to set labels")))
             }

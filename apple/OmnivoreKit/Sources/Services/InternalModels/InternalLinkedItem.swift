@@ -77,16 +77,18 @@ struct InternalLinkedItem {
 extension Sequence where Element == InternalLinkedItem {
   // TODO: use batch update?
   func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
-    let linkedItems = map { $0.asManagedObject(inContext: context) }
+    var linkedItems: [LinkedItem]?
+    context.performAndWait {
+      linkedItems = map { $0.asManagedObject(inContext: context) }
 
-    do {
-      try context.save()
-      print("LinkedItems saved succesfully")
-      return linkedItems
-    } catch {
-      context.rollback()
-      print("Failed to save LinkedItems: \(error.localizedDescription)")
-      return nil
+      do {
+        try context.save()
+        print("LinkedItems saved succesfully")
+      } catch {
+        context.rollback()
+        print("Failed to save LinkedItems: \(error.localizedDescription)")
+      }
     }
+    return linkedItems
   }
 }

@@ -12,8 +12,13 @@ public extension DataService {
     searchQuery: String?,
     cursor: String?
   ) -> AnyPublisher<HomeFeedData, ServerError> {
+    struct InternalHomeFeedData {
+      let items: [InternalLinkedItem]
+      let cursor: String?
+    }
+
     enum QueryResult {
-      case success(result: HomeFeedData)
+      case success(result: InternalHomeFeedData)
       case error(error: String)
     }
 
@@ -21,7 +26,7 @@ public extension DataService {
       try $0.on(
         articlesSuccess: .init {
           QueryResult.success(
-            result: HomeFeedData(
+            result: InternalHomeFeedData(
               items: try $0.edges(selection: articleEdgeSelection.list),
               cursor: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.endCursor()
@@ -61,9 +66,11 @@ public extension DataService {
           case let .success(payload):
             switch payload.data {
             case let .success(result: result):
-              // save items to coredata
-              _ = result.items.persist(context: self.backgroundContext)
-              promise(.success(result))
+              if let items = result.items.persist(context: self.backgroundContext) {
+                promise(.success(HomeFeedData(items: items.map(\.objectID), cursor: result.cursor)))
+              } else {
+                promise(.failure(.unknown))
+              }
             case .error:
               promise(.failure(.unknown))
             }
@@ -77,22 +84,23 @@ public extension DataService {
     .eraseToAnyPublisher()
   }
 
-  func cachedFeedItems() -> [FeedItemDep] {
-    var result = [FeedItemDep]()
-
-    backgroundContext.performAndWait {
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-      fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-      let items = (try? backgroundContext.fetch(fetchRequest)) ?? []
-      result = items.map { FeedItemDep.make(from: $0) }
-    }
-
-    return result
-  }
+  // TODO: delete
+//  func cachedFeedItems() -> [FeedItem---D----ep] {
+//    var result = [FeedItem------D---ep]()
+//
+//    backgroundContext.performAndWait {
+//      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+//      fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+//      let items = (try? backgroundContext.fetch(fetchRequest)) ?? []
+//      result = items.map { FeedItem-----D----ep.make(from: $0) }
+//    }
+//
+//    return result
+//  }
 }
 
 let homeFeedItemSelection = Selection.Article {
-  FeedItemDep(
+  InternalLinkedItem(
     id: try $0.id(),
     title: try $0.title(),
     createdAt: try $0.createdAt().value ?? Date(),

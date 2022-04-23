@@ -10,12 +10,12 @@ public enum GridCardAction {
 
 public struct GridCard: View {
   @Binding var isContextMenuOpen: Bool
-  let item: FeedItemDep
+  let item: LinkedItem
   let actionHandler: (GridCardAction) -> Void
   let tapAction: () -> Void
 
   public init(
-    item: FeedItemDep,
+    item: LinkedItem,
     isContextMenuOpen: Binding<Bool>,
     actionHandler: @escaping (GridCardAction) -> Void,
     tapAction: @escaping () -> Void
@@ -77,7 +77,7 @@ public struct GridCard: View {
         // Title, Subtitle, Menu Button
         VStack(alignment: .leading, spacing: 4) {
           HStack {
-            Text(item.title)
+            Text(item.unwrappedTitle)
               .font(.appHeadline)
               .foregroundColor(.appGrayTextContrast)
               .lineLimit(1)
@@ -117,7 +117,7 @@ public struct GridCard: View {
 
         // Link description and image
         HStack(alignment: .top) {
-          Text(item.descriptionText ?? item.title)
+          Text(item.descriptionText ?? item.unwrappedTitle)
             .font(.appSubheadline)
             .foregroundColor(.appGrayTextContrast)
             .lineLimit(nil)
@@ -152,7 +152,7 @@ public struct GridCard: View {
         if FeatureFlag.enableLabels {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-              ForEach(item.labels, id: \.self) {
+              ForEach(item.labels.asArray(of: LinkedItemLabel.self), id: \.self) {
                 TextChip(feedItemLabel: $0)
               }
               Spacer()

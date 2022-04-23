@@ -5,8 +5,8 @@ import Views
 
 struct ApplyLabelsView: View {
   enum Mode {
-    case item(FeedItemDep)
-    case list([FeedItemLabelDep])
+    case item(LinkedItem)
+    case list([LinkedItemLabel])
 
     var navTitle: String {
       switch self {
@@ -28,7 +28,7 @@ struct ApplyLabelsView: View {
   }
 
   let mode: Mode
-  let commitLabelChanges: ([FeedItemLabelDep]) -> Void
+  let commitLabelChanges: ([LinkedItemLabel]) -> Void
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
@@ -101,7 +101,7 @@ struct ApplyLabelsView: View {
             action: {
               switch mode {
               case let .item(feedItem):
-                viewModel.saveItemLabelChanges(itemID: feedItem.id, dataService: dataService) { labels in
+                viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService) { labels in
                   commitLabelChanges(labels)
                   presentationMode.wrappedValue.dismiss()
                 }
@@ -147,11 +147,11 @@ struct ApplyLabelsView: View {
   }
 }
 
-private extension Sequence where Element == FeedItemLabelDep {
-  func applySearchFilter(_ searchFilter: String) -> [FeedItemLabelDep] {
+private extension Sequence where Element == LinkedItemLabel {
+  func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
     if searchFilter.isEmpty {
       return map { $0 } // return the identity of the sequence
     }
-    return filter { $0.name.lowercased().contains(searchFilter.lowercased()) }
+    return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
   }
 }

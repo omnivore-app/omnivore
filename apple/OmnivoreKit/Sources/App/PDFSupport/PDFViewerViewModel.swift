@@ -8,20 +8,20 @@ public final class PDFViewerViewModel: ObservableObject {
   @Published public var errorMessage: String?
   @Published public var readerView: Bool = false
 
-  public var feedItem: FeedItemDep
+  public var linkedItem: LinkedItem
 
   var subscriptions = Set<AnyCancellable>()
   let services: Services
 
-  public init(services: Services, feedItem: FeedItemDep) {
+  public init(services: Services, linkedItem: LinkedItem) {
     self.services = services
-    self.feedItem = feedItem
+    self.linkedItem = linkedItem
   }
 
   public func loadHighlights(completion onComplete: @escaping ([String]) -> Void) {
     let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
     fetchRequest.predicate = NSPredicate(
-      format: "linkedItemId == %@", feedItem.id
+      format: "linkedItemId == %@", linkedItem.unwrappedID
     )
 
     let highlights = (try? services.dataService.viewContext.fetch(fetchRequest)) ?? []
@@ -35,7 +35,7 @@ public final class PDFViewerViewModel: ObservableObject {
         highlightID: highlightID,
         quote: quote,
         patch: patch,
-        articleId: feedItem.id
+        articleId: linkedItem.unwrappedID
       )
       .sink { [weak self] completion in
         guard case let .failure(error) = completion else { return }
@@ -57,7 +57,7 @@ public final class PDFViewerViewModel: ObservableObject {
         highlightID: highlightID,
         quote: quote,
         patch: patch,
-        articleId: feedItem.id,
+        articleId: linkedItem.unwrappedID,
         overlapHighlightIdList: overlapHighlightIdList
       )
       .sink { [weak self] completion in
@@ -83,7 +83,7 @@ public final class PDFViewerViewModel: ObservableObject {
   public func updateItemReadProgress(percent: Double, anchorIndex: Int) {
     services.dataService
       .updateArticleReadingProgressPublisher(
-        itemID: feedItem.id,
+        itemID: linkedItem.unwrappedID,
         readingProgress: percent,
         anchorIndex: anchorIndex
       )
@@ -100,7 +100,7 @@ public final class PDFViewerViewModel: ObservableObject {
     var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
 
     if let username = services.dataService.currentViewer?.username {
-      components?.path = "/\(username)/\(feedItem.slug)/highlights/\(shortId)"
+      components?.path = "/\(username)/\(linkedItem.unwrappedSlug)/highlights/\(shortId)"
     } else {
       return nil
     }

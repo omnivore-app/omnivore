@@ -52,11 +52,10 @@ public final class DataService: ObservableObject {
 }
 
 public extension DataService {
-  func prefetchPages(items: [FeedItemDep]) {
+  func prefetchPages(itemSlugs: [String]) {
     guard let username = currentViewer?.username else { return }
 
-    for item in items {
-      let slug = item.slug
+    for slug in itemSlugs {
       articleContentPublisher(username: username, slug: slug).sink(
         receiveCompletion: { _ in },
         receiveValue: { _ in }

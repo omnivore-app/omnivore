@@ -12,17 +12,17 @@ import Views
   var uncommittedReadingProgressUpdates = [String: Double]()
 
   /// Track label updates to be committed when user navigates back to grid view
-  var uncommittedLabelUpdates = [String: [FeedItemLabelDep]]()
+  var uncommittedLabelUpdates = [String: [LinkedItemLabel]]()
 
-  @Published var items = [FeedItemDep]()
+  @Published var items = [LinkedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
-  @Published var itemUnderLabelEdit: FeedItemDep?
+  @Published var itemUnderLabelEdit: LinkedItem?
   @Published var searchTerm = ""
-  @Published var selectedLabels = [FeedItemLabelDep]()
+  @Published var selectedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
-  @Published var selectedLinkItem: FeedItemDep?
+  @Published var selectedLinkItem: LinkedItem?
 
   var cursor: String?
 
@@ -35,7 +35,7 @@ import Views
 
   init() {}
 
-  func itemAppeared(item: FeedItemDep, dataService: DataService) {
+  func itemAppeared(item: LinkedItem, dataService: DataService) {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
@@ -46,7 +46,7 @@ import Views
     }
   }
 
-  func pushFeedItem(item: FeedItemDep) {
+  func pushFeedItem(item: LinkedItem) {
     items.insert(item, at: 0)
   }
 
@@ -73,7 +73,7 @@ import Views
         guard case .failure = completion else { return }
         self?.isLoading = false
         // return cachedItems found in CoreData when request fails
-        self?.items = dataService.cachedFeedItems()
+//        self?.items = dataService.cachedFeedItems() // TODO: fetch items from core data
         self?.cursor = nil
       },
       receiveValue: { [weak self] result in
@@ -86,9 +86,15 @@ import Views
           return
         }
 
-        dataService.prefetchPages(items: result.items)
-
-        self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
+        self?.items = {
+          let itemIDs = isRefresh ? result.items : (self?.items ?? []).map(\.objectID) + result.items
+          var itemObjects = [LinkedItem]()
+          dataService.viewContext.performAndWait {
+            itemObjects = itemIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
+          }
+          return itemObjects
+        }()
+        dataService.prefetchPages(itemSlugs: (self?.items ?? []).map(\.unwrappedSlug))
         self?.isLoading = false
         self?.receivedIdx = thisSearchIdx
         self?.cursor = result.cursor
@@ -193,18 +199,19 @@ import Views
     }
   }
 
-  func updateLabels(itemID: String, labels: [FeedItemLabelDep]) {
-    // If item is being being displayed then delay the state update of labels until
-    // user is no longer reading the item.
-    if selectedLinkItem != nil {
-      uncommittedLabelUpdates[itemID] = labels
-      return
-    }
-
-    guard let item = items.first(where: { $0.id == itemID }) else { return }
-    if let index = items.firstIndex(of: item) {
-      items[index].labels = labels
-    }
+  func updateLabels(itemID _: String, labels _: [LinkedItemLabel]) {
+    // TODO: fix
+//    // If item is being being displayed then delay the state update of labels until
+//    // user is no longer reading the item.
+//    if selectedLinkItem != nil {
+//      uncommittedLabelUpdates[itemID] = labels
+//      return
+//    }
+//
+//    guard let item = items.first(where: { $0.id == itemID }) else { return }
+//    if let index = items.firstIndex(of: item) {
+//      items[index].labels = labels
+//    }
   }
 
   private var searchQuery: String? {
@@ -216,7 +223,7 @@ import Views
 
     if !selectedLabels.isEmpty {
       query.append(" label:")
-      query.append(selectedLabels.map(\.name).joined(separator: ","))
+      query.append(selectedLabels.map { $0.name ?? "" }.joined(separator: ","))
     }
 
     return query

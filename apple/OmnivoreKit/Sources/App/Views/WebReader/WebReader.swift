@@ -8,7 +8,7 @@ import WebKit
   struct WebReader: UIViewRepresentable {
     let htmlContent: String
     let highlightsJSONString: String
-    let item: FeedItemDep
+    let item: LinkedItem
     let openLinkAction: (URL) -> Void
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
     let navBarVisibilityRatioUpdater: (Double) -> Void

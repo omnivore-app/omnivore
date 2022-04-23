@@ -7,7 +7,7 @@ import WebKit
 
 #if os(iOS)
   struct WebReaderContainerView: View {
-    let item: FeedItemDep
+    let item: LinkedItem
     let homeFeedViewModel: HomeFeedViewModel
 
     @State private var showFontSizePopover = false
@@ -37,7 +37,7 @@ import WebKit
         let messageBody = message.body as? [String: Double]
 
         if let messageBody = messageBody, let progress = messageBody["progress"] {
-          homeFeedViewModel.uncommittedReadingProgressUpdates[item.id] = Double(progress)
+          homeFeedViewModel.uncommittedReadingProgressUpdates[item.unwrappedID] = Double(progress)
         }
       }
 
@@ -57,7 +57,7 @@ import WebKit
       if message.name == WebViewAction.readingProgressUpdate.rawValue {
         guard let messageBody = message.body as? [String: Double] else { return }
         guard let progress = messageBody["progress"] else { return }
-        homeFeedViewModel.uncommittedReadingProgressUpdates[item.id] = Double(progress)
+        homeFeedViewModel.uncommittedReadingProgressUpdates[item.unwrappedID] = Double(progress)
       }
     }
 
@@ -107,7 +107,7 @@ import WebKit
                 action: {
                   homeFeedViewModel.setLinkArchived(
                     dataService: dataService,
-                    linkId: item.id,
+                    linkId: item.unwrappedID,
                     archived: !item.isArchived
                   )
                 },
@@ -139,7 +139,7 @@ import WebKit
       }
       .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
         Button("Remove Link", role: .destructive) {
-          homeFeedViewModel.removeLink(dataService: dataService, linkId: item.id)
+          homeFeedViewModel.removeLink(dataService: dataService, linkId: item.unwrappedID)
         }
         Button("Cancel", role: .cancel, action: {})
       }
@@ -206,7 +206,7 @@ import WebKit
             .contentShape(Rectangle())
             .onAppear {
               if !viewModel.isLoading {
-                viewModel.loadContent(dataService: dataService, slug: item.slug)
+                viewModel.loadContent(dataService: dataService, slug: item.unwrappedSlug)
               }
             }
         }
