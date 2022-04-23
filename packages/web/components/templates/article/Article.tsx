@@ -152,7 +152,7 @@ export function Article(props: ArticleProps): JSX.Element {
         return
       }
 
-      const anchorElement = props.highlightHref
+      const anchorElement = props.highlightHref.current
         ? document.querySelector(
             `[omnivore-highlight-id="${props.highlightHref.current}"]`
           )
