@@ -55,6 +55,51 @@ extension LinkedItemLabel {
 
     return label
   }
+
+  func update(
+    inContext context: NSManagedObjectContext,
+    newName: String? = nil,
+    newColor: String? = nil,
+    newLabelDescription: String? = nil
+  ) {
+    context.perform {
+      if let newName = newName {
+        self.name = newName
+      }
+
+      if let newColor = newColor {
+        self.color = newColor
+      }
+
+      if let newLabelDescription = newLabelDescription {
+        self.labelDescription = newLabelDescription
+      }
+
+      guard context.hasChanges else { return }
+
+      do {
+        try context.save()
+        logger.debug("LinkedItemLabel updated succesfully")
+      } catch {
+        context.rollback()
+        logger.debug("Failed to update LinkedItemLabel: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func remove(inContext context: NSManagedObjectContext) {
+    context.perform {
+      context.delete(self)
+
+      do {
+        try context.save()
+        logger.debug("LinkedItemLabel removed")
+      } catch {
+        context.rollback()
+        logger.debug("Failed to remove LinkedItemLabel: \(error.localizedDescription)")
+      }
+    }
+  }
 }
 
 extension Sequence where Element == InternalLinkedItemLabel {

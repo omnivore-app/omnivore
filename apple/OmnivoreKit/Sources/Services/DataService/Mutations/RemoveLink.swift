@@ -50,11 +50,11 @@ public extension DataService {
             }
 
             switch payload.data {
-            case let .success(item):
+            case .success:
               if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) {
                 linkedItem.remove(inContext: self.backgroundContext)
               }
-              promise(.success(item))
+              promise(.success(itemID))
             case .error(errorCode: _):
               promise(.failure(.message(messageText: "Error removing link")))
             }

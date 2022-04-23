@@ -45,9 +45,28 @@ public extension DataService {
 
             switch payload.data {
             case let .saved(labels):
-              // TODO: -labels update CoreData and fix dis
-              promise(.failure(.message(messageText: "failed to set labels")))
-//              promise(.success(labels))
+              guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else {
+                promise(.failure(.message(messageText: "failed to set labels")))
+                return
+              }
+
+              self.backgroundContext.perform {
+                if let existingLabels = linkedItem.labels {
+                  linkedItem.removeFromLabels(existingLabels)
+                }
+                linkedItem.addToLabels(NSSet(array: labels))
+              }
+
+              do {
+                try self.backgroundContext.save()
+                logger.debug("Item labels updated")
+                let labelObjects = linkedItem.labels.asArray(of: LinkedItemLabel.self)
+                promise(.success(labelObjects.map(\.objectID)))
+              } catch {
+                self.backgroundContext.rollback()
+                logger.debug("Failed to update item labels: \(error.localizedDescription)")
+                promise(.failure(.message(messageText: "failed to set labels")))
+              }
             case .error:
               promise(.failure(.message(messageText: "failed to set labels")))
             }
