@@ -9,12 +9,12 @@ import Foundation
 import Models
 
 public extension NSNotification {
-  static let PushFeedItem = Notification.Name("PushFeedItem")
+  static let PushJSONArticle = Notification.Name("PushJSONArticle")
   static let OperationSuccess = Notification.Name("OperationSuccess")
   static let OperationFailure = Notification.Name("OperationFailure")
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
-    NotificationCenter.default.publisher(for: PushFeedItem)
+    NotificationCenter.default.publisher(for: PushJSONArticle)
   }
 
   static var operationSuccessPublisher: NotificationCenter.Publisher {
@@ -32,10 +32,13 @@ public extension NSNotification {
     return nil
   }
 
-  // TODO: -push-notification re-enable later
-//  static func pushFeedItem(feedItem: FeedItem-----D---ep) {
-//    NotificationCenter.default.post(name: NSNotification.PushFeedItem, object: nil, userInfo: ["feedItem": feedItem])
-//  }
+  static func pushJSONArticle(article: JSONArticle) {
+    NotificationCenter.default.post(
+      name: NSNotification.PushJSONArticle,
+      object: nil,
+      userInfo: ["article": article]
+    )
+  }
 
   static func operationSuccess(message: String) {
     NotificationCenter.default.post(name: NSNotification.OperationSuccess, object: nil, userInfo: ["message": message])

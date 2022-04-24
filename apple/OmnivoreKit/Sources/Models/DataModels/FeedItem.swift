@@ -11,44 +11,20 @@ public struct HomeFeedData {
   }
 }
 
-// TODO: -push-notification delete this?
 // Internal model used for parsing a push notification object only
-// struct JSONArticle: Decodable {
-//  let id: String
-//  let title: String
-//  let createdAt: Date
-//  let savedAt: Date
-//  let image: String
-//  let readingProgressPercent: Double
-//  let readingProgressAnchorIndex: Int
-//  let slug: String
-//  let contentReader: String
-//  let url: String
-//  let isArchived: Bool
-//
-//  var feedItem: FeedItem-----De---p {
-//    FeedItem--------De----p(
-//      id: id,
-//      title: title,
-//      createdAt: createdAt,
-//      savedAt: savedAt,
-//      readingProgress: readingProgressPercent,
-//      readingProgressAnchor: readingProgressAnchorIndex,
-//      imageURLString: image,
-//      onDeviceImageURLString: nil,
-//      documentDirectoryPath: nil,
-//      pageURLString: url,
-//      descriptionText: title,
-//      publisherURLString: nil,
-//      author: nil,
-//      publishDate: nil,
-//      slug: slug,
-//      isArchived: isArchived,
-//      contentReader: contentReader,
-//      labels: []
-//    )
-//  }
-// }
+public struct JSONArticle: Decodable {
+  public let id: String
+  public let title: String
+  public let createdAt: Date
+  public let savedAt: Date
+  public let image: String
+  public let readingProgressPercent: Double
+  public let readingProgressAnchorIndex: Int
+  public let slug: String
+  public let contentReader: String
+  public let url: String
+  public let isArchived: Bool
+}
 
 public extension LinkedItem {
   var unwrappedID: String { id ?? "" }

@@ -55,13 +55,13 @@ import Views
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
-      // TODO: -push-notification fix this
-//      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
-//        if let feedItem = notification.userInfo?["feedItem"] as? FeedItemD---ep {
-//          viewModel.pushFeedItem(item: feedItem)
-//          viewModel.selectedLinkItem = feedItem
-//        }
-//      }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
+        guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
+        guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
+        guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
+        viewModel.pushFeedItem(item: linkedItem)
+        viewModel.selectedLinkItem = linkedItem
+      }
       .formSheet(isPresented: $viewModel.snoozePresented) {
         SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnoozeID: $viewModel.itemToSnoozeID) {
           viewModel.snoozeUntil(

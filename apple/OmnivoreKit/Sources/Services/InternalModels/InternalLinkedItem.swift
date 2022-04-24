@@ -49,29 +49,6 @@ struct InternalLinkedItem {
 
     return linkedItem
   }
-
-  static func make(from item: LinkedItem) -> InternalLinkedItem {
-    InternalLinkedItem(
-      id: item.id ?? "",
-      title: item.title ?? "",
-      createdAt: item.createdAt ?? Date(),
-      savedAt: item.savedAt ?? Date(),
-      readingProgress: item.readingProgress,
-      readingProgressAnchor: Int(item.readingProgressAnchor),
-      imageURLString: item.imageURLString,
-      onDeviceImageURLString: item.onDeviceImageURLString,
-      documentDirectoryPath: nil,
-      pageURLString: item.pageURLString ?? "",
-      descriptionText: item.title,
-      publisherURLString: item.publisherURLString,
-      author: item.author,
-      publishDate: item.publishDate,
-      slug: item.slug ?? "",
-      isArchived: item.isArchived,
-      contentReader: item.contentReader,
-      labels: []
-    )
-  }
 }
 
 extension Sequence where Element == InternalLinkedItem {
@@ -90,5 +67,52 @@ extension Sequence where Element == InternalLinkedItem {
       }
     }
     return linkedItems
+  }
+}
+
+public extension DataService {
+  func persist(jsonArticle: JSONArticle) -> NSManagedObjectID? {
+    jsonArticle.persistAsLinkedItem(context: backgroundContext)
+  }
+}
+
+extension JSONArticle {
+  func persistAsLinkedItem(context: NSManagedObjectContext) -> NSManagedObjectID? {
+    var objectID: NSManagedObjectID?
+
+    let internalLinkedItem = InternalLinkedItem(
+      id: id,
+      title: title,
+      createdAt: createdAt,
+      savedAt: savedAt,
+      readingProgress: readingProgressPercent,
+      readingProgressAnchor: readingProgressAnchorIndex,
+      imageURLString: image,
+      onDeviceImageURLString: nil,
+      documentDirectoryPath: nil,
+      pageURLString: url,
+      descriptionText: title,
+      publisherURLString: nil,
+      author: nil,
+      publishDate: nil,
+      slug: slug,
+      isArchived: isArchived,
+      contentReader: contentReader,
+      labels: []
+    )
+
+    context.performAndWait {
+      objectID = internalLinkedItem.asManagedObject(inContext: context).objectID
+
+      do {
+        try context.save()
+        logger.debug("LinkedItem saved succesfully")
+      } catch {
+        context.rollback()
+        logger.debug("Failed to save LinkedItem: \(error.localizedDescription)")
+      }
+    }
+
+    return objectID
   }
 }
