@@ -4,7 +4,6 @@ import Services
 import SwiftUI
 import Views
 
-// TODO: -labels fix file
 final class LabelsViewModel: ObservableObject {
   private var hasLoadedInitialLabels = false
   @Published var isLoading = false
@@ -46,25 +45,27 @@ final class LabelsViewModel: ObservableObject {
     .store(in: &subscriptions)
   }
 
-  func createLabel(dataService _: DataService, name _: String, color _: Color, description _: String?) {
-//    isLoading = true
-//
-//    dataService.createLabelPublisher(
-//      name: name,
-//      color: color.hex ?? "",
-//      description: description
-//    ).sink(
-//      receiveCompletion: { [weak self] _ in
-//        self?.isLoading = false
-//      },
-//      receiveValue: { [weak self] result in
-//        self?.isLoading = false
-//        self?.labels.insert(result, at: 0)
-//        self?.unselectedLabels.insert(result, at: 0)
-//        self?.showCreateEmailModal = false
-//      }
-//    )
-//    .store(in: &subscriptions)
+  func createLabel(dataService: DataService, name: String, color: Color, description: String?) {
+    isLoading = true
+
+    dataService.createLabelPublisher(
+      name: name,
+      color: color.hex ?? "",
+      description: description
+    ).sink(
+      receiveCompletion: { [weak self] _ in
+        self?.isLoading = false
+      },
+      receiveValue: { [weak self] labelID in
+        if let label = dataService.viewContext.object(with: labelID) as? LinkedItemLabel {
+          self?.labels.insert(label, at: 0)
+          self?.unselectedLabels.insert(label, at: 0)
+        }
+        self?.isLoading = false
+        self?.showCreateEmailModal = false
+      }
+    )
+    .store(in: &subscriptions)
   }
 
   func deleteLabel(dataService: DataService, labelID: String) {
@@ -83,27 +84,31 @@ final class LabelsViewModel: ObservableObject {
   }
 
   func saveItemLabelChanges(
-    itemID _: String,
-    dataService _: DataService,
-    onComplete _: @escaping ([LinkedItemLabel]) -> Void
+    itemID: String,
+    dataService: DataService,
+    onComplete: @escaping ([LinkedItemLabel]) -> Void
   ) {
-//    isLoading = true
-//    dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabels.map(\.id)).sink(
-//      receiveCompletion: { [weak self] _ in
-//        self?.isLoading = false
-//      },
-//      receiveValue: { onComplete($0) }
-//    )
-//    .store(in: &subscriptions)
+    isLoading = true
+    dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabels.map(\.unwrappedID)).sink(
+      receiveCompletion: { [weak self] _ in
+        self?.isLoading = false
+      },
+      receiveValue: { labelIDs in
+        onComplete(
+          labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
+        )
+      }
+    )
+    .store(in: &subscriptions)
   }
 
-  func addLabelToItem(_: LinkedItemLabel) {
-//    selectedLabels.insert(label, at: 0)
-//    unselectedLabels.removeAll { $0.id == label.id }
+  func addLabelToItem(_ label: LinkedItemLabel) {
+    selectedLabels.insert(label, at: 0)
+    unselectedLabels.removeAll { $0.id == label.id }
   }
 
-  func removeLabelFromItem(_: LinkedItemLabel) {
-//    unselectedLabels.insert(label, at: 0)
-//    selectedLabels.removeAll { $0.id == label.id }
+  func removeLabelFromItem(_ label: LinkedItemLabel) {
+    unselectedLabels.insert(label, at: 0)
+    selectedLabels.removeAll { $0.id == label.id }
   }
 }

@@ -41,6 +41,8 @@ struct InternalLinkedItemLabel {
 }
 
 extension LinkedItemLabel {
+  public var unwrappedID: String { id ?? "" }
+
   static func lookup(byID labelID: String, inContext context: NSManagedObjectContext) -> LinkedItemLabel? {
     let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
     fetchRequest.predicate = NSPredicate(
