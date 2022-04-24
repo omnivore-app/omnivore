@@ -77,9 +77,6 @@ import Views
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
       }
-      .onChange(of: viewModel.selectedLinkItem) { _ in
-        viewModel.commitItemUpdates()
-      }
     }
   }
 

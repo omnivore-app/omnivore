@@ -9,9 +9,6 @@ import Views
 @MainActor final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
 
-  /// Track progress updates to be committed when user navigates back to grid view
-  var uncommittedReadingProgressUpdates = [String: Double]()
-
   @Published var items = [LinkedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
@@ -179,16 +176,6 @@ import Views
       }
     )
     .store(in: &subscriptions)
-  }
-
-  /// Update `FeedItem`s with the cached reading progress and label values so it can animate when the
-  /// user navigates back to the grid view (and also avoid mutations of the grid items
-  /// that can cause the `NavigationView` to pop.
-  func commitItemUpdates() {
-    for (key, value) in uncommittedReadingProgressUpdates {
-      updateProgress(itemID: key, progress: value)
-    }
-    uncommittedReadingProgressUpdates = [:]
   }
 
   private func updateProgress(itemID: String, progress: Double) {

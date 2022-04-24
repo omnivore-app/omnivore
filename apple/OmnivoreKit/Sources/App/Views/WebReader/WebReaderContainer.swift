@@ -33,14 +33,6 @@ import WebKit
     }
 
     func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
-      if message.name == WebViewAction.readingProgressUpdate.rawValue {
-        let messageBody = message.body as? [String: Double]
-
-        if let messageBody = messageBody, let progress = messageBody["progress"] {
-          homeFeedViewModel.uncommittedReadingProgressUpdates[item.unwrappedID] = Double(progress)
-        }
-      }
-
       if let replyHandler = replyHandler {
         viewModel.webViewActionWithReplyHandler(
           message: message,
@@ -52,12 +44,6 @@ import WebKit
 
       if message.name == WebViewAction.highlightAction.rawValue {
         handleHighlightAction(message: message)
-      }
-
-      if message.name == WebViewAction.readingProgressUpdate.rawValue {
-        guard let messageBody = message.body as? [String: Double] else { return }
-        guard let progress = messageBody["progress"] else { return }
-        homeFeedViewModel.uncommittedReadingProgressUpdates[item.unwrappedID] = Double(progress)
       }
     }
 

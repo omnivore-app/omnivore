@@ -6,7 +6,6 @@ import WebKit
 public final class WebAppWrapperViewModel: ObservableObject {
   public enum Action {
     case shareHighlight(highlightID: String)
-    case updateReadingProgess(progress: Int)
   }
 
   public var subscriptions = Set<AnyCancellable>()
@@ -86,12 +85,6 @@ public struct WebAppWrapperView: View {
   func webViewActionHandler(message: WKScriptMessage) {
     if message.name == WebViewAction.highlightAction.rawValue {
       handleHighlightAction(message: message)
-    }
-
-    if message.name == WebViewAction.readingProgressUpdate.rawValue {
-      guard let messageBody = message.body as? [String: Double] else { return }
-      guard let progress = messageBody["progress"] else { return }
-      viewModel.performActionSubject.send(.updateReadingProgess(progress: Int(progress)))
     }
   }
 
