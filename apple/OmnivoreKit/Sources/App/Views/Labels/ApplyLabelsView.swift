@@ -33,7 +33,6 @@ struct ApplyLabelsView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
-  @State private var labelSearchFilter = ""
 
   var innerBody: some View {
     List {
@@ -41,7 +40,7 @@ struct ApplyLabelsView: View {
         if viewModel.selectedLabels.isEmpty {
           Text("No labels are currently assigned.")
         }
-        ForEach(viewModel.selectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.selectedLabels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -57,7 +56,7 @@ struct ApplyLabelsView: View {
         }
       }
       Section(header: Text("Available Labels")) {
-        ForEach(viewModel.unselectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.unselectedLabels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -128,7 +127,7 @@ struct ApplyLabelsView: View {
         #if os(iOS)
           innerBody
             .searchable(
-              text: $labelSearchFilter,
+              text: $viewModel.labelSearchFilter,
               placement: .navigationBarDrawer(displayMode: .always)
             )
         #else

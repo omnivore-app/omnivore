@@ -12,43 +12,38 @@ final class LabelsViewModel: ObservableObject {
   @Published var unselectedLabels = [LinkedItemLabel]()
   @Published var labels = [LinkedItemLabel]()
   @Published var showCreateEmailModal = false
+  @Published var labelSearchFilter = ""
 
   var subscriptions = Set<AnyCancellable>()
 
-  /// Loads initial set of labels when a edit labels list is displayed
-  /// - Parameters:
-  ///   - dataService: `DataService` reference
-  ///   - item: Optional `FeedItem` for applying labels to a single item
-  ///   - initiallySelectedLabels: Optional `[FeedItemLabel]` for filtering a list of items
   func loadLabels(
-    dataService _: DataService,
-    item _: LinkedItem? = nil,
-    initiallySelectedLabels _: [LinkedItemLabel]? = nil
+    dataService: DataService,
+    item: LinkedItem? = nil,
+    initiallySelectedLabels: [LinkedItemLabel]? = nil
   ) {
     guard !hasLoadedInitialLabels else { return }
     isLoading = true
 
-//    dataService.labelsPublisher().sink(
-//      receiveCompletion: { _ in },
-//      receiveValue: { [weak self] allLabels in
-//        self?.isLoading = false
-//        self?.labels = allLabels
-//        self?.hasLoadedInitialLabels = true
-//        if let item = item {
-//          self?.selectedLabels = item.labels.asArray(of: LinkedItemLabel.self)
-//          self?.unselectedLabels = allLabels.filter { label in
-//            !item.labels.contains(where: { $0.id == label.id })
-//          }
-//        }
-//        if let initiallySelectedLabels = initiallySelectedLabels {
-//          self?.selectedLabels = initiallySelectedLabels
-//          self?.unselectedLabels = allLabels.filter { label in
-//            !initiallySelectedLabels.contains(where: { $0.id == label.id })
-//          }
-//        }
-//      }
-//    )
-//    .store(in: &subscriptions)
+    dataService.labelsPublisher().sink(
+      receiveCompletion: { _ in },
+      receiveValue: { [weak self] labelIDs in
+        guard let self = self else { return }
+        dataService.viewContext.performAndWait {
+          self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
+        }
+        let selLabels = initiallySelectedLabels ?? item?.labels.asArray(of: LinkedItemLabel.self) ?? []
+        for label in self.labels {
+          if selLabels.contains(label) {
+            self.selectedLabels.append(label)
+          } else {
+            self.unselectedLabels.append(label)
+          }
+        }
+        self.hasLoadedInitialLabels = true
+        self.isLoading = false
+      }
+    )
+    .store(in: &subscriptions)
   }
 
   func createLabel(dataService _: DataService, name _: String, color _: Color, description _: String?) {
