@@ -44,9 +44,7 @@ import Views
           viewModel.loadItems(dataService: dataService, isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(mode: .item(item)) { labels in
-            viewModel.updateLabels(itemID: item.unwrappedID, labels: labels)
-          }
+          ApplyLabelsView(mode: .item(item)) { _ in }
         }
       }
       .navigationTitle("Home")

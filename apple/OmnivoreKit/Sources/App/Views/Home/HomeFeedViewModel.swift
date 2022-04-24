@@ -12,9 +12,6 @@ import Views
   /// Track progress updates to be committed when user navigates back to grid view
   var uncommittedReadingProgressUpdates = [String: Double]()
 
-  /// Track label updates to be committed when user navigates back to grid view
-  var uncommittedLabelUpdates = [String: [LinkedItemLabel]]()
-
   @Published var items = [LinkedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
@@ -191,11 +188,7 @@ import Views
     for (key, value) in uncommittedReadingProgressUpdates {
       updateProgress(itemID: key, progress: value)
     }
-    for (key, value) in uncommittedLabelUpdates {
-      updateLabels(itemID: key, labels: value)
-    }
     uncommittedReadingProgressUpdates = [:]
-    uncommittedLabelUpdates = [:]
   }
 
   private func updateProgress(itemID: String, progress: Double) {
@@ -203,21 +196,6 @@ import Views
     if let index = items.firstIndex(of: item) {
       items[index].readingProgress = progress
     }
-  }
-
-  func updateLabels(itemID _: String, labels _: [LinkedItemLabel]) {
-    // TODO: -labels fix
-//    // If item is being being displayed then delay the state update of labels until
-//    // user is no longer reading the item.
-//    if selectedLinkItem != nil {
-//      uncommittedLabelUpdates[itemID] = labels
-//      return
-//    }
-//
-//    guard let item = items.first(where: { $0.id == itemID }) else { return }
-//    if let index = items.firstIndex(of: item) {
-//      items[index].labels = labels
-//    }
   }
 
   private var searchQuery: String? {
