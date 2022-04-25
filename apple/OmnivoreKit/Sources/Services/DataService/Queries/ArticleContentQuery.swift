@@ -85,9 +85,10 @@ extension DataService {
       let linkedItem = try? self.backgroundContext.fetch(fetchRequest).first
 
       if let linkedItem = linkedItem, let linkedItemID = linkedItem.id {
-        _ = highlights.map {
+        let highlightObjects = highlights.map {
           $0.asManagedObject(context: self.backgroundContext, associatedItemID: linkedItemID)
         }
+        linkedItem.addToHighlights(NSSet(array: highlightObjects))
         linkedItem.htmlContent = htmlContent
       }
 

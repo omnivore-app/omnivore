@@ -15,7 +15,13 @@ struct InternalHighlight: Encodable {
   let createdByMe: Bool
 
   func asManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> Highlight {
-    let highlight = Highlight(entity: Highlight.entity(), insertInto: context)
+    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "id == %@", id
+    )
+    let existingHighlight = (try? context.fetch(fetchRequest))?.first
+    let highlight = existingHighlight ?? Highlight(entity: Highlight.entity(), insertInto: context)
+
     highlight.linkedItemId = associatedItemID
     highlight.markedForDeletion = false
     highlight.id = id
