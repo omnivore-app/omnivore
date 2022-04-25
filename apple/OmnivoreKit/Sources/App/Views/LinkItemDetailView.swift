@@ -22,11 +22,15 @@ enum PDFProvider {
   }
 
   func handleArchiveAction(dataService: DataService) {
-    homeFeedViewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: !item.isArchived)
+    homeFeedViewModel.setLinkArchived(
+      dataService: dataService,
+      objectID: item.objectID,
+      archived: !item.isArchived
+    )
   }
 
   func handleDeleteAction(dataService: DataService) {
-    homeFeedViewModel.removeLink(dataService: dataService, linkId: item.unwrappedID)
+    homeFeedViewModel.removeLink(dataService: dataService, objectID: item.objectID)
   }
 
   func updateItemReadStatus(dataService: DataService) {

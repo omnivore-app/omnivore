@@ -106,35 +106,19 @@ import Views
     .store(in: &subscriptions)
   }
 
-  func setLinkArchived(dataService: DataService, linkId: String, archived: Bool) {
+  func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
     // TODO: remove this by making list always fetch from Coredata
-    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
-      items.remove(at: itemIndex)
-    }
-    dataService.archiveLink(itemID: linkId, archived: archived)
+    guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
+    items.remove(at: itemIndex)
+    dataService.archiveLink(objectID: objectID, archived: archived)
     Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
   }
 
-  func removeLink(dataService: DataService, linkId: String) {
-    isLoading = true
-
-    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
-      items.remove(at: itemIndex)
-    }
-
-    dataService.removeLinkPublisher(itemID: linkId)
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case .failure = completion else { return }
-          self?.isLoading = false
-          Snackbar.show(message: "Failed to remove link")
-        },
-        receiveValue: { [weak self] _ in
-          self?.isLoading = false
-          Snackbar.show(message: "Link removed")
-        }
-      )
-      .store(in: &subscriptions)
+  func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
+    guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
+    items.remove(at: itemIndex)
+    Snackbar.show(message: "Link removed")
+    dataService.removeLink(objectID: objectID)
   }
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) {
@@ -162,13 +146,6 @@ import Views
       }
     )
     .store(in: &subscriptions)
-  }
-
-  private func updateProgress(itemID: String, progress: Double) {
-    guard let item = items.first(where: { $0.id == itemID }) else { return }
-    if let index = items.firstIndex(of: item) {
-      items[index].readingProgress = progress
-    }
   }
 
   private var searchQuery: String? {

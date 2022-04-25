@@ -163,7 +163,7 @@ import Views
                 withAnimation(.linear(duration: 0.4)) {
                   viewModel.setLinkArchived(
                     dataService: dataService,
-                    linkId: item.unwrappedID,
+                    objectID: item.objectID,
                     archived: !item.isArchived
                   )
                 }
@@ -193,7 +193,7 @@ import Views
               if !item.isArchived {
                 Button {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: true)
+                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
                   }
                 } label: {
                   Label("Archive", systemImage: "archivebox")
@@ -201,7 +201,7 @@ import Views
               } else {
                 Button {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: false)
+                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
                   }
                 } label: {
                   Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
@@ -223,7 +223,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.unwrappedID)
+                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
                   }
                 }
                 self.itemToRemove = nil
@@ -275,7 +275,7 @@ import Views
     func contextMenuActionHandler(item: LinkedItem, action: GridCardAction) {
       switch action {
       case .toggleArchiveStatus:
-        viewModel.setLinkArchived(dataService: dataService, linkId: item.unwrappedID, archived: !item.isArchived)
+        viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
       case .delete:
         itemToRemove = item
         confirmationShown = true
@@ -298,7 +298,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.unwrappedID)
+                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
                   }
                 }
                 self.itemToRemove = nil

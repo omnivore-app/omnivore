@@ -93,7 +93,7 @@ import WebKit
                 action: {
                   homeFeedViewModel.setLinkArchived(
                     dataService: dataService,
-                    linkId: item.unwrappedID,
+                    objectID: item.objectID,
                     archived: !item.isArchived
                   )
                 },
@@ -125,7 +125,7 @@ import WebKit
       }
       .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
         Button("Remove Link", role: .destructive) {
-          homeFeedViewModel.removeLink(dataService: dataService, linkId: item.unwrappedID)
+          homeFeedViewModel.removeLink(dataService: dataService, objectID: item.objectID)
         }
         Button("Cancel", role: .cancel, action: {})
       }
