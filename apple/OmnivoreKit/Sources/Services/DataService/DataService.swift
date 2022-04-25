@@ -72,8 +72,12 @@ public extension DataService {
 
     guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
     guard let htmlContent = linkedItem.htmlContent else { return nil }
-    let highlights = linkedItem.highlights.asArray(of: Highlight.self
-    )
+
+    let highlights = linkedItem
+      .highlights
+      .asArray(of: Highlight.self)
+      .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+
     return ArticleContent(
       htmlContent: htmlContent,
       highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString

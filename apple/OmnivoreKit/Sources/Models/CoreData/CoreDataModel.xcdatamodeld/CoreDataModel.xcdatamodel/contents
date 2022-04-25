@@ -6,10 +6,10 @@
         <attribute name="createdByMe" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="markedForDeletion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="needServerSynch" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="patch" attributeType="String"/>
         <attribute name="prefix" optional="YES" attributeType="String"/>
         <attribute name="quote" attributeType="String"/>
+        <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="shortId" attributeType="String"/>
         <attribute name="suffix" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -29,7 +29,6 @@
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="needServerSynch" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
         <attribute name="pageURLString" attributeType="String"/>
         <attribute name="publishDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -37,6 +36,7 @@
         <attribute name="readingProgress" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="readingProgressAnchor" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="savedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="slug" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
@@ -53,7 +53,7 @@
         <attribute name="id" attributeType="String"/>
         <attribute name="labelDescription" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
-        <attribute name="needServerSynch" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>

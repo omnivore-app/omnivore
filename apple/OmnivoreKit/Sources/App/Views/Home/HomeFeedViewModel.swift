@@ -69,6 +69,9 @@ import Views
         dataService.viewContext.perform {
           let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
           fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+          fetchRequest.predicate = NSPredicate(
+            format: "serverSyncStatus != %@", ServerSyncStatus.needsDeletion.rawValue
+          )
           if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
             self?.items = fetchedItems
             self?.cursor = nil

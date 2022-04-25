@@ -77,7 +77,8 @@ public extension LinkedItem {
     inContext context: NSManagedObjectContext,
     newReadingProgress: Double? = nil,
     newAnchorIndex: Int? = nil,
-    newIsArchivedValue: Bool? = nil
+    newIsArchivedValue: Bool? = nil,
+    needsServerSync: Bool = false
   ) {
     context.perform {
       if let newReadingProgress = newReadingProgress {
@@ -90,6 +91,10 @@ public extension LinkedItem {
 
       if let newIsArchivedValue = newIsArchivedValue {
         self.isArchived = newIsArchivedValue
+      }
+
+      if needsServerSync {
+        self.serverSyncStatus = Int64(ServerSyncStatus.needsUpdate.rawValue)
       }
 
       guard context.hasChanges else { return }
