@@ -1,10 +1,10 @@
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import type {
   LibraryItem,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
 import { useRouter } from 'next/router'
@@ -41,19 +41,24 @@ import { isVipUser } from '../../../lib/featureFlag'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
 
-
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
 export type HomeFeedContainerProps = {
   scrollElementRef: React.RefObject<HTMLDivElement>
 }
 
-const SAVED_SEARCHES: Record<string,string> = {
-  'Inbox': '',
+const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
+
+const SAVED_SEARCHES: Record<string, string> = {
+  Inbox: `in:inbox`,
   'Read Later': `in:inbox -label:Newsletter`,
-  'Highlighted': `in:inbox has:highlights`,
-  'Today': `in:inbox saved:${new Date(new Date().getTime() - (24 * 3600000)).toISOString().split('T')[0]}..*`,
-  'Newsletters': `in:inbox label:Newsletter`,
+  Highlighted: `in:inbox has:highlights`,
+  Today: `in:inbox saved:${
+    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
+  }Z${timeZoneHourDiff.toLocaleString('en-US', {
+    signDisplay: 'always',
+  })}..*`,
+  Newsletters: `in:inbox label:Newsletter`,
 }
 
 export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
@@ -535,7 +540,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         }}
       >
         <Toaster />
-        {(props.isValidating && props.items.length == 0 && <TopBarProgress />)}
+        {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
           <StyledText
             style="subHeadline"
@@ -591,24 +596,59 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           applySearchQuery={props.applySearchQuery}
         />
         {viewerData?.me && isVipUser(viewerData?.me) && (
-          <Box css={{ display: 'flex', width: '100%', height: '44px', marginTop: '16px', gap: '8px', flexDirection: 'row', overflowY: 'scroll', scrollbarWidth: 'none',
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            }
-          }}>
-            {Object.keys(SAVED_SEARCHES).map(key => {
+          <Box
+            css={{
+              display: 'flex',
+              width: '100%',
+              height: '44px',
+              marginTop: '16px',
+              gap: '8px',
+              flexDirection: 'row',
+              overflowY: 'scroll',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
+            }}
+          >
+            {Object.keys(SAVED_SEARCHES).map((key) => {
+              const isInboxTerm = (term: string) => {
+                return !term || term === 'in:inbox'
+              }
+
               const searchQuery = SAVED_SEARCHES[key]
-              const style = searchQuery === props.searchTerm || (!props.searchTerm && !searchQuery) ? 'ctaDarkYellow' : 'ctaLightGray'
+              const style =
+                searchQuery === props.searchTerm ||
+                (!props.searchTerm && isInboxTerm(searchQuery))
+                  ? 'ctaDarkYellow'
+                  : 'ctaLightGray'
               return (
-                <Button key={key} style={style} onClick={() => { props.applySearchQuery(searchQuery)}} css={{ p: '10px 12px', height: '37.5px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+                <Button
+                  key={key}
+                  style={style}
+                  onClick={() => {
+                    props.applySearchQuery(searchQuery)
+                  }}
+                  css={{
+                    p: '10px 12px',
+                    height: '37.5px',
+                    borderRadius: '6px',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {key}
                 </Button>
               )
-            })
-          }
+            })}
           </Box>
         )}
-        {!props.isValidating && props.items.length == 0 ? <EmptyLibrary onAddLinkClicked={() => { props.setShowAddLinkModal(true) }} /> : (
+        {!props.isValidating && props.items.length == 0 ? (
+          <EmptyLibrary
+            onAddLinkClicked={() => {
+              props.setShowAddLinkModal(true)
+            }}
+          />
+        ) : (
           <Box
             ref={props.gridContainerRef}
             css={{
@@ -630,7 +670,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                 borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
               },
               '@md': {
-                gridTemplateColumns: layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+                gridTemplateColumns:
+                  layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
               },
               '@lg': {
                 gridTemplateColumns:
@@ -679,26 +720,26 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               </Box>
             ))}
           </Box>
+        )}
+        <HStack
+          distribution="center"
+          css={{ width: '100%', mt: '$2', mb: '$4' }}
+        >
+          {props.hasMore ? (
+            <Button
+              style="ctaGray"
+              css={{
+                cursor: props.isValidating ? 'not-allowed' : 'pointer',
+              }}
+              onClick={props.loadMore}
+              disabled={props.isValidating}
+            >
+              {props.isValidating ? 'Loading' : 'Load More'}
+            </Button>
+          ) : (
+            <StyledText style="caption"></StyledText>
           )}
-          <HStack
-            distribution="center"
-            css={{ width: '100%', mt: '$2', mb: '$4' }}
-          >
-            {props.hasMore ? (
-              <Button
-                style="ctaGray"
-                css={{
-                  cursor: props.isValidating ? 'not-allowed' : 'pointer',
-                }}
-                onClick={props.loadMore}
-                disabled={props.isValidating}
-              >
-                {props.isValidating ? 'Loading' : 'Load More'}
-              </Button>
-            ) : (
-              <StyledText style="caption"></StyledText>
-            )}
-          </HStack>
+        </HStack>
       </VStack>
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
@@ -771,10 +812,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           linkId={props.labelsTarget.node.id}
           labels={props.labelsTarget.node.labels}
           articleActionHandler={(action, value) => {
-            switch(action) {
+            switch (action) {
               case 'refreshLabels':
                 if (props.labelsTarget) {
-                  props.labelsTarget.node.labels = value as (Label[] | undefined)
+                  props.labelsTarget.node.labels = value as Label[] | undefined
                   updateState({})
                 }
                 break
