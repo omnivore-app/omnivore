@@ -72,14 +72,8 @@ public extension DataService {
 
     guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
     guard let htmlContent = linkedItem.htmlContent else { return nil }
-
-    let highlightsFetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-    highlightsFetchRequest.predicate = NSPredicate(
-      format: "linkedItemId == %@", linkedItem.id ?? ""
+    let highlights = linkedItem.highlights.asArray(of: Highlight.self
     )
-
-    guard let highlights = try? persistentContainer.viewContext.fetch(highlightsFetchRequest) else { return nil }
-
     return ArticleContent(
       htmlContent: htmlContent,
       highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString

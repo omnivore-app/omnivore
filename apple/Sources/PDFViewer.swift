@@ -301,7 +301,7 @@ import Utils
     }
 
     private func applyHighlights(documentProvider: PDFDocumentProvider) {
-      viewModel.loadHighlights { [weak self] highlightPatches in
+      viewModel.loadHighlightPatches { [weak self] highlightPatches in
         var annnotations: [Annotation] = []
         for patch in highlightPatches {
           guard let data = patch.data(using: String.Encoding.utf8) else { continue }

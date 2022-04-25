@@ -18,14 +18,8 @@ public final class PDFViewerViewModel: ObservableObject {
     self.linkedItem = linkedItem
   }
 
-  public func loadHighlights(completion onComplete: @escaping ([String]) -> Void) {
-    let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-    fetchRequest.predicate = NSPredicate(
-      format: "linkedItemId == %@", linkedItem.unwrappedID
-    )
-
-    let highlights = (try? services.dataService.viewContext.fetch(fetchRequest)) ?? []
-    onComplete(highlights.map { $0.patch ?? "" })
+  public func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
+    onComplete(linkedItem.highlights.asArray(of: Highlight.self).map { $0.patch ?? "" })
   }
 
   public func createHighlight(shortId: String, highlightID: String, quote: String, patch: String) {

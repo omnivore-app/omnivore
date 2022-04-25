@@ -50,14 +50,7 @@ public extension DataService {
             switch payload.data {
             case let .saved(highlight: highlight):
               self.backgroundContext.perform {
-                let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "id == %@", highlight.id)
-                let itemID = (try? self.backgroundContext.fetch(fetchRequest))?.first?.linkedItemId ?? ""
-
-                highlight.persist(
-                  context: self.backgroundContext,
-                  associatedItemID: itemID
-                )
+                highlight.persist(context: self.backgroundContext, associatedItemID: nil)
               }
               promise(.success(highlight.id))
             case let .error(errorCode: errorCode):

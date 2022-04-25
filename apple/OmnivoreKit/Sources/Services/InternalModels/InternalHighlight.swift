@@ -14,7 +14,7 @@ struct InternalHighlight: Encodable {
   let updatedAt: Date?
   let createdByMe: Bool
 
-  func asManagedObject(context: NSManagedObjectContext, associatedItemID: String) -> Highlight {
+  func asManagedObject(context: NSManagedObjectContext) -> Highlight {
     let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "id == %@", id
@@ -22,7 +22,6 @@ struct InternalHighlight: Encodable {
     let existingHighlight = (try? context.fetch(fetchRequest))?.first
     let highlight = existingHighlight ?? Highlight(entity: Highlight.entity(), insertInto: context)
 
-    highlight.linkedItemId = associatedItemID
     highlight.markedForDeletion = false
     highlight.id = id
     highlight.shortId = shortId
@@ -54,13 +53,16 @@ struct InternalHighlight: Encodable {
 
   func persist(
     context: NSManagedObjectContext,
-    associatedItemID: String,
+    associatedItemID: String?,
     oldHighlightsIds: [String] = []
   ) {
     context.perform {
-      let highlight = asManagedObject(context: context, associatedItemID: associatedItemID)
-      let linkedItem = LinkedItem.lookup(byID: associatedItemID, inContext: context)
-      linkedItem?.addToHighlights(highlight)
+      let highlight = asManagedObject(context: context)
+
+      if let associatedItemID = associatedItemID {
+        let linkedItem = LinkedItem.lookup(byID: associatedItemID, inContext: context)
+        linkedItem?.addToHighlights(highlight)
+      }
 
       if !oldHighlightsIds.isEmpty {
         let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
