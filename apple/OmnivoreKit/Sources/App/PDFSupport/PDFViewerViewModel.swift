@@ -75,18 +75,11 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func updateItemReadProgress(percent: Double, anchorIndex: Int) {
-    services.dataService
-      .updateArticleReadingProgressPublisher(
-        itemID: linkedItem.unwrappedID,
-        readingProgress: percent,
-        anchorIndex: anchorIndex
-      )
-      .sink { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      } receiveValue: { _ in
-      }
-      .store(in: &subscriptions)
+    services.dataService.updateLinkReadingProgress(
+      itemID: linkedItem.unwrappedID,
+      readingProgress: percent,
+      anchorIndex: anchorIndex
+    )
   }
 
   public func highlightShareURL(shortId: String) -> URL? {

@@ -141,18 +141,8 @@ final class WebReaderViewModel: ObservableObject {
       return
     }
 
-    dataService.updateArticleReadingProgressPublisher(
-      itemID: itemID,
-      readingProgress: readingProgress,
-      anchorIndex: anchorIndex
-    )
-    .sink { completion in
-      guard case .failure = completion else { return }
-      replyHandler(["result": false], nil)
-    } receiveValue: { _ in
-      replyHandler(["result": true], nil)
-    }
-    .store(in: &subscriptions)
+    dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: readingProgress, anchorIndex: anchorIndex)
+    replyHandler(["result": true], nil)
   }
 
   func webViewActionWithReplyHandler(

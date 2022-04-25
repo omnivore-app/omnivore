@@ -34,19 +34,11 @@ enum PDFProvider {
   }
 
   func updateItemReadStatus(dataService: DataService) {
-    dataService
-      .updateArticleReadingProgressPublisher(
-        itemID: item.unwrappedID,
-        readingProgress: item.isRead ? 0 : 100,
-        anchorIndex: 0
-      )
-      .sink { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      } receiveValue: { [weak self] readingProgress in
-        self?.item.readingProgress = readingProgress
-      }
-      .store(in: &subscriptions)
+    dataService.updateLinkReadingProgress(
+      itemID: item.unwrappedID,
+      readingProgress: item.isRead ? 0 : 100,
+      anchorIndex: 0
+    )
   }
 
   func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) async {
