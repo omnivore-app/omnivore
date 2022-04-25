@@ -612,10 +612,14 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             }}
           >
             {Object.keys(SAVED_SEARCHES).map((key) => {
+              const isInboxTerm = (term: string) => {
+                return !term || term === 'in:inbox'
+              }
+
               const searchQuery = SAVED_SEARCHES[key]
               const style =
                 searchQuery === props.searchTerm ||
-                (!props.searchTerm && !searchQuery)
+                (!props.searchTerm && isInboxTerm(searchQuery))
                   ? 'ctaDarkYellow'
                   : 'ctaLightGray'
               return (
