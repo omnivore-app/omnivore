@@ -107,29 +107,12 @@ import Views
   }
 
   func setLinkArchived(dataService: DataService, linkId: String, archived: Bool) {
-    isLoading = true
-
-    // First remove the link from the internal list,
-    // then make a call to remove it. The isLoading block should
-    // prevent our local change from being overwritten, but we
-    // might need to cache a local list of archived links
+    // TODO: remove this by making list always fetch from Coredata
     if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
       items.remove(at: itemIndex)
     }
-
-    dataService.archiveLinkPublisher(itemID: linkId, archived: archived)
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case .failure = completion else { return }
-          self?.isLoading = false
-          NSNotification.operationFailed(message: archived ? "Failed to archive link" : "Failed to unarchive link")
-        },
-        receiveValue: { [weak self] _ in
-          self?.isLoading = false
-          Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
-        }
-      )
-      .store(in: &subscriptions)
+    dataService.archiveLink(itemID: linkId, archived: archived)
+    Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
   }
 
   func removeLink(dataService: DataService, linkId: String) {
