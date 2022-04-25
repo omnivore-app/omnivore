@@ -8,6 +8,8 @@ import { DropdownOption, Dropdown } from '../../elements/DropdownElements'
 import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
+import { Button } from '../../elements/Button'
+import { X } from 'phosphor-react'
 
 type LibrarySearchBarProps = {
   searchTerm?: string
@@ -108,8 +110,17 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
             />
           </form>
         </Box>
+        {searchTerm && (
+          <Button style='plainIcon' onClick={(event) => {
+              event.preventDefault()
+              setSearchTerm('')
+              props.applySearchQuery('')
+              inputRef.current?.blur()
+            }} css={{ display: 'flex', flexDirection: 'row', mx: '8px', height: '100%', alignItems: 'center' }}>
+              <X width={16} height={16} color={theme.colors.grayTextContrast.toString()} />
+          </Button>
+        )}
       </HStack>
-      {/* <Button>Clear current search</Button> */}
     </VStack>
   )
 }
