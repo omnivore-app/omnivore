@@ -58,7 +58,9 @@ struct InternalHighlight: Encodable {
     oldHighlightsIds: [String] = []
   ) {
     context.perform {
-      _ = asManagedObject(context: context, associatedItemID: associatedItemID)
+      let highlight = asManagedObject(context: context, associatedItemID: associatedItemID)
+      let linkedItem = LinkedItem.lookup(byID: associatedItemID, inContext: context)
+      linkedItem?.addToHighlights(highlight)
 
       if !oldHighlightsIds.isEmpty {
         let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
