@@ -43,7 +43,7 @@ final class WebReaderViewModel: ObservableObject {
     replyHandler: @escaping WKScriptMessageReplyHandler,
     dataService: DataService
   ) {
-    dataService.createHighlightPublisher(
+    let result = dataService.createHighlight(
       shortId: messageBody["shortId"] as? String ?? "",
       highlightID: messageBody["id"] as? String ?? "",
       quote: messageBody["quote"] as? String ?? "",
@@ -51,17 +51,8 @@ final class WebReaderViewModel: ObservableObject {
       articleId: messageBody["articleId"] as? String ?? "",
       annotation: messageBody["annotation"] as? String ?? ""
     )
-    .sink { completion in
-      guard case .failure = completion else { return }
-      replyHandler([], "createHighlight: Error encoding response")
-    } receiveValue: { result in
-      if let result = result {
-        replyHandler(["result": result], nil)
-      } else {
-        replyHandler([], "createHighlight: Error encoding response")
-      }
-    }
-    .store(in: &subscriptions)
+
+    return replyHandler(["result": result], nil)
   }
 
   func deleteHighlight(

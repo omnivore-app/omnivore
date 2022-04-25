@@ -23,19 +23,13 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func createHighlight(shortId: String, highlightID: String, quote: String, patch: String) {
-    services.dataService
-      .createHighlightPublisher(
-        shortId: shortId,
-        highlightID: highlightID,
-        quote: quote,
-        patch: patch,
-        articleId: linkedItem.unwrappedID
-      )
-      .sink { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
-        self?.errorMessage = error.localizedDescription
-      } receiveValue: { _ in }
-      .store(in: &subscriptions)
+    _ = services.dataService.createHighlight(
+      shortId: shortId,
+      highlightID: highlightID,
+      quote: quote,
+      patch: patch,
+      articleId: linkedItem.unwrappedID
+    )
   }
 
   public func mergeHighlight(
