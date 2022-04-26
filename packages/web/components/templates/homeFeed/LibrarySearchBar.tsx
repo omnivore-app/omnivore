@@ -116,7 +116,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
               setSearchTerm('')
               props.applySearchQuery('')
               inputRef.current?.blur()
-            }} css={{ display: 'flex', flexDirection: 'row', mx: '8px', height: '100%', alignItems: 'center' }}>
+            }} css={{ display: 'flex', flexDirection: 'row', mr: '8px', height: '100%', alignItems: 'center' }}>
               <X width={16} height={16} color={theme.colors.grayTextContrast.toString()} />
           </Button>
         )}
