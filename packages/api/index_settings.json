@@ -101,6 +101,12 @@
       "subscription": {
         "type": "keyword",
         "normalizer": "lowercase_normalizer"
+      },
+      "state": {
+        "type": "keyword"
+      },
+      "taskName": {
+        "type": "keyword"
       }
     }
   }
