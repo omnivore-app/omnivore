@@ -7,9 +7,11 @@ import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
-import { articleSavingRequestDataToArticleSavingRequest } from '../utils/helpers'
+import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
 import * as privateIpLib from 'private-ip'
-import { countByCreatedAt } from '../elastic/pages'
+import { countByCreatedAt, createPage } from '../elastic/pages'
+import { Page, PageType, State } from '../elastic/types'
+import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
 
 const isPrivateIP = privateIpLib.default
 
@@ -53,6 +55,7 @@ export const createPageSaveRequest = async (
   userId: string,
   url: string,
   models: DataModels,
+  pubsub: PubsubClient = createPubSubClient(),
   articleSavingRequestId = uuidv4(),
   priority?: 'low' | 'high'
 ): Promise<ArticleSavingRequest> => {
@@ -83,14 +86,29 @@ export const createPageSaveRequest = async (
     priority
   )
 
-  const articleSavingRequestData = await models.articleSavingRequest.create({
-    userId: userId,
-    taskName: createdTaskName,
+  const page: Page = {
     id: articleSavingRequestId,
-  })
+    userId,
+    content: 'Your link is being saved...',
+    createdAt: new Date(),
+    hash: '',
+    pageType: PageType.Unknown,
+    readingProgressAnchorIndex: 0,
+    readingProgressPercent: 0,
+    slug: generateSlug(url),
+    title: url,
+    url,
+    taskName: createdTaskName,
+    state: State.Processing,
+  }
 
-  return articleSavingRequestDataToArticleSavingRequest(
-    user,
-    articleSavingRequestData
-  )
+  const pageId = await createPage(page, { pubsub, uid: userId })
+  if (!pageId) {
+    console.log('Failed to create page', page)
+    return Promise.reject({
+      errorCode: CreateArticleSavingRequestErrorCode.BadData,
+    })
+  }
+
+  return pageToArticleSavingRequest(user, page)
 }
