@@ -12,6 +12,11 @@ public extension DataService {
     searchQuery: String?,
     cursor: String?
   ) -> AnyPublisher<HomeFeedData, ServerError> {
+    // Attempt to sync items that have unsynched items
+    Task {
+      try? await syncOfflineItemsWithServerIfNeeded()
+    }
+
     struct InternalHomeFeedData {
       let items: [InternalLinkedItem]
       let cursor: String?

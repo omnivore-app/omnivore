@@ -20,7 +20,7 @@ extension DataService {
       format: "serverSyncStatus != %@", ServerSyncStatus.isNSync.rawValue
     )
 
-    try await backgroundContext.perform(schedule: .immediate) { [weak self] in
+    try await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
 
       do {
@@ -36,6 +36,7 @@ extension DataService {
   }
 
   private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
+    logger.debug("SYNCHINGGG")
     for item in unsyncedLinkedItems {
       guard let syncStatus = ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) else { continue }
 
@@ -48,6 +49,12 @@ extension DataService {
       case .needsUpdate:
         item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
         syncLinkArchiveStatus(itemID: item.unwrappedID, objectID: item.objectID, archived: item.isArchived)
+        syncLinkReadingProgress(
+          itemID: item.unwrappedID,
+          objectID: item.objectID,
+          readingProgress: item.readingProgress,
+          anchorIndex: Int(item.readingProgressAnchor)
+        )
       }
     }
   }
