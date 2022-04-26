@@ -19,7 +19,6 @@ import {
   MutationSetBookmarkArticleArgs,
   MutationSetShareArticleArgs,
   PageInfo,
-  PageType,
   QueryArticleArgs,
   QueryArticlesArgs,
   QuerySearchArgs,
@@ -45,10 +44,9 @@ import {
 } from '../../utils/uploads'
 import { ContentParseError } from '../../utils/errors'
 import {
-  articleSavingRequestError,
-  articleSavingRequestPopulate,
   authorized,
   generateSlug,
+  pageError,
   stringToHash,
   userDataToUser,
   validatedDate,
@@ -72,7 +70,12 @@ import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 
-import { Page, SearchItem as SearchItemData, State } from '../../elastic/types'
+import {
+  Page,
+  PageType,
+  SearchItem as SearchItemData,
+  State,
+} from '../../elastic/types'
 import {
   createPage,
   deletePage,
@@ -116,7 +119,7 @@ export const createArticleResolver = authorized<
       input: {
         url,
         preparedDocument,
-        articleSavingRequestId,
+        articleSavingRequestId: pageId,
         uploadFileId,
         skipParsing,
         source,
@@ -142,25 +145,15 @@ export const createArticleResolver = authorized<
     })
     await createIntercomEvent('link-saved', uid)
 
-    const articleSavingRequest = articleSavingRequestId
-      ? (await models.articleSavingRequest.get(articleSavingRequestId)) ||
-        (await authTrx((tx) =>
-          models.articleSavingRequest.create(
-            { userId: uid, id: articleSavingRequestId },
-            tx
-          )
-        ))
-      : undefined
-
     const user = userDataToUser(await models.user.get(uid))
     try {
       if (isSiteBlockedForParse(url)) {
-        return articleSavingRequestError(
+        return pageError(
           {
             errorCodes: [CreateArticleErrorCode.NotAllowedToParse],
           },
           ctx,
-          articleSavingRequest
+          pageId
         )
       }
 
@@ -213,10 +206,10 @@ export const createArticleResolver = authorized<
           userId: uid,
         })
         if (!uploadFile) {
-          return articleSavingRequestError(
+          return pageError(
             { errorCodes: [CreateArticleErrorCode.UploadFileMissing] },
             ctx,
-            articleSavingRequest
+            pageId
           )
         }
         const uploadFileDetails = await getStorageFileDetails(
@@ -285,11 +278,8 @@ export const createArticleResolver = authorized<
       }
 
       let archive = false
-      if (articleSavingRequestId) {
-        const reminder = await models.reminder.getByRequestId(
-          uid,
-          articleSavingRequestId
-        )
+      if (pageId) {
+        const reminder = await models.reminder.getByRequestId(uid, pageId)
         if (reminder) {
           archive = reminder.archiveUntil || false
         }
@@ -314,12 +304,12 @@ export const createArticleResolver = authorized<
           return await models.uploadFile.setFileUploadComplete(uploadFileId, tx)
         })
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
-          return articleSavingRequestError(
+          return pageError(
             {
               errorCodes: [CreateArticleErrorCode.UploadFileMissing],
             },
             ctx,
-            articleSavingRequest
+            pageId
           )
         }
         uploadFileUrlOverride = await makeStorageFilePublic(
@@ -331,6 +321,7 @@ export const createArticleResolver = authorized<
       const existingPage = await getPageByParam({
         userId: uid,
         url: articleToSave.url,
+        state: State.Succeeded,
       })
       if (existingPage) {
         //  update existing page in elastic
@@ -346,17 +337,34 @@ export const createArticleResolver = authorized<
         articleToSave = existingPage
       } else {
         // create new page in elastic
-        const pageId = await createPage(articleToSave, { ...ctx, uid })
-
         if (!pageId) {
-          return articleSavingRequestError(
-            {
-              errorCodes: [CreateArticleErrorCode.ElasticError],
-            },
-            ctx,
-            articleSavingRequest
-          )
+          pageId = await createPage(articleToSave, { ...ctx, uid })
+          if (!pageId) {
+            return pageError(
+              {
+                errorCodes: [CreateArticleErrorCode.ElasticError],
+              },
+              ctx,
+              pageId
+            )
+          }
+        } else {
+          const updated = await updatePage(pageId, articleToSave, {
+            ...ctx,
+            uid,
+          })
+
+          if (!updated) {
+            return pageError(
+              {
+                errorCodes: [CreateArticleErrorCode.ElasticError],
+              },
+              ctx,
+              pageId
+            )
+          }
         }
+
         log.info(
           'page created in elastic',
           pageId,
@@ -371,25 +379,20 @@ export const createArticleResolver = authorized<
         ...articleToSave,
         isArchived: !!articleToSave.archivedAt,
       }
-      return articleSavingRequestPopulate(
-        {
-          user,
-          created: false,
-          createdArticle: createdArticle,
-        },
-        ctx,
-        articleSavingRequest?.id,
-        createdArticle.id || undefined
-      )
+      return {
+        user,
+        created: false,
+        createdArticle: createdArticle,
+      }
     } catch (error) {
       if (
         error instanceof ContentParseError &&
         error.message === 'UNABLE_TO_PARSE'
       ) {
-        return articleSavingRequestError(
+        return pageError(
           { errorCodes: [CreateArticleErrorCode.UnableToParse] },
           ctx,
-          articleSavingRequest
+          pageId
         )
       }
       throw error

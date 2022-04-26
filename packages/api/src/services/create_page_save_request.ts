@@ -9,7 +9,7 @@ import {
 } from '../generated/graphql'
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
 import * as privateIpLib from 'private-ip'
-import { countByCreatedAt, createPage } from '../elastic/pages'
+import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
 import { Page, PageType, State } from '../elastic/types'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
 
@@ -85,6 +85,17 @@ export const createPageSaveRequest = async (
     articleSavingRequestId,
     priority
   )
+
+  const existingPage = await getPageByParam({
+    userId,
+    url,
+    state: State.Succeeded,
+  })
+  if (existingPage) {
+    console.log('Page already exists', url)
+    existingPage.taskName = createdTaskName
+    return pageToArticleSavingRequest(user, existingPage)
+  }
 
   const page: Page = {
     id: articleSavingRequestId,

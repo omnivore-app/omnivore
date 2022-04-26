@@ -231,7 +231,7 @@ export interface SearchItem {
   userId: string
 }
 
-const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const
+const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
 

@@ -19,7 +19,8 @@ import slugify from 'voca/slugify'
 import { Merge } from '../util'
 import { ArticleSavingRequestData } from '../datalayer/article_saving_request/model'
 import { CreateArticlesSuccessPartial } from '../resolvers'
-import { Page } from '../elastic/types'
+import { Page, State } from '../elastic/types'
+import { updatePage } from '../elastic/pages'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -175,6 +176,24 @@ export const generateSlug = (title: string): string => {
 }
 
 export const MAX_CONTENT_LENGTH = 5e7 //50MB
+
+export const pageError = async (
+  result: CreateArticleError,
+  ctx: WithDataSourcesContext,
+  pageId?: string | null
+): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
+  if (!pageId) return result
+
+  await updatePage(
+    pageId,
+    {
+      state: State.Failed,
+    },
+    ctx
+  )
+
+  return result
+}
 
 export const articleSavingRequestError = async (
   result: CreateArticleError,
