@@ -12,7 +12,13 @@ import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { Label } from '../../src/entity/label'
 import { UploadFileStatus } from '../../src/generated/graphql'
-import { Highlight, Page, PageContext, PageType } from '../../src/elastic/types'
+import {
+  Highlight,
+  Page,
+  PageContext,
+  PageType,
+  State,
+} from '../../src/elastic/types'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getRepository } from '../../src/entity/utils'
@@ -632,6 +638,7 @@ describe('Article API', () => {
         slug: 'test-with-omnivore',
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: State.Succeeded,
       }
       const newPageId = await createPage(page, ctx)
       if (newPageId) {
@@ -803,6 +810,7 @@ describe('Article API', () => {
           readingProgressAnchorIndex: 0,
           url: url,
           savedAt: new Date(),
+          state: State.Succeeded,
         }
         const pageId = await createPage(page, ctx)
         if (!pageId) {
