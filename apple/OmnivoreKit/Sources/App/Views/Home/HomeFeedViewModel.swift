@@ -72,25 +72,31 @@ import Views
     }
 
     if let queryResult = queryResult {
-      items = {
-        let itemIDs = isRefresh ? queryResult.items : items.map(\.objectID) + queryResult.items
+      let newItems: [LinkedItem] = {
         var itemObjects = [LinkedItem]()
         dataService.viewContext.performAndWait {
-          itemObjects = itemIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
+          itemObjects = queryResult.items.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
         }
         return itemObjects
       }()
-      dataService.prefetchPages(itemSlugs: items.map(\.unwrappedSlug))
+      items = isRefresh ? newItems : items + newItems
       isLoading = false
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
-    } else {
+      dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
+    } else if searchTermIsEmpty {
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
         fetchRequest.predicate = NSPredicate(
           format: "serverSyncStatus != %i", Int64(ServerSyncStatus.needsDeletion.rawValue)
         )
+//        // TODO: Filter on label
+//        if !selectedLabels.isEmpty {
+//          let objectIDs = selectedLabels.map(\.objectID)
+//          let containsLabelPredicate = NSPredicate(format: "la", arguments: <#T##CVaListPointer#>)
+//        }
+        
         if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
           self.items = fetchedItems
           self.cursor = nil
@@ -99,7 +105,18 @@ import Views
       }
     }
   }
-
+  
+  // Exclude filters when testing if user has enetered a search term
+  private var searchTermIsEmpty: Bool {
+    searchTerm
+      .replacingOccurrences(of: "in:inbox", with: "")
+      .replacingOccurrences(of: "in:all", with: "")
+      .replacingOccurrences(of: "in:archive", with: "")
+      .replacingOccurrences(of: "type:file", with: "")
+      .replacingOccurrences(of: " ", with: "")
+      .isEmpty
+  }
+  
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
     // TODO: remove this by making list always fetch from Coredata
     guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
