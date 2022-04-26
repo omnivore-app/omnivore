@@ -147,6 +147,12 @@ export enum PageType {
   Highlights = 'HIGHLIGHTS',
 }
 
+export enum State {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+}
+
 export interface Label {
   id: string
   name: string
@@ -199,6 +205,8 @@ export interface Page {
   subscription?: string
   unsubMailTo?: string
   unsubHttpUrl?: string
+  state: State
+  taskName?: string
 }
 
 export interface SearchItem {
