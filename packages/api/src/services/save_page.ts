@@ -1,19 +1,12 @@
 import { PubsubClient } from '../datalayer/pubsub'
 import { homePageURL } from '../env'
-import {
-  ArticleSavingRequestStatus,
-  Maybe,
-  SavePageInput,
-  SaveResult,
-} from '../generated/graphql'
+import { Maybe, SavePageInput, SaveResult } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
 import { parseOriginalContent, parsePreparedContent } from '../utils/parser'
 
 import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
-import { kx } from '../datalayer/knex_config'
-import { setClaims } from '../datalayer/helpers'
 import { Page, State } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
@@ -70,8 +63,6 @@ export const savePage = async (
   saver: SaverUserData,
   input: SavePageInput
 ): Promise<SaveResult> => {
-  const savingRequest = await createSavingRequest(ctx, input.clientRequestId)
-
   const [slug, croppedPathname] = createSlug(input.url, input.title)
   const parseResult = await parsePreparedContent(input.url, {
     document: input.originalContent,
@@ -109,6 +100,7 @@ export const savePage = async (
   const existingPage = await getPageByParam({
     userId: saver.userId,
     url: articleToSave.url,
+    state: State.Succeeded,
   })
   if (existingPage) {
     await updatePage(
@@ -119,33 +111,10 @@ export const savePage = async (
       },
       ctx
     )
-    await kx.transaction(async (tx) => {
-      await setClaims(tx, saver.userId)
-      await ctx.models.articleSavingRequest.update(
-        savingRequest.id,
-        {
-          status: ArticleSavingRequestStatus.Succeeded,
-          elasticPageId: existingPage.id,
-        },
-        tx
-      )
-    })
   } else if (shouldParseInBackend(input)) {
     await createPageSaveRequest(saver.userId, input.url, ctx.models)
   } else {
-    const pageId = await createPage(articleToSave, ctx)
-
-    await kx.transaction(async (tx) => {
-      await setClaims(tx, saver.userId)
-      await ctx.models.articleSavingRequest.update(
-        savingRequest.id,
-        {
-          status: ArticleSavingRequestStatus.Succeeded,
-          elasticPageId: pageId,
-        },
-        tx
-      )
-    })
+    await createPage(articleToSave, ctx)
   }
 
   return {
