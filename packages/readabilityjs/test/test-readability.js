@@ -281,6 +281,27 @@ describe("Readability API", function() {
       var content = new Readability(dom.window.document).parse().content;
       expect(content).eql(expected_xhtml);
     });
+
+    it("should handle srcset elements with density descriptors", function() {
+      var dom = new JSDOM('My image: <img src="https://webkit.org/demos/srcset/image-src.png" ' +
+        'srcset="https://webkit.org/demos/srcset/image-1x.png 1x, ' +
+        'https://webkit.org/demos/srcset/image-2x.png 2x, ' +
+        'https://webkit.org/demos/srcset/image-3x.png 3x, ' +
+        'https://webkit.org/demos/srcset/image-4x.png 4x">'
+      );
+      var expected_xhtml = '<div id="readability-page-1" class="page">My image: ' +
+                           '<img src="https://webkit.org/demos/srcset/image-src.png" ' +
+                           'srcset="https://webkit.org/demos/srcset/image-1x.png 1x,' +
+                           'https://webkit.org/demos/srcset/image-2x.png 2x,' +
+                           'https://webkit.org/demos/srcset/image-3x.png 3x,' +
+                           'https://webkit.org/demos/srcset/image-4x.png 4x,"></div>';
+      var content = new Readability(dom.window.document, {
+        createImageProxyUrl: function(url) {
+          return url;
+        }
+      }).parse().content;
+      expect(content).eql(expected_xhtml);
+    });
   });
 });
 
