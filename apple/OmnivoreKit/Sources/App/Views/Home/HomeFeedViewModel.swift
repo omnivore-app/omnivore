@@ -88,15 +88,9 @@ import Views
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-        fetchRequest.predicate = NSPredicate(
-          format: "serverSyncStatus != %i", Int64(ServerSyncStatus.needsDeletion.rawValue)
-        )
+        fetchRequest.predicate = self.itemRequestPredicate
 //        // TODO: Filter on label
-//        if !selectedLabels.isEmpty {
-//          let objectIDs = selectedLabels.map(\.objectID)
-//          let containsLabelPredicate = NSPredicate(format: "la", arguments: <#T##CVaListPointer#>)
-//        }
-        
+
         if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
           self.items = fetchedItems
           self.cursor = nil
@@ -105,7 +99,39 @@ import Views
       }
     }
   }
-  
+
+  private var itemRequestPredicate: NSPredicate {
+    let undeletedPredicate = NSPredicate(
+      format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+    )
+
+    if searchTerm.contains("in:all") {
+      // include everything undeleted
+      return undeletedPredicate
+    }
+
+    if searchTerm.contains("in:archive") {
+      let inArchivePredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
+    }
+
+    if searchTerm.contains("type:file") {
+      // include pdf only
+      let isPDFPredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
+    }
+
+    // default to "in:inbox" (non-archived items)
+    let notInArchivePredicate = NSPredicate(
+      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+    )
+    return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
+  }
+
   // Exclude filters when testing if user has enetered a search term
   private var searchTermIsEmpty: Bool {
     searchTerm
@@ -116,7 +142,7 @@ import Views
       .replacingOccurrences(of: " ", with: "")
       .isEmpty
   }
-  
+
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
     // TODO: remove this by making list always fetch from Coredata
     guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
