@@ -16,7 +16,7 @@ extension DataService {
     }
   }
 
-  func syncLinkDeletion(itemID: String, objectID _: NSManagedObjectID) {
+  func syncLinkDeletion(itemID: String, objectID: NSManagedObjectID) {
     enum MutationResult {
       case success(linkId: String)
       case error(errorCode: Enums.SetBookmarkArticleErrorCode)
@@ -51,12 +51,16 @@ extension DataService {
 
     send(mutation, to: path, headers: headers) { result in
       let data = try? result.get()
-      let syncStatus: ServerSyncStatus = data == nil ? .needsDeletion : .isNSync
+      let isSyncSuccess = data != nil
 
       context.perform {
-        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
-        linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
-        // TODO: remove object if network req was sucessful
+        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+
+        if isSyncSuccess {
+          linkedItem.remove(inContext: context)
+        } else {
+          linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+        }
 
         do {
           try context.save()

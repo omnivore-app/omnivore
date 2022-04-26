@@ -50,11 +50,16 @@ public extension DataService {
 
     send(mutation, to: path, headers: headers) { result in
       let data = try? result.get()
-      let syncStatus: ServerSyncStatus = data == nil ? .needsDeletion : .isNSync
+      let isSyncSuccess = data != nil
 
       context.perform {
         guard let highlight = context.object(with: objectID) as? Highlight else { return }
-        highlight.serverSyncStatus = Int64(syncStatus.rawValue)
+
+        if isSyncSuccess {
+          highlight.remove(inContext: context)
+        } else {
+          highlight.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+        }
 
         do {
           try context.save()
