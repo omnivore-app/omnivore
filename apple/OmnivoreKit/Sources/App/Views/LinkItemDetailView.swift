@@ -82,7 +82,7 @@ enum PDFProvider {
       rawAuthCookie: rawAuthCookie
     )
 
-    newWebAppWrapperViewModel.performActionSubject.sink { [weak self] action in
+    newWebAppWrapperViewModel.performActionSubject.sink { action in
       switch action {
       case let .shareHighlight(highlightID):
         print("show share modal for highlight with id: \(highlightID)")

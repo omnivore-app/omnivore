@@ -39,32 +39,19 @@ public final class PDFViewerViewModel: ObservableObject {
     patch: String,
     overlapHighlightIdList: [String]
   ) {
-    services.dataService
-      .mergeHighlightPublisher(
-        shortId: shortId,
-        highlightID: highlightID,
-        quote: quote,
-        patch: patch,
-        articleId: linkedItem.unwrappedID,
-        overlapHighlightIdList: overlapHighlightIdList
-      )
-      .sink { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
-        self?.errorMessage = error.localizedDescription
-      } receiveValue: { _ in }
-      .store(in: &subscriptions)
+    _ = services.dataService.mergeHighlights(
+      shortId: shortId,
+      highlightID: highlightID,
+      quote: quote,
+      patch: patch,
+      articleId: linkedItem.unwrappedID,
+      overlapHighlightIdList: overlapHighlightIdList
+    )
   }
 
   public func removeHighlights(highlightIds: [String]) {
-    highlightIds.forEach { highlightId in
-      services.dataService.deleteHighlightPublisher(highlightId: highlightId)
-        .sink { [weak self] completion in
-          guard case let .failure(error) = completion else { return }
-          self?.errorMessage = error.localizedDescription
-        } receiveValue: { value in
-          print("remove highlight value", value)
-        }
-        .store(in: &subscriptions)
+    highlightIds.forEach { highlightID in
+      services.dataService.deleteHighlight(highlightID: highlightID)
     }
   }
 

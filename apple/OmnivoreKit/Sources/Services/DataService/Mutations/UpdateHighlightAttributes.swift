@@ -1,15 +1,29 @@
-import Combine
 import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-  func updateHighlightAttributesPublisher(
+extension DataService {
+  public func updateHighlightAttributes(
     highlightID: String,
-    annotation: String?,
-    sharedAt: Date?
-  ) -> AnyPublisher<String, BasicError> {
+    annotation: String
+  ) {
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
+      guard let highlight = Highlight.lookup(byID: highlightID, inContext: self.backgroundContext) else { return }
+
+      highlight.update(inContext: self.backgroundContext, newAnnotation: annotation)
+
+      // Send update to server
+      self.syncHighlightAttributes(
+        highlightID: highlightID,
+        objectID: highlight.objectID,
+        annotation: annotation
+      )
+    }
+  }
+
+  func syncHighlightAttributes(highlightID: String, objectID: NSManagedObjectID, annotation: String) {
     enum MutationResult {
       case saved(highlight: InternalHighlight)
       case error(errorCode: Enums.UpdateHighlightErrorCode)
@@ -29,7 +43,7 @@ public extension DataService {
         input: InputObjects.UpdateHighlightInput(
           highlightId: highlightID,
           annotation: OptionalArgument(annotation),
-          sharedAt: OptionalArgument(sharedAt.flatMap { DateTime(from: $0) })
+          sharedAt: OptionalArgument(nil)
         ),
         selection: selection
       )
@@ -37,32 +51,24 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
-            switch payload.data {
-            case let .saved(highlight: highlight):
-              self.backgroundContext.perform {
-                highlight.persist(context: self.backgroundContext, associatedItemID: nil)
-              }
-              promise(.success(highlight.id))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
-          }
+      context.perform {
+        guard let highlight = context.object(with: objectID) as? Highlight else { return }
+        highlight.serverSyncStatus = Int64(syncStatus.rawValue)
+
+        do {
+          try context.save()
+          logger.debug("Highlight updated succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to update Highlight: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

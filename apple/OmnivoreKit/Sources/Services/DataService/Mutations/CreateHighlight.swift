@@ -27,26 +27,12 @@ extension DataService {
     internalHighlight.persist(context: backgroundContext, associatedItemID: articleId)
 
     // Send update to server
-    syncHighlightCreation(
-      shortId: shortId,
-      highlightID: highlightID,
-      quote: quote,
-      patch: patch,
-      articleId: articleId,
-      annotation: annotation
-    )
+    syncHighlightCreation(highlight: internalHighlight, articleId: articleId)
 
     return internalHighlight.encoded()
   }
 
-  func syncHighlightCreation(
-    shortId: String,
-    highlightID: String,
-    quote: String,
-    patch: String,
-    articleId: String,
-    annotation: String?
-  ) {
+  func syncHighlightCreation(highlight: InternalHighlight, articleId: String) {
     enum MutationResult {
       case saved(highlight: InternalHighlight)
       case error(errorCode: Enums.CreateHighlightErrorCode)
@@ -64,12 +50,12 @@ extension DataService {
     let mutation = Selection.Mutation {
       try $0.createHighlight(
         input: InputObjects.CreateHighlightInput(
-          id: highlightID,
-          shortId: shortId,
+          id: highlight.id,
+          shortId: highlight.shortId,
           articleId: articleId,
-          patch: patch,
-          quote: quote,
-          annotation: OptionalArgument(annotation)
+          patch: highlight.patch,
+          quote: highlight.quote,
+          annotation: OptionalArgument(highlight.annotation)
         ),
         selection: selection
       )
@@ -85,12 +71,10 @@ extension DataService {
 
       context.perform {
         let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-        fetchRequest.predicate = NSPredicate(
-          format: "id == %@", highlightID
-        )
+        fetchRequest.predicate = NSPredicate(format: "id == %@", highlight.id)
 
-        guard let highlight = (try? context.fetch(fetchRequest))?.first else { return }
-        highlight.serverSyncStatus = Int64(syncStatus.rawValue)
+        guard let highlightObject = (try? context.fetch(fetchRequest))?.first else { return }
+        highlightObject.serverSyncStatus = Int64(syncStatus.rawValue)
 
         do {
           try context.save()

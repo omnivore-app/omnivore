@@ -1,18 +1,44 @@
-import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
+extension DataService {
   // swiftlint:disable:next function_parameter_count function_body_length
-  func mergeHighlightPublisher(
+  public func mergeHighlights(
     shortId: String,
     highlightID: String,
     quote: String,
     patch: String,
     articleId: String,
-    overlapHighlightIdList: [String]
-  ) -> AnyPublisher<[String: Any]?, BasicError> {
+    overlapHighlightIdList: [String] // TODO: pass in annotation?
+  ) -> [String: Any]? {
+    let internalHighlight = InternalHighlight(
+      id: highlightID,
+      shortId: shortId,
+      quote: quote,
+      prefix: nil,
+      suffix: nil,
+      patch: patch,
+      annotation: nil,
+      createdAt: nil,
+      updatedAt: nil,
+      createdByMe: true
+    )
+
+    internalHighlight.persist(
+      context: backgroundContext,
+      associatedItemID: articleId,
+      oldHighlightsIds: overlapHighlightIdList
+    )
+
+    // Send update to server
+    syncHighlightCreation(highlight: internalHighlight, articleId: articleId)
+
+    return internalHighlight.encoded()
+  }
+
+  func syncHighlightMerge(highlight: InternalHighlight, articleId: String, overlapHighlightIdList: [String]) {
     enum MutationResult {
       case saved(highlight: InternalHighlight)
       case error(errorCode: Enums.MergeHighlightErrorCode)
@@ -30,11 +56,11 @@ public extension DataService {
     let mutation = Selection.Mutation {
       try $0.mergeHighlight(
         input: InputObjects.MergeHighlightInput(
-          id: highlightID,
-          shortId: shortId,
+          id: highlight.id,
+          shortId: highlight.shortId,
           articleId: articleId,
-          patch: patch,
-          quote: quote,
+          patch: highlight.patch,
+          quote: highlight.quote,
           prefix: .absent(),
           suffix: .absent(),
           annotation: .absent(),
@@ -46,34 +72,41 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let isSyncSuccess = data != nil
 
-            switch payload.data {
-            case let .saved(highlight: highlight):
-              highlight.persist(
-                context: self.backgroundContext,
-                associatedItemID: articleId,
-                oldHighlightsIds: overlapHighlightIdList
-              )
-              promise(.success(highlight.encoded()))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
+      context.perform {
+        let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", highlight.id)
+
+        guard let highlightObject = (try? context.fetch(fetchRequest))?.first else { return }
+        let newHighlightSyncStatus: ServerSyncStatus = data == nil ? .needsCreation : .isNSync
+        highlightObject.serverSyncStatus = Int64(newHighlightSyncStatus.rawValue)
+
+        for overlapHighlightID in overlapHighlightIdList {
+          let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+          fetchRequest.predicate = NSPredicate(format: "id == %@", overlapHighlightID)
+
+          if let highlightObject = (try? context.fetch(fetchRequest))?.first {
+            if isSyncSuccess {
+              highlightObject.remove(inContext: context)
+            } else {
+              highlightObject.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
             }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
           }
+        }
+
+        do {
+          try context.save()
+          logger.debug("Highlight merged succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to create Highlight: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

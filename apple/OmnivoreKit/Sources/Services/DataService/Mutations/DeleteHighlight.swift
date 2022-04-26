@@ -1,13 +1,28 @@
-import Combine
 import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func deleteHighlightPublisher(
-    highlightId: String
-  ) -> AnyPublisher<String, BasicError> {
+  func deleteHighlight(highlightID: String) {
+    if let highlight = Highlight.lookup(byID: highlightID, inContext: backgroundContext) {
+      deleteHighlight(objectID: highlight.objectID)
+    }
+  }
+
+  private func deleteHighlight(objectID: NSManagedObjectID) {
+    // Update CoreData
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
+      guard let highlight = self.backgroundContext.object(with: objectID) as? Highlight else { return }
+      highlight.remove(inContext: self.backgroundContext)
+
+      // Send update to server
+      self.syncHighlightDeletion(highlightID: highlight.unwrappedID, objectID: objectID)
+    }
+  }
+
+  internal func syncHighlightDeletion(highlightID: String, objectID: NSManagedObjectID) {
     enum MutationResult {
       case saved(id: String)
       case error(errorCode: Enums.DeleteHighlightErrorCode)
@@ -24,54 +39,30 @@ public extension DataService {
 
     let mutation = Selection.Mutation {
       try $0.deleteHighlight(
-        highlightId: highlightId.lowercased(),
+        highlightId: highlightID,
         selection: selection
       )
     }
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let syncStatus: ServerSyncStatus = data == nil ? .needsDeletion : .isNSync
 
-            switch payload.data {
-            case let .saved(id: id):
-              self.deletePersistedHighlight(objectID: id)
-              promise(.success(id))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
-          }
+      context.perform {
+        guard let highlight = context.object(with: objectID) as? Highlight else { return }
+        highlight.serverSyncStatus = Int64(syncStatus.rawValue)
+
+        do {
+          try context.save()
+          logger.debug("Highlight deleted succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to delete Highlight: \(error.localizedDescription)")
         }
-      }
-    }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
-  }
-
-  func deletePersistedHighlight(objectID: String) {
-    backgroundContext.perform {
-      let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "id == %@", objectID)
-      for highlight in (try? self.backgroundContext.fetch(fetchRequest)) ?? [] {
-        self.backgroundContext.delete(highlight)
-      }
-
-      do {
-        try self.backgroundContext.save()
-        print("Highlight deleted succesfully")
-      } catch {
-        self.backgroundContext.rollback()
-        print("Failed to delete Highlight: \(error.localizedDescription)")
       }
     }
   }

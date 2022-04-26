@@ -56,6 +56,7 @@ extension DataService {
       context.perform {
         guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
+        // TODO: remove object if network req was sucessful
 
         do {
           try context.save()
