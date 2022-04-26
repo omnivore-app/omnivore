@@ -1,11 +1,11 @@
 import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
 import { gqlFetcher } from '../networkHelpers'
-import type { ArticleFragmentData } from '../fragments/articleFragment'
+import { ContentReader } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { Label, labelFragment } from './../fragments/labelFragment'
+import { Label } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
 
 export type LibraryItemsQueryInput = {
@@ -16,8 +16,8 @@ export type LibraryItemsQueryInput = {
 }
 
 type LibraryItemsQueryResponse = {
-  articlesPages?: LibraryItemsData[]
-  articlesDataError?: unknown
+  itemsPages?: LibraryItemsData[]
+  itemsDataError?: unknown
   isLoading: boolean
   isValidating: boolean
   size: number
@@ -36,7 +36,7 @@ type LibraryItemAction =
   | 'refresh'
 
 export type LibraryItemsData = {
-  articles: LibraryItems
+  search: LibraryItems
 }
 
 export type LibraryItems = {
@@ -50,12 +50,29 @@ export type LibraryItem = {
   node: LibraryItemNode
 }
 
-export type LibraryItemNode = ArticleFragmentData & {
-  description?: string
-  hasContent: boolean
+export type LibraryItemNode = {
+  id: string
+  title: string
+  url: string
+  author?: string
+  image?: string
+  createdAt: string
+  publishedAt?: string
+  contentReader?: ContentReader
   originalArticleUrl: string
-  sharedComment?: string
+  readingProgressPercent: number
+  readingProgressAnchorIndex: number
+  slug: string
+  isArchived: boolean
+  description: string
+  ownedByViewer: boolean
+  uploadFileId: string
   labels?: Label[]
+  pageId: string
+  shortId: string
+  quote: string
+  annotation: string;
+  pageType?: string;
 }
 
 export type PageInfo = {
@@ -97,26 +114,38 @@ export function useGetLibraryItemsQuery({
   cursor,
 }: LibraryItemsQueryInput): LibraryItemsQueryResponse {
   const query = gql`
-    query GetArticles(
-      $sharedOnly: Boolean
-      $sort: SortParams
-      $after: String
-      $first: Int
-      $query: String
-    ) {
-      articles(
-        sharedOnly: $sharedOnly
-        sort: $sort
-        first: $first
-        after: $after
-        query: $query
-      ) {
-        ... on ArticlesSuccess {
+    query Search($after: String, $first: Int, $query: String) {
+      search(first: $first, after: $after, query: $query) {
+        ... on SearchSuccess {
           edges {
             cursor
             node {
-              ...ArticleFields
+              id
+              title
+              slug
+              url
+              pageType
+              contentReader
+              createdAt
+              isArchived
+              readingProgressPercent
+              readingProgressAnchorIndex
+              author
+              image
+              description
+              publishedAt
+              ownedByViewer
               originalArticleUrl
+              uploadFileId
+              labels {
+                id
+                name
+                color
+              }
+              pageId
+              shortId
+              quote
+              annotation
             }
           }
           pageInfo {
@@ -127,21 +156,14 @@ export function useGetLibraryItemsQuery({
             totalCount
           }
         }
-        ... on ArticlesError {
+        ... on SearchError {
           errorCodes
         }
       }
     }
-    ${libraryItemFragment}
-    ${labelFragment}
   `
 
   const variables = {
-    sharedOnly: false,
-    sort: {
-      order: sortDescending ? 'DESCENDING' : 'ASCENDING',
-      by: 'UPDATED_TIME',
-    },
     after: cursor,
     first: limit,
     query: searchQuery,
@@ -160,12 +182,10 @@ export function useGetLibraryItemsQuery({
         limit,
         sortDescending,
         searchQuery,
-        pageIndex === 0
-          ? undefined
-          : previousResult.articles.pageInfo.endCursor,
+        pageIndex === 0 ? undefined : previousResult.search.pageInfo.endCursor,
       ]
     },
-    (_query, _l, _s, _sq, cursor: string) => {
+    (_query, _l, _s, _sq, cursor) => {
       return gqlFetcher(query, { ...variables, after: cursor }, true)
     },
     { revalidateFirstPage: false }
@@ -180,7 +200,7 @@ export function useGetLibraryItemsQuery({
   // the response in the case of an error.
   if (!error && responsePages) {
     const errors = responsePages.filter(
-      (d) => d.articles.errorCodes && d.articles.errorCodes.length > 0
+      (d) => d.search.errorCodes && d.search.errorCodes.length > 0
     )
     if (errors?.length > 0) {
       responseError = errors
@@ -200,14 +220,14 @@ export function useGetLibraryItemsQuery({
       if (!responsePages) {
         return
       }
-      for (const articlesData of responsePages) {
-        const itemIndex = articlesData.articles.edges.indexOf(item)
-        if (itemIndex !== -1) {
-          if (typeof mutatedItem === 'undefined') {
-            articlesData.articles.edges.splice(itemIndex, 1)
-          } else {
-            articlesData.articles.edges[itemIndex] = mutatedItem
-          }
+      for (const searchResults of responsePages) {
+        const itemIndex = searchResults.search.edges.indexOf(item)
+          if (itemIndex !== -1) {
+            if (typeof mutatedItem === 'undefined') {
+              searchResults.search.edges.splice(itemIndex, 1)
+            } else {
+              searchResults.search.edges[itemIndex] = mutatedItem
+            }
           break
         }
       }
@@ -235,7 +255,9 @@ export function useGetLibraryItemsQuery({
           if (res) {
             showSuccessToast('Link archived', { position: 'bottom-right' })
           } else {
-            showErrorToast('Error archiving link', { position: 'bottom-right' })
+            showErrorToast('Error unarchiving link', {
+              position: 'bottom-right',
+            })
           }
         })
 
@@ -266,8 +288,7 @@ export function useGetLibraryItemsQuery({
         break
       case 'delete':
         updateData(undefined)
-        deleteLinkMutation(item.node.id)
-        .then((res) => {
+        deleteLinkMutation(item.node.id).then((res) => {
           if (res) {
             showSuccessToast('Link removed', { position: 'bottom-right' })
           } else {
@@ -310,8 +331,8 @@ export function useGetLibraryItemsQuery({
 
   return {
     isValidating,
-    articlesPages: responsePages || undefined,
-    articlesDataError: responseError,
+    itemsPages: responsePages || undefined,
+    itemsDataError: responseError,
     isLoading: !error && !data,
     performActionOnItem,
     size,
