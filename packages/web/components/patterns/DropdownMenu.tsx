@@ -1,4 +1,4 @@
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { HStack, VStack } from './../elements/LayoutPrimitives'
 import {
   Dropdown,
@@ -8,6 +8,8 @@ import {
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { currentThemeName } from '../../lib/themeUpdater'
+import { useChat } from 'react-live-chat-loader'
+
 
 export type HeaderDropdownAction =
   | 'apply-darker-theme'
@@ -31,10 +33,15 @@ type DropdownMenuProps = {
 
 export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const [currentTheme, setCurrentTheme] = useState(currentThemeName())
+  const [state, loadChat] = useChat()
 
   const isDark = useMemo(() => {
     return currentTheme === 'Dark' || currentTheme === 'Darker'
   }, [currentTheme])
+
+  useEffect(() => {
+    console.log('chat state', state)
+  }, [state])
 
   return (
     <Dropdown triggerElement={props.triggerElement}>
@@ -81,7 +88,17 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         title="Subscriptions"
       /> */}
       <DropdownOption
-        onSelect={() => window.Intercom('show')}
+        onSelect={() => {
+          console.log('chat state', state)
+          window.intercomSettings = {
+            app_id: process.env.NEXT_PUBLIC_INTERCOM_APP_ID ?? '',
+            hide_default_launcher: true,
+            vertical_padding: 120,
+            custom_launcher_selector: '.custom-intercom-launcher',
+          }
+          loadChat({ open: true })
+          console.log('using chat')
+        }}
         title="Feedback"
       />
       <DropdownOption

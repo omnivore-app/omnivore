@@ -64,17 +64,17 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     }
   }, [props.scrollElementRef, setScrollWatchedElement])
 
-  const initAnalytics = useCallback(() => {
-    setupAnalytics(props.user)
-  }, [props.user])
+  // const initAnalytics = useCallback(() => {
+  //   setupAnalytics(props.user)
+  // }, [props.user])
 
-  useEffect(() => {
-    initAnalytics()
-    window.addEventListener('load', initAnalytics)
-    return () => {
-      window.removeEventListener('load', initAnalytics)
-    }
-  }, [initAnalytics])
+  // useEffect(() => {
+  //   initAnalytics()
+  //   window.addEventListener('load', initAnalytics)
+  //   return () => {
+  //     window.removeEventListener('load', initAnalytics)
+  //   }
+  // }, [initAnalytics])
 
   function headerDropdownActionHandler(action: HeaderDropdownAction): void {
     switch (action) {

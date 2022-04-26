@@ -40,6 +40,7 @@
     "react-colorful": "^5.5.1",
     "react-dom": "^17.0.2",
     "react-hot-toast": "^2.1.1",
+    "react-live-chat-loader": "^2.7.3",
     "react-topbar-progress-indicator": "^4.1.1",
     "react-twitter-widgets": "^1.10.0",
     "swr": "^1.0.1",
