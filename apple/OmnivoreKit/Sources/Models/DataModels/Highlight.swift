@@ -2,9 +2,7 @@ import CoreData
 import Foundation
 
 public extension Highlight {
-  var unwrappedID: String {
-    id ?? ""
-  }
+  var unwrappedID: String { id ?? "" }
 
   static func lookup(byID highlightID: String, inContext context: NSManagedObjectContext) -> Highlight? {
     let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
