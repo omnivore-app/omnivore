@@ -111,6 +111,7 @@ export const createPageSaveRequest = async (
     url,
     taskName: createdTaskName,
     state: State.Processing,
+    description: 'Your link is being saved...',
   }
 
   const pageId = await createPage(page, { pubsub, uid: userId })
