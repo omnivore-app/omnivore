@@ -14,6 +14,7 @@ import { generateSlug } from '../utils/helpers'
 import { getStorageFileDetails, makeStorageFilePublic } from '../utils/uploads'
 import { createSavingRequest } from './save_page'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { State } from '../elastic/types'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -108,6 +109,7 @@ export const saveFile = async (
         createdAt: new Date(),
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: State.Succeeded,
       },
       ctx
     )

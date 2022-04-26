@@ -20,6 +20,7 @@ export const saveUrl = async (
       saver.id,
       input.url,
       ctx.models,
+      ctx.pubsub,
       input.clientRequestId
     )
   } catch (error) {

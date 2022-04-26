@@ -14,7 +14,7 @@ import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { kx } from '../datalayer/knex_config'
 import { setClaims } from '../datalayer/helpers'
-import { Page } from '../elastic/types'
+import { Page, State } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 type SaveContext = {
@@ -103,6 +103,7 @@ export const savePage = async (
     createdAt: new Date(),
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
+    state: State.Succeeded,
   }
 
   const existingPage = await getPageByParam({

@@ -15,7 +15,7 @@ import { getNewsletterEmail } from '../../services/newsletters'
 import { setClaims } from '../../datalayer/helpers'
 import { generateSlug } from '../../utils/helpers'
 import { createPubSubClient } from '../../datalayer/pubsub'
-import { Page } from '../../elastic/types'
+import { Page, State } from '../../elastic/types'
 import { createPage } from '../../elastic/pages'
 
 export function pdfAttachmentsRouter() {
@@ -157,6 +157,7 @@ export function pdfAttachmentsRouter() {
         createdAt: new Date(),
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: State.Succeeded,
       }
 
       const pageId = await createPage(articleToSave, {

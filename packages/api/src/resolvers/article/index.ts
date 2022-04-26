@@ -72,7 +72,7 @@ import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 
-import { Page, SearchItem as SearchItemData } from '../../elastic/types'
+import { Page, SearchItem as SearchItemData, State } from '../../elastic/types'
 import {
   createPage,
   deletePage,
@@ -281,6 +281,7 @@ export const createArticleResolver = authorized<
         siteIcon: parsedContent?.siteIcon,
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: State.Succeeded,
       }
 
       let archive = false

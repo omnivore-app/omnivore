@@ -19,6 +19,7 @@ import slugify from 'voca/slugify'
 import { Merge } from '../util'
 import { ArticleSavingRequestData } from '../datalayer/article_saving_request/model'
 import { CreateArticlesSuccessPartial } from '../resolvers'
+import { Page } from '../elastic/types'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -216,6 +217,16 @@ export const articleSavingRequestPopulate = async (
 
   return result
 }
+
+export const pageToArticleSavingRequest = (
+  user: UserData,
+  page: Page
+): ArticleSavingRequest => ({
+  ...page,
+  user: userDataToUser(user),
+  status: page.state as string as ArticleSavingRequestStatus,
+  updatedAt: page.updatedAt || new Date(),
+})
 
 export const articleSavingRequestDataToArticleSavingRequest = (
   user: UserData,
