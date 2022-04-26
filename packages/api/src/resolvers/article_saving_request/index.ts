@@ -1,16 +1,16 @@
 /* eslint-disable prefer-const */
 import {
-  ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
-  QueryArticleSavingRequestArgs,
   ArticleSavingRequestErrorCode,
-  CreateArticleSavingRequestSuccess,
+  ArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
+  CreateArticleSavingRequestSuccess,
   MutationCreateArticleSavingRequestArgs,
+  QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
 import {
-  authorized,
   articleSavingRequestDataToArticleSavingRequest,
+  authorized,
 } from '../../utils/helpers'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
@@ -19,9 +19,9 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
->(async (_, { input: { url } }, { models, claims }) => {
+>(async (_, { input: { url } }, { models, claims, pubsub }) => {
   await createIntercomEvent('link-save-request', claims.uid)
-  const request = await createPageSaveRequest(claims.uid, url, models)
+  const request = await createPageSaveRequest(claims.uid, url, models, pubsub)
   return {
     articleSavingRequest: request,
   }
