@@ -562,7 +562,7 @@ Readability.prototype = {
 
           if (d) {
             const proxySrc = this.createImageProxyUrl(this.toAbsoluteURI(link));
-            resultSrcset += `${proxySrc} ${d},`;
+            resultSrcset += `${proxySrc} ${d}x,`;
           }
         }
 
