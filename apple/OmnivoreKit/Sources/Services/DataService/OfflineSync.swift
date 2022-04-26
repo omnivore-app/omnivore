@@ -11,13 +11,13 @@ extension DataService {
     // LinkedItems
     let itemsFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     itemsFetchRequest.predicate = NSPredicate(
-      format: "serverSyncStatus != %@", ServerSyncStatus.isNSync.rawValue
+      format: "serverSyncStatus != %i", Int64(ServerSyncStatus.isNSync.rawValue)
     )
 
     // Highlights
     let highlightsFetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
     highlightsFetchRequest.predicate = NSPredicate(
-      format: "serverSyncStatus != %@", ServerSyncStatus.isNSync.rawValue
+      format: "serverSyncStatus != %i", Int64(ServerSyncStatus.isNSync.rawValue)
     )
 
     try await backgroundContext.perform { [weak self] in

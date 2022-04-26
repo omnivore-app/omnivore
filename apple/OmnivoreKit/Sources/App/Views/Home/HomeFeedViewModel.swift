@@ -57,6 +57,7 @@ import Views
       Task { _ = try? await dataService.fetchViewer() }
     }
 
+    // TODO: fix issues with this list
     dataService.libraryItemsPublisher(
       limit: 10,
       sortDescending: true,
@@ -70,7 +71,7 @@ import Views
           let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
           fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
           fetchRequest.predicate = NSPredicate(
-            format: "serverSyncStatus != %@", ServerSyncStatus.needsDeletion.rawValue
+            format: "serverSyncStatus != %i", Int64(ServerSyncStatus.needsDeletion.rawValue)
           )
           if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
             self?.items = fetchedItems
