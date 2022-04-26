@@ -5,17 +5,13 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  // swiftlint:disable:next function_body_length
-  func libraryItemsPublisher(
+  func fetchLinkedItems(
     limit: Int,
-    sortDescending: Bool,
     searchQuery: String?,
     cursor: String?
-  ) -> AnyPublisher<HomeFeedData, ServerError> {
-    // Attempt to sync items that have unsynched items
-    Task {
-      try? await syncOfflineItemsWithServerIfNeeded()
-    }
+  ) async throws -> HomeFeedData {
+    // Send offline changes to server before fetching items
+    try? await syncOfflineItemsWithServerIfNeeded()
 
     struct InternalHomeFeedData {
       let items: [InternalLinkedItem]
@@ -50,7 +46,7 @@ public extension DataService {
         sharedOnly: .present(false),
         sort: OptionalArgument(
           InputObjects.SortParams(
-            order: .present(sortDescending ? .descending : .ascending),
+            order: .present(.descending),
             by: .updatedTime
           )
         ),
@@ -64,33 +60,29 @@ public extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(query, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            switch payload.data {
-            case let .success(result: result):
-              if let items = result.items.persist(context: self.backgroundContext) {
-                promise(.success(HomeFeedData(items: items.map(\.objectID), cursor: result.cursor)))
-              } else {
-                promise(.failure(.unknown))
-              }
-            case .error:
-              promise(.failure(.unknown))
-            }
-          case .failure:
-            promise(.failure(.unknown))
+    return try await withCheckedThrowingContinuation { continuation in
+      send(query, to: path, headers: headers) { [weak self] queryResult in
+        guard let payload = try? queryResult.get() else {
+          continuation.resume(throwing: BasicError.message(messageText: "network error"))
+          return
+        }
+
+        switch payload.data {
+        case let .success(result: result):
+          if let context = self?.backgroundContext, let items = result.items.persist(context: context) {
+            continuation.resume(returning: HomeFeedData(items: items.map(\.objectID), cursor: result.cursor))
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
           }
+        case .error:
+          continuation.resume(throwing: BasicError.message(messageText: "LinkedItem fetch error"))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }
 
-let homeFeedItemSelection = Selection.Article {
+private let articleSelection = Selection.Article {
   InternalLinkedItem(
     id: try $0.id(),
     title: try $0.title(),
@@ -114,5 +106,5 @@ let homeFeedItemSelection = Selection.Article {
 }
 
 private let articleEdgeSelection = Selection.ArticleEdge {
-  try $0.node(selection: homeFeedItemSelection)
+  try $0.node(selection: articleSelection)
 }

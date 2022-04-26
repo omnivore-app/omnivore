@@ -36,7 +36,6 @@ extension DataService {
   }
 
   private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
-    logger.debug("SYNCHINGGG")
     for item in unsyncedLinkedItems {
       guard let syncStatus = ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) else { continue }
 

@@ -30,14 +30,14 @@ import Views
 
   init() {}
 
-  func itemAppeared(item: LinkedItem, dataService: DataService) {
+  func itemAppeared(item: LinkedItem, dataService: DataService) async {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      loadItems(dataService: dataService, isRefresh: false)
+      await loadItems(dataService: dataService, isRefresh: false)
     }
   }
 
@@ -45,66 +45,59 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) {
+  func loadItems(dataService: DataService, isRefresh: Bool) async {
     let thisSearchIdx = searchIdx
     searchIdx += 1
 
     isLoading = true
 
     // Cache the viewer
-
     if dataService.currentViewer == nil {
       Task { _ = try? await dataService.fetchViewer() }
     }
 
-    // TODO: fix issues with this list
-    dataService.libraryItemsPublisher(
+    let queryResult = try? await dataService.fetchLinkedItems(
       limit: 10,
-      sortDescending: true,
       searchQuery: searchQuery,
       cursor: isRefresh ? nil : cursor
     )
-    .sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        dataService.viewContext.perform {
-          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-          fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-          fetchRequest.predicate = NSPredicate(
-            format: "serverSyncStatus != %i", Int64(ServerSyncStatus.needsDeletion.rawValue)
-          )
-          if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
-            self?.items = fetchedItems
-            self?.cursor = nil
-            self?.isLoading = false
-          }
-        }
-      },
-      receiveValue: { [weak self] result in
-        // Search results aren't guaranteed to return in order so this
-        // will discard old results that are returned while a user is typing.
-        // For example if a user types 'Canucks', often the search results
-        // for 'C' are returned after 'Canucks' because it takes the backend
-        // much longer to compute.
-        if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
-          return
-        }
 
-        self?.items = {
-          let itemIDs = isRefresh ? result.items : (self?.items ?? []).map(\.objectID) + result.items
-          var itemObjects = [LinkedItem]()
-          dataService.viewContext.performAndWait {
-            itemObjects = itemIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
-          }
-          return itemObjects
-        }()
-        dataService.prefetchPages(itemSlugs: (self?.items ?? []).map(\.unwrappedSlug))
-        self?.isLoading = false
-        self?.receivedIdx = thisSearchIdx
-        self?.cursor = result.cursor
+    // Search results aren't guaranteed to return in order so this
+    // will discard old results that are returned while a user is typing.
+    // For example if a user types 'Canucks', often the search results
+    // for 'C' are returned after 'Canucks' because it takes the backend
+    // much longer to compute.
+    if thisSearchIdx > 0, thisSearchIdx <= receivedIdx {
+      return
+    }
+
+    if let queryResult = queryResult {
+      items = {
+        let itemIDs = isRefresh ? queryResult.items : items.map(\.objectID) + queryResult.items
+        var itemObjects = [LinkedItem]()
+        dataService.viewContext.performAndWait {
+          itemObjects = itemIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
+        }
+        return itemObjects
+      }()
+      dataService.prefetchPages(itemSlugs: items.map(\.unwrappedSlug))
+      isLoading = false
+      receivedIdx = thisSearchIdx
+      cursor = queryResult.cursor
+    } else {
+      await dataService.viewContext.perform {
+        let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+        fetchRequest.predicate = NSPredicate(
+          format: "serverSyncStatus != %i", Int64(ServerSyncStatus.needsDeletion.rawValue)
+        )
+        if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
+          self.items = fetchedItems
+          self.cursor = nil
+          self.isLoading = false
+        }
       }
-    )
-    .store(in: &subscriptions)
+    }
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {

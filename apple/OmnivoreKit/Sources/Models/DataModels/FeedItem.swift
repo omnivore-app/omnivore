@@ -1,7 +1,7 @@
 import CoreData
 import Foundation
 
-public struct HomeFeedData {
+public struct HomeFeedData { // TODO: rename this
   public let items: [NSManagedObjectID]
   public let cursor: String?
 

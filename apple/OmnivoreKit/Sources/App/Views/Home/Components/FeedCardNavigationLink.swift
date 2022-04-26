@@ -22,7 +22,7 @@ struct FeedCardNavigationLink: View {
       .opacity(0)
       .buttonStyle(PlainButtonStyle())
       .onAppear {
-        viewModel.itemAppeared(item: item, dataService: dataService)
+        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
       }
       FeedCard(item: item)
     }
@@ -60,7 +60,7 @@ struct GridCardNavigationLink: View {
         }
       })
         .onAppear {
-          viewModel.itemAppeared(item: item, dataService: dataService)
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
     }
     .aspectRatio(1.8, contentMode: .fill)

@@ -12,6 +12,10 @@ import Views
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    func loadItems(isRefresh: Bool) {
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+    }
+
     var body: some View {
       Group {
         HomeFeedView(
@@ -19,7 +23,7 @@ import Views
           viewModel: viewModel
         )
         .refreshable {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .searchable(
           text: $viewModel.searchTerm,
@@ -35,13 +39,13 @@ import Views
         .onChange(of: viewModel.searchTerm) { _ in
           // Maybe we should debounce this, but
           // it feels like it works ok without
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .onChange(of: viewModel.selectedLabels) { _ in
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .onSubmit(of: .search) {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item)) { _ in }
@@ -52,7 +56,7 @@ import Views
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
         if viewModel.selectedLinkItem == nil {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
@@ -72,9 +76,9 @@ import Views
           )
         }
       }
-      .onAppear {
+      .onAppear { // TODO: use task instead
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
       }
     }
@@ -284,6 +288,10 @@ import Views
       }
     }
 
+    func loadItems(isRefresh: Bool) {
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+    }
+
     var body: some View {
       ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 24)], spacing: 24) {
@@ -319,7 +327,7 @@ import Views
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
           DispatchQueue.main.async {
             if !viewModel.isLoading, offset > 240 {
-              viewModel.loadItems(dataService: dataService, isRefresh: true)
+              loadItems(isRefresh: true)
             }
           }
         }
