@@ -60,20 +60,17 @@ struct InnerRootView: View {
           }
         })
       #endif
-      .snackBar(
-        isShowing: $viewModel.showSnackbar,
-        text: Text(viewModel.snackbarMessage ?? "")
-      )
-      // Adding an extra dispatch to dismiss the snackbar since the internal timer sometimes fails
-      .onChange(of: viewModel.showSnackbar) { newValue in
-        if newValue {
-          DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            withAnimation {
-              viewModel.showSnackbar = false
+      .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
+        // Schedule the dismissal every time we present the snackbar.
+        .onChange(of: viewModel.showSnackbar) { newValue in
+          if newValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+              withAnimation {
+                viewModel.showSnackbar = false
+              }
             }
           }
         }
-      }
       #if os(iOS)
         .customAlert(isPresented: $viewModel.showPushNotificationPrimer) {
           pushNotificationPrimerView
