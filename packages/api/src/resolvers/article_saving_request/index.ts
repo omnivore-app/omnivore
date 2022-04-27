@@ -4,6 +4,7 @@ import {
   ArticleSavingRequestErrorCode,
   ArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
+  CreateArticleSavingRequestErrorCode,
   CreateArticleSavingRequestSuccess,
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
@@ -12,6 +13,7 @@ import { authorized, pageToArticleSavingRequest } from '../../utils/helpers'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
 import { getPageById } from '../../elastic/pages'
+import { isErrorWithCode } from '../user'
 
 export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
@@ -19,9 +21,19 @@ export const createArticleSavingRequestResolver = authorized<
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { models, claims, pubsub }) => {
   await createIntercomEvent('link-save-request', claims.uid)
-  const request = await createPageSaveRequest(claims.uid, url, models, pubsub)
-  return {
-    articleSavingRequest: request,
+  try {
+    const request = await createPageSaveRequest(claims.uid, url, models, pubsub)
+    return {
+      articleSavingRequest: request,
+    }
+  } catch (err) {
+    console.log('error', err)
+    if (isErrorWithCode(err)) {
+      return {
+        errorCodes: [err.errorCode as CreateArticleSavingRequestErrorCode],
+      }
+    }
+    return { errorCodes: [CreateArticleSavingRequestErrorCode.BadData] }
   }
 })
 

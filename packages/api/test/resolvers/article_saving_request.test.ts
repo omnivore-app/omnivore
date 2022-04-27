@@ -5,6 +5,11 @@ import { graphqlRequest, request } from '../util'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { expect } from 'chai'
 import { describe } from 'mocha'
+import { getPageById } from '../../src/elastic/pages'
+import {
+  ArticleSavingRequestErrorCode,
+  CreateArticleSavingRequestErrorCode,
+} from '../../src/generated/graphql'
 
 const articleSavingRequestQuery = (id: string) => `
   query {
@@ -78,6 +83,29 @@ describe('ArticleSavingRequest API', () => {
         res.body.data.createArticleSavingRequest.articleSavingRequest.status
       ).to.eql(State.Processing)
     })
+
+    it('creates a page in elastic', async () => {
+      const res = await graphqlRequest(
+        createArticleSavingRequestMutation('https://example.com/1'),
+        authToken
+      ).expect(200)
+
+      const page = await getPageById(
+        res.body.data.createArticleSavingRequest.articleSavingRequest.id
+      )
+      expect(page?.description).to.eq('Your link is being saved...')
+    })
+
+    it('returns an error if the url is invalid', async () => {
+      const res = await graphqlRequest(
+        createArticleSavingRequestMutation('invalid url'),
+        authToken
+      ).expect(200)
+
+      expect(res.body.data.createArticleSavingRequest.errorCodes).to.eql([
+        CreateArticleSavingRequestErrorCode.BadData,
+      ])
+    })
   })
 
   describe('articleSavingRequest', () => {
@@ -86,22 +114,33 @@ describe('ArticleSavingRequest API', () => {
     before(async () => {
       // create article saving request
       const res = await graphqlRequest(
-        createArticleSavingRequestMutation('https://example.com/1'),
+        createArticleSavingRequestMutation('https://example.com/2'),
         authToken
       ).expect(200)
       articleSavingRequestId =
         res.body.data.createArticleSavingRequest.articleSavingRequest.id
     })
 
-    it('returns the article saving request', async () => {
+    it('returns the article saving request if exists', async () => {
       const res = await graphqlRequest(
         articleSavingRequestQuery(articleSavingRequestId),
         authToken
       ).expect(200)
 
-      expect(res.body.data.articleSavingRequest.articleSavingRequest.id).to.eq(
+      expect(res.body.data.articleSavingRequest.articleSavingRequest.id).to.eql(
         articleSavingRequestId
       )
+    })
+
+    it('returns not_found if not exists', async () => {
+      const res = await graphqlRequest(
+        articleSavingRequestQuery('invalid-id'),
+        authToken
+      ).expect(200)
+
+      expect(res.body.data.articleSavingRequest.errorCodes).to.eql([
+        ArticleSavingRequestErrorCode.NotFound,
+      ])
     })
   })
 })

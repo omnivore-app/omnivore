@@ -13,6 +13,8 @@ import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
 import { Page, PageType, State } from '../elastic/types'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
 
+const SAVING_DESCRIPTION = 'Your link is being saved...'
+
 const isPrivateIP = privateIpLib.default
 
 // 5 articles added in the last minute: use low queue
@@ -100,7 +102,7 @@ export const createPageSaveRequest = async (
   const page: Page = {
     id: articleSavingRequestId,
     userId,
-    content: 'Your link is being saved...',
+    content: SAVING_DESCRIPTION,
     createdAt: new Date(),
     hash: '',
     pageType: PageType.Unknown,
@@ -111,7 +113,7 @@ export const createPageSaveRequest = async (
     url,
     taskName: createdTaskName,
     state: State.Processing,
-    description: 'Your link is being saved...',
+    description: SAVING_DESCRIPTION,
   }
 
   const pageId = await createPage(page, { pubsub, uid: userId })
