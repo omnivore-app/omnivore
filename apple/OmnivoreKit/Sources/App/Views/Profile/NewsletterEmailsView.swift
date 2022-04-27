@@ -91,7 +91,7 @@ struct NewsletterEmailsView: View {
                 #if os(macOS)
                   let pasteBoard = NSPasteboard.general
                   pasteBoard.clearContents()
-                  pasteBoard.writeObjects([newsletterEmail.email as NSString])
+                  pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
                 #endif
 
                 Snackbar.show(message: "Email copied")
