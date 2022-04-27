@@ -8,12 +8,10 @@ import {
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
-import {
-  articleSavingRequestDataToArticleSavingRequest,
-  authorized,
-} from '../../utils/helpers'
+import { authorized, pageToArticleSavingRequest } from '../../utils/helpers'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createIntercomEvent } from '../../utils/intercom'
+import { getPageById } from '../../elastic/pages'
 
 export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
@@ -32,20 +30,18 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
 >(async (_, { id }, { models }) => {
-  let articleSavingRequest
+  let page
   let user
   try {
-    articleSavingRequest = await models.articleSavingRequest.get(id)
-    user = await models.user.get(articleSavingRequest.userId)
+    page = await getPageById(id)
+    if (!page) {
+      return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
+    }
+    user = await models.user.get(page.userId)
     // eslint-disable-next-line no-empty
   } catch (error) {}
-  if (user && articleSavingRequest)
-    return {
-      articleSavingRequest: articleSavingRequestDataToArticleSavingRequest(
-        user,
-        articleSavingRequest
-      ),
-    }
+  if (user && page)
+    return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
 
   return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
 })
