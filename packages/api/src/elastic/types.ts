@@ -17,6 +17,7 @@ export interface SearchBody {
             }
           }
         | { term: { pageType: string } }
+        | { terms: { state: State[] } }
         | { exists: { field: string } }
         | {
             range: {

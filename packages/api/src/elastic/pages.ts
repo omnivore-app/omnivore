@@ -5,6 +5,7 @@ import {
   ParamSet,
   SearchBody,
   SearchResponse,
+  State,
 } from './types'
 import {
   DateRangeFilter,
@@ -371,6 +372,11 @@ export const searchPages = async (
             {
               term: {
                 userId,
+              },
+            },
+            {
+              terms: {
+                state: [State.Succeeded, State.Processing],
               },
             },
           ],
