@@ -103,8 +103,7 @@
         "normalizer": "lowercase_normalizer"
       },
       "state": {
-        "type": "keyword",
-        "null_value": "SUCCEEDED"
+        "type": "keyword"
       },
       "taskName": {
         "type": "keyword"

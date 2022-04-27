@@ -17,7 +17,6 @@ export interface SearchBody {
             }
           }
         | { term: { pageType: string } }
-        | { terms: { state: State[] } }
         | { exists: { field: string } }
         | {
             range: {
@@ -70,6 +69,7 @@ export interface SearchBody {
       }[]
       minimum_should_match?: number
       must_not: (
+        | { term: { state: State.Failed } }
         | {
             exists: {
               field: string

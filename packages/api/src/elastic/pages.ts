@@ -374,14 +374,15 @@ export const searchPages = async (
                 userId,
               },
             },
+          ],
+          should: [],
+          must_not: [
             {
-              terms: {
-                state: [State.Succeeded, State.Processing],
+              term: {
+                state: State.Failed,
               },
             },
           ],
-          should: [],
-          must_not: [],
         },
       },
       sort: [
