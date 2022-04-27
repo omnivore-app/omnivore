@@ -2,7 +2,7 @@
   "regions": ["sfo"],
   "headers": [
     {
-      "source": "/static/fonts/.*",
+      "source": "/static/fonts/(.*)",
       "headers" : [
         {
           "key" : "Cache-Control",
