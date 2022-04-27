@@ -248,9 +248,7 @@ struct LinkItemDetailView: View {
             navBar
             Spacer()
           }
-          .navigationBarHidden(true)
         }
-
       } else {
         VStack(spacing: 0) {
           navBar
@@ -262,7 +260,6 @@ struct LinkItemDetailView: View {
             rawAuthCookie: authenticator.omnivoreAuthCookieString
           )
         }
-        .navigationBarHidden(true)
       }
     }
   #endif

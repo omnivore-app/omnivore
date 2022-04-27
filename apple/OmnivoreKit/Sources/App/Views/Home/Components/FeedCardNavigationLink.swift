@@ -11,9 +11,16 @@ struct FeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
+    #if os(iOS)
+      let modifiedDestination = destination.navigationBarHidden(true)
+    #else
+      let modifiedDestination = destination
+    #endif
+
+    return ZStack {
       NavigationLink(
-        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
+        destination: modifiedDestination,
         tag: item,
         selection: $viewModel.selectedLinkItem
       ) {
@@ -42,9 +49,16 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
+    #if os(iOS)
+      let modifiedDestination = destination.navigationBarHidden(true)
+    #else
+      let modifiedDestination = destination
+    #endif
+
+    return ZStack {
       NavigationLink(
-        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
+        destination: modifiedDestination,
         tag: item,
         selection: $viewModel.selectedLinkItem
       ) {

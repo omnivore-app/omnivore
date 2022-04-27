@@ -222,13 +222,10 @@ import WebKit
           navBar
           Spacer()
         }
-        .navigationBarHidden(true)
-
       }.onDisappear {
         // Clear the shared webview content when exiting
         WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       }
-      .navigationBarHidden(true)
     }
   }
 #endif
