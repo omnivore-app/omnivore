@@ -139,6 +139,7 @@ const getArticleQuery = (slug: string) => {
         article {
           id
           slug
+          content
           highlights {
             id
             shortId
@@ -371,7 +372,7 @@ describe('Article API', () => {
 
     let query = ''
     let slug = ''
-    let pageId: string | undefined
+    let pageId: string
 
     before(async () => {
       const page = {
@@ -398,13 +399,12 @@ describe('Article API', () => {
           },
         ],
       } as Page
-      pageId = await createPage(page, ctx)
+      const id = await createPage(page, ctx)
+      id && (pageId = id)
     })
 
     after(async () => {
-      if (pageId) {
-        await deletePage(pageId, ctx)
-      }
+      await deletePage(pageId, ctx)
     })
 
     beforeEach(async () => {
@@ -426,6 +426,27 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.article.article.highlights).to.length(1)
+      })
+
+      context('when page is failed to process', () => {
+        before(async () => {
+          await updatePage(
+            pageId,
+            {
+              state: State.Processing,
+              createdAt: new Date(Date.now() - 1000 * 60),
+            },
+            ctx
+          )
+        })
+
+        it('should return unable to parse', async () => {
+          const res = await graphqlRequest(query, authToken).expect(200)
+
+          expect(res.body.data.article.article.content).to.eql(
+            'We were unable to parse this page.'
+          )
+        })
       })
     })
 
