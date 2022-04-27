@@ -9,7 +9,7 @@ import Views
 #if os(macOS)
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
-    @State private var itemToRemove: FeedItem?
+    @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -40,7 +40,7 @@ import Views
               )
               if FeatureFlag.enableSnooze {
                 Button {
-                  viewModel.itemToSnooze = item
+                  viewModel.itemToSnoozeID = item.id
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }

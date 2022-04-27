@@ -9,11 +9,6 @@ struct SafariWebLink: Identifiable {
   let url: URL
 }
 
-func encodeHighlightResult(_ highlight: Highlight) -> [String: Any]? {
-  guard let data = try? JSONEncoder().encode(highlight) else { return nil }
-  return try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any]
-}
-
 final class WebReaderViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var articleContent: ArticleContent?
@@ -25,24 +20,22 @@ final class WebReaderViewModel: ObservableObject {
     self.slug = slug
     isLoading = true
 
-    guard let viewer = dataService.currentViewer else { return }
+    guard let username = dataService.currentViewer?.username else { return }
 
     if let content = dataService.pageFromCache(slug: slug) {
       articleContent = content
-      // continue to load from the web if possible
+    } else {
+      dataService.articleContentPublisher(username: username, slug: slug).sink(
+        receiveCompletion: { [weak self] completion in
+          guard case .failure = completion else { return }
+          self?.isLoading = false
+        },
+        receiveValue: { [weak self] articleContent in
+          self?.articleContent = articleContent
+        }
+      )
+      .store(in: &subscriptions)
     }
-
-    dataService.articleContentPublisher(username: viewer.username, slug: slug).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] articleContent in
-        self?.articleContent = articleContent
-        dataService.pageCache.setObject(CachedPageContent(slug, articleContent), forKey: NSString(string: slug))
-      }
-    )
-    .store(in: &subscriptions)
   }
 
   func createHighlight(
@@ -50,7 +43,7 @@ final class WebReaderViewModel: ObservableObject {
     replyHandler: @escaping WKScriptMessageReplyHandler,
     dataService: DataService
   ) {
-    dataService.createHighlightPublisher(
+    let result = dataService.createHighlight(
       shortId: messageBody["shortId"] as? String ?? "",
       highlightID: messageBody["id"] as? String ?? "",
       quote: messageBody["quote"] as? String ?? "",
@@ -58,17 +51,8 @@ final class WebReaderViewModel: ObservableObject {
       articleId: messageBody["articleId"] as? String ?? "",
       annotation: messageBody["annotation"] as? String ?? ""
     )
-    .sink { completion in
-      guard case .failure = completion else { return }
-      replyHandler([], "createHighlight: Error encoding response")
-    } receiveValue: { highlight in
-      if let highlight = encodeHighlightResult(highlight) {
-        replyHandler(["result": highlight], nil)
-      } else {
-        replyHandler([], "createHighlight: Error encoding response")
-      }
-    }
-    .store(in: &subscriptions)
+
+    return replyHandler(["result": result], nil)
   }
 
   func deleteHighlight(
@@ -76,16 +60,12 @@ final class WebReaderViewModel: ObservableObject {
     replyHandler: @escaping WKScriptMessageReplyHandler,
     dataService: DataService
   ) {
-    dataService.deleteHighlightPublisher(
-      highlightId: messageBody["highlightId"] as? String ?? ""
-    )
-    .sink { completion in
-      guard case .failure = completion else { return }
-      replyHandler(["result": false], nil)
-    } receiveValue: { _ in
+    if let highlightID = messageBody["highlightId"] as? String {
+      dataService.deleteHighlight(highlightID: highlightID)
       replyHandler(["result": true], nil)
+    } else {
+      replyHandler(["result": false], nil)
     }
-    .store(in: &subscriptions)
   }
 
   func mergeHighlight(
@@ -93,25 +73,28 @@ final class WebReaderViewModel: ObservableObject {
     replyHandler: @escaping WKScriptMessageReplyHandler,
     dataService: DataService
   ) {
-    dataService.mergeHighlightPublisher(
-      shortId: messageBody["shortId"] as? String ?? "",
-      highlightID: messageBody["id"] as? String ?? "",
-      quote: messageBody["quote"] as? String ?? "",
-      patch: messageBody["patch"] as? String ?? "",
-      articleId: messageBody["articleId"] as? String ?? "",
-      overlapHighlightIdList: messageBody["overlapHighlightIdList"] as? [String] ?? []
-    )
-    .sink { completion in
-      guard case .failure = completion else { return }
-      replyHandler([], "mergeHighlight: Error encoding response")
-    } receiveValue: { highlight in
-      if let highlight = encodeHighlightResult(highlight) {
-        replyHandler(["result": highlight], nil)
-      } else {
-        replyHandler([], "mergeHighlight: Error encoding response")
-      }
+    guard
+      let shortId = messageBody["shortId"] as? String,
+      let highlightID = messageBody["id"] as? String,
+      let quote = messageBody["quote"] as? String,
+      let patch = messageBody["patch"] as? String,
+      let articleId = messageBody["articleId"] as? String,
+      let overlapHighlightIdList = messageBody["overlapHighlightIdList"] as? [String]
+    else {
+      replyHandler([], "createHighlight: Error encoding response")
+      return
     }
-    .store(in: &subscriptions)
+
+    let jsonHighlight = dataService.mergeHighlights(
+      shortId: shortId,
+      highlightID: highlightID,
+      quote: quote,
+      patch: patch,
+      articleId: articleId,
+      overlapHighlightIdList: overlapHighlightIdList
+    )
+
+    replyHandler(["result": jsonHighlight], nil)
   }
 
   func updateHighlight(
@@ -119,19 +102,15 @@ final class WebReaderViewModel: ObservableObject {
     replyHandler: @escaping WKScriptMessageReplyHandler,
     dataService: DataService
   ) {
-    dataService.updateHighlightAttributesPublisher(
-      highlightID: messageBody["highlightId"] as? String ?? "",
-      annotation: messageBody["annotation"] as? String ?? "",
-      sharedAt: nil
-    )
-    .sink { completion in
-      guard case .failure = completion else { return }
+    let highlightID = messageBody["highlightId"] as? String
+    let annotation = messageBody["annotation"] as? String
+
+    if let highlightID = highlightID, let annotation = annotation {
+      dataService.updateHighlightAttributes(highlightID: highlightID, annotation: annotation)
+      replyHandler(["result": highlightID], nil)
+    } else {
       replyHandler([], "updateHighlight: Error encoding response")
-    } receiveValue: { highlight in
-      // Update highlight JS code just expects the highlight ID back
-      replyHandler(["result": highlight.id], nil)
     }
-    .store(in: &subscriptions)
   }
 
   func updateReadingProgress(
@@ -148,18 +127,8 @@ final class WebReaderViewModel: ObservableObject {
       return
     }
 
-    dataService.updateArticleReadingProgressPublisher(
-      itemID: itemID,
-      readingProgress: readingProgress,
-      anchorIndex: anchorIndex
-    )
-    .sink { completion in
-      guard case .failure = completion else { return }
-      replyHandler(["result": false], nil)
-    } receiveValue: { _ in
-      replyHandler(["result": true], nil)
-    }
-    .store(in: &subscriptions)
+    dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: readingProgress, anchorIndex: anchorIndex)
+    replyHandler(["result": true], nil)
   }
 
   func webViewActionWithReplyHandler(

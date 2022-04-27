@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -8,24 +9,17 @@ import Views
 @MainActor final class HomeFeedViewModel: ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
 
-  /// Track progress updates to be committed when user navigates back to grid view
-  var uncommittedReadingProgressUpdates = [String: Double]()
-
-  /// Track label updates to be committed when user navigates back to grid view
-  var uncommittedLabelUpdates = [String: [FeedItemLabel]]()
-
-  @Published var items = [FeedItem]()
+  @Published var items = [LinkedItem]()
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
-  @Published var itemUnderLabelEdit: FeedItem?
+  @Published var itemUnderLabelEdit: LinkedItem?
   @Published var searchTerm = ""
-  @Published var selectedLabels = [FeedItemLabel]()
+  @Published var selectedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
-  @Published var itemToSnooze: FeedItem?
-  @Published var selectedLinkItem: FeedItem?
+  @Published var itemToSnoozeID: String?
+  @Published var selectedLinkItem: LinkedItem?
 
   var cursor: String?
-  var sendProgressUpdates = false
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -36,114 +30,132 @@ import Views
 
   init() {}
 
-  func itemAppeared(item: FeedItem, dataService: DataService) {
+  func itemAppeared(item: LinkedItem, dataService: DataService) async {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      Task { await loadItems(dataService: dataService, isRefresh: false) }
+      await loadItems(dataService: dataService, isRefresh: false)
     }
   }
 
-  func pushFeedItem(item: FeedItem) {
+  func pushFeedItem(item: LinkedItem) {
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) {
-    // Clear offline highlights since we'll be populating new FeedItems with the correct highlights set
-    dataService.clearHighlights()
-
+  func loadItems(dataService: DataService, isRefresh: Bool) async {
     let thisSearchIdx = searchIdx
     searchIdx += 1
 
     isLoading = true
 
     // Cache the viewer
-
     if dataService.currentViewer == nil {
       Task { _ = try? await dataService.fetchViewer() }
     }
 
-    dataService.libraryItemsPublisher(
+    let queryResult = try? await dataService.fetchLinkedItems(
       limit: 10,
-      sortDescending: true,
       searchQuery: searchQuery,
       cursor: isRefresh ? nil : cursor
     )
-    .sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] result in
-        // Search results aren't guaranteed to return in order so this
-        // will discard old results that are returned while a user is typing.
-        // For example if a user types 'Canucks', often the search results
-        // for 'C' are returned after 'Canucks' because it takes the backend
-        // much longer to compute.
-        if thisSearchIdx > 0, thisSearchIdx <= self?.receivedIdx ?? 0 {
-          return
+
+    // Search results aren't guaranteed to return in order so this
+    // will discard old results that are returned while a user is typing.
+    // For example if a user types 'Canucks', often the search results
+    // for 'C' are returned after 'Canucks' because it takes the backend
+    // much longer to compute.
+    if thisSearchIdx > 0, thisSearchIdx <= receivedIdx {
+      return
+    }
+
+    if let queryResult = queryResult {
+      let newItems: [LinkedItem] = {
+        var itemObjects = [LinkedItem]()
+        dataService.viewContext.performAndWait {
+          itemObjects = queryResult.items.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
         }
+        return itemObjects
+      }()
+      items = isRefresh ? newItems : items + newItems
+      isLoading = false
+      receivedIdx = thisSearchIdx
+      cursor = queryResult.cursor
+      dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
+    } else if searchTermIsEmpty {
+      await dataService.viewContext.perform {
+        let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+        fetchRequest.predicate = self.itemRequestPredicate
+//        // TODO: Filter on label
 
-        dataService.prefetchPages(items: result.items)
-
-        self?.items = isRefresh ? result.items : (self?.items ?? []) + result.items
-        self?.isLoading = false
-        self?.receivedIdx = thisSearchIdx
-        self?.cursor = result.cursor
+        if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
+          self.items = fetchedItems
+          self.cursor = nil
+          self.isLoading = false
+        }
       }
+    }
+  }
+
+  private var itemRequestPredicate: NSPredicate {
+    let undeletedPredicate = NSPredicate(
+      format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
     )
-    .store(in: &subscriptions)
-  }
 
-  func setLinkArchived(dataService: DataService, linkId: String, archived: Bool) {
-    isLoading = true
-
-    // First remove the link from the internal list,
-    // then make a call to remove it. The isLoading block should
-    // prevent our local change from being overwritten, but we
-    // might need to cache a local list of archived links
-    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
-      items.remove(at: itemIndex)
+    if searchTerm.contains("in:all") {
+      // include everything undeleted
+      return undeletedPredicate
     }
 
-    dataService.archiveLinkPublisher(itemID: linkId, archived: archived)
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case .failure = completion else { return }
-          self?.isLoading = false
-          NSNotification.operationFailed(message: archived ? "Failed to archive link" : "Failed to unarchive link")
-        },
-        receiveValue: { [weak self] _ in
-          self?.isLoading = false
-          Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
-        }
+    if searchTerm.contains("in:archive") {
+      let inArchivePredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
       )
-      .store(in: &subscriptions)
-  }
-
-  func removeLink(dataService: DataService, linkId: String) {
-    isLoading = true
-
-    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
-      items.remove(at: itemIndex)
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
     }
 
-    dataService.removeLinkPublisher(itemID: linkId)
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case .failure = completion else { return }
-          self?.isLoading = false
-          Snackbar.show(message: "Failed to remove link")
-        },
-        receiveValue: { [weak self] _ in
-          self?.isLoading = false
-          Snackbar.show(message: "Link removed")
-        }
+    if searchTerm.contains("type:file") {
+      // include pdf only
+      let isPDFPredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
       )
-      .store(in: &subscriptions)
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
+    }
+
+    // default to "in:inbox" (non-archived items)
+    let notInArchivePredicate = NSPredicate(
+      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+    )
+    return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
+  }
+
+  // Exclude filters when testing if user has enetered a search term
+  private var searchTermIsEmpty: Bool {
+    searchTerm
+      .replacingOccurrences(of: "in:inbox", with: "")
+      .replacingOccurrences(of: "in:all", with: "")
+      .replacingOccurrences(of: "in:archive", with: "")
+      .replacingOccurrences(of: "type:file", with: "")
+      .replacingOccurrences(of: " ", with: "")
+      .isEmpty
+  }
+
+  func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
+    // TODO: remove this by making list always fetch from Coredata
+    guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
+    items.remove(at: itemIndex)
+    dataService.archiveLink(objectID: objectID, archived: archived)
+    Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
+  }
+
+  func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
+    guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
+    items.remove(at: itemIndex)
+    Snackbar.show(message: "Link removed")
+    dataService.removeLink(objectID: objectID)
   }
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) {
@@ -173,41 +185,6 @@ import Views
     .store(in: &subscriptions)
   }
 
-  /// Update `FeedItem`s with the cached reading progress and label values so it can animate when the
-  /// user navigates back to the grid view (and also avoid mutations of the grid items
-  /// that can cause the `NavigationView` to pop.
-  func commitItemUpdates() {
-    for (key, value) in uncommittedReadingProgressUpdates {
-      updateProgress(itemID: key, progress: value)
-    }
-    for (key, value) in uncommittedLabelUpdates {
-      updateLabels(itemID: key, labels: value)
-    }
-    uncommittedReadingProgressUpdates = [:]
-    uncommittedLabelUpdates = [:]
-  }
-
-  private func updateProgress(itemID: String, progress: Double) {
-    guard sendProgressUpdates, let item = items.first(where: { $0.id == itemID }) else { return }
-    if let index = items.firstIndex(of: item) {
-      items[index].readingProgress = progress
-    }
-  }
-
-  func updateLabels(itemID: String, labels: [FeedItemLabel]) {
-    // If item is being being displayed then delay the state update of labels until
-    // user is no longer reading the item.
-    if selectedLinkItem != nil {
-      uncommittedLabelUpdates[itemID] = labels
-      return
-    }
-
-    guard let item = items.first(where: { $0.id == itemID }) else { return }
-    if let index = items.firstIndex(of: item) {
-      items[index].labels = labels
-    }
-  }
-
   private var searchQuery: String? {
     if searchTerm.isEmpty, selectedLabels.isEmpty {
       return nil
@@ -217,7 +194,7 @@ import Views
 
     if !selectedLabels.isEmpty {
       query.append(" label:")
-      query.append(selectedLabels.map(\.name).joined(separator: ","))
+      query.append(selectedLabels.map { $0.name ?? "" }.joined(separator: ","))
     }
 
     return query

@@ -33,9 +33,9 @@ public final class RootViewModel: ObservableObject {
   func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
     guard PDFProvider.pdfViewerProvider == nil else { return }
 
-    PDFProvider.pdfViewerProvider = { [weak self] url, feedItem in
+    PDFProvider.pdfViewerProvider = { [weak self] url, linkedItem in
       guard let self = self else { return AnyView(Text("")) }
-      return pdfViewerProvider(url, PDFViewerViewModel(services: self.services, feedItem: feedItem))
+      return pdfViewerProvider(url, PDFViewerViewModel(services: self.services, linkedItem: linkedItem))
     }
   }
 
@@ -64,9 +64,11 @@ public final class RootViewModel: ObservableObject {
       return
     }
 
-    if let viewer = try? await services.dataService.fetchViewer() {
-      let path = linkRequestPath(username: viewer.username, requestID: linkRequestID)
-      webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
+    if let viewerObjectID = try? await services.dataService.fetchViewer() {
+      if let viewer = services.dataService.viewContext.object(with: viewerObjectID) as? Viewer {
+        let path = linkRequestPath(username: viewer.unwrappedUsername, requestID: linkRequestID)
+        webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
+      }
     }
   }
 

@@ -37,7 +37,12 @@ public extension DataService {
 
             switch payload.data {
             case .success:
-              promise(.success(true))
+              if let label = LinkedItemLabel.lookup(byID: labelID, inContext: self.backgroundContext) {
+                label.remove(inContext: self.backgroundContext)
+                promise(.success(true))
+              } else {
+                promise(.failure(.message(messageText: "Error removing label")))
+              }
             case .error:
               promise(.failure(.message(messageText: "Error removing label")))
             }

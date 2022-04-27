@@ -1,16 +1,22 @@
-import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-let setBookmarkedArticleSelection = Selection.Article {
-  try $0.id()
-}
+extension DataService {
+  public func removeLink(objectID: NSManagedObjectID) {
+    // Update CoreData
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
+      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LinkedItem else { return }
+      linkedItem.remove(inContext: self.backgroundContext)
 
-public extension DataService {
-  func removeLinkPublisher(
-    itemID: String
-  ) -> AnyPublisher<String, BasicError> {
+      // Send update to server
+      self.syncLinkDeletion(itemID: linkedItem.unwrappedID, objectID: objectID)
+    }
+  }
+
+  func syncLinkDeletion(itemID: String, objectID: NSManagedObjectID) {
     enum MutationResult {
       case success(linkId: String)
       case error(errorCode: Enums.SetBookmarkArticleErrorCode)
@@ -20,7 +26,9 @@ public extension DataService {
       try $0.on(
         setBookmarkArticleSuccess: .init {
           .success(
-            linkId: try $0.bookmarkedArticle(selection: setBookmarkedArticleSelection)
+            linkId: try $0.bookmarkedArticle(selection: Selection.Article {
+              try $0.id()
+            })
           )
         },
         setBookmarkArticleError: .init { .error(errorCode: try $0.errorCodes().first ?? .notFound) }
@@ -39,29 +47,29 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if payload.errors != nil {
-              promise(.failure(.message(messageText: "Error removing link")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let isSyncSuccess = data != nil
 
-            switch payload.data {
-            case let .success(item):
-              promise(.success(item))
-            case .error(errorCode: _):
-              promise(.failure(.message(messageText: "Error removing link")))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "Error removing link")))
-          }
+      context.perform {
+        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+
+        if isSyncSuccess {
+          linkedItem.remove(inContext: context)
+        } else {
+          linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+        }
+
+        do {
+          try context.save()
+          logger.debug("LinkedItem deleted succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to delete LinkedItem: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

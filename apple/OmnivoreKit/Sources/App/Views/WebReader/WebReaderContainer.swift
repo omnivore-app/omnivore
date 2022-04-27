@@ -7,7 +7,7 @@ import WebKit
 
 #if os(iOS)
   struct WebReaderContainerView: View {
-    let item: FeedItem
+    let item: LinkedItem
     let homeFeedViewModel: HomeFeedViewModel
 
     @State private var showFontSizePopover = false
@@ -33,14 +33,6 @@ import WebKit
     }
 
     func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
-      if message.name == WebViewAction.readingProgressUpdate.rawValue {
-        let messageBody = message.body as? [String: Double]
-
-        if let messageBody = messageBody, let progress = messageBody["progress"] {
-          homeFeedViewModel.uncommittedReadingProgressUpdates[item.id] = Double(progress)
-        }
-      }
-
       if let replyHandler = replyHandler {
         viewModel.webViewActionWithReplyHandler(
           message: message,
@@ -52,12 +44,6 @@ import WebKit
 
       if message.name == WebViewAction.highlightAction.rawValue {
         handleHighlightAction(message: message)
-      }
-
-      if message.name == WebViewAction.readingProgressUpdate.rawValue {
-        guard let messageBody = message.body as? [String: Double] else { return }
-        guard let progress = messageBody["progress"] else { return }
-        homeFeedViewModel.uncommittedReadingProgressUpdates[item.id] = Double(progress)
       }
     }
 
@@ -107,7 +93,7 @@ import WebKit
                 action: {
                   homeFeedViewModel.setLinkArchived(
                     dataService: dataService,
-                    linkId: item.id,
+                    objectID: item.objectID,
                     archived: !item.isArchived
                   )
                 },
@@ -139,7 +125,7 @@ import WebKit
       }
       .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
         Button("Remove Link", role: .destructive) {
-          homeFeedViewModel.removeLink(dataService: dataService, linkId: item.id)
+          homeFeedViewModel.removeLink(dataService: dataService, objectID: item.objectID)
         }
         Button("Cancel", role: .cancel, action: {})
       }
@@ -149,7 +135,8 @@ import WebKit
       ZStack {
         if let articleContent = viewModel.articleContent {
           WebReader(
-            articleContent: articleContent,
+            htmlContent: articleContent.htmlContent,
+            highlightsJSONString: articleContent.highlightsJSONString,
             item: item,
             openLinkAction: {
               #if os(macOS)
@@ -205,7 +192,7 @@ import WebKit
             .contentShape(Rectangle())
             .onAppear {
               if !viewModel.isLoading {
-                viewModel.loadContent(dataService: dataService, slug: item.slug)
+                viewModel.loadContent(dataService: dataService, slug: item.unwrappedSlug)
               }
             }
         }

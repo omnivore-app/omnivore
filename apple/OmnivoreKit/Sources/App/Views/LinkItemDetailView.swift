@@ -6,43 +6,39 @@ import Utils
 import Views
 
 enum PDFProvider {
-  static var pdfViewerProvider: ((URL, FeedItem) -> AnyView)?
+  static var pdfViewerProvider: ((URL, LinkedItem) -> AnyView)?
 }
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   let homeFeedViewModel: HomeFeedViewModel
-  @Published var item: FeedItem
+  @Published var item: LinkedItem
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: FeedItem, homeFeedViewModel: HomeFeedViewModel) {
+  init(item: LinkedItem, homeFeedViewModel: HomeFeedViewModel) {
     self.item = item
     self.homeFeedViewModel = homeFeedViewModel
   }
 
   func handleArchiveAction(dataService: DataService) {
-    homeFeedViewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+    homeFeedViewModel.setLinkArchived(
+      dataService: dataService,
+      objectID: item.objectID,
+      archived: !item.isArchived
+    )
   }
 
   func handleDeleteAction(dataService: DataService) {
-    homeFeedViewModel.removeLink(dataService: dataService, linkId: item.id)
+    homeFeedViewModel.removeLink(dataService: dataService, objectID: item.objectID)
   }
 
   func updateItemReadStatus(dataService: DataService) {
-    dataService
-      .updateArticleReadingProgressPublisher(
-        itemID: item.id,
-        readingProgress: item.isRead ? 0 : 100,
-        anchorIndex: 0
-      )
-      .sink { completion in
-        guard case let .failure(error) = completion else { return }
-        print(error)
-      } receiveValue: { [weak self] feedItem in
-        self?.item.readingProgress = feedItem.readingProgress
-      }
-      .store(in: &subscriptions)
+    dataService.updateLinkReadingProgress(
+      itemID: item.unwrappedID,
+      readingProgress: item.isRead ? 0 : 100,
+      anchorIndex: 0
+    )
   }
 
   func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) async {
@@ -51,12 +47,20 @@ enum PDFProvider {
         return currentViewer
       }
 
-      return try? await dataService.fetchViewer()
+      guard let viewerObjectID = try? await dataService.fetchViewer() else { return nil }
+
+      var result: Viewer?
+
+      await dataService.viewContext.perform {
+        result = dataService.viewContext.object(with: viewerObjectID) as? Viewer
+      }
+
+      return result
     }()
 
     if let viewer = viewer {
       createWebAppWrapperViewModel(
-        username: viewer.username,
+        username: viewer.unwrappedUsername,
         dataService: dataService,
         rawAuthCookie: rawAuthCookie
       )
@@ -68,7 +72,7 @@ enum PDFProvider {
 
     let urlRequest = URLRequest.webRequest(
       baseURL: dataService.appEnvironment.webAppBaseURL,
-      urlPath: "/app/\(username)/\(item.slug)",
+      urlPath: "/app/\(username)/\(item.unwrappedSlug)",
       queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
     )
 
@@ -78,12 +82,10 @@ enum PDFProvider {
       rawAuthCookie: rawAuthCookie
     )
 
-    newWebAppWrapperViewModel.performActionSubject.sink { [weak self] action in
+    newWebAppWrapperViewModel.performActionSubject.sink { action in
       switch action {
       case let .shareHighlight(highlightID):
         print("show share modal for highlight with id: \(highlightID)")
-      case let .updateReadingProgess(progress: progress):
-        self?.homeFeedViewModel.uncommittedReadingProgressUpdates[self?.item.id ?? ""] = Double(progress)
       }
     }
     .store(in: &newWebAppWrapperViewModel.subscriptions)

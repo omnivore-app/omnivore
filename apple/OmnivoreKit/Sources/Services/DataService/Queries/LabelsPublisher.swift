@@ -1,12 +1,13 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func labelsPublisher() -> AnyPublisher<[FeedItemLabel], ServerError> {
+  func labelsPublisher() -> AnyPublisher<[NSManagedObjectID], ServerError> {
     enum QueryResult {
-      case success(result: [FeedItemLabel])
+      case success(result: [InternalLinkedItemLabel])
       case error(error: String)
     }
 
@@ -32,8 +33,12 @@ public extension DataService {
           switch result {
           case let .success(payload):
             switch payload.data {
-            case let .success(result: result):
-              promise(.success(result))
+            case let .success(result: labels):
+              if let labelObjectIDs = labels.persist(context: self.backgroundContext) {
+                promise(.success(labelObjectIDs))
+              } else {
+                promise(.failure(.unknown))
+              }
             case .error:
               promise(.failure(.unknown))
             }

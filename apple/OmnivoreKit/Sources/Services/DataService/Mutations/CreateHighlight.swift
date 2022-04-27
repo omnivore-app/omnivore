@@ -1,19 +1,40 @@
-import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-  func createHighlightPublisher(
+extension DataService {
+  public func createHighlight(
     shortId: String,
     highlightID: String,
     quote: String,
     patch: String,
     articleId: String,
     annotation: String? = nil
-  ) -> AnyPublisher<Highlight, BasicError> {
+  ) -> [String: Any]? {
+    let internalHighlight = InternalHighlight(
+      id: highlightID,
+      shortId: shortId,
+      quote: quote,
+      prefix: nil, suffix: nil,
+      patch: patch,
+      annotation: annotation,
+      createdAt: nil,
+      updatedAt: nil,
+      createdByMe: true
+    )
+
+    internalHighlight.persist(context: backgroundContext, associatedItemID: articleId)
+
+    // Send update to server
+    syncHighlightCreation(highlight: internalHighlight, articleId: articleId)
+
+    return internalHighlight.encoded()
+  }
+
+  func syncHighlightCreation(highlight: InternalHighlight, articleId: String) {
     enum MutationResult {
-      case saved(highlight: Highlight)
+      case saved(highlight: InternalHighlight)
       case error(errorCode: Enums.CreateHighlightErrorCode)
     }
 
@@ -29,12 +50,12 @@ public extension DataService {
     let mutation = Selection.Mutation {
       try $0.createHighlight(
         input: InputObjects.CreateHighlightInput(
-          id: highlightID,
-          shortId: shortId,
+          id: highlight.id,
+          shortId: highlight.shortId,
           articleId: articleId,
-          patch: patch,
-          quote: quote,
-          annotation: OptionalArgument(annotation)
+          patch: highlight.patch,
+          quote: highlight.quote,
+          annotation: OptionalArgument(highlight.annotation)
         ),
         selection: selection
       )
@@ -42,29 +63,27 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let syncStatus: ServerSyncStatus = data == nil ? .needsCreation : .isNSync
 
-            switch payload.data {
-            case let .saved(highlight: highlight):
-              promise(.success(highlight))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
-          }
+      context.perform {
+        let fetchRequest: NSFetchRequest<Models.Highlight> = Highlight.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", highlight.id)
+
+        guard let highlightObject = (try? context.fetch(fetchRequest))?.first else { return }
+        highlightObject.serverSyncStatus = Int64(syncStatus.rawValue)
+
+        do {
+          try context.save()
+          logger.debug("Highlight created succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to create Highlight: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

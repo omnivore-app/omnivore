@@ -1,17 +1,18 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func newsletterEmailsPublisher() -> AnyPublisher<[NewsletterEmail], ServerError> {
+  func newsletterEmailsPublisher() -> AnyPublisher<[NSManagedObjectID], ServerError> {
     enum QueryResult {
-      case success(result: [NewsletterEmail])
+      case success(result: [InternalNewsletterEmail])
       case error(error: String)
     }
 
     let newsletterEmailSelection = Selection.NewsletterEmail {
-      NewsletterEmail(
+      InternalNewsletterEmail(
         emailId: try $0.id(),
         email: try $0.address(),
         confirmationCode: try $0.confirmationCode()
@@ -43,7 +44,11 @@ public extension DataService {
           case let .success(payload):
             switch payload.data {
             case let .success(result: result):
-              promise(.success(result))
+              if let newsletterEmailObjectIDs = result.persist(context: self.backgroundContext) {
+                promise(.success(newsletterEmailObjectIDs))
+              } else {
+                promise(.failure(.unknown))
+              }
             case .error:
               promise(.failure(.unknown))
             }

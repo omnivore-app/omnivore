@@ -55,14 +55,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
     let userInfo = response.notification.request.content.userInfo
+
     if let linkData = userInfo["link"] as? String {
       guard let jsonData = Data(base64Encoded: linkData) else { return }
-      if let item = FeedItem.fromJsonArticle(linkData: jsonData) {
-        NSNotification.pushFeedItem(feedItem: item)
+
+      if let article = try? JSONDecoder().decode(JSONArticle.self, from: jsonData) {
+        NSNotification.pushJSONArticle(article: article)
       }
     }
 
-    print(userInfo)
     completionHandler()
   }
 

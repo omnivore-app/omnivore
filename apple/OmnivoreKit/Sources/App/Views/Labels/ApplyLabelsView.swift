@@ -5,8 +5,8 @@ import Views
 
 struct ApplyLabelsView: View {
   enum Mode {
-    case item(FeedItem)
-    case list([FeedItemLabel])
+    case item(LinkedItem)
+    case list([LinkedItemLabel])
 
     var navTitle: String {
       switch self {
@@ -28,12 +28,11 @@ struct ApplyLabelsView: View {
   }
 
   let mode: Mode
-  let commitLabelChanges: ([FeedItemLabel]) -> Void
+  let commitLabelChanges: ([LinkedItemLabel]) -> Void
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
-  @State private var labelSearchFilter = ""
 
   var innerBody: some View {
     List {
@@ -41,7 +40,7 @@ struct ApplyLabelsView: View {
         if viewModel.selectedLabels.isEmpty {
           Text("No labels are currently assigned.")
         }
-        ForEach(viewModel.selectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.selectedLabels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -57,7 +56,7 @@ struct ApplyLabelsView: View {
         }
       }
       Section(header: Text("Available Labels")) {
-        ForEach(viewModel.unselectedLabels.applySearchFilter(labelSearchFilter), id: \.self) { label in
+        ForEach(viewModel.unselectedLabels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
           HStack {
             TextChip(feedItemLabel: label)
             Spacer()
@@ -101,7 +100,7 @@ struct ApplyLabelsView: View {
             action: {
               switch mode {
               case let .item(feedItem):
-                viewModel.saveItemLabelChanges(itemID: feedItem.id, dataService: dataService) { labels in
+                viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService) { labels in
                   commitLabelChanges(labels)
                   presentationMode.wrappedValue.dismiss()
                 }
@@ -128,7 +127,7 @@ struct ApplyLabelsView: View {
         #if os(iOS)
           innerBody
             .searchable(
-              text: $labelSearchFilter,
+              text: $viewModel.labelSearchFilter,
               placement: .navigationBarDrawer(displayMode: .always)
             )
         #else
@@ -147,11 +146,11 @@ struct ApplyLabelsView: View {
   }
 }
 
-private extension Sequence where Element == FeedItemLabel {
-  func applySearchFilter(_ searchFilter: String) -> [FeedItemLabel] {
+private extension Sequence where Element == LinkedItemLabel {
+  func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
     if searchFilter.isEmpty {
       return map { $0 } // return the identity of the sequence
     }
-    return filter { $0.name.lowercased().contains(searchFilter.lowercased()) }
+    return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
   }
 }

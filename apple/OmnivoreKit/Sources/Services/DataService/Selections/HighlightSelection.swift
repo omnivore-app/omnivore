@@ -2,7 +2,7 @@ import Models
 import SwiftGraphQL
 
 let highlightSelection = Selection.Highlight {
-  Highlight(
+  InternalHighlight(
     id: try $0.id(),
     shortId: try $0.shortId(),
     quote: try $0.quote(),
@@ -10,6 +10,8 @@ let highlightSelection = Selection.Highlight {
     suffix: try $0.suffix(),
     patch: try $0.patch(),
     annotation: try $0.annotation(),
+    createdAt: try $0.createdAt().value,
+    updatedAt: try $0.updatedAt().value,
     createdByMe: try $0.createdByMe()
   )
 }
