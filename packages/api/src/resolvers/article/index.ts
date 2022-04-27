@@ -433,16 +433,16 @@ export const getArticleResolver: ResolverFn<
 
     if (
       page.state === State.Processing &&
-      page.createdAt < new Date(new Date().getTime() - 1000 * 60)
+      new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 60
     ) {
       page.content = UNPARSEABLE_CONTENT
-      page.description = UNPARSEABLE_CONTENT
     }
 
     return {
       article: { ...page, isArchived: !!page.archivedAt, linkId: page.id },
     }
   } catch (error) {
+    console.log(error)
     return { errorCodes: [ArticleErrorCode.BadData] }
   }
 }
