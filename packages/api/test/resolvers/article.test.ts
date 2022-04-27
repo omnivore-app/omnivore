@@ -236,6 +236,27 @@ const saveFileQuery = (url: string, uploadFileId: string) => {
     `
 }
 
+const saveUrlQuery = (url: string) => {
+  return `
+    mutation {
+      saveUrl(
+        input: {
+          url: "${url}",
+          source: "test",
+          clientRequestId: "${generateFakeUuid()}",
+        }
+      ) {
+        ... on SaveSuccess {
+          url
+        }
+        ... on SaveError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
 const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
   return `
     mutation {
@@ -608,6 +629,61 @@ describe('Article API', () => {
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
+
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+            200
+          )
+          expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+        }, 100)
+      })
+    })
+  })
+
+  describe('SaveUrl', () => {
+    let query = ''
+    let url = 'https://example.com/new-url-1'
+
+    beforeEach(() => {
+      query = saveUrlQuery(url)
+    })
+
+    context('when we save a new url', () => {
+      it('should return a slugged url', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.saveUrl.url).to.startsWith(
+          'http://localhost:3000/fakeUser/links/'
+        )
+      })
+    })
+
+    context('when we save a url that is already archived', () => {
+      it('it should return that page in the GetArticles Query', async () => {
+        url = 'https://example.com/new-url'
+        await graphqlRequest(saveUrlQuery(url), authToken).expect(200)
+
+        let allLinks
+        // Save a link, then archive it
+        // set a slight delay to make sure the page is updated
+        setTimeout(async () => {
+          let allLinks = await graphqlRequest(
+            articlesQuery(''),
+            authToken
+          ).expect(200)
+          const justSavedId = allLinks.body.data.articles.edges[0].node.id
+          await archiveLink(authToken, justSavedId)
+        }, 100)
+
+        // test the negative case, ensuring the archive link wasn't returned
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+            200
+          )
+          expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
+        }, 100)
+
+        // Now save the link again, and ensure it is returned
+        await graphqlRequest(saveUrlQuery(url), authToken).expect(200)
 
         setTimeout(async () => {
           allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
