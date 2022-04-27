@@ -1,49 +1,36 @@
-import Combine
 import Models
 import Services
 import SwiftUI
 import Views
 
-final class NewsletterEmailsViewModel: ObservableObject {
-  private var hasLoadedInitialEmails = false
+@MainActor final class NewsletterEmailsViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var emails = [NewsletterEmail]()
 
-  var subscriptions = Set<AnyCancellable>()
-
-  func loadEmails(dataService: DataService) {
+  func loadEmails(dataService: DataService) async {
     isLoading = true
 
-    dataService.newsletterEmailsPublisher().sink(
-      receiveCompletion: { _ in },
-      receiveValue: { [weak self] objectIDs in
-        self?.isLoading = false
-        dataService.viewContext.perform {
-          self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
-        }
-        self?.hasLoadedInitialEmails = true
+    if let objectIDs = try? await dataService.newsletterEmails() {
+      await dataService.viewContext.perform { [weak self] in
+        self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
       }
-    )
-    .store(in: &subscriptions)
+    }
+
+    isLoading = false
   }
 
-  func createEmail(dataService: DataService) {
+  func createEmail(dataService: DataService) async {
     isLoading = true
 
-    dataService.createNewsletterEmailPublisher().sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] objectID in
-        self?.isLoading = false
-        dataService.viewContext.perform {
-          if let item = dataService.viewContext.object(with: objectID) as? NewsletterEmail {
-            self?.emails.insert(item, at: 0)
-          }
+    if let objectID = try? await dataService.createNewsletter() {
+      await dataService.viewContext.perform { [weak self] in
+        if let item = dataService.viewContext.object(with: objectID) as? NewsletterEmail {
+          self?.emails.insert(item, at: 0)
         }
       }
-    )
-    .store(in: &subscriptions)
+    }
+
+    isLoading = false
   }
 }
 
@@ -65,7 +52,7 @@ struct NewsletterEmailsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .onAppear { viewModel.loadEmails(dataService: dataService) }
+    .task { await viewModel.loadEmails(dataService: dataService) }
   }
 
   private var innerBody: some View {
@@ -73,7 +60,7 @@ struct NewsletterEmailsView: View {
       Section(footer: Text(footerText)) {
         Button(
           action: {
-            viewModel.createEmail(dataService: dataService)
+            Task { await viewModel.createEmail(dataService: dataService) }
           },
           label: {
             HStack {
@@ -98,7 +85,7 @@ struct NewsletterEmailsView: View {
                 #if os(macOS)
                   let pasteBoard = NSPasteboard.general
                   pasteBoard.clearContents()
-                  pasteBoard.writeObjects([newsletterEmail.email as NSString])
+                  pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
                 #endif
 
                 Snackbar.show(message: "Email copied")

@@ -27,7 +27,9 @@ struct InternalNewsletterEmail {
   }
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> NewsletterEmail {
-    let newsletterEmail = NewsletterEmail(entity: NewsletterEmail.entity(), insertInto: context)
+    let existingEmail = NewsletterEmail.lookup(byID: emailId, inContext: context)
+    let newsletterEmail = existingEmail ?? NewsletterEmail(entity: NewsletterEmail.entity(), insertInto: context)
+
     newsletterEmail.emailId = emailId
     newsletterEmail.email = email
     newsletterEmail.confirmationCode = confirmationCode

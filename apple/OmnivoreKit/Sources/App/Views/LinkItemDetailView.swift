@@ -140,10 +140,8 @@ struct LinkItemDetailView: View {
     #if os(iOS)
       if viewModel.item.isPDF {
         fixedNavBarReader
-      } else if FeatureFlag.useLocalWebView {
-        WebReaderContainerView(item: viewModel.item, homeFeedViewModel: viewModel.homeFeedViewModel)
       } else {
-        hidingNavBarReader
+        WebReaderContainerView(item: viewModel.item, homeFeedViewModel: viewModel.homeFeedViewModel)
       }
     #else
       fixedNavBarReader
@@ -250,9 +248,7 @@ struct LinkItemDetailView: View {
             navBar
             Spacer()
           }
-          .navigationBarHidden(true)
         }
-
       } else {
         VStack(spacing: 0) {
           navBar
@@ -264,7 +260,6 @@ struct LinkItemDetailView: View {
             rawAuthCookie: authenticator.omnivoreAuthCookieString
           )
         }
-        .navigationBarHidden(true)
       }
     }
   #endif

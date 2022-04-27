@@ -14,6 +14,10 @@ import Views
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    func loadItems(isRefresh: Bool) {
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+    }
+
     var body: some View {
       List {
         Section {
@@ -23,8 +27,18 @@ import Views
               viewModel: viewModel
             )
             .contextMenu {
+              Button(
+                action: { viewModel.itemUnderLabelEdit = item },
+                label: { Label("Edit Labels", systemImage: "tag") }
+              )
               Button(action: {
-                viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                withAnimation(.linear(duration: 0.4)) {
+                  viewModel.setLinkArchived(
+                    dataService: dataService,
+                    objectID: item.objectID,
+                    archived: !item.isArchived
+                  )
+                }
               }, label: {
                 Label(
                   item.isArchived ? "Unarchive" : "Archive",
@@ -51,7 +65,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
                     self.itemToRemove = nil
                   }
                 }
@@ -81,16 +95,16 @@ import Views
       .onChange(of: viewModel.searchTerm) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
-        viewModel.loadItems(dataService: dataService, isRefresh: true)
+        loadItems(isRefresh: true)
       }
       .onSubmit(of: .search) {
-        viewModel.loadItems(dataService: dataService, isRefresh: true)
+        loadItems(isRefresh: true)
       }
       .toolbar {
         ToolbarItem {
           Button(
             action: {
-              viewModel.loadItems(dataService: dataService, isRefresh: true)
+              loadItems(isRefresh: true)
             },
             label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
           )
@@ -105,7 +119,7 @@ import Views
       }
       .onAppear {
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
       }
     }
