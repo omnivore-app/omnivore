@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func removeLabelPublisher(labelID: String) -> AnyPublisher<Bool, BasicError> {
+  func removeLabelPublisher(labelID: String, name: String) -> AnyPublisher<Bool, BasicError> {
     enum MutationResult {
       case success(labelID: String)
       case error(errorCode: Enums.DeleteLabelErrorCode)
@@ -37,7 +37,7 @@ public extension DataService {
 
             switch payload.data {
             case .success:
-              if let label = LinkedItemLabel.lookup(byID: labelID, inContext: self.backgroundContext) {
+              if let label = LinkedItemLabel.lookup(byName: name, inContext: self.backgroundContext) {
                 label.remove(inContext: self.backgroundContext)
                 promise(.success(true))
               } else {

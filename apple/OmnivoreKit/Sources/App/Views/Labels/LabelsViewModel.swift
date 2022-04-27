@@ -4,8 +4,7 @@ import Services
 import SwiftUI
 import Views
 
-final class LabelsViewModel: ObservableObject {
-  private var hasLoadedInitialLabels = false
+@MainActor final class LabelsViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var unselectedLabels = [LinkedItemLabel]()
@@ -19,65 +18,55 @@ final class LabelsViewModel: ObservableObject {
     dataService: DataService,
     item: LinkedItem? = nil,
     initiallySelectedLabels: [LinkedItemLabel]? = nil
-  ) {
-    guard !hasLoadedInitialLabels else { return }
+  ) async {
     isLoading = true
 
-    dataService.labelsPublisher().sink(
-      receiveCompletion: { _ in },
-      receiveValue: { [weak self] labelIDs in
-        guard let self = self else { return }
-        dataService.viewContext.performAndWait {
-          self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
-        }
-        let selLabels = initiallySelectedLabels ?? item?.labels.asArray(of: LinkedItemLabel.self) ?? []
-        for label in self.labels {
-          if selLabels.contains(label) {
-            self.selectedLabels.append(label)
-          } else {
-            self.unselectedLabels.append(label)
-          }
-        }
-        self.hasLoadedInitialLabels = true
-        self.isLoading = false
+    if let labelIDs = try? await dataService.labels() {
+      dataService.viewContext.performAndWait {
+        self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
       }
-    )
-    .store(in: &subscriptions)
+      let selLabels = initiallySelectedLabels ?? item?.labels.asArray(of: LinkedItemLabel.self) ?? []
+      for label in labels {
+        if selLabels.contains(label) {
+          selectedLabels.append(label)
+        } else {
+          unselectedLabels.append(label)
+        }
+      }
+    }
+
+    isLoading = false
   }
 
   func createLabel(dataService: DataService, name: String, color: Color, description: String?) {
     isLoading = true
 
-    dataService.createLabelPublisher(
+    guard let labelObjectID = try? dataService.createLabel(
       name: name,
       color: color.hex ?? "",
       description: description
-    ).sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] labelID in
-        if let label = dataService.viewContext.object(with: labelID) as? LinkedItemLabel {
-          self?.labels.insert(label, at: 0)
-          self?.unselectedLabels.insert(label, at: 0)
-        }
-        self?.isLoading = false
-        self?.showCreateEmailModal = false
-      }
-    )
-    .store(in: &subscriptions)
+    ) else {
+      return
+    }
+
+    if let label = dataService.viewContext.object(with: labelObjectID) as? LinkedItemLabel {
+      labels.insert(label, at: 0)
+      unselectedLabels.insert(label, at: 0)
+    }
+
+    showCreateEmailModal = false
   }
 
-  func deleteLabel(dataService: DataService, labelID: String) {
+  func deleteLabel(dataService: DataService, labelID: String, name: String) {
     isLoading = true
 
-    dataService.removeLabelPublisher(labelID: labelID).sink(
+    dataService.removeLabelPublisher(labelID: labelID, name: name).sink(
       receiveCompletion: { [weak self] _ in
         self?.isLoading = false
       },
       receiveValue: { [weak self] _ in
         self?.isLoading = false
-        self?.labels.removeAll { $0.id == labelID }
+        self?.labels.removeAll { $0.name == name }
       }
     )
     .store(in: &subscriptions)
@@ -104,11 +93,11 @@ final class LabelsViewModel: ObservableObject {
 
   func addLabelToItem(_ label: LinkedItemLabel) {
     selectedLabels.insert(label, at: 0)
-    unselectedLabels.removeAll { $0.id == label.id }
+    unselectedLabels.removeAll { $0.name == label.name }
   }
 
   func removeLabelFromItem(_ label: LinkedItemLabel) {
     unselectedLabels.insert(label, at: 0)
-    selectedLabels.removeAll { $0.id == label.id }
+    selectedLabels.removeAll { $0.name == label.name }
   }
 }

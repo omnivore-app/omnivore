@@ -56,7 +56,7 @@ public extension DataService {
                   linkedItem.removeFromLabels(existingLabels)
                 }
                 for label in labels {
-                  if let labelObject = LinkedItemLabel.lookup(byID: label.id, inContext: self.backgroundContext) {
+                  if let labelObject = LinkedItemLabel.lookup(byName: label.name, inContext: self.backgroundContext) {
                     linkedItem.addToLabels(labelObject)
                   }
                 }

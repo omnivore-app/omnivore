@@ -135,12 +135,12 @@ struct ApplyLabelsView: View {
         #endif
       }
     }
-    .onAppear {
+    .task {
       switch mode {
       case let .item(feedItem):
-        viewModel.loadLabels(dataService: dataService, item: feedItem)
+        await viewModel.loadLabels(dataService: dataService, item: feedItem)
       case let .list(labels):
-        viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+        await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
       }
     }
   }

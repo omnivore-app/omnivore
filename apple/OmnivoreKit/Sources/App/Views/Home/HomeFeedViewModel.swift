@@ -165,14 +165,16 @@ import Views
       items.remove(at: itemIndex)
     }
 
-    if await (try? dataService.createReminder(
-      reminderItemId: .link(id: linkId),
-      remindAt: until
-    )) != nil {
+    do {
+      try await dataService.createReminder(
+        reminderItemId: .link(id: linkId),
+        remindAt: until
+      )
+
       if let message = successMessage {
         Snackbar.show(message: message)
       }
-    } else {
+    } catch {
       NSNotification.operationFailed(message: "Failed to snooze")
     }
 

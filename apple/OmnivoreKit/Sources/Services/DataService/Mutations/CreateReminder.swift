@@ -30,7 +30,7 @@ public extension DataService {
   func createReminder(
     reminderItemId: ReminderItemId,
     remindAt: Date
-  ) async throws -> String {
+  ) async throws {
     enum MutationResult {
       case complete(id: String)
       case error(errorCode: Enums.CreateReminderErrorCode)
@@ -69,8 +69,8 @@ public extension DataService {
         }
 
         switch payload.data {
-        case let .complete(id: id):
-          continuation.resume(returning: id)
+        case .complete:
+          continuation.resume()
         case let .error(errorCode: errorCode):
           continuation.resume(throwing: BasicError.message(messageText: errorCode.rawValue))
         }
