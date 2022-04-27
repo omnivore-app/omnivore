@@ -1,11 +1,10 @@
-import Combine
 import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func newsletterEmailsPublisher() -> AnyPublisher<[NSManagedObjectID], ServerError> {
+  func newsletterEmails() async throws -> [NSManagedObjectID] {
     enum QueryResult {
       case success(result: [InternalNewsletterEmail])
       case error(error: String)
@@ -36,29 +35,26 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(query, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            switch payload.data {
-            case let .success(result: result):
-              if let newsletterEmailObjectIDs = result.persist(context: self.backgroundContext) {
-                promise(.success(newsletterEmailObjectIDs))
-              } else {
-                promise(.failure(.unknown))
-              }
-            case .error:
-              promise(.failure(.unknown))
-            }
-          case .failure:
-            promise(.failure(.unknown))
+    return try await withCheckedThrowingContinuation { continuation in
+      send(query, to: path, headers: headers) { queryResult in
+        guard let payload = try? queryResult.get() else {
+          continuation.resume(throwing: BasicError.message(messageText: "network request failed"))
+          return
+        }
+
+        switch payload.data {
+        case let .success(result: result):
+          if let newsletterEmailObjectIDs = result.persist(context: context) {
+            continuation.resume(returning: newsletterEmailObjectIDs)
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
           }
+        case .error:
+          continuation.resume(throwing: BasicError.message(messageText: "Newsletter Email fetch error"))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

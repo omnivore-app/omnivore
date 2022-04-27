@@ -1,4 +1,3 @@
-import Combine
 import Models
 import Services
 import SwiftUI
@@ -8,21 +7,16 @@ import Views
   @Published var isLoading = false
   @Published var emails = [NewsletterEmail]()
 
-  var subscriptions = Set<AnyCancellable>()
-
-  func loadEmails(dataService: DataService) {
+  func loadEmails(dataService: DataService) async {
     isLoading = true
 
-    dataService.newsletterEmailsPublisher().sink(
-      receiveCompletion: { _ in },
-      receiveValue: { [weak self] objectIDs in
-        self?.isLoading = false
-        dataService.viewContext.perform {
-          self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
-        }
+    if let objectIDs = try? await dataService.newsletterEmails() {
+      await dataService.viewContext.perform { [weak self] in
+        self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
       }
-    )
-    .store(in: &subscriptions)
+    }
+
+    isLoading = false
   }
 
   func createEmail(dataService: DataService) async {
@@ -58,7 +52,7 @@ struct NewsletterEmailsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .task { viewModel.loadEmails(dataService: dataService) }
+    .task { await viewModel.loadEmails(dataService: dataService) }
   }
 
   private var innerBody: some View {
