@@ -27,10 +27,10 @@ public enum ReminderItemId {
 }
 
 public extension DataService {
-  func createReminderPublisher(
+  func createReminder(
     reminderItemId: ReminderItemId,
     remindAt: Date
-  ) -> AnyPublisher<String, BasicError> {
+  ) async throws -> String {
     enum MutationResult {
       case complete(id: String)
       case error(errorCode: Enums.CreateReminderErrorCode)
@@ -61,28 +61,20 @@ public extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
+    return try await withCheckedThrowingContinuation { continuation in
+      send(mutation, to: path, headers: headers) { queryResult in
+        guard let payload = try? queryResult.get() else {
+          continuation.resume(throwing: BasicError.message(messageText: "network error"))
+          return
+        }
 
-            switch payload.data {
-            case let .complete(id: id):
-              promise(.success(id))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
-          }
+        switch payload.data {
+        case let .complete(id: id):
+          continuation.resume(returning: id)
+        case let .error(errorCode: errorCode):
+          continuation.resume(throwing: BasicError.message(messageText: errorCode.rawValue))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

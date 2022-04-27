@@ -158,31 +158,25 @@ import Views
     dataService.removeLink(objectID: objectID)
   }
 
-  func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) {
+  func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
     isLoading = true
 
     if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
       items.remove(at: itemIndex)
     }
 
-    dataService.createReminderPublisher(
+    if await (try? dataService.createReminder(
       reminderItemId: .link(id: linkId),
       remindAt: until
-    )
-    .sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        self?.isLoading = false
-        NSNotification.operationFailed(message: "Failed to snooze")
-      },
-      receiveValue: { [weak self] _ in
-        self?.isLoading = false
-        if let message = successMessage {
-          Snackbar.show(message: message)
-        }
+    )) != nil {
+      if let message = successMessage {
+        Snackbar.show(message: message)
       }
-    )
-    .store(in: &subscriptions)
+    } else {
+      NSNotification.operationFailed(message: "Failed to snooze")
+    }
+
+    isLoading = false
   }
 
   private var searchQuery: String? {

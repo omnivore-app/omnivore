@@ -67,13 +67,18 @@ import Views
         viewModel.selectedLinkItem = linkedItem
       }
       .formSheet(isPresented: $viewModel.snoozePresented) {
-        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnoozeID: $viewModel.itemToSnoozeID) {
-          viewModel.snoozeUntil(
-            dataService: dataService,
-            linkId: $0.feedItemId,
-            until: $0.snoozeUntilDate,
-            successMessage: $0.successMessage
-          )
+        SnoozeView(
+          snoozePresented: $viewModel.snoozePresented,
+          itemToSnoozeID: $viewModel.itemToSnoozeID
+        ) { snoozeParams in
+          Task {
+            await viewModel.snoozeUntil(
+              dataService: dataService,
+              linkId: snoozeParams.feedItemId,
+              until: snoozeParams.snoozeUntilDate,
+              successMessage: snoozeParams.successMessage
+            )
+          }
         }
       }
       .onAppear { // TODO: use task instead
