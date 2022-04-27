@@ -149,20 +149,16 @@ public struct GridCard: View {
         .onTapGesture { tapHandler() }
 
         // Category Labels
-        if FeatureFlag.enableLabels {
-          ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-              ForEach(item.labels.asArray(of: LinkedItemLabel.self), id: \.self) {
-                TextChip(feedItemLabel: $0)
-              }
-              Spacer()
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            ForEach(item.labels.asArray(of: LinkedItemLabel.self), id: \.self) {
+              TextChip(feedItemLabel: $0)
             }
-            .frame(height: 30)
-            .padding(.horizontal)
-            .padding(.bottom, 8)
+            Spacer()
           }
-        } else {
-          Spacer(minLength: 8)
+          .frame(height: 30)
+          .padding(.horizontal)
+          .padding(.bottom, 8)
         }
       }
       .background(
