@@ -4,8 +4,7 @@ import Services
 import SwiftUI
 import Views
 
-final class NewsletterEmailsViewModel: ObservableObject {
-  private var hasLoadedInitialEmails = false
+@MainActor final class NewsletterEmailsViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var emails = [NewsletterEmail]()
 
@@ -21,29 +20,23 @@ final class NewsletterEmailsViewModel: ObservableObject {
         dataService.viewContext.perform {
           self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
         }
-        self?.hasLoadedInitialEmails = true
       }
     )
     .store(in: &subscriptions)
   }
 
-  func createEmail(dataService: DataService) {
+  func createEmail(dataService: DataService) async {
     isLoading = true
 
-    dataService.createNewsletterEmailPublisher().sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] objectID in
-        self?.isLoading = false
-        dataService.viewContext.perform {
-          if let item = dataService.viewContext.object(with: objectID) as? NewsletterEmail {
-            self?.emails.insert(item, at: 0)
-          }
+    if let objectID = try? await dataService.createNewsletter() {
+      await dataService.viewContext.perform { [weak self] in
+        if let item = dataService.viewContext.object(with: objectID) as? NewsletterEmail {
+          self?.emails.insert(item, at: 0)
         }
       }
-    )
-    .store(in: &subscriptions)
+    }
+
+    isLoading = false
   }
 }
 
@@ -65,7 +58,7 @@ struct NewsletterEmailsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .onAppear { viewModel.loadEmails(dataService: dataService) }
+    .task { viewModel.loadEmails(dataService: dataService) }
   }
 
   private var innerBody: some View {
@@ -73,7 +66,7 @@ struct NewsletterEmailsView: View {
       Section(footer: Text(footerText)) {
         Button(
           action: {
-            viewModel.createEmail(dataService: dataService)
+            Task { await viewModel.createEmail(dataService: dataService) }
           },
           label: {
             HStack {
