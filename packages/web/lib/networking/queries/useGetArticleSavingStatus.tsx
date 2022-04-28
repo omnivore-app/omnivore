@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
+import { articleFragment } from '../fragments/articleFragment'
+import { highlightFragment } from '../fragments/highlightFragment'
 import { makeGqlFetcher } from '../networkHelpers'
 import { ArticleAttributes } from './useGetArticleQuery'
 
@@ -27,6 +29,7 @@ type ArticleSavingRequestData = {
   status?: string
   errorCode?: string
   user?: UserData
+  article?: ArticleAttributes
   slug?: string
 }
 
@@ -62,6 +65,13 @@ export function useGetArticleSavingStatus({
                 username
               }
             }
+            article {
+              ...ArticleFields
+              content
+              highlights(input: { includeFriends: false }) {
+                ...HighlightFields
+              }
+            }
             slug
           }
         }
@@ -70,6 +80,8 @@ export function useGetArticleSavingStatus({
         }
       }
     }
+    ${articleFragment}
+    ${highlightFragment}
   `
 
   // poll twice a second
@@ -103,8 +115,15 @@ export function useGetArticleSavingStatus({
     const username =
       articleSavingRequest?.articleSavingRequest?.user?.profile?.username
     const slug = articleSavingRequest?.articleSavingRequest?.slug
+    const articleSlug =
+      articleSavingRequest?.articleSavingRequest?.article?.slug
     if (username && slug) {
       return { successRedirectPath: `/${username}/${slug}` }
+    } else if (username && articleSlug) {
+      return {
+        successRedirectPath: `/${username}/${articleSlug}`,
+        article: articleSavingRequest?.articleSavingRequest?.article,
+      }
     } else {
       return { successRedirectPath: `/home` }
     }
