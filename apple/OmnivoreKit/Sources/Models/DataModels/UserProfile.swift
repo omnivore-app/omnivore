@@ -46,11 +46,7 @@ public extension UserProfile {
 }
 
 public extension Viewer {
-  var unwrappedUsername: String {
-    username ?? ""
-  }
-
-  var unwrappedName: String {
-    name ?? ""
-  }
+  var unwrappedUsername: String { username ?? "" }
+  var unwrappedName: String { name ?? "" }
+  var unwrappedUserID: String { userID ?? "" }
 }

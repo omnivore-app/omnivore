@@ -34,8 +34,3 @@ private let segment: Analytics? = {
 
   return Analytics(configuration: config)
 }()
-
-public protocol TrackableEvent {
-  var name: String { get }
-  var properties: [String: String]? { get }
-}

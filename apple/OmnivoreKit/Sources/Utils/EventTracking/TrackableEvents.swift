@@ -1,26 +1,25 @@
 import Foundation
 
-public enum TestEvent {
-  case testEventOne
-  case testEventTwo(extraData: String)
+public enum TrackableEvent {
+  case linkRead(linkID: String, slug: String, originalArticleURL: String)
 }
 
-extension TestEvent: TrackableEvent {
-  public var name: String {
+public extension TrackableEvent {
+  var name: String {
     switch self {
-    case .testEventOne:
-      return "testEventOne"
-    case .testEventTwo:
-      return "testEventTwo"
+    case .linkRead:
+      return "link_read"
     }
   }
 
-  public var properties: [String: String]? {
+  var properties: [String: String]? {
     switch self {
-    case .testEventOne:
-      return nil
-    case let .testEventTwo(extraData: extraData):
-      return ["extraData": extraData]
+    case let .linkRead(linkID: linkID, slug: slug, originalArticleURL: originalArticleURL):
+      return [
+        "link": linkID,
+        "slug": slug,
+        "url": originalArticleURL
+      ]
     }
   }
 }
