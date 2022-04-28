@@ -67,6 +67,16 @@ enum PDFProvider {
     }
   }
 
+  func trackReadEvent() {
+    EventTracker.track(
+      .linkRead(
+        linkID: item.unwrappedID,
+        slug: item.unwrappedSlug,
+        originalArticleURL: item.unwrappedPageURLString
+      )
+    )
+  }
+
   private func createWebAppWrapperViewModel(username: String, dataService: DataService, rawAuthCookie: String?) {
     let baseURL = dataService.appEnvironment.webAppBaseURL
 
@@ -130,11 +140,14 @@ struct LinkItemDetailView: View {
     #if os(iOS)
       if viewModel.item.isPDF {
         fixedNavBarReader
+          .task { viewModel.trackReadEvent() }
       } else {
         WebReaderContainerView(item: viewModel.item, homeFeedViewModel: viewModel.homeFeedViewModel)
+          .task { viewModel.trackReadEvent() }
       }
     #else
       fixedNavBarReader
+        .task { viewModel.trackReadEvent() }
     #endif
   }
 

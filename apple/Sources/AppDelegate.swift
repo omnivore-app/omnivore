@@ -36,6 +36,8 @@
         }
       #endif
 
+      EventTracker.start()
+
       if let intercomKeys = AppKeys.sharedInstance?.intercom {
         Intercom.setApiKey(intercomKeys.apiKey, forAppId: intercomKeys.appID)
 

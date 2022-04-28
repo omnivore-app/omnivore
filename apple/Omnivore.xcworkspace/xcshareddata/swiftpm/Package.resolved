@@ -1,205 +1,221 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "abseil",
-        "repositoryURL": "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-        "state": {
-          "branch": null,
-          "revision": "fffc3c2729be5747390ad02d5100291a0d9ad26a",
-          "version": "0.20200225.4"
-        }
-      },
-      {
-        "package": "AppAuth",
-        "repositoryURL": "https://github.com/openid/AppAuth-iOS.git",
-        "state": {
-          "branch": null,
-          "revision": "01131d68346c8ae552961c768d583c715fbe1410",
-          "version": "1.4.0"
-        }
-      },
-      {
-        "package": "BoringSSL-GRPC",
-        "repositoryURL": "https://github.com/firebase/boringssl-SwiftPM.git",
-        "state": {
-          "branch": null,
-          "revision": "734a8247442fde37df4364c21f6a0085b6a36728",
-          "version": "0.7.2"
-        }
-      },
-      {
-        "package": "Files",
-        "repositoryURL": "https://github.com/JohnSundell/Files",
-        "state": {
-          "branch": null,
-          "revision": "d273b5b7025d386feef79ef6bad7de762e106eaf",
-          "version": "4.2.0"
-        }
-      },
-      {
-        "package": "Firebase",
-        "repositoryURL": "https://github.com/firebase/firebase-ios-sdk",
-        "state": {
-          "branch": null,
-          "revision": "08686f04881483d2bc098b2696e674c0ba135e47",
-          "version": "8.10.0"
-        }
-      },
-      {
-        "package": "GoogleAppMeasurement",
-        "repositoryURL": "https://github.com/google/GoogleAppMeasurement.git",
-        "state": {
-          "branch": null,
-          "revision": "9b2f6aca5b4685c45f9f5481f19bee8e7982c538",
-          "version": "8.9.1"
-        }
-      },
-      {
-        "package": "GoogleDataTransport",
-        "repositoryURL": "https://github.com/google/GoogleDataTransport.git",
-        "state": {
-          "branch": null,
-          "revision": "15ccdfd25ac55b9239b82809531ff26605e7556e",
-          "version": "9.1.2"
-        }
-      },
-      {
-        "package": "GoogleUtilities",
-        "repositoryURL": "https://github.com/google/GoogleUtilities.git",
-        "state": {
-          "branch": null,
-          "revision": "b3bb0c5551fb3f80ca939829639ab5b093edd14f",
-          "version": "7.7.0"
-        }
-      },
-      {
-        "package": "gRPC",
-        "repositoryURL": "https://github.com/firebase/grpc-SwiftPM.git",
-        "state": {
-          "branch": null,
-          "revision": "fb405dd2c7901485f7e158b24e3a0a47e4efd8b5",
-          "version": "1.28.4"
-        }
-      },
-      {
-        "package": "GTMSessionFetcher",
-        "repositoryURL": "https://github.com/google/gtm-session-fetcher.git",
-        "state": {
-          "branch": null,
-          "revision": "bc6a19702ac76ac4e488b68148710eb815f9bc56",
-          "version": "1.7.0"
-        }
-      },
-      {
-        "package": "Intercom",
-        "repositoryURL": "https://github.com/intercom/intercom-ios",
-        "state": {
-          "branch": null,
-          "revision": "3345d9e7599141d7c844981423a7e5409f2bfb81",
-          "version": "11.1.2"
-        }
-      },
-      {
-        "package": "leveldb",
-        "repositoryURL": "https://github.com/firebase/leveldb.git",
-        "state": {
-          "branch": null,
-          "revision": "0706abcc6b0bd9cedfbb015ba840e4a780b5159b",
-          "version": "1.22.2"
-        }
-      },
-      {
-        "package": "nanopb",
-        "repositoryURL": "https://github.com/firebase/nanopb.git",
-        "state": {
-          "branch": null,
-          "revision": "7ee9ef9f627d85cbe1b8c4f49a3ed26eed216c77",
-          "version": "2.30908.0"
-        }
-      },
-      {
-        "package": "Promises",
-        "repositoryURL": "https://github.com/google/promises.git",
-        "state": {
-          "branch": null,
-          "revision": "611337c330350c9c1823ad6d671e7f936af5ee13",
-          "version": "2.0.0"
-        }
-      },
-      {
-        "package": "PSPDFKit",
-        "repositoryURL": "https://github.com/PSPDFKit/PSPDFKit-SP",
-        "state": {
-          "branch": "master",
-          "revision": "344c895fea62eb42c6b56e6a060d5dff73cc5bc2",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-argument-parser",
-        "repositoryURL": "https://github.com/apple/swift-argument-parser",
-        "state": {
-          "branch": null,
-          "revision": "e1465042f195f374b94f915ba8ca49de24300a0d",
-          "version": "1.0.2"
-        }
-      },
-      {
-        "package": "swift-graphql",
-        "repositoryURL": "https://github.com/maticzav/swift-graphql",
-        "state": {
-          "branch": null,
-          "revision": "b1fad45d10194e865685150fedad9ef0845fb254",
-          "version": "2.3.1"
-        }
-      },
-      {
-        "package": "SwiftProtobuf",
-        "repositoryURL": "https://github.com/apple/swift-protobuf.git",
-        "state": {
-          "branch": null,
-          "revision": "7e2c5f3cbbeea68e004915e3a8961e20bd11d824",
-          "version": "1.18.0"
-        }
-      },
-      {
-        "package": "SwiftFormat",
-        "repositoryURL": "https://github.com/nicklockwood/SwiftFormat",
-        "state": {
-          "branch": null,
-          "revision": "872e7034f54aeee3f20acf790ecc13e1383f7360",
-          "version": "0.48.4"
-        }
-      },
-      {
-        "package": "Introspect",
-        "repositoryURL": "https://github.com/siteline/SwiftUI-Introspect.git",
-        "state": {
-          "branch": null,
-          "revision": "f2616860a41f9d9932da412a8978fec79c06fe24",
-          "version": "0.1.4"
-        }
-      },
-      {
-        "package": "Valet",
-        "repositoryURL": "https://github.com/Square/Valet",
-        "state": {
-          "branch": null,
-          "revision": "2bf3329055f5d71d42a12801dd69d1d770fafa5e",
-          "version": "4.1.2"
-        }
-      },
-      {
-        "package": "Yams",
-        "repositoryURL": "https://github.com/jpsim/Yams.git",
-        "state": {
-          "branch": null,
-          "revision": "9ff1cc9327586db4e0c8f46f064b6a82ec1566fa",
-          "version": "4.0.6"
-        }
+  "pins" : [
+    {
+      "identity" : "abseil-cpp-swiftpm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      "state" : {
+        "revision" : "fffc3c2729be5747390ad02d5100291a0d9ad26a",
+        "version" : "0.20200225.4"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "analytics-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:segmentio/analytics-swift.git",
+      "state" : {
+        "revision" : "92cc824211160ab98c28c7d40c1e6d27645c2bf1",
+        "version" : "1.2.3"
+      }
+    },
+    {
+      "identity" : "appauth-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/openid/AppAuth-iOS.git",
+      "state" : {
+        "revision" : "01131d68346c8ae552961c768d583c715fbe1410",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "boringssl-swiftpm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/boringssl-SwiftPM.git",
+      "state" : {
+        "revision" : "734a8247442fde37df4364c21f6a0085b6a36728",
+        "version" : "0.7.2"
+      }
+    },
+    {
+      "identity" : "files",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/JohnSundell/Files",
+      "state" : {
+        "revision" : "d273b5b7025d386feef79ef6bad7de762e106eaf",
+        "version" : "4.2.0"
+      }
+    },
+    {
+      "identity" : "firebase-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/firebase-ios-sdk",
+      "state" : {
+        "revision" : "08686f04881483d2bc098b2696e674c0ba135e47",
+        "version" : "8.10.0"
+      }
+    },
+    {
+      "identity" : "googleappmeasurement",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleAppMeasurement.git",
+      "state" : {
+        "revision" : "9b2f6aca5b4685c45f9f5481f19bee8e7982c538",
+        "version" : "8.9.1"
+      }
+    },
+    {
+      "identity" : "googledatatransport",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleDataTransport.git",
+      "state" : {
+        "revision" : "15ccdfd25ac55b9239b82809531ff26605e7556e",
+        "version" : "9.1.2"
+      }
+    },
+    {
+      "identity" : "googleutilities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleUtilities.git",
+      "state" : {
+        "revision" : "b3bb0c5551fb3f80ca939829639ab5b093edd14f",
+        "version" : "7.7.0"
+      }
+    },
+    {
+      "identity" : "grpc-swiftpm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/grpc-SwiftPM.git",
+      "state" : {
+        "revision" : "fb405dd2c7901485f7e158b24e3a0a47e4efd8b5",
+        "version" : "1.28.4"
+      }
+    },
+    {
+      "identity" : "gtm-session-fetcher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/gtm-session-fetcher.git",
+      "state" : {
+        "revision" : "bc6a19702ac76ac4e488b68148710eb815f9bc56",
+        "version" : "1.7.0"
+      }
+    },
+    {
+      "identity" : "intercom-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/intercom/intercom-ios",
+      "state" : {
+        "revision" : "3345d9e7599141d7c844981423a7e5409f2bfb81",
+        "version" : "11.1.2"
+      }
+    },
+    {
+      "identity" : "leveldb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/leveldb.git",
+      "state" : {
+        "revision" : "0706abcc6b0bd9cedfbb015ba840e4a780b5159b",
+        "version" : "1.22.2"
+      }
+    },
+    {
+      "identity" : "nanopb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/nanopb.git",
+      "state" : {
+        "revision" : "7ee9ef9f627d85cbe1b8c4f49a3ed26eed216c77",
+        "version" : "2.30908.0"
+      }
+    },
+    {
+      "identity" : "promises",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/promises.git",
+      "state" : {
+        "revision" : "611337c330350c9c1823ad6d671e7f936af5ee13",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "pspdfkit-sp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PSPDFKit/PSPDFKit-SP",
+      "state" : {
+        "branch" : "master",
+        "revision" : "344c895fea62eb42c6b56e6a060d5dff73cc5bc2"
+      }
+    },
+    {
+      "identity" : "sovran-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/segmentio/Sovran-Swift.git",
+      "state" : {
+        "revision" : "944c17d7c46bd95fc37f09136cabd172be5b413b",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "e1465042f195f374b94f915ba8ca49de24300a0d",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "swift-graphql",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/maticzav/swift-graphql",
+      "state" : {
+        "revision" : "b1fad45d10194e865685150fedad9ef0845fb254",
+        "version" : "2.3.1"
+      }
+    },
+    {
+      "identity" : "swift-protobuf",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-protobuf.git",
+      "state" : {
+        "revision" : "7e2c5f3cbbeea68e004915e3a8961e20bd11d824",
+        "version" : "1.18.0"
+      }
+    },
+    {
+      "identity" : "swiftformat",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nicklockwood/SwiftFormat",
+      "state" : {
+        "revision" : "872e7034f54aeee3f20acf790ecc13e1383f7360",
+        "version" : "0.48.4"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/SwiftUI-Introspect.git",
+      "state" : {
+        "revision" : "f2616860a41f9d9932da412a8978fec79c06fe24",
+        "version" : "0.1.4"
+      }
+    },
+    {
+      "identity" : "valet",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Square/Valet",
+      "state" : {
+        "revision" : "2bf3329055f5d71d42a12801dd69d1d770fafa5e",
+        "version" : "4.1.2"
+      }
+    },
+    {
+      "identity" : "yams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jpsim/Yams.git",
+      "state" : {
+        "revision" : "9ff1cc9327586db4e0c8f46f064b6a82ec1566fa",
+        "version" : "4.0.6"
+      }
+    }
+  ],
+  "version" : 2
 }

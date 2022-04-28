@@ -69,6 +69,7 @@ private struct ViewerInternal {
         try context.save()
         logger.debug("Viewer saved succesfully")
         objectID = viewer.objectID
+        EventTracker.registerUser(userID: viewer.unwrappedUserID)
       } catch {
         context.rollback()
         logger.debug("Failed to save Viewer: \(error.localizedDescription)")
