@@ -7,14 +7,12 @@ import axios from 'axios'
 export const saveSubscription = async (
   userId: string,
   name: string,
-  url: string,
   newsletterEmail: string,
   unsubscribeMailTo?: string,
   unsubscribeHttpUrl?: string
 ): Promise<Subscription> => {
   const subscription = await getRepository(Subscription).findOneBy({
     name,
-    url,
     user: { id: userId },
   })
 
@@ -31,7 +29,6 @@ export const saveSubscription = async (
   return getRepository(Subscription).save({
     name,
     newsletterEmail,
-    url,
     user: { id: userId },
     status: SubscriptionStatus.Active,
     unsubscribeHttpUrl,
