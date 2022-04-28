@@ -1,6 +1,7 @@
 {
   "pspdfKitKey": "",
   "iosClientGoogleId": "",
+  "segmentClientKey": "",
   "intercom": {
     "apiKey": "",
     "appID": ""
@@ -24,4 +25,3 @@
     "bundleID": ""
   }
 }
-

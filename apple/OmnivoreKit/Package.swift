@@ -20,7 +20,8 @@ let package = Package(
     .package(url: "https://github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "1.4.0")),
     .package(url: "https://github.com/Square/Valet", from: "4.1.2"),
     .package(url: "https://github.com/maticzav/swift-graphql", from: "2.3.1"),
-    .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4")
+    .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4"),
+    .package(url: "git@github.com:segmentio/analytics-swift.git", .upToNextMajor(from: "1.0.0"))
   ],
   targets: [
     .target(name: "App", dependencies: ["Views", "Services", "Models", "Utils"]),
@@ -47,7 +48,22 @@ let package = Package(
     .testTarget(name: "ServicesTests", dependencies: ["Services"]),
     .target(name: "Models", dependencies: ["Utils"]),
     .testTarget(name: "ModelsTests", dependencies: ["Models"]),
-    .target(name: "Utils", dependencies: [], resources: [.process("Resources")]),
+    .target(
+      name: "Utils",
+      dependencies: [
+        .product(name: "Segment", package: "analytics-swift")
+      ],
+      resources: [.process("Resources")]
+    ),
     .testTarget(name: "UtilsTests", dependencies: ["Utils"])
   ]
 )
+
+// +               041F2B7F281AE974002BE97F /* XCRemoteSwiftPackageReference "analytics-swift" */ = {
+// +                       isa = XCRemoteSwiftPackageReference;
+// +                       repositoryURL = "git@github.com:segmentio/analytics-swift.git";
+// +                       requirement = {
+// +                               kind = upToNextMajorVersion;
+// +                               minimumVersion = 1.0.0;
+// +                       };
+// +               };

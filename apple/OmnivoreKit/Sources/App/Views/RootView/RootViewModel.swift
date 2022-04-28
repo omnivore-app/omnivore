@@ -31,6 +31,7 @@ public final class RootViewModel: ObservableObject {
   }
 
   func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
+    EventTracker.track(TestEvent.testEventTwo(extraData: "invoked #configurePDFprovider function"))
     guard PDFProvider.pdfViewerProvider == nil else { return }
 
     PDFProvider.pdfViewerProvider = { [weak self] url, linkedItem in
