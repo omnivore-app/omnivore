@@ -25,7 +25,7 @@ private let segment: Analytics? = {
     return nil
   }
 
-  let config = Configuration(writeKey: "")
+  let config = Configuration(writeKey: writeKey)
     .flushAt(20) // default is 20
     .trackApplicationLifecycleEvents(false) // default is true
     .autoAddSegmentDestination(false) // default is true
