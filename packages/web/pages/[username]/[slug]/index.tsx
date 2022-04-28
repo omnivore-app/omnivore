@@ -28,6 +28,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
+import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -106,78 +107,78 @@ export default function Home(): JSX.Element {
     })
   )
 
-  if (article && viewerData?.me) {
-    return (
-      <PrimaryLayout
-        pageTestId="home-page-tag"
-        scrollElementRef={scrollRef}
-        headerToolbarControl={
-          <ArticleActionsMenu
-            article={article}
-            layout='top'
-            lineHeight={readerSettings.lineHeight}
-            marginWidth={readerSettings.marginWidth}
-            showReaderDisplaySettings={article.contentReader != 'PDF'}
-            articleActionHandler={actionHandler}
-          />
-        }
-        alwaysDisplayToolbar={article.contentReader == 'PDF'}
-        pageMetaDataProps={{
-          title: article.title,
-          path: router.pathname,
-          description: article.description,
+  return (
+    <PrimaryLayout
+      pageTestId="home-page-tag"
+      scrollElementRef={scrollRef}
+      headerToolbarControl={
+        <ArticleActionsMenu
+          article={article}
+          layout='top'
+          lineHeight={readerSettings.lineHeight}
+          marginWidth={readerSettings.marginWidth}
+          showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          articleActionHandler={actionHandler}
+        />
+      }
+      alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+      pageMetaDataProps={{
+        title: article?.title ?? '',
+        path: router.pathname,
+        description: article?.description ?? '',
+      }}
+    >
+      <Script async src="/static/scripts/mathJaxConfiguration.js" />
+      <Script
+        async
+        id="MathJax-script"
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+      />
+      <Toaster />
+
+      <VStack distribution="between" alignment="center" css={{
+        position: 'fixed',
+        flexDirection: 'row-reverse',
+        top: '-120px',
+        left: 8,
+        height: '100%',
+        width: '35px',
+        '@lgDown': {
+          display: 'none',
+        },
         }}
       >
-        <Script async src="/static/scripts/mathJaxConfiguration.js" />
-        <Script
-          async
-          id="MathJax-script"
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-        />
-        <Toaster />
-
-        <VStack distribution="between" alignment="center" css={{
-          position: 'fixed',
-          flexDirection: 'row-reverse',
-          top: '-120px',
-          left: 8,
-          height: '100%',
-          width: '35px',
-          '@lgDown': {
-            display: 'none',
-          },
-          }}
-        >
-          {article.contentReader !== 'PDF' ? (
-            <ArticleActionsMenu
-              article={article}
-              layout='side'
-              lineHeight={readerSettings.lineHeight}
-              marginWidth={readerSettings.marginWidth}
-              showReaderDisplaySettings={true}
-              articleActionHandler={actionHandler}
-            />
-          ) : null}
-        </VStack>
-          {article.contentReader == 'PDF' ? (
-            <PdfArticleContainerNoSSR
-              article={article}
-              showHighlightsModal={showHighlightsModal}
-              setShowHighlightsModal={setShowHighlightsModal}
-              viewerUsername={viewerData.me?.profile?.username}
-            />
-          ) : (
-            <VStack
-              alignment="center"
-              distribution="center"
-              ref={scrollRef}
-              className="disable-webkit-callout"
-              css={{
-                '@smDown': {
-                  background: theme.colors.grayBg.toString(),
-                }
-              }}
-            >
+        {article?.contentReader !== 'PDF' ? (
+          <ArticleActionsMenu
+            article={article}
+            layout='side'
+            lineHeight={readerSettings.lineHeight}
+            marginWidth={readerSettings.marginWidth}
+            showReaderDisplaySettings={true}
+            articleActionHandler={actionHandler}
+          />
+        ) : null}
+      </VStack>
+        {article && viewerData?.me && article.contentReader == 'PDF' ? (
+          <PdfArticleContainerNoSSR
+            article={article}
+            showHighlightsModal={showHighlightsModal}
+            setShowHighlightsModal={setShowHighlightsModal}
+            viewerUsername={viewerData.me?.profile?.username}
+          />
+        ) : (
+          <VStack
+            alignment="center"
+            distribution="center"
+            ref={scrollRef}
+            className="disable-webkit-callout"
+            css={{
+              '@smDown': {
+                background: theme.colors.grayBg.toString(),
+              }
+            }}
+          >
+            {article && viewerData?.me ? (
               <ArticleContainer
                 article={article}
                 scrollElementRef={scrollRef}
@@ -198,30 +199,34 @@ export default function Home(): JSX.Element {
                   articleReadingProgressMutation,
                 }}
               />
-              </VStack>
+            ) : (
+              <SkeletonArticleContainer
+                margin={readerSettings.marginWidth}
+                lineHeight={readerSettings.lineHeight}
+                fontSize={readerSettings.fontSize}
+              />
             )}
+            </VStack>
+          )}
 
-        {readerSettings.showSetLabelsModal && (
-          <SetLabelsModal
-            article={article}
-            linkId={article.id}
-            labels={article.labels}
-            articleActionHandler={actionHandler}
-            onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
-          />
-        )}
+      {article && readerSettings.showSetLabelsModal && (
+        <SetLabelsModal
+          article={article}
+          linkId={article.id}
+          labels={article.labels}
+          articleActionHandler={actionHandler}
+          onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
+        />
+      )}
 
-        {readerSettings.showEditDisplaySettingsModal && (
-          <DisplaySettingsModal
-            lineHeight={readerSettings.lineHeight}
-            marginWidth={readerSettings.marginWidth}
-            articleActionHandler={actionHandler}
-            onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
-          />
-        )}
-      </PrimaryLayout>
-    )
-  }
-
-  return <LoadingView />
+      {readerSettings.showEditDisplaySettingsModal && (
+        <DisplaySettingsModal
+          lineHeight={readerSettings.lineHeight}
+          marginWidth={readerSettings.marginWidth}
+          articleActionHandler={actionHandler}
+          onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
+        />
+      )}
+    </PrimaryLayout>
+  )
 }
