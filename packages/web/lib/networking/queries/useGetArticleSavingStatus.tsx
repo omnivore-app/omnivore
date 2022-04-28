@@ -1,7 +1,5 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { articleFragment } from '../fragments/articleFragment'
-import { highlightFragment } from '../fragments/highlightFragment'
 import { makeGqlFetcher } from '../networkHelpers'
 import { ArticleAttributes } from './useGetArticleQuery'
 
@@ -72,8 +70,6 @@ export function useGetArticleSavingStatus({
         }
       }
     }
-    ${articleFragment}
-    ${highlightFragment}
   `
 
   // poll twice a second
