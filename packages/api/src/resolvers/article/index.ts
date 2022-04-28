@@ -436,6 +436,7 @@ export const getArticleResolver: ResolverFn<
       new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 60
     ) {
       page.content = UNPARSEABLE_CONTENT
+      page.description = UNPARSEABLE_CONTENT
     }
 
     return {
