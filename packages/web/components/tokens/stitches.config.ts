@@ -149,6 +149,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         labelButtonsBg: '#F5F5F4',
         tooltipIcons: '#FDFAEC',
+
+        //utility
+        textDefault: 'rgba(10, 8, 6, 0.8)',
+        textSubtle: 'rgba(10, 8, 6, 0.65)',
+        textNonEssential: 'rgba(10, 8, 6, 0.4)',
+        overlay: 'rgba(63, 62, 60, 0.2)',
       },
     },
     media: {
@@ -194,6 +200,13 @@ const darkThemeSpec = {
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
     avatarFont: 'rgba(255, 255, 255, 0.8)',
+
+
+    //utility
+    textDefault: 'rgba(255, 255, 255, 0.8)',
+    textSubtle: 'rgba(255, 255, 255, 0.65)',
+    textNonEssential: 'rgba(10, 8, 6, 0.4)',
+    overlay: 'rgba(10, 8, 6, 0.65)',
 
     labelButtonsBg: '#5F5E58',
   },
