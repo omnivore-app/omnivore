@@ -7,7 +7,7 @@ import { parseOriginalContent, parsePreparedContent } from '../utils/parser'
 
 import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
-import { Page, State } from '../elastic/types'
+import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 type SaveContext = {
@@ -94,13 +94,13 @@ export const savePage = async (
     createdAt: new Date(),
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
-    state: State.Succeeded,
+    state: ArticleSavingRequestStatus.Succeeded,
   }
 
   const existingPage = await getPageByParam({
     userId: saver.userId,
     url: articleToSave.url,
-    state: State.Succeeded,
+    state: ArticleSavingRequestStatus.Succeeded,
   })
   if (existingPage) {
     await updatePage(

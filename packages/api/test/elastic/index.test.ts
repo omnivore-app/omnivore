@@ -2,11 +2,11 @@ import 'mocha'
 import { expect } from 'chai'
 import { InFilter, ReadFilter } from '../../src/utils/search'
 import {
+  ArticleSavingRequestStatus,
   Highlight,
   Page,
   PageContext,
   PageType,
-  State,
 } from '../../src/elastic/types'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
@@ -64,7 +64,7 @@ describe('elastic api', () => {
           createdAt: new Date(),
         },
       ],
-      state: State.Succeeded,
+      state: ArticleSavingRequestStatus.Succeeded,
     }
     const pageId = await createPage(page, ctx)
     if (!pageId) {
@@ -101,7 +101,7 @@ describe('elastic api', () => {
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
         url: 'https://blog.omnivore.app/testUrl',
-        state: State.Succeeded,
+        state: ArticleSavingRequestStatus.Succeeded,
       }
 
       newPageId = await createPage(newPageData, ctx)
@@ -205,7 +205,7 @@ describe('elastic api', () => {
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
         url: 'https://blog.omnivore.app/testCount',
-        state: State.Succeeded,
+        state: ArticleSavingRequestStatus.Succeeded,
       }
 
       await createPage(newPageData, ctx)

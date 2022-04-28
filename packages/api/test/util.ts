@@ -2,7 +2,7 @@ import { createApp } from '../src/server'
 import supertest from 'supertest'
 import { v4 } from 'uuid'
 import { corsConfig } from '../src/utils/corsConfig'
-import { Page, State } from '../src/elastic/types'
+import { ArticleSavingRequestStatus, Page } from '../src/elastic/types'
 import { PageType } from '../src/generated/graphql'
 import { User } from '../src/entity/user'
 import { Label } from '../src/entity/label'
@@ -56,7 +56,7 @@ export const createTestElasticPage = async (
     labels: labels,
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
-    state: State.Succeeded,
+    state: ArticleSavingRequestStatus.Succeeded,
   }
 
   const pageId = await createPage(page, {

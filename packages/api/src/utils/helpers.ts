@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ArticleSavingRequest,
-  ArticleSavingRequestStatus,
   CreateArticleError,
   FeedArticle,
   Profile,
@@ -16,9 +15,8 @@ import {
 import crypto from 'crypto'
 import slugify from 'voca/slugify'
 import { Merge } from '../util'
-import { ArticleSavingRequestData } from '../datalayer/article_saving_request/model'
 import { CreateArticlesSuccessPartial } from '../resolvers'
-import { Page, State } from '../elastic/types'
+import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { updatePage } from '../elastic/pages'
 
 interface InputObject {
@@ -186,51 +184,9 @@ export const pageError = async (
   await updatePage(
     pageId,
     {
-      state: State.Failed,
+      state: ArticleSavingRequestStatus.Failed,
     },
     ctx
-  )
-
-  return result
-}
-
-export const articleSavingRequestError = async (
-  result: CreateArticleError,
-  ctx: WithDataSourcesContext,
-  articleSavingReqest?: ArticleSavingRequestData
-): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
-  if (!articleSavingReqest) return result
-
-  await ctx.authTrx((tx) =>
-    ctx.models.articleSavingRequest.update(
-      articleSavingReqest.id,
-      {
-        status: ArticleSavingRequestStatus.Failed,
-        errorCode: result.errorCodes[0],
-      },
-      tx
-    )
-  )
-
-  return result
-}
-
-export const articleSavingRequestPopulate = async (
-  result: CreateArticlesSuccessPartial,
-  ctx: WithDataSourcesContext,
-  articleSavingReqestId: string | undefined,
-  articleId: string | undefined
-): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
-  if (!articleSavingReqestId) return result
-  await ctx.authTrx((tx) =>
-    ctx.models.articleSavingRequest.update(
-      articleSavingReqestId,
-      {
-        status: ArticleSavingRequestStatus.Succeeded,
-        elasticPageId: articleId,
-      },
-      tx
-    )
   )
 
   return result
@@ -242,7 +198,7 @@ export const pageToArticleSavingRequest = (
 ): ArticleSavingRequest => ({
   ...page,
   user: userDataToUser(user),
-  status: page.state as string as ArticleSavingRequestStatus,
+  status: page.state,
   updatedAt: page.updatedAt || new Date(),
 })
 

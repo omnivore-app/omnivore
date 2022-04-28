@@ -69,7 +69,7 @@ export interface SearchBody {
       }[]
       minimum_should_match?: number
       must_not: (
-        | { term: { state: State.Failed } }
+        | { term: { state: ArticleSavingRequestStatus.Failed } }
         | {
             exists: {
               field: string
@@ -148,7 +148,7 @@ export enum PageType {
   Highlights = 'HIGHLIGHTS',
 }
 
-export enum State {
+export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED',
@@ -206,7 +206,7 @@ export interface Page {
   subscription?: string
   unsubMailTo?: string
   unsubHttpUrl?: string
-  state: State
+  state: ArticleSavingRequestStatus
   taskName?: string
 }
 
@@ -230,7 +230,7 @@ export interface SearchItem {
   readingProgressPercent?: number
   readingProgressAnchorIndex?: number
   userId: string
-  state?: State
+  state?: ArticleSavingRequestStatus
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const

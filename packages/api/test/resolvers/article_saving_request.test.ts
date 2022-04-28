@@ -1,5 +1,8 @@
 import { User } from '../../src/entity/user'
-import { PageContext, State } from '../../src/elastic/types'
+import {
+  ArticleSavingRequestStatus,
+  PageContext,
+} from '../../src/elastic/types'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
@@ -81,7 +84,7 @@ describe('ArticleSavingRequest API', () => {
 
       expect(
         res.body.data.createArticleSavingRequest.articleSavingRequest.status
-      ).to.eql(State.Processing)
+      ).to.eql(ArticleSavingRequestStatus.Processing)
     })
 
     it('creates a page in elastic', async () => {

@@ -1,11 +1,11 @@
 import {
+  ArticleSavingRequestStatus,
   Page,
   PageContext,
   PageType,
   ParamSet,
   SearchBody,
   SearchResponse,
-  State,
 } from './types'
 import {
   DateRangeFilter,
@@ -379,7 +379,7 @@ export const searchPages = async (
           must_not: [
             {
               term: {
-                state: State.Failed,
+                state: ArticleSavingRequestStatus.Failed,
               },
             },
           ],

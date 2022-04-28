@@ -7,7 +7,6 @@ import {
   Article,
   ArticleError,
   ArticleErrorCode,
-  ArticleSavingRequestStatus,
   ArticlesError,
   ArticleSuccess,
   ContentReader,
@@ -72,10 +71,10 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 
 import {
+  ArticleSavingRequestStatus,
   Page,
   PageType,
   SearchItem as SearchItemData,
-  State,
 } from '../../elastic/types'
 import {
   createPage,
@@ -276,7 +275,7 @@ export const createArticleResolver = authorized<
         siteIcon: parsedContent?.siteIcon,
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
-        state: State.Succeeded,
+        state: ArticleSavingRequestStatus.Succeeded,
       }
 
       let archive = false
@@ -323,7 +322,7 @@ export const createArticleResolver = authorized<
       const existingPage = await getPageByParam({
         userId: uid,
         url: articleToSave.url,
-        state: State.Succeeded,
+        state: ArticleSavingRequestStatus.Succeeded,
       })
       if (existingPage) {
         //  update existing page in elastic
@@ -433,7 +432,7 @@ export const getArticleResolver: ResolverFn<
     }
 
     if (
-      page.state === State.Processing &&
+      page.state === ArticleSavingRequestStatus.Processing &&
       new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 60
     ) {
       page.content = UNPARSEABLE_CONTENT
@@ -764,7 +763,6 @@ export const saveArticleReadingProgressResolver = authorized<
         ...page,
         ...updatedPart,
         isArchived: !!page.archivedAt,
-        state: page.state as string as ArticleSavingRequestStatus,
       },
     }
   }

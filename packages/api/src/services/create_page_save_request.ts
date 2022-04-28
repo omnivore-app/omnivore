@@ -10,7 +10,7 @@ import {
 import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
 import * as privateIpLib from 'private-ip'
 import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
-import { Page, PageType, State } from '../elastic/types'
+import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
 import normalizeUrl from 'normalize-url'
 
@@ -96,7 +96,7 @@ export const createPageSaveRequest = async (
   const existingPage = await getPageByParam({
     userId,
     url,
-    state: State.Succeeded,
+    state: ArticleSavingRequestStatus.Succeeded,
   })
   if (existingPage) {
     console.log('Page already exists', url)
@@ -117,7 +117,7 @@ export const createPageSaveRequest = async (
     title: url,
     url,
     taskName: createdTaskName,
-    state: State.Processing,
+    state: ArticleSavingRequestStatus.Processing,
     description: SAVING_DESCRIPTION,
   }
 
