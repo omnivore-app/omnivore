@@ -93,10 +93,6 @@ extension AppDelegate: MessagingDelegate {
     }
 
     UserDefaults.standard.set(fcmToken, forKey: UserDefaultKey.firebasePushToken.rawValue)
-
-    Services().dataService
-      .deviceTokenPublisher(deviceTokenOperation: .addToken(token: fcmToken))
-      .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-      .store(in: &subscriptions)
+    Services().dataService.syncDeviceToken(deviceTokenOperation: .addToken(token: fcmToken))
   }
 }

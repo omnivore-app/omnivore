@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import Models
 import Utils
 
 struct ServerResource<ResponseModel> {
@@ -33,6 +34,32 @@ extension ServerResponse {
 }
 
 extension URLSession {
+  func performReq<ResponseModel>(
+    resource: ServerResource<ResponseModel>
+  ) async throws -> ResponseModel {
+    do {
+      let (data, response) = try await data(for: resource.urlRequest)
+      let serverResponse = ServerResponse(data: data, response: response)
+
+      if let httpResponse = response as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode {
+        NetworkRequestLogger.log(request: resource.urlRequest, serverResponse: serverResponse)
+
+        if let decodedValue = resource.decode(serverResponse) {
+          return decodedValue
+        }
+
+        throw ServerError(serverResponse: serverResponse)
+      } else {
+        throw ServerError(serverResponse: serverResponse)
+      }
+    } catch {
+      let serverResponse = ServerResponse(error: error)
+      NetworkRequestLogger.log(request: resource.urlRequest, serverResponse: serverResponse)
+      throw ServerError(serverResponse: serverResponse)
+    }
+  }
+
+  // TODO: remove performRequest
   // swiftlint:disable:next line_length
   func performRequest<ResponseModel>(resource: ServerResource<ResponseModel>) -> AnyPublisher<ResponseModel, ServerError> {
     let request = resource.urlRequest
