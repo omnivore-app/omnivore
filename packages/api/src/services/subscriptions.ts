@@ -2,6 +2,7 @@ import { Subscription } from '../entity/subscription'
 import { getRepository } from '../entity/utils'
 import { SubscriptionStatus } from '../generated/graphql'
 import { sendEmail } from '../utils/sendEmail'
+import axios from 'axios'
 
 export const saveSubscription = async (
   userId: string,
@@ -73,11 +74,9 @@ const sendUnsubscribeEmail = async (
 }
 
 const sendUnsubscribeHttpRequest = async (url: string): Promise<void> => {
-  const response = await fetch(url, {
-    method: 'GET',
-  })
+  const response = await axios.get(url)
 
-  if (!response.ok) {
+  if (response.status !== 200) {
     throw new Error(`Failed to unsubscribe, response: ${response.statusText}`)
   }
 }
