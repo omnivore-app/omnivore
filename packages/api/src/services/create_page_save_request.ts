@@ -12,6 +12,7 @@ import * as privateIpLib from 'private-ip'
 import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
 import { Page, PageType, State } from '../elastic/types'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
+import normalizeUrl from 'normalize-url'
 
 const SAVING_DESCRIPTION = 'Your link is being saved...'
 
@@ -81,6 +82,10 @@ export const createPageSaveRequest = async (
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
 
+  url = normalizeUrl(url, {
+    stripHash: true,
+    stripWWW: false,
+  })
   const createdTaskName = await enqueueParseRequest(
     url,
     userId,
