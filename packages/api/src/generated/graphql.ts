@@ -107,10 +107,10 @@ export type ArticleResult = ArticleError | ArticleSuccess;
 
 export type ArticleSavingRequest = {
   __typename?: 'ArticleSavingRequest';
-  article?: Maybe<Article>;
   createdAt: Scalars['Date'];
   errorCode?: Maybe<CreateArticleErrorCode>;
   id: Scalars['ID'];
+  slug: Scalars['String'];
   status: ArticleSavingRequestStatus;
   updatedAt: Scalars['Date'];
   user: User;
@@ -2674,10 +2674,10 @@ export type ArticleResultResolvers<ContextType = ResolverContext, ParentType ext
 };
 
 export type ArticleSavingRequestResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSavingRequest'] = ResolversParentTypes['ArticleSavingRequest']> = {
-  article?: Resolver<Maybe<ResolversTypes['Article']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   errorCode?: Resolver<Maybe<ResolversTypes['CreateArticleErrorCode']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ArticleSavingRequestStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;

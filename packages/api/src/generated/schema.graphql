@@ -80,10 +80,10 @@ input ArticleHighlightsInput {
 union ArticleResult = ArticleError | ArticleSuccess
 
 type ArticleSavingRequest {
-  article: Article
   createdAt: Date!
   errorCode: CreateArticleErrorCode
   id: ID!
+  slug: String!
   status: ArticleSavingRequestStatus!
   updatedAt: Date!
   user: User!
