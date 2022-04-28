@@ -36,6 +36,7 @@ const highlight: HighlightItemCardProps = {
     uploadFileId: '1',
     url: 'https://example.com',
     author: 'Author',
+    image: 'https://logos-world.net/wp-content/uploads/2021/11/Unity-New-Logo.png',
   },
 }
 

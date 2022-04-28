@@ -1,4 +1,4 @@
-import HighlightImage from '../../elements/images/HighlightImage'
+import { styled } from '@stitches/react'
 import { VStack, HStack } from '../../elements/LayoutPrimitives'
 import { StyledMark, StyledText } from '../../elements/StyledText'
 import { LinkedItemCardAction, LinkedItemCardProps } from './CardTypes'
@@ -7,6 +7,11 @@ export interface HighlightItemCardProps
   extends Pick<LinkedItemCardProps, 'item'> {
   handleAction: (action: LinkedItemCardAction) => void
 }
+
+export const PreviewImage = styled('img', {
+  objectFit: 'cover',
+  cursor: 'pointer',
+})
 
 export function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
   return (
@@ -54,7 +59,18 @@ export function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
           justifyContent: 'space-between',
         }}
       >
-        <HighlightImage />
+        {props.item.image && (
+          <PreviewImage
+            src={props.item.image}
+            alt="Preview Image"
+            width={16}
+            height={16}
+            css={{ borderRadius: '50%' }}
+            onError={(e) => {
+              ;(e.target as HTMLElement).style.display = 'none'
+            }}
+          />
+        )}
         <StyledText
           css={{
             marginLeft: '$2',
