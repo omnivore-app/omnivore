@@ -7,6 +7,7 @@ import {
   Article,
   ArticleError,
   ArticleErrorCode,
+  ArticleSavingRequestStatus,
   ArticlesError,
   ArticleSuccess,
   ContentReader,
@@ -632,29 +633,29 @@ export const setBookmarkArticleResolver = authorized<
     { input: { articleID, bookmark } },
     { models, authTrx, claims: { uid }, log, pubsub }
   ) => {
-    const article = await getPageById(articleID)
-    if (!article) {
+    const page = await getPageById(articleID)
+    if (!page) {
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
     if (!bookmark) {
-      const userArticleRemoved = await getPageByParam({
+      const pageRemoved = await getPageByParam({
         userId: uid,
         _id: articleID,
       })
 
-      if (!userArticleRemoved) {
+      if (!pageRemoved) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      await deletePage(userArticleRemoved.id, { pubsub, uid })
+      await deletePage(pageRemoved.id, { pubsub, uid })
 
       const highlightsUnshared = await authTrx(async (tx) => {
         return models.highlight.unshareAllHighlights(articleID, uid, tx)
       })
 
       log.info('Article unbookmarked', {
-        article: Object.assign({}, article, {
+        page: Object.assign({}, page, {
           content: undefined,
           originalHtml: undefined,
         }),
@@ -669,7 +670,7 @@ export const setBookmarkArticleResolver = authorized<
       // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
       return {
         bookmarkedArticle: {
-          ...userArticleRemoved,
+          ...pageRemoved,
           isArchived: false,
           savedByViewer: false,
           postedByViewer: false,
@@ -677,14 +678,14 @@ export const setBookmarkArticleResolver = authorized<
       }
     } else {
       try {
-        const userArticle: Partial<Page> = {
+        const pageUpdated: Partial<Page> = {
           userId: uid,
-          slug: generateSlug(article.title),
+          slug: generateSlug(page.title),
         }
-        await updatePage(articleID, userArticle, { pubsub, uid })
+        await updatePage(articleID, pageUpdated, { pubsub, uid })
 
         log.info('Article bookmarked', {
-          article: Object.assign({}, article, {
+          page: Object.assign({}, page, {
             content: undefined,
             originalHtml: undefined,
           }),
@@ -698,8 +699,8 @@ export const setBookmarkArticleResolver = authorized<
         // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
         return {
           bookmarkedArticle: {
-            ...userArticle,
-            ...article,
+            ...pageUpdated,
+            ...page,
             isArchived: false,
             savedByViewer: true,
             postedByViewer: false,
@@ -763,6 +764,7 @@ export const saveArticleReadingProgressResolver = authorized<
         ...page,
         ...updatedPart,
         isArchived: !!page.archivedAt,
+        state: page.state as string as ArticleSavingRequestStatus,
       },
     }
   }
