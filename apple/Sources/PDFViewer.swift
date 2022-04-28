@@ -357,11 +357,11 @@ import Utils
 
 #elseif os(macOS)
   struct PDFViewer: View {
-    let pdfURL: URL
+    let remoteURL: URL
     let viewModel: PDFViewerViewModel
 
     var body: some View {
-      Text(pdfURL.absoluteString)
+      Text(remoteURL.absoluteString)
     }
   }
 #endif
