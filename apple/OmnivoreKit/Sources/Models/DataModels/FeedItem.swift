@@ -55,9 +55,6 @@ public extension LinkedItem {
 
   var pdfURL: URL? {
     guard isPDF else { return nil }
-    if let data = pdfData {
-      print("")
-    }
     return URL(string: pageURLString ?? "")
   }
 

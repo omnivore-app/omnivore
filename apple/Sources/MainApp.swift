@@ -46,6 +46,6 @@ struct MainApp: App {
   }
 
   private func pdfViewerProvider(url: URL, viewModel: PDFViewerViewModel) -> AnyView {
-    AnyView(PDFViewer(pdfURL: url, viewModel: viewModel))
+    AnyView(PDFViewer(remoteURL: url, viewModel: viewModel))
   }
 }
