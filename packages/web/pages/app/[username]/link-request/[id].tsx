@@ -7,8 +7,6 @@ import { useSWRConfig } from 'swr'
 import { cacheArticle } from '../../../../lib/networking/queries/useGetArticleQuery'
 import { PrimaryLayout } from '../../../../components/templates/PrimaryLayout'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
 import { StyledText } from '../../../../components/elements/StyledText'
 import { theme } from '../../../../components/tokens/stitches.config'
 
@@ -47,19 +45,7 @@ export default function LinkRequestPage(): JSX.Element {
 
 function Loader(): JSX.Element {
   return (
-    <SkeletonTheme baseColor={theme.colors.grayText.toString()} highlightColor="#444">
-      <div style={{ fontSize: 20, lineHeight: 2 }}>
-        <StyledText style="boldHeadline"></StyledText>
-        <p></p>
-        <Skeleton count={3} />
-        <p></p>
-        <Skeleton count={2} />
-        <p></p>
-        <Skeleton count={5} />
-        <p></p>
-        <Skeleton count={5} />
-      </div>
-    </SkeletonTheme>
+    <Box />
   )
 }
 

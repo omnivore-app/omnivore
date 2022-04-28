@@ -12,7 +12,7 @@ import { ReaderSettingsControl } from "./ReaderSettingsControl"
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
 type ArticleActionsMenuProps = {
-  article: ArticleAttributes
+  article?: ArticleAttributes
   layout: ArticleActionsMenuLayout
   lineHeight: number
   marginWidth: number
@@ -97,24 +97,35 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
           display: 'none',
         }}}
       >
-        <ActionDropdown
-          layout={props.layout}
-          triggerElement={
-            <TooltipWrapped
-              tooltipContent="Edit labels"
-              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+        {props.article ? (
+          <ActionDropdown
+            layout={props.layout}
+            triggerElement={
+              <TooltipWrapped
+                tooltipContent="Edit labels"
+                tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+            >
+              <TagSimple size={24} color={theme.colors.readerFont.toString()} />
+            </TooltipWrapped>
+            }
           >
+            <SetLabelsControl
+              article={props.article}
+              linkId={props.article.linkId}
+              labels={props.article.labels}
+              articleActionHandler={props.articleActionHandler}
+            />
+          </ActionDropdown>
+        ) : (
+          <Button style='articleActionIcon'
+          css={{
+            '@smDown': {
+              display: 'flex',
+            },
+          }}>
             <TagSimple size={24} color={theme.colors.readerFont.toString()} />
-          </TooltipWrapped>
-          }
-        >
-          <SetLabelsControl
-            article={props.article}
-            linkId={props.article.linkId}
-            labels={props.article.labels}
-            articleActionHandler={props.articleActionHandler}
-          />
-        </ActionDropdown>
+          </Button>
+        )}
       </SpanBox>
 
       <Button style='articleActionIcon'
