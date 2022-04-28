@@ -76,21 +76,11 @@ enum PDFProvider {
       queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
     )
 
-    let newWebAppWrapperViewModel = WebAppWrapperViewModel(
+    webAppWrapperViewModel = WebAppWrapperViewModel(
       webViewURLRequest: urlRequest,
       baseURL: baseURL,
       rawAuthCookie: rawAuthCookie
     )
-
-    newWebAppWrapperViewModel.performActionSubject.sink { action in
-      switch action {
-      case let .shareHighlight(highlightID):
-        print("show share modal for highlight with id: \(highlightID)")
-      }
-    }
-    .store(in: &newWebAppWrapperViewModel.subscriptions)
-
-    webAppWrapperViewModel = newWebAppWrapperViewModel
   }
 }
 

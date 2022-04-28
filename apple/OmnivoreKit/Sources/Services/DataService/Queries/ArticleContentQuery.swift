@@ -1,16 +1,28 @@
-import Combine
 import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-  struct ArticleProps {
-    let htmlContent: String
-    let highlights: [InternalHighlight]
+extension DataService {
+  public func prefetchPages(itemSlugs: [String]) async {
+    guard let username = currentViewer?.username else { return }
+
+    for slug in itemSlugs {
+      // TODO: maybe check for cached content before downloading again? check timestamp?
+      _ = try? await articleContent(username: username, slug: slug, useCache: false)
+    }
   }
 
-  func articleContentPublisher(username: String, slug: String) -> AnyPublisher<ArticleContent, ServerError> {
+  public func articleContent(username: String, slug: String, useCache: Bool) async throws -> ArticleContent {
+    struct ArticleProps {
+      let htmlContent: String
+      let highlights: [InternalHighlight]
+    }
+
+    if useCache, let cachedContent = cachedArticleContent(slug: slug) {
+      return cachedContent
+    }
+
     enum QueryResult {
       case success(result: ArticleProps)
       case error(error: String)
@@ -41,40 +53,34 @@ public extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(query, to: path, headers: headers) { [weak self] result in
-          switch result {
-          case let .success(payload):
-            switch payload.data {
-            case let .success(result: result):
-              // store result in core data
-              self?.persistArticleContent(
-                htmlContent: result.htmlContent,
-                slug: slug,
-                highlights: result.highlights
-              )
-              promise(.success(
-                ArticleContent(
-                  htmlContent: result.htmlContent,
-                  highlightsJSONString: result.highlights.asJSONString
-                ))
-              )
-            case .error:
-              promise(.failure(.unknown))
-            }
-          case .failure:
-            promise(.failure(.unknown))
-          }
+    return try await withCheckedThrowingContinuation { continuation in
+      send(query, to: path, headers: headers) { [weak self] queryResult in
+        guard let payload = try? queryResult.get() else {
+          continuation.resume(throwing: BasicError.message(messageText: "network error"))
+          return
+        }
+
+        switch payload.data {
+        case let .success(result: result):
+          self?.persistArticleContent(
+            htmlContent: result.htmlContent,
+            slug: slug,
+            highlights: result.highlights
+          )
+
+          let articleContent = ArticleContent(
+            htmlContent: result.htmlContent,
+            highlightsJSONString: result.highlights.asJSONString
+          )
+
+          continuation.resume(returning: articleContent)
+        case .error:
+          continuation.resume(throwing: BasicError.message(messageText: "LinkedItem fetch error"))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
-}
 
-extension DataService {
   func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
     backgroundContext.perform {
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -100,5 +106,25 @@ extension DataService {
         print("Failed to save ArticleContent: \(error)")
       }
     }
+  }
+
+  func cachedArticleContent(slug: String) -> ArticleContent? {
+    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    linkedItemFetchRequest.predicate = NSPredicate(
+      format: "slug == %@", slug
+    )
+
+    guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
+    guard let htmlContent = linkedItem.htmlContent else { return nil }
+
+    let highlights = linkedItem
+      .highlights
+      .asArray(of: Highlight.self)
+      .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+
+    return ArticleContent(
+      htmlContent: htmlContent,
+      highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString
+    )
   }
 }

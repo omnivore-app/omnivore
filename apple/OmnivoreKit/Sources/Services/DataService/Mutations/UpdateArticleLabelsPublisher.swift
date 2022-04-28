@@ -1,15 +1,33 @@
-import Combine
 import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-  // swiftlint:disable:next function_body_length
-  func updateArticleLabelsPublisher(
-    itemID: String,
-    labelIDs: [String]
-  ) -> AnyPublisher<[NSManagedObjectID], BasicError> {
+extension DataService {
+  public func updateItemLabels(itemID: String, labelNames: [String]) {
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
+      guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
+
+      if let existingLabels = linkedItem.labels {
+        linkedItem.removeFromLabels(existingLabels)
+      }
+
+      var labelIDs = [String]()
+
+      for labelName in labelNames {
+        if let labelObject = LinkedItemLabel.lookup(byName: labelName, inContext: self.backgroundContext) {
+          linkedItem.addToLabels(labelObject)
+          labelIDs.append(labelObject.unwrappedID)
+        }
+      }
+
+      // Send update to server
+      self.syncLabelUpdates(itemID: itemID, labelIDs: labelIDs)
+    }
+  }
+
+  func syncLabelUpdates(itemID: String, labelIDs: [String]) {
     enum MutationResult {
       case saved(feedItem: [InternalLinkedItemLabel])
       case error(errorCode: Enums.SetLabelsErrorCode)
@@ -34,54 +52,24 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: graphqlError.first.debugDescription)))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
-            switch payload.data {
-            case let .saved(labels):
-              self.backgroundContext.perform {
-                guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else {
-                  promise(.failure(.message(messageText: "failed to set labels")))
-                  return
-                }
+      context.perform {
+        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
+        linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
 
-                if let existingLabels = linkedItem.labels {
-                  linkedItem.removeFromLabels(existingLabels)
-                }
-                for label in labels {
-                  if let labelObject = LinkedItemLabel.lookup(byID: label.id, inContext: self.backgroundContext) {
-                    linkedItem.addToLabels(labelObject)
-                  }
-                }
-
-                do {
-                  try self.backgroundContext.save()
-                  logger.debug("Item labels updated")
-                  let labelObjects = linkedItem.labels.asArray(of: LinkedItemLabel.self)
-                  promise(.success(labelObjects.map(\.objectID)))
-                } catch {
-                  self.backgroundContext.rollback()
-                  logger.debug("Failed to update item labels: \(error.localizedDescription)")
-                  promise(.failure(.message(messageText: "failed to set labels")))
-                }
-              }
-            case .error:
-              promise(.failure(.message(messageText: "failed to set labels")))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "failed to set labels")))
-          }
+        do {
+          try context.save()
+          logger.debug("Item labels updated succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to update item labels: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }
