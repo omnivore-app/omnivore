@@ -29,7 +29,7 @@ type ArticleSavingRequestData = {
   status?: string
   errorCode?: string
   user?: UserData
-  article?: ArticleAttributes
+  slug?: string
 }
 
 type UserData = {
@@ -64,13 +64,7 @@ export function useGetArticleSavingStatus({
                 username
               }
             }
-            article {
-              ...ArticleFields
-              content
-              highlights(input: { includeFriends: false }) {
-                ...HighlightFields
-              }
-            }
+            slug
           }
         }
         ... on ArticleSavingRequestError {
@@ -112,9 +106,9 @@ export function useGetArticleSavingStatus({
   if (status === 'SUCCEEDED') {
     const username =
       articleSavingRequest?.articleSavingRequest?.user?.profile?.username
-    const slug = articleSavingRequest?.articleSavingRequest?.article?.slug
+    const slug = articleSavingRequest?.articleSavingRequest?.slug
     if (username && slug) {
-      return { successRedirectPath: `/${username}/${slug}`, article: articleSavingRequest?.articleSavingRequest?.article }
+      return { successRedirectPath: `/${username}/${slug}` }
     } else {
       return { successRedirectPath: `/home` }
     }
