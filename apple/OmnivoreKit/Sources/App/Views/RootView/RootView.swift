@@ -29,6 +29,7 @@ public struct RootView: View {
     InnerRootView(viewModel: viewModel)
       .environmentObject(viewModel.services.authenticator)
       .environmentObject(viewModel.services.dataService)
+      .environment(\.managedObjectContext, viewModel.services.dataService.viewContext)
       .onAppear {
         if let pdfViewerProvider = pdfViewerProvider {
           viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
@@ -59,10 +60,17 @@ struct InnerRootView: View {
           }
         })
       #endif
-      .snackBar(
-        isShowing: $viewModel.showSnackbar,
-        text: Text(viewModel.snackbarMessage ?? "")
-      )
+      .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
+        // Schedule the dismissal every time we present the snackbar.
+        .onChange(of: viewModel.showSnackbar) { newValue in
+          if newValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+              withAnimation {
+                viewModel.showSnackbar = false
+              }
+            }
+          }
+        }
       #if os(iOS)
         .customAlert(isPresented: $viewModel.showPushNotificationPrimer) {
           pushNotificationPrimerView

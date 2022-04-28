@@ -1,6 +1,10 @@
 import Foundation
 import Models
 
+public enum CoreDataError: Error {
+  case general
+}
+
 public enum ServerError: String, Error {
   case noConnection
   case unauthenticated

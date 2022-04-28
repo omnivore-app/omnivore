@@ -1,42 +1,44 @@
 import Combine
+import CoreData
 import Foundation
 import Models
+import OSLog
 
-public class CacheManager: NSObject, NSCacheDelegate {
-  public func cache(_: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
-    // This is just used for debugging
-    if let content = obj as? CachedPageContent {
-      print("evicting page from cache", content.slug)
-    }
-  }
-}
+let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
   public static var showIntercomMessenger: (() -> Void)?
 
   public let appEnvironment: AppEnvironment
-  public internal(set) var currentViewer: Viewer?
   let networker: Networker
 
-  public let pageCache = NSCache<NSString, CachedPageContent>()
-  let pageCacheQueue = DispatchQueue.global(qos: .background)
-
-  let highlightsCache = NSCache<AnyObject, CachedPDFHighlights>()
-  let highlightsCacheQueue = DispatchQueue(label: "app.omnivore.highlights.cache.queue", attributes: .concurrent)
-
-  let cacheManager: CacheManager
+  let persistentContainer: PersistentContainer
+  let backgroundContext: NSManagedObjectContext
   var subscriptions = Set<AnyCancellable>()
+
+  public var viewContext: NSManagedObjectContext {
+    persistentContainer.viewContext
+  }
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
-    self.cacheManager = CacheManager()
-    pageCache.delegate = cacheManager
+    self.persistentContainer = PersistentContainer.make()
+    self.backgroundContext = persistentContainer.newBackgroundContext()
+    backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
+
+    persistentContainer.loadPersistentStores { _, error in
+      if let error = error {
+        fatalError("Core Data store failed to load with error: \(error)")
+      }
+    }
   }
 
-  public func clearHighlights() {
-    highlightsCache.removeAllObjects()
+  public var currentViewer: Viewer? {
+    let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
+    fetchRequest.fetchLimit = 1 // we should only have one viewer saved
+    return try? persistentContainer.viewContext.fetch(fetchRequest).first
   }
 
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {
@@ -50,35 +52,37 @@ public final class DataService: ObservableObject {
 }
 
 public extension DataService {
-  func prefetchPages(items: [FeedItem]) {
-    print("prefetching pages")
-    guard let viewer = currentViewer else { return }
+  func prefetchPages(itemSlugs: [String]) {
+    guard let username = currentViewer?.username else { return }
 
-    for item in items {
-      let slug = item.slug
-      articleContentPublisher(username: viewer.username, slug: slug).sink(
+    for slug in itemSlugs {
+      articleContentPublisher(username: username, slug: slug).sink(
         receiveCompletion: { _ in },
-        receiveValue: { [weak self] articleContent in
-          self?.pageCache.setObject(CachedPageContent(slug, articleContent), forKey: NSString(string: slug))
-        }
+        receiveValue: { _ in }
       )
       .store(in: &subscriptions)
     }
   }
 
   func pageFromCache(slug: String) -> ArticleContent? {
-    if let content = pageCache.object(forKey: NSString(string: slug)) {
-      print("cache hit", slug)
-      return content.value
-    } else {
-      print("cache miss", slug)
-    }
-    return nil
+    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    linkedItemFetchRequest.predicate = NSPredicate(
+      format: "slug == %@", slug
+    )
+
+    guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
+    guard let htmlContent = linkedItem.htmlContent else { return nil }
+
+    let highlights = linkedItem
+      .highlights
+      .asArray(of: Highlight.self)
+      .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+
+    return ArticleContent(
+      htmlContent: htmlContent,
+      highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString
+    )
   }
 
-  func invalidateCachedPage(slug: String?) {
-    if let slug = slug {
-      pageCache.removeObject(forKey: NSString(string: slug))
-    }
-  }
+  func invalidateCachedPage(slug _: String?) {}
 }

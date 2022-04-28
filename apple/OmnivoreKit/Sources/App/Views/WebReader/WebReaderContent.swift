@@ -4,26 +4,29 @@ import Utils
 
 struct WebReaderContent {
   let textFontSize: Int
-  let articleContent: ArticleContent
-  let item: FeedItem
+  let htmlContent: String
+  let highlightsJSONString: String
+  let item: LinkedItem
   let themeKey: String
 
   init(
-    articleContent: ArticleContent,
-    item: FeedItem,
+    htmlContent: String,
+    highlightsJSONString: String,
+    item: LinkedItem,
     isDark: Bool,
     fontSize: Int
   ) {
     self.textFontSize = fontSize
-    self.articleContent = articleContent
+    self.htmlContent = htmlContent
+    self.highlightsJSONString = highlightsJSONString
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
   }
 
   // swiftlint:disable line_length
   var styledContent: String {
-    let savedAt = "new Date(\(item.savedAt.timeIntervalSince1970 * 1000)).toISOString()"
-    let createdAt = "new Date(\(item.createdAt.timeIntervalSince1970 * 1000)).toISOString()"
+    let savedAt = "new Date(\(item.unwrappedSavedAt.timeIntervalSince1970 * 1000)).toISOString()"
+    let createdAt = "new Date(\(item.unwrappedCreatedAt.timeIntervalSince1970 * 1000)).toISOString()"
     let publishedAt = item.publishDate != nil ? "new Date(\(item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" : "undefined"
 
     return """
@@ -39,7 +42,7 @@ struct WebReaderContent {
       <body>
         <div id="root" />
         <div id='_omnivore-htmlContent' style="display: none;">
-          \(articleContent.htmlContent)
+          \(htmlContent)
         </div>
         <script type="text/javascript">
           window.omnivoreEnv = {
@@ -50,20 +53,20 @@ struct WebReaderContent {
           }
 
           window.omnivoreArticle = {
-            id: "\(item.id)",
-            linkId: "\(item.id)",
-            slug: "\(item.slug)",
+            id: "\(item.unwrappedID)",
+            linkId: "\(item.unwrappedID)",
+            slug: "\(item.unwrappedSlug)",
             createdAt: \(createdAt),
             savedAt: \(savedAt),
             publishedAt: \(publishedAt),
-            url: `\(item.pageURLString)`,
-            title: `\(item.title.replacingOccurrences(of: "`", with: "\\`"))`,
+            url: `\(item.unwrappedPageURLString)`,
+            title: `\(item.unwrappedTitle.replacingOccurrences(of: "`", with: "\\`"))`,
             content: document.getElementById('_omnivore-htmlContent').innerHTML,
-            originalArticleUrl: "\(item.pageURLString)",
+            originalArticleUrl: "\(item.unwrappedPageURLString)",
             contentReader: "WEB",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
-            highlights: \(articleContent.highlightsJSONString),
+            highlights: \(highlightsJSONString),
           }
 
           window.fontSize = \(textFontSize)

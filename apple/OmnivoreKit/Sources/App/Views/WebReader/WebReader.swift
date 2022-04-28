@@ -6,8 +6,9 @@ import WebKit
 
 #if os(iOS)
   struct WebReader: UIViewRepresentable {
-    let articleContent: ArticleContent
-    let item: FeedItem
+    let htmlContent: String
+    let highlightsJSONString: String
+    let item: LinkedItem
     let openLinkAction: (URL) -> Void
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
     let navBarVisibilityRatioUpdater: (Double) -> Void
@@ -99,7 +100,8 @@ import WebKit
     func loadContent(webView: WKWebView) {
       webView.loadHTMLString(
         WebReaderContent(
-          articleContent: articleContent,
+          htmlContent: htmlContent,
+          highlightsJSONString: highlightsJSONString,
           item: item,
           isDark: UITraitCollection.current.userInterfaceStyle == .dark,
           fontSize: fontSize()

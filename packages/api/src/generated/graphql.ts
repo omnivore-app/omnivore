@@ -69,7 +69,10 @@ export type Article = {
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
+  subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
+  unsubHttpUrl?: Maybe<Scalars['String']>;
+  unsubMailTo?: Maybe<Scalars['String']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -530,6 +533,11 @@ export enum GenerateApiKeyErrorCode {
   BadRequest = 'BAD_REQUEST'
 }
 
+export type GenerateApiKeyInput = {
+  expiredAt?: InputMaybe<Scalars['Date']>;
+  scope?: InputMaybe<Scalars['String']>;
+};
+
 export type GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess;
 
 export type GenerateApiKeySuccess = {
@@ -885,7 +893,7 @@ export type MutationDeleteReminderArgs = {
 
 
 export type MutationGenerateApiKeyArgs = {
-  scope?: InputMaybe<Scalars['String']>;
+  input: GenerateApiKeyInput;
 };
 
 
@@ -1373,7 +1381,10 @@ export type SearchItem = {
   readingProgressPercent?: Maybe<Scalars['Float']>;
   shortId?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
+  subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
+  unsubHttpUrl?: Maybe<Scalars['String']>;
+  unsubMailTo?: Maybe<Scalars['String']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -2139,6 +2150,7 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']>;
   GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
   GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
+  GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversTypes['GenerateApiKeyError'] | ResolversTypes['GenerateApiKeySuccess'];
   GenerateApiKeySuccess: ResolverTypeWrapper<GenerateApiKeySuccess>;
   GetFollowersError: ResolverTypeWrapper<GetFollowersError>;
@@ -2421,6 +2433,7 @@ export type ResolversParentTypes = {
   FeedArticlesSuccess: FeedArticlesSuccess;
   Float: Scalars['Float'];
   GenerateApiKeyError: GenerateApiKeyError;
+  GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
   GenerateApiKeySuccess: GenerateApiKeySuccess;
   GetFollowersError: GetFollowersError;
@@ -2636,7 +2649,10 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3154,7 +3170,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
   deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
-  generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, Partial<MutationGenerateApiKeyArgs>>;
+  generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
@@ -3362,7 +3378,10 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

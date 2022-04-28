@@ -1383,6 +1383,11 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input GenerateApiKeyInput {
+    scope: String
+    expiredAt: Date
+  }
+
   union GenerateApiKeyResult = GenerateApiKeySuccess | GenerateApiKeyError
 
   type GenerateApiKeySuccess {
@@ -1562,11 +1567,11 @@ const schema = gql`
     login(input: LoginInput!): LoginResult!
     signup(input: SignupInput!): SignupResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
-    generateApiKey(scope: String): GenerateApiKeyResult!
+    generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
     unsubscribe(name: String!): UnsubscribeResult!
   }
 
-  # FIXME: remove sort from feedArticles after all cahced tabs are closed
+  # FIXME: remove sort from feedArticles after all cached tabs are closed
   # FIXME: sharedOnly is legacy
   type Query {
     hello: String

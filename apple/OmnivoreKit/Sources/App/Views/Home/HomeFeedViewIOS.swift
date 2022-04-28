@@ -12,6 +12,10 @@ import Views
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    func loadItems(isRefresh: Bool) {
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+    }
+
     var body: some View {
       Group {
         HomeFeedView(
@@ -19,7 +23,7 @@ import Views
           viewModel: viewModel
         )
         .refreshable {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .searchable(
           text: $viewModel.searchTerm,
@@ -35,18 +39,16 @@ import Views
         .onChange(of: viewModel.searchTerm) { _ in
           // Maybe we should debounce this, but
           // it feels like it works ok without
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .onChange(of: viewModel.selectedLabels) { _ in
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .onSubmit(of: .search) {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(mode: .item(item)) { labels in
-            viewModel.updateLabels(itemID: item.id, labels: labels)
-          }
+          ApplyLabelsView(mode: .item(item)) { _ in }
         }
       }
       .navigationTitle("Home")
@@ -54,17 +56,18 @@ import Views
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
         if viewModel.selectedLinkItem == nil {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
       }
-      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushFeedItem"))) { notification in
-        if let feedItem = notification.userInfo?["feedItem"] as? FeedItem {
-          viewModel.pushFeedItem(item: feedItem)
-          viewModel.selectedLinkItem = feedItem
-        }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
+        guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
+        guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
+        guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
+        viewModel.pushFeedItem(item: linkedItem)
+        viewModel.selectedLinkItem = linkedItem
       }
       .formSheet(isPresented: $viewModel.snoozePresented) {
-        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnooze: $viewModel.itemToSnooze) {
+        SnoozeView(snoozePresented: $viewModel.snoozePresented, itemToSnoozeID: $viewModel.itemToSnoozeID) {
           viewModel.snoozeUntil(
             dataService: dataService,
             linkId: $0.feedItemId,
@@ -73,13 +76,10 @@ import Views
           )
         }
       }
-      .onAppear {
+      .onAppear { // TODO: use task instead
         if viewModel.items.isEmpty {
-          viewModel.loadItems(dataService: dataService, isRefresh: true)
+          loadItems(isRefresh: true)
         }
-      }
-      .onChange(of: viewModel.selectedLinkItem) { _ in
-        viewModel.commitItemUpdates()
       }
     }
   }
@@ -145,7 +145,7 @@ import Views
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
 
-    @State private var itemToRemove: FeedItem?
+    @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -165,7 +165,11 @@ import Views
               )
               Button(action: {
                 withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+                  viewModel.setLinkArchived(
+                    dataService: dataService,
+                    objectID: item.objectID,
+                    archived: !item.isArchived
+                  )
                 }
               }, label: {
                 Label(
@@ -182,7 +186,7 @@ import Views
               )
               if FeatureFlag.enableSnooze {
                 Button {
-                  viewModel.itemToSnooze = item
+                  viewModel.itemToSnoozeID = item.id
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
@@ -193,7 +197,7 @@ import Views
               if !item.isArchived {
                 Button {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: true)
+                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
                   }
                 } label: {
                   Label("Archive", systemImage: "archivebox")
@@ -201,7 +205,7 @@ import Views
               } else {
                 Button {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: false)
+                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
                   }
                 } label: {
                   Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
@@ -223,7 +227,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
                   }
                 }
                 self.itemToRemove = nil
@@ -233,7 +237,7 @@ import Views
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
               if FeatureFlag.enableSnooze {
                 Button {
-                  viewModel.itemToSnooze = item
+                  viewModel.itemToSnoozeID = item.id
                   viewModel.snoozePresented = true
                 } label: {
                   Label { Text("Snooze") } icon: { Image.moon }
@@ -260,31 +264,32 @@ import Views
           }
         }
       }
-      .onAppear {
-        viewModel.sendProgressUpdates = false
-      }
     }
   }
 
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
 
-    @State private var itemToRemove: FeedItem?
+    @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    func contextMenuActionHandler(item: FeedItem, action: GridCardAction) {
+    func contextMenuActionHandler(item: LinkedItem, action: GridCardAction) {
       switch action {
       case .toggleArchiveStatus:
-        viewModel.setLinkArchived(dataService: dataService, linkId: item.id, archived: !item.isArchived)
+        viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
       case .delete:
         itemToRemove = item
         confirmationShown = true
       case .editLabels:
         viewModel.itemUnderLabelEdit = item
       }
+    }
+
+    func loadItems(isRefresh: Bool) {
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var body: some View {
@@ -301,7 +306,7 @@ import Views
               Button("Remove Link", role: .destructive) {
                 if let itemToRemove = itemToRemove {
                   withAnimation {
-                    viewModel.removeLink(dataService: dataService, linkId: itemToRemove.id)
+                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
                   }
                 }
                 self.itemToRemove = nil
@@ -322,7 +327,7 @@ import Views
         .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
           DispatchQueue.main.async {
             if !viewModel.isLoading, offset > 240 {
-              viewModel.loadItems(dataService: dataService, isRefresh: true)
+              loadItems(isRefresh: true)
             }
           }
         }
@@ -330,9 +335,6 @@ import Views
         if viewModel.items.isEmpty, viewModel.isLoading {
           LoadingSection()
         }
-      }
-      .onAppear {
-        viewModel.sendProgressUpdates = true
       }
     }
   }

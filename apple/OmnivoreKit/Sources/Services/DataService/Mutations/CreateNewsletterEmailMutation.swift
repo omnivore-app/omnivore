@@ -1,12 +1,13 @@
 import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func createNewsletterEmailPublisher() -> AnyPublisher<NewsletterEmail, BasicError> {
+  func createNewsletter() async throws -> NSManagedObjectID {
     enum MutationResult {
-      case saved(newsletterEmail: NewsletterEmail)
+      case saved(newsletterEmail: InternalNewsletterEmail)
       case error(errorCode: Enums.CreateNewsletterEmailErrorCode)
     }
 
@@ -14,7 +15,7 @@ public extension DataService {
       try $0.on(
         createNewsletterEmailSuccess: .init {
           .saved(newsletterEmail: try $0.newsletterEmail(selection: Selection.NewsletterEmail {
-            NewsletterEmail(
+            InternalNewsletterEmail(
               emailId: try $0.id(),
               email: try $0.address(),
               confirmationCode: try $0.confirmationCode()
@@ -33,28 +34,24 @@ public extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
+    return try await withCheckedThrowingContinuation { continuation in
+      send(mutation, to: path, headers: headers) { [weak self] queryResult in
+        guard let payload = try? queryResult.get(), let self = self else {
+          continuation.resume(throwing: BasicError.message(messageText: "network error"))
+          return
+        }
 
-            switch payload.data {
-            case let .saved(newsletterEmail: newsletterEmail):
-              promise(.success(newsletterEmail))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
+        switch payload.data {
+        case let .saved(newsletterEmail: newsletterEmail):
+          if let newsletterEmailObjectID = newsletterEmail.persist(context: self.backgroundContext) {
+            continuation.resume(returning: newsletterEmailObjectID)
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
           }
+        case let .error(errorCode: errorCode):
+          continuation.resume(throwing: BasicError.message(messageText: errorCode.rawValue))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

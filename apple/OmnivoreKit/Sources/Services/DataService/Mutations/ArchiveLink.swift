@@ -1,13 +1,22 @@
-import Combine
+import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-  func archiveLinkPublisher(
-    itemID: String,
-    archived: Bool
-  ) -> AnyPublisher<String, BasicError> {
+extension DataService {
+  public func archiveLink(objectID: NSManagedObjectID, archived: Bool) {
+    // Update CoreData
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
+      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LinkedItem else { return }
+      linkedItem.update(inContext: self.backgroundContext, newIsArchivedValue: archived)
+
+      // Send update to server
+      self.syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, objectID: objectID, archived: archived)
+    }
+  }
+
+  func syncLinkArchiveStatus(itemID: String, objectID: NSManagedObjectID, archived: Bool) {
     enum MutationResult {
       case success(linkId: String)
       case error(errorCode: Enums.ArchiveLinkErrorCode)
@@ -32,29 +41,24 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if payload.errors != nil {
-              promise(.failure(.message(messageText: "Error archiving link")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
-            switch payload.data {
-            case let .success(linkId):
-              promise(.success(linkId))
-            case .error:
-              promise(.failure(.message(messageText: "Error archiving link")))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "Error archiving link")))
-          }
+      context.perform {
+        guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
+        linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
+
+        do {
+          try context.save()
+          logger.debug("LinkedItem updated succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to update LinkedItem: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }

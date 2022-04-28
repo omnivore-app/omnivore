@@ -50,7 +50,10 @@ type Article {
   siteIcon: String
   siteName: String
   slug: String!
+  subscription: String
   title: String!
+  unsubHttpUrl: String
+  unsubMailTo: String
   uploadFileId: ID
   url: String!
 }
@@ -465,6 +468,11 @@ enum GenerateApiKeyErrorCode {
   BAD_REQUEST
 }
 
+input GenerateApiKeyInput {
+  expiredAt: Date
+  scope: String
+}
+
 union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
 
 type GenerateApiKeySuccess {
@@ -697,7 +705,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
-  generateApiKey(scope: String): GenerateApiKeyResult!
+  generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   login(input: LoginInput!): LoginResult!
@@ -982,7 +990,10 @@ type SearchItem {
   readingProgressPercent: Float
   shortId: String
   slug: String!
+  subscription: String
   title: String!
+  unsubHttpUrl: String
+  unsubMailTo: String
   uploadFileId: ID
   url: String!
 }

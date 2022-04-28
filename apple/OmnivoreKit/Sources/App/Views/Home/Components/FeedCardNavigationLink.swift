@@ -6,14 +6,21 @@ import Views
 struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
 
-  let item: FeedItem
+  let item: LinkedItem
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
+    #if os(iOS)
+      let modifiedDestination = destination.navigationBarHidden(true)
+    #else
+      let modifiedDestination = destination
+    #endif
+
+    return ZStack {
       NavigationLink(
-        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
+        destination: modifiedDestination,
         tag: item,
         selection: $viewModel.selectedLinkItem
       ) {
@@ -22,7 +29,7 @@ struct FeedCardNavigationLink: View {
       .opacity(0)
       .buttonStyle(PlainButtonStyle())
       .onAppear {
-        viewModel.itemAppeared(item: item, dataService: dataService)
+        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
       }
       FeedCard(item: item)
     }
@@ -34,7 +41,7 @@ struct GridCardNavigationLink: View {
 
   @State private var scale = 1.0
 
-  let item: FeedItem
+  let item: LinkedItem
   let actionHandler: (GridCardAction) -> Void
 
   @Binding var isContextMenuOpen: Bool
@@ -42,9 +49,16 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
+    #if os(iOS)
+      let modifiedDestination = destination.navigationBarHidden(true)
+    #else
+      let modifiedDestination = destination
+    #endif
+
+    return ZStack {
       NavigationLink(
-        destination: LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel)),
+        destination: modifiedDestination,
         tag: item,
         selection: $viewModel.selectedLinkItem
       ) {
@@ -60,7 +74,7 @@ struct GridCardNavigationLink: View {
         }
       })
         .onAppear {
-          viewModel.itemAppeared(item: item, dataService: dataService)
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
         }
     }
     .aspectRatio(1.8, contentMode: .fill)
