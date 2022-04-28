@@ -71,6 +71,7 @@ export const saveNewsletterEmail = async (
   const subscription = await saveSubscription(
     newsletterEmail.user.id,
     data.author,
+    data.url,
     newsletterEmail.address,
     data.unsubMailTo,
     data.unsubHttpUrl

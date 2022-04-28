@@ -7,19 +7,21 @@ import axios from 'axios'
 export const saveSubscription = async (
   userId: string,
   name: string,
+  url: string,
   newsletterEmail: string,
   unsubscribeMailTo?: string,
   unsubscribeHttpUrl?: string
 ): Promise<Subscription> => {
   const subscription = await getRepository(Subscription).findOneBy({
     name,
-    newsletterEmail,
+    url,
     user: { id: userId },
   })
 
   if (subscription) {
     // if subscription already exists, updates updatedAt
     subscription.status = SubscriptionStatus.Active
+    subscription.newsletterEmail = newsletterEmail
     unsubscribeMailTo && (subscription.unsubscribeMailTo = unsubscribeMailTo)
     unsubscribeHttpUrl && (subscription.unsubscribeHttpUrl = unsubscribeHttpUrl)
     return getRepository(Subscription).save(subscription)
@@ -29,6 +31,7 @@ export const saveSubscription = async (
   return getRepository(Subscription).save({
     name,
     newsletterEmail,
+    url,
     user: { id: userId },
     status: SubscriptionStatus.Active,
     unsubscribeHttpUrl,
