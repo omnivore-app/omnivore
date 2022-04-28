@@ -58,12 +58,3 @@ let package = Package(
     .testTarget(name: "UtilsTests", dependencies: ["Utils"])
   ]
 )
-
-// +               041F2B7F281AE974002BE97F /* XCRemoteSwiftPackageReference "analytics-swift" */ = {
-// +                       isa = XCRemoteSwiftPackageReference;
-// +                       repositoryURL = "git@github.com:segmentio/analytics-swift.git";
-// +                       requirement = {
-// +                               kind = upToNextMajorVersion;
-// +                               minimumVersion = 1.0.0;
-// +                       };
-// +               };
