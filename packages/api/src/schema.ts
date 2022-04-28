@@ -345,6 +345,7 @@ const schema = gql`
     subscription: String
     unsubMailTo: String
     unsubHttpUrl: String
+    state: ArticleSavingRequestStatus
   }
 
   # Query: article
@@ -1436,6 +1437,7 @@ const schema = gql`
     subscription: String
     unsubMailTo: String
     unsubHttpUrl: String
+    state: ArticleSavingRequestStatus
   }
 
   type SearchItemEdge {

@@ -50,6 +50,7 @@ type Article {
   siteIcon: String
   siteName: String
   slug: String!
+  state: ArticleSavingRequestStatus
   subscription: String
   title: String!
   unsubHttpUrl: String
@@ -991,6 +992,7 @@ type SearchItem {
   readingProgressPercent: Float
   shortId: String
   slug: String!
+  state: ArticleSavingRequestStatus
   subscription: String
   title: String!
   unsubHttpUrl: String

@@ -69,6 +69,7 @@ export type Article = {
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
+  state?: Maybe<ArticleSavingRequestStatus>;
   subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
@@ -1383,6 +1384,7 @@ export type SearchItem = {
   readingProgressPercent?: Maybe<Scalars['Float']>;
   shortId?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
+  state?: Maybe<ArticleSavingRequestStatus>;
   subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
@@ -2651,6 +2653,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3381,6 +3384,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
