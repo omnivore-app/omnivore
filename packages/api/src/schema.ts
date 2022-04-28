@@ -954,6 +954,7 @@ const schema = gql`
     id: ID!
     userId: ID! @deprecated(reason: "userId has been replaced with user")
     user: User!
+    article: Article @deprecated(reason: "article has been replaced with slug")
     slug: String!
     status: ArticleSavingRequestStatus!
     errorCode: CreateArticleErrorCode

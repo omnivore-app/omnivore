@@ -107,6 +107,8 @@ export type ArticleResult = ArticleError | ArticleSuccess;
 
 export type ArticleSavingRequest = {
   __typename?: 'ArticleSavingRequest';
+  /** @deprecated article has been replaced with slug */
+  article?: Maybe<Article>;
   createdAt: Scalars['Date'];
   errorCode?: Maybe<CreateArticleErrorCode>;
   id: Scalars['ID'];
@@ -2674,6 +2676,7 @@ export type ArticleResultResolvers<ContextType = ResolverContext, ParentType ext
 };
 
 export type ArticleSavingRequestResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSavingRequest'] = ResolversParentTypes['ArticleSavingRequest']> = {
+  article?: Resolver<Maybe<ResolversTypes['Article']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   errorCode?: Resolver<Maybe<ResolversTypes['CreateArticleErrorCode']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
