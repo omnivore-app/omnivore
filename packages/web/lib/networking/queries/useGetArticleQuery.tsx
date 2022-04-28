@@ -1,7 +1,11 @@
 import { gql } from 'graphql-request'
 import useSWRImmutable, { Cache } from 'swr'
 import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
-import { articleFragment, ContentReader } from '../fragments/articleFragment'
+import {
+  articleFragment,
+  ContentReader,
+  State,
+} from '../fragments/articleFragment'
 import { Highlight, highlightFragment } from '../fragments/highlightFragment'
 import { ScopedMutator } from 'swr/dist/types'
 import { Label, labelFragment } from '../fragments/labelFragment'
@@ -48,6 +52,7 @@ export type ArticleAttributes = {
   highlights: Highlight[]
   linkId: string
   labels?: Label[]
+  state?: State
 }
 
 const query = gql`
@@ -78,7 +83,6 @@ const query = gql`
   ${highlightFragment}
   ${labelFragment}
 `
-
 
 export function useGetArticleQuery({
   username,
@@ -137,11 +141,10 @@ export const cacheArticle = (
   })
 }
 
-
 export const removeItemFromCache = (
   cache: Cache<unknown>,
   mutate: ScopedMutator,
-  itemId: string,
+  itemId: string
 ) => {
   try {
     const mappedCache = cache as Map<string, unknown>
