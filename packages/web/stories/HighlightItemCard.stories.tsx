@@ -5,13 +5,15 @@ import { ThemeId } from '../components/tokens/stitches.config'
 
 export default {
   title: 'Components/HighlightItemCard',
-  parameters: {
-    previewTabs: {
-      'storybook/docs/panel': { hidden: true },
-    },
-    viewMode: 'canvas',
-  },
   component: HighlightItemCard,
+  argTypes: {
+    item: {
+      description: 'The highlight.',
+    },
+    handleAction: {
+      description: 'Action that fires on click.'
+    }
+  }
 } as ComponentMeta<typeof HighlightItemCard>
 
 const highlight: HighlightItemCardProps = {
