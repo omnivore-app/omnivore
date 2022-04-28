@@ -67,6 +67,8 @@ import Views
       receiveValue: { [weak self] _ in
         self?.isLoading = false
         self?.labels.removeAll { $0.name == name }
+        self?.selectedLabels.removeAll { $0.name == name }
+        self?.unselectedLabels.removeAll { $0.name == name }
       }
     )
     .store(in: &subscriptions)

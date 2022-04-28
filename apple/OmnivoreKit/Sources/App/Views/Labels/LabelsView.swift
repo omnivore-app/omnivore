@@ -22,7 +22,11 @@ struct LabelsView: View {
               Button("Delete Label", role: .destructive) {
                 if let label = labelToRemove {
                   withAnimation {
-                    viewModel.deleteLabel(dataService: dataService, labelID: label.unwrappedID, name: label.unwrappedID)
+                    viewModel.deleteLabel(
+                      dataService: dataService,
+                      labelID: label.unwrappedID,
+                      name: label.unwrappedName
+                    )
                   }
                 }
                 self.labelToRemove = nil
