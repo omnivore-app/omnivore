@@ -50,39 +50,3 @@ public final class DataService: ObservableObject {
     }
   }
 }
-
-public extension DataService {
-  func prefetchPages(itemSlugs: [String]) {
-    guard let username = currentViewer?.username else { return }
-
-    for slug in itemSlugs {
-      articleContentPublisher(username: username, slug: slug).sink(
-        receiveCompletion: { _ in },
-        receiveValue: { _ in }
-      )
-      .store(in: &subscriptions)
-    }
-  }
-
-  func pageFromCache(slug: String) -> ArticleContent? {
-    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    linkedItemFetchRequest.predicate = NSPredicate(
-      format: "slug == %@", slug
-    )
-
-    guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
-    guard let htmlContent = linkedItem.htmlContent else { return nil }
-
-    let highlights = linkedItem
-      .highlights
-      .asArray(of: Highlight.self)
-      .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
-
-    return ArticleContent(
-      htmlContent: htmlContent,
-      highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString
-    )
-  }
-
-  func invalidateCachedPage(slug _: String?) {}
-}

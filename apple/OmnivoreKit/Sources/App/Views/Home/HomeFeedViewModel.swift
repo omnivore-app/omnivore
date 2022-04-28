@@ -1,4 +1,3 @@
-import Combine
 import CoreData
 import Models
 import Services
@@ -25,8 +24,6 @@ import Views
   // responses in the right order
   var searchIdx = 0
   var receivedIdx = 0
-
-  var subscriptions = Set<AnyCancellable>()
 
   init() {}
 
@@ -83,7 +80,7 @@ import Views
       isLoading = false
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
-      dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
+      await dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
     } else if searchTermIsEmpty {
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -158,31 +155,27 @@ import Views
     dataService.removeLink(objectID: objectID)
   }
 
-  func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) {
+  func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
     isLoading = true
 
     if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
       items.remove(at: itemIndex)
     }
 
-    dataService.createReminderPublisher(
-      reminderItemId: .link(id: linkId),
-      remindAt: until
-    )
-    .sink(
-      receiveCompletion: { [weak self] completion in
-        guard case .failure = completion else { return }
-        self?.isLoading = false
-        NSNotification.operationFailed(message: "Failed to snooze")
-      },
-      receiveValue: { [weak self] _ in
-        self?.isLoading = false
-        if let message = successMessage {
-          Snackbar.show(message: message)
-        }
+    do {
+      try await dataService.createReminder(
+        reminderItemId: .link(id: linkId),
+        remindAt: until
+      )
+
+      if let message = successMessage {
+        Snackbar.show(message: message)
       }
-    )
-    .store(in: &subscriptions)
+    } catch {
+      NSNotification.operationFailed(message: "Failed to snooze")
+    }
+
+    isLoading = false
   }
 
   private var searchQuery: String? {

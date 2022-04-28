@@ -9,7 +9,7 @@ struct LabelsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = LabelsViewModel()
   @State private var showDeleteConfirmation = false
-  @State private var labelToRemoveID: String?
+  @State private var labelToRemove: LinkedItemLabel?
 
   let footerText = "Use labels to create curated collections of links."
 
@@ -20,14 +20,18 @@ struct LabelsView: View {
           innerBody
             .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
               Button("Delete Label", role: .destructive) {
-                if let labelID = labelToRemoveID {
+                if let label = labelToRemove {
                   withAnimation {
-                    viewModel.deleteLabel(dataService: dataService, labelID: labelID)
+                    viewModel.deleteLabel(
+                      dataService: dataService,
+                      labelID: label.unwrappedID,
+                      name: label.unwrappedName
+                    )
                   }
                 }
-                self.labelToRemoveID = nil
+                self.labelToRemove = nil
               }
-              Button("Cancel", role: .cancel) { self.labelToRemoveID = nil }
+              Button("Cancel", role: .cancel) { self.labelToRemove = nil }
             }
         }
       #elseif os(macOS)
@@ -37,7 +41,7 @@ struct LabelsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .onAppear { viewModel.loadLabels(dataService: dataService, item: nil) }
+    .task { await viewModel.loadLabels(dataService: dataService, item: nil) }
   }
 
   private var innerBody: some View {
@@ -64,7 +68,7 @@ struct LabelsView: View {
               Spacer()
               Button(
                 action: {
-                  labelToRemoveID = label.id
+                  labelToRemove = label
                   showDeleteConfirmation = true
                 },
                 label: { Image(systemName: "trash") }
