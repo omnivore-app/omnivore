@@ -190,10 +190,8 @@ import WebKit
         } else {
           Color.clear
             .contentShape(Rectangle())
-            .onAppear {
-              if !viewModel.isLoading {
-                viewModel.loadContent(dataService: dataService, slug: item.unwrappedSlug)
-              }
+            .task {
+              await viewModel.loadContent(dataService: dataService, slug: item.unwrappedSlug)
             }
         }
         if showFontSizePopover {

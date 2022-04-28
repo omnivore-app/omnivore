@@ -1,4 +1,3 @@
-import Combine
 import CoreData
 import Models
 import Services
@@ -25,8 +24,6 @@ import Views
   // responses in the right order
   var searchIdx = 0
   var receivedIdx = 0
-
-  var subscriptions = Set<AnyCancellable>()
 
   init() {}
 
@@ -83,7 +80,7 @@ import Views
       isLoading = false
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
-      dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
+      await dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
     } else if searchTermIsEmpty {
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()

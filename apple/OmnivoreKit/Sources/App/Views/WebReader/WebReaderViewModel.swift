@@ -1,4 +1,3 @@
-import Combine
 import Models
 import Services
 import SwiftUI
@@ -9,33 +8,15 @@ struct SafariWebLink: Identifiable {
   let url: URL
 }
 
-final class WebReaderViewModel: ObservableObject {
-  @Published var isLoading = false
+@MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
 
   var slug: String?
-  var subscriptions = Set<AnyCancellable>()
 
-  func loadContent(dataService: DataService, slug: String) {
+  func loadContent(dataService: DataService, slug: String) async {
     self.slug = slug
-    isLoading = true
-
     guard let username = dataService.currentViewer?.username else { return }
-
-    if let content = dataService.pageFromCache(slug: slug) {
-      articleContent = content
-    } else {
-      dataService.articleContentPublisher(username: username, slug: slug).sink(
-        receiveCompletion: { [weak self] completion in
-          guard case .failure = completion else { return }
-          self?.isLoading = false
-        },
-        receiveValue: { [weak self] articleContent in
-          self?.articleContent = articleContent
-        }
-      )
-      .store(in: &subscriptions)
-    }
+    articleContent = try? await dataService.articleContent(username: username, slug: slug, useCache: true)
   }
 
   func createHighlight(
@@ -141,16 +122,12 @@ final class WebReaderViewModel: ObservableObject {
 
     switch actionID {
     case "deleteHighlight":
-      dataService.invalidateCachedPage(slug: slug)
       deleteHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "createHighlight":
-      dataService.invalidateCachedPage(slug: slug)
       createHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "mergeHighlight":
-      dataService.invalidateCachedPage(slug: slug)
       mergeHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "updateHighlight":
-      dataService.invalidateCachedPage(slug: slug)
       updateHighlight(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
     case "articleReadingProgress":
       updateReadingProgress(messageBody: messageBody, replyHandler: replyHandler, dataService: dataService)
