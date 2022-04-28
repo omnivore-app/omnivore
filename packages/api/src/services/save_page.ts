@@ -75,7 +75,7 @@ export const savePage = async (
   const pageType = parseOriginalContent(input.url, input.originalContent)
 
   const articleToSave: Page = {
-    id: '',
+    id: input.clientRequestId,
     slug,
     userId: saver.userId,
     originalHtml: parseResult.domContent,
@@ -111,8 +111,15 @@ export const savePage = async (
       },
       ctx
     )
+    input.clientRequestId = existingPage.id
   } else if (shouldParseInBackend(input)) {
-    await createPageSaveRequest(saver.userId, input.url, ctx.models)
+    await createPageSaveRequest(
+      saver.userId,
+      input.url,
+      ctx.models,
+      ctx.pubsub,
+      input.clientRequestId
+    )
   } else {
     await createPage(articleToSave, ctx)
   }
