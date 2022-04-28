@@ -1,4 +1,3 @@
-import Combine
 import Models
 import Services
 import SwiftUI
@@ -11,8 +10,6 @@ import Views
   @Published var labels = [LinkedItemLabel]()
   @Published var showCreateEmailModal = false
   @Published var labelSearchFilter = ""
-
-  var subscriptions = Set<AnyCancellable>()
 
   func loadLabels(
     dataService: DataService,
@@ -58,20 +55,10 @@ import Views
   }
 
   func deleteLabel(dataService: DataService, labelID: String, name: String) {
-    isLoading = true
-
-    dataService.removeLabelPublisher(labelID: labelID, name: name).sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { [weak self] _ in
-        self?.isLoading = false
-        self?.labels.removeAll { $0.name == name }
-        self?.selectedLabels.removeAll { $0.name == name }
-        self?.unselectedLabels.removeAll { $0.name == name }
-      }
-    )
-    .store(in: &subscriptions)
+    dataService.removeLabel(labelID: labelID, name: name)
+    labels.removeAll { $0.name == name }
+    selectedLabels.removeAll { $0.name == name }
+    unselectedLabels.removeAll { $0.name == name }
   }
 
   func saveItemLabelChanges(itemID: String, dataService: DataService) {

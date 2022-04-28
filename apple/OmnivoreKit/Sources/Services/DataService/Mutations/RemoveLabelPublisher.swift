@@ -3,8 +3,20 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-  func removeLabelPublisher(labelID: String, name: String) -> AnyPublisher<Bool, BasicError> {
+extension DataService {
+  public func removeLabel(labelID: String, name: String) {
+    // Update CoreData
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
+      guard let label = LinkedItemLabel.lookup(byName: name, inContext: self.backgroundContext) else { return }
+      label.remove(inContext: self.backgroundContext)
+
+      // Send update to server
+      self.syncLabelDeletion(labelID: labelID, labelName: name)
+    }
+  }
+
+  func syncLabelDeletion(labelID: String, labelName: String) {
     enum MutationResult {
       case success(labelID: String)
       case error(errorCode: Enums.DeleteLabelErrorCode)
@@ -25,34 +37,30 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if payload.errors != nil {
-              promise(.failure(.message(messageText: "Error removing label")))
-            }
+    send(mutation, to: path, headers: headers) { result in
+      let data = try? result.get()
+      let isSyncSuccess = data != nil
 
-            switch payload.data {
-            case .success:
-              if let label = LinkedItemLabel.lookup(byName: name, inContext: self.backgroundContext) {
-                label.remove(inContext: self.backgroundContext)
-                promise(.success(true))
-              } else {
-                promise(.failure(.message(messageText: "Error removing label")))
-              }
-            case .error:
-              promise(.failure(.message(messageText: "Error removing label")))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "Error removing label")))
-          }
+      context.perform {
+        let label = LinkedItemLabel.lookup(byName: labelName, inContext: context)
+        guard let label = label else { return }
+
+        if isSyncSuccess {
+          label.remove(inContext: context)
+        } else {
+          label.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
+        }
+
+        do {
+          try context.save()
+          logger.debug("LinkedItem deleted succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to delete LinkedItem: \(error.localizedDescription)")
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }
