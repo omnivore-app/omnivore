@@ -68,6 +68,7 @@ export const saveFile = async (
   const matchedUserArticleRecord = await getPageByParam({
     userId: saver.id,
     url: uploadFileUrlOverride,
+    state: State.Succeeded,
   })
 
   if (matchedUserArticleRecord) {
@@ -76,10 +77,10 @@ export const saveFile = async (
       {
         savedAt: new Date(),
         archivedAt: null,
-        state: State.Succeeded,
       },
       ctx
     )
+    input.clientRequestId = matchedUserArticleRecord.id
   } else {
     const pageId = await createPage(
       {
@@ -91,7 +92,7 @@ export const saveFile = async (
         uploadFileId: input.uploadFileId,
         slug: generateSlug(uploadFile.fileName),
         userId: saver.id,
-        id: '',
+        id: input.clientRequestId,
         createdAt: new Date(),
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
@@ -106,6 +107,7 @@ export const saveFile = async (
         errorCodes: [SaveErrorCode.Unknown],
       }
     }
+    input.clientRequestId = pageId
   }
 
   return {

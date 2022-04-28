@@ -27,7 +27,7 @@ export const saveUrl = async (
     return {
       clientRequestId: pageSaveRequest.id,
       url: `${homePageURL()}/${saver.profile.username}/links/${
-        input.clientRequestId
+        pageSaveRequest.id
       }`,
     }
   } catch (error) {
