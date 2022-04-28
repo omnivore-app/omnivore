@@ -74,23 +74,8 @@ import Views
     .store(in: &subscriptions)
   }
 
-  func saveItemLabelChanges(
-    itemID: String,
-    dataService: DataService,
-    onComplete: @escaping ([LinkedItemLabel]) -> Void
-  ) {
-    isLoading = true
-    dataService.updateArticleLabelsPublisher(itemID: itemID, labelIDs: selectedLabels.map(\.unwrappedID)).sink(
-      receiveCompletion: { [weak self] _ in
-        self?.isLoading = false
-      },
-      receiveValue: { labelIDs in
-        onComplete(
-          labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
-        )
-      }
-    )
-    .store(in: &subscriptions)
+  func saveItemLabelChanges(itemID: String, dataService: DataService) {
+    dataService.updateItemLabels(itemID: itemID, labelNames: selectedLabels.map(\.unwrappedName))
   }
 
   func addLabelToItem(_ label: LinkedItemLabel) {

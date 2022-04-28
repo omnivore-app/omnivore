@@ -28,7 +28,6 @@ struct ApplyLabelsView: View {
   }
 
   let mode: Mode
-  let commitLabelChanges: ([LinkedItemLabel]) -> Void
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
@@ -100,14 +99,11 @@ struct ApplyLabelsView: View {
             action: {
               switch mode {
               case let .item(feedItem):
-                viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService) { labels in
-                  commitLabelChanges(labels)
-                  presentationMode.wrappedValue.dismiss()
-                }
+                viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
               case .list:
-                commitLabelChanges(viewModel.selectedLabels)
-                presentationMode.wrappedValue.dismiss()
+                break
               }
+              presentationMode.wrappedValue.dismiss()
             },
             label: { Text(mode.confirmButtonText).foregroundColor(.appGrayTextContrast) }
           )
