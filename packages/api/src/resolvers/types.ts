@@ -21,6 +21,7 @@ export interface Claims {
   iat: number
   userRole?: string
   scope?: string // scope is used for api key like page:search
+  exp?: number
 }
 
 export type ClaimsToSet = {

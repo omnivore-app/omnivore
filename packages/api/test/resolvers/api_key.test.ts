@@ -2,12 +2,33 @@ import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
+import supertest from 'supertest'
+
+const testAPIKey = (apiKey: string): supertest.Test => {
+  const query = `
+    query {
+      articles(first: 1) {
+        ... on ArticlesSuccess {
+          edges {
+            cursor
+          }
+        }
+        ... on ArticlesError {
+          errorCodes
+        }
+      }
+    }
+   `
+  return graphqlRequest(query, apiKey)
+}
 
 describe('generate api key', () => {
   const username = 'fake_user'
 
   let authToken: string
   let user: User
+  let query: string
+  let expiredAt: string
 
   before(async () => {
     // create test user and login
@@ -24,10 +45,12 @@ describe('generate api key', () => {
     await deleteTestUser(username)
   })
 
-  it('should return api key which could be used to make api calls', async () => {
-    const query = `
+  beforeEach(() => {
+    query = `
       mutation {
-        generateApiKey {
+        generateApiKey(input: {
+          expiredAt: "${expiredAt}"
+        }) {
           ... on GenerateApiKeySuccess {
             apiKey
           }
@@ -37,11 +60,44 @@ describe('generate api key', () => {
         }
       }
     `
-    const response = await graphqlRequest(query, authToken).expect(200)
+  })
 
-    expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
+  context('when no expiredAt is specified', () => {
+    before(() => {
+      expiredAt = ''
+    })
 
-    const apiKey = response.body.data.generateApiKey.apiKey
-    return graphqlRequest(query, apiKey).expect(200)
+    it('should generate an api key with no expiration date', async () => {
+      const response = await graphqlRequest(query, authToken)
+      expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
+
+      return testAPIKey(response.body.data.generateApiKey.apiKey).expect(200)
+    })
+  })
+
+  context('when api key is not expired', () => {
+    before(() => {
+      expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString()
+    })
+
+    it('should generate an api key', async () => {
+      const response = await graphqlRequest(query, authToken)
+      expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
+
+      return testAPIKey(response.body.data.generateApiKey.apiKey).expect(200)
+    })
+  })
+
+  context('when api key is expired', () => {
+    before(() => {
+      expiredAt = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+    })
+
+    it('should generate an expired api key', async () => {
+      const response = await graphqlRequest(query, authToken)
+      expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
+
+      return testAPIKey(response.body.data.generateApiKey.apiKey).expect(500)
+    })
   })
 })

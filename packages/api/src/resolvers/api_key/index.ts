@@ -13,23 +13,26 @@ export const generateApiKeyResolver = authorized<
   GenerateApiKeySuccess,
   GenerateApiKeyError,
   MutationGenerateApiKeyArgs
->((_, { scope }, { claims }) => {
+>((_, { input: { scope, expiredAt } }, { claims }) => {
   try {
-    console.log('generateApiKeyResolver', scope)
+    console.log('generateApiKeyResolver', scope, expiredAt)
+
+    const exp = expiredAt ? new Date(expiredAt).getTime() / 1000 : null
+    const apiKey = generateApiKey({
+      iat: new Date().getTime(),
+      scope: scope || 'all',
+      uid: claims.uid,
+      ...(exp && { exp }),
+    })
 
     analytics.track({
       userId: claims.uid,
       event: 'generate_api_key',
       properties: {
         scope,
+        expiredAt: exp,
         env: env.server.apiEnv,
       },
-    })
-
-    const apiKey = generateApiKey({
-      iat: new Date().getTime(),
-      scope: scope || 'all',
-      uid: claims.uid,
     })
 
     return { apiKey }
