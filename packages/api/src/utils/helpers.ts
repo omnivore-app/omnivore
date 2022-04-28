@@ -3,7 +3,6 @@ import {
   ArticleSavingRequest,
   ArticleSavingRequestStatus,
   CreateArticleError,
-  CreateArticleErrorCode,
   FeedArticle,
   Profile,
   ResolverFn,
@@ -245,16 +244,6 @@ export const pageToArticleSavingRequest = (
   user: userDataToUser(user),
   status: page.state as string as ArticleSavingRequestStatus,
   updatedAt: page.updatedAt || new Date(),
-})
-
-export const articleSavingRequestDataToArticleSavingRequest = (
-  user: UserData,
-  articleSavingRequest: ArticleSavingRequestData
-): ArticleSavingRequest => ({
-  ...articleSavingRequest,
-  user: userDataToUser(user),
-  status: articleSavingRequest.status as ArticleSavingRequestStatus,
-  errorCode: articleSavingRequest.errorCode as CreateArticleErrorCode,
 })
 
 export const validatedDate = (
