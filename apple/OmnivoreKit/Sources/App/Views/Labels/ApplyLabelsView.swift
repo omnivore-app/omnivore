@@ -28,6 +28,7 @@ struct ApplyLabelsView: View {
   }
 
   let mode: Mode
+  let onSave: (([LinkedItemLabel]) -> Void)?
 
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
@@ -101,7 +102,7 @@ struct ApplyLabelsView: View {
               case let .item(feedItem):
                 viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
               case .list:
-                break
+                onSave?(viewModel.selectedLabels)
               }
               presentationMode.wrappedValue.dismiss()
             },

@@ -47,7 +47,7 @@ import Views
           loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(mode: .item(item))
+          ApplyLabelsView(mode: .item(item), onSave: nil)
         }
       }
       .navigationTitle("Home")
@@ -110,7 +110,9 @@ import Views
           }
           .padding(.horizontal)
           .sheet(isPresented: $showLabelsSheet) {
-            ApplyLabelsView(mode: .list(viewModel.selectedLabels))
+            ApplyLabelsView(mode: .list(viewModel.selectedLabels)) {
+              viewModel.selectedLabels = $0
+            }
           }
         }
         if prefersListLayout {
