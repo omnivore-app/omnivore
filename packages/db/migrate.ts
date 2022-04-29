@@ -101,6 +101,7 @@ const updateMappings = async (): Promise<void> => {
     join(__dirname, 'index_settings.json'),
     'utf8'
   )
+
   // update mappings
   await client.indices.putMapping({
     index: INDEX_ALIAS,
@@ -122,7 +123,7 @@ postgrator
 log('Starting updating elasticsearch index mappings...')
 
 updateMappings()
-  .then(() => console.log('\nExiting...'))
+  .then(() => console.log('\nUpdating elastic completed.'))
   .catch((error) => {
     log(`${chalk.red('Updating failed: ')}${error.message}`, chalk.red)
     process.exit(1)
