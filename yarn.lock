@@ -14134,7 +14134,7 @@ glob@7.1.6:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@7.1.7, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
+glob@7.1.7:
   version "7.1.7"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.7.tgz#3b193e9233f01d42d0b3f78294bbeeb418f94a90"
   integrity sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==
@@ -14146,7 +14146,7 @@ glob@7.1.7, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.2.0:
+glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@^7.2.0:
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.2.0.tgz#d15535af7732e02e948f4c41628bd910293f6023"
   integrity sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==
@@ -18524,11 +18524,6 @@ new-date@^1.0.3:
   dependencies:
     "@segment/isodate" "1.0.3"
 
-newline@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/newline/-/newline-0.0.3.tgz#0f6a74493223dba04fe7dbfb6cdc804bf7e46dd0"
-  integrity sha1-D2p0STIj26BP59v7bNyAS/fkbdA=
-
 next@^12.1.0:
   version "12.1.4"
   resolved "https://registry.yarnpkg.com/next/-/next-12.1.4.tgz#597a9bdec7aec778b442c4f6d41afd2c64a54b23"
@@ -20185,13 +20180,12 @@ postcss@^8.0.2, postcss@^8.2.15, postcss@^8.4.7:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
-postgrator@^4.1.1, postgrator@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/postgrator/-/postgrator-4.2.0.tgz#df96082b4a049fa5908315fdb47e37b45878b0e0"
-  integrity sha512-i19t0YozLUpxXQ+G96YlYXRGx8nX0ExTyloG5A/1HnPG6sCf0Y2hZsBBKsBcb9rouG6AUn3lwsCFD3O7FMDmBA==
+postgrator@^7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/postgrator/-/postgrator-7.1.0.tgz#df0ee826a1726234e5667af4d1ec463b7ace7611"
+  integrity sha512-twbg6EBhC/GYpRV75ZHzWUcztjfmRQf+rGTHm9r8epCTaWbDBplbjh5keruUJkWP4Lb3UeHnHrDVuFl6BRS3Wg==
   dependencies:
-    glob "^7.1.6"
-    newline "0.0.3"
+    glob "^7.2.0"
 
 postgres-array@~2.0.0:
   version "2.0.0"
