@@ -72,7 +72,6 @@ export function useGetArticleSavingStatus({
                 ...HighlightFields
               }
             }
-            slug
           }
         }
         ... on ArticleSavingRequestError {
