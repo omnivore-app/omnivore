@@ -497,6 +497,7 @@ export const getArticlesResolver = authorized<
       savedDateFilter: searchQuery.savedDateFilter,
       publishedDateFilter: searchQuery.publishedDateFilter,
       subscriptionFilter: searchQuery.subscriptionFilter,
+      includePending: params.includePending,
     },
     claims.uid
   )) || [[], 0]

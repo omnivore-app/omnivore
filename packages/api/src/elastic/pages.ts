@@ -336,7 +336,7 @@ export const searchPages = async (
     savedDateFilter?: DateRangeFilter
     publishedDateFilter?: DateRangeFilter
     subscriptionFilter?: SubscriptionFilter
-    includePending?: boolean
+    includePending?: boolean | null
   },
   userId: string
 ): Promise<[Page[], number] | undefined> => {
