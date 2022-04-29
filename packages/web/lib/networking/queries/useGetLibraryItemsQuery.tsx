@@ -84,6 +84,7 @@ const libraryItemFragment = gql`
     isArchived
     description
     linkId
+    state
     labels {
       ...LabelFields
     }
