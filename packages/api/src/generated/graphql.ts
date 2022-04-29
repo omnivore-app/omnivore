@@ -1155,6 +1155,7 @@ export type QueryArticleArgs = {
 export type QueryArticlesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+  includePending?: InputMaybe<Scalars['Boolean']>;
   query?: InputMaybe<Scalars['String']>;
   sharedOnly?: InputMaybe<Scalars['Boolean']>;
   sort?: InputMaybe<SortParams>;

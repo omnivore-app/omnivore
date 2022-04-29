@@ -69,7 +69,7 @@ export interface SearchBody {
       }[]
       minimum_should_match?: number
       must_not: (
-        | { term: { state: ArticleSavingRequestStatus.Failed } }
+        | { term: { state: ArticleSavingRequestStatus } }
         | {
             exists: {
               field: string

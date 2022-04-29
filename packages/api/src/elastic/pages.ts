@@ -336,6 +336,7 @@ export const searchPages = async (
     savedDateFilter?: DateRangeFilter
     publishedDateFilter?: DateRangeFilter
     subscriptionFilter?: SubscriptionFilter
+    includePending?: boolean
   },
   userId: string
 ): Promise<[Page[], number] | undefined> => {
@@ -429,6 +430,14 @@ export const searchPages = async (
     }
     if (subscriptionFilter) {
       appendSubscriptionFilter(body, subscriptionFilter)
+    }
+
+    if (!args.includePending) {
+      body.query.bool.must_not.push({
+        term: {
+          state: ArticleSavingRequestStatus.Processing,
+        },
+      })
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))

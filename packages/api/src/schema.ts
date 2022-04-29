@@ -1586,6 +1586,7 @@ const schema = gql`
       after: String
       first: Int
       query: String
+      includePending: Boolean
     ): ArticlesResult!
     article(username: String!, slug: String!): ArticleResult!
     sharedArticle(

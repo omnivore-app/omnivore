@@ -819,7 +819,7 @@ type Profile {
 
 type Query {
   article(slug: String!, username: String!): ArticleResult!
-  articles(after: String, first: Int, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
+  articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
   getFollowers(userId: ID): GetFollowersResult!
