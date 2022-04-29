@@ -21,8 +21,8 @@ import Utils
     @State var readerView: Bool = false
     @State private var shareLink: ShareLink?
 
-    init(pdfURL: URL, viewModel: PDFViewerViewModel) {
-      self.pdfURL = pdfURL
+    init(remoteURL: URL, viewModel: PDFViewerViewModel) {
+      self.pdfURL = viewModel.dataURL(remoteURL: remoteURL)
       self.viewModel = viewModel
       self.document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
       self.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
@@ -357,11 +357,11 @@ import Utils
 
 #elseif os(macOS)
   struct PDFViewer: View {
-    let pdfURL: URL
+    let remoteURL: URL
     let viewModel: PDFViewerViewModel
 
     var body: some View {
-      Text(pdfURL.absoluteString)
+      Text(remoteURL.absoluteString)
     }
   }
 #endif

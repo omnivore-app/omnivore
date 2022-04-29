@@ -54,26 +54,26 @@ private extension Authenticator {
     authError: Error?
   ) {
     if let idToken = authState?.lastTokenResponse?.idToken {
-      networker.submitGoogleToken(idToken: idToken)
-        .sink { completion in
-          guard case let .failure(loginError) = completion else { return }
-          switch loginError {
-          case .unauthorized, .unknown:
-            self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
-          case .network:
-            promise(.failure(loginError))
+      Task {
+        do {
+          let authPayload = try await networker.submitGoogleToken(idToken: idToken)
+          try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
+          try ValetKey.authToken.setValue(authPayload.authToken)
+          DispatchQueue.main.async {
+            self.isLoggedIn = true
           }
-        } receiveValue: { [weak self] in
-          do {
-            try ValetKey.authCookieString.setValue($0.commentedAuthCookieString)
-            try ValetKey.authToken.setValue($0.authToken)
-            self?.isLoggedIn = true
-            promise(.success(false))
-          } catch {
-            promise(.failure(.unknown))
+        } catch {
+          if let error = error as? LoginError {
+            switch error {
+            case .unauthorized, .unknown:
+              self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
+            case .network:
+              promise(.failure(error))
+            }
+            self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
           }
         }
-        .store(in: &subscriptions)
+      }
     } else {
       resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
     }

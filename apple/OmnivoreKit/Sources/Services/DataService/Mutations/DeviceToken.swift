@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import Models
 import SwiftGraphQL
@@ -27,15 +26,13 @@ public enum DeviceTokenOperation {
 }
 
 public extension DataService {
-  func deviceTokenPublisher(
-    deviceTokenOperation: DeviceTokenOperation
-  ) -> AnyPublisher<String, BasicError> {
-    enum MutationResultNew {
+  func syncDeviceToken(deviceTokenOperation: DeviceTokenOperation) {
+    enum MutationResult {
       case saved(id: String)
       case error(errorCode: Enums.SetDeviceTokenErrorCode)
     }
 
-    let selection = Selection<MutationResultNew, Unions.SetDeviceTokenResult> {
+    let selection = Selection<MutationResult, Unions.SetDeviceTokenResult> {
       try $0.on(
         setDeviceTokenSuccess: .init {
           .saved(id: try $0.deviceToken(selection: Selection.DeviceToken { try $0.id() }))
@@ -57,28 +54,6 @@ public extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.message(messageText: "graphql error: \(graphqlError)")))
-            }
-
-            switch payload.data {
-            case let .saved(id: id):
-              promise(.success(id))
-            case let .error(errorCode: errorCode):
-              promise(.failure(.message(messageText: errorCode.rawValue)))
-            }
-          case .failure:
-            promise(.failure(.message(messageText: "graphql error")))
-          }
-        }
-      }
-    }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
+    send(mutation, to: path, headers: headers) { _ in }
   }
 }

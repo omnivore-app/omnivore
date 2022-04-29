@@ -39,7 +39,7 @@ public struct FeedCard: View {
 
       Group {
         if let imageURL = item.imageURL {
-          AsyncImage(url: imageURL) { imageStatus in
+          AsyncLoadingImage(url: imageURL) { imageStatus in
             if case let AsyncImageStatus.loaded(image) = imageStatus {
               image
                 .resizable()

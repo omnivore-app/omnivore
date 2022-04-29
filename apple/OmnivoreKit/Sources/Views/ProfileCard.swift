@@ -23,7 +23,7 @@ public struct ProfileCard: View {
     HStack(alignment: .center) {
       Group {
         if let url = data.imageURL {
-          AsyncImage(url: url) { imageStatus in
+          AsyncLoadingImage(url: url) { imageStatus in
             if case let AsyncImageStatus.loaded(image) = imageStatus {
               image.resizable()
             } else {

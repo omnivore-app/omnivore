@@ -31,6 +31,7 @@
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
         <attribute name="pageURLString" attributeType="String"/>
+        <attribute name="pdfData" optional="YES" attributeType="Binary"/>
         <attribute name="publishDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="publisherURLString" optional="YES" attributeType="String"/>
         <attribute name="readingProgress" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -83,7 +84,7 @@
     </entity>
     <elements>
         <element name="Highlight" positionX="27" positionY="225" width="128" height="224"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="329"/>
+        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="344"/>
         <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="119"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>

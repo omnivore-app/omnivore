@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import Models
 import Services
@@ -22,6 +21,10 @@ public final class RootViewModel: ObservableObject {
 
   public init() {
     registerFonts()
+
+    if let viewer = services.dataService.currentViewer {
+      EventTracker.registerUser(userID: viewer.unwrappedUserID)
+    }
 
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {

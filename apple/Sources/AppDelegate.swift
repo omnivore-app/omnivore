@@ -1,7 +1,6 @@
 #if os(macOS)
   import AppKit
 #elseif os(iOS)
-  import Combine
   import Intercom
   import UIKit
   import Utils
@@ -21,8 +20,6 @@
 
 #elseif os(iOS)
   class AppDelegate: NSObject, UIApplicationDelegate {
-    var subscriptions = Set<AnyCancellable>()
-
 //    override init() {
 //      super.init()
 //      UIColor.classInit

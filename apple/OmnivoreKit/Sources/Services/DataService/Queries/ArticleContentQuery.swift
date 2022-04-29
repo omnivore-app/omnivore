@@ -82,20 +82,23 @@ extension DataService {
   }
 
   func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
-    backgroundContext.perform {
+    backgroundContext.perform { [weak self] in
+      guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-      fetchRequest.predicate = NSPredicate(
-        format: "slug == %@", slug
-      )
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LinkedItem.slug), slug)
 
       let linkedItem = try? self.backgroundContext.fetch(fetchRequest).first
 
-      if let linkedItem = linkedItem {
-        let highlightObjects = highlights.map {
-          $0.asManagedObject(context: self.backgroundContext)
-        }
-        linkedItem.addToHighlights(NSSet(array: highlightObjects))
-        linkedItem.htmlContent = htmlContent
+      guard let linkedItem = linkedItem else { return }
+
+      let highlightObjects = highlights.map {
+        $0.asManagedObject(context: self.backgroundContext)
+      }
+      linkedItem.addToHighlights(NSSet(array: highlightObjects))
+      linkedItem.htmlContent = htmlContent
+
+      if linkedItem.isPDF {
+        self.fetchPDFData(slug: slug, pageURLString: linkedItem.unwrappedPageURLString)
       }
 
       do {
@@ -104,6 +107,32 @@ extension DataService {
       } catch {
         self.backgroundContext.rollback()
         print("Failed to save ArticleContent: \(error)")
+      }
+    }
+  }
+
+  func fetchPDFData(slug: String, pageURLString: String) {
+    Task {
+      guard let url = URL(string: pageURLString) else { return }
+      let result: (Data, URLResponse)? = try? await URLSession.shared.data(from: url)
+      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else { return }
+      guard let data = result?.0 else { return }
+
+      await backgroundContext.perform { [weak self] in
+        let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LinkedItem.slug), slug)
+
+        let linkedItem = try? self?.backgroundContext.fetch(fetchRequest).first
+        guard let linkedItem = linkedItem else { return }
+        linkedItem.pdfData = data
+
+        do {
+          try self?.backgroundContext.save()
+          print("PDF data saved succesfully")
+        } catch {
+          self?.backgroundContext.rollback()
+          print("Failed to save PDF data: \(error)")
+        }
       }
     }
   }

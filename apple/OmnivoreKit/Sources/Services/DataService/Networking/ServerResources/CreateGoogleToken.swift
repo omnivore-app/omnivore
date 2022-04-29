@@ -1,9 +1,8 @@
-import Combine
 import Foundation
 import Models
 
 extension Networker {
-  func submitGoogleToken(idToken: String) -> AnyPublisher<AuthPayload, LoginError> {
+  func submitGoogleToken(idToken: String) async throws -> AuthPayload {
     let params = SignInParams(token: idToken, provider: .google)
     let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
 
@@ -18,10 +17,14 @@ extension Networker {
       decode: AuthPayload.decode
     )
 
-    return urlSession
-      .performRequest(resource: resource)
-      .mapError { LoginError.make(serverError: $0) }
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
+    do {
+      return try await urlSession.performReq(resource: resource)
+    } catch {
+      if let error = error as? ServerError {
+        throw LoginError.make(serverError: error)
+      } else {
+        throw LoginError.unknown
+      }
+    }
   }
 }
