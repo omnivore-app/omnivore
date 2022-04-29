@@ -110,6 +110,7 @@ export function useGetLibraryItemsQuery({
         first: $first
         after: $after
         query: $query
+        includePending: true
       ) {
         ... on ArticlesSuccess {
           edges {
