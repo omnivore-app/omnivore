@@ -302,6 +302,19 @@ describe("Readability API", function() {
       }).parse().content;
       expect(content).eql(expected_xhtml);
     });
+
+    it("should remove srcset elements that are lazy loading placeholders", function() {
+      var dom = new JSDOM('My image: <img class="shrinkToFit jetpack-lazy-image" src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&#038;ssl=1" alt width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&amp;is-pending-load=1#038;ssl=1" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></img>');
+      var expected_xhtml = '<div id="readability-page-1" class="page">' +
+                           'My image: <img src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&amp;is-pending-load=1#038;ssl=1" alt="" width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&amp;is-pending-load=1#038;ssl=1">' +
+                           '</div>'
+      var content = new Readability(dom.window.document, {
+        createImageProxyUrl: function(url) {
+          return url;
+        }
+      }).parse().content;
+      expect(content).eql(expected_xhtml);
+    });
   });
 });
 
