@@ -507,11 +507,12 @@ Readability.prototype = {
   /** Creates imageproxy links for all article images with href source */
   _createImageProxyLinks: function (articleContent) {
     if (this.createImageProxyUrl !== undefined) {
+      const dataUriRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
+
       // replace all images' href source
       const images = articleContent.getElementsByTagName('img');
       Array.from(images).forEach(image => {
         const src = image.getAttribute("src");
-        const dataUriRegex = /^data:image\/(?:png|jpe?g|gif);base64,/;
 
         // do not proxy data uri
         if (src && !dataUriRegex.test(src)) {
@@ -536,8 +537,16 @@ Readability.prototype = {
       const elements = articleContent.querySelectorAll('[srcset]');
       Array.from(elements).forEach(element => {
         let resultSrcset = '';
+        const srcSet = element.getAttribute('srcset')
 
-        const items = parseSrcset(element.getAttribute('srcset'));
+        // If the srcset is a data image its probably just for lazy loading
+        // so we want to remove it.
+        if (dataUriRegex.test(srcSet) && element.getAttribute('src')) {
+          element.removeAttribute('srcset');
+          return;
+        }
+
+        const items = parseSrcset(srcSet);
         for (let item of items) {
           const { url: link, w, x, d } = item;
           if (!w && !x && !d) {
