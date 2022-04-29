@@ -40,7 +40,6 @@ COPY --from=builder /app/packages/api/package.json /app/packages/api/package.jso
 COPY --from=builder /app/packages/api/node_modules /app/packages/api/node_modules
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/package.json /app/package.json
-COPY --from=builder /app/packages/api/index_settings.json /app/packages/api/index_settings.json
 EXPOSE 8080
 
 CMD ["yarn", "workspace", "@omnivore/api", "start"]
