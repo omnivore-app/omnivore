@@ -253,7 +253,7 @@ export const createArticleResolver = authorized<
         userId: uid,
         originalHtml: domContent,
         content: parsedContent?.content || '',
-        description: parsedContent?.excerpt,
+        description: parsedContent?.excerpt || '',
         title:
           parsedContent?.title ||
           preparedDocument?.pageInfo.title ||
