@@ -79,14 +79,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
   })
 
-  useEffect(() => {
-    window.analytics?.track('link_read', {
-      link: props.article.id,
-      slug: props.article.slug,
-      url: props.article.originalArticleUrl,
-    })
-  }, [props.article])
-
   const styles = {
     fontSize,
     margin: props.margin ?? 360,

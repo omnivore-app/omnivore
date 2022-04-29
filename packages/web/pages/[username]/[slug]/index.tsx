@@ -107,6 +107,17 @@ export default function Home(): JSX.Element {
     })
   )
 
+  useEffect(() => {
+    if (article && viewerData?.me) {
+      window.analytics?.track('link_read', {
+        link: article.id,
+        slug: article.slug,
+        url: article.originalArticleUrl,
+        userId: viewerData.me.id
+      })
+    }
+  }, [article, viewerData])
+
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
