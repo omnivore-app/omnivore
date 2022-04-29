@@ -18,7 +18,6 @@ export const articleFragment = gql`
     isArchived
     description
     linkId
-    state
   }
 `
 
