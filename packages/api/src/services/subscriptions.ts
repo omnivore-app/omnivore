@@ -89,14 +89,19 @@ export const unsubscribeAll = async (
     const subscriptions = await getRepository(Subscription).find({
       where: {
         user: { id: userId },
+        status: SubscriptionStatus.Active,
         newsletterEmail,
       },
     })
 
     for (const subscription of subscriptions) {
-      await unsubscribe(subscription)
+      try {
+        await unsubscribe(subscription)
+      } catch (error) {
+        console.log('Failed to unsubscribe', error)
+      }
     }
-  } catch (err) {
-    console.log('Failed to unsubscribe all', err)
+  } catch (error) {
+    console.log('Failed to unsubscribe all', error)
   }
 }
