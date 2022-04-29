@@ -14,6 +14,6 @@ RUN yarn install
 
 ADD /packages/db ./packages/db
 ADD /packages/db/setup.sh ./packages/db/setup.sh
-ADD /packages/db/index_settings.json ./packages/db/index_settings.json
+ADD /packages/db/elastic_migrations ./packages/db/elastic_migrations
 
 CMD ["yarn", "workspace", "@omnivore/db", "migrate"]
