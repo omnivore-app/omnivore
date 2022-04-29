@@ -88,10 +88,10 @@ const logAppliedMigrations = (
 
 export const INDEX_ALIAS = 'pages_alias'
 export const client = new Client({
-  node: process.env.ELASTICSEARCH_URL || 'http://localhost:9200',
+  node: process.env.ELASTIC_URL || 'http://localhost:9200',
   auth: {
-    username: process.env.ELASTICSEARCH_USERNAME || '',
-    password: process.env.ELASTICSEARCH_PASSWORD || '',
+    username: process.env.ELASTIC_USERNAME || '',
+    password: process.env.ELASTIC_PASSWORD || '',
   },
 })
 
