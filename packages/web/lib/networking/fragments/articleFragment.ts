@@ -18,10 +18,17 @@ export const articleFragment = gql`
     isArchived
     description
     linkId
+    state
   }
 `
 
 export type ContentReader = 'WEB' | 'PDF'
+
+export enum State {
+  SUCCEEDED = 'SUCCEEDED',
+  PROCESSING = 'PROCESSING',
+  FAILED = 'FAILED',
+}
 
 export type ArticleFragmentData = {
   id: string
@@ -40,4 +47,5 @@ export type ArticleFragmentData = {
   isArchived: boolean
   description: string
   linkId?: string
+  state?: State
 }

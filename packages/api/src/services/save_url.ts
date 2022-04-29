@@ -1,7 +1,7 @@
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { homePageURL } from '../env'
-import { SaveResult, SaveUrlInput } from '../generated/graphql'
+import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { createPageSaveRequest } from './create_page_save_request'
 
@@ -16,20 +16,24 @@ export const saveUrl = async (
   input: SaveUrlInput
 ): Promise<SaveResult> => {
   try {
-    await createPageSaveRequest(
+    const pageSaveRequest = await createPageSaveRequest(
       saver.id,
       input.url,
       ctx.models,
+      ctx.pubsub,
       input.clientRequestId
     )
+
+    return {
+      clientRequestId: pageSaveRequest.id,
+      url: `${homePageURL()}/${saver.profile.username}/links/${
+        pageSaveRequest.id
+      }`,
+    }
   } catch (error) {
     console.log('error enqueuing request', error)
-  }
-
-  return {
-    clientRequestId: input.clientRequestId,
-    url: `${homePageURL()}/${saver.profile.username}/links/${
-      input.clientRequestId
-    }`,
+    return {
+      errorCodes: [SaveErrorCode.Unknown],
+    }
   }
 }

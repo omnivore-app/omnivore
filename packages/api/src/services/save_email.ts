@@ -6,7 +6,7 @@ import {
 } from '../utils/parser'
 import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
-import { Page } from '../elastic/types'
+import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 
 export type SaveContext = {
@@ -69,6 +69,7 @@ export const saveEmail = async (
     readingProgressAnchorIndex: 0,
     readingProgressPercent: 0,
     subscription: input.author,
+    state: ArticleSavingRequestStatus.Succeeded,
   }
 
   const page = await getPageByParam({ userId: ctx.uid, url: articleToSave.url })

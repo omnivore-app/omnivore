@@ -3,7 +3,6 @@ import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { homePageURL } from '../env'
 import {
-  ArticleSavingRequestStatus,
   PageType,
   SaveErrorCode,
   SaveFileInput,
@@ -12,8 +11,8 @@ import {
 import { DataModels } from '../resolvers/types'
 import { generateSlug } from '../utils/helpers'
 import { getStorageFileDetails, makeStorageFilePublic } from '../utils/uploads'
-import { createSavingRequest } from './save_page'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { ArticleSavingRequestStatus } from '../elastic/types'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -45,8 +44,6 @@ export const saveFile = async (
     }
   }
 
-  const savingRequest = await createSavingRequest(ctx, input.clientRequestId)
-
   const uploadFileDetails = await getStorageFileDetails(
     input.uploadFileId,
     uploadFile.fileName
@@ -71,6 +68,7 @@ export const saveFile = async (
   const matchedUserArticleRecord = await getPageByParam({
     userId: saver.id,
     url: uploadFileUrlOverride,
+    state: ArticleSavingRequestStatus.Succeeded,
   })
 
   if (matchedUserArticleRecord) {
@@ -82,17 +80,7 @@ export const saveFile = async (
       },
       ctx
     )
-
-    await ctx.authTrx(async (tx) => {
-      await ctx.models.articleSavingRequest.update(
-        savingRequest.id,
-        {
-          elasticPageId: matchedUserArticleRecord.id,
-          status: ArticleSavingRequestStatus.Succeeded,
-        },
-        tx
-      )
-    })
+    input.clientRequestId = matchedUserArticleRecord.id
   } else {
     const pageId = await createPage(
       {
@@ -104,10 +92,11 @@ export const saveFile = async (
         uploadFileId: input.uploadFileId,
         slug: generateSlug(uploadFile.fileName),
         userId: saver.id,
-        id: '',
+        id: input.clientRequestId,
         createdAt: new Date(),
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: ArticleSavingRequestStatus.Succeeded,
       },
       ctx
     )
@@ -118,17 +107,7 @@ export const saveFile = async (
         errorCodes: [SaveErrorCode.Unknown],
       }
     }
-
-    await ctx.authTrx(async (tx) => {
-      await ctx.models.articleSavingRequest.update(
-        savingRequest.id,
-        {
-          elasticPageId: pageId,
-          status: ArticleSavingRequestStatus.Succeeded,
-        },
-        tx
-      )
-    })
+    input.clientRequestId = pageId
   }
 
   return {

@@ -30,6 +30,7 @@ type ArticleSavingRequestData = {
   errorCode?: string
   user?: UserData
   article?: ArticleAttributes
+  slug?: string
 }
 
 type UserData = {
@@ -71,6 +72,7 @@ export function useGetArticleSavingStatus({
                 ...HighlightFields
               }
             }
+            slug
           }
         }
         ... on ArticleSavingRequestError {
@@ -112,9 +114,16 @@ export function useGetArticleSavingStatus({
   if (status === 'SUCCEEDED') {
     const username =
       articleSavingRequest?.articleSavingRequest?.user?.profile?.username
-    const slug = articleSavingRequest?.articleSavingRequest?.article?.slug
+    const slug = articleSavingRequest?.articleSavingRequest?.slug
+    const articleSlug =
+      articleSavingRequest?.articleSavingRequest?.article?.slug
     if (username && slug) {
-      return { successRedirectPath: `/${username}/${slug}`, article: articleSavingRequest?.articleSavingRequest?.article }
+      return { successRedirectPath: `/${username}/${slug}` }
+    } else if (username && articleSlug) {
+      return {
+        successRedirectPath: `/${username}/${articleSlug}`,
+        article: articleSavingRequest?.articleSavingRequest?.article,
+      }
     } else {
       return { successRedirectPath: `/home` }
     }

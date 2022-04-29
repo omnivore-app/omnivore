@@ -69,6 +69,7 @@ export interface SearchBody {
       }[]
       minimum_should_match?: number
       must_not: (
+        | { term: { state: ArticleSavingRequestStatus } }
         | {
             exists: {
               field: string
@@ -147,6 +148,12 @@ export enum PageType {
   Highlights = 'HIGHLIGHTS',
 }
 
+export enum ArticleSavingRequestStatus {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+}
+
 export interface Label {
   id: string
   name: string
@@ -199,6 +206,8 @@ export interface Page {
   subscription?: string
   unsubMailTo?: string
   unsubHttpUrl?: string
+  state: ArticleSavingRequestStatus
+  taskName?: string
 }
 
 export interface SearchItem {
@@ -221,9 +230,10 @@ export interface SearchItem {
   readingProgressPercent?: number
   readingProgressAnchorIndex?: number
   userId: string
+  state?: ArticleSavingRequestStatus
 }
 
-const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId'] as const
+const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
 

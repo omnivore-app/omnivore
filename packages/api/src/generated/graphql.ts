@@ -69,6 +69,7 @@ export type Article = {
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
+  state?: Maybe<ArticleSavingRequestStatus>;
   subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
@@ -107,10 +108,12 @@ export type ArticleResult = ArticleError | ArticleSuccess;
 
 export type ArticleSavingRequest = {
   __typename?: 'ArticleSavingRequest';
+  /** @deprecated article has been replaced with slug */
   article?: Maybe<Article>;
   createdAt: Scalars['Date'];
   errorCode?: Maybe<CreateArticleErrorCode>;
   id: Scalars['ID'];
+  slug: Scalars['String'];
   status: ArticleSavingRequestStatus;
   updatedAt: Scalars['Date'];
   user: User;
@@ -1152,6 +1155,7 @@ export type QueryArticleArgs = {
 export type QueryArticlesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+  includePending?: InputMaybe<Scalars['Boolean']>;
   query?: InputMaybe<Scalars['String']>;
   sharedOnly?: InputMaybe<Scalars['Boolean']>;
   sort?: InputMaybe<SortParams>;
@@ -1381,6 +1385,7 @@ export type SearchItem = {
   readingProgressPercent?: Maybe<Scalars['Float']>;
   shortId?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
+  state?: Maybe<ArticleSavingRequestStatus>;
   subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
@@ -2649,6 +2654,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -2678,6 +2684,7 @@ export type ArticleSavingRequestResolvers<ContextType = ResolverContext, ParentT
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   errorCode?: Resolver<Maybe<ResolversTypes['CreateArticleErrorCode']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ArticleSavingRequestStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -3378,6 +3385,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

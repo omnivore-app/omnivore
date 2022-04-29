@@ -7,9 +7,14 @@ import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
-import { articleSavingRequestDataToArticleSavingRequest } from '../utils/helpers'
+import { generateSlug, pageToArticleSavingRequest } from '../utils/helpers'
 import * as privateIpLib from 'private-ip'
-import { countByCreatedAt } from '../elastic/pages'
+import { countByCreatedAt, createPage, getPageByParam } from '../elastic/pages'
+import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
+import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
+import normalizeUrl from 'normalize-url'
+
+const SAVING_DESCRIPTION = 'Your link is being saved...'
 
 const isPrivateIP = privateIpLib.default
 
@@ -53,6 +58,7 @@ export const createPageSaveRequest = async (
   userId: string,
   url: string,
   models: DataModels,
+  pubsub: PubsubClient = createPubSubClient(),
   articleSavingRequestId = uuidv4(),
   priority?: 'low' | 'high'
 ): Promise<ArticleSavingRequest> => {
@@ -76,6 +82,10 @@ export const createPageSaveRequest = async (
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
 
+  url = normalizeUrl(url, {
+    stripHash: true,
+    stripWWW: false,
+  })
   const createdTaskName = await enqueueParseRequest(
     url,
     userId,
@@ -83,14 +93,41 @@ export const createPageSaveRequest = async (
     priority
   )
 
-  const articleSavingRequestData = await models.articleSavingRequest.create({
-    userId: userId,
-    taskName: createdTaskName,
-    id: articleSavingRequestId,
+  const existingPage = await getPageByParam({
+    userId,
+    url,
+    state: ArticleSavingRequestStatus.Succeeded,
   })
+  if (existingPage) {
+    console.log('Page already exists', url)
+    existingPage.taskName = createdTaskName
+    return pageToArticleSavingRequest(user, existingPage)
+  }
 
-  return articleSavingRequestDataToArticleSavingRequest(
-    user,
-    articleSavingRequestData
-  )
+  const page: Page = {
+    id: articleSavingRequestId,
+    userId,
+    content: SAVING_DESCRIPTION,
+    createdAt: new Date(),
+    hash: '',
+    pageType: PageType.Unknown,
+    readingProgressAnchorIndex: 0,
+    readingProgressPercent: 0,
+    slug: generateSlug(url),
+    title: url,
+    url,
+    taskName: createdTaskName,
+    state: ArticleSavingRequestStatus.Processing,
+    description: SAVING_DESCRIPTION,
+  }
+
+  const pageId = await createPage(page, { pubsub, uid: userId })
+  if (!pageId) {
+    console.log('Failed to create page', page)
+    return Promise.reject({
+      errorCode: CreateArticleSavingRequestErrorCode.BadData,
+    })
+  }
+
+  return pageToArticleSavingRequest(user, page)
 }

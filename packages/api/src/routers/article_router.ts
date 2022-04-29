@@ -10,7 +10,6 @@ import { env } from './../env'
 import { buildLogger } from './../utils/logger'
 import * as jwt from 'jsonwebtoken'
 import { corsConfig } from '../utils/corsConfig'
-import { v4 as uuidv4 } from 'uuid'
 import { createPageSaveRequest } from '../services/create_page_save_request'
 import { initModels } from '../server'
 import { kx } from '../datalayer/knex_config'
@@ -45,9 +44,8 @@ export function articleRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const requestId = uuidv4()
     const models = initModels(kx, false)
-    const result = await createPageSaveRequest(uid, url, models, requestId)
+    const result = await createPageSaveRequest(uid, url, models)
 
     if (isSiteBlockedForParse(url)) {
       return res
@@ -60,7 +58,7 @@ export function articleRouter() {
     }
 
     return res.send({
-      articleSavingRequestId: requestId,
+      articleSavingRequestId: result.id,
     })
   })
   return router

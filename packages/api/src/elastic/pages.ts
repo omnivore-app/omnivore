@@ -1,4 +1,5 @@
 import {
+  ArticleSavingRequestStatus,
   Page,
   PageContext,
   PageType,
@@ -335,6 +336,7 @@ export const searchPages = async (
     savedDateFilter?: DateRangeFilter
     publishedDateFilter?: DateRangeFilter
     subscriptionFilter?: SubscriptionFilter
+    includePending?: boolean | null
   },
   userId: string
 ): Promise<[Page[], number] | undefined> => {
@@ -375,7 +377,13 @@ export const searchPages = async (
             },
           ],
           should: [],
-          must_not: [],
+          must_not: [
+            {
+              term: {
+                state: ArticleSavingRequestStatus.Failed,
+              },
+            },
+          ],
         },
       },
       sort: [
@@ -422,6 +430,14 @@ export const searchPages = async (
     }
     if (subscriptionFilter) {
       appendSubscriptionFilter(body, subscriptionFilter)
+    }
+
+    if (!args.includePending) {
+      body.query.bool.must_not.push({
+        term: {
+          state: ArticleSavingRequestStatus.Processing,
+        },
+      })
     }
 
     console.log('searching pages in elastic', JSON.stringify(body))

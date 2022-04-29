@@ -10,7 +10,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { articleKeyboardCommands, navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
-import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
@@ -28,7 +27,8 @@ import { useSWRConfig } from 'swr'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
+import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -44,12 +44,7 @@ export default function Home(): JSX.Element {
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
 
   const { viewerData } = useGetViewerQuery()
-  const { preferencesData } = useGetUserPreferences()
-  const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
-  const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
-  const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
-  const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
-  const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
+  const readerSettings = useReaderSettings()
 
   const { articleData } = useGetArticleQuery({
     username: router.query.username as string,
@@ -68,11 +63,6 @@ export default function Home(): JSX.Element {
   useKeyboardShortcuts(navigationCommands(router))
 
   const actionHandler = useCallback(async(action: string, arg?: unknown) => {
-    const updateFontSize =  async(newFontSize: number) => {
-      setFontSize(newFontSize)
-      await userPersonalizationMutation({ fontSize: newFontSize })
-    }
-
     switch (action) {
       case 'archive':
         if (article) {
@@ -105,50 +95,11 @@ export default function Home(): JSX.Element {
       case 'showHighlights':
         setShowHighlightsModal(true)
         break
-      case 'incrementFontSize':
-        await updateFontSize(Math.min(fontSize + 2, 28))
+      default:
+        readerSettings.actionHandler(action, arg)
         break
-      case 'decrementFontSize':
-        await updateFontSize(Math.max(fontSize - 2, 10))
-        break
-      case 'setMarginWidth': {
-        const value = Number(arg)
-        if (value >= 200 && value <= 560) {
-          setMarginWidth(value)
-        }
-        break
-      }
-      case 'incrementMarginWidth':
-        setMarginWidth(Math.min(marginWidth + 45, 560))
-        break
-      case 'decrementMarginWidth':
-        setMarginWidth(Math.max(marginWidth - 45, 200))
-        break
-      case 'setLineHeight': {
-        const value = Number(arg)
-        if (value >= 100 && value <= 300) {
-          setLineHeight(arg as number)
-        }
-        break
-      }
-      case 'editDisplaySettings': {
-        setShowEditDisplaySettingsModal(true)
-        break
-      }
-      case 'setLabels': {
-        setShowSetLabelsModal(true)
-        break
-      }
-      case 'resetReaderSettings': {
-        updateFontSize(20)
-        setMarginWidth(290)
-        setLineHeight(150)
-        break
-      }
     }
-  }, [article, cache, mutate, router,
-      fontSize, setFontSize, lineHeight,
-      setLineHeight, marginWidth, setMarginWidth])
+  }, [article, cache, mutate, router, readerSettings])
 
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
@@ -156,87 +107,87 @@ export default function Home(): JSX.Element {
     })
   )
 
-  if (article && viewerData?.me) {
-    return (
-      <PrimaryLayout
-        pageTestId="home-page-tag"
-        scrollElementRef={scrollRef}
-        headerToolbarControl={
-          <ArticleActionsMenu
-            article={article}
-            layout='top'
-            lineHeight={lineHeight}
-            marginWidth={marginWidth}
-            showReaderDisplaySettings={article.contentReader != 'PDF'}
-            articleActionHandler={actionHandler}
-          />
-        }
-        alwaysDisplayToolbar={article.contentReader == 'PDF'}
-        pageMetaDataProps={{
-          title: article.title,
-          path: router.pathname,
-          description: article.description,
+  return (
+    <PrimaryLayout
+      pageTestId="home-page-tag"
+      scrollElementRef={scrollRef}
+      headerToolbarControl={
+        <ArticleActionsMenu
+          article={article}
+          layout='top'
+          lineHeight={readerSettings.lineHeight}
+          marginWidth={readerSettings.marginWidth}
+          showReaderDisplaySettings={article?.contentReader != 'PDF'}
+          articleActionHandler={actionHandler}
+        />
+      }
+      alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+      pageMetaDataProps={{
+        title: article?.title ?? '',
+        path: router.pathname,
+        description: article?.description ?? '',
+      }}
+    >
+      <Script async src="/static/scripts/mathJaxConfiguration.js" />
+      <Script
+        async
+        id="MathJax-script"
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+      />
+      <Toaster />
+
+      <VStack distribution="between" alignment="center" css={{
+        position: 'fixed',
+        flexDirection: 'row-reverse',
+        top: '-120px',
+        left: 8,
+        height: '100%',
+        width: '35px',
+        '@lgDown': {
+          display: 'none',
+        },
         }}
       >
-        <Script async src="/static/scripts/mathJaxConfiguration.js" />
-        <Script
-          async
-          id="MathJax-script"
-          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-        />
-        <Toaster />
-
-        <VStack distribution="between" alignment="center" css={{
-          position: 'fixed',
-          flexDirection: 'row-reverse',
-          top: '-120px',
-          left: 8,
-          height: '100%',
-          width: '35px',
-          '@lgDown': {
-            display: 'none',
-          },
-          }}
-        >
-          {article.contentReader !== 'PDF' ? (
-            <ArticleActionsMenu
-              article={article}
-              layout='side'
-              lineHeight={lineHeight}
-              marginWidth={marginWidth}
-              showReaderDisplaySettings={true}
-              articleActionHandler={actionHandler}
-            />
-          ) : null}
-        </VStack>
-          {article.contentReader == 'PDF' ? (
-            <PdfArticleContainerNoSSR
-              article={article}
-              showHighlightsModal={showHighlightsModal}
-              setShowHighlightsModal={setShowHighlightsModal}
-              viewerUsername={viewerData.me?.profile?.username}
-            />
-          ) : (
-            <VStack
-              alignment="center"
-              distribution="center"
-              ref={scrollRef}
-              className="disable-webkit-callout"
-              css={{
-                '@smDown': {
-                  background: theme.colors.grayBg.toString(),
-                }
-              }}
-            >
+        {article?.contentReader !== 'PDF' ? (
+          <ArticleActionsMenu
+            article={article}
+            layout='side'
+            lineHeight={readerSettings.lineHeight}
+            marginWidth={readerSettings.marginWidth}
+            showReaderDisplaySettings={true}
+            articleActionHandler={actionHandler}
+          />
+        ) : null}
+      </VStack>
+        {article && viewerData?.me && article.contentReader == 'PDF' ? (
+          <PdfArticleContainerNoSSR
+            article={article}
+            showHighlightsModal={showHighlightsModal}
+            setShowHighlightsModal={setShowHighlightsModal}
+            viewerUsername={viewerData.me?.profile?.username}
+          />
+        ) : (
+          <VStack
+            alignment="center"
+            distribution="center"
+            ref={scrollRef}
+            className="disable-webkit-callout"
+            css={{
+              '@smDown': {
+                background: theme.colors.grayBg.toString(),
+              }
+            }}
+          >
+            {article && viewerData?.me ? (
               <ArticleContainer
                 article={article}
                 scrollElementRef={scrollRef}
                 isAppleAppEmbed={false}
                 highlightBarDisabled={false}
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
-                fontSize={fontSize}
-                margin={marginWidth}
-                lineHeight={lineHeight}
+                fontSize={readerSettings.fontSize}
+                margin={readerSettings.marginWidth}
+                lineHeight={readerSettings.lineHeight}
                 labels={labels}
                 showHighlightsModal={showHighlightsModal}
                 setShowHighlightsModal={setShowHighlightsModal}
@@ -248,30 +199,34 @@ export default function Home(): JSX.Element {
                   articleReadingProgressMutation,
                 }}
               />
-              </VStack>
+            ) : (
+              <SkeletonArticleContainer
+                margin={readerSettings.marginWidth}
+                lineHeight={readerSettings.lineHeight}
+                fontSize={readerSettings.fontSize}
+              />
             )}
+            </VStack>
+          )}
 
-        {showSetLabelsModal && (
-          <SetLabelsModal
-            article={article}
-            linkId={article.id}
-            labels={article.labels}
-            articleActionHandler={actionHandler}
-            onOpenChange={() => setShowSetLabelsModal(false)}
-          />
-        )}
+      {article && readerSettings.showSetLabelsModal && (
+        <SetLabelsModal
+          article={article}
+          linkId={article.id}
+          labels={article.labels}
+          articleActionHandler={actionHandler}
+          onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
+        />
+      )}
 
-        {showEditDisplaySettingsModal && (
-          <DisplaySettingsModal
-            lineHeight={lineHeight}
-            marginWidth={marginWidth}
-            articleActionHandler={actionHandler}
-            onOpenChange={() => setShowEditDisplaySettingsModal(false)}
-          />
-        )}
-      </PrimaryLayout>
-    )
-  }
-
-  return <LoadingView />
+      {readerSettings.showEditDisplaySettingsModal && (
+        <DisplaySettingsModal
+          lineHeight={readerSettings.lineHeight}
+          marginWidth={readerSettings.marginWidth}
+          articleActionHandler={actionHandler}
+          onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
+        />
+      )}
+    </PrimaryLayout>
+  )
 }

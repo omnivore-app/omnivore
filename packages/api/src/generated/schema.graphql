@@ -50,6 +50,7 @@ type Article {
   siteIcon: String
   siteName: String
   slug: String!
+  state: ArticleSavingRequestStatus
   subscription: String
   title: String!
   unsubHttpUrl: String
@@ -80,10 +81,11 @@ input ArticleHighlightsInput {
 union ArticleResult = ArticleError | ArticleSuccess
 
 type ArticleSavingRequest {
-  article: Article
+  article: Article @deprecated(reason: "article has been replaced with slug")
   createdAt: Date!
   errorCode: CreateArticleErrorCode
   id: ID!
+  slug: String!
   status: ArticleSavingRequestStatus!
   updatedAt: Date!
   user: User!
@@ -817,7 +819,7 @@ type Profile {
 
 type Query {
   article(slug: String!, username: String!): ArticleResult!
-  articles(after: String, first: Int, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
+  articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
   getFollowers(userId: ID): GetFollowersResult!
@@ -990,6 +992,7 @@ type SearchItem {
   readingProgressPercent: Float
   shortId: String
   slug: String!
+  state: ArticleSavingRequestStatus
   subscription: String
   title: String!
   unsubHttpUrl: String

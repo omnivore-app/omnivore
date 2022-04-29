@@ -84,6 +84,7 @@ const libraryItemFragment = gql`
     isArchived
     description
     linkId
+    state
     labels {
       ...LabelFields
     }
@@ -110,6 +111,7 @@ export function useGetLibraryItemsQuery({
         first: $first
         after: $after
         query: $query
+        includePending: true
       ) {
         ... on ArticlesSuccess {
           edges {
@@ -260,14 +262,15 @@ export function useGetLibraryItemsQuery({
           if (res) {
             showSuccessToast('Link unarchived', { position: 'bottom-right' })
           } else {
-            showErrorToast('Error unarchiving link', { position: 'bottom-right' })
+            showErrorToast('Error unarchiving link', {
+              position: 'bottom-right',
+            })
           }
         })
         break
       case 'delete':
         updateData(undefined)
-        deleteLinkMutation(item.node.id)
-        .then((res) => {
+        deleteLinkMutation(item.node.id).then((res) => {
           if (res) {
             showSuccessToast('Link removed', { position: 'bottom-right' })
           } else {

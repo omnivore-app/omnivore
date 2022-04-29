@@ -5,11 +5,11 @@ import { StyledText } from '../elements/StyledText'
 
 export function Loader(): JSX.Element {
   const breathe = keyframes({
-    '0%': { transform: 'scale(0.8)' },
-    '25%': { transform: 'scale(1)' },
-    '50%': { transform: 'scale(0.8)' },
-    '75%': { transform: 'scale(1)' },
-    '100%': { transform: 'scale(0.8)' },
+    '0%': { content: '' },
+    '25%': { content: '.' },
+    '50%': { content: '..' },
+    '75%': { content: '...' },
+    '100%': { content: '....' },
   })
 
   return (
@@ -18,22 +18,25 @@ export function Loader(): JSX.Element {
       distribution="center"
       css={{
         pt: '$6',
-        bg: '$grayBase',
         width: '100%',
       }}
     >
-      <Box
-        css={{
-          transform: 'scale(0.8)',
-          animation: `${breathe} 4s ease-out infinite`,
-        }}
-      >
+      <Box>
         <LogoIcon
           size={140}
-          strokeColor={theme.colors.grayTextContrast.toString()}
+          strokeColor={theme.colors.grayText.toString()}
         />
       </Box>
-      <StyledText style="subHeadline">Saving Link...</StyledText>
+      <StyledText style="subHeadline" className='loading'
+        css={{
+          color: theme.colors.grayText.toString(),
+          '&:after': {
+            width: '10px',
+            display: 'inline-block',
+            content: 'test',
+            animation: `${breathe} steps(1,end) 2s infinite`,
+          },
+        }}>Saving Link</StyledText>
     </VStack>
   )
 }
@@ -55,7 +58,6 @@ export function ErrorComponent(props: ErrorComponentProps): JSX.Element {
       css={{
         pt: '$6',
         px: '$3',
-        bg: '$grayBase',
         width: '100%',
       }}
     >

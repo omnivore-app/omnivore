@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ArticleSavingRequest,
-  ArticleSavingRequestStatus,
   CreateArticleError,
-  CreateArticleErrorCode,
   FeedArticle,
   Profile,
   ResolverFn,
@@ -17,8 +15,9 @@ import {
 import crypto from 'crypto'
 import slugify from 'voca/slugify'
 import { Merge } from '../util'
-import { ArticleSavingRequestData } from '../datalayer/article_saving_request/model'
 import { CreateArticlesSuccessPartial } from '../resolvers'
+import { ArticleSavingRequestStatus, Page } from '../elastic/types'
+import { updatePage } from '../elastic/pages'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -175,56 +174,32 @@ export const generateSlug = (title: string): string => {
 
 export const MAX_CONTENT_LENGTH = 5e7 //50MB
 
-export const articleSavingRequestError = async (
+export const pageError = async (
   result: CreateArticleError,
   ctx: WithDataSourcesContext,
-  articleSavingReqest?: ArticleSavingRequestData
+  pageId?: string | null
 ): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
-  if (!articleSavingReqest) return result
+  if (!pageId) return result
 
-  await ctx.authTrx((tx) =>
-    ctx.models.articleSavingRequest.update(
-      articleSavingReqest.id,
-      {
-        status: ArticleSavingRequestStatus.Failed,
-        errorCode: result.errorCodes[0],
-      },
-      tx
-    )
+  await updatePage(
+    pageId,
+    {
+      state: ArticleSavingRequestStatus.Failed,
+    },
+    ctx
   )
 
   return result
 }
 
-export const articleSavingRequestPopulate = async (
-  result: CreateArticlesSuccessPartial,
-  ctx: WithDataSourcesContext,
-  articleSavingReqestId: string | undefined,
-  articleId: string | undefined
-): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
-  if (!articleSavingReqestId) return result
-  await ctx.authTrx((tx) =>
-    ctx.models.articleSavingRequest.update(
-      articleSavingReqestId,
-      {
-        status: ArticleSavingRequestStatus.Succeeded,
-        elasticPageId: articleId,
-      },
-      tx
-    )
-  )
-
-  return result
-}
-
-export const articleSavingRequestDataToArticleSavingRequest = (
+export const pageToArticleSavingRequest = (
   user: UserData,
-  articleSavingRequest: ArticleSavingRequestData
+  page: Page
 ): ArticleSavingRequest => ({
-  ...articleSavingRequest,
+  ...page,
   user: userDataToUser(user),
-  status: articleSavingRequest.status as ArticleSavingRequestStatus,
-  errorCode: articleSavingRequest.errorCode as CreateArticleErrorCode,
+  status: page.state,
+  updatedAt: page.updatedAt || new Date(),
 })
 
 export const validatedDate = (

@@ -40,6 +40,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
+import { State } from '../../../lib/networking/fragments/articleFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -258,7 +259,11 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         const username = viewerData?.me?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
-          router.push(`/${username}/${item.node.slug}`)
+          if (item.node.state === State.PROCESSING) {
+            router.push(`/${username}/links/${item.node.id}`)
+          } else {
+            router.push(`/${username}/${item.node.slug}`)
+          }
         }
         break
       case 'showOriginal':

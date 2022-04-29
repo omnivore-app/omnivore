@@ -12,7 +12,13 @@ import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { Label } from '../../src/entity/label'
 import { UploadFileStatus } from '../../src/generated/graphql'
-import { Highlight, Page, PageContext, PageType } from '../../src/elastic/types'
+import {
+  ArticleSavingRequestStatus,
+  Highlight,
+  Page,
+  PageContext,
+  PageType,
+} from '../../src/elastic/types'
 import { UploadFile } from '../../src/entity/upload_file'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getRepository } from '../../src/entity/utils'
@@ -133,6 +139,7 @@ const getArticleQuery = (slug: string) => {
         article {
           id
           slug
+          content
           highlights {
             id
             shortId
@@ -217,6 +224,27 @@ const saveFileQuery = (url: string, uploadFileId: string) => {
           source: "test",
           clientRequestId: "${generateFakeUuid()}",
           uploadFileId: "${uploadFileId}",
+        }
+      ) {
+        ... on SaveSuccess {
+          url
+        }
+        ... on SaveError {
+          errorCodes
+        }
+      }
+    }
+    `
+}
+
+const saveUrlQuery = (url: string) => {
+  return `
+    mutation {
+      saveUrl(
+        input: {
+          url: "${url}",
+          source: "test",
+          clientRequestId: "${generateFakeUuid()}",
         }
       ) {
         ... on SaveSuccess {
@@ -344,7 +372,7 @@ describe('Article API', () => {
 
     let query = ''
     let slug = ''
-    let pageId: string | undefined
+    let pageId: string
 
     before(async () => {
       const page = {
@@ -371,13 +399,12 @@ describe('Article API', () => {
           },
         ],
       } as Page
-      pageId = await createPage(page, ctx)
+      const id = await createPage(page, ctx)
+      id && (pageId = id)
     })
 
     after(async () => {
-      if (pageId) {
-        await deletePage(pageId, ctx)
-      }
+      await deletePage(pageId, ctx)
     })
 
     beforeEach(async () => {
@@ -399,6 +426,27 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.article.article.highlights).to.length(1)
+      })
+
+      context('when page is failed to process', () => {
+        before(async () => {
+          await updatePage(
+            pageId,
+            {
+              state: ArticleSavingRequestStatus.Processing,
+              createdAt: new Date(Date.now() - 1000 * 60),
+            },
+            ctx
+          )
+        })
+
+        it('should return unable to parse', async () => {
+          const res = await graphqlRequest(query, authToken).expect(200)
+
+          expect(res.body.data.article.article.content).to.eql(
+            'We were unable to parse this page.'
+          )
+        })
       })
     })
 
@@ -613,6 +661,61 @@ describe('Article API', () => {
     })
   })
 
+  describe('SaveUrl', () => {
+    let query = ''
+    let url = 'https://example.com/new-url-1'
+
+    beforeEach(() => {
+      query = saveUrlQuery(url)
+    })
+
+    context('when we save a new url', () => {
+      it('should return a slugged url', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.saveUrl.url).to.startsWith(
+          'http://localhost:3000/fakeUser/links/'
+        )
+      })
+    })
+
+    context('when we save a url that is already archived', () => {
+      it('it should return that page in the GetArticles Query', async () => {
+        url = 'https://example.com/new-url'
+        await graphqlRequest(saveUrlQuery(url), authToken).expect(200)
+
+        let allLinks
+        // Save a link, then archive it
+        // set a slight delay to make sure the page is updated
+        setTimeout(async () => {
+          let allLinks = await graphqlRequest(
+            articlesQuery(''),
+            authToken
+          ).expect(200)
+          const justSavedId = allLinks.body.data.articles.edges[0].node.id
+          await archiveLink(authToken, justSavedId)
+        }, 100)
+
+        // test the negative case, ensuring the archive link wasn't returned
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+            200
+          )
+          expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
+        }, 100)
+
+        // Now save the link again, and ensure it is returned
+        await graphqlRequest(saveUrlQuery(url), authToken).expect(200)
+
+        setTimeout(async () => {
+          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+            200
+          )
+          expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+        }, 100)
+      })
+    })
+  })
+
   describe('setBookmarkArticle', () => {
     let query = ''
     let articleId = ''
@@ -632,6 +735,7 @@ describe('Article API', () => {
         slug: 'test-with-omnivore',
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: ArticleSavingRequestStatus.Succeeded,
       }
       const newPageId = await createPage(page, ctx)
       if (newPageId) {
@@ -803,6 +907,7 @@ describe('Article API', () => {
           readingProgressAnchorIndex: 0,
           url: url,
           savedAt: new Date(),
+          state: ArticleSavingRequestStatus.Succeeded,
         }
         const pageId = await createPage(page, ctx)
         if (!pageId) {

@@ -19,7 +19,6 @@ import {
   MutationSetBookmarkArticleArgs,
   MutationSetShareArticleArgs,
   PageInfo,
-  PageType,
   QueryArticleArgs,
   QueryArticlesArgs,
   QuerySearchArgs,
@@ -45,10 +44,9 @@ import {
 } from '../../utils/uploads'
 import { ContentParseError } from '../../utils/errors'
 import {
-  articleSavingRequestError,
-  articleSavingRequestPopulate,
   authorized,
   generateSlug,
+  pageError,
   stringToHash,
   userDataToUser,
   validatedDate,
@@ -72,7 +70,12 @@ import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 
-import { Page, SearchItem as SearchItemData } from '../../elastic/types'
+import {
+  ArticleSavingRequestStatus,
+  Page,
+  PageType,
+  SearchItem as SearchItemData,
+} from '../../elastic/types'
 import {
   createPage,
   deletePage,
@@ -100,6 +103,7 @@ const FORCE_PUPPETEER_URLS = [
   /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
+const UNPARSEABLE_CONTENT = 'We were unable to parse this page.'
 
 export type CreateArticlesSuccessPartial = Merge<
   CreateArticleSuccess,
@@ -116,7 +120,7 @@ export const createArticleResolver = authorized<
       input: {
         url,
         preparedDocument,
-        articleSavingRequestId,
+        articleSavingRequestId: pageId,
         uploadFileId,
         skipParsing,
         source,
@@ -142,25 +146,15 @@ export const createArticleResolver = authorized<
     })
     await createIntercomEvent('link-saved', uid)
 
-    const articleSavingRequest = articleSavingRequestId
-      ? (await models.articleSavingRequest.get(articleSavingRequestId)) ||
-        (await authTrx((tx) =>
-          models.articleSavingRequest.create(
-            { userId: uid, id: articleSavingRequestId },
-            tx
-          )
-        ))
-      : undefined
-
     const user = userDataToUser(await models.user.get(uid))
     try {
       if (isSiteBlockedForParse(url)) {
-        return articleSavingRequestError(
+        return pageError(
           {
             errorCodes: [CreateArticleErrorCode.NotAllowedToParse],
           },
           ctx,
-          articleSavingRequest
+          pageId
         )
       }
 
@@ -213,10 +207,10 @@ export const createArticleResolver = authorized<
           userId: uid,
         })
         if (!uploadFile) {
-          return articleSavingRequestError(
+          return pageError(
             { errorCodes: [CreateArticleErrorCode.UploadFileMissing] },
             ctx,
-            articleSavingRequest
+            pageId
           )
         }
         const uploadFileDetails = await getStorageFileDetails(
@@ -281,14 +275,12 @@ export const createArticleResolver = authorized<
         siteIcon: parsedContent?.siteIcon,
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
+        state: ArticleSavingRequestStatus.Succeeded,
       }
 
       let archive = false
-      if (articleSavingRequestId) {
-        const reminder = await models.reminder.getByRequestId(
-          uid,
-          articleSavingRequestId
-        )
+      if (pageId) {
+        const reminder = await models.reminder.getByRequestId(uid, pageId)
         if (reminder) {
           archive = reminder.archiveUntil || false
         }
@@ -313,12 +305,12 @@ export const createArticleResolver = authorized<
           return await models.uploadFile.setFileUploadComplete(uploadFileId, tx)
         })
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
-          return articleSavingRequestError(
+          return pageError(
             {
               errorCodes: [CreateArticleErrorCode.UploadFileMissing],
             },
             ctx,
-            articleSavingRequest
+            pageId
           )
         }
         uploadFileUrlOverride = await makeStorageFilePublic(
@@ -330,6 +322,7 @@ export const createArticleResolver = authorized<
       const existingPage = await getPageByParam({
         userId: uid,
         url: articleToSave.url,
+        state: ArticleSavingRequestStatus.Succeeded,
       })
       if (existingPage) {
         //  update existing page in elastic
@@ -345,17 +338,34 @@ export const createArticleResolver = authorized<
         articleToSave = existingPage
       } else {
         // create new page in elastic
-        const pageId = await createPage(articleToSave, { ...ctx, uid })
-
         if (!pageId) {
-          return articleSavingRequestError(
-            {
-              errorCodes: [CreateArticleErrorCode.ElasticError],
-            },
-            ctx,
-            articleSavingRequest
-          )
+          pageId = await createPage(articleToSave, { ...ctx, uid })
+          if (!pageId) {
+            return pageError(
+              {
+                errorCodes: [CreateArticleErrorCode.ElasticError],
+              },
+              ctx,
+              pageId
+            )
+          }
+        } else {
+          const updated = await updatePage(pageId, articleToSave, {
+            ...ctx,
+            uid,
+          })
+
+          if (!updated) {
+            return pageError(
+              {
+                errorCodes: [CreateArticleErrorCode.ElasticError],
+              },
+              ctx,
+              pageId
+            )
+          }
         }
+
         log.info(
           'page created in elastic',
           pageId,
@@ -370,25 +380,20 @@ export const createArticleResolver = authorized<
         ...articleToSave,
         isArchived: !!articleToSave.archivedAt,
       }
-      return articleSavingRequestPopulate(
-        {
-          user,
-          created: false,
-          createdArticle: createdArticle,
-        },
-        ctx,
-        articleSavingRequest?.id,
-        createdArticle.id || undefined
-      )
+      return {
+        user,
+        created: false,
+        createdArticle: createdArticle,
+      }
     } catch (error) {
       if (
         error instanceof ContentParseError &&
         error.message === 'UNABLE_TO_PARSE'
       ) {
-        return articleSavingRequestError(
+        return pageError(
           { errorCodes: [CreateArticleErrorCode.UnableToParse] },
           ctx,
-          articleSavingRequest
+          pageId
         )
       }
       throw error
@@ -426,10 +431,19 @@ export const getArticleResolver: ResolverFn<
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
+    if (
+      page.state === ArticleSavingRequestStatus.Processing &&
+      new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 60
+    ) {
+      page.content = UNPARSEABLE_CONTENT
+      page.description = UNPARSEABLE_CONTENT
+    }
+
     return {
       article: { ...page, isArchived: !!page.archivedAt, linkId: page.id },
     }
   } catch (error) {
+    console.log(error)
     return { errorCodes: [ArticleErrorCode.BadData] }
   }
 }
@@ -483,6 +497,7 @@ export const getArticlesResolver = authorized<
       savedDateFilter: searchQuery.savedDateFilter,
       publishedDateFilter: searchQuery.publishedDateFilter,
       subscriptionFilter: searchQuery.subscriptionFilter,
+      includePending: params.includePending,
     },
     claims.uid
   )) || [[], 0]
@@ -618,29 +633,29 @@ export const setBookmarkArticleResolver = authorized<
     { input: { articleID, bookmark } },
     { models, authTrx, claims: { uid }, log, pubsub }
   ) => {
-    const article = await getPageById(articleID)
-    if (!article) {
+    const page = await getPageById(articleID)
+    if (!page) {
       return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
     }
 
     if (!bookmark) {
-      const userArticleRemoved = await getPageByParam({
+      const pageRemoved = await getPageByParam({
         userId: uid,
         _id: articleID,
       })
 
-      if (!userArticleRemoved) {
+      if (!pageRemoved) {
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      await deletePage(userArticleRemoved.id, { pubsub, uid })
+      await deletePage(pageRemoved.id, { pubsub, uid })
 
       const highlightsUnshared = await authTrx(async (tx) => {
         return models.highlight.unshareAllHighlights(articleID, uid, tx)
       })
 
       log.info('Article unbookmarked', {
-        article: Object.assign({}, article, {
+        page: Object.assign({}, page, {
           content: undefined,
           originalHtml: undefined,
         }),
@@ -655,7 +670,7 @@ export const setBookmarkArticleResolver = authorized<
       // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
       return {
         bookmarkedArticle: {
-          ...userArticleRemoved,
+          ...pageRemoved,
           isArchived: false,
           savedByViewer: false,
           postedByViewer: false,
@@ -663,14 +678,14 @@ export const setBookmarkArticleResolver = authorized<
       }
     } else {
       try {
-        const userArticle: Partial<Page> = {
+        const pageUpdated: Partial<Page> = {
           userId: uid,
-          slug: generateSlug(article.title),
+          slug: generateSlug(page.title),
         }
-        await updatePage(articleID, userArticle, { pubsub, uid })
+        await updatePage(articleID, pageUpdated, { pubsub, uid })
 
         log.info('Article bookmarked', {
-          article: Object.assign({}, article, {
+          page: Object.assign({}, page, {
             content: undefined,
             originalHtml: undefined,
           }),
@@ -684,8 +699,8 @@ export const setBookmarkArticleResolver = authorized<
         // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
         return {
           bookmarkedArticle: {
-            ...userArticle,
-            ...article,
+            ...pageUpdated,
+            ...page,
             isArchived: false,
             savedByViewer: true,
             postedByViewer: false,

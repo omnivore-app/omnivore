@@ -345,6 +345,7 @@ const schema = gql`
     subscription: String
     unsubMailTo: String
     unsubHttpUrl: String
+    state: ArticleSavingRequestStatus
   }
 
   # Query: article
@@ -954,7 +955,8 @@ const schema = gql`
     id: ID!
     userId: ID! @deprecated(reason: "userId has been replaced with user")
     user: User!
-    article: Article
+    article: Article @deprecated(reason: "article has been replaced with slug")
+    slug: String!
     status: ArticleSavingRequestStatus!
     errorCode: CreateArticleErrorCode
     createdAt: Date!
@@ -1435,6 +1437,7 @@ const schema = gql`
     subscription: String
     unsubMailTo: String
     unsubHttpUrl: String
+    state: ArticleSavingRequestStatus
   }
 
   type SearchItemEdge {
@@ -1583,6 +1586,7 @@ const schema = gql`
       after: String
       first: Int
       query: String
+      includePending: Boolean
     ): ArticlesResult!
     article(username: String!, slug: String!): ArticleResult!
     sharedArticle(
