@@ -98,7 +98,7 @@ export const client = new Client({
 const updateMappings = async (): Promise<void> => {
   // read index settings from file
   const indexSettings = readFileSync(
-    join(__dirname, '..', '..', 'index_settings.json'),
+    join(__dirname, 'index_settings.json'),
     'utf8'
   )
   // update mappings

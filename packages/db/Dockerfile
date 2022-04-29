@@ -14,5 +14,6 @@ RUN yarn install
 
 ADD /packages/db ./packages/db
 ADD /packages/db/setup.sh ./packages/db/setup.sh
+ADD /packages/api/index_settings.json ./packages/db/index_settings.json
 
 CMD ["yarn", "workspace", "@omnivore/db", "migrate"]
