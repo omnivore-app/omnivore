@@ -21,6 +21,7 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { AppDataSource } from '../../server'
 import { User } from '../../entity/user'
+import { unsubscribeAll } from '../../services/subscriptions'
 
 export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailSuccess,
@@ -115,6 +116,9 @@ export const deleteNewsletterEmailResolver = authorized<
         errorCodes: [DeleteNewsletterEmailErrorCode.Unauthorized],
       }
     }
+
+    // unsubscribe all before deleting
+    await unsubscribeAll(newsletterEmail.user.id, newsletterEmail.address)
 
     const deleted = await deleteNewsletterEmail(args.newsletterEmailId)
     if (deleted) {
