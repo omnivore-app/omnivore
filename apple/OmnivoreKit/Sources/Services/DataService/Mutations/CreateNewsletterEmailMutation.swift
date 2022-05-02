@@ -12,6 +12,9 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.CreateNewsletterEmailResult> {
       try $0.on(
+        createNewsletterEmailError: .init {
+          .error(errorCode: try $0.errorCodes().first ?? .badRequest)
+        },
         createNewsletterEmailSuccess: .init {
           .saved(newsletterEmail: try $0.newsletterEmail(selection: Selection.NewsletterEmail {
             InternalNewsletterEmail(
@@ -20,8 +23,6 @@ public extension DataService {
               confirmationCode: try $0.confirmationCode()
             )
           }))
-        }, createNewsletterEmailError: .init {
-          .error(errorCode: try $0.errorCodes().first ?? .badRequest)
         }
       )
     }

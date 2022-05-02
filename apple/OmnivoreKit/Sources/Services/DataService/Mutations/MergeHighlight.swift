@@ -46,25 +46,25 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.MergeHighlightResult> {
       try $0.on(
+        mergeHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) },
         mergeHighlightSuccess: .init {
           .saved(highlight: try $0.highlight(selection: highlightSelection))
-        },
-        mergeHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) }
+        }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.mergeHighlight(
         input: InputObjects.MergeHighlightInput(
-          id: highlight.id,
-          shortId: highlight.shortId,
-          articleId: articleId,
-          patch: highlight.patch,
-          quote: highlight.quote,
-          prefix: .absent(),
-          suffix: .absent(),
           annotation: .absent(),
-          overlapHighlightIdList: overlapHighlightIdList
+          articleId: articleId,
+          id: highlight.id,
+          overlapHighlightIdList: overlapHighlightIdList,
+          patch: highlight.patch,
+          prefix: .absent(),
+          quote: highlight.quote,
+          shortId: highlight.shortId,
+          suffix: .absent()
         ),
         selection: selection
       )

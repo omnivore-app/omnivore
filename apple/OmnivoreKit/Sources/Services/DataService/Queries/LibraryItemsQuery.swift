@@ -24,6 +24,9 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.ArticlesResult> {
       try $0.on(
+        articlesError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
+        },
         articlesSuccess: .init {
           QueryResult.success(
             result: InternalHomeFeedData(
@@ -33,25 +36,21 @@ public extension DataService {
               })
             )
           )
-        },
-        articlesError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }
 
     let query = Selection.Query {
       try $0.articles(
-        sharedOnly: .present(false),
-        sort: OptionalArgument(
-          InputObjects.SortParams(
-            order: .present(.descending),
-            by: .updatedTime
-          )
-        ),
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
         query: OptionalArgument(searchQuery),
+        sharedOnly: .present(false),
+        sort: OptionalArgument(
+          InputObjects.SortParams(
+            by: .updatedTime, order: .present(.descending)
+          )
+        ),
         selection: selection
       )
     }
