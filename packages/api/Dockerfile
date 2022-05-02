@@ -3,6 +3,7 @@ FROM node:14.18-alpine as builder
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+RUN apk add g++ make python3
 
 COPY package.json .
 COPY yarn.lock .
