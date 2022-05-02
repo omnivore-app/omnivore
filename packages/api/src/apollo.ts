@@ -120,6 +120,7 @@ export function makeApolloServer(): ApolloServer {
       // hide error messages from frontend on prod
       return new Error('Unexpected server error')
     },
+    introspection: env.dev.isLocal,
   })
 
   return apollo
