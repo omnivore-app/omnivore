@@ -29,6 +29,7 @@ public extension Networker {
 
     let selection = Selection<QueryResult, Unions.ArticleSavingRequestResult> {
       try $0.on(
+        articleSavingRequestError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .notFound) },
         articleSavingRequestSuccess: .init {
           .saved(
             status: try $0.articleSavingRequest(
@@ -40,8 +41,7 @@ public extension Networker {
               }
             )
           )
-        },
-        articleSavingRequestError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .notFound) }
+        }
       )
     }
 
@@ -100,15 +100,15 @@ public extension DataService {
     }()
 
     let input = InputObjects.CreateArticleInput(
-      url: pageScrapePayload.url,
       preparedDocument: OptionalArgument(preparedDocument),
-      uploadFileId: uploadFileId != nil ? .present(uploadFileId!) : .null()
+      uploadFileId: uploadFileId != nil ? .present(uploadFileId!) : .null(),
+      url: pageScrapePayload.url
     )
 
     let selection = Selection<MutationResult, Unions.CreateArticleResult> {
       try $0.on(
-        createArticleSuccess: .init { .saved(created: try $0.created()) },
-        createArticleError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unableToParse) }
+        createArticleError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unableToParse) },
+        createArticleSuccess: .init { .saved(created: try $0.created()) }
       )
     }
 
@@ -161,6 +161,7 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.CreateArticleSavingRequestResult> {
       try $0.on(
+        createArticleSavingRequestError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .badData) },
         createArticleSavingRequestSuccess: .init {
           .saved(
             status: try $0.articleSavingRequest(
@@ -172,8 +173,7 @@ public extension DataService {
               }
             )
           )
-        },
-        createArticleSavingRequestError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .badData) }
+        }
       )
     }
 
