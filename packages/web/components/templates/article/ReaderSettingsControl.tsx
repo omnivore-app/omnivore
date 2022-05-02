@@ -7,7 +7,7 @@ import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHoriz
 import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
-
+import Image from 'next/image'
 
 type ReaderSettingsProps = {
   marginWidth: number
@@ -34,20 +34,20 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
     <VStack>
       <HStack 
         alignment='center'
+        distribution='between'
         css={{
           width: '100%',
           height: '70px',
+          marginTop: '4px',
           borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
         }}
       >
-        <Button style='plainIcon' onClick={() => props.articleActionHandler('decrementFontSize')}>
-          <AIcon size={28} color={theme.colors.readerFont.toString()} />
-          <Minus size={28} color={theme.colors.readerFont.toString()}/>
+        <Button style='plainIcon' css={{ width: '50%' }} onClick={() => props.articleActionHandler('decrementFontSize')}>
+          <Image src='/static/icons/font-stepper-down.svg' width={56} height={32} />
         </Button>
         <VerticalDivider />
-        <Button style='plainIcon' onClick={() => props.articleActionHandler('incrementFontSize')}>
-          <AIcon size={44} color={theme.colors.readerFont.toString()} />
-          <Plus size={28} color={theme.colors.readerFont.toString()} />
+        <Button style='plainIcon' css={{ width: '50%', height: '100%' }} onClick={() => props.articleActionHandler('incrementFontSize')}>
+          <Image src='/static/icons/font-stepper-up.svg' width={71} height={45} />
         </Button>
       </HStack>
       <VStack
