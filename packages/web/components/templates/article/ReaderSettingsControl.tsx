@@ -8,6 +8,8 @@ import { AIcon } from '../../elements/images/AIcon'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import Image from 'next/image'
+import { FontStepperDown } from '../../elements/images/FontStepperDown'
+import { FontStepperUp } from '../../elements/images/FontStepperUp'
 
 type ReaderSettingsProps = {
   marginWidth: number
@@ -43,11 +45,11 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
         }}
       >
         <Button style='plainIcon' css={{ width: '50%' }} onClick={() => props.articleActionHandler('decrementFontSize')}>
-          <Image src='/static/icons/font-stepper-down.svg' width={56} height={32} />
+          <FontStepperDown color={theme.colors.readerFont.toString()} />
         </Button>
         <VerticalDivider />
         <Button style='plainIcon' css={{ width: '50%', height: '100%' }} onClick={() => props.articleActionHandler('incrementFontSize')}>
-          <Image src='/static/icons/font-stepper-up.svg' width={71} height={45} />
+          <FontStepperUp color={theme.colors.readerFont.toString()} />
         </Button>
       </HStack>
       <VStack
