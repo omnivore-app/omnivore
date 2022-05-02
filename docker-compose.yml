@@ -73,8 +73,8 @@ services:
       - "4000:8080"
     healthcheck:
       test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
-      interval: 5s
-      timeout: 60s
+      interval: 15s
+      timeout: 90s
     environment:
       - API_ENV=local
       - PG_HOST=postgres
