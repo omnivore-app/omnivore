@@ -10,6 +10,8 @@ const overlayShow = keyframes({
 
 export const ModalOverlay = styled(Overlay, {
   backgroundColor: '$overlay',
+  width: '100vw',
+  height: '100vh',
   position: 'fixed',
   inset: 0,
   '@media (prefers-reduced-motion: no-preference)': {
@@ -37,7 +39,6 @@ export const ModalContent = styled(Modal, {
   width: '90vw',
   maxWidth: '600px',
   maxHeight: '85vh',
-  p: '$1',
   '@media (prefers-reduced-motion: no-preference)': {
     animation: `${contentShow} 150ms cubic-bezier(0.16, 1, 0.3, 1)`,
     willChange: 'transform',

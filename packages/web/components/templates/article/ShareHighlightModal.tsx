@@ -18,7 +18,7 @@ export function ShareHighlightModal(
     <ShareModalLayout
       url={props.url}
       type='highlight'
-      modalTitle='Share Highlight'
+      modalTitle={`Share Highlight ${props.highlight?.annotation ? '& Note' : ''}`}
       title={props.title}
       description={props.description}
       onOpenChange={props.onOpenChange}

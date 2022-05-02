@@ -50,6 +50,24 @@ const textVariants = {
       color: '$grayText',
       margin: 0,
     },
+    modalTitle: {
+      fontSize: '29px',
+      lineHeight: '37.7px',
+      color: '$textDefault',
+      margin: 0,
+    },
+    boldText: {
+      fontWeight: '600',
+      fontSize: '16px',
+      lineHeight: '1',
+      color: '$textDefault',
+    },
+    shareHighlightModalAnnotation: {
+      fontSize: '18px',
+      lineHeight: '23.4px',
+      color: '$textSubtle',
+      m: 0,
+    },
     footnote: {
       fontSize: '$1',
     },
@@ -81,12 +99,13 @@ const textVariants = {
       lineHeight: '1.5',
       cursor: 'pointer',
     },
-    highlightAuthor: {
-      fontSize: '14px',
-      fontWeight: '600',
-      lineHeight: '1.5',
+    highlightTitleAndAuthor: {
+      fontSize: '18px',
+      fontStyle: 'italic',
+      lineHeight: '22.5px',
+      letterSpacing: '0.01em',
       margin: '0px',
-      color: '$omnivoreGray',
+      color: '$textSubtle',
     },
     highlightTitle: {
       fontSize: '14px',

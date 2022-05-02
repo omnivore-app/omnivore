@@ -33,7 +33,7 @@ export const decorators = [
             __html: getCssText(),
           }}
         />
-        <div className='Gray'>
+        <div>
           <Story {...context} />
         </div>
       </>
