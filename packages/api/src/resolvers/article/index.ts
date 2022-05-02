@@ -426,7 +426,9 @@ export const getArticleResolver: ResolverFn<
     })
     await createIntercomEvent('get-article', claims.uid)
 
-    const page = await getPageByParam({ userId: claims.uid, slug })
+    // We allow the backend to use the ID instead of a slug to fetch the article
+    const page = await getPageByParam({ userId: claims.uid, slug }) || await getPageByParam({ userId: claims.uid, _id: slug })
+
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
