@@ -190,7 +190,7 @@ import WebKit
           Color.clear
             .contentShape(Rectangle())
             .task {
-              await viewModel.loadContent(dataService: dataService, slug: item.unwrappedSlug)
+              await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
             }
         }
         if showFontSizePopover {

@@ -80,7 +80,7 @@ import Views
       isLoading = false
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
-      await dataService.prefetchPages(itemSlugs: newItems.map(\.unwrappedSlug))
+      await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID))
     } else if searchTermIsEmpty {
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
