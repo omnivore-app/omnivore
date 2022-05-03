@@ -54,8 +54,8 @@ extension DataService {
     }
 
     switch fetchedContent.contentStatus {
-    case .failed, .unknown:
-      throw BasicError.message(messageText: "content fetch failed")
+    case .failed:
+      throw BasicError.message(messageText: "content processing failed")
     case .processing:
       do {
         let retryDelayInNanoSeconds = UInt64(requestCount * 2 * 1_000_000_000)
@@ -65,12 +65,16 @@ extension DataService {
       } catch {
         throw BasicError.message(messageText: "content fetch failed")
       }
-    case .succeeded:
+    case .succeeded, .unknown:
       return fetchedContent
     }
   }
 
-  public func articleContent(username: String, itemID: String, useCache: Bool) async throws -> ArticleContent {
+  public func articleContent(
+    username: String,
+    itemID: String,
+    useCache: Bool
+  ) async throws -> ArticleContent {
     struct ArticleProps {
       let htmlContent: String
       let highlights: [InternalHighlight]
@@ -122,7 +126,11 @@ extension DataService {
 
         switch payload.data {
         case let .success(result: result):
-          if let status = result.contentStatus, status == .succeeded {
+          // Default to suceeded since older links will return a nil status
+          // (but the content is almost always there)
+          let status = result.contentStatus ?? .succeeded
+
+          if status == .succeeded {
             self?.persistArticleContent(
               htmlContent: result.htmlContent,
               itemID: itemID,
