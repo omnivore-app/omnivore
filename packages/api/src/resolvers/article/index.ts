@@ -66,7 +66,6 @@ import { WithDataSourcesContext } from '../types'
 
 import { parseSearchQuery } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 
@@ -144,7 +143,6 @@ export const createArticleResolver = authorized<
         env: env.server.apiEnv,
       },
     })
-    await createIntercomEvent('link-saved', uid)
 
     const user = userDataToUser(await models.user.get(uid))
     try {
@@ -424,7 +422,6 @@ export const getArticleResolver: ResolverFn<
         env: env.server.apiEnv,
       },
     })
-    await createIntercomEvent('get-article', claims.uid)
 
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
@@ -484,8 +481,6 @@ export const getArticlesResolver = authorized<
       subscriptionFilter: searchQuery.subscriptionFilter,
     },
   })
-
-  await createIntercomEvent('get_articles', claims.uid)
 
   const [pages, totalCount] = (await searchPages(
     {
@@ -847,8 +842,6 @@ export const searchResolver = authorized<
       env: env.server.apiEnv,
     },
   })
-
-  await createIntercomEvent('search', claims.uid)
 
   let results: (SearchItemData | Page)[]
   let totalCount: number

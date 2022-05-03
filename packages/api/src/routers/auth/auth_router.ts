@@ -19,7 +19,7 @@ import express from 'express'
 import axios from 'axios'
 import { env } from '../../env'
 import url from 'url'
-import { createIntercomEvent, IntercomClient } from '../../utils/intercom'
+import { IntercomClient } from '../../utils/intercom'
 import { kx } from '../../datalayer/knex_config'
 import UserModel from '../../datalayer/user'
 import { buildLogger } from '../../utils/logger'
@@ -333,10 +333,8 @@ export function authRouter() {
 
       if (env.server.apiEnv && !env.dev.isLocal && IntercomClient) {
         if (newUser) {
-          await createIntercomEvent('signed-up', user.id)
           redirect(res)
         } else {
-          await createIntercomEvent('logged-in', user.id)
           redirect(res)
         }
       } else {

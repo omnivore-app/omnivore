@@ -23,7 +23,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
   const [link, setLink] = useState('')
 
   const handleLinkSubmission = useCallback(async (link: string) => {
-    const result = await createArticleFromURLMutation({ url: link })
+    const result = await saveUrlMutation(link)
     // const result = await saveUrlMutation(link)
     if (result && result.jobId) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

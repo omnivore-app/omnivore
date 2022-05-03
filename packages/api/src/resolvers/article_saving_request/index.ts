@@ -11,16 +11,26 @@ import {
 } from '../../generated/graphql'
 import { authorized, pageToArticleSavingRequest } from '../../utils/helpers'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createIntercomEvent } from '../../utils/intercom'
 import { getPageById } from '../../elastic/pages'
 import { isErrorWithCode } from '../user'
+import { analytics } from '../../utils/analytics'
+import { env } from '../../env'
 
 export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { models, claims, pubsub }) => {
-  await createIntercomEvent('link-save-request', claims.uid)
+  analytics.track({
+    userId: claims.uid,
+    event: 'link_saved',
+    properties: {
+      url: url,
+      method: 'article_saving_request',
+      env: env.server.apiEnv,
+    },
+  })
+
   try {
     const request = await createPageSaveRequest(claims.uid, url, models, pubsub)
     return {
