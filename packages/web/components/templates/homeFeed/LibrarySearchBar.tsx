@@ -9,7 +9,6 @@ import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShor
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button } from '../../elements/Button'
 import { X } from 'phosphor-react'
-import { DateTime } from 'luxon'
 
 type LibrarySearchBarProps = {
   searchTerm?: string
