@@ -115,28 +115,9 @@ export function useGetLibraryItemsQuery({
   cursor,
 }: LibraryItemsQueryInput): LibraryItemsQueryResponse {
   const query = gql`
-<<<<<<< HEAD
-    query GetArticles(
-      $sharedOnly: Boolean
-      $sort: SortParams
-      $after: String
-      $first: Int
-      $query: String
-    ) {
-      articles(
-        sharedOnly: $sharedOnly
-        sort: $sort
-        first: $first
-        after: $after
-        query: $query
-        includePending: true
-      ) {
-        ... on ArticlesSuccess {
-=======
     query Search($after: String, $first: Int, $query: String) {
       search(first: $first, after: $after, query: $query) {
         ... on SearchSuccess {
->>>>>>> 8fc84dbc (update web to call new search endpoint for pages)
           edges {
             cursor
             node {
@@ -181,11 +162,6 @@ export function useGetLibraryItemsQuery({
         }
       }
     }
-<<<<<<< HEAD
-    ${libraryItemFragment}
-    ${labelFragment}
-=======
->>>>>>> 8fc84dbc (update web to call new search endpoint for pages)
   `
 
   const variables = {
