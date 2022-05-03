@@ -85,31 +85,6 @@ export type PageInfo = {
   totalCount: number
 }
 
-const libraryItemFragment = gql`
-  fragment ArticleFields on Article {
-    id
-    title
-    url
-    author
-    image
-    savedAt
-    createdAt
-    publishedAt
-    contentReader
-    originalArticleUrl
-    readingProgressPercent
-    readingProgressAnchorIndex
-    slug
-    isArchived
-    description
-    linkId
-    state
-    labels {
-      ...LabelFields
-    }
-  }
-`
-
 export function useGetLibraryItemsQuery({
   limit,
   sortDescending,
@@ -196,8 +171,6 @@ export function useGetLibraryItemsQuery({
 
   let responseError = error
   let responsePages = data as LibraryItemsData[] | undefined
-
-  console.log('data', data)
 
   // We need to check the response errors here and return the error
   // it will be nested in the data pages, if there is one error,
@@ -334,8 +307,7 @@ export function useGetLibraryItemsQuery({
     }
   }
 
-  
-  const res = {
+  return {
     isValidating,
     itemsPages: responsePages || undefined,
     itemsDataError: responseError,
@@ -344,8 +316,4 @@ export function useGetLibraryItemsQuery({
     size,
     setSize,
   }
-
-  console.log('itemsPages', responsePages, 'error:', responseError)
-
-  return res
 }

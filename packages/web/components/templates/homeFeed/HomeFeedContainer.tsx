@@ -40,7 +40,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import { State } from '../../../lib/networking/fragments/articleFragment'
+import { State, PageType } from '../../../lib/networking/fragments/articleFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -262,7 +262,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
           if (item.node.state === State.PROCESSING) {
             router.push(`/${username}/links/${item.node.id}`)
           } else {
-            router.push(`/${username}/${item.node.slug}`)
+            const dl = item.node.pageType === PageType.HIGHLIGHTS ? `#${item.node.id}` : ''
+            router.push(`/${username}/${item.node.slug}` + dl)
           }
         }
         break
