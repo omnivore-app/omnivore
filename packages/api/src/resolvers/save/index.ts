@@ -10,7 +10,6 @@ import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
 import { saveFile } from '../../services/save_file'
 import { authorized, userDataToUser } from '../../utils/helpers'
-import { createIntercomEvent } from '../../utils/intercom'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 

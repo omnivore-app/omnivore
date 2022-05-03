@@ -11,20 +11,16 @@ import {
 } from '../../generated/graphql'
 import { authorized, pageToArticleSavingRequest } from '../../utils/helpers'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createIntercomEvent } from '../../utils/intercom'
 import { getPageById } from '../../elastic/pages'
 import { isErrorWithCode } from '../user'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { inputRule } from 'graphql-shield'
-
 
 export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { models, claims, pubsub }) => {
-
   analytics.track({
     userId: claims.uid,
     event: 'link_saved',
