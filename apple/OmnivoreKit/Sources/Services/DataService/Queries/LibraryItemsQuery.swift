@@ -44,6 +44,7 @@ public extension DataService {
       try $0.articles(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
+        includePending: OptionalArgument(true),
         query: OptionalArgument(searchQuery),
         sharedOnly: .present(false),
         sort: OptionalArgument(

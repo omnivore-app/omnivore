@@ -10,13 +10,16 @@ struct SafariWebLink: Identifiable {
 
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
+  @Published var contentFetchFailed = false
 
-  var slug: String?
+  func loadContent(dataService: DataService, itemID: String) async {
+    contentFetchFailed = false
 
-  func loadContent(dataService: DataService, slug: String) async {
-    self.slug = slug
-    guard let username = dataService.currentViewer?.username else { return }
-    articleContent = try? await dataService.articleContent(username: username, slug: slug, useCache: true)
+    do {
+      articleContent = try await dataService.fetchArticleContent(itemID: itemID)
+    } catch {
+      contentFetchFailed = true
+    }
   }
 
   func createHighlight(

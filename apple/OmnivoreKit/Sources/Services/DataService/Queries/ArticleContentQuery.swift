@@ -4,22 +4,80 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
-  public func prefetchPages(itemSlugs: [String]) async {
+  struct PendingLink {
+    let itemID: String
+    let retryCount: Int
+  }
+
+  public func prefetchPages(itemIDs: [String]) async {
     guard let username = currentViewer?.username else { return }
 
-    for slug in itemSlugs {
-      // TODO: maybe check for cached content before downloading again? check timestamp?
-      _ = try? await articleContent(username: username, slug: slug, useCache: false)
+    for itemID in itemIDs {
+      await prefetchPage(pendingLink: PendingLink(itemID: itemID, retryCount: 1), username: username)
     }
   }
 
-  public func articleContent(username: String, slug: String, useCache: Bool) async throws -> ArticleContent {
+  func prefetchPage(pendingLink: PendingLink, username: String) async {
+    let content = try? await articleContent(username: username, itemID: pendingLink.itemID, useCache: false)
+
+    if content?.contentStatus == .processing, pendingLink.retryCount < 6 {
+      let retryDelayInNanoSeconds = UInt64(pendingLink.retryCount * 2 * 1_000_000_000)
+
+      do {
+        try await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
+        logger.debug("fetching content for \(pendingLink.itemID). retry count: \(pendingLink.retryCount)")
+
+        await prefetchPage(
+          pendingLink: PendingLink(
+            itemID: pendingLink.itemID,
+            retryCount: pendingLink.retryCount + 1
+          ),
+          username: username
+        )
+      } catch {
+        logger.debug("prefetching task was cancelled")
+      }
+    }
+  }
+
+  public func fetchArticleContent(
+    itemID: String,
+    username: String? = nil,
+    requestCount: Int = 1
+  ) async throws -> ArticleContent {
+    guard let username = username ?? currentViewer?.username else {
+      throw BasicError.message(messageText: "username could not be fetched from core data")
+    }
+
+    guard let fetchedContent = try? await articleContent(username: username, itemID: itemID, useCache: true) else {
+      throw BasicError.message(messageText: "networking error")
+    }
+
+    switch fetchedContent.contentStatus {
+    case .failed, .unknown:
+      throw BasicError.message(messageText: "content fetch failed")
+    case .processing:
+      do {
+        let retryDelayInNanoSeconds = UInt64(requestCount * 2 * 1_000_000_000)
+        try await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
+        logger.debug("fetching content for \(itemID). request count: \(requestCount)")
+        return try await fetchArticleContent(itemID: itemID, username: username, requestCount: requestCount + 1)
+      } catch {
+        throw BasicError.message(messageText: "content fetch failed")
+      }
+    case .succeeded:
+      return fetchedContent
+    }
+  }
+
+  public func articleContent(username: String, itemID: String, useCache: Bool) async throws -> ArticleContent {
     struct ArticleProps {
       let htmlContent: String
       let highlights: [InternalHighlight]
+      let contentStatus: Enums.ArticleSavingRequestStatus?
     }
 
-    if useCache, let cachedContent = cachedArticleContent(slug: slug) {
+    if useCache, let cachedContent = await cachedArticleContent(itemID: itemID) {
       return cachedContent
     }
 
@@ -31,7 +89,8 @@ extension DataService {
     let articleSelection = Selection.Article {
       ArticleProps(
         htmlContent: try $0.content(),
-        highlights: try $0.highlights(selection: highlightSelection.list)
+        highlights: try $0.highlights(selection: highlightSelection.list),
+        contentStatus: try $0.state()
       )
     }
 
@@ -47,7 +106,8 @@ extension DataService {
     }
 
     let query = Selection.Query {
-      try $0.article(slug: slug, username: username, selection: selection)
+      // backend has a hack that allows us to pass in itemID in place of slug
+      try $0.article(slug: itemID, username: username, selection: selection)
     }
 
     let path = appEnvironment.graphqlPath
@@ -62,15 +122,18 @@ extension DataService {
 
         switch payload.data {
         case let .success(result: result):
-          self?.persistArticleContent(
-            htmlContent: result.htmlContent,
-            slug: slug,
-            highlights: result.highlights
-          )
+          if let status = result.contentStatus, status == .succeeded {
+            self?.persistArticleContent(
+              htmlContent: result.htmlContent,
+              itemID: itemID,
+              highlights: result.highlights
+            )
+          }
 
           let articleContent = ArticleContent(
             htmlContent: result.htmlContent,
-            highlightsJSONString: result.highlights.asJSONString
+            highlightsJSONString: result.highlights.asJSONString,
+            contentStatus: .make(from: result.contentStatus)
           )
 
           continuation.resume(returning: articleContent)
@@ -81,11 +144,11 @@ extension DataService {
     }
   }
 
-  func persistArticleContent(htmlContent: String, slug: String, highlights: [InternalHighlight]) {
+  func persistArticleContent(htmlContent: String, itemID: String, highlights: [InternalHighlight]) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LinkedItem.slug), slug)
+      fetchRequest.predicate = NSPredicate(format: "id == %@", itemID)
 
       let linkedItem = try? self.backgroundContext.fetch(fetchRequest).first
 
@@ -98,7 +161,7 @@ extension DataService {
       linkedItem.htmlContent = htmlContent
 
       if linkedItem.isPDF {
-        self.fetchPDFData(slug: slug, pageURLString: linkedItem.unwrappedPageURLString)
+        self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
       }
 
       do {
@@ -137,23 +200,43 @@ extension DataService {
     }
   }
 
-  func cachedArticleContent(slug: String) -> ArticleContent? {
+  func cachedArticleContent(itemID: String) async -> ArticleContent? {
     let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     linkedItemFetchRequest.predicate = NSPredicate(
-      format: "slug == %@", slug
+      format: "id == %@", itemID
     )
 
-    guard let linkedItem = try? persistentContainer.viewContext.fetch(linkedItemFetchRequest).first else { return nil }
-    guard let htmlContent = linkedItem.htmlContent else { return nil }
+    let context = backgroundContext
 
-    let highlights = linkedItem
-      .highlights
-      .asArray(of: Highlight.self)
-      .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+    return await context.perform(schedule: .immediate) {
+      guard let linkedItem = try? context.fetch(linkedItemFetchRequest).first else { return nil }
+      guard let htmlContent = linkedItem.htmlContent else { return nil }
 
-    return ArticleContent(
-      htmlContent: htmlContent,
-      highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString
-    )
+      let highlights = linkedItem
+        .highlights
+        .asArray(of: Highlight.self)
+        .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
+
+      return ArticleContent(
+        htmlContent: htmlContent,
+        highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString,
+        contentStatus: .succeeded
+      )
+    }
+  }
+}
+
+private extension ArticleContentStatus {
+  static func make(from savingRequestStatus: Enums.ArticleSavingRequestStatus?) -> ArticleContentStatus {
+    guard let savingRequestStatus = savingRequestStatus else { return .unknown }
+
+    switch savingRequestStatus {
+    case .failed:
+      return .failed
+    case .processing:
+      return .processing
+    case .succeeded:
+      return .succeeded
+    }
   }
 }
