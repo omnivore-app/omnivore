@@ -82,6 +82,7 @@ type LibraryListKeyboardAction =
   | 'archiveItem'
   | 'markItemAsRead'
   | 'markItemAsUnread'
+  | 'removeItem'
   | 'sortDescending'
   | 'sortAscending'
   | 'shareItem'
@@ -127,6 +128,12 @@ export function libraryListCommands(
       actionDescription: 'Archive item',
       shortcutKeyDescription: 'e',
       callback: () => actionHandler('archiveItem'),
+    },
+    {
+      shortcutKeys: ['r'],
+      actionDescription: 'Remove item',
+      shortcutKeyDescription: 'r',
+      callback: () => actionHandler('removeItem'),
     },
     {
       shortcutKeys: ['l'],

@@ -138,6 +138,7 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
             WebkitLineClamp: 5,
             WebkitBoxOrient: 'vertical',
           }}
+          data-testid="listDesc"
         >
           {props.item.description}
         </StyledText>
@@ -171,6 +172,7 @@ function CardTitle(props: CardTitleProps): JSX.Element {
   return (
     <StyledText
       style="listTitle"
+      data-testid="listTitle"
       css={{
         mt: '0',
         mb: '0',

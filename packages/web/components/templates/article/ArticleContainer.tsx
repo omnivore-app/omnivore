@@ -129,6 +129,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <VStack alignment="start" distribution="start">
           <StyledText
             style="boldHeadline"
+            data-testid="article-headline"
             css={{ fontFamily: styles.fontFamily }}
           >
             {props.article.title}

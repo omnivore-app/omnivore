@@ -56,6 +56,7 @@ export function ListLinkedItemCardNarrow(
         <VStack>
           <StyledText
             style="listTitle"
+            data-testid="listTitle"
             css={{
               mt: '0px',
               mb: '$1',
@@ -146,6 +147,7 @@ export function ListLinkedItemCardWide(
       >
         <StyledText
           style="listTitle"
+          data-testid="listTitle"
           css={{ mt: '0px', mb: '$1', textAlign: 'left', lineHeight: 'normal' }}
         >
           {props.item.title}
