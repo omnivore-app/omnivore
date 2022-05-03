@@ -29,6 +29,7 @@ type HighlightsLayerProps = {
   highlightsBaseURL: string
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
+  highlightLocations: HighlightLocation[]
 }
 
 type HighlightModalAction = 'none' | 'addComment' | 'share'
@@ -49,9 +50,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
 
-  const [highlightLocations, setHighlightLocations] = useState<
-    HighlightLocation[]
-  >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [focusedHighlight, setFocusedHighlight] = useState<
@@ -59,25 +57,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(
-    highlightLocations,
+    props.highlightLocations,
     false //noteModal.open,
   )
 
   const canShareNative = useCanShareNative()
-
-  // Load the highlights
-  useEffect(() => {
-    const res: HighlightLocation[] = []
-    highlights.forEach((highlight) => {
-      try {
-        const offset = makeHighlightStartEndOffset(highlight)
-        res.push(offset)
-      } catch (err) {
-        console.error(err)
-      }
-    })
-    setHighlightLocations(res)
-  }, [highlights, setHighlightLocations])
 
   const removeHighlightCallback = useCallback(
     async (id?: string) => {
@@ -89,7 +73,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       if (didDeleteHighlight) {
         removeHighlights(
           highlights.map(($0) => $0.id),
-          highlightLocations
+          props.highlightLocations
         )
         setHighlights(highlights.filter(($0) => $0.id !== highlightId))
         setFocusedHighlight(undefined)
@@ -97,16 +81,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         console.error('Failed to delete highlight')
       }
     },
-    [focusedHighlight, highlights, highlightLocations]
+    [focusedHighlight, highlights, props.highlightLocations]
   )
 
   const updateHighlightsCallback = useCallback(
     (highlight: Highlight) => {
-      removeHighlights([highlight.id], highlightLocations)
+      removeHighlights([highlight.id], props.highlightLocations)
       const keptHighlights = highlights.filter(($0) => $0.id !== highlight.id)
       setHighlights([...keptHighlights, highlight])
     },
-    [highlights, highlightLocations]
+    [highlights, props.highlightLocations]
   )
 
   const handleNativeShare = useCallback(
@@ -159,7 +143,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       selection: selection,
       articleId: props.articleId,
       existingHighlights: highlights,
-      highlightStartEndOffsets: highlightLocations,
+      highlightStartEndOffsets: props.highlightLocations,
       annotation: note,
     }, props.articleMutations)
 
@@ -214,9 +198,21 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       selectionData,
       setSelectionData,
       canShareNative,
-      highlightLocations,
+      props.highlightLocations,
     ]
   )
+
+  const scrollToHighlight = (id: string) => {
+    const foundElement = document.querySelector(`[omnivore-highlight-id="${id}"]`)
+    if(foundElement){
+      foundElement.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth'
+      })
+      window.location.hash = `#${id}`
+      props.setShowHighlightsModal(false)
+    }
+  }
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
   const handleClickHighlight = useCallback(
@@ -261,7 +257,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         })
       } else setFocusedHighlight(undefined)
     },
-    [highlights, highlightLocations]
+    [highlights, props.highlightLocations]
   )
 
   useEffect(() => {
@@ -469,9 +465,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   if (props.showHighlightsModal) {
     return (
       <HighlightsModal
-        highlights={highlights}
-        onOpenChange={() => props.setShowHighlightsModal(false)}
-        deleteHighlightAction={(highlightId: string) => {
+      highlights={highlights}
+      onOpenChange={() => props.setShowHighlightsModal(false)}
+      scrollToHighlight={scrollToHighlight}
+      deleteHighlightAction={(highlightId: string) => {
           removeHighlightCallback(highlightId)
         }}
       />

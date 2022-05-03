@@ -6,7 +6,7 @@ import { ArticleSubtitle } from './../../patterns/ArticleSubtitle'
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { MutableRefObject, useEffect, useState } from 'react'
+import { MutableRefObject, useEffect, useState, useRef } from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { ArticleHeaderToolbar } from './ArticleHeaderToolbar'
@@ -15,6 +15,7 @@ import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { HighlightLocation, makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGenerator'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -36,6 +37,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  const highlightHref = useRef(window.location.hash ? window.location.hash.split('#')[1] : null)
+  const [highlightReady, setHighlightReady] = useState(false)
+  const [highlightLocations, setHighlightLocations] = useState<
+    HighlightLocation[]
+  >([])
 
   const updateFontSize = async (newFontSize: number) => {
     if (fontSize !== newFontSize) {
@@ -47,6 +53,21 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   useEffect(() => {
     updateFontSize(props.fontSize ?? 20)
   }, [props.fontSize])
+
+  // Load the highlights
+  useEffect(() => {
+    const res: HighlightLocation[] = []
+    props.article.highlights.forEach((highlight) => {
+      try {
+        const offset = makeHighlightStartEndOffset(highlight)
+        res.push(offset)
+      } catch (err) {
+        console.error(err)
+      }
+    })
+    setHighlightLocations(res)
+    setHighlightReady(true)
+  }, [props.article.highlights, setHighlightLocations])
 
   // Listen for font size and color mode change events sent from host apps (ios, macos...)
   useEffect(() => {
@@ -158,6 +179,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           )}
         </VStack>
         <Article
+          highlightReady={highlightReady}
+          highlightHref={highlightHref}
           articleId={props.article.id}
           content={props.article.content}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
@@ -182,6 +205,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <Box css={{ height: '100px' }} />
       </Box>
       <HighlightsLayer
+        highlightLocations={highlightLocations}
         highlights={props.article.highlights}
         articleTitle={props.article.title}
         articleAuthor={props.article.author ?? ''}

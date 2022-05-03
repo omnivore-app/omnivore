@@ -6,6 +6,7 @@ import { styled } from '../tokens/stitches.config'
 
 type HighlightViewProps = {
   highlight: Highlight
+  scrollToHighlight?: (arg: string) => void;
   author?: string
   title?: string
 }
@@ -15,25 +16,23 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     () => props.highlight.quote.split('\n'),
     [props.highlight.quote]
   )
-  const annotation = props.highlight.annotation ?? '';
 
   const StyledQuote = styled(Blockquote, {
-    margin: '0px 24px 16px 24px',
-    fontSize: '18px',
-    lineHeight: '27px',
-    color: '$textDefault',
+    margin: '0px 0px 24px 0px',
+    fontSize: '14px',
+    lineHeight: '1.5',
+    fontFamily: 'Inter',
+    color: '$omnivoreGray',
+    cursor: 'pointer',
   })
 
+  const scrollToHighlight = () => props.scrollToHighlight ? props.scrollToHighlight(props.highlight.id) : null
+
   return (
-    <VStack css={{ width: '100%', boxSizing: 'border-box' }}>
-      {annotation && (
-        <Box css={{p:'16px', m:'16px', ml:'24px', mr:'24px', borderRadius: '6px', bg: '$grayBase'}}>
-          <StyledText style='shareHighlightModalAnnotation'>{annotation}</StyledText>
-        </Box>)
-      }
-      <StyledQuote>
+    <VStack css={{ width: '100%', bg: '$omnivoreYellow', p: '20px' }}>
+      <StyledQuote onClick={scrollToHighlight}>
         {props.highlight.prefix}
-        <SpanBox css={{ bg: '$highlightBackground', p: '1px', borderRadius: '2px', }}>
+        <SpanBox css={{ bg: '$highlight', p: '1px', borderRadius: '2px' }}>
           {lines.map((line: string, index: number) => (
             <Fragment key={index}>
               {line}
@@ -48,10 +47,11 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         </SpanBox>
         {props.highlight.suffix}
       </StyledQuote>
-      <Box css={{p: '24px', pt: '0', width: '100%', boxSizing: 'border-box'}}>
-        {props.author && props.title &&(
-          <StyledText style="highlightTitleAndAuthor">{props.title + props.author}</StyledText>
+      <Box css={{}}>
+        {props.author && (
+          <StyledText style="highlightAuthor">{props.author}</StyledText>
         )}
+        <StyledText style="highlightTitle">{props.title}</StyledText>
       </Box>
     </VStack>
   )
