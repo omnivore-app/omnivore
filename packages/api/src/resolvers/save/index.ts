@@ -11,6 +11,8 @@ import { saveUrl } from '../../services/save_url'
 import { saveFile } from '../../services/save_file'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { createIntercomEvent } from '../../utils/intercom'
+import { analytics } from '../../utils/analytics'
+import { env } from '../../env'
 
 export const savePageResolver = authorized<
   SaveSuccess,
@@ -21,7 +23,16 @@ export const savePageResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  await createIntercomEvent('link-saved', uid)
+  analytics.track({
+    userId: uid,
+    event: 'link_saved',
+    properties: {
+      url: input.url,
+      method: 'page',
+      source: input.source,
+      env: env.server.apiEnv,
+    },
+  })
 
   const user = userDataToUser(await models.user.get(uid))
   if (!user) {
@@ -44,7 +55,17 @@ export const saveUrlResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  await createIntercomEvent('link-saved', uid)
+
+  analytics.track({
+    userId: uid,
+    event: 'link_saved',
+    properties: {
+      url: input.url,
+      method: 'url',
+      source: input.source,
+      env: env.server.apiEnv,
+    },
+  })
 
   const user = userDataToUser(await models.user.get(uid))
   if (!user) {
@@ -63,7 +84,17 @@ export const saveFileResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  await createIntercomEvent('link-saved', uid)
+
+  analytics.track({
+    userId: uid,
+    event: 'link_saved',
+    properties: {
+      url: input.url,
+      method: 'file',
+      source: input.source,
+      env: env.server.apiEnv,
+    },
+  })
 
   const user = userDataToUser(await models.user.get(uid))
   if (!user) {

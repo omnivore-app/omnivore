@@ -144,7 +144,6 @@ export const createArticleResolver = authorized<
         env: env.server.apiEnv,
       },
     })
-    await createIntercomEvent('link-saved', uid)
 
     const user = userDataToUser(await models.user.get(uid))
     try {
@@ -424,7 +423,6 @@ export const getArticleResolver: ResolverFn<
         env: env.server.apiEnv,
       },
     })
-    await createIntercomEvent('get-article', claims.uid)
 
     const page = await getPageByParam({ userId: claims.uid, slug })
     if (!page) {
@@ -480,8 +478,6 @@ export const getArticlesResolver = authorized<
       subscriptionFilter: searchQuery.subscriptionFilter,
     },
   })
-
-  await createIntercomEvent('get_articles', claims.uid)
 
   const [pages, totalCount] = (await searchPages(
     {
@@ -843,8 +839,6 @@ export const searchResolver = authorized<
       env: env.server.apiEnv,
     },
   })
-
-  await createIntercomEvent('search', claims.uid)
 
   let results: (SearchItemData | Page)[]
   let totalCount: number
