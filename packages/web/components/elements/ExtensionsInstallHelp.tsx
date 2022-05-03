@@ -60,7 +60,13 @@ const BrowserOption: React.FC<{
   )
 }
 
-export default function ExtensionsInstallHelp(): JSX.Element {
+type ExtensionsInstallHelpProps = {
+  onboarding?: boolean
+}
+
+export default function ExtensionsInstallHelp({
+  onboarding = false,
+}: ExtensionsInstallHelpProps): JSX.Element {
   const [browserValue, setBrowserValue] = React.useState<browserType>(
     browserOptions[0]
   )
@@ -70,13 +76,13 @@ export default function ExtensionsInstallHelp(): JSX.Element {
       css={{
         display: 'grid',
         gridTemplateColumns: '1fr 2fr',
-        gridTemplateRows: '.5fr .5fr .5fr',
+        gridTemplateRows: !onboarding ? '.5fr .5fr .5fr' : '.5fr',
         backgroundColor: '$grayBg',
         padding: '15px',
         '@lg': {
           gridTemplateColumns: '1fr 2fr 1fr',
           gridTemplateRows: '1fr',
-          height: '9rem',
+          height: !onboarding ? '9rem' : 'auto',
         },
       }}
     >
@@ -106,8 +112,9 @@ export default function ExtensionsInstallHelp(): JSX.Element {
             height: '130px',
           }}
         >
-          <img srcSet="/static/images/extension-preview.png,
-             /static/images/extension-preview@2x.png 2x" />
+          <img
+            src="/static/images/extension-preview.svg"
+          />
         </Box>
       </Box>
       <Box
@@ -128,7 +135,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
               fontSize: '12px',
               lineHeight: '18px',
               textAlign: 'right',
-              color: '$grayTextContrast',
+              color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
               '@lg': {
                 display: 'none',
               },
@@ -144,7 +151,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
             fontWeight: 700,
             marginTop: 0,
             marginBottom: 0,
-            color: '$grayTextContrast',
+            color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
             lineHeight: '22.5px',
             '@lg': {
               fontSize: '16px',
@@ -159,39 +166,44 @@ export default function ExtensionsInstallHelp(): JSX.Element {
         css={{
           size: '14px',
           fontWeight: 400,
-          color: '$grayTextContrast',
+          color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
           maxWidth: '20rem',
           lineHeight: '21px',
           gridColumn: '1 / span 3',
           gridRow: '2 / 3',
           alignSelf: 'center',
+          '@lgDown': {
+            display: !onboarding ? 'initial' : 'none',
+          },
           '@lg': {
             gridColumn: '2',
             gridRow: '1',
             alignSelf: 'center',
-            marginTop: '$4',
+            marginTop: !onboarding ? '$4' : 65,
           },
         }}
       >
         Installing the Omnivore browser extension is the best way to save pages
         to Omnivore from your computer.
         <br />
-        <Link passHref href="/help/saving-links">
-          <StyledAnchor
-            css={{
-              color: '$grayTextContrast',
-              fontSize: '14px',
-              fontWeight: 600,
-              display: 'none',
-              '@lg': {
-                display: 'initial',
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            Learn more about the browser extension here.
-          </StyledAnchor>
-        </Link>
+        {!onboarding && (
+          <Link passHref href="/help/saving-links">
+            <StyledAnchor
+              css={{
+                color: '$grayTextContrast',
+                fontSize: '14px',
+                fontWeight: 600,
+                display: 'none',
+                '@lg': {
+                  display: 'initial',
+                  textDecoration: 'underline',
+                },
+              }}
+            >
+              Learn more about the browser extension here.
+            </StyledAnchor>
+          </Link>
+        )}
       </StyledText>
       <HStack
         css={{
@@ -201,9 +213,12 @@ export default function ExtensionsInstallHelp(): JSX.Element {
           gridColumn: '1 / span 2',
           width: '100%',
           justifyContent: 'space-between',
+          flexDirection: 'row',
           '@lg': {
             gridColumn: '3',
             gridRow: '1',
+            flexDirection: !onboarding ? 'row' : 'column',
+            justifyContent: !onboarding ? 'space-between' : 'center',
           },
         }}
       >
@@ -219,7 +234,7 @@ export default function ExtensionsInstallHelp(): JSX.Element {
                 height: '38px',
                 border: '1px solid #F9D354',
                 '@lg': {
-                  width: '190px',
+                  width: !onboarding ? '190px' : '210px',
                 },
               }}
             >
@@ -272,9 +287,13 @@ export default function ExtensionsInstallHelp(): JSX.Element {
           target="_blank"
           href={extensionDownloadLinks[browserValue]}
           css={{
-            marginLeft: '8px',
+            marginLeft: !onboarding ? '8px' : '0px',
+            marginTop: !onboarding ? '0px' : '8px',
             height: 'min-content',
             textDecoration: 'none',
+            width: !onboarding ? '100%' : '210px',
+            color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
+            textAlign: 'center',
             '@lgDown': {
               width: '27vw',
             },

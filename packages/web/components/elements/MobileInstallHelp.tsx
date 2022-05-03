@@ -15,7 +15,13 @@ const TooltipStyle = {
   color: '#0A0806',
 }
 
-export default function MobileInstallHelp(): JSX.Element {
+type MobileInstallHelpProps = {
+  onboarding?: boolean
+}
+
+export default function MobileInstallHelp({
+  onboarding = false,
+}: MobileInstallHelpProps): JSX.Element {
   const [selectedTooltip, setSelectedTooltip] =
     React.useState<string>('Available for Mac')
   const platformSizes = [
@@ -32,12 +38,15 @@ export default function MobileInstallHelp(): JSX.Element {
       icon: <DeviceMobileCamera color="#F9D354" />,
     },
   ]
+
+  const iosContainerStyles = { width: '100%', height: !onboarding ? '37px' : '40px'}
+
   return (
     <Box
       css={{
         display: 'grid',
         gridTemplateColumns: '1fr 2fr',
-        gridTemplateRows: '.5fr .5fr .5fr',
+        gridTemplateRows: !onboarding ? '.5fr .5fr .5fr' : '.5fr',
         backgroundColor: '$grayBg',
         padding: '15px',
         '@lg': {
@@ -74,8 +83,10 @@ export default function MobileInstallHelp(): JSX.Element {
             top: '-15px',
           }}
         >
-          <img srcSet="/static/images/mobile-app-preview.png,
-             /static/images/mobile-app-preview@2x.png 2x" />
+          <img
+            srcSet="/static/images/mobile-app-preview.png,
+             /static/images/mobile-app-preview@2x.png 2x"
+          />
         </Box>
       </Box>
       <Box
@@ -96,7 +107,7 @@ export default function MobileInstallHelp(): JSX.Element {
               fontSize: '12px',
               lineHeight: '18px',
               textAlign: 'right',
-              color: '$grayTextContrast',
+              color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
               '@lg': {
                 display: 'none',
               },
@@ -112,7 +123,7 @@ export default function MobileInstallHelp(): JSX.Element {
             fontWeight: 700,
             marginTop: 0,
             marginBottom: 0,
-            color: '$grayTextContrast',
+            color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
             lineHeight: '22.5px',
             '@lg': {
               fontSize: '16px',
@@ -128,72 +139,114 @@ export default function MobileInstallHelp(): JSX.Element {
           size: '14px',
           my: '$2',
           fontWeight: 400,
-          color: '$grayTextContrast',
+          color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
           maxWidth: '20rem',
           lineHeight: '21px',
           gridColumn: '1 / span 3',
           gridRow: '2 / 3',
           alignSelf: 'center',
+          '@lgDown': {
+            display: !onboarding ? 'initial' : 'none',
+          },
           '@lg': {
             gridColumn: '2',
             gridRow: '1',
             alignSelf: 'center',
-            marginTop: '$4',
+            marginTop: !onboarding ? '$4' : 65,
           },
         }}
       >
         With the Omnivore iOS app installed you can save any link using our
         share extension.
         <br />
-        <Link passHref href="/help/saving-links">
-          <StyledAnchor
-            css={{
-              color: '$grayTextContrast',
-              fontSize: '14px',
-              fontWeight: 600,
-              display: 'none',
-              '@lg': {
-                display: 'initial',
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            Learn more about the share extension here.
-          </StyledAnchor>
-        </Link>
+        {!onboarding && (
+          <Link passHref href="/help/saving-links">
+            <StyledAnchor
+              css={{
+                color: '$grayTextContrast',
+                fontSize: '14px',
+                fontWeight: 600,
+                display: 'none',
+                '@lg': {
+                  display: 'initial',
+                  textDecoration: 'underline',
+                },
+              }}
+            >
+              Learn more about the share extension here.
+            </StyledAnchor>
+          </Link>
+        )}
       </StyledText>
       <HStack
+        alignment="center"
         css={{
           gridRow: '3',
           display: 'flex',
           alignItems: 'center',
           gridColumn: '1 / span 2',
-          justifyContent: 'space-between',
+          justifyContent: !onboarding ? 'space-between' : 'center',
+          mt: !onboarding ? 'inherit' : 10,
           '@lg': {
-            flexDirection: 'row-reverse',
+            flexDirection: !onboarding ? 'row-reverse' : 'column-reverse',
+            alignItems: !onboarding ? 'center' : 'flex-end',
             gridColumn: '3',
             gridRow: '1',
           },
         }}
       >
-        <Box css={{ width: '100%', height: '37px', '@lg': {
-          pl: '16px',
-        }}}>
-        <a href="https://omnivore.app/install/ios" target="_blank" rel="noreferrer" style={{ display: 'inlineBlock', overflow: 'hidden' }}>
-          <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=90x37&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3" alt="Download on the App Store" style={{  }} />
-        </a>
+        <Box
+          css={
+            !onboarding
+              ? { ...iosContainerStyles, '@lg': { pl: '16px' } }
+              : {
+                  ...iosContainerStyles,
+                  pl: 16,
+                  '@lg': {
+                    marginTop: '24px',
+                    justifyContent: 'flex-end',
+                    display: 'flex',
+                  },
+                }
+          }
+        >
+          <a
+            href="https://omnivore.app/install/ios"
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: 'inlineBlock', overflow: 'hidden' }}
+          >
+            <img
+              src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=90x37&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3"
+              alt="Download on the App Store"
+              style={{}}
+            />
+          </a>
         </Box>
         <HStack
-          css={{
-            width: '40%',
-            justifyContent: 'space-between',
-            maxWidth: '13rem',
-            visibility: 'collapse',
-            '@lg': {
-              width: '100%',
-              visibility: 'unset',
-            },
-          }}
+          css={
+            !onboarding
+              ? {
+                  width: '40%',
+                  justifyContent: 'space-between',
+                  maxWidth: '13rem',
+                  visibility: 'collapse',
+                  '@lg': {
+                    width: '100%',
+                    visibility: 'unset',
+                  },
+                }
+              : {
+                  width: '40%',
+                  justifyContent: 'space-between',
+                  maxWidth: '13rem',
+                  visibility: 'unset',
+                  '@lg': {
+                    width: '146px',
+                    // maxWidth: '210px'
+                  }
+                }
+          }
         >
           {platformSizes.map((item, idx) => (
             <TooltipWrapped
