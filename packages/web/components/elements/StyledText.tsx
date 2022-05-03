@@ -177,3 +177,7 @@ export const StyledImg = styled('img', {
 export const StyledAnchor = styled('a', {
   textDecoration: 'none'
 })
+
+export const StyledMark = styled('mark', {
+
+})

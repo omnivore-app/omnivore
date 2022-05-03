@@ -53,7 +53,7 @@ const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
 const SAVED_SEARCHES: Record<string, string> = {
   Inbox: `in:inbox`,
   'Read Later': `in:inbox -label:Newsletter`,
-  Highlighted: `in:inbox has:highlights`,
+  Highlights: `type:highlights`,
   Today: `in:inbox saved:${
     new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
   }Z${timeZoneHourDiff.toLocaleString('en-US', {

@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
 import { gqlFetcher } from '../networkHelpers'
-import type { ArticleFragmentData } from '../fragments/articleFragment'
+import type { ArticleFragmentData, PageType, State } from '../fragments/articleFragment'
 import { ContentReader } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
@@ -73,6 +73,8 @@ export type LibraryItemNode = {
   shortId: string
   quote: string
   annotation: string
+  state: State
+  pageType: PageType
 }
 
 export type PageInfo = {
@@ -194,6 +196,8 @@ export function useGetLibraryItemsQuery({
 
   let responseError = error
   let responsePages = data as LibraryItemsData[] | undefined
+
+  console.log('data', data)
 
   // We need to check the response errors here and return the error
   // it will be nested in the data pages, if there is one error,
@@ -330,7 +334,8 @@ export function useGetLibraryItemsQuery({
     }
   }
 
-  return {
+  
+  const res = {
     isValidating,
     itemsPages: responsePages || undefined,
     itemsDataError: responseError,
@@ -339,4 +344,8 @@ export function useGetLibraryItemsQuery({
     size,
     setSize,
   }
+
+  console.log('itemsPages', responsePages, 'error:', responseError)
+
+  return res
 }

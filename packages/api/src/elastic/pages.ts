@@ -447,6 +447,8 @@ export const searchPages = async (
       body,
     })
 
+    console.log('resopnse', response)
+
     if (response.body.hits.total.value === 0) {
       return [[], 0]
     }
