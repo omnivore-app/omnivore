@@ -187,8 +187,8 @@ import WebKit
             )
           }
         } else {
-          Color.clear
-            .contentShape(Rectangle())
+          Text(viewModel.contentFetchFailed ? "Unable to fetch content." : "Processing...")
+            .padding()
             .task {
               await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
             }

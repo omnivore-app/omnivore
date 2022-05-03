@@ -10,7 +10,7 @@ struct SafariWebLink: Identifiable {
 
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
-  @Published var contentFetchFailed = false // update UI to reflect this
+  @Published var contentFetchFailed = false
 
   func loadContent(dataService: DataService, itemID: String) async {
     contentFetchFailed = false
