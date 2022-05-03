@@ -12,9 +12,9 @@ public extension DataService {
     }
 
     let input = InputObjects.SaveUrlInput(
-      clientRequestId: pageScrapePayload.url,
+      clientRequestId: requestId,
       source: "ios-url",
-      url: requestId
+      url: pageScrapePayload.url
     )
 
     let selection = Selection<MutationResult, Unions.SaveResult> {
