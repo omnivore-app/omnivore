@@ -155,6 +155,7 @@ export function pdfAttachmentsRouter() {
         slug: generateSlug(title),
         id: '',
         createdAt: new Date(),
+        savedAt: new Date(),
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,

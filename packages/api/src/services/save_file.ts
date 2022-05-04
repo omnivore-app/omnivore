@@ -94,6 +94,7 @@ export const saveFile = async (
         userId: saver.id,
         id: input.clientRequestId,
         createdAt: new Date(),
+        savedAt: new Date(),
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,

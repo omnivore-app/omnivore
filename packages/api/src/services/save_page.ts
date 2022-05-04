@@ -91,10 +91,11 @@ export const savePage = async (
     hash: stringToHash(parseResult.parsedContent?.content || input.url),
     image: parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
-    createdAt: new Date(),
     readingProgressPercent: 0,
     readingProgressAnchorIndex: 0,
     state: ArticleSavingRequestStatus.Succeeded,
+    createdAt: new Date(),
+    savedAt: new Date(),
   }
 
   const existingPage = await getPageByParam({

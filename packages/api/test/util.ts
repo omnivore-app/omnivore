@@ -51,6 +51,7 @@ export const createTestElasticPage = async (
     title: 'test title',
     content: '<p>test content</p>',
     createdAt: new Date(),
+    savedAt: new Date(),
     url: 'https://example.com/test-url',
     slug: 'test-with-omnivore',
     labels: labels,

@@ -377,13 +377,7 @@ export const searchPages = async (
             },
           ],
           should: [],
-          must_not: [
-            {
-              term: {
-                state: ArticleSavingRequestStatus.Failed,
-              },
-            },
-          ],
+          must_not: [],
         },
       },
       sort: [

@@ -96,7 +96,7 @@ describe('ArticleSavingRequest API', () => {
       const page = await getPageById(
         res.body.data.createArticleSavingRequest.articleSavingRequest.id
       )
-      expect(page?.description).to.eq('Your link is being saved...')
+      expect(page?.content).to.eq('Your link is being saved...')
     })
 
     it('returns an error if the url is invalid', async () => {
