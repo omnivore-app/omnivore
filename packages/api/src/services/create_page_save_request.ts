@@ -14,7 +14,7 @@ import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
 import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
 import normalizeUrl from 'normalize-url'
 
-const SAVING_DESCRIPTION = 'Your link is being saved...'
+const SAVING_CONTENT = 'Your link is being saved...'
 
 const isPrivateIP = privateIpLib.default
 
@@ -107,8 +107,7 @@ export const createPageSaveRequest = async (
   const page: Page = {
     id: articleSavingRequestId,
     userId,
-    content: SAVING_DESCRIPTION,
-    createdAt: new Date(),
+    content: SAVING_CONTENT,
     hash: '',
     pageType: PageType.Unknown,
     readingProgressAnchorIndex: 0,
@@ -118,7 +117,8 @@ export const createPageSaveRequest = async (
     url,
     taskName: createdTaskName,
     state: ArticleSavingRequestStatus.Processing,
-    description: SAVING_DESCRIPTION,
+    createdAt: new Date(),
+    savedAt: new Date(),
   }
 
   const pageId = await createPage(page, { pubsub, uid: userId })

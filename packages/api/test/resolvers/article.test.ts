@@ -434,7 +434,7 @@ describe('Article API', () => {
             pageId,
             {
               state: ArticleSavingRequestStatus.Processing,
-              createdAt: new Date(Date.now() - 1000 * 60),
+              savedAt: new Date(Date.now() - 1000 * 60),
             },
             ctx
           )
@@ -731,6 +731,7 @@ describe('Article API', () => {
         title: 'test title',
         content: '<p>test</p>',
         createdAt: new Date(),
+        savedAt: new Date(),
         url: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
         readingProgressPercent: 0,

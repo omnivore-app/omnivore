@@ -196,7 +196,7 @@ export interface Page {
   createdAt: Date
   updatedAt?: Date
   publishedAt?: Date
-  savedAt?: Date
+  savedAt: Date
   sharedAt?: Date
   archivedAt?: Date | null
   siteName?: string

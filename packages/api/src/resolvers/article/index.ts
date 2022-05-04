@@ -434,7 +434,6 @@ export const getArticleResolver: ResolverFn<
 
     if (
       page.state === ArticleSavingRequestStatus.Processing &&
-      page.savedAt &&
       new Date(page.savedAt).getTime() < new Date().getTime() - 1000 * 30
     ) {
       page.content = `<p>${UNPARSEABLE_CONTENT}</p>`
