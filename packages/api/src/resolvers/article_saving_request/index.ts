@@ -2,6 +2,7 @@
 import {
   ArticleSavingRequestError,
   ArticleSavingRequestErrorCode,
+  ArticleSavingRequestStatus,
   ArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   CreateArticleSavingRequestErrorCode,
@@ -9,7 +10,11 @@ import {
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
-import { authorized, pageToArticleSavingRequest } from '../../utils/helpers'
+import {
+  authorized,
+  isParsingTimeout,
+  pageToArticleSavingRequest,
+} from '../../utils/helpers'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { getPageById } from '../../elastic/pages'
 import { isErrorWithCode } from '../user'
@@ -62,8 +67,12 @@ export const articleSavingRequestResolver = authorized<
     user = await models.user.get(page.userId)
     // eslint-disable-next-line no-empty
   } catch (error) {}
-  if (user && page)
+  if (user && page) {
+    if (isParsingTimeout(page)) {
+      page.state = ArticleSavingRequestStatus.Succeeded
+    }
     return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
+  }
 
   return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
 })

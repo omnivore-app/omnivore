@@ -46,6 +46,7 @@ import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
   generateSlug,
+  isParsingTimeout,
   pageError,
   stringToHash,
   userDataToUser,
@@ -102,7 +103,7 @@ const FORCE_PUPPETEER_URLS = [
   /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
-const UNPARSEABLE_CONTENT = 'We were unable to parse this page.'
+const UNPARSEABLE_CONTENT = '<p>We were unable to parse this page.</p>'
 
 export type CreateArticlesSuccessPartial = Merge<
   CreateArticleSuccess,
@@ -416,17 +417,8 @@ export const getArticleResolver: ResolverFn<
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
-    if (
-      page.state === ArticleSavingRequestStatus.Processing &&
-      new Date(page.savedAt).getTime() < new Date().getTime() - 1000 * 30
-    ) {
-      page.content = `<p>${UNPARSEABLE_CONTENT}</p>`
-      page.description = UNPARSEABLE_CONTENT
-      page.state = ArticleSavingRequestStatus.Failed
-      await updatePage(page.id, page, {
-        uid: claims.uid,
-        pubsub,
-      })
+    if (isParsingTimeout(page)) {
+      page.content = UNPARSEABLE_CONTENT
     }
 
     return {
