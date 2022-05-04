@@ -855,6 +855,7 @@ export const searchResolver = authorized<
         savedDateFilter: searchQuery.savedDateFilter,
         publishedDateFilter: searchQuery.publishedDateFilter,
         subscriptionFilter: searchQuery.subscriptionFilter,
+        includePending: true,
       },
       claims.uid
     )) || [[], 0]
