@@ -12,21 +12,30 @@ const YOUTUBE_URL_MATCH =
 exports.youtubeHandler = {
 
   shouldPrehandle: (url, env) => {
-       return YOUTUBE_URL_MATCH.test(url.toString())
+    return YOUTUBE_URL_MATCH.test(url.toString())
+  },
+
+  getVideoId: (url) => {
+    const u = new URL(url);
+    const videoId = u.searchParams['v']
+    if (!videoId) {
+      const match = url.toString().match(YOUTUBE_URL_MATCH)
+      if (match === null || match.length < 6 || !match[5]) {
+        return undefined
+      }
+      return match[5]
+    }
+    return videoId
   },
 
   prehandle: async (url, env) => {
-    console.log('prehandling youtube url', url)
-
-    const match = url.toString().match(YOUTUBE_URL_MATCH)
-    if (match === null || match.length < 6 || !match[5]) {
+    const videoId = getVideoId(url)
+    if (!videoId) {
       return {}
     }
 
-    const videoId = match[5]
     const oembedUrl = `https://www.youtube.com/oembed?format=json&url=` + encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)
     const oembed = (await axios.get(oembedUrl.toString())).data;
-    console.log('pageContent', oembed);
     const title = oembed.title;
     const ratio = oembed.width / oembed.height;
     const thumbnail = oembed.thumbnail_url;

@@ -202,6 +202,14 @@ export const pageToArticleSavingRequest = (
   updatedAt: page.updatedAt || new Date(),
 })
 
+export const isParsingTimeout = (page: Page): boolean => {
+  return (
+    // page processed more than 30 seconds ago
+    page.state === ArticleSavingRequestStatus.Processing &&
+    new Date(page.savedAt).getTime() < new Date().getTime() - 1000 * 30
+  )
+}
+
 export const validatedDate = (
   date: Date | string | undefined
 ): Date | undefined => {

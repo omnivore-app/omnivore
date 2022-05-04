@@ -21,8 +21,10 @@ import { ArticleMutations } from '../../../lib/articleActions'
 export type ArticleProps = {
   articleId: string
   content: string
+  highlightReady: boolean
   initialAnchorIndex: number
   initialReadingProgress?: number
+  highlightHref: MutableRefObject<string | null>
   scrollElementRef: MutableRefObject<HTMLDivElement | null>
   articleMutations: ArticleMutations
 }
@@ -139,50 +141,53 @@ export function Article(props: ArticleProps): JSX.Element {
       return
     }
 
-    if (!shouldScrollToInitialPosition) {
-      return
-    }
-
-    setShouldScrollToInitialPosition(false)
-
-    if (props.initialReadingProgress && props.initialReadingProgress >= 98) {
-      return
-    }
-
-    const anchorElement = document.querySelector(
-      `[data-omnivore-anchor-idx='${props.initialAnchorIndex.toString()}']`
-    )
-
-    if (anchorElement) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const calculateOffset = (obj: any): number => {
-        let offset = 0
-        if (obj.offsetParent) {
-          do {
-            offset += obj.offsetTop
-          } while ((obj = obj.offsetParent))
-          return offset
-        }
-
-        return 0
+    if (props.highlightReady) {
+      if (!shouldScrollToInitialPosition) {
+        return
       }
 
-      if (props.scrollElementRef.current) {
-        props.scrollElementRef.current?.scroll(
-          0,
-          calculateOffset(anchorElement)
-        )
-      } else {
-        window.document.documentElement.scroll(
-          0,
-          calculateOffset(anchorElement)
-        )
+      setShouldScrollToInitialPosition(false)
+
+      if (props.initialReadingProgress && props.initialReadingProgress >= 98) {
+        return
+      }
+
+      const anchorElement = props.highlightHref.current
+        ? document.querySelector(
+            `[omnivore-highlight-id="${props.highlightHref.current}"]`
+          )
+        : document.querySelector(
+            `[data-omnivore-anchor-idx='${props.initialAnchorIndex.toString()}']`
+          )
+
+      if (anchorElement) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const calculateOffset = (obj: any): number => {
+          let offset = 0
+          if (obj.offsetParent) {
+            do {
+              offset += obj.offsetTop
+            } while ((obj = obj.offsetParent))
+            return offset
+          }
+
+          return 0
+        }
+
+        const calculatedOffset = calculateOffset(anchorElement)
+
+        if (props.scrollElementRef.current) {
+          props.scrollElementRef.current?.scroll(0, calculatedOffset - 100)
+        } else {
+          window.document.documentElement.scroll(0, calculatedOffset - 100)
+        }
       }
     }
   }, [
+    props.highlightReady,
+    props.scrollElementRef,
     props.initialAnchorIndex,
     props.initialReadingProgress,
-    props.scrollElementRef,
     shouldScrollToInitialPosition,
   ])
 

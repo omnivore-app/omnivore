@@ -30,6 +30,16 @@ export enum State {
   FAILED = 'FAILED',
 }
 
+export enum PageType {
+  ARTICLE = 'ARTICLE',
+  BOOK = 'BOOK',
+  FILE = 'FILE',
+  PROFILE = 'PROFILE',
+  WEBSITE = 'WEBSITE',
+  HIGHLIGHTS = 'HIGHLIGHTS',
+  UNKNOWN = 'UNKNOWN',
+}
+
 export type ArticleFragmentData = {
   id: string
   title: string

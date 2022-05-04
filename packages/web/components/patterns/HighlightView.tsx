@@ -8,6 +8,7 @@ type HighlightViewProps = {
   highlight: Highlight
   author?: string
   title?: string
+  scrollToHighlight?: (arg: string) => void;
 }
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
@@ -22,6 +23,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     fontSize: '18px',
     lineHeight: '27px',
     color: '$textDefault',
+    cursor: 'pointer',
   })
 
   return (
@@ -31,7 +33,11 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           <StyledText style='shareHighlightModalAnnotation'>{annotation}</StyledText>
         </Box>)
       }
-      <StyledQuote>
+      <StyledQuote onClick={() => {
+        if (props.scrollToHighlight) {
+          props.scrollToHighlight(props.highlight.id)
+        }
+      }}>
         {props.highlight.prefix}
         <SpanBox css={{ bg: '$highlightBackground', p: '1px', borderRadius: '2px', }}>
           {lines.map((line: string, index: number) => (

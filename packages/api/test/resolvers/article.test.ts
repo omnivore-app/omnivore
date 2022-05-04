@@ -434,7 +434,7 @@ describe('Article API', () => {
             pageId,
             {
               state: ArticleSavingRequestStatus.Processing,
-              createdAt: new Date(Date.now() - 1000 * 60),
+              savedAt: new Date(Date.now() - 1000 * 60),
             },
             ctx
           )
@@ -444,7 +444,7 @@ describe('Article API', () => {
           const res = await graphqlRequest(query, authToken).expect(200)
 
           expect(res.body.data.article.article.content).to.eql(
-            'We were unable to parse this page.'
+            '<p>We were unable to parse this page.</p>'
           )
         })
       })
@@ -474,7 +474,7 @@ describe('Article API', () => {
     before(async () => {
       // Create some test pages
       for (let i = 0; i < 15; i++) {
-        const page = {
+        const page: Page = {
           id: '',
           hash: 'test hash',
           userId: user.id,
@@ -488,6 +488,7 @@ describe('Article API', () => {
           readingProgressAnchorIndex: 0,
           url: url,
           savedAt: new Date(),
+          state: ArticleSavingRequestStatus.Succeeded,
         } as Page
         const pageId = await createPage(page, ctx)
         if (!pageId) {
@@ -583,7 +584,7 @@ describe('Article API', () => {
         )
         expect(
           res.body.data.articles.pageInfo.startCursor,
-          'startCursor'
+          'st artCursor'
         ).to.eql('5')
         expect(res.body.data.articles.pageInfo.endCursor, 'endCursor').to.eql(
           '10'
@@ -594,6 +595,31 @@ describe('Article API', () => {
         ).to.eql(true)
         // We don't implement hasPreviousPage in the API and should probably remove it
         // expect(res.body.data.articles.pageInfo.hasPreviousPage).to.eql(true)
+      })
+    })
+
+    context('when there are pages with failed state', () => {
+      before(async () => {
+        for (let i = 0; i < 5; i++) {
+          await updatePage(
+            pages[i].id,
+            {
+              state: ArticleSavingRequestStatus.Failed,
+            },
+            ctx
+          )
+        }
+        after = '10'
+      })
+      it('should include state=failed pages', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.articles.edges.length).to.eql(5)
+        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[4].id)
+        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[3].id)
+        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[2].id)
+        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[1].id)
+        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[0].id)
       })
     })
   })
@@ -731,6 +757,7 @@ describe('Article API', () => {
         title: 'test title',
         content: '<p>test</p>',
         createdAt: new Date(),
+        savedAt: new Date(),
         url: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
         readingProgressPercent: 0,

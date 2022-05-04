@@ -46,6 +46,7 @@ import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
   generateSlug,
+  isParsingTimeout,
   pageError,
   stringToHash,
   userDataToUser,
@@ -102,7 +103,7 @@ const FORCE_PUPPETEER_URLS = [
   /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
-const UNPARSEABLE_CONTENT = 'We were unable to parse this page.'
+const UNPARSEABLE_CONTENT = '<p>We were unable to parse this page.</p>'
 
 export type CreateArticlesSuccessPartial = Merge<
   CreateArticleSuccess,
@@ -246,8 +247,8 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      let articleToSave: Page = {
-        id: '',
+      const articleToSave: Page = {
+        id: pageId || '',
         userId: uid,
         originalHtml: domContent,
         content: parsedContent?.content || '',
@@ -317,62 +318,46 @@ export const createArticleResolver = authorized<
         )
       }
 
-      const existingPage = await getPageByParam({
-        userId: uid,
-        url: articleToSave.url,
-        state: ArticleSavingRequestStatus.Succeeded,
-      })
-      if (existingPage) {
-        //  update existing page in elastic
-        existingPage.slug = slug
-        existingPage.savedAt = saveTime
-        existingPage.archivedAt = archive ? saveTime : undefined
-        existingPage.url = uploadFileUrlOverride || articleToSave.url
-        existingPage.hash = articleToSave.hash
-
-        await updatePage(existingPage.id, existingPage, { ...ctx, uid })
-
-        log.info('page updated in elastic', existingPage.id)
-        articleToSave = existingPage
-      } else {
-        // create new page in elastic
-        if (!pageId) {
-          pageId = await createPage(articleToSave, { ...ctx, uid })
-          if (!pageId) {
-            return pageError(
-              {
-                errorCodes: [CreateArticleErrorCode.ElasticError],
-              },
-              ctx,
-              pageId
-            )
-          }
-        } else {
-          const updated = await updatePage(pageId, articleToSave, {
-            ...ctx,
-            uid,
-          })
-
-          if (!updated) {
-            return pageError(
-              {
-                errorCodes: [CreateArticleErrorCode.ElasticError],
-              },
-              ctx,
-              pageId
-            )
-          }
+      // create new page in elastic
+      if (!pageId) {
+        const newPageId = await createPage(articleToSave, { ...ctx, uid })
+        if (!newPageId) {
+          return pageError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            pageId
+          )
         }
+        articleToSave.id = newPageId
+      } else {
+        // update existing page's state from processing to succeeded
+        articleToSave.archivedAt = archive ? saveTime : undefined
+        articleToSave.url = uploadFileUrlOverride || articleToSave.url
+        const updated = await updatePage(pageId, articleToSave, {
+          ...ctx,
+          uid,
+        })
 
-        log.info(
-          'page created in elastic',
-          pageId,
-          articleToSave.url,
-          articleToSave.slug,
-          articleToSave.title
-        )
-        articleToSave.id = pageId
+        if (!updated) {
+          return pageError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            pageId
+          )
+        }
       }
+
+      log.info(
+        'page created in elastic',
+        articleToSave.id,
+        articleToSave.url,
+        articleToSave.slug,
+        articleToSave.title
+      )
 
       const createdArticle: PartialArticle = {
         ...articleToSave,
@@ -408,7 +393,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims }) => {
+> = async (_obj, { slug }, { claims, pubsub }) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -432,12 +417,8 @@ export const getArticleResolver: ResolverFn<
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
-    if (
-      page.state === ArticleSavingRequestStatus.Processing &&
-      new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 60
-    ) {
+    if (isParsingTimeout(page)) {
       page.content = UNPARSEABLE_CONTENT
-      page.description = UNPARSEABLE_CONTENT
     }
 
     return {
@@ -874,6 +855,7 @@ export const searchResolver = authorized<
         savedDateFilter: searchQuery.savedDateFilter,
         publishedDateFilter: searchQuery.publishedDateFilter,
         subscriptionFilter: searchQuery.subscriptionFilter,
+        includePending: true,
       },
       claims.uid
     )) || [[], 0]
