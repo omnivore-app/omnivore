@@ -246,8 +246,8 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      let articleToSave: Page = {
-        id: '',
+      const articleToSave: Page = {
+        id: pageId || '',
         userId: uid,
         originalHtml: domContent,
         content: parsedContent?.content || '',
@@ -317,62 +317,46 @@ export const createArticleResolver = authorized<
         )
       }
 
-      const existingPage = await getPageByParam({
-        userId: uid,
-        url: articleToSave.url,
-        state: ArticleSavingRequestStatus.Succeeded,
-      })
-      if (existingPage) {
-        //  update existing page in elastic
-        existingPage.slug = slug
-        existingPage.savedAt = saveTime
-        existingPage.archivedAt = archive ? saveTime : undefined
-        existingPage.url = uploadFileUrlOverride || articleToSave.url
-        existingPage.hash = articleToSave.hash
-
-        await updatePage(existingPage.id, existingPage, { ...ctx, uid })
-
-        log.info('page updated in elastic', existingPage.id)
-        articleToSave = existingPage
-      } else {
-        // create new page in elastic
-        if (!pageId) {
-          pageId = await createPage(articleToSave, { ...ctx, uid })
-          if (!pageId) {
-            return pageError(
-              {
-                errorCodes: [CreateArticleErrorCode.ElasticError],
-              },
-              ctx,
-              pageId
-            )
-          }
-        } else {
-          const updated = await updatePage(pageId, articleToSave, {
-            ...ctx,
-            uid,
-          })
-
-          if (!updated) {
-            return pageError(
-              {
-                errorCodes: [CreateArticleErrorCode.ElasticError],
-              },
-              ctx,
-              pageId
-            )
-          }
+      // create new page in elastic
+      if (!pageId) {
+        const newPageId = await createPage(articleToSave, { ...ctx, uid })
+        if (!newPageId) {
+          return pageError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            pageId
+          )
         }
+        articleToSave.id = newPageId
+      } else {
+        // update existing page's state from processing to succeeded
+        articleToSave.archivedAt = archive ? saveTime : undefined
+        articleToSave.url = uploadFileUrlOverride || articleToSave.url
+        const updated = await updatePage(pageId, articleToSave, {
+          ...ctx,
+          uid,
+        })
 
-        log.info(
-          'page created in elastic',
-          pageId,
-          articleToSave.url,
-          articleToSave.slug,
-          articleToSave.title
-        )
-        articleToSave.id = pageId
+        if (!updated) {
+          return pageError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            pageId
+          )
+        }
       }
+
+      log.info(
+        'page created in elastic',
+        articleToSave.id,
+        articleToSave.url,
+        articleToSave.slug,
+        articleToSave.title
+      )
 
       const createdArticle: PartialArticle = {
         ...articleToSave,
