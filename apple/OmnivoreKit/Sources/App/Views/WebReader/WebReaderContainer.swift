@@ -15,6 +15,7 @@ import WebKit
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
     @State private var showOverlay = true
+    @State private var progressViewOpacity = 0.0
     @State var increaseFontActionID: UUID?
     @State var decreaseFontActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
@@ -186,9 +187,16 @@ import WebKit
               }
             )
           }
+        } else if let errorMessage = viewModel.errorMessage {
+          Text(errorMessage).padding()
         } else {
-          Text(viewModel.contentFetchFailed ? "Unable to fetch content." : "Processing...")
-            .padding()
+          ProgressView()
+            .opacity(progressViewOpacity)
+            .onAppear {
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                progressViewOpacity = 1
+              }
+            }
             .task {
               await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
             }

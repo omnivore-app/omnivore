@@ -10,15 +10,16 @@ struct SafariWebLink: Identifiable {
 
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
-  @Published var contentFetchFailed = false
+  @Published var errorMessage: String?
 
   func loadContent(dataService: DataService, itemID: String) async {
-    contentFetchFailed = false
+    errorMessage = nil
 
     do {
       articleContent = try await dataService.fetchArticleContent(itemID: itemID)
     } catch {
-      contentFetchFailed = true
+      // TODO: check if this is a network or parsing error
+      errorMessage = "Unable to extract your content."
     }
   }
 
