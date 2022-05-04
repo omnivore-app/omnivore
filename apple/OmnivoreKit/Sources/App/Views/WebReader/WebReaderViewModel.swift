@@ -18,8 +18,16 @@ struct SafariWebLink: Identifiable {
     do {
       articleContent = try await dataService.fetchArticleContent(itemID: itemID)
     } catch {
-      // TODO: check if this is a network or parsing error
-      errorMessage = "Unable to extract your content."
+      if let fetchError = error as? ContentFetchError {
+        switch fetchError {
+        case .network:
+          errorMessage = "We were unable to retrieve your content. Please ccheck network connectivity and try again."
+        default:
+          errorMessage = "We were unable to parse your content."
+        }
+      } else {
+        errorMessage = "We were unable to retrieve your content."
+      }
     }
   }
 
