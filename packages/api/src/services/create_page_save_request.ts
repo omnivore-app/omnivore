@@ -96,6 +96,7 @@ export const createPageSaveRequest = async (
   const existingPage = await getPageByParam({
     userId,
     url,
+    state: ArticleSavingRequestStatus.Succeeded,
   })
   if (existingPage) {
     console.log('Page already exists', url)
