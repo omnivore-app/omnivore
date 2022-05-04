@@ -58,6 +58,19 @@ public extension LinkedItem {
     return URL(string: pageURLString ?? "")
   }
 
+  var labelsJSONString: String {
+    let labels = self.labels.asArray(of: LinkedItemLabel.self).map { label in
+      [
+        "id": NSString(string: label.id ?? ""),
+        "color": NSString(string: label.color ?? ""),
+        "name": NSString(string: label.name ?? ""),
+        "description": NSString(string: label.labelDescription ?? "")
+      ]
+    }
+    guard let JSON = (try? JSONSerialization.data(withJSONObject: labels, options: .prettyPrinted)) else { return "[]" }
+    return String(data: JSON, encoding: .utf8) ?? "[]"
+  }
+
   static func lookup(byID itemID: String, inContext context: NSManagedObjectContext) -> LinkedItem? {
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(
