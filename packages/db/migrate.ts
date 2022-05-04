@@ -87,7 +87,7 @@ const logAppliedMigrations = (
 }
 
 export const INDEX_ALIAS = 'pages_alias'
-export const client = new Client({
+export const esClient = new Client({
   node: process.env.ELASTIC_URL || 'http://localhost:9200',
   auth: {
     username: process.env.ELASTIC_USERNAME || '',
@@ -103,7 +103,7 @@ const updateMappings = async (): Promise<void> => {
   )
 
   // update mappings
-  await client.indices.putMapping({
+  await esClient.indices.putMapping({
     index: INDEX_ALIAS,
     body: JSON.parse(indexSettings).mappings,
   })
@@ -123,8 +123,39 @@ postgrator
 log('Starting updating elasticsearch index mappings...')
 
 updateMappings()
-  .then(() => console.log('\nUpdating elastic completed.'))
+  .then(() => console.log('\nUpdating elastic mappings completed.'))
   .catch((error) => {
     log(`${chalk.red('Updating failed: ')}${error.message}`, chalk.red)
+    process.exit(1)
+  })
+
+log('Starting adding default state to pages in elasticsearch...')
+esClient
+  .update_by_query({
+    index: INDEX_ALIAS,
+    body: {
+      script: {
+        source: 'ctx._source.state = params.state',
+        lang: 'painless',
+        params: {
+          state: 'SUCCEEDED',
+        },
+      },
+      query: {
+        bool: {
+          must_not: [
+            {
+              exists: {
+                field: 'state',
+              },
+            },
+          ],
+        },
+      },
+    },
+  })
+  .then(() => console.log('\nAdding default state completed.'))
+  .catch((error) => {
+    log(`${chalk.red('Adding failed: ')}${error.message}`, chalk.red)
     process.exit(1)
   })
