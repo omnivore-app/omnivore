@@ -258,7 +258,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         const username = viewerData?.me?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
-          router.push(`/${username}/${item.node.slug}`)
+          router.push(`/${username}/${item.node.id}`)
         }
         break
       case 'showOriginal':
