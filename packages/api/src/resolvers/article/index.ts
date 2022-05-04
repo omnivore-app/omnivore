@@ -408,7 +408,7 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims }) => {
+> = async (_obj, { slug }, { claims, pubsub }) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
@@ -438,6 +438,11 @@ export const getArticleResolver: ResolverFn<
     ) {
       page.content = UNPARSEABLE_CONTENT
       page.description = UNPARSEABLE_CONTENT
+      page.state = ArticleSavingRequestStatus.Failed
+      await updatePage(page.id, page, {
+        uid: claims.uid,
+        pubsub,
+      })
     }
 
     return {
