@@ -40,7 +40,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { isVipUser } from '../../../lib/featureFlag'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import { State } from '../../../lib/networking/fragments/articleFragment'
+import { State, PageType } from '../../../lib/networking/fragments/articleFragment'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -53,7 +53,7 @@ const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
 const SAVED_SEARCHES: Record<string, string> = {
   Inbox: `in:inbox`,
   'Read Later': `in:inbox -label:Newsletter`,
-  Highlighted: `in:inbox has:highlights`,
+  Highlights: `type:highlights`,
   Today: `in:inbox saved:${
     new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
   }Z${timeZoneHourDiff.toLocaleString('en-US', {
@@ -112,23 +112,23 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setQueryInputs, router.isReady, router.query])
 
-  const { articlesPages, size, setSize, isValidating, performActionOnItem } =
+  const { itemsPages, size, setSize, isValidating, performActionOnItem } =
     useGetLibraryItemsQuery(queryInputs)
 
   const hasMore = useMemo(() => {
-    if (!articlesPages) {
+    if (!itemsPages) {
       return false
     }
-    return articlesPages[articlesPages.length - 1].articles.pageInfo.hasNextPage
-  }, [articlesPages])
+    return itemsPages[itemsPages.length - 1].search.pageInfo.hasNextPage
+  }, [itemsPages])
 
   const libraryItems = useMemo(() => {
     const items =
-      articlesPages?.flatMap((ad) => {
-        return ad.articles.edges
+      itemsPages?.flatMap((ad) => {
+        return ad.search.edges
       }) || []
     return items
-  }, [articlesPages, performActionOnItem])
+  }, [itemsPages, performActionOnItem])
 
   const handleFetchMore = useCallback(() => {
     if (isValidating || !hasMore) {
@@ -262,7 +262,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
           if (item.node.state === State.PROCESSING) {
             router.push(`/${username}/links/${item.node.id}`)
           } else {
-            router.push(`/${username}/${item.node.slug}`)
+            const dl = item.node.pageType === PageType.HIGHLIGHTS ? `#${item.node.id}` : ''
+            router.push(`/${username}/${item.node.slug}` + dl)
           }
         }
         break
@@ -440,8 +441,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         setSize(size + 1)
       }}
       hasMore={hasMore}
-      hasData={!!articlesPages}
-      totalItems={articlesPages?.[0].articles.pageInfo.totalCount || 0}
+      hasData={!!itemsPages}
+      totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
       shareTarget={shareTarget}
       setShareTarget={setShareTarget}
