@@ -14,7 +14,6 @@ import WebKit
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
-    @State private var showOverlay = true
     @State private var progressViewOpacity = 0.0
     @State var increaseFontActionID: UUID?
     @State var decreaseFontActionID: UUID?
@@ -156,21 +155,6 @@ import WebKit
             decreaseFontActionID: $decreaseFontActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             annotation: $annotation
-          )
-          .overlay(
-            Group {
-              if showOverlay {
-                Color.systemBackground
-                  .transition(.opacity)
-                  .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                      withAnimation(.linear(duration: 0.2)) {
-                        showOverlay = false
-                      }
-                    }
-                  }
-              }
-            }
           )
           .sheet(item: $safariWebLink) {
             SafariView(url: $0.url)
