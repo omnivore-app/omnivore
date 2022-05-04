@@ -66,6 +66,7 @@ struct WebReaderContent {
             contentReader: "WEB",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
+            labels: \(item.labelsJSONString),
             highlights: \(highlightsJSONString),
           }
 
