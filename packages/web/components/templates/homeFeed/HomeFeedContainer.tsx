@@ -259,7 +259,11 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         const username = viewerData?.me?.profile.username
         if (username) {
           setActiveCardId(item.node.id)
-          if (item.node.state === State.PROCESSING) {
+          if (
+            item.node.state === State.PROCESSING &&
+            new Date(item.node.createdAt).getTime() >=
+              new Date().getTime() - 1000 * 30
+          ) {
             router.push(`/${username}/links/${item.node.id}`)
           } else {
             router.push(`/${username}/${item.node.slug}`)

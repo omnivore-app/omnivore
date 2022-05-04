@@ -102,7 +102,7 @@ const FORCE_PUPPETEER_URLS = [
   /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
-const UNPARSEABLE_CONTENT = 'We were unable to parse this page.'
+const UNPARSEABLE_CONTENT = '<p>We were unable to parse this page.</p>'
 
 export type CreateArticlesSuccessPartial = Merge<
   CreateArticleSuccess,
@@ -434,7 +434,7 @@ export const getArticleResolver: ResolverFn<
 
     if (
       page.state === ArticleSavingRequestStatus.Processing &&
-      new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 60
+      new Date(page.createdAt).getTime() < new Date().getTime() - 1000 * 30
     ) {
       page.content = UNPARSEABLE_CONTENT
       page.description = UNPARSEABLE_CONTENT
