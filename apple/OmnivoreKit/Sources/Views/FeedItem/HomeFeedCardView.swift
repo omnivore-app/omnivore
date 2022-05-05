@@ -12,7 +12,7 @@ public struct FeedCard: View {
   public var body: some View {
     VStack {
       HStack(alignment: .top, spacing: 6) {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
           Text(item.unwrappedTitle)
             .font(.appCallout)
             .foregroundColor(.appGrayTextContrast)
@@ -73,7 +73,7 @@ public struct FeedCard: View {
           Spacer()
         }
       }
-      .padding(.top, 2)
+      .padding(.top, 8)
       .padding(.bottom, 2)
     }
     .padding(.top, 16)
