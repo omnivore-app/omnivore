@@ -24,9 +24,6 @@ exports.imageHandler = {
         </head>
         <body>
           <div>
-            <!-- To avoid image being removed by readability-->
-            Image:
-            <br>
             <img src="${url}" alt="${title}">
           </div>
         </body>
