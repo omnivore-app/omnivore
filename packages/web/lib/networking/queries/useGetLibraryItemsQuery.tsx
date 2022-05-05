@@ -1,12 +1,12 @@
 import { gql } from 'graphql-request'
 import useSWRInfinite from 'swr/infinite'
 import { gqlFetcher } from '../networkHelpers'
-import type { ArticleFragmentData, PageType, State } from '../fragments/articleFragment'
+import type { PageType, State } from '../fragments/articleFragment'
 import { ContentReader } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { Label, labelFragment } from './../fragments/labelFragment'
+import { Label } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
 
 export type LibraryItemsQueryInput = {
@@ -124,6 +124,7 @@ export function useGetLibraryItemsQuery({
               shortId
               quote
               annotation
+              state
             }
           }
           pageInfo {
