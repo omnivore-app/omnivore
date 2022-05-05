@@ -24,6 +24,7 @@ const { tDotCoHandler } = require('./t-dot-co-handler');
 const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 const { derstandardHandler } = require('./derstandard-handler');
+const { imageHandler } = require('./image-handler');
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
@@ -228,6 +229,7 @@ const handlers = {
   't-dot-co': tDotCoHandler,
   'medium': mediumHandler,
   'derstandard': derstandardHandler,
+  'image': imageHandler,
 };
 
 /**
