@@ -134,8 +134,7 @@ log('Starting adding default state to pages in elasticsearch...')
 esClient
   .update_by_query({
     index: INDEX_ALIAS,
-    requests_per_second: 5,
-    scroll: '30s',
+    requests_per_second: 250,
     scroll_size: 500,
     timeout: '30m',
     body: {
