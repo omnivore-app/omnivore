@@ -37,7 +37,6 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { isVipUser } from '../../../lib/featureFlag'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { State, PageType } from '../../../lib/networking/fragments/articleFragment'
@@ -601,7 +600,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           searchTerm={props.searchTerm}
           applySearchQuery={props.applySearchQuery}
         />
-        {viewerData?.me && isVipUser(viewerData?.me) && (
+        {viewerData?.me && (
           <Box
             css={{
               display: 'flex',
