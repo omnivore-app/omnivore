@@ -17,12 +17,14 @@ exports.imageHandler = {
     const title = url.toString().split('/').pop();
     const content = `
       <html>
-        <head><title>${title}</title>
-        <meta property="og:image" content="${url}" />
-        <meta property="og:title" content="${title}" />
+        <head>
+          <title>${title}</title>
+          <meta property="og:image" content="${url}" />
+          <meta property="og:title" content="${title}" />
         </head>
         <body>
           <div>
+            <!-- To avoid image being removed by readability-->
             Image:
             <br>
             <img src="${url}" alt="${title}">
