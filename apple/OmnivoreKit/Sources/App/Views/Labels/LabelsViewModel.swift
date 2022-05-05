@@ -43,6 +43,7 @@ import Views
       color: color.hex ?? "",
       description: description
     ) else {
+      isLoading = false
       return
     }
 
@@ -51,6 +52,7 @@ import Views
       unselectedLabels.insert(label, at: 0)
     }
 
+    isLoading = false
     showCreateEmailModal = false
   }
 
