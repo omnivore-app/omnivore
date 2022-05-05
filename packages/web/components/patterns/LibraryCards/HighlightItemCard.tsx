@@ -19,12 +19,13 @@ export function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
       css={{
         p: '$2',
         height: '100%',
-        maxWidth: '498px',
-        borderRadius: '6px',
+        width: '100%',
+        borderRadius: '0px',
         cursor: 'pointer',
         wordBreak: 'break-word',
         overflow: 'clip',
         border: '1px solid $grayBorder',
+        borderBottom: 'none',
         boxShadow: '0px 3px 11px rgba(32, 31, 29, 0.04)',
         bg: '$grayBg',
         '&:focus': {
@@ -49,6 +50,7 @@ export function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
           css={{
             background: '$highlightBackground',
             color: '$highlightText',
+            fontSize: '14px',
           }}
         >
           {props.item.quote}
@@ -75,13 +77,10 @@ export function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
         )}
         <StyledText
           css={{
-            marginLeft: '$2',
             fontWeight: '700',
           }}
         >
-          {props.item.title
-            .substring(0, 50)
-            .concat(props.item.title.length > 50 ? '...' : '')}
+          {props.item.title}
         </StyledText>
       </HStack>
     </VStack>
