@@ -12,12 +12,11 @@ public struct FeedCard: View {
   public var body: some View {
     VStack {
       HStack(alignment: .top, spacing: 6) {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 2) {
           Text(item.unwrappedTitle)
-            .font(.appSubheadline)
+            .font(.appCallout)
             .foregroundColor(.appGrayTextContrast)
-            .lineLimit(2)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .fixedSize(horizontal: false, vertical: true)
 
           if let author = item.author {
             Text("By \(author)")
@@ -34,7 +33,13 @@ public struct FeedCard: View {
               .lineLimit(1)
           }
         }
-        .frame(maxWidth: .infinity)
+        .frame(
+          minWidth: 0,
+          maxWidth: .infinity,
+          minHeight: 0,
+          maxHeight: .infinity,
+          alignment: .topLeading
+        )
         .multilineTextAlignment(.leading)
         .padding(0)
 
@@ -52,7 +57,7 @@ public struct FeedCard: View {
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
               } else {
-                EmptyView()
+                EmptyView().frame(width: 80, height: 80, alignment: .top)
               }
             }
           }
@@ -68,8 +73,19 @@ public struct FeedCard: View {
           Spacer()
         }
       }
-      .padding(.bottom, 5)
+      .padding(.top, 2)
+      .padding(.bottom, 2)
     }
-    .padding(.top, 5)
+    .padding(.top, 16)
+    .padding(.bottom, 8)
+    .frame(
+      minWidth: nil,
+      idealWidth: nil,
+      maxWidth: nil,
+      minHeight: 70,
+      idealHeight: nil,
+      maxHeight: nil,
+      alignment: .topLeading
+    )
   }
 }
