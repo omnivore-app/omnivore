@@ -135,7 +135,8 @@ esClient
     index: INDEX_ALIAS,
     requests_per_second: 10,
     scroll: '30s',
-    scroll_size: 500,
+    scroll_size: 1000,
+    timeout: '30m',
     body: {
       script: {
         source: 'ctx._source.state = params.state',
