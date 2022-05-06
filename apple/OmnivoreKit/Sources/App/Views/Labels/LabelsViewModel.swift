@@ -22,7 +22,7 @@ import Views
       dataService.viewContext.performAndWait {
         self.labels = labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
       }
-      let selLabels = initiallySelectedLabels ?? item?.labels.asArray(of: LinkedItemLabel.self) ?? []
+      let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? []
       for label in labels {
         if selLabels.contains(label) {
           selectedLabels.append(label)

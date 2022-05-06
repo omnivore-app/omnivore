@@ -58,6 +58,12 @@ public extension LinkedItem {
     return URL(string: pageURLString ?? "")
   }
 
+  var sortedLabels: [LinkedItemLabel] {
+    labels.asArray(of: LinkedItemLabel.self).sorted {
+      ($0.name ?? "").lowercased() < ($1.name ?? "").lowercased()
+    }
+  }
+
   var labelsJSONString: String {
     let labels = self.labels.asArray(of: LinkedItemLabel.self).map { label in
       [
