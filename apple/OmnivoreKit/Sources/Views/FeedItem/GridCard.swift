@@ -156,7 +156,6 @@ public struct GridCard: View {
             }
             Spacer()
           }
-          .frame(height: 30)
           .padding(.horizontal)
           .padding(.bottom, 8)
         }

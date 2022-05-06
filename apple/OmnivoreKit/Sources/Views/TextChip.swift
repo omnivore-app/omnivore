@@ -26,8 +26,7 @@ public struct TextChip: View {
       .font(.appFootnote)
       .foregroundColor(color.isDark ? .white : .black)
       .lineLimit(1)
-      .background(color)
-      .cornerRadius(cornerRadius)
+      .background(Capsule().fill(color))
   }
 }
 
