@@ -17,7 +17,6 @@ public struct TextChip: View {
 
   let text: String
   let color: Color
-  let cornerRadius = 20.0
 
   public var body: some View {
     Text(text)
@@ -85,7 +84,6 @@ public struct TextChipButton: View {
   let color: Color
   let onTap: () -> Void
   let actionType: ActionType
-  let cornerRadius = 20.0
   let foregroundColor: Color
 
   public var body: some View {
@@ -101,8 +99,7 @@ public struct TextChipButton: View {
         .font(.appFootnote)
         .foregroundColor(foregroundColor)
         .lineLimit(1)
-        .background(color)
-        .cornerRadius(cornerRadius)
+        .background(Capsule().fill(color))
 
         Color.clear.contentShape(Rectangle()).frame(height: 15)
       }
