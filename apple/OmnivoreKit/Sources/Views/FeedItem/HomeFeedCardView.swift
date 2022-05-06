@@ -67,7 +67,7 @@ public struct FeedCard: View {
       // Category Labels
       ScrollView(.horizontal, showsIndicators: false) {
         HStack {
-          ForEach(item.labels.asArray(of: LinkedItemLabel.self), id: \.self) {
+          ForEach(item.sortedLabels, id: \.self) {
             TextChip(feedItemLabel: $0)
           }
           Spacer()
