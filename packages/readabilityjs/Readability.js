@@ -2899,6 +2899,7 @@ Readability.prototype = {
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
+      window: articleContent,
     };
   }
 };

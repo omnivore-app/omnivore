@@ -229,7 +229,7 @@ export const createArticleResolver = authorized<
         const parseResults = await traceAs<Promise<ParsedContentPuppeteer>>(
           { spanName: 'article.parse' },
           async (): Promise<ParsedContentPuppeteer> => {
-            return await parsePreparedContent(url, preparedDocument)
+            return parsePreparedContent(url, preparedDocument)
           }
         )
         parsedContent = parseResults.parsedContent

@@ -254,9 +254,9 @@ export const parsePreparedContent = async (
     // Format code blocks
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
-    if (article?.content) {
-      const cWindow = new JSDOM(article?.content).window
-      cWindow.document.querySelectorAll('code').forEach((e) => {
+    if (article?.window) {
+      // const cWindow = new JSDOM(article?.content).window
+      article.window.document.querySelectorAll('code').forEach((e) => {
         console.log(e.textContent)
         if (e.textContent) {
           const att = hljs.highlightAuto(e.textContent)
@@ -271,7 +271,7 @@ export const parsePreparedContent = async (
           e.replaceWith(code)
         }
       })
-      article.content = cWindow.document.body.outerHTML
+      article.content = article.window.document.body.outerHTML
     }
 
     const newWindow = new JSDOM('').window

@@ -5,6 +5,8 @@
 // TypeScript Version: 2.2
 
 declare module '@omnivore/readability' {
+  import { DOMWindow } from 'jsdom'
+
   /**
    * A standalone version of the readability library used for Firefox Reader View.
    *
@@ -163,6 +165,7 @@ declare module '@omnivore/readability' {
       previewImage?: string
       /** Article published date */
       publishedDate?: Date
+      window?: DOMWindow
     }
   }
 
