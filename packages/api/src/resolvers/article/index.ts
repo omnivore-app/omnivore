@@ -54,7 +54,6 @@ import {
 } from '../../utils/helpers'
 import {
   ParsedContentPuppeteer,
-  parseOriginalContent,
   parsePreparedContent,
 } from '../../utils/parser'
 import { isSiteBlockedForParse } from '../../utils/blocked'
@@ -236,8 +235,7 @@ export const createArticleResolver = authorized<
         parsedContent = parseResults.parsedContent
         canonicalUrl = parseResults.canonicalUrl
         domContent = parseResults.domContent
-
-        pageType = parseOriginalContent(url, domContent)
+        pageType = parseResults.pageType
       } else if (!preparedDocument?.document) {
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.

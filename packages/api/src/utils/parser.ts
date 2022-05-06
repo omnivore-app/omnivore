@@ -80,6 +80,7 @@ export type ParsedContentPuppeteer = {
   domContent: string
   parsedContent: Readability.ParseResult | null
   canonicalUrl?: string | null
+  pageType: PageType
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -101,9 +102,8 @@ type ArticleParseLogRecord = LogRecord & {
 
 const DEBUG_MODE = process.env.DEBUG === 'true' || false
 
-export const parseOriginalContent = (url: string, html: string): PageType => {
+const parseOriginalContent = (window: DOMWindow): PageType => {
   try {
-    const { window } = new JSDOM(html, { url })
     const e = window.document.querySelector("head meta[property='og:type']")
     const content = e?.getAttribute('content')
     if (!content) {
@@ -121,7 +121,7 @@ export const parseOriginalContent = (url: string, html: string): PageType => {
         return PageType.Website
     }
   } catch (error) {
-    logger.error('Error extracting og:type from content for url', url, error)
+    logger.error('Error extracting og:type from content', error)
   }
 
   return PageType.Unknown
@@ -232,6 +232,7 @@ export const parsePreparedContent = async (
       canonicalUrl: url,
       parsedContent: null,
       domContent: preparedDocument.document,
+      pageType: PageType.Unknown,
     }
   }
 
@@ -310,6 +311,7 @@ export const parsePreparedContent = async (
     domContent: preparedDocument.document,
     parsedContent: article,
     canonicalUrl,
+    pageType: parseOriginalContent(window),
   }
 }
 
