@@ -5,6 +5,8 @@ import UserNotifications
 import Utils
 import Views
 
+private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
+
 #if os(iOS)
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
@@ -54,18 +56,22 @@ import Views
             Button("", action: {})
               .disabled(true)
               .overlay {
-                if viewModel.isLoading, !prefersListLayout {
+                if viewModel.isLoading, !prefersListLayout, enableGrid {
                   ProgressView()
                 }
               }
           }
           ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-              }
-            )
+            if enableGrid {
+              Button(
+                action: { prefersListLayout.toggle() },
+                label: {
+                  Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                }
+              )
+            } else {
+              EmptyView()
+            }
           }
           ToolbarItem(placement: .barTrailing) {
             if UIDevice.isIPhone {
@@ -149,7 +155,7 @@ import Views
             }
           }
         }
-        if prefersListLayout {
+        if prefersListLayout || !enableGrid {
           HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
           HomeFeedGridView(viewModel: viewModel)
