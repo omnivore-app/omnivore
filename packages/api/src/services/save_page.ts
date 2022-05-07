@@ -3,7 +3,7 @@ import { homePageURL } from '../env'
 import { Maybe, SavePageInput, SaveResult } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
-import { parseOriginalContent, parsePreparedContent } from '../utils/parser'
+import { parsePreparedContent } from '../utils/parser'
 
 import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
@@ -72,8 +72,6 @@ export const savePage = async (
     },
   })
 
-  const pageType = parseOriginalContent(input.url, input.originalContent)
-
   const articleToSave: Page = {
     id: input.clientRequestId,
     slug,
@@ -87,7 +85,7 @@ export const savePage = async (
       stripHash: true,
       stripWWW: false,
     }),
-    pageType: pageType,
+    pageType: parseResult.pageType,
     hash: stringToHash(parseResult.parsedContent?.content || input.url),
     image: parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
