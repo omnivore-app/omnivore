@@ -11,10 +11,11 @@ public struct FeedCard: View {
 
   public var body: some View {
     VStack {
-      HStack(alignment: .top, spacing: 6) {
-        VStack(alignment: .leading, spacing: 4) {
+      HStack(alignment: .top, spacing: 10) {
+        VStack(alignment: .leading, spacing: 1) {
           Text(item.unwrappedTitle)
             .font(.appCallout)
+            .lineSpacing(1.25)
             .foregroundColor(.appGrayTextContrast)
             .fixedSize(horizontal: false, vertical: true)
 
@@ -64,19 +65,19 @@ public struct FeedCard: View {
         }
       }
 
-      // Category Labels
-      ScrollView(.horizontal, showsIndicators: false) {
-        HStack {
-          ForEach(item.sortedLabels, id: \.self) {
-            TextChip(feedItemLabel: $0)
+      if item.sortedLabels.count > 0 {
+        // Category Labels
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            ForEach(item.sortedLabels, id: \.self) {
+              TextChip(feedItemLabel: $0)
+            }
+            Spacer()
           }
-          Spacer()
-        }
+        }.padding(.top, 8)
       }
-      .padding(.top, 8)
-      .padding(.bottom, 2)
     }
-    .padding(.top, 16)
+    .padding(.top, 10)
     .padding(.bottom, 8)
     .frame(
       minWidth: nil,
