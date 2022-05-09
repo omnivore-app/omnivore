@@ -281,16 +281,18 @@ export const parsePreparedContent = async (
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
-    const jsonLdLinkMetadata = await getJSONLdLinkMetadata(window.document)
-    logRecord.JSONLdParsed = jsonLdLinkMetadata
+    const jsonLdLinkMetadata = (async () => {
+      return getJSONLdLinkMetadata(window.document)
+    })()
 
     Object.assign(article, {
       content: clean,
-      title: article?.title || jsonLdLinkMetadata.title,
-      previewImage: article?.previewImage || jsonLdLinkMetadata.previewImage,
-      siteName: article?.siteName || jsonLdLinkMetadata.siteName,
+      title: article?.title || (await jsonLdLinkMetadata).title,
+      previewImage:
+        article?.previewImage || (await jsonLdLinkMetadata).previewImage,
+      siteName: article?.siteName || (await jsonLdLinkMetadata).siteName,
       siteIcon: article?.siteIcon,
-      byline: article?.byline || jsonLdLinkMetadata.byline,
+      byline: article?.byline || (await jsonLdLinkMetadata).byline,
     })
     logRecord.parseSuccess = true
   } catch (error) {
