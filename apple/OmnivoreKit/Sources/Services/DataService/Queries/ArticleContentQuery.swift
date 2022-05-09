@@ -68,12 +68,14 @@ extension DataService {
     }
   }
 
+  // swiftlint:disable:next function_body_length
   public func articleContent(
     username: String,
     itemID: String,
     useCache: Bool
   ) async throws -> ArticleContent {
     struct ArticleProps {
+      let item: InternalLinkedItem
       let htmlContent: String
       let highlights: [InternalHighlight]
       let contentStatus: Enums.ArticleSavingRequestStatus?
@@ -90,6 +92,26 @@ extension DataService {
 
     let articleSelection = Selection.Article {
       ArticleProps(
+        item: InternalLinkedItem(
+          id: try $0.id(),
+          title: try $0.title(),
+          createdAt: try $0.createdAt().value ?? Date(),
+          savedAt: try $0.savedAt().value ?? Date(),
+          readingProgress: try $0.readingProgressPercent(),
+          readingProgressAnchor: try $0.readingProgressAnchorIndex(),
+          imageURLString: try $0.image(),
+          onDeviceImageURLString: nil,
+          documentDirectoryPath: nil,
+          pageURLString: try $0.url(),
+          descriptionText: try $0.description(),
+          publisherURLString: try $0.originalArticleUrl(),
+          author: try $0.author(),
+          publishDate: try $0.publishedAt()?.value,
+          slug: try $0.slug(),
+          isArchived: try $0.isArchived(),
+          contentReader: try $0.contentReader().rawValue,
+          labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+        ),
         htmlContent: try $0.content(),
         highlights: try $0.highlights(selection: highlightSelection.list),
         contentStatus: try $0.state()
@@ -134,8 +156,8 @@ extension DataService {
 
           if status == .succeeded {
             self?.persistArticleContent(
+              item: result.item,
               htmlContent: result.htmlContent,
-              itemID: itemID,
               highlights: result.highlights
             )
           }
@@ -154,11 +176,11 @@ extension DataService {
     }
   }
 
-  func persistArticleContent(htmlContent: String, itemID: String, highlights: [InternalHighlight]) {
+  func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "id == %@", itemID)
+      fetchRequest.predicate = NSPredicate(format: "id == %@", item.id)
 
       let linkedItem = try? self.backgroundContext.fetch(fetchRequest).first
 
@@ -169,6 +191,22 @@ extension DataService {
       }
       linkedItem.addToHighlights(NSSet(array: highlightObjects))
       linkedItem.htmlContent = htmlContent
+      linkedItem.id = item.id
+      linkedItem.title = item.title
+      linkedItem.createdAt = item.createdAt
+      linkedItem.savedAt = item.savedAt
+      linkedItem.readingProgress = item.readingProgress
+      linkedItem.readingProgressAnchor = Int64(item.readingProgressAnchor)
+      linkedItem.imageURLString = item.imageURLString
+      linkedItem.onDeviceImageURLString = item.onDeviceImageURLString
+      linkedItem.pageURLString = item.pageURLString
+      linkedItem.descriptionText = item.descriptionText
+      linkedItem.publisherURLString = item.publisherURLString
+      linkedItem.author = item.author
+      linkedItem.publishDate = item.publishDate
+      linkedItem.slug = item.slug
+      linkedItem.isArchived = item.isArchived
+      linkedItem.contentReader = item.contentReader
 
       if linkedItem.isPDF {
         self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
