@@ -2052,7 +2052,16 @@
     "@cliqz/adblocker-content" "^1.22.6"
     tldts-experimental "^5.6.21"
 
-"@cliqz/adblocker@^1.22.6":
+"@cliqz/adblocker-puppeteer@^1.23.7":
+  version "1.23.7"
+  resolved "https://registry.yarnpkg.com/@cliqz/adblocker-puppeteer/-/adblocker-puppeteer-1.23.7.tgz#18367ddefa603d9abf03a72e6e4ecb584430df1d"
+  integrity sha512-n6xPyRHApAirFVFowK5ngxTOF8ilV/QTNxzHjhmEtJXxiLD55Q4UrwgH7mj22wDhSkOKWUjY6CeCaUdYYb9JVA==
+  dependencies:
+    "@cliqz/adblocker" "^1.23.7"
+    "@cliqz/adblocker-content" "^1.23.7"
+    tldts-experimental "^5.6.21"
+
+"@cliqz/adblocker@^1.22.6", "@cliqz/adblocker@^1.23.7":
   version "1.23.7"
   resolved "https://registry.yarnpkg.com/@cliqz/adblocker/-/adblocker-1.23.7.tgz#d439fe8b62d2789c274b5e124cddb930de25f59a"
   integrity sha512-HUvC7CcmNbcIftcRhFeuQhHSpyNdOVdXazXDL0+avvWR0cxlI9zcC8yHMRKjxeY6nsiOXdyEFby+V5KgJvfwaQ==
@@ -8741,6 +8750,11 @@ acorn@^8.0.4, acorn@^8.2.4, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.7.0:
   version "8.7.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.7.0.tgz#90951fde0f8f09df93549481e5fc141445b791cf"
   integrity sha512-V/LGr1APy+PXIwKebEWrkZPwoeoF+w1jiOBUmuxuiUIaOHtob8Qc9BTrYo7VuI5fR8tqsy+buA2WFooR5olqvQ==
+
+ad-block-js@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/ad-block-js/-/ad-block-js-0.0.2.tgz#294196a1fcc40881bd86abdbad288e20c516cd81"
+  integrity sha512-1n71M3WihSgFoaQ6S+LL9L3YFfCRtvNfk/yvqY8MAn66njWOJo2s6f/TYBOS2gLbyXuxEUqq9n6slUHi/xQIHg==
 
 add-stream@^1.0.0:
   version "1.0.0"

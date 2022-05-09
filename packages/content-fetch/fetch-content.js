@@ -27,12 +27,12 @@ const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
-// Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
-// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-// puppeteer.use(StealthPlugin());
-
-const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker')
-puppeteer.use(AdblockerPlugin({blockTrackers: true}))
+// Add stealth plugin to hide puppeteer usage
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+// Add adblocker plugin to block ads and trackers
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 
 const userAgentForUrl = (url) => {
@@ -57,6 +57,7 @@ const getBrowserPromise = (async () => {
     executablePath: process.env.CHROMIUM_PATH ,
     headless: true, // process.env.LAUNCH_HEADLESS ? true : false,
     timeout: 0,
+    userDataDir: '/tmp/puppeteer',
   });
 })();
 
@@ -236,7 +237,7 @@ async function fetchContent(req, res) {
       console.log('pre-handling url with handler: ', handler);
 
       const result = await handlers[handler].prehandle(url);
-      if (result && result.url) { 
+      if (result && result.url) {
         url = result.url
         validateUrlString(url);
       }
