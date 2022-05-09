@@ -8,6 +8,7 @@
     "ad-block-js": "^0.0.2",
     "axios": "^0.26.0",
     "dotenv": "^8.2.0",
+    "chrome-aws-lambda": "^10.1.0",
     "express": "^4.17.1",
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",

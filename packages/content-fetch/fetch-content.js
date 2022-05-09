@@ -6,6 +6,7 @@
 require('dotenv').config();
 const Url = require('url');
 const puppeteer = require('puppeteer-extra');
+const chromium = require('chrome-aws-lambda');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -52,15 +53,7 @@ const userAgentForUrl = (url) => {
 // launch Puppeteer
 const getBrowserPromise = (async () => {
   return puppeteer.launch({
-    args: [
-      '--disable-gpu',
-      '--disable-dev-shm-usage',
-      '--disable-setuid-sandbox',
-      '--no-first-run',
-      '--no-sandbox',
-      '--no-zygote',
-      '--single-process',
-    ],
+    args: chromium.args,
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
     headless: true, // process.env.LAUNCH_HEADLESS ? true : false,
