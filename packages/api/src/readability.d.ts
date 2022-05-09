@@ -163,6 +163,7 @@ declare module '@omnivore/readability' {
       previewImage?: string
       /** Article published date */
       publishedDate?: Date
+      dom?: Element
     }
   }
 

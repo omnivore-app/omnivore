@@ -14,7 +14,7 @@ import WebKit
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
-    @State private var showOverlay = true
+    @State private var progressViewOpacity = 0.0
     @State var increaseFontActionID: UUID?
     @State var decreaseFontActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
@@ -156,21 +156,6 @@ import WebKit
             annotationSaveTransactionID: $annotationSaveTransactionID,
             annotation: $annotation
           )
-          .overlay(
-            Group {
-              if showOverlay {
-                Color.systemBackground
-                  .transition(.opacity)
-                  .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                      withAnimation(.linear(duration: 0.2)) {
-                        showOverlay = false
-                      }
-                    }
-                  }
-              }
-            }
-          )
           .sheet(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
@@ -186,9 +171,16 @@ import WebKit
               }
             )
           }
+        } else if let errorMessage = viewModel.errorMessage {
+          Text(errorMessage).padding()
         } else {
-          Text(viewModel.contentFetchFailed ? "Unable to fetch content." : "Processing...")
-            .padding()
+          ProgressView()
+            .opacity(progressViewOpacity)
+            .onAppear {
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                progressViewOpacity = 1
+              }
+            }
             .task {
               await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
             }

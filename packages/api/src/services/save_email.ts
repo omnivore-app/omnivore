@@ -1,9 +1,5 @@
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
-import {
-  parseOriginalContent,
-  parsePreparedContent,
-  parseUrlMetadata,
-} from '../utils/parser'
+import { parsePreparedContent, parseUrlMetadata } from '../utils/parser'
 import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
@@ -44,7 +40,6 @@ export const saveEmail = async (
   const content = parseResult.parsedContent?.content || input.originalContent
   const slug = generateSlug(title)
 
-  const pageType = parseOriginalContent(url, input.originalContent)
   const metadata = await parseUrlMetadata(url)
 
   const articleToSave: Page = {
@@ -60,7 +55,7 @@ export const saveEmail = async (
       stripHash: true,
       stripWWW: false,
     }),
-    pageType: pageType,
+    pageType: parseResult.pageType,
     hash: stringToHash(content),
     image: metadata?.previewImage || parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),

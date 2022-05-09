@@ -89,6 +89,7 @@ const logAppliedMigrations = (
 export const INDEX_ALIAS = 'pages_alias'
 export const esClient = new Client({
   node: process.env.ELASTIC_URL || 'http://localhost:9200',
+  requestTimeout: 60000 * 30, // 30 minutes
   auth: {
     username: process.env.ELASTIC_USERNAME || '',
     password: process.env.ELASTIC_PASSWORD || '',
@@ -133,6 +134,9 @@ log('Starting adding default state to pages in elasticsearch...')
 esClient
   .update_by_query({
     index: INDEX_ALIAS,
+    requests_per_second: 250,
+    scroll_size: 500,
+    timeout: '30m',
     body: {
       script: {
         source: 'ctx._source.state = params.state',

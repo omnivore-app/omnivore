@@ -5,10 +5,12 @@ import UserNotifications
 import Utils
 import Views
 
+private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
+
 #if os(iOS)
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
-    @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = UIDevice.isIPhone
+    @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
@@ -48,6 +50,44 @@ import Views
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item), onSave: nil)
+        }
+        .toolbar {
+          ToolbarItem(placement: .barTrailing) {
+            Button("", action: {})
+              .disabled(true)
+              .overlay {
+                if viewModel.isLoading, !prefersListLayout, enableGrid {
+                  ProgressView()
+                }
+              }
+          }
+          ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
+            if enableGrid {
+              Button(
+                action: { prefersListLayout.toggle() },
+                label: {
+                  Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                }
+              )
+            } else {
+              EmptyView()
+            }
+          }
+          ToolbarItem(placement: .barTrailing) {
+            if UIDevice.isIPhone {
+              NavigationLink(
+                destination: { ProfileView() },
+                label: {
+                  Image.profile
+                    .resizable()
+                    .frame(width: 26, height: 26)
+                    .padding(.vertical)
+                }
+              )
+            } else {
+              EmptyView()
+            }
+          }
         }
       }
       .navigationTitle("Home")
@@ -115,31 +155,10 @@ import Views
             }
           }
         }
-        if prefersListLayout {
+        if prefersListLayout || !enableGrid {
           HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
           HomeFeedGridView(viewModel: viewModel)
-            .toolbar {
-              ToolbarItem {
-                Button("", action: {})
-                  .disabled(true)
-                  .overlay {
-                    if viewModel.isLoading {
-                      ProgressView()
-                    }
-                  }
-              }
-              ToolbarItem {
-                if UIDevice.isIPad {
-                  Button(
-                    action: { prefersListLayout.toggle() },
-                    label: {
-                      Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                    }
-                  )
-                }
-              }
-            }
         }
       }
     }
@@ -256,18 +275,6 @@ import Views
         }
       }
       .listStyle(PlainListStyle())
-      .toolbar {
-        ToolbarItem {
-          if UIDevice.isIPad {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-              }
-            )
-          }
-        }
-      }
     }
   }
 

@@ -10,15 +10,24 @@ struct SafariWebLink: Identifiable {
 
 @MainActor final class WebReaderViewModel: ObservableObject {
   @Published var articleContent: ArticleContent?
-  @Published var contentFetchFailed = false
+  @Published var errorMessage: String?
 
   func loadContent(dataService: DataService, itemID: String) async {
-    contentFetchFailed = false
+    errorMessage = nil
 
     do {
       articleContent = try await dataService.fetchArticleContent(itemID: itemID)
     } catch {
-      contentFetchFailed = true
+      if let fetchError = error as? ContentFetchError {
+        switch fetchError {
+        case .network:
+          errorMessage = "We were unable to retrieve your content. Please ccheck network connectivity and try again."
+        default:
+          errorMessage = "We were unable to parse your content."
+        }
+      } else {
+        errorMessage = "We were unable to retrieve your content."
+      }
     }
   }
 

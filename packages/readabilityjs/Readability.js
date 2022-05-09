@@ -167,8 +167,8 @@ Readability.prototype = {
     // NOTE: These two regular expressions are duplicated in
     // Readability-readerable.js. Please keep both copies in sync.
     articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
-    articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_/i,
-    unlikelyCandidates: /-ad-|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next/i,
+    articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert/i,
+    unlikelyCandidates: /-ad-|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
       return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed`, 'i')
@@ -1579,7 +1579,7 @@ Readability.prototype = {
           });
 
           // But first check if we actually have something
-          if (!this._attempts[0].textLength) {
+          if (!this._attempts[0].textLength && !this._attempts[0].articleContent) {
             return null;
           }
 
@@ -2899,6 +2899,7 @@ Readability.prototype = {
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
+      dom: articleContent,
     };
   }
 };

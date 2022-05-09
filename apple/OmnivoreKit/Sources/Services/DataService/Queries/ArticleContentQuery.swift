@@ -20,7 +20,7 @@ extension DataService {
   func prefetchPage(pendingLink: PendingLink, username: String) async {
     let content = try? await articleContent(username: username, itemID: pendingLink.itemID, useCache: false)
 
-    if content?.contentStatus == .processing, pendingLink.retryCount < 6 {
+    if content?.contentStatus == .processing, pendingLink.retryCount < 7 {
       let retryDelayInNanoSeconds = UInt64(pendingLink.retryCount * 2 * 1_000_000_000)
 
       do {
@@ -45,26 +45,24 @@ extension DataService {
     username: String? = nil,
     requestCount: Int = 1
   ) async throws -> ArticleContent {
-    guard let username = username ?? currentViewer?.username else {
-      throw BasicError.message(messageText: "username could not be fetched from core data")
+    guard requestCount < 7 else {
+      throw ContentFetchError.badData
     }
 
-    guard let fetchedContent = try? await articleContent(username: username, itemID: itemID, useCache: true) else {
-      throw BasicError.message(messageText: "networking error")
+    guard let username = username ?? currentViewer?.username else {
+      throw ContentFetchError.unauthorized
     }
+
+    let fetchedContent = try await articleContent(username: username, itemID: itemID, useCache: true)
 
     switch fetchedContent.contentStatus {
     case .failed:
-      throw BasicError.message(messageText: "content processing failed")
+      throw ContentFetchError.badData
     case .processing:
-      do {
-        let retryDelayInNanoSeconds = UInt64(requestCount * 2 * 1_000_000_000)
-        try await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
-        logger.debug("fetching content for \(itemID). request count: \(requestCount)")
-        return try await fetchArticleContent(itemID: itemID, username: username, requestCount: requestCount + 1)
-      } catch {
-        throw BasicError.message(messageText: "content fetch failed")
-      }
+      let retryDelayInNanoSeconds = UInt64(requestCount * 2 * 1_000_000_000)
+      try await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
+      logger.debug("fetching content for \(itemID). request count: \(requestCount)")
+      return try await fetchArticleContent(itemID: itemID, username: username, requestCount: requestCount + 1)
     case .succeeded, .unknown:
       return fetchedContent
     }
@@ -120,7 +118,7 @@ extension DataService {
     return try await withCheckedThrowingContinuation { continuation in
       send(query, to: path, headers: headers) { [weak self] queryResult in
         guard let payload = try? queryResult.get() else {
-          continuation.resume(throwing: BasicError.message(messageText: "network error"))
+          continuation.resume(throwing: ContentFetchError.network)
           return
         }
 
@@ -129,6 +127,10 @@ extension DataService {
           // Default to suceeded since older links will return a nil status
           // (but the content is almost always there)
           let status = result.contentStatus ?? .succeeded
+          if status == .failed {
+            continuation.resume(throwing: ContentFetchError.badData)
+            return
+          }
 
           if status == .succeeded {
             self?.persistArticleContent(
@@ -146,7 +148,7 @@ extension DataService {
 
           continuation.resume(returning: articleContent)
         case .error:
-          continuation.resume(throwing: BasicError.message(messageText: "LinkedItem fetch error"))
+          continuation.resume(throwing: ContentFetchError.badData)
         }
       }
     }
