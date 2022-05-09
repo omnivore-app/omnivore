@@ -255,22 +255,25 @@ export const parsePreparedContent = async (
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
     if (article?.dom) {
-      article.dom.querySelectorAll('code').forEach((e) => {
-        console.log(e.textContent)
-        if (e.textContent) {
-          const att = hljs.highlightAuto(e.textContent)
-          const code = window.document.createElement('code')
-          const langClass =
-            `hljs language-${att.language}` +
-            (att.second_best?.language
-              ? ` language-${att.second_best?.language}`
-              : '')
-          code.setAttribute('class', langClass)
-          code.innerHTML = att.value
-          e.replaceWith(code)
-        }
-      })
-      article.content = article.dom.outerHTML
+      const codeBlocks = article.dom.querySelectorAll('code')
+      if (codeBlocks.length > 0) {
+        codeBlocks.forEach((e) => {
+          console.log(e.textContent)
+          if (e.textContent) {
+            const att = hljs.highlightAuto(e.textContent)
+            const code = window.document.createElement('code')
+            const langClass =
+              `hljs language-${att.language}` +
+              (att.second_best?.language
+                ? ` language-${att.second_best?.language}`
+                : '')
+            code.setAttribute('class', langClass)
+            code.innerHTML = att.value
+            e.replaceWith(code)
+          }
+        })
+        article.content = article.dom.outerHTML
+      }
     }
 
     const newWindow = new JSDOM('').window
