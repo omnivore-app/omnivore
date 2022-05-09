@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { StyledText } from '../elements/StyledText'
-import { VStack, Box } from '../elements/LayoutPrimitives'
+import { VStack, Box, SpanBox } from '../elements/LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
 import {
   googleID,
@@ -15,20 +15,57 @@ export type LoginFormProps = {
 }
 
 export function LoginForm(props: LoginFormProps): JSX.Element {
-  console.log(props.errorMessage) // TODO: display message
+  const StyledTextHeadline = styled('h1', {
+    fontStyle: 'normal',
+    fontWeight: '400',
+    fontSize: '50px',
+    lineHeight: '100%',
+    color: '$omnivoreGray',
+    m: '0px',
+  })
 
   return (
     <VStack
-      alignment="center"
-      distribution="between"
+      alignment="start"
+      distribution="center"
       css={{
-        maxWidth: '24em',
-        textAlign: 'center',
-        width: '90%',
+        gap: '8px',
+        maxWidth: '593px',
+        '@mdDown': {
+          maxWidth: '85%',
+        },
       }}
     >
-      <LoginFormHeader />
+      <StyledTextHeadline>
+        Never miss a great read.
+      </StyledTextHeadline>
+      <StyledText css={{ fontStyle: 'normal',
+    fontWeight: '400',
+    fontSize: '18px',
+    lineHeight: '120%',
+    m: '0px',
+    color: '$omnivoreGray',}}>
+        Save articles and read them later in our distraction-free reader.
+      </StyledText>
+      <Link passHref href="/about">
+        <a style={{ textDecoration: 'none' }}>
+          <StyledText
+            css={{
+              fontStyle: 'normal',
+fontWeight: '400',
+fontSize: '18px',
+lineHeight: '120%',
+m: '0px',
+            }}
+          >
+            Learn More -&gt;
+          </StyledText>
+        </a>
+      </Link>
 
+      <SpanBox css={{ height: '24px' }} />
+
+<VStack alignment="start" distribution="center" css={{ }}>  
       {googleID && (
         <Box
           style={{
@@ -48,6 +85,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
           style={{
             cursor: 'pointer',
             display: 'inline-flex',
+            width: '210px',
             height: '40px',
           }}
         >
@@ -60,49 +98,32 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
             responseType="code id_token"
             designProp={{
               color: 'black',
-              width: 300,
+              width: 261,
               height: 40,
               type: 'continue',
             }}
           />
         </Box>
       )}
+      </VStack>  
       <TermAndConditionsFooter />
     </VStack>
   )
 }
 
 function LoginFormHeader() {
-  const StyledTextHeadline = styled('h1', StyledText)
+  
 
   return (
     <>
-      <StyledTextHeadline
-        style="fixedHeadline"
-        css={{ mx: '$2', color: '$omnivoreGray', marginBlockEnd: '0px' }}
-      >
-        {formatMessage({ id: 'login.headline' })}
-      </StyledTextHeadline>
-      <Link passHref href="/about">
-        <a style={{ textDecoration: 'none' }}>
-          <StyledText
-            css={{
-              color: '$omnivoreRed',
-              marginBlockStart: '8px',
-              marginBlockEnd: '28px',
-            }}
-          >
-            Learn More -&gt;
-          </StyledText>
-        </a>
-      </Link>
+      
     </>
   )
 }
 
 function GoogleAuthButton() {
   return (
-    <Box css={{ pb: '$3' }}>
+    <Box css={{  overflow: 'clip' }}>
       <div
         id="g_id_onload"
         data-client_id={googleID}
@@ -110,6 +131,7 @@ function GoogleAuthButton() {
         data-ux_mode="popup"
         data-login_uri={gauthRedirectURI}
         data-auto_prompt="false"
+        
       />
 
       <div
@@ -120,7 +142,7 @@ function GoogleAuthButton() {
         data-text="continue_with"
         data-size="large"
         data-logo_alignment="center"
-        data-width="300"
+        data-width="261"
       />
     </Box>
   )
@@ -133,8 +155,8 @@ export function TermAndConditionsFooter(): JSX.Element {
     <StyledText
       style="caption"
       css={{
-        maxWidth: '20em',
-        textAlign: 'center',
+        maxWidth: '220px',
+        textAlign: 'left',
         color: '$omnivoreLightGray',
       }}
     >
