@@ -136,26 +136,28 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
 
     var body: some View {
       VStack(spacing: 0) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack {
-            TextChipButton.makeAddLabelButton {
-              showLabelsSheet = true
+        ZStack(alignment: .bottom) {
+          ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+              TextChipButton.makeAddLabelButton {
+                showLabelsSheet = true
+              }
+              ForEach(viewModel.selectedLabels, id: \.self) { label in
+                TextChipButton.makeRemovableLabelButton(feedItemLabel: label) {
+                  viewModel.selectedLabels.removeAll { $0.id == label.id }
+                }
+              }
+              Spacer()
             }
-            ForEach(viewModel.selectedLabels, id: \.self) { label in
-              TextChipButton.makeRemovableLabelButton(feedItemLabel: label) {
-                viewModel.selectedLabels.removeAll { $0.id == label.id }
+            .padding(.horizontal)
+            .sheet(isPresented: $showLabelsSheet) {
+              ApplyLabelsView(mode: .list(viewModel.selectedLabels)) {
+                viewModel.selectedLabels = $0
               }
             }
-            Spacer()
           }
-          .padding(.horizontal)
-          .sheet(isPresented: $showLabelsSheet) {
-            ApplyLabelsView(mode: .list(viewModel.selectedLabels)) {
-              viewModel.selectedLabels = $0
-            }
-          }
+          ShimmeringLoader()
         }
-        ShimmeringLoader()
         if prefersListLayout || !enableGrid {
           HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
