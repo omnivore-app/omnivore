@@ -27,8 +27,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
           loadItems(isRefresh: true)
         }
         .searchable(
-          text: $viewModel.searchTerm,
-          placement: .navigationBarDrawer
+          text: $viewModel.searchTerm
         ) {
           if viewModel.searchTerm.isEmpty {
             Text("Inbox").searchCompletion("in:inbox ")

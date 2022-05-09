@@ -14,7 +14,6 @@ struct FeedCardNavigationLink: View {
     let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
     #if os(iOS)
       let modifiedDestination = destination
-        .navigationBarHidden(true)
         .navigationTitle("")
     #else
       let modifiedDestination = destination
@@ -54,7 +53,6 @@ struct GridCardNavigationLink: View {
     let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
     #if os(iOS)
       let modifiedDestination = destination
-        .navigationBarHidden(true)
         .navigationTitle("")
     #else
       let modifiedDestination = destination
