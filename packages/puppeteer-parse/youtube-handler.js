@@ -9,13 +9,7 @@ const axios = require('axios');
 const YOUTUBE_URL_MATCH =
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
 
-exports.youtubeHandler = {
-
-  shouldPrehandle: (url, env) => {
-    return YOUTUBE_URL_MATCH.test(url.toString())
-  },
-
-  getVideoId: (url) => {
+function getYoutubeVideoId(url) {
     const u = new URL(url);
     const videoId = u.searchParams['v']
     if (!videoId) {
@@ -26,10 +20,19 @@ exports.youtubeHandler = {
       return match[5]
     }
     return videoId
+  }
+exports.getYoutubeVideoId = getYoutubeVideoId
+
+exports.youtubeHandler = {
+
+  shouldPrehandle: (url, env) => {
+    return YOUTUBE_URL_MATCH.test(url.toString())
   },
 
+
+
   prehandle: async (url, env) => {
-    const videoId = getVideoId(url)
+    const videoId = getYoutubeVideoId(url)
     if (!videoId) {
       return {}
     }
