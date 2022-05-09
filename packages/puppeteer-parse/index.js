@@ -134,6 +134,7 @@ const getBrowserPromise = (async () => {
     executablePath: process.env.CHROMIUM_PATH || (await chromium.executablePath),
     headless: process.env.LAUNCH_HEADLESS ? true : chromium.headless,
     timeout: 0,
+    userDataDir: '/tmp/puppeteer',
   });
 })();
 
@@ -363,6 +364,8 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
         console.log(content);
       }
 
+      logRecord.timing.contentFetchTime = Date.now() - functionStartTime;
+
       const apiResponse = await sendCreateArticleMutation(userId, {
         url: finalUrl,
         articleSavingRequestId,
@@ -376,6 +379,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
         skipParsing: !content,
       });
 
+      logRecord.timing.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
       logger.info(`parse-page`, logRecord);
     }
