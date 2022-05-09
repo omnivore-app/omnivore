@@ -26,11 +26,10 @@ const { derstandardHandler } = require('./derstandard-handler');
 const { imageHandler } = require('./image-handler');
 const puppeteer = require('puppeteer-extra');
 
-// Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
+// Add stealth plugin to hide puppeteer usage
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
-// Add adblocker plugin, which will transparently block ads in all pages you
-// create using puppeteer.
+// Add adblocker plugin to block ads and trackers
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
@@ -609,28 +608,6 @@ async function retrievePage(url) {
       // eslint-disable-next-line no-empty
     } catch {}
   });
-
-  /*
-    * Disallow MathJax from running in Puppeteer and modifying the document,
-    * we shall instead run it in our frontend application to transform any
-    * mathjax content when present.
-    */
-  // await page.setRequestInterception(true);
-  // let requestCount = 0;
-  // page.on('request', request => {
-  //   if (requestCount++ > 100) {
-  //     request.abort();
-  //     return;
-  //   }
-  //   if (
-  //     request.resourceType() === 'script' &&
-  //     request.url().toLowerCase().indexOf('mathjax') > -1
-  //   ) {
-  //     request.abort();
-  //   } else {
-  //     request.continue();
-  //   }
-  // });
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
