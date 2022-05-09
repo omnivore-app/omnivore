@@ -6,7 +6,6 @@
 require('dotenv').config();
 const Url = require('url');
 const chromium = require('chrome-aws-lambda');
-const puppeteer = require('puppeteer-core');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -25,6 +24,15 @@ const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 const { derstandardHandler } = require('./derstandard-handler');
 const { imageHandler } = require('./image-handler');
+const puppeteer = require('puppeteer-extra');
+
+// Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+// Add adblocker plugin, which will transparently block ads in all pages you
+// create using puppeteer.
+const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
+puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
@@ -603,22 +611,22 @@ async function retrievePage(url) {
     * we shall instead run it in our frontend application to transform any
     * mathjax content when present.
     */
-  await page.setRequestInterception(true);
-  let requestCount = 0;
-  page.on('request', request => {
-    if (requestCount++ > 100) {
-      request.abort();
-      return;
-    }
-    if (
-      request.resourceType() === 'script' &&
-      request.url().toLowerCase().indexOf('mathjax') > -1
-    ) {
-      request.abort();
-    } else {
-      request.continue();
-    }
-  });
+  // await page.setRequestInterception(true);
+  // let requestCount = 0;
+  // page.on('request', request => {
+  //   if (requestCount++ > 100) {
+  //     request.abort();
+  //     return;
+  //   }
+  //   if (
+  //     request.resourceType() === 'script' &&
+  //     request.url().toLowerCase().indexOf('mathjax') > -1
+  //   ) {
+  //     request.abort();
+  //   } else {
+  //     request.continue();
+  //   }
+  // });
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
