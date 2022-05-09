@@ -123,7 +123,7 @@ function LoginFormHeader() {
 
 function GoogleAuthButton() {
   return (
-    <Box css={{  overflow: 'clip' }}>
+    <Box css={{  overflow: 'hidden' }}>
       <div
         id="g_id_onload"
         data-client_id={googleID}
