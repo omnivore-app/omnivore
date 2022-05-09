@@ -52,7 +52,15 @@ const userAgentForUrl = (url) => {
 // launch Puppeteer
 const getBrowserPromise = (async () => {
   return puppeteer.launch({
-    args: ['--no-sandbox'],
+    args: [
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--disable-setuid-sandbox',
+      '--no-first-run',
+      '--no-sandbox',
+      '--no-zygote',
+      '--single-process',
+    ],
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
     headless: true, // process.env.LAUNCH_HEADLESS ? true : false,
