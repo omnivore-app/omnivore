@@ -26,25 +26,22 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         .refreshable {
           loadItems(isRefresh: true)
         }
-        .searchable(
-          text: $viewModel.searchTerm
-        ) {
-          if viewModel.searchTerm.isEmpty {
-            Text("Inbox").searchCompletion("in:inbox ")
-            Text("All").searchCompletion("in:all ")
-            Text("Archived").searchCompletion("in:archive ")
-            Text("Files").searchCompletion("type:file ")
-          }
-        }
+//        .searchable(
+//          text: $viewModel.searchTerm
+//        ) {
+//          if viewModel.searchTerm.isEmpty {
+//            Text("Inbox").searchCompletion("in:inbox ")
+//            Text("All").searchCompletion("in:all ")
+//            Text("Archived").searchCompletion("in:archive ")
+//            Text("Files").searchCompletion("type:file ")
+//          }
+//        }
         .onChange(of: viewModel.searchTerm) { _ in
           // Maybe we should debounce this, but
           // it feels like it works ok without
           loadItems(isRefresh: true)
         }
         .onChange(of: viewModel.selectedLabels) { _ in
-          loadItems(isRefresh: true)
-        }
-        .onSubmit(of: .search) {
           loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
@@ -131,10 +128,13 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
     @State private var showLabelsSheet = false
+    @State private var isSearching = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
       VStack(spacing: 0) {
+        SearchBar(searchTerm: $viewModel.searchTerm, isSearching: $isSearching)
+          .padding(.bottom)
         ZStack(alignment: .bottom) {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
