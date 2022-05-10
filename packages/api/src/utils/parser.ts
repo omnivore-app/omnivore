@@ -129,11 +129,11 @@ const parseOriginalContent = (document: Document): PageType => {
 }
 
 const getPurifiedContent = (html: string): Document => {
-  const newWindow = new JSDOM('').window
-  const DOMPurify = createDOMPurify(newWindow as unknown as Window)
+  const newWindow = parseHTML('')
+  const DOMPurify = createDOMPurify(newWindow)
   DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
   const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
-  return new JSDOM(clean).window.document
+  return parseHTML(clean).document
 }
 
 const getReadabilityResult = (
@@ -270,8 +270,8 @@ export const parsePreparedContent = async (
       }
     }
 
-    const newWindow = new JSDOM('').window
-    const DOMPurify = createDOMPurify(newWindow as unknown as Window)
+    const newWindow = parseHTML('')
+    const DOMPurify = createDOMPurify(newWindow)
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
@@ -406,9 +406,9 @@ export const parseUrlMetadata = async (
 // TODO: when we consolidate the handlers we could include this
 // as a utility method on each one.
 export const isProbablyNewsletter = (html: string): boolean => {
-  const dom = new JSDOM(html).window
-  const domCopy = new JSDOM(dom.document.documentElement.outerHTML)
-  const article = new Readability(domCopy.window.document, {
+  const dom = parseHTML(html).document
+  const domCopy = parseHTML(dom.documentElement.outerHTML)
+  const article = new Readability(domCopy.document, {
     debug: false,
     keepTables: true,
   }).parse()
@@ -418,16 +418,16 @@ export const isProbablyNewsletter = (html: string): boolean => {
   }
 
   // substack newsletter emails have tables with a *post-meta class
-  if (dom.document.querySelector('table[class$="post-meta"]')) {
+  if (dom.querySelector('table[class$="post-meta"]')) {
     return true
   }
 
   // If the article has a header link, and substack icons its probably a newsletter
-  const href = findNewsletterHeaderHref(dom.window)
-  const heartIcon = dom.document.querySelector(
+  const href = findNewsletterHeaderHref(dom)
+  const heartIcon = dom.querySelector(
     'table tbody td span a img[src*="HeartIcon"]'
   )
-  const recommendIcon = dom.document.querySelector(
+  const recommendIcon = dom.querySelector(
     'table tbody td span a img[src*="RecommendIconRounded"]'
   )
   if (href && (heartIcon || recommendIcon)) {
@@ -435,8 +435,8 @@ export const isProbablyNewsletter = (html: string): boolean => {
   }
 
   // Check if this is a beehiiv.net newsletter
-  if (dom.document.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
-    const beehiivUrl = beehiivNewsletterHref(dom.window)
+  if (dom.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
+    const beehiivUrl = beehiivNewsletterHref(dom)
     if (beehiivUrl) {
       return true
     }
@@ -445,10 +445,8 @@ export const isProbablyNewsletter = (html: string): boolean => {
   return false
 }
 
-const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
-  const readOnline = dom.document.querySelectorAll(
-    'table tr td div a[class*="link"]'
-  )
+const beehiivNewsletterHref = (dom: Document): string | undefined => {
+  const readOnline = dom.querySelectorAll('table tr td div a[class*="link"]')
   let res: string | undefined = undefined
   readOnline.forEach((e) => {
     if (e.textContent === 'Read Online') {
@@ -458,15 +456,15 @@ const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
   return res
 }
 
-const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
+const findNewsletterHeaderHref = (dom: Document): string | undefined => {
   // Substack header links
-  const postLink = dom.document.querySelector('h1 a ')
+  const postLink = dom.querySelector('h1 a ')
   if (postLink) {
     return postLink.getAttribute('href') || undefined
   }
 
   // Check if this is a beehiiv.net newsletter
-  const beehiiv = beehiivNewsletterHref(dom.window)
+  const beehiiv = beehiivNewsletterHref(dom)
   if (beehiiv) {
     return beehiiv
   }
@@ -479,10 +477,10 @@ const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
 export const findNewsletterUrl = async (
   html: string
 ): Promise<string | undefined> => {
-  const dom = new JSDOM(html).window
+  const dom = parseHTML(html).document
 
   // Check if this is a substack newsletter
-  const href = findNewsletterHeaderHref(dom.window)
+  const href = findNewsletterHeaderHref(dom)
   if (href) {
     // Try to make a HEAD request so we get the redirected URL, since these
     // will usually be behind tracking url redirects
