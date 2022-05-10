@@ -476,8 +476,8 @@ Readability.prototype = {
           } else {
             // if the link has multiple children, they should all be preserved
             var container = this._doc.createElement("span");
-            while (link.childNodes.length > 0) {
-              container.appendChild(link.childNodes[0]);
+            while (link.firstChild) {
+              container.appendChild(link.firstChild);
             }
             link.parentNode.replaceChild(container, link);
           }
@@ -1351,10 +1351,9 @@ Readability.prototype = {
         neededToCreateTopCandidate = true;
         // Move everything (not just elements, also text nodes etc.) into the container
         // so we even include text directly in the body:
-        var kids = page.childNodes;
-        while (kids.length) {
-          this.log("Moving child out:", kids[0]);
-          topCandidate.appendChild(kids[0]);
+        while (page.firstChild) {
+          this.log("Moving child out:", page.firstChild);
+          topCandidate.appendChild(page.firstChild);
         }
 
         page.appendChild(topCandidate);
@@ -1496,6 +1495,9 @@ Readability.prototype = {
           }
 
           articleContent.appendChild(sibling);
+          // Fetch children again to make it compatible
+          // with DOM parsers without live collection support.
+          siblings = parentOfTopCandidate.children;
           // siblings is a reference to the children array, and
           // sibling is removed from the array when we call appendChild().
           // As a result, we must revisit this index since the nodes
@@ -1542,9 +1544,8 @@ Readability.prototype = {
         var div = doc.createElement("DIV");
         div.id = "readability-page-1";
         div.className = "page";
-        var children = articleContent.childNodes;
-        while (children.length) {
-          div.appendChild(children[0]);
+        while (articleContent.firstChild) {
+          div.appendChild(articleContent.firstChild);
         }
         articleContent.appendChild(div);
       }
