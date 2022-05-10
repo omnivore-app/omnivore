@@ -2288,7 +2288,7 @@ Readability.prototype = {
       return false;
     }
 
-    const classes = this.EMBEDS_CLASSES.reduce((res, cur) => `${res},.${cur}`, '');
+    const classes = this.EMBEDS_CLASSES.reduce((res, cur, i) => `${i > 0 && (res + ',')}.${cur}`, '');
 
     const candidates = element.querySelector(classes);
     return !!candidates;
