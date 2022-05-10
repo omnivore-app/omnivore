@@ -171,6 +171,7 @@ const getReadabilityResult = (
         debug: DEBUG_MODE,
         createImageProxyUrl,
         keepTables: isNewsletter,
+        url,
       }).parse()
 
       if (article) {
