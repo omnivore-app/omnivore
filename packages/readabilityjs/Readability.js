@@ -99,6 +99,8 @@ function Readability(doc, options) {
     return el.innerHTML;
   };
   this._disableJSONLD = !!options.disableJSONLD;
+  this._baseURI = options.url || this._doc.baseURI;
+  this._documentURI = options.url || this._doc.documentURI;
 
   // Start with all flags set
   this._flags = this.FLAG_STRIP_UNLIKELYS |
@@ -435,8 +437,8 @@ Readability.prototype = {
   },
 
   toAbsoluteURI: function (uri) {
-    var baseURI = this._doc.baseURI;
-    var documentURI = this._doc.documentURI;
+    var baseURI = this._baseURI;
+    var documentURI = this._documentURI;
 
     // Leave hash links alone if the base URI matches the document URI:
     if (baseURI === documentURI && uri.charAt(0) === "#") {
@@ -1827,7 +1829,7 @@ Readability.prototype = {
             }
             try {
               // allow relative URLs
-              new URL(content.trim(), new URL(this._doc.baseURI).origin);
+              new URL(content.trim(), new URL(this._baseURI).origin);
             } catch (error) {
               return;
             }
@@ -1932,7 +1934,7 @@ Readability.prototype = {
     if (metadata.previewImage) {
       // convert any relative URL path to absolute URL
       try {
-        metadata.previewImage = new URL(metadata.previewImage, new URL(this._doc.baseURI).origin).href;
+        metadata.previewImage = new URL(metadata.previewImage, new URL(this._baseURI).origin).href;
       } catch {
         delete metadata.previewImage;
       }
