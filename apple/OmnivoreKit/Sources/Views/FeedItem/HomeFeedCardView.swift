@@ -50,7 +50,7 @@ public struct FeedCard: View {
               if case let AsyncImageStatus.loaded(image) = imageStatus {
                 image
                   .resizable()
-                  .aspectRatio(1, contentMode: .fill)
+                  .aspectRatio(contentMode: .fill)
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
               } else if case AsyncImageStatus.loading = imageStatus {

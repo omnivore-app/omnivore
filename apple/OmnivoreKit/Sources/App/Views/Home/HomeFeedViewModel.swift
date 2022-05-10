@@ -17,6 +17,7 @@ import Views
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
   @Published var selectedLinkItem: LinkedItem?
+  @Published var showLoadingBar = false
 
   var cursor: String?
 
@@ -47,6 +48,7 @@ import Views
     searchIdx += 1
 
     isLoading = true
+    showLoadingBar = true
 
     // Cache the viewer
     if dataService.currentViewer == nil {
@@ -81,6 +83,7 @@ import Views
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
       await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID))
+      showLoadingBar = false
     } else if searchTermIsEmpty {
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -94,6 +97,7 @@ import Views
           self.isLoading = false
         }
       }
+      showLoadingBar = false
     }
   }
 

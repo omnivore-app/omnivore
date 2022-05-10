@@ -136,14 +136,27 @@ struct LinkItemDetailView: View {
     )
   }
 
+  // We always want this hidden but setting it to false initially
+  // fixes a bug where SwiftUI searchable will always show the nav bar
+  // if the search field is active when pushing.
+  @State var hideNavBar = false
+
   var body: some View {
     #if os(iOS)
       if viewModel.item.isPDF {
         fixedNavBarReader
-          .task { viewModel.trackReadEvent() }
+          .navigationBarHidden(hideNavBar)
+          .task {
+            hideNavBar = true
+            viewModel.trackReadEvent()
+          }
       } else {
         WebReaderContainerView(item: viewModel.item, homeFeedViewModel: viewModel.homeFeedViewModel)
-          .task { viewModel.trackReadEvent() }
+          .navigationBarHidden(hideNavBar)
+          .task {
+            hideNavBar = true
+            viewModel.trackReadEvent()
+          }
       }
     #else
       fixedNavBarReader

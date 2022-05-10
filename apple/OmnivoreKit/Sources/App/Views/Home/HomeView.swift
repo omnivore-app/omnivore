@@ -9,7 +9,7 @@ struct HomeView: View {
         NavigationView {
           HomeFeedContainerView(viewModel: viewModel)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .navigationViewStyle(.stack)
         .accentColor(.appGrayTextContrast)
       } else {
         HomeFeedContainerView(viewModel: viewModel)
