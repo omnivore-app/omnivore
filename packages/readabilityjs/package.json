@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "html-entities": "^2.3.2",
+    "linkedom": "^0.14.9",
     "modern-random-ua": "^1.0.3",
     "parse-srcset": "^1.0.2"
   }
