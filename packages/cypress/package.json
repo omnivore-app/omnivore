@@ -2,7 +2,9 @@
   "name": "@omnivore/cypress",
   "version": "1.0.0",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "e2e-test": "cypress run"
+  },
   "dependencies": {
     "@testing-library/cypress": "^8.0.2",
     "cypress": "^9.5.3"

@@ -385,6 +385,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         case 'archiveItem':
           handleCardAction('archive', activeItem)
           break
+        case 'removeItem':
+          handleCardAction('delete', activeItem)
+          break
         case 'markItemAsRead':
           handleCardAction('mark-read', activeItem)
           break
@@ -687,6 +690,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             {props.items.map((linkedItem) => (
               <Box
                 className="linkedItemCard"
+                data-testid="linkedItemCard"
                 id={linkedItem.node.id}
                 tabIndex={0}
                 key={linkedItem.node.id}

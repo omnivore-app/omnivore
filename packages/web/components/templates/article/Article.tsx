@@ -242,6 +242,7 @@ export function Article(props: ArticleProps): JSX.Element {
           maxWidth: '100%',
         }}
         className="article-inner-css"
+        data-testid="article-inner"
         dangerouslySetInnerHTML={{
           __html: props.content,
         }}
