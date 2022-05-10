@@ -1,7 +1,5 @@
 import 'mocha'
-import * as chai from 'chai'
 import { expect } from 'chai'
-import { JSDOM } from 'jsdom'
 import 'chai/register-should'
 import { InFilter, parseSearchQuery, ReadFilter } from '../../src/utils/search'
 import { PageType } from '../../src/generated/graphql'
