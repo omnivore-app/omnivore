@@ -27,7 +27,6 @@
     "chai": "^2.1.*",
     "htmltidy2": "^0.3.0",
     "js-beautify": "^1.13.0",
-    "jsdom": "^19.0",
     "mocha": "^8.2.0",
     "puppeteer": "^10.1.0",
     "sinon": "^7.3.2",
