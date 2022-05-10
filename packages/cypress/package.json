@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "cypress run"
+    "e2e-test": "cypress run"
   },
   "dependencies": {
     "@testing-library/cypress": "^8.0.2",
