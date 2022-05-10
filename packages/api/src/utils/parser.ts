@@ -15,10 +15,11 @@ import { BloombergHandler } from './bloomberg-handler'
 import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
+import { parseHTML } from 'linkedom'
 
 const logger = buildLogger('utils.parse')
 
-const virtualConsole = new VirtualConsole()
+// const virtualConsole = new VirtualConsole()
 
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
@@ -102,9 +103,9 @@ type ArticleParseLogRecord = LogRecord & {
 
 const DEBUG_MODE = process.env.DEBUG === 'true' || false
 
-const parseOriginalContent = (window: DOMWindow): PageType => {
+const parseOriginalContent = (document: Document): PageType => {
   try {
-    const e = window.document.querySelector("head meta[property='og:type']")
+    const e = document.querySelector("head meta[property='og:type']")
     const content = e?.getAttribute('content')
     if (!content) {
       return PageType.Unknown
@@ -138,22 +139,14 @@ const getPurifiedContent = (html: string): Document => {
 const getReadabilityResult = (
   url: string,
   html: string,
-  window: DOMWindow,
+  document: Document,
   isNewsletter?: boolean
 ): Readability.ParseResult | null => {
-  virtualConsole.removeAllListeners('jsdomError')
-  virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
-    logger.warning(`JSDOM error occurred`, {
-      errorMsg: message,
-      ...details,
-    })
-  })
-
   // First attempt to read the article as is.
   // if that fails attempt to purify then read
   const sources = [
     () => {
-      return window.document
+      return document
     },
     () => {
       return getPurifiedContent(html)
@@ -237,20 +230,20 @@ export const parsePreparedContent = async (
     }
   }
 
-  virtualConsole.removeAllListeners('jsdomError')
-  virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
-    logger.warning(`JSDOM error occurred`, {
-      ...logRecord,
-      errorMsg: message,
-      ...details,
-    })
-  })
-  const { window } = new JSDOM(document, { url, virtualConsole })
+  // virtualConsole.removeAllListeners('jsdomError')
+  // virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
+  //   logger.warning(`JSDOM error occurred`, {
+  //     ...logRecord,
+  //     errorMsg: message,
+  //     ...details,
+  //   })
+  // })
+  const { document: doc } = parseHTML(document)
 
   await applyHandlers(url, window)
 
   try {
-    article = getReadabilityResult(url, document, window, isNewsletter)
+    article = getReadabilityResult(url, document, doc, isNewsletter)
 
     // Format code blocks
     // TODO: we probably want to move this type of thing
@@ -283,7 +276,7 @@ export const parsePreparedContent = async (
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
     const jsonLdLinkMetadata = (async () => {
-      return getJSONLdLinkMetadata(window.document)
+      return getJSONLdLinkMetadata(doc)
     })()
 
     Object.assign(article, {
@@ -316,7 +309,7 @@ export const parsePreparedContent = async (
     domContent: preparedDocument.document,
     parsedContent: article,
     canonicalUrl,
-    pageType: parseOriginalContent(window),
+    pageType: parseOriginalContent(doc),
   }
 }
 
@@ -363,7 +356,7 @@ type Metadata = {
 
 export const parsePageMetadata = (html: string): Metadata | undefined => {
   try {
-    const window = new JSDOM(html).window
+    const window = parseHTML(html).window
 
     // get open graph metadata
     const description =
