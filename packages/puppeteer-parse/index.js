@@ -363,7 +363,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
         console.log(content);
       }
 
-      logRecord.timing.contentFetchTime = Date.now() - functionStartTime;
+      logRecord.contentFetchTime = Date.now() - functionStartTime;
 
       const apiResponse = await sendCreateArticleMutation(userId, {
         url: finalUrl,
@@ -378,7 +378,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
         skipParsing: !content,
       });
 
-      logRecord.timing.totalTime = Date.now() - functionStartTime;
+      logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
       logger.info(`parse-page`, logRecord);
     }
