@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Readability } from '@omnivore/readability'
-import { DOMWindow, JSDOM, VirtualConsole } from 'jsdom'
 import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
 import { buildLogger, LogRecord } from './logger'
@@ -42,8 +41,8 @@ const DOM_PURIFY_CONFIG = {
 }
 
 interface ContentHandler {
-  shouldPrehandle: (url: URL, dom: DOMWindow) => boolean
-  prehandle: (url: URL, document: DOMWindow) => Promise<DOMWindow>
+  shouldPrehandle: (url: URL, dom: Document) => boolean
+  prehandle: (url: URL, document: Document) => Promise<Document>
 }
 
 const HANDLERS = [
@@ -178,12 +177,15 @@ const getReadabilityResult = (
   return null
 }
 
-const applyHandlers = async (url: string, window: DOMWindow): Promise<void> => {
+const applyHandlers = async (
+  url: string,
+  document: Document
+): Promise<void> => {
   try {
     const u = new URL(url)
     const handler = HANDLERS.find((h) => {
       try {
-        return h.shouldPrehandle(u, window)
+        return h.shouldPrehandle(u, document)
       } catch (e) {
         console.log('error with handler: ', h.name, e)
       }
@@ -192,7 +194,7 @@ const applyHandlers = async (url: string, window: DOMWindow): Promise<void> => {
     if (handler) {
       try {
         console.log('pre-handling url or content with handler: ', handler.name)
-        await handler.prehandle(u, window)
+        await handler.prehandle(u, document)
       } catch (e) {
         console.log('error with handler: ', handler, e)
       }
@@ -240,7 +242,7 @@ export const parsePreparedContent = async (
   // })
   const { document: doc } = parseHTML(document)
 
-  await applyHandlers(url, window)
+  await applyHandlers(url, doc)
 
   try {
     article = getReadabilityResult(url, document, doc, isNewsletter)

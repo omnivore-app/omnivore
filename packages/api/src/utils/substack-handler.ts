@@ -1,23 +1,21 @@
-import { DOMWindow } from 'jsdom'
-
 export class SubstackHandler {
   name = 'substack'
 
-  shouldPrehandle = (url: URL, dom: DOMWindow): boolean => {
+  shouldPrehandle = (url: URL, dom: Document): boolean => {
     const host = this.name + '.com'
     // check if url ends with substack.com
     // or has a profile image hosted at substack.com
     return (
       url.hostname.endsWith(host) ||
-      !!dom.document
+      !!dom
         .querySelector('.email-body img')
         ?.getAttribute('src')
         ?.includes(host)
     )
   }
 
-  prehandle = (url: URL, dom: DOMWindow): Promise<DOMWindow> => {
-    const body = dom.document.querySelector('.email-body-container')
+  prehandle = (url: URL, dom: Document): Promise<Document> => {
+    const body = dom.querySelector('.email-body-container')
 
     // this removes header and profile avatar
     body?.querySelector('.header')?.remove()

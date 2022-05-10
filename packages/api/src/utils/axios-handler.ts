@@ -1,17 +1,15 @@
-import { DOMWindow } from 'jsdom'
-
 export class AxiosHandler {
   name = 'axios'
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  shouldPrehandle = (url: URL, _dom: DOMWindow): boolean => {
+  shouldPrehandle = (url: URL, _dom: Document): boolean => {
     const host = this.name + '.com'
     // check if url ends with axios.com
     return url.hostname.endsWith(host)
   }
 
-  prehandle = (url: URL, dom: DOMWindow): Promise<DOMWindow> => {
-    const body = dom.document.querySelector('table')
+  prehandle = (url: URL, dom: Document): Promise<Document> => {
+    const body = dom.querySelector('table')
 
     // this removes ads and replaces table with a div
     body?.querySelectorAll('table').forEach((el, k) => {
@@ -27,7 +25,7 @@ export class AxiosHandler {
           }
         })
         // replace the table with a div
-        const div = dom.document.createElement('div')
+        const div = dom.createElement('div')
         div.innerHTML = el.innerHTML
         el.parentNode?.replaceChild(div, el)
       }
