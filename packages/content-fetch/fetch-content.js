@@ -5,17 +5,12 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Url = require('url');
+const puppeteer = require('puppeteer-extra');
 const chromium = require('chrome-aws-lambda');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const signToken = promisify(jwt.sign);
-const { config, format, loggers, transports } = require('winston');
-const { LoggingWinston } = require('@google-cloud/logging-winston');
-const { DateTime } = require('luxon');
-const os = require('os');
-const Sentry = require('@sentry/serverless');
-const { Storage } = require('@google-cloud/storage');
 const { appleNewsHandler } = require('./apple-news-handler');
 const { twitterHandler } = require('./twitter-handler');
 const { youtubeHandler } = require('./youtube-handler');
@@ -24,7 +19,14 @@ const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 const { derstandardHandler } = require('./derstandard-handler');
 const { imageHandler } = require('./image-handler');
-const puppeteer = require('puppeteer-extra');
+
+const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
+
+const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
 // Add stealth plugin to hide puppeteer usage
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -33,83 +35,6 @@ puppeteer.use(StealthPlugin());
 const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
 puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
-const storage = new Storage();
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
-const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
-
-Sentry.GCPFunction.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 0,
-});
-
-const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
-
-const filePath = `${os.tmpdir()}/previewImage.png`;
-const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
-
-
-const colors = {
-  emerg: 'inverse underline magenta',
-  alert: 'underline magenta',
-  crit: 'inverse underline red', // Any error that is forcing a shutdown of the service or application to prevent data loss.
-  error: 'underline red', // Any error which is fatal to the operation, but not the service or application
-  warning: 'underline yellow', // Anything that can potentially cause application oddities
-  notice: 'underline cyan', // Normal but significant condition
-  info: 'underline green', // Generally useful information to log
-  debug: 'underline gray',
-};
-
-const googleConfigs = {
-  level: 'info',
-  logName: 'logger',
-  levels: config.syslog.levels,
-  resource: {
-    labels: {
-      function_name: process.env.FUNCTION_TARGET,
-      project_id: process.env.GCP_PROJECT,
-    },
-    type: 'cloud_function',
-  },
-};
-
-function localConfig(id) {
-  return {
-    level: 'debug',
-    format: format.combine(
-      format.colorize({ all: true, colors }),
-      format(info =>
-        Object.assign(info, {
-          timestamp: DateTime.local().toLocaleString(DateTime.TIME_24_WITH_SECONDS),
-        }),
-      )(),
-      format.printf(info => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { timestamp, message, level, ...meta } = info;
-
-        return `[${id}@${info.timestamp}] ${info.message}${
-          Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : ''
-        }`;
-      }),
-    ),
-  };
-}
-
-function buildLoggerTransport(id, options) {
-  return process.env.IS_LOCAL
-    ? new transports.Console(localConfig(id))
-    : new LoggingWinston({ ...googleConfigs, ...{ logName: id }, ...options });
-}
-
-function buildLogger(id, options) {
-  return loggers.get(id, {
-    levels: config.syslog.levels,
-    transports: [buildLoggerTransport(id, options)],
-  });
-}
 
 const userAgentForUrl = (url) => {
   try {
@@ -130,8 +55,8 @@ const getBrowserPromise = (async () => {
   return puppeteer.launch({
     args: chromium.args,
     defaultViewport: { height: 1080, width: 1920 },
-    executablePath: process.env.CHROMIUM_PATH || (await chromium.executablePath),
-    headless: process.env.LAUNCH_HEADLESS ? true : chromium.headless,
+    executablePath: process.env.CHROMIUM_PATH ,
+    headless: true, // process.env.LAUNCH_HEADLESS ? true : false,
     timeout: 0,
     userDataDir: '/tmp/puppeteer',
   });
@@ -217,6 +142,7 @@ const sendCreateArticleMutation = async (userId, input) => {
       'Content-Type': 'application/json',
     },
   });
+  console.log('response', response);
   return response.data.data.createArticle;
 };
 
@@ -240,28 +166,15 @@ const handlers = {
   'image': imageHandler,
 };
 
-/**
- * Cloud Function entry point, HTTP trigger.
- * Loads the requested URL via Puppeteer, captures page content and sends it to backend
- *
- * @param {Object} req Cloud Function request context.
- * @param {Object} res Cloud Function response context.
- */
-exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
+
+async function fetchContent(req, res) {
   functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
 
   let url = getUrl(req);
-  const userId = req.body.userId || req.query.userId;
-  const articleSavingRequestId = req.body.saveRequestId || req.query.saveRequestId;
+  const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
+  const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
+
+  console.log('user id', userId, 'url', url)
 
   logRecord = {
     url,
@@ -272,19 +185,19 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     },
   };
 
-  logger.info(`Article parsing request`, logRecord);
+  console.log(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse not specified`, logRecord);
+    console.log(`Valid URL to parse not specified`, logRecord);
     return res.sendStatus(400);
   }
 
-  if (!userId || !articleSavingRequestId) {
-    Object.assign(logRecord, { invalidParams: true, body: req.body, query: req.query });
-    logger.error(`Invalid parameters`, logRecord);
-    return res.sendStatus(400);
-  }
+  // if (!userId || !articleSavingRequestId) {
+  //   Object.assign(logRecord, { invalidParams: true, body: req.body, query: req.query });
+  //   console.log(`Invalid parameters`, logRecord);
+  //   return res.sendStatus(400);
+  // }
 
   // Before we run the regular handlers we check to see if we need tp
   // pre-resolve the URL. TODO: This should probably happen recursively,
@@ -325,7 +238,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
       console.log('pre-handling url with handler: ', handler);
 
       const result = await handlers[handler].prehandle(url);
-      if (result && result.url) { 
+      if (result && result.url) {
         url = result.url
         validateUrlString(url);
       }
@@ -344,7 +257,6 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     if (result && result.page) { page = result.page }
     if (result && result.finalUrl) { finalUrl = result.finalUrl }
     if (result && result.contentType) { contentType = result.contentType }
-    console.log('context, page, finalUrl, contentType', context, page, finalUrl, contentType);
   } else {
     finalUrl = url
   }
@@ -363,7 +275,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
         console.log(content);
       }
 
-      logRecord.timing.contentFetchTime = Date.now() - functionStartTime;
+      logRecord.fetchContentTime = Date.now() - functionStartTime;
 
       const apiResponse = await sendCreateArticleMutation(userId, {
         url: finalUrl,
@@ -378,14 +290,28 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
         skipParsing: !content,
       });
 
-      logRecord.timing.totalTime = Date.now() - functionStartTime;
+      logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
-      logger.info(`parse-page`, logRecord);
+      console.log(`parse-page`, logRecord);
+
+      // return res.send({
+      //     url: finalUrl,
+      //     articleSavingRequestId,
+      //     preparedDocument: {
+      //       document: content,
+      //       pageInfo: {
+      //         title,
+      //         canonicalUrl: finalUrl,
+      //       },
+      //     },
+      //     skipParsing: !content,
+      //     timeTaken: Date.now() - functionStartTime,
+      //   })
     }
   } catch (e) {
     console.log('error', e)
     logRecord.error = e.message;
-    logger.error(`Error while retrieving page`, logRecord);
+    console.log(`Error while retrieving page`, logRecord);
     return res.sendStatus(503);
   } finally {
     if (context) {
@@ -394,136 +320,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
   }
 
   return res.sendStatus(200);
-});
-
-/**
- * Cloud Function entry point, HTTP trigger.
- * Loads the requested URL via Puppeteer and captures a screenshot of the provided element
- *
- * @param {Object} req Cloud Function request context.
- * Inlcudes:
- *  * url - URL address of the page to open
- * @param {Object} res Cloud Function response context.
- */
-exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
-  functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
-
-  if (!process.env.PREVIEW_IMAGE_BUCKET) {
-    logger.error(`PREVIEW_IMAGE_BUCKET not set`)
-    return res.sendStatus(500);
-  }
-
-  const url = getUrl(req);
-  console.log('preview request url', url);
-
-  logRecord = {
-    url,
-    query: req.query,
-    origin: req.get('Origin'),
-    labels: {
-      source: 'publicImagePreview',
-    },
-  };
-
-  logger.info(`Public preview image generation request`, logRecord);
-
-  if (!url) {
-    logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse is not specified`, logRecord);
-    return res.sendStatus(400);
-  }
-  const { origin } = new URL(url);
-  if (!ALLOWED_ORIGINS.some(o => o === origin)) {
-    logRecord.forbiddenOrigin = true;
-    logger.error(`This origin is not allowed: ${origin}`, logRecord);
-    return res.sendStatus(400);
-  }
-
-  const browser = await getBrowserPromise;
-  logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
-
-  const page = await browser.newPage();
-  const pageLoadingStart = Date.now();
-  const modifiedUrl = new URL(url);
-  modifiedUrl.searchParams.append('fontSize', 24);
-  modifiedUrl.searchParams.append('adjustAspectRatio', 1.91);
-  try {
-    await page.goto(modifiedUrl);
-    logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
-  } catch (error) {
-    console.log('error going to page: ', modifiedUrl)
-    console.log(error)
-    throw error
-  }
-
-  // We lookup the destination path from our own page content and avoid trusting any passed query params
-  // selector - CSS selector of the element to get screenshot of
-  const selector = decodeURIComponent(
-    await page.$eval(
-      "head > meta[name='omnivore:preview_image_selector']",
-      element => element.content,
-    ),
-  );
-  if (!selector) {
-    logRecord.selectorIsInvalid = true;
-    logger.error(`Valid element selector is not specified`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  logRecord.selector = selector;
-
-  // destination - destination pathname for the image to save with
-  const destination = decodeURIComponent(
-    await page.$eval(
-      "head > meta[name='omnivore:preview_image_destination']",
-      element => element.content,
-    ),
-  );
-  if (!destination) {
-    logRecord.destinationIsInvalid = true;
-    logger.error(`Valid file destination is not specified`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  logRecord.destination = destination;
-
-  const screenshotTakingStart = Date.now();
-  try {
-    await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
-  } catch (error) {
-    logRecord.elementNotFound = true;
-    logger.error(`Element is not presented on the page`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  const element = await page.$(selector);
-  await element.screenshot({ path: filePath }); // take screenshot of the element in puppeteer
-  logRecord.timing = { ...logRecord.timing, screenshotTaken: Date.now() - screenshotTakingStart };
-
-  await page.close();
-
-  try {
-    const [file] = await previewBucket.upload(filePath, {
-      destination,
-      metadata: logRecord,
-    });
-    logRecord.file = file.metadata;
-  } catch (e) {
-    console.log('error uploading to bucket, this is non-fatal', e)
-  }
-
-  logger.info(`preview-image`, logRecord);
-  return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
-});
+}
 
 function validateUrlString(url) {
   const u = new URL(url);
@@ -542,16 +339,16 @@ function validateUrlString(url) {
 }
 
 function getUrl(req) {
-  if (req.query.url || req.body.url) {
-    const urlStr = req.query.url || req.body.url;
-    validateUrlString(urlStr);
-
-    const url = Url.parse(urlStr);
-    return url.href;
+  console.log('body', req.body)
+  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+  if (!urlStr) {
+    throw new Error('No URL specified');
   }
-  try {
-    return Url.parse(JSON.parse(req.body).url).href;
-  } catch (e) {}
+
+  validateUrlString(urlStr);
+
+  const parsed = Url.parse(urlStr);
+  return parsed.href;
 }
 
 async function retrievePage(url) {
@@ -608,6 +405,32 @@ async function retrievePage(url) {
       // eslint-disable-next-line no-empty
     } catch {}
   });
+
+  /*
+    * Disallow MathJax from running in Puppeteer and modifying the document,
+    * we shall instead run it in our frontend application to transform any
+    * mathjax content when present.
+    */
+  await page.setRequestInterception(true);
+  let requestCount = 0;
+  // page.on('request', request => {
+  //   if (request.resourceType() === 'font' || request.resourceType() === 'image') {
+  //     request.abort();
+  //     return;
+  //   }
+  //   if (requestCount++ > 100) {
+  //     request.abort();
+  //     return;
+  //   }
+  //   if (
+  //     request.resourceType() === 'script' &&
+  //     request.url().toLowerCase().indexOf('mathjax') > -1
+  //   ) {
+  //     request.abort();
+  //   } else {
+  //     request.continue();
+  //   }
+  // });
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
@@ -670,7 +493,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      page.waitForTimeout(5000), //5 second timeout
+      page.waitForTimeout(1000), //5 second timeout
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
@@ -760,3 +583,5 @@ async function retrieveHtml(page) {
   }
   return { domContent, title };
 }
+
+module.exports = fetchContent;

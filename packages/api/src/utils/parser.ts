@@ -255,22 +255,25 @@ export const parsePreparedContent = async (
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
     if (article?.dom) {
-      article.dom.querySelectorAll('code').forEach((e) => {
-        console.log(e.textContent)
-        if (e.textContent) {
-          const att = hljs.highlightAuto(e.textContent)
-          const code = window.document.createElement('code')
-          const langClass =
-            `hljs language-${att.language}` +
-            (att.second_best?.language
-              ? ` language-${att.second_best?.language}`
-              : '')
-          code.setAttribute('class', langClass)
-          code.innerHTML = att.value
-          e.replaceWith(code)
-        }
-      })
-      article.content = article.dom.outerHTML
+      const codeBlocks = article.dom.querySelectorAll('code')
+      if (codeBlocks.length > 0) {
+        codeBlocks.forEach((e) => {
+          console.log(e.textContent)
+          if (e.textContent) {
+            const att = hljs.highlightAuto(e.textContent)
+            const code = window.document.createElement('code')
+            const langClass =
+              `hljs language-${att.language}` +
+              (att.second_best?.language
+                ? ` language-${att.second_best?.language}`
+                : '')
+            code.setAttribute('class', langClass)
+            code.innerHTML = att.value
+            e.replaceWith(code)
+          }
+        })
+        article.content = article.dom.outerHTML
+      }
     }
 
     const newWindow = new JSDOM('').window
@@ -278,16 +281,18 @@ export const parsePreparedContent = async (
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
-    const jsonLdLinkMetadata = await getJSONLdLinkMetadata(window.document)
-    logRecord.JSONLdParsed = jsonLdLinkMetadata
+    const jsonLdLinkMetadata = (async () => {
+      return getJSONLdLinkMetadata(window.document)
+    })()
 
     Object.assign(article, {
       content: clean,
-      title: article?.title || jsonLdLinkMetadata.title,
-      previewImage: article?.previewImage || jsonLdLinkMetadata.previewImage,
-      siteName: article?.siteName || jsonLdLinkMetadata.siteName,
+      title: article?.title || (await jsonLdLinkMetadata).title,
+      previewImage:
+        article?.previewImage || (await jsonLdLinkMetadata).previewImage,
+      siteName: article?.siteName || (await jsonLdLinkMetadata).siteName,
       siteIcon: article?.siteIcon,
-      byline: article?.byline || jsonLdLinkMetadata.byline,
+      byline: article?.byline || (await jsonLdLinkMetadata).byline,
     })
     logRecord.parseSuccess = true
   } catch (error) {
