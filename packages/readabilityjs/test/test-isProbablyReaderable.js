@@ -1,5 +1,6 @@
-var JSDOM = require("jsdom").JSDOM;
 var chai = require("chai");
+var { parseHTML } = require("linkedom");
+
 chai.config.includeStack = true;
 var expect = chai.expect;
 
@@ -9,11 +10,8 @@ var isProbablyReaderable = require("../index").isProbablyReaderable;
 
 describe("isProbablyReaderable - test pages", function () {
   testPages.forEach(function (testPage) {
-    var uri = "http://fakehost/test/page.html";
     describe(testPage.dir, function () {
-      var doc = new JSDOM(testPage.source, {
-        url: uri,
-      }).window.document;
+      var doc = parseHTML(testPage.source).document;
       var expected = testPage.expectedMetadata.readerable;
       it("The result should " + (expected ? "" : "not ") + "be readerable", function () {
         expect(isProbablyReaderable(doc)).eql(expected);
@@ -23,7 +21,7 @@ describe("isProbablyReaderable - test pages", function () {
 });
 
 describe("isProbablyReaderable", function () {
-  const makeDoc = (source) => new JSDOM(source).window.document;
+  const makeDoc = (source) => parseHTML(source).document;
   var verySmallDoc = makeDoc("<html><p id=\"main\">hello there</p></html>"); // content length: 11
   var smallDoc = makeDoc(`<html><p id="main">${"hello there ".repeat(11)}</p></html>`); // content length: 132
   var largeDoc = makeDoc(`<html><p id="main">${"hello there ".repeat(12)}</p></html>`); // content length: 144
