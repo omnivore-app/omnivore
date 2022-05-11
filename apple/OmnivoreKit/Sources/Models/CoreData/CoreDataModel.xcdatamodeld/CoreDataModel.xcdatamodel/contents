@@ -41,7 +41,7 @@
         <attribute name="slug" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
-        <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel"/>
+        <relationship name="labels" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel" inverseName="linkedItems" inverseEntity="LinkedItemLabel"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -55,6 +55,7 @@
         <attribute name="labelDescription" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="linkedItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="labels" inverseEntity="LinkedItem"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -85,7 +86,7 @@
     <elements>
         <element name="Highlight" positionX="27" positionY="225" width="128" height="224"/>
         <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="344"/>
-        <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="119"/>
+        <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="134"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
     </elements>

@@ -64,7 +64,7 @@ import Views
   }
 
   func saveItemLabelChanges(itemID: String, dataService: DataService) {
-    dataService.updateItemLabels(itemID: itemID, labelNames: selectedLabels.map(\.unwrappedName))
+    dataService.updateItemLabels(itemID: itemID, labelIDs: selectedLabels.map(\.unwrappedID))
   }
 
   func addLabelToItem(_ label: LinkedItemLabel) {
