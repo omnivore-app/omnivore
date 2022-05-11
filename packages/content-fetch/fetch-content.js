@@ -31,9 +31,6 @@ const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/pl
 // Add stealth plugin to hide puppeteer usage
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
-// Add adblocker plugin to block ads and trackers
-const AdblockerPlugin = require('puppeteer-extra-plugin-adblocker');
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 
 const userAgentForUrl = (url) => {
@@ -351,6 +348,33 @@ function getUrl(req) {
   return parsed.href;
 }
 
+
+async function blockResources(page) {
+  const blockedResources = [
+    // Assets
+    '*/favicon.ico',
+    '.css',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.svg',
+    '.woff',
+
+    // Analytics and other fluff
+    '*.optimizely.com',
+    'everesttech.net',
+    'userzoom.com',
+    'doubleclick.net',
+    'googleadservices.com',
+    'adservice.google.com/*',
+    'connect.facebook.com',
+    'connect.facebook.net',
+    'sp.analytics.yahoo.com',
+  ]
+
+  await page._client.send('Network.setBlockedURLs', { urls: blockedResources });
+}
+
 async function retrievePage(url) {
   validateUrlString(url);
 
@@ -406,6 +430,8 @@ async function retrievePage(url) {
     } catch {}
   });
 
+  await blockResources(page);
+
   /*
     * Disallow MathJax from running in Puppeteer and modifying the document,
     * we shall instead run it in our frontend application to transform any
@@ -413,24 +439,24 @@ async function retrievePage(url) {
     */
   await page.setRequestInterception(true);
   let requestCount = 0;
-  // page.on('request', request => {
-  //   if (request.resourceType() === 'font' || request.resourceType() === 'image') {
-  //     request.abort();
-  //     return;
-  //   }
-  //   if (requestCount++ > 100) {
-  //     request.abort();
-  //     return;
-  //   }
-  //   if (
-  //     request.resourceType() === 'script' &&
-  //     request.url().toLowerCase().indexOf('mathjax') > -1
-  //   ) {
-  //     request.abort();
-  //   } else {
-  //     request.continue();
-  //   }
-  // });
+  page.on('request', request => {
+    if (request.resourceType() === 'font' || request.resourceType() === 'image') {
+      request.abort();
+      return;
+    }
+    if (requestCount++ > 100) {
+      request.abort();
+      return;
+    }
+    if (
+      request.resourceType() === 'script' &&
+      request.url().toLowerCase().indexOf('mathjax') > -1
+    ) {
+      request.abort();
+    } else {
+      request.continue();
+    }
+  });
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
