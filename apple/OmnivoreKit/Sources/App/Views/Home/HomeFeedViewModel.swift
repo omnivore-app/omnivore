@@ -18,7 +18,7 @@ import Views
   @Published var itemToSnoozeID: String?
   @Published var selectedLinkItem: LinkedItem?
   @Published var showLoadingBar = false
-  @Published var appliedFilter = LinkedItemFilter.all
+  @Published var appliedFilter = LinkedItemFilter.inbox
 
   var cursor: String?
 

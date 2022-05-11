@@ -30,10 +30,10 @@ public struct SearchBar: View {
             self.isSearching = false
             self.searchTerm = ""
           },
-          label: { Text("Cancel") }
+          label: { Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast) }
         )
         .padding(.trailing)
-        .transition(.move(edge: .trailing))
+        .transition(.opacity)
       }
     }
   }
