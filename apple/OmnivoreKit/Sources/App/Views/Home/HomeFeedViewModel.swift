@@ -18,7 +18,9 @@ import Views
   @Published var itemToSnoozeID: String?
   @Published var selectedLinkItem: LinkedItem?
   @Published var showLoadingBar = false
-  @Published var appliedFilter = LinkedItemFilter.inbox
+
+  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue)
+  var appliedFilter = LinkedItemFilter.inbox.rawValue
 
   var cursor: String?
 
@@ -89,7 +91,9 @@ import Views
       await dataService.viewContext.perform {
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-        fetchRequest.predicate = self.appliedFilter.predicate
+        if let predicate = LinkedItemFilter(rawValue: self.appliedFilter)?.predicate {
+          fetchRequest.predicate = predicate
+        }
 //        // TODO: Filter on label
 
         if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
@@ -141,7 +145,8 @@ import Views
   }
 
   private var searchQuery: String {
-    var query = "\(appliedFilter.queryString)"
+    let filter = LinkedItemFilter(rawValue: appliedFilter) ?? .inbox
+    var query = "\(filter.queryString)"
 
     if !searchTerm.isEmpty {
       query.append(" \(searchTerm)")

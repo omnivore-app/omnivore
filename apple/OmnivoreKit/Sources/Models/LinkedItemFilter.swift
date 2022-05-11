@@ -1,6 +1,6 @@
 import Foundation
 
-public enum LinkedItemFilter: CaseIterable {
+public enum LinkedItemFilter: String, CaseIterable {
   case inbox
   case all
   case archived

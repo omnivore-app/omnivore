@@ -5,4 +5,5 @@ public enum UserDefaultKey: String {
   case userHasDeniedPushPrimer
   case firebasePushToken
   case homeFeedlayoutPreference
+  case lastSelectedLinkedItemFilter
 }
