@@ -91,23 +91,21 @@ public struct TextChipButton: View {
   let foregroundColor: Color
 
   public var body: some View {
-    Button(action: onTap) {
-      VStack(spacing: 0) {
-        HStack {
-          Text(text)
-            .padding(.leading, 3)
-          Image(systemName: actionType.systemIconName)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .font(.appFootnote)
-        .foregroundColor(foregroundColor)
-        .lineLimit(1)
-        .background(Capsule().fill(color))
-
-        Color.clear.contentShape(Rectangle()).frame(height: 15)
+    VStack(spacing: 0) {
+      HStack {
+        Text(text)
+          .padding(.leading, 3)
+        Image(systemName: actionType.systemIconName)
       }
-      .contentShape(Rectangle())
+      .padding(.horizontal, 10)
+      .padding(.vertical, 8)
+      .font(.appFootnote)
+      .foregroundColor(foregroundColor)
+      .lineLimit(1)
+      .background(Capsule().fill(color))
     }
+    .padding(.vertical, 12)
+    .contentShape(Rectangle())
+    .onTapGesture { onTap() }
   }
 }

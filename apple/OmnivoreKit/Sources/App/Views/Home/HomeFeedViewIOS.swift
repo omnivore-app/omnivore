@@ -127,7 +127,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
     var body: some View {
       VStack(spacing: 0) {
         SearchBar(searchTerm: $viewModel.searchTerm, isSearching: $isSearching)
-          .padding(.bottom)
+        
         ZStack(alignment: .bottom) {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
