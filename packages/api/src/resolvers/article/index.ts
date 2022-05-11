@@ -45,6 +45,7 @@ import {
 import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
+  cleanDomainInUrl,
   generateSlug,
   isParsingTimeout,
   pageError,
@@ -877,7 +878,7 @@ export const searchResolver = authorized<
         isArchived: !!r.archivedAt,
         contentReader:
           r.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
-        originalArticleUrl: r.url,
+        originalArticleUrl: cleanDomainInUrl(r.url),
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
         pageType: r.pageType || PageType.Highlights,
