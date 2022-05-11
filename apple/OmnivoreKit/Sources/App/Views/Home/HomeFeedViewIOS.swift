@@ -26,22 +26,15 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         .refreshable {
           loadItems(isRefresh: true)
         }
-//        .searchable(
-//          text: $viewModel.searchTerm
-//        ) {
-//          if viewModel.searchTerm.isEmpty {
-//            Text("Inbox").searchCompletion("in:inbox ")
-//            Text("All").searchCompletion("in:all ")
-//            Text("Archived").searchCompletion("in:archive ")
-//            Text("Files").searchCompletion("type:file ")
-//          }
-//        }
         .onChange(of: viewModel.searchTerm) { _ in
           // Maybe we should debounce this, but
           // it feels like it works ok without
           loadItems(isRefresh: true)
         }
         .onChange(of: viewModel.selectedLabels) { _ in
+          loadItems(isRefresh: true)
+        }
+        .onChange(of: viewModel.appliedFilter) { _ in
           loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
@@ -138,6 +131,14 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         ZStack(alignment: .bottom) {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
+              Menu(
+                content: {
+                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+                    Button(filter.displayName, action: { viewModel.appliedFilter = filter })
+                  }
+                },
+                label: { TextChipButton.makeFilterButton(title: viewModel.appliedFilter.displayName) }
+              )
               TextChipButton.makeAddLabelButton {
                 showLabelsSheet = true
               }

@@ -34,6 +34,10 @@ public struct TextChipButton: View {
     TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, onTap: onTap)
   }
 
+  public static func makeFilterButton(title: String) -> TextChipButton {
+    TextChipButton(title: title, color: .systemGray6, actionType: .show, onTap: {})
+  }
+
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
     TextChipButton(title: title, color: .appButtonBackground, actionType: .add, onTap: onTap)
   }
@@ -67,7 +71,7 @@ public struct TextChipButton: View {
     }
   }
 
-  init(title: String, color: Color, actionType: ActionType, onTap: @escaping () -> Void) {
+  public init(title: String, color: Color, actionType: ActionType, onTap: @escaping () -> Void) {
     self.text = title
     self.color = color
     self.onTap = onTap
