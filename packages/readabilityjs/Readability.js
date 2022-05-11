@@ -2260,8 +2260,8 @@ Readability.prototype = {
       }
 
       // Create instagram posts placeholders from iframes
-      if (element.src && element.src.includes('instagram.com/p')) {
-        const url = element.src;
+      if (element.getAttribute('src')?.includes('instagram.com/p')) {
+        const url = element.getAttribute('src');
         const regex = /https?:\/\/(www\.)?instagram.com\/p\/(\w+)\//gm;
         const match = regex.exec(url);
 
