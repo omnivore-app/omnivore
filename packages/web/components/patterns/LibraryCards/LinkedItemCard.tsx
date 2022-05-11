@@ -6,10 +6,10 @@ import { PageType } from '../../../lib/networking/fragments/articleFragment'
 
 const siteName = (originalArticleUrl: string, itemUrl: string): string => {
   try {
-    return new URL(originalArticleUrl).hostname.replace(/^www\./, '')
+    return new URL(originalArticleUrl).hostname
   } catch {}
   try {
-    return new URL(itemUrl).hostname.replace(/^www\./, '')
+    return new URL(itemUrl).hostname
   } catch {}
   return ''
 }
