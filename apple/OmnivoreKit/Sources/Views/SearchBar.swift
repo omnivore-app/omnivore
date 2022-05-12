@@ -29,6 +29,7 @@ public struct SearchBar: View {
           action: {
             self.isSearching = false
             self.searchTerm = ""
+            self.hideKeyboard()
           },
           label: { Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast) }
         )
