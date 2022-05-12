@@ -230,7 +230,3 @@ export const validatedDate = (
     return undefined
   }
 }
-
-export const cleanDomainInUrl = (url: string): string => {
-  return url.replace(/^((https?:\/\/)?)(www.)/, (match, p1: string) => p1)
-}
