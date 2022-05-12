@@ -40,24 +40,24 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
         Never miss a great read.
       </StyledTextHeadline>
       <StyledText css={{ fontStyle: 'normal',
-    fontWeight: '400',
-    fontSize: '18px',
-    lineHeight: '120%',
-    m: '0px',
-    color: '$omnivoreGray',}}>
+        fontWeight: '400',
+        fontSize: '18px',
+        lineHeight: '120%',
+        m: '0px',
+        color: '$omnivoreGray',
+      }}>
         Save articles and read them later in our distraction-free reader.
       </StyledText>
       <Link passHref href="/about">
         <a style={{ textDecoration: 'none' }}>
-          <StyledText
-            css={{
-              fontStyle: 'normal',
-fontWeight: '400',
-fontSize: '18px',
-lineHeight: '120%',
-m: '0px',
-            }}
-          >
+          <StyledText css={{
+            fontStyle: 'normal',
+            fontWeight: '400',
+            fontSize: '18px',
+            lineHeight: '120%',
+            m: '0px',
+            color: '$omnivoreGray',
+          }}>
             Learn More -&gt;
           </StyledText>
         </a>
@@ -65,7 +65,7 @@ m: '0px',
 
       <SpanBox css={{ height: '24px' }} />
 
-<VStack alignment="start" distribution="center" css={{ }}>  
+      <VStack alignment="start" distribution="center">
       {googleID && (
         <Box
           style={{
