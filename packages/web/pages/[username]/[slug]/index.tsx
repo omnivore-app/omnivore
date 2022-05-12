@@ -42,17 +42,15 @@ export default function Home(): JSX.Element {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const { slug } = router.query
   const [showHighlightsModal, setShowHighlightsModal] = useState(false)
-
   const { viewerData } = useGetViewerQuery()
   const readerSettings = useReaderSettings()
 
-  const { articleData } = useGetArticleQuery({
+  const { articleData,  articleFetchError } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
     includeFriendsHighlights: false,
   })
   const article = articleData?.article.article
-
   const [labels, setLabels] = useState<Label[]>([])
   useEffect(() => {
     if (article?.labels) {
@@ -117,6 +115,11 @@ export default function Home(): JSX.Element {
       })
     }
   }, [article, viewerData])
+
+  if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
+    router.push('/404')
+    return <LoadingView />
+  }
 
   return (
     <PrimaryLayout

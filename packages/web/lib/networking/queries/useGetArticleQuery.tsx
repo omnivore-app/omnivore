@@ -19,8 +19,8 @@ type ArticleQueryInput = {
 
 type ArticleQueryOutput = {
   articleData?: ArticleData
-  articleFetchError: unknown
   isLoading: boolean
+  articleFetchError: string[] | null
 }
 
 type ArticleData = {
@@ -113,8 +113,8 @@ export function useGetArticleQuery({
 
   return {
     articleData: resultData,
-    articleFetchError: resultError as unknown,
     isLoading: !error && !data,
+    articleFetchError: resultError ? resultError as string[] : null,
   }
 }
 
