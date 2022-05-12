@@ -632,6 +632,15 @@ export const setBookmarkArticleResolver = authorized<
         return models.highlight.unshareAllHighlights(articleID, uid, tx)
       })
 
+      analytics.track({
+        userId: uid,
+        event: 'link_removed',
+        properties: {
+          url: pageRemoved.url,
+          env: env.server.apiEnv,
+        },
+      })
+
       log.info('Article unbookmarked', {
         page: Object.assign({}, page, {
           content: undefined,
