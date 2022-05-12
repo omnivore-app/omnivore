@@ -240,12 +240,12 @@ export const parsePreparedContent = async (
   //     ...details,
   //   })
   // })
-  const { document: doc } = parseHTML(document)
+  const dom = parseHTML(document).document
 
-  await applyHandlers(url, doc)
+  await applyHandlers(url, dom)
 
   try {
-    article = getReadabilityResult(url, document, doc, isNewsletter)
+    article = getReadabilityResult(url, document, dom, isNewsletter)
 
     // Format code blocks
     // TODO: we probably want to move this type of thing
@@ -278,7 +278,7 @@ export const parsePreparedContent = async (
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
     const jsonLdLinkMetadata = (async () => {
-      return getJSONLdLinkMetadata(doc)
+      return getJSONLdLinkMetadata(dom)
     })()
 
     Object.assign(article, {
@@ -311,7 +311,7 @@ export const parsePreparedContent = async (
     domContent: preparedDocument.document,
     parsedContent: article,
     canonicalUrl,
-    pageType: parseOriginalContent(doc),
+    pageType: parseOriginalContent(dom),
   }
 }
 
@@ -358,26 +358,26 @@ type Metadata = {
 
 export const parsePageMetadata = (html: string): Metadata | undefined => {
   try {
-    const window = parseHTML(html).window
+    const document = parseHTML(html).document
 
     // get open graph metadata
     const description =
-      window.document
+      document
         .querySelector("head meta[property='og:description']")
         ?.getAttribute('content') || ''
 
     const previewImage =
-      window.document
+      document
         .querySelector("head meta[property='og:image']")
         ?.getAttribute('content') || ''
 
     const title =
-      window.document
+      document
         .querySelector("head meta[property='og:title']")
         ?.getAttribute('content') || undefined
 
     const author =
-      window.document
+      document
         .querySelector("head meta[name='author']")
         ?.getAttribute('content') || undefined
 
