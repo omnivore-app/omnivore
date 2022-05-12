@@ -26,26 +26,31 @@ public struct SearchBar: View {
               .padding(.leading, 10)
 
             if self.searchTerm != "" {
-              Button(action: {
-                self.searchTerm = ""
-                self.isFocused = false
-              }) {
-                Image(systemName: "multiply.circle.fill")
-                  .foregroundColor(.gray)
-                  .padding(.trailing, 8)
-              }
+              Button(
+                action: {
+                  self.searchTerm = ""
+                },
+                label: {
+                  Image(systemName: "multiply.circle.fill")
+                    .foregroundColor(.gray)
+                    .padding(.trailing, 8)
+                }
+              )
             }
           }
         )
         .padding(.horizontal, 10)
 
       if isFocused {
-        Button(action: {
-          self.isFocused = false
-          self.searchTerm = ""
-        }) {
-          Text("Cancel")
-        }
+        Button(
+          action: {
+            self.searchTerm = ""
+            self.isFocused = false
+          },
+          label: {
+            Text("Cancel")
+          }
+        )
         .padding(.trailing, 10)
         .transition(.move(edge: .trailing))
       }
