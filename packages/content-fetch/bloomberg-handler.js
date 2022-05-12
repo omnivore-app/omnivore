@@ -29,7 +29,7 @@ exports.bloombergHandler = {
           'block_resources': false,
         }
       })
-      const dom = new parseHTML(response.data).document;
+      const dom = parseHTML(response.data).document;
       return { title: dom.title, content: dom.querySelector('body').innerHTML, url: url }
     } catch (error) {
       console.error('error prehandling bloomberg url', error)

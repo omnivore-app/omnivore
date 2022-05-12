@@ -23,7 +23,7 @@ exports.derstandardHandler = {
     const content = response.data;
 
     var title = undefined;
-    const dom = new parseHTML(content).document;
+    const dom = parseHTML(content).document;
     const titleElement = dom.querySelector('.article-title')
     if (!titleElement) {
       title = titleElement.textContent
