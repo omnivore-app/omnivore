@@ -9,11 +9,8 @@ const axios = require('axios');
 const { promisify } = require('util');
 const { DateTime } = require('luxon');
 const os = require('os');
-const jsdom = require("jsdom");
 const { Cipher } = require('crypto');
-const { JSDOM } = jsdom;
-
-
+const { parseHTML } = require('linkedom');
 
 exports.appleNewsHandler = {
 
@@ -30,10 +27,10 @@ exports.appleNewsHandler = {
     const response = await axios.get(url, { headers: { 'User-Agent': MOBILE_USER_AGENT }  } );
     const data = response.data;
 
-    const dom = new JSDOM(data);
+    const dom = new parseHTML(data).document;
 
     // make sure its a valid URL by wrapping in new URL
-    const u = new URL(dom.window.document.querySelector('span.click-here').parentNode.href);
+    const u = new URL(dom.querySelector('span.click-here').parentNode.href);
     return { url: u.href };
   }
 }

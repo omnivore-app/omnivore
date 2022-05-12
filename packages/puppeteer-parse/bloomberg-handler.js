@@ -6,8 +6,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const os = require('os');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+const { parseHTML } = require('linkedom');
 
 exports.bloombergHandler = {
 
@@ -30,8 +29,8 @@ exports.bloombergHandler = {
           'block_resources': false,
         }
       })
-      const dom = new JSDOM(response.data);
-      return { title: dom.window.document.title, content: dom.window.document.querySelector('body').innerHTML, url: url }
+      const dom = new parseHTML(response.data).document;
+      return { title: dom.title, content: dom.querySelector('body').innerHTML, url: url }
     } catch (error) {
       console.error('error prehandling bloomberg url', error)
       throw error
