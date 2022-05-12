@@ -665,7 +665,7 @@ async function retrievePage(url) {
   await page.setRequestInterception(true);
   let requestCount = 0;
   page.on('request', request => {
-    if (request.resourceType() === 'font' || request.resourceType() === 'image') {
+    if (['font', 'image', 'stylesheet', 'script', 'media'].includes(request.resourceType())) {
       request.abort();
       return;
     }
@@ -673,14 +673,7 @@ async function retrievePage(url) {
       request.abort();
       return;
     }
-    if (
-      request.resourceType() === 'script' &&
-      request.url().toLowerCase().indexOf('mathjax') > -1
-    ) {
-      request.abort();
-    } else {
-      request.continue();
-    }
+    request.continue();
   });
 
 
