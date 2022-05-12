@@ -12,6 +12,7 @@ import { getPageByParam } from '../../src/elastic/pages'
 
 describe('saveNewsletterEmail', () => {
   const username = 'fakeUser'
+  const fakeContent = 'fake content'
 
   let user: User
   let email: NewsletterEmail
@@ -32,13 +33,16 @@ describe('saveNewsletterEmail', () => {
   })
 
   it('adds the newsletter to the library', async () => {
-    await saveNewsletterEmail({
-      email: email.address,
-      content: 'fake content',
-      url: 'https://example.com',
-      title: 'fake title',
-      author: 'fake author',
-    }, ctx)
+    await saveNewsletterEmail(
+      {
+        email: email.address,
+        content: `<html><body>${fakeContent}</body></html>`,
+        url: 'https://example.com',
+        title: 'fake title',
+        author: 'fake author',
+      },
+      ctx
+    )
 
     setTimeout(async () => {
       const page = await getPageByParam({ userId: user.id })
@@ -48,7 +52,7 @@ describe('saveNewsletterEmail', () => {
       expect(page.url).to.equal('https://example.com')
       expect(page.title).to.equal('fake title')
       expect(page.author).to.equal('fake author')
-      expect(page.content).to.contain('fake content')
+      expect(page.content).to.contain(fakeContent)
     })
   })
 
@@ -58,13 +62,16 @@ describe('saveNewsletterEmail', () => {
       color: '#07D2D1',
     }
 
-    await saveNewsletterEmail({
-      email: email.address,
-      content: 'fake content 2',
-      url: 'https://example.com/2',
-      title: 'fake title',
-      author: 'fake author',
-    }, ctx)
+    await saveNewsletterEmail(
+      {
+        email: email.address,
+        content: `<html><body>fake content 2</body></html>`,
+        url: 'https://example.com/2',
+        title: 'fake title',
+        author: 'fake author',
+      },
+      ctx
+    )
 
     setTimeout(async () => {
       const page = await getPageByParam({ userId: user.id })
