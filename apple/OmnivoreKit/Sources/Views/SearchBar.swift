@@ -2,39 +2,52 @@ import SwiftUI
 
 public struct SearchBar: View {
   @Binding var searchTerm: String
-  @Binding var isSearching: Bool
+  @FocusState private var isFocused: Bool
 
   public init(
-    searchTerm: Binding<String>,
-    isSearching: Binding<Bool>
+    searchTerm: Binding<String>
   ) {
     self._searchTerm = searchTerm
-    self._isSearching = isSearching
   }
 
   public var body: some View {
     HStack(spacing: 0) {
       TextField("Search", text: $searchTerm)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 8)
+        .padding(7)
+        .padding(.horizontal, 25)
         .background(Color(.systemGray6))
         .cornerRadius(8)
-        .padding(.horizontal, 10)
-        .onTapGesture {
-          self.isSearching = true
-        }
+        .focused($isFocused)
+        .overlay(
+          HStack {
+            Image(systemName: "magnifyingglass")
+              .foregroundColor(.gray)
+              .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+              .padding(.leading, 10)
 
-      if isSearching {
-        Button(
-          action: {
-            self.isSearching = false
-            self.searchTerm = ""
-            self.hideKeyboard()
-          },
-          label: { Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast) }
+            if self.searchTerm != "" {
+              Button(action: {
+                self.searchTerm = ""
+                self.isFocused = false
+              }) {
+                Image(systemName: "multiply.circle.fill")
+                  .foregroundColor(.gray)
+                  .padding(.trailing, 8)
+              }
+            }
+          }
         )
-        .padding(.trailing)
-        .transition(.opacity)
+        .padding(.horizontal, 10)
+
+      if isFocused {
+        Button(action: {
+          self.isFocused = false
+          self.searchTerm = ""
+        }) {
+          Text("Cancel")
+        }
+        .padding(.trailing, 10)
+        .transition(.move(edge: .trailing))
       }
     }
   }

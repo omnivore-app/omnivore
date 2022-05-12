@@ -121,12 +121,11 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
     @EnvironmentObject var dataService: DataService
     @Binding var prefersListLayout: Bool
     @State private var showLabelsSheet = false
-    @State private var isSearching = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
       VStack(spacing: 0) {
-        SearchBar(searchTerm: $viewModel.searchTerm, isSearching: $isSearching)
+        SearchBar(searchTerm: $viewModel.searchTerm)
 
         ZStack(alignment: .bottom) {
           ScrollView(.horizontal, showsIndicators: false) {
