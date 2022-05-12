@@ -292,7 +292,7 @@ export default function ExtensionsInstallHelp({
             height: 'min-content',
             textDecoration: 'none',
             width: !onboarding ? '100%' : '210px',
-            color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
+            color: 'rgba(10, 8, 6, 0.8)',
             textAlign: 'center',
             '@lgDown': {
               width: '27vw',
