@@ -86,3 +86,5 @@ jobs:
           fetch-depth: 0
       - name: Build the API docker image
         run: 'docker build --file packages/api/Dockerfile .'
+      - name: Build the content-fetch docker image
+        run: 'docker build --file packages/content-fetch/Dockerfile .'
