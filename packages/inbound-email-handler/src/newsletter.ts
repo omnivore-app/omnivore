@@ -77,7 +77,7 @@ export class NewsletterHandler {
     const url =
       this.parseNewsletterUrl(postHeader, html) ||
       `${this.defaultUrl}?source=newsletters&id=${uuidv4()}`
-    const author = this.parseAuthor(from) || 'Unknown'
+    const author = this.parseAuthor(from)
     const unsubscribe = this.parseUnsubscribe(unSubHeader)
     const message = {
       email,
