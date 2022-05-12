@@ -35,22 +35,19 @@ export const saveEmail = async (
     },
     true
   )
-
-  const title = input.title
   const content = parseResult.parsedContent?.content || input.originalContent
-  const slug = generateSlug(title)
-
+  const slug = generateSlug(input.title)
   const metadata = await parseUrlMetadata(url)
 
   const articleToSave: Page = {
     id: '',
     userId: ctx.uid,
+    slug,
+    content,
     originalHtml: input.originalContent,
-    content: content,
     description: metadata?.description || parseResult.parsedContent?.excerpt,
-    title: metadata?.title || parseResult.parsedContent?.title || title,
-    author:
-      metadata?.author || parseResult.parsedContent?.byline || input.author,
+    title: input.title,
+    author: input.author,
     url: normalizeUrl(parseResult.canonicalUrl || url, {
       stripHash: true,
       stripWWW: false,
@@ -59,7 +56,6 @@ export const saveEmail = async (
     hash: stringToHash(content),
     image: metadata?.previewImage || parseResult.parsedContent?.previewImage,
     publishedAt: validatedDate(parseResult.parsedContent?.publishedDate),
-    slug: slug,
     createdAt: new Date(),
     savedAt: new Date(),
     readingProgressAnchorIndex: 0,
