@@ -15,7 +15,9 @@ const siteName = (originalArticleUrl: string, itemUrl: string): string => {
 }
 
 export function LinkedItemCard(props: LinkedItemCardProps): JSX.Element {
-  const originText = siteName(props.item.originalArticleUrl, props.item.url)
+  const originText =
+    props.item.siteName ||
+    siteName(props.item.originalArticleUrl, props.item.url)
 
   if (props.item.pageType === PageType.HIGHLIGHTS) {
     return <HighlightItemCard {...props} />
