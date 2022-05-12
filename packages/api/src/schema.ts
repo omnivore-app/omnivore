@@ -1438,6 +1438,7 @@ const schema = gql`
     unsubMailTo: String
     unsubHttpUrl: String
     state: ArticleSavingRequestStatus
+    siteName: String
   }
 
   type SearchItemEdge {

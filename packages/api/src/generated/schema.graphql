@@ -991,6 +991,7 @@ type SearchItem {
   readingProgressAnchorIndex: Int
   readingProgressPercent: Float
   shortId: String
+  siteName: String
   slug: String!
   state: ArticleSavingRequestStatus
   subscription: String
