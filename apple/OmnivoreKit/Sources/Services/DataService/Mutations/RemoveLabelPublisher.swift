@@ -7,7 +7,7 @@ extension DataService {
     // Update CoreData
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
-      guard let label = LinkedItemLabel.lookup(byName: name, inContext: self.backgroundContext) else { return }
+      guard let label = LinkedItemLabel.lookup(byID: labelID, inContext: self.backgroundContext) else { return }
       label.remove(inContext: self.backgroundContext)
 
       // Send update to server
@@ -15,7 +15,7 @@ extension DataService {
     }
   }
 
-  func syncLabelDeletion(labelID: String, labelName: String) {
+  func syncLabelDeletion(labelID: String, labelName _: String) {
     enum MutationResult {
       case success(labelID: String)
       case error(errorCode: Enums.DeleteLabelErrorCode)
@@ -43,7 +43,7 @@ extension DataService {
       let isSyncSuccess = data != nil
 
       context.perform {
-        let label = LinkedItemLabel.lookup(byName: labelName, inContext: context)
+        let label = LinkedItemLabel.lookup(byID: labelID, inContext: context)
         guard let label = label else { return }
 
         if isSyncSuccess {

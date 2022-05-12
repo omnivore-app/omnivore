@@ -18,6 +18,7 @@ import WebKit
     @State var increaseFontActionID: UUID?
     @State var decreaseFontActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
+    @State var showNavBarActionID: UUID?
     @State var annotation = String()
 
     @EnvironmentObject var dataService: DataService
@@ -154,8 +155,15 @@ import WebKit
             increaseFontActionID: $increaseFontActionID,
             decreaseFontActionID: $decreaseFontActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
+            showNavBarActionID: $showNavBarActionID,
             annotation: $annotation
           )
+          .onTapGesture {
+            withAnimation {
+              navBarVisibilityRatio = 1
+              showNavBarActionID = UUID()
+            }
+          }
           .sheet(item: $safariWebLink) {
             SafariView(url: $0.url)
           }

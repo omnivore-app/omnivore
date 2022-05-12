@@ -3,6 +3,7 @@ import CoreData
 import Foundation
 import Models
 import OSLog
+import Utils
 
 let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
@@ -13,8 +14,8 @@ public final class DataService: ObservableObject {
   public let appEnvironment: AppEnvironment
   let networker: Networker
 
-  let persistentContainer: PersistentContainer
-  let backgroundContext: NSManagedObjectContext
+  var persistentContainer: PersistentContainer
+  var backgroundContext: NSManagedObjectContext
   var subscriptions = Set<AnyCancellable>()
 
   public var viewContext: NSManagedObjectContext {
@@ -28,9 +29,13 @@ public final class DataService: ObservableObject {
     self.backgroundContext = persistentContainer.newBackgroundContext()
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
-    persistentContainer.loadPersistentStores { _, error in
-      if let error = error {
-        fatalError("Core Data store failed to load with error: \(error)")
+    if isFirstTimeRunningNewAppVersion() {
+      resetCoreData()
+    } else {
+      persistentContainer.loadPersistentStores { _, error in
+        if let error = error {
+          fatalError("Core Data store failed to load with error: \(error)")
+        }
       }
     }
   }
@@ -48,5 +53,39 @@ public final class DataService: ObservableObject {
     } catch {
       fatalError("Unable to write to Keychain: \(error)")
     }
+  }
+
+  private func resetCoreData() {
+    let storeContainer =
+      persistentContainer.persistentStoreCoordinator
+
+    do {
+      for store in storeContainer.persistentStores {
+        try storeContainer.destroyPersistentStore(
+          at: store.url!,
+          ofType: store.type,
+          options: nil
+        )
+      }
+      persistentContainer = PersistentContainer.make()
+      persistentContainer.loadPersistentStores { _, error in
+        if let error = error {
+          fatalError("Core Data store failed to load with error: \(error)")
+        }
+      }
+      backgroundContext = persistentContainer.newBackgroundContext()
+    } catch {
+      logger.debug("Failed to reset core data stores")
+    }
+  }
+
+  private func isFirstTimeRunningNewAppVersion() -> Bool {
+    let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")
+    guard let appVersion = appVersion as? String else { return false }
+
+    let lastUsedAppVersion = UserDefaults.standard.string(forKey: UserDefaultKey.lastUsedAppVersion.rawValue)
+    let isFirstRun = (lastUsedAppVersion ?? "unknown") != appVersion
+    UserDefaults.standard.set(appVersion, forKey: UserDefaultKey.lastUsedAppVersion.rawValue)
+    return isFirstRun
   }
 }

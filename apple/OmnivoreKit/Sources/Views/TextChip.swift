@@ -34,6 +34,10 @@ public struct TextChipButton: View {
     TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, onTap: onTap)
   }
 
+  public static func makeFilterButton(title: String) -> TextChipButton {
+    TextChipButton(title: title, color: .systemGray6, actionType: .show, onTap: {})
+  }
+
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
     TextChipButton(title: title, color: .appButtonBackground, actionType: .add, onTap: onTap)
   }
@@ -67,7 +71,7 @@ public struct TextChipButton: View {
     }
   }
 
-  init(title: String, color: Color, actionType: ActionType, onTap: @escaping () -> Void) {
+  public init(title: String, color: Color, actionType: ActionType, onTap: @escaping () -> Void) {
     self.text = title
     self.color = color
     self.onTap = onTap
@@ -87,23 +91,21 @@ public struct TextChipButton: View {
   let foregroundColor: Color
 
   public var body: some View {
-    Button(action: onTap) {
-      VStack(spacing: 0) {
-        HStack {
-          Text(text)
-            .padding(.leading, 3)
-          Image(systemName: actionType.systemIconName)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .font(.appFootnote)
-        .foregroundColor(foregroundColor)
-        .lineLimit(1)
-        .background(Capsule().fill(color))
-
-        Color.clear.contentShape(Rectangle()).frame(height: 15)
+    VStack(spacing: 0) {
+      HStack {
+        Text(text)
+          .padding(.leading, 3)
+        Image(systemName: actionType.systemIconName)
       }
-      .contentShape(Rectangle())
+      .padding(.horizontal, 10)
+      .padding(.vertical, 8)
+      .font(.appFootnote)
+      .foregroundColor(foregroundColor)
+      .lineLimit(1)
+      .background(Capsule().fill(color))
     }
+    .padding(.vertical, 12)
+    .contentShape(Rectangle())
+    .onTapGesture { onTap() }
   }
 }

@@ -29,8 +29,8 @@ struct InternalLinkedItemLabel {
   }
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItemLabel {
-    let existingItem = LinkedItemLabel.lookup(byName: name, inContext: context)
-    let label = existingItem ?? LinkedItemLabel(entity: LinkedItemLabel.entity(), insertInto: context)
+    let existingLabel = LinkedItemLabel.lookup(byID: id, inContext: context)
+    let label = existingLabel ?? LinkedItemLabel(entity: LinkedItemLabel.entity(), insertInto: context)
     label.id = id
     label.name = name
     label.color = color
@@ -44,10 +44,10 @@ extension LinkedItemLabel {
   public var unwrappedID: String { id ?? "" }
   public var unwrappedName: String { name ?? "" }
 
-  static func lookup(byName name: String, inContext context: NSManagedObjectContext) -> LinkedItemLabel? {
+  static func lookup(byID id: String, inContext context: NSManagedObjectContext) -> LinkedItemLabel? {
     let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
     fetchRequest.predicate = NSPredicate(
-      format: "%K == %@", #keyPath(LinkedItemLabel.name), name
+      format: "id == %@", id
     )
 
     var label: LinkedItemLabel?

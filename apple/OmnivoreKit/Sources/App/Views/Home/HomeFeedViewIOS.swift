@@ -26,16 +26,6 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         .refreshable {
           loadItems(isRefresh: true)
         }
-        .searchable(
-          text: $viewModel.searchTerm
-        ) {
-          if viewModel.searchTerm.isEmpty {
-            Text("Inbox").searchCompletion("in:inbox ")
-            Text("All").searchCompletion("in:all ")
-            Text("Archived").searchCompletion("in:archive ")
-            Text("Files").searchCompletion("type:file ")
-          }
-        }
         .onChange(of: viewModel.searchTerm) { _ in
           // Maybe we should debounce this, but
           // it feels like it works ok without
@@ -44,7 +34,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         .onChange(of: viewModel.selectedLabels) { _ in
           loadItems(isRefresh: true)
         }
-        .onSubmit(of: .search) {
+        .onChange(of: viewModel.appliedFilter) { _ in
           loadItems(isRefresh: true)
         }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
@@ -135,9 +125,23 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
 
     var body: some View {
       VStack(spacing: 0) {
+        SearchBar(searchTerm: $viewModel.searchTerm)
+
         ZStack(alignment: .bottom) {
           ScrollView(.horizontal, showsIndicators: false) {
             HStack {
+              Menu(
+                content: {
+                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
+                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                  }
+                },
+                label: {
+                  TextChipButton.makeFilterButton(
+                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                  )
+                }
+              )
               TextChipButton.makeAddLabelButton {
                 showLabelsSheet = true
               }

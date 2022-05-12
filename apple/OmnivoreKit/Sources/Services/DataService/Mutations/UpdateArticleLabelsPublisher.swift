@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
-  public func updateItemLabels(itemID: String, labelNames: [String]) {
+  public func updateItemLabels(itemID: String, labelIDs: [String]) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
@@ -13,12 +13,9 @@ extension DataService {
         linkedItem.removeFromLabels(existingLabels)
       }
 
-      var labelIDs = [String]()
-
-      for labelName in labelNames {
-        if let labelObject = LinkedItemLabel.lookup(byName: labelName, inContext: self.backgroundContext) {
+      for labelID in labelIDs {
+        if let labelObject = LinkedItemLabel.lookup(byID: labelID, inContext: self.backgroundContext) {
           linkedItem.addToLabels(labelObject)
-          labelIDs.append(labelObject.unwrappedID)
         }
       }
 
