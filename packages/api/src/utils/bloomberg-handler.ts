@@ -1,22 +1,18 @@
-import { DOMWindow } from 'jsdom'
-
 export class BloombergHandler {
   name = 'bloomberg'
 
-  shouldPrehandle = (url: URL, dom: DOMWindow): boolean => {
+  shouldPrehandle = (url: URL, dom: Document): boolean => {
     const host = this.name + '.com'
     // check if url ends with bloomberg.com
     return (
       url.hostname.endsWith(host) ||
-      dom.document
-        .querySelector('.logo-image')
-        ?.getAttribute('alt')
-        ?.toLowerCase() === this.name
+      dom.querySelector('.logo-image')?.getAttribute('alt')?.toLowerCase() ===
+        this.name
     )
   }
 
-  prehandle = (_url: URL, dom: DOMWindow): Promise<DOMWindow> => {
-    const body = dom.document.querySelector('.wrapper')
+  prehandle = (_url: URL, dom: Document): Promise<Document> => {
+    const body = dom.querySelector('.wrapper')
 
     // this removes header
     body?.querySelector('.sailthru-variables')?.remove()

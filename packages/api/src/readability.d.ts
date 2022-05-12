@@ -121,6 +121,7 @@ declare module '@omnivore/readability' {
        */
 
       keepClasses?: boolean
+      url?: string
 
       /**
        * Function that converts a regular image url into imageproxy url

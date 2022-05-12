@@ -1,8 +1,8 @@
 var getTestPages = require("../test/utils").getTestPages;
 
 var { Readability, isProbablyReaderable } = require("../index");
-var JSDOM = require("jsdom").JSDOM;
 var JSDOMParser = require("../JSDOMParser");
+var { parseHTML } = require("linkedom");
 
 var referenceTestPages = [
   "002",
@@ -55,10 +55,7 @@ suite("isProbablyReaderable perf", function () {
   set("type", "static");
 
   testPages.forEach(function(testPage) {
-    var uri = "http://fakehost/test/page.html";
-    var doc = new JSDOM(testPage.source, {
-      url: uri,
-    }).window.document;
+    var doc = parseHTML(testPage.source).document;
     bench(testPage.dir + " readability perf", function() {
       isProbablyReaderable(doc);
     });

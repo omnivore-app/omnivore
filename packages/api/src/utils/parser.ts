@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Readability } from '@omnivore/readability'
-import { DOMWindow, JSDOM, VirtualConsole } from 'jsdom'
 import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
 import { buildLogger, LogRecord } from './logger'
@@ -15,10 +14,11 @@ import { BloombergHandler } from './bloomberg-handler'
 import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
+import { parseHTML } from 'linkedom'
 
 const logger = buildLogger('utils.parse')
 
-const virtualConsole = new VirtualConsole()
+// const virtualConsole = new VirtualConsole()
 
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
@@ -41,8 +41,8 @@ const DOM_PURIFY_CONFIG = {
 }
 
 interface ContentHandler {
-  shouldPrehandle: (url: URL, dom: DOMWindow) => boolean
-  prehandle: (url: URL, document: DOMWindow) => Promise<DOMWindow>
+  shouldPrehandle: (url: URL, dom: Document) => boolean
+  prehandle: (url: URL, document: Document) => Promise<Document>
 }
 
 const HANDLERS = [
@@ -102,9 +102,9 @@ type ArticleParseLogRecord = LogRecord & {
 
 const DEBUG_MODE = process.env.DEBUG === 'true' || false
 
-const parseOriginalContent = (window: DOMWindow): PageType => {
+const parseOriginalContent = (document: Document): PageType => {
   try {
-    const e = window.document.querySelector("head meta[property='og:type']")
+    const e = document.querySelector("head meta[property='og:type']")
     const content = e?.getAttribute('content')
     if (!content) {
       return PageType.Unknown
@@ -128,32 +128,24 @@ const parseOriginalContent = (window: DOMWindow): PageType => {
 }
 
 const getPurifiedContent = (html: string): Document => {
-  const newWindow = new JSDOM('').window
-  const DOMPurify = createDOMPurify(newWindow as unknown as Window)
+  const newWindow = parseHTML('')
+  const DOMPurify = createDOMPurify(newWindow)
   DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
   const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
-  return new JSDOM(clean).window.document
+  return parseHTML(clean).document
 }
 
 const getReadabilityResult = (
   url: string,
   html: string,
-  window: DOMWindow,
+  document: Document,
   isNewsletter?: boolean
 ): Readability.ParseResult | null => {
-  virtualConsole.removeAllListeners('jsdomError')
-  virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
-    logger.warning(`JSDOM error occurred`, {
-      errorMsg: message,
-      ...details,
-    })
-  })
-
   // First attempt to read the article as is.
   // if that fails attempt to purify then read
   const sources = [
     () => {
-      return window.document
+      return document
     },
     () => {
       return getPurifiedContent(html)
@@ -171,6 +163,7 @@ const getReadabilityResult = (
         debug: DEBUG_MODE,
         createImageProxyUrl,
         keepTables: isNewsletter,
+        url,
       }).parse()
 
       if (article) {
@@ -184,12 +177,15 @@ const getReadabilityResult = (
   return null
 }
 
-const applyHandlers = async (url: string, window: DOMWindow): Promise<void> => {
+const applyHandlers = async (
+  url: string,
+  document: Document
+): Promise<void> => {
   try {
     const u = new URL(url)
     const handler = HANDLERS.find((h) => {
       try {
-        return h.shouldPrehandle(u, window)
+        return h.shouldPrehandle(u, document)
       } catch (e) {
         console.log('error with handler: ', h.name, e)
       }
@@ -198,7 +194,7 @@ const applyHandlers = async (url: string, window: DOMWindow): Promise<void> => {
     if (handler) {
       try {
         console.log('pre-handling url or content with handler: ', handler.name)
-        await handler.prehandle(u, window)
+        await handler.prehandle(u, document)
       } catch (e) {
         console.log('error with handler: ', handler, e)
       }
@@ -236,20 +232,20 @@ export const parsePreparedContent = async (
     }
   }
 
-  virtualConsole.removeAllListeners('jsdomError')
-  virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
-    logger.warning(`JSDOM error occurred`, {
-      ...logRecord,
-      errorMsg: message,
-      ...details,
-    })
-  })
-  const { window } = new JSDOM(document, { url, virtualConsole })
+  // virtualConsole.removeAllListeners('jsdomError')
+  // virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
+  //   logger.warning(`JSDOM error occurred`, {
+  //     ...logRecord,
+  //     errorMsg: message,
+  //     ...details,
+  //   })
+  // })
+  const dom = parseHTML(document).document
 
-  await applyHandlers(url, window)
+  await applyHandlers(url, dom)
 
   try {
-    article = getReadabilityResult(url, document, window, isNewsletter)
+    article = getReadabilityResult(url, document, dom, isNewsletter)
 
     // Format code blocks
     // TODO: we probably want to move this type of thing
@@ -276,13 +272,13 @@ export const parsePreparedContent = async (
       }
     }
 
-    const newWindow = new JSDOM('').window
-    const DOMPurify = createDOMPurify(newWindow as unknown as Window)
+    const newWindow = parseHTML('')
+    const DOMPurify = createDOMPurify(newWindow)
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
     const jsonLdLinkMetadata = (async () => {
-      return getJSONLdLinkMetadata(window.document)
+      return getJSONLdLinkMetadata(dom)
     })()
 
     Object.assign(article, {
@@ -315,7 +311,7 @@ export const parsePreparedContent = async (
     domContent: preparedDocument.document,
     parsedContent: article,
     canonicalUrl,
-    pageType: parseOriginalContent(window),
+    pageType: parseOriginalContent(dom),
   }
 }
 
@@ -362,26 +358,26 @@ type Metadata = {
 
 export const parsePageMetadata = (html: string): Metadata | undefined => {
   try {
-    const window = new JSDOM(html).window
+    const document = parseHTML(html).document
 
     // get open graph metadata
     const description =
-      window.document
+      document
         .querySelector("head meta[property='og:description']")
         ?.getAttribute('content') || ''
 
     const previewImage =
-      window.document
+      document
         .querySelector("head meta[property='og:image']")
         ?.getAttribute('content') || ''
 
     const title =
-      window.document
+      document
         .querySelector("head meta[property='og:title']")
         ?.getAttribute('content') || undefined
 
     const author =
-      window.document
+      document
         .querySelector("head meta[name='author']")
         ?.getAttribute('content') || undefined
 
@@ -412,9 +408,9 @@ export const parseUrlMetadata = async (
 // TODO: when we consolidate the handlers we could include this
 // as a utility method on each one.
 export const isProbablyNewsletter = (html: string): boolean => {
-  const dom = new JSDOM(html).window
-  const domCopy = new JSDOM(dom.document.documentElement.outerHTML)
-  const article = new Readability(domCopy.window.document, {
+  const dom = parseHTML(html).document
+  const domCopy = parseHTML(dom.documentElement.outerHTML)
+  const article = new Readability(domCopy.document, {
     debug: false,
     keepTables: true,
   }).parse()
@@ -424,16 +420,16 @@ export const isProbablyNewsletter = (html: string): boolean => {
   }
 
   // substack newsletter emails have tables with a *post-meta class
-  if (dom.document.querySelector('table[class$="post-meta"]')) {
+  if (dom.querySelector('table[class$="post-meta"]')) {
     return true
   }
 
   // If the article has a header link, and substack icons its probably a newsletter
-  const href = findNewsletterHeaderHref(dom.window)
-  const heartIcon = dom.document.querySelector(
+  const href = findNewsletterHeaderHref(dom)
+  const heartIcon = dom.querySelector(
     'table tbody td span a img[src*="HeartIcon"]'
   )
-  const recommendIcon = dom.document.querySelector(
+  const recommendIcon = dom.querySelector(
     'table tbody td span a img[src*="RecommendIconRounded"]'
   )
   if (href && (heartIcon || recommendIcon)) {
@@ -441,8 +437,8 @@ export const isProbablyNewsletter = (html: string): boolean => {
   }
 
   // Check if this is a beehiiv.net newsletter
-  if (dom.document.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
-    const beehiivUrl = beehiivNewsletterHref(dom.window)
+  if (dom.querySelectorAll('img[src*="beehiiv.net"]').length > 0) {
+    const beehiivUrl = beehiivNewsletterHref(dom)
     if (beehiivUrl) {
       return true
     }
@@ -451,10 +447,8 @@ export const isProbablyNewsletter = (html: string): boolean => {
   return false
 }
 
-const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
-  const readOnline = dom.document.querySelectorAll(
-    'table tr td div a[class*="link"]'
-  )
+const beehiivNewsletterHref = (dom: Document): string | undefined => {
+  const readOnline = dom.querySelectorAll('table tr td div a[class*="link"]')
   let res: string | undefined = undefined
   readOnline.forEach((e) => {
     if (e.textContent === 'Read Online') {
@@ -464,15 +458,15 @@ const beehiivNewsletterHref = (dom: DOMWindow): string | undefined => {
   return res
 }
 
-const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
+const findNewsletterHeaderHref = (dom: Document): string | undefined => {
   // Substack header links
-  const postLink = dom.document.querySelector('h1 a ')
+  const postLink = dom.querySelector('h1 a ')
   if (postLink) {
     return postLink.getAttribute('href') || undefined
   }
 
   // Check if this is a beehiiv.net newsletter
-  const beehiiv = beehiivNewsletterHref(dom.window)
+  const beehiiv = beehiivNewsletterHref(dom)
   if (beehiiv) {
     return beehiiv
   }
@@ -485,10 +479,10 @@ const findNewsletterHeaderHref = (dom: DOMWindow): string | undefined => {
 export const findNewsletterUrl = async (
   html: string
 ): Promise<string | undefined> => {
-  const dom = new JSDOM(html).window
+  const dom = parseHTML(html).document
 
   // Check if this is a substack newsletter
-  const href = findNewsletterHeaderHref(dom.window)
+  const href = findNewsletterHeaderHref(dom)
   if (href) {
     // Try to make a HEAD request so we get the redirected URL, since these
     // will usually be behind tracking url redirects

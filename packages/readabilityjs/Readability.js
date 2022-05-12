@@ -99,6 +99,8 @@ function Readability(doc, options) {
     return el.innerHTML;
   };
   this._disableJSONLD = !!options.disableJSONLD;
+  this._baseURI = options.url || this._doc.baseURI;
+  this._documentURI = options.url || this._doc.documentURI;
 
   // Start with all flags set
   this._flags = this.FLAG_STRIP_UNLIKELYS |
@@ -435,8 +437,8 @@ Readability.prototype = {
   },
 
   toAbsoluteURI: function (uri) {
-    var baseURI = this._doc.baseURI;
-    var documentURI = this._doc.documentURI;
+    var baseURI = this._baseURI;
+    var documentURI = this._documentURI;
 
     // Leave hash links alone if the base URI matches the document URI:
     if (baseURI === documentURI && uri.charAt(0) === "#") {
@@ -474,8 +476,8 @@ Readability.prototype = {
           } else {
             // if the link has multiple children, they should all be preserved
             var container = this._doc.createElement("span");
-            while (link.childNodes.length > 0) {
-              container.appendChild(link.childNodes[0]);
+            while (link.firstChild) {
+              container.appendChild(link.firstChild);
             }
             link.parentNode.replaceChild(container, link);
           }
@@ -1349,10 +1351,9 @@ Readability.prototype = {
         neededToCreateTopCandidate = true;
         // Move everything (not just elements, also text nodes etc.) into the container
         // so we even include text directly in the body:
-        var kids = page.childNodes;
-        while (kids.length) {
-          this.log("Moving child out:", kids[0]);
-          topCandidate.appendChild(kids[0]);
+        while (page.firstChild) {
+          this.log("Moving child out:", page.firstChild);
+          topCandidate.appendChild(page.firstChild);
         }
 
         page.appendChild(topCandidate);
@@ -1494,6 +1495,9 @@ Readability.prototype = {
           }
 
           articleContent.appendChild(sibling);
+          // Fetch children again to make it compatible
+          // with DOM parsers without live collection support.
+          siblings = parentOfTopCandidate.children;
           // siblings is a reference to the children array, and
           // sibling is removed from the array when we call appendChild().
           // As a result, we must revisit this index since the nodes
@@ -1540,9 +1544,8 @@ Readability.prototype = {
         var div = doc.createElement("DIV");
         div.id = "readability-page-1";
         div.className = "page";
-        var children = articleContent.childNodes;
-        while (children.length) {
-          div.appendChild(children[0]);
+        while (articleContent.firstChild) {
+          div.appendChild(articleContent.firstChild);
         }
         articleContent.appendChild(div);
       }
@@ -1827,7 +1830,7 @@ Readability.prototype = {
             }
             try {
               // allow relative URLs
-              new URL(content.trim(), new URL(this._doc.baseURI).origin);
+              new URL(content.trim(), new URL(this._baseURI).origin);
             } catch (error) {
               return;
             }
@@ -1932,7 +1935,7 @@ Readability.prototype = {
     if (metadata.previewImage) {
       // convert any relative URL path to absolute URL
       try {
-        metadata.previewImage = new URL(metadata.previewImage, new URL(this._doc.baseURI).origin).href;
+        metadata.previewImage = new URL(metadata.previewImage, new URL(this._baseURI).origin).href;
       } catch {
         delete metadata.previewImage;
       }
@@ -2257,8 +2260,8 @@ Readability.prototype = {
       }
 
       // Create instagram posts placeholders from iframes
-      if (element.src && element.src.includes('instagram.com/p')) {
-        const url = element.src;
+      if (element.getAttribute('src')?.includes('instagram.com/p')) {
+        const url = element.getAttribute('src');
         const regex = /https?:\/\/(www\.)?instagram.com\/p\/(\w+)\//gm;
         const match = regex.exec(url);
 
@@ -2285,7 +2288,7 @@ Readability.prototype = {
       return false;
     }
 
-    const classes = this.EMBEDS_CLASSES.reduce((res, cur) => `${res},.${cur}`, '');
+    const classes = this.EMBEDS_CLASSES.reduce((res, cur, i) => `${i > 0 && (res + ',')}.${cur}`, '');
 
     const candidates = element.querySelector(classes);
     return !!candidates;

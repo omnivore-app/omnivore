@@ -2,7 +2,6 @@ var debug = false;
 
 var path = require("path");
 var fs = require("fs");
-var JSDOM = require("jsdom").JSDOM;
 var prettyPrint = require("./utils").prettyPrint;
 var htmltidy = require("htmltidy2").tidy;
 
@@ -10,6 +9,7 @@ var { Readability, isProbablyReaderable } = require("../index");
 var JSDOMParser = require("../JSDOMParser");
 const { generate: generateRandomUA } = require("modern-random-ua/random_ua");
 const puppeteer = require('puppeteer');
+const { parseHTML } = require("linkedom");
 
 var testcaseRoot = path.join(__dirname, "test-pages");
 
@@ -173,7 +173,7 @@ async function fetchSource(url, callbackFn) {
 }
 
 function sanitizeSource(html, callbackFn) {
-  htmltidy(new JSDOM(html).serialize(), {
+  htmltidy(parseHTML(html).serialize(), {
     "indent": true,
     "indent-spaces": 4,
     "numeric-entities": true,
@@ -210,14 +210,12 @@ function runReadability(source, destPath, metadataDestPath) {
   var myReader, result, readerable;
   try {
     // Use jsdom for isProbablyReaderable because it supports querySelectorAll
-    var jsdom = new JSDOM(source, {
-      url: uri,
-    }).window.document;
+    var jsdom = parseHTML(source).document;
+    readerable = isProbablyReaderable(jsdom);
     // We pass `caption` as a class to check that passing in extra classes works,
     // given that it appears in some of the test documents.
-    myReader = new Readability(jsdom, { classesToPreserve: ["caption"]});
+    myReader = new Readability(jsdom, { classesToPreserve: ["caption"], url: uri });
     result = myReader.parse();
-    readerable = isProbablyReaderable(jsdom);
   } catch (ex) {
     console.error(ex);
     ex.stack.forEach(console.log.bind(console));
@@ -237,6 +235,7 @@ function runReadability(source, destPath, metadataDestPath) {
     delete result.content;
     delete result.textContent;
     delete result.length;
+    delete result.dom;
 
     // Add isProbablyReaderable result
     result.readerable = readerable;
