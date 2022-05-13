@@ -173,7 +173,7 @@ async function fetchSource(url, callbackFn) {
 }
 
 function sanitizeSource(html, callbackFn) {
-  htmltidy(parseHTML(html).serialize(), {
+  htmltidy(html, {
     "indent": true,
     "indent-spaces": 4,
     "numeric-entities": true,
