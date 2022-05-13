@@ -278,9 +278,9 @@ export const updateLabelResolver = authorized<
       }
     }
 
-    const label = await getRepository(Label).findOne({
-      where: { id: labelId },
-      relations: ['user'],
+    const label = await getRepository(Label).findOneBy({
+      id: labelId,
+      user: { id: uid },
     })
     if (!label) {
       return {
@@ -297,14 +297,12 @@ export const updateLabelResolver = authorized<
 
     const result = await AppDataSource.transaction(async (t) => {
       await setClaims(t, uid)
-      return t.getRepository(Label).update(
-        { id: labelId },
-        {
-          name: name,
-          description: description || undefined,
-          color: color,
-        }
-      )
+      label.name = name
+      label.color = color
+      label.description = description || undefined
+      label.createdAt = new Date()
+
+      return t.getRepository(Label).update({ id: labelId }, label)
     })
 
     if (!result.affected) {
@@ -314,7 +312,7 @@ export const updateLabelResolver = authorized<
       }
     }
 
-    return { label: label }
+    return { label }
   } catch (error) {
     log.error('error updating label', error)
     return {
