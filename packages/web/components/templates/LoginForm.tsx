@@ -8,7 +8,6 @@ import {
   appleAuthRedirectURI,
 } from '../../lib/appConfig'
 import AppleLogin from 'react-apple-login'
-import { formatMessage } from '../../locales/en/messages'
 
 export type LoginFormProps = {
   errorMessage?: string
