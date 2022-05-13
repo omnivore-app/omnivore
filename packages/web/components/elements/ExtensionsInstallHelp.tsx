@@ -128,22 +128,6 @@ export default function ExtensionsInstallHelp({
           },
         }}
       >
-        <Link passHref href="/help/saving-links">
-          <StyledAnchor
-            css={{
-              fontWeight: '600',
-              fontSize: '12px',
-              lineHeight: '18px',
-              textAlign: 'right',
-              color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
-              '@lg': {
-                display: 'none',
-              },
-            }}
-          >
-            Learn more
-          </StyledAnchor>
-        </Link>
         <StyledText
           as={'h3'}
           css={{
@@ -193,14 +177,10 @@ export default function ExtensionsInstallHelp({
                 color: '$grayTextContrast',
                 fontSize: '14px',
                 fontWeight: 600,
-                display: 'none',
-                '@lg': {
-                  display: 'initial',
-                  textDecoration: 'underline',
-                },
+                textDecoration: 'underline',
               }}
             >
-              Learn more about the browser extension here.
+              Learn more about the browser extension -&gt;
             </StyledAnchor>
           </Link>
         )}
@@ -214,6 +194,7 @@ export default function ExtensionsInstallHelp({
           width: '100%',
           justifyContent: 'space-between',
           flexDirection: 'row',
+          mt: '10px',
           '@lg': {
             gridColumn: '3',
             gridRow: '1',
@@ -292,7 +273,7 @@ export default function ExtensionsInstallHelp({
             height: 'min-content',
             textDecoration: 'none',
             width: !onboarding ? '100%' : '210px',
-            color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
+            color: 'rgba(10, 8, 6, 0.8)',
             textAlign: 'center',
             '@lgDown': {
               width: '27vw',
