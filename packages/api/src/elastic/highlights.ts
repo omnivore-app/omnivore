@@ -289,13 +289,6 @@ export const updateHighlight = async (
 
     return true
   } catch (e) {
-    if (
-      e instanceof ResponseError &&
-      e.message === 'document_missing_exception'
-    ) {
-      console.log('page has been deleted')
-      return false
-    }
     console.error('failed to update highlight in elastic', e)
     return false
   }
