@@ -23,7 +23,6 @@ import { env } from '../../env'
 import { ReminderData } from '../../datalayer/reminders/model'
 import { DataModels } from '../types'
 import { DateTime } from 'luxon'
-import { ArticleSavingRequestData } from '../../datalayer/article_saving_request/model'
 import { setLinkArchived } from '../../services/archive_link'
 import { getPageById } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
@@ -47,12 +46,7 @@ export const createReminderResolver = authorized<
 >(async (_, { input }, { models, claims: { uid }, log }) => {
   log.info('createReminderResolver')
 
-  const {
-    clientRequestId,
-    linkId: articleId,
-    archiveUntil,
-    sendNotification,
-  } = input
+  const { clientRequestId, linkId, archiveUntil, sendNotification } = input
 
   const scheduledTime = validScheduleTime(input.remindAt)
   if (!scheduledTime) {
@@ -62,7 +56,8 @@ export const createReminderResolver = authorized<
     }
   }
 
-  if ((!clientRequestId && !articleId) || (clientRequestId && articleId)) {
+  const pageId = linkId || clientRequestId
+  if (!pageId) {
     log.error('client request id or link id is required')
     return {
       errorCodes: [CreateReminderErrorCode.BadRequest],
@@ -77,56 +72,31 @@ export const createReminderResolver = authorized<
       remindAt: scheduledTime,
       archiveUntil,
       sendNotification,
-      linkId: articleId,
+      linkId,
       env: env.server.apiEnv,
     },
   })
 
-  let linkId = ''
-  let articleSavingRequestId = ''
-
   try {
-    if (articleId) {
-      // saving from web
-      const page = await getPageById(articleId)
-      if (!page) {
-        log.error('page not found', articleId)
+    // saving from web
+    const page = await getPageById(pageId)
+    if (!page) {
+      log.error('page not found', pageId)
 
-        return {
-          errorCodes: [CreateReminderErrorCode.NotFound],
-        }
-      }
-
-      if (page.userId !== uid) {
-        log.error('user not authorized', uid)
-
-        return {
-          errorCodes: [CreateReminderErrorCode.Unauthorized],
-        }
-      }
-      linkId = page.id
-      if (archiveUntil) {
-        await archiveLinkOrRequest(uid, page, undefined)
+      return {
+        errorCodes: [CreateReminderErrorCode.NotFound],
       }
     }
 
-    if (clientRequestId) {
-      // saving from ios
-      const articleSavingRequest = await models.articleSavingRequest.get(
-        clientRequestId
-      )
-      if (!articleSavingRequest) {
-        log.error('articleSavingRequest not found', clientRequestId)
+    if (page.userId !== uid) {
+      log.error('user not authorized', uid)
 
-        return {
-          errorCodes: [CreateReminderErrorCode.NotFound],
-        }
+      return {
+        errorCodes: [CreateReminderErrorCode.Unauthorized],
       }
-
-      articleSavingRequestId = articleSavingRequest.id
-      if (articleSavingRequest.articleId) {
-        await archiveLinkOrRequest(uid, undefined, articleSavingRequest)
-      }
+    }
+    if (archiveUntil) {
+      await archivePage(uid, page)
     }
 
     const taskName = await groupReminders(scheduledTime, uid, models)
@@ -135,15 +105,12 @@ export const createReminderResolver = authorized<
     // insert reminder to db
     const reminder = await models.reminder.create({
       userId: uid,
-      articleSavingRequestId: articleSavingRequestId
-        ? articleSavingRequestId
-        : undefined,
       taskName: taskName,
       archiveUntil: archiveUntil,
       sendNotification: sendNotification,
       createdAt: new Date(),
       remindAt: scheduledTime,
-      elasticPageId: linkId,
+      elasticPageId: pageId,
     })
     console.log('created reminder', reminder)
 
@@ -168,23 +135,11 @@ export const createReminderResolver = authorized<
 // It is possible that the link has not been created
 // yet if it is still in the saving process. In that
 // case it will be archived when the link is created.
-const archiveLinkOrRequest = async (
-  uid: string,
-  page: Page | undefined,
-  request: ArticleSavingRequestData | undefined
-) => {
-  let target: Page | undefined = page || undefined
-  if (!page && request && request.articleId) {
-    // this linkId is actually an article.id
-    target = (await getPageById(request.articleId)) || undefined
-  }
-  console.log('archiving target', target)
-  if (target) {
-    try {
-      await setLinkArchived(uid, target.id, true)
-    } catch (e) {
-      console.log('error archiving link', e)
-    }
+const archivePage = async (uid: string, page: Page) => {
+  try {
+    await setLinkArchived(uid, page.id, true)
+  } catch (e) {
+    console.log('error archiving link', e)
   }
 }
 
