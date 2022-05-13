@@ -5,8 +5,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const axios = require('axios');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+const { parseHTML } = require('linkedom');
 
 exports.derstandardHandler = {
   shouldPrehandle: (url, env) => {
@@ -23,10 +22,14 @@ exports.derstandardHandler = {
     });
     const content = response.data;
 
-    const dom = new JSDOM(content)
-    const titleElement = dom.window.document.querySelector('.article-title')
-    titleElement?.remove()
+    var title = undefined;
+    const dom = parseHTML(content).document;
+    const titleElement = dom.querySelector('.article-title')
+    if (!titleElement) {
+      title = titleElement.textContent
+      titleElement.remove()
+    }
 
-    return { content: dom.window.document.body.outerHTML, title: titleElement?.textContent };
+    return { content: dom.body.outerHTML, title: title };
   }
 }

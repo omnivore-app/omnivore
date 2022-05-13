@@ -409,8 +409,8 @@ export const parseUrlMetadata = async (
 // as a utility method on each one.
 export const isProbablyNewsletter = (html: string): boolean => {
   const dom = parseHTML(html).document
-  const domCopy = parseHTML(dom.documentElement.outerHTML)
-  const article = new Readability(domCopy.document, {
+  const domCopy = parseHTML(dom.documentElement.outerHTML).document
+  const article = new Readability(domCopy, {
     debug: false,
     keepTables: true,
   }).parse()

@@ -6,8 +6,6 @@
 require('dotenv').config();
 const axios = require('axios');
 const os = require('os');
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
 
 exports.mediumHandler = {
 

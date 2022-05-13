@@ -4,18 +4,14 @@
   "description": "Service that fetches page content from a URL",
   "main": "index.js",
   "dependencies": {
-    "@cliqz/adblocker-puppeteer": "^1.23.7",
-    "ad-block-js": "^0.0.2",
     "axios": "^0.26.0",
     "dotenv": "^8.2.0",
-    "chrome-aws-lambda": "^10.1.0",
     "express": "^4.17.1",
-    "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
+    "linkedom": "^0.14.9",
     "luxon": "^2.3.1",
     "puppeteer-core": "^13.7.0",
     "puppeteer-extra": "^3.2.3",
-    "puppeteer-extra-plugin-adblocker": "^2.12.0",
     "puppeteer-extra-plugin-stealth": "^2.9.0"
   },
   "scripts": {
