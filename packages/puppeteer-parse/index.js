@@ -665,7 +665,7 @@ async function retrievePage(url) {
   await page.setRequestInterception(true);
   let requestCount = 0;
   page.on('request', request => {
-    if (['font', 'image', 'stylesheet', 'script', 'media'].includes(request.resourceType())) {
+    if (['font', 'image', 'script'].includes(request.resourceType())) {
       request.abort();
       return;
     }
