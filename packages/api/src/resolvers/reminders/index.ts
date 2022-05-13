@@ -20,7 +20,6 @@ import {
 import { deleteTask, enqueueReminder } from '../../utils/createTask'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { ReminderData } from '../../datalayer/reminders/model'
 import { DataModels } from '../types'
 import { DateTime } from 'luxon'
 import { setLinkArchived } from '../../services/archive_link'
@@ -147,50 +146,33 @@ export const reminderResolver = authorized<
   ReminderSuccess,
   ReminderError,
   QueryReminderArgs
->(async (_, { linkId: articleId }, { models, claims: { uid }, log }) => {
+>(async (_, { linkId: pageId }, { models, claims: { uid }, log }) => {
   log.info('reminderResolver')
 
   analytics.track({
     userId: uid,
     event: 'reminder',
     properties: {
-      linkId: articleId,
+      linkId: pageId,
       env: env.server.apiEnv,
     },
   })
 
   try {
-    let reminder: ReminderData | null
     // get page from articleId
-    const page = await getPageById(articleId)
+    const page = await getPageById(pageId)
     if (!page) {
-      // link may not be saved yet
-      // check savingArticleRequest table
-      const articleSavingRequest =
-        await models.articleSavingRequest.getByUserIdAndArticleId(
-          uid,
-          articleId
-        )
-
-      if (!articleSavingRequest) {
-        log.error('reminder not found:', articleId)
-
-        return {
-          errorCodes: [ReminderErrorCode.NotFound],
-        }
+      return {
+        errorCodes: [ReminderErrorCode.NotFound],
       }
-
-      reminder = await models.reminder.getCreatedByParameters(uid, {
-        articleSavingRequestId: articleSavingRequest.id,
-      })
-    } else {
-      reminder = await models.reminder.getCreatedByParameters(uid, {
-        elasticPageId: page.id,
-      })
     }
 
+    const reminder = await models.reminder.getCreatedByParameters(uid, {
+      elasticPageId: page.id,
+    })
+
     if (!reminder) {
-      log.error('reminder not found:', articleId)
+      log.error('reminder not found: pageId: ', pageId)
 
       return {
         errorCodes: [ReminderErrorCode.NotFound],
