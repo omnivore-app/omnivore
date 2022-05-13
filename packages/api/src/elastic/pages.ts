@@ -21,6 +21,7 @@ import {
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -237,6 +238,13 @@ export const updatePage = async (
 
     return true
   } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('page has been deleted', id)
+      return false
+    }
     console.error('failed to update a page in elastic', e)
     return false
   }
@@ -259,6 +267,13 @@ export const deletePage = async (
 
     return true
   } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('page has been deleted', id)
+      return false
+    }
     console.error('failed to delete a page in elastic', e)
     return false
   }
@@ -300,7 +315,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.error('failed to search pages in elastic', e)
+    console.error('failed to get pages by param in elastic', e)
     return undefined
   }
 }
@@ -317,7 +332,11 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
       id: body._id as string,
     } as Page
   } catch (e) {
-    console.error('failed to search pages in elastic', e)
+    if (e instanceof ResponseError && e.statusCode === 404) {
+      console.log('page has been deleted', id)
+      return undefined
+    }
+    console.error('failed to get page by id in elastic', e)
     return undefined
   }
 }

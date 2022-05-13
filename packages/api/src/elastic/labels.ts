@@ -1,6 +1,7 @@
 import { Label, PageContext } from './types'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
+import { ResponseError } from '@elastic/elasticsearch/lib/errors'
 
 export const addLabelInPage = async (
   pageId: string,
@@ -38,6 +39,13 @@ export const addLabelInPage = async (
 
     return true
   } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('page has been deleted', pageId)
+      return false
+    }
     console.error('failed to add a label in elastic', e)
     return false
   }
@@ -74,6 +82,13 @@ export const updateLabelsInPage = async (
 
     return true
   } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('page has been deleted', pageId)
+      return false
+    }
     console.error('failed to update labels in elastic', e)
     return false
   }
