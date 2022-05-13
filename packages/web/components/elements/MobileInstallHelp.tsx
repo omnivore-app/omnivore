@@ -100,22 +100,6 @@ export default function MobileInstallHelp({
           },
         }}
       >
-        <Link passHref href="/help/saving-links">
-          <StyledAnchor
-            css={{
-              fontWeight: '600',
-              fontSize: '12px',
-              lineHeight: '18px',
-              textAlign: 'right',
-              color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
-              '@lg': {
-                display: 'none',
-              },
-            }}
-          >
-            Learn more
-          </StyledAnchor>
-        </Link>
         <StyledText
           as={'h3'}
           css={{
@@ -131,7 +115,7 @@ export default function MobileInstallHelp({
             },
           }}
         >
-          Install Omnivore for iOS
+          Install Omnivore iOS
         </StyledText>
       </Box>
       <StyledText
@@ -166,14 +150,10 @@ export default function MobileInstallHelp({
                 color: '$grayTextContrast',
                 fontSize: '14px',
                 fontWeight: 600,
-                display: 'none',
-                '@lg': {
-                  display: 'initial',
-                  textDecoration: 'underline',
-                },
+                textDecoration: 'underline',
               }}
             >
-              Learn more about the share extension here.
+              Learn more about the iOS app -&gt;
             </StyledAnchor>
           </Link>
         )}
@@ -186,7 +166,7 @@ export default function MobileInstallHelp({
           alignItems: 'center',
           gridColumn: '1 / span 2',
           justifyContent: !onboarding ? 'space-between' : 'center',
-          mt: !onboarding ? 'inherit' : 10,
+          mt: '10px',
           '@lg': {
             flexDirection: !onboarding ? 'row-reverse' : 'column-reverse',
             alignItems: !onboarding ? 'center' : 'flex-end',

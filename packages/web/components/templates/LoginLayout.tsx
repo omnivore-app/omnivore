@@ -1,14 +1,8 @@
 import { Box, HStack, MediumBreakpointBox, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { LoginForm } from './LoginForm'
 import type { LoginFormProps } from './LoginForm'
-import Image from 'next/image'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
-import Link from 'next/link'
-import { Star } from 'phosphor-react'
-import { Button } from '../elements/Button'
-import { googleID } from '../../lib/appConfig'
-import { useEffect, useState } from 'react'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
   return (
@@ -64,8 +58,9 @@ function MediumLoginLayout(props: LoginFormProps) {
       alignment="center"
       distribution="start"
       css={{
-        height: '100vh',
         width: '100vw',
+        height: '100%',
+        minHeight: '100vh',
         bg: '$omnivoreYellow',
         overflowY: 'clip'
       }}

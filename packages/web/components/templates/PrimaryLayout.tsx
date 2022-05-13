@@ -75,7 +75,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           hideHeader={props.hideHeader}
           userInitials={viewerData?.me?.name.charAt(0) ?? ''}
           profileImageURL={viewerData?.me?.profile.pictureUrl}
-          isFixedPosition={true}
+          isTransparent={true}
           scrollElementRef={props.scrollElementRef}
           toolbarControl={props.headerToolbarControl}
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
