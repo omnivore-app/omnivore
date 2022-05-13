@@ -22,11 +22,11 @@ exports.mediumHandler = {
     console.log('prehandling medium url', url)
 
     try {
-      const res = new URL('https://example.org:81/foo');
-      myURL.searchParams.delete('source');
+      const res = new URL(url);
+      res.searchParams.delete('source');
       return { url: res }
     } catch (error) {
-      console.error('error prehandling bloomberg url', error)
+      console.error('error prehandling medium url', error)
       throw error
     }
   }
