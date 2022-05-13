@@ -553,4 +553,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Search'),
   ...resultResolveTypeResolver('Subscriptions'),
   ...resultResolveTypeResolver('Unsubscribe'),
+  ...resultResolveTypeResolver('UpdateLabel'),
 }
