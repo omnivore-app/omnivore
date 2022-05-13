@@ -89,7 +89,7 @@ class ReminderModel extends DataModel<ReminderData, CreateSet, UpdateSet> {
   ): Promise<ReminderData | null> {
     const row: ReminderData = await tx(this.tableName)
       .select()
-      .where({ userId, articleSavingRequestId: requestId })
+      .where({ userId, elasticPageId: requestId })
       .first(this.modelKeys)
 
     if (!row) return null
