@@ -1,6 +1,4 @@
-import Link from 'next/link'
-import { HStack, VStack, Box } from '../elements/LayoutPrimitives'
-import { StyledText } from '../elements/StyledText'
+import { Box } from '../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { PrimaryHeader } from '../patterns/PrimaryHeader'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -46,7 +44,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       <PageMetaData path='settings' title='Settings' />
         <PrimaryHeader
           user={viewerData?.me}
-          isFixedPosition={false}
+          isTransparent={false}
           userInitials={viewerData?.me?.name.charAt(0) ?? ''}
           profileImageURL={viewerData?.me?.profile.pictureUrl}
           setShowLogoutConfirmation={setShowLogoutConfirmation}

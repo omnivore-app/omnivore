@@ -14,15 +14,13 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
-import { Button } from '../elements/Button'
-import Link from 'next/link'
 
 type HeaderProps = {
   user?: UserBasicData
   userInitials: string
   hideHeader?: boolean
   profileImageURL?: string
-  isFixedPosition: boolean
+  isTransparent: boolean
   scrollElementRef?: React.RefObject<HTMLDivElement>
   toolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
@@ -125,11 +123,10 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     <>
       <NavHeader
         {...props}
+        isVisible={true}
         username={props.user?.profile.username}
         actionHandler={headerDropdownActionHandler}
         isDisplayingShadow={isScrolled}
-        isVisible={true}
-        isFixedPosition={true}
         toolbarControl={props.toolbarControl}
         alwaysDisplayToolbar={props.alwaysDisplayToolbar}
       />
@@ -145,7 +142,7 @@ type NavHeaderProps = {
   profileImageURL?: string
   isDisplayingShadow?: boolean
   isVisible?: boolean
-  isFixedPosition: boolean
+  isTransparent: boolean
   toolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
 }
@@ -166,7 +163,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           p: '0px $3 0px $3',
           height: '48px',
           position: 'fixed',
-          bg: 'transparent',
+          bg: props.isTransparent ? 'transparent' : '$grayBase',
           '@smDown': {
             p: '0px 18px 0px 16px',
           },
