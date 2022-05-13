@@ -4,18 +4,18 @@ import { initModels } from '../../server'
 import { kx } from '../../datalayer/knex_config'
 import { setClaims } from '../../datalayer/helpers'
 import { sendEmail } from '../../utils/sendEmail'
-import { ArticleData } from '../../datalayer/article/model'
 import { env, homePageURL } from '../../env'
-import { ReminderData } from '../../datalayer/reminders/model'
-import { UserArticleData } from '../../datalayer/links/model'
 import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
 import { MulticastMessage } from 'firebase-admin/messaging'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { ContentReader } from '../../generated/graphql'
 import { DataModels } from '../../resolvers/types'
+import { updatePage } from '../../elastic/pages'
+import { createPubSubClient } from '../../datalayer/pubsub'
+import { getPagesWithReminder, PageReminder } from '../../services/reminders'
 
-type Article = {
+interface PageToNotify {
   title: string
   url: string
   byline: string | undefined | null
@@ -61,25 +61,24 @@ export function remindersServiceRouter() {
         return
       }
 
-      const reminders = await models.reminder.getByUserAndRemindAt(
-        userId,
-        remindAt
-      )
+      const pageReminders = await getPagesWithReminder(userId, remindAt)
 
-      if (!reminders) {
-        console.log('reminders not found', userId, scheduleTime)
+      if (!pageReminders) {
+        console.log('pages with reminders not found', userId, scheduleTime)
         res.status(200).send('Reminders Not Found')
         return
       }
 
-      console.log('reminders:', reminders)
+      console.log('page with reminders:', pageReminders)
 
-      const [articlesToNotify, linkIdsToUnarchive] =
-        getArticlesToNotifyAndUnarchive(reminders, user.profile.username)
+      const [pagesToNotify, pagesToUnarchive] = getPagesToNotifyAndUnarchive(
+        pageReminders,
+        user.profile.username
+      )
 
       // If none of the fetch reminders have sendNotification
       // set to true, then we should not send an email or notification
-      if (articlesToNotify.length > 0) {
+      if (pagesToNotify.length > 0) {
         // we have configured Sendgrid to send a template
         if (!process.env.SENDGRID_REMINDER_TEMPLATE_ID) {
           console.log('Sendgrid reminder email template_id not set')
@@ -87,7 +86,7 @@ export function remindersServiceRouter() {
           await updateRemindersStatus(
             models,
             userId,
-            linkIdsToUnarchive,
+            pagesToUnarchive,
             remindAt
           )
           res.status(200).send('Template Id Not Found')
@@ -96,8 +95,8 @@ export function remindersServiceRouter() {
 
         const dynamicTemplateData = {
           subject: `Omnivore Reminder Service`,
-          title: `Hey ${user.name}, you have ${articlesToNotify.length} article(s) to read on Omnivore`,
-          articles: articlesToNotify,
+          title: `Hey ${user.name}, you have ${pagesToNotify.length} article(s) to read on Omnivore`,
+          articles: pagesToNotify,
         }
 
         console.log('dynamic template data:', dynamicTemplateData)
@@ -112,7 +111,7 @@ export function remindersServiceRouter() {
         // send push notifications
         const deviceTokens = await getDeviceTokensByUserId(userId)
         if (deviceTokens && deviceTokens.length > 0) {
-          const message = messageForLinks(reminders, deviceTokens)
+          const message = messageForPages(pageReminders, deviceTokens)
           await sendMulticastPushNotifications(userId, message, 'reminder')
         }
 
@@ -124,7 +123,7 @@ export function remindersServiceRouter() {
         }
       }
 
-      await updateRemindersStatus(models, userId, linkIdsToUnarchive, remindAt)
+      await updateRemindersStatus(models, userId, pagesToUnarchive, remindAt)
       res.status(200).send('Reminders triggered')
     } catch (e) {
       console.log(e)
@@ -135,55 +134,55 @@ export function remindersServiceRouter() {
   return router
 }
 
-const getArticlesToNotifyAndUnarchive = (
-  reminders: (ReminderData & ArticleData & UserArticleData)[],
+const getPagesToNotifyAndUnarchive = (
+  pageReminders: PageReminder[],
   username: string
-): [articles: Article[], linkIds: string[]] => {
-  const linkIds: string[] = []
-  const articles: Article[] = []
-  reminders.forEach((reminder) => {
-    linkIds.push(reminder.id)
+): [pages: PageToNotify[], linkIds: string[]] => {
+  const pageIds: string[] = []
+  const pages: PageToNotify[] = []
+  pageReminders.forEach((pageReminder) => {
+    pageIds.push(pageReminder.pageId)
 
-    reminder.sendNotification &&
-      articles.push({
-        url: `${homePageURL()}/${username}/${reminder.slug}`,
-        title: reminder.title,
-        description: reminder.description,
-        byline: reminder.author,
-        image: reminder.image,
+    pageReminder.sendNotification &&
+      pages.push({
+        url: `${homePageURL()}/${username}/${pageReminder.slug}`,
+        title: pageReminder.title,
+        description: pageReminder.description,
+        byline: pageReminder.author,
+        image: pageReminder.image,
       })
   })
 
-  return [articles, linkIds]
+  return [pages, pageIds]
 }
 
-const messageForLinks = (
-  reminders: (ReminderData & ArticleData & UserArticleData)[],
+const messageForPages = (
+  pageReminders: PageReminder[],
   deviceTokens: UserDeviceToken[]
 ): MulticastMessage => {
-  const links = reminders.filter((reminder) => reminder.sendNotification)
+  const pages = pageReminders.filter((reminder) => reminder.sendNotification)
 
   // If the user only has one reminder triggered we send a deep
   // link to that link.
-  if (links.length === 1) {
-    const link = links[0]
+  if (pages.length === 1) {
+    const page = pages[0]
     let title = 'Snoozed: You have one snoozed article to read on Omnivore'
 
-    if (link.author) {
-      title = `'Snoozed: From ${link.author}`
+    if (page.author) {
+      title = `'Snoozed: From ${page.author}`
     }
 
-    const pushData = !link
+    const pushData = !page
       ? undefined
       : {
           link: Buffer.from(
             JSON.stringify({
-              id: link.articleId,
-              url: link.url,
-              slug: link.slug,
-              title: link.title,
-              image: link.image,
-              author: link.author,
+              id: page.pageId,
+              url: page.url,
+              slug: page.slug,
+              title: page.title,
+              image: page.image,
+              author: page.author,
               isArchived: false,
               contentReader: ContentReader.Web,
               readingProgressPercent: 0,
@@ -194,18 +193,18 @@ const messageForLinks = (
 
     return {
       notification: {
-        title: title,
-        body: link.title,
-        imageUrl: link.image || undefined,
+        title,
+        body: page.title,
+        imageUrl: page.image || undefined,
       },
       data: pushData,
       tokens: deviceTokens.map((token) => token.token),
     }
   }
 
-  const title = `Snoozed: You have ${links.length} articles to read.`
+  const title = `Snoozed: You have ${pages.length} articles to read.`
   let description = 'Read them now.'
-  const allBylines = links.map((link) => link.author).filter((byline) => byline)
+  const allBylines = pages.map((page) => page.author).filter((byline) => byline)
   const bylines = [...new Set(allBylines)].splice(0, 5)
   if (bylines.length > 0) {
     description = 'From ' + bylines.map((byline) => byline).join(', ')
@@ -223,23 +222,28 @@ const messageForLinks = (
 const updateRemindersStatus = async (
   models: DataModels,
   userId: string,
-  linkIdsToUnarchive: string[],
+  pagesToUnarchive: string[],
   remindAt: Date
 ): Promise<void> => {
-  // db update
-  await kx.transaction(async (tx) => {
-    await setClaims(tx, userId)
-    // Unarchive all the links and updated saved_at to now, so they
-    // appear at the top of the user's list.
-    await models.userArticle.updateByIds(
-      linkIdsToUnarchive,
+  // Unarchive all the links and updated saved_at to now, so they
+  // appear at the top of the user's list.
+  for (const pageId of pagesToUnarchive) {
+    await updatePage(
+      pageId,
       {
         savedAt: new Date(),
         archivedAt: null,
       },
-      tx
+      {
+        pubsub: createPubSubClient(),
+        uid: userId,
+      }
     )
+  }
 
+  // db update
+  await kx.transaction(async (tx) => {
+    await setClaims(tx, userId)
     await models.reminder.setRemindersComplete(userId, remindAt, tx)
   })
 }
