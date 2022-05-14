@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Url = require('url');
+const chromium = require('chrome-aws-lambda');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -124,34 +125,10 @@ const userAgentForUrl = (url) => {
 // launch Puppeteer
 const getBrowserPromise = (async () => {
   return puppeteer.launch({
-    args: [
-      '--allow-running-insecure-content',
-      '--autoplay-policy=user-gesture-required',
-      '--disable-component-update',
-      '--disable-domain-reliability',
-      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-      '--disable-print-preview',
-      '--disable-setuid-sandbox',
-      '--disable-site-isolation-trials',
-      '--disable-speech-api',
-      '--disable-web-security',
-      '--disk-cache-size=33554432',
-      '--enable-features=SharedArrayBuffer',
-      '--hide-scrollbars',
-      '--ignore-gpu-blocklist',
-      '--in-process-gpu',
-      '--mute-audio',
-      '--no-default-browser-check',
-      '--no-pings',
-      '--no-sandbox',
-      '--no-zygote',
-      '--use-gl=swiftshader',
-      '--window-size=1920,1080', // https://source.chromium.org/search?q=lang:cpp+symbol:kWindowSize&ss=chromium
-      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
-    ],
+    args: chromium.args,
     defaultViewport: { height: 1080, width: 1920 },
-    executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.LAUNCH_HEADLESS,
+    executablePath: process.env.CHROMIUM_PATH || (await chromium.executablePath),
+    headless: process.env.LAUNCH_HEADLESS ? true : chromium.headless,
     timeout: 0,
     userDataDir: '/tmp/puppeteer',
   });
