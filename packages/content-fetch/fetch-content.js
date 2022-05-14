@@ -72,11 +72,10 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080', // https://source.chromium.org/search?q=lang:cpp+symbol:kWindowSize&ss=chromium
-      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
     ],
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
-    headless: !!process.env.LAUNCH_HEADLESS,
+    headless: true,
     timeout: 0,
     userDataDir: '/tmp/puppeteer',
   });
