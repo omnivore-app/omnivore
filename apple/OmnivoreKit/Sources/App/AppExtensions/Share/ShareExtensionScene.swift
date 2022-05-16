@@ -84,8 +84,10 @@ final class ShareExtensionViewModel: ObservableObject {
       let hasConnectionAndValidToken = await services.dataService.hasConnectionAndValidToken()
 
       if !hasConnectionAndValidToken {
-        debugText = "saveArticleError: No connection or invalid token."
-        status = .failed(error: .unknown(description: ""))
+        DispatchQueue.main.async {
+          self.debugText = "saveArticleError: No connection or invalid token."
+          self.status = .failed(error: .unknown(description: ""))
+        }
       }
     }
   }
