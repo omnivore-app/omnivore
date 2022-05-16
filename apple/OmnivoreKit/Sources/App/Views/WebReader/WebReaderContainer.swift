@@ -107,7 +107,7 @@ import WebKit
               )
               Button(
                 action: { shareActionID = UUID() },
-                label: { Label("Share", systemImage: "square.and.arrow.up") }
+                label: { Label("Share Original", systemImage: "square.and.arrow.up") }
               )
               Button(
                 action: { showDeleteConfirmation = true },
