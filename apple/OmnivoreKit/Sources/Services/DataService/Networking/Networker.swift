@@ -29,7 +29,7 @@ extension Networker {
       baseURL: appEnvironment.serverBaseURL,
       urlPath: "/api/auth/verify",
       requestMethod: .get,
-      includeAuthToken: false
+      includeAuthToken: true
     )
 
     let resource = ServerResource<AuthVerification>(
