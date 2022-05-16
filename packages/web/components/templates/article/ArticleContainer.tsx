@@ -15,7 +15,10 @@ import { updateThemeLocally } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { HighlightLocation, makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGenerator'
+import {
+  HighlightLocation,
+  makeHighlightStartEndOffset,
+} from '../../../lib/highlights/highlightGenerator'
 
 type ArticleContainerProps = {
   article: ArticleAttributes
@@ -37,7 +40,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
-  const highlightHref = useRef(window.location.hash ? window.location.hash.split('#')[1] : null)
+  const highlightHref = useRef(
+    window.location.hash ? window.location.hash.split('#')[1] : null
+  )
   const [highlightReady, setHighlightReady] = useState(false)
   const [highlightLocations, setHighlightLocations] = useState<
     HighlightLocation[]
@@ -87,16 +92,22 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       updateThemeLocally(ThemeId.Light)
     }
 
+    const share = () => {
+      navigator.share()
+    }
+
     document.addEventListener('increaseFontSize', increaseFontSize)
     document.addEventListener('decreaseFontSize', decreaseFontSize)
     document.addEventListener('switchToDarkMode', switchToDarkMode)
     document.addEventListener('switchToLightMode', switchToLightMode)
+    document.addEventListener('share', share)
 
     return () => {
       document.removeEventListener('increaseFontSize', increaseFontSize)
       document.removeEventListener('decreaseFontSize', decreaseFontSize)
       document.removeEventListener('switchToDarkMode', switchToDarkMode)
       document.removeEventListener('switchToLightMode', switchToLightMode)
+      document.removeEventListener('share', share)
     }
   })
 
@@ -118,7 +129,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         css={{
           padding: '16px',
           maxWidth: '100%',
-          background: props.isAppleAppEmbed ? 'unset' : theme.colors.grayBg.toString(),
+          background: props.isAppleAppEmbed
+            ? 'unset'
+            : theme.colors.grayBg.toString(),
           '--text-font-family': styles.fontFamily,
           '--text-font-size': `${styles.fontSize}px`,
           '--line-height': `${styles.lineHeight}%`,
@@ -138,12 +151,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
           '@lg': {
             margin: `30px 0`,
             width: 'auto',
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
         }}
       >
@@ -163,10 +176,20 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             href={props.article.url}
           />
           {props.labels ? (
-            <SpanBox css={{ pb: '16px', width: '100%', '&:empty': { display: 'none' } }}>
-              {props.labels?.map((label) =>
-                <LabelChip key={label.id} text={label.name} color={label.color} />
-              )}
+            <SpanBox
+              css={{
+                pb: '16px',
+                width: '100%',
+                '&:empty': { display: 'none' },
+              }}
+            >
+              {props.labels?.map((label) => (
+                <LabelChip
+                  key={label.id}
+                  text={label.name}
+                  color={label.color}
+                />
+              ))}
             </SpanBox>
           ) : null}
           {props.isAppleAppEmbed && (
