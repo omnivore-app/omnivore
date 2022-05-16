@@ -79,12 +79,12 @@ final class ShareExtensionViewModel: ObservableObject {
       }
       .store(in: &subscriptions)
 
-    // Using viewerPublisher to get fast feedback for auth/network errors
+    // Check connection to get fast feedback for auth/network errors
     Task {
-      do {
-        _ = try await services.dataService.fetchViewer()
-      } catch {
-        debugText = "saveArticleError: \(error)"
+      let hasConnectionAndValidToken = await services.dataService.hasConnectionAndValidToken()
+
+      if !hasConnectionAndValidToken {
+        debugText = "saveArticleError: No connection or invalid token."
         status = .failed(error: .unknown(description: ""))
       }
     }

@@ -33,6 +33,9 @@ extension ServerResponse {
   }
 }
 
+/// Empty struct to use when a successful network call does not include any JSON
+struct EmptyResponse: Decodable {}
+
 extension URLSession {
   func performReq<ResponseModel>(
     resource: ServerResource<ResponseModel>
