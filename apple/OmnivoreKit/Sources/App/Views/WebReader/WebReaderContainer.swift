@@ -19,6 +19,7 @@ import WebKit
     @State var decreaseFontActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
     @State var showNavBarActionID: UUID?
+    @State var shareActionID: UUID?
     @State var annotation = String()
 
     @EnvironmentObject var dataService: DataService
@@ -105,6 +106,10 @@ import WebKit
                 }
               )
               Button(
+                action: { shareActionID = UUID() },
+                label: { Label("Share Original", systemImage: "square.and.arrow.up") }
+              )
+              Button(
                 action: { showDeleteConfirmation = true },
                 label: { Label("Delete", systemImage: "trash") }
               )
@@ -156,6 +161,7 @@ import WebKit
             decreaseFontActionID: $decreaseFontActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             showNavBarActionID: $showNavBarActionID,
+            shareActionID: $shareActionID,
             annotation: $annotation
           )
           .onTapGesture {

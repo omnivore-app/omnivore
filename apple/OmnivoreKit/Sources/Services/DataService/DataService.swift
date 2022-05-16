@@ -55,6 +55,10 @@ public final class DataService: ObservableObject {
     }
   }
 
+  public func hasConnectionAndValidToken() async -> Bool {
+    await networker.hasConnectionAndValidToken()
+  }
+
   private func resetCoreData() {
     let storeContainer =
       persistentContainer.persistentStoreCoordinator

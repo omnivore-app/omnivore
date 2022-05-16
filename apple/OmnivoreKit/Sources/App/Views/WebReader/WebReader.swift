@@ -17,6 +17,7 @@ import WebKit
     @Binding var decreaseFontActionID: UUID?
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var showNavBarActionID: UUID?
+    @Binding var shareActionID: UUID?
     @Binding var annotation: String
 
     func makeCoordinator() -> WebReaderCoordinator {
@@ -79,6 +80,11 @@ import WebKit
       if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
         context.coordinator.previousShowNavBarActionID = showNavBarActionID
         context.coordinator.showNavBar()
+      }
+
+      if shareActionID != context.coordinator.previousShareActionID {
+        context.coordinator.previousShareActionID = shareActionID
+        (webView as? WebView)?.shareOriginalItem()
       }
 
       // If the webview had been terminated `needsReload` will have been set to true

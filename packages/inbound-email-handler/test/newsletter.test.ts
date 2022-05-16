@@ -9,6 +9,7 @@ import { AxiosHandler } from '../src/axios-handler'
 import { BloombergHandler } from '../src/bloomberg-handler'
 import { GolangHandler } from '../src/golang-handler'
 import { getNewsletterHandler } from '../src'
+import { MorningBrewHandler } from '../src/morning-brew-handler'
 
 describe('Confirmation email test', () => {
   describe('#isConfirmationEmail()', () => {
@@ -77,6 +78,15 @@ describe('Newsletter email test', () => {
         GolangHandler
       )
     })
+
+    it('should return MorningBrewHandler when email is from Morning Brew', () => {
+      const from = 'Morning Brew <crew@morningbrew.com>'
+      const unSubRawUrl = '<https://morningbrew.com/unsubscribe>'
+
+      expect(getNewsletterHandler('', from, unSubRawUrl)).to.be.instanceof(
+        MorningBrewHandler
+      )
+    })
   })
 
   describe('#getNewsletterUrl()', () => {
@@ -113,6 +123,17 @@ describe('Newsletter email test', () => {
       `
 
       expect(new GolangHandler().parseNewsletterUrl('', html)).to.equal(url)
+    })
+
+    it('returns url when email is from Morning Brew', () => {
+      const url = 'https://www.morningbrew.com/daily/issues/first'
+      const html = `
+        <a style="color: #000000; text-decoration: none;" target="_blank" rel="noopener" href="${url}">View Online</a>
+      `
+
+      expect(new MorningBrewHandler().parseNewsletterUrl('', html)).to.equal(
+        url
+      )
     })
   })
 
