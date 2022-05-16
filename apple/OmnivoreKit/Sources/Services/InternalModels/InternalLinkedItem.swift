@@ -15,6 +15,7 @@ struct InternalLinkedItem {
   let pageURLString: String
   let descriptionText: String?
   let publisherURLString: String?
+  let siteName: String?
   let author: String?
   let publishDate: Date?
   let slug: String
@@ -37,6 +38,7 @@ struct InternalLinkedItem {
     linkedItem.pageURLString = pageURLString
     linkedItem.descriptionText = descriptionText
     linkedItem.publisherURLString = publisherURLString
+    linkedItem.siteName = siteName
     linkedItem.author = author
     linkedItem.publishDate = publishDate
     linkedItem.slug = slug
@@ -93,6 +95,7 @@ extension JSONArticle {
       pageURLString: url,
       descriptionText: title,
       publisherURLString: nil,
+      siteName: nil,
       author: nil,
       publishDate: nil,
       slug: slug,
