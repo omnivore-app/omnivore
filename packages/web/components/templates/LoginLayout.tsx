@@ -59,8 +59,7 @@ function MediumLoginLayout(props: LoginFormProps) {
       distribution="start"
       css={{
         width: '100vw',
-        height: '100%',
-        minHeight: '100vh',
+        height: '100vh',
         bg: '$omnivoreYellow',
         overflowY: 'clip'
       }}
@@ -84,7 +83,7 @@ type OmnivoreIllustrationProps = {
 function OmnivoreIllustration({ isLargeLayout }: OmnivoreIllustrationProps) {
   return (
     <img
-      style={{ marginRight: '57px' }}
+      style={{ marginRight: '57px', objectFit: 'fill' }}
       width='100%'
       srcSet="/static/images/landing-illustration.png 1x,
               /static/images/landing-illustration@2x.png 2x"
