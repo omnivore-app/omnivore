@@ -34,6 +34,10 @@ public final class WebView: WKWebView {
     dispatchEvent("decreaseFontSize")
   }
 
+  public func shareOriginalItem() {
+    dispatchEvent("share")
+  }
+
   func dispatchEvent(_ name: String) {
     let dispatch = "document.dispatchEvent(new Event('\(name)'));"
     evaluateJavaScript(dispatch) { obj, err in
