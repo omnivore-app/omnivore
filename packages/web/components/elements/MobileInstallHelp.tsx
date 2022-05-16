@@ -39,7 +39,7 @@ export default function MobileInstallHelp({
     },
   ]
 
-  const iosContainerStyles = { width: '100%', height: !onboarding ? '37px' : '40px', display: 'flex', justifyContent: !onboarding ? 'flex-end' : 'initial'}
+  const iosContainerStyles = { width: '100%', height: '40px', display: 'flex', justifyContent: !onboarding ? 'flex-end' : 'initial'}
 
   return (
     <Box
