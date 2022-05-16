@@ -93,7 +93,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const share = () => {
-      navigator.share()
+      if (navigator.share) {
+        navigator.share({
+          title: props.article.title,
+          url: props.article.originalArticleUrl,
+        })
+      }
     }
 
     document.addEventListener('increaseFontSize', increaseFontSize)
