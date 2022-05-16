@@ -100,8 +100,8 @@ public struct GridCard: View {
                 .lineLimit(1)
             }
 
-            if let publisherURL = item.publisherDisplayName {
-              Text(publisherURL)
+            if let publisherDisplayName = item.publisherDisplayName {
+              Text(publisherDisplayName)
                 .font(.appCaptionTwo)
                 .foregroundColor(.appGrayText)
                 .underline()

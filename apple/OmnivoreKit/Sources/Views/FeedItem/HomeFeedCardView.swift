@@ -26,8 +26,8 @@ public struct FeedCard: View {
               .lineLimit(1)
           }
 
-          if let publisherURL = item.publisherDisplayName {
-            Text(publisherURL)
+          if let publisherDisplayName = item.publisherDisplayName {
+            Text(publisherDisplayName)
               .font(.appCaption)
               .foregroundColor(.appGrayText)
               .underline()
