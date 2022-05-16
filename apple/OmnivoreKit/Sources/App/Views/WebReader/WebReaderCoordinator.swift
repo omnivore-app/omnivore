@@ -18,6 +18,7 @@ final class WebReaderCoordinator: NSObject {
   var previousIncreaseFontActionID: UUID?
   var previousDecreaseFontActionID: UUID?
   var previousShowNavBarActionID: UUID?
+  var previousShareActionID: UUID?
   var updateNavBarVisibilityRatio: (Double) -> Void = { _ in }
   private var yOffsetAtStartOfDrag: Double?
   private var lastYOffset: Double = 0
