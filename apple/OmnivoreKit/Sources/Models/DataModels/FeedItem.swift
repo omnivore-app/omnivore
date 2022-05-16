@@ -45,8 +45,8 @@ public extension LinkedItem {
     return (pageURLString ?? "").hasSuffix("pdf")
   }
 
-  var publisherHostname: String? {
-    URL(string: publisherURLString ?? pageURLString ?? "")?.host
+  var publisherDisplayName: String? {
+    siteName ?? URL(string: publisherURLString ?? pageURLString ?? "")?.host
   }
 
   var imageURL: URL? {

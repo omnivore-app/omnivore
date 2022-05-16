@@ -105,6 +105,7 @@ extension DataService {
           pageURLString: try $0.url(),
           descriptionText: try $0.description(),
           publisherURLString: try $0.originalArticleUrl(),
+          siteName: try $0.siteName(),
           author: try $0.author(),
           publishDate: try $0.publishedAt()?.value,
           slug: try $0.slug(),
