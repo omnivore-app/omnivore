@@ -30,7 +30,6 @@ public struct FeedCard: View {
             Text(publisherDisplayName)
               .font(.appCaption)
               .foregroundColor(.appGrayText)
-              .underline()
               .lineLimit(1)
           }
         }

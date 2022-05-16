@@ -104,7 +104,6 @@ public struct GridCard: View {
               Text(publisherDisplayName)
                 .font(.appCaptionTwo)
                 .foregroundColor(.appGrayText)
-                .underline()
                 .lineLimit(1)
             }
 
