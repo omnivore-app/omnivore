@@ -17,6 +17,7 @@ import { SubstackHandler } from './substack-handler'
 import { AxiosHandler } from './axios-handler'
 import { BloombergHandler } from './bloomberg-handler'
 import { GolangHandler } from './golang-handler'
+import { MorningBrewHandler } from './morning-brew-handler'
 
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
@@ -26,6 +27,7 @@ const NEWSLETTER_HANDLERS = [
   new AxiosHandler(),
   new BloombergHandler(),
   new GolangHandler(),
+  new MorningBrewHandler(),
 ]
 
 export const getNewsletterHandler = (
