@@ -166,14 +166,13 @@ export default function MobileInstallHelp({
                 color: '$grayTextContrast',
                 fontSize: '14px',
                 fontWeight: 600,
-                display: 'none',
                 '@lg': {
                   display: 'initial',
                   textDecoration: 'underline',
                 },
               }}
             >
-              Learn more about the share extension here.
+              Learn more about the iOS app -&gt;
             </StyledAnchor>
           </Link>
         )}
