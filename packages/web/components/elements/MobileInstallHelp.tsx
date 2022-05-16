@@ -166,10 +166,7 @@ export default function MobileInstallHelp({
                 color: '$grayTextContrast',
                 fontSize: '14px',
                 fontWeight: 600,
-                '@lg': {
-                  display: 'initial',
-                  textDecoration: 'underline',
-                },
+                textDecoration: 'underline',
               }}
             >
               Learn more about the iOS app -&gt;
