@@ -3,6 +3,8 @@ import { getRepository } from '../entity/utils'
 import { SubscriptionStatus } from '../generated/graphql'
 import { sendEmail } from '../utils/sendEmail'
 import axios from 'axios'
+import { NewsletterEmail } from '../entity/newsletter_email'
+import { createNewsletterEmail } from './newsletters'
 
 const sendUnsubscribeEmail = async (
   unsubscribeMailTo: string,
@@ -103,5 +105,72 @@ export const unsubscribeAll = async (
     }
   } catch (error) {
     console.log('Failed to unsubscribe all', error)
+  }
+}
+
+export const getSubscribeHandler = (name: string): SubscribeHandler | null => {
+  switch (name.toLowerCase()) {
+    case 'axios_essentials':
+      return new AxiosEssentialsHandler()
+    default:
+      return null
+  }
+}
+
+export class SubscribeHandler {
+  async handleSubscribe(
+    userId: string,
+    name: string
+  ): Promise<Subscription[] | null> {
+    try {
+      const newsletterEmail =
+        (await getRepository(NewsletterEmail).findOneBy({
+          user: { id: userId },
+        })) || (await createNewsletterEmail(userId))
+
+      // subscribe to newsletter service
+      const subscribedNames = await this._subscribe(
+        newsletterEmail.address,
+        name
+      )
+      if (subscribedNames.length === 0) {
+        console.log('Failed to get subscribe response', name)
+        return null
+      }
+
+      // create new subscriptions in db
+      const newSubscriptions = subscribedNames.map(
+        (name: string): Promise<Subscription> => {
+          return getRepository(Subscription).save({
+            name,
+            newsletterEmail: newsletterEmail.address,
+            user: { id: userId },
+            status: SubscriptionStatus.Active,
+          })
+        }
+      )
+
+      return Promise.all(newSubscriptions)
+    } catch (error) {
+      console.log('Failed to handleSubscribe', error)
+      return null
+    }
+  }
+
+  async _subscribe(email: string, name: string): Promise<string[]> {
+    return Promise.all([])
+  }
+}
+
+class AxiosEssentialsHandler extends SubscribeHandler {
+  async _subscribe(email: string): Promise<string[]> {
+    await axios.post('https://api.axios.com/api/render/readers/unauth-sub/', {
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: `{"lists":["newsletter_axiosam","newsletter_axiospm","newsletter_axiosfinishline"],"user_vars":{"source":"axios","medium":null,"campaign":null,"term":null,"content":null,"page":"webflow-newsletters-all"},"email":"${email}"`,
+    })
+
+    return ['Axios AM', 'Axios PM', 'Axios Finish Line']
   }
 }
