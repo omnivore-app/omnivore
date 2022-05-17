@@ -111,6 +111,22 @@ public struct ShareExtensionChildView: View {
 
   @State var reminderTime: ReminderTime?
   @State var hideUntilReminded = false
+  @State var readNowPending = false
+
+  private func waitForReadNow() {
+    readNowPending = true
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
+      switch status {
+      case .successfullySaved:
+        readNowButtonAction()
+      case .failed(error: _):
+        readNowPending = false
+      case .saving, .processing:
+        waitForReadNow()
+      }
+    }
+  }
 
   private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
     if selectedTime == reminderTime {
@@ -141,18 +157,16 @@ public struct ShareExtensionChildView: View {
       Spacer()
 
       if case ShareExtensionStatus.successfullySaved = status {
-        HStack {
-          Spacer()
-          IconButtonView(
-            title: "Read Now",
-            systemIconName: "book",
-            action: {
-              readNowButtonAction()
-            }
-          )
-          Spacer()
+        HStack(spacing: 4) {
+          Text("Saved to Omnivore")
+            .font(.appTitleThree)
+            .foregroundColor(.appGrayText)
+            .padding(.trailing, 16)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .lineLimit(nil)
         }
-        .padding(.horizontal, 8)
+        .padding()
       } else if case let ShareExtensionStatus.failed(error) = status {
         HStack {
           Spacer()
@@ -207,16 +221,37 @@ public struct ShareExtensionChildView: View {
       }
       .padding(.horizontal)
 
-      Button(
-        action: {
-          dismissButtonTappedAction(reminderTime, hideUntilReminded)
-        },
-        label: {
-          Text("Dismiss")
-            .frame(maxWidth: .infinity)
+      HStack {
+        if case ShareExtensionStatus.successfullySaved = status {
+          Button(
+            action: {
+              if case ShareExtensionStatus.successfullySaved = status {
+                readNowButtonAction()
+              } else {
+                waitForReadNow()
+              }
+            },
+            label: {
+              if readNowPending {
+                ProgressView().frame(maxWidth: .infinity)
+              } else {
+                Text("Read Now").frame(maxWidth: .infinity)
+              }
+            }
+          )
+          .buttonStyle(RoundedRectButtonStyle())
         }
-      )
-      .buttonStyle(RoundedRectButtonStyle())
+        Button(
+          action: {
+            dismissButtonTappedAction(reminderTime, hideUntilReminded)
+          },
+          label: {
+            Text("Dismiss")
+              .frame(maxWidth: .infinity)
+          }
+        )
+        .buttonStyle(RoundedRectButtonStyle())
+      }
       .padding(.horizontal)
       .padding(.bottom)
     }
