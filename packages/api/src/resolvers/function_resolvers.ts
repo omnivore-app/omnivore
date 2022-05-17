@@ -65,6 +65,7 @@ import {
   setShareHighlightResolver,
   setUserPersonalizationResolver,
   signupResolver,
+  subscribeResolver,
   subscriptionsResolver,
   unsubscribeResolver,
   updateHighlightResolver,
@@ -145,6 +146,7 @@ export const functionResolvers = {
     setLabels: setLabelsResolver,
     generateApiKey: generateApiKeyResolver,
     unsubscribe: unsubscribeResolver,
+    subscribe: subscribeResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -554,4 +556,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Subscriptions'),
   ...resultResolveTypeResolver('Unsubscribe'),
   ...resultResolveTypeResolver('UpdateLabel'),
+  ...resultResolveTypeResolver('Subscribe'),
 }

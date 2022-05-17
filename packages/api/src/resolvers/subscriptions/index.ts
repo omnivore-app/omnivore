@@ -83,7 +83,7 @@ export const unsubscribeResolver = authorized<
     }
 
     const subscription = await getRepository(Subscription).findOneBy({
-      name,
+      name: ILike(name),
       user: { id: uid },
     })
     if (!subscription) {
