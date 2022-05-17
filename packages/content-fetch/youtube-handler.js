@@ -11,7 +11,7 @@ const YOUTUBE_URL_MATCH =
 
 function getYoutubeVideoId(url) {
   const u = new URL(url);
-  const videoId = u.searchParams['v']
+  const videoId = u.searchParams.get('v');
   if (!videoId) {
     const match = url.toString().match(YOUTUBE_URL_MATCH)
     if (match === null || match.length < 6 || !match[5]) {
@@ -24,12 +24,9 @@ function getYoutubeVideoId(url) {
 exports.getYoutubeVideoId = getYoutubeVideoId
 
 exports.youtubeHandler = {
-
   shouldPrehandle: (url, env) => {
     return YOUTUBE_URL_MATCH.test(url.toString())
   },
-
-
 
   prehandle: async (url, env) => {
     const videoId = getYoutubeVideoId(url)
