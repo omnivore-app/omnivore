@@ -15,7 +15,7 @@ public final class RootViewModel: ObservableObject {
   let services = Services()
 
   @Published public var showPushNotificationPrimer = false
-  @Published var webLinkPath: SafariWebLinkPath?
+  @Published var linkRequest: LinkRequest?
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false
 
@@ -59,23 +59,9 @@ public final class RootViewModel: ObservableObject {
   }
 
   @MainActor func onOpenURL(url: URL) async {
-    guard let linkRequestID = DeepLink.make(from: url)?.linkRequestID else { return }
-
-    let username: String? = await {
-      if let cachedUsername = services.dataService.currentViewer?.username {
-        return cachedUsername
-      }
-
-      if let viewerObjectID = try? await services.dataService.fetchViewer() {
-        let viewer = services.dataService.viewContext.object(with: viewerObjectID) as? Viewer
-        return viewer?.unwrappedUsername
-      }
-
-      return nil
-    }()
-
-    guard let username = username else { return }
-    webLinkPath = SafariWebLinkPath(id: UUID(), path: linkRequestPath(username: username, requestID: linkRequestID))
+    if let linkRequestID = DeepLink.make(from: url)?.linkRequestID {
+      linkRequest = LinkRequest(id: UUID(), serverID: linkRequestID)
+    }
   }
 
   func triggerPushNotificationRequestIfNeeded() {
@@ -107,10 +93,6 @@ public final class RootViewModel: ObservableObject {
       UNUserNotificationCenter.current().requestAuth()
     }
   #endif
-
-  private func linkRequestPath(username: String, requestID: String) -> String {
-    "/app/\(username)/link-request/\(requestID)"
-  }
 }
 
 public struct IntercomProvider {

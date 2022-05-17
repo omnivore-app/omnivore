@@ -7,6 +7,7 @@ import WebKit
 #if os(iOS)
   struct WebReaderContainerView: View {
     let item: LinkedItem
+    let isPresentedModally: Bool
 
     @State private var showFontSizePopover = false
     @State private var showLabelsModal = false
@@ -66,7 +67,7 @@ import WebKit
         Button(
           action: { self.presentationMode.wrappedValue.dismiss() },
           label: {
-            Image(systemName: "chevron.backward")
+            Image(systemName: isPresentedModally ? "xmark" : "chevron.backward")
               .font(.appTitleTwo)
               .foregroundColor(.appGrayTextContrast)
               .padding(.horizontal)

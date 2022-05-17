@@ -79,6 +79,55 @@ public extension DataService {
       }
     }
   }
+
+  func fetchLinkedItem(username: String, itemID: String) async throws -> NSManagedObjectID {
+    struct ArticleProps {
+      let item: InternalLinkedItem
+    }
+
+    enum QueryResult {
+      case success(result: InternalLinkedItem)
+      case error(error: String)
+    }
+
+    let selection = Selection<QueryResult, Unions.ArticleResult> {
+      try $0.on(
+        articleError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
+        },
+        articleSuccess: .init {
+          QueryResult.success(result: try $0.article(selection: articleSelection))
+        }
+      )
+    }
+
+    let query = Selection.Query {
+      // backend has a hack that allows us to pass in itemID in place of slug
+      try $0.article(slug: itemID, username: username, selection: selection)
+    }
+
+    let path = appEnvironment.graphqlPath
+    let headers = networker.defaultHeaders
+
+    return try await withCheckedThrowingContinuation { continuation in
+      send(query, to: path, headers: headers) { [weak self] queryResult in
+        guard let payload = try? queryResult.get() else {
+          continuation.resume(throwing: ContentFetchError.network)
+          return
+        }
+        switch payload.data {
+        case let .success(result: result):
+          if let context = self?.backgroundContext, let item = [result].persist(context: context)?.first {
+            continuation.resume(returning: item.objectID)
+          } else {
+            continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
+          }
+        case .error:
+          continuation.resume(throwing: BasicError.message(messageText: "LinkedItem fetch error"))
+        }
+      }
+    }
+  }
 }
 
 private let articleSelection = Selection.Article {

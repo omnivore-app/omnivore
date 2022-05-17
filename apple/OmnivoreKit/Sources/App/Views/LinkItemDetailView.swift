@@ -147,7 +147,7 @@ struct LinkItemDetailView: View {
             viewModel.trackReadEvent()
           }
       } else {
-        WebReaderContainerView(item: viewModel.item)
+        WebReaderContainerView(item: viewModel.item, isPresentedModally: false)
           .navigationBarHidden(hideNavBar)
           .task {
             hideNavBar = true
