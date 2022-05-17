@@ -7,9 +7,9 @@ import WebKit
 #if os(iOS)
   struct WebReaderContainerView: View {
     let item: LinkedItem
-    let homeFeedViewModel: HomeFeedViewModel
 
     @State private var showFontSizePopover = false
+    @State private var showLabelsModal = false
     @State var showHighlightAnnotationModal = false
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
@@ -87,16 +87,13 @@ import WebKit
           content: {
             Group {
               Button(
-                action: { homeFeedViewModel.itemUnderLabelEdit = item },
+                action: { showLabelsModal = true },
                 label: { Label("Edit Labels", systemImage: "tag") }
               )
               Button(
                 action: {
-                  homeFeedViewModel.setLinkArchived(
-                    dataService: dataService,
-                    objectID: item.objectID,
-                    archived: !item.isArchived
-                  )
+                  dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+                  Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
                 },
                 label: {
                   Label(
@@ -130,9 +127,13 @@ import WebKit
       }
       .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
         Button("Remove Link", role: .destructive) {
-          homeFeedViewModel.removeLink(dataService: dataService, objectID: item.objectID)
+          Snackbar.show(message: "Link removed")
+          dataService.removeLink(objectID: item.objectID)
         }
         Button("Cancel", role: .cancel, action: {})
+      }
+      .sheet(isPresented: $showLabelsModal) {
+        ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
       }
     }
 

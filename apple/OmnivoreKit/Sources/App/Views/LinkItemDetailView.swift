@@ -10,27 +10,23 @@ enum PDFProvider {
 }
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
-  let homeFeedViewModel: HomeFeedViewModel
   @Published var item: LinkedItem
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: LinkedItem, homeFeedViewModel: HomeFeedViewModel) {
+  init(item: LinkedItem) {
     self.item = item
-    self.homeFeedViewModel = homeFeedViewModel
   }
 
   func handleArchiveAction(dataService: DataService) {
-    homeFeedViewModel.setLinkArchived(
-      dataService: dataService,
-      objectID: item.objectID,
-      archived: !item.isArchived
-    )
+    dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+    Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
   }
 
   func handleDeleteAction(dataService: DataService) {
-    homeFeedViewModel.removeLink(dataService: dataService, objectID: item.objectID)
+    Snackbar.show(message: "Link removed")
+    dataService.removeLink(objectID: item.objectID)
   }
 
   func updateItemReadStatus(dataService: DataService) {
@@ -151,7 +147,7 @@ struct LinkItemDetailView: View {
             viewModel.trackReadEvent()
           }
       } else {
-        WebReaderContainerView(item: viewModel.item, homeFeedViewModel: viewModel.homeFeedViewModel)
+        WebReaderContainerView(item: viewModel.item)
           .navigationBarHidden(hideNavBar)
           .task {
             hideNavBar = true
