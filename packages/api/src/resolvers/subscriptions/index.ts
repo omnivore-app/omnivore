@@ -70,12 +70,16 @@ export const unsubscribeResolver = authorized<
   log.info('unsubscribeResolver')
 
   try {
-    const subscription = await getRepository(Subscription).findOne({
-      where: {
-        name,
-        user: { id: uid },
-      },
-      relations: ['user'],
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [UnsubscribeErrorCode.Unauthorized],
+      }
+    }
+
+    const subscription = await getRepository(Subscription).findOneBy({
+      name,
+      user: { id: uid },
     })
     if (!subscription) {
       return {
@@ -102,7 +106,18 @@ export const unsubscribeResolver = authorized<
       }
     }
 
-    return { subscription: await unsubscribe(subscription) }
+    const unsubscribed = await unsubscribe(subscription)
+
+    analytics.track({
+      userId: uid,
+      event: 'unsubscribed',
+      properties: {
+        name,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return { subscription: unsubscribed }
   } catch (error) {
     log.error('failed to unsubscribe', error)
     return {
