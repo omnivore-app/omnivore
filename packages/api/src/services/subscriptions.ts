@@ -112,6 +112,12 @@ export const getSubscribeHandler = (name: string): SubscribeHandler | null => {
   switch (name.toLowerCase()) {
     case 'axios_essentials':
       return new AxiosEssentialsHandler()
+    case 'morning_brew':
+      return new MorningBrewHandler()
+    case 'milk_road':
+      return new MilkRoadHandler()
+    case 'money_stuff':
+      return new MoneyStuffHandler()
     default:
       return null
   }
@@ -129,10 +135,7 @@ export class SubscribeHandler {
         })) || (await createNewsletterEmail(userId))
 
       // subscribe to newsletter service
-      const subscribedNames = await this._subscribe(
-        newsletterEmail.address,
-        name
-      )
+      const subscribedNames = await this._subscribe(newsletterEmail.address)
       if (subscribedNames.length === 0) {
         console.log('Failed to get subscribe response', name)
         return null
@@ -157,7 +160,7 @@ export class SubscribeHandler {
     }
   }
 
-  async _subscribe(email: string, name: string): Promise<string[]> {
+  async _subscribe(email: string): Promise<string[]> {
     return Promise.all([])
   }
 }
@@ -172,5 +175,49 @@ class AxiosEssentialsHandler extends SubscribeHandler {
     })
 
     return ['Axios AM', 'Axios PM', 'Axios Finish Line']
+  }
+}
+
+class MorningBrewHandler extends SubscribeHandler {
+  async _subscribe(email: string): Promise<string[]> {
+    await axios.post('https://singularity.morningbrew.com/graphql', {
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: `{"operationName":"CreateUserSubscription","variables":{"signupCreateInput":{"email":"${email}","kid":null,"gclid":null,"utmCampaign":"mb","utmMedium":"website","utmSource":"hero-module","utmContent":null,"utmTerm":null,"requestPath":"https://www.morningbrew.com/daily","uiModule":"hero-module"},"signupCreateVerticalSlug":"daily"},"query":"mutation CreateUserSubscription($signupCreateInput: SignupCreateInput!, $signupCreateVerticalSlug: String!) {\\n  signupCreate(input: $signupCreateInput, verticalSlug: $signupCreateVerticalSlug) {\\n    user {\\n      accessToken\\n      email\\n      hasSeenOnboarding\\n      referralCode\\n      verticalSubscriptions {\\n        isActive\\n        vertical {\\n          slug\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    isNewSubscription\\n    fromAffiliate\\n    subscriptionId\\n    __typename\\n  }\\n}\\n"}`,
+    })
+
+    return ['Morning Brew']
+  }
+}
+
+class MilkRoadHandler extends SubscribeHandler {
+  async _subscribe(email: string): Promise<string[]> {
+    await axios.post('https://www.milkroad.com/subscriptions', {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      body: `query_parameters=%7B%7D&email=${encodeURIComponent(
+        email
+      )}&commit=Subscribe`,
+    })
+
+    return ['Milk Road']
+  }
+}
+
+class MoneyStuffHandler extends SubscribeHandler {
+  async _subscribe(email: string): Promise<string[]> {
+    await axios.post(
+      'https://login.bloomberg.com/api/engagements/follow-author',
+      {
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: `{"email":"${email}","optIn":false,"topic":"18273090","authorId":"18273090","authorName":"Matt Levine"}`,
+      }
+    )
+
+    return ['Money Stuff']
   }
 }
