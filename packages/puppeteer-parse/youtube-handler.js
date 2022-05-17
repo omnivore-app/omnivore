@@ -10,26 +10,23 @@ const YOUTUBE_URL_MATCH =
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
 
 function getYoutubeVideoId(url) {
-    const u = new URL(url);
-    const videoId = u.searchParams['v']
-    if (!videoId) {
-      const match = url.toString().match(YOUTUBE_URL_MATCH)
-      if (match === null || match.length < 6 || !match[5]) {
-        return undefined
-      }
-      return match[5]
+  const u = new URL(url);
+  const videoId = u.searchParams.get('v');
+  if (!videoId) {
+    const match = url.toString().match(YOUTUBE_URL_MATCH)
+    if (match === null || match.length < 6 || !match[5]) {
+      return undefined
     }
-    return videoId
+    return match[5]
   }
+  return videoId
+}
 exports.getYoutubeVideoId = getYoutubeVideoId
 
 exports.youtubeHandler = {
-
   shouldPrehandle: (url, env) => {
     return YOUTUBE_URL_MATCH.test(url.toString())
   },
-
-
 
   prehandle: async (url, env) => {
     const videoId = getYoutubeVideoId(url)
