@@ -34,6 +34,9 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         .onChange(of: viewModel.selectedLabels) { _ in
           loadItems(isRefresh: true)
         }
+        .onChange(of: viewModel.negatedLabels) { _ in
+          loadItems(isRefresh: true)
+        }
         .onChange(of: viewModel.appliedFilter) { _ in
           loadItems(isRefresh: true)
         }
@@ -146,16 +149,22 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
                 showLabelsSheet = true
               }
               ForEach(viewModel.selectedLabels, id: \.self) { label in
-                TextChipButton.makeRemovableLabelButton(feedItemLabel: label) {
+                TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
                   viewModel.selectedLabels.removeAll { $0.id == label.id }
+                }
+              }
+              ForEach(viewModel.negatedLabels, id: \.self) { label in
+                TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
+                  viewModel.negatedLabels.removeAll { $0.id == label.id }
                 }
               }
               Spacer()
             }
             .padding(.horizontal)
             .sheet(isPresented: $showLabelsSheet) {
-              ApplyLabelsView(mode: .list(viewModel.selectedLabels)) {
-                viewModel.selectedLabels = $0
+              FilterByLabelsView(initiallySelected: viewModel.selectedLabels, initiallyNegated: viewModel.negatedLabels) {
+                self.viewModel.selectedLabels = $0
+                self.viewModel.negatedLabels = $1
               }
             }
           }

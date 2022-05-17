@@ -16,6 +16,7 @@ import Views
   @Published var itemUnderLabelEdit: LinkedItem?
   @Published var searchTerm = ""
   @Published var selectedLabels = [LinkedItemLabel]()
+  @Published var negatedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
   @Published var selectedLinkItem: LinkedItem?
@@ -125,6 +126,18 @@ import Views
       subPredicates.append(NSCompoundPredicate(orPredicateWithSubpredicates: labelSubPredicates))
     }
 
+    if !negatedLabels.isEmpty {
+      var labelSubPredicates = [NSPredicate]()
+
+      for label in negatedLabels {
+        labelSubPredicates.append(
+          NSPredicate(format: "SUBQUERY(labels, $label, $label.id == \"\(label.unwrappedID)\").@count == 0")
+        )
+      }
+
+      subPredicates.append(NSCompoundPredicate(orPredicateWithSubpredicates: labelSubPredicates))
+    }
+
     fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: subPredicates)
     return fetchRequest
   }
@@ -190,6 +203,11 @@ import Views
     if !selectedLabels.isEmpty {
       query.append(" label:")
       query.append(selectedLabels.map { $0.name ?? "" }.joined(separator: ","))
+    }
+
+    if !negatedLabels.isEmpty {
+      query.append(" !label:")
+      query.append(negatedLabels.map { $0.name ?? "" }.joined(separator: ","))
     }
 
     return query
