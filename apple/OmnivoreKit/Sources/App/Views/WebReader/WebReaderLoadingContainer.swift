@@ -86,6 +86,7 @@ import Utils
       if let item = viewModel.item {
         WebReaderContainerView(item: item, isPresentedModally: true)
           .navigationBarHidden(true)
+          .navigationViewStyle(.stack)
           .accentColor(.appGrayTextContrast)
           .task { viewModel.trackReadEvent() }
       } else if let errorMessage = viewModel.errorMessage {
