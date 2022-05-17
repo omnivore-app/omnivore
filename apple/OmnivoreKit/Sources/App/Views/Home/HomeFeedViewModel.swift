@@ -5,8 +5,10 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class HomeFeedViewModel: ObservableObject {
+@MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
   var currentDetailViewModel: LinkItemDetailViewModel?
+
+  private var fetchedResultsController: NSFetchedResultsController<LinkedItem>?
 
   @Published var items = [LinkedItem]()
   @Published var isLoading = false
@@ -28,8 +30,6 @@ import Views
   // responses in the right order
   var searchIdx = 0
   var receivedIdx = 0
-
-  init() {}
 
   func itemAppeared(item: LinkedItem, dataService: DataService) async {
     if isLoading { return }
@@ -81,42 +81,77 @@ import Views
         }
         return itemObjects
       }()
-      items = isRefresh ? newItems : items + newItems
+
+      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
+        updateFetchController(dataService: dataService)
+      } else {
+        // Don't use FRC for searching. Use server results directly.
+        if fetchedResultsController != nil {
+          fetchedResultsController = nil
+          items = []
+        }
+        items = isRefresh ? newItems : items + newItems
+      }
+
       isLoading = false
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
       await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID))
-      showLoadingBar = false
-    } else if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty {
-      await dataService.viewContext.perform {
-        let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
-        if let predicate = LinkedItemFilter(rawValue: self.appliedFilter)?.predicate {
-          fetchRequest.predicate = predicate
-        }
-//        // TODO: Filter on label
-
-        if let fetchedItems = try? dataService.viewContext.fetch(fetchRequest) {
-          self.items = fetchedItems
-          self.cursor = nil
-          self.isLoading = false
-        }
-      }
-      showLoadingBar = false
+    } else {
+      updateFetchController(dataService: dataService)
     }
+
+    isLoading = false
+    showLoadingBar = false
+  }
+
+  private var fetchRequest: NSFetchRequest<Models.LinkedItem> {
+    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
+
+    var subPredicates = [NSPredicate]()
+
+    subPredicates.append((LinkedItemFilter(rawValue: appliedFilter) ?? .inbox).predicate)
+
+    if !selectedLabels.isEmpty {
+      var labelSubPredicates = [NSPredicate]()
+
+      for label in selectedLabels {
+        labelSubPredicates.append(
+          NSPredicate(format: "SUBQUERY(labels, $label, $label.id == \"\(label.unwrappedID)\").@count > 0")
+        )
+      }
+
+      subPredicates.append(NSCompoundPredicate(orPredicateWithSubpredicates: labelSubPredicates))
+    }
+
+    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: subPredicates)
+    return fetchRequest
+  }
+
+  private func updateFetchController(dataService: DataService) {
+    fetchedResultsController = NSFetchedResultsController(
+      fetchRequest: fetchRequest,
+      managedObjectContext: dataService.viewContext,
+      sectionNameKeyPath: nil,
+      cacheName: nil
+    )
+
+    guard let fetchedResultsController = fetchedResultsController else {
+      return
+    }
+
+    fetchedResultsController.delegate = self
+    try? fetchedResultsController.performFetch()
+    items = fetchedResultsController.fetchedObjects ?? []
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
-    // TODO: remove this by making list always fetch from Coredata
-    guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
-    items.remove(at: itemIndex)
     dataService.archiveLink(objectID: objectID, archived: archived)
     Snackbar.show(message: archived ? "Link archived" : "Link moved to Inbox")
   }
 
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
-    guard let itemIndex = items.firstIndex(where: { $0.objectID == objectID }) else { return }
-    items.remove(at: itemIndex)
     Snackbar.show(message: "Link removed")
     dataService.removeLink(objectID: objectID)
   }
@@ -158,5 +193,11 @@ import Views
     }
 
     return query
+  }
+}
+
+extension HomeFeedViewModel: NSFetchedResultsControllerDelegate {
+  func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+    items = controller.fetchedObjects as? [LinkedItem] ?? []
   }
 }

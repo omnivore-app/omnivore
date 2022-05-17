@@ -61,18 +61,21 @@ public final class RootViewModel: ObservableObject {
   @MainActor func onOpenURL(url: URL) async {
     guard let linkRequestID = DeepLink.make(from: url)?.linkRequestID else { return }
 
-    if let username = services.dataService.currentViewer?.username {
-      let path = linkRequestPath(username: username, requestID: linkRequestID)
-      webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
-      return
-    }
-
-    if let viewerObjectID = try? await services.dataService.fetchViewer() {
-      if let viewer = services.dataService.viewContext.object(with: viewerObjectID) as? Viewer {
-        let path = linkRequestPath(username: viewer.unwrappedUsername, requestID: linkRequestID)
-        webLinkPath = SafariWebLinkPath(id: UUID(), path: path)
+    let username: String? = await {
+      if let cachedUsername = services.dataService.currentViewer?.username {
+        return cachedUsername
       }
-    }
+
+      if let viewerObjectID = try? await services.dataService.fetchViewer() {
+        let viewer = services.dataService.viewContext.object(with: viewerObjectID) as? Viewer
+        return viewer?.unwrappedUsername
+      }
+
+      return nil
+    }()
+
+    guard let username = username else { return }
+    webLinkPath = SafariWebLinkPath(id: UUID(), path: linkRequestPath(username: username, requestID: linkRequestID))
   }
 
   func triggerPushNotificationRequestIfNeeded() {
