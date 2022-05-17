@@ -140,6 +140,7 @@ import Views
 
     fetchedResultsController.delegate = self
     try? fetchedResultsController.performFetch()
+    items = fetchedResultsController.fetchedObjects ?? []
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
