@@ -257,7 +257,7 @@ export const parsePreparedContent = async (
           console.log(e.textContent)
           if (e.textContent) {
             const att = hljs.highlightAuto(e.textContent)
-            const code = window.document.createElement('code')
+            const code = dom.createElement('code')
             const langClass =
               `hljs language-${att.language}` +
               (att.second_best?.language
