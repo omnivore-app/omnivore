@@ -197,9 +197,7 @@ class MilkRoadHandler extends SubscribeHandler {
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
-      body: `query_parameters=%7B%7D&email=${encodeURIComponent(
-        email
-      )}&commit=Subscribe`,
+      body: `email=${encodeURIComponent(email)}&commit=Subscribe`,
     })
 
     return ['Milk Road']
