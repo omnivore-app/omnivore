@@ -97,8 +97,11 @@ import Views
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
       await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID))
+    } else {
+      updateFetchController(dataService: dataService)
     }
 
+    isLoading = false
     showLoadingBar = false
   }
 
