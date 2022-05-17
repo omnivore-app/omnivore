@@ -1,11 +1,12 @@
+import Models
 import Services
 import SwiftUI
 import Utils
 import Views
 
-struct SafariWebLinkPath: Identifiable {
+struct LinkRequest: Identifiable {
   let id: UUID
-  let path: String
+  let serverID: String
 }
 
 public struct RootView: View {
@@ -51,14 +52,14 @@ struct InnerRootView: View {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }
       #if os(iOS)
-        .fullScreenCover(item: $viewModel.webLinkPath, content: { safariLinkPath in
+        .fullScreenCover(item: $viewModel.linkRequest) { _ in
           NavigationView {
-            FullScreenWebAppView(
-              viewModel: viewModel.webAppWrapperViewModel(webLinkPath: safariLinkPath.path),
-              handleClose: { viewModel.webLinkPath = nil }
+            WebReaderLoadingContainer(
+              requestID: viewModel.linkRequest?.serverID ?? "",
+              handleClose: { viewModel.linkRequest = nil }
             )
           }
-        })
+        }
       #endif
       .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
         // Schedule the dismissal every time we present the snackbar.
@@ -96,8 +97,8 @@ struct InnerRootView: View {
     #if os(iOS)
       .onOpenURL { url in
         withoutAnimation {
-          if viewModel.webLinkPath != nil {
-            viewModel.webLinkPath = nil
+          if viewModel.linkRequest != nil {
+            viewModel.linkRequest = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
               Task { await viewModel.onOpenURL(url: url) }
             }

@@ -112,21 +112,6 @@ public struct ShareExtensionChildView: View {
   @State var reminderTime: ReminderTime?
   @State var hideUntilReminded = false
 
-  private var savedStateView: some View {
-    HStack {
-      Spacer()
-      IconButtonView(
-        title: "Read Now",
-        systemIconName: "book",
-        action: {
-          readNowButtonAction()
-        }
-      )
-      Spacer()
-    }
-    .padding(.horizontal, 8)
-  }
-
   private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
     if selectedTime == reminderTime {
       reminderTime = nil
@@ -156,20 +141,18 @@ public struct ShareExtensionChildView: View {
       Spacer()
 
       if case ShareExtensionStatus.successfullySaved = status {
-        if FeatureFlag.enableReadNowFromShareExtension {
-          savedStateView
-        } else {
-          HStack(spacing: 4) {
-            Text("Saved to Omnivore")
-              .font(.appTitleThree)
-              .foregroundColor(.appGrayText)
-              .padding(.trailing, 16)
-              .multilineTextAlignment(.center)
-              .fixedSize(horizontal: false, vertical: true)
-              .lineLimit(nil)
-          }
-          .padding()
+        HStack {
+          Spacer()
+          IconButtonView(
+            title: "Read Now",
+            systemIconName: "book",
+            action: {
+              readNowButtonAction()
+            }
+          )
+          Spacer()
         }
+        .padding(.horizontal, 8)
       } else if case let ShareExtensionStatus.failed(error) = status {
         HStack {
           Spacer()

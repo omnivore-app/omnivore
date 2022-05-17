@@ -11,7 +11,7 @@ struct FeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item))
     #if os(iOS)
       let modifiedDestination = destination
         .navigationTitle("")
@@ -50,7 +50,7 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, homeFeedViewModel: viewModel))
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item))
     #if os(iOS)
       let modifiedDestination = destination
         .navigationTitle("")
