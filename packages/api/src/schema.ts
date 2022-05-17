@@ -1514,7 +1514,7 @@ const schema = gql`
   union SubscribeResult = SubscribeSuccess | SubscribeError
 
   type SubscribeSuccess {
-    subscription: Subscription!
+    subscriptions: [Subscription!]!
   }
 
   type SubscribeError {

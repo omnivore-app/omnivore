@@ -1665,7 +1665,7 @@ export type SubscribeResult = SubscribeError | SubscribeSuccess;
 
 export type SubscribeSuccess = {
   __typename?: 'SubscribeSuccess';
-  subscription: Subscription;
+  subscriptions: Array<Subscription>;
 };
 
 export type Subscription = {
@@ -3591,7 +3591,7 @@ export type SubscribeResultResolvers<ContextType = ResolverContext, ParentType e
 };
 
 export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscribeSuccess'] = ResolversParentTypes['SubscribeSuccess']> = {
-  subscription?: Resolver<ResolversTypes['Subscription'], ParentType, ContextType>;
+  subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

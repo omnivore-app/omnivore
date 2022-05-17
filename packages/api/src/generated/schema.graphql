@@ -1244,7 +1244,7 @@ enum SubscribeErrorCode {
 union SubscribeResult = SubscribeError | SubscribeSuccess
 
 type SubscribeSuccess {
-  subscription: Subscription!
+  subscriptions: [Subscription!]!
 }
 
 type Subscription {
