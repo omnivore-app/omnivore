@@ -52,12 +52,9 @@ exports.youtubeHandler = {
       <meta property="og:article:author" content="${oembed.author_name}" />
       </head>
       <body>
-      <center>
       <iframe width="${width}" height="${height}" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </center>
-      <br />
-        <a href="${url}">${title}</a>
-        <div itemscope="" itemprop="author" itemtype="http://schema.org/Person">By <a href="${oembed.author_url}">${oembed.author_name}</a></div>
+        <p><a href="${url}" target="_blank">${title}</a></p>
+        <p itemscope="" itemprop="author" itemtype="http://schema.org/Person">By <a href="${oembed.author_url}" target="_blank">${oembed.author_name}</a></p>
       </body>
     </html>`
 
