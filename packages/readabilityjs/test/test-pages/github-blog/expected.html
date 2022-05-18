@@ -1,0 +1,91 @@
+<DIV class="page" id="readability-page-1">
+    <div>
+        <div data-color-mode="dark" data-light-theme="light" data-dark-theme="dark_dimmed">
+            <div>
+                <p> At GitHub we use GitHub to build our own products, and the new projects experience is no different. Check out how our team uses projects to build powerful project planning for developers. </p>
+            </div>
+            <div>
+                <p><img srcset="
+                    https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=800%2C425   800w,
+                    https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=1400%2C742 1600w
+                  " src="https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=1400%2C742" width="1600" height="850" alt="How we’re using projects to build projects">
+                </p>
+            </div>
+        </div>
+        <div>
+            <main role="main" id="post-64967">
+                <p> At GitHub, we use GitHub to build our own products, whether that be <a href="https://github.blog/2021-08-11-githubs-engineering-team-moved-codespaces/">moving our entire Engineering team over to Codespaces for the majority of GitHub.com development</a>, or <a href="https://youtu.be/MW0V5Q9WJu4">utilizing GitHub Actions to coordinate our GitHub Mobile releases</a>. And while GitHub Issues has been a part of the GitHub experience since the early days and is an integral part of how we work together as Hubbers internally, the <a href="https://github.blog/changelog/2021-06-23-whats-new-with-github-issues/">addition of powerful project planning</a> has given us more opportunities to test out some of our most exciting products. </p>
+                <p> In this post, I’m going to share how we’ve been utilizing the new projects experience across our team (from an engineer like myself all the way to our VPs and team leads). We love working so closely with developers to ship requested features and updates (<a href="https://github.blog/changelog/label/issues/">all of which roll up into the Changelogs you see</a>), and using the new projects helps us stay consistent in our shipping cadence. </p>
+                <h2>How we think about shipping</h2>
+                <p> Our core team consists of members of the product, engineering, design, and user research teams. We recognize that good ideas can come from anywhere. Our process is designed to inspire, surface, and implement those ideas, whether they come from users, individual contributors, managers, directors, or VPs. To get the proper alignment for this group, we’ve agreed on a few guiding principles that drive what our roadmap will look like: </p>
+                <p> 💭 <strong>The pitch</strong>: When it comes to what we’re going to work on (outside of the big pieces of work on <a href="https://github.com/orgs/github/projects/4247/views/7">our roadmap</a>) people within our team can pitch ideas in our team’s repository for upcoming cycles (which we define as 6-8 weeks of work, inclusive of planning, engineering work, and an unstructured passion project week); these can be features, fixes, or even maintenance work. Every pitch must clearly state the problem it’s solving and why it’s important for us to prioritize. Some features that have come from this process include <a href="https://github.blog/changelog/2021-10-27-the-new-github-issues-public-beta/">live updates</a>, <a href="https://github.blog/changelog/2021-10-27-the-new-github-issues-public-beta/">burn up charts for insights</a>, and more. Note: these are all the changes you see as a developer, but we also have a lot of pitches come in from my fellow engineers focused around the developer experience. For example, a couple successful pitches have included reducing our CI time to 10 minutes, and streamlining our release process by switching to a ring deployment model and adding ChatOps. </p>
+                <p>
+                    <img src="https://github.blog/wp-content/uploads/2022/05/pitch-image-1.png" loading="lazy">
+                </p>
+                <p> 💡 In addition to using issues to propose and converse on pitches from the team, we use the new projects experience to track and manage all the pitches from the team so we can see them in an all-up table or board view. </p>
+                <p>
+                    <img src="https://github.blog/wp-content/uploads/2022/05/pt-pitches-image-2.png" loading="lazy">
+                </p>
+                <p> ✂ <strong>Keep it small</strong>: We knew for ourselves, and for developers, that we didn’t want to lock them into a specific planning methodology and over-complicate a team’s planning and tracking process. For us, we wanted to plan shorter cycles for our team to increase our tempo and focus, so we opted for six-week cycles to break up and build features. Check out how we recommend getting started with this approach in a <a href="https://github.blog/2022-02-11-getting-started-with-project-planning-on-github/">recent blog post</a>. </p>
+                <p> 📬 <strong>Ship to learn</strong>: Similar to how we ship a lot of our products, we knew developers and customers were going to be heavily intertwined with each and every ship, giving us immediate feedback in both the private and public beta. Their <a href="https://github.com/github/feedback/discussions/categories/issues-feedback">feedback</a> both influenced what we built and then how we iterated and continued to better the experience once something did ship. While there are so many people to thank, we’re extremely grateful for all our customers along the way for being our partners in building GitHub Issues into the place for developers to project plan. </p>
+                <h2>How we used projects to do it</h2>
+                <p> We love that the product we’re building doesn’t tool a specific project management methodology, but equips users with powerful primitives that they can compose into their preferred experiences and workflows. This allows for many people (not just us engineers) involved in building and developing products at GitHub (team leads, marketing, design, sales, etc.) the ability to use the product in a way that makes sense for them. </p>
+                <p> With the above principles in mind, once a pitch has been agreed upon to move forward on building, that pitch issue becomes a tracking issue in a project table or board that we convert into pieces of work that fit into an upcoming cycle. A great example of this was when we <a href="https://github.com/github/roadmap/issues/289">updated the GitHub Issues icons</a> to lessen confusion among developers. This came in as a pitch from a designer on the team, and was soon accepted and moved into epic planning in which the team responsible began to track the individual pieces of work needed to make this happen. </p>
+                <p>
+                    <img src="https://github.blog/wp-content/uploads/2022/05/issuereasonsfinal.png" loading="lazy">
+                </p>
+                <h3>IC approach</h3>
+                <p> Let’s start with how my fellow engineers, individual contributors and I use projects for day-to-day development within cycles. From our perspective on any given day, we’re hyper-focused on tackling what issues and pull requests are assigned to us (fun fact: <a href="https://github.blog/changelog/2022-02-23-the-new-github-issues-february-23rd-update/">we recently added</a> the <code>assignee:me</code> filter to make this even easier) in a given cycle, so we work from more <a href="https://docs.github.com/en/issues/trying-out-the-new-projects-experience/quickstart#creating-a-user-project">individually scoped</a> project tables or boards that stem from the larger epic and iteration tracking. Because of this, we can easily zoom out from our individual tasks to see how our work fits into a given cycle, and then even zoom out more into how it fits into larger initiatives. </p>
+                <p> 💡 In addition to scoping more specifically a given table or board, engineers across our organization utilize a personal project table or board to track all the things specific to themselves like what issues are assigned to them—even work not connected to a given cycle, like open source work. </p>
+                <p>
+                    <img src="https://github.blog/wp-content/uploads/2022/05/glorthopersonal-image-5.png" loading="lazy">
+                </p>
+                <h3>EM approach</h3>
+                <p> If we pull back to engineering managers overseeing those smaller cycles, they’re focused on kicking off an accepted pitch’s work, breaking it first into cycles and then into smaller iterations in which they can assign out work. A given cycle’s table or board view allows the managers to have a whole look at all members of their team and look specifically at things that are important to them, like all the pull requests that are open and quickly seeing which engineers are assigned, what pull requests have been merged, deployed, etc. </p>
+                <p>💡 Check out what this looks like in our team board.</p>
+                <p>
+                    <img src="https://github.blog/wp-content/uploads/2022/05/backlog-image-6.png" loading="lazy">
+                </p>
+                <h3>Team lead approach</h3>
+                <p> Now, if we put ourselves in the shoes of our team leads and Directors/VPs, we see that they’re using the new projects experience to primarily get the full picture of where product and feature development currently sit. They told me the main team roadmap and backlog is where they can get questions answered like: </p>
+                <ul>
+                    <li> Which projects do we have in flight in which product area right now? </li>
+                    <li>Who’s the key decision maker for this project?</li>
+                    <li>Which engineers are working on which projects?</li>
+                    <li> Which projects are at risk and need help (progress/status)? </li>
+                </ul>
+                <p> What’s great about this is that they can quickly glance at what’s in motion and then click into any cycles or status to get more context on open issues, pull requests, and how everything is connected. </p>
+                <p> 💡 Outside of being able to check in on what’s being worked on and where the organization’s current focus is, our leads have found additional use cases that may not be applicable for an engineer like me. They use private projects for more sensitive tasks, like managing our team’s hiring, tracking upcoming start dates, making sure they’re staying on top of career development, organizational change management, and more. </p>
+                <h2>Wrap-up</h2>
+                <p> This is how we as the planning and tracking team at GitHub are using the very product we’re building for you to build the new projects experience. There are many other teams across GitHub that utilize the new project tables and boards, but we hope this gives you a little bit of inspiration about how to think about project planning on GitHub and how to optimize for all the stakeholders involved in building and shipping products. </p>
+                <p> What’s great about project planning on GitHub is that our focus on powerful primitives approach to project management means that there is an unlimited amount of flexibility for you and your team to play around with, and likely many, many ways we haven’t even thought about how to use the product. So, <a href="https://github.com/github/feedback/discussions/categories/issues-feedback">please let us know</a> how you’re using it and how we can improve the experience! </p>
+            </main>
+        </div>
+        <section>
+            <h2> Related posts </h2>
+            <div>
+                <article id="term-post-64931">
+                    <div>
+                        <p><a href="https://github.blog/2022-05-10-enhanced-2fa-experience-for-your-npm-account/">
+                                <img srcset="
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=288%2C179   288w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=512%2C318   512w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=708%2C440   708w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=932%2C579   932w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=1024%2C630 1024w
+                  " src="https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=512%2C318" width="512" height="318" alt="Enhanced 2FA experience for your npm account" loading="lazy" decoding="async">
+                            </a></p>
+                        <h3>
+                            <a href="https://github.blog/2022-05-10-enhanced-2fa-experience-for-your-npm-account/">Enhanced 2FA experience for your npm account</a>
+                        </h3>
+                        <p> Late last year, in response to an unprecedented series of account takeovers resulting from the compromise of developer accounts without 2FA enabled, we committed to a variety of enhancements to… </p>
+                    </div>
+                </article>
+                <article id="term-post-64780">
+                </article>
+                <article id="term-post-64815">
+                </article>
+            </div>
+        </section>
+    </div>
+</DIV>
