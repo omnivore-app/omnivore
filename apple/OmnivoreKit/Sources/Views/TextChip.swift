@@ -3,27 +3,35 @@ import SwiftUI
 import Utils
 
 public struct TextChip: View {
-  public init(text: String, color: Color) {
+  public init(text: String, color: Color, negated: Bool = false) {
     self.text = text
     self.color = color
+    self.negated = negated
   }
 
-  public init?(feedItemLabel: LinkedItemLabel) {
+  public init?(feedItemLabel: LinkedItemLabel, negated: Bool = false) {
     guard let color = Color(hex: feedItemLabel.color ?? "") else { return nil }
 
     self.text = feedItemLabel.name ?? ""
     self.color = color
+    self.negated = negated
   }
 
   let text: String
   let color: Color
+  let negated: Bool
+
+  var textColor: Color {
+    color.isDark ? .white : .black
+  }
 
   public var body: some View {
     Text(text)
+      .strikethrough(color: negated ? textColor : .clear)
       .padding(.horizontal, 10)
       .padding(.vertical, 5)
       .font(.appFootnote)
-      .foregroundColor(color.isDark ? .white : .black)
+      .foregroundColor(textColor)
       .lineLimit(1)
       .background(Capsule().fill(color))
   }
@@ -31,25 +39,27 @@ public struct TextChip: View {
 
 public struct TextChipButton: View {
   public static func makeAddLabelButton(onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, onTap: onTap)
+    TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, negated: false, onTap: onTap)
   }
 
   public static func makeFilterButton(title: String) -> TextChipButton {
-    TextChipButton(title: title, color: .systemGray6, actionType: .show, onTap: {})
+    TextChipButton(title: title, color: .systemGray6, actionType: .show, negated: false, onTap: {})
   }
 
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: title, color: .appButtonBackground, actionType: .add, onTap: onTap)
+    TextChipButton(title: title, color: .appButtonBackground, actionType: .add, negated: false, onTap: onTap)
   }
 
   public static func makeRemovableLabelButton(
     feedItemLabel: LinkedItemLabel,
+    negated: Bool,
     onTap: @escaping () -> Void
   ) -> TextChipButton {
     TextChipButton(
       title: feedItemLabel.name ?? "",
       color: Color(hex: feedItemLabel.color ?? "") ?? .appButtonBackground,
       actionType: .remove,
+      negated: negated,
       onTap: onTap
     )
   }
@@ -71,7 +81,7 @@ public struct TextChipButton: View {
     }
   }
 
-  public init(title: String, color: Color, actionType: ActionType, onTap: @escaping () -> Void) {
+  public init(title: String, color: Color, actionType: ActionType, negated: Bool, onTap: @escaping () -> Void) {
     self.text = title
     self.color = color
     self.onTap = onTap
@@ -82,9 +92,11 @@ public struct TextChipButton: View {
       }
       return color.isDark ? .white : .black
     }()
+    self.negated = negated
   }
 
   let text: String
+  let negated: Bool
   let color: Color
   let onTap: () -> Void
   let actionType: ActionType
@@ -94,6 +106,7 @@ public struct TextChipButton: View {
     VStack(spacing: 0) {
       HStack {
         Text(text)
+          .strikethrough(color: negated ? foregroundColor : .clear)
           .padding(.leading, 3)
         Image(systemName: actionType.systemIconName)
       }
