@@ -206,13 +206,15 @@ class MilkRoadHandler extends SubscribeHandler {
 
 class MoneyStuffHandler extends SubscribeHandler {
   async _subscribe(email: string): Promise<string[]> {
-    await axios.post(
-      'https://login.bloomberg.com/api/engagements/follow-author',
+    await axios.put(
+      `https://login.bloomberg.com/api/newsletters/update?email=${encodeURIComponent(
+        email
+      )}&source=&notify=true&optIn=false`,
       {
         headers: {
           'content-type': 'application/json',
         },
-        body: `{"email":"${email}","optIn":false,"topic":"18273090","authorId":"18273090","authorName":"Matt Levine"}`,
+        body: '{"Money Stuff":true}',
       }
     )
 
