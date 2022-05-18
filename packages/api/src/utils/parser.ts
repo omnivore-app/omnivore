@@ -18,8 +18,6 @@ import { parseHTML } from 'linkedom'
 
 const logger = buildLogger('utils.parse')
 
-// const virtualConsole = new VirtualConsole()
-
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
   'application/octet-stream',
@@ -232,14 +230,6 @@ export const parsePreparedContent = async (
     }
   }
 
-  // virtualConsole.removeAllListeners('jsdomError')
-  // virtualConsole.on('jsdomError', ({ message, stack: _stack, ...details }) => {
-  //   logger.warning(`JSDOM error occurred`, {
-  //     ...logRecord,
-  //     errorMsg: message,
-  //     ...details,
-  //   })
-  // })
   const dom = parseHTML(document).document
 
   await applyHandlers(url, dom)

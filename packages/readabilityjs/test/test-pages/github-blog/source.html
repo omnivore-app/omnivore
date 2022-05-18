@@ -1,0 +1,2577 @@
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="profile" href="https://gmpg.org/xfn/11" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://github.githubassets.com/favicon.ico"
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <!-- This site is optimized with the Yoast SEO Premium plugin v17.0 (Yoast SEO v17.0) - https://yoast.com/wordpress/plugins/seo/ -->
+    <title>How we’re using projects to build projects | The GitHub Blog</title>
+    <meta
+      name="description"
+      content="At GitHub we use GitHub to build our own products, and the new projects experience is no different. Check out how our team uses projects to build powerful project planning for developers."
+    />
+    <link
+      rel="canonical"
+      href="https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/"
+    />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:title"
+      content="How we’re using projects to build projects | The GitHub Blog"
+    />
+    <meta
+      property="og:description"
+      content="At GitHub we use GitHub to build our own products, and the new projects experience is no different. Check out how our team uses projects to build powerful project planning for developers."
+    />
+    <meta
+      property="og:url"
+      content="https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/"
+    />
+    <meta property="og:site_name" content="The GitHub Blog" />
+    <meta
+      property="article:publisher"
+      content="https://www.facebook.com/GitHub"
+    />
+    <meta
+      property="article:published_time"
+      content="2022-05-16T16:02:19+00:00"
+    />
+    <meta
+      property="og:image"
+      content="https://github.blog/wp-content/uploads/2022/05/blog-header-image.png"
+    />
+    <meta property="og:image:width" content="1400" />
+    <meta property="og:image:height" content="742" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@github" />
+    <meta name="twitter:site" content="@github" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jed Verity" />
+    <meta name="twitter:label2" content="Est. reading time" />
+    <meta name="twitter:data2" content="7 minutes" />
+    <script type="application/ld+json" class="yoast-schema-graph">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://github.blog/#organization",
+            "name": "GitHub",
+            "url": "https://github.blog/",
+            "sameAs": [
+              "https://www.facebook.com/GitHub",
+              "https://www.instagram.com/github/",
+              "https://www.linkedin.com/company/github/",
+              "https://www.youtube.com/GitHub",
+              "https://en.wikipedia.org/wiki/GitHub",
+              "https://twitter.com/github"
+            ],
+            "logo": {
+              "@type": "ImageObject",
+              "@id": "https://github.blog/#logo",
+              "inLanguage": "en-US",
+              "url": "https://github.blog/wp-content/uploads/2019/01/cropped-github-favicon-512.png?fit=512%2C512",
+              "contentUrl": "https://github.blog/wp-content/uploads/2019/01/cropped-github-favicon-512.png?fit=512%2C512",
+              "width": 512,
+              "height": 512,
+              "caption": "GitHub"
+            },
+            "image": { "@id": "https://github.blog/#logo" }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://github.blog/#website",
+            "url": "https://github.blog/",
+            "name": "The GitHub Blog",
+            "description": "Updates, ideas, and inspiration from GitHub to help developers build and design software.",
+            "publisher": { "@id": "https://github.blog/#organization" },
+            "potentialAction": [
+              {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://github.blog/?s={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              }
+            ],
+            "inLanguage": "en-US"
+          },
+          {
+            "@type": "ImageObject",
+            "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#primaryimage",
+            "inLanguage": "en-US",
+            "url": "https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?fit=1400%2C742",
+            "contentUrl": "https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?fit=1400%2C742",
+            "width": 1400,
+            "height": 742
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#webpage",
+            "url": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/",
+            "name": "How we\u2019re using projects to build projects | The GitHub Blog",
+            "isPartOf": { "@id": "https://github.blog/#website" },
+            "primaryImageOfPage": {
+              "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#primaryimage"
+            },
+            "datePublished": "2022-05-16T16:02:19+00:00",
+            "dateModified": "2022-05-16T16:02:19+00:00",
+            "description": "At GitHub we use GitHub to build our own products, and the new projects experience is no different. Check out how our team uses projects to build powerful project planning for developers.",
+            "breadcrumb": {
+              "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#breadcrumb"
+            },
+            "inLanguage": "en-US",
+            "potentialAction": [
+              {
+                "@type": "ReadAction",
+                "target": [
+                  "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/"
+                ]
+              }
+            ]
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://github.blog/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "How we\u2019re using projects to build projects"
+              }
+            ]
+          },
+          {
+            "@type": "Article",
+            "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#article",
+            "isPartOf": {
+              "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#webpage"
+            },
+            "author": {
+              "@id": "https://github.blog/#/schema/person/af0cc3e29351eaea3e851ea20dd0cade"
+            },
+            "headline": "How we\u2019re using projects to build projects",
+            "datePublished": "2022-05-16T16:02:19+00:00",
+            "dateModified": "2022-05-16T16:02:19+00:00",
+            "mainEntityOfPage": {
+              "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#webpage"
+            },
+            "wordCount": 1416,
+            "publisher": { "@id": "https://github.blog/#organization" },
+            "image": {
+              "@id": "https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/#primaryimage"
+            },
+            "thumbnailUrl": "https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?fit=1400%2C742",
+            "keywords": ["GitHub Issues"],
+            "articleSection": ["Engineering", "Product"],
+            "inLanguage": "en-US"
+          },
+          {
+            "@type": "Person",
+            "@id": "https://github.blog/#/schema/person/af0cc3e29351eaea3e851ea20dd0cade",
+            "name": "Jed Verity",
+            "image": {
+              "@type": "ImageObject",
+              "@id": "https://github.blog/#personlogo",
+              "inLanguage": "en-US",
+              "url": "https://secure.gravatar.com/avatar/1998bc23f89fd52cda39074afd9410ee?s=96&d=mm&r=g",
+              "contentUrl": "https://secure.gravatar.com/avatar/1998bc23f89fd52cda39074afd9410ee?s=96&d=mm&r=g",
+              "caption": "Jed Verity"
+            },
+            "url": "https://github.blog/author/glortho/"
+          }
+        ]
+      }
+    </script>
+    <!-- / Yoast SEO Premium plugin. -->
+
+    <link rel="dns-prefetch" href="//cdn.parsely.com" />
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="//s.w.org" />
+    <link rel="dns-prefetch" href="//v0.wordpress.com" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="The GitHub Blog » Feed"
+      href="https://github.blog/feed/"
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="The GitHub Blog » Comments Feed"
+      href="https://github.blog/comments/feed/"
+    />
+    <script>
+      window._wpemojiSettings = {
+        baseUrl: 'https:\/\/s.w.org\/images\/core\/emoji\/13.1.0\/72x72\/',
+        ext: '.png',
+        svgUrl: 'https:\/\/s.w.org\/images\/core\/emoji\/13.1.0\/svg\/',
+        svgExt: '.svg',
+        source: {
+          concatemoji:
+            'https:\/\/github.blog\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.9.3',
+        },
+      }
+      /*! This file is auto-generated */
+      !(function (e, a, t) {
+        var n,
+          r,
+          o,
+          i = a.createElement('canvas'),
+          p = i.getContext && i.getContext('2d')
+        function s(e, t) {
+          var a = String.fromCharCode
+          p.clearRect(0, 0, i.width, i.height),
+            p.fillText(a.apply(this, e), 0, 0)
+          e = i.toDataURL()
+          return (
+            p.clearRect(0, 0, i.width, i.height),
+            p.fillText(a.apply(this, t), 0, 0),
+            e === i.toDataURL()
+          )
+        }
+        function c(e) {
+          var t = a.createElement('script')
+          ;(t.src = e),
+            (t.defer = t.type = 'text/javascript'),
+            a.getElementsByTagName('head')[0].appendChild(t)
+        }
+        for (
+          o = Array('flag', 'emoji'),
+            t.supports = { everything: !0, everythingExceptFlag: !0 },
+            r = 0;
+          r < o.length;
+          r++
+        )
+          (t.supports[o[r]] = (function (e) {
+            if (!p || !p.fillText) return !1
+            switch (
+              ((p.textBaseline = 'top'), (p.font = '600 32px Arial'), e)
+            ) {
+              case 'flag':
+                return s(
+                  [127987, 65039, 8205, 9895, 65039],
+                  [127987, 65039, 8203, 9895, 65039]
+                )
+                  ? !1
+                  : !s(
+                      [55356, 56826, 55356, 56819],
+                      [55356, 56826, 8203, 55356, 56819]
+                    ) &&
+                      !s(
+                        [
+                          55356, 57332, 56128, 56423, 56128, 56418, 56128,
+                          56421, 56128, 56430, 56128, 56423, 56128, 56447,
+                        ],
+                        [
+                          55356, 57332, 8203, 56128, 56423, 8203, 56128, 56418,
+                          8203, 56128, 56421, 8203, 56128, 56430, 8203, 56128,
+                          56423, 8203, 56128, 56447,
+                        ]
+                      )
+              case 'emoji':
+                return !s(
+                  [10084, 65039, 8205, 55357, 56613],
+                  [10084, 65039, 8203, 55357, 56613]
+                )
+            }
+            return !1
+          })(o[r])),
+            (t.supports.everything = t.supports.everything && t.supports[o[r]]),
+            'flag' !== o[r] &&
+              (t.supports.everythingExceptFlag =
+                t.supports.everythingExceptFlag && t.supports[o[r]])
+        ;(t.supports.everythingExceptFlag =
+          t.supports.everythingExceptFlag && !t.supports.flag),
+          (t.DOMReady = !1),
+          (t.readyCallback = function () {
+            t.DOMReady = !0
+          }),
+          t.supports.everything ||
+            ((n = function () {
+              t.readyCallback()
+            }),
+            a.addEventListener
+              ? (a.addEventListener('DOMContentLoaded', n, !1),
+                e.addEventListener('load', n, !1))
+              : (e.attachEvent('onload', n),
+                a.attachEvent('onreadystatechange', function () {
+                  'complete' === a.readyState && t.readyCallback()
+                })),
+            (n = t.source || {}).concatemoji
+              ? c(n.concatemoji)
+              : n.wpemoji && n.twemoji && (c(n.twemoji), c(n.wpemoji)))
+      })(window, document, window._wpemojiSettings)
+    </script>
+    <script
+      src="https://github.blog/wp-includes/js/wp-emoji-release.min.js?ver=5.9.3"
+      type="text/javascript"
+      defer=""
+    ></script>
+    <style>
+      img.wp-smiley,
+      img.emoji {
+        display: inline !important;
+        border: none !important;
+        box-shadow: none !important;
+        height: 1em !important;
+        width: 1em !important;
+        margin: 0 0.07em !important;
+        vertical-align: -0.1em !important;
+        background: none !important;
+        padding: 0 !important;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      id="all-css-0"
+      href="https://github.blog/wp-includes/css/dist/block-library/style.min.css?m=1651861847g"
+      type="text/css"
+      media="all"
+    />
+    <style id="wp-block-library-inline-css">
+      .has-text-align-justify {
+        text-align: justify;
+      }
+    </style>
+    <style id="wp-parsely-recommendations-style-inline-css">
+      .parsely-recommendations-list-title {
+        font-size: 1.2em;
+      }
+      .parsely-recommendations-list {
+        list-style: none;
+        padding: unset;
+      }
+      .parsely-recommendations-cardbody {
+        overflow: hidden;
+        padding: 0.8em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .parsely-recommendations-cardmedia {
+        padding: 0.8em 0.8em 0;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      id="all-css-2"
+      href="https://github.blog/_static/??-eJzTLy/QzcxLzilNSS3WzyrWz01NyUxMzUnNTc0rQeEU5CRWphbp5qSmJyZX6uVm5uklFxfr6OPTDpRD5sM02efaGpqZGlqYGVqYmAMARNEu6g=="
+      type="text/css"
+      media="all"
+    />
+    <style id="global-styles-inline-css">
+      body {
+        --wp--preset--color--black: #000000;
+        --wp--preset--color--cyan-bluish-gray: #abb8c3;
+        --wp--preset--color--white: #ffffff;
+        --wp--preset--color--pale-pink: #f78da7;
+        --wp--preset--color--vivid-red: #cf2e2e;
+        --wp--preset--color--luminous-vivid-orange: #ff6900;
+        --wp--preset--color--luminous-vivid-amber: #fcb900;
+        --wp--preset--color--light-green-cyan: #7bdcb5;
+        --wp--preset--color--vivid-green-cyan: #00d084;
+        --wp--preset--color--pale-cyan-blue: #8ed1fc;
+        --wp--preset--color--vivid-cyan-blue: #0693e3;
+        --wp--preset--color--vivid-purple: #9b51e0;
+        --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(
+          135deg,
+          rgba(6, 147, 227, 1) 0%,
+          rgb(155, 81, 224) 100%
+        );
+        --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(
+          135deg,
+          rgb(122, 220, 180) 0%,
+          rgb(0, 208, 130) 100%
+        );
+        --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(
+          135deg,
+          rgba(252, 185, 0, 1) 0%,
+          rgba(255, 105, 0, 1) 100%
+        );
+        --wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(
+          135deg,
+          rgba(255, 105, 0, 1) 0%,
+          rgb(207, 46, 46) 100%
+        );
+        --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(
+          135deg,
+          rgb(238, 238, 238) 0%,
+          rgb(169, 184, 195) 100%
+        );
+        --wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(
+          135deg,
+          rgb(74, 234, 220) 0%,
+          rgb(151, 120, 209) 20%,
+          rgb(207, 42, 186) 40%,
+          rgb(238, 44, 130) 60%,
+          rgb(251, 105, 98) 80%,
+          rgb(254, 248, 76) 100%
+        );
+        --wp--preset--gradient--blush-light-purple: linear-gradient(
+          135deg,
+          rgb(255, 206, 236) 0%,
+          rgb(152, 150, 240) 100%
+        );
+        --wp--preset--gradient--blush-bordeaux: linear-gradient(
+          135deg,
+          rgb(254, 205, 165) 0%,
+          rgb(254, 45, 45) 50%,
+          rgb(107, 0, 62) 100%
+        );
+        --wp--preset--gradient--luminous-dusk: linear-gradient(
+          135deg,
+          rgb(255, 203, 112) 0%,
+          rgb(199, 81, 192) 50%,
+          rgb(65, 88, 208) 100%
+        );
+        --wp--preset--gradient--pale-ocean: linear-gradient(
+          135deg,
+          rgb(255, 245, 203) 0%,
+          rgb(182, 227, 212) 50%,
+          rgb(51, 167, 181) 100%
+        );
+        --wp--preset--gradient--electric-grass: linear-gradient(
+          135deg,
+          rgb(202, 248, 128) 0%,
+          rgb(113, 206, 126) 100%
+        );
+        --wp--preset--gradient--midnight: linear-gradient(
+          135deg,
+          rgb(2, 3, 129) 0%,
+          rgb(40, 116, 252) 100%
+        );
+        --wp--preset--duotone--dark-grayscale: url('#wp-duotone-dark-grayscale');
+        --wp--preset--duotone--grayscale: url('#wp-duotone-grayscale');
+        --wp--preset--duotone--purple-yellow: url('#wp-duotone-purple-yellow');
+        --wp--preset--duotone--blue-red: url('#wp-duotone-blue-red');
+        --wp--preset--duotone--midnight: url('#wp-duotone-midnight');
+        --wp--preset--duotone--magenta-yellow: url('#wp-duotone-magenta-yellow');
+        --wp--preset--duotone--purple-green: url('#wp-duotone-purple-green');
+        --wp--preset--duotone--blue-orange: url('#wp-duotone-blue-orange');
+        --wp--preset--font-size--small: 13px;
+        --wp--preset--font-size--medium: 20px;
+        --wp--preset--font-size--large: 36px;
+        --wp--preset--font-size--x-large: 42px;
+      }
+      .has-black-color {
+        color: var(--wp--preset--color--black) !important;
+      }
+      .has-cyan-bluish-gray-color {
+        color: var(--wp--preset--color--cyan-bluish-gray) !important;
+      }
+      .has-white-color {
+        color: var(--wp--preset--color--white) !important;
+      }
+      .has-pale-pink-color {
+        color: var(--wp--preset--color--pale-pink) !important;
+      }
+      .has-vivid-red-color {
+        color: var(--wp--preset--color--vivid-red) !important;
+      }
+      .has-luminous-vivid-orange-color {
+        color: var(--wp--preset--color--luminous-vivid-orange) !important;
+      }
+      .has-luminous-vivid-amber-color {
+        color: var(--wp--preset--color--luminous-vivid-amber) !important;
+      }
+      .has-light-green-cyan-color {
+        color: var(--wp--preset--color--light-green-cyan) !important;
+      }
+      .has-vivid-green-cyan-color {
+        color: var(--wp--preset--color--vivid-green-cyan) !important;
+      }
+      .has-pale-cyan-blue-color {
+        color: var(--wp--preset--color--pale-cyan-blue) !important;
+      }
+      .has-vivid-cyan-blue-color {
+        color: var(--wp--preset--color--vivid-cyan-blue) !important;
+      }
+      .has-vivid-purple-color {
+        color: var(--wp--preset--color--vivid-purple) !important;
+      }
+      .has-black-background-color {
+        background-color: var(--wp--preset--color--black) !important;
+      }
+      .has-cyan-bluish-gray-background-color {
+        background-color: var(--wp--preset--color--cyan-bluish-gray) !important;
+      }
+      .has-white-background-color {
+        background-color: var(--wp--preset--color--white) !important;
+      }
+      .has-pale-pink-background-color {
+        background-color: var(--wp--preset--color--pale-pink) !important;
+      }
+      .has-vivid-red-background-color {
+        background-color: var(--wp--preset--color--vivid-red) !important;
+      }
+      .has-luminous-vivid-orange-background-color {
+        background-color: var(
+          --wp--preset--color--luminous-vivid-orange
+        ) !important;
+      }
+      .has-luminous-vivid-amber-background-color {
+        background-color: var(
+          --wp--preset--color--luminous-vivid-amber
+        ) !important;
+      }
+      .has-light-green-cyan-background-color {
+        background-color: var(--wp--preset--color--light-green-cyan) !important;
+      }
+      .has-vivid-green-cyan-background-color {
+        background-color: var(--wp--preset--color--vivid-green-cyan) !important;
+      }
+      .has-pale-cyan-blue-background-color {
+        background-color: var(--wp--preset--color--pale-cyan-blue) !important;
+      }
+      .has-vivid-cyan-blue-background-color {
+        background-color: var(--wp--preset--color--vivid-cyan-blue) !important;
+      }
+      .has-vivid-purple-background-color {
+        background-color: var(--wp--preset--color--vivid-purple) !important;
+      }
+      .has-black-border-color {
+        border-color: var(--wp--preset--color--black) !important;
+      }
+      .has-cyan-bluish-gray-border-color {
+        border-color: var(--wp--preset--color--cyan-bluish-gray) !important;
+      }
+      .has-white-border-color {
+        border-color: var(--wp--preset--color--white) !important;
+      }
+      .has-pale-pink-border-color {
+        border-color: var(--wp--preset--color--pale-pink) !important;
+      }
+      .has-vivid-red-border-color {
+        border-color: var(--wp--preset--color--vivid-red) !important;
+      }
+      .has-luminous-vivid-orange-border-color {
+        border-color: var(
+          --wp--preset--color--luminous-vivid-orange
+        ) !important;
+      }
+      .has-luminous-vivid-amber-border-color {
+        border-color: var(--wp--preset--color--luminous-vivid-amber) !important;
+      }
+      .has-light-green-cyan-border-color {
+        border-color: var(--wp--preset--color--light-green-cyan) !important;
+      }
+      .has-vivid-green-cyan-border-color {
+        border-color: var(--wp--preset--color--vivid-green-cyan) !important;
+      }
+      .has-pale-cyan-blue-border-color {
+        border-color: var(--wp--preset--color--pale-cyan-blue) !important;
+      }
+      .has-vivid-cyan-blue-border-color {
+        border-color: var(--wp--preset--color--vivid-cyan-blue) !important;
+      }
+      .has-vivid-purple-border-color {
+        border-color: var(--wp--preset--color--vivid-purple) !important;
+      }
+      .has-vivid-cyan-blue-to-vivid-purple-gradient-background {
+        background: var(
+          --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple
+        ) !important;
+      }
+      .has-light-green-cyan-to-vivid-green-cyan-gradient-background {
+        background: var(
+          --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan
+        ) !important;
+      }
+      .has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background {
+        background: var(
+          --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange
+        ) !important;
+      }
+      .has-luminous-vivid-orange-to-vivid-red-gradient-background {
+        background: var(
+          --wp--preset--gradient--luminous-vivid-orange-to-vivid-red
+        ) !important;
+      }
+      .has-very-light-gray-to-cyan-bluish-gray-gradient-background {
+        background: var(
+          --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray
+        ) !important;
+      }
+      .has-cool-to-warm-spectrum-gradient-background {
+        background: var(
+          --wp--preset--gradient--cool-to-warm-spectrum
+        ) !important;
+      }
+      .has-blush-light-purple-gradient-background {
+        background: var(--wp--preset--gradient--blush-light-purple) !important;
+      }
+      .has-blush-bordeaux-gradient-background {
+        background: var(--wp--preset--gradient--blush-bordeaux) !important;
+      }
+      .has-luminous-dusk-gradient-background {
+        background: var(--wp--preset--gradient--luminous-dusk) !important;
+      }
+      .has-pale-ocean-gradient-background {
+        background: var(--wp--preset--gradient--pale-ocean) !important;
+      }
+      .has-electric-grass-gradient-background {
+        background: var(--wp--preset--gradient--electric-grass) !important;
+      }
+      .has-midnight-gradient-background {
+        background: var(--wp--preset--gradient--midnight) !important;
+      }
+      .has-small-font-size {
+        font-size: var(--wp--preset--font-size--small) !important;
+      }
+      .has-medium-font-size {
+        font-size: var(--wp--preset--font-size--medium) !important;
+      }
+      .has-large-font-size {
+        font-size: var(--wp--preset--font-size--large) !important;
+      }
+      .has-x-large-font-size {
+        font-size: var(--wp--preset--font-size--x-large) !important;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      id="all-css-4"
+      href="https://github.blog/_static/??/wp-content/mu-plugins/qm-plugins/qm-object-cache/css/style.css,/wp-content/themes/github-2021/assets/css/site.min.css?m=1652558729"
+      type="text/css"
+      media="all"
+    />
+    <link
+      rel="stylesheet"
+      id="highlightjs-css-css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css?ver=11.4.0"
+      media="all"
+    />
+    <link
+      rel="stylesheet"
+      id="all-css-6"
+      href="https://github.blog/wp-content/mu-plugins/jetpack-10.9/css/jetpack.css?m=1651057020g"
+      type="text/css"
+      media="all"
+    />
+    <link rel="https://api.w.org/" href="https://github.blog/wp-json/" />
+    <link
+      rel="alternate"
+      type="application/json"
+      href="https://github.blog/wp-json/wp/v2/posts/64967"
+    />
+    <link
+      rel="EditURI"
+      type="application/rsd+xml"
+      title="RSD"
+      href="https://github.blog/xmlrpc.php?rsd"
+    />
+    <link
+      rel="wlwmanifest"
+      type="application/wlwmanifest+xml"
+      href="https://github.blog/wp-includes/wlwmanifest.xml"
+    />
+    <meta name="generator" content="WordPress 5.9.3" />
+    <link rel="shortlink" href="https://wp.me/pamS32-gTR" />
+    <link
+      rel="alternate"
+      type="application/json+oembed"
+      href="https://github.blog/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fgithub.blog%2F2022-05-16-how-were-using-projects-to-build-projects%2F"
+    />
+    <link
+      rel="alternate"
+      type="text/xml+oembed"
+      href="https://github.blog/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fgithub.blog%2F2022-05-16-how-were-using-projects-to-build-projects%2F&amp;format=xml"
+    />
+    <meta
+      name="parsely-title"
+      content="How we’re using projects to build projects"
+    />
+    <meta
+      name="parsely-link"
+      content="http://github.blog/2022-05-16-how-were-using-projects-to-build-projects/"
+    />
+    <meta name="parsely-type" content="post" />
+    <meta
+      name="parsely-image-url"
+      content="https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=150%2C150"
+    />
+    <meta name="parsely-pub-date" content="2022-05-16T16:02:19Z" />
+    <meta name="parsely-section" content="Engineering" />
+    <meta name="parsely-tags" content="github issues" />
+    <meta name="parsely-author" content="Jed Verity" />
+    <style type="text/css">
+      img#wpstats {
+        display: none;
+      }
+    </style>
+    <meta
+      name="ha-url"
+      content="https://collector.githubapp.com/github-blog/collect"
+    />
+    <link
+      rel="preload"
+      href="https://github.blog/wp-content/themes/github-2021/assets/fonts/alliance/Alliance-No-1-ExtraBold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="https://github.blog/wp-content/themes/github-2021/assets/fonts/alliance/Alliance-No-1-Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="https://github.blog/wp-content/themes/github-2021/assets/fonts/alliance/Alliance-No-1-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="icon"
+      href="https://github.blog/wp-content/uploads/2019/01/cropped-github-favicon-512.png?fit=32%2C32"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      href="https://github.blog/wp-content/uploads/2019/01/cropped-github-favicon-512.png?fit=192%2C192"
+      sizes="192x192"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="https://github.blog/wp-content/uploads/2019/01/cropped-github-favicon-512.png?fit=180%2C180"
+    />
+    <meta
+      name="msapplication-TileImage"
+      content="https://github.blog/wp-content/uploads/2019/01/cropped-github-favicon-512.png?fit=270%2C270"
+    />
+  </head>
+
+  <body
+    class="post-template-default single single-post postid-64967 single-format-standard font-mktg no-sidebar"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-dark-grayscale">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="0 0.49803921568627"></feFuncR>
+            <feFuncG type="table" tableValues="0 0.49803921568627"></feFuncG>
+            <feFuncB type="table" tableValues="0 0.49803921568627"></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-grayscale">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="0 1"></feFuncR>
+            <feFuncG type="table" tableValues="0 1"></feFuncG>
+            <feFuncB type="table" tableValues="0 1"></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-purple-yellow">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR
+              type="table"
+              tableValues="0.54901960784314 0.98823529411765"
+            ></feFuncR>
+            <feFuncG type="table" tableValues="0 1"></feFuncG>
+            <feFuncB
+              type="table"
+              tableValues="0.71764705882353 0.25490196078431"
+            ></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-blue-red">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="0 1"></feFuncR>
+            <feFuncG type="table" tableValues="0 0.27843137254902"></feFuncG>
+            <feFuncB
+              type="table"
+              tableValues="0.5921568627451 0.27843137254902"
+            ></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-midnight">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="0 0"></feFuncR>
+            <feFuncG type="table" tableValues="0 0.64705882352941"></feFuncG>
+            <feFuncB type="table" tableValues="0 1"></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-magenta-yellow">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="0.78039215686275 1"></feFuncR>
+            <feFuncG type="table" tableValues="0 0.94901960784314"></feFuncG>
+            <feFuncB
+              type="table"
+              tableValues="0.35294117647059 0.47058823529412"
+            ></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-purple-green">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR
+              type="table"
+              tableValues="0.65098039215686 0.40392156862745"
+            ></feFuncR>
+            <feFuncG type="table" tableValues="0 1"></feFuncG>
+            <feFuncB type="table" tableValues="0.44705882352941 0.4"></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs></svg
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 0 0"
+      width="0"
+      height="0"
+      focusable="false"
+      role="none"
+      style="
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        overflow: hidden;
+      "
+    >
+      <defs>
+        <filter id="wp-duotone-blue-orange">
+          <feColorMatrix
+            color-interpolation-filters="sRGB"
+            type="matrix"
+            values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "
+          ></feColorMatrix>
+          <feComponentTransfer color-interpolation-filters="sRGB">
+            <feFuncR type="table" tableValues="0.098039215686275 1"></feFuncR>
+            <feFuncG type="table" tableValues="0 0.66274509803922"></feFuncG>
+            <feFuncB
+              type="table"
+              tableValues="0.84705882352941 0.41960784313725"
+            ></feFuncB>
+            <feFuncA type="table" tableValues="1 1"></feFuncA>
+          </feComponentTransfer>
+          <feComposite in2="SourceGraphic" operator="in"></feComposite>
+        </filter>
+      </defs>
+    </svg>
+    <header class="position-relative z-3">
+      <div
+        data-color-mode="dark"
+        data-light-theme="light"
+        data-dark-theme="dark_dimmed"
+      >
+        <nav
+          class="nav-header-with-logo nav-bar-include-search container-xl mx-auto p-responsive position-relative"
+        >
+          <div
+            class="d-flex flex-justify-between flex-items-center pt-3 pt-md-4 pb-3 border-bottom color-fg-default"
+          >
+            <a
+              href="https://github.blog/"
+              class="color-fg-default flex-shrink-0 blog-logo"
+              aria-label="GitHub Blog"
+              ><svg
+                width="100"
+                height="40"
+                viewBox="0 0 100 40"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+                class="d-block"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M19.9996 4.375C11.1749 4.375 4.02734 11.5226 4.02734 20.3472C4.02734 27.4149 8.59939 33.3845 14.9484 35.5009C15.747 35.6406 16.0464 35.1615 16.0464 34.7422C16.0464 34.3628 16.0265 33.105 16.0265 31.7674C12.0135 32.5061 10.9753 30.7891 10.6558 29.8906C10.4761 29.4314 9.69748 28.0139 9.01866 27.6345C8.45964 27.3351 7.66102 26.5964 8.9987 26.5764C10.2565 26.5564 11.1549 27.7344 11.4544 28.2135C12.8919 30.6293 15.1879 29.9505 16.1063 29.5312C16.2461 28.4931 16.6654 27.7943 17.1246 27.395C13.5707 26.9957 9.85721 25.6181 9.85721 19.5087C9.85721 17.7717 10.4761 16.3342 11.4944 15.2161C11.3346 14.8168 10.7756 13.1797 11.6541 10.9835C11.6541 10.9835 12.9918 10.5642 16.0464 12.6207C17.3242 12.2613 18.6819 12.0816 20.0395 12.0816C21.3971 12.0816 22.7548 12.2613 24.0326 12.6207C27.0872 10.5443 28.4249 10.9835 28.4249 10.9835C29.3034 13.1797 28.7444 14.8168 28.5846 15.2161C29.6029 16.3342 30.2218 17.7517 30.2218 19.5087C30.2218 25.638 26.4883 26.9957 22.9345 27.395C23.5135 27.8941 24.0126 28.8524 24.0126 30.3498C24.0126 32.4861 23.9926 34.2031 23.9926 34.7422C23.9926 35.1615 24.2921 35.6606 25.0907 35.5009C31.3997 33.3845 35.9718 27.395 35.9718 20.3472C35.9718 11.5226 28.8242 4.375 19.9996 4.375Z"
+                ></path>
+                <path
+                  d="M52.8652 29C56.8757 29 59.3105 26.9688 59.3105 23.6615C59.3105 21.1745 57.5267 19.3385 54.9746 19.0911V18.987C56.9017 18.6745 58.3991 16.9167 58.3991 14.8984C58.3991 12.0469 56.1986 10.2109 52.7871 10.2109H44.9876V29H52.8652ZM48.347 12.8281H51.9408C53.946 12.8281 55.0788 13.7526 55.0788 15.3932C55.0788 17.138 53.7637 18.1276 51.4199 18.1276H48.347V12.8281ZM48.347 26.3828V20.5104H51.9538C54.5319 20.5104 55.8861 21.513 55.8861 23.4271C55.8861 25.3542 54.571 26.3828 52.097 26.3828H48.347ZM61.472 29H64.7142V10.2109H61.472V29ZM73.5814 29.2734C77.6309 29.2734 80.2611 26.5781 80.2611 22.099C80.2611 17.6328 77.6048 14.9115 73.5814 14.9115C69.5579 14.9115 66.9017 17.6458 66.9017 22.099C66.9017 26.5781 69.5319 29.2734 73.5814 29.2734ZM73.5814 26.7083C71.5241 26.7083 70.196 25.0417 70.196 22.099C70.196 19.1693 71.5371 17.4896 73.5814 17.4896C75.6387 17.4896 76.9668 19.1693 76.9668 22.099C76.9668 25.0417 75.6387 26.7083 73.5814 26.7083ZM88.4251 34.2083C92.4486 34.2083 95.0918 32.0729 95.0918 28.7786V15.1979H91.9147V17.5677H91.8626C91.0684 15.9792 89.4798 14.9635 87.5137 14.9635C83.985 14.9635 81.7715 17.6849 81.7715 22.0469C81.7715 26.3438 84.0371 29.013 87.4486 29.013C89.4277 29.013 91.0553 28.0234 91.7715 26.5391H91.8496V28.8698C91.8496 30.6276 90.6387 31.8125 88.5293 31.8125C86.9928 31.8125 85.8079 31.0964 85.4564 30.0417H82.2402C82.5658 32.4635 85.0137 34.2083 88.4251 34.2083ZM88.4381 26.4349C86.3939 26.4349 85.0918 24.7943 85.0918 22.0599C85.0918 19.3516 86.3939 17.6328 88.4381 17.6328C90.5085 17.6328 91.8496 19.3776 91.8496 22.0599C91.8496 24.7552 90.5085 26.4349 88.4381 26.4349Z"
+                ></path></svg
+            ></a>
+            <div class="p-plus-container" data-container="true">
+              <div data-main="" class="p-plus">
+                <div
+                  class="p-plus__primary-wrapper"
+                  data-primary-nav-wrapper=""
+                >
+                  <ul
+                    class="d-flex flex-row flex-nowrap overflow-hidden flex-grow-0 list-style-none js-p-target p-plus__primary"
+                    style="margin-left: auto"
+                    data-primary-nav=""
+                    aria-hidden="false"
+                  >
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/engineering/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Engineering</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/community/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Community</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/product/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Product</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/security/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Security</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/open-source/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Open Source</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/enterprise/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Enterprise</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/education/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Education</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/company/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Company</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/changelog/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Changelog</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  data-toggle-btn=""
+                  class="p-plus__toggle-btn"
+                  aria-expanded="false"
+                >
+                  +
+                </button>
+                <ul
+                  data-overflow-nav=""
+                  class="p-plus__overflow"
+                  aria-hidden="true"
+                ></ul>
+              </div>
+
+              <div
+                data-main=""
+                class="p-plus p-plus--clone p-plus--is-showing-toggle"
+                aria-hidden="true"
+                data-clone="true"
+              >
+                <div
+                  class="p-plus__primary-wrapper"
+                  data-primary-nav-wrapper=""
+                >
+                  <ul
+                    class="d-flex flex-row flex-nowrap overflow-hidden flex-grow-0 list-style-none js-p-target p-plus__primary"
+                    style="margin-left: auto"
+                    data-primary-nav=""
+                  >
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/engineering/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Engineering</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/community/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Community</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/product/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Product</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/security/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Security</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/open-source/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Open Source</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/enterprise/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Enterprise</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/education/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Education</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/category/company/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Company</a
+                      >
+                    </li>
+                    <li class="ml-4 p-plus__primary-nav-item" data-nav-item="">
+                      <a
+                        href="https://github.blog/changelog/"
+                        class="d-block no-wrap f4-mktg color-fg-default text-medium"
+                        >Changelog</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  data-toggle-btn=""
+                  class="p-plus__toggle-btn"
+                  aria-expanded="false"
+                >
+                  +
+                </button>
+                <ul
+                  data-overflow-nav=""
+                  class="p-plus__overflow"
+                  aria-hidden="true"
+                ></ul>
+              </div>
+            </div>
+
+            <a
+              role="button"
+              aria-label="Search toggle"
+              href="#"
+              class="ml-4 color-fg-default search-field-icon-toggle js-search-toggle"
+              aria-expanded="false"
+              aria-controls="js-header-search"
+            >
+              <svg
+                height="20"
+                class="octicon octicon-search d-block mt-1"
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                version="1.1"
+                width="20"
+                role="img"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z"
+                ></path>
+              </svg>
+            </a>
+
+            <div
+              id="js-header-search"
+              class="header-search color-bg-primary box-shadow-large p-3"
+              hidden=""
+            >
+              <form
+                role="search"
+                method="get"
+                class="header-search__form col-12"
+                action="https://github.blog"
+              >
+                <label
+                  class="search-form__label screen-reader-text"
+                  for="search-input"
+                  >Search by Keyword</label
+                >
+
+                <div
+                  class="header-search__form-fields d-flex flex-row flex-items-center"
+                >
+                  <input
+                    type="search"
+                    class="search-field form-control flex-auto p-2 mr-2"
+                    placeholder="Search …"
+                    value=""
+                    name="s"
+                    id="search-input"
+                  />
+
+                  <div class="site-search__submit ml-2">
+                    <button
+                      type="submit"
+                      class="btn btn-outline px-4 py-2 search-submit"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <div class="overflow-hidden">
+      <section
+        class="position-relative"
+        data-color-mode="dark"
+        data-light-theme="light"
+        data-dark-theme="dark_dimmed"
+      >
+        <div class="container-xl p-responsive">
+          <div class="gutter-spacious pt-1">
+            <div
+              class="col-12 offset-lg-1 col-lg-10 col-xl-7 mt-5 mt-lg-10 mb-6 mb-lg-8"
+            >
+              <ul
+                class="d-inline-block list-style-none mb-12px post-hero__categories"
+              >
+                <li class="d-inline-block mr-3">
+                  <a
+                    href="https://github.blog/category/engineering/"
+                    class="f4-mktg text-gradient-purple-coral text-bold"
+                    >Engineering</a
+                  >
+                </li>
+                <li class="d-inline-block mr-3">
+                  <a
+                    href="https://github.blog/category/product/"
+                    class="f4-mktg text-gradient-purple-coral text-bold"
+                    >Product</a
+                  >
+                </li>
+              </ul>
+              <h1 class="h3-mktg lh-condensed mb-3 color-fg-default">
+                How we’re using projects to build projects
+              </h1>
+              <p class="f4-mktg color-fg-muted">
+                At GitHub we use GitHub to build our own products, and the new
+                projects experience is no different. Check out how our team uses
+                projects to build powerful project planning for developers.
+              </p>
+            </div>
+            <div class="offset-lg-1 col-lg-10">
+              <div class="position-relative z-1">
+                <svg
+                  aria-hidden="true"
+                  width="1032"
+                  height="548"
+                  class="width-full height-auto d-block"
+                  style="visibility: hidden; pointer-events: none"
+                ></svg>
+                <img
+                  srcset="
+                    https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=800%2C425   800w,
+                    https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=1400%2C742 1600w
+                  "
+                  src="https://github.blog/wp-content/uploads/2022/05/blog-header-image.png?resize=1400%2C742"
+                  width="1600"
+                  height="850"
+                  alt="How we’re using projects to build projects"
+                  class="cover-image rounded-2"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="position-absolute bottom-0 width-full"
+          style="background: #fff; height: 80px"
+        ></div>
+      </section>
+
+      <section
+        class="container-xl mx-auto p-responsive"
+        style="margin-top: 20px"
+      >
+        <div class="gutter-spacious">
+          <div class="col-12 offset-lg-1 col-lg-10">
+            <div class="text-mono f5-mktg color-text-secondary mb-12px">
+              Author
+            </div>
+            <div class="d-flex flex-nowrap pb-1 flex-items-start">
+              <div class="d-flex flex-wrap">
+                <a
+                  href="https://github.blog/author/glortho/"
+                  class="d-flex flex-nowrap flex-items-center Link--primary f4-mktg text-bold mb-3 mr-4 mr-lg-5"
+                  style="line-height: 1.25 !important"
+                >
+                  <img
+                    src="https://avatars.githubusercontent.com/u/526284?v=4&amp;s=200"
+                    class="d-block height-auto circle byline__photo--recirc mr-14px"
+                    alt="Jed Verity"
+                    width="40"
+                    height="40"
+                  />Jed Verity
+                </a>
+              </div>
+              <time
+                datetime="2022-05-16"
+                class="d-block border-left flex-shrink-0 text-mono f5-mktg color-text-secondary mb-3"
+                style="
+                  margin-left: auto;
+                  padding-left: 28px;
+                  min-height: 28px;
+                  line-height: 28px !important;
+                  margin-top: 8px;
+                "
+              >
+                May 16, 2022
+              </time>
+            </div>
+            <div class="indigo-separator"></div>
+          </div>
+        </div>
+      </section>
+      <div class="container-xl mx-auto p-responsive mt-4 mt-md-7 mb-7 mb-md-9">
+        <div class="d-flex flex-wrap gutter-spacious">
+          <div class="col-12 offset-lg-1 col-lg-1 post__social">
+            <ul class="list-style-none d-flex flex-lg-column">
+              <li class="mr-4 mr-lg-0 mb-4">
+                <a
+                  href="https://twitter.com/share?text=How we’re using projects to build projects&amp;url=https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="d-flex flex-justify-center flex-items-center border circle gh-social-aside"
+                  aria-label="Share on Twitter"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 273.5 222.3"
+                    height="18"
+                  >
+                    <path
+                      d="M273.5 26.3a109.77 109.77 0 0 1-32.2 8.8 56.07 56.07 0 0 0 24.7-31 113.39 113.39 0 0 1-35.7 13.6 56.1 56.1 0 0 0-97 38.4 54 54 0 0 0 1.5 12.8A159.68 159.68 0 0 1 19.1 10.3a56.12 56.12 0 0 0 17.4 74.9 56.06 56.06 0 0 1-25.4-7v.7a56.11 56.11 0 0 0 45 55 55.65 55.65 0 0 1-14.8 2 62.39 62.39 0 0 1-10.6-1 56.24 56.24 0 0 0 52.4 39 112.87 112.87 0 0 1-69.7 24 119 119 0 0 1-13.4-.8 158.83 158.83 0 0 0 86 25.2c103.2 0 159.6-85.5 159.6-159.6 0-2.4-.1-4.9-.2-7.3a114.25 114.25 0 0 0 28.1-29.1"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                </a>
+              </li>
+              <li class="mr-4 mr-lg-0 mb-4">
+                <a
+                  href="https://www.facebook.com/sharer/sharer.php?u=https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/&amp;t=How%20we%E2%80%99re%20using%20projects%20to%20build%20projects"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="d-flex flex-justify-center flex-items-center border circle gh-social-aside"
+                  aria-label="Share on Facebook"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 15.3 15.4"
+                    height="18"
+                  >
+                    <path
+                      d="M14.5 0H.8a.88.88 0 0 0-.8.9v13.6a.88.88 0 0 0 .8.9h7.3v-6h-2V7.1h2V5.4a2.87 2.87 0 0 1 2.5-3.1h.5a10.87 10.87 0 0 1 1.8.1v2.1h-1.3c-1 0-1.1.5-1.1 1.1v1.5h2.3l-.3 2.3h-2v5.9h3.9a.88.88 0 0 0 .9-.8V.8a.86.86 0 0 0-.8-.8z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                </a>
+              </li>
+              <li class="mr-4 mr-lg-0 mb-4">
+                <a
+                  href="https://www.linkedin.com/shareArticle?url=https://github.blog/2022-05-16-how-were-using-projects-to-build-projects/&amp;title=How%20we%E2%80%99re%20using%20projects%20to%20build%20projects"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="d-flex flex-justify-center flex-items-center border circle gh-social-aside"
+                  aria-label="Share on LinkedIn"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 19 18"
+                    height="18"
+                  >
+                    <path
+                      d="M3.94 2A2 2 0 1 1 2 0a2 2 0 0 1 1.94 2zM4 5.48H0V18h4zm6.32 0H6.34V18h3.94v-6.57c0-3.66 4.77-4 4.77 0V18H19v-7.93c0-6.17-7.06-5.94-8.72-2.91z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <main
+            role="main"
+            id="post-64967"
+            class="col-12 col-lg-7 post__content col-md-8 post-64967 post type-post status-publish format-standard has-post-thumbnail hentry category-engineering category-product tag-github-issues"
+          >
+            <p>
+              At GitHub, we use GitHub to build our own products, whether that
+              be
+              <a
+                href="https://github.blog/2021-08-11-githubs-engineering-team-moved-codespaces/"
+                >moving our entire Engineering team over to Codespaces for the
+                majority of GitHub.com development</a
+              >, or
+              <a href="https://youtu.be/MW0V5Q9WJu4"
+                >utilizing GitHub Actions to coordinate our GitHub Mobile
+                releases</a
+              >. And while GitHub Issues has been a part of the GitHub
+              experience since the early days and is an integral part of how we
+              work together as Hubbers internally, the
+              <a
+                href="https://github.blog/changelog/2021-06-23-whats-new-with-github-issues/"
+                >addition of powerful project planning</a
+              >
+              has given us more opportunities to test out some of our most
+              exciting products.
+            </p>
+            <p>
+              In this post, I’m going to share how we’ve been utilizing the new
+              projects experience across our team (from an engineer like myself
+              all the way to our VPs and team leads). We love working so closely
+              with developers to ship requested features and updates (<a
+                href="https://github.blog/changelog/label/issues/"
+                >all of which roll up into the Changelogs you see</a
+              >), and using the new projects helps us stay consistent in our
+              shipping cadence.
+            </p>
+            <h2>How we think about shipping</h2>
+            <p>
+              Our core team consists of members of the product, engineering,
+              design, and user research teams. We recognize that good ideas can
+              come from anywhere. Our process is designed to inspire, surface,
+              and implement those ideas, whether they come from users,
+              individual contributors, managers, directors, or VPs. To get the
+              proper alignment for this group, we’ve agreed on a few guiding
+              principles that drive what our roadmap will look like:
+            </p>
+            <p>
+              💭 <strong>The pitch</strong>: When it comes to what we’re going
+              to work on (outside of the big pieces of work on
+              <a href="https://github.com/orgs/github/projects/4247/views/7"
+                >our roadmap</a
+              >) people within our team can pitch ideas in our team’s repository
+              for upcoming cycles (which we define as 6-8 weeks of work,
+              inclusive of planning, engineering work, and an unstructured
+              passion project week); these can be features, fixes, or even
+              maintenance work. Every pitch must clearly state the problem it’s
+              solving and why it’s important for us to prioritize. Some features
+              that have come from this process include
+              <a
+                href="https://github.blog/changelog/2021-10-27-the-new-github-issues-public-beta/"
+                >live updates</a
+              >,
+              <a
+                href="https://github.blog/changelog/2021-10-27-the-new-github-issues-public-beta/"
+                >burn up charts for insights</a
+              >, and more. Note: these are all the changes you see as a
+              developer, but we also have a lot of pitches come in from my
+              fellow engineers focused around the developer experience. For
+              example, a couple successful pitches have included reducing our CI
+              time to 10 minutes, and streamlining our release process by
+              switching to a ring deployment model and adding ChatOps.
+            </p>
+            <p class="has-image">
+              <img
+                src="https://github.blog/wp-content/uploads/2022/05/pitch-image-1.png"
+                loading="lazy"
+              />
+            </p>
+            <p>
+              💡 In addition to using issues to propose and converse on pitches
+              from the team, we use the new projects experience to track and
+              manage all the pitches from the team so we can see them in an
+              all-up table or board view.
+            </p>
+            <p class="has-image">
+              <img
+                src="https://github.blog/wp-content/uploads/2022/05/pt-pitches-image-2.png"
+                loading="lazy"
+              />
+            </p>
+            <p>
+              ✂ <strong>Keep it small</strong>: We knew for ourselves, and for
+              developers, that we didn’t want to lock them into a specific
+              planning methodology and over-complicate a team’s planning and
+              tracking process. For us, we wanted to plan shorter cycles for our
+              team to increase our tempo and focus, so we opted for six-week
+              cycles to break up and build features. Check out how we recommend
+              getting started with this approach in a
+              <a
+                href="https://github.blog/2022-02-11-getting-started-with-project-planning-on-github/"
+                >recent blog post</a
+              >.
+            </p>
+            <p>
+              📬 <strong>Ship to learn</strong>: Similar to how we ship a lot of
+              our products, we knew developers and customers were going to be
+              heavily intertwined with each and every ship, giving us immediate
+              feedback in both the private and public beta. Their
+              <a
+                href="https://github.com/github/feedback/discussions/categories/issues-feedback"
+                >feedback</a
+              >
+              both influenced what we built and then how we iterated and
+              continued to better the experience once something did ship. While
+              there are so many people to thank, we’re extremely grateful for
+              all our customers along the way for being our partners in building
+              GitHub Issues into the place for developers to project plan.
+            </p>
+            <h2>How we used projects to do it</h2>
+            <p>
+              We love that the product we’re building doesn’t tool a specific
+              project management methodology, but equips users with powerful
+              primitives that they can compose into their preferred experiences
+              and workflows. This allows for many people (not just us engineers)
+              involved in building and developing products at GitHub (team
+              leads, marketing, design, sales, etc.) the ability to use the
+              product in a way that makes sense for them.
+            </p>
+            <p>
+              With the above principles in mind, once a pitch has been agreed
+              upon to move forward on building, that pitch issue becomes a
+              tracking issue in a project table or board that we convert into
+              pieces of work that fit into an upcoming cycle. A great example of
+              this was when we
+              <a href="https://github.com/github/roadmap/issues/289"
+                >updated the GitHub Issues icons</a
+              >
+              to lessen confusion among developers. This came in as a pitch from
+              a designer on the team, and was soon accepted and moved into epic
+              planning in which the team responsible began to track the
+              individual pieces of work needed to make this happen.
+            </p>
+            <p class="has-image">
+              <img
+                src="https://github.blog/wp-content/uploads/2022/05/issuereasonsfinal.png"
+                loading="lazy"
+              />
+            </p>
+            <h3>IC approach</h3>
+            <p>
+              Let’s start with how my fellow engineers, individual contributors
+              and I use projects for day-to-day development within cycles. From
+              our perspective on any given day, we’re hyper-focused on tackling
+              what issues and pull requests are assigned to us (fun fact:
+              <a
+                href="https://github.blog/changelog/2022-02-23-the-new-github-issues-february-23rd-update/"
+                >we recently added</a
+              >
+              the <code>assignee:me</code> filter to make this even easier) in a
+              given cycle, so we work from more
+              <a
+                href="https://docs.github.com/en/issues/trying-out-the-new-projects-experience/quickstart#creating-a-user-project"
+                >individually scoped</a
+              >
+              project tables or boards that stem from the larger epic and
+              iteration tracking. Because of this, we can easily zoom out from
+              our individual tasks to see how our work fits into a given cycle,
+              and then even zoom out more into how it fits into larger
+              initiatives.
+            </p>
+            <p>
+              💡 In addition to scoping more specifically a given table or
+              board, engineers across our organization utilize a personal
+              project table or board to track all the things specific to
+              themselves like what issues are assigned to them—even work not
+              connected to a given cycle, like open source work.
+            </p>
+            <p class="has-image">
+              <img
+                src="https://github.blog/wp-content/uploads/2022/05/glorthopersonal-image-5.png"
+                loading="lazy"
+              />
+            </p>
+            <h3>EM approach</h3>
+            <p>
+              If we pull back to engineering managers overseeing those smaller
+              cycles, they’re focused on kicking off an accepted pitch’s work,
+              breaking it first into cycles and then into smaller iterations in
+              which they can assign out work. A given cycle’s table or board
+              view allows the managers to have a whole look at all members of
+              their team and look specifically at things that are important to
+              them, like all the pull requests that are open and quickly seeing
+              which engineers are assigned, what pull requests have been merged,
+              deployed, etc.
+            </p>
+            <p>💡 Check out what this looks like in our team board.</p>
+            <p class="has-image">
+              <img
+                src="https://github.blog/wp-content/uploads/2022/05/backlog-image-6.png"
+                loading="lazy"
+              />
+            </p>
+            <h3>Team lead approach</h3>
+            <p>
+              Now, if we put ourselves in the shoes of our team leads and
+              Directors/VPs, we see that they’re using the new projects
+              experience to primarily get the full picture of where product and
+              feature development currently sit. They told me the main team
+              roadmap and backlog is where they can get questions answered like:
+            </p>
+            <ul>
+              <li>
+                Which projects do we have in flight in which product area right
+                now?
+              </li>
+              <li>Who’s the key decision maker for this project?</li>
+              <li>Which engineers are working on which projects?</li>
+              <li>
+                Which projects are at risk and need help (progress/status)?
+              </li>
+            </ul>
+            <p>
+              What’s great about this is that they can quickly glance at what’s
+              in motion and then click into any cycles or status to get more
+              context on open issues, pull requests, and how everything is
+              connected.
+            </p>
+            <p>
+              💡 Outside of being able to check in on what’s being worked on and
+              where the organization’s current focus is, our leads have found
+              additional use cases that may not be applicable for an engineer
+              like me. They use private projects for more sensitive tasks, like
+              managing our team’s hiring, tracking upcoming start dates, making
+              sure they’re staying on top of career development, organizational
+              change management, and more.
+            </p>
+            <h2>Wrap-up</h2>
+            <p>
+              This is how we as the planning and tracking team at GitHub are
+              using the very product we’re building for you to build the new
+              projects experience. There are many other teams across GitHub that
+              utilize the new project tables and boards, but we hope this gives
+              you a little bit of inspiration about how to think about project
+              planning on GitHub and how to optimize for all the stakeholders
+              involved in building and shipping products.
+            </p>
+            <p>
+              What’s great about project planning on GitHub is that our focus on
+              powerful primitives approach to project management means that
+              there is an unlimited amount of flexibility for you and your team
+              to play around with, and likely many, many ways we haven’t even
+              thought about how to use the product. So,
+              <a
+                href="https://github.com/github/feedback/discussions/categories/issues-feedback"
+                >please let us know</a
+              >
+              how you’re using it and how we can improve the experience!
+            </p>
+
+            <div class="post-tags text-mono f4-mktg mt-8">
+              <div class="d-flex flex-nowrap flex-items-start">
+                <span class="post-tags-label flex-shrink-0 d-inline-block mt-2"
+                  >Tags:</span
+                >
+                <ul class="d-inline-block list-style-none color-text-link mb-0">
+                  <li class="d-inline-block mt-2 mb-0">
+                    <a href="https://github.blog/tag/github-issues/" rel="tag"
+                      >GitHub Issues</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </main>
+
+          <div class="col-12 col-md-4 col-lg-3 post__sidebar">
+            <aside class="mb-7 mb-md-8 mt-7 mt-md-0">
+              <h2
+                class="pt-1 table-of-contents-heading color-text-secondary mb-0"
+              >
+                More on
+                <a
+                  href="https://github.blog/tag/github-issues/"
+                  class="Link--primary text-bold"
+                  >GitHub Issues</a
+                >
+              </h2>
+              <article class="py-4 d-flex flex-column">
+                <a
+                  href="https://github.blog/2022-03-21-start-working-on-github-issues-faster/"
+                  class="d-block col-12 position-relative rounded-2 mb-3 overflow-hidden tease-thumbnail"
+                  ><svg
+                    aria-hidden="true"
+                    width="395"
+                    height="210"
+                    class="width-full height-auto d-block"
+                    style="visibility: hidden; pointer-events: none"
+                  ></svg
+                  ><img
+                    srcset="
+                      https://github.blog/wp-content/uploads/2022/02/create-branch-from-issue.png?resize=288%2C179 288w,
+                      https://github.blog/wp-content/uploads/2022/02/create-branch-from-issue.png?resize=512%2C318 512w,
+                      https://github.blog/wp-content/uploads/2022/02/create-branch-from-issue.png?resize=708%2C440 708w
+                    "
+                    src="https://github.blog/wp-content/uploads/2022/02/create-branch-from-issue.png?resize=512%2C318"
+                    width="512"
+                    height="318"
+                    alt="Start working on GitHub Issues faster"
+                    class="d-block width-full height-auto rounded-2 tease-thumbnail__img cover-image"
+                    loading="lazy"
+                    decoding="async"
+                /></a>
+                <div class="col-12 tease-text">
+                  <h3 class="h6-mktg mb-12px">
+                    <a
+                      href="https://github.blog/2022-03-21-start-working-on-github-issues-faster/"
+                      class="Link--primary"
+                      >Start working on GitHub Issues faster</a
+                    >
+                  </h3>
+                  <p class="f4-mktg color-text-secondary mb-0">
+                    You can now create a branch to work on an issue directly
+                    from the issue page so that it's easier to get started right
+                    away.
+                  </p>
+                  <div class="mt-14px">
+                    <div class="d-flex flex-items-center">
+                      <div
+                        class="d-flex flex-items-end flex-wrap"
+                        style="margin-top: -4px"
+                      >
+                        <span
+                          class="authors-wrap mr-12px mt-1 f5-mktg text-bold"
+                          ><a
+                            class="d-inline-block Link--primary"
+                            href="https://github.blog/author/dipree/"
+                            title="Daniel Adams"
+                            >Daniel Adams</a
+                          ></span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="py-4 d-flex flex-column border-top">
+                <div class="col-12 tease-text">
+                  <h3 class="h6-mktg mb-12px">
+                    <a
+                      href="https://github.blog/2022-02-11-getting-started-with-project-planning-on-github/"
+                      class="Link--primary"
+                      >Getting started with project planning on GitHub</a
+                    >
+                  </h3>
+                  <p class="f4-mktg color-text-secondary mb-0">
+                    Stop context switching. Keep your team’s project planning
+                    next to your code.
+                  </p>
+                  <div class="mt-14px">
+                    <div class="d-flex flex-items-center">
+                      <div
+                        class="d-flex flex-items-end flex-wrap"
+                        style="margin-top: -4px"
+                      >
+                        <span
+                          class="authors-wrap mr-12px mt-1 f5-mktg text-bold"
+                          ><a
+                            class="d-inline-block Link--primary"
+                            href="https://github.blog/author/azenmatt/"
+                            title="Matt Butler"
+                            >Matt Butler</a
+                          ></span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+              <article class="py-4 d-flex flex-column border-top">
+                <div class="col-12 tease-text">
+                  <h3 class="h6-mktg mb-12px">
+                    <a
+                      href="https://github.blog/2021-06-23-introducing-new-github-issues/"
+                      class="Link--primary"
+                      >Introducing the new GitHub Issues</a
+                    >
+                  </h3>
+                  <p class="f4-mktg color-text-secondary mb-0">
+                    Announcing new beta features for GitHub Issues for better
+                    planning and tracking of your projects in GitHub, including
+                    project tables, task lists, and issue forms.
+                  </p>
+                  <div class="mt-14px">
+                    <div class="d-flex flex-items-center">
+                      <div
+                        class="d-flex flex-items-end flex-wrap"
+                        style="margin-top: -4px"
+                      >
+                        <span
+                          class="authors-wrap mr-12px mt-1 f5-mktg text-bold"
+                          ><a
+                            class="d-inline-block Link--primary"
+                            href="https://github.blog/author/mariorod/"
+                            title="Mario Rodriguez"
+                            >Mario Rodriguez</a
+                          ></span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <section class="related-posts container-xl mx-auto p-responsive">
+        <h2
+          class="h5-mktg border-bottom pb-3 mb-lg-3"
+          style="border-width: 2px !important"
+        >
+          Related posts
+        </h2>
+        <div class="d-flex flex-wrap gutter-spacious">
+          <article
+            id="term-post-64931"
+            class="col-12 col-lg-4 post-64931 post type-post status-publish format-standard has-post-thumbnail hentry category-product"
+          >
+            <div class="py-4 d-flex flex-column border-top">
+              <a
+                href="https://github.blog/2022-05-10-enhanced-2fa-experience-for-your-npm-account/"
+                class="d-block col-12 position-relative rounded-2 mb-3 overflow-hidden tease-thumbnail"
+              >
+                <svg
+                  aria-hidden="true"
+                  width="395"
+                  height="210"
+                  class="width-full height-auto d-block"
+                  style="visibility: hidden; pointer-events: none"
+                ></svg>
+                <img
+                  srcset="
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=288%2C179   288w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=512%2C318   512w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=708%2C440   708w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=932%2C579   932w,
+                    https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=1024%2C630 1024w
+                  "
+                  src="https://github.blog/wp-content/uploads/2021/02/npm-github.png?resize=512%2C318"
+                  width="512"
+                  height="318"
+                  alt="Enhanced 2FA experience for your npm account"
+                  class="d-block width-full height-auto rounded-2 tease-thumbnail__img cover-image"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+
+              <div class="mb-1">
+                <a
+                  href="https://github.blog/category/product/"
+                  class="f5-mktg text-gradient-purple-coral text-bold pb-1"
+                  >Product</a
+                >
+              </div>
+              <h3 class="h6-mktg mb-12px">
+                <a
+                  class="Link--primary"
+                  href="https://github.blog/2022-05-10-enhanced-2fa-experience-for-your-npm-account/"
+                  >Enhanced 2FA experience for your npm account</a
+                >
+              </h3>
+              <p class="f4-mktg color-text-secondary mb-0">
+                Late last year, in response to an unprecedented series of
+                account takeovers resulting from the compromise of developer
+                accounts without 2FA enabled, we committed to a variety of
+                enhancements to…
+              </p>
+              <div class="mt-14px">
+                <div class="d-flex flex-items-center">
+                  <div
+                    class="d-flex flex-items-end flex-wrap"
+                    style="margin-top: -4px"
+                  >
+                    <span class="authors-wrap mr-12px mt-1 f5-mktg text-bold"
+                      ><a
+                        class="d-inline-block Link--primary"
+                        href="https://github.blog/author/mylesborins/"
+                        title="Myles Borins"
+                        >Myles Borins</a
+                      ></span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article
+            id="term-post-64780"
+            class="col-12 col-lg-4 post-64780 post type-post status-publish format-standard has-post-thumbnail hentry category-product tag-github-actions"
+          >
+            <div class="py-4 d-flex flex-column border-top">
+              <a
+                href="https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/"
+                class="d-block col-12 position-relative rounded-2 mb-3 overflow-hidden tease-thumbnail"
+              >
+                <svg
+                  aria-hidden="true"
+                  width="395"
+                  height="210"
+                  class="width-full height-auto d-block"
+                  style="visibility: hidden; pointer-events: none"
+                ></svg>
+                <img
+                  srcset="
+                    https://github.blog/wp-content/uploads/2022/05/blog-cover-1.png?resize=288%2C179   288w,
+                    https://github.blog/wp-content/uploads/2022/05/blog-cover-1.png?resize=512%2C318   512w,
+                    https://github.blog/wp-content/uploads/2022/05/blog-cover-1.png?resize=708%2C440   708w,
+                    https://github.blog/wp-content/uploads/2022/05/blog-cover-1.png?resize=932%2C579   932w,
+                    https://github.blog/wp-content/uploads/2022/05/blog-cover-1.png?resize=1024%2C636 1024w
+                  "
+                  src="https://github.blog/wp-content/uploads/2022/05/blog-cover-1.png?resize=512%2C318"
+                  width="512"
+                  height="318"
+                  alt="Supercharging GitHub Actions with Job Summaries"
+                  class="d-block width-full height-auto rounded-2 tease-thumbnail__img cover-image"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+
+              <div class="mb-1">
+                <a
+                  href="https://github.blog/category/product/"
+                  class="f5-mktg text-gradient-purple-coral text-bold pb-1"
+                  >Product</a
+                >
+              </div>
+              <h3 class="h6-mktg mb-12px">
+                <a
+                  class="Link--primary"
+                  href="https://github.blog/2022-05-09-supercharging-github-actions-with-job-summaries/"
+                  >Supercharging GitHub Actions with Job Summaries</a
+                >
+              </h3>
+              <p class="f4-mktg color-text-secondary mb-0">
+                You can now output and group custom Markdown content on the
+                Actions run summary page.
+              </p>
+              <div class="mt-14px">
+                <div class="d-flex flex-items-center">
+                  <div
+                    class="d-flex flex-items-end flex-wrap"
+                    style="margin-top: -4px"
+                  >
+                    <span class="authors-wrap mr-12px mt-1 f5-mktg text-bold"
+                      ><a
+                        class="d-inline-block Link--primary"
+                        href="https://github.blog/author/konradpabjan/"
+                        title="Konrad Pabjan"
+                        >Konrad Pabjan</a
+                      ></span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article
+            id="term-post-64815"
+            class="col-12 col-lg-4 post-64815 post type-post status-publish format-standard has-post-thumbnail hentry category-product category-security tag-code-scanning tag-dependabot tag-github-security-lab tag-security"
+          >
+            <div class="py-4 d-flex flex-column border-top">
+              <a
+                href="https://github.blog/2022-05-06-todays-most-common-security-vulnerabilities-explained/"
+                class="d-block col-12 position-relative rounded-2 mb-3 overflow-hidden tease-thumbnail"
+              >
+                <svg
+                  aria-hidden="true"
+                  width="395"
+                  height="210"
+                  class="width-full height-auto d-block"
+                  style="visibility: hidden; pointer-events: none"
+                ></svg>
+                <img
+                  srcset="
+                    https://github.blog/wp-content/uploads/2022/05/Security-Product@2x-1.png?resize=288%2C179   288w,
+                    https://github.blog/wp-content/uploads/2022/05/Security-Product@2x-1.png?resize=512%2C318   512w,
+                    https://github.blog/wp-content/uploads/2022/05/Security-Product@2x-1.png?resize=708%2C440   708w,
+                    https://github.blog/wp-content/uploads/2022/05/Security-Product@2x-1.png?resize=932%2C579   932w,
+                    https://github.blog/wp-content/uploads/2022/05/Security-Product@2x-1.png?resize=1024%2C636 1024w
+                  "
+                  src="https://github.blog/wp-content/uploads/2022/05/Security-Product@2x-1.png?resize=512%2C318"
+                  width="512"
+                  height="318"
+                  alt="Today’s most common security vulnerabilities explained"
+                  class="d-block width-full height-auto rounded-2 tease-thumbnail__img cover-image"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+
+              <div class="mb-1">
+                <a
+                  href="https://github.blog/category/product/"
+                  class="f5-mktg text-gradient-purple-coral text-bold pb-1"
+                  >Product</a
+                >
+              </div>
+              <h3 class="h6-mktg mb-12px">
+                <a
+                  class="Link--primary"
+                  href="https://github.blog/2022-05-06-todays-most-common-security-vulnerabilities-explained/"
+                  >Today’s most common security vulnerabilities explained</a
+                >
+              </h3>
+              <p class="f4-mktg color-text-secondary mb-0">
+                We're taking a look at some of the most common security
+                vulnerabilities and detailing how developers can best protect
+                themselves.
+              </p>
+              <div class="mt-14px">
+                <div class="d-flex flex-items-center">
+                  <div
+                    class="d-flex flex-items-end flex-wrap"
+                    style="margin-top: -4px"
+                  >
+                    <span class="authors-wrap mr-12px mt-1 f5-mktg text-bold"
+                      ><a
+                        class="d-inline-block Link--primary"
+                        href="https://github.blog/author/jkcso/"
+                        title="Joseph Katsioloudes"
+                        >Joseph Katsioloudes</a
+                      ></span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+    <div data-color-mode="dark" data-light-theme="light" data-dark-theme="dark">
+      <footer class="footer mt-6">
+        <div class="container-xl p-responsive">
+          <div class="d-flex flex-wrap py-5 mb-5">
+            <div class="col-12 col-lg-4 mb-5">
+              <a
+                href="https://github.com/"
+                data-ga-click="Resources, go to home, resources footer"
+                class="color-text-primary"
+                aria-label="Go to GitHub homepage"
+              >
+                <svg
+                  height="30"
+                  class="octicon octicon-logo-github"
+                  viewBox="0 0 45 16"
+                  version="1.1"
+                  width="84"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M18.53 12.03h-.02c.009 0 .015.01.024.011h.006l-.01-.01zm.004.011c-.093.001-.327.05-.574.05-.78 0-1.05-.36-1.05-.83V8.13h1.59c.09 0 .16-.08.16-.19v-1.7c0-.09-.08-.17-.16-.17h-1.59V3.96c0-.08-.05-.13-.14-.13h-2.16c-.09 0-.14.05-.14.13v2.17s-1.09.27-1.16.28c-.08.02-.13.09-.13.17v1.36c0 .11.08.19.17.19h1.11v3.28c0 2.44 1.7 2.69 2.86 2.69.53 0 1.17-.17 1.27-.22.06-.02.09-.09.09-.16v-1.5a.177.177 0 00-.146-.18zM42.23 9.84c0-1.81-.73-2.05-1.5-1.97-.6.04-1.08.34-1.08.34v3.52s.49.34 1.22.36c1.03.03 1.36-.34 1.36-2.25zm2.43-.16c0 3.43-1.11 4.41-3.05 4.41-1.64 0-2.52-.83-2.52-.83s-.04.46-.09.52c-.03.06-.08.08-.14.08h-1.48c-.1 0-.19-.08-.19-.17l.02-11.11c0-.09.08-.17.17-.17h2.13c.09 0 .17.08.17.17v3.77s.82-.53 2.02-.53l-.01-.02c1.2 0 2.97.45 2.97 3.88zm-8.72-3.61h-2.1c-.11 0-.17.08-.17.19v5.44s-.55.39-1.3.39-.97-.34-.97-1.09V6.25c0-.09-.08-.17-.17-.17h-2.14c-.09 0-.17.08-.17.17v5.11c0 2.2 1.23 2.75 2.92 2.75 1.39 0 2.52-.77 2.52-.77s.05.39.08.45c.02.05.09.09.16.09h1.34c.11 0 .17-.08.17-.17l.02-7.47c0-.09-.08-.17-.19-.17zm-23.7-.01h-2.13c-.09 0-.17.09-.17.2v7.34c0 .2.13.27.3.27h1.92c.2 0 .25-.09.25-.27V6.23c0-.09-.08-.17-.17-.17zm-1.05-3.38c-.77 0-1.38.61-1.38 1.38 0 .77.61 1.38 1.38 1.38.75 0 1.36-.61 1.36-1.38 0-.77-.61-1.38-1.36-1.38zm16.49-.25h-2.11c-.09 0-.17.08-.17.17v4.09h-3.31V2.6c0-.09-.08-.17-.17-.17h-2.13c-.09 0-.17.08-.17.17v11.11c0 .09.09.17.17.17h2.13c.09 0 .17-.08.17-.17V8.96h3.31l-.02 4.75c0 .09.08.17.17.17h2.13c.09 0 .17-.08.17-.17V2.6c0-.09-.08-.17-.17-.17zM8.81 7.35v5.74c0 .04-.01.11-.06.13 0 0-1.25.89-3.31.89-2.49 0-5.44-.78-5.44-5.92S2.58 1.99 5.1 2c2.18 0 3.06.49 3.2.58.04.05.06.09.06.14L7.94 4.5c0 .09-.09.2-.2.17-.36-.11-.9-.33-2.17-.33-1.47 0-3.05.42-3.05 3.73s1.5 3.7 2.58 3.7c.92 0 1.25-.11 1.25-.11v-2.3H4.88c-.11 0-.19-.08-.19-.17V7.35c0-.09.08-.17.19-.17h3.74c.11 0 .19.08.19.17z"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+
+            <div
+              class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-lg-0 pl-lg-4"
+            >
+              <h2 class="h5 mb-3 text-mono color-text-tertiary text-normal">
+                Product
+              </h2>
+              <ul class="list-style-none text-gray f5">
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/features"
+                    data-ga-click="Site Foundation Components, go to Features, site foundation components footer"
+                    class="Link--secondary"
+                    >Features</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/security"
+                    data-ga-click="Site Foundation Components, go to Security, site foundation components footer"
+                    class="Link--secondary"
+                    >Security</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/enterprise"
+                    data-ga-click="Site Foundation Components, go to Enterprise, site foundation components footer"
+                    class="Link--secondary"
+                    >Enterprise</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/customer-stories?type=enterprise"
+                    data-ga-click="Site Foundation Components, go to Customer Stories, site foundation components footer"
+                    class="Link--secondary"
+                    >Customer Stories</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/pricing"
+                    data-ga-click="Site Foundation Components, go to Pricing, site foundation components footer"
+                    class="Link--secondary"
+                    >Pricing</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://resources.github.com/"
+                    data-ga-click="Site Foundation Components, go to Resources, site foundation components footer"
+                    class="Link--secondary"
+                    >Resources</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div
+              class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-lg-0 pl-lg-4"
+            >
+              <h2 class="h5 mb-3 text-mono color-text-tertiary text-normal">
+                Platform
+              </h2>
+              <ul class="list-style-none text-gray f5">
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://developer.github.com/"
+                    data-ga-click="Site Foundation Components, go to Developer API, site foundation components footer"
+                    class="Link--secondary"
+                    >Developer API</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://partner.github.com/"
+                    data-ga-click="Site Foundation Components, go to Partners, site foundation components footer"
+                    class="Link--secondary"
+                    >Partners</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://atom.io/"
+                    data-ga-click="Site Foundation Components, go to Atom, site foundation components footer"
+                    class="Link--secondary"
+                    >Atom</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://www.electronjs.org/"
+                    data-ga-click="Site Foundation Components, go to Electron, site foundation components footer"
+                    class="Link--secondary"
+                    >Electron</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://desktop.github.com/"
+                    data-ga-click="Site Foundation Components, go to GitHub Desktop, site foundation components footer"
+                    class="Link--secondary"
+                    >GitHub Desktop</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div
+              class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-lg-0 pl-lg-4"
+            >
+              <h2 class="h5 mb-3 text-mono color-text-tertiary text-normal">
+                Support
+              </h2>
+              <ul class="list-style-none text-gray f5">
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://docs.github.com/"
+                    data-ga-click="Site Foundation Components, go to Docs, site foundation components footer"
+                    class="Link--secondary"
+                    >Docs</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.community/"
+                    data-ga-click="Site Foundation Components, go to Community Forum, site foundation components footer"
+                    class="Link--secondary"
+                    >Community Forum</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://services.github.com/"
+                    data-ga-click="Site Foundation Components, go to Training, site foundation components footer"
+                    class="Link--secondary"
+                    >Training</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://www.githubstatus.com/"
+                    data-ga-click="Site Foundation Components, go to Status, site foundation components footer"
+                    class="Link--secondary"
+                    >Status</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://support.github.com/"
+                    data-ga-click="Site Foundation Components, go to Contact, site foundation components footer"
+                    class="Link--secondary"
+                    >Contact</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div
+              class="col-6 col-sm-3 col-lg-2 mb-6 mb-md-2 pr-3 pr-lg-0 pl-lg-4"
+            >
+              <h2 class="h5 mb-3 text-mono color-text-tertiary text-normal">
+                Company
+              </h2>
+              <ul class="list-style-none text-gray f5">
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/about"
+                    data-ga-click="Site Foundation Components, go to About, site foundation components footer"
+                    class="Link--secondary"
+                    >About</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.blog/"
+                    data-ga-click="Site Foundation Components, go to Blog, site foundation components footer"
+                    class="Link--secondary"
+                    >Blog</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/about/careers"
+                    data-ga-click="Site Foundation Components, go to Careers, site foundation components footer"
+                    class="Link--secondary"
+                    >Careers</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://github.com/about/press"
+                    data-ga-click="Site Foundation Components, go to Press, site foundation components footer"
+                    class="Link--secondary"
+                    >Press</a
+                  >
+                </li>
+                <li class="lh-condensed mb-3">
+                  <a
+                    href="https://shop.github.com/"
+                    data-ga-click="Site Foundation Components, go to Shop, site foundation components footer"
+                    class="Link--secondary"
+                    >Shop</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="color-bg-secondary">
+          <div
+            class="container-xl p-responsive f6 py-4 d-sm-flex flex-justify-between flex-row-reverse flex-items-center"
+          >
+            <ul
+              class="list-style-none d-flex flex-items-center mb-3 mb-sm-0 lh-condensed-ultra"
+            >
+              <li class="mr-3">
+                <a
+                  href="https://twitter.com/github"
+                  data-ga-click="Resources, go to Twitter, resources footer"
+                  style="color: #959da5"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 273.5 222.3"
+                    class="d-block"
+                    height="18"
+                  >
+                    <path
+                      d="M273.5 26.3a109.77 109.77 0 0 1-32.2 8.8 56.07 56.07 0 0 0 24.7-31 113.39 113.39 0 0 1-35.7 13.6 56.1 56.1 0 0 0-97 38.4 54 54 0 0 0 1.5 12.8A159.68 159.68 0 0 1 19.1 10.3a56.12 56.12 0 0 0 17.4 74.9 56.06 56.06 0 0 1-25.4-7v.7a56.11 56.11 0 0 0 45 55 55.65 55.65 0 0 1-14.8 2 62.39 62.39 0 0 1-10.6-1 56.24 56.24 0 0 0 52.4 39 112.87 112.87 0 0 1-69.7 24 119 119 0 0 1-13.4-.8 158.83 158.83 0 0 0 86 25.2c103.2 0 159.6-85.5 159.6-159.6 0-2.4-.1-4.9-.2-7.3a114.25 114.25 0 0 0 28.1-29.1"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+
+                  <span class="sr-only">GitHub on Twitter</span>
+                </a>
+              </li>
+              <li class="mr-3">
+                <a
+                  href="https://www.facebook.com/GitHub"
+                  data-ga-click="Resources, go to Facebook, resources footer"
+                  style="color: #959da5"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 15.3 15.4"
+                    class="d-block"
+                    height="18"
+                  >
+                    <path
+                      d="M14.5 0H.8a.88.88 0 0 0-.8.9v13.6a.88.88 0 0 0 .8.9h7.3v-6h-2V7.1h2V5.4a2.87 2.87 0 0 1 2.5-3.1h.5a10.87 10.87 0 0 1 1.8.1v2.1h-1.3c-1 0-1.1.5-1.1 1.1v1.5h2.3l-.3 2.3h-2v5.9h3.9a.88.88 0 0 0 .9-.8V.8a.86.86 0 0 0-.8-.8z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+
+                  <span class="sr-only">GitHub on Facebook</span>
+                </a>
+              </li>
+              <li class="mr-3">
+                <a
+                  href="https://www.youtube.com/github"
+                  data-ga-click="Resources, go to YouTube, resources footer"
+                  style="color: #959da5"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 19.17 13.6"
+                    class="d-block"
+                    height="16"
+                  >
+                    <path
+                      d="M18.77 2.13A2.4 2.4 0 0 0 17.09.42C15.59 0 9.58 0 9.58 0a57.55 57.55 0 0 0-7.5.4A2.49 2.49 0 0 0 .39 2.13 26.27 26.27 0 0 0 0 6.8a26.15 26.15 0 0 0 .39 4.67 2.43 2.43 0 0 0 1.69 1.71c1.52.42 7.5.42 7.5.42a57.69 57.69 0 0 0 7.51-.4 2.4 2.4 0 0 0 1.68-1.71 25.63 25.63 0 0 0 .4-4.67 24 24 0 0 0-.4-4.69zM7.67 9.71V3.89l5 2.91z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+
+                  <span class="sr-only">GitHub on YouTube</span>
+                </a>
+              </li>
+              <li class="mr-3 flex-self-start">
+                <a
+                  href="https://www.linkedin.com/company/github"
+                  data-ga-click="Resources, go to Linkedin, resources footer"
+                  style="color: #959da5"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 19 18"
+                    class="d-block"
+                    height="18"
+                  >
+                    <path
+                      d="M3.94 2A2 2 0 1 1 2 0a2 2 0 0 1 1.94 2zM4 5.48H0V18h4zm6.32 0H6.34V18h3.94v-6.57c0-3.66 4.77-4 4.77 0V18H19v-7.93c0-6.17-7.06-5.94-8.72-2.91z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+
+                  <span class="sr-only">GitHub on LinkedIn</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/github"
+                  data-ga-click="Resources, go to github's org, resources footer"
+                  style="color: #959da5"
+                >
+                  <svg
+                    height="20"
+                    class="octicon octicon-mark-github d-block"
+                    alt=""
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="20"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                    ></path>
+                  </svg>
+                  <span class="sr-only">GitHub’s organization on GitHub</span>
+                </a>
+              </li>
+            </ul>
+
+            <ul class="list-style-none d-flex flex-wrap text-gray">
+              <li class="mr-3">© 2022 GitHub, Inc.</li>
+
+              <li class="mr-3">
+                <a
+                  href="https://docs.github.com/en/github/site-policy/github-terms-of-service"
+                  data-ga-click="Site Foundation Components, go to terms, site foundation components footer"
+                  class="Link--secondary"
+                  >Terms</a
+                >
+              </li>
+
+              <li class="mr-3">
+                <a
+                  href="https://docs.github.com/en/github/site-policy/github-privacy-statement"
+                  data-ga-click="Site Foundation Components, go to privacy, site foundation components footer"
+                  class="Link--secondary"
+                  >Privacy</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script
+      type="text/javascript"
+      src="https://github.blog/_static/??-eJyNj0sOwjAMRC9EaqJCKQvEUVBoDE3r2FE+oN6eIHXBAiFWs5j3Rhp4BjUIZ+QMvqhA5e44wYQ5mGFWetsc4eJ4gGtxZCGMkoXXaLzjZkobqBsVoWKxmgmsSxkeyFYiRLwjYzRZooqFs/P4j1arILTcHNFPfBSZ0yfx5ct7y8SEtKi2adcjJMZirNbZn3S3132n+91hegFbqGKm"
+    ></script>
+    <script
+      data-parsely-site="github.blog"
+      src="https://cdn.parsely.com/keys/github.blog/p.js?ver=3.3.2"
+      id="parsely-cfg"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://github.blog/wp-content/themes/github-2021/assets/js/site.min.js?m=1652452552g"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js?ver=11.4.0"
+      id="highlightjs-js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://github.blog/wp-content/themes/github-2021/assets/js/highlight.init.js?m=1652452552g"
+    ></script>
+    <script
+      src="https://github.blog/wp-content/themes/github-2021/assets/js/hydro-analytics-instrumentation.min.js?ver=2.3.0"
+      id="hydro-analytics-js"
+    ></script>
+    <script>
+      window._ha.sendPageView()
+
+      document.addEventListener('click', ({ target }) => {
+        if (target && target.matches('a')) {
+          const hasUrl = target?.href !== undefined
+
+          window._ha.sendEvent('analytics.click', {
+            text: target?.innerText || target?.ariaLabel,
+            ...(hasUrl && { target: target.href }),
+          })
+        }
+      })
+    </script>
+    <script src="https://stats.wp.com/e-202220.js" defer=""></script>
+    <script>
+      _stq = window._stq || []
+      _stq.push([
+        'view',
+        {
+          v: 'ext',
+          j: '1:10.9',
+          blog: '153214340',
+          post: '64967',
+          tz: '-7',
+          srv: 'github.blog',
+          hp: 'vip',
+        },
+      ])
+      _stq.push(['clickTrackerInit', '153214340', '64967'])
+    </script>
+
+    <img
+      src="https://pixel.wp.com/g.gif?v=ext&amp;j=1%3A10.9&amp;blog=153214340&amp;post=64967&amp;tz=-7&amp;srv=github.blog&amp;hp=vip&amp;host=github.blog&amp;ref=&amp;fcp=591&amp;rand=0.22710057008877604"
+      alt=""
+      width="6"
+      height="5"
+      id="wpstats"
+    />
+  </body>
+</html>
