@@ -238,7 +238,10 @@ export const parsePreparedContent = async (
   try {
     article = getReadabilityResult(url, document, dom, isNewsletter)
     if (!article?.textContent && allowRetry) {
-      const newDocument = { ...preparedDocument, document: '<html>' + preparedDocument.document + '</html>' }
+      const newDocument = {
+        ...preparedDocument,
+        document: '<html>' + preparedDocument.document + '</html>',
+      }
       return parsePreparedContent(url, newDocument, isNewsletter, false)
     }
 
