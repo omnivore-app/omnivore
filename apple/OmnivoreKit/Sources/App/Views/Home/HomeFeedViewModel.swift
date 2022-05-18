@@ -20,6 +20,7 @@ import Views
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
   @Published var selectedLinkItem: LinkedItem?
+  @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue)

@@ -15,7 +15,6 @@ public final class RootViewModel: ObservableObject {
   let services = Services()
 
   @Published public var showPushNotificationPrimer = false
-  @Published var linkRequest: LinkRequest?
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false
 
@@ -56,12 +55,6 @@ public final class RootViewModel: ObservableObject {
       baseURL: baseURL,
       rawAuthCookie: services.authenticator.omnivoreAuthCookieString
     )
-  }
-
-  @MainActor func onOpenURL(url: URL) async {
-    if let linkRequestID = DeepLink.make(from: url)?.linkRequestID {
-      linkRequest = LinkRequest(id: UUID(), serverID: linkRequestID)
-    }
   }
 
   func triggerPushNotificationRequestIfNeeded() {

@@ -18,7 +18,16 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
     }
 
     var body: some View {
-      Group {
+      ZStack {
+        if let linkRequest = viewModel.linkRequest {
+          NavigationLink(
+            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
+            tag: linkRequest,
+            selection: $viewModel.linkRequest
+          ) {
+            EmptyView()
+          }
+        }
         HomeFeedView(
           prefersListLayout: $prefersListLayout,
           viewModel: viewModel
@@ -86,7 +95,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
       .navigationBarTitleDisplayMode(.inline)
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         // Don't refresh the list if the user is currently reading an article
-        if viewModel.selectedLinkItem == nil {
+        if viewModel.selectedLinkItem == nil || viewModel.linkRequest == nil {
           loadItems(isRefresh: true)
         }
       }
@@ -96,6 +105,16 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
         viewModel.selectedLinkItem = linkedItem
+      }
+      .onOpenURL { url in
+        withoutAnimation {
+          viewModel.linkRequest = nil
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+            if let linkRequestID = DeepLink.make(from: url)?.linkRequestID {
+              viewModel.linkRequest = LinkRequest(id: UUID(), serverID: linkRequestID)
+            }
+          }
+        }
       }
       .formSheet(isPresented: $viewModel.snoozePresented) {
         SnoozeView(
@@ -376,3 +395,17 @@ struct ScrollViewOffsetPreferenceKey: PreferenceKey {
     value += nextValue()
   }
 }
+
+#if os(iOS)
+  // Allows us to present a sheet without animation
+  // Used to configure full screen modal view coming from share extension read now button action
+  private extension View {
+    func withoutAnimation(_ completion: @escaping () -> Void) {
+      UIView.setAnimationsEnabled(false)
+      completion()
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
+        UIView.setAnimationsEnabled(true)
+      }
+    }
+  }
+#endif

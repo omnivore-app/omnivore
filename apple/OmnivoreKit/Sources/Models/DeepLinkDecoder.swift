@@ -1,5 +1,15 @@
 import Foundation
 
+public struct LinkRequest: Identifiable, Hashable {
+  public let id: UUID
+  public let serverID: String
+
+  public init(id: UUID, serverID: String) {
+    self.id = id
+    self.serverID = serverID
+  }
+}
+
 public enum DeepLink {
   case webAppLinkRequest(requestID: String)
 }

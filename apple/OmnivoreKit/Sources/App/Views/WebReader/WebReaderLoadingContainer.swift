@@ -77,14 +77,13 @@ import Utils
 
   public struct WebReaderLoadingContainer: View {
     let requestID: String
-    let handleClose: () -> Void
 
     @EnvironmentObject var dataService: DataService
     @StateObject var viewModel = WebReaderLoadingContainerViewModel()
 
     public var body: some View {
       if let item = viewModel.item {
-        WebReaderContainerView(item: item, isPresentedModally: true)
+        WebReaderContainerView(item: item)
           .navigationBarHidden(true)
           .navigationViewStyle(.stack)
           .accentColor(.appGrayTextContrast)
@@ -93,17 +92,6 @@ import Utils
         Text(errorMessage)
       } else {
         ProgressView()
-          .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-              Button(
-                action: handleClose,
-                label: {
-                  Image(systemName: "xmark")
-                    .foregroundColor(.appGrayTextContrast)
-                }
-              )
-            }
-          }
           .task { await viewModel.loadItem(dataService: dataService, requestID: requestID) }
       }
     }
