@@ -678,7 +678,7 @@ async function retrievePage(url) {
     logRecord.finalUrl = response.url();
     logRecord.contentType = response.headers()['content-type'];
 
-    return { context, page, response, finalUrl: finalUrl, contentType: contentType };
+    return { context, page, response, finalUrl, contentType };
   } catch (error) {
     if (lastPdfUrl) {
       return { context, page, finalUrl: lastPdfUrl, contentType: 'application/pdf' };
@@ -790,7 +790,7 @@ async function retrieveHtml(page) {
           }
         }
       });
-      return document.documentElement.innerHTML;
+      return document.documentElement.outerHTML;
     }, iframes);
     logRecord.puppeteerSuccess = true;
     logRecord.timing = {
