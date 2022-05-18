@@ -374,13 +374,13 @@ function getUrl(req) {
 async function blockResources(page) {
   const blockedResources = [
     // Assets
-    '*/favicon.ico',
-    '.css',
-    '.jpg',
-    '.jpeg',
-    '.png',
-    '.svg',
-    '.woff',
+    // '*/favicon.ico',
+    // '.css',
+    // '.jpg',
+    // '.jpeg',
+    // '.png',
+    // '.svg',
+    // '.woff',
 
     // Analytics and other fluff
     '*.optimizely.com',
