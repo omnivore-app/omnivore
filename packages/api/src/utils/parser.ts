@@ -205,7 +205,8 @@ const applyHandlers = async (
 export const parsePreparedContent = async (
   url: string,
   preparedDocument: PreparedDocumentInput,
-  isNewsletter?: boolean
+  isNewsletter?: boolean,
+  allowRetry = true
 ): Promise<ParsedContentPuppeteer> => {
   const logRecord: ArticleParseLogRecord = {
     url: url,
@@ -236,6 +237,10 @@ export const parsePreparedContent = async (
 
   try {
     article = getReadabilityResult(url, document, dom, isNewsletter)
+    if (!article?.textContent && allowRetry) {
+      const newDocument = { ...preparedDocument, document: '<html>' + preparedDocument.document + '</html>' }
+      return parsePreparedContent(url, newDocument, isNewsletter, false)
+    }
 
     // Format code blocks
     // TODO: we probably want to move this type of thing
