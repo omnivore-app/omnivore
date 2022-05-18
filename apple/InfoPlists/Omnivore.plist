@@ -48,6 +48,10 @@
 	<string>Images from documents and annotations can be saved to the photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Images from your photo library can be chosen by you to send as feedback.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
