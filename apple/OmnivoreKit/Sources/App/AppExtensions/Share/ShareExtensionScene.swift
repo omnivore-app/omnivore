@@ -22,7 +22,7 @@ public extension PlatformViewController {
 
 final class ShareExtensionViewModel: ObservableObject {
   @Published var title: String?
-  @Published var status = ShareExtensionStatus.processing
+  @Published var status: ShareExtensionStatus = FeatureFlag.enableReadNow ? .processing : .success
   @Published var debugText: String?
 
   var subscriptions = Set<AnyCancellable>()
