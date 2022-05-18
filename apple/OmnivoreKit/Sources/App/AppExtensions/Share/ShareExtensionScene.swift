@@ -22,7 +22,7 @@ public extension PlatformViewController {
 
 final class ShareExtensionViewModel: ObservableObject {
   @Published var title: String?
-  @Published var status = ShareExtensionStatus.successfullySaved
+  @Published var status = ShareExtensionStatus.processing
   @Published var debugText: String?
 
   var subscriptions = Set<AnyCancellable>()
@@ -75,7 +75,7 @@ final class ShareExtensionViewModel: ObservableObject {
         self?.debugText = "saveArticleError: \(error)"
         self?.status = .failed(error: error)
       } receiveValue: { [weak self] _ in
-        self?.status = .successfullySaved
+        self?.status = .success
       }
       .store(in: &subscriptions)
 

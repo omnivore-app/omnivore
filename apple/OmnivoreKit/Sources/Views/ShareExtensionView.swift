@@ -3,16 +3,13 @@ import SwiftUI
 import Utils
 
 public enum ShareExtensionStatus {
-  case saving
   case processing
-  case successfullySaved
+  case success
   case failed(error: SaveArticleError)
 
   var displayMessage: String {
     switch self {
-    case .saving:
-      return LocalText.saveArticleSavingState
-    case .successfullySaved:
+    case .success:
       return LocalText.saveArticleSavedState
     case let .failed(error: error):
       return error.displayMessage
@@ -111,22 +108,6 @@ public struct ShareExtensionChildView: View {
 
   @State var reminderTime: ReminderTime?
   @State var hideUntilReminded = false
-  @State var readNowPending = false
-
-  private func waitForReadNow() {
-    readNowPending = true
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
-      switch status {
-      case .successfullySaved:
-        readNowButtonAction()
-      case .failed(error: _):
-        readNowPending = false
-      case .saving, .processing:
-        waitForReadNow()
-      }
-    }
-  }
 
   private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
     if selectedTime == reminderTime {
@@ -156,7 +137,7 @@ public struct ShareExtensionChildView: View {
 
       Spacer()
 
-      if case ShareExtensionStatus.successfullySaved = status {
+      if case ShareExtensionStatus.success = status {
         HStack(spacing: 4) {
           Text("Saved to Omnivore")
             .font(.appTitleThree)
@@ -222,24 +203,16 @@ public struct ShareExtensionChildView: View {
       .padding(.horizontal)
 
       HStack {
-        if case ShareExtensionStatus.successfullySaved = status {
+        if case ShareExtensionStatus.success = status {
           Button(
-            action: {
-              if case ShareExtensionStatus.successfullySaved = status {
-                readNowButtonAction()
-              } else {
-                waitForReadNow()
-              }
-            },
-            label: {
-              if readNowPending {
-                ProgressView().frame(maxWidth: .infinity)
-              } else {
-                Text("Read Now").frame(maxWidth: .infinity)
-              }
-            }
+            action: { readNowButtonAction() },
+            label: { Text("Read Now").frame(maxWidth: .infinity) }
           )
           .buttonStyle(RoundedRectButtonStyle())
+        }
+        if case ShareExtensionStatus.processing = status {
+          Button(action: {}, label: { ProgressView().frame(maxWidth: .infinity) })
+            .buttonStyle(RoundedRectButtonStyle())
         }
         Button(
           action: {
