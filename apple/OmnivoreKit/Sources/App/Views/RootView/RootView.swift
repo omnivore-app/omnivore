@@ -4,11 +4,6 @@ import SwiftUI
 import Utils
 import Views
 
-struct LinkRequest: Identifiable {
-  let id: UUID
-  let serverID: String
-}
-
 public struct RootView: View {
   let pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?
   @StateObject private var viewModel = RootViewModel()
@@ -51,17 +46,7 @@ struct InnerRootView: View {
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }
-      #if os(iOS)
-        .fullScreenCover(item: $viewModel.linkRequest) { _ in
-          NavigationView {
-            WebReaderLoadingContainer(
-              requestID: viewModel.linkRequest?.serverID ?? "",
-              handleClose: { viewModel.linkRequest = nil }
-            )
-          }
-        }
-      #endif
-      .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
+        .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
         // Schedule the dismissal every time we present the snackbar.
         .onChange(of: viewModel.showSnackbar) { newValue in
           if newValue {
@@ -95,18 +80,6 @@ struct InnerRootView: View {
       #endif
     }
     #if os(iOS)
-      .onOpenURL { url in
-        withoutAnimation {
-          if viewModel.linkRequest != nil {
-            viewModel.linkRequest = nil
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-              Task { await viewModel.onOpenURL(url: url) }
-            }
-          } else {
-            Task { await viewModel.onOpenURL(url: url) }
-          }
-        }
-      }
       .onReceive(NSNotification.operationSuccessPublisher) { notification in
         if let message = notification.userInfo?["message"] as? String {
           viewModel.showSnackbar = true
@@ -134,17 +107,3 @@ struct InnerRootView: View {
     }
   #endif
 }
-
-#if os(iOS)
-  // Allows us to present a sheet without animation
-  // Used to configure full screen modal view coming from share extension read now button action
-  private extension View {
-    func withoutAnimation(_ completion: @escaping () -> Void) {
-      UIView.setAnimationsEnabled(false)
-      completion()
-      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
-        UIView.setAnimationsEnabled(true)
-      }
-    }
-  }
-#endif
