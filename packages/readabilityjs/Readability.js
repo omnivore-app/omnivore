@@ -918,7 +918,7 @@ Readability.prototype = {
     // For example, this article (https://www.sciencedirect.com/science/article/abs/pii/S0047248498902196)
     // has a "View full text" anchor at the bottom of the page
     this._removeNodes(this._getAllNodesWithTag(articleContent, ["a"]), function (anchor) {
-      const possibleRedundantText = /view full|skip to content/ig;
+      const possibleRedundantText = /view full|skip to content|back/ig;
       const innerText = this._getInnerText(anchor);
 
       return possibleRedundantText.test(innerText) && innerText.length <= 30;
