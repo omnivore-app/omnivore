@@ -203,14 +203,14 @@ public struct ShareExtensionChildView: View {
       .padding(.horizontal)
 
       HStack {
-        if case ShareExtensionStatus.success = status {
+        if case ShareExtensionStatus.success = status, FeatureFlag.enableReadNow {
           Button(
             action: { readNowButtonAction() },
             label: { Text("Read Now").frame(maxWidth: .infinity) }
           )
           .buttonStyle(RoundedRectButtonStyle())
         }
-        if case ShareExtensionStatus.processing = status {
+        if case ShareExtensionStatus.processing = status, FeatureFlag.enableReadNow {
           Button(action: {}, label: { ProgressView().frame(maxWidth: .infinity) })
             .buttonStyle(RoundedRectButtonStyle())
         }
