@@ -12,6 +12,13 @@ public class PersistentContainer: NSPersistentContainer {
     let model = NSManagedObjectModel(contentsOf: modelURL)!
     let container = PersistentContainer(name: "DataModel", managedObjectModel: model)
 
+    // Store the sqlite file in the app group container.
+    // This allows shared access for app and app extensions.
+    let appGroupID = "group.app.omnivoreapp"
+    let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
+    let appGroupContainerURL = appGroupContainer?.appendingPathComponent("store.sqlite")
+    container.persistentStoreDescriptions.first!.url = appGroupContainerURL
+
     container.viewContext.automaticallyMergesChangesFromParent = true
     container.viewContext.name = "viewContext"
     container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
