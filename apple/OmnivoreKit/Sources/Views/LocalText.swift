@@ -13,7 +13,6 @@ public enum LocalText {
   static let networkError = localText(key: "error.network")
   static let genericError = localText(key: "error.generic")
   static let invalidCredsLoginError = localText(key: "loginError.invalidCreds")
-  static let saveArticleSavingState = localText(key: "saveArticleSavingState")
   static let saveArticleSavedState = localText(key: "saveArticleSavedState")
   static let saveArticleProcessingState = localText(key: "saveArticleProcessingState")
   static let extensionAppUnauthorized = localText(key: "extensionAppUnauthorized")

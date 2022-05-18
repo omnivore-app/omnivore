@@ -3,16 +3,13 @@ import SwiftUI
 import Utils
 
 public enum ShareExtensionStatus {
-  case saving
   case processing
-  case successfullySaved
+  case success
   case failed(error: SaveArticleError)
 
   var displayMessage: String {
     switch self {
-    case .saving:
-      return LocalText.saveArticleSavingState
-    case .successfullySaved:
+    case .success:
       return LocalText.saveArticleSavedState
     case let .failed(error: error):
       return error.displayMessage
@@ -140,19 +137,17 @@ public struct ShareExtensionChildView: View {
 
       Spacer()
 
-      if case ShareExtensionStatus.successfullySaved = status {
-        HStack {
-          Spacer()
-          IconButtonView(
-            title: "Read Now",
-            systemIconName: "book",
-            action: {
-              readNowButtonAction()
-            }
-          )
-          Spacer()
+      if case ShareExtensionStatus.success = status {
+        HStack(spacing: 4) {
+          Text("Saved to Omnivore")
+            .font(.appTitleThree)
+            .foregroundColor(.appGrayText)
+            .padding(.trailing, 16)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            .lineLimit(nil)
         }
-        .padding(.horizontal, 8)
+        .padding()
       } else if case let ShareExtensionStatus.failed(error) = status {
         HStack {
           Spacer()
@@ -207,16 +202,29 @@ public struct ShareExtensionChildView: View {
       }
       .padding(.horizontal)
 
-      Button(
-        action: {
-          dismissButtonTappedAction(reminderTime, hideUntilReminded)
-        },
-        label: {
-          Text("Dismiss")
-            .frame(maxWidth: .infinity)
+      HStack {
+        if case ShareExtensionStatus.success = status, FeatureFlag.enableReadNow {
+          Button(
+            action: { readNowButtonAction() },
+            label: { Text("Read Now").frame(maxWidth: .infinity) }
+          )
+          .buttonStyle(RoundedRectButtonStyle())
         }
-      )
-      .buttonStyle(RoundedRectButtonStyle())
+        if case ShareExtensionStatus.processing = status, FeatureFlag.enableReadNow {
+          Button(action: {}, label: { ProgressView().frame(maxWidth: .infinity) })
+            .buttonStyle(RoundedRectButtonStyle())
+        }
+        Button(
+          action: {
+            dismissButtonTappedAction(reminderTime, hideUntilReminded)
+          },
+          label: {
+            Text("Dismiss")
+              .frame(maxWidth: .infinity)
+          }
+        )
+        .buttonStyle(RoundedRectButtonStyle())
+      }
       .padding(.horizontal)
       .padding(.bottom)
     }
