@@ -7,6 +7,12 @@ public enum EventTracker {
     _ = segment?.version()
   }
 
+  public static func trackForDebugging(_ message: String) {
+    #if DEBUG
+      track(.debugMessage(message: message))
+    #endif
+  }
+
   public static func track(_ event: TrackableEvent) {
     segment?.track(name: event.name, properties: event.properties)
   }

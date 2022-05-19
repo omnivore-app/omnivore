@@ -2,6 +2,7 @@ import Foundation
 
 public enum TrackableEvent {
   case linkRead(linkID: String, slug: String, originalArticleURL: String)
+  case debugMessage(message: String)
 }
 
 public extension TrackableEvent {
@@ -9,6 +10,8 @@ public extension TrackableEvent {
     switch self {
     case .linkRead:
       return "link_read"
+    case .debugMessage:
+      return "debug_message"
     }
   }
 
@@ -20,6 +23,8 @@ public extension TrackableEvent {
         "slug": slug,
         "url": originalArticleURL
       ]
+    case let .debugMessage(message: message):
+      return ["message": message]
     }
   }
 }
