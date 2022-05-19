@@ -54,5 +54,15 @@ export const addLabelToPage = async (
 
   console.log('adding label to page', label.name, pageId)
 
-  return addLabelInPage(pageId, labelEntity, ctx)
+  return addLabelInPage(
+    pageId,
+    {
+      id: labelEntity.id,
+      name: labelEntity.name,
+      color: labelEntity.color,
+      description: labelEntity.description,
+      createdAt: labelEntity.createdAt,
+    },
+    ctx
+  )
 }
