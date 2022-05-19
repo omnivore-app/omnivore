@@ -24,14 +24,15 @@ extension Services {
   public static func registerBackgroundFetch() {
     BGTaskScheduler.shared.register(forTaskWithIdentifier: fetchTaskID, using: nil) { task in
       if let task = task as? BGAppRefreshTask {
+        logger.debug("in background task register closure")
         startBackgroundFetch(task: task)
       }
     }
   }
 
   static func scheduleBackgroundFetch() {
-    let taskRequest = BGProcessingTaskRequest(identifier: fetchTaskID)
-    taskRequest.requiresNetworkConnectivity = true
+    BGTaskScheduler.shared.cancelAllTaskRequests()
+    let taskRequest = BGAppRefreshTaskRequest(identifier: fetchTaskID)
     taskRequest.earliestBeginDate = Date(timeIntervalSinceNow: secondsToWaitBeforeNextBackgroundRefresh)
 
     do {
@@ -53,17 +54,20 @@ extension Services {
     }
 
     services.peformBackgroundFetch()
+    task.setTaskCompleted(success: true)
   }
-  
+
   func peformBackgroundFetch() {
     Services.logger.debug("starting background fetch")
 
     guard authenticator.hasValidAuthToken else {
       Services.logger.debug("background fetch failed: user does not habe a valid auth token")
-      authenticator.logout()
       return
     }
 
+    Services.logger.debug("ayo this is a background task!")
     // TODO: perform tasks using data service
   }
 }
+
+// e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"app.omnivore.fetchLinkedItems"]
