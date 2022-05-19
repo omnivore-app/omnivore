@@ -226,7 +226,7 @@ export const setLabelsResolver = authorized<
 
     const labels = await getRepository(Label).find({
       where: { id: In(labelIds), user: { id: user.id } },
-      relations: ['user'],
+      select: ['id', 'name', 'color', 'description', 'createdAt'],
     })
     if (labels.length !== labelIds.length) {
       return {
@@ -282,9 +282,9 @@ export const updateLabelResolver = authorized<
       }
     }
 
-    const label = await getRepository(Label).findOneBy({
-      id: labelId,
-      user: { id: uid },
+    const label = await getRepository(Label).findOne({
+      where: { id: labelId, user: { id: uid } },
+      select: ['id', 'name', 'color', 'description', 'createdAt'],
     })
     if (!label) {
       return {

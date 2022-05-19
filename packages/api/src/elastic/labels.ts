@@ -136,9 +136,8 @@ export const deleteLabelInPages = async (
       refresh: ctx.refresh,
     })
 
-    console.log('updated pages', body.updated)
-
-    await ctx.pubsub.entityDeleted(EntityType.LABEL, label, ctx.uid)
+    body.updated > 0 &&
+      (await ctx.pubsub.entityDeleted(EntityType.LABEL, label, ctx.uid))
 
     return true
   } catch (e) {
@@ -156,7 +155,7 @@ export const updateLabelInPage = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source: `ctx._source.labels.removeIf(h -> h.name == params.label.name);
+          source: `ctx._source.labels.removeIf(l -> l.id == params.label.id);
                    ctx._source.labels.add(params.label)`,
           lang: 'painless',
           params: {
@@ -176,7 +175,7 @@ export const updateLabelInPage = async (
                   path: 'labels',
                   query: {
                     term: {
-                      'labels.name': label.name,
+                      'labels.id': label.id,
                     },
                   },
                 },
@@ -186,11 +185,11 @@ export const updateLabelInPage = async (
         },
       },
       refresh: ctx.refresh,
+      conflicts: 'proceed', // ignore conflicts
     })
 
-    console.log('updated pages', body.updated)
-
-    await ctx.pubsub.entityUpdated<Label>(EntityType.LABEL, label, ctx.uid)
+    body.updated > 0 &&
+      (await ctx.pubsub.entityUpdated(EntityType.LABEL, label, ctx.uid))
 
     return true
   } catch (e) {
