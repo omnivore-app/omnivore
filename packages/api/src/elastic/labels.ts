@@ -136,13 +136,66 @@ export const deleteLabelInPages = async (
       refresh: ctx.refresh,
     })
 
-    if (body.updated === 0) return false
+    console.log('updated pages', body.updated)
 
     await ctx.pubsub.entityDeleted(EntityType.LABEL, label, ctx.uid)
 
     return true
   } catch (e) {
     console.error('failed to delete a label in elastic', e)
+    return false
+  }
+}
+
+export const updateLabelInPage = async (
+  label: Label,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      body: {
+        script: {
+          source: `ctx._source.labels.removeIf(h -> h.name == params.label.name);
+                   ctx._source.labels.add(params.label)`,
+          lang: 'painless',
+          params: {
+            label: label,
+          },
+        },
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId: ctx.uid,
+                },
+              },
+              {
+                nested: {
+                  path: 'labels',
+                  query: {
+                    term: {
+                      'labels.name': label.name,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      refresh: ctx.refresh,
+    })
+
+    console.log('updated pages', body.updated)
+
+    await ctx.pubsub.entityUpdated<Label>(EntityType.LABEL, label, ctx.uid)
+
+    return true
+  } catch (e) {
+    console.error('failed to update label in elastic', e)
+
     return false
   }
 }

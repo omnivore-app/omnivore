@@ -29,7 +29,11 @@ import { getRepository, setClaims } from '../../entity/utils'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
 import { getPageById } from '../../elastic/pages'
-import { deleteLabelInPages, updateLabelsInPage } from '../../elastic/labels'
+import {
+  deleteLabelInPages,
+  updateLabelInPage,
+  updateLabelsInPage,
+} from '../../elastic/labels'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -266,7 +270,7 @@ export const updateLabelResolver = authorized<
   UpdateLabelSuccess,
   UpdateLabelError,
   MutationUpdateLabelArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { claims: { uid }, log, pubsub }) => {
   log.info('updateLabelResolver')
 
   try {
@@ -308,7 +312,17 @@ export const updateLabelResolver = authorized<
     if (!result.affected) {
       log.error('failed to update')
       return {
-        errorCodes: [UpdateLabelErrorCode.NotFound],
+        errorCodes: [UpdateLabelErrorCode.BadRequest],
+      }
+    }
+
+    const updated = await updateLabelInPage(label, {
+      pubsub,
+      uid,
+    })
+    if (!updated) {
+      return {
+        errorCodes: [UpdateLabelErrorCode.BadRequest],
       }
     }
 
