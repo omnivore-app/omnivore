@@ -54,7 +54,6 @@ struct InternalLinkedItem {
 }
 
 extension Sequence where Element == InternalLinkedItem {
-  // TODO: -optimization use batch update?
   func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
     var linkedItems: [LinkedItem]?
     context.performAndWait {

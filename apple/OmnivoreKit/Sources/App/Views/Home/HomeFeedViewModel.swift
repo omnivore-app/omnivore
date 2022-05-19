@@ -98,7 +98,9 @@ import Views
       isLoading = false
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
-      await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID))
+      if let username = dataService.currentViewer?.username {
+        await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
+      }
     } else {
       updateFetchController(dataService: dataService)
     }

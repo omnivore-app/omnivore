@@ -27,7 +27,7 @@ extension Services {
       if let task = task as? BGAppRefreshTask {
         EventTracker.trackForDebugging("executing app.omnivore.fetchLinkedItems bg task")
         logger.debug("in background task register closure")
-        startBackgroundFetch(task: task)
+        performBackgroundFetch(task: task)
       }
     }
   }
@@ -45,7 +45,8 @@ extension Services {
     }
   }
 
-  static func startBackgroundFetch(task: BGAppRefreshTask) {
+  static func performBackgroundFetch(task: BGAppRefreshTask) {
+    Services.logger.debug("starting background fetch")
     scheduleBackgroundFetch()
     let services = Services()
 
@@ -54,22 +55,25 @@ extension Services {
       logger.debug("handling background fetch expiration")
     }
 
-    services.peformBackgroundFetch()
-    EventTracker.trackForDebugging("background fetch task completed successfully")
-    task.setTaskCompleted(success: true)
-  }
-
-  func peformBackgroundFetch() {
-    Services.logger.debug("starting background fetch")
-
-    guard authenticator.hasValidAuthToken else {
-      EventTracker.trackForDebugging("background fetch failed: user does not habe a valid auth token")
+    guard services.authenticator.hasValidAuthToken else {
+      EventTracker.trackForDebugging("background fetch failed: user does not have a valid auth token")
       Services.logger.debug("background fetch failed: user does not habe a valid auth token")
+      task.setTaskCompleted(success: false)
       return
     }
 
-    Services.logger.debug("ayo this is a background task!")
-    // TODO: perform tasks using data service
+    Task {
+      do {
+        try await services.dataService.fetchLinkedItemsBackgroundTask()
+        logger.debug("fetch complete")
+        EventTracker.trackForDebugging("background fetch task completed successfully")
+        task.setTaskCompleted(success: true)
+      } catch {
+        logger.debug("fetch failed")
+        EventTracker.trackForDebugging("background fetch task failed")
+        task.setTaskCompleted(success: false)
+      }
+    }
   }
 }
 
