@@ -50,9 +50,21 @@
       "labels": {
         "type": "nested",
         "properties": {
+          "id": {
+            "type": "keyword"
+          },
           "name": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
+          },
+          "color": {
+            "type": "keyword"
+          },
+          "description": {
+            "type": "text"
+          },
+          "createdAt": {
+            "type": "date"
           }
         }
       },

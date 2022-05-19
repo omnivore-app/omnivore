@@ -44,16 +44,14 @@ describe('saveNewsletterEmail', () => {
       ctx
     )
 
-    setTimeout(async () => {
-      const page = await getPageByParam({ userId: user.id })
-      if (!page) {
-        expect.fail('page not found')
-      }
-      expect(page.url).to.equal('https://example.com')
-      expect(page.title).to.equal('fake title')
-      expect(page.author).to.equal('fake author')
-      expect(page.content).to.contain(fakeContent)
-    })
+    const page = await getPageByParam({ userId: user.id })
+    if (!page) {
+      expect.fail('page not found')
+    }
+    expect(page.url).to.equal('https://example.com')
+    expect(page.title).to.equal('fake title')
+    expect(page.author).to.equal('fake author')
+    expect(page.content).to.contain(fakeContent)
   })
 
   it('should adds a Newsletter label to that page', async () => {
@@ -73,9 +71,7 @@ describe('saveNewsletterEmail', () => {
       ctx
     )
 
-    setTimeout(async () => {
-      const page = await getPageByParam({ userId: user.id })
-      expect(page?.labels).to.deep.include(newLabel)
-    })
+    const page = await getPageByParam({ userId: user.id })
+    expect(page?.labels?.[0]).to.deep.include(newLabel)
   })
 })

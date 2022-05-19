@@ -9,9 +9,11 @@ import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { Page } from '../../src/elastic/types'
+import { Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
 import { getPageById } from '../../src/elastic/pages'
+import { addLabelInPage } from '../../src/elastic/labels'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -20,6 +22,7 @@ describe('Labels API', () => {
   let authToken: string
   let page: Page
   let labels: Label[]
+  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -41,7 +44,19 @@ describe('Labels API', () => {
       'different_label',
       '#dddddd'
     )
-    page = await createTestElasticPage(user, [existingLabelOfLink])
+    page = await createTestElasticPage(user, [
+      {
+        id: existingLabelOfLink.id,
+        name: existingLabelOfLink.name,
+        color: existingLabelOfLink.color,
+      },
+    ])
+
+    ctx = {
+      pubsub: createPubSubClient(),
+      refresh: true,
+      uid: user.id,
+    }
   })
 
   after(async () => {
@@ -198,8 +213,10 @@ describe('Labels API', () => {
     })
 
     context('when label exists', () => {
+      let toDeleteLabel: Label
+
       before(async () => {
-        const toDeleteLabel = await createTestLabel(user, 'label4', '#ffffff')
+        toDeleteLabel = await createTestLabel(user, 'label4', '#ffffff')
         labelId = toDeleteLabel.id
       })
 
@@ -207,6 +224,19 @@ describe('Labels API', () => {
         await graphqlRequest(query, authToken).expect(200)
         const label = await getRepository(Label).findOneBy({ id: labelId })
         expect(label).to.not.exist
+      })
+
+      context('when a page has this label', () => {
+        before(async () => {
+          await addLabelInPage(page.id, toDeleteLabel, ctx)
+        })
+
+        it('should update page', async () => {
+          await graphqlRequest(query, authToken).expect(200)
+          const updatedPage = await getPageById(page.id)
+
+          expect(updatedPage?.labels).not.to.include(toDeleteLabel)
+        })
       })
     })
 
@@ -293,7 +323,7 @@ describe('Labels API', () => {
       })
     })
 
-    context('when link not exist', () => {
+    context('when page not exist', () => {
       before(() => {
         pageId = generateFakeUuid()
         labelIds = [labels[0].id, labels[1].id]
@@ -317,6 +347,97 @@ describe('Labels API', () => {
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
+    })
+  })
+
+  describe('Update label', () => {
+    let query: string
+    let labelId: string
+    let name: string
+    let color: string
+
+    beforeEach(() => {
+      query = `
+        mutation {
+          updateLabel(
+            input: {
+              labelId: "${labelId}",
+              name: "${name}",
+              color: "${color}"
+            }
+          ) {
+            ... on UpdateLabelSuccess {
+              label {
+                id
+                name
+                color
+              }
+            }
+            ... on UpdateLabelError {
+              errorCodes
+            }
+          }
+        }
+      `
+    })
+
+    context('when labels exists', () => {
+      let toUpdateLabel: Label
+
+      before(async () => {
+        toUpdateLabel = await createTestLabel(user, 'label5', '#ffffff')
+        labelId = toUpdateLabel.id
+        name = 'Updated label'
+        color = '#aabbcc'
+      })
+
+      it('should return the updated label', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.updateLabel.label).to.eql({
+          id: labelId,
+          name,
+          color,
+        })
+      })
+
+      it('should update the label in db', async () => {
+        await graphqlRequest(query, authToken).expect(200)
+        const updatedLabel = await getRepository(Label).findOne({
+          where: { id: labelId },
+        })
+
+        expect(updatedLabel?.name).to.eql(name)
+        expect(updatedLabel?.color).to.eql(color)
+      })
+
+      context('when a page has the label', () => {
+        before(async () => {
+          await addLabelInPage(page.id, toUpdateLabel, ctx)
+        })
+
+        it('should update the page with the label', async () => {
+          await graphqlRequest(query, authToken).expect(200)
+
+          const updatedPage = await getPageById(page.id)
+          const updatedLabel = updatedPage?.labels?.filter(
+            (l) => l.id === labelId
+          )?.[0]
+
+          expect(updatedLabel?.name).to.eql(name)
+          expect(updatedLabel?.color).to.eql(color)
+        })
+      })
+    })
+
+    context('when labels not exist', () => {
+      before(() => {
+        labelId = generateFakeUuid()
+      })
+
+      it('should return error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.updateLabel.errorCodes).to.eql(['NOT_FOUND'])
+      })
     })
   })
 })
