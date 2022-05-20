@@ -128,7 +128,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
           }
         }
       }
-      .onAppear { // TODO: use task instead
+      .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)
         }
