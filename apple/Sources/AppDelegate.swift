@@ -49,12 +49,6 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
       configurePushNotifications()
       return true
     }
-    
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
-      logger.debug("received remote notification")
-      EventTracker.trackForDebugging("received remote notification with data: \(userInfo)")
-      return .noData
-    }
   }
 #endif
 

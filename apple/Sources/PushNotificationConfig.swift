@@ -3,9 +3,12 @@ import Firebase
 import FirebaseMessaging
 import Foundation
 import Models
+import OSLog
 import Services
 import UIKit
 import Utils
+
+private let logger = Logger(subsystem: "app.omnivore", category: "push-notifications")
 
 extension AppDelegate {
   func configurePushNotifications() {
@@ -76,6 +79,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
   func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
     print(error.localizedDescription)
+  }
+
+  func application(_: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) async -> UIBackgroundFetchResult {
+    logger.debug("received remote notification")
+    EventTracker.trackForDebugging("received remote notification with data: \(userInfo)")
+    return .noData
   }
 }
 
