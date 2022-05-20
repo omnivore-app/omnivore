@@ -86,20 +86,17 @@ export const saveNewsletterEmail = async (
 
   // sends push notification
   const deviceTokens = await getDeviceTokensByUserId(newsletterEmail.user.id)
-
   if (!deviceTokens) {
     console.log('Device tokens not set:', newsletterEmail.user.id)
     return true
   }
 
-  if (deviceTokens.length) {
-    const multicastMessage = messageForLink(page, deviceTokens)
-    await sendMulticastPushNotifications(
-      newsletterEmail.user.id,
-      multicastMessage,
-      'newsletter'
-    )
-  }
+  const multicastMessage = messageForLink(page, deviceTokens)
+  await sendMulticastPushNotifications(
+    newsletterEmail.user.id,
+    multicastMessage,
+    'newsletter'
+  )
 
   return true
 }

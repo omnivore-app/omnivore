@@ -817,6 +817,7 @@ export type Mutation = {
   setShareHighlight: SetShareHighlightResult;
   setUserPersonalization: SetUserPersonalizationResult;
   signup: SignupResult;
+  subscribe: SubscribeResult;
   unsubscribe: UnsubscribeResult;
   updateHighlight: UpdateHighlightResult;
   updateHighlightReply: UpdateHighlightReplyResult;
@@ -987,6 +988,11 @@ export type MutationSetUserPersonalizationArgs = {
 
 export type MutationSignupArgs = {
   input: SignupInput;
+};
+
+
+export type MutationSubscribeArgs = {
+  name: Scalars['String'];
 };
 
 
@@ -1643,6 +1649,25 @@ export type SortParams = {
   order?: InputMaybe<SortOrder>;
 };
 
+export type SubscribeError = {
+  __typename?: 'SubscribeError';
+  errorCodes: Array<SubscribeErrorCode>;
+};
+
+export enum SubscribeErrorCode {
+  AlreadySubscribed = 'ALREADY_SUBSCRIBED',
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SubscribeResult = SubscribeError | SubscribeSuccess;
+
+export type SubscribeSuccess = {
+  __typename?: 'SubscribeSuccess';
+  subscriptions: Array<Subscription>;
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   createdAt: Scalars['Date'];
@@ -2293,6 +2318,10 @@ export type ResolversTypes = {
   SortOrder: SortOrder;
   SortParams: SortParams;
   String: ResolverTypeWrapper<Scalars['String']>;
+  SubscribeError: ResolverTypeWrapper<SubscribeError>;
+  SubscribeErrorCode: SubscribeErrorCode;
+  SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
+  SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<{}>;
   SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
   SubscriptionsErrorCode: SubscriptionsErrorCode;
@@ -2550,6 +2579,9 @@ export type ResolversParentTypes = {
   SignupSuccess: SignupSuccess;
   SortParams: SortParams;
   String: Scalars['String'];
+  SubscribeError: SubscribeError;
+  SubscribeResult: ResolversParentTypes['SubscribeError'] | ResolversParentTypes['SubscribeSuccess'];
+  SubscribeSuccess: SubscribeSuccess;
   Subscription: {};
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
@@ -3198,6 +3230,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
+  subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'name'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
@@ -3545,6 +3578,20 @@ export type SignupResultResolvers<ContextType = ResolverContext, ParentType exte
 
 export type SignupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = {
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscribeErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscribeError'] = ResolversParentTypes['SubscribeError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SubscribeErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SubscribeResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscribeResult'] = ResolversParentTypes['SubscribeResult']> = {
+  __resolveType: TypeResolveFn<'SubscribeError' | 'SubscribeSuccess', ParentType, ContextType>;
+};
+
+export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscribeSuccess'] = ResolversParentTypes['SubscribeSuccess']> = {
+  subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3927,6 +3974,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SignupError?: SignupErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
+  SubscribeError?: SubscribeErrorResolvers<ContextType>;
+  SubscribeResult?: SubscribeResultResolvers<ContextType>;
+  SubscribeSuccess?: SubscribeSuccessResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;

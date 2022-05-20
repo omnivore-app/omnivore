@@ -727,6 +727,7 @@ type Mutation {
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   signup(input: SignupInput!): SignupResult!
+  subscribe(name: String!): SubscribeResult!
   unsubscribe(name: String!): UnsubscribeResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
@@ -1227,6 +1228,23 @@ enum SortOrder {
 input SortParams {
   by: SortBy!
   order: SortOrder
+}
+
+type SubscribeError {
+  errorCodes: [SubscribeErrorCode!]!
+}
+
+enum SubscribeErrorCode {
+  ALREADY_SUBSCRIBED
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SubscribeResult = SubscribeError | SubscribeSuccess
+
+type SubscribeSuccess {
+  subscriptions: [Subscription!]!
 }
 
 type Subscription {

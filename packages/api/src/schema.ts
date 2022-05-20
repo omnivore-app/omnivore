@@ -1511,6 +1511,23 @@ const schema = gql`
     UNSUBSCRIBE_METHOD_NOT_FOUND
   }
 
+  union SubscribeResult = SubscribeSuccess | SubscribeError
+
+  type SubscribeSuccess {
+    subscriptions: [Subscription!]!
+  }
+
+  type SubscribeError {
+    errorCodes: [SubscribeErrorCode!]!
+  }
+
+  enum SubscribeErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    ALREADY_SUBSCRIBED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1573,6 +1590,7 @@ const schema = gql`
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
     unsubscribe(name: String!): UnsubscribeResult!
+    subscribe(name: String!): SubscribeResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
