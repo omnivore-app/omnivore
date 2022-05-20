@@ -9,9 +9,9 @@ extension DataService {
     let retryCount: Int
   }
 
-  public func prefetchPages(itemIDs: [String]) async {
-    guard let username = currentViewer?.username else { return }
-
+  public func prefetchPages(itemIDs: [String], username: String) async {
+    // TODO: make this concurrent
+    // TODO: make a non-pending page option for BG tasks
     for itemID in itemIDs {
       await prefetchPage(pendingLink: PendingLink(itemID: itemID, retryCount: 1), username: username)
     }
@@ -183,9 +183,8 @@ extension DataService {
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", item.id)
 
-      let linkedItem = try? self.backgroundContext.fetch(fetchRequest).first
-
-      guard let linkedItem = linkedItem else { return }
+      let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
+      let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
 
       let highlightObjects = highlights.map {
         $0.asManagedObject(context: self.backgroundContext)

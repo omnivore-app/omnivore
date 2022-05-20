@@ -5,6 +5,7 @@ import Utils
 import Views
 
 public struct RootView: View {
+  @Environment(\.scenePhase) var scenePhase
   let pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?
   @StateObject private var viewModel = RootViewModel()
 
@@ -29,6 +30,11 @@ public struct RootView: View {
       .onAppear {
         if let pdfViewerProvider = pdfViewerProvider {
           viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
+        }
+      }
+      .onChange(of: scenePhase) { phase in
+        if phase == .background {
+          Services.scheduleBackgroundFetch()
         }
       }
   }

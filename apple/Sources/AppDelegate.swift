@@ -1,11 +1,16 @@
+import OSLog
+
 #if os(macOS)
   import AppKit
 #elseif os(iOS)
+  import App
   import Intercom
   import UIKit
   import Utils
   import Views
 #endif
+
+private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
 
 #if os(macOS)
   class AppDelegate: NSObject, NSApplicationDelegate {
@@ -20,11 +25,6 @@
 
 #elseif os(iOS)
   class AppDelegate: NSObject, UIApplicationDelegate {
-//    override init() {
-//      super.init()
-//      UIColor.classInit
-//    }
-
     // swiftlint:disable:next line_length
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
       #if DEBUG
@@ -45,6 +45,7 @@
         }
       }
 
+      Services.registerBackgroundFetch()
       configurePushNotifications()
       return true
     }
