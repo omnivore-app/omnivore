@@ -94,10 +94,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
       .navigationTitle("Home")
       .navigationBarTitleDisplayMode(.inline)
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-        // Don't refresh the list if the user is currently reading an article
-        if viewModel.selectedLinkItem == nil || viewModel.linkRequest == nil {
-          loadItems(isRefresh: true)
-        }
+        loadItems(isRefresh: true)
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
         guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
@@ -131,7 +128,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
           }
         }
       }
-      .onAppear { // TODO: use task instead
+      .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)
         }
