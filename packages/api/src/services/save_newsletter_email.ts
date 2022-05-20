@@ -93,10 +93,7 @@ export const saveNewsletterEmail = async (
   }
 
   if (deviceTokens.length) {
-    await sendBackgroundPushNotifications(
-      newsletterEmail.user.id,
-      deviceTokens
-    )
+    await sendBackgroundPushNotifications(newsletterEmail.user.id, deviceTokens)
   }
 
   return true

@@ -127,10 +127,7 @@ export const savePage = async (
 
   const deviceTokens = await getDeviceTokensByUserId(saver.userId)
   if (deviceTokens && deviceTokens.length > 0) {
-    await sendBackgroundPushNotifications(
-      saver.userId,
-      deviceTokens
-    )
+    await sendBackgroundPushNotifications(saver.userId, deviceTokens)
   }
 
   return {
