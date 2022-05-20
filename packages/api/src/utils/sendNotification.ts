@@ -5,6 +5,7 @@ import {
   Message,
   MulticastMessage,
 } from 'firebase-admin/messaging'
+import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { analytics } from './analytics'
 
@@ -64,6 +65,40 @@ export const sendMulticastPushNotifications = async (
   } catch (err) {
     console.log('firebase cloud message error: ', err)
 
+    return undefined
+  }
+}
+
+export const sendBackgroundPushNotifications = async (
+  userId: string,
+  deviceTokens: UserDeviceToken[]
+): Promise<BatchResponse | undefined> => {
+  try {
+    analytics.track({
+      userId,
+      event: 'notification_sent',
+      properties: {
+        type: 'background',
+        multicast: true,
+        env: env.server.apiEnv,
+      },
+    })
+
+    const message = {
+      apns: {
+        payload: {
+          aps: {
+            contentAvailable: true,
+          },
+        },
+      },
+      tokens: deviceTokens.map((token) => token.token),
+    }
+
+    const res = await getMessaging().sendMulticast(message)
+    return res
+  } catch (err) {
+    console.log('firebase cloud message error: ', err)
     return undefined
   }
 }
