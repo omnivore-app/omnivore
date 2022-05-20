@@ -4,7 +4,7 @@ import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { ContentReader } from '../generated/graphql'
 import { analytics } from '../utils/analytics'
-import { sendMulticastPushNotifications } from '../utils/sendNotification'
+import { sendBackgroundPushNotifications } from '../utils/sendNotification'
 import { getNewsletterEmail } from './newsletters'
 import { SaveContext, saveEmail, SaveEmailInput } from './save_email'
 import { getDeviceTokensByUserId } from './user_device_tokens'
@@ -93,11 +93,9 @@ export const saveNewsletterEmail = async (
   }
 
   if (deviceTokens.length) {
-    const multicastMessage = messageForLink(page, deviceTokens)
-    await sendMulticastPushNotifications(
+    await sendBackgroundPushNotifications(
       newsletterEmail.user.id,
-      multicastMessage,
-      'newsletter'
+      deviceTokens
     )
   }
 
@@ -106,6 +104,7 @@ export const saveNewsletterEmail = async (
 
 const messageForLink = (
   link: Page,
+  background: boolean,
   deviceTokens: UserDeviceToken[]
 ): MulticastMessage => {
   let title = '📫 - An article was added to your Omnivore Inbox'

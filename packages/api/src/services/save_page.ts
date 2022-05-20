@@ -9,6 +9,8 @@ import normalizeUrl from 'normalize-url'
 import { createPageSaveRequest } from './create_page_save_request'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
+import { sendBackgroundPushNotifications } from '../utils/sendNotification'
+import { getDeviceTokensByUserId } from './user_device_tokens'
 
 type SaveContext = {
   pubsub: PubsubClient
@@ -121,6 +123,14 @@ export const savePage = async (
     )
   } else {
     await createPage(articleToSave, ctx)
+  }
+
+  const deviceTokens = await getDeviceTokensByUserId(saver.userId)
+  if (deviceTokens && deviceTokens.length > 0) {
+    await sendBackgroundPushNotifications(
+      saver.userId,
+      deviceTokens
+    )
   }
 
   return {
