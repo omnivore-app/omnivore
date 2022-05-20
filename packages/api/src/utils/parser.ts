@@ -279,7 +279,7 @@ export const parsePreparedContent = async (
       return getJSONLdLinkMetadata(dom)
     })()
 
-    Object.assign(article, {
+    Object.assign(article || {}, {
       content: clean,
       title: article?.title || (await jsonLdLinkMetadata).title,
       previewImage:
