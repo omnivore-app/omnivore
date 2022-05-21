@@ -6,7 +6,7 @@ import Views
 struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
 
-  @ObservedObject var item: LinkedItem
+  let item: LinkedItem
 
   @ObservedObject var viewModel: HomeFeedViewModel
 

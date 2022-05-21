@@ -70,8 +70,8 @@ import Utils
 
           coordinator.viewer = self
 
-          if viewModel.linkedItem.readingProgressAnchor > 0 {
-            let pageIndex = UInt(viewModel.linkedItem.readingProgressAnchor)
+          if viewModel.pdfItem.readingProgressAnchor > 0 {
+            let pageIndex = UInt(viewModel.pdfItem.readingProgressAnchor)
             controller.setPageIndex(pageIndex, animated: false)
           }
 
@@ -145,7 +145,7 @@ import Utils
             let pageIndex = Int(event.pageIndex)
             if let totalPageCount = controller.document?.pageCount {
               let percent = min(100, max(0, ((Double(pageIndex) + 1.0) / Double(totalPageCount)) * 100.0))
-              if percent > self.viewModel.linkedItem.readingProgress {
+              if percent > self.viewModel.pdfItem.readingProgress {
                 self.viewModel.updateItemReadProgress(percent: percent, anchorIndex: pageIndex)
               }
             }
@@ -199,7 +199,7 @@ import Utils
             "id": highlightID,
             "shortId": shortId,
             "quote": quote,
-            "articleId": viewModel.linkedItem.unwrappedID
+            "articleId": viewModel.pdfItem.itemID
           ]
         ]
         document.add(annotations: [highlight])

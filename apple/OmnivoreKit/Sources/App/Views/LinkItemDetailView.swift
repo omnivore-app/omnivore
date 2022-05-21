@@ -6,10 +6,11 @@ import Utils
 import Views
 
 enum PDFProvider {
-  static var pdfViewerProvider: ((URL, LinkedItem) -> AnyView)?
+  static var pdfViewerProvider: ((URL, PDFItem) -> AnyView)?
 }
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
+  let pdfItem: PDFItem?
   @Published var item: LinkedItem
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
@@ -17,6 +18,7 @@ enum PDFProvider {
 
   init(item: LinkedItem) {
     self.item = item
+    self.pdfItem = PDFItem.make(item: item)
   }
 
   func handleArchiveAction(dataService: DataService) {
@@ -277,9 +279,9 @@ struct LinkItemDetailView: View {
   #endif
 
   @ViewBuilder private var fixedNavBarReader: some View {
-    if let pdfURL = viewModel.item.pdfURL {
+    if let pdfURL = viewModel.item.pdfURL, let pdfItem = viewModel.pdfItem {
       #if os(iOS)
-        PDFProvider.pdfViewerProvider?(pdfURL, viewModel.item)
+        PDFProvider.pdfViewerProvider?(pdfURL, pdfItem)
           .navigationBarTitleDisplayMode(.inline)
       #elseif os(macOS)
         PDFWrapperView(pdfURL: pdfURL)

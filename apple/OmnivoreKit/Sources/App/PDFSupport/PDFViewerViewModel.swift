@@ -8,15 +8,15 @@ public final class PDFViewerViewModel: ObservableObject {
   @Published public var errorMessage: String?
   @Published public var readerView: Bool = false
 
-  public var linkedItem: LinkedItem
+  public let pdfItem: PDFItem
   private var storedURL: URL?
 
   var subscriptions = Set<AnyCancellable>()
   let services: Services
 
-  public init(services: Services, linkedItem: LinkedItem) {
+  public init(services: Services, pdfItem: PDFItem) {
     self.services = services
-    self.linkedItem = linkedItem
+    self.pdfItem = pdfItem
   }
 
   public func dataURL(remoteURL: URL) -> URL {
@@ -24,9 +24,9 @@ public final class PDFViewerViewModel: ObservableObject {
       return storedURL
     }
 
-    guard let data = linkedItem.pdfData else { return remoteURL }
+    guard let data = pdfItem.documentData else { return remoteURL }
 
-    let subPath = linkedItem.unwrappedTitle.isEmpty ? UUID().uuidString : linkedItem.unwrappedTitle
+    let subPath = pdfItem.title.isEmpty ? UUID().uuidString : pdfItem.title
 
     let path = FileManager.default
       .urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -42,7 +42,7 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
-    onComplete(linkedItem.highlights.asArray(of: Highlight.self).map { $0.patch ?? "" })
+    onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }
 
   public func createHighlight(shortId: String, highlightID: String, quote: String, patch: String) {
@@ -51,7 +51,7 @@ public final class PDFViewerViewModel: ObservableObject {
       highlightID: highlightID,
       quote: quote,
       patch: patch,
-      articleId: linkedItem.unwrappedID
+      articleId: pdfItem.itemID
     )
   }
 
@@ -67,7 +67,7 @@ public final class PDFViewerViewModel: ObservableObject {
       highlightID: highlightID,
       quote: quote,
       patch: patch,
-      articleId: linkedItem.unwrappedID,
+      articleId: pdfItem.itemID,
       overlapHighlightIdList: overlapHighlightIdList
     )
   }
@@ -80,7 +80,7 @@ public final class PDFViewerViewModel: ObservableObject {
 
   public func updateItemReadProgress(percent: Double, anchorIndex: Int) {
     services.dataService.updateLinkReadingProgress(
-      itemID: linkedItem.unwrappedID,
+      itemID: pdfItem.itemID,
       readingProgress: percent,
       anchorIndex: anchorIndex
     )
@@ -91,7 +91,7 @@ public final class PDFViewerViewModel: ObservableObject {
     var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
 
     if let username = services.dataService.currentViewer?.username {
-      components?.path = "/\(username)/\(linkedItem.unwrappedSlug)/highlights/\(shortId)"
+      components?.path = "/\(username)/\(pdfItem.slug)/highlights/\(shortId)"
     } else {
       return nil
     }
