@@ -101,7 +101,7 @@ private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
         guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
-        viewModel.selectedLinkItem = linkedItem
+        viewModel.selectedLinkItem = linkedItem.objectID
       }
       .onOpenURL { url in
         withoutAnimation {

@@ -11,7 +11,7 @@ struct FeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item))
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, pdfItem: PDFItem.make(item: item)))
     #if os(iOS)
       let modifiedDestination = destination
         .navigationTitle("")
@@ -22,7 +22,7 @@ struct FeedCardNavigationLink: View {
     return ZStack {
       NavigationLink(
         destination: modifiedDestination,
-        tag: item,
+        tag: item.objectID,
         selection: $viewModel.selectedLinkItem
       ) {
         EmptyView()
@@ -50,7 +50,7 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item))
+    let destination = LinkItemDetailView(viewModel: LinkItemDetailViewModel(item: item, pdfItem: PDFItem.make(item: item)))
     #if os(iOS)
       let modifiedDestination = destination
         .navigationTitle("")
@@ -61,7 +61,7 @@ struct GridCardNavigationLink: View {
     return ZStack {
       NavigationLink(
         destination: modifiedDestination,
-        tag: item,
+        tag: item.objectID,
         selection: $viewModel.selectedLinkItem
       ) {
         EmptyView()
@@ -71,7 +71,7 @@ struct GridCardNavigationLink: View {
           scale = 0.95
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
             scale = 1.0
-            viewModel.selectedLinkItem = item
+            viewModel.selectedLinkItem = item.objectID
           }
         }
       })

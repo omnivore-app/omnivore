@@ -11,30 +11,34 @@ enum PDFProvider {
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   let pdfItem: PDFItem?
-  @Published var item: LinkedItem
+  let item: LinkedItem?
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: LinkedItem) {
+  init(item: LinkedItem?, pdfItem: PDFItem?) {
     self.item = item
-    self.pdfItem = PDFItem.make(item: item)
+    self.pdfItem = pdfItem
   }
 
   func handleArchiveAction(dataService: DataService) {
-    dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
-    Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
+    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
+    dataService.archiveLink(objectID: objectID, archived: !isItemArchived)
+    Snackbar.show(message: !isItemArchived ? "Link archived" : "Link moved to Inbox")
   }
 
   func handleDeleteAction(dataService: DataService) {
+    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
     Snackbar.show(message: "Link removed")
-    dataService.removeLink(objectID: item.objectID)
+    dataService.removeLink(objectID: objectID)
   }
 
   func updateItemReadStatus(dataService: DataService) {
+    guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
+
     dataService.updateLinkReadingProgress(
-      itemID: item.unwrappedID,
-      readingProgress: item.isRead ? 0 : 100,
+      itemID: itemID,
+      readingProgress: isItemRead ? 0 : 100,
       anchorIndex: 0
     )
   }
@@ -66,21 +70,34 @@ enum PDFProvider {
   }
 
   func trackReadEvent() {
+    guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
+    guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
+    guard let originalArticleURL = item?.unwrappedPageURLString ?? pdfItem?.originalArticleURL else { return }
+
     EventTracker.track(
       .linkRead(
-        linkID: item.unwrappedID,
-        slug: item.unwrappedSlug,
-        originalArticleURL: item.unwrappedPageURLString
+        linkID: itemID,
+        slug: slug,
+        originalArticleURL: originalArticleURL
       )
     )
   }
 
+  var isItemRead: Bool {
+    item?.isRead ?? pdfItem?.isRead ?? false
+  }
+
+  var isItemArchived: Bool {
+    item?.isArchived ?? pdfItem?.isArchived ?? false
+  }
+
   private func createWebAppWrapperViewModel(username: String, dataService: DataService, rawAuthCookie: String?) {
+    guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
     let baseURL = dataService.appEnvironment.webAppBaseURL
 
     let urlRequest = URLRequest.webRequest(
       baseURL: dataService.appEnvironment.webAppBaseURL,
-      urlPath: "/app/\(username)/\(item.unwrappedSlug)",
+      urlPath: "/app/\(username)/\(slug)",
       queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
     )
 
@@ -113,7 +130,7 @@ struct LinkItemDetailView: View {
         viewModel.updateItemReadStatus(dataService: dataService)
       },
       label: {
-        Image(systemName: viewModel.item.isRead ? "line.horizontal.3.decrease.circle" : "checkmark.circle")
+        Image(systemName: viewModel.isItemRead ? "line.horizontal.3.decrease.circle" : "checkmark.circle")
       }
     )
   }
@@ -141,15 +158,15 @@ struct LinkItemDetailView: View {
 
   var body: some View {
     #if os(iOS)
-      if viewModel.item.isPDF {
+      if viewModel.pdfItem != nil {
         fixedNavBarReader
           .navigationBarHidden(hideNavBar)
           .task {
             hideNavBar = true
             viewModel.trackReadEvent()
           }
-      } else {
-        WebReaderContainerView(item: viewModel.item)
+      } else if let item = viewModel.item {
+        WebReaderContainerView(item: item)
           .navigationBarHidden(hideNavBar)
           .task {
             hideNavBar = true
@@ -191,8 +208,8 @@ struct LinkItemDetailView: View {
               action: { viewModel.handleArchiveAction(dataService: dataService) },
               label: {
                 Label(
-                  viewModel.item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: viewModel.item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                  viewModel.isItemArchived ? "Unarchive" : "Archive",
+                  systemImage: viewModel.isItemArchived ? "tray.and.arrow.down.fill" : "archivebox"
                 )
               }
             )
@@ -279,7 +296,7 @@ struct LinkItemDetailView: View {
   #endif
 
   @ViewBuilder private var fixedNavBarReader: some View {
-    if let pdfURL = viewModel.item.pdfURL, let pdfItem = viewModel.pdfItem {
+    if let pdfItem = viewModel.pdfItem, let pdfURL = pdfItem.pdfURL {
       #if os(iOS)
         PDFProvider.pdfViewerProvider?(pdfURL, pdfItem)
           .navigationBarTitleDisplayMode(.inline)

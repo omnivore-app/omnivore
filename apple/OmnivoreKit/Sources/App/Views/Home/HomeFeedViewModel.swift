@@ -19,7 +19,7 @@ import Views
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
-  @Published var selectedLinkItem: LinkedItem?
+  @Published var selectedLinkItem: NSManagedObjectID?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
 
