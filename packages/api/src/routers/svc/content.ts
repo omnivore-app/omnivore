@@ -8,6 +8,10 @@ import {
 } from '../../datalayer/pubsub'
 import { Page } from '../../elastic/types'
 import { getPageByParam, updatePage } from '../../elastic/pages'
+import { ArticleSavingRequestStatus } from '../../generated/graphql'
+import { initModels } from '../../server'
+import { kx } from '../../datalayer/knex_config'
+import { setClaims } from '../../datalayer/helpers'
 
 interface UpdateContentMessage {
   fileId: string
@@ -64,6 +68,22 @@ export function contentServiceRouter() {
     if (msg.title) pageToUpdate.title = msg.title
     if (msg.author) pageToUpdate.author = msg.author
     if (msg.description) pageToUpdate.description = msg.description
+
+    // This event is fired after the file is fully uploaded,
+    // so along with upadting content, we mark it as
+    // succeeded.
+    pageToUpdate.state = ArticleSavingRequestStatus.Succeeded
+
+    try {
+      const models = initModels(kx, false)
+      const uploadFileData = await kx.transaction(async (tx) => {
+        await setClaims(tx, page.userId)
+        return models.uploadFile.setFileUploadComplete(fileId, tx)
+      })
+      console.log('updated uploadFileData', uploadFileData)
+    } catch (error) {
+      console.log('error marking file upload as completed', error)
+    }
 
     const result = await updatePage(page.id, pageToUpdate, {
       pubsub: createPubSubClient(),

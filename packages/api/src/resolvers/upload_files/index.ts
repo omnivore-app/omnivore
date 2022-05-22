@@ -5,6 +5,7 @@ import {
   MutationUploadFileRequestArgs,
   UploadFileStatus,
   UploadFileRequestErrorCode,
+  ArticleSavingRequestStatus,
 } from '../../generated/graphql'
 import { WithDataSourcesContext } from '../types'
 import {
@@ -15,13 +16,17 @@ import path from 'path'
 import normalizeUrl from 'normalize-url'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import { createPage } from '../../elastic/pages'
+import { PageType } from '../../elastic/types'
+import { generateSlug } from '../../utils/helpers'
 
 export const uploadFileRequestResolver: ResolverFn<
   UploadFileRequestResult,
   unknown,
   WithDataSourcesContext,
   MutationUploadFileRequestArgs
-> = async (_obj, { input }, { models, kx, claims }) => {
+> = async (_obj, { input }, ctx) => {
+  const { models, kx, claims } = ctx
   let uploadFileData: { id: string | null } = {
     id: null,
   }
@@ -39,16 +44,19 @@ export const uploadFileRequestResolver: ResolverFn<
     },
   })
 
+  let title: string
   let fileName: string
   try {
     const url = normalizeUrl(new URL(input.url).href, {
       stripHash: true,
       stripWWW: false,
     })
+    title = decodeURI(path.basename(new URL(url).pathname, '.pdf'))
     fileName = decodeURI(path.basename(new URL(url).pathname)).replace(
       /[^a-zA-Z0-9-_.]/g,
       ''
     )
+
     if (!fileName) {
       fileName = 'content.pdf'
     }
@@ -73,6 +81,31 @@ export const uploadFileRequestResolver: ResolverFn<
       uploadFilePathName,
       input.contentType
     )
+
+    const pageId = await createPage(
+      {
+        id: '',
+        url: input.url,
+        userId: claims.uid,
+        title: title,
+        hash: uploadFilePathName,
+        content: '',
+        pageType: PageType.File,
+        uploadFileId: uploadFileData.id,
+        slug: generateSlug(uploadFilePathName),
+        createdAt: new Date(),
+        savedAt: new Date(),
+        readingProgressPercent: 0,
+        readingProgressAnchorIndex: 0,
+        state: ArticleSavingRequestStatus.Processing,
+      },
+      ctx
+    )
+
+    if (!pageId) {
+      return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
+    }
+
     return { id: uploadFileData.id, uploadSignedUrl }
   } else {
     return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }

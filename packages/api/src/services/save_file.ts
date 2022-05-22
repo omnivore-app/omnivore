@@ -31,9 +31,9 @@ export const saveFile = async (
 ): Promise<SaveResult> => {
   console.log('saving file with input', input)
 
-  /* We do not trust the values from client, lookup upload file by querying
-   * with filtering on user ID and URL to verify client's uploadFileId is valid.
-   */
+  // /* We do not trust the values from client, lookup upload file by querying
+  //  * with filtering on user ID and URL to verify client's uploadFileId is valid.
+  //  */
   const uploadFile = await ctx.models.uploadFile.getWhere({
     id: input.uploadFileId,
     userId: saver.id,
@@ -53,63 +53,63 @@ export const saveFile = async (
     return ctx.models.uploadFile.setFileUploadComplete(input.uploadFileId, tx)
   })
 
-  if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
-    console.log('error completing upload file request', input)
-    return {
-      errorCodes: [SaveErrorCode.Unknown],
-    }
-  }
+  // if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
+  //   console.log('error completing upload file request', input)
+  //   return {
+  //     errorCodes: [SaveErrorCode.Unknown],
+  //   }
+  // }
 
-  const uploadFileUrlOverride = await makeStorageFilePublic(
-    uploadFileData.id,
-    uploadFileData.fileName
-  )
+  // // const uploadFileUrlOverride = await makeStorageFilePublic(
+  // //   uploadFileData.id,
+  // //   uploadFileData.fileName
+  // // )
 
-  const matchedUserArticleRecord = await getPageByParam({
-    userId: saver.id,
-    url: uploadFileUrlOverride,
-    state: ArticleSavingRequestStatus.Succeeded,
-  })
+  // const matchedUserArticleRecord = await getPageByParam({
+  //   userId: saver.id,
+  //   url: uploadFileData.url,
+  //   state: ArticleSavingRequestStatus.Succeeded,
+  // })
 
-  if (matchedUserArticleRecord) {
-    await updatePage(
-      matchedUserArticleRecord.id,
-      {
-        savedAt: new Date(),
-        archivedAt: null,
-      },
-      ctx
-    )
-    input.clientRequestId = matchedUserArticleRecord.id
-  } else {
-    const pageId = await createPage(
-      {
-        url: uploadFileUrlOverride,
-        title: uploadFile.fileName,
-        hash: uploadFileDetails.md5Hash,
-        content: '',
-        pageType: PageType.File,
-        uploadFileId: input.uploadFileId,
-        slug: generateSlug(uploadFile.fileName),
-        userId: saver.id,
-        id: input.clientRequestId,
-        createdAt: new Date(),
-        savedAt: new Date(),
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        state: ArticleSavingRequestStatus.Succeeded,
-      },
-      ctx
-    )
+  // if (matchedUserArticleRecord) {
+  //   await updatePage(
+  //     matchedUserArticleRecord.id,
+  //     {
+  //       savedAt: new Date(),
+  //       archivedAt: null,
+  //     },
+  //     ctx
+  //   )
+  //   input.clientRequestId = matchedUserArticleRecord.id
+  // } else {
+  //   const pageId = await createPage(
+  //     {
+  //       url: uploadFile.url,
+  //       title: uploadFile.fileName,
+  //       hash: uploadFileDetails.md5Hash,
+  //       content: '',
+  //       pageType: PageType.File,
+  //       uploadFileId: input.uploadFileId,
+  //       slug: generateSlug(uploadFile.fileName),
+  //       userId: saver.id,
+  //       id: input.clientRequestId,
+  //       createdAt: new Date(),
+  //       savedAt: new Date(),
+  //       readingProgressPercent: 0,
+  //       readingProgressAnchorIndex: 0,
+  //       state: ArticleSavingRequestStatus.Succeeded,
+  //     },
+  //     ctx
+  //   )
 
-    if (!pageId) {
-      console.log('error creating page in elastic', input)
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-      }
-    }
-    input.clientRequestId = pageId
-  }
+  //   if (!pageId) {
+  //     console.log('error creating page in elastic', input)
+  //     return {
+  //       errorCodes: [SaveErrorCode.Unknown],
+  //     }
+  //   }
+  //   input.clientRequestId = pageId
+  // }
 
   return {
     clientRequestId: input.clientRequestId,
