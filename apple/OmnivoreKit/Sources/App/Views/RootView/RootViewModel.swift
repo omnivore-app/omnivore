@@ -32,15 +32,6 @@ public final class RootViewModel: ObservableObject {
     #endif
   }
 
-  func configurePDFProvider(pdfViewerProvider: @escaping (URL, PDFViewerViewModel) -> AnyView) {
-    guard PDFProvider.pdfViewerProvider == nil else { return }
-
-    PDFProvider.pdfViewerProvider = { [weak self] url, pdfItem in
-      guard let self = self else { return AnyView(Text("")) }
-      return pdfViewerProvider(url, PDFViewerViewModel(services: self.services, pdfItem: pdfItem))
-    }
-  }
-
   func webAppWrapperViewModel(webLinkPath: String) -> WebAppWrapperViewModel {
     let baseURL = services.dataService.appEnvironment.webAppBaseURL
 

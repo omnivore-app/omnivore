@@ -6,7 +6,6 @@ import SwiftUI
   import AppKit
 #elseif os(iOS)
   import Intercom
-  import PSPDFKit
   import UIKit
   import Utils
 #endif
@@ -17,20 +16,12 @@ struct MainApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   #elseif os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
-    init() {
-      // Activate PSPDFKit for app.omnivore.app
-      if let pspdfKitKey = AppKeys.sharedInstance?.pspdfKitKey {
-        SDK.setLicenseKey(pspdfKitKey)
-      }
-    }
   #endif
 
   var body: some Scene {
     #if os(iOS)
       WindowGroup {
         RootView(
-          pdfViewerProvider: pdfViewerProvider,
           intercomProvider: AppKeys.sharedInstance?.intercom != nil ? IntercomProvider(
             registerIntercomUser: { Intercom.registerUser(withUserId: $0) },
             unregisterIntercomUser: Intercom.logout,
@@ -40,12 +31,8 @@ struct MainApp: App {
       }
     #elseif os(macOS)
       WindowGroup {
-        RootView(pdfViewerProvider: nil, intercomProvider: nil)
+        RootView(intercomProvider: nil)
       }
     #endif
-  }
-
-  private func pdfViewerProvider(url: URL, viewModel: PDFViewerViewModel) -> AnyView {
-    AnyView(PDFViewer(remoteURL: url, viewModel: viewModel))
   }
 }

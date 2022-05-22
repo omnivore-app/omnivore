@@ -1,14 +1,18 @@
-import Models
-import SwiftUI
-import Utils
-import WebKit
-
 #if os(iOS)
-  import App
+  import Models
   import PSPDFKit
   import PSPDFKitUI
+  import SwiftUI
+  import Utils
+  import WebKit
 
   struct PDFReaderViewController: UIViewControllerRepresentable {
+    static func registerKey() {
+      if let pspdfKitKey = AppKeys.sharedInstance?.pspdfKitKey {
+        SDK.setLicenseKey(pspdfKitKey)
+      }
+    }
+
     let document: Document
 
     @Environment(\.presentationMode) var presentationMode

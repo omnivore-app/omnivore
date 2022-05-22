@@ -5,10 +5,6 @@ import SwiftUI
 import Utils
 import Views
 
-enum PDFProvider {
-  static var pdfViewerProvider: ((URL, PDFItem) -> AnyView)?
-}
-
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   let pdfItem: PDFItem?
   let item: LinkedItem?
@@ -298,7 +294,7 @@ struct LinkItemDetailView: View {
   @ViewBuilder private var fixedNavBarReader: some View {
     if let pdfItem = viewModel.pdfItem, let pdfURL = pdfItem.pdfURL {
       #if os(iOS)
-        PDFProvider.pdfViewerProvider?(pdfURL, pdfItem)
+        PDFViewer(remoteURL: pdfURL, viewModel: PDFViewerViewModel(pdfItem: pdfItem))
           .navigationBarTitleDisplayMode(.inline)
       #elseif os(macOS)
         PDFWrapperView(pdfURL: pdfURL)
