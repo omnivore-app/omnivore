@@ -5,9 +5,9 @@ import UserNotifications
 import Utils
 import Views
 
-private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
-
 #if os(iOS)
+  private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
+
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false

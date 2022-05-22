@@ -34,7 +34,9 @@ public struct RootView: View {
       }
       .onChange(of: scenePhase) { phase in
         if phase == .background {
-          Services.scheduleBackgroundFetch()
+          #if os(iOS)
+            Services.scheduleBackgroundFetch()
+          #endif
         }
       }
   }

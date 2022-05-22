@@ -16,16 +16,9 @@ let package = Package(
     .library(name: "Models", targets: ["Models"]),
     .library(name: "Utils", targets: ["Utils"])
   ],
-  dependencies: [
-    .package(url: "https://github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "1.4.0")),
-    .package(url: "https://github.com/Square/Valet", from: "4.1.2"),
-    .package(url: "https://github.com/maticzav/swift-graphql", from: "2.3.1"),
-    .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4"),
-    .package(url: "git@github.com:segmentio/analytics-swift.git", .upToNextMajor(from: "1.0.0")),
-    .package(path: "../LocalPSPDFKit")
-  ],
+  dependencies: dependencies,
   targets: [
-    .target(name: "App", dependencies: ["Views", "Services", "Models", "Utils", .product(name: "PSPDFKit", package: "LocalPSPDFKit")]),
+    .target(name: "App", dependencies: appPackageDependencies),
     .testTarget(name: "AppTests", dependencies: ["App"]),
     .target(
       name: "Views",
@@ -59,3 +52,25 @@ let package = Package(
     .testTarget(name: "UtilsTests", dependencies: ["Utils"])
   ]
 )
+
+var appPackageDependencies: [Target.Dependency] {
+  var deps: [Target.Dependency] = ["Views", "Services", "Models", "Utils"]
+  #if canImport(UIKit)
+    deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
+  #endif
+  return deps
+}
+
+var dependencies: [Package.Dependency] {
+  var deps: [Package.Dependency] = [
+    .package(url: "https://github.com/openid/AppAuth-iOS.git", .upToNextMajor(from: "1.4.0")),
+    .package(url: "https://github.com/Square/Valet", from: "4.1.2"),
+    .package(url: "https://github.com/maticzav/swift-graphql", from: "2.3.1"),
+    .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4"),
+    .package(url: "git@github.com:segmentio/analytics-swift.git", .upToNextMajor(from: "1.0.0"))
+  ]
+  #if canImport(UIKit)
+    deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", branch: "master"))
+  #endif
+  return deps
+}

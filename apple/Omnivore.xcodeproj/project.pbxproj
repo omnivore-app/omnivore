@@ -187,7 +187,6 @@
 		042F48D926DFD10E00BF98FC /* UITests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSLaunchTests.swift; sourceTree = "<group>"; };
 		042F48DD26DFD10E00BF98FC /* iOSUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSUITests.plist; sourceTree = "<group>"; };
-		04501446283A861300BD138D /* LocalPSPDFKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = LocalPSPDFKit; sourceTree = "<group>"; };
 		046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ShareExtension-Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		046C5CD426A3F89A00AC5349 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		046C5CDB26A3F89A00AC5349 /* ShareExtensionMac.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShareExtensionMac.plist; sourceTree = "<group>"; };
@@ -419,7 +418,6 @@
 		2EE5B57B588CF4ADBA39A106 = {
 			isa = PBXGroup;
 			children = (
-				04501446283A861300BD138D /* LocalPSPDFKit */,
 				047AD6F62724E513004FD5CF /* SafariExtension (iOS)Release.entitlements */,
 				047AD6F52724CF8A004FD5CF /* SafariExtension (iOS).entitlements */,
 				0480E70B26D8A07A006CAE2F /* Omnivore-Mac.xctestplan */,

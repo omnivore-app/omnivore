@@ -4,6 +4,7 @@ import Utils
 import WebKit
 
 #if os(iOS)
+  import App
   import PSPDFKit
   import PSPDFKitUI
 
