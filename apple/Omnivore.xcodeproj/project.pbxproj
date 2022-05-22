@@ -10,7 +10,6 @@
 		0411792A26A22860004AE24F /* MacAppSmokeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0411792926A22860004AE24F /* MacAppSmokeTest.swift */; };
 		0418837E2742E99F003E0001 /* Intercom in Frameworks */ = {isa = PBXBuildFile; productRef = 0418837D2742E99F003E0001 /* Intercom */; };
 		041883802742FCF2003E0001 /* Utils in Frameworks */ = {isa = PBXBuildFile; productRef = 0418837F2742FCF2003E0001 /* Utils */; };
-		042184ED273AD426002357B0 /* PSPDFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 042184EC273AD426002357B0 /* PSPDFKit */; };
 		042184EF273AD5F3002357B0 /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042184EE273AD5F3002357B0 /* PDFViewer.swift */; };
 		042184F0273AD5F3002357B0 /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042184EE273AD5F3002357B0 /* PDFViewer.swift */; };
 		042F48DC26DFD10E00BF98FC /* iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */; };
@@ -188,6 +187,7 @@
 		042F48D926DFD10E00BF98FC /* UITests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSLaunchTests.swift; sourceTree = "<group>"; };
 		042F48DD26DFD10E00BF98FC /* iOSUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSUITests.plist; sourceTree = "<group>"; };
+		04501446283A861300BD138D /* LocalPSPDFKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = LocalPSPDFKit; sourceTree = "<group>"; };
 		046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ShareExtension-Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		046C5CD426A3F89A00AC5349 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		046C5CDB26A3F89A00AC5349 /* ShareExtensionMac.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShareExtensionMac.plist; sourceTree = "<group>"; };
@@ -315,7 +315,6 @@
 				0418837E2742E99F003E0001 /* Intercom in Frameworks */,
 				045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */,
 				041883802742FCF2003E0001 /* Utils in Frameworks */,
-				042184ED273AD426002357B0 /* PSPDFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -420,6 +419,7 @@
 		2EE5B57B588CF4ADBA39A106 = {
 			isa = PBXGroup;
 			children = (
+				04501446283A861300BD138D /* LocalPSPDFKit */,
 				047AD6F62724E513004FD5CF /* SafariExtension (iOS)Release.entitlements */,
 				047AD6F52724CF8A004FD5CF /* SafariExtension (iOS).entitlements */,
 				0480E70B26D8A07A006CAE2F /* Omnivore-Mac.xctestplan */,
@@ -719,7 +719,6 @@
 			name = "Omnivore-iOS";
 			packageProductDependencies = (
 				8F13016D33DF1598D7157563 /* App */,
-				042184EC273AD426002357B0 /* PSPDFKit */,
 				0418837D2742E99F003E0001 /* Intercom */,
 				0418837F2742FCF2003E0001 /* Utils */,
 				045B1680279147E7005047F7 /* FirebaseMessaging */,
@@ -796,7 +795,6 @@
 			);
 			mainGroup = 2EE5B57B588CF4ADBA39A106;
 			packageReferences = (
-				042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */,
 				0418837C2742E99F003E0001 /* XCRemoteSwiftPackageReference "intercom-ios" */,
 				048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
@@ -1964,14 +1962,6 @@
 				version = 11.1.2;
 			};
 		};
-		042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/PSPDFKit/PSPDFKit-SP";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -1991,11 +1981,6 @@
 		0418837F2742FCF2003E0001 /* Utils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Utils;
-		};
-		042184EC273AD426002357B0 /* PSPDFKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */;
-			productName = PSPDFKit;
 		};
 		045B1680279147E7005047F7 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;

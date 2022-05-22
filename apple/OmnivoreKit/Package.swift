@@ -21,10 +21,11 @@ let package = Package(
     .package(url: "https://github.com/Square/Valet", from: "4.1.2"),
     .package(url: "https://github.com/maticzav/swift-graphql", from: "2.3.1"),
     .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4"),
-    .package(url: "git@github.com:segmentio/analytics-swift.git", .upToNextMajor(from: "1.0.0"))
+    .package(url: "git@github.com:segmentio/analytics-swift.git", .upToNextMajor(from: "1.0.0")),
+    .package(path: "../LocalPSPDFKit")
   ],
   targets: [
-    .target(name: "App", dependencies: ["Views", "Services", "Models", "Utils"]),
+    .target(name: "App", dependencies: ["Views", "Services", "Models", "Utils", .product(name: "PSPDFKit", package: "LocalPSPDFKit")]),
     .testTarget(name: "AppTests", dependencies: ["App"]),
     .target(
       name: "Views",
