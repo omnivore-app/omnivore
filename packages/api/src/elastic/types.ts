@@ -17,6 +17,7 @@ export interface SearchBody {
             }
           }
         | { term: { pageType: string } }
+        | { term: { language: string } }
         | { exists: { field: string } }
         | {
             range: {
