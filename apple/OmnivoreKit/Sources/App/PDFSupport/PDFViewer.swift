@@ -11,6 +11,7 @@ import Utils
     final class PDFStateObject: ObservableObject {
       @Published var document: Document?
       @Published var coordinator: PDFViewCoordinator?
+      @Published var controllerNeedsConfig = true
     }
 
     @EnvironmentObject var dataService: DataService
@@ -40,6 +41,8 @@ import Utils
             builder.textSelectionShouldSnapToWord = true
           }
           .updateControllerConfiguration { controller in
+            // Store config state so we only run this update closure once
+            guard pdfStateObject.controllerNeedsConfig else { return }
             print("document is valid", document.isValid)
             coordinator.setController(controller: controller, dataService: dataService)
 
@@ -81,6 +84,7 @@ import Utils
             }
 
             controller.navigationItem.setRightBarButtonItems(barButtonItems, for: .document, animated: false)
+            pdfStateObject.controllerNeedsConfig = false
           }
           .onShouldShowMenuItemsForSelectedText(perform: { pageView, menuItems, selectedText in
             let copy = menuItems.first(where: { $0.identifier == "Copy" })

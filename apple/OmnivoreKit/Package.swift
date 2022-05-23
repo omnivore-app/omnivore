@@ -55,9 +55,9 @@ let package = Package(
 
 var appPackageDependencies: [Target.Dependency] {
   var deps: [Target.Dependency] = ["Views", "Services", "Models", "Utils"]
-  #if canImport(UIKit)
-    deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
-  #endif
+//  #if canImport(UIKit)
+  deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
+//  #endif
   return deps
 }
 
@@ -69,8 +69,8 @@ var dependencies: [Package.Dependency] {
     .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4"),
     .package(url: "git@github.com:segmentio/analytics-swift.git", .upToNextMajor(from: "1.0.0"))
   ]
-  #if canImport(UIKit)
-    deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", branch: "master"))
-  #endif
+//  #if canImport(UIKit)
+  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", branch: "master"))
+//  #endif
   return deps
 }

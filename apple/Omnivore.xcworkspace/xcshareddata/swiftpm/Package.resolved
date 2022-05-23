@@ -136,6 +136,15 @@
       }
     },
     {
+      "identity" : "pspdfkit-sp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PSPDFKit/PSPDFKit-SP",
+      "state" : {
+        "branch" : "master",
+        "revision" : "0e18629c443e3f39ecfee0f600d9ef5551ecf488"
+      }
+    },
+    {
       "identity" : "sovran-swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/segmentio/Sovran-Swift.git",
