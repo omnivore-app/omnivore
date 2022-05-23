@@ -85,7 +85,7 @@ function Readability(doc, options) {
   this._articleByline = null;
   this._articlePublishedDate = null;
   this._articleDir = null;
-  this._articleSiteName = null;
+  this._languageCode = null;
   this._attempts = [];
 
   // Configurable options
@@ -1921,6 +1921,8 @@ Readability.prototype = {
       values["weibo:article:image"] ||
       values["weibo:webpage:image"];
 
+    metadata.locale = values["og:locale"];
+
     // TODO: Add canonical ULR search here as well
 
     // in many sites the meta value is escaped with HTML entities,
@@ -2833,6 +2835,11 @@ Readability.prototype = {
     return false;
   },
 
+  _getLanguage: function(code) {
+    let lang = new Intl.DisplayNames(['en'], {type: 'language'});
+    return lang.of(code.split('-')[0]);
+  },
+
   /**
    * Runs readability.
    *
@@ -2859,6 +2866,8 @@ Readability.prototype = {
 
     // Extract JSON-LD metadata before removing scripts
     var jsonLd = this._disableJSONLD ? {} : this._getJSONLD(this._doc);
+
+    this._languageCode = this._doc.documentElement.lang
 
     // Remove script tags from the document.
     this._removeScripts(this._doc);
@@ -2898,11 +2907,12 @@ Readability.prototype = {
       textContent: textContent,
       length: textContent.length,
       excerpt: metadata.excerpt,
-      siteName: metadata.siteName || this._articleSiteName,
+      siteName: metadata.siteName,
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
       dom: articleContent,
+      language: this._getLanguage(metadata.locale || this._languageCode),
     };
   }
 };
