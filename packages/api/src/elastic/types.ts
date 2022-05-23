@@ -203,6 +203,7 @@ export interface Page {
   unsubHttpUrl?: string
   state: ArticleSavingRequestStatus
   taskName?: string
+  language?: string
 }
 
 export interface SearchItem {
