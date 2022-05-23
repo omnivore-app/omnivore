@@ -136,7 +136,7 @@ import Utils
             ShareSheet(activityItems: [$0.url])
           }
       } else {
-        Text("Loading...")
+        ProgressView()
           .task {
             let document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
             pdfStateObject.document = document
