@@ -1,13 +1,13 @@
 import React, { ReactNode } from 'react'
-import { PageMetaData } from '../../components/patterns/PageMetaData'
-import { VStack, HStack, Box } from '../../components/elements/LayoutPrimitives'
-import { OmnivoreNameLogo } from '../../components/elements/images/OmnivoreNameLogo'
-import { StyledText } from '../../components/elements/StyledText'
-import { Button } from '../../components/elements/Button'
+import { PageMetaData } from '../patterns/PageMetaData'
+import { VStack, HStack, Box } from '../elements/LayoutPrimitives'
+import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
+import { StyledText } from '../elements/StyledText'
+import { Button } from '../elements/Button'
 
 const TOTAL_ONBOARDING_PAGES = 6
 
-type OnboardingLayout2Props = {
+type OnboardingLayoutProps = {
   pageNumber: number
   title: string
   subTitle: string
@@ -18,7 +18,7 @@ type OnboardingLayout2Props = {
   reduceSpace?: boolean,
 }
 
-const OnboardingLayout2 = ({
+export const OnboardingLayout = ({
   pageNumber,
   title,
   subTitle,
@@ -27,7 +27,7 @@ const OnboardingLayout2 = ({
   children,
   nextPage,
   reduceSpace
-}: OnboardingLayout2Props) => {
+}: OnboardingLayoutProps) => {
   const NextButton = () => (
     <Button
       style="ctaDarkYellow"
@@ -244,4 +244,3 @@ const OnboardingLayout2 = ({
   )
 }
 
-export default OnboardingLayout2

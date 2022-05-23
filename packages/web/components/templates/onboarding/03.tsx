@@ -1,6 +1,6 @@
 import React from 'react'
 import { VStack } from '../../elements/LayoutPrimitives'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { SelectOption } from './SelectOption'
 
 const optionDetails = [
@@ -32,7 +32,7 @@ const optionDetails = [
 
 const OnboardingPage3 = () => {
   return (
-    <OnboardingLayout2
+    <OnboardingLayout
       subTitle="Omnivore creates an email address for you to subscribe to newsletters with."
       description="Subscribe to some newsletters now"
       title="Read all your Newsletters in Omnivore"
@@ -47,7 +47,7 @@ const OnboardingPage3 = () => {
           <SelectOption key={idx} {...{ icon, label }} />
         ))}
       </VStack>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 

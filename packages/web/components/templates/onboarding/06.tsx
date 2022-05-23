@@ -1,5 +1,5 @@
 import React from 'react'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 
@@ -36,7 +36,7 @@ const Container = styled(Box, {
 
 const OnboardingPage6 = () => {
   return (
-    <OnboardingLayout2
+    <OnboardingLayout
       pageNumber={6}
       title="Join our Community"
       subTitle='Omnivore is open source and open community, join us.'
@@ -67,7 +67,7 @@ const OnboardingPage6 = () => {
           </VStack>
         </Container>
       </HStack>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 

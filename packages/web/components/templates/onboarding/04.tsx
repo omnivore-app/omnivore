@@ -1,5 +1,5 @@
 import React from 'react'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 
@@ -9,7 +9,7 @@ const StyledImage = styled('img', {
 
 const OnboardingPage4 = () => {
   return (
-    <OnboardingLayout2
+    <OnboardingLayout
       pageNumber={4}
       title="Organize all your content"
       subTitle="Information about archiving and tagging
@@ -48,7 +48,7 @@ const OnboardingPage4 = () => {
           }}
         />
       </Box>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 

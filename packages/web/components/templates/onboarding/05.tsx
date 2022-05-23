@@ -1,5 +1,5 @@
 import React from 'react'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 
@@ -15,7 +15,7 @@ const StyledImage = styled('img', {
 
 const OnboardingPage5 = () => {
   return (
-    <OnboardingLayout2
+    <OnboardingLayout
       pageNumber={5}
       title="Highlight and share"
       subTitle="Information about creating and sharing highlights Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet."
@@ -34,7 +34,7 @@ const OnboardingPage5 = () => {
           alt="Highlight And Share"
         />
       </Box>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 

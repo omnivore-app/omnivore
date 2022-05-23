@@ -1,5 +1,5 @@
 import { SelectionOptionCard } from './SelectOption'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 
 const articleDetails = [
@@ -39,7 +39,7 @@ const articleDetails = [
 
 const OnboardingPage1 = () => {
   return (
-    <OnboardingLayout2
+    <OnboardingLayout
       pageNumber={1}
       title="Read Distraction Free"
       subTitle="Omnivore's distraction free reader gives you an uncluttered reading experience"
@@ -74,7 +74,7 @@ const OnboardingPage1 = () => {
           </Box>
         </HStack>
       </VStack>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 
