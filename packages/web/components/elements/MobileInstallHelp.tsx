@@ -1,14 +1,13 @@
-import React from 'react'
+import { useState } from 'react';
 import {
   Desktop,
   DeviceTabletSpeaker,
   DeviceMobileCamera,
 } from 'phosphor-react'
 import { Box, HStack } from '../elements/LayoutPrimitives'
-import { StyledText, StyledImg, StyledAnchor } from '../elements/StyledText'
+import { StyledText, StyledAnchor } from '../elements/StyledText'
 import { TooltipWrapped } from './Tooltip'
 import Link from 'next/link'
-import { InstallationIcon } from './images/InstallationIcon'
 
 const TooltipStyle = {
   backgroundColor: '#F9D354',
@@ -23,7 +22,7 @@ export default function MobileInstallHelp({
   onboarding = false,
 }: MobileInstallHelpProps): JSX.Element {
   const [selectedTooltip, setSelectedTooltip] =
-    React.useState<string>('Available for Mac')
+    useState<string>('Available for Mac')
   const platformSizes = [
     {
       label: 'Available for Mac',
@@ -48,11 +47,10 @@ export default function MobileInstallHelp({
         gridTemplateColumns: '1fr 2fr',
         gridTemplateRows: !onboarding ? '.5fr .5fr .5fr' : '.5fr',
         backgroundColor: '$grayBg',
-        padding: '15px',
         '@lg': {
           marginTop: '0',
           paddingTop: '0',
-          gridTemplateColumns: '1fr 2fr 1fr',
+          gridTemplateColumns: '1fr 3fr 1fr',
           gridTemplateRows: '1fr',
           height: '9rem',
         },

@@ -11,10 +11,11 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
-import { Analytics } from '@segment/analytics-next'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
+import { MobileNavBar } from '../patterns/MobileNavBar'
+
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -22,6 +23,8 @@ type PrimaryLayoutProps = {
   hideHeader?: boolean
   pageMetaDataProps?: PageMetaDataProps
   scrollElementRef?: MutableRefObject<HTMLDivElement | null>
+  displayFontStepper?: boolean
+  title?: string
   headerToolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
 }
@@ -30,8 +33,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
-  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
-    useState(false)
+  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] = useState(false)
 
   useKeyboardShortcuts(navigationCommands(router))
 
@@ -81,6 +83,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
           setShowLogoutConfirmation={setShowLogoutConfirmation}
           setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
+          title={props.title}
         />
         <Box
           ref={props.scrollElementRef}
@@ -114,6 +117,7 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           ) : null}
         </Box>
       </Box>
+      <MobileNavBar user={viewerData?.me} />
       <div data-testid={props.pageTestId} />
     </>
   )

@@ -1,15 +1,12 @@
-import React, { useEffect } from 'react'
-import Router from 'next/router'
-import { Box } from '../../components/elements/LayoutPrimitives'
+import React from 'react'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { SettingsMenuView } from '../../components/patterns/SettingsMenuView'
 
-export default function Extensions(): JSX.Element {
-  useEffect(() => {
-    if (window.innerWidth <= 1024) {
-      Router.push('/settings/installation/mobile')
-    } else {
-      Router.push('/settings/installation/extensions')
-    }
-  }, [])
+export default function SettingsPage(): JSX.Element {
 
-  return <Box css={{ bg: '$grayBase', height: '100vh', width: '100vw' }} />
+  return (
+    <SettingsLayout title="Settings">
+      <SettingsMenuView selected='Settings' />
+    </SettingsLayout>
+  )
 }

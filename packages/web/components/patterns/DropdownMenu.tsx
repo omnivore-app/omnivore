@@ -15,6 +15,8 @@ export type HeaderDropdownAction =
   | 'apply-light-theme'
   | 'apply-lighter-theme'
   | 'navigate-to-install'
+  | 'navigate-to-settings'
+  | 'navigate-to-feedback'
   | 'navigate-to-emails'
   | 'navigate-to-labels'
   | 'navigate-to-profile'
@@ -64,6 +66,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         </HStack>
       </VStack>
       <DropdownSeparator />
+      <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-settings')}
+        title="Settings"
+      />
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-install')}
         title="Install"

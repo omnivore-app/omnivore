@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
+import { MobileNavBar } from '../patterns/MobileNavBar'
 
 type SettingsLayoutProps = {
   title?: string
@@ -49,6 +50,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
           profileImageURL={viewerData?.me?.profile.pictureUrl}
           setShowLogoutConfirmation={setShowLogoutConfirmation}
           setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
+          title={props.title}
         />
         <Box
           css={{
@@ -74,6 +76,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
             />
           ) : null}
         </Box>
+        {/* <MobileNavBar user={viewerData?.me} /> */}
     </>
   )
 }

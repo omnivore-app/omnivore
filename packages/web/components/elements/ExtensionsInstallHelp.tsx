@@ -9,7 +9,6 @@ import { EdgeIcon } from './images/EdgeIcon'
 import { FirefoxIcon } from './images/FirefoxIcon'
 import { SafariIcon } from './images/SafariIcon'
 import Link from 'next/link'
-import { SaveArticleIcon } from './images/SaveArticleIcon'
 
 const icons = {
   'Google Chrome': <ChromeIcon />,
@@ -40,6 +39,9 @@ const BrowserOption: React.FC<{
   return (
     <HStack
       css={{
+        bg: '$grayBg',
+        py: '$3',
+        maxWidth: '30em',
         justifyContent: 'flex-start',
         alignItems: 'center',
         minWidth: 165,
@@ -78,9 +80,8 @@ export default function ExtensionsInstallHelp({
         gridTemplateColumns: '1fr 2fr',
         gridTemplateRows: !onboarding ? '.5fr .5fr .5fr' : '.5fr',
         backgroundColor: '$grayBg',
-        padding: '15px',
         '@lg': {
-          gridTemplateColumns: '1fr 2fr 1fr',
+          gridTemplateColumns: '1fr 3fr 1fr',
           gridTemplateRows: '1fr',
           height: !onboarding ? '9rem' : 'auto',
         },

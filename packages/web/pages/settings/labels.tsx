@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Button } from '../../components/elements/Button'
-import { styled, theme } from '../../components/tokens/stitches.config'
+import { styled } from '../../components/tokens/stitches.config'
 import {
   Box,
   SpanBox,
@@ -13,6 +13,7 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
 import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
 import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
+import { SettingsMenuView } from '../../components/patterns/SettingsMenuView'
 import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
@@ -158,7 +159,7 @@ export default function LabelsPage(): JSX.Element {
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
   const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<string | null>(null)
-  const breakpoint = 768
+  const breakpoint = 1000
 
   applyStoredTheme(false)
 
@@ -247,156 +248,162 @@ export default function LabelsPage(): JSX.Element {
   }
 
   return (
-    <PrimaryLayout pageTestId="settings-labels-tag">
+    <PrimaryLayout pageTestId="settings-labels-tag" title="Labels">
       <Toaster
         containerStyle={{
           top: '5rem',
         }}
       />
-      <VStack
-        css={{
-          mx: '10px',
-          color: '$grayText',
-        }}
-      >
-        {confirmRemoveLabelId ? (
-          <ConfirmationModal
-            message={'Are you sure? Deleting a label will remove it from all pages.'}
-            onAccept={() => {
-              onDeleteLabel(confirmRemoveLabelId)
-              setConfirmRemoveLabelId(null)}
-            }
-            onOpenChange={() => setConfirmRemoveLabelId(null)}
-          />
-        ) : null}
-        <HeaderWrapper>
-          <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <Box>
-              <StyledText
-                style="fixedHeadline"
-              >
-                Labels{' '}
-              </StyledText>
-            </Box>
-            <InfoLink href="/help/labels" />
-            <Box css={{display: 'flex', justifyContent: 'flex-end' }}>
-              {isCreateMode ? null : (
-                <>
-                  <Button
-                    onClick={() => {
-                      resetLabelState()
-                      handleGenerateRandomColor()
-                      setIsCreateMode(true)
-                    }}
-                    style="ctaDarkYellow"
-                    css={{
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <SpanBox css={{
-                      display: 'none',
-                      '@md': {
-                        display: 'flex',
-                      },
-                    }}>
-                      <SpanBox>Add Label</SpanBox>
-                    </SpanBox>
-                    <SpanBox css={{
-                      p: '0',
-                      display: 'flex',
-                      '@md': {
-                        display: 'none',
-                      },
-                    }}>
-                      <Plus size={24} />
-                    </SpanBox>
-                  </Button>
-                </>
-              )}
-            </Box>
-          </Box>
-        </HeaderWrapper>
-        <>
-          {isCreateMode ? (
-            windowWidth > breakpoint ? (
-              <DesktopEditCard
-                label={null}
-                labelColorHex={labelColorHex}
-                editingLabelId={editingLabelId}
-                isCreateMode={isCreateMode}
-                handleGenerateRandomColor={handleGenerateRandomColor}
-                setEditingLabelId={setEditingLabelId}
-                setLabelColorHex={setLabelColorHex}
-                deleteLabel={deleteLabel}
-                nameInputText={nameInputText}
-                descriptionInputText={descriptionInputText}
-                setNameInputText={setNameInputText}
-                setDescriptionInputText={setDescriptionInputText}
-                setIsCreateMode={setIsCreateMode}
-                createLabel={createLabel}
-                updateLabel={updateLabel}
-                onEditPress={onEditPress}
-                resetState={resetLabelState}
-              />
-            ) : (
-              <MobileEditCard
-                label={null}
-                labelColorHex={labelColorHex}
-                editingLabelId={editingLabelId}
-                isCreateMode={isCreateMode}
-                handleGenerateRandomColor={handleGenerateRandomColor}
-                setEditingLabelId={setEditingLabelId}
-                setLabelColorHex={setLabelColorHex}
-                deleteLabel={deleteLabel}
-                nameInputText={nameInputText}
-                descriptionInputText={descriptionInputText}
-                setNameInputText={setNameInputText}
-                setDescriptionInputText={setDescriptionInputText}
-                setIsCreateMode={setIsCreateMode}
-                createLabel={createLabel}
-                resetState={resetLabelState}
-                updateLabel={updateLabel}
-              />
-            )
-          ) : null}
-        </>
-        {labels
-          ? labels.map((label, i) => {
-            const isLastChild = i === labels.length - 1
-            const isFirstChild = i === 0
-            const cardProps = {
-              label: label,
-              labelColorHex: labelColorHex,
-              editingLabelId: editingLabelId,
-              isCreateMode: isCreateMode,
-              isLastChild: isLastChild,
-              isFirstChild: isFirstChild,
-              handleGenerateRandomColor: handleGenerateRandomColor,
-              setEditingLabelId: setEditingLabelId,
-              setLabelColorHex: setLabelColorHex,
-              deleteLabel: deleteLabel,
-              nameInputText: nameInputText,
-              descriptionInputText: descriptionInputText,
-              setNameInputText: setNameInputText,
-              setDescriptionInputText: setDescriptionInputText,
-              setIsCreateMode: setIsCreateMode,
-              createLabel: createLabel,
-              resetState: resetLabelState,
-              updateLabel: updateLabel,
-            }
-
-            if (editingLabelId == label.id) {
-              if (windowWidth >= breakpoint) {
-                return <DesktopEditCard {...cardProps} />
-              } else {
-                return <MobileEditCard {...cardProps} />
+      <SettingsMenuView selected='Labels'>
+        <VStack
+          css={{
+            mx: '10px',
+            color: '$grayText',
+            width: '100%',
+            '@mdDown': {
+              mx: 0,
+            },
+          }}
+        >
+          {confirmRemoveLabelId ? (
+            <ConfirmationModal
+              message={'Are you sure? Deleting a label will remove it from all pages.'}
+              onAccept={() => {
+                onDeleteLabel(confirmRemoveLabelId)
+                setConfirmRemoveLabelId(null)}
               }
-            }
+              onOpenChange={() => setConfirmRemoveLabelId(null)}
+            />
+          ) : null}
+          <HeaderWrapper>
+            <Box style={{ display: 'flex', alignItems: 'center' }}>
+              <Box>
+                <StyledText
+                  style="fixedHeadline"
+                >
+                  Labels{' '}
+                </StyledText>
+              </Box>
+              <InfoLink href="/help/labels" />
+              <Box css={{display: 'flex', justifyContent: 'flex-end' }}>
+                {isCreateMode ? null : (
+                  <>
+                    <Button
+                      onClick={() => {
+                        resetLabelState()
+                        handleGenerateRandomColor()
+                        setIsCreateMode(true)
+                      }}
+                      style="ctaDarkYellow"
+                      css={{
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <SpanBox css={{
+                        display: 'none',
+                        '@md': {
+                          display: 'flex',
+                        },
+                      }}>
+                        <SpanBox>Add Label</SpanBox>
+                      </SpanBox>
+                      <SpanBox css={{
+                        p: '0',
+                        display: 'flex',
+                        '@md': {
+                          display: 'none',
+                        },
+                      }}>
+                        <Plus size={24} />
+                      </SpanBox>
+                    </Button>
+                  </>
+                )}
+              </Box>
+            </Box>
+          </HeaderWrapper>
+          <>
+            {isCreateMode ? (
+              windowWidth > breakpoint ? (
+                <DesktopEditCard
+                  label={null}
+                  labelColorHex={labelColorHex}
+                  editingLabelId={editingLabelId}
+                  isCreateMode={isCreateMode}
+                  handleGenerateRandomColor={handleGenerateRandomColor}
+                  setEditingLabelId={setEditingLabelId}
+                  setLabelColorHex={setLabelColorHex}
+                  deleteLabel={deleteLabel}
+                  nameInputText={nameInputText}
+                  descriptionInputText={descriptionInputText}
+                  setNameInputText={setNameInputText}
+                  setDescriptionInputText={setDescriptionInputText}
+                  setIsCreateMode={setIsCreateMode}
+                  createLabel={createLabel}
+                  updateLabel={updateLabel}
+                  onEditPress={onEditPress}
+                  resetState={resetLabelState}
+                />
+              ) : (
+                <MobileEditCard
+                  label={null}
+                  labelColorHex={labelColorHex}
+                  editingLabelId={editingLabelId}
+                  isCreateMode={isCreateMode}
+                  handleGenerateRandomColor={handleGenerateRandomColor}
+                  setEditingLabelId={setEditingLabelId}
+                  setLabelColorHex={setLabelColorHex}
+                  deleteLabel={deleteLabel}
+                  nameInputText={nameInputText}
+                  descriptionInputText={descriptionInputText}
+                  setNameInputText={setNameInputText}
+                  setDescriptionInputText={setDescriptionInputText}
+                  setIsCreateMode={setIsCreateMode}
+                  createLabel={createLabel}
+                  resetState={resetLabelState}
+                  updateLabel={updateLabel}
+                />
+              )
+            ) : null}
+          </>
+          {labels
+            ? labels.map((label, i) => {
+              const isLastChild = i === labels.length - 1
+              const isFirstChild = i === 0
+              const cardProps = {
+                label: label,
+                labelColorHex: labelColorHex,
+                editingLabelId: editingLabelId,
+                isCreateMode: isCreateMode,
+                isLastChild: isLastChild,
+                isFirstChild: isFirstChild,
+                handleGenerateRandomColor: handleGenerateRandomColor,
+                setEditingLabelId: setEditingLabelId,
+                setLabelColorHex: setLabelColorHex,
+                deleteLabel: deleteLabel,
+                nameInputText: nameInputText,
+                descriptionInputText: descriptionInputText,
+                setNameInputText: setNameInputText,
+                setDescriptionInputText: setDescriptionInputText,
+                setIsCreateMode: setIsCreateMode,
+                createLabel: createLabel,
+                resetState: resetLabelState,
+                updateLabel: updateLabel,
+              }
 
-            return (<GenericTableCard key={label.id} {...cardProps} onEditPress={onEditPress} />)
-          }) : null}
-      </VStack>
+              if (editingLabelId == label.id) {
+                if (windowWidth >= breakpoint) {
+                  return <DesktopEditCard {...cardProps} />
+                } else {
+                  return <MobileEditCard {...cardProps} />
+                }
+              }
+
+              return (<GenericTableCard key={label.id} {...cardProps} onEditPress={onEditPress} />)
+            }) : null}
+        </VStack>
+      </SettingsMenuView>
       <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
@@ -449,6 +456,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                 alignItems: 'center',
                 backgroundColor: 'transparent',
                 border: 0,
+                width: '100%'
               }}
               onClick={() => onEditPress(label)}
               disabled={isCreateMode}
@@ -456,7 +464,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
               <PencilSimple size={24} color={iconColor} />
               <StyledText
                 color="$grayText"
-                css={{ m: '0px', fontSize: '$5', marginLeft: '$2' }}
+                css={{ m: '0px', fontSize: '$5', marginLeft: '$2'}}
               >
                 Edit
               </StyledText>
@@ -471,6 +479,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                 alignItems: 'center',
                 backgroundColor: 'transparent',
                 border: 0,
+                width: '100%'
               }}
               onClick={() => (label ? deleteLabel(label.id) : null)}
               disabled={isCreateMode}

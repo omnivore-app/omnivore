@@ -1,9 +1,9 @@
-import { Box, HStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from './../elements/images/OmnivoreNameLogo'
 import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
 import { darkenTheme, lightenTheme, updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
-import { ThemeId } from './../tokens/stitches.config'
+import { theme, ThemeId } from './../tokens/stitches.config'
 import { useCallback, useEffect, useState } from 'react'
 import {
   ScrollOffsetChangeset,
@@ -14,8 +14,13 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
+import { Button } from '../elements/Button'
+import Link from 'next/link'
+import { ArrowSquareOut } from 'phosphor-react'
+import { StyledText } from '../elements/StyledText'
 
 type HeaderProps = {
+  title?: string
   user?: UserBasicData
   userInitials: string
   hideHeader?: boolean
@@ -24,6 +29,7 @@ type HeaderProps = {
   scrollElementRef?: React.RefObject<HTMLDivElement>
   toolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
+  displayFontStepper?: boolean
   setShowLogoutConfirmation: (showShareModal: boolean) => void
   setShowKeyboardCommandsModal: (showShareModal: boolean) => void
 }
@@ -97,6 +103,15 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       case 'navigate-to-install':
         router.push('/settings/installation')
         break
+      case 'navigate-to-settings':
+        if (window.innerWidth <= 560) {
+          router.push('/settings')
+        } else {
+          router.push('/settings/installation')
+        }
+        break
+      case 'navigate-to-feedback':
+        console.log('navigate to feedback - unimplemented') // TODO: implement intercom
       case 'navigate-to-emails':
         router.push('/settings/emails')
         break
@@ -127,6 +142,9 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
         username={props.user?.profile.username}
         actionHandler={headerDropdownActionHandler}
         isDisplayingShadow={isScrolled}
+        isFixedPosition={true}
+        displayFontStepper={props.displayFontStepper}
+        title={props.title}
         toolbarControl={props.toolbarControl}
         alwaysDisplayToolbar={props.alwaysDisplayToolbar}
       />
@@ -142,6 +160,9 @@ type NavHeaderProps = {
   profileImageURL?: string
   isDisplayingShadow?: boolean
   isVisible?: boolean
+  isFixedPosition: boolean
+  displayFontStepper?: boolean
+  title?: string
   isTransparent: boolean
   toolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
@@ -172,7 +193,11 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           },
         }}
       >
-        <HStack alignment="center" distribution="start">
+        <HStack alignment="center" distribution="start" css={{
+          '@smDown': {
+            display: 'none',
+          }
+        }}>
           <Box
             css={{
               display: 'flex',
@@ -184,6 +209,7 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           </Box>
           <NavLinks currentPath={currentPath} isLoggedIn={!!props.username} />
         </HStack>
+        {props.title && <StyledText style='bodyBold' css={{fontSize: 29}}>{props.title}</StyledText>}
 
         {props.toolbarControl && (
           <HStack
@@ -208,6 +234,20 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
             alignment="center"
             css={{ display: 'flex', alignItems: 'center' }}
           >
+            <a href="https://github.com/omnivore-app/omnivore" target='_blank' rel="noreferrer">
+              <Button style="ctaLightGray" css={{ background: 'unset', mr: '32px' }}>
+                <HStack css={{ height: '100%' }}>
+                  <svg version="1.1" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                    <path fill={theme.colors.grayTextContrast.toString()} fillRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                  </svg>
+                  <SpanBox css={{ pl: '8px', color: '$grayTextContrast' }}>Follow us on GitHub</SpanBox>
+                  <Box className='ctaButtonIcon' css={{ ml: '4px' }}>
+                    <ArrowSquareOut size={16} />
+                  </Box>
+                </HStack>
+              </Button>
+            </a>
+
             <DropdownMenu
               username={props.username}
               triggerElement={
