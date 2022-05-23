@@ -23,6 +23,9 @@ export default {
     image: {
       description: 'The image on the left column on the page',
     },
+    nextPage: {
+      description: 'The link to which the user is sent when next button is pressed'
+    }
   },
 } as ComponentMeta<typeof OnboardingLayout>
 

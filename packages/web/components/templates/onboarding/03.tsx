@@ -37,6 +37,7 @@ const OnboardingPage3 = () => {
       description="Subscribe to some newsletters now"
       title="Read all your Newsletters in Omnivore"
       pageNumber={3}
+      nextPage={'/onboarding/05'}
     >
       <VStack css={{
         marginTop: '$4',
