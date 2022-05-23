@@ -273,6 +273,7 @@ export const createArticleResolver = authorized<
         readingProgressPercent: 0,
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
+        language: parsedContent?.language,
       }
 
       let archive = false
