@@ -8,6 +8,11 @@ import Utils
   import Services
 
   struct PDFViewer: View {
+    final class PDFStateObject: ObservableObject {
+      @Published var document: Document?
+      @Published var coordinator: PDFViewCoordinator?
+    }
+
     @EnvironmentObject var dataService: DataService
 
     struct ShareLink: Identifiable {
@@ -16,117 +21,124 @@ import Utils
     }
 
     let pdfURL: URL
-    let document: Document
     let viewModel: PDFViewerViewModel
-    let coordinator: PDFViewCoordinator
+
+    @StateObject var pdfStateObject = PDFStateObject()
     @State var readerView: Bool = false
     @State private var shareLink: ShareLink?
 
     init(remoteURL: URL, viewModel: PDFViewerViewModel) {
       self.pdfURL = viewModel.dataURL(remoteURL: remoteURL)
       self.viewModel = viewModel
-      self.document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
-      self.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
     }
 
     var body: some View {
-      PDFView(document: document)
-        .useParentNavigationBar(true)
-        .updateConfiguration { builder in
-          builder.textSelectionShouldSnapToWord = true
-        }
-        .updateControllerConfiguration { controller in
-          print("document is valid", document.isValid)
-          coordinator.setController(controller: controller, dataService: dataService)
-
-          // Disable the Document Editor
-          controller.navigationItem.setRightBarButtonItems(
-            [controller.thumbnailsButtonItem],
-            for: .thumbnails,
-            animated: false
-          )
-
-          let barButtonItems = [
-            UIBarButtonItem(
-              image: UIImage(systemName: "textformat"),
-              style: .plain,
-              target: controller.settingsButtonItem.target,
-              action: controller.settingsButtonItem.action
-            ),
-            UIBarButtonItem(
-              image: UIImage(systemName: "book"),
-              style: .plain,
-              target: coordinator,
-              action: #selector(PDFViewCoordinator.toggleReaderView)
-            ),
-            UIBarButtonItem(
-              image: UIImage(systemName: "magnifyingglass"),
-              style: .plain,
-              target: controller.searchButtonItem.target,
-              action: controller.searchButtonItem.action
-            )
-          ]
-
-          document.areAnnotationsEnabled = true
-
-          coordinator.viewer = self
-
-          if viewModel.pdfItem.readingProgressAnchor > 0 {
-            let pageIndex = UInt(viewModel.pdfItem.readingProgressAnchor)
-            controller.setPageIndex(pageIndex, animated: false)
+      if let document = pdfStateObject.document, let coordinator = pdfStateObject.coordinator {
+        PDFView(document: document)
+          .useParentNavigationBar(true)
+          .updateConfiguration { builder in
+            builder.textSelectionShouldSnapToWord = true
           }
+          .updateControllerConfiguration { controller in
+            print("document is valid", document.isValid)
+            coordinator.setController(controller: controller, dataService: dataService)
 
-          controller.navigationItem.setRightBarButtonItems(barButtonItems, for: .document, animated: false)
-        }
-        .onShouldShowMenuItemsForSelectedText(perform: { pageView, menuItems, selectedText in
-          let copy = menuItems.first(where: { $0.identifier == "Copy" })
-          let highlight = MenuItem(title: "Highlight", block: {
-            _ = self.coordinator.highlightSelection(
-              pageView: pageView,
-              selectedText: selectedText,
-              dataService: dataService
+            // Disable the Document Editor
+            controller.navigationItem.setRightBarButtonItems(
+              [controller.thumbnailsButtonItem],
+              for: .thumbnails,
+              animated: false
             )
-          })
+
+            let barButtonItems = [
+              UIBarButtonItem(
+                image: UIImage(systemName: "textformat"),
+                style: .plain,
+                target: controller.settingsButtonItem.target,
+                action: controller.settingsButtonItem.action
+              ),
+              UIBarButtonItem(
+                image: UIImage(systemName: "book"),
+                style: .plain,
+                target: coordinator,
+                action: #selector(PDFViewCoordinator.toggleReaderView)
+              ),
+              UIBarButtonItem(
+                image: UIImage(systemName: "magnifyingglass"),
+                style: .plain,
+                target: controller.searchButtonItem.target,
+                action: controller.searchButtonItem.action
+              )
+            ]
+
+            document.areAnnotationsEnabled = true
+
+            coordinator.viewer = self
+
+            if viewModel.pdfItem.readingProgressAnchor > 0 {
+              let pageIndex = UInt(viewModel.pdfItem.readingProgressAnchor)
+              controller.setPageIndex(pageIndex, animated: false)
+            }
+
+            controller.navigationItem.setRightBarButtonItems(barButtonItems, for: .document, animated: false)
+          }
+          .onShouldShowMenuItemsForSelectedText(perform: { pageView, menuItems, selectedText in
+            let copy = menuItems.first(where: { $0.identifier == "Copy" })
+            let highlight = MenuItem(title: "Highlight", block: {
+              _ = coordinator.highlightSelection(
+                pageView: pageView,
+                selectedText: selectedText,
+                dataService: dataService
+              )
+            })
 //          let share = MenuItem(title: "Share", block: {
 //            let shortId = self.coordinator.highlightSelection(pageView: pageView, selectedText: selectedText)
 //            if let shareURL = viewModel.highlightShareURL(shortId: shortId) {
 //              shareLink = ShareLink(id: UUID(), url: shareURL)
 //            }
 //          })
-          return [copy, highlight /* , share */ ].compactMap { $0 }
-        })
-        .onShouldShowMenuItemsForSelectedAnnotations(perform: { _, menuItems, annotations in
-          var result = [MenuItem]()
-          if let copy = menuItems.first(where: { $0.identifier == "Copy" }) {
-            result.append(copy)
-          }
-
-          let remove = MenuItem(title: "Remove", block: {
-            self.coordinator.remove(dataService: dataService, annotations: annotations)
+            return [copy, highlight /* , share */ ].compactMap { $0 }
           })
-          result.append(remove)
+          .onShouldShowMenuItemsForSelectedAnnotations(perform: { _, menuItems, annotations in
+            var result = [MenuItem]()
+            if let copy = menuItems.first(where: { $0.identifier == "Copy" }) {
+              result.append(copy)
+            }
 
-          let highlights = annotations?.compactMap { $0 as? HighlightAnnotation }
-          let shortId = highlights.flatMap { coordinator.shortHighlightIds($0).first }
-
-          if let shortId = shortId, FeatureFlag.enableShareButton {
-            let share = MenuItem(title: "Share", block: {
-              if let shareURL = viewModel.highlightShareURL(dataService: dataService, shortId: shortId) {
-                shareLink = ShareLink(id: UUID(), url: shareURL)
-              }
+            let remove = MenuItem(title: "Remove", block: {
+              coordinator.remove(dataService: dataService, annotations: annotations)
             })
-            result.append(share)
-          }
+            result.append(remove)
 
-          return result
-        })
-        .fullScreenCover(isPresented: $readerView, content: {
-          PDFReaderViewController(document: document)
-        })
-        .accentColor(Color(red: 255 / 255.0, green: 234 / 255.0, blue: 159 / 255.0))
-        .sheet(item: $shareLink) {
-          ShareSheet(activityItems: [$0.url])
-        }
+            let highlights = annotations?.compactMap { $0 as? HighlightAnnotation }
+            let shortId = highlights.flatMap { coordinator.shortHighlightIds($0).first }
+
+            if let shortId = shortId, FeatureFlag.enableShareButton {
+              let share = MenuItem(title: "Share", block: {
+                if let shareURL = viewModel.highlightShareURL(dataService: dataService, shortId: shortId) {
+                  shareLink = ShareLink(id: UUID(), url: shareURL)
+                }
+              })
+              result.append(share)
+            }
+
+            return result
+          })
+          .fullScreenCover(isPresented: $readerView, content: {
+            PDFReaderViewController(document: document)
+          })
+          .accentColor(Color(red: 255 / 255.0, green: 234 / 255.0, blue: 159 / 255.0))
+          .sheet(item: $shareLink) {
+            ShareSheet(activityItems: [$0.url])
+          }
+      } else {
+        Text("Loading...")
+          .task {
+            let document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
+            pdfStateObject.document = document
+            pdfStateObject.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
+          }
+      }
     }
 
     class PDFViewCoordinator: NSObject, PDFDocumentViewControllerDelegate, PDFViewControllerDelegate {

@@ -1,4 +1,5 @@
 import Combine
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -12,9 +13,14 @@ import Views
 
   var subscriptions = Set<AnyCancellable>()
 
-  init(item: LinkedItem?, pdfItem: PDFItem?) {
-    self.item = item
-    self.pdfItem = pdfItem
+  init(linkedItemObjectID: NSManagedObjectID, dataService: DataService) {
+    if let linkedItem = dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem {
+      self.pdfItem = PDFItem.make(item: linkedItem)
+      self.item = linkedItem
+    } else {
+      self.pdfItem = nil
+      self.item = nil
+    }
   }
 
   func handleArchiveAction(dataService: DataService) {
