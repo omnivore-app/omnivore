@@ -120,6 +120,9 @@
       },
       "taskName": {
         "type": "keyword"
+      },
+      "language": {
+        "type": "keyword"
       }
     }
   }
