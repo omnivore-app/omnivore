@@ -8,6 +8,6 @@ export default {
 
 export const OnboardingPage2Story: ComponentStory<typeof OnboardingInstallInstructions> = (args: any) => {
   return (
-    <OnboardingInstallInstructions />
+    <OnboardingInstallInstructions pageNumber={2} />
   )
 }

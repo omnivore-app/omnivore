@@ -8,6 +8,6 @@ export default {
 
 export const OnboardingPage1Story: ComponentStory<typeof OnboardingReaderPreview> = (args: any) => {
   return (
-    <OnboardingReaderPreview />
+    <OnboardingReaderPreview pageNumber={1} />
   )
 }

@@ -8,6 +8,6 @@ export default {
 
 export const OnboardingPage3Story: ComponentStory<typeof OnboardingAddNewsletters> = (args: any) => {
   return (
-    <OnboardingAddNewsletters />
+    <OnboardingAddNewsletters pageNumber={3} />
   )
 }
