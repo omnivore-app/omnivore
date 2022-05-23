@@ -2,11 +2,11 @@ import { Box, VStack, HStack } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
 
-type OnboardingLayoutProps = {
+type ProfileLayoutProps = {
   children: React.ReactNode
 }
 
-export function OnboardingLayout(props: OnboardingLayoutProps): JSX.Element {
+export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
   return (
     <>
       <VStack

@@ -1,14 +1,14 @@
 import { PageMetaData } from '../components/patterns/PageMetaData'
-import { OnboardingLayout } from '../components/templates/OnboardingLayout'
+import { ProfileLayout } from '../components/templates/ProfileLayout'
 import { ConfirmProfileModal } from '../components/templates/ConfirmProfileModal'
 
 export default function ConfirmProfilePage(): JSX.Element {
   return (
     <>
       <PageMetaData title="Create Profile - Omnivore" path="/confirm-profile" />
-      <OnboardingLayout>
+      <ProfileLayout>
         <ConfirmProfileModal />
-      </OnboardingLayout>
+      </ProfileLayout>
       <div data-testid="confirm-profile-page-tag" />
     </>
   )
