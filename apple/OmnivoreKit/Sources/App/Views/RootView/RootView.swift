@@ -6,20 +6,18 @@ import Views
 
 public struct RootView: View {
   @Environment(\.scenePhase) var scenePhase
-  let pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?
   @StateObject private var viewModel = RootViewModel()
 
-  public init(
-    pdfViewerProvider: ((URL, PDFViewerViewModel) -> AnyView)?,
-    intercomProvider: IntercomProvider?
-  ) {
-    self.pdfViewerProvider = pdfViewerProvider
-
+  public init(intercomProvider: IntercomProvider?) {
     if let intercomProvider = intercomProvider {
       DataService.showIntercomMessenger = intercomProvider.showIntercomMessenger
       DataService.registerIntercomUser = intercomProvider.registerIntercomUser
       Authenticator.unregisterIntercomUser = intercomProvider.unregisterIntercomUser
     }
+
+    #if os(iOS)
+      PDFReaderViewController.registerKey()
+    #endif
   }
 
   public var body: some View {
@@ -27,14 +25,11 @@ public struct RootView: View {
       .environmentObject(viewModel.services.authenticator)
       .environmentObject(viewModel.services.dataService)
       .environment(\.managedObjectContext, viewModel.services.dataService.viewContext)
-      .onAppear {
-        if let pdfViewerProvider = pdfViewerProvider {
-          viewModel.configurePDFProvider(pdfViewerProvider: pdfViewerProvider)
-        }
-      }
       .onChange(of: scenePhase) { phase in
         if phase == .background {
-          Services.scheduleBackgroundFetch()
+          #if os(iOS)
+            Services.scheduleBackgroundFetch()
+          #endif
         }
       }
   }

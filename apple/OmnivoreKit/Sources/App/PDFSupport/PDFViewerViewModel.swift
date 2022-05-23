@@ -8,15 +8,13 @@ public final class PDFViewerViewModel: ObservableObject {
   @Published public var errorMessage: String?
   @Published public var readerView: Bool = false
 
-  public var linkedItem: LinkedItem
+  public let pdfItem: PDFItem
   private var storedURL: URL?
 
   var subscriptions = Set<AnyCancellable>()
-  let services: Services
 
-  public init(services: Services, linkedItem: LinkedItem) {
-    self.services = services
-    self.linkedItem = linkedItem
+  public init(pdfItem: PDFItem) {
+    self.pdfItem = pdfItem
   }
 
   public func dataURL(remoteURL: URL) -> URL {
@@ -24,9 +22,9 @@ public final class PDFViewerViewModel: ObservableObject {
       return storedURL
     }
 
-    guard let data = linkedItem.pdfData else { return remoteURL }
+    guard let data = pdfItem.documentData else { return remoteURL }
 
-    let subPath = linkedItem.unwrappedTitle.isEmpty ? UUID().uuidString : linkedItem.unwrappedTitle
+    let subPath = pdfItem.title.isEmpty ? UUID().uuidString : pdfItem.title
 
     let path = FileManager.default
       .urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -42,56 +40,63 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
-    onComplete(linkedItem.highlights.asArray(of: Highlight.self).map { $0.patch ?? "" })
+    onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }
 
-  public func createHighlight(shortId: String, highlightID: String, quote: String, patch: String) {
-    _ = services.dataService.createHighlight(
+  public func createHighlight(
+    dataService: DataService,
+    shortId: String,
+    highlightID: String,
+    quote: String,
+    patch: String
+  ) {
+    _ = dataService.createHighlight(
       shortId: shortId,
       highlightID: highlightID,
       quote: quote,
       patch: patch,
-      articleId: linkedItem.unwrappedID
+      articleId: pdfItem.itemID
     )
   }
 
   public func mergeHighlight(
+    dataService: DataService,
     shortId: String,
     highlightID: String,
     quote: String,
     patch: String,
     overlapHighlightIdList: [String]
   ) {
-    _ = services.dataService.mergeHighlights(
+    _ = dataService.mergeHighlights(
       shortId: shortId,
       highlightID: highlightID,
       quote: quote,
       patch: patch,
-      articleId: linkedItem.unwrappedID,
+      articleId: pdfItem.itemID,
       overlapHighlightIdList: overlapHighlightIdList
     )
   }
 
-  public func removeHighlights(highlightIds: [String]) {
+  public func removeHighlights(dataService: DataService, highlightIds: [String]) {
     highlightIds.forEach { highlightID in
-      services.dataService.deleteHighlight(highlightID: highlightID)
+      dataService.deleteHighlight(highlightID: highlightID)
     }
   }
 
-  public func updateItemReadProgress(percent: Double, anchorIndex: Int) {
-    services.dataService.updateLinkReadingProgress(
-      itemID: linkedItem.unwrappedID,
+  public func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int) {
+    dataService.updateLinkReadingProgress(
+      itemID: pdfItem.itemID,
       readingProgress: percent,
       anchorIndex: anchorIndex
     )
   }
 
-  public func highlightShareURL(shortId: String) -> URL? {
-    let baseURL = services.dataService.appEnvironment.serverBaseURL
+  public func highlightShareURL(dataService: DataService, shortId: String) -> URL? {
+    let baseURL = dataService.appEnvironment.serverBaseURL
     var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
 
-    if let username = services.dataService.currentViewer?.username {
-      components?.path = "/\(username)/\(linkedItem.unwrappedSlug)/highlights/\(shortId)"
+    if let username = dataService.currentViewer?.username {
+      components?.path = "/\(username)/\(pdfItem.slug)/highlights/\(shortId)"
     } else {
       return nil
     }

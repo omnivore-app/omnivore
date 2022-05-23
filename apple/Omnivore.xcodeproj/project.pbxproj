@@ -10,9 +10,6 @@
 		0411792A26A22860004AE24F /* MacAppSmokeTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0411792926A22860004AE24F /* MacAppSmokeTest.swift */; };
 		0418837E2742E99F003E0001 /* Intercom in Frameworks */ = {isa = PBXBuildFile; productRef = 0418837D2742E99F003E0001 /* Intercom */; };
 		041883802742FCF2003E0001 /* Utils in Frameworks */ = {isa = PBXBuildFile; productRef = 0418837F2742FCF2003E0001 /* Utils */; };
-		042184ED273AD426002357B0 /* PSPDFKit in Frameworks */ = {isa = PBXBuildFile; productRef = 042184EC273AD426002357B0 /* PSPDFKit */; };
-		042184EF273AD5F3002357B0 /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042184EE273AD5F3002357B0 /* PDFViewer.swift */; };
-		042184F0273AD5F3002357B0 /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042184EE273AD5F3002357B0 /* PDFViewer.swift */; };
 		042F48DC26DFD10E00BF98FC /* iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */; };
 		045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 045B1680279147E7005047F7 /* FirebaseMessaging */; };
 		0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
@@ -44,10 +41,6 @@
 		42321E882714E6B00056429F /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 42321E832714E6B00056429F /* styles */; };
 		42321E892714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
 		42321E8A2714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
-		4255C6D82755A5350006422A /* NanoID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255C6D72755A5350006422A /* NanoID.swift */; };
-		4255C6D92755A5350006422A /* NanoID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4255C6D72755A5350006422A /* NanoID.swift */; };
-		426408732744676C00A2AE46 /* PDFReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426408722744676B00A2AE46 /* PDFReaderView.swift */; };
-		426408742744676C00A2AE46 /* PDFReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426408722744676B00A2AE46 /* PDFReaderView.swift */; };
 		42FF1B33271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
 		42FF1B34271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
 		42FF1B35271154A700B38C38 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AED271154A600B38C38 /* _locales */; };
@@ -184,7 +177,6 @@
 		0411792726A22860004AE24F /* UnitTests-MacApp.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UnitTests-MacApp.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0411792926A22860004AE24F /* MacAppSmokeTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppSmokeTest.swift; sourceTree = "<group>"; };
 		0411792B26A22860004AE24F /* MacUnitTests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MacUnitTests.plist; sourceTree = "<group>"; };
-		042184EE273AD5F3002357B0 /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
 		042F48D926DFD10E00BF98FC /* UITests-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITests-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSLaunchTests.swift; sourceTree = "<group>"; };
 		042F48DD26DFD10E00BF98FC /* iOSUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSUITests.plist; sourceTree = "<group>"; };
@@ -215,8 +207,6 @@
 		42321E822714E6B00056429F /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		42321E832714E6B00056429F /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = styles; sourceTree = "<group>"; };
 		42321E842714E6B00056429F /* views */ = {isa = PBXFileReference; lastKnownFileType = folder; path = views; sourceTree = "<group>"; };
-		4255C6D72755A5350006422A /* NanoID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NanoID.swift; sourceTree = "<group>"; };
-		426408722744676B00A2AE46 /* PDFReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReaderView.swift; sourceTree = "<group>"; };
 		42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		42FF1AED271154A600B38C38 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; path = _locales; sourceTree = "<group>"; };
 		42FF1AEE271154A600B38C38 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
@@ -315,7 +305,6 @@
 				0418837E2742E99F003E0001 /* Intercom in Frameworks */,
 				045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */,
 				041883802742FCF2003E0001 /* Utils in Frameworks */,
-				042184ED273AD426002357B0 /* PSPDFKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,9 +467,6 @@
 			children = (
 				0480E71B26D95096006CAE2F /* AppDelegate.swift */,
 				D81BE98F0CB588F5FC577A13 /* MainApp.swift */,
-				042184EE273AD5F3002357B0 /* PDFViewer.swift */,
-				426408722744676B00A2AE46 /* PDFReaderView.swift */,
-				4255C6D72755A5350006422A /* NanoID.swift */,
 				42FF1AEA271154A600B38C38 /* SafariExtension */,
 				B330B55BAF36E624637EE3BE /* ShareExtension */,
 				04920CC5279671EF003EC1B6 /* PushNotificationConfig.swift */,
@@ -719,7 +705,6 @@
 			name = "Omnivore-iOS";
 			packageProductDependencies = (
 				8F13016D33DF1598D7157563 /* App */,
-				042184EC273AD426002357B0 /* PSPDFKit */,
 				0418837D2742E99F003E0001 /* Intercom */,
 				0418837F2742FCF2003E0001 /* Utils */,
 				045B1680279147E7005047F7 /* FirebaseMessaging */,
@@ -796,7 +781,6 @@
 			);
 			mainGroup = 2EE5B57B588CF4ADBA39A106;
 			packageReferences = (
-				042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */,
 				0418837C2742E99F003E0001 /* XCRemoteSwiftPackageReference "intercom-ios" */,
 				048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
@@ -1039,10 +1023,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0480E71D26D95096006CAE2F /* AppDelegate.swift in Sources */,
-				4255C6D92755A5350006422A /* NanoID.swift in Sources */,
 				0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */,
-				426408742744676C00A2AE46 /* PDFReaderView.swift in Sources */,
-				042184F0273AD5F3002357B0 /* PDFViewer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1075,11 +1056,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0480E71C26D95096006CAE2F /* AppDelegate.swift in Sources */,
-				4255C6D82755A5350006422A /* NanoID.swift in Sources */,
 				04920CC6279671EF003EC1B6 /* PushNotificationConfig.swift in Sources */,
 				CA7EE773095F267516D7AC98 /* MainApp.swift in Sources */,
-				426408732744676C00A2AE46 /* PDFReaderView.swift in Sources */,
-				042184EF273AD5F3002357B0 /* PDFViewer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1463,7 +1441,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1495,7 +1473,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -1534,7 +1512,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1696,7 +1674,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				SDKROOT = iphoneos;
@@ -1750,7 +1728,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1778,7 +1756,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.7.0;
+				MARKETING_VERSION = 1.7.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				SDKROOT = iphoneos;
@@ -1964,14 +1942,6 @@
 				version = 11.1.2;
 			};
 		};
-		042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/PSPDFKit/PSPDFKit-SP";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -1991,11 +1961,6 @@
 		0418837F2742FCF2003E0001 /* Utils */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Utils;
-		};
-		042184EC273AD426002357B0 /* PSPDFKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 042184EB273AD426002357B0 /* XCRemoteSwiftPackageReference "PSPDFKit-SP" */;
-			productName = PSPDFKit;
 		};
 		045B1680279147E7005047F7 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
