@@ -122,7 +122,8 @@
         "type": "keyword"
       },
       "language": {
-        "type": "keyword"
+        "type": "keyword",
+        "normalizer": "lowercase_normalizer"
       }
     }
   }
