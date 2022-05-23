@@ -1,8 +1,8 @@
-import {SelectionOptionCard} from './SelectOption'
+import { SelectionOptionCard } from './SelectOption'
 import OnboardingLayout2 from '../OnboardingLayout2'
-import {Box, HStack, VStack} from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 
-const articlecDetails = [
+const articleDetails = [
   {
     title: 'Winnebago Electric RV Concept',
     author: 'Omnivore',
@@ -65,7 +65,7 @@ const OnboardingPage1 = () => {
               gridTemplateColumns: '50% 50%',
             },
           }}>
-            {articlecDetails.map(({ title, author, originText, description, image, labels }, idx) => (
+            {articleDetails.map(({ title, author, originText, description, image, labels }, idx) => (
             <SelectionOptionCard
               key={idx} 
               {...{ title, author, originText, description, image, labels }}
