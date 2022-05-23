@@ -1,5 +1,5 @@
 import React from 'react'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 
@@ -13,10 +13,14 @@ const StyledImage = styled('img', {
   }
 })
 
-const OnboardingPage5 = () => {
+type OnboardingOrganizeInstructionsProps = {
+  pageNumber: number
+}
+
+export const OnboardingHighlightInstructions = (props: OnboardingOrganizeInstructionsProps) => {
   return (
-    <OnboardingLayout2
-      pageNumber={5}
+    <OnboardingLayout
+      pageNumber={props.pageNumber}
       title="Highlight and share"
       subTitle="Information about creating and sharing highlights Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet."
       >
@@ -34,8 +38,6 @@ const OnboardingPage5 = () => {
           alt="Highlight And Share"
         />
       </Box>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
-
-export default OnboardingPage5

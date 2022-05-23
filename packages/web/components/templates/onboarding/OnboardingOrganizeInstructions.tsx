@@ -1,5 +1,5 @@
 import React from 'react'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 
@@ -7,10 +7,14 @@ const StyledImage = styled('img', {
   position: 'relative',
 })
 
-const OnboardingPage4 = () => {
+type OnboardingOrganizeInstructionsProps = {
+  pageNumber: number
+}
+
+export const OnboardingOrganizeInstructions = (props: OnboardingOrganizeInstructionsProps) => {
   return (
-    <OnboardingLayout2
-      pageNumber={4}
+    <OnboardingLayout
+      pageNumber={props.pageNumber}
       title="Organize all your content"
       subTitle="Information about archiving and tagging
       Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet."
@@ -48,8 +52,6 @@ const OnboardingPage4 = () => {
           }}
         />
       </Box>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
-
-export default OnboardingPage4

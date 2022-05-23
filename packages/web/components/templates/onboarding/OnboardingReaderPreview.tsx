@@ -1,5 +1,5 @@
 import { SelectionOptionCard } from './SelectOption'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 
 const articleDetails = [
@@ -37,10 +37,14 @@ const articleDetails = [
   },
 ]
 
-const OnboardingPage1 = () => {
+type OnboardingReaderPreviewProps = {
+  pageNumber: number
+}
+
+export const OnboardingReaderPreview = (props: OnboardingReaderPreviewProps) => {
   return (
-    <OnboardingLayout2
-      pageNumber={1}
+    <OnboardingLayout
+      pageNumber={props.pageNumber}
       title="Read Distraction Free"
       subTitle="Omnivore's distraction free reader gives you an uncluttered reading experience"
       description='Add some great reads to your library now:'
@@ -74,8 +78,6 @@ const OnboardingPage1 = () => {
           </Box>
         </HStack>
       </VStack>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
-
-export default OnboardingPage1

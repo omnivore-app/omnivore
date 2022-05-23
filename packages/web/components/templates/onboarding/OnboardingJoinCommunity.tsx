@@ -1,5 +1,5 @@
 import React from 'react'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 
@@ -34,10 +34,14 @@ const Container = styled(Box, {
   }
 })
 
-const OnboardingPage6 = () => {
+type OnboardingJoinCommunityProps = {
+  pageNumber: number
+}
+
+export const OnboardingJoinCommunity = (props: OnboardingJoinCommunityProps) => {
   return (
-    <OnboardingLayout2
-      pageNumber={6}
+    <OnboardingLayout
+      pageNumber={props.pageNumber}
       title="Join our Community"
       subTitle='Omnivore is open source and open community, join us.'
       nextPage='/home'
@@ -67,8 +71,7 @@ const OnboardingPage6 = () => {
           </VStack>
         </Container>
       </HStack>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 
-export default OnboardingPage6

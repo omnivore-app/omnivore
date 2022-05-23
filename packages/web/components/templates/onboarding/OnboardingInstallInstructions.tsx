@@ -1,15 +1,19 @@
 import React from 'react'
 import Link from 'next/link'
-import OnboardingLayout2 from '../OnboardingLayout2'
+import { OnboardingLayout } from '../OnboardingLayout'
 import MobileInstallHelp from '../../elements/MobileInstallHelp'
 import ExtensionsInstallHelp from '../../elements/ExtensionsInstallHelp'
 import { StyledAnchor } from '../../elements/StyledText'
 import { Box } from '../../elements/LayoutPrimitives'
 
-const OnboardingPage2 = () => {
+type OnboardingInstallInstructionsProps = {
+  pageNumber: number
+}
+
+export const OnboardingInstallInstructions = (props: OnboardingInstallInstructionsProps) => {
   return (
-    <OnboardingLayout2
-      pageNumber={2}
+    <OnboardingLayout
+      pageNumber={props.pageNumber}
       title="Save links to read later"
       subTitle="Save any link to your library using our apps and browser extensions"
       description='Install our apps and browser extensions'
@@ -79,8 +83,7 @@ const OnboardingPage2 = () => {
           </Link>
         </Box>
       </Box>
-    </OnboardingLayout2>
+    </OnboardingLayout>
   )
 }
 
-export default OnboardingPage2

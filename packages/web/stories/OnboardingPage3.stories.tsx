@@ -1,13 +1,13 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import OnboardingPage3 from '../components/templates/onboarding/03'
+import { OnboardingAddNewsletters } from '../components/templates/onboarding/OnboardingAddNewsletters'
 
 export default {
   title: 'Onboarding-Pages/03',
-  component: OnboardingPage3,
-} as ComponentMeta<typeof OnboardingPage3>
+  component: OnboardingAddNewsletters,
+} as ComponentMeta<typeof OnboardingAddNewsletters>
 
-export const OnboardingPage3Story: ComponentStory<typeof OnboardingPage3> = (args: any) => {
+export const OnboardingPage3Story: ComponentStory<typeof OnboardingAddNewsletters> = (args: any) => {
   return (
-    <OnboardingPage3 />
+    <OnboardingAddNewsletters pageNumber={3} />
   )
 }
