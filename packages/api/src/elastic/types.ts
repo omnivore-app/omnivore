@@ -226,6 +226,7 @@ export interface SearchItem {
   readingProgressAnchorIndex?: number
   userId: string
   state?: ArticleSavingRequestStatus
+  language?: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
