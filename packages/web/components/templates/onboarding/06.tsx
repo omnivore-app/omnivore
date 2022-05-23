@@ -40,7 +40,7 @@ const OnboardingPage6 = () => {
       pageNumber={6}
       title="Join our Community"
       subTitle='Omnivore is open source and open community, join us.'
-      nextPage='/login'
+      nextPage='/home'
       reduceSpace
       >
       <HStack distribution='center' alignment='center' css={{width: '100%', height: '100%'}}>
