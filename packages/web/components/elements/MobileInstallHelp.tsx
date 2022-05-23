@@ -39,7 +39,7 @@ export default function MobileInstallHelp({
     },
   ]
 
-  const iosContainerStyles = { width: '100%', height: !onboarding ? '37px' : '40px'}
+  const iosContainerStyles = { marginTop: '12px', width: '100%', height: '40px', display: 'flex', justifyContent: !onboarding ? 'flex-end' : 'initial'}
 
   return (
     <Box
@@ -115,7 +115,7 @@ export default function MobileInstallHelp({
             },
           }}
         >
-          Install Omnivore iOS
+          Install Omnivore for iOS
         </StyledText>
       </Box>
       <StyledText
@@ -165,8 +165,9 @@ export default function MobileInstallHelp({
           display: 'flex',
           alignItems: 'center',
           gridColumn: '1 / span 2',
+          flexDirection: !onboarding ? 'row-reverse' : 'inherit',
           justifyContent: !onboarding ? 'space-between' : 'center',
-          mt: '10px',
+          mt: !onboarding ? 'inherit' : 10,
           '@lg': {
             flexDirection: !onboarding ? 'row-reverse' : 'column-reverse',
             alignItems: !onboarding ? 'center' : 'flex-end',
@@ -178,14 +179,13 @@ export default function MobileInstallHelp({
         <Box
           css={
             !onboarding
-              ? { ...iosContainerStyles, '@lg': { pl: '16px' } }
+              ? { ...iosContainerStyles, '@lg': { pl: '16px'} }
               : {
                   ...iosContainerStyles,
                   pl: 16,
                   '@lg': {
                     marginTop: '24px',
                     justifyContent: 'flex-end',
-                    display: 'flex',
                   },
                 }
           }
