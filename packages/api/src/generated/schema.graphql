@@ -51,6 +51,7 @@ type Article {
   image: String
   isArchived: Boolean!
   labels: [Label!]
+  language: String
   linkId: ID
   originalArticleUrl: String
   originalHtml: String
@@ -1001,6 +1002,7 @@ type SearchItem {
   image: String
   isArchived: Boolean!
   labels: [Label!]
+  language: String
   originalArticleUrl: String
   ownedByViewer: Boolean
   pageId: ID
