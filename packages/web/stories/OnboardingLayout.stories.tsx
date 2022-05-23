@@ -1,5 +1,5 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import OnboardingLayout from '../components/templates/OnboardingLayout2'
+import OnboardingLayout from '../components/templates/OnboardingLayout'
 
 export default {
   title: 'Components/OnboardingLayout',

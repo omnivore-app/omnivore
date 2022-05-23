@@ -30,14 +30,17 @@ const optionDetails = [
   },
 ]
 
-const OnboardingPage3 = () => {
+type OnboardingAddNewslettersProps = {
+  pageNumber: number
+}
+
+export const OnboardingAddNewsletters = (props: OnboardingAddNewslettersProps) => {
   return (
     <OnboardingLayout
+      pageNumber={props.pageNumber}
       subTitle="Omnivore creates an email address for you to subscribe to newsletters with."
       description="Subscribe to some newsletters now"
       title="Read all your Newsletters in Omnivore"
-      pageNumber={3}
-      nextPage={'/onboarding/05'}
     >
       <VStack css={{
         marginTop: '$4',
@@ -51,4 +54,3 @@ const OnboardingPage3 = () => {
   )
 }
 
-export default OnboardingPage3

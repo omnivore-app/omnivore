@@ -37,10 +37,14 @@ const articleDetails = [
   },
 ]
 
-const OnboardingPage1 = () => {
+type OnboardingReaderPreviewProps = {
+  pageNumber: number
+}
+
+export const OnboardingReaderPreview = (props: OnboardingReaderPreviewProps) => {
   return (
     <OnboardingLayout
-      pageNumber={1}
+      pageNumber={props.pageNumber}
       title="Read Distraction Free"
       subTitle="Omnivore's distraction free reader gives you an uncluttered reading experience"
       description='Add some great reads to your library now:'
@@ -77,5 +81,3 @@ const OnboardingPage1 = () => {
     </OnboardingLayout>
   )
 }
-
-export default OnboardingPage1

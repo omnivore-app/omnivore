@@ -4,6 +4,7 @@ import { VStack, HStack, Box } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
+import Link from 'next/link'
 
 const TOTAL_ONBOARDING_PAGES = 6
 
@@ -29,24 +30,26 @@ export const OnboardingLayout = ({
   reduceSpace
 }: OnboardingLayoutProps) => {
   const NextButton = () => (
-    <Button
-      style="ctaDarkYellow"
-      css={{ 
-        width: '111px',
-        height: '44px',
-        color: 'rgba(10, 8, 6, 0.8)',
-        fontWeight: 600,
-        fontSize: '16px',
-        textDecoration: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-      as="a"
-      href={nextPage ? nextPage : `/onboarding/0${pageNumber+1}`}
-    >
-      Next
-    </Button>
+    <Link href={nextPage ? nextPage : `/onboarding/0${pageNumber+1}`}>
+      <Button
+        style="ctaDarkYellow"
+        css={{ 
+          width: '111px',
+          height: '44px',
+          color: 'rgba(10, 8, 6, 0.8)',
+          fontWeight: 600,
+          fontSize: '16px',
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        as="a"
+        href={nextPage ? nextPage : `/onboarding/0${pageNumber+1}`}
+      >
+        Next
+      </Button>
+    </Link>
   )
 
   return (

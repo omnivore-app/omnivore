@@ -34,10 +34,14 @@ const Container = styled(Box, {
   }
 })
 
-const OnboardingPage6 = () => {
+type OnboardingJoinCommunityProps = {
+  pageNumber: number
+}
+
+export const OnboardingJoinCommunity = (props: OnboardingJoinCommunityProps) => {
   return (
     <OnboardingLayout
-      pageNumber={6}
+      pageNumber={props.pageNumber}
       title="Join our Community"
       subTitle='Omnivore is open source and open community, join us.'
       nextPage='/home'
@@ -71,4 +75,3 @@ const OnboardingPage6 = () => {
   )
 }
 
-export default OnboardingPage6

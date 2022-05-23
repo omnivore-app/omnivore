@@ -7,10 +7,14 @@ const StyledImage = styled('img', {
   position: 'relative',
 })
 
-const OnboardingPage4 = () => {
+type OnboardingOrganizeInstructionsProps = {
+  pageNumber: number
+}
+
+export const OnboardingOrganizeInstructions = (props: OnboardingOrganizeInstructionsProps) => {
   return (
     <OnboardingLayout
-      pageNumber={4}
+      pageNumber={props.pageNumber}
       title="Organize all your content"
       subTitle="Information about archiving and tagging
       Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet."
@@ -51,5 +55,3 @@ const OnboardingPage4 = () => {
     </OnboardingLayout>
   )
 }
-
-export default OnboardingPage4

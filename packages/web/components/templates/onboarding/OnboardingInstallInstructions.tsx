@@ -6,10 +6,14 @@ import ExtensionsInstallHelp from '../../elements/ExtensionsInstallHelp'
 import { StyledAnchor } from '../../elements/StyledText'
 import { Box } from '../../elements/LayoutPrimitives'
 
-const OnboardingPage2 = () => {
+type OnboardingInstallInstructionsProps = {
+  pageNumber: number
+}
+
+export const OnboardingInstallInstructions = (props: OnboardingInstallInstructionsProps) => {
   return (
     <OnboardingLayout
-      pageNumber={2}
+      pageNumber={props.pageNumber}
       title="Save links to read later"
       subTitle="Save any link to your library using our apps and browser extensions"
       description='Install our apps and browser extensions'
@@ -83,4 +87,3 @@ const OnboardingPage2 = () => {
   )
 }
 
-export default OnboardingPage2
