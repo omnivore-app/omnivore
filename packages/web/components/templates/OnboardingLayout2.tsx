@@ -5,7 +5,7 @@ import { OmnivoreNameLogo } from '../../components/elements/images/OmnivoreNameL
 import { StyledText } from '../../components/elements/StyledText'
 import { Button } from '../../components/elements/Button'
 
-const TOTAL_ONBOARDING_PAGES = 3
+const TOTAL_ONBOARDING_PAGES = 6
 
 type OnboardingLayout2Props = {
   pageNumber: number
@@ -14,6 +14,8 @@ type OnboardingLayout2Props = {
   description?: string
   children: ReactNode
   image?: ReactNode
+  nextPage?: string,
+  reduceSpace?: boolean,
 }
 
 const OnboardingLayout2 = ({
@@ -23,7 +25,30 @@ const OnboardingLayout2 = ({
   description,
   image,
   children,
+  nextPage,
+  reduceSpace
 }: OnboardingLayout2Props) => {
+  const NextButton = () => (
+    <Button
+      style="ctaDarkYellow"
+      css={{ 
+        width: '111px',
+        height: '44px',
+        color: 'rgba(10, 8, 6, 0.8)',
+        fontWeight: 600,
+        fontSize: '16px',
+        textDecoration: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+      as="a"
+      href={nextPage ? nextPage : `/onboarding/0${pageNumber+1}`}
+    >
+      Next
+    </Button>
+  )
+
   return (
     <>
       <PageMetaData
@@ -35,6 +60,9 @@ const OnboardingLayout2 = ({
           display: 'grid',
           gridTemplateColumns: '1fr',
           minHeight: '100vh',
+          '@lgDown': {
+            gridTemplateRows: reduceSpace ? 0 : 'initial',
+          },
           '@lg': {
             gridTemplateColumns: '1fr 2fr',
           },
@@ -150,18 +178,7 @@ const OnboardingLayout2 = ({
             >
               Skip
             </Button>
-            <Button
-              style="ctaDarkYellow"
-              css={{
-                width: '111px',
-                height: '44px',
-                color: 'rgba(10, 8, 6, 0.8)',
-                fontWeight: 600,
-                fontSize: '16px',
-              }}
-            >
-              Next
-            </Button>
+            <NextButton />
           </HStack>
         </VStack>
         <VStack
@@ -183,6 +200,7 @@ const OnboardingLayout2 = ({
           {description && (
             <Box
               css={{
+                position: 'relative',
                 fontWeight: 600,
                 fontSize: 16,
                 color: 'rgba(10, 8, 6, 0.8)',
@@ -220,18 +238,7 @@ const OnboardingLayout2 = ({
         >
           Skip
         </Button>
-        <Button
-          style="ctaDarkYellow"
-          css={{
-            width: '111px',
-            height: '44px',
-            color: 'rgba(10, 8, 6, 0.8)',
-            fontWeight: 600,
-            fontSize: '16px',
-          }}
-        >
-          Next
-        </Button>
+        <NextButton />
       </HStack>
     </>
   )

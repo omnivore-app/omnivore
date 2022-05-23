@@ -2,7 +2,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import OnboardingPage2 from '../components/templates/onboarding/02'
 
 export default {
-  title: 'Components/OnboardingPage2',
+  title: 'Onboarding-Pages/02',
   component: OnboardingPage2,
 } as ComponentMeta<typeof OnboardingPage2>
 
