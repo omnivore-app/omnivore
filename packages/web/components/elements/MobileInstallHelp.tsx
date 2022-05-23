@@ -100,22 +100,6 @@ export default function MobileInstallHelp({
           },
         }}
       >
-        <Link passHref href="/help/saving-links">
-          <StyledAnchor
-            css={{
-              fontWeight: '600',
-              fontSize: '12px',
-              lineHeight: '18px',
-              textAlign: 'right',
-              color: !onboarding ? '$grayTextContrast' : 'rgba(10, 8, 6, 0.8)',
-              '@lg': {
-                display: 'none',
-              },
-            }}
-          >
-            Learn more
-          </StyledAnchor>
-        </Link>
         <StyledText
           as={'h3'}
           css={{
