@@ -8,16 +8,9 @@ export interface SearchBody {
       filter: (
         | {
             term: {
-              userId: string
+              [K: string]: string
             }
           }
-        | {
-            term: {
-              subscription: string
-            }
-          }
-        | { term: { pageType: string } }
-        | { term: { language: string } }
         | { exists: { field: string } }
         | {
             range: {
