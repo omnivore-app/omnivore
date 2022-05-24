@@ -5,8 +5,10 @@ import { CheckIcon } from './images/CheckIcon'
 
 const Checkbox = styled(CheckboxPrimitive.Root, {
   all: 'unset',
-  width: 15.83,
-  height: 15.83,
+  width: 16,
+  height: 16,
+  minWidth: 16,
+  minHeight: 16,
   borderRadius: 3,
   display: 'flex',
   alignItems: 'center',
