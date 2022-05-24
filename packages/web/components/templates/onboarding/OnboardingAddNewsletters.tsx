@@ -5,28 +5,24 @@ import { SelectOption } from './SelectOption'
 
 const optionDetails = [
   {
-    icon: 'TempleTelegram',
-    label: 'Temple Daily Telegram - Temple, Tx',
+    icon: 'AxiosDaily.png',
+    label: 'Axios Daily Essentials',
+    description: 'Start and end your day with the stories that matter in your inbox.'
   },
   {
-    icon: 'NYTNewsletter',
-    label: 'Newsletters - The New York Times',
+    icon: 'MilkRoad.png',
+    label: 'Milk Road',
+    description: '5 minute daily newsletter. Used by 100,000+ people to be better crypto investors 💪',
   },
   {
-    icon: 'NYT',
-    label: 'NYT’s The Morning',
+    icon: 'MoneyStuff.png',
+    label: 'Money Stuff by Matt Levine',
+    description: 'A daily take on Wall Street, finance, companies and other stuff.',
   },
   {
-    icon: 'BBCNews',
-    label: 'London - BBC News',
-  },
-  {
-    icon: 'WashingtonDiplomat',
-    label: 'Washington Diplomat - Washington, Dc',
-  },
-  {
-    icon: 'Columbia',
-    label: 'The State - Columbia, Sc',
+    icon: 'OmnivoreBlog.png',
+    label: 'Omnivore',
+    description: 'Tips and tricks, plus updates on new features in Omnivore.',
   },
 ]
 
@@ -46,8 +42,8 @@ export const OnboardingAddNewsletters = (props: OnboardingAddNewslettersProps) =
         marginTop: '$4',
         width: '100%'
       }}>
-        {optionDetails.map(({ icon, label }, idx) => (
-          <SelectOption key={idx} {...{ icon, label }} />
+        {optionDetails.map(({ icon, label, description }, idx) => (
+          <SelectOption key={idx} {...{ icon, label, description }} />
         ))}
       </VStack>
     </OnboardingLayout>

@@ -6,11 +6,13 @@ import { StyledText } from '../../elements/StyledText'
 import { authoredByText } from '../../patterns/ArticleSubtitle'
 import { LabelChip } from '../../elements/LabelChip'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
+import Image from 'next/image'
 
 export const SelectOption: React.FC<{
   icon: string
   label: string
-}> = ({ icon, label }) => {
+  description: string
+}> = ({ icon, label, description }) => {
   const [checked, setChecked] = React.useState(false)
 
   const toggleChecked = () => setChecked(!checked)
@@ -29,21 +31,34 @@ export const SelectOption: React.FC<{
       width: '100%'
     }}>
       <Checkbox {...{checked, setChecked}} />
-      <HStack css={{marginRight: '$2'}} />
-      <img
-          src={`/static/images/newsletter/${icon}.svg`}
-          alt={`${icon}-logo`}
+      <SpanBox css={{ marginLeft: '$2', width: '32px', height: '32px' }}>
+        <Image width={32} height={32} layout="fixed"
+          src={`/static/images/newsletter/${icon}`}
+          alt={`${icon.slice(0, -4)} logo`}
         />
-      <StyledText
-        css={{
-          fontSize: 16,
-          fontWeight: 700,
-          marginLeft: '$2',
-          color: '#0A0806CC',
-        }}
-      >
+      </SpanBox>
+      <VStack css={{ border: '1', marginLeft: '$2', color: '#0A0806CC', }}>
+        <StyledText
+          css={{
+            margin: 0,
+            fontSize: 16,
+            fontWeight: 700,
+            
+          }}
+        >
           {label}
-      </StyledText>
+        </StyledText>
+        <StyledText
+          css={{
+            margin: 0,
+            fontSize: 16,
+            fontWeight: 400,
+            color: '#0A0806CC',
+          }}
+        >
+          {description}
+        </StyledText>
+      </VStack>
     </HStack>
   )
 }
