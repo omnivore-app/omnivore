@@ -15,7 +15,6 @@ export const addPopularReadResolver = authorized<
   AddPopularReadError,
   MutationAddPopularReadArgs
 >(async (_, { name }, ctx) => {
-  console.log('************************ addPopularRead ************************')
   const {
     models,
     claims: { uid },
