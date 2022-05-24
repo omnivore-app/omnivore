@@ -498,6 +498,30 @@ const schema = gql`
 
   union SaveResult = SaveSuccess | SaveError
 
+  input UpdatePageInput {
+    pageId: ID!
+    title: String
+    description: String
+  }
+
+  type UpdatePageSuccess {
+    updatedPage: Page!
+  }
+
+  enum UpdatePageErrorCode {
+    UPDATE_FAILED
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    FORBIDDEN
+  }
+
+  type UpdatePageError {
+    errorCodes: [UpdatePageErrorCode!]!
+  }
+
+  union UpdatePageResult = UpdatePageSuccess | UpdatePageError
+
   # Mutation: setFollow
   union SetFollowResult = SetFollowSuccess | SetFollowError
   input SetFollowInput {
@@ -1577,6 +1601,7 @@ const schema = gql`
     deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
     saveUrl(input: SaveUrlInput!): SaveResult!
     savePage(input: SavePageInput!): SaveResult!
+    updatePage(input: UpdatePageInput!): UpdatePageResult!
     saveFile(input: SaveFileInput!): SaveResult!
     createReminder(input: CreateReminderInput!): CreateReminderResult!
     updateReminder(input: UpdateReminderInput!): UpdateReminderResult!

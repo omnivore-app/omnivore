@@ -733,6 +733,7 @@ type Mutation {
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
   updateLinkShareInfo(input: UpdateLinkShareInfoInput!): UpdateLinkShareInfoResult!
+  updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
   updateSharedComment(input: UpdateSharedCommentInput!): UpdateSharedCommentResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
@@ -1386,6 +1387,30 @@ union UpdateLinkShareInfoResult = UpdateLinkShareInfoError | UpdateLinkShareInfo
 
 type UpdateLinkShareInfoSuccess {
   message: String!
+}
+
+type UpdatePageError {
+  errorCodes: [UpdatePageErrorCode!]!
+}
+
+enum UpdatePageErrorCode {
+  BAD_REQUEST
+  FORBIDDEN
+  NOT_FOUND
+  UNAUTHORIZED
+  UPDATE_FAILED
+}
+
+input UpdatePageInput {
+  description: String
+  pageId: ID!
+  title: String
+}
+
+union UpdatePageResult = UpdatePageError | UpdatePageSuccess
+
+type UpdatePageSuccess {
+  updatedPage: Page!
 }
 
 type UpdateReminderError {

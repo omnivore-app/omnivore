@@ -823,6 +823,7 @@ export type Mutation = {
   updateHighlightReply: UpdateHighlightReplyResult;
   updateLabel: UpdateLabelResult;
   updateLinkShareInfo: UpdateLinkShareInfoResult;
+  updatePage: UpdatePageResult;
   updateReminder: UpdateReminderResult;
   updateSharedComment: UpdateSharedCommentResult;
   updateUser: UpdateUserResult;
@@ -1018,6 +1019,11 @@ export type MutationUpdateLabelArgs = {
 
 export type MutationUpdateLinkShareInfoArgs = {
   input: UpdateLinkShareInfoInput;
+};
+
+
+export type MutationUpdatePageArgs = {
+  input: UpdatePageInput;
 };
 
 
@@ -1822,6 +1828,32 @@ export type UpdateLinkShareInfoSuccess = {
   message: Scalars['String'];
 };
 
+export type UpdatePageError = {
+  __typename?: 'UpdatePageError';
+  errorCodes: Array<UpdatePageErrorCode>;
+};
+
+export enum UpdatePageErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Forbidden = 'FORBIDDEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED',
+  UpdateFailed = 'UPDATE_FAILED'
+}
+
+export type UpdatePageInput = {
+  description?: InputMaybe<Scalars['String']>;
+  pageId: Scalars['ID'];
+  title?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdatePageResult = UpdatePageError | UpdatePageSuccess;
+
+export type UpdatePageSuccess = {
+  __typename?: 'UpdatePageSuccess';
+  updatedPage: Page;
+};
+
 export type UpdateReminderError = {
   __typename?: 'UpdateReminderError';
   errorCodes: Array<UpdateReminderErrorCode>;
@@ -2352,6 +2384,11 @@ export type ResolversTypes = {
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversTypes['UpdateLinkShareInfoError'] | ResolversTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: ResolverTypeWrapper<UpdateLinkShareInfoSuccess>;
+  UpdatePageError: ResolverTypeWrapper<UpdatePageError>;
+  UpdatePageErrorCode: UpdatePageErrorCode;
+  UpdatePageInput: UpdatePageInput;
+  UpdatePageResult: ResolversTypes['UpdatePageError'] | ResolversTypes['UpdatePageSuccess'];
+  UpdatePageSuccess: ResolverTypeWrapper<UpdatePageSuccess>;
   UpdateReminderError: ResolverTypeWrapper<UpdateReminderError>;
   UpdateReminderErrorCode: UpdateReminderErrorCode;
   UpdateReminderInput: UpdateReminderInput;
@@ -2605,6 +2642,10 @@ export type ResolversParentTypes = {
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoError'] | ResolversParentTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: UpdateLinkShareInfoSuccess;
+  UpdatePageError: UpdatePageError;
+  UpdatePageInput: UpdatePageInput;
+  UpdatePageResult: ResolversParentTypes['UpdatePageError'] | ResolversParentTypes['UpdatePageSuccess'];
+  UpdatePageSuccess: UpdatePageSuccess;
   UpdateReminderError: UpdateReminderError;
   UpdateReminderInput: UpdateReminderInput;
   UpdateReminderResult: ResolversParentTypes['UpdateReminderError'] | ResolversParentTypes['UpdateReminderSuccess'];
@@ -3236,6 +3277,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
   updateLinkShareInfo?: Resolver<ResolversTypes['UpdateLinkShareInfoResult'], ParentType, ContextType, RequireFields<MutationUpdateLinkShareInfoArgs, 'input'>>;
+  updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
   updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
   updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
@@ -3692,6 +3734,20 @@ export type UpdateLinkShareInfoSuccessResolvers<ContextType = ResolverContext, P
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdatePageErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePageError'] = ResolversParentTypes['UpdatePageError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdatePageErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdatePageResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePageResult'] = ResolversParentTypes['UpdatePageResult']> = {
+  __resolveType: TypeResolveFn<'UpdatePageError' | 'UpdatePageSuccess', ParentType, ContextType>;
+};
+
+export type UpdatePageSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePageSuccess'] = ResolversParentTypes['UpdatePageSuccess']> = {
+  updatedPage?: Resolver<ResolversTypes['Page'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdateReminderErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateReminderError'] = ResolversParentTypes['UpdateReminderError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdateReminderErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3996,6 +4052,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateLinkShareInfoError?: UpdateLinkShareInfoErrorResolvers<ContextType>;
   UpdateLinkShareInfoResult?: UpdateLinkShareInfoResultResolvers<ContextType>;
   UpdateLinkShareInfoSuccess?: UpdateLinkShareInfoSuccessResolvers<ContextType>;
+  UpdatePageError?: UpdatePageErrorResolvers<ContextType>;
+  UpdatePageResult?: UpdatePageResultResolvers<ContextType>;
+  UpdatePageSuccess?: UpdatePageSuccessResolvers<ContextType>;
   UpdateReminderError?: UpdateReminderErrorResolvers<ContextType>;
   UpdateReminderResult?: UpdateReminderResultResolvers<ContextType>;
   UpdateReminderSuccess?: UpdateReminderSuccessResolvers<ContextType>;
