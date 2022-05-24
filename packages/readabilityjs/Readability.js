@@ -1894,13 +1894,13 @@ Readability.prototype = {
 
     // get site name
     metadata.siteName = jsonld.siteName ||
-      values["og:site_name"];
+      values["og:site_name"] || null;
 
     // get website icon
     const iconLink = this._doc.querySelector(
       "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
     );
-    metadata.siteIcon = iconLink ? iconLink.href : '';
+    metadata.siteIcon = iconLink?.href;
 
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
@@ -2836,6 +2836,11 @@ Readability.prototype = {
   },
 
   _getLanguage: function(code) {
+    if (!code) {
+      // Default to English
+      return 'English';
+    }
+
     let lang = new Intl.DisplayNames(['en'], {type: 'language'});
     return lang.of(code.split('-')[0]);
   },
