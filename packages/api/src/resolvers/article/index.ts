@@ -448,16 +448,7 @@ export const getArticlesResolver = authorized<
     event: 'get_articles',
     properties: {
       env: env.server.apiEnv,
-      query: searchQuery.query,
-      inFilter: searchQuery.inFilter,
-      readFilter: searchQuery.readFilter,
-      typeFilter: searchQuery.typeFilter,
-      labelFilters: searchQuery.labelFilters,
-      sortParams: searchQuery.sortParams,
-      hasFilters: searchQuery.hasFilters,
-      savedDateFilter: searchQuery.savedDateFilter,
-      publishedDateFilter: searchQuery.publishedDateFilter,
-      subscriptionFilter: searchQuery.subscriptionFilter,
+      ...searchQuery,
     },
   })
 
@@ -466,16 +457,8 @@ export const getArticlesResolver = authorized<
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
       sort: searchQuery.sortParams,
-      query: searchQuery.query,
-      inFilter: searchQuery.inFilter,
-      readFilter: searchQuery.readFilter,
-      typeFilter: searchQuery.typeFilter,
-      labelFilters: searchQuery.labelFilters,
-      hasFilters: searchQuery.hasFilters,
-      savedDateFilter: searchQuery.savedDateFilter,
-      publishedDateFilter: searchQuery.publishedDateFilter,
-      subscriptionFilter: searchQuery.subscriptionFilter,
       includePending: params.includePending,
+      ...searchQuery,
     },
     claims.uid
   )) || [[], 0]
@@ -818,16 +801,8 @@ export const searchResolver = authorized<
     userId: claims.uid,
     event: 'search',
     properties: {
-      query: searchQuery.query,
-      inFilter: searchQuery.inFilter,
-      readFilter: searchQuery.readFilter,
-      typeFilter: searchQuery.typeFilter,
-      labelFilters: searchQuery.labelFilters,
-      sortParams: searchQuery.sortParams,
-      hasFilters: searchQuery.hasFilters,
-      savedDateFilter: searchQuery.savedDateFilter,
-      publishedDateFilter: searchQuery.publishedDateFilter,
       env: env.server.apiEnv,
+      ...searchQuery,
     },
   })
 
@@ -853,16 +828,8 @@ export const searchResolver = authorized<
         from: Number(startCursor),
         size: first + 1, // fetch one more item to get next cursor
         sort: searchQuery.sortParams,
-        query: searchQuery.query,
-        inFilter: searchQuery.inFilter,
-        readFilter: searchQuery.readFilter,
-        typeFilter: searchQuery.typeFilter,
-        labelFilters: searchQuery.labelFilters,
-        hasFilters: searchQuery.hasFilters,
-        savedDateFilter: searchQuery.savedDateFilter,
-        publishedDateFilter: searchQuery.publishedDateFilter,
-        subscriptionFilter: searchQuery.subscriptionFilter,
         includePending: true,
+        ...searchQuery,
       },
       claims.uid
     )) || [[], 0]
