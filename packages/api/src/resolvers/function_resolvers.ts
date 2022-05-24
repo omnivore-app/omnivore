@@ -77,6 +77,7 @@ import {
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
+  updatePageResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
@@ -146,6 +147,7 @@ export const functionResolvers = {
     setLabels: setLabelsResolver,
     generateApiKey: generateApiKeyResolver,
     unsubscribe: unsubscribeResolver,
+    updatePage: updatePageResolver,
     subscribe: subscribeResolver,
   },
   Query: {
@@ -556,5 +558,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Subscriptions'),
   ...resultResolveTypeResolver('Unsubscribe'),
   ...resultResolveTypeResolver('UpdateLabel'),
+  ...resultResolveTypeResolver('UpdatePage'),
   ...resultResolveTypeResolver('Subscribe'),
 }
