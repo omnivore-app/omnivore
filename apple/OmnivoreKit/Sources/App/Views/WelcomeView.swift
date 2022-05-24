@@ -7,9 +7,12 @@ import Views
 
 struct WelcomeView: View {
   @EnvironmentObject var dataService: DataService
+  @EnvironmentObject var authenticator: Authenticator
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
+
+  @StateObject private var viewModel = RegistrationViewModel()
+
   @State private var showRegistrationView = false
-  @State private var isKeyboardOnScreen = false
   @State private var showDebugModal = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
 
@@ -19,68 +22,121 @@ struct WelcomeView: View {
     }
   }
 
-  @ViewBuilder func userInteractiveView(width: CGFloat) -> some View {
-    Group {
-      if showRegistrationView {
-        RegistrationView()
-      } else {
-        GetStartedView(showRegistrationView: $showRegistrationView)
-      }
+  var headlineView: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text("Everything you read. Safe, organized, and easy to share.")
+        .font(.appLargeTitle)
+
+      Button(
+        action: { print("learn more button tapped") },
+        label: {
+          HStack(spacing: 4) {
+            Text("Learn more")
+            Image(systemName: "arrow.right")
+          }
+          .font(.appTitleThree)
+        }
+      )
+      .foregroundColor(.appGrayTextContrast)
     }
-    .frame(width: width)
-    .zIndex(2)
   }
 
-  @ViewBuilder func primaryContent() -> some View {
-    if horizontalSizeClass == .compact {
-      GeometryReader { geometry in
-        ZStack(alignment: .leading) {
-          Color.systemBackground
-            .edgesIgnoringSafeArea(.all)
+  var footerView: some View {
+    Text("By signing up, you agree to Omnivore’s\nTerms of Service and Privacy Policy")
+      .font(.appSubheadline)
+  }
 
-          if geometry.size.width < geometry.size.height, !isKeyboardOnScreen {
-            VStack {
-              Color.appDeepBackground.frame(height: 100)
-              Spacer()
+  var logoView: some View {
+    Image.omnivoreTitleLogo
+      .gesture(
+        TapGesture(count: 2)
+          .onEnded {
+            if !Bundle.main.isAppStoreBuild {
+              showDebugModal = true
             }
-            .edgesIgnoringSafeArea(.all)
           }
+      )
+  }
 
-          VStack {
-            if geometry.size.width < geometry.size.height, !isKeyboardOnScreen {
-              RegistrationHeroImageView(tapGestureHandler: handleHiddenGestureAction)
-            }
-            userInteractiveView(width: geometry.size.width)
-            Spacer()
-          }
+  var authProviderButtonStack: some View {
+    let buttonGroup = Group {
+      AppleSignInButton {
+        viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
+      }
+
+      if AppKeys.sharedInstance?.iosClientGoogleId != nil {
+        GoogleAuthButton {
+          viewModel.handleGoogleAuth(authenticator: authenticator)
         }
       }
-    } else {
-      GeometryReader { geometry in
-        ZStack(alignment: .leading) {
-          SplitColorBackground(width: geometry.size.width)
-
-          VStack {
-            TitleLogoView(handleHiddenGestureAction: handleHiddenGestureAction)
-            Spacer()
-          }
-          .padding()
-
-          HStack(spacing: 0) {
-            userInteractiveView(width: geometry.size.width * 0.5)
-            ReadingIllustrationXXLView(width: geometry.size.width * 0.5)
-          }
-        }
+    }
+    return VStack(alignment: .center, spacing: 16) {
+      if horizontalSizeClass == .regular {
+        HStack { buttonGroup }
+      } else {
+        buttonGroup
       }
+
+      if let loginError = viewModel.loginError {
+        LoginErrorMessageView(loginError: loginError)
+      }
+    }
+  }
+
+  var compactContent: some View {
+    VStack(alignment: .leading) {
+      logoView
+      Spacer()
+      headlineView
+      Spacer()
+      authProviderButtonStack
+      Spacer()
+      footerView
+    }
+    .padding()
+  }
+
+  var wideContent: some View {
+    GeometryReader { _ in
+      VStack(alignment: .leading) {
+        logoView
+        Spacer()
+        headlineView
+        Spacer()
+        authProviderButtonStack
+        Spacer()
+        footerView
+      }
+      .padding()
     }
   }
 
   public var body: some View {
-    primaryContent()
-      .sheet(isPresented: $showDebugModal) {
-        DebugMenuView(selectedEnvironment: $selectedEnvironment)
+    ZStack(alignment: .leading) {
+      Color.appDeepBackground
+        .edgesIgnoringSafeArea(.all)
+      if let registrationState = viewModel.registrationState {
+        if case let RegistrationViewModel.RegistrationState.createProfile(userProfile) = registrationState {
+          CreateProfileView(userProfile: userProfile)
+        } else if case let RegistrationViewModel.RegistrationState.newAppleSignUp(userProfile) = registrationState {
+          NewAppleSignupView(
+            userProfile: userProfile,
+            showProfileEditView: { viewModel.registrationState = .createProfile(userProfile: userProfile) }
+          )
+        } else {
+          EmptyView() // will never be caled
+        }
+      } else {
+        if horizontalSizeClass == .compact {
+          compactContent
+        } else {
+          wideContent
+        }
       }
-      .onReceive(Publishers.keyboardHeight) { isKeyboardOnScreen = $0 > 1 }
-      .onAppear { selectedEnvironment = dataService.appEnvironment }
+    }
+    .sheet(isPresented: $showDebugModal) {
+      DebugMenuView(selectedEnvironment: $selectedEnvironment)
+    }
+    .task { selectedEnvironment = dataService.appEnvironment }
   }
 }
