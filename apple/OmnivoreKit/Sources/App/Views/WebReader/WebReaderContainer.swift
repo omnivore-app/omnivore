@@ -6,6 +6,8 @@ import WebKit
 
 #if os(iOS)
   struct WebReaderContainerView: View {
+    @Environment(\.scenePhase) var scenePhase
+
     let item: LinkedItem
 
     @State private var showFontSizePopover = false
@@ -14,6 +16,8 @@ import WebKit
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
+    @State private var showOverlay = false
+    @State private var showLaunchImageOnOverlay = false
     @State private var progressViewOpacity = 0.0
     @State var increaseFontActionID: UUID?
     @State var decreaseFontActionID: UUID?
@@ -185,6 +189,35 @@ import WebKit
                 showHighlightAnnotationModal = false
               }
             )
+          }
+          .overlay(
+            Group {
+              if showOverlay {
+                ZStack {
+                  Color.systemBackground
+                    .transition(.opacity)
+                  if showLaunchImageOnOverlay {
+                    Image("LaunchImage")
+                  }
+                }
+              }
+            }
+          )
+          .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            showOverlay = true
+            showLaunchImageOnOverlay = true
+          }
+          .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            showLaunchImageOnOverlay = false
+          }
+          .onChange(of: scenePhase) { phase in
+            if phase == .active {
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+                withAnimation(.linear(duration: 0.2)) {
+                  showOverlay = false
+                }
+              }
+            }
           }
         } else if let errorMessage = viewModel.errorMessage {
           Text(errorMessage).padding()
