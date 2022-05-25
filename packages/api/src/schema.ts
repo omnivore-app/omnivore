@@ -1614,6 +1614,7 @@ const schema = gql`
   enum CreateWebhookErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
+    ALREADY_EXISTS
   }
 
   # Mutations
