@@ -150,14 +150,39 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
 
       <MenuSeparator layout={props.layout} />
 
-      <Button style='articleActionIcon' onClick={() => props.articleActionHandler('archive')}>
-        <TooltipWrapped
-          tooltipContent="Archive"
-          tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-        >
-          <ArchiveBox size={24} color={theme.colors.readerFont.toString()} />
-        </TooltipWrapped>
-      </Button>
+      {!props.article?.isArchived ? (
+          <Button
+            style="articleActionIcon"
+            onClick={() => props.articleActionHandler('archive')}
+          >
+            <TooltipWrapped
+              tooltipContent="Archive"
+              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+            >
+              <ArchiveBox
+                size={24}
+                color={theme.colors.readerFont.toString()}
+              />
+            </TooltipWrapped>
+          </Button>
+        ) : (
+          <Button
+            style="articleActionIcon"
+            onClick={() => props.articleActionHandler('unarchive')}
+          >
+            <TooltipWrapped
+              tooltipContent="Unarchive"
+              tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+            >
+              {/* // This should be unarchive icon */}
+              <ArchiveBox
+                size={24}
+                color={theme.colors.readerFont.toString()}
+              />
+            </TooltipWrapped>
+          </Button>
+        )}
+
       {/* <MenuSeparator layout={props.layout} />
 
       <Button style='articleActionIcon'>
