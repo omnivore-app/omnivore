@@ -17,7 +17,7 @@ import WebKit
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
     @State private var showOverlay = false
-    @State private var showLaunchImageOnOverlay = false
+    @State private var lastAppResignTime: Date?
     @State private var progressViewOpacity = 0.0
     @State var increaseFontActionID: UUID?
     @State var decreaseFontActionID: UUID?
@@ -193,26 +193,21 @@ import WebKit
           .overlay(
             Group {
               if showOverlay {
-                ZStack {
-                  Color.systemBackground
-                    .transition(.opacity)
-                  if showLaunchImageOnOverlay {
-                    Image("LaunchImage")
-                  }
-                }
+                Color.systemBackground
               }
             }
           )
           .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-            showOverlay = true
-            showLaunchImageOnOverlay = true
+            lastAppResignTime = Date()
           }
           .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-            showLaunchImageOnOverlay = false
+            if (lastAppResignTime?.timeIntervalSinceNow ?? 0) < -60 {
+              showOverlay = true
+            }
           }
           .onChange(of: scenePhase) { phase in
-            if phase == .active {
-              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+            if phase == .active, showOverlay {
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
                 withAnimation(.linear(duration: 0.2)) {
                   showOverlay = false
                 }
