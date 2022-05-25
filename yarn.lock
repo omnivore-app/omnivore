@@ -20625,10 +20625,10 @@ psl@^1.1.28, psl@^1.1.33:
   resolved "https://registry.yarnpkg.com/psl/-/psl-1.8.0.tgz#9326f8bcfb013adcc005fdff056acce020e51c24"
   integrity sha512-RIdOzyoavK+hA18OGGWDqUTsCLhtA7IcZ/6NCs4fFJaHBDab+pDDmDIByWFRQJq2Cd7r1OoQxBGKOaztq+hjIQ==
 
-pspdfkit@^2021.6.0:
-  version "2021.6.1"
-  resolved "https://registry.yarnpkg.com/pspdfkit/-/pspdfkit-2021.6.1.tgz#1c64a7d02417a431358bbcca424159f90e166d29"
-  integrity sha512-EIOq2h9AwT+q9cw1E0x6uVP1U8wLeawxJv8Q2pD2Ka7QLfUSWMAOPjYyCEqC+/hnT9ja/h/jxW3v9Axa9TRN4Q==
+pspdfkit@^2022.2.2:
+  version "2022.2.2"
+  resolved "https://registry.yarnpkg.com/pspdfkit/-/pspdfkit-2022.2.2.tgz#1dfdd551c838830f427d994d7fa9baf4fe2c2877"
+  integrity sha512-2VDq2fvA99scuT5LH7fv8Bs4LI/jAz7K/jJz/jDpRfg4jJhXfnQAy3rrE73gUe2LCSQ0k+I1+x6/Pjquwx4NjQ==
 
 pstree.remy@^1.1.8:
   version "1.1.8"
