@@ -10,7 +10,7 @@ CREATE TABLE omnivore.webhooks (
     url text NOT NULL,
     method text NOT NULL DEFAULT 'POST',
     content_type text NOT NULL DEFAULT 'application/json',
-    active boolean NOT NULL DEFAULT true,
+    enabled boolean NOT NULL DEFAULT true,
     event_types text[] NOT NULL,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
