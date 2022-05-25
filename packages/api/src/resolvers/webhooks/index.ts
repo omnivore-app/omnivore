@@ -9,6 +9,8 @@ import {
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
 import { Webhook } from '../../entity/webhook'
+import { analytics } from '../../utils/analytics'
+import { env } from '../../env'
 
 export const setWebhookResolver = authorized<
   SetWebhookSuccess,
@@ -25,7 +27,7 @@ export const setWebhookResolver = authorized<
       }
     }
 
-    const webhookToAdd = {
+    const webhookToSave: Partial<Webhook> = {
       url: input.url,
       eventTypes: input.eventTypes as string[],
       method: input.method || 'POST',
@@ -33,35 +35,51 @@ export const setWebhookResolver = authorized<
       enabled: input.enabled === null ? true : input.enabled,
     }
 
-    let webhook: Webhook | null
-
     if (input.id) {
       // Update
-      webhook = await getRepository(Webhook).findOneBy({ id: input.id })
-      if (!webhook) {
+      const existingWebhook = await getRepository(Webhook).findOne({
+        where: { id: input.id },
+        relations: ['user'],
+      })
+      if (!existingWebhook) {
         return {
           errorCodes: [SetWebhookErrorCode.NotFound],
         }
       }
-      if (webhook.user.id !== uid) {
+      if (existingWebhook.user.id !== uid) {
         return {
           errorCodes: [SetWebhookErrorCode.Unauthorized],
         }
       }
-      await getRepository(Webhook).update(webhook.id, webhookToAdd)
+
+      webhookToSave.id = input.id
     } else {
       // Create
-      webhook = await getRepository(Webhook).save({
-        user,
-        ...webhookToAdd,
+      const existingWebhook = await getRepository(Webhook).findOneBy({
+        user: { id: uid },
+        eventTypes: `{${input.eventTypes.join(',')}}`,
       })
 
-      if (!webhook) {
+      if (existingWebhook) {
         return {
           errorCodes: [SetWebhookErrorCode.AlreadyExists],
         }
       }
     }
+
+    const webhook = await getRepository(Webhook).save({
+      user,
+      ...webhookToSave,
+    })
+
+    analytics.track({
+      userId: uid,
+      event: 'webhook_set',
+      properties: {
+        webhookId: webhook.id,
+        env: env.server.apiEnv,
+      },
+    })
 
     return {
       webhook: {
