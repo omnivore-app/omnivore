@@ -342,6 +342,28 @@ type CreateReminderSuccess {
   reminder: Reminder!
 }
 
+type CreateWebhookError {
+  errorCodes: [CreateWebhookErrorCode!]!
+}
+
+enum CreateWebhookErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input CreateWebhookInput {
+  contentType: String
+  eventTypes: [WebhookEvent]!
+  method: String
+  url: String!
+}
+
+union CreateWebhookResult = CreateWebhookError | CreateWebhookSuccess
+
+type CreateWebhookSuccess {
+  webhook: Webhook!
+}
+
 scalar Date
 
 type DeleteHighlightError {
@@ -719,6 +741,7 @@ type Mutation {
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
   createReminder(input: CreateReminderInput!): CreateReminderResult!
+  createWebhook(input: CreateWebhookInput!): CreateWebhookResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
   deleteLabel(id: ID!): DeleteLabelResult!
@@ -1606,4 +1629,27 @@ type UsersSuccess {
 
 type UserSuccess {
   user: User!
+}
+
+type Webhook {
+  active: Boolean!
+  contentType: String
+  createdAt: Date!
+  eventTypes: [WebhookEvent!]!
+  id: ID!
+  method: String
+  updatedAt: Date!
+  url: String!
+}
+
+enum WebhookEvent {
+  HIGHLIGHT_CREATED
+  HIGHLIGHT_DELETED
+  HIGHLIGHT_UPDATED
+  LABEL_CREATED
+  LABEL_DELETED
+  LABEL_UPDATED
+  PAGE_CREATED
+  PAGE_DELETED
+  PAGE_UPDATED
 }

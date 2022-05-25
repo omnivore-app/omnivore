@@ -1571,6 +1571,51 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input CreateWebhookInput {
+    url: String!
+    eventTypes: [WebhookEvent]!
+    contentType: String
+    method: String
+  }
+
+  enum WebhookEvent {
+    PAGE_CREATED
+    PAGE_UPDATED
+    PAGE_DELETED
+    HIGHLIGHT_CREATED
+    HIGHLIGHT_UPDATED
+    HIGHLIGHT_DELETED
+    LABEL_CREATED
+    LABEL_UPDATED
+    LABEL_DELETED
+  }
+
+  union CreateWebhookResult = CreateWebhookSuccess | CreateWebhookError
+
+  type CreateWebhookSuccess {
+    webhook: Webhook!
+  }
+
+  type Webhook {
+    id: ID!
+    url: String!
+    eventTypes: [WebhookEvent!]!
+    contentType: String
+    method: String
+    active: Boolean!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type CreateWebhookError {
+    errorCodes: [CreateWebhookErrorCode!]!
+  }
+
+  enum CreateWebhookErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1636,6 +1681,7 @@ const schema = gql`
     unsubscribe(name: String!): UnsubscribeResult!
     subscribe(name: String!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
+    createWebhook(input: CreateWebhookInput!): CreateWebhookResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
