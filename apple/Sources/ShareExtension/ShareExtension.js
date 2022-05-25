@@ -5,6 +5,7 @@ ShareExtension.prototype = {
         arguments.completionFunction({
           'url': window.location.href,
           'title': document.title.toString(),
+          'contentType': document.contentType,
           'documentHTML': new XMLSerializer().serializeToString(document),
         });
     }

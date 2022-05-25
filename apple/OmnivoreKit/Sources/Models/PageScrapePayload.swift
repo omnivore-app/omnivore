@@ -19,11 +19,18 @@ public struct PageScrapePayload {
   public let url: String
   public let contentType: ContentType
 
-  init(url: String, title: String?, html: String?) {
+  init(url: String, title: String?, html: String?, contentType: String?) {
     self.url = url
     self.title = title
     self.html = html
-    self.contentType = url.hasSuffix(".pdf") ? .pdf : .html
+
+    // If the content type was specified and we know its PDF, use that
+    // otherwise fallback to using file extensions.
+    if let contentType = contentType, contentType.contains("pdf") {
+      self.contentType = .pdf
+    } else {
+      self.contentType = url.hasSuffix(".pdf") ? .pdf : .html
+    }
   }
 }
 
@@ -207,7 +214,7 @@ public enum PageScraper {
 private extension PageScrapePayload {
   static func make(url: URL?) -> PageScrapePayload? {
     guard let url = url else { return nil }
-    return PageScrapePayload(url: url.absoluteString, title: nil, html: nil)
+    return PageScrapePayload(url: url.absoluteString, title: nil, html: nil, contentType: nil)
   }
 
   static func make(item: NSSecureCoding?) -> PageScrapePayload? {
@@ -216,7 +223,8 @@ private extension PageScrapePayload {
     guard let url = results?["url"] as? String else { return nil }
     let html = results?["documentHTML"] as? String
     let title = results?["title"] as? String
+    let contentType = results?["contentType"] as? String
 
-    return PageScrapePayload(url: url, title: title, html: html)
+    return PageScrapePayload(url: url, title: title, html: html, contentType: contentType)
   }
 }
