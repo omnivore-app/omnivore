@@ -26,7 +26,7 @@ public struct PageScrapePayload {
 
     // If the content type was specified and we know its PDF, use that
     // otherwise fallback to using file extensions.
-    if let contentType = contentType, contentType == "application/pdf" {
+    if let contentType = contentType, contentType.contains("pdf") {
       self.contentType = .pdf
     } else {
       self.contentType = url.hasSuffix(".pdf") ? .pdf : .html
