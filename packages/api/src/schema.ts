@@ -1553,6 +1553,22 @@ const schema = gql`
     ALREADY_SUBSCRIBED
   }
 
+  union AddPopularReadResult = AddPopularReadSuccess | AddPopularReadError
+
+  type AddPopularReadSuccess {
+    pageId: String!
+  }
+
+  type AddPopularReadError {
+    errorCodes: [AddPopularReadErrorCode!]!
+  }
+
+  enum AddPopularReadErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1617,6 +1633,7 @@ const schema = gql`
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
     unsubscribe(name: String!): UnsubscribeResult!
     subscribe(name: String!): SubscribeResult!
+    addPopularRead(name: String!): AddPopularReadResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

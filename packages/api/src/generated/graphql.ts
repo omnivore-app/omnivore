@@ -16,6 +16,24 @@ export type Scalars = {
   Date: any;
 };
 
+export type AddPopularReadError = {
+  __typename?: 'AddPopularReadError';
+  errorCodes: Array<AddPopularReadErrorCode>;
+};
+
+export enum AddPopularReadErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type AddPopularReadResult = AddPopularReadError | AddPopularReadSuccess;
+
+export type AddPopularReadSuccess = {
+  __typename?: 'AddPopularReadSuccess';
+  pageId: Scalars['String'];
+};
+
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
   errorCodes: Array<ArchiveLinkErrorCode>;
@@ -783,6 +801,7 @@ export type MergeHighlightSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addPopularRead: AddPopularReadResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createHighlight: CreateHighlightResult;
@@ -829,6 +848,11 @@ export type Mutation = {
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
   uploadFileRequest: UploadFileRequestResult;
+};
+
+
+export type MutationAddPopularReadArgs = {
+  name: Scalars['String'];
 };
 
 
@@ -2116,6 +2140,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AddPopularReadError: ResolverTypeWrapper<AddPopularReadError>;
+  AddPopularReadErrorCode: AddPopularReadErrorCode;
+  AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
+  AddPopularReadSuccess: ResolverTypeWrapper<AddPopularReadSuccess>;
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
@@ -2430,6 +2458,9 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AddPopularReadError: AddPopularReadError;
+  AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
+  AddPopularReadSuccess: AddPopularReadSuccess;
   ArchiveLinkError: ArchiveLinkError;
   ArchiveLinkInput: ArchiveLinkInput;
   ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
@@ -2684,6 +2715,20 @@ export type SanitizeDirectiveArgs = {
 };
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type AddPopularReadErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadError'] = ResolversParentTypes['AddPopularReadError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['AddPopularReadErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddPopularReadResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadResult'] = ResolversParentTypes['AddPopularReadResult']> = {
+  __resolveType: TypeResolveFn<'AddPopularReadError' | 'AddPopularReadSuccess', ParentType, ContextType>;
+};
+
+export type AddPopularReadSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadSuccess'] = ResolversParentTypes['AddPopularReadSuccess']> = {
+  pageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type ArchiveLinkErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArchiveLinkError'] = ResolversParentTypes['ArchiveLinkError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['ArchiveLinkErrorCode']>, ParentType, ContextType>;
@@ -3238,6 +3283,7 @@ export type MergeHighlightSuccessResolvers<ContextType = ResolverContext, Parent
 };
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
@@ -3879,6 +3925,9 @@ export type UserSuccessResolvers<ContextType = ResolverContext, ParentType exten
 };
 
 export type Resolvers<ContextType = ResolverContext> = {
+  AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
+  AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
+  AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
   ArchiveLinkError?: ArchiveLinkErrorResolvers<ContextType>;
   ArchiveLinkResult?: ArchiveLinkResultResolvers<ContextType>;
   ArchiveLinkSuccess?: ArchiveLinkSuccessResolvers<ContextType>;

@@ -1,5 +1,21 @@
 directive @sanitize(allowedTags: [String], maxLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
+type AddPopularReadError {
+  errorCodes: [AddPopularReadErrorCode!]!
+}
+
+enum AddPopularReadErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union AddPopularReadResult = AddPopularReadError | AddPopularReadSuccess
+
+type AddPopularReadSuccess {
+  pageId: String!
+}
+
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!
   message: String!
@@ -693,6 +709,7 @@ type MergeHighlightSuccess {
 }
 
 type Mutation {
+  addPopularRead(name: String!): AddPopularReadResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!

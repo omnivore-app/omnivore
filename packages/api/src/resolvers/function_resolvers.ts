@@ -78,6 +78,7 @@ import {
   uploadFileRequestResolver,
   validateUsernameResolver,
   updatePageResolver,
+  addPopularReadResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
@@ -149,6 +150,7 @@ export const functionResolvers = {
     unsubscribe: unsubscribeResolver,
     updatePage: updatePageResolver,
     subscribe: subscribeResolver,
+    addPopularRead: addPopularReadResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -560,4 +562,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateLabel'),
   ...resultResolveTypeResolver('UpdatePage'),
   ...resultResolveTypeResolver('Subscribe'),
+  ...resultResolveTypeResolver('AddPopularRead'),
 }
