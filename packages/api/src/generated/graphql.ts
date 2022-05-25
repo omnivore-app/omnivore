@@ -394,30 +394,6 @@ export type CreateReminderSuccess = {
   reminder: Reminder;
 };
 
-export type CreateWebhookError = {
-  __typename?: 'CreateWebhookError';
-  errorCodes: Array<CreateWebhookErrorCode>;
-};
-
-export enum CreateWebhookErrorCode {
-  BadRequest = 'BAD_REQUEST',
-  Unauthorized = 'UNAUTHORIZED'
-}
-
-export type CreateWebhookInput = {
-  contentType?: InputMaybe<Scalars['String']>;
-  eventTypes: Array<InputMaybe<WebhookEvent>>;
-  method?: InputMaybe<Scalars['String']>;
-  url: Scalars['String'];
-};
-
-export type CreateWebhookResult = CreateWebhookError | CreateWebhookSuccess;
-
-export type CreateWebhookSuccess = {
-  __typename?: 'CreateWebhookSuccess';
-  webhook: Webhook;
-};
-
 export type DeleteHighlightError = {
   __typename?: 'DeleteHighlightError';
   errorCodes: Array<DeleteHighlightErrorCode>;
@@ -835,7 +811,6 @@ export type Mutation = {
   createNewsletterEmail: CreateNewsletterEmailResult;
   createReaction: CreateReactionResult;
   createReminder: CreateReminderResult;
-  createWebhook: CreateWebhookResult;
   deleteHighlight: DeleteHighlightResult;
   deleteHighlightReply: DeleteHighlightReplyResult;
   deleteLabel: DeleteLabelResult;
@@ -861,6 +836,7 @@ export type Mutation = {
   setShareArticle: SetShareArticleResult;
   setShareHighlight: SetShareHighlightResult;
   setUserPersonalization: SetUserPersonalizationResult;
+  setWebhook: SetWebhookResult;
   signup: SignupResult;
   subscribe: SubscribeResult;
   unsubscribe: UnsubscribeResult;
@@ -914,11 +890,6 @@ export type MutationCreateReactionArgs = {
 
 export type MutationCreateReminderArgs = {
   input: CreateReminderInput;
-};
-
-
-export type MutationCreateWebhookArgs = {
-  input: CreateWebhookInput;
 };
 
 
@@ -1039,6 +1010,11 @@ export type MutationSetShareHighlightArgs = {
 
 export type MutationSetUserPersonalizationArgs = {
   input: SetUserPersonalizationInput;
+};
+
+
+export type MutationSetWebhookArgs = {
+  input: SetWebhookInput;
 };
 
 
@@ -1641,6 +1617,32 @@ export type SetUserPersonalizationSuccess = {
   updatedUserPersonalization: UserPersonalization;
 };
 
+export type SetWebhookError = {
+  __typename?: 'SetWebhookError';
+  errorCodes: Array<SetWebhookErrorCode>;
+};
+
+export enum SetWebhookErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SetWebhookInput = {
+  contentType?: InputMaybe<Scalars['String']>;
+  enabled?: InputMaybe<Scalars['Boolean']>;
+  eventTypes: Array<WebhookEvent>;
+  method?: InputMaybe<Scalars['String']>;
+  url: Scalars['String'];
+};
+
+export type SetWebhookResult = SetWebhookError | SetWebhookSuccess;
+
+export type SetWebhookSuccess = {
+  __typename?: 'SetWebhookSuccess';
+  webhook: Webhook;
+};
+
 export type SharedArticleError = {
   __typename?: 'SharedArticleError';
   errorCodes: Array<SharedArticleErrorCode>;
@@ -2105,12 +2107,12 @@ export type UserSuccess = {
 
 export type Webhook = {
   __typename?: 'Webhook';
-  active: Scalars['Boolean'];
-  contentType?: Maybe<Scalars['String']>;
+  contentType: Scalars['String'];
   createdAt: Scalars['Date'];
+  enabled: Scalars['Boolean'];
   eventTypes: Array<WebhookEvent>;
   id: Scalars['ID'];
-  method?: Maybe<Scalars['String']>;
+  method: Scalars['String'];
   updatedAt: Scalars['Date'];
   url: Scalars['String'];
 };
@@ -2263,11 +2265,6 @@ export type ResolversTypes = {
   CreateReminderInput: CreateReminderInput;
   CreateReminderResult: ResolversTypes['CreateReminderError'] | ResolversTypes['CreateReminderSuccess'];
   CreateReminderSuccess: ResolverTypeWrapper<CreateReminderSuccess>;
-  CreateWebhookError: ResolverTypeWrapper<CreateWebhookError>;
-  CreateWebhookErrorCode: CreateWebhookErrorCode;
-  CreateWebhookInput: CreateWebhookInput;
-  CreateWebhookResult: ResolversTypes['CreateWebhookError'] | ResolversTypes['CreateWebhookSuccess'];
-  CreateWebhookSuccess: ResolverTypeWrapper<CreateWebhookSuccess>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
@@ -2426,6 +2423,11 @@ export type ResolversTypes = {
   SetUserPersonalizationInput: SetUserPersonalizationInput;
   SetUserPersonalizationResult: ResolversTypes['SetUserPersonalizationError'] | ResolversTypes['SetUserPersonalizationSuccess'];
   SetUserPersonalizationSuccess: ResolverTypeWrapper<SetUserPersonalizationSuccess>;
+  SetWebhookError: ResolverTypeWrapper<SetWebhookError>;
+  SetWebhookErrorCode: SetWebhookErrorCode;
+  SetWebhookInput: SetWebhookInput;
+  SetWebhookResult: ResolversTypes['SetWebhookError'] | ResolversTypes['SetWebhookSuccess'];
+  SetWebhookSuccess: ResolverTypeWrapper<SetWebhookSuccess>;
   SharedArticleError: ResolverTypeWrapper<SharedArticleError>;
   SharedArticleErrorCode: SharedArticleErrorCode;
   SharedArticleResult: ResolversTypes['SharedArticleError'] | ResolversTypes['SharedArticleSuccess'];
@@ -2573,10 +2575,6 @@ export type ResolversParentTypes = {
   CreateReminderInput: CreateReminderInput;
   CreateReminderResult: ResolversParentTypes['CreateReminderError'] | ResolversParentTypes['CreateReminderSuccess'];
   CreateReminderSuccess: CreateReminderSuccess;
-  CreateWebhookError: CreateWebhookError;
-  CreateWebhookInput: CreateWebhookInput;
-  CreateWebhookResult: ResolversParentTypes['CreateWebhookError'] | ResolversParentTypes['CreateWebhookSuccess'];
-  CreateWebhookSuccess: CreateWebhookSuccess;
   Date: Scalars['Date'];
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
@@ -2705,6 +2703,10 @@ export type ResolversParentTypes = {
   SetUserPersonalizationInput: SetUserPersonalizationInput;
   SetUserPersonalizationResult: ResolversParentTypes['SetUserPersonalizationError'] | ResolversParentTypes['SetUserPersonalizationSuccess'];
   SetUserPersonalizationSuccess: SetUserPersonalizationSuccess;
+  SetWebhookError: SetWebhookError;
+  SetWebhookInput: SetWebhookInput;
+  SetWebhookResult: ResolversParentTypes['SetWebhookError'] | ResolversParentTypes['SetWebhookSuccess'];
+  SetWebhookSuccess: SetWebhookSuccess;
   SharedArticleError: SharedArticleError;
   SharedArticleResult: ResolversParentTypes['SharedArticleError'] | ResolversParentTypes['SharedArticleSuccess'];
   SharedArticleSuccess: SharedArticleSuccess;
@@ -3026,20 +3028,6 @@ export type CreateReminderResultResolvers<ContextType = ResolverContext, ParentT
 
 export type CreateReminderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateReminderSuccess'] = ResolversParentTypes['CreateReminderSuccess']> = {
   reminder?: Resolver<ResolversTypes['Reminder'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type CreateWebhookErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateWebhookError'] = ResolversParentTypes['CreateWebhookError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['CreateWebhookErrorCode']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type CreateWebhookResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateWebhookResult'] = ResolversParentTypes['CreateWebhookResult']> = {
-  __resolveType: TypeResolveFn<'CreateWebhookError' | 'CreateWebhookSuccess', ParentType, ContextType>;
-};
-
-export type CreateWebhookSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateWebhookSuccess'] = ResolversParentTypes['CreateWebhookSuccess']> = {
-  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3375,7 +3363,6 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
   createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
   createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
-  createWebhook?: Resolver<ResolversTypes['CreateWebhookResult'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'input'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
@@ -3401,6 +3388,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
+  setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
   signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'name'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
@@ -3720,6 +3708,20 @@ export type SetUserPersonalizationSuccessResolvers<ContextType = ResolverContext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SetWebhookErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetWebhookError'] = ResolversParentTypes['SetWebhookError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SetWebhookErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetWebhookResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetWebhookResult'] = ResolversParentTypes['SetWebhookResult']> = {
+  __resolveType: TypeResolveFn<'SetWebhookError' | 'SetWebhookSuccess', ParentType, ContextType>;
+};
+
+export type SetWebhookSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetWebhookSuccess'] = ResolversParentTypes['SetWebhookSuccess']> = {
+  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SharedArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SharedArticleError'] = ResolversParentTypes['SharedArticleError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SharedArticleErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4010,12 +4012,12 @@ export type UserSuccessResolvers<ContextType = ResolverContext, ParentType exten
 };
 
 export type WebhookResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Webhook'] = ResolversParentTypes['Webhook']> = {
-  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  contentType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   eventTypes?: Resolver<Array<ResolversTypes['WebhookEvent']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  method?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  method?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4064,9 +4066,6 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateReminderError?: CreateReminderErrorResolvers<ContextType>;
   CreateReminderResult?: CreateReminderResultResolvers<ContextType>;
   CreateReminderSuccess?: CreateReminderSuccessResolvers<ContextType>;
-  CreateWebhookError?: CreateWebhookErrorResolvers<ContextType>;
-  CreateWebhookResult?: CreateWebhookResultResolvers<ContextType>;
-  CreateWebhookSuccess?: CreateWebhookSuccessResolvers<ContextType>;
   Date?: GraphQLScalarType;
   DeleteHighlightError?: DeleteHighlightErrorResolvers<ContextType>;
   DeleteHighlightReplyError?: DeleteHighlightReplyErrorResolvers<ContextType>;
@@ -4173,6 +4172,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetUserPersonalizationError?: SetUserPersonalizationErrorResolvers<ContextType>;
   SetUserPersonalizationResult?: SetUserPersonalizationResultResolvers<ContextType>;
   SetUserPersonalizationSuccess?: SetUserPersonalizationSuccessResolvers<ContextType>;
+  SetWebhookError?: SetWebhookErrorResolvers<ContextType>;
+  SetWebhookResult?: SetWebhookResultResolvers<ContextType>;
+  SetWebhookSuccess?: SetWebhookSuccessResolvers<ContextType>;
   SharedArticleError?: SharedArticleErrorResolvers<ContextType>;
   SharedArticleResult?: SharedArticleResultResolvers<ContextType>;
   SharedArticleSuccess?: SharedArticleSuccessResolvers<ContextType>;

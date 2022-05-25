@@ -342,28 +342,6 @@ type CreateReminderSuccess {
   reminder: Reminder!
 }
 
-type CreateWebhookError {
-  errorCodes: [CreateWebhookErrorCode!]!
-}
-
-enum CreateWebhookErrorCode {
-  BAD_REQUEST
-  UNAUTHORIZED
-}
-
-input CreateWebhookInput {
-  contentType: String
-  eventTypes: [WebhookEvent]!
-  method: String
-  url: String!
-}
-
-union CreateWebhookResult = CreateWebhookError | CreateWebhookSuccess
-
-type CreateWebhookSuccess {
-  webhook: Webhook!
-}
-
 scalar Date
 
 type DeleteHighlightError {
@@ -741,7 +719,6 @@ type Mutation {
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
   createReminder(input: CreateReminderInput!): CreateReminderResult!
-  createWebhook(input: CreateWebhookInput!): CreateWebhookResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
   deleteLabel(id: ID!): DeleteLabelResult!
@@ -767,6 +744,7 @@ type Mutation {
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
+  setWebhook(input: SetWebhookInput!): SetWebhookResult!
   signup(input: SignupInput!): SignupResult!
   subscribe(name: String!): SubscribeResult!
   unsubscribe(name: String!): UnsubscribeResult!
@@ -1208,6 +1186,30 @@ type SetUserPersonalizationSuccess {
   updatedUserPersonalization: UserPersonalization!
 }
 
+type SetWebhookError {
+  errorCodes: [SetWebhookErrorCode!]!
+}
+
+enum SetWebhookErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input SetWebhookInput {
+  contentType: String
+  enabled: Boolean
+  eventTypes: [WebhookEvent!]!
+  method: String
+  url: String!
+}
+
+union SetWebhookResult = SetWebhookError | SetWebhookSuccess
+
+type SetWebhookSuccess {
+  webhook: Webhook!
+}
+
 type SharedArticleError {
   errorCodes: [SharedArticleErrorCode!]!
 }
@@ -1632,12 +1634,12 @@ type UserSuccess {
 }
 
 type Webhook {
-  active: Boolean!
-  contentType: String
+  contentType: String!
   createdAt: Date!
+  enabled: Boolean!
   eventTypes: [WebhookEvent!]!
   id: ID!
-  method: String
+  method: String!
   updatedAt: Date!
   url: String!
 }

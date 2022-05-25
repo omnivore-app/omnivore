@@ -1571,11 +1571,12 @@ const schema = gql`
     NOT_FOUND
   }
 
-  input CreateWebhookInput {
+  input SetWebhookInput {
     url: String!
-    eventTypes: [WebhookEvent]!
+    eventTypes: [WebhookEvent!]!
     contentType: String
     method: String
+    enabled: Boolean
   }
 
   enum WebhookEvent {
@@ -1590,9 +1591,9 @@ const schema = gql`
     LABEL_DELETED
   }
 
-  union CreateWebhookResult = CreateWebhookSuccess | CreateWebhookError
+  union SetWebhookResult = SetWebhookSuccess | SetWebhookError
 
-  type CreateWebhookSuccess {
+  type SetWebhookSuccess {
     webhook: Webhook!
   }
 
@@ -1600,18 +1601,18 @@ const schema = gql`
     id: ID!
     url: String!
     eventTypes: [WebhookEvent!]!
-    contentType: String
-    method: String
-    active: Boolean!
+    contentType: String!
+    method: String!
+    enabled: Boolean!
     createdAt: Date!
     updatedAt: Date!
   }
 
-  type CreateWebhookError {
-    errorCodes: [CreateWebhookErrorCode!]!
+  type SetWebhookError {
+    errorCodes: [SetWebhookErrorCode!]!
   }
 
-  enum CreateWebhookErrorCode {
+  enum SetWebhookErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     ALREADY_EXISTS
@@ -1682,7 +1683,7 @@ const schema = gql`
     unsubscribe(name: String!): UnsubscribeResult!
     subscribe(name: String!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
-    createWebhook(input: CreateWebhookInput!): CreateWebhookResult!
+    setWebhook(input: SetWebhookInput!): SetWebhookResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
