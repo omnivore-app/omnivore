@@ -65,12 +65,13 @@ public struct GridCard: View {
 
   public var body: some View {
     GeometryReader { geo in
-      VStack(alignment: .leading, spacing: 16) {
+      VStack(alignment: .leading, spacing: 0) {
         // Progress Bar
         Group {
           ProgressView(value: min(abs(item.readingProgress) / 100, 1))
             .tint(.appYellow48)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 16)
         }
         .onTapGesture { tapHandler() }
 
@@ -113,6 +114,7 @@ public struct GridCard: View {
         }
         .frame(height: 30)
         .padding(.horizontal)
+        .padding(.bottom, 12)
 
         // Link description and image
         HStack(alignment: .top) {
@@ -144,7 +146,6 @@ public struct GridCard: View {
           }
         }
         .padding(.horizontal)
-        .padding(.bottom, 5)
         .onTapGesture { tapHandler() }
 
         // Category Labels
@@ -153,11 +154,15 @@ public struct GridCard: View {
             ForEach(item.sortedLabels, id: \.self) {
               TextChip(feedItemLabel: $0)
             }
+            // Add an empty chip to the end so that we create a Spacer equivalent
+            // in the case where there are no labels set on the item
+            TextChip(text: "", color: Color.secondarySystemGroupedBackground)
             Spacer()
           }
           .padding(.horizontal)
-          .padding(.bottom, 8)
         }
+        .frame(height: 40)
+        .onTapGesture { tapHandler() }
       }
       .background(
         Color.secondarySystemGroupedBackground
