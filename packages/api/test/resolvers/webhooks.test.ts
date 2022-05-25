@@ -99,8 +99,6 @@ describe('Webhooks API', () => {
       it('should update a webhook', async () => {
         const res = await graphqlRequest(query, authToken)
 
-        console.log(res.body.data.setWebhook)
-
         expect(res.body.data.setWebhook.webhook).to.be.an('object')
         expect(res.body.data.setWebhook.webhook.url).to.eql(webhookUrl)
         expect(res.body.data.setWebhook.webhook.eventTypes).to.eql(eventTypes)
