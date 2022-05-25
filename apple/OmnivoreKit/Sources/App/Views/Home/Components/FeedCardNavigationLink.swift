@@ -37,7 +37,9 @@ struct FeedCardNavigationLink: View {
       .onAppear {
         Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
       }
-      FeedCard(item: item)
+      FeedCard(item: item) {
+        viewModel.selectedLinkItem = item.objectID
+      }
     }
   }
 }
