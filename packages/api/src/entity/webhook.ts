@@ -21,21 +21,21 @@ export class Webhook {
   @Column('text')
   url!: string
 
-  @Column('text[]')
+  @Column('text', { array: true })
   eventTypes!: string[]
 
   @Column('text', { default: 'POST' })
-  method?: string
+  method!: string
 
   @Column('text', { default: 'application/json' })
-  contentType?: string
+  contentType!: string
 
   @Column('boolean', { default: true })
-  enabled?: boolean
+  enabled!: boolean
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
-  createdAt?: Date
+  createdAt!: Date
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt?: Date
+  updatedAt!: Date
 }

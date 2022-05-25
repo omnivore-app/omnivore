@@ -1193,6 +1193,7 @@ type SetWebhookError {
 enum SetWebhookErrorCode {
   ALREADY_EXISTS
   BAD_REQUEST
+  NOT_FOUND
   UNAUTHORIZED
 }
 
@@ -1200,6 +1201,7 @@ input SetWebhookInput {
   contentType: String
   enabled: Boolean
   eventTypes: [WebhookEvent!]!
+  id: ID
   method: String
   url: String!
 }

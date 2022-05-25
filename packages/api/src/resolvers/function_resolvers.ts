@@ -71,6 +71,7 @@ import {
   updateHighlightResolver,
   updateLabelResolver,
   updateLinkShareInfoResolver,
+  updatePageResolver,
   updateReminderResolver,
   updateSharedCommentResolver,
   updateUserProfileResolver,
@@ -87,6 +88,7 @@ import {
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
 import { generateApiKeyResolver } from './api_key'
+import { setWebhookResolver } from './webhooks'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -151,6 +153,7 @@ export const functionResolvers = {
     updatePage: updatePageResolver,
     subscribe: subscribeResolver,
     addPopularRead: addPopularReadResolver,
+    setWebhook: setWebhookResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -563,4 +566,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdatePage'),
   ...resultResolveTypeResolver('Subscribe'),
   ...resultResolveTypeResolver('AddPopularRead'),
+  ...resultResolveTypeResolver('SetWebhook'),
 }

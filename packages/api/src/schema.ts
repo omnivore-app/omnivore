@@ -1572,6 +1572,7 @@ const schema = gql`
   }
 
   input SetWebhookInput {
+    id: ID
     url: String!
     eventTypes: [WebhookEvent!]!
     contentType: String
@@ -1616,6 +1617,7 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     ALREADY_EXISTS
+    NOT_FOUND
   }
 
   # Mutations

@@ -1625,6 +1625,7 @@ export type SetWebhookError = {
 export enum SetWebhookErrorCode {
   AlreadyExists = 'ALREADY_EXISTS',
   BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
@@ -1632,6 +1633,7 @@ export type SetWebhookInput = {
   contentType?: InputMaybe<Scalars['String']>;
   enabled?: InputMaybe<Scalars['Boolean']>;
   eventTypes: Array<WebhookEvent>;
+  id?: InputMaybe<Scalars['ID']>;
   method?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
 };
