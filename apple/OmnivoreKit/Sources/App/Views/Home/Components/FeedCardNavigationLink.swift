@@ -54,6 +54,14 @@ struct GridCardNavigationLink: View {
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
+  func tapAction() {
+    scale = 0.95
+    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
+      scale = 1.0
+      viewModel.selectedLinkItem = item.objectID
+    }
+  }
+
   var body: some View {
     let destination = LinkItemDetailView(
       viewModel: LinkItemDetailViewModel(
@@ -77,13 +85,7 @@ struct GridCardNavigationLink: View {
         EmptyView()
       }
       GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler, tapAction: {
-        withAnimation {
-          scale = 0.95
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
-            scale = 1.0
-            viewModel.selectedLinkItem = item.objectID
-          }
-        }
+        withAnimation { tapAction() }
       })
         .onAppear {
           Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
@@ -91,5 +93,18 @@ struct GridCardNavigationLink: View {
     }
     .aspectRatio(1.8, contentMode: .fill)
     .scaleEffect(scale)
+    .background(
+      Color.secondarySystemGroupedBackground
+        .onTapGesture {
+          if isContextMenuOpen {
+            isContextMenuOpen = false
+          } else {
+            withAnimation {
+              tapAction()
+            }
+          }
+        }
+    )
+    .cornerRadius(6)
   }
 }

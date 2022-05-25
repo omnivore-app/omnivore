@@ -75,100 +75,97 @@ public struct GridCard: View {
         }
         .onTapGesture { tapHandler() }
 
-        // Title, Subtitle, Menu Button
-        VStack(alignment: .leading, spacing: 4) {
-          HStack {
-            Text(item.unwrappedTitle)
-              .font(.appHeadline)
+        VStack {
+          // Title, Subtitle, Menu Button
+          VStack(alignment: .leading, spacing: 4) {
+            HStack {
+              Text(item.unwrappedTitle)
+                .font(.appHeadline)
+                .foregroundColor(.appGrayTextContrast)
+                .lineLimit(1)
+                .onTapGesture { tapHandler() }
+              Spacer()
+
+              Menu(
+                content: { contextMenuView },
+                label: { Image(systemName: "ellipsis").padding() }
+              )
+              .frame(width: 16, height: 16, alignment: .center)
+              .onTapGesture { isContextMenuOpen = true }
+            }
+
+            HStack {
+              if let author = item.author {
+                Text("by \(author)")
+                  .font(.appCaptionTwo)
+                  .foregroundColor(.appGrayText)
+                  .lineLimit(1)
+              }
+
+              if let publisherDisplayName = item.publisherDisplayName {
+                Text(publisherDisplayName)
+                  .font(.appCaptionTwo)
+                  .foregroundColor(.appGrayText)
+                  .lineLimit(1)
+              }
+
+              Spacer()
+            }
+            .onTapGesture { tapHandler() }
+          }
+          .frame(height: 30)
+          .padding(.horizontal)
+          .padding(.bottom, 16)
+
+          // Link description and image
+          HStack(alignment: .top) {
+            Text(item.descriptionText ?? item.unwrappedTitle)
+              .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
-              .lineLimit(1)
-              .onTapGesture { tapHandler() }
-            Spacer()
-
-            Menu(
-              content: { contextMenuView },
-              label: { Image(systemName: "ellipsis").padding() }
-            )
-            .frame(width: 16, height: 16, alignment: .center)
-            .onTapGesture { isContextMenuOpen = true }
-          }
-
-          HStack {
-            if let author = item.author {
-              Text("by \(author)")
-                .font(.appCaptionTwo)
-                .foregroundColor(.appGrayText)
-                .lineLimit(1)
-            }
-
-            if let publisherDisplayName = item.publisherDisplayName {
-              Text(publisherDisplayName)
-                .font(.appCaptionTwo)
-                .foregroundColor(.appGrayText)
-                .lineLimit(1)
-            }
+              .lineLimit(nil)
+              .multilineTextAlignment(.leading)
 
             Spacer()
-          }
-          .onTapGesture { tapHandler() }
-        }
-        .frame(height: 30)
-        .padding(.horizontal)
-        .padding(.bottom, 12)
 
-        // Link description and image
-        HStack(alignment: .top) {
-          Text(item.descriptionText ?? item.unwrappedTitle)
-            .font(.appSubheadline)
-            .foregroundColor(.appGrayTextContrast)
-            .lineLimit(nil)
-            .multilineTextAlignment(.leading)
-            .frame(height: (geo.size.width * 2) / 9, alignment: .top)
-
-          Spacer()
-
-          if let imageURL = item.imageURL {
-            AsyncLoadingImage(url: imageURL) { imageStatus in
-              if case let AsyncImageStatus.loaded(image) = imageStatus {
-                image
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-                  .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
-                  .cornerRadius(3)
-              } else if case AsyncImageStatus.loading = imageStatus {
-                Color.appButtonBackground
-                  .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
-                  .cornerRadius(3)
-              } else {
-                EmptyView()
+            if let imageURL = item.imageURL {
+              AsyncLoadingImage(url: imageURL) { imageStatus in
+                if case let AsyncImageStatus.loaded(image) = imageStatus {
+                  image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
+                    .cornerRadius(3)
+                } else if case AsyncImageStatus.loading = imageStatus {
+                  Color.appButtonBackground
+                    .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
+                    .cornerRadius(3)
+                } else {
+                  EmptyView()
+                }
               }
             }
           }
-        }
-        .padding(.horizontal)
-        .onTapGesture { tapHandler() }
-
-        // Category Labels
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack {
-            ForEach(item.sortedLabels, id: \.self) {
-              TextChip(feedItemLabel: $0)
-            }
-            // Add an empty chip to the end so that we create a Spacer equivalent
-            // in the case where there are no labels set on the item
-            TextChip(text: "", color: Color.secondarySystemGroupedBackground)
-            Spacer()
-          }
           .padding(.horizontal)
-        }
-        .frame(height: 40)
-        .onTapGesture { tapHandler() }
-      }
-      .background(
-        Color.secondarySystemGroupedBackground
           .onTapGesture { tapHandler() }
-      )
-      .cornerRadius(6)
+
+          // Category Labels
+          if item.hasLabels {
+            ScrollView(.horizontal, showsIndicators: false) {
+              HStack {
+                ForEach(item.sortedLabels, id: \.self) {
+                  TextChip(feedItemLabel: $0)
+                }
+                Spacer()
+              }
+              .padding(.horizontal)
+            }
+            .onTapGesture { tapHandler() }
+          }
+        }
+        .padding(.horizontal, 0)
+        .padding(.top, 0)
+        .padding(.bottom, 8)
+      }
       .contextMenu { contextMenuView }
     }
   }
