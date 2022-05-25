@@ -29,6 +29,7 @@ const schema = gql`
     UPDATED_TIME
     SCORE
     SAVED_AT
+    PUBLISHED_AT
   }
 
   enum ContentReader {

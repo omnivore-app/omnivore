@@ -148,6 +148,8 @@ describe('elastic api', () => {
     it('searches pages', async () => {
       const searchResults = await searchPages(
         {
+          dateFilters: [],
+          hasFilters: [],
           inFilter: InFilter.ALL,
           labelFilters: [],
           readFilter: ReadFilter.ALL,

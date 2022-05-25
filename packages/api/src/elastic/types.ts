@@ -25,12 +25,7 @@ export interface SearchBody {
           }
         | {
             range: {
-              savedAt: { gt: Date | undefined } | { lt: Date | undefined }
-            }
-          }
-        | {
-            range: {
-              publishedAt: { gt: Date | undefined } | { lt: Date | undefined }
+              [K: string]: { gt: Date | undefined } | { lt: Date | undefined }
             }
           }
         | {

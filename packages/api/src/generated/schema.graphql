@@ -1216,6 +1216,7 @@ type SignupSuccess {
 }
 
 enum SortBy {
+  PUBLISHED_AT
   SAVED_AT
   SCORE
   UPDATED_TIME

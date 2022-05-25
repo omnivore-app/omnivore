@@ -31,8 +31,7 @@ export type SearchFilter = {
   labelFilters: LabelFilter[]
   sortParams?: SortParams
   hasFilters: HasFilter[]
-  savedDateFilter?: DateRangeFilter
-  publishedDateFilter?: DateRangeFilter
+  dateFilters: DateFilter[]
   subscriptionFilter?: SubscriptionFilter
 }
 
@@ -51,7 +50,8 @@ export enum HasFilter {
   SHARED_AT,
 }
 
-export type DateRangeFilter = {
+export interface DateFilter {
+  field: string
   startDate?: Date
   endDate?: Date
 }
@@ -60,6 +60,7 @@ export enum SortBy {
   SAVED = 'savedAt',
   UPDATED = 'updatedAt',
   SCORE = '_score',
+  PUBLISHED = 'publishedAt',
 }
 
 export enum SortOrder {
@@ -67,7 +68,7 @@ export enum SortOrder {
   DESCENDING = 'desc',
 }
 
-export type SortParams = {
+export interface SortParams {
   by: SortBy
   order?: SortOrder
 }
@@ -171,6 +172,11 @@ const parseSortParams = (str?: string): SortParams | undefined => {
       return {
         by: SortBy.SCORE,
       }
+    case 'PUBLISHED':
+      return {
+        by: SortBy.PUBLISHED,
+        order: sortOrder,
+      }
   }
 }
 
@@ -185,7 +191,10 @@ const parseHasFilter = (str?: string): HasFilter | undefined => {
   }
 }
 
-const parseDateRangeFilter = (str?: string): DateRangeFilter | undefined => {
+const parseDateFilter = (
+  field: string,
+  str?: string
+): DateFilter | undefined => {
   if (str === undefined) {
     return undefined
   }
@@ -194,7 +203,16 @@ const parseDateRangeFilter = (str?: string): DateRangeFilter | undefined => {
   const startDate = start && start !== '*' ? new Date(start) : undefined
   const endDate = end && end !== '*' ? new Date(end) : undefined
 
+  switch (field.toUpperCase()) {
+    case 'PUBLISHED':
+      field = 'publishedAt'
+      break
+    case 'SAVED':
+      field = 'savedAt'
+  }
+
   return {
+    field,
     startDate,
     endDate,
   }
@@ -220,6 +238,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
     labelFilters: [],
     hasFilters: [],
+    dateFilters: [],
   }
 
   if (!searchQuery) {
@@ -229,6 +248,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       readFilter: ReadFilter.ALL,
       labelFilters: [],
       hasFilters: [],
+      dateFilters: [],
     }
   }
 
@@ -296,11 +316,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         }
         case 'saved':
-          result.savedDateFilter = parseDateRangeFilter(keyword.value)
+        case 'published': {
+          const dateFilter = parseDateFilter(keyword.keyword, keyword.value)
+          dateFilter && result.dateFilters.push(dateFilter)
           break
-        case 'published':
-          result.publishedDateFilter = parseDateRangeFilter(keyword.value)
-          break
+        }
         case 'subscription':
           result.subscriptionFilter = parseSubscriptionFilter(keyword.value)
           break

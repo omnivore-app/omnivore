@@ -8,7 +8,7 @@ import {
   SearchResponse,
 } from './types'
 import {
-  DateRangeFilter,
+  DateFilter,
   HasFilter,
   InFilter,
   LabelFilter,
@@ -145,31 +145,16 @@ const appendIncludeLabelFilter = (
   })
 }
 
-const appendSavedDateFilter = (
-  body: SearchBody,
-  filter: DateRangeFilter
-): void => {
-  body.query.bool.filter.push({
-    range: {
-      savedAt: {
-        gt: filter.startDate,
-        lt: filter.endDate,
+const appendDateFilters = (body: SearchBody, filters: DateFilter[]): void => {
+  filters.forEach((filter) => {
+    body.query.bool.filter.push({
+      range: {
+        [filter.field]: {
+          gt: filter.startDate,
+          lt: filter.endDate,
+        },
       },
-    },
-  })
-}
-
-const appendPublishedDateFilter = (
-  body: SearchBody,
-  filter: DateRangeFilter
-): void => {
-  body.query.bool.filter.push({
-    range: {
-      publishedAt: {
-        gt: filter.startDate,
-        lt: filter.endDate,
-      },
-    },
+    })
   })
 }
 
@@ -350,10 +335,9 @@ export const searchPages = async (
     inFilter?: InFilter
     readFilter?: ReadFilter
     typeFilter?: PageType
-    labelFilters?: LabelFilter[]
-    hasFilters?: HasFilter[]
-    savedDateFilter?: DateRangeFilter
-    publishedDateFilter?: DateRangeFilter
+    labelFilters: LabelFilter[]
+    hasFilters: HasFilter[]
+    dateFilters: DateFilter[]
     subscriptionFilter?: SubscriptionFilter
     includePending?: boolean | null
   },
@@ -367,11 +351,10 @@ export const searchPages = async (
       query,
       readFilter = ReadFilter.ALL,
       typeFilter,
-      labelFilters = [],
+      labelFilters,
       inFilter = InFilter.ALL,
-      hasFilters = [],
-      savedDateFilter,
-      publishedDateFilter,
+      hasFilters,
+      dateFilters,
       subscriptionFilter,
     } = args
     // default order is descending
@@ -435,11 +418,8 @@ export const searchPages = async (
     if (excludeLabels.length > 0) {
       appendExcludeLabelFilter(body, excludeLabels)
     }
-    if (savedDateFilter) {
-      appendSavedDateFilter(body, savedDateFilter)
-    }
-    if (publishedDateFilter) {
-      appendPublishedDateFilter(body, publishedDateFilter)
+    if (dateFilters.length > 0) {
+      appendDateFilters(body, dateFilters)
     }
     if (subscriptionFilter) {
       appendSubscriptionFilter(body, subscriptionFilter)
