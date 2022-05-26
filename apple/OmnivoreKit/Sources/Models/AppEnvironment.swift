@@ -11,7 +11,7 @@ public enum AppEnvironment: String {
   public static let initialAppEnvironment: AppEnvironment = {
     #if DEBUG
       #if targetEnvironment(simulator)
-        return .prod // could also return .local here
+        return .demo // could also return .local here
       #else
         return .demo
       #endif

@@ -1,8 +1,11 @@
 import Models
+import OSLog
 import Services
 import SwiftUI
 import Utils
 import Views
+
+let appLogger = Logger(subsystem: "app.omnivore", category: "app-package")
 
 public struct RootView: View {
   @Environment(\.scenePhase) var scenePhase

@@ -8,7 +8,7 @@ import Views
   @Published var subscriptions = [Subscription]()
   @Published var popularSubscriptions = [Subscription]()
   @Published var hasNetworkError = false
-  @Published var subscriptionIDToCancel: String?
+  @Published var subscriptionNameToCancel: String?
 
   func loadSubscriptions(dataService: DataService) async {
     isLoading = true
@@ -22,14 +22,17 @@ import Views
     isLoading = false
   }
 
-  func cancelSubscription(dataService _: DataService) {
-    guard let subscriptionID = subscriptionIDToCancel else { return }
-    
-    
-    
-    let index = subscriptions.firstIndex { $0.subscriptionID == subscriptionID }
-    if let index = index {
-      subscriptions.remove(at: index)
+  func cancelSubscription(dataService: DataService) async {
+    guard let subscriptionName = subscriptionNameToCancel else { return }
+
+    do {
+      try await dataService.deleteSubscription(subscriptionName: subscriptionName)
+      let index = subscriptions.firstIndex { $0.name == subscriptionName }
+      if let index = index {
+        subscriptions.remove(at: index)
+      }
+    } catch {
+      appLogger.debug("failed to remove subscription")
     }
   }
 }
@@ -99,7 +102,7 @@ struct SubscriptionsView: View {
             role: .destructive,
             action: {
               deleteConfirmationShown = true
-              viewModel.subscriptionIDToCancel = subscription.subscriptionID
+              viewModel.subscriptionNameToCancel = subscription.name
             },
             label: {
               Image(systemName: "trash")
@@ -110,12 +113,12 @@ struct SubscriptionsView: View {
     }
     .alert("Are you sure you want to cancel this subscription?", isPresented: $deleteConfirmationShown) {
       Button("Yes", role: .destructive) {
-        withAnimation {
-          viewModel.cancelSubscription(dataService: dataService)
+        Task {
+          await viewModel.cancelSubscription(dataService: dataService)
         }
       }
       Button("No", role: .cancel) {
-        viewModel.subscriptionIDToCancel = nil
+        viewModel.subscriptionNameToCancel = nil
       }
     }
     .navigationTitle("Subscriptions")
