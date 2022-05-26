@@ -440,6 +440,22 @@ type DeleteReminderSuccess {
   reminder: Reminder!
 }
 
+type DeleteWebhookError {
+  errorCodes: [DeleteWebhookErrorCode!]!
+}
+
+enum DeleteWebhookErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteWebhookResult = DeleteWebhookError | DeleteWebhookSuccess
+
+type DeleteWebhookSuccess {
+  webhook: Webhook!
+}
+
 type DeviceToken {
   createdAt: Date!
   id: ID!
@@ -725,6 +741,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
+  deleteWebhook(id: ID!): DeleteWebhookResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
@@ -857,6 +874,8 @@ type Query {
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
+  webhook(id: ID!): WebhookResult!
+  webhooks: WebhooksResult!
 }
 
 type Reaction {
@@ -1646,6 +1665,16 @@ type Webhook {
   url: String!
 }
 
+type WebhookError {
+  errorCodes: [WebhookErrorCode!]!
+}
+
+enum WebhookErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
 enum WebhookEvent {
   HIGHLIGHT_CREATED
   HIGHLIGHT_DELETED
@@ -1656,4 +1685,25 @@ enum WebhookEvent {
   PAGE_CREATED
   PAGE_DELETED
   PAGE_UPDATED
+}
+
+union WebhookResult = WebhookError | WebhookSuccess
+
+type WebhooksError {
+  errorCodes: [WebhooksErrorCode!]!
+}
+
+enum WebhooksErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union WebhooksResult = WebhooksError | WebhooksSuccess
+
+type WebhooksSuccess {
+  webhooks: [Webhook!]!
+}
+
+type WebhookSuccess {
+  webhook: Webhook!
 }

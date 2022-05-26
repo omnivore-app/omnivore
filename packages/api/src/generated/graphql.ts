@@ -502,6 +502,24 @@ export type DeleteReminderSuccess = {
   reminder: Reminder;
 };
 
+export type DeleteWebhookError = {
+  __typename?: 'DeleteWebhookError';
+  errorCodes: Array<DeleteWebhookErrorCode>;
+};
+
+export enum DeleteWebhookErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteWebhookResult = DeleteWebhookError | DeleteWebhookSuccess;
+
+export type DeleteWebhookSuccess = {
+  __typename?: 'DeleteWebhookSuccess';
+  webhook: Webhook;
+};
+
 export type DeviceToken = {
   __typename?: 'DeviceToken';
   createdAt: Scalars['Date'];
@@ -817,6 +835,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteReaction: DeleteReactionResult;
   deleteReminder: DeleteReminderResult;
+  deleteWebhook: DeleteWebhookResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
@@ -919,6 +938,11 @@ export type MutationDeleteReactionArgs = {
 
 
 export type MutationDeleteReminderArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteWebhookArgs = {
   id: Scalars['ID'];
 };
 
@@ -1186,6 +1210,8 @@ export type Query = {
   user: UserResult;
   users: UsersResult;
   validateUsername: Scalars['Boolean'];
+  webhook: WebhookResult;
+  webhooks: WebhooksResult;
 };
 
 
@@ -1260,6 +1286,11 @@ export type QueryUserArgs = {
 
 export type QueryValidateUsernameArgs = {
   username: Scalars['String'];
+};
+
+
+export type QueryWebhookArgs = {
+  id: Scalars['ID'];
 };
 
 export type Reaction = {
@@ -2119,6 +2150,17 @@ export type Webhook = {
   url: Scalars['String'];
 };
 
+export type WebhookError = {
+  __typename?: 'WebhookError';
+  errorCodes: Array<WebhookErrorCode>;
+};
+
+export enum WebhookErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
 export enum WebhookEvent {
   HighlightCreated = 'HIGHLIGHT_CREATED',
   HighlightDeleted = 'HIGHLIGHT_DELETED',
@@ -2130,6 +2172,30 @@ export enum WebhookEvent {
   PageDeleted = 'PAGE_DELETED',
   PageUpdated = 'PAGE_UPDATED'
 }
+
+export type WebhookResult = WebhookError | WebhookSuccess;
+
+export type WebhooksError = {
+  __typename?: 'WebhooksError';
+  errorCodes: Array<WebhooksErrorCode>;
+};
+
+export enum WebhooksErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type WebhooksResult = WebhooksError | WebhooksSuccess;
+
+export type WebhooksSuccess = {
+  __typename?: 'WebhooksSuccess';
+  webhooks: Array<Webhook>;
+};
+
+export type WebhookSuccess = {
+  __typename?: 'WebhookSuccess';
+  webhook: Webhook;
+};
 
 
 
@@ -2292,6 +2358,10 @@ export type ResolversTypes = {
   DeleteReminderErrorCode: DeleteReminderErrorCode;
   DeleteReminderResult: ResolversTypes['DeleteReminderError'] | ResolversTypes['DeleteReminderSuccess'];
   DeleteReminderSuccess: ResolverTypeWrapper<DeleteReminderSuccess>;
+  DeleteWebhookError: ResolverTypeWrapper<DeleteWebhookError>;
+  DeleteWebhookErrorCode: DeleteWebhookErrorCode;
+  DeleteWebhookResult: ResolversTypes['DeleteWebhookError'] | ResolversTypes['DeleteWebhookSuccess'];
+  DeleteWebhookSuccess: ResolverTypeWrapper<DeleteWebhookSuccess>;
   DeviceToken: ResolverTypeWrapper<DeviceToken>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
@@ -2520,7 +2590,15 @@ export type ResolversTypes = {
   UsersSuccess: ResolverTypeWrapper<UsersSuccess>;
   UserSuccess: ResolverTypeWrapper<UserSuccess>;
   Webhook: ResolverTypeWrapper<Webhook>;
+  WebhookError: ResolverTypeWrapper<WebhookError>;
+  WebhookErrorCode: WebhookErrorCode;
   WebhookEvent: WebhookEvent;
+  WebhookResult: ResolversTypes['WebhookError'] | ResolversTypes['WebhookSuccess'];
+  WebhooksError: ResolverTypeWrapper<WebhooksError>;
+  WebhooksErrorCode: WebhooksErrorCode;
+  WebhooksResult: ResolversTypes['WebhooksError'] | ResolversTypes['WebhooksSuccess'];
+  WebhooksSuccess: ResolverTypeWrapper<WebhooksSuccess>;
+  WebhookSuccess: ResolverTypeWrapper<WebhookSuccess>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -2596,6 +2674,9 @@ export type ResolversParentTypes = {
   DeleteReminderError: DeleteReminderError;
   DeleteReminderResult: ResolversParentTypes['DeleteReminderError'] | ResolversParentTypes['DeleteReminderSuccess'];
   DeleteReminderSuccess: DeleteReminderSuccess;
+  DeleteWebhookError: DeleteWebhookError;
+  DeleteWebhookResult: ResolversParentTypes['DeleteWebhookError'] | ResolversParentTypes['DeleteWebhookSuccess'];
+  DeleteWebhookSuccess: DeleteWebhookSuccess;
   DeviceToken: DeviceToken;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
@@ -2778,6 +2859,12 @@ export type ResolversParentTypes = {
   UsersSuccess: UsersSuccess;
   UserSuccess: UserSuccess;
   Webhook: Webhook;
+  WebhookError: WebhookError;
+  WebhookResult: ResolversParentTypes['WebhookError'] | ResolversParentTypes['WebhookSuccess'];
+  WebhooksError: WebhooksError;
+  WebhooksResult: ResolversParentTypes['WebhooksError'] | ResolversParentTypes['WebhooksSuccess'];
+  WebhooksSuccess: WebhooksSuccess;
+  WebhookSuccess: WebhookSuccess;
 };
 
 export type SanitizeDirectiveArgs = {
@@ -3121,6 +3208,20 @@ export type DeleteReminderSuccessResolvers<ContextType = ResolverContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeleteWebhookErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteWebhookError'] = ResolversParentTypes['DeleteWebhookError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteWebhookErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteWebhookResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteWebhookResult'] = ResolversParentTypes['DeleteWebhookResult']> = {
+  __resolveType: TypeResolveFn<'DeleteWebhookError' | 'DeleteWebhookSuccess', ParentType, ContextType>;
+};
+
+export type DeleteWebhookSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteWebhookSuccess'] = ResolversParentTypes['DeleteWebhookSuccess']> = {
+  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeviceTokenResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeviceToken'] = ResolversParentTypes['DeviceToken']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -3371,6 +3472,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
   deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
+  deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
@@ -3481,6 +3583,8 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
+  webhook?: Resolver<ResolversTypes['WebhookResult'], ParentType, ContextType, RequireFields<QueryWebhookArgs, 'id'>>;
+  webhooks?: Resolver<ResolversTypes['WebhooksResult'], ParentType, ContextType>;
 };
 
 export type ReactionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Reaction'] = ResolversParentTypes['Reaction']> = {
@@ -4025,6 +4129,34 @@ export type WebhookResolvers<ContextType = ResolverContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WebhookErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhookError'] = ResolversParentTypes['WebhookError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['WebhookErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type WebhookResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhookResult'] = ResolversParentTypes['WebhookResult']> = {
+  __resolveType: TypeResolveFn<'WebhookError' | 'WebhookSuccess', ParentType, ContextType>;
+};
+
+export type WebhooksErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhooksError'] = ResolversParentTypes['WebhooksError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['WebhooksErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type WebhooksResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhooksResult'] = ResolversParentTypes['WebhooksResult']> = {
+  __resolveType: TypeResolveFn<'WebhooksError' | 'WebhooksSuccess', ParentType, ContextType>;
+};
+
+export type WebhooksSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhooksSuccess'] = ResolversParentTypes['WebhooksSuccess']> = {
+  webhooks?: Resolver<Array<ResolversTypes['Webhook']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type WebhookSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhookSuccess'] = ResolversParentTypes['WebhookSuccess']> = {
+  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = ResolverContext> = {
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
@@ -4087,6 +4219,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteReminderError?: DeleteReminderErrorResolvers<ContextType>;
   DeleteReminderResult?: DeleteReminderResultResolvers<ContextType>;
   DeleteReminderSuccess?: DeleteReminderSuccessResolvers<ContextType>;
+  DeleteWebhookError?: DeleteWebhookErrorResolvers<ContextType>;
+  DeleteWebhookResult?: DeleteWebhookResultResolvers<ContextType>;
+  DeleteWebhookSuccess?: DeleteWebhookSuccessResolvers<ContextType>;
   DeviceToken?: DeviceTokenResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
   FeedArticleEdge?: FeedArticleEdgeResolvers<ContextType>;
@@ -4233,6 +4368,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   UsersSuccess?: UsersSuccessResolvers<ContextType>;
   UserSuccess?: UserSuccessResolvers<ContextType>;
   Webhook?: WebhookResolvers<ContextType>;
+  WebhookError?: WebhookErrorResolvers<ContextType>;
+  WebhookResult?: WebhookResultResolvers<ContextType>;
+  WebhooksError?: WebhooksErrorResolvers<ContextType>;
+  WebhooksResult?: WebhooksResultResolvers<ContextType>;
+  WebhooksSuccess?: WebhooksSuccessResolvers<ContextType>;
+  WebhookSuccess?: WebhookSuccessResolvers<ContextType>;
 };
 
 export type DirectiveResolvers<ContextType = ResolverContext> = {

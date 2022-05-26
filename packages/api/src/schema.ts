@@ -1620,6 +1620,53 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union DeleteWebhookResult = DeleteWebhookSuccess | DeleteWebhookError
+
+  type DeleteWebhookSuccess {
+    webhook: Webhook!
+  }
+
+  type DeleteWebhookError {
+    errorCodes: [DeleteWebhookErrorCode!]!
+  }
+
+  enum DeleteWebhookErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union WebhookResult = WebhookSuccess | WebhookError
+
+  type WebhookSuccess {
+    webhook: Webhook!
+  }
+
+  type WebhookError {
+    errorCodes: [WebhookErrorCode!]!
+  }
+
+  enum WebhookErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union WebhooksResult = WebhooksSuccess | WebhooksError
+
+  type WebhooksSuccess {
+    webhooks: [Webhook!]!
+  }
+
+  type WebhooksError {
+    errorCodes: [WebhooksErrorCode!]!
+  }
+
+  enum WebhooksErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1686,6 +1733,7 @@ const schema = gql`
     subscribe(name: String!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
+    deleteWebhook(id: ID!): DeleteWebhookResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -1725,6 +1773,8 @@ const schema = gql`
     labels: LabelsResult!
     search(after: String, first: Int, query: String): SearchResult!
     subscriptions(sort: SortParams): SubscriptionsResult!
+    webhooks: WebhooksResult!
+    webhook(id: ID!): WebhookResult!
   }
 `
 

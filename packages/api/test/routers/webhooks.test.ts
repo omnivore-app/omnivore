@@ -4,6 +4,7 @@ import { User } from '../../src/entity/user'
 import 'mocha'
 import { getRepository } from '../../src/entity/utils'
 import { Webhook } from '../../src/entity/webhook'
+import { expect } from 'chai'
 
 describe('Webhooks Router', () => {
   const username = 'fakeUser'
@@ -42,10 +43,11 @@ describe('Webhooks Router', () => {
         },
       }
 
-      await request
+      const res = await request
         .post('/svc/pubsub/webhooks/trigger/created?token=' + token)
         .send(data)
         .expect(200)
+      expect(res.body.data).to.eql('OK')
     })
   })
 })
