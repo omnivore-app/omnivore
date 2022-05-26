@@ -10,7 +10,7 @@ import axios, { Method } from 'axios'
 export function webhooksServiceRouter() {
   const router = express.Router()
 
-  router.post('/:action', async (req, res) => {
+  router.post('/trigger/:action', async (req, res) => {
     console.log('trigger webhook of action', req.params.action)
     const { message: msgStr, expired } = readPushSubscription(req)
 
@@ -38,8 +38,8 @@ export function webhooksServiceRouter() {
       const eventType = `${type as string}_${req.params.action}`.toUpperCase()
       const webhooks = await getRepository(Webhook)
         .createQueryBuilder()
-        .where('userId = :userId', { userId })
-        .andWhere(':eventType = ANY(eventTypes)', { eventType })
+        .where('user_id = :userId', { userId })
+        .andWhere(':eventType = ANY(event_types)', { eventType })
         .andWhere('enabled = true')
         .getMany()
 
