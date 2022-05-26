@@ -5,41 +5,17 @@ import Views
 
 @MainActor final class SubscriptionsViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var emails = [NewsletterEmail]()
+  @Published var subscriptions = [Subscription]()
+  @Published var popularSubscriptions = [Subscription]()
+  @Published var hasNetworkError = false
 
-  func loadSubscriptions(dataService _: DataService) async {
+  func loadSubscriptions(dataService: DataService) async {
     isLoading = true
 
-//    if let subscriptions = try? await dataService.subscriptions() {
-//      await dataService.viewContext.perform { [weak self] in
-//        self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
-//      }
-//    }
-
-    isLoading = false
-  }
-
-  func loadEmails(dataService: DataService) async {
-    isLoading = true
-
-    if let objectIDs = try? await dataService.newsletterEmails() {
-      await dataService.viewContext.perform { [weak self] in
-        self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
-      }
-    }
-
-    isLoading = false
-  }
-
-  func createEmail(dataService: DataService) async {
-    isLoading = true
-
-    if let objectID = try? await dataService.createNewsletter() {
-      await dataService.viewContext.perform { [weak self] in
-        if let item = dataService.viewContext.object(with: objectID) as? NewsletterEmail {
-          self?.emails.insert(item, at: 0)
-        }
-      }
+    do {
+      subscriptions = try await dataService.subscriptions()
+    } catch {
+      hasNetworkError = true
     }
 
     isLoading = false
@@ -49,7 +25,7 @@ import Views
 struct SubscriptionsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = SubscriptionsViewModel()
-  let footerText = "Add PDFs to your library, or subscribe to emails using an Omnivore email address."
+  let footerText = "Describe subscriptions here."
 
   var body: some View {
     Group {
@@ -64,50 +40,30 @@ struct SubscriptionsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .task { await viewModel.loadEmails(dataService: dataService) }
+    .task { await viewModel.loadSubscriptions(dataService: dataService) }
   }
 
   private var innerBody: some View {
     Group {
-      Section(footer: Text(footerText)) {
+      ForEach(viewModel.subscriptions, id: \.subscriptionID) { subscription in
         Button(
-          action: {
-            Task { await viewModel.createEmail(dataService: dataService) }
-          },
-          label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
-              Text("Create a new email address")
-              Spacer()
-            }
-          }
+          action: {},
+          label: { Text(subscription.name) }
         )
-        .disabled(viewModel.isLoading)
-      }
-
-      if !viewModel.emails.isEmpty {
-        Section(header: Text("Existing Emails (Tap to copy)")) {
-          ForEach(viewModel.emails) { newsletterEmail in
-            Button(
-              action: {
-                #if os(iOS)
-                  UIPasteboard.general.string = newsletterEmail.email
-                #endif
-
-                #if os(macOS)
-                  let pasteBoard = NSPasteboard.general
-                  pasteBoard.clearContents()
-                  pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
-                #endif
-
-                Snackbar.show(message: "Email copied")
-              },
-              label: { Text(newsletterEmail.unwrappedEmail) }
-            )
-          }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+          Button(
+            role: .destructive,
+            action: {
+//              itemToRemove = item
+//              confirmationShown = true
+            },
+            label: {
+              Image(systemName: "trash")
+            }
+          )
         }
       }
     }
-    .navigationTitle("Emails")
+    .navigationTitle("Subscriptions")
   }
 }
