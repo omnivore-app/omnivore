@@ -338,7 +338,7 @@ import Views
 
     var body: some View {
       ScrollView {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 24)], spacing: 24) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], spacing: 16) {
           ForEach(viewModel.items) { item in
             GridCardNavigationLink(
               item: item,

@@ -34,6 +34,10 @@ public extension LinkedItem {
   var unwrappedSavedAt: Date { savedAt ?? Date() }
   var unwrappedCreatedAt: Date { createdAt ?? Date() }
 
+  var hasLabels: Bool {
+    (labels?.count ?? 0) > 0
+  }
+
   var isRead: Bool {
     readingProgress >= 0.98
   }
