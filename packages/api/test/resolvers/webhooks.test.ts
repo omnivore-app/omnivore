@@ -232,7 +232,7 @@ describe('Webhooks API', () => {
 
         expect(res.body.data.deleteWebhook.webhook).to.be.an('object')
         expect(res.body.data.deleteWebhook.webhook.id).to.eql(webhookId)
-        expect(webhook).to.be.undefined
+        expect(webhook).to.be.null
       })
     })
   })
