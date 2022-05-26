@@ -83,15 +83,19 @@ export const uploadFileRequestResolver: ResolverFn<
     )
 
     if (input.createPageEntry) {
-      let page = await getPageByParam({
+      const page = await getPageByParam({
         userId: claims.uid,
         url: input.url,
       })
       if (page) {
-        await updatePage(page.id, {
-          savedAt: new Date(),
-          archivedAt: null,
-        }, ctx)
+        await updatePage(
+          page.id,
+          {
+            savedAt: new Date(),
+            archivedAt: null,
+          },
+          ctx
+        )
       } else {
         const pageId = await createPage(
           {

@@ -2,17 +2,9 @@ import Knex from 'knex'
 import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { homePageURL } from '../env'
-import {
-  PageType,
-  SaveErrorCode,
-  SaveFileInput,
-  SaveResult,
-} from '../generated/graphql'
+import { SaveErrorCode, SaveFileInput, SaveResult } from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
-import { generateSlug } from '../utils/helpers'
-import { getStorageFileDetails, makeStorageFilePublic } from '../utils/uploads'
-import { createPage, getPageByParam, updatePage } from '../elastic/pages'
-import { ArticleSavingRequestStatus } from '../elastic/types'
+import { getStorageFileDetails } from '../utils/uploads'
 
 type SaveContext = {
   pubsub: PubsubClient

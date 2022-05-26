@@ -235,7 +235,7 @@ export const validatedDate = (
 
 export const titleForFilePath = (url: string): string => {
   try {
-    const title =  decodeURI(path.basename(new URL(url).pathname, '.pdf'))
+    const title = decodeURI(path.basename(new URL(url).pathname, '.pdf'))
     return title
   } catch (e) {
     console.log(e)
