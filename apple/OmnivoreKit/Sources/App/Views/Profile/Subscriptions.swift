@@ -81,34 +81,19 @@ struct SubscriptionsView: View {
   private var innerBody: some View {
     Group {
       ForEach(viewModel.subscriptions, id: \.subscriptionID) { subscription in
-        Button(
-          action: {
-            #if os(iOS)
-              UIPasteboard.general.string = subscription.newsletterEmailAddress
-            #endif
-
-            #if os(macOS)
-              let pasteBoard = NSPasteboard.general
-              pasteBoard.clearContents()
-              pasteBoard.writeObjects([newsletterEmail.newsletterEmailAddress as NSString])
-            #endif
-
-            Snackbar.show(message: "Email copied")
-          },
-          label: { SubscriptionCell(subscription: subscription) }
-        )
-        .swipeActions(edge: .trailing) {
-          Button(
-            role: .destructive,
-            action: {
-              deleteConfirmationShown = true
-              viewModel.subscriptionNameToCancel = subscription.name
-            },
-            label: {
-              Image(systemName: "trash")
-            }
-          )
-        }
+        SubscriptionCell(subscription: subscription)
+          .swipeActions(edge: .trailing) {
+            Button(
+              role: .destructive,
+              action: {
+                deleteConfirmationShown = true
+                viewModel.subscriptionNameToCancel = subscription.name
+              },
+              label: {
+                Image(systemName: "trash")
+              }
+            )
+          }
       }
     }
     .alert("Are you sure you want to cancel this subscription?", isPresented: $deleteConfirmationShown) {
@@ -137,10 +122,12 @@ struct SubscriptionCell: View {
           .foregroundColor(.appGrayTextContrast)
           .fixedSize(horizontal: false, vertical: true)
 
-        Text(subscription.newsletterEmailAddress)
-          .font(.appCaption)
-          .foregroundColor(.appGrayText)
-          .lineLimit(1)
+        if let updatedDate = subscription.updatedAt {
+          Text("Last received: \(updatedDate.formatted())")
+            .font(.appCaption)
+            .foregroundColor(.appGrayText)
+            .fixedSize(horizontal: false, vertical: true)
+        }
       }
       .multilineTextAlignment(.leading)
       .padding(.vertical, 8)
