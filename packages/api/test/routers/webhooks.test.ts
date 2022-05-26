@@ -5,10 +5,13 @@ import 'mocha'
 import { getRepository } from '../../src/entity/utils'
 import { Webhook } from '../../src/entity/webhook'
 import { expect } from 'chai'
+import nock from 'nock'
 
 describe('Webhooks Router', () => {
   const username = 'fakeUser'
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
+  const webhookBaseUrl = 'https://localhost:3000'
+  const webhookPath = `/webhooks`
 
   let user: User
   let webhook: Webhook
@@ -21,7 +24,7 @@ describe('Webhooks Router', () => {
       .send({ fakeEmail: user.email })
 
     webhook = await getRepository(Webhook).save({
-      url: 'https://example.com',
+      url: webhookBaseUrl + webhookPath,
       user: { id: user.id },
       eventTypes: ['PAGE_CREATED'],
     })
@@ -42,6 +45,8 @@ describe('Webhooks Router', () => {
           publishTime: new Date().toISOString(),
         },
       }
+
+      nock(webhookBaseUrl).post(webhookPath).reply(200)
 
       const res = await request
         .post('/svc/pubsub/webhooks/trigger/created?token=' + token)
