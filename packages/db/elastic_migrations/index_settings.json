@@ -120,6 +120,10 @@
       },
       "taskName": {
         "type": "keyword"
+      },
+      "language": {
+        "type": "keyword",
+        "normalizer": "lowercase_normalizer"
       }
     }
   }

@@ -72,6 +72,7 @@ export type Article = {
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
   labels?: Maybe<Array<Label>>;
+  language?: Maybe<Scalars['String']>;
   linkId?: Maybe<Scalars['ID']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   originalHtml?: Maybe<Scalars['String']>;
@@ -1411,6 +1412,7 @@ export type SearchItem = {
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
   labels?: Maybe<Array<Label>>;
+  language?: Maybe<Scalars['String']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
@@ -2759,6 +2761,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
+  language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   linkId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalHtml?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3498,6 +3501,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
+  language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;

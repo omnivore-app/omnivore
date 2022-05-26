@@ -287,6 +287,7 @@ export const parsePreparedContent = async (
       siteName: article?.siteName || (await jsonLdLinkMetadata).siteName,
       siteIcon: article?.siteIcon,
       byline: article?.byline || (await jsonLdLinkMetadata).byline,
+      language: article?.language,
     })
     logRecord.parseSuccess = true
   } catch (error) {

@@ -85,7 +85,7 @@ function Readability(doc, options) {
   this._articleByline = null;
   this._articlePublishedDate = null;
   this._articleDir = null;
-  this._articleSiteName = null;
+  this._languageCode = null;
   this._attempts = [];
 
   // Configurable options
@@ -1894,13 +1894,13 @@ Readability.prototype = {
 
     // get site name
     metadata.siteName = jsonld.siteName ||
-      values["og:site_name"];
+      values["og:site_name"] || null;
 
     // get website icon
     const iconLink = this._doc.querySelector(
       "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
     );
-    metadata.siteIcon = iconLink ? iconLink.href : '';
+    metadata.siteIcon = iconLink?.href;
 
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
@@ -1920,6 +1920,8 @@ Readability.prototype = {
       values["og:image"] ||
       values["weibo:article:image"] ||
       values["weibo:webpage:image"];
+
+    metadata.locale = values["og:locale"];
 
     // TODO: Add canonical ULR search here as well
 
@@ -2833,6 +2835,16 @@ Readability.prototype = {
     return false;
   },
 
+  _getLanguage: function(code) {
+    if (!code) {
+      // Default to English
+      return 'English';
+    }
+
+    let lang = new Intl.DisplayNames(['en'], {type: 'language'});
+    return lang.of(code.split('-')[0]);
+  },
+
   /**
    * Runs readability.
    *
@@ -2859,6 +2871,8 @@ Readability.prototype = {
 
     // Extract JSON-LD metadata before removing scripts
     var jsonLd = this._disableJSONLD ? {} : this._getJSONLD(this._doc);
+
+    this._languageCode = this._doc.documentElement.lang
 
     // Remove script tags from the document.
     this._removeScripts(this._doc);
@@ -2898,11 +2912,12 @@ Readability.prototype = {
       textContent: textContent,
       length: textContent.length,
       excerpt: metadata.excerpt,
-      siteName: metadata.siteName || this._articleSiteName,
+      siteName: metadata.siteName,
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
       dom: articleContent,
+      language: this._getLanguage(metadata.locale || this._languageCode),
     };
   }
 };

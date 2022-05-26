@@ -23,7 +23,7 @@ export enum InFilter {
   ARCHIVE,
 }
 
-export type SearchFilter = {
+export interface SearchFilter {
   query: string | undefined
   inFilter: InFilter
   readFilter: ReadFilter
@@ -32,7 +32,7 @@ export type SearchFilter = {
   sortParams?: SortParams
   hasFilters: HasFilter[]
   dateFilters: DateFilter[]
-  subscriptionFilter?: SubscriptionFilter
+  termFilters: TermFilter[]
 }
 
 export enum LabelFilterType {
@@ -73,8 +73,9 @@ export interface SortParams {
   order?: SortOrder
 }
 
-export type SubscriptionFilter = {
-  name: string
+export interface TermFilter {
+  field: string
+  value: string
 }
 
 const parseIsFilter = (str: string | undefined): ReadFilter => {
@@ -218,15 +219,18 @@ const parseDateFilter = (
   }
 }
 
-const parseSubscriptionFilter = (
+const parseTermFilter = (
+  field: string,
   str?: string
-): SubscriptionFilter | undefined => {
+): TermFilter | undefined => {
   if (str === undefined) {
     return undefined
   }
 
   return {
-    name: str.toLowerCase(),
+    field,
+    // normalize the term to lower case
+    value: str.toLowerCase(),
   }
 }
 
@@ -239,6 +243,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     labelFilters: [],
     hasFilters: [],
     dateFilters: [],
+    termFilters: [],
   }
 
   if (!searchQuery) {
@@ -249,6 +254,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       labelFilters: [],
       hasFilters: [],
       dateFilters: [],
+      termFilters: [],
     }
   }
 
@@ -263,6 +269,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'saved',
       'published',
       'subscription',
+      'language',
     ],
     tokenize: true,
   })
@@ -321,9 +328,13 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           dateFilter && result.dateFilters.push(dateFilter)
           break
         }
+        // term filters
         case 'subscription':
-          result.subscriptionFilter = parseSubscriptionFilter(keyword.value)
+        case 'language': {
+          const termFilter = parseTermFilter(keyword.keyword, keyword.value)
+          termFilter && result.termFilters.push(termFilter)
           break
+        }
       }
     }
   }

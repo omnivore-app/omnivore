@@ -8,15 +8,9 @@ export interface SearchBody {
       filter: (
         | {
             term: {
-              userId: string
+              [K: string]: string
             }
           }
-        | {
-            term: {
-              subscription: string
-            }
-          }
-        | { term: { pageType: string } }
         | { exists: { field: string } }
         | {
             range: {
@@ -203,6 +197,7 @@ export interface Page {
   unsubHttpUrl?: string
   state: ArticleSavingRequestStatus
   taskName?: string
+  language?: string
 }
 
 export interface SearchItem {
@@ -226,6 +221,7 @@ export interface SearchItem {
   readingProgressAnchorIndex?: number
   userId: string
   state?: ArticleSavingRequestStatus
+  language?: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const

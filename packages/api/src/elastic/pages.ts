@@ -17,7 +17,7 @@ import {
   SortBy,
   SortOrder,
   SortParams,
-  SubscriptionFilter,
+  TermFilter,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
@@ -158,14 +158,13 @@ const appendDateFilters = (body: SearchBody, filters: DateFilter[]): void => {
   })
 }
 
-const appendSubscriptionFilter = (
-  body: SearchBody,
-  filter: SubscriptionFilter
-): void => {
-  body.query.bool.filter.push({
-    term: {
-      subscription: filter.name,
-    },
+const appendTermFilters = (body: SearchBody, filters: TermFilter[]): void => {
+  filters.forEach((filter) => {
+    body.query.bool.filter.push({
+      term: {
+        [filter.field]: filter.value,
+      },
+    })
   })
 }
 
@@ -338,7 +337,7 @@ export const searchPages = async (
     labelFilters: LabelFilter[]
     hasFilters: HasFilter[]
     dateFilters: DateFilter[]
-    subscriptionFilter?: SubscriptionFilter
+    termFilters?: TermFilter[]
     includePending?: boolean | null
   },
   userId: string
@@ -355,7 +354,7 @@ export const searchPages = async (
       inFilter = InFilter.ALL,
       hasFilters,
       dateFilters,
-      subscriptionFilter,
+      termFilters,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -421,8 +420,8 @@ export const searchPages = async (
     if (dateFilters.length > 0) {
       appendDateFilters(body, dateFilters)
     }
-    if (subscriptionFilter) {
-      appendSubscriptionFilter(body, subscriptionFilter)
+    if (termFilters) {
+      appendTermFilters(body, termFilters)
     }
 
     if (!args.includePending) {
