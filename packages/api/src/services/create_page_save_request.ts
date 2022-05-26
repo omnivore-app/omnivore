@@ -83,13 +83,14 @@ export const createPageSaveRequest = async (
   priority = priority || (await getPriorityByRateLimit(userId))
 
   // look for existing page
-  url = normalizeUrl(url, {
+  const normalizedUrl = normalizeUrl(url, {
     stripHash: true,
     stripWWW: false,
   })
+
   let page = await getPageByParam({
     userId,
-    url,
+    url: normalizedUrl,
   })
   if (page) {
     console.log('Page already exists', page)
