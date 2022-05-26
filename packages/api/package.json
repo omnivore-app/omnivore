@@ -75,7 +75,7 @@
     "search-query-parser": "^1.6.0",
     "snake-case": "^3.0.3",
     "supertest": "^6.2.2",
-    "ts-loader": "^8.0.3",
+    "ts-loader": "^9.3.0",
     "typeorm": "^0.3.4",
     "typeorm-naming-strategies": "^4.1.0",
     "urlsafe-base64": "^1.0.0",
