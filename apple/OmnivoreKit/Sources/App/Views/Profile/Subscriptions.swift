@@ -22,8 +22,8 @@ import Views
     isLoading = false
   }
 
-  func cancelSubscription(dataService: DataService) async {
-    guard let subscriptionName = subscriptionNameToCancel else { return }
+  func cancelSubscription(dataService: DataService) async -> Bool {
+    guard let subscriptionName = subscriptionNameToCancel else { return false }
 
     do {
       try await dataService.deleteSubscription(subscriptionName: subscriptionName)
@@ -31,8 +31,10 @@ import Views
       if let index = index {
         subscriptions.remove(at: index)
       }
+      return true
     } catch {
       appLogger.debug("failed to remove subscription")
+      return false
     }
   }
 }
@@ -99,7 +101,8 @@ struct SubscriptionsView: View {
     .alert("Are you sure you want to cancel this subscription?", isPresented: $deleteConfirmationShown) {
       Button("Yes", role: .destructive) {
         Task {
-          await viewModel.cancelSubscription(dataService: dataService)
+          let unsubscribed = await viewModel.cancelSubscription(dataService: dataService)
+          Snackbar.show(message: unsubscribed ? "Subscription cancelled." : "Could not unsubscribe.")
         }
       }
       Button("No", role: .cancel) {
