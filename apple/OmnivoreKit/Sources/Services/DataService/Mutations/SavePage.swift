@@ -5,7 +5,7 @@ import SwiftGraphQL
 
 public extension DataService {
   // swiftlint:disable:next line_length
-  func savePagePublisher(pageScrapePayload: PageScrapePayload, requestId: String) -> AnyPublisher<Void, SaveArticleError> {
+  func savePagePublisher(pageScrapePayload: PageScrapePayload, html: String, title: String?, requestId: String) -> AnyPublisher<Void, SaveArticleError> {
     enum MutationResult {
       case saved(requestId: String, url: String)
       case error(errorCode: Enums.SaveErrorCode)
@@ -13,9 +13,9 @@ public extension DataService {
 
     let input = InputObjects.SavePageInput(
       clientRequestId: requestId,
-      originalContent: pageScrapePayload.html ?? "",
+      originalContent: html,
       source: "ios-page",
-      title: OptionalArgument(pageScrapePayload.title),
+      title: OptionalArgument(title),
       url: pageScrapePayload.url
     )
 

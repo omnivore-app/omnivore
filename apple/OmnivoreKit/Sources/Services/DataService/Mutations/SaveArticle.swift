@@ -92,11 +92,13 @@ public extension DataService {
     }
 
     let preparedDocument: InputObjects.PreparedDocumentInput? = {
-      guard let html = pageScrapePayload.html, let title = pageScrapePayload.title else { return nil }
-      return InputObjects.PreparedDocumentInput(
-        document: html,
-        pageInfo: InputObjects.PageInfoInput(title: OptionalArgument(title))
-      )
+      if case let .html(html, title) = pageScrapePayload.contentType {
+        return InputObjects.PreparedDocumentInput(
+          document: html,
+          pageInfo: InputObjects.PageInfoInput(title: OptionalArgument(title))
+        )
+      }
+      return nil
     }()
 
     let input = InputObjects.CreateArticleInput(

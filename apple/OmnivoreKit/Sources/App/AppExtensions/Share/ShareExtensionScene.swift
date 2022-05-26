@@ -59,11 +59,17 @@ final class ShareExtensionViewModel: ObservableObject {
       return
     }
 
+    let backgroundTask = UIApplication.shared.beginBackgroundTask(withName: requestId)
     let saveLinkPublisher: AnyPublisher<Void, SaveArticleError> = {
-      if pageScrapePayload.contentType == .pdf {
-        return services.dataService.uploadPDFPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
-      } else if pageScrapePayload.html != nil {
-        return services.dataService.savePagePublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
+      if case let .pdf(data) = pageScrapePayload.contentType {
+        return services.dataService.uploadPDFPublisher(pageScrapePayload: pageScrapePayload,
+                                                       data: data,
+                                                       requestId: requestId)
+      } else if case let .html(html, title) = pageScrapePayload.contentType {
+        return services.dataService.savePagePublisher(pageScrapePayload: pageScrapePayload,
+                                                      html: html,
+                                                      title: title,
+                                                      requestId: requestId)
       } else {
         return services.dataService.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
       }
@@ -74,8 +80,10 @@ final class ShareExtensionViewModel: ObservableObject {
         guard case let .failure(error) = completion else { return }
         self?.debugText = "saveArticleError: \(error)"
         self?.status = .failed(error: error)
+        UIApplication.shared.endBackgroundTask(backgroundTask)
       } receiveValue: { [weak self] _ in
         self?.status = .success
+        UIApplication.shared.endBackgroundTask(backgroundTask)
       }
       .store(in: &subscriptions)
 

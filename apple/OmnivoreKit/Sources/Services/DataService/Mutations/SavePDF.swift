@@ -6,10 +6,11 @@ import SwiftGraphQL
 public extension DataService {
   func uploadPDFPublisher(
     pageScrapePayload: PageScrapePayload,
+    data: Data,
     requestId: String
   ) -> AnyPublisher<Void, SaveArticleError> {
     uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload)
-      .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, fileURLString: pageScrapePayload.url) }
+      .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, data: data) }
       .flatMap { self.saveFilePublisher(pageScrapePayload: pageScrapePayload, uploadFileId: $0, requestId: requestId) }
       .catch { _ in self.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId) }
       .receive(on: DispatchQueue.main)
@@ -88,11 +89,11 @@ private extension DataService {
   }
 
   // swiftlint:disable:next line_length
-  func uploadFilePublisher(fileUploadConfig: UploadFileRequestPayload, fileURLString: String) -> AnyPublisher<String, SaveArticleError> {
-    let pdfData = URL(string: fileURLString).flatMap { try? Data(contentsOf: $0) }
+  func uploadFilePublisher(fileUploadConfig: UploadFileRequestPayload, data: Data) -> AnyPublisher<String, SaveArticleError> {
+    let pdfData = data // URL(string: "http://localhost:4000/local/debug/endpoint").flatMap { try? Data(contentsOf: $0) }
 
     let url = fileUploadConfig.urlString.flatMap { URL(string: $0) }
-    guard let url = url, let pdfData = pdfData else { return Future { $0(.failure(.badData)) }.eraseToAnyPublisher() }
+    guard let url = url else { return Future { $0(.failure(.badData)) }.eraseToAnyPublisher() }
 
     var request = URLRequest(url: url)
     request.httpMethod = "PUT"
