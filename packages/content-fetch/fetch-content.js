@@ -94,7 +94,7 @@ const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentOb
   })
 };
 
-const getUploadIdAndSignedUrl = async (userId, url) => {
+const getUploadIdAndSignedUrl = async (userId, url, articleSavingRequestId) => {
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
   const data = JSON.stringify({
     query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
@@ -112,6 +112,7 @@ const getUploadIdAndSignedUrl = async (userId, url) => {
       input: {
         url,
         contentType: 'application/pdf',
+        clientRequestId: articleSavingRequestId,
       }
     }
   });
@@ -126,10 +127,10 @@ const getUploadIdAndSignedUrl = async (userId, url) => {
   return response.data.data.uploadFileRequest;
 };
 
-const uploadPdf = async (url, userId) => {
+const uploadPdf = async (url, userId, articleSavingRequestId) => {
   validateUrlString(url);
 
-  const uploadResult = await getUploadIdAndSignedUrl(userId, url);
+  const uploadResult = await getUploadIdAndSignedUrl(userId, url, articleSavingRequestId);
   await uploadToSignedUrl(uploadResult, 'application/pdf', url);
   return uploadResult.id;
 };
@@ -282,7 +283,7 @@ async function fetchContent(req, res) {
 
   try {
     if (contentType === 'application/pdf') {
-      const uploadedFileId = await uploadPdf(finalUrl, userId);
+      const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
     } else {
       if (!content || !title) {

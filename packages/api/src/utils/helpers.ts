@@ -18,6 +18,8 @@ import { Merge } from '../util'
 import { CreateArticlesSuccessPartial } from '../resolvers'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { updatePage } from '../elastic/pages'
+import path from 'path'
+import normalizeUrl from 'normalize-url'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -229,4 +231,14 @@ export const validatedDate = (
     console.log('error validating date', date, e)
     return undefined
   }
+}
+
+export const titleForFilePath = (url: string): string => {
+  try {
+    const title =  decodeURI(path.basename(new URL(url).pathname, '.pdf'))
+    return title
+  } catch (e) {
+    console.log(e)
+  }
+  return url
 }

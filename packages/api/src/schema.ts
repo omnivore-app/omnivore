@@ -416,7 +416,10 @@ const schema = gql`
   input UploadFileRequestInput {
     url: String!
     contentType: String!
+    createPageEntry: Boolean
+    clientRequestId: String
   }
+
   enum UploadFileRequestErrorCode {
     UNAUTHORIZED
     BAD_INPUT

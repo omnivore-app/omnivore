@@ -1992,7 +1992,9 @@ export enum UploadFileRequestErrorCode {
 }
 
 export type UploadFileRequestInput = {
+  clientRequestId?: InputMaybe<Scalars['String']>;
   contentType: Scalars['String'];
+  createPageEntry?: InputMaybe<Scalars['Boolean']>;
   url: Scalars['String'];
 };
 
