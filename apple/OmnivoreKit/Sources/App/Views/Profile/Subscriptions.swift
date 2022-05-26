@@ -4,10 +4,11 @@ import SwiftUI
 import Views
 
 @MainActor final class SubscriptionsViewModel: ObservableObject {
-  @Published var isLoading = false
+  @Published var isLoading = true
   @Published var subscriptions = [Subscription]()
   @Published var popularSubscriptions = [Subscription]()
   @Published var hasNetworkError = false
+  @Published var subscriptionIDToCancel: String?
 
   func loadSubscriptions(dataService: DataService) async {
     isLoading = true
@@ -20,42 +21,85 @@ import Views
 
     isLoading = false
   }
+
+  func cancelSubscription(dataService _: DataService) {
+    guard let subscriptionID = subscriptionIDToCancel else { return }
+    
+    
+    
+    let index = subscriptions.firstIndex { $0.subscriptionID == subscriptionID }
+    if let index = index {
+      subscriptions.remove(at: index)
+    }
+  }
 }
 
 struct SubscriptionsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = SubscriptionsViewModel()
-  let footerText = "Describe subscriptions here."
+  @State private var deleteConfirmationShown = false
+  @State private var progressViewOpacity = 0.0
 
   var body: some View {
-    Group {
-      #if os(iOS)
-        Form {
-          innerBody
+    if viewModel.isLoading {
+      ProgressView()
+        .opacity(progressViewOpacity)
+        .onAppear {
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
+            progressViewOpacity = 1
+          }
         }
-      #elseif os(macOS)
-        List {
-          innerBody
-        }
-        .listStyle(InsetListStyle())
-      #endif
+        .task { await viewModel.loadSubscriptions(dataService: dataService) }
+    } else if viewModel.hasNetworkError {
+      VStack {
+        Text("Sorry, we were unable to retrieve your subscriptions.").multilineTextAlignment(.center)
+        Button(
+          action: { Task { await viewModel.loadSubscriptions(dataService: dataService) } },
+          label: { Text("Retry") }
+        )
+        .buttonStyle(RoundedRectButtonStyle())
+      }
+    } else {
+      Group {
+        #if os(iOS)
+          Form {
+            innerBody
+          }
+        #elseif os(macOS)
+          List {
+            innerBody
+          }
+          .listStyle(InsetListStyle())
+        #endif
+      }
     }
-    .task { await viewModel.loadSubscriptions(dataService: dataService) }
   }
 
   private var innerBody: some View {
     Group {
       ForEach(viewModel.subscriptions, id: \.subscriptionID) { subscription in
         Button(
-          action: {},
-          label: { Text(subscription.name) }
+          action: {
+            #if os(iOS)
+              UIPasteboard.general.string = subscription.newsletterEmailAddress
+            #endif
+
+            #if os(macOS)
+              let pasteBoard = NSPasteboard.general
+              pasteBoard.clearContents()
+              pasteBoard.writeObjects([newsletterEmail.newsletterEmailAddress as NSString])
+            #endif
+
+            Snackbar.show(message: "Email copied")
+          },
+          label: { SubscriptionCell(subscription: subscription) }
         )
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+        .swipeActions(edge: .trailing) {
           Button(
             role: .destructive,
             action: {
-//              itemToRemove = item
-//              confirmationShown = true
+              deleteConfirmationShown = true
+              viewModel.subscriptionIDToCancel = subscription.subscriptionID
             },
             label: {
               Image(systemName: "trash")
@@ -64,6 +108,40 @@ struct SubscriptionsView: View {
         }
       }
     }
+    .alert("Are you sure you want to cancel this subscription?", isPresented: $deleteConfirmationShown) {
+      Button("Yes", role: .destructive) {
+        withAnimation {
+          viewModel.cancelSubscription(dataService: dataService)
+        }
+      }
+      Button("No", role: .cancel) {
+        viewModel.subscriptionIDToCancel = nil
+      }
+    }
     .navigationTitle("Subscriptions")
+  }
+}
+
+struct SubscriptionCell: View {
+  let subscription: Subscription
+
+  var body: some View {
+    VStack {
+      VStack(alignment: .leading, spacing: 6) {
+        Text(subscription.name)
+          .font(.appCallout)
+          .lineSpacing(1.25)
+          .foregroundColor(.appGrayTextContrast)
+          .fixedSize(horizontal: false, vertical: true)
+
+        Text(subscription.newsletterEmailAddress)
+          .font(.appCaption)
+          .foregroundColor(.appGrayText)
+          .lineLimit(1)
+      }
+      .multilineTextAlignment(.leading)
+      .padding(.vertical, 8)
+      .frame(minHeight: 50)
+    }
   }
 }
