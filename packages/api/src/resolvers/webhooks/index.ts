@@ -130,6 +130,7 @@ export const deleteWebhookResolver = authorized<
     }
 
     const deletedWebhook = await getRepository(Webhook).remove(webhook)
+    deletedWebhook.id = id
 
     analytics.track({
       userId: uid,
@@ -141,7 +142,7 @@ export const deleteWebhookResolver = authorized<
     })
 
     return {
-      webhook: webhookDataToResponse(webhook),
+      webhook: webhookDataToResponse(deletedWebhook),
     }
   } catch (error) {
     log.error(error)
