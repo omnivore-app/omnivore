@@ -47,7 +47,7 @@ describe('Webhooks Router', () => {
         .post('/svc/pubsub/webhooks/trigger/created?token=' + token)
         .send(data)
         .expect(200)
-      expect(res.body.data).to.eql('OK')
+      expect(res.text).to.eql('OK')
     })
   })
 })

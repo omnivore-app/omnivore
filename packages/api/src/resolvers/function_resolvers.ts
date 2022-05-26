@@ -32,6 +32,7 @@ import {
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
+  deleteWebhookResolver,
   getAllUsersResolver,
   getArticleResolver,
   getArticlesResolver,
@@ -64,6 +65,7 @@ import {
   setShareArticleResolver,
   setShareHighlightResolver,
   setUserPersonalizationResolver,
+  setWebhookResolver,
   signupResolver,
   subscribeResolver,
   subscriptionsResolver,
@@ -78,8 +80,9 @@ import {
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
-  updatePageResolver,
   addPopularReadResolver,
+  webhookResolver,
+  webhooksResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
@@ -88,7 +91,6 @@ import {
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
 import { generateApiKeyResolver } from './api_key'
-import { setWebhookResolver } from './webhooks'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -154,6 +156,7 @@ export const functionResolvers = {
     subscribe: subscribeResolver,
     addPopularRead: addPopularReadResolver,
     setWebhook: setWebhookResolver,
+    deleteWebhook: deleteWebhookResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -173,6 +176,8 @@ export const functionResolvers = {
     labels: labelsResolver,
     search: searchResolver,
     subscriptions: subscriptionsResolver,
+    webhooks: webhooksResolver,
+    webhook: webhookResolver,
   },
   User: {
     async sharedArticles(
@@ -567,4 +572,7 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Subscribe'),
   ...resultResolveTypeResolver('AddPopularRead'),
   ...resultResolveTypeResolver('SetWebhook'),
+  ...resultResolveTypeResolver('Webhooks'),
+  ...resultResolveTypeResolver('DeleteWebhook'),
+  ...resultResolveTypeResolver('Webhook'),
 }
