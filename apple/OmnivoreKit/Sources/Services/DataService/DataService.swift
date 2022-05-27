@@ -59,9 +59,8 @@ public final class DataService: ObservableObject {
     await networker.hasConnectionAndValidToken()
   }
 
-  private func resetCoreData() {
-    let storeContainer =
-      persistentContainer.persistentStoreCoordinator
+  private func clearCoreData() {
+    let storeContainer = persistentContainer.persistentStoreCoordinator
 
     do {
       for store in storeContainer.persistentStores {
@@ -71,16 +70,21 @@ public final class DataService: ObservableObject {
           options: nil
         )
       }
-      persistentContainer = PersistentContainer.make()
-      persistentContainer.loadPersistentStores { _, error in
-        if let error = error {
-          fatalError("Core Data store failed to load with error: \(error)")
-        }
-      }
-      backgroundContext = persistentContainer.newBackgroundContext()
     } catch {
-      logger.debug("Failed to reset core data stores")
+      logger.debug("Failed to clear core data stores")
     }
+  }
+
+  private func resetCoreData() {
+    clearCoreData()
+
+    persistentContainer = PersistentContainer.make()
+    persistentContainer.loadPersistentStores { _, error in
+      if let error = error {
+        fatalError("Core Data store failed to load with error: \(error)")
+      }
+    }
+    backgroundContext = persistentContainer.newBackgroundContext()
   }
 
   private func isFirstTimeRunningNewAppVersion() -> Bool {
