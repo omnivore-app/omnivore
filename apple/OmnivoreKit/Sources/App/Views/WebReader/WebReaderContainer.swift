@@ -8,7 +8,7 @@ import WebKit
   struct WebReaderContainerView: View {
     let item: LinkedItem
 
-    @State private var showFontSizePopover = false
+    @State private var showPreferencesPopover = false
     @State private var showLabelsModal = false
     @State var showHighlightAnnotationModal = false
     @State var safariWebLink: SafariWebLink?
@@ -75,7 +75,7 @@ import WebKit
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
         Button(
-          action: { showFontSizePopover.toggle() },
+          action: { showPreferencesPopover.toggle() },
           label: {
             Image(systemName: "textformat.size")
               .font(.appTitleTwo)
@@ -122,9 +122,6 @@ import WebKit
       .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
       .opacity(navBarVisibilityRatio)
       .background(Color.systemBackground)
-      .onTapGesture {
-        showFontSizePopover = false
-      }
       .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
         Button("Remove Link", role: .destructive) {
           Snackbar.show(message: "Link removed")
@@ -153,9 +150,9 @@ import WebKit
             },
             webViewActionHandler: webViewActionHandler,
             navBarVisibilityRatioUpdater: {
-              if $0 < 1 {
-                showFontSizePopover = false
-              }
+//              if $0 < 1 {
+//                showPreferencesPopover = false
+//              }
               navBarVisibilityRatio = $0
             },
             increaseFontActionID: $increaseFontActionID,
@@ -200,33 +197,15 @@ import WebKit
               await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
             }
         }
-        if showFontSizePopover {
-          VStack {
-            Color.clear
-              .contentShape(Rectangle())
-              .frame(height: LinkItemDetailView.navBarHeight)
-            HStack {
-              Spacer()
-              fontAdjustmentPopoverView
-                .background(Color.appButtonBackground)
-                .cornerRadius(8)
-                .padding(.trailing, 44)
-            }
-            Spacer()
-          }
-          .background(
-            Color.clear
-              .contentShape(Rectangle())
-              .onTapGesture {
-                showFontSizePopover = false
-              }
-          )
-        }
         VStack(spacing: 0) {
           navBar
           Spacer()
         }
-      }.onDisappear {
+      }
+      .popover(isPresented: $showPreferencesPopover) {
+        Text("Popover")
+      }
+      .onDisappear {
         // Clear the shared webview content when exiting
         WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       }
