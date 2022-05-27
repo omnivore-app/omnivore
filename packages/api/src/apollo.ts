@@ -24,6 +24,7 @@ import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
 import { createPubSubClient } from './datalayer/pubsub'
 import { initModels } from './server'
+import { claimsFromApiKey } from './utils/auth'
 
 const signToken = promisify(jwt.sign)
 const logger = buildLogger('app.dispatch')
@@ -47,8 +48,12 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     variables: req.body.variables,
   })
 
-  if (token && jwt.verify(token, env.server.jwtSecret)) {
-    claims = jwt.decode(token) as Claims
+  if (token) {
+    jwt.verify(token, env.server.jwtSecret) &&
+      (claims = jwt.decode(token) as Claims)
+    if (!claims) {
+      claims = await claimsFromApiKey(token)
+    }
   }
 
   async function setClaims(
