@@ -16,6 +16,30 @@ type AddPopularReadSuccess {
   pageId: String!
 }
 
+type ApiKey {
+  createdAt: Date!
+  expiresAt: Date!
+  id: ID!
+  name: String!
+  scopes: [String!]
+  usedAt: Date
+}
+
+type ApiKeysError {
+  errorCodes: [ApiKeysErrorCode!]!
+}
+
+enum ApiKeysErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union ApiKeysResult = ApiKeysError | ApiKeysSuccess
+
+type ApiKeysSuccess {
+  apiKeys: [ApiKey!]!
+}
+
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!
   message: String!
@@ -343,6 +367,22 @@ type CreateReminderSuccess {
 }
 
 scalar Date
+
+type DeleteApiKeyError {
+  errorCodes: [DeleteApiKeyErrorCode!]!
+}
+
+enum DeleteApiKeyErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteApiKeyResult = DeleteApiKeyError | DeleteApiKeySuccess
+
+type DeleteApiKeySuccess {
+  apiKey: ApiKey!
+}
 
 type DeleteHighlightError {
   errorCodes: [DeleteHighlightErrorCode!]!
@@ -738,6 +778,7 @@ type Mutation {
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
   createReminder(input: CreateReminderInput!): CreateReminderResult!
+  deleteApiKey(id: ID!): DeleteApiKeyResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
   deleteLabel(id: ID!): DeleteLabelResult!
@@ -859,6 +900,7 @@ type Profile {
 }
 
 type Query {
+  apiKeys: ApiKeysResult!
   article(slug: String!, username: String!): ArticleResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!

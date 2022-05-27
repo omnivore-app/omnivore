@@ -1670,6 +1670,46 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union ApiKeysResult = ApiKeysSuccess | ApiKeysError
+
+  type ApiKeysSuccess {
+    apiKeys: [ApiKey!]!
+  }
+
+  type ApiKey {
+    id: ID!
+    name: String!
+    scopes: [String!]
+    createdAt: Date!
+    expiresAt: Date!
+    usedAt: Date
+  }
+
+  type ApiKeysError {
+    errorCodes: [ApiKeysErrorCode!]!
+  }
+
+  enum ApiKeysErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union DeleteApiKeyResult = DeleteApiKeySuccess | DeleteApiKeyError
+
+  type DeleteApiKeySuccess {
+    apiKey: ApiKey!
+  }
+
+  type DeleteApiKeyError {
+    errorCodes: [DeleteApiKeyErrorCode!]!
+  }
+
+  enum DeleteApiKeyErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1737,6 +1777,7 @@ const schema = gql`
     addPopularRead(name: String!): AddPopularReadResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
+    deleteApiKey(id: ID!): DeleteApiKeyResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -1778,6 +1819,7 @@ const schema = gql`
     subscriptions(sort: SortParams): SubscriptionsResult!
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
+    apiKeys: ApiKeysResult!
   }
 `
 

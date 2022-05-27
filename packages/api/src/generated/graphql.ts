@@ -34,6 +34,33 @@ export type AddPopularReadSuccess = {
   pageId: Scalars['String'];
 };
 
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  createdAt: Scalars['Date'];
+  expiresAt: Scalars['Date'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  scopes?: Maybe<Array<Scalars['String']>>;
+  usedAt?: Maybe<Scalars['Date']>;
+};
+
+export type ApiKeysError = {
+  __typename?: 'ApiKeysError';
+  errorCodes: Array<ApiKeysErrorCode>;
+};
+
+export enum ApiKeysErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ApiKeysResult = ApiKeysError | ApiKeysSuccess;
+
+export type ApiKeysSuccess = {
+  __typename?: 'ApiKeysSuccess';
+  apiKeys: Array<ApiKey>;
+};
+
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
   errorCodes: Array<ArchiveLinkErrorCode>;
@@ -392,6 +419,24 @@ export type CreateReminderResult = CreateReminderError | CreateReminderSuccess;
 export type CreateReminderSuccess = {
   __typename?: 'CreateReminderSuccess';
   reminder: Reminder;
+};
+
+export type DeleteApiKeyError = {
+  __typename?: 'DeleteApiKeyError';
+  errorCodes: Array<DeleteApiKeyErrorCode>;
+};
+
+export enum DeleteApiKeyErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteApiKeyResult = DeleteApiKeyError | DeleteApiKeySuccess;
+
+export type DeleteApiKeySuccess = {
+  __typename?: 'DeleteApiKeySuccess';
+  apiKey: ApiKey;
 };
 
 export type DeleteHighlightError = {
@@ -832,6 +877,7 @@ export type Mutation = {
   createNewsletterEmail: CreateNewsletterEmailResult;
   createReaction: CreateReactionResult;
   createReminder: CreateReminderResult;
+  deleteApiKey: DeleteApiKeyResult;
   deleteHighlight: DeleteHighlightResult;
   deleteHighlightReply: DeleteHighlightReplyResult;
   deleteLabel: DeleteLabelResult;
@@ -912,6 +958,11 @@ export type MutationCreateReactionArgs = {
 
 export type MutationCreateReminderArgs = {
   input: CreateReminderInput;
+};
+
+
+export type MutationDeleteApiKeyArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -1195,6 +1246,7 @@ export type Profile = {
 
 export type Query = {
   __typename?: 'Query';
+  apiKeys: ApiKeysResult;
   article: ArticleResult;
   articles: ArticlesResult;
   articleSavingRequest: ArticleSavingRequestResult;
@@ -2273,6 +2325,11 @@ export type ResolversTypes = {
   AddPopularReadErrorCode: AddPopularReadErrorCode;
   AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: ResolverTypeWrapper<AddPopularReadSuccess>;
+  ApiKey: ResolverTypeWrapper<ApiKey>;
+  ApiKeysError: ResolverTypeWrapper<ApiKeysError>;
+  ApiKeysErrorCode: ApiKeysErrorCode;
+  ApiKeysResult: ResolversTypes['ApiKeysError'] | ResolversTypes['ApiKeysSuccess'];
+  ApiKeysSuccess: ResolverTypeWrapper<ApiKeysSuccess>;
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
@@ -2337,6 +2394,10 @@ export type ResolversTypes = {
   CreateReminderResult: ResolversTypes['CreateReminderError'] | ResolversTypes['CreateReminderSuccess'];
   CreateReminderSuccess: ResolverTypeWrapper<CreateReminderSuccess>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  DeleteApiKeyError: ResolverTypeWrapper<DeleteApiKeyError>;
+  DeleteApiKeyErrorCode: DeleteApiKeyErrorCode;
+  DeleteApiKeyResult: ResolversTypes['DeleteApiKeyError'] | ResolversTypes['DeleteApiKeySuccess'];
+  DeleteApiKeySuccess: ResolverTypeWrapper<DeleteApiKeySuccess>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
@@ -2609,6 +2670,10 @@ export type ResolversParentTypes = {
   AddPopularReadError: AddPopularReadError;
   AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: AddPopularReadSuccess;
+  ApiKey: ApiKey;
+  ApiKeysError: ApiKeysError;
+  ApiKeysResult: ResolversParentTypes['ApiKeysError'] | ResolversParentTypes['ApiKeysSuccess'];
+  ApiKeysSuccess: ApiKeysSuccess;
   ArchiveLinkError: ArchiveLinkError;
   ArchiveLinkInput: ArchiveLinkInput;
   ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
@@ -2659,6 +2724,9 @@ export type ResolversParentTypes = {
   CreateReminderResult: ResolversParentTypes['CreateReminderError'] | ResolversParentTypes['CreateReminderSuccess'];
   CreateReminderSuccess: CreateReminderSuccess;
   Date: Scalars['Date'];
+  DeleteApiKeyError: DeleteApiKeyError;
+  DeleteApiKeyResult: ResolversParentTypes['DeleteApiKeyError'] | ResolversParentTypes['DeleteApiKeySuccess'];
+  DeleteApiKeySuccess: DeleteApiKeySuccess;
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
   DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
@@ -2889,6 +2957,30 @@ export type AddPopularReadResultResolvers<ContextType = ResolverContext, ParentT
 
 export type AddPopularReadSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadSuccess'] = ResolversParentTypes['AddPopularReadSuccess']> = {
   pageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ApiKeyResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKey'] = ResolversParentTypes['ApiKey']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scopes?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  usedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ApiKeysErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysError'] = ResolversParentTypes['ApiKeysError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ApiKeysErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ApiKeysResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysResult'] = ResolversParentTypes['ApiKeysResult']> = {
+  __resolveType: TypeResolveFn<'ApiKeysError' | 'ApiKeysSuccess', ParentType, ContextType>;
+};
+
+export type ApiKeysSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysSuccess'] = ResolversParentTypes['ApiKeysSuccess']> = {
+  apiKeys?: Resolver<Array<ResolversTypes['ApiKey']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3126,6 +3218,20 @@ export type CreateReminderSuccessResolvers<ContextType = ResolverContext, Parent
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
+
+export type DeleteApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteApiKeyError'] = ResolversParentTypes['DeleteApiKeyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteApiKeyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteApiKeyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteApiKeyResult'] = ResolversParentTypes['DeleteApiKeyResult']> = {
+  __resolveType: TypeResolveFn<'DeleteApiKeyError' | 'DeleteApiKeySuccess', ParentType, ContextType>;
+};
+
+export type DeleteApiKeySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteApiKeySuccess'] = ResolversParentTypes['DeleteApiKeySuccess']> = {
+  apiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type DeleteHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightError'] = ResolversParentTypes['DeleteHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteHighlightErrorCode']>, ParentType, ContextType>;
@@ -3469,6 +3575,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
   createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
   createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
+  deleteApiKey?: Resolver<ResolversTypes['DeleteApiKeyResult'], ParentType, ContextType, RequireFields<MutationDeleteApiKeyArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
@@ -3568,6 +3675,7 @@ export type ProfileResolvers<ContextType = ResolverContext, ParentType extends R
 };
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
@@ -4164,6 +4272,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
   AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
+  ApiKey?: ApiKeyResolvers<ContextType>;
+  ApiKeysError?: ApiKeysErrorResolvers<ContextType>;
+  ApiKeysResult?: ApiKeysResultResolvers<ContextType>;
+  ApiKeysSuccess?: ApiKeysSuccessResolvers<ContextType>;
   ArchiveLinkError?: ArchiveLinkErrorResolvers<ContextType>;
   ArchiveLinkResult?: ArchiveLinkResultResolvers<ContextType>;
   ArchiveLinkSuccess?: ArchiveLinkSuccessResolvers<ContextType>;
@@ -4204,6 +4316,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateReminderResult?: CreateReminderResultResolvers<ContextType>;
   CreateReminderSuccess?: CreateReminderSuccessResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  DeleteApiKeyError?: DeleteApiKeyErrorResolvers<ContextType>;
+  DeleteApiKeyResult?: DeleteApiKeyResultResolvers<ContextType>;
+  DeleteApiKeySuccess?: DeleteApiKeySuccessResolvers<ContextType>;
   DeleteHighlightError?: DeleteHighlightErrorResolvers<ContextType>;
   DeleteHighlightReplyError?: DeleteHighlightReplyErrorResolvers<ContextType>;
   DeleteHighlightReplyResult?: DeleteHighlightReplyResultResolvers<ContextType>;
