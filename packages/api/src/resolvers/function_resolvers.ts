@@ -84,7 +84,6 @@ import {
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
-  addPopularReadResolver,
   webhookResolver,
   webhooksResolver,
 } from './index'
