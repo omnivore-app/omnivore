@@ -2,14 +2,14 @@ import {
   ApiKeysError,
   ApiKeysErrorCode,
   ApiKeysSuccess,
-  DeleteApiKeyError,
-  DeleteApiKeyErrorCode,
-  DeleteApiKeySuccess,
   GenerateApiKeyError,
   GenerateApiKeyErrorCode,
   GenerateApiKeySuccess,
-  MutationDeleteApiKeyArgs,
   MutationGenerateApiKeyArgs,
+  MutationRevokeApiKeyArgs,
+  RevokeApiKeyError,
+  RevokeApiKeyErrorCode,
+  RevokeApiKeySuccess,
 } from '../../generated/graphql'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
@@ -32,6 +32,7 @@ export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
       }
 
       const apiKeys = await getRepository(ApiKey).find({
+        select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
         where: { user: { id: uid } },
         order: { usedAt: 'DESC', createdAt: 'DESC' },
       })
@@ -75,7 +76,7 @@ export const generateApiKeyResolver = authorized<
 
     const exp = new Date(expiresAt)
     const apiKey = generateApiKey()
-    await getRepository(ApiKey).save({
+    const apiKeyData = await getRepository(ApiKey).save({
       user: { id: uid },
       name,
       key: hashApiKey(apiKey),
@@ -92,7 +93,12 @@ export const generateApiKeyResolver = authorized<
       },
     })
 
-    return { apiKey }
+    return {
+      apiKey: {
+        ...apiKeyData,
+        key: apiKey,
+      },
+    }
   } catch (error) {
     console.error(error)
 
@@ -100,18 +106,18 @@ export const generateApiKeyResolver = authorized<
   }
 })
 
-export const deleteApiKeyResolver = authorized<
-  DeleteApiKeySuccess,
-  DeleteApiKeyError,
-  MutationDeleteApiKeyArgs
+export const revokeApiKeyResolver = authorized<
+  RevokeApiKeySuccess,
+  RevokeApiKeyError,
+  MutationRevokeApiKeyArgs
 >(async (_, { id }, { claims: { uid }, log }) => {
-  log.info('deleteApiKeyResolver')
+  log.info('RevokeApiKeyResolver')
 
   try {
     const user = await getRepository(User).findOneBy({ id: uid })
     if (!user) {
       return {
-        errorCodes: [DeleteApiKeyErrorCode.Unauthorized],
+        errorCodes: [RevokeApiKeyErrorCode.Unauthorized],
       }
     }
 
@@ -121,27 +127,30 @@ export const deleteApiKeyResolver = authorized<
     })
     if (!apiKey) {
       return {
-        errorCodes: [DeleteApiKeyErrorCode.NotFound],
+        errorCodes: [RevokeApiKeyErrorCode.NotFound],
       }
     }
 
     if (apiKey.user.id !== uid) {
       return {
-        errorCodes: [DeleteApiKeyErrorCode.Unauthorized],
+        errorCodes: [RevokeApiKeyErrorCode.Unauthorized],
       }
     }
 
     const deletedApiKey = await getRepository(ApiKey).remove(apiKey)
-    deletedApiKey.id = id
 
     return {
-      apiKey: deletedApiKey,
+      apiKey: {
+        ...deletedApiKey,
+        id,
+        key: null,
+      },
     }
   } catch (e) {
     log.error(e)
 
     return {
-      errorCodes: [DeleteApiKeyErrorCode.BadRequest],
+      errorCodes: [RevokeApiKeyErrorCode.BadRequest],
     }
   }
 })

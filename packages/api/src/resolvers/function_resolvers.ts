@@ -30,7 +30,6 @@ import {
   createLabelResolver,
   createNewsletterEmailResolver,
   createReminderResolver,
-  deleteApiKeyResolver,
   deleteHighlightResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
@@ -56,6 +55,7 @@ import {
   newsletterEmailsResolver,
   reminderResolver,
   reportItemResolver,
+  revokeApiKeyResolver,
   saveArticleReadingProgressResolver,
   saveFileResolver,
   savePageResolver,
@@ -160,7 +160,7 @@ export const functionResolvers = {
     addPopularRead: addPopularReadResolver,
     setWebhook: setWebhookResolver,
     deleteWebhook: deleteWebhookResolver,
-    deleteApiKey: deleteApiKeyResolver,
+    revokeApiKey: revokeApiKeyResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -581,5 +581,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteWebhook'),
   ...resultResolveTypeResolver('Webhook'),
   ...resultResolveTypeResolver('ApiKeys'),
-  ...resultResolveTypeResolver('DeleteApiKey'),
+  ...resultResolveTypeResolver('RevokeApiKey'),
 }

@@ -20,6 +20,7 @@ type ApiKey {
   createdAt: Date!
   expiresAt: Date!
   id: ID!
+  key: String
   name: String!
   scopes: [String!]
   usedAt: Date
@@ -368,22 +369,6 @@ type CreateReminderSuccess {
 
 scalar Date
 
-type DeleteApiKeyError {
-  errorCodes: [DeleteApiKeyErrorCode!]!
-}
-
-enum DeleteApiKeyErrorCode {
-  BAD_REQUEST
-  NOT_FOUND
-  UNAUTHORIZED
-}
-
-union DeleteApiKeyResult = DeleteApiKeyError | DeleteApiKeySuccess
-
-type DeleteApiKeySuccess {
-  apiKey: ApiKey!
-}
-
 type DeleteHighlightError {
   errorCodes: [DeleteHighlightErrorCode!]!
 }
@@ -554,7 +539,7 @@ input GenerateApiKeyInput {
 union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
 
 type GenerateApiKeySuccess {
-  apiKey: String!
+  apiKey: ApiKey!
 }
 
 type GetFollowersError {
@@ -778,7 +763,6 @@ type Mutation {
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
   createReminder(input: CreateReminderInput!): CreateReminderResult!
-  deleteApiKey(id: ID!): DeleteApiKeyResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
   deleteLabel(id: ID!): DeleteLabelResult!
@@ -793,6 +777,7 @@ type Mutation {
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
+  revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
   savePage(input: SavePageInput!): SaveResult!
@@ -987,6 +972,22 @@ enum ReportType {
   CONTENT_DISPLAY
   CONTENT_VIOLATION
   SPAM
+}
+
+type RevokeApiKeyError {
+  errorCodes: [RevokeApiKeyErrorCode!]!
+}
+
+enum RevokeApiKeyErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union RevokeApiKeyResult = RevokeApiKeyError | RevokeApiKeySuccess
+
+type RevokeApiKeySuccess {
+  apiKey: ApiKey!
 }
 
 type SaveArticleReadingProgressError {

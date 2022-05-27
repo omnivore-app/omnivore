@@ -1420,7 +1420,7 @@ const schema = gql`
   union GenerateApiKeyResult = GenerateApiKeySuccess | GenerateApiKeyError
 
   type GenerateApiKeySuccess {
-    apiKey: String!
+    apiKey: ApiKey!
   }
 
   type GenerateApiKeyError {
@@ -1679,6 +1679,7 @@ const schema = gql`
   type ApiKey {
     id: ID!
     name: String!
+    key: String
     scopes: [String!]
     createdAt: Date!
     expiresAt: Date!
@@ -1694,17 +1695,17 @@ const schema = gql`
     BAD_REQUEST
   }
 
-  union DeleteApiKeyResult = DeleteApiKeySuccess | DeleteApiKeyError
+  union RevokeApiKeyResult = RevokeApiKeySuccess | RevokeApiKeyError
 
-  type DeleteApiKeySuccess {
+  type RevokeApiKeySuccess {
     apiKey: ApiKey!
   }
 
-  type DeleteApiKeyError {
-    errorCodes: [DeleteApiKeyErrorCode!]!
+  type RevokeApiKeyError {
+    errorCodes: [RevokeApiKeyErrorCode!]!
   }
 
-  enum DeleteApiKeyErrorCode {
+  enum RevokeApiKeyErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -1777,7 +1778,7 @@ const schema = gql`
     addPopularRead(name: String!): AddPopularReadResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
-    deleteApiKey(id: ID!): DeleteApiKeyResult!
+    revokeApiKey(id: ID!): RevokeApiKeyResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

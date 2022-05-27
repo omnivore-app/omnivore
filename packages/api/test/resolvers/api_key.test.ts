@@ -22,7 +22,7 @@ const testAPIKey = (apiKey: string): supertest.Test => {
   return graphqlRequest(query, apiKey)
 }
 
-describe('generate api key', () => {
+describe('Api Key resolver', () => {
   const username = 'fake_user'
 
   let authToken: string
@@ -46,15 +46,18 @@ describe('generate api key', () => {
     await deleteTestUser(username)
   })
 
-  beforeEach(() => {
-    query = `
+  describe('generate api key', () => {
+    beforeEach(() => {
+      query = `
       mutation {
         generateApiKey(input: {
           name: "${name}"
           expiresAt: "${expiresAt}"
         }) {
           ... on GenerateApiKeySuccess {
-            apiKey
+            apiKey {
+              key
+            }
           }
           ... on GenerateApiKeyError {
             errorCodes
@@ -62,33 +65,92 @@ describe('generate api key', () => {
         }
       }
     `
+    })
+
+    context('when api key is not expired', () => {
+      before(() => {
+        name = 'test'
+        expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString()
+      })
+
+      it('should generate an api key', async () => {
+        const response = await graphqlRequest(query, authToken).expect(200)
+        expect(response.body.data.generateApiKey.apiKey.key).to.be.a('string')
+
+        return testAPIKey(response.body.data.generateApiKey.apiKey.key).expect(
+          200
+        )
+      })
+    })
+
+    context('when api key is expired', () => {
+      before(() => {
+        name = 'test-expired'
+        expiresAt = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+      })
+
+      it('should generate an expired api key', async () => {
+        const response = await graphqlRequest(query, authToken).expect(200)
+        expect(response.body.data.generateApiKey.apiKey.key).to.be.a('string')
+
+        return testAPIKey(response.body.data.generateApiKey.apiKey.key).expect(
+          500
+        )
+      })
+    })
   })
 
-  context('when api key is not expired', () => {
-    before(() => {
-      name = 'test'
-      expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString()
-    })
+  describe('revoke api key', () => {
+    let apiKey: string
+    let apiKeyId: string
 
-    it('should generate an api key', async () => {
+    before(async () => {
+      query = `
+      mutation {
+        generateApiKey(input: {
+          name: "test-revoke"
+          expiresAt: "${new Date(
+            Date.now() + 1000 * 60 * 60 * 24
+          ).toISOString()}"
+        }) {
+          ... on GenerateApiKeySuccess {
+            apiKey {
+              id
+              key
+            }
+          }
+          ... on GenerateApiKeyError {
+            errorCodes
+          }
+        }
+      }
+    `
+
       const response = await graphqlRequest(query, authToken)
-      expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
-
-      return testAPIKey(response.body.data.generateApiKey.apiKey).expect(200)
-    })
-  })
-
-  context('when api key is expired', () => {
-    before(() => {
-      name = 'test-expired'
-      expiresAt = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+      apiKey = response.body.data.generateApiKey.apiKey.key
+      apiKeyId = response.body.data.generateApiKey.apiKey.id
     })
 
-    it('should generate an expired api key', async () => {
-      const response = await graphqlRequest(query, authToken)
-      expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
+    it('should revoke an api key', async () => {
+      query = `
+      mutation {
+        revokeApiKey(id: "${apiKeyId}") {
+          ... on RevokeApiKeySuccess {
+            apiKey {
+              id
+            }
+          }
+          ... on RevokeApiKeyError {
+            errorCodes
+          }
+        }
+      }
+    `
 
-      return testAPIKey(response.body.data.generateApiKey.apiKey).expect(500)
+      const response = await graphqlRequest(query, authToken).expect(200)
+      expect(response.body.data.revokeApiKey.apiKey.id).to.be.a('string')
+
+      return testAPIKey(apiKey).expect(500)
     })
   })
 })
