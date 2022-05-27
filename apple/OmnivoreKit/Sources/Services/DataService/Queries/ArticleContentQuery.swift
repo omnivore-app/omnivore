@@ -154,7 +154,7 @@ extension DataService {
             return
           }
 
-          if status == .succeeded {
+          if status == .succeeded || result.item.isPDF {
             do {
               try self?.persistArticleContent(
                 item: result.item,
@@ -174,7 +174,7 @@ extension DataService {
           let articleContent = ArticleContent(
             htmlContent: result.htmlContent,
             highlightsJSONString: result.highlights.asJSONString,
-            contentStatus: .make(from: result.contentStatus)
+            contentStatus: result.item.isPDF ? .succeeded : .make(from: result.contentStatus)
           )
 
           continuation.resume(returning: articleContent)
