@@ -16,4 +16,6 @@ CREATE TABLE omnivore.api_key (
     UNIQUE (user_id, name)
 );
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.api_key TO omnivore_user;
+
 COMMIT;
