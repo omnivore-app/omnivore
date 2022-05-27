@@ -29,9 +29,9 @@ export class ApiKey {
   @CreateDateColumn()
   createdAt!: Date
 
-  @Column('date')
+  @Column('timestamp')
   expiresAt!: Date
 
-  @Column('date', { nullable: true })
+  @Column('timestamp', { nullable: true })
   usedAt!: Date | null
 }

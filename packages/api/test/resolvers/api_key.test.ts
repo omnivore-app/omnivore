@@ -30,6 +30,7 @@ describe('Api Key resolver', () => {
   let query: string
   let expiresAt: string
   let name: string
+  let apiKeyId: string
 
   before(async () => {
     // create test user and login
@@ -102,7 +103,6 @@ describe('Api Key resolver', () => {
 
   describe('revoke api key', () => {
     let apiKey: string
-    let apiKeyId: string
 
     before(async () => {
       query = `
@@ -151,6 +151,61 @@ describe('Api Key resolver', () => {
       expect(response.body.data.revokeApiKey.apiKey.id).to.be.a('string')
 
       return testAPIKey(apiKey).expect(500)
+    })
+  })
+
+  describe('get api keys', () => {
+    before(async () => {
+      name = 'test-get-api-keys'
+      query = `
+      mutation {
+        generateApiKey(input: {
+          name: "${name}"
+          expiresAt: "${new Date(
+            Date.now() + 1000 * 60 * 60 * 24
+          ).toISOString()}"
+        }) {
+          ... on GenerateApiKeySuccess {
+            apiKey {
+              id
+              key
+            }
+          }
+          ... on GenerateApiKeyError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+      const response = await graphqlRequest(query, authToken)
+      apiKeyId = response.body.data.generateApiKey.apiKey.id
+    })
+
+    it('should get api keys', async () => {
+      query = `
+      query {
+        apiKeys {
+          ... on ApiKeysSuccess {
+            apiKeys {
+              id
+              name
+              expiresAt
+              usedAt
+            }
+          }
+          ... on ApiKeysError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+      const response = await graphqlRequest(query, authToken).expect(200)
+      expect(response.body.data.apiKeys.apiKeys).to.be.an('array')
+      expect(response.body.data.apiKeys.apiKeys[0].id).to.eql(apiKeyId)
+      expect(response.body.data.apiKeys.apiKeys[0].name).to.eql(name)
+      expect(response.body.data.apiKeys.apiKeys[0].usedAt).to.be.null
     })
   })
 })
