@@ -1,7 +1,7 @@
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { User } from '../../src/entity/user'
-import { hashPassword } from '../../src/utils/auth'
+import { hashKey } from '../../src/utils/auth'
 import 'mocha'
 
 describe('Sanitize Directive', () => {
@@ -12,7 +12,7 @@ describe('Sanitize Directive', () => {
   let user: User
 
   before(async () => {
-    const hashedPassword = hashPassword(correctPassword)
+    const hashedPassword = hashKey(correctPassword)
     user = await createTestUser(username, '', hashedPassword)
     const res = await request
       .post('/local/debug/fake-user-login')

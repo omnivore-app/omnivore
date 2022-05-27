@@ -4,33 +4,53 @@ import {
   GenerateApiKeySuccess,
   MutationGenerateApiKeyArgs,
 } from '../../generated/graphql'
-import { generateApiKey } from '../../utils/auth'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { authorized } from '../../utils/helpers'
+import { getRepository } from '../../entity/utils'
+import { User } from '../../entity/user'
+import { ApiKey } from '../../entity/api_key'
+import { generateApiKey, hashKey } from '../../utils/auth'
 
 export const generateApiKeyResolver = authorized<
   GenerateApiKeySuccess,
   GenerateApiKeyError,
   MutationGenerateApiKeyArgs
->((_, { input: { scope, expiredAt } }, { claims }) => {
+>(async (_, { input: { name, expiresAt } }, { claims: { uid }, log }) => {
   try {
-    console.log('generateApiKeyResolver', scope, expiredAt)
+    log.info('generateApiKeyResolver')
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [GenerateApiKeyErrorCode.Unauthorized],
+      }
+    }
 
-    const exp = expiredAt ? new Date(expiredAt).getTime() / 1000 : null
-    const apiKey = generateApiKey({
-      iat: new Date().getTime(),
-      scope: scope || 'all',
-      uid: claims.uid,
-      ...(exp && { exp }),
+    const existingApiKey = await getRepository(ApiKey).findOneBy({
+      user: { id: uid },
+      name,
+    })
+    if (existingApiKey) {
+      return {
+        errorCodes: [GenerateApiKeyErrorCode.AlreadyExists],
+      }
+    }
+
+    const exp = new Date(expiresAt)
+    const apiKey = generateApiKey()
+    await getRepository(ApiKey).save({
+      user: { id: uid },
+      name,
+      key: hashKey(apiKey),
+      expiresAt: exp,
     })
 
     analytics.track({
-      userId: claims.uid,
-      event: 'generate_api_key',
+      userId: uid,
+      event: 'api_key_generated',
       properties: {
-        scope,
-        expiredAt: exp,
+        name,
+        expiresAt: exp,
         env: env.server.apiEnv,
       },
     })
@@ -38,6 +58,7 @@ export const generateApiKeyResolver = authorized<
     return { apiKey }
   } catch (error) {
     console.error(error)
+
     return { errorCodes: [GenerateApiKeyErrorCode.BadRequest] }
   }
 })

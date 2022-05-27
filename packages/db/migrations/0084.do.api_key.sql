@@ -12,7 +12,8 @@ CREATE TABLE omnivore.api_key (
     scopes text[] NOT NULL DEFAULT '{}',
     expires_at timestamptz NOT NULL,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
-    used_at timestamptz
+    used_at timestamptz,
+    UNIQUE (user_id, name)
 );
 
 COMMIT;

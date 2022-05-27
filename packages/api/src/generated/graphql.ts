@@ -570,12 +570,15 @@ export type GenerateApiKeyError = {
 };
 
 export enum GenerateApiKeyErrorCode {
-  BadRequest = 'BAD_REQUEST'
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type GenerateApiKeyInput = {
-  expiredAt?: InputMaybe<Scalars['Date']>;
-  scope?: InputMaybe<Scalars['String']>;
+  expiresAt: Scalars['Date'];
+  name: Scalars['String'];
+  scopes?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess;

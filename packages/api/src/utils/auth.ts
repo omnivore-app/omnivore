@@ -1,16 +1,15 @@
 import * as bcrypt from 'bcryptjs'
-import * as jwt from 'jsonwebtoken'
-import { env } from '../env'
-import { Claims } from '../resolvers/types'
+import { v4 as uuidv4 } from 'uuid'
 
-export const hashPassword = (password: string) => {
-  return bcrypt.hashSync(password, 10)
+export const hashKey = (key: string, salt = 10) => {
+  return bcrypt.hashSync(key, salt)
 }
 
-export const comparePassword = (password: string, hash: string) => {
-  return bcrypt.compareSync(password, hash)
+export const compareHashedKey = (rawKey: string, hash: string) => {
+  return bcrypt.compareSync(rawKey, hash)
 }
 
-export const generateApiKey = (claims: Claims): string => {
-  return jwt.sign(claims, env.server.jwtSecret)
+export const generateApiKey = (): string => {
+  // TODO: generate random string key
+  return uuidv4()
 }

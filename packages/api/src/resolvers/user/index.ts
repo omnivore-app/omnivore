@@ -33,7 +33,7 @@ import { env } from '../../env'
 import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
-import { comparePassword, hashPassword } from '../../utils/auth'
+import { compareHashedKey, hashKey } from '../../utils/auth'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -310,7 +310,7 @@ export const loginResolver: ResolverFn<
   }
 
   // check if password is correct
-  const validPassword = comparePassword(password, user.password)
+  const validPassword = compareHashedKey(password, user.password)
   if (!validPassword) {
     return { errorCodes: [LoginErrorCode.InvalidCredentials] }
   }
@@ -331,7 +331,7 @@ export const signupResolver: ResolverFn<
 
   try {
     // hash password
-    const hashedPassword = hashPassword(password)
+    const hashedPassword = hashKey(password)
 
     const [user, profile] = await createUser({
       email,

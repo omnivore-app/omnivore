@@ -500,12 +500,15 @@ type GenerateApiKeyError {
 }
 
 enum GenerateApiKeyErrorCode {
+  ALREADY_EXISTS
   BAD_REQUEST
+  UNAUTHORIZED
 }
 
 input GenerateApiKeyInput {
-  expiredAt: Date
-  scope: String
+  expiresAt: Date!
+  name: String!
+  scopes: [String!]
 }
 
 union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess

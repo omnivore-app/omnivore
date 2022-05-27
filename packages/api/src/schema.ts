@@ -1412,8 +1412,9 @@ const schema = gql`
   }
 
   input GenerateApiKeyInput {
-    scope: String
-    expiredAt: Date
+    name: String!
+    scopes: [String!]
+    expiresAt: Date!
   }
 
   union GenerateApiKeyResult = GenerateApiKeySuccess | GenerateApiKeyError
@@ -1428,6 +1429,8 @@ const schema = gql`
 
   enum GenerateApiKeyErrorCode {
     BAD_REQUEST
+    ALREADY_EXISTS
+    UNAUTHORIZED
   }
 
   # Query: search
