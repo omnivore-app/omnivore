@@ -217,7 +217,7 @@ extension DataService {
         linkedItem.isArchived = item.isArchived
         linkedItem.contentReader = item.contentReader
 
-        if linkedItem.isPDF {
+        if linkedItem.isPDF, linkedItem.pdfData == nil {
           do {
             try self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
           } catch {
