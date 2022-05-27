@@ -26,6 +26,7 @@ final class ShareExtensionViewModel: ObservableObject {
   @Published var debugText: String?
 
   var subscriptions = Set<AnyCancellable>()
+  var backgroundTask: UIBackgroundTaskIdentifier?
   let requestID = UUID().uuidString.lowercased()
 
   init() {}
@@ -41,11 +42,16 @@ final class ShareExtensionViewModel: ObservableObject {
   }
 
   func savePage(extensionContext: NSExtensionContext?) {
+    backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "BACKGROUND")
+
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
       switch result {
       case let .success(payload):
         self?.persist(pageScrapePayload: payload, requestId: self?.requestID ?? "")
       case let .failure(error):
+        if let backgroundTask = self?.backgroundTask {
+          UIApplication.shared.endBackgroundTask(backgroundTask)
+        }
         self?.debugText = error.message
       }
     }
@@ -59,7 +65,6 @@ final class ShareExtensionViewModel: ObservableObject {
       return
     }
 
-    let backgroundTask = UIApplication.shared.beginBackgroundTask(withName: requestId)
     let saveLinkPublisher: AnyPublisher<Void, SaveArticleError> = {
       if case let .pdf(data) = pageScrapePayload.contentType {
         return services.dataService.uploadPDFPublisher(pageScrapePayload: pageScrapePayload,
@@ -80,10 +85,14 @@ final class ShareExtensionViewModel: ObservableObject {
         guard case let .failure(error) = completion else { return }
         self?.debugText = "saveArticleError: \(error)"
         self?.status = .failed(error: error)
-        UIApplication.shared.endBackgroundTask(backgroundTask)
+        if let backgroundTask = self?.backgroundTask {
+          UIApplication.shared.endBackgroundTask(backgroundTask)
+        }
       } receiveValue: { [weak self] _ in
         self?.status = .success
-        UIApplication.shared.endBackgroundTask(backgroundTask)
+        if let backgroundTask = self?.backgroundTask {
+          UIApplication.shared.endBackgroundTask(backgroundTask)
+        }
       }
       .store(in: &subscriptions)
 

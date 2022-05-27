@@ -64,6 +64,7 @@ private extension DataService {
     return Deferred {
       Future { promise in
         send(mutation, to: path, headers: headers) { result in
+          print("result of upload file request", result)
           switch result {
           case let .success(payload):
             if let graphqlError = payload.errors {
@@ -100,29 +101,43 @@ private extension DataService {
     request.addValue("application/pdf", forHTTPHeaderField: "content-type")
     request.httpBody = data
 
-    return networker.urlSession.dataTaskPublisher(for: request)
-      .tryMap { data, response -> String in
-        let serverResponse = ServerResponse(data: data, response: response)
-        if serverResponse.httpUrlResponse?.statusCode == 200, let fileUploadID = fileUploadConfig.uploadID {
-          return fileUploadID
-        }
+    // TODO: Maybe better to copy into this directory immediately
+    // instead of loading and writing the data
+    let tempDir = FileManager.default.temporaryDirectory
+    let localURL = tempDir.appendingPathComponent(fileUploadConfig.uploadFileID ?? "temporary")
+    try? data.write(to: localURL)
 
-        throw ServerError(serverResponse: serverResponse)
-      }
-      .mapError { error -> SaveArticleError in
-        let serverResponse = ServerResponse(error: error)
-        NetworkRequestLogger.log(request: request, serverResponse: serverResponse)
-        let serverError = ServerError(serverResponse: serverResponse)
-        switch serverError {
-        case .noConnection, .timeout:
-          return .network
-        case .unauthenticated:
-          return .unauthorized
-        case .unknown:
-          return .unknown(description: "upload to file server failed")
-        }
-      }
-      .eraseToAnyPublisher()
+    print("STARTING UPLOAD TASK WITH LOCAL URL", localURL)
+
+    let task = networker.backgroundSession.uploadTask(with: request, fromFile: localURL)
+    task.resume()
+
+    // Just return immediately at this point.
+    return Empty(completeImmediately: true).eraseToAnyPublisher()
+//    return "".publisher.eraseToAnyPublisher()
+//    return networker.urlSession.dataTaskPublisher(for: request)
+//      .tryMap { data, response -> String in
+//        let serverResponse = ServerResponse(data: data, response: response)
+//        if serverResponse.httpUrlResponse?.statusCode == 200, let fileUploadID = fileUploadConfig.uploadID {
+//          return fileUploadID
+//        }
+//
+//        throw ServerError(serverResponse: serverResponse)
+//      }
+//      .mapError { error -> SaveArticleError in
+//        let serverResponse = ServerResponse(error: error)
+//        NetworkRequestLogger.log(request: request, serverResponse: serverResponse)
+//        let serverError = ServerError(serverResponse: serverResponse)
+//        switch serverError {
+//        case .noConnection, .timeout:
+//          return .network
+//        case .unauthenticated:
+//          return .unauthorized
+//        case .unknown:
+//          return .unknown(description: "upload to file server failed")
+//        }
+//      }
+//      .eraseToAnyPublisher()
   }
 
   // swiftlint:disable:next line_length

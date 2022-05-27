@@ -1,7 +1,7 @@
 import Foundation
 import Models
 
-public final class Networker {
+public final class Networker: NSObject, URLSessionTaskDelegate {
   let urlSession: URLSession
   let appEnvironment: AppEnvironment
 
@@ -15,9 +15,28 @@ public final class Networker {
     return headers
   }
 
-  public init(appEnvironment: AppEnvironment, urlSession: URLSession = .shared) {
+  public init(appEnvironment: AppEnvironment) {
     self.appEnvironment = appEnvironment
-    self.urlSession = urlSession
+    self.urlSession = .shared
+  }
+
+  lazy var backgroundSession: URLSession = {
+    let sessionConfig = URLSessionConfiguration.background(withIdentifier: "app.omnivoreapp.BackgroundSessionConfig")
+    sessionConfig.sharedContainerIdentifier = "group.app.omnivoreapp"
+    return URLSession(configuration: sessionConfig, delegate: self, delegateQueue: nil)
+  }()
+
+  public func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError _: Error?) {
+    print("finished upload of file:", task.taskIdentifier)
+  }
+
+  public func urlSession(_: URLSession,
+                         task: URLSessionTask,
+                         didSendBodyData _: Int64,
+                         totalBytesSent: Int64,
+                         totalBytesExpectedToSend _: Int64)
+  {
+    print("sent background data:", task.taskIdentifier, totalBytesSent)
   }
 }
 
