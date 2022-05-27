@@ -21,6 +21,8 @@ import {
 } from './../generated/graphql'
 
 import {
+  addPopularReadResolver,
+  apiKeysResolver,
   articleSavingRequestResolver,
   createArticleResolver,
   createArticleSavingRequestResolver,
@@ -28,11 +30,13 @@ import {
   createLabelResolver,
   createNewsletterEmailResolver,
   createReminderResolver,
+  deleteApiKeyResolver,
   deleteHighlightResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
   deleteWebhookResolver,
+  generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
   getArticlesResolver,
@@ -90,7 +94,6 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
-import { generateApiKeyResolver } from './api_key'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -157,6 +160,7 @@ export const functionResolvers = {
     addPopularRead: addPopularReadResolver,
     setWebhook: setWebhookResolver,
     deleteWebhook: deleteWebhookResolver,
+    deleteApiKey: deleteApiKeyResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -178,6 +182,7 @@ export const functionResolvers = {
     subscriptions: subscriptionsResolver,
     webhooks: webhooksResolver,
     webhook: webhookResolver,
+    apiKeys: apiKeysResolver,
   },
   User: {
     async sharedArticles(
@@ -575,4 +580,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Webhooks'),
   ...resultResolveTypeResolver('DeleteWebhook'),
   ...resultResolveTypeResolver('Webhook'),
+  ...resultResolveTypeResolver('ApiKeys'),
+  ...resultResolveTypeResolver('DeleteApiKey'),
 }
