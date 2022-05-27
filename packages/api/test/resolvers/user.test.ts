@@ -8,7 +8,7 @@ import {
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
 import { User } from '../../src/entity/user'
-import { hashKey } from '../../src/utils/auth'
+import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
 
 describe('User API', () => {
@@ -21,7 +21,7 @@ describe('User API', () => {
   let anotherUser: User
 
   before(async () => {
-    const hashedPassword = hashKey(correctPassword)
+    const hashedPassword = await hashPassword(correctPassword)
     // create test user and login
     user = await createTestUser(username, '', hashedPassword)
     const res = await request

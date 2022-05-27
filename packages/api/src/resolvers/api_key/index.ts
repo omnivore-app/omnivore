@@ -10,7 +10,7 @@ import { authorized } from '../../utils/helpers'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
 import { ApiKey } from '../../entity/api_key'
-import { generateApiKey, hashKey } from '../../utils/auth'
+import { generateApiKey, hashApiKey } from '../../utils/auth'
 
 export const generateApiKeyResolver = authorized<
   GenerateApiKeySuccess,
@@ -41,7 +41,7 @@ export const generateApiKeyResolver = authorized<
     await getRepository(ApiKey).save({
       user: { id: uid },
       name,
-      key: hashKey(apiKey),
+      key: hashApiKey(apiKey),
       expiresAt: exp,
     })
 

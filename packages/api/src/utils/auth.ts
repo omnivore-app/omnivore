@@ -3,13 +3,14 @@ import { v4 as uuidv4 } from 'uuid'
 import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { ApiKey } from '../entity/api_key'
+import crypto from 'crypto'
 
-export const hashKey = (key: string, salt = 10) => {
-  return bcrypt.hashSync(key, salt)
+export const hashPassword = async (password: string, salt = 10) => {
+  return bcrypt.hash(password, salt)
 }
 
-export const compareHashedKey = (rawKey: string, hash: string) => {
-  return bcrypt.compareSync(rawKey, hash)
+export const comparePassword = async (password: string, hash: string) => {
+  return bcrypt.compare(password, hash)
 }
 
 export const generateApiKey = (): string => {
@@ -17,17 +18,26 @@ export const generateApiKey = (): string => {
   return uuidv4()
 }
 
-export const claimsFromApiKey = async (
-  key: string
-): Promise<Claims | undefined> => {
-  const hashedKey = hashKey(key)
+export const hashApiKey = (apiKey: string) => {
+  return crypto.createHash('sha256').update(apiKey).digest('hex')
+}
+
+export const claimsFromApiKey = async (key: string): Promise<Claims> => {
+  const hashedKey = hashApiKey(key)
   const apiKey = await getRepository(ApiKey).findOne({
-    where: { key: hashedKey },
+    where: {
+      key: hashedKey,
+    },
     relations: ['user'],
   })
   if (!apiKey) {
-    console.error('api key not found')
-    return undefined
+    throw new Error('api key not found')
+  }
+
+  const iat = Math.floor(Date.now() / 1000)
+  const exp = Math.floor(new Date(apiKey.expiresAt).getTime() / 1000)
+  if (exp < iat) {
+    throw new Error('api key expired')
   }
 
   // update last used
@@ -35,7 +45,7 @@ export const claimsFromApiKey = async (
 
   return {
     uid: apiKey.user.id,
-    iat: new Date().getTime(),
-    exp: apiKey.expiresAt.getTime(),
+    iat,
+    exp,
   }
 }

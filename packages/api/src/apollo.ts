@@ -49,10 +49,16 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   })
 
   if (token) {
-    jwt.verify(token, env.server.jwtSecret) &&
-      (claims = jwt.decode(token) as Claims)
-    if (!claims) {
-      claims = await claimsFromApiKey(token)
+    try {
+      jwt.verify(token, env.server.jwtSecret) &&
+        (claims = jwt.decode(token) as Claims)
+    } catch (e) {
+      if (e instanceof jwt.JsonWebTokenError) {
+        logger.info(`not a jwt token, checking api key`, { token })
+        claims = await claimsFromApiKey(token)
+      } else {
+        throw e
+      }
     }
   }
 

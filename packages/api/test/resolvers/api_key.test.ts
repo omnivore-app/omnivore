@@ -28,7 +28,8 @@ describe('generate api key', () => {
   let authToken: string
   let user: User
   let query: string
-  let expiredAt: string
+  let expiresAt: string
+  let name: string
 
   before(async () => {
     // create test user and login
@@ -49,7 +50,8 @@ describe('generate api key', () => {
     query = `
       mutation {
         generateApiKey(input: {
-          expiredAt: "${expiredAt}"
+          name: "${name}"
+          expiresAt: "${expiresAt}"
         }) {
           ... on GenerateApiKeySuccess {
             apiKey
@@ -62,22 +64,10 @@ describe('generate api key', () => {
     `
   })
 
-  context('when no expiredAt is specified', () => {
-    before(() => {
-      expiredAt = ''
-    })
-
-    it('should generate an api key with no expiration date', async () => {
-      const response = await graphqlRequest(query, authToken)
-      expect(response.body.data.generateApiKey.apiKey).to.be.a('string')
-
-      return testAPIKey(response.body.data.generateApiKey.apiKey).expect(200)
-    })
-  })
-
   context('when api key is not expired', () => {
     before(() => {
-      expiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString()
+      name = 'test'
+      expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString()
     })
 
     it('should generate an api key', async () => {
@@ -90,7 +80,8 @@ describe('generate api key', () => {
 
   context('when api key is expired', () => {
     before(() => {
-      expiredAt = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+      name = 'test-expired'
+      expiresAt = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
     })
 
     it('should generate an expired api key', async () => {
