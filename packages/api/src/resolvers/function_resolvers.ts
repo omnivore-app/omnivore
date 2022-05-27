@@ -32,6 +32,7 @@ import {
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
+  deleteWebhookResolver,
   getAllUsersResolver,
   getArticleResolver,
   getArticlesResolver,
@@ -64,6 +65,7 @@ import {
   setShareArticleResolver,
   setShareHighlightResolver,
   setUserPersonalizationResolver,
+  setWebhookResolver,
   signupResolver,
   subscribeResolver,
   subscriptionsResolver,
@@ -71,14 +73,16 @@ import {
   updateHighlightResolver,
   updateLabelResolver,
   updateLinkShareInfoResolver,
+  updatePageResolver,
   updateReminderResolver,
   updateSharedCommentResolver,
   updateUserProfileResolver,
   updateUserResolver,
   uploadFileRequestResolver,
   validateUsernameResolver,
-  updatePageResolver,
   addPopularReadResolver,
+  webhookResolver,
+  webhooksResolver,
 } from './index'
 import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import {
@@ -151,6 +155,8 @@ export const functionResolvers = {
     updatePage: updatePageResolver,
     subscribe: subscribeResolver,
     addPopularRead: addPopularReadResolver,
+    setWebhook: setWebhookResolver,
+    deleteWebhook: deleteWebhookResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -170,6 +176,8 @@ export const functionResolvers = {
     labels: labelsResolver,
     search: searchResolver,
     subscriptions: subscriptionsResolver,
+    webhooks: webhooksResolver,
+    webhook: webhookResolver,
   },
   User: {
     async sharedArticles(
@@ -563,4 +571,8 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdatePage'),
   ...resultResolveTypeResolver('Subscribe'),
   ...resultResolveTypeResolver('AddPopularRead'),
+  ...resultResolveTypeResolver('SetWebhook'),
+  ...resultResolveTypeResolver('Webhooks'),
+  ...resultResolveTypeResolver('DeleteWebhook'),
+  ...resultResolveTypeResolver('Webhook'),
 }

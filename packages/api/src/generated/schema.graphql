@@ -440,6 +440,22 @@ type DeleteReminderSuccess {
   reminder: Reminder!
 }
 
+type DeleteWebhookError {
+  errorCodes: [DeleteWebhookErrorCode!]!
+}
+
+enum DeleteWebhookErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteWebhookResult = DeleteWebhookError | DeleteWebhookSuccess
+
+type DeleteWebhookSuccess {
+  webhook: Webhook!
+}
+
 type DeviceToken {
   createdAt: Date!
   id: ID!
@@ -725,6 +741,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
   deleteReminder(id: ID!): DeleteReminderResult!
+  deleteWebhook(id: ID!): DeleteWebhookResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
@@ -744,6 +761,7 @@ type Mutation {
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
+  setWebhook(input: SetWebhookInput!): SetWebhookResult!
   signup(input: SignupInput!): SignupResult!
   subscribe(name: String!): SubscribeResult!
   unsubscribe(name: String!): UnsubscribeResult!
@@ -856,6 +874,8 @@ type Query {
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
+  webhook(id: ID!): WebhookResult!
+  webhooks: WebhooksResult!
 }
 
 type Reaction {
@@ -1183,6 +1203,32 @@ union SetUserPersonalizationResult = SetUserPersonalizationError | SetUserPerson
 
 type SetUserPersonalizationSuccess {
   updatedUserPersonalization: UserPersonalization!
+}
+
+type SetWebhookError {
+  errorCodes: [SetWebhookErrorCode!]!
+}
+
+enum SetWebhookErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetWebhookInput {
+  contentType: String
+  enabled: Boolean
+  eventTypes: [WebhookEvent!]!
+  id: ID
+  method: String
+  url: String!
+}
+
+union SetWebhookResult = SetWebhookError | SetWebhookSuccess
+
+type SetWebhookSuccess {
+  webhook: Webhook!
 }
 
 type SharedArticleError {
@@ -1606,4 +1652,58 @@ type UsersSuccess {
 
 type UserSuccess {
   user: User!
+}
+
+type Webhook {
+  contentType: String!
+  createdAt: Date!
+  enabled: Boolean!
+  eventTypes: [WebhookEvent!]!
+  id: ID!
+  method: String!
+  updatedAt: Date!
+  url: String!
+}
+
+type WebhookError {
+  errorCodes: [WebhookErrorCode!]!
+}
+
+enum WebhookErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+enum WebhookEvent {
+  HIGHLIGHT_CREATED
+  HIGHLIGHT_DELETED
+  HIGHLIGHT_UPDATED
+  LABEL_CREATED
+  LABEL_DELETED
+  LABEL_UPDATED
+  PAGE_CREATED
+  PAGE_DELETED
+  PAGE_UPDATED
+}
+
+union WebhookResult = WebhookError | WebhookSuccess
+
+type WebhooksError {
+  errorCodes: [WebhooksErrorCode!]!
+}
+
+enum WebhooksErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union WebhooksResult = WebhooksError | WebhooksSuccess
+
+type WebhooksSuccess {
+  webhooks: [Webhook!]!
+}
+
+type WebhookSuccess {
+  webhook: Webhook!
 }
