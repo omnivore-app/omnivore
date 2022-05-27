@@ -34,10 +34,10 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.SetDeviceTokenResult> {
       try $0.on(
-        setDeviceTokenError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },
         setDeviceTokenSuccess: .init {
           .saved(id: try $0.deviceToken(selection: Selection.DeviceToken { try $0.id() }))
-        }
+        },
+        setDeviceTokenError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) }
       )
     }
 

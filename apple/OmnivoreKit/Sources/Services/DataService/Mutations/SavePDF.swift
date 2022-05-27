@@ -6,10 +6,11 @@ import SwiftGraphQL
 public extension DataService {
   func uploadPDFPublisher(
     pageScrapePayload: PageScrapePayload,
+    data: Data,
     requestId: String
   ) -> AnyPublisher<Void, SaveArticleError> {
-    uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload)
-      .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, fileURLString: pageScrapePayload.url) }
+    uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
+      .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, data: data) }
       .flatMap { self.saveFilePublisher(pageScrapePayload: pageScrapePayload, uploadFileId: $0, requestId: requestId) }
       .catch { _ in self.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId) }
       .receive(on: DispatchQueue.main)
@@ -25,20 +26,21 @@ private struct UploadFileRequestPayload {
 
 private extension DataService {
   // swiftlint:disable:next line_length
-  func uploadFileRequestPublisher(pageScrapePayload: PageScrapePayload) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
+  func uploadFileRequestPublisher(pageScrapePayload: PageScrapePayload, requestId: String?) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
     enum MutationResult {
       case success(payload: UploadFileRequestPayload)
       case error(errorCode: Enums.UploadFileRequestErrorCode?)
     }
 
     let input = InputObjects.UploadFileRequestInput(
+      url: pageScrapePayload.url,
       contentType: "application/pdf",
-      url: pageScrapePayload.url
+      createPageEntry: OptionalArgument(true),
+      clientRequestId: OptionalArgument(requestId)
     )
 
     let selection = Selection<MutationResult, Unions.UploadFileRequestResult> {
       try $0.on(
-        uploadFileRequestError: .init { .error(errorCode: try? $0.errorCodes().first) },
         uploadFileRequestSuccess: .init {
           .success(
             payload: UploadFileRequestPayload(
@@ -47,7 +49,8 @@ private extension DataService {
               urlString: try $0.uploadSignedUrl()
             )
           )
-        }
+        },
+        uploadFileRequestError: .init { .error(errorCode: try? $0.errorCodes().first) }
       )
     }
 
@@ -88,16 +91,14 @@ private extension DataService {
   }
 
   // swiftlint:disable:next line_length
-  func uploadFilePublisher(fileUploadConfig: UploadFileRequestPayload, fileURLString: String) -> AnyPublisher<String, SaveArticleError> {
-    let pdfData = URL(string: fileURLString).flatMap { try? Data(contentsOf: $0) }
-
+  func uploadFilePublisher(fileUploadConfig: UploadFileRequestPayload, data: Data) -> AnyPublisher<String, SaveArticleError> {
     let url = fileUploadConfig.urlString.flatMap { URL(string: $0) }
-    guard let url = url, let pdfData = pdfData else { return Future { $0(.failure(.badData)) }.eraseToAnyPublisher() }
+    guard let url = url else { return Future { $0(.failure(.badData)) }.eraseToAnyPublisher() }
 
     var request = URLRequest(url: url)
     request.httpMethod = "PUT"
     request.addValue("application/pdf", forHTTPHeaderField: "content-type")
-    request.httpBody = pdfData
+    request.httpBody = data
 
     return networker.urlSession.dataTaskPublisher(for: request)
       .tryMap { data, response -> String in
@@ -132,16 +133,16 @@ private extension DataService {
     }
 
     let input = InputObjects.SaveFileInput(
-      clientRequestId: requestId,
+      url: pageScrapePayload.url,
       source: "ios-file",
-      uploadFileId: uploadFileId,
-      url: pageScrapePayload.url
+      clientRequestId: requestId,
+      uploadFileId: uploadFileId
     )
 
     let selection = Selection<MutationResult, Unions.SaveResult> {
       try $0.on(
-        saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) },
-        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") }
+        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") },
+        saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) }
       )
     }
 

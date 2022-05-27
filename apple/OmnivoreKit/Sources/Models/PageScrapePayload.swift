@@ -9,28 +9,34 @@ import UniformTypeIdentifiers
 let URLREGEX = #"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"#
 
 public struct PageScrapePayload {
-  public enum ContentType {
-    case html
-    case pdf
+  public struct HTMLPayload {
+    let url: String
+    let title: String?
+    let html: String
   }
 
-  public let title: String?
-  public let html: String?
+  public enum ContentType {
+    case none
+    case html(html: String, title: String?)
+    case pdf(data: Data)
+  }
+
   public let url: String
   public let contentType: ContentType
 
-  init(url: String, title: String?, html: String?, contentType: String?) {
+  init(url: String) {
     self.url = url
-    self.title = title
-    self.html = html
+    self.contentType = .none
+  }
 
-    // If the content type was specified and we know its PDF, use that
-    // otherwise fallback to using file extensions.
-    if let contentType = contentType, contentType.contains("pdf") {
-      self.contentType = .pdf
-    } else {
-      self.contentType = url.hasSuffix(".pdf") ? .pdf : .html
-    }
+  init(url: String, pdfData: Data) {
+    self.url = url
+    self.contentType = .pdf(data: pdfData)
+  }
+
+  init(url: String, title: String?, html: String) {
+    self.url = url
+    self.contentType = .html(html: html, title: title)
   }
 }
 
@@ -52,9 +58,24 @@ public enum PageScraper {
     }
 
     var pageScrapePayload: PageScrapePayload?
+    let PDFKey = UTType.pdf.identifier
+    let publicFileKey = UTType.fileURL.identifier
     let propertyListKey = UTType.propertyList.identifier
 
     let group = DispatchGroup()
+
+    for attachment in attachments where attachment.hasItemConformingToTypeIdentifier(PDFKey) {
+      group.enter()
+      attachment.loadItem(
+        forTypeIdentifier: PDFKey,
+        options: nil
+      ) { item, _ in
+        if let payload = PageScrapePayload.make(item: item) {
+          pageScrapePayload = payload
+        }
+        group.leave()
+      }
+    }
 
     for attachment in attachments where attachment.hasItemConformingToTypeIdentifier(propertyListKey) {
       group.enter()
@@ -214,17 +235,55 @@ public enum PageScraper {
 private extension PageScrapePayload {
   static func make(url: URL?) -> PageScrapePayload? {
     guard let url = url else { return nil }
-    return PageScrapePayload(url: url.absoluteString, title: nil, html: nil, contentType: nil)
+    return PageScrapePayload(url: url.absoluteString)
   }
 
   static func make(item: NSSecureCoding?) -> PageScrapePayload? {
-    let dictionary = item as? NSDictionary
-    let results = dictionary?[NSExtensionJavaScriptPreprocessingResultsKey] as? NSDictionary
+    if let dictionary = item as? NSDictionary {
+      return makeFromDictionary(dictionary)
+    }
+    if let url = item as? NSURL {
+      return makeFromURL(url as URL)
+    }
+    return nil
+  }
+
+  static func makeFromURL(_ url: URL) -> PageScrapePayload? {
+    if url.isFileURL {
+      let type = try? url.resourceValues(forKeys: [.typeIdentifierKey]).typeIdentifier
+      if type == UTType.pdf.identifier, let data = try? Data(contentsOf: url) {
+        return PageScrapePayload(url: url.absoluteString, pdfData: data)
+      }
+      // Don't try to handle file URLs that are not PDFs.
+      // In the future we can add image and other file type support here
+      return nil
+    }
+    return PageScrapePayload(url: url.absoluteString)
+  }
+
+  static func makeFromDictionary(_ dictionary: NSDictionary) -> PageScrapePayload? {
+    let results = dictionary[NSExtensionJavaScriptPreprocessingResultsKey] as? NSDictionary
     guard let url = results?["url"] as? String else { return nil }
     let html = results?["documentHTML"] as? String
     let title = results?["title"] as? String
     let contentType = results?["contentType"] as? String
 
-    return PageScrapePayload(url: url, title: title, html: html, contentType: contentType)
+    // If we were not able to capture any HTML, treat this as a URL and
+    // see if the backend can do better.
+    if html == nil || html!.isEmpty {
+      return PageScrapePayload(url: url)
+    }
+
+    // If its a PDF that we opened through Safari we don't have access to the
+    // file content, so pass the URL to the backend and let it download it.
+    if contentType == "application/pdf" {
+      return PageScrapePayload(url: url)
+    }
+
+    if let html = html {
+      return PageScrapePayload(url: url, title: title, html: html)
+    }
+
+    return PageScrapePayload(url: url)
   }
 }

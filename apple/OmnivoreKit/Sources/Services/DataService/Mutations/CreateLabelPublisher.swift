@@ -34,17 +34,17 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.CreateLabelResult> {
       try $0.on(
-        createLabelError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },
-        createLabelSuccess: .init { .saved(label: try $0.label(selection: feedItemLabelSelection)) }
+        createLabelSuccess: .init { .saved(label: try $0.label(selection: feedItemLabelSelection)) },
+        createLabelError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.createLabel(
         input: InputObjects.CreateLabelInput(
+          name: label.name,
           color: label.color,
-          description: OptionalArgument(label.labelDescription),
-          name: label.name
+          description: OptionalArgument(label.labelDescription)
         ),
         selection: selection
       )

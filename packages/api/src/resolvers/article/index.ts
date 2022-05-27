@@ -51,6 +51,7 @@ import {
   stringToHash,
   userDataToUser,
   validatedDate,
+  titleForFilePath,
 } from '../../utils/helpers'
 import {
   ParsedContentPuppeteer,
@@ -166,6 +167,7 @@ export const createArticleResolver = authorized<
           .join('.')
       ).replace(/_/gi, ' ')
 
+      let title: string | undefined
       let parsedContent: Readability.ParseResult | null = null
       let canonicalUrl
       let userArticleUrl: string | null = null
@@ -219,6 +221,7 @@ export const createArticleResolver = authorized<
         userArticleUrl = uploadFileDetails.fileUrl
         canonicalUrl = uploadFile.url
         pageType = PageType.File
+        title = titleForFilePath(uploadFile.url)
       } else if (
         source !== 'puppeteer-parse' &&
         FORCE_PUPPETEER_URLS.some((regex) => regex.test(url))
@@ -252,6 +255,7 @@ export const createArticleResolver = authorized<
         content: parsedContent?.content || '',
         description: parsedContent?.excerpt || '',
         title:
+          title ||
           parsedContent?.title ||
           preparedDocument?.pageInfo.title ||
           croppedPathname,
@@ -333,7 +337,6 @@ export const createArticleResolver = authorized<
       } else {
         // update existing page's state from processing to succeeded
         articleToSave.archivedAt = archive ? saveTime : undefined
-        articleToSave.url = uploadFileUrlOverride || articleToSave.url
         const updated = await updatePage(pageId, articleToSave, {
           ...ctx,
           uid,

@@ -32,16 +32,16 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.SetLabelsResult> {
       try $0.on(
-        setLabelsError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },
-        setLabelsSuccess: .init { .saved(feedItem: try $0.labels(selection: feedItemLabelSelection.list)) }
+        setLabelsSuccess: .init { .saved(feedItem: try $0.labels(selection: feedItemLabelSelection.list)) },
+        setLabelsError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.setLabels(
         input: InputObjects.SetLabelsInput(
-          labelIds: labelIDs,
-          pageId: itemID
+          pageId: itemID,
+          labelIds: labelIDs
         ),
         selection: selection
       )

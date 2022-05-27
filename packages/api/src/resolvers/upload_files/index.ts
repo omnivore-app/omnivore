@@ -16,7 +16,7 @@ import path from 'path'
 import normalizeUrl from 'normalize-url'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
-import { createPage } from '../../elastic/pages'
+import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
 import { PageType } from '../../elastic/types'
 import { generateSlug } from '../../utils/helpers'
 
@@ -82,28 +82,44 @@ export const uploadFileRequestResolver: ResolverFn<
       input.contentType
     )
 
-    const pageId = await createPage(
-      {
-        id: '',
-        url: input.url,
+    if (input.createPageEntry) {
+      const page = await getPageByParam({
         userId: claims.uid,
-        title: title,
-        hash: uploadFilePathName,
-        content: '',
-        pageType: PageType.File,
-        uploadFileId: uploadFileData.id,
-        slug: generateSlug(uploadFilePathName),
-        createdAt: new Date(),
-        savedAt: new Date(),
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        state: ArticleSavingRequestStatus.Processing,
-      },
-      ctx
-    )
-
-    if (!pageId) {
-      return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
+        url: input.url,
+      })
+      if (page) {
+        await updatePage(
+          page.id,
+          {
+            savedAt: new Date(),
+            archivedAt: null,
+          },
+          ctx
+        )
+      } else {
+        const pageId = await createPage(
+          {
+            url: input.url,
+            id: input.clientRequestId || '',
+            userId: claims.uid,
+            title: title,
+            hash: uploadFilePathName,
+            content: '',
+            pageType: PageType.File,
+            uploadFileId: uploadFileData.id,
+            slug: generateSlug(uploadFilePathName),
+            createdAt: new Date(),
+            savedAt: new Date(),
+            readingProgressPercent: 0,
+            readingProgressAnchorIndex: 0,
+            state: ArticleSavingRequestStatus.Processing,
+          },
+          ctx
+        )
+        if (!pageId) {
+          return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
+        }
+      }
     }
 
     return { id: uploadFileData.id, uploadSignedUrl }

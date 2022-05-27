@@ -20,11 +20,11 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.NewsletterEmailsResult> {
       try $0.on(
-        newsletterEmailsError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
-        },
         newsletterEmailsSuccess: .init {
           QueryResult.success(result: try $0.newsletterEmails(selection: newsletterEmailSelection.list))
+        },
+        newsletterEmailsError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }

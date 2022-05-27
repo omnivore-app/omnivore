@@ -1581,7 +1581,9 @@ enum UploadFileRequestErrorCode {
 }
 
 input UploadFileRequestInput {
+  clientRequestId: String
   contentType: String!
+  createPageEntry: Boolean
   url: String!
 }
 

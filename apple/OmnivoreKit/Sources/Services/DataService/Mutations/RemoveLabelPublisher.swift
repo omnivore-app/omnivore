@@ -23,10 +23,10 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.DeleteLabelResult> {
       try $0.on(
-        deleteLabelError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },
         deleteLabelSuccess: .init {
           .success(labelID: try $0.label(selection: Selection.Label { try $0.id() }))
-        }
+        },
+        deleteLabelError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) }
       )
     }
 

@@ -24,14 +24,14 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.SetBookmarkArticleResult> {
       try $0.on(
-        setBookmarkArticleError: .init { .error(errorCode: try $0.errorCodes().first ?? .notFound) },
         setBookmarkArticleSuccess: .init {
           .success(
             linkId: try $0.bookmarkedArticle(selection: Selection.Article {
               try $0.id()
             })
           )
-        }
+        },
+        setBookmarkArticleError: .init { .error(errorCode: try $0.errorCodes().first ?? .notFound) }
       )
     }
 

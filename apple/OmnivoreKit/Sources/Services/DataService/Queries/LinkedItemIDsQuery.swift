@@ -20,9 +20,6 @@ extension DataService {
 
     let selection = Selection<QueryResult, Unions.SearchResult> {
       try $0.on(
-        searchError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
-        },
         searchSuccess: .init {
           QueryResult.success(
             result: LinkedItemIDFetchResult(
@@ -32,6 +29,9 @@ extension DataService {
               })
             )
           )
+        },
+        searchError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }

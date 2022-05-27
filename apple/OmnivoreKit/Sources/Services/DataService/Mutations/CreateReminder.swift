@@ -37,21 +37,21 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.CreateReminderResult> {
       try $0.on(
-        createReminderError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },
         createReminderSuccess: .init {
           .complete(id: try $0.reminder(selection: Selection.Reminder { try $0.id() }))
-        }
+        },
+        createReminderError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.createReminder(
         input: InputObjects.CreateReminderInput(
-          archiveUntil: true,
-          clientRequestId: OptionalArgument(reminderItemId.clientRequestId),
           linkId: OptionalArgument(reminderItemId.linkId),
-          remindAt: DateTime(from: remindAt),
-          sendNotification: true
+          clientRequestId: OptionalArgument(reminderItemId.clientRequestId),
+          archiveUntil: true,
+          sendNotification: true,
+          remindAt: DateTime(from: remindAt)
         ),
         selection: selection
       )
