@@ -49,6 +49,7 @@ public final class DataService: ObservableObject {
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {
     do {
       try ValetKey.appEnvironmentString.setValue(appEnvironment.rawValue)
+      clearCoreData()
       fatalError("App environment changed -- restarting app")
     } catch {
       fatalError("Unable to write to Keychain: \(error)")
