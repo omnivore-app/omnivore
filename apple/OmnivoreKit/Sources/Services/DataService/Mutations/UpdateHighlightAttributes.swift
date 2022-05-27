@@ -31,18 +31,18 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.UpdateHighlightResult> {
       try $0.on(
-        updateHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) },
         updateHighlightSuccess: .init {
           .saved(highlight: try $0.highlight(selection: highlightSelection))
-        }
+        },
+        updateHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.updateHighlight(
         input: InputObjects.UpdateHighlightInput(
-          annotation: OptionalArgument(annotation),
           highlightId: highlightID,
+          annotation: OptionalArgument(annotation),
           sharedAt: OptionalArgument(nil)
         ),
         selection: selection

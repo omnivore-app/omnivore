@@ -24,16 +24,16 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.ArchiveLinkResult> {
       try $0.on(
-        archiveLinkError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) },
-        archiveLinkSuccess: .init { .success(linkId: try $0.linkId()) }
+        archiveLinkSuccess: .init { .success(linkId: try $0.linkId()) },
+        archiveLinkError: .init { .error(errorCode: try $0.errorCodes().first ?? .badRequest) }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.setLinkArchived(
         input: InputObjects.ArchiveLinkInput(
-          archived: archived,
-          linkId: itemID
+          linkId: itemID,
+          archived: archived
         ),
         selection: selection
       )

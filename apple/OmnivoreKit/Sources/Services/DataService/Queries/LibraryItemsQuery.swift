@@ -24,9 +24,6 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.ArticlesResult> {
       try $0.on(
-        articlesError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
-        },
         articlesSuccess: .init {
           QueryResult.success(
             result: InternalHomeFeedData(
@@ -36,22 +33,25 @@ public extension DataService {
               })
             )
           )
+        },
+        articlesError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }
 
     let query = Selection.Query {
       try $0.articles(
-        after: OptionalArgument(cursor),
-        first: OptionalArgument(limit),
-        includePending: OptionalArgument(true),
-        query: OptionalArgument(searchQuery),
         sharedOnly: .present(false),
         sort: OptionalArgument(
           InputObjects.SortParams(
-            by: .updatedTime, order: .present(.descending)
+            order: .present(.descending), by: .updatedTime
           )
         ),
+        after: OptionalArgument(cursor),
+        first: OptionalArgument(limit),
+        query: OptionalArgument(searchQuery),
+        includePending: OptionalArgument(true),
         selection: selection
       )
     }
@@ -90,20 +90,44 @@ public extension DataService {
       case error(error: String)
     }
 
+    let articleSelection = Selection.Article {
+      InternalLinkedItem(
+        id: try $0.id(),
+        title: try $0.title(),
+        createdAt: try $0.createdAt().value ?? Date(),
+        savedAt: try $0.savedAt().value ?? Date(),
+        readingProgress: try $0.readingProgressPercent(),
+        readingProgressAnchor: try $0.readingProgressAnchorIndex(),
+        imageURLString: try $0.image(),
+        onDeviceImageURLString: nil,
+        documentDirectoryPath: nil,
+        pageURLString: try $0.url(),
+        descriptionText: try $0.description(),
+        publisherURLString: try $0.originalArticleUrl(),
+        siteName: try $0.siteName(),
+        author: try $0.author(),
+        publishDate: try $0.publishedAt()?.value,
+        slug: try $0.slug(),
+        isArchived: try $0.isArchived(),
+        contentReader: try $0.contentReader().rawValue,
+        labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+      )
+    }
+
     let selection = Selection<QueryResult, Unions.ArticleResult> {
       try $0.on(
-        articleError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
-        },
         articleSuccess: .init {
           QueryResult.success(result: try $0.article(selection: articleSelection))
+        },
+        articleError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }
 
     let query = Selection.Query {
       // backend has a hack that allows us to pass in itemID in place of slug
-      try $0.article(slug: itemID, username: username, selection: selection)
+      try $0.article(username: username, slug: itemID, selection: selection)
     }
 
     let path = appEnvironment.graphqlPath
@@ -130,7 +154,7 @@ public extension DataService {
   }
 }
 
-private let articleSelection = Selection.Article {
+private let libraryArticleSelection = Selection.Article {
   InternalLinkedItem(
     id: try $0.id(),
     title: try $0.title(),
@@ -155,5 +179,5 @@ private let articleSelection = Selection.Article {
 }
 
 private let articleEdgeSelection = Selection.ArticleEdge {
-  try $0.node(selection: articleSelection)
+  try $0.node(selection: libraryArticleSelection)
 }

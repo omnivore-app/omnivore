@@ -30,10 +30,10 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.DeleteHighlightResult> {
       try $0.on(
-        deleteHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .unauthorized) },
         deleteHighlightSuccess: .init {
           .saved(id: try $0.highlight(selection: Selection.Highlight { try $0.id() }))
-        }
+        },
+        deleteHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .unauthorized) }
       )
     }
 

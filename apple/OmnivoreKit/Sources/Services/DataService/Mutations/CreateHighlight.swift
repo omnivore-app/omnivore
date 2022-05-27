@@ -40,22 +40,22 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.CreateHighlightResult> {
       try $0.on(
-        createHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) },
         createHighlightSuccess: .init {
           .saved(highlight: try $0.highlight(selection: highlightSelection))
-        }
+        },
+        createHighlightError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) }
       )
     }
 
     let mutation = Selection.Mutation {
       try $0.createHighlight(
         input: InputObjects.CreateHighlightInput(
-          annotation: OptionalArgument(highlight.annotation),
-          articleId: articleId,
           id: highlight.id,
+          shortId: highlight.shortId,
+          articleId: articleId,
           patch: highlight.patch,
           quote: highlight.quote,
-          shortId: highlight.shortId
+          annotation: OptionalArgument(highlight.annotation)
         ),
         selection: selection
       )

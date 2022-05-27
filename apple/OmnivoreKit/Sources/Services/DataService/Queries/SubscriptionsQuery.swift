@@ -26,11 +26,11 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.SubscriptionsResult> {
       try $0.on(
-        subscriptionsError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
-        },
         subscriptionsSuccess: .init {
           QueryResult.success(result: try $0.subscriptions(selection: subsciptionSelection.list))
+        },
+        subscriptionsError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }
