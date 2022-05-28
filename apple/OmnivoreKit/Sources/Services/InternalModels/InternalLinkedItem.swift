@@ -23,6 +23,13 @@ struct InternalLinkedItem {
   let contentReader: String?
   var labels: [InternalLinkedItemLabel]
 
+  var isPDF: Bool {
+    if let contentReader = contentReader {
+      return contentReader == "PDF"
+    }
+    return (pageURLString ?? "").hasSuffix("pdf")
+  }
+
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {
     let existingItem = LinkedItem.lookup(byID: id, inContext: context)
     let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: context)

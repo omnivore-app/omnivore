@@ -154,18 +154,27 @@ extension DataService {
             return
           }
 
-          if status == .succeeded {
-            self?.persistArticleContent(
-              item: result.item,
-              htmlContent: result.htmlContent,
-              highlights: result.highlights
-            )
+          if status == .succeeded || result.item.isPDF {
+            do {
+              try self?.persistArticleContent(
+                item: result.item,
+                htmlContent: result.htmlContent,
+                highlights: result.highlights
+              )
+            } catch {
+              var message = "unknown error"
+              let basicError = (error as? BasicError) ?? BasicError.message(messageText: "unknown error")
+              if case let BasicError.message(messageText) = basicError {
+                message = messageText
+              }
+              continuation.resume(throwing: ContentFetchError.unknown(description: message))
+            }
           }
 
           let articleContent = ArticleContent(
             htmlContent: result.htmlContent,
             highlightsJSONString: result.highlights.asJSONString,
-            contentStatus: .make(from: result.contentStatus)
+            contentStatus: result.item.isPDF ? .succeeded : .make(from: result.contentStatus)
           )
 
           continuation.resume(returning: articleContent)
@@ -176,72 +185,88 @@ extension DataService {
     }
   }
 
-  func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) {
-    backgroundContext.perform { [weak self] in
-      guard let self = self else { return }
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "id == %@", item.id)
+  func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) throws {
+    Task {
+      try await backgroundContext.perform { [weak self] in
+        guard let self = self else { return }
+        let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", item.id)
 
-      let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
-      let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
+        let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
+        let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
 
-      let highlightObjects = highlights.map {
-        $0.asManagedObject(context: self.backgroundContext)
-      }
-      linkedItem.addToHighlights(NSSet(array: highlightObjects))
-      linkedItem.htmlContent = htmlContent
-      linkedItem.id = item.id
-      linkedItem.title = item.title
-      linkedItem.createdAt = item.createdAt
-      linkedItem.savedAt = item.savedAt
-      linkedItem.readingProgress = item.readingProgress
-      linkedItem.readingProgressAnchor = Int64(item.readingProgressAnchor)
-      linkedItem.imageURLString = item.imageURLString
-      linkedItem.onDeviceImageURLString = item.onDeviceImageURLString
-      linkedItem.pageURLString = item.pageURLString
-      linkedItem.descriptionText = item.descriptionText
-      linkedItem.publisherURLString = item.publisherURLString
-      linkedItem.author = item.author
-      linkedItem.publishDate = item.publishDate
-      linkedItem.slug = item.slug
-      linkedItem.isArchived = item.isArchived
-      linkedItem.contentReader = item.contentReader
+        let highlightObjects = highlights.map {
+          $0.asManagedObject(context: self.backgroundContext)
+        }
+        linkedItem.addToHighlights(NSSet(array: highlightObjects))
+        linkedItem.htmlContent = htmlContent
+        linkedItem.id = item.id
+        linkedItem.title = item.title
+        linkedItem.createdAt = item.createdAt
+        linkedItem.savedAt = item.savedAt
+        linkedItem.readingProgress = item.readingProgress
+        linkedItem.readingProgressAnchor = Int64(item.readingProgressAnchor)
+        linkedItem.imageURLString = item.imageURLString
+        linkedItem.onDeviceImageURLString = item.onDeviceImageURLString
+        linkedItem.pageURLString = item.pageURLString
+        linkedItem.descriptionText = item.descriptionText
+        linkedItem.publisherURLString = item.publisherURLString
+        linkedItem.author = item.author
+        linkedItem.publishDate = item.publishDate
+        linkedItem.slug = item.slug
+        linkedItem.isArchived = item.isArchived
+        linkedItem.contentReader = item.contentReader
 
-      if linkedItem.isPDF {
-        self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
-      }
+        if linkedItem.isPDF, linkedItem.pdfData == nil {
+          do {
+            try self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
+          } catch {
+            throw error
+          }
+        }
 
-      do {
-        try self.backgroundContext.save()
-        print("ArticleContent saved succesfully")
-      } catch {
-        self.backgroundContext.rollback()
-        print("Failed to save ArticleContent: \(error)")
+        do {
+          try self.backgroundContext.save()
+          logger.debug("ArticleContent saved succesfully")
+        } catch {
+          self.backgroundContext.rollback()
+          logger.debug("Failed to save ArticleContent")
+          throw error
+        }
       }
     }
   }
 
-  func fetchPDFData(slug: String, pageURLString: String) {
+  func fetchPDFData(slug: String, pageURLString: String) throws {
     Task {
       guard let url = URL(string: pageURLString) else { return }
       let result: (Data, URLResponse)? = try? await URLSession.shared.data(from: url)
-      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else { return }
-      guard let data = result?.0 else { return }
+      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        throw BasicError.message(messageText: "pdfFetch failed. no response or bad status code.")
+      }
+      guard let data = result?.0 else {
+        throw BasicError.message(messageText: "pdfFetch failed. no data received.")
+      }
 
-      await backgroundContext.perform { [weak self] in
+      try await backgroundContext.perform { [weak self] in
         let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LinkedItem.slug), slug)
 
         let linkedItem = try? self?.backgroundContext.fetch(fetchRequest).first
-        guard let linkedItem = linkedItem else { return }
+        guard let linkedItem = linkedItem else {
+          let errorMessage = "pdfFetch failed. could not find LinkedItem from fetch request"
+          throw BasicError.message(messageText: errorMessage)
+        }
         linkedItem.pdfData = data
 
         do {
           try self?.backgroundContext.save()
-          print("PDF data saved succesfully")
+          logger.debug("PDF data saved succesfully")
         } catch {
           self?.backgroundContext.rollback()
-          print("Failed to save PDF data: \(error)")
+          logger.debug("PDF data saved succesfully")
+          let errorMessage = "pdfFetch failed. core data save failed."
+          throw BasicError.message(messageText: errorMessage)
         }
       }
     }
