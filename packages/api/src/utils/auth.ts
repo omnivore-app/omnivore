@@ -4,6 +4,8 @@ import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { ApiKey } from '../entity/api_key'
 import crypto from 'crypto'
+import * as jwt from 'jsonwebtoken'
+import { env } from '../env'
 
 export const hashPassword = async (password: string, salt = 10) => {
   return bcrypt.hash(password, salt)
@@ -48,4 +50,32 @@ export const claimsFromApiKey = async (key: string): Promise<Claims> => {
     iat,
     exp,
   }
+}
+
+// verify jwt token first
+// if valid then decode and return claims
+// if expired then throw error
+// if not valid then verify api key
+export const getClaimsByToken = async (
+  token: string | undefined
+): Promise<Claims | undefined> => {
+  let claims: Claims | undefined
+
+  if (!token) {
+    return undefined
+  }
+
+  try {
+    jwt.verify(token, env.server.jwtSecret) &&
+      (claims = jwt.decode(token) as Claims)
+  } catch (e) {
+    if (e instanceof jwt.JsonWebTokenError) {
+      console.log(`not a jwt token, checking api key`, { token })
+      claims = await claimsFromApiKey(token)
+    } else {
+      throw e
+    }
+  }
+
+  return claims
 }

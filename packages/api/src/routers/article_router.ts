@@ -6,13 +6,12 @@ import express from 'express'
 import { CreateArticleErrorCode } from './../generated/graphql'
 import { isSiteBlockedForParse } from './../utils/blocked'
 import cors from 'cors'
-import { env } from './../env'
 import { buildLogger } from './../utils/logger'
-import * as jwt from 'jsonwebtoken'
 import { corsConfig } from '../utils/corsConfig'
 import { createPageSaveRequest } from '../services/create_page_save_request'
 import { initModels } from '../server'
 import { kx } from '../datalayer/knex_config'
+import { getClaimsByToken } from '../utils/auth'
 
 const logger = buildLogger('app.dispatch')
 
@@ -26,11 +25,12 @@ export function articleRouter() {
     }
 
     const token = req?.cookies?.auth || req?.headers?.authorization
-    if (!token || !jwt.verify(token, env.server.jwtSecret)) {
-      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+    const claims = await getClaimsByToken(token)
+    if (!claims) {
+      return res.status(401).send('UNAUTHORIZED')
     }
 
-    const { uid } = (jwt.decode(token) || {}) as { uid: string }
+    const { uid } = claims
 
     logger.info('Article saving request', {
       body: req.body,
