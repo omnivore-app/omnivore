@@ -179,7 +179,12 @@ export const searchHighlights = async (
                 {
                   multi_match: {
                     query: query || '',
-                    fields: ['highlights.quote', 'highlights.annotation'],
+                    fields: [
+                      'highlights.quote^5',
+                      'title^3',
+                      'description^2',
+                      'content',
+                    ],
                     operator: 'and',
                     type: 'cross_fields',
                   },
