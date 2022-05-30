@@ -12,16 +12,19 @@ public extension DataService {
     }
 
     let input = InputObjects.SavePageInput(
-      url: requestId,
-      source: html,
-      clientRequestId: "ios-page",
+      url: pageScrapePayload.url,
+      source: "ios-page",
+      clientRequestId: requestId,
       title: OptionalArgument(title),
-      originalContent: pageScrapePayload.url
+      originalContent: html
     )
 
     let selection = Selection<MutationResult, Unions.SaveResult> {
       try $0.on(
-        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") }, saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) }
+        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") },
+        saveError: .init {
+          .error(errorCode: (try? $0.errorCodes().first) ?? .unknown)
+        }
       )
     }
 
