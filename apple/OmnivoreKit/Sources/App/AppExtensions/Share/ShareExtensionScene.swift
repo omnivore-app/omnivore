@@ -42,7 +42,7 @@ final class ShareExtensionViewModel: ObservableObject {
   }
 
   func savePage(extensionContext: NSExtensionContext?) {
-    backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "BACKGROUND")
+    backgroundTask = UIApplication.shared.beginBackgroundTask(withName: requestID)
 
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
       switch result {
