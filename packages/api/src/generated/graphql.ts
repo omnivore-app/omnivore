@@ -1484,6 +1484,25 @@ export type SearchSuccess = {
   pageInfo: PageInfo;
 };
 
+export type SendInstallInstructionsError = {
+  __typename?: 'SendInstallInstructionsError';
+  errorCodes: Array<SendInstallInstructionsErrorCode>;
+};
+
+export enum SendInstallInstructionsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Forbidden = 'FORBIDDEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SendInstallInstructionsResult = SendInstallInstructionsError | SendInstallInstructionsSuccess;
+
+export type SendInstallInstructionsSuccess = {
+  __typename?: 'SendInstallInstructionsSuccess';
+  sent: Scalars['Boolean'];
+};
+
 export type SetBookmarkArticleError = {
   __typename?: 'SetBookmarkArticleError';
   errorCodes: Array<SetBookmarkArticleErrorCode>;
@@ -2462,6 +2481,10 @@ export type ResolversTypes = {
   SearchItemEdge: ResolverTypeWrapper<SearchItemEdge>;
   SearchResult: ResolversTypes['SearchError'] | ResolversTypes['SearchSuccess'];
   SearchSuccess: ResolverTypeWrapper<SearchSuccess>;
+  SendInstallInstructionsError: ResolverTypeWrapper<SendInstallInstructionsError>;
+  SendInstallInstructionsErrorCode: SendInstallInstructionsErrorCode;
+  SendInstallInstructionsResult: ResolversTypes['SendInstallInstructionsError'] | ResolversTypes['SendInstallInstructionsSuccess'];
+  SendInstallInstructionsSuccess: ResolverTypeWrapper<SendInstallInstructionsSuccess>;
   SetBookmarkArticleError: ResolverTypeWrapper<SetBookmarkArticleError>;
   SetBookmarkArticleErrorCode: SetBookmarkArticleErrorCode;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
@@ -2760,6 +2783,9 @@ export type ResolversParentTypes = {
   SearchItemEdge: SearchItemEdge;
   SearchResult: ResolversParentTypes['SearchError'] | ResolversParentTypes['SearchSuccess'];
   SearchSuccess: SearchSuccess;
+  SendInstallInstructionsError: SendInstallInstructionsError;
+  SendInstallInstructionsResult: ResolversParentTypes['SendInstallInstructionsError'] | ResolversParentTypes['SendInstallInstructionsSuccess'];
+  SendInstallInstructionsSuccess: SendInstallInstructionsSuccess;
   SetBookmarkArticleError: SetBookmarkArticleError;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
   SetBookmarkArticleResult: ResolversParentTypes['SetBookmarkArticleError'] | ResolversParentTypes['SetBookmarkArticleSuccess'];
@@ -3716,6 +3742,20 @@ export type SearchSuccessResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SendInstallInstructionsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendInstallInstructionsError'] = ResolversParentTypes['SendInstallInstructionsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SendInstallInstructionsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SendInstallInstructionsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendInstallInstructionsResult'] = ResolversParentTypes['SendInstallInstructionsResult']> = {
+  __resolveType: TypeResolveFn<'SendInstallInstructionsError' | 'SendInstallInstructionsSuccess', ParentType, ContextType>;
+};
+
+export type SendInstallInstructionsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendInstallInstructionsSuccess'] = ResolversParentTypes['SendInstallInstructionsSuccess']> = {
+  sent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SetBookmarkArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetBookmarkArticleError'] = ResolversParentTypes['SetBookmarkArticleError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SetBookmarkArticleErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4290,6 +4330,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;
   SearchResult?: SearchResultResolvers<ContextType>;
   SearchSuccess?: SearchSuccessResolvers<ContextType>;
+  SendInstallInstructionsError?: SendInstallInstructionsErrorResolvers<ContextType>;
+  SendInstallInstructionsResult?: SendInstallInstructionsResultResolvers<ContextType>;
+  SendInstallInstructionsSuccess?: SendInstallInstructionsSuccessResolvers<ContextType>;
   SetBookmarkArticleError?: SetBookmarkArticleErrorResolvers<ContextType>;
   SetBookmarkArticleResult?: SetBookmarkArticleResultResolvers<ContextType>;
   SetBookmarkArticleSuccess?: SetBookmarkArticleSuccessResolvers<ContextType>;

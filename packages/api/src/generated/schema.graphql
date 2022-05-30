@@ -1055,6 +1055,23 @@ type SearchSuccess {
   pageInfo: PageInfo!
 }
 
+type SendInstallInstructionsError {
+  errorCodes: [SendInstallInstructionsErrorCode!]!
+}
+
+enum SendInstallInstructionsErrorCode {
+  BAD_REQUEST
+  FORBIDDEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SendInstallInstructionsResult = SendInstallInstructionsError | SendInstallInstructionsSuccess
+
+type SendInstallInstructionsSuccess {
+  sent: Boolean!
+}
+
 type SetBookmarkArticleError {
   errorCodes: [SetBookmarkArticleErrorCode!]!
 }
