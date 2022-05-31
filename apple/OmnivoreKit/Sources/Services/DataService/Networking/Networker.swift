@@ -29,7 +29,6 @@ public final class Networker: NSObject, URLSessionTaskDelegate {
   public func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError: Error?) {
     if let httpResponse = task.response as? HTTPURLResponse {
       print("httpRespinse status code", httpResponse.statusCode)
-      print("current Request", task.currentRequest?.url)
     }
     print("finished upload of file:", task.taskIdentifier, task.currentRequest, task.response, "with error", didCompleteWithError)
   }

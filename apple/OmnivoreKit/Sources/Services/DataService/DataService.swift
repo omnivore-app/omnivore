@@ -153,8 +153,8 @@ public final class DataService: ObservableObject {
         linkedItem.originalHtml = html
         linkedItem.title = title ?? self.titleFromPdfFile(pageScrape.url)
       case .none:
-        print("SAVING NONE TYPE")
-        throw BasicError.message(messageText: "Attempting to save none type")
+        print("SAVING URL", linkedItem.unwrappedPageURLString)
+        linkedItem.contentReader = "WEB"
       }
 
       do {

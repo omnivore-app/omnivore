@@ -40,13 +40,29 @@ extension DataService {
     case "PDF":
       // SaveFile
       uploadFilePublisher(item: item)
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
+        .sink(receiveCompletion: { [weak self] _ in
+          print("received PDF saved completion")
+        }, receiveValue: { [weak self] _ in
+          print("recived save PDF value", item)
+        })
+        .store(in: &subscriptions)
     case "WEB":
       if item.originalHtml != nil {
-        // SavePage
+        savePagePublisher(item: item)
+          .sink(receiveCompletion: { [weak self] _ in
+            print("received page saved completion")
+          }, receiveValue: { [weak self] _ in
+            print("recived save page value", item)
+          })
+          .store(in: &subscriptions)
       } else {
-        // SaveURL
+        saveUrlPublisher(item: item)
+          .sink(receiveCompletion: { [weak self] _ in
+            print("received url saved completion")
+          }, receiveValue: { [weak self] _ in
+//            print("recived save url value", item)
+          })
+          .store(in: &subscriptions)
       }
     case .none:
       print("NONE HANDLER")
@@ -61,7 +77,7 @@ extension DataService {
 
       switch syncStatus {
       case .needsCreation:
-        print("SYNCING LINKED ITEM", unsyncedLinkedItems)
+        syncLocalCreatedLinkedItem(item: item)
       case .isNSync, .isSyncing:
         break
       case .needsDeletion:
