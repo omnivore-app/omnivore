@@ -3,22 +3,6 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-//  func uploadPDFPublisher(
-//    pageScrapePayload: PageScrapePayload,
-//    data: Data,
-//    requestId: String
-//  ) -> AnyPublisher<Void, SaveArticleError> {
-//    // uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
-//    // .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, data: data) }
-//    uploadFilePublisher(pageScrapePayload: pageScrapePayload, requestId: requestId, data: data)
-//      .flatMap { self.saveFilePublisher(pageScrapePayload: pageScrapePayload, uploadFileId: $0, requestId: requestId) }
-//      .catch { _ in self.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId) }
-//      .receive(on: DispatchQueue.main)
-//      .eraseToAnyPublisher()
-//  }
-}
-
 private struct UploadFileRequestPayload {
   let uploadID: String?
   let uploadFileID: String?

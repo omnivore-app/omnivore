@@ -75,6 +75,9 @@ extension DataService {
 
       switch syncStatus {
       case .needsCreation:
+        // TODO: We will want to sync items that need creation in the background
+        // these items are forced to sync when saved, but should be re-tried in
+        // the background.
         // syncLocalCreatedLinkedItem(item: item)
         break
       case .isNSync, .isSyncing:

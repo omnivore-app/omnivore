@@ -180,30 +180,6 @@ public struct ShareExtensionChildView: View {
           Spacer()
         }
       }
-//      if case ShareExtensionStatus.saved = status {
-//        HStack(spacing: 4) {
-//          Text("Saved to Omnivore")
-//            .font(.appTitleThree)
-//            .foregroundColor(.appGrayText)
-//            .padding(.trailing, 16)
-//            .multilineTextAlignment(.center)
-//            .fixedSize(horizontal: false, vertical: true)
-//            .lineLimit(nil)
-//        }
-//        .padding()
-//      } else if case let ShareExtensionStatus.failed(error) = status {
-//        HStack {
-//          Spacer()
-//          Text(error.displayMessage)
-//          Spacer()
-//        }
-//      } else {
-//        HStack {
-//          Spacer()
-//          Text("Saving...")
-//          Spacer()
-//        }
-//      }
 
       ScrollView {
         if FeatureFlag.enableRemindersFromShareExtension {
