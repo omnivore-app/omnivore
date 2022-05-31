@@ -63,7 +63,7 @@ public extension DataService {
   }
 }
 
-private extension SaveArticleError {
+extension SaveArticleError {
   static func make(from httpError: HttpError) -> SaveArticleError {
     switch httpError {
     case .network, .timeout:

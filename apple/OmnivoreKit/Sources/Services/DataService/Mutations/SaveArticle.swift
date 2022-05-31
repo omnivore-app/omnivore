@@ -219,14 +219,3 @@ public extension DataService {
     .eraseToAnyPublisher()
   }
 }
-
-private extension SaveArticleError {
-  static func make(from httpError: HttpError) -> SaveArticleError {
-    switch httpError {
-    case .network, .timeout:
-      return .network
-    case .badpayload, .badURL, .badstatus, .cancelled:
-      return .unknown(description: httpError.localizedDescription)
-    }
-  }
-}
