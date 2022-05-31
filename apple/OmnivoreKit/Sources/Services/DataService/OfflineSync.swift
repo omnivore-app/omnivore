@@ -35,24 +35,38 @@ extension DataService {
     }
   }
 
-  public func syncLocalCreatedLinkedItem(item: LinkedItem) {
+  public func syncLocalCreatedLinkedItem(item: LinkedItem) async -> Bool {
     switch item.contentReader {
     case "PDF":
       // SaveFile
-      uploadFilePublisher(item: item)
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
-    case "WEB":
-      if item.originalHtml != nil {
-        // SavePage
-      } else {
-        // SaveURL
+      do {
+        let uploadRequest = try await uploadFileRequest(item: item)
+        uploadFile(item: item, url: uploadRequest)
+      } catch {
+        logger.debug("Failed to upload PDF LinkedItem: \(error.localizedDescription)")
+        return false
       }
-    case .none:
-      print("NONE HANDLER")
-    case .some:
-      print("SOME HANDLER")
+    case "WEB":
+      do {
+        if item.originalHtml != nil {
+          try await savePage(item: item)
+        } else {
+          try await saveURL(item: item)
+        }
+        item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+        print("ITEMS SYNCED")
+        try backgroundContext.save()
+        return true
+      } catch {
+        print("Error saving", error)
+        backgroundContext.rollback()
+        logger.debug("Failed to sync LinkedItem: \(error.localizedDescription)")
+        return false
+      }
+    default:
+      return false
     }
+    return false
   }
 
   private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
@@ -61,7 +75,11 @@ extension DataService {
 
       switch syncStatus {
       case .needsCreation:
-        print("SYNCING LINKED ITEM", unsyncedLinkedItems)
+        // TODO: We will want to sync items that need creation in the background
+        // these items are forced to sync when saved, but should be re-tried in
+        // the background.
+        // syncLocalCreatedLinkedItem(item: item)
+        break
       case .isNSync, .isSyncing:
         break
       case .needsDeletion:

@@ -112,7 +112,7 @@ export const uploadFileRequestResolver: ResolverFn<
             savedAt: new Date(),
             readingProgressPercent: 0,
             readingProgressAnchorIndex: 0,
-            state: ArticleSavingRequestStatus.Processing,
+            state: ArticleSavingRequestStatus.Succeeded,
           },
           ctx
         )

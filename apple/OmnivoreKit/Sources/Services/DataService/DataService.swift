@@ -37,7 +37,6 @@ public final class DataService: ObservableObject {
     } else {
       persistentContainer.loadPersistentStores { _, error in
         if let error = error {
-          print("error", error)
           fatalError("Core Data store failed to load with error: \(error)")
         }
       }
@@ -153,8 +152,8 @@ public final class DataService: ObservableObject {
         linkedItem.originalHtml = html
         linkedItem.title = title ?? self.titleFromPdfFile(pageScrape.url)
       case .none:
-        print("SAVING NONE TYPE")
-        throw BasicError.message(messageText: "Attempting to save none type")
+        print("SAVING URL", linkedItem.unwrappedPageURLString)
+        linkedItem.contentReader = "WEB"
       }
 
       do {

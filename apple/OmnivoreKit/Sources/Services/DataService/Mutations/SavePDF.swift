@@ -3,22 +3,6 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
-//  func uploadPDFPublisher(
-//    pageScrapePayload: PageScrapePayload,
-//    data: Data,
-//    requestId: String
-//  ) -> AnyPublisher<Void, SaveArticleError> {
-//    // uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
-//    // .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, data: data) }
-//    uploadFilePublisher(pageScrapePayload: pageScrapePayload, requestId: requestId, data: data)
-//      .flatMap { self.saveFilePublisher(pageScrapePayload: pageScrapePayload, uploadFileId: $0, requestId: requestId) }
-//      .catch { _ in self.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId) }
-//      .receive(on: DispatchQueue.main)
-//      .eraseToAnyPublisher()
-//  }
-}
-
 private struct UploadFileRequestPayload {
   let uploadID: String?
   let uploadFileID: String?
@@ -26,9 +10,7 @@ private struct UploadFileRequestPayload {
 }
 
 private extension DataService {
-  // swiftlint:disable:next line_length
-  // func uploadFileRequestPublisher(pageScrapePayload: PageScrapePayload, requestId: String?) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
-  func uploadFileRequestPublisher(item: LinkedItem) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
+  public func uploadFileRequest(item: LinkedItem) async throws -> URL {
     enum MutationResult {
       case success(payload: UploadFileRequestPayload)
       case error(errorCode: Enums.UploadFileRequestErrorCode?)
@@ -63,84 +45,51 @@ private extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          print("result of upload file request", result)
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.unknown(description: graphqlError.first.debugDescription)))
-            }
-
-            switch payload.data {
-            case let .success(payload):
-              promise(.success(payload))
-            case let .error(errorCode):
-              switch errorCode {
-              case .unauthorized:
-                promise(.failure(.unauthorized))
-              default:
-                promise(.failure(.unknown(description: errorCode.debugDescription)))
-              }
-            }
-          case .failure:
-            promise(.failure(.badData))
+    return try await withCheckedThrowingContinuation { continuation in
+      send(mutation, to: path, headers: headers) { result in
+        switch result {
+        case let .success(payload):
+          if let graphqlError = payload.errors {
+            continuation.resume(
+              throwing: SaveArticleError.unknown(description: graphqlError.first.debugDescription)
+            )
+            return
           }
+
+          switch payload.data {
+          case let .success(payload):
+            if let urlString = payload.urlString, let url = URL(string: urlString) {
+              continuation.resume(returning: url)
+            } else {
+              continuation.resume(throwing: SaveArticleError.unknown(description: "No upload URL"))
+            }
+          case let .error(errorCode: errorCode):
+            switch errorCode {
+            case .unauthorized:
+              continuation.resume(throwing: SaveArticleError.unauthorized)
+            default:
+              continuation.resume(throwing: SaveArticleError.unknown(description: errorCode?.rawValue ?? "unknown"))
+            }
+          }
+        case let .failure(error):
+          continuation.resume(throwing: SaveArticleError.make(from: error))
         }
       }
     }
-    .eraseToAnyPublisher()
   }
 
-  // swiftlint:disable:next line_length
-  public func uploadFilePublisher(item: LinkedItem) -> AnyPublisher<String, SaveArticleError> {
-    var urlComponents = URLComponents(url: appEnvironment.serverBaseURL, resolvingAgainstBaseURL: true)!
-    // let headers = networker.defaultHeaders
-
-    urlComponents.path = "/api/page/pdf"
-    urlComponents.queryItems = [URLQueryItem(name: "url", value: item.pageURLString), URLQueryItem(name: "clientRequestId", value: item.unwrappedID)]
-
+  public func uploadFile(item: LinkedItem, url: URL) -> URLSessionTask? {
     if let localPdfURL = item.localPdfURL, let localUrl = URL(string: localPdfURL) {
-      print("UPLOADING TO URL", urlComponents.url)
-      var request = URLRequest(url: urlComponents.url!)
+      var request = URLRequest(url: url)
       request.httpMethod = "PUT"
-
-      networker.defaultHeaders.forEach { (key: String, value: String) in
-        request.addValue(value, forHTTPHeaderField: key)
-      }
       request.setValue("application/pdf", forHTTPHeaderField: "content-type")
 
       let task = networker.backgroundSession.uploadTask(with: request, fromFile: localUrl)
       task.resume()
+      return task
+    } else {
+      return nil
     }
-
-    // Just return immediately at this point.
-    return Empty(completeImmediately: true).eraseToAnyPublisher()
-//    return "".publisher.eraseToAnyPublisher()
-//    return networker.urlSession.dataTaskPublisher(for: request)
-//      .tryMap { data, response -> String in
-//        let serverResponse = ServerResponse(data: data, response: response)
-//        if serverResponse.httpUrlResponse?.statusCode == 200, let fileUploadID = fileUploadConfig.uploadID {
-//          return fileUploadID
-//        }
-//
-//        throw ServerError(serverResponse: serverResponse)
-//      }
-//      .mapError { error -> SaveArticleError in
-//        let serverResponse = ServerResponse(error: error)
-//        NetworkRequestLogger.log(request: request, serverResponse: serverResponse)
-//        let serverError = ServerError(serverResponse: serverResponse)
-//        switch serverError {
-//        case .noConnection, .timeout:
-//          return .network
-//        case .unauthenticated:
-//          return .unauthorized
-//        case .unknown:
-//          return .unknown(description: "upload to file server failed")
-//        }
-//      }
-//      .eraseToAnyPublisher()
   }
 
   // swiftlint:disable:next line_length
