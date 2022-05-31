@@ -1,11 +1,9 @@
-import Combine
 import Foundation
 import Models
 import SwiftGraphQL
 
 public extension DataService {
-  // swiftlint:disable:next line_length
-  func savePagePublisher(pageScrapePayload: PageScrapePayload, html: String, title: String?, requestId: String) -> AnyPublisher<Void, SaveArticleError> {
+  func savePage(pageScrapePayload: PageScrapePayload, html: String, title: String?, requestId: String) async throws {
     enum MutationResult {
       case saved(requestId: String, url: String)
       case error(errorCode: Enums.SaveErrorCode)
@@ -35,38 +33,37 @@ public extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.unknown(description: graphqlError.first.debugDescription)))
-            }
-
-            switch payload.data {
-            case .saved:
-              promise(.success(()))
-            case let .error(errorCode: errorCode):
-              switch errorCode {
-              case .unauthorized:
-                promise(.failure(.unauthorized))
-              default:
-                promise(.failure(.unknown(description: errorCode.rawValue)))
-              }
-            }
-          case let .failure(error):
-            promise(.failure(SaveError.make(from: error)))
+    return try await withCheckedThrowingContinuation { continuation in
+      send(mutation, to: path, headers: headers) { result in
+        switch result {
+        case let .success(payload):
+          if let graphqlError = payload.errors {
+            continuation.resume(
+              throwing: SaveArticleError.unknown(description: graphqlError.first.debugDescription)
+            )
+            return
           }
+
+          switch payload.data {
+          case .saved:
+            continuation.resume()
+          case let .error(errorCode: errorCode):
+            switch errorCode {
+            case .unauthorized:
+              continuation.resume(throwing: SaveArticleError.unauthorized)
+            default:
+              continuation.resume(throwing: SaveArticleError.unknown(description: errorCode.rawValue))
+            }
+          }
+        case let .failure(error):
+          continuation.resume(throwing: SaveArticleError.make(from: error))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }
 
-private extension SaveError {
+private extension SaveArticleError {
   static func make(from httpError: HttpError) -> SaveArticleError {
     switch httpError {
     case .network, .timeout:

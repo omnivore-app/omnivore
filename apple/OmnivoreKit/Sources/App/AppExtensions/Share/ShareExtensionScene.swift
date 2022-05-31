@@ -45,49 +45,71 @@ final class ShareExtensionViewModel: ObservableObject {
     backgroundTask = UIApplication.shared.beginBackgroundTask(withName: requestID)
 
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
+      guard let self = self else { return }
       switch result {
       case let .success(payload):
-        self?.persist(pageScrapePayload: payload, requestId: self?.requestID ?? "")
+        Task {
+          await self.persist(pageScrapePayload: payload, requestId: self.requestID)
+        }
       case let .failure(error):
-        if let backgroundTask = self?.backgroundTask {
+        if let backgroundTask = self.backgroundTask {
           UIApplication.shared.endBackgroundTask(backgroundTask)
         }
-        self?.debugText = error.message
+        self.debugText = error.message
       }
     }
   }
 
-  private func persist(pageScrapePayload: PageScrapePayload, requestId: String) {
+  private func persist(pageScrapePayload: PageScrapePayload, requestId: String) async {
     let services = Services()
 
-    Task {
-      do {
-        // Save locally, then attempt to sync to the server
-        let item = try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
-        // TODO: need to update this on the main thread and handle the result == false case here
-        if item != nil {
-          self.status = .saved
-        } else {
-          self.status = .failed(error: SaveArticleError.unknown(description: "Unable to save page"))
-          return
-        }
+    // Save locally first
+    let linkedItem = try? await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
 
-        // force a server sync
-        if let item = item {
-          let syncResult = services.dataService.syncLocalCreatedLinkedItem(item: item)
-          print("RESULT", syncResult)
-        }
-//          self.status = .synced
-//        } else {
-//          self.status = .syncFailed(error: SaveArticleError.unknown(description: "Unable to sync page"))
-//        }
-
-      } catch {
-        print("ERROR SAVING PAGE", error)
-      }
+    if let linkedItem = linkedItem {
+      // Sync with server now that we saved the item locally
+      services.dataService.syncLocalCreatedLinkedItem(item: linkedItem)
+      updateStatus(newStatus: .saved)
+    } else {
+      updateStatus(newStatus: .failed(error: SaveArticleError.unknown(description: "Unable to save page")))
     }
-    // First persist to Core Data
-    // services.dataService.persist(jsonArticle: article)
+  }
+
+  private func updateStatus(newStatus: ShareExtensionStatus) {
+    DispatchQueue.main.async {
+      self.status = newStatus
+    }
+  }
+}
+
+//    Task {
+//      do {
+//        // Save locally, then attempt to sync to the server
+//        let item = try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
+//        // TODO: need to update this on the main thread and handle the result == false case here
+//        if item != nil {
+//          self.status = .saved
+//        } else {
+//          self.status = .failed(error: SaveArticleError.unknown(description: "Unable to save page"))
+//          return
+//        }
+//
+//        // force a server sync
+//        if let item = item {
+//          let syncResult = services.dataService.syncLocalCreatedLinkedItem(item: item)
+//          print("RESULT", syncResult)
+//        }
+////          self.status = .synced
+////        } else {
+////          self.status = .syncFailed(error: SaveArticleError.unknown(description: "Unable to sync page"))
+////        }
+//
+//      } catch {
+//        print("ERROR SAVING PAGE", error)
+//      }
+//    }
+//    // First persist to Core Data
+//    // services.dataService.persist(jsonArticle: article)
 
 //
 //    guard services.authenticator.hasValidAuthToken else {
@@ -137,8 +159,8 @@ final class ShareExtensionViewModel: ObservableObject {
 //        }
 //      }
 //    }
-  }
-}
+//  }
+// }
 
 struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
