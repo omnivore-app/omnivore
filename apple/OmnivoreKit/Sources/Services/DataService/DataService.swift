@@ -37,7 +37,6 @@ public final class DataService: ObservableObject {
     } else {
       persistentContainer.loadPersistentStores { _, error in
         if let error = error {
-          print("error", error)
           fatalError("Core Data store failed to load with error: \(error)")
         }
       }
