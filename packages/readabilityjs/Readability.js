@@ -830,8 +830,8 @@ Readability.prototype = {
    * @param Element
    * @return void
    **/
-  _prepArticle: function (articleContent) {
-    this._createPlaceholders(articleContent);
+  _prepArticle: async function (articleContent) {
+    await this._createPlaceholders(articleContent);
     this._cleanStyles(articleContent);
     // Check for data tables before we continue, to avoid removing items in
     // those tables, which will often be isolated even though they're
@@ -1105,7 +1105,7 @@ Readability.prototype = {
    * @param page a document to run upon. Needs to be a full document, complete with body.
    * @return Element
    **/
-  _grabArticle: function (page) {
+  _grabArticle: async function(page) {
     this.log("**** grabArticle ****");
     const doc = this._doc;
     const isPaging = page !== null;
@@ -1148,13 +1148,13 @@ Readability.prototype = {
         if (shouldRemoveTitleHeader && this._headerDuplicatesTitle(node)) {
           const headingText = node.textContent.trim();
           const titleText = this._articleTitle.trim();
-          this.log("Removing header: ", {headingText, titleText});
+          this.log("Removing header: ", { headingText, titleText });
           shouldRemoveTitleHeader = false;
           // Replacing title with the heading if the title includes heading but heading is smaller
           // Example article: http://jsomers.net/i-should-have-loved-biology
           // Or if there is the specific attribute that we can lean on.
           // For example "headline" in this article - https://nymag.com/intelligencer/2020/12/four-seasons-total-landscaping-the-full-est-possible-story.html
-          if ((titleText !== headingText && titleText.includes(headingText)) || this._someNodeAttribute(node, ({value}) => value === 'headline')) {
+          if ((titleText !== headingText && titleText.includes(headingText)) || this._someNodeAttribute(node, ({ value }) => value === 'headline')) {
             this.log('Replacing title with heading')
             this._articleTitle = headingText;
           }
@@ -1166,8 +1166,8 @@ Readability.prototype = {
         if (stripUnlikelyCandidates) {
           if (
             (this.REGEXPS.unlikelyCandidates.test(matchString) ||
-            // Checking for the "data-testid" attribute as well for the NYTimes articles
-            // Example article: https://www.nytimes.com/2021/03/31/world/americas/brazil-coronavirus-bolsonaro.html
+              // Checking for the "data-testid" attribute as well for the NYTimes articles
+              // Example article: https://www.nytimes.com/2021/03/31/world/americas/brazil-coronavirus-bolsonaro.html
               this.REGEXPS.unlikelyCandidates.test(node.dataset && node.dataset.testid)) &&
             !this.REGEXPS.okMaybeItsACandidate.test(matchString) &&
             !/tweet(-\w+)?/i.test(matchString) &&
@@ -1204,8 +1204,8 @@ Readability.prototype = {
 
         // Remove DIV, SECTION, and HEADER nodes without any content(e.g. text, image, video, or iframe).
         if ((node.tagName === "DIV" || node.tagName === "SECTION" || node.tagName === "HEADER" ||
-          node.tagName === "H1" || node.tagName === "H2" || node.tagName === "H3" ||
-          node.tagName === "H4" || node.tagName === "H5" || node.tagName === "H6") &&
+            node.tagName === "H1" || node.tagName === "H2" || node.tagName === "H3" ||
+            node.tagName === "H4" || node.tagName === "H5" || node.tagName === "H6") &&
           this._isElementWithoutContent(node)) {
           node = this._removeAndGetNext(node);
           continue;
@@ -1271,7 +1271,7 @@ Readability.prototype = {
        * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
        **/
       var candidates = [];
-      this._forEachNode(elementsToScore, function (elementToScore) {
+      this._forEachNode(elementsToScore, function(elementToScore) {
         if (!elementToScore.parentNode || typeof (elementToScore.parentNode.tagName) === "undefined")
           return;
 
@@ -1297,7 +1297,7 @@ Readability.prototype = {
         contentScore += Math.min(Math.floor(innerText.length / 100), 3);
 
         // Initialize and score ancestors.
-        this._forEachNode(ancestors, function (ancestor, level) {
+        this._forEachNode(ancestors, function(ancestor, level) {
           if (!ancestor.tagName || !ancestor.parentNode || typeof (ancestor.parentNode.tagName) === "undefined")
             return;
 
@@ -1526,7 +1526,7 @@ Readability.prototype = {
         const figures = this._getAllNodesWithTag(headerNode, ['FIGURE']);
         this._forEachNode(figures, figure => {
           if (!this._someNode(alreadyExistingFigures, existingFigure => existingFigure === figure)) {
-            this.log(`Prepending figure to the article`, {className: figure.className, scr: figure.src})
+            this.log(`Prepending figure to the article`, { className: figure.className, scr: figure.src })
             articleContent.prepend(figure)
           }
         })
@@ -1535,7 +1535,7 @@ Readability.prototype = {
       if (this._debug)
         this.log("Article content pre-prep: ", { content: articleContent.innerHTML });
       // So we have all of the content that we need. Now we clean it up for presentation.
-      this._prepArticle(articleContent);
+      await this._prepArticle(articleContent);
 
       if (this._debug)
         this.log("Article content post-prep: ", { content: articleContent.innerHTML });
@@ -1574,17 +1574,17 @@ Readability.prototype = {
 
         if (this._flagIsActive(this.FLAG_STRIP_UNLIKELYS)) {
           this._removeFlag(this.FLAG_STRIP_UNLIKELYS);
-          this._attempts.push({articleContent: articleContent, textLength: textLength});
+          this._attempts.push({ articleContent: articleContent, textLength: textLength });
         } else if (this._flagIsActive(this.FLAG_WEIGHT_CLASSES)) {
           this._removeFlag(this.FLAG_WEIGHT_CLASSES);
-          this._attempts.push({articleContent: articleContent, textLength: textLength});
+          this._attempts.push({ articleContent: articleContent, textLength: textLength });
         } else if (this._flagIsActive(this.FLAG_CLEAN_CONDITIONALLY)) {
           this._removeFlag(this.FLAG_CLEAN_CONDITIONALLY);
-          this._attempts.push({articleContent: articleContent, textLength: textLength});
+          this._attempts.push({ articleContent: articleContent, textLength: textLength });
         } else {
-          this._attempts.push({articleContent: articleContent, textLength: textLength});
+          this._attempts.push({ articleContent: articleContent, textLength: textLength });
           // No luck after removing flags, just return the longest text we found during the different loops
-          this._attempts.sort(function (a, b) {
+          this._attempts.sort(function(a, b) {
             return b.textLength - a.textLength;
           });
 
@@ -1601,7 +1601,7 @@ Readability.prototype = {
       if (parseSuccessful) {
         // Find out text direction from ancestors of final top candidate.
         var ancestors = [parentOfTopCandidate, topCandidate].concat(this._getNodeAncestors(parentOfTopCandidate));
-        this._someNode(ancestors, function (ancestor) {
+        this._someNode(ancestors, function(ancestor) {
           if (!ancestor.tagName)
             return false;
           var articleDir = ancestor.getAttribute("dir");
@@ -2246,7 +2246,7 @@ Readability.prototype = {
               tweet.innerText = 'Tweet placeholder';
               tweet.className = 'tweet-placeholder';
               tweet.setAttribute('data-tweet-id', match[2]);
-              element.parentNode.replaceChild(tweet, element);
+              element.parentNode.replaceWith(tweet);
             }
           } catch (e) {
             this.log('Error loading tweet: ', link, e);
@@ -2880,7 +2880,7 @@ Readability.prototype = {
    *
    * @return void
    **/
-  parse: function () {
+  parse: async function() {
     // Avoid parsing too large documents, as per configuration option
     if (this._maxElemsToParse > 0) {
       var numTags = this._doc.getElementsByTagName("*").length;
@@ -2905,7 +2905,7 @@ Readability.prototype = {
     var metadata = this._getArticleMetadata(jsonLd);
     this._articleTitle = metadata.title;
 
-    var articleContent = this._grabArticle();
+    var articleContent = await this._grabArticle();
     if (!articleContent)
       return null;
 
