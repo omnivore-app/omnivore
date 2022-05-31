@@ -15,6 +15,7 @@ struct WelcomeView: View {
   @State private var showRegistrationView = false
   @State private var showDebugModal = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
+  @State private var containerSize: CGSize = .zero
 
   func handleHiddenGestureAction() {
     if !Bundle.main.isAppStoreBuild {
@@ -22,10 +23,20 @@ struct WelcomeView: View {
     }
   }
 
+  var headlineText: some View {
+    Group {
+      if horizontalSizeClass == .compact {
+        Text("Everything you read. Safe, organized, and easy to share.")
+      } else {
+        Text("Everything you read. Safe,\norganized, and easy to share.")
+      }
+    }
+    .font(.appLargeTitle)
+  }
+
   var headlineView: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text("Everything you read. Safe, organized, and easy to share.")
-        .font(.appLargeTitle)
+      headlineText
 
       Button(
         action: { print("learn more button tapped") },
@@ -71,9 +82,10 @@ struct WelcomeView: View {
         }
       }
     }
-    return GeometryReader { geo in
+
+    return
       VStack(alignment: .center, spacing: 16) {
-        if geo.size.width > 600 {
+        if containerSize.width > 400 {
           HStack { buttonGroup }
         } else {
           buttonGroup
@@ -83,40 +95,16 @@ struct WelcomeView: View {
           LoginErrorMessageView(loginError: loginError)
         }
       }
-    }.background(Color.red)
-  }
-
-  var compactContent: some View {
-    VStack(alignment: .leading, spacing: 50) {
-      logoView
-        .padding(.bottom, 20)
-      headlineView
-      authProviderButtonStack
-      footerView
-      Spacer()
-    }
-    .padding()
-  }
-
-  var wideContent: some View {
-    GeometryReader { _ in
-      VStack(alignment: .leading) {
-        logoView
-        Spacer()
-        headlineView
-        Spacer()
-        authProviderButtonStack
-        Spacer()
-        footerView
-      }
-      .padding()
-    }
   }
 
   public var body: some View {
     ZStack(alignment: .leading) {
       Color.appDeepBackground
         .edgesIgnoringSafeArea(.all)
+        .modifier(SizeModifier())
+        .onPreferenceChange(SizePreferenceKey.self) {
+          self.containerSize = $0
+        }
       if let registrationState = viewModel.registrationState {
         if case let RegistrationViewModel.RegistrationState.createProfile(userProfile) = registrationState {
           CreateProfileView(userProfile: userProfile)
@@ -126,14 +114,18 @@ struct WelcomeView: View {
             showProfileEditView: { viewModel.registrationState = .createProfile(userProfile: userProfile) }
           )
         } else {
-          EmptyView() // will never be caled
+          EmptyView() // will never be called
         }
       } else {
-        if horizontalSizeClass == .compact {
-          compactContent
-        } else {
-          wideContent
+        VStack(alignment: .leading, spacing: containerSize.height < 500 ? 12 : 50) {
+          logoView
+            .padding(.bottom, 20)
+          headlineView
+          authProviderButtonStack
+          footerView
+          Spacer()
         }
+        .padding()
       }
     }
     .sheet(isPresented: $showDebugModal) {
