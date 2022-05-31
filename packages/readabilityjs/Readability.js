@@ -232,7 +232,7 @@ Readability.prototype = {
   PLACEHOLDER_CLASSES: ['tweet-placeholder', 'instagram-placeholder'],
 
   // Classes of embeds extracted by the extension
-  EMBEDS_CLASSES: ['omnivore-instagram-embed'],
+  EMBEDS_CLASSES: ['omnivore-instagram-embed', 'tweet-placeholder'],
 
   // These are the list of HTML entities that need to be escaped.
   HTML_ESCAPE_MAP: {
