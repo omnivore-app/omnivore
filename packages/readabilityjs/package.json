@@ -30,7 +30,8 @@
     "mocha": "^8.2.0",
     "puppeteer": "^10.1.0",
     "sinon": "^7.3.2",
-    "linkedom": "^0.14.9"
+    "linkedom": "^0.14.9",
+    "axios": "^0.26.0"
   },
   "dependencies": {
     "html-entities": "^2.3.2",

@@ -22,6 +22,7 @@
 
 var parseSrcset = require('parse-srcset');
 var htmlEntities = require('html-entities')
+const axios = require("axios");
 
 /** Checks whether an element is a wrapper for tweet */
 const hasTweetInChildren = element => {
@@ -2204,15 +2205,15 @@ Readability.prototype = {
     }
   },
 
-  _createPlaceholders: function (e) {
-    Array.from(e.getElementsByTagName('a')).forEach(element => {
+  _createPlaceholders: async function (e) {
+    for (const element of Array.from(e.getElementsByTagName('a'))) {
 
       if (this.isEmbed(element)) {
-        return;
+        continue;
       }
 
       // Create tweets placeholders from links
-      if (element.href.includes('twitter.com')) {
+      if (element.href.includes('twitter.com') || element.parentNode.className === 'tweet') {
         const link = element.href;
         const regex = /(https?:\/\/twitter\.com\/\w+\/status\/)(\d+)/gm;
         const match = regex.exec(link);
@@ -2234,6 +2235,22 @@ Readability.prototype = {
           if (tweetParent && tweetParent.className.includes('twitter-tweet')) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
           }
+        } else if (element.parentNode.className === 'tweet') {
+          // Create tweets placeholders from classname
+          try {
+            const response = await axios.get(link);
+            const tweetUrl = response.request.res.responseUrl;
+            const match = regex.exec(tweetUrl);
+            if (Array.isArray(match) && typeof match[2] === 'string') {
+              const tweet = this._doc.createElement('div');
+              tweet.innerText = 'Tweet placeholder';
+              tweet.className = 'tweet-placeholder';
+              tweet.setAttribute('data-tweet-id', match[2]);
+              element.parentNode.replaceChild(tweet, element);
+            }
+          } catch (e) {
+            this.log('Error loading tweet: ', link, e);
+          }
         }
       }
 
@@ -2247,7 +2264,7 @@ Readability.prototype = {
           this._createInstagramPostPlaceholder(element, match[2]);
         }
       }
-    });
+    }
 
     Array.from(e.getElementsByTagName('iframe')).forEach(element => {
 

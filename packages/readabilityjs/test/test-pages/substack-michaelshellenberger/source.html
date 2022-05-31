@@ -1,0 +1,2000 @@
+<html>
+  <head>
+    <title>The 2-minute 20-second video that changes everything</title>
+    <style>
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        .typography .markup table.image-wrapper img,
+        .typography.editor .markup table.image-wrapper img,
+        .typography .markup table.kindle-wrapper img,
+        .typography.editor .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography .markup iframe.spotify-wrap,
+        .typography.editor .markup iframe.spotify-wrap,
+        .typography .markup a.spotify-wrap,
+        .typography.editor .markup a.spotify-wrap {
+          width: auto !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography .markup div.youtube-wrap div.youtube-screen,
+        .typography.editor .markup div.youtube-wrap div.youtube-screen,
+        .typography .markup div.vimeo-wrap div.youtube-screen,
+        .typography.editor .markup div.vimeo-wrap div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .typography .markup div.tiktok-wrap,
+        .typography.editor .markup div.tiktok-wrap {
+          width: calc(95vw - 32px);
+          height: calc((95vw - 32px - 2px) / 0.485714);
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe,
+        .typography.editor
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 28px 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 28px 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media print {
+        .typography .markup .button-wrapper,
+        .typography.editor .markup .button-wrapper {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography .markup .apple-podcast-container,
+        .typography.editor .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          img.install-substack-app-embed-img {
+          margin: 0 auto;
+        }
+      }
+
+      @media screen and (min-width: 420px) and (max-width: 525px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          max-width: calc(100% - 100px);
+          width: initial;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-text {
+          margin-bottom: 16px;
+          max-width: 100%;
+          width: auto;
+        }
+      }
+
+      @media (max-width: 525px) {
+        .typography
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link,
+        .typography.editor
+          .markup
+          .install-substack-app-embed
+          .install-substack-app-embed-link {
+          margin-top: 16px;
+          width: 100%;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container {
+          height: 38px;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.comment {
+          height: 38px;
+          line-height: 38px;
+          padding-right: 10px;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container .separator {
+          display: block;
+          margin: 0;
+          height: 8px;
+          border-left: none;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container a.share.first img {
+          padding-left: 0;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.mobile {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 1000px) {
+        .congrats-box {
+          flex-direction: column;
+        }
+        .congrats-box .congrats-box-right {
+          margin-left: 38px;
+          margin-top: 16px;
+        }
+      }
+
+      @media screen and (max-width: 500px) {
+        .congrats-box {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post {
+          padding: 16px 0 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post
+          .post-header
+          .meta-author-wrap.alternative-meta
+          .meta-right-column
+          .post-meta {
+          margin-top: 6px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post .post-footer.use-separators {
+          margin: 40px -16px 0 -16px;
+          padding: 22px 0 4px 0;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-contributor-footer .post-contributor-bio-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-table-row {
+          display: flex;
+          flex-direction: row;
+        }
+        .post-contributor-footer .post-contributor-bio-userhead-cell,
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          flex-grow: 1;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table-row {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell,
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell {
+          margin: 0 0 16px 0;
+        }
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          width: auto;
+        }
+        .post-contributor-footer .post-contributor-bio-controls {
+          margin: auto;
+        }
+        .post-contributor-footer
+          .post-contributor-bio-controls
+          .button.primary {
+          width: 100%;
+        }
+        .post-contributor-footer .post-contributor-bio-text {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post-silhouette {
+          padding: 16px 0;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-silhouette .post-silhouette-title {
+          margin-top: 10.44225025px;
+          height: 120px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-silhouette .post-silhouette-meta {
+          width: 75%;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-silhouette .post-silhouette-meta.with-byline-image {
+          margin: 20px 0;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+        .post-meta.alternative-meta .post-meta-item {
+          padding-right: 16px;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .use-theme-bg .post-meta.alternative-meta .post-meta-item,
+        .post-meta.alternative-meta .post-meta-item {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .use-theme-bg
+          .post-meta.alternative-meta
+          .post-meta-item.guest-author-publication,
+        .post-meta.alternative-meta .post-meta-item.guest-author-publication {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .post-meta .post-meta-item .post-meta-button {
+          height: 36px !important;
+        }
+        .post-meta .post-meta-item .post-meta-button .meta-button-label {
+          display: none;
+        }
+        .post-meta .post-meta-item .post-meta-button > svg {
+          margin-right: 0;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .post-meta .post-meta-item {
+          font-size: 12px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-preview > .post-preview-content .post-preview-meta {
+          margin-top: 12px 0;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-preview > .post-preview-image {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-preview-silhouette .post-preview-silhouette-image {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .subscribe-dialog .modal-table .modal-row .modal-content > .container {
+          width: 552px;
+          padding: 37px;
+        }
+      }
+
+      @media screen and (max-width: 630px) {
+        .subscribe-dialog .modal-table .modal-row .modal-content > .container {
+          padding: 40px 0;
+        }
+      }
+
+      @media screen and (max-width: 630px) {
+        .subscribe-dialog .modal-row .modal-cell .modal-exit-btn {
+          margin-right: -20px;
+        }
+      }
+
+      @media screen and (max-width: 630px) {
+        .post .floating-subscribe-button {
+          bottom: 20px;
+          right: 20px;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        body .header a.logo {
+          width: 42px;
+          height: 42px;
+          border-radius: 6px;
+        }
+      }
+
+      @media screen and (max-width: 420px) {
+        body
+          .subscription-receipt
+          table:first-of-type
+          .subscription-amount
+          .subscription-discount {
+          width: 72px !important;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        body .share-button-container {
+          height: auto;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        body .share-button-container .separator {
+          display: block !important;
+          margin: 0 !important;
+          height: 8px !important;
+          border-left: none !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body .footer {
+          outline: 8px solid #f8f8f8 !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .digest .item .post-meta-item.audience {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        .digest-publication .logo img {
+          width: 42px;
+          height: 42px;
+          border-radius: 6px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .comments-page .container .comment-list .collapsed-reply {
+          margin-left: 18px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .comment > .comment-list {
+          padding-left: 25px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .finish-magic-login-modal .modal-content .container {
+          padding: 24px 0;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .reader2-text-b3 {
+          line-height: 22px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .user-profile-modal {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .subscribe-widget form.form .sideBySideWrap button.rightButton {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .pub-icon:hover .logo-hover,
+        .feed-item-icon:hover .logo-hover {
+          display: block;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor:active {
+          padding: 0;
+        }
+      }
+
+      @media only screen and (max-width: 630px) {
+        .file-embed-button.wide,
+        .file-embed-error-button.wide {
+          display: none;
+        }
+      }
+
+      @media only screen and (min-width: 630px) {
+        .file-embed-button.narrow,
+        .file-embed-error-button.narrow {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .audio-player-wrapper .audio-player {
+          min-width: 500px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media (min-width: 250px) {
+        .audio-player-wrapper-fancy .audio-player {
+          padding: 32px;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: flex;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:last-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 300px) {
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: block;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 350px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .audio-player-title {
+          margin-top: 16px;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 15%;
+          width: 15%;
+          display: block;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .audio-player-substack-logo {
+          display: block;
+        }
+      }
+
+      @media (min-width: 350px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 25%;
+          width: 25%;
+          display: block;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          display: flex;
+        }
+        .audio-player-wrapper-fancy
+          .audio-player
+          .btn-group
+          .button:first-of-type {
+          display: block;
+        }
+      }
+
+      @media (min-width: 400px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 40%;
+          width: 40%;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .audio-player-wrapper-fancy .audio-player .btn-group {
+          margin-top: 12px;
+        }
+        .audio-player-wrapper-fancy .audio-player .btn-group .button {
+          font-size: 13px;
+          padding: 6px 12px;
+          height: auto;
+          margin-top: 10px;
+        }
+      }
+
+      @media (min-width: 600px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 55%;
+          width: 55%;
+        }
+      }
+
+      @media (min-width: 631px) {
+        .sm\:tw-my-8 {
+          margin-top: 2rem !important;
+          margin-bottom: 2rem !important;
+        }
+        .sm\:tw-mx-0 {
+          margin-left: 0px !important;
+          margin-right: 0px !important;
+        }
+        .sm\:tw-mt-0 {
+          margin-top: 0px !important;
+        }
+        .sm\:tw-ml-3 {
+          margin-left: 0.75rem !important;
+        }
+        .sm\:tw-mb-0 {
+          margin-bottom: 0px !important;
+        }
+        .sm\:tw-mb-1 {
+          margin-bottom: 0.25rem !important;
+        }
+        .sm\:tw-block {
+          display: block !important;
+        }
+        .sm\:tw-inline-block {
+          display: inline-block !important;
+        }
+        .sm\:tw-flex {
+          display: flex !important;
+        }
+        .sm\:tw-hidden {
+          display: none !important;
+        }
+        .sm\:tw-h-screen {
+          height: 100vh !important;
+        }
+        .sm\:tw-h-64 {
+          height: 16rem !important;
+        }
+        .sm\:tw-w-full {
+          width: 100% !important;
+        }
+        .sm\:tw-w-auto {
+          width: auto !important;
+        }
+        .sm\:tw-w-64 {
+          width: 16rem !important;
+        }
+        .sm\:tw-max-w-lg {
+          max-width: 32rem !important;
+        }
+        .sm\:tw-max-w-none {
+          max-width: none !important;
+        }
+        .sm\:tw-translate-y-0 {
+          transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+            rotate(var(--tw-rotate)) skewX(var(--tw-skew-x))
+            skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+            scaleY(var(--tw-scale-y)) !important;
+        }
+        .sm\:tw-scale-95 {
+          transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+            rotate(var(--tw-rotate)) skewX(var(--tw-skew-x))
+            skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+            scaleY(var(--tw-scale-y)) !important;
+        }
+        .sm\:tw-scale-100 {
+          transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+            rotate(var(--tw-rotate)) skewX(var(--tw-skew-x))
+            skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+            scaleY(var(--tw-scale-y)) !important;
+        }
+        .sm\:tw-flex-row-reverse {
+          flex-direction: row-reverse !important;
+        }
+        .sm\:tw-items-start {
+          align-items: flex-start !important;
+        }
+        .sm\:tw-gap-2 {
+          gap: 0.5rem !important;
+        }
+        .sm\:tw-gap-4 {
+          gap: 1rem !important;
+        }
+        .sm\:tw-space-y-0 > :not([hidden]) ~ :not([hidden]) {
+          margin-top: calc(
+            0px * calc(1 - var(--tw-space-y-reverse))
+          ) !important;
+          margin-bottom: calc(0px * var(--tw-space-y-reverse)) !important;
+        }
+        .sm\:tw-border {
+          border-width: 1px !important;
+        }
+        .sm\:tw-p-0 {
+          padding: 0px !important;
+        }
+        .sm\:tw-p-6 {
+          padding: 1.5rem !important;
+        }
+        .sm\:tw-px-6 {
+          padding-left: 1.5rem !important;
+          padding-right: 1.5rem !important;
+        }
+        .sm\:tw-py-2 {
+          padding-top: 0.5rem !important;
+          padding-bottom: 0.5rem !important;
+        }
+        .sm\:tw-py-16 {
+          padding-top: 4rem !important;
+          padding-bottom: 4rem !important;
+        }
+        .sm\:tw-pb-4 {
+          padding-bottom: 1rem !important;
+        }
+        .sm\:tw-text-left {
+          text-align: left !important;
+        }
+        .sm\:tw-align-middle {
+          vertical-align: middle !important;
+        }
+        .sm\:tw-text-sm {
+          font-size: 0.875rem !important;
+          line-height: 1.25rem !important;
+        }
+        .sm\:tw-text-4xl {
+          font-size: 2.25rem !important;
+          line-height: 2.5rem !important;
+        }
+        .sm\:tw-font-medium {
+          font-weight: 500 !important;
+        }
+        .sm\:tw-text-pub-secondary-text {
+          color: #767676 !important;
+        }
+        .sm\:tw-opacity-70 {
+          opacity: 0.7 !important;
+        }
+        .sm\:hover\:tw-opacity-100:hover {
+          opacity: 1 !important;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .md\:tw-bottom-4 {
+          bottom: 1rem !important;
+        }
+        .md\:tw-right-4 {
+          right: 1rem !important;
+        }
+        .md\:tw-block {
+          display: block !important;
+        }
+        .md\:tw-flex {
+          display: flex !important;
+        }
+        .md\:tw-pl-4 {
+          padding-left: 1rem !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="email-body" style="font-kerning: auto">
+    <img
+      src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjIwNTI2MjAyMDAyLjMuZDc3Y2QwOGZlNmQ4MGZhNUBtZzIuc3Vic3RhY2suY29tPiIsInUiOjczMzI3NDcyLCJyIjoiaG9uZ2JvLTdvb2lRczQtZUBpbmJveC1kZW1vLm9tbml2b3JlLmFwcCIsImQiOiJtZzIuc3Vic3RhY2suY29tIiwicCI6NTY2OTUzMTcsInQiOiJuZXdzbGV0dGVyIiwiYSI6ImV2ZXJ5b25lIiwicyI6Mjc5NDAwLCJjIjoicG9zdCIsImYiOnRydWUsInBvc2l0aW9uIjoidG9wIiwiaWF0IjoxNjUzNTk2NDEzLCJpc3MiOiJwdWItMCIsInN1YiI6ImVvIn0.1_uDT7mwZuMnkij7PK-eeg0n6P4-KR1_qHf3buVuwtM"
+      alt=""
+      width="1"
+      height="1"
+      border="0"
+      style="
+        height: 1px !important;
+        width: 1px !important;
+        border-width: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      "
+    />
+    <div
+      style="
+        display: none;
+        font-size: 1px;
+        color: #333333;
+        line-height: 1px;
+        max-height: 0px;
+        max-width: 0px;
+        opacity: 0;
+        overflow: hidden;
+      "
+      class="preview"
+    >
+      For decades, people have claimed that homelessness is just a housing
+      problem. Sure, many also have substance use and mental illness issues. But
+      if we just give homeless people their own own studio apartments, and
+      decriminalize public camping, drugs, and shoplifting, the problem will go
+      away, many claimed.
+      &#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;
+    </div>
+    <table
+      role="presentation"
+      width="100%"
+      border="0"
+      cellspacing="0"
+      cellpadding="0"
+      class="email-body-container"
+    >
+      <tr>
+        <td></td>
+        <td width="550" class="content"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td align="left" width="550" class="content">
+          <div
+            style="
+              font-size: 16px;
+              line-height: 26px;
+              margin: 0 auto;
+              max-width: 550px;
+              overflow-wrap: break-word;
+              width: 100%;
+            "
+          >
+            <div
+              markup=""
+              style="
+                font-size: 16px;
+                line-height: 40px;
+                margin-bottom: 8px;
+                text-align: right;
+              "
+            >
+              <a
+                href="https://email.mg2.substack.com/c/eJxVkcluwyAQhp_G3GIRFuMcOFSqcu8TWCwTGwWDBTit377YbqVWQjCMZvn-GaMKjDFtcom5oP0ayraADPCZPZQCCa0Z0uCsFJQSwQRBVjJ77XmPXB4eCWBWzsuSVkDLqr0zqrgY9gwibgxjNEkMD8N7zhVwpoXGFjDojhgiFCNWmLOxWq2DYEDCC9IWAyAT5xlC2WshL6dSltzQt4bc68mrzkWZZ1uD6lcty8W78KzmXqyh9_8wDX0_cRrSHd0OF--6G6dXUZ1rmYcc12Sg-g9NyEmCCcGcdPXFmLS0tUIYi_sHdLbHD8UbhueRtH9hUJJTDKOOFxGj-8jsAjXKBR2_Lhbm2MY5uFdM0FbmfWTDLnMNrmwDBKU92HOa5VzKwTKMECDVZdlBFXntOOW3jl0p4Qz9yJG_YlClsbFmBTk7MynweQLvIWhII6Rvp_WosA"
+                class="tw-font-body tw-text-ssm tw-text-substack-secondary"
+                style="
+                  color: rgb(102, 102, 102) !important;
+                  font-family: SF Pro Text, -apple-system, BlinkMacSystemFont,
+                    Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif,
+                    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol !important;
+                  font-size: 13px !important;
+                "
+                >Open in browser</a
+              >
+            </div>
+            <div
+              dir="auto"
+              class="post typography"
+              style="font-size: 16px; line-height: 26px; padding: 9.6px 0"
+            >
+              <div
+                class="post-header"
+                style="font-size: 16px; line-height: 26px"
+              >
+                <h1
+                  class="post-title long published"
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 1.625em;
+                    font-weight: bold;
+                    line-height: 130%;
+                    margin: 0.378em 0 0 0;
+                  "
+                >
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxtkk1v4yAQhn9NfLOFwZ8HH9rupnG1TuVuWjW9WHxMYhobLMBpnV-_ZHNaaSVgEHrfmRHPcOrgqM1STdq64Hp0bpmgUvBlB3AOTDBbMJ0UVU4IzpMcB6JKRFykRSBtdzAAI5VD5cwMwTSzQXLqpFZXB87LBKGgrwjjAphAAtEiy0TJMC04j4lgvOQxS2-F6SwkKA4VnMEsWkHA9TiCctdcwVD1zk12Re5WeO3XKHlPYbA9DAMoBuYIJrIzs47yU-SdXjP57XoIcThKNTt_QaEFrpUIz1KADl1P3YqsnT6BWpEfsDzFHL8t73g41Z-aNJdm2V5a0sgvyR_Li1iX08dDnW13e_y8e700O27rceiFf2t2-7i5vKbbz_b7qqfv24vPIfnmTf7a1eR51341D7Wt1Tbeyzqr1f2Zk9bx8a3fk5eJ4UQe2ujn07OR7IlOWdj0xcvjB0ay3pzie3ZHxnqTmY_j77M99O1rG8gKI4xRijMfEcIRiUSec4GKA2SiQAearhI0HvE__xKYqtfqyHSYay1bm4TgVVIx_R0KGHWkRyXP2kBEp-mKtLtimJV0SweKsgHEjba7Dc1f_t0RFBg_TKKjroqzlKRllsQEp8kNrkeYZlmZkjgPfDdCe5eq_gfxD_4w4UA"
+                    style="color: #1a1a1a; text-decoration: none"
+                    >The 2-minute 20-second video that changes everything</a
+                  >
+                </h1>
+                <table
+                  class="meta-author-wrap with-photo"
+                  style="margin: 1em 0"
+                >
+                  <tr class="meta-author-wrap-row">
+                    <td>
+                      <div
+                        class="user-head"
+                        style="font-size: 16px; line-height: 26px"
+                      >
+                        <a
+                          href="https://email.mg2.substack.com/c/eJxVkctuxCAMRb9m2CUiPAJZsOim-35BxMNJUAlEQKadvy_pzKKVLAyS7et7sLrCmvJDHalUdB1zfRygInyVALVCRmeBPHunBKVEMEGQU8wNkkvky7xkgF37oGo-AR2nCd7q6lO8OoiYGMZoU5M0zjonpZ2E1HqUFqQRDuNFOkwG9hTWp_MQLSi4Q36kCMimfYdYr1koqK3Wo9zo2428tyinKVXbz74VteeR0-IDtBshnDNKu93bTUPoygYhQDSQ1-bGK4IJwZyMLWNMeto7IazDcoHRSbxofmN4X0n_VwBltaW4mtSJlPxHYR20Kh9N-u4c7KlPe_T3lKHXx3FhmK_Vz-jrY4aoTQD3JFSfoH-ZzStEyO0D3KyrGkZO-TSygRL-AtJs83GcOB0Eatu41Lqievn6Z-sH6ZWbLw"
+                          ><div
+                            class="profile-img-wrap"
+                            style="
+                              font-size: 16px;
+                              line-height: 26px;
+                              position: relative;
+                            "
+                          >
+                            <img
+                              src="https://substackcdn.com/image/fetch/w_90,h_90,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fe518dd44-4f8d-4746-a290-2ed46e781bf3_750x875.jpeg"
+                              height="45"
+                              width="45"
+                              alt=""
+                              style="
+                                border: none !important;
+                                border-radius: 50%;
+                                cursor: pointer;
+                                display: block;
+                                height: 45px;
+                                max-width: 550px;
+                                vertical-align: middle;
+                                width: 45px;
+                              "
+                            /></div
+                        ></a>
+                      </div>
+                    </td>
+                    <td class="meta-author-contents">
+                      <div
+                        class="meta-right-column"
+                        style="
+                          font-size: 16px;
+                          line-height: 1em;
+                          margin-left: 12px;
+                        "
+                      >
+                        <div
+                          class="meta-author"
+                          style="
+                            color: #767676;
+                            font-family: -apple-system, BlinkMacSystemFont,
+                              'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                              'Apple Color Emoji', 'Segoe UI Emoji',
+                              'Segoe UI Symbol';
+                            font-size: 14px;
+                            line-height: 17px;
+                          "
+                        >
+                          <a
+                            href="https://email.mg2.substack.com/c/eJxVkctuxCAMRb9m2CUiPAJZsOim-35BxMNJUAlEQKadvy_pzKKVLAyS7et7sLrCmvJDHalUdB1zfRygInyVALVCRmeBPHunBKVEMEGQU8wNkkvky7xkgF37oGo-AR2nCd7q6lO8OoiYGMZoU5M0zjonpZ2E1HqUFqQRDuNFOkwG9hTWp_MQLSi4Q36kCMimfYdYr1koqK3Wo9zo2428tyinKVXbz74VteeR0-IDtBshnDNKu93bTUPoygYhQDSQ1-bGK4IJwZyMLWNMeto7IazDcoHRSbxofmN4X0n_VwBltaW4mtSJlPxHYR20Kh9N-u4c7KlPe_T3lKHXx3FhmK_Vz-jrY4aoTQD3JFSfoH-ZzStEyO0D3KyrGkZO-TSygRL-AtJs83GcOB0Eatu41Lqievn6Z-sH6ZWbLw"
+                            style="color: #1a1a1a; text-decoration: none"
+                            >Michael Shellenberger</a
+                          >
+                        </div>
+                        <table
+                          cellpadding="0"
+                          cellspacing="0"
+                          class="post-meta custom"
+                          style="
+                            align-items: center;
+                            height: 20px;
+                            margin: 4px 0 0 0;
+                          "
+                        >
+                          <tr>
+                            <td
+                              title="2022-05-26T20:20:07.223Z"
+                              class="post-meta-item post-date"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 2px;
+                                padding-top: 2px;
+                                position: relative;
+                                text-decoration: none;
+                                white-space: nowrap;
+                              "
+                            >
+                              <time datetime="2022-05-26T20:20:07.223Z"
+                                >May 26</time
+                              >
+                            </td>
+                            <td
+                              class="post-meta-item icon"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 0;
+                                padding-top: 0;
+                                position: relative;
+                                text-decoration: none;
+                                text-indent: 3px;
+                                white-space: nowrap;
+                              "
+                            >
+                              <span class="post-meta-icon like-reaction-button"
+                                ><a
+                                  href="https://email.mg2.substack.com/c/eJxtUl1v4jAQ_DXkjcix8_mQh16BE6ik4kih9CVy7A0YEjuKHSD8-jrlXk46yZqVpZnd0c4yauCouiFtlTbOCIUZWkgl3HQNxkDn9Bq6QvA0IgRHfoQdnvrci4PYEbqoOoCGijo1XQ9O25e1YNQIJUcFjhIfIeeU4irkDOIIc4L8JKRlFIW0IoA8XkUE_Odg2nMBkkEKV-gGJcFhqmlAmrGXU6cnY1o9IS8TvLCvEexEodYnqGuQJXRH6Fzdl9pQdnGt0nJoKyxePQvjBFt-zE47oGw0OSELoy5g6wyGlcfwbvjE9WV5VmT9WA_ZY0PW4ibY7-TBF0n79boMs_yA3_OPxzpneilX9WGfIbpPeqsRfosvS8un-wWy_3t2_nhk-QVns_nw9rpqme32LlY3vl-a9ZkF2ezlNvIZ2YlRz5rd6UD-tCX2RbVx8WYdn48N0eV2u799fU7NNuftCspk9_br7s91TnQ2j6uV2DgixQhjFODQVoSwS1weRYyjuIKQx6iiwcRHzRH_syKnS09KHks1jZQSG-1PwbKELNV9yqFRrmqkuKoOXNq2Y7rFmEgvhRkKkLSsgT-DN8_7-dlucQQJnb0rXlCTemFAgiT0PYKDvznbNIMwTALiRY51w5VVyfR_eX4D7inlCw"
+                                  class="like-button"
+                                  style="
+                                    color: #767676;
+                                    display: block;
+                                    text-decoration: none;
+                                  "
+                                  ><img
+                                    src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideHeart%3Fv%3D2%26height%3D36%26fill%3Dtransparent%26stroke%3D%2523757575%26strokeWidth%3D2"
+                                    width="18"
+                                    height="18"
+                                    style="
+                                      border: none !important;
+                                      display: inline-block;
+                                      float: left;
+                                      height: 14px;
+                                      max-width: 18px;
+                                      vertical-align: top;
+                                      width: auto;
+                                    "
+                                    alt="" /></a
+                              ></span>
+                            </td>
+                            <td
+                              class="post-meta-item icon"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 0;
+                                padding-top: 0;
+                                position: relative;
+                                text-decoration: none;
+                                text-indent: 3px;
+                                white-space: nowrap;
+                              "
+                            >
+                              <a
+                                class=""
+                                href="https://email.mg2.substack.com/c/eJxtUk1vozAQ_TXhBgKbzwOHtrttqZZUdNOq6QUZewhusI1sk5b8-ppN97DSSv7S6L0345lHiYWD0ks5KWO99WjtMkEp4cOMYC1obzagW87KDGOUxRnyWBmzKE9yj5u21wCC8LG0egZvmruRU2K5kisDZUUcht5QpoxB3Ce0zzuaUVKEMaUYoShhedRFRXFJTGbGQVIo4QR6URI8qoQAaVctbywHayezwVcbdOuW4HQgMJoBxhFkB_oAOjBzZyyhx8AxHWZy2w7gI19wOVv3CH0DVEnmnzgD5duBWIf5zuPEb606gtzgH7A8RBS9LK9oPFbvCtfnetmeG1zzD07vijO7Laa3myrd7vbocfd8rnfUVGIcmIvVu31Un5-T7XvzueLJ6_bsNDi9f-G_dhV-3DUf9U1lKrmN9rxKK3l9orixVLwMe_w0dSjmfRP8fHjUvHsgU-rXQ_5094ZCXt0fo-vuCovqPtVvh98n0w_Nc7NB6WxFa9SsKbjq__bhOy6A8Vmsv1pn5fEShQiFCUrdHYYowAHLMsrCvIeU5WFPkk0cigP6p5-eLgclD53yM6V4Y2IfHIrLTn36DIQKlJD8pDQEZJpWK7RrW2fJ7dKCJN0I7OISezHbn1raA0jQzoSsJbaM0gQnRRpHGCXxxRRu9EmaFgmOMs9Vw5RjyfJ_w_8CT2_0zQ"
+                                style="
+                                  color: #767676;
+                                  display: block;
+                                  text-decoration: none;
+                                "
+                                ><img
+                                  src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideComments%3Fv%3D2%26height%3D36%26fill%3Dtransparent%26stroke%3D%2523757575%26strokeWidth%3D2"
+                                  width="18"
+                                  height="18"
+                                  style="
+                                    border: none !important;
+                                    display: inline-block;
+                                    float: left;
+                                    height: 14px;
+                                    max-width: 18px;
+                                    vertical-align: top;
+                                    width: auto;
+                                  "
+                                  alt="Comment"
+                                  class="comment-icon post-meta-icon"
+                              /></a>
+                            </td>
+                            <td
+                              class="post-meta-item icon"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                margin-right: 0;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 0;
+                                padding-right: 0;
+                                padding-top: 0;
+                                position: relative;
+                                text-decoration: none;
+                                text-indent: 3px;
+                                white-space: nowrap;
+                              "
+                            >
+                              <span
+                                ><a
+                                  href="https://email.mg2.substack.com/c/eJxtUtmOmzAU_Rp4AxmbJTzwkCaTadImbTRL0nlBxr4EB7CpMcmQr6-ZtFIrVfJ6fO71XQ6jBk5Kj1mneuNOS27GDjIJ174BY0C7Qw86FzxLCMFJmGCXZyEPZtHMFX1eaoCWiiYzegC3G4pGMGqEkpMFTtIQIbfKAspCyggnZYhojCEsURKUDMeIlAljxf1jOnABkkEGF9CjkuAy1bYgzeTLbbLKmK53yNzBKztawSoKTV9B04AsQJ9A-_1Q9Iay2reWltPZaSrwsNcKORh7QF4PTEnuXQQH5ZmKGoesBtPmvRo0A4cs__hwcDzhLXAxtBb_yPM3aF0YG9jErqgGi1I2Zf0XYFQN0x3GTcDw63jETb0-K7K9bcfdbU-24iroYYUs9r47v9x2zzXeLR_Gr4tNx-zrN7G58sPabM8s2i3n17XlM_IqLF-wx_TGF8H4dlid-WNzKcQm9V_ihxtr81nwOfbI8fj2pX5-9BbfF_WndYn3eLH9-SPFQb0vnuauyDDCGEU4tjtC2Cc-TxLG0ayEmM9QSSMnRO0J_1NRV2eVkqdCeYlSYt-HHliWkIV69zi0yletFBelwaddN4khnxo4SGHGHCQtGuB3nZi73D4qmp9AgrYy5Dk1WRBHJErjMCA4Cu-ysM2P4jiNSJC4NhqurJXM_tf-X03i9VE"
+                                  style="
+                                    color: #767676;
+                                    display: block;
+                                    text-decoration: none;
+                                  "
+                                  ><img
+                                    src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideShare%3Fv%3D2%26height%3D36%26fill%3Dtransparent%26stroke%3D%2523757575%26strokeWidth%3D2"
+                                    width="18"
+                                    height="18"
+                                    style="
+                                      border: none !important;
+                                      display: inline-block;
+                                      float: left;
+                                      height: 14px;
+                                      max-width: 18px;
+                                      vertical-align: top;
+                                      width: auto;
+                                    "
+                                    alt="Share"
+                                    class="recommend-icon post-meta-icon" /></a
+                              ></span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div
+              dir="auto"
+              class="post typography"
+              style="font-size: 16px; line-height: 26px; padding: 9.6px 0"
+            >
+              <div
+                dir="auto"
+                class="body markup"
+                style="
+                  font-size: 16px;
+                  line-height: 26px;
+                  margin-bottom: 12px;
+                  text-align: initial;
+                  width: 100%;
+                  word-break: break-word;
+                "
+              >
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    margin-top: 0;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="504"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJw1UsmO5CAM_ZriloiwBHLg0Gpp7vMFEYtJUCeQAVLdNV8_pKKRwDbGy5Ofra6wpPxSRyoVXWKurwNUhO-yQa2Q0Vkgz8EpQSkRTBDkFHOD5BKFMvsMsOuwqZpPQMdptmB1DSleGURMDGO0KgmWTVIOgzXES_ByEsy1q7F1cvT-bqxPFyBaUPCE_EoRkE37DrFetdCm1lqP8qAfD_KrnXKaUrX9si72La55wq4XaNpDteulW8WaHuTzz23QjyUl195-m4-clgylhCc0f6kAR8u4OxB-9eBXlybMab-g_ecOMDfGStYZrWnHqIBu4oPstDOUGBBikqwvtNe7_pui_i43rlbjnsvbfIMsbxMPlnIBrZ4kU8dG1ixMWMemgXg7DVZbP3PMfojk_REXFBTBhGBOxqYxJj3tnRDWYelhdBJ7zR8M7wvp_w_nQoCyWlNcTOpESuF3YR20qBBN-ukc7KlPewzPlKHXx3FROF9jP2OorxmiNhu4m916L8mb73mBCLktj5t1VcPIKZ9GNlDC2U1mo4yP48TpIFBD41LLimoPdtWwlRW2DaKBvED-B1rd02I"
+                              rel=""
+                              style="
+                                align-items: center;
+                                border: none;
+                                display: block;
+                                flex-direction: column;
+                                height: auto;
+                                margin: 0;
+                                margin-bottom: 0;
+                                margin-top: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/01c357e4-b829-4644-b024-4912fc91cacf_504x285.png","fullscreen":null,"imageSize":null,"height":285,"width":504,"resizeWidth":null,"bytes":275557,"alt":null,"title":null,"type":"image/png","href":null}'
+                                alt=""
+                                width="504"
+                                height="285"
+                                class=""
+                                src="https://substackcdn.com/image/fetch/w_504,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F01c357e4-b829-4644-b024-4912fc91cacf_504x285.png"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 100% !important;
+                                  vertical-align: middle;
+                                  width: auto !important;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  For decades, people have claimed that homelessness is just a
+                  housing problem. Sure, many also have substance use and mental
+                  illness issues. But if we just give homeless people their own
+                  own studio apartments, and decriminalize public camping,
+                  drugs, and shoplifting, the problem will go away, many
+                  claimed.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  That hasn&#8217;t happened. Instead, the open drug scenes have
+                  worsened. Nationally, drug overdoses and poisonings increased
+                  from 17,000 in 2000 to 108,000 in 2021. And California, which
+                  pioneered the &#8220;Housing First&#8221;/decriminalization
+                  approach saw its homeless population increase 31% between 2011
+                  and 2020, even as homelessness declined 18% in the rest of the
+                  country.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  I debunked the lies about homelessness in
+                  <em>San Fransicko</em>, in hundreds of articles, and on dozens
+                  of TV and podcast appearances. But when it comes to educating
+                  the public, nothing has been more impactful than the video
+                  interviews of homeless people that I&#8217;ve conducted over
+                  the last few months with my friend Leighton Woodhouse, a
+                  documentary filmmaker, as part of my run to become governor of
+                  California.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Now Leighton has assembled those interviews into a two-minute
+                  20 second video we&#8217;ve posted on Twitter. It&#8217;s a
+                  must-watch. It&#8217;s only been on-line for a few hours, and
+                  over 130,000 people have seen it.
+                </p>
+                <div
+                  class="tweet"
+                  style="
+                    background: #fff;
+                    border: 1px solid #e1e8ed;
+                    border-radius: 5px;
+                    direction: ltr;
+                    display: block;
+                    font: normal normal 16px/1.4 Helvetica, Roboto, 'Segoe UI',
+                      Calibri, sans-serif;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 1em auto;
+                    max-width: 520px;
+                    padding: 20px 20px 11.6px 20px;
+                  "
+                >
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxNkcuO3SAMhp8m7E5EzC1ZsDjT0fQidVG1qtRVRIKToCYQAZmZ9OlLejaVEBhk-__5PJqMc4in3kPK5Nr6fO6oPb6lFXPGSI6EsXdWK8ZAcQXEam6bVrTEpX6KiJtxq87xQLIfw-pGk13wVwWojlNKFo1UMpgYWCrbtoNJmIYh60AMYKxopoewOaxDP6LGV4xn8EjGsG3o89WLrHrJeU8Vu1fwUlZ-c5e9uuSU2_cF1xX9gHHG-PW5vKRs8pFK0AjoWq6KdMNapVoJvGIvpdEz0ApkLsEdPrLz6dP5Pv76LNOfnx_gxxd6J04DBaACZDkphZrVVqnR0nZCaVs6GVFxus1Qp2MoeuPvyw2Jegl-HsJNheC-JX7DkuX8EN5vFrdQh8271xCxNvt-Ieuvbx7e5bNHb4YV7YNmfgzlH99-Ro-xDMv2JutGCiY6yRsGgj_gFURCyk6wRpHixoZS5fXmxsXgmv6n8xdPFKS3"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: black;
+                      display: block;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-header"
+                      style="
+                        display: block;
+                        font-size: 16px;
+                        line-height: 1.2;
+                        margin-bottom: 14px;
+                        text-decoration: none;
+                      "
+                    >
+                      <img
+                        class="tweet-user-avatar"
+                        src="https://substackcdn.com/image/twitter_name/w_36/ShellenbergerMD.jpg"
+                        alt="Twitter avatar for @ShellenbergerMD"
+                        style="
+                          -ms-interpolation-mode: bicubic;
+                          border: none !important;
+                          border-radius: 50%;
+                          display: block;
+                          float: left;
+                          height: 36px;
+                          margin: 0 8px 0 0;
+                          max-width: 100%;
+                          vertical-align: middle;
+                          width: 36px;
+                        "
+                      /><span
+                        class="tweet-author-name"
+                        style="color: #1c2022; display: block; font-weight: 700"
+                        >Michael Shellenberger </span
+                      ><span
+                        class="tweet-author"
+                        style="color: #697882; display: block; font-size: 14px"
+                        >@ShellenbergerMD</span
+                      >
+                    </div>
+                    They say it&#8217;s just the rent that makes people homeless
+                    They say it&#8217;s not about the drugs They say housing
+                    will save them They&#8217;re lying &#8212; about all of it.
+                    We have just 12 days to get the truth out Let&#8217;s go
+                    <div
+                      class="tweet-photos-container"
+                      style="
+                        display: flex;
+                        font-size: 16px;
+                        height: 350px;
+                        line-height: 26px;
+                      "
+                    >
+                      <div
+                        class="tweet-photo-wrapper"
+                        style="
+                          -moz-box-sizing: border-box;
+                          -webkit-box-sizing: border-box;
+                          border: 1px solid #e1e8ed;
+                          border-radius: 5px;
+                          box-sizing: border-box;
+                          font-size: 16px;
+                          height: 100%;
+                          line-height: 26px;
+                          width: 100%;
+                        "
+                      >
+                        <img
+                          class="tweet-photo"
+                          src="https://substackcdn.com/image/upload/w_728,c_limit/l_twitter_play_button_rvaygk,w_120/yjllyug9pva0jvo7rtog"
+                          alt="Image"
+                          style="
+                            -ms-interpolation-mode: bicubic;
+                            border: none !important;
+                            border-radius: 5px;
+                            display: block;
+                            height: 100%;
+                            margin: 0 auto;
+                            max-width: 100%;
+                            object-fit: cover;
+                            vertical-align: middle;
+                            width: 100%;
+                          "
+                        />
+                      </div></div></a
+                  ><a
+                    href="https://email.mg2.substack.com/c/eJxNkcuO3SAMhp8m7E5EzC1ZsDjT0fQidVG1qtRVRIKToCYQAZmZ9OlLejaVEBhk-__5PJqMc4in3kPK5Nr6fO6oPb6lFXPGSI6EsXdWK8ZAcQXEam6bVrTEpX6KiJtxq87xQLIfw-pGk13wVwWojlNKFo1UMpgYWCrbtoNJmIYh60AMYKxopoewOaxDP6LGV4xn8EjGsG3o89WLrHrJeU8Vu1fwUlZ-c5e9uuSU2_cF1xX9gHHG-PW5vKRs8pFK0AjoWq6KdMNapVoJvGIvpdEz0ApkLsEdPrLz6dP5Pv76LNOfnx_gxxd6J04DBaACZDkphZrVVqnR0nZCaVs6GVFxus1Qp2MoeuPvyw2Jegl-HsJNheC-JX7DkuX8EN5vFrdQh8271xCxNvt-Ieuvbx7e5bNHb4YV7YNmfgzlH99-Ro-xDMv2JutGCiY6yRsGgj_gFURCyk6wRpHixoZS5fXmxsXgmv6n8xdPFKS3"
+                    target="_blank"
+                    rel=""
+                    style="
+                      color: black;
+                      display: block;
+                      text-decoration: none;
+                      white-space: pre-wrap;
+                    "
+                    ><div
+                      class="tweet-footer"
+                      style="
+                        color: #697882;
+                        display: block;
+                        font-size: 14px;
+                        line-height: 26px;
+                        margin-top: 10px;
+                        text-decoration: none;
+                      "
+                    >
+                      <p
+                        class="tweet-date"
+                        style="
+                          border-bottom: 1px solid #e1e8ed;
+                          color: #697882;
+                          display: block;
+                          font-size: 14px;
+                          line-height: 1.4;
+                          margin: 0;
+                          margin-bottom: 10px;
+                          padding-bottom: 10px;
+                        "
+                      >
+                        May 26th 2022
+                      </p>
+                      <span
+                        class="retweets"
+                        style="display: inline-block; margin-right: 8px"
+                        ><span
+                          class="rt-count"
+                          style="color: #1c2022; font-weight: bold"
+                          >1,186</span
+                        >
+                        Retweets</span
+                      ><span
+                        class="likes"
+                        style="display: inline-block; margin-right: 8px"
+                        ><span
+                          class="like-count"
+                          style="color: #1c2022; font-weight: bold"
+                          >3,780</span
+                        >
+                        Likes</span
+                      >
+                    </div></a
+                  >
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  I hope you&#8217;ll take a minute to watch it. And, after you
+                  do, please consider a donation to Shellenberger for Governor.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  There&#8217;s just 12 days before the primary election. Anyone
+                  can vote for anyone. And anyone in the US can donate. Whatever
+                  happens, we will make history.
+                </p>
+                <p
+                  class="button-wrapper"
+                  data-attrs='{"url":"https://secure.shellenbergerforgovernor.com/list/proc/donation1/?InitiativeKey=KHNHN40ZS8HV&amp;utm_source=proc&amp;utm_medium=web&amp;utm_campaign=donate","text":"Donate to Shellenberger 2022","action":null,"class":null}'
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                    margin-bottom: 0;
+                    text-align: center;
+                  "
+                >
+                  <a
+                    class="button primary"
+                    href="https://email.mg2.substack.com/c/eJxVUU2L3DAM_TXxbYJjJ3Hm4EOhLFMWFkphD3sJjq1JTGMr-GO2-fd1JntZMBY86UlPT1olmDHscsOYyPGNad9AeviMK6QEgeQIYbRGCs6ZaAUjRramGbqB2DjeA4BTdpUpZCBbnlarVbLoDwYT15ZSskgt2sE0XDdDPykt9KCmhl81VUbRXg_6HKyyseA1SHhA2NED0egc-HT0IqtcUtpixX9U7KW8CDoHqOMC6wp-gjBDuGOYsZA9hrpwS9VqYyphC6hLMOif4pqjBX_55W2yBXjAK-wV__l6e7u9tfTjz3B7r1ifkxsj5qCh5M4OT8yBsdkV7BOmL0grtyk7-wI-ZwCxklHGaMf6EillNa-NENrQ4Q69GehddVVL3czqmKeYlP57KCZBLujnCS8C0f6O7QVKlfUT_rsYcFij8_aBZW-1bYfd42FRLnvsI3g1rWDOS6TzoM_bjDN4CEWUGVWSTd_x7tq3DWddexpf7O36_trxRpCixmBheemsXhSs3wz-D4wTwDA"
+                    rel=""
+                    style="
+                      background-color: #51b4e9;
+                      border: none;
+                      border-radius: 4px;
+                      box-sizing: border-box;
+                      color: #ffffff !important;
+                      cursor: pointer;
+                      display: inline-block;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                        Roboto, Helvetica, Arial, sans-serif,
+                        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+                      font-size: 16px;
+                      font-weight: normal;
+                      height: auto;
+                      line-height: 20px;
+                      margin: 0;
+                      opacity: 1;
+                      outline: none;
+                      padding: 12px 20px;
+                      text-align: center;
+                      text-decoration: none !important;
+                      white-space: nowrap;
+                    "
+                    ><span style="color: #ffffff; text-decoration: none"
+                      >Donate to Shellenberger 2022</span
+                    ></a
+                  >
+                </p>
+              </div>
+            </div>
+            <table
+              cellpadding="0"
+              cellspacing="0"
+              class="post-meta custom big alternative-meta centered"
+              style="margin: 0 auto"
+            >
+              <tr style="align-items: center; display: flex">
+                <td
+                  class="post-meta-item icon"
+                  style="
+                    color: #767676;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 14px;
+                    height: 100%;
+                    line-height: 18px;
+                    padding: 0px 12px 0px 0;
+                    padding-right: 24px;
+                    position: relative;
+                    text-decoration: none;
+                    text-indent: 3px;
+                    white-space: nowrap;
+                  "
+                >
+                  <span class="post-meta-icon like-reaction-button"
+                    ><a
+                      href="https://email.mg2.substack.com/c/eJxtUl1v4jAQ_DXkjcix8_mQh16BE6ik4kih9CVy7A0YEjuKHSD8-jrlXk46yZqVpZnd0c4yauCouiFtlTbOCIUZWkgl3HQNxkDn9Bq6QvA0IgRHfoQdnvrci4PYEbqoOoCGijo1XQ9O25e1YNQIJUcFjhIfIeeU4irkDOIIc4L8JKRlFIW0IoA8XkUE_Odg2nMBkkEKV-gGJcFhqmlAmrGXU6cnY1o9IS8TvLCvEexEodYnqGuQJXRH6Fzdl9pQdnGt0nJoKyxePQvjBFt-zE47oGw0OSELoy5g6wyGlcfwbvjE9WV5VmT9WA_ZY0PW4ibY7-TBF0n79boMs_yA3_OPxzpneilX9WGfIbpPeqsRfosvS8un-wWy_3t2_nhk-QVns_nw9rpqme32LlY3vl-a9ZkF2ezlNvIZ2YlRz5rd6UD-tCX2RbVx8WYdn48N0eV2u799fU7NNuftCspk9_br7s91TnQ2j6uV2DgixQhjFODQVoSwS1weRYyjuIKQx6iiwcRHzRH_syKnS09KHks1jZQSG-1PwbKELNV9yqFRrmqkuKoOXNq2Y7rFmEgvhRkKkLSsgT-DN8_7-dlucQQJnb0rXlCTemFAgiT0PYKDvznbNIMwTALiRY51w5VVyfR_eX4D7inlCw"
+                      class="like-button button post-meta-button"
+                      style="
+                        align-items: center;
+                        background-color: transparent;
+                        border: 1px solid rgba(204, 204, 204, 0.5);
+                        border-radius: 4px;
+                        box-sizing: border-box;
+                        color: #1a1a1a;
+                        cursor: pointer;
+                        display: flex;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 16px;
+                        font-weight: normal;
+                        height: auto;
+                        line-height: 15px;
+                        margin: 0;
+                        opacity: 1;
+                        outline: none;
+                        padding: 10px 16px;
+                        text-align: center;
+                        text-decoration: none;
+                        text-indent: 0px;
+                        white-space: nowrap;
+                      "
+                      ><img
+                        src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideHeart%3Fv%3D2%26height%3D36%26fill%3Dtransparent%26stroke%3D%2523757575%26strokeWidth%3D2"
+                        width="18"
+                        height="18"
+                        style="
+                          border: none !important;
+                          display: inline-block;
+                          float: left;
+                          height: 14px;
+                          margin-right: 4px;
+                          max-width: 18px;
+                          vertical-align: top;
+                          width: auto;
+                        "
+                        alt=""
+                      /><span
+                        class="like-count"
+                        style="color: #1a1a1a; margin-left: 7px"
+                        >Like</span
+                      ></a
+                    ></span
+                  >
+                </td>
+                <td
+                  class="post-meta-item icon"
+                  style="
+                    color: #767676;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 14px;
+                    height: 100%;
+                    line-height: 18px;
+                    padding: 0px 12px 0px 0;
+                    padding-right: 24px;
+                    position: relative;
+                    text-decoration: none;
+                    text-indent: 3px;
+                    white-space: nowrap;
+                  "
+                >
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxtUk1vozAQ_TXhBgKbzwOHtrttqZZUdNOq6QUZewhusI1sk5b8-ppN97DSSv7S6L0345lHiYWD0ks5KWO99WjtMkEp4cOMYC1obzagW87KDGOUxRnyWBmzKE9yj5u21wCC8LG0egZvmruRU2K5kisDZUUcht5QpoxB3Ce0zzuaUVKEMaUYoShhedRFRXFJTGbGQVIo4QR6URI8qoQAaVctbywHayezwVcbdOuW4HQgMJoBxhFkB_oAOjBzZyyhx8AxHWZy2w7gI19wOVv3CH0DVEnmnzgD5duBWIf5zuPEb606gtzgH7A8RBS9LK9oPFbvCtfnetmeG1zzD07vijO7Laa3myrd7vbocfd8rnfUVGIcmIvVu31Un5-T7XvzueLJ6_bsNDi9f-G_dhV-3DUf9U1lKrmN9rxKK3l9orixVLwMe_w0dSjmfRP8fHjUvHsgU-rXQ_5094ZCXt0fo-vuCovqPtVvh98n0w_Nc7NB6WxFa9SsKbjq__bhOy6A8Vmsv1pn5fEShQiFCUrdHYYowAHLMsrCvIeU5WFPkk0cigP6p5-eLgclD53yM6V4Y2IfHIrLTn36DIQKlJD8pDQEZJpWK7RrW2fJ7dKCJN0I7OISezHbn1raA0jQzoSsJbaM0gQnRRpHGCXxxRRu9EmaFgmOMs9Vw5RjyfJ_w_8CT2_0zQ"
+                    class="post-meta-button button"
+                    style="
+                      align-items: center;
+                      background-color: transparent;
+                      border: 1px solid rgba(204, 204, 204, 0.5);
+                      border-radius: 4px;
+                      box-sizing: border-box;
+                      color: #1a1a1a;
+                      cursor: pointer;
+                      display: flex;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                        Roboto, Helvetica, Arial, sans-serif,
+                        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+                      font-size: 16px;
+                      font-weight: normal;
+                      height: auto;
+                      line-height: 15px;
+                      margin: 0;
+                      opacity: 1;
+                      outline: none;
+                      padding: 10px 16px;
+                      text-align: center;
+                      text-decoration: none;
+                      white-space: nowrap;
+                    "
+                    ><img
+                      src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideComments%3Fv%3D2%26height%3D36%26fill%3Dtransparent%26stroke%3D%2523757575%26strokeWidth%3D2"
+                      width="18"
+                      height="18"
+                      style="
+                        border: none !important;
+                        display: inline-block;
+                        float: left;
+                        height: 14px;
+                        margin-right: 4px;
+                        max-width: 18px;
+                        vertical-align: top;
+                        width: auto;
+                      "
+                      alt="Comment"
+                      class="comment-icon post-meta-icon"
+                    /><span class="meta-button-label">Comment</span></a
+                  >
+                </td>
+                <td
+                  class="post-meta-item icon"
+                  style="
+                    color: #767676;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 14px;
+                    height: 100%;
+                    line-height: 18px;
+                    margin-right: 0;
+                    padding: 0px 12px 0px 0;
+                    padding-right: 0;
+                    position: relative;
+                    text-decoration: none;
+                    text-indent: 3px;
+                    white-space: nowrap;
+                  "
+                >
+                  <span
+                    ><a
+                      href="https://email.mg2.substack.com/c/eJxtUtmOmzAU_Rp4AxmbJTzwkCaTadImbTRL0nlBxr4EB7CpMcmQr6-ZtFIrVfJ6fO71XQ6jBk5Kj1mneuNOS27GDjIJ174BY0C7Qw86FzxLCMFJmGCXZyEPZtHMFX1eaoCWiiYzegC3G4pGMGqEkpMFTtIQIbfKAspCyggnZYhojCEsURKUDMeIlAljxf1jOnABkkEGF9CjkuAy1bYgzeTLbbLKmK53yNzBKztawSoKTV9B04AsQJ9A-_1Q9Iay2reWltPZaSrwsNcKORh7QF4PTEnuXQQH5ZmKGoesBtPmvRo0A4cs__hwcDzhLXAxtBb_yPM3aF0YG9jErqgGi1I2Zf0XYFQN0x3GTcDw63jETb0-K7K9bcfdbU-24iroYYUs9r47v9x2zzXeLR_Gr4tNx-zrN7G58sPabM8s2i3n17XlM_IqLF-wx_TGF8H4dlid-WNzKcQm9V_ihxtr81nwOfbI8fj2pX5-9BbfF_WndYn3eLH9-SPFQb0vnuauyDDCGEU4tjtC2Cc-TxLG0ayEmM9QSSMnRO0J_1NRV2eVkqdCeYlSYt-HHliWkIV69zi0yletFBelwaddN4khnxo4SGHGHCQtGuB3nZi73D4qmp9AgrYy5Dk1WRBHJErjMCA4Cu-ysM2P4jiNSJC4NhqurJXM_tf-X03i9VE"
+                      class="button post-meta-button"
+                      style="
+                        align-items: center;
+                        background-color: transparent;
+                        border: 1px solid rgba(204, 204, 204, 0.5);
+                        border-radius: 4px;
+                        box-sizing: border-box;
+                        color: #1a1a1a;
+                        cursor: pointer;
+                        display: flex;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 16px;
+                        font-weight: normal;
+                        height: auto;
+                        line-height: 15px;
+                        margin: 0;
+                        opacity: 1;
+                        outline: none;
+                        padding: 10px 16px;
+                        text-align: center;
+                        text-decoration: none;
+                        white-space: nowrap;
+                      "
+                      ><img
+                        src="https://substackcdn.com/image/fetch/w_36,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FLucideShare%3Fv%3D2%26height%3D36%26fill%3Dtransparent%26stroke%3D%2523757575%26strokeWidth%3D2"
+                        width="18"
+                        height="18"
+                        style="
+                          border: none !important;
+                          display: inline-block;
+                          float: left;
+                          height: 14px;
+                          margin-right: 4px;
+                          max-width: 18px;
+                          vertical-align: top;
+                          width: auto;
+                        "
+                        alt="Share"
+                        class="recommend-icon post-meta-icon"
+                      /><span class="meta-button-label">Share</span></a
+                    ></span
+                  >
+                </td>
+              </tr>
+            </table>
+            <div
+              class="container-border"
+              style="
+                border-top: 1px solid rgba(204, 204, 204, 0.5);
+                box-sizing: border-box;
+                font-size: 16px;
+                line-height: 26px;
+                margin: 32px 0 0;
+                width: 100%;
+              "
+            ></div>
+            <div
+              class="post-cta"
+              style="font-size: 16px; line-height: 26px; margin: 24px 0 40px"
+            >
+              <p
+                style="
+                  font-size: 16px;
+                  font-style: italic;
+                  line-height: 26px;
+                  margin: 24px 0 0;
+                  margin-top: 0;
+                "
+              >
+                <span
+                  >You&#8217;re a free subscriber to
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxtkL1uxSAMhZ8mbDfin9yBoUv3PkFEwElQCURAbpu3L2mmSpUse_Gxz_msqbCkfOo9lYquNtZzBx3hqwSoFTI6CuTRO60Yo4oripzmjgxiQL6McwbYjA-65gPQfkzBW1N9ipeCqifHGK0acyFBEGLnmZFZSImZNFw5JYeBcIrvx-ZwHqIFDS_IZ4qAbNo2iPW6hYJea91Lx946-t5q83Y1EMoKIUCcIC-Q-3JMpRr72Tdl20FeU0wpFlS2iTHtWe-Usg4PM0g34NmIjuNtoX-UKOs1xWVKD5WS_yj8AW3Lxyl9PxxsqU9b9K-UoTf7foUeL6NH9PUcIZopgLt51BvrL6FxgQi54XajqZpIwcRTcsKo4Hf8FrKReQpGFGpuXGqqqP-L-QNr9ZSs"
+                    >Michael Shellenberger</a
+                  >. For the full experience,
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxtUsuO2jAU_RqyI3LsvFhkQcnQgRlCkei8NpFjXxJDYkeOA4Svr1PoolUly5aP7j33cQ6jBkqlh6RVnXHGKzdDC4mES1eDMaCdvgOdC55EhODIj7DDE597cRA7ossPGqChok6M7sFp-6IWjBqh5JiBo5mPkFMlBMMsPlCf05jEJKKRz2PLVASIHgIaRvfCtOcCJIMEzqAHJcFhqmlAmpHLqZPKmLabkPkEL-1pBKso1F0FdQ2yAF2Cdru-6AxlJ9dm2pjxy7QoYEKWRp1ATkgKw9pj-G34wPVpdVRkc9sM2W1HNuIi6PsSWeyaHX_esv0JZ-nT8LpY1_A8F9vjE872n9dtWqLNftWtmvrGhlW4kt-8T4Esxwlt0rmw8Tf-vhJbsT7S729HimceX6xnrpDPL8sD-cr0JQvWZ1OFu3S5bvPo3E5_VC_zj9ehWGz0V5ntJjjsTZN3qtfM9p6O6_kX-zPqA2-Ai74Z5xvleIBMSWP392BghjoiwQhjFODQvghhl7g8ihhH8QFCHqMDDSY-akr81yodnVRKloWaRkqJXedPwUYJWajrlEOjXNVIcVYaXNq2owvyUbleCjPkIGlRA78bxNx99rvHvAQJ2vqP59QkXhiQYBb6HsGBf_eDVT0Iw1lAvMix3XBls2TyP91_AeYL9AI"
+                    >become a paid subscriber.</a
+                  ></span
+                >
+              </p>
+              <p
+                class="cta-box"
+                style="
+                  font-size: 16px;
+                  font-style: italic;
+                  line-height: 26px;
+                  margin: 24px 0 0;
+                  text-align: center;
+                "
+              >
+                <a
+                  role="button"
+                  href="https://email.mg2.substack.com/c/eJxtUsuO2jAU_RqyI3LsvFhkQcnQgRlCkei8NpFjXxJDYkeOA4Svr1PoolUly5aP7j33cQ6jBkqlh6RVnXHGKzdDC4mES1eDMaCdvgOdC55EhODIj7DDE597cRA7ossPGqChok6M7sFp-6IWjBqh5JiBo5mPkFMlBMMsPlCf05jEJKKRz2PLVASIHgIaRvfCtOcCJIMEzqAHJcFhqmlAmpHLqZPKmLabkPkEL-1pBKso1F0FdQ2yAF2Cdru-6AxlJ9dm2pjxy7QoYEKWRp1ATkgKw9pj-G34wPVpdVRkc9sM2W1HNuIi6PsSWeyaHX_esv0JZ-nT8LpY1_A8F9vjE872n9dtWqLNftWtmvrGhlW4kt-8T4Esxwlt0rmw8Tf-vhJbsT7S729HimceX6xnrpDPL8sD-cr0JQvWZ1OFu3S5bvPo3E5_VC_zj9ehWGz0V5ntJjjsTZN3qtfM9p6O6_kX-zPqA2-Ai74Z5xvleIBMSWP392BghjoiwQhjFODQvghhl7g8ihhH8QFCHqMDDSY-akr81yodnVRKloWaRkqJXedPwUYJWajrlEOjXNVIcVYaXNq2owvyUbleCjPkIGlRA78bxNx99rvHvAQJ2vqP59QkXhiQYBb6HsGBf_eDVT0Iw1lAvMix3XBls2TyP91_AeYL9AI"
+                  class="button primary subscribe-btn"
+                  style="
+                    background-color: #51b4e9;
+                    border: 0px solid #51b4e9;
+                    border-radius: 4px;
+                    border-width: 13px 20px 13px 18px;
+                    box-sizing: content-box;
+                    color: #ffffff !important;
+                    cursor: pointer;
+                    display: inline-block;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 17px;
+                    font-style: normal;
+                    font-weight: 300;
+                    height: 24px;
+                    line-height: 24px;
+                    margin: 0;
+                    opacity: 1;
+                    outline: none;
+                    padding: 0;
+                    text-align: center;
+                    text-decoration: none !important;
+                    vertical-align: middle;
+                    white-space: nowrap;
+                  "
+                  >Subscribe</a
+                >
+              </p>
+            </div>
+            <div
+              class="footer"
+              style="
+                background: #f8f8f8 !important;
+                color: #bcbcbc;
+                font-size: 16px;
+                line-height: 26px;
+                margin-top: 24px;
+                padding: 32px;
+                text-align: center;
+              "
+            >
+              <p
+                class="small"
+                style="
+                  color: #bcbcbc;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                    'Segoe UI Emoji', 'Segoe UI Symbol';
+                  font-size: 13px;
+                  line-height: 26px;
+                  margin-bottom: 0;
+                  padding-bottom: 30px;
+                "
+              >
+                &#169; 2022 <span>Michael Shellenberger</span>
+                <a
+                  href="https://email.mg2.substack.com/c/eJxtUk1vozAU_DXhVmRsPg8ctonSsl3SJqJp0gsy9iM4gI2waQq_fqE5rbSS9Ww9zTyPZh6jBi6qH-NOaWMtJTdjB7GEm27AGOitQUOfCx4HhODADbDFY5c7oRdaQudlD9BS0cSmH8DqhqIRjBqh5MLAQeQiZFUx5iRymO-5HnI4BsrADzB3AoSjELEyvH9MBy5AMojhC_pRSbCYaluQZpllNXFlTKdX5NcKb-fTClZRaHQFTQOygP4Cva2HQhvKantmzhjKFinzgwtNiwbyH60rsjWqBrkiGxh_OwwfxxNu6uSqSDql427ak1TcBHuKJr6Nus914u-yM37N3qc0Yzppm4rPvTQ7O-n07u2u--8FT0-7aZ4h2PNR_MkS8prtb-k60YncOWeR-El76BjeiuLpWH5-OBX9uIlyb29RHobm8EgPYf5cw9umXvd1-7jRpwN9yfI3uCL5gsrb2a0tEWOEMfKwP98IYZvYPAgYR2EJPg9RSb2Vi9oL_scIq48rJS-FegiUEnvtPsCMErJQ3w8cWmWrVoov1YNNu27JMF98H6QwYw5y8Y3f4zX3LfkxMb-AhH7eHp5TEzu-R7zIdx2CPfee5pyZ5_uRR5zAmtVwNbNk_L_U_gJwAdvi"
+                  style="color: #bcbcbc"
+                  ><span style="color: #bcbcbc; text-decoration: underline"
+                    >Unsubscribe</span
+                  ></a
+                ><br />Environmental Progress, P.O. Box 8538<br />Albany, CA
+                94707
+              </p>
+              <p
+                class="small powered-by-substack"
+                style="
+                  color: #bcbcbc;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                    'Segoe UI Emoji', 'Segoe UI Symbol';
+                  font-size: 13px;
+                  line-height: 26px;
+                  margin-bottom: 0;
+                  margin-top: 0;
+                  padding-bottom: 0;
+                "
+              >
+                <a
+                  href="https://email.mg2.substack.com/c/eJxNUcuO5CAM_Jpw64gAgfSBw0qruc8XRAScBG3AEY-e6b8f0r0rrWRhUSrb5bI1BTZMT31iLuR65vI8QUf4ygeUAonUDGn2TivOmRKKEaeFG6ZxIj7PawIIxh-6pArkrMvhrSke41XB1F1QSnZNrXCK3dXEYAG-SiGXYbDKDsCkBEHfg011HqIFDQ9IT4xALIYAsVy9yKH3Us7c8V8d-2iR65KLsX_6Rrq-fov17PhHLWHOWJOFjv_-R-qYvPAAztfQ8Jfmv6DFWNqQhq6I18JeM8oYHZlsmVLW894pZR2dVpBuoqsZO0HDxvr_NZCkd4zbgjeF6D-zuEFj-bjg981BwB5D9A9M0JvzvJyar-1q9OU5QzTLAe5tYnnf4iVx3iBCajdysyl6kCMf71IMnI3i7VlzZpTyPvJBkabGYauKOni7GzjyDscBcYG0QfoB-IqoTQ"
+                  style="
+                    color: #bcbcbc;
+                    display: inline-block;
+                    margin: 8px 4px 0;
+                    text-decoration: none;
+                  "
+                  ><img
+                    alt="Publish on Substack"
+                    src="https://substackcdn.com/image/fetch/w_393,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fpublish-on-substack.png"
+                    width="196"
+                    height="40"
+                    style="
+                      border: none !important;
+                      margin-top: 3px;
+                      max-width: 550px;
+                      vertical-align: middle;
+                    " /></a
+                ><a
+                  href="https://email.mg2.substack.com/c/eJxNUcGOrSAM_RrZaRAEdMFikpfZvy8wCFXJCBioM3P__uF185KmDekpPefUGoQt5Zc-U0FypxlfJ-gIP-UARMjkKpBn77TinKlBMeL04PpRjMSXec0AwfhDY76AnNdyeGvQp3hPMDUNlJJdyxWYsiuMrpeT5H2_jlTYQYwU1sFM8llsLuchWtDwDfmVIhCbQoCI91_k0DviWRr-0bDPGuVaChr71VVQfZrzfHJbMGVoMzifwWLDPy8MszXhNH6LDf9zY4LJX4A-bg2T73aKWBfV7ltNu6ZUpbfLhZgi8ZpRxqhgslZKWcc7p5R1dFxBupGuRjQDDRvr_idFst5T3JbUqpT83zK0UFE-Lum3dRBSl0L035VrVxnd1s233Ct6fM0QzXKAe1zF5zhvZvMGEXI9mpsN6l4KLiY59JyJ4TGxWiWknATvFalsXKpTUQdvdwNH2eE4IC6QN8j_AAyprtk"
+                  style="
+                    color: #bcbcbc;
+                    display: inline-block;
+                    margin: 8px 4px 0;
+                    text-decoration: none;
+                  "
+                  ><img
+                    alt="Get the app"
+                    src="https://substackcdn.com/image/fetch/w_277,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Femail%2Fget-the-app.png"
+                    width="138"
+                    height="40"
+                    style="
+                      border: none !important;
+                      margin-top: 3px;
+                      max-width: 550px;
+                      vertical-align: middle;
+                    "
+                /></a>
+              </p>
+            </div>
+          </div>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+    <img
+      src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjIwNTI2MjAyMDAyLjMuZDc3Y2QwOGZlNmQ4MGZhNUBtZzIuc3Vic3RhY2suY29tPiIsInUiOjczMzI3NDcyLCJyIjoiaG9uZ2JvLTdvb2lRczQtZUBpbmJveC1kZW1vLm9tbml2b3JlLmFwcCIsImQiOiJtZzIuc3Vic3RhY2suY29tIiwicCI6NTY2OTUzMTcsInQiOiJuZXdzbGV0dGVyIiwiYSI6ImV2ZXJ5b25lIiwicyI6Mjc5NDAwLCJjIjoicG9zdCIsImYiOnRydWUsInBvc2l0aW9uIjoiYm90dG9tIiwiaWF0IjoxNjUzNTk2NDEzLCJpc3MiOiJwdWItMCIsInN1YiI6ImVvIn0.ksvYKehLANR4Crm2zIfU-og0j6s6GAdNsDfVPbAhCvk"
+      alt=""
+      width="1"
+      height="1"
+      border="0"
+      style="
+        height: 1px !important;
+        width: 1px !important;
+        border-width: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      "
+    /><img
+      width="1px"
+      height="1px"
+      alt=""
+      src="https://email.mg2.substack.com/o/eJwlkEluhTAQRE8T7z7y9wgLHyInQB4KsAI2sk0Sbh8Iq261StWvytuGOZfT7Lk2gs3GdZyRUK57GG0zbyW5HJR4cyYFCUaEdy97Eus4FfzrTSsHyH64NXrbYk5jDIbpQVBKFqMYozQE6iwT3mPgk1NKORbkJPUATu7Hoz1CRPIw-EY5cwLxeduQ2u31SK5FKjVI_tYkGkYvX8nUNSllHe-C1j7QfoIKPZ2s_BB0m1lXD1eb9V_d5UeKWXKaXX7pnONnFS9cqphc_n0FbLnLW4rfuaCz-34HGm-II8V2jkjWrQhP1va0dVSUG0tzzrTQ7OFs5w6T8FNXtIZCLoKQr56S2aJfLNa6YF2RHMqM8getloMk"
+    />
+  </body>
+</html>
