@@ -67,9 +67,10 @@ final class ShareExtensionViewModel: ObservableObject {
     let linkedItem = try? await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
 
     if let linkedItem = linkedItem {
-      // Sync with server now that we saved the item locally
-      services.dataService.syncLocalCreatedLinkedItem(item: linkedItem)
       updateStatus(newStatus: .saved)
+
+      await services.dataService.syncLocalCreatedLinkedItem(item: linkedItem)
+      updateStatus(newStatus: .synced)
     } else {
       updateStatus(newStatus: .failed(error: SaveArticleError.unknown(description: "Unable to save page")))
     }

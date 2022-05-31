@@ -143,7 +143,20 @@ public struct ShareExtensionChildView: View {
 
       Spacer()
 
-      if case ShareExtensionStatus.saved = status {
+      switch status {
+      case .processing:
+        HStack {
+          Spacer()
+          Text("Saving...")
+          Spacer()
+        }
+      case .saved:
+        HStack {
+          Spacer()
+          Text("Syncing...")
+          Spacer()
+        }
+      case .synced:
         HStack(spacing: 4) {
           Text("Saved to Omnivore")
             .font(.appTitleThree)
@@ -154,19 +167,43 @@ public struct ShareExtensionChildView: View {
             .lineLimit(nil)
         }
         .padding()
-      } else if case let ShareExtensionStatus.failed(error) = status {
+      case let .failed(error: error):
         HStack {
           Spacer()
-          Text(error.displayMessage)
+          Text("Failed to save:" + error.displayMessage)
           Spacer()
         }
-      } else {
+      case let .syncFailed(error: error):
         HStack {
           Spacer()
-          Text("Saving...")
+          Text("Failed to sync:" + error.displayMessage)
           Spacer()
         }
       }
+//      if case ShareExtensionStatus.saved = status {
+//        HStack(spacing: 4) {
+//          Text("Saved to Omnivore")
+//            .font(.appTitleThree)
+//            .foregroundColor(.appGrayText)
+//            .padding(.trailing, 16)
+//            .multilineTextAlignment(.center)
+//            .fixedSize(horizontal: false, vertical: true)
+//            .lineLimit(nil)
+//        }
+//        .padding()
+//      } else if case let ShareExtensionStatus.failed(error) = status {
+//        HStack {
+//          Spacer()
+//          Text(error.displayMessage)
+//          Spacer()
+//        }
+//      } else {
+//        HStack {
+//          Spacer()
+//          Text("Saving...")
+//          Spacer()
+//        }
+//      }
 
       ScrollView {
         if FeatureFlag.enableRemindersFromShareExtension {

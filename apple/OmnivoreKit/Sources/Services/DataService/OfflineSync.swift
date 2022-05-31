@@ -35,40 +35,38 @@ extension DataService {
     }
   }
 
-  public func syncLocalCreatedLinkedItem(item: LinkedItem) {
+  public func syncLocalCreatedLinkedItem(item: LinkedItem) async -> Bool {
     switch item.contentReader {
     case "PDF":
       // SaveFile
-      uploadFilePublisher(item: item)
-        .sink(receiveCompletion: { [weak self] _ in
-          print("received PDF saved completion")
-        }, receiveValue: { [weak self] _ in
-          print("recived save PDF value", item)
-        })
-        .store(in: &subscriptions)
-    case "WEB":
-      if item.originalHtml != nil {
-        savePagePublisher(item: item)
-          .sink(receiveCompletion: { [weak self] _ in
-            print("received page saved completion")
-          }, receiveValue: { [weak self] _ in
-            print("recived save page value", item)
-          })
-          .store(in: &subscriptions)
-      } else {
-        saveUrlPublisher(item: item)
-          .sink(receiveCompletion: { [weak self] _ in
-            print("received url saved completion")
-          }, receiveValue: { [weak self] _ in
-//            print("recived save url value", item)
-          })
-          .store(in: &subscriptions)
+      do {
+        let uploadRequest = try await uploadFileRequest(item: item)
+        uploadFile(item: item, url: uploadRequest)
+      } catch {
+        logger.debug("Failed to upload PDF LinkedItem: \(error.localizedDescription)")
+        return false
       }
-    case .none:
-      print("NONE HANDLER")
-    case .some:
-      print("SOME HANDLER")
+    case "WEB":
+      do {
+        if item.originalHtml != nil {
+          try await savePage(item: item)
+        } else {
+          try await saveURL(item: item)
+        }
+        item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+        print("ITEMS SYNCED")
+        try backgroundContext.save()
+        return true
+      } catch {
+        print("Error saving", error)
+        backgroundContext.rollback()
+        logger.debug("Failed to sync LinkedItem: \(error.localizedDescription)")
+        return false
+      }
+    default:
+      return false
     }
+    return false
   }
 
   private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
@@ -77,7 +75,8 @@ extension DataService {
 
       switch syncStatus {
       case .needsCreation:
-        syncLocalCreatedLinkedItem(item: item)
+        // syncLocalCreatedLinkedItem(item: item)
+        break
       case .isNSync, .isSyncing:
         break
       case .needsDeletion:
