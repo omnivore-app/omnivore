@@ -63,6 +63,7 @@ struct WelcomeView: View {
       AppleSignInButton {
         viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
       }
+      // set maxwidth = 260
 
       if AppKeys.sharedInstance?.iosClientGoogleId != nil {
         GoogleAuthButton {
@@ -70,28 +71,29 @@ struct WelcomeView: View {
         }
       }
     }
-    return VStack(alignment: .center, spacing: 16) {
-      if horizontalSizeClass == .regular {
-        HStack { buttonGroup }
-      } else {
-        buttonGroup
-      }
+    return GeometryReader { geo in
+      VStack(alignment: .center, spacing: 16) {
+        if geo.size.width > 600 {
+          HStack { buttonGroup }
+        } else {
+          buttonGroup
+        }
 
-      if let loginError = viewModel.loginError {
-        LoginErrorMessageView(loginError: loginError)
+        if let loginError = viewModel.loginError {
+          LoginErrorMessageView(loginError: loginError)
+        }
       }
-    }
+    }.background(Color.red)
   }
 
   var compactContent: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 50) {
       logoView
-      Spacer()
+        .padding(.bottom, 20)
       headlineView
-      Spacer()
       authProviderButtonStack
-      Spacer()
       footerView
+      Spacer()
     }
     .padding()
   }
