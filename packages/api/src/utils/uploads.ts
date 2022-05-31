@@ -24,7 +24,12 @@ export const generateUploadSignedUrl = async (
   //   return 'http://localhost:3000/uploads/' + filePathName
   // }
 
-  console.log("signed URL", filePathName, contentType, selectedBucket || bucketName)
+  console.log(
+    'signed URL',
+    filePathName,
+    contentType,
+    selectedBucket || bucketName
+  )
 
   // These options will allow temporary uploading of file with requested content type
   const options: GetSignedUrlConfig = {

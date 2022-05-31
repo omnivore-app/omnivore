@@ -68,7 +68,6 @@ extension Sequence where Element == InternalLinkedItem {
     context.performAndWait {
       linkedItems = map { $0.asManagedObject(inContext: context) }
 
-      print("LINKED ITEMS", linkedItems)
       do {
         try context.save()
         print("LinkedItems saved succesfully")

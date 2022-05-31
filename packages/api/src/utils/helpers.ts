@@ -256,10 +256,11 @@ export const titleForFilePath = (url: string): string => {
 }
 
 export const validateUuid = (str: string): boolean => {
-  const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+  const regexExp =
+    /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
   return regexExp.test(str)
 }
 
 export const isString = (check: any): check is string => {
-  return (typeof check === 'string' || check instanceof String)
+  return typeof check === 'string' || check instanceof String
 }
