@@ -29,7 +29,7 @@ import Utils
     @State private var shareLink: ShareLink?
 
     init(remoteURL: URL, viewModel: PDFViewerViewModel) {
-      self.pdfURL = viewModel.dataURL(remoteURL: remoteURL)
+      self.pdfURL = viewModel.pdfItem.localPdfURL ?? remoteURL
       self.viewModel = viewModel
     }
 

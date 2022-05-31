@@ -46,17 +46,23 @@ final class ShareExtensionViewModel: ObservableObject {
 
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
       guard let self = self else { return }
+
       switch result {
       case let .success(payload):
         Task {
           await self.persist(pageScrapePayload: payload, requestId: self.requestID)
+          self.endBackgroundTask()
         }
       case let .failure(error):
-        if let backgroundTask = self.backgroundTask {
-          UIApplication.shared.endBackgroundTask(backgroundTask)
-        }
         self.debugText = error.message
+        self.endBackgroundTask()
       }
+    }
+  }
+
+  private func endBackgroundTask() {
+    if let backgroundTask = self.backgroundTask {
+      UIApplication.shared.endBackgroundTask(backgroundTask)
     }
   }
 

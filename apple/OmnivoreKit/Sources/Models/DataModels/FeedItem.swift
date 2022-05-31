@@ -31,7 +31,6 @@ public extension LinkedItem {
   var unwrappedSlug: String { slug ?? "" }
   var unwrappedTitle: String { title ?? "" }
   var unwrappedPageURLString: String { pageURLString ?? "" }
-  var unwrappedLocalPdfURL: String { localPdfURL ?? "" }
   var unwrappedSavedAt: Date { savedAt ?? Date() }
   var unwrappedCreatedAt: Date { createdAt ?? Date() }
 
