@@ -72,7 +72,7 @@ declare module '@omnivore/readability' {
      *
      * The response will be null if the processing failed (https://github.com/mozilla/readability/blob/52ab9b5c8916c306a47b2119270dcdabebf9d203/Readability.js#L2038)
      */
-    parse(): Readability.ParseResult | null
+    async parse(): Promise<Readability.ParseResult | null>
   }
 
   namespace Readability {
