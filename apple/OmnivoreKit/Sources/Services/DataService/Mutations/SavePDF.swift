@@ -4,18 +4,19 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func uploadPDFPublisher(
-    pageScrapePayload: PageScrapePayload,
-    data: Data,
-    requestId: String
-  ) -> AnyPublisher<Void, SaveArticleError> {
-    uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
-      .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, data: data) }
-      .flatMap { self.saveFilePublisher(pageScrapePayload: pageScrapePayload, uploadFileId: $0, requestId: requestId) }
-      .catch { _ in self.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId) }
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
-  }
+//  func uploadPDFPublisher(
+//    pageScrapePayload: PageScrapePayload,
+//    data: Data,
+//    requestId: String
+//  ) -> AnyPublisher<Void, SaveArticleError> {
+//    // uploadFileRequestPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
+//    // .flatMap { self.uploadFilePublisher(fileUploadConfig: $0, data: data) }
+//    uploadFilePublisher(pageScrapePayload: pageScrapePayload, requestId: requestId, data: data)
+//      .flatMap { self.saveFilePublisher(pageScrapePayload: pageScrapePayload, uploadFileId: $0, requestId: requestId) }
+//      .catch { _ in self.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId) }
+//      .receive(on: DispatchQueue.main)
+//      .eraseToAnyPublisher()
+//  }
 }
 
 private struct UploadFileRequestPayload {
@@ -26,17 +27,18 @@ private struct UploadFileRequestPayload {
 
 private extension DataService {
   // swiftlint:disable:next line_length
-  func uploadFileRequestPublisher(pageScrapePayload: PageScrapePayload, requestId: String?) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
+  // func uploadFileRequestPublisher(pageScrapePayload: PageScrapePayload, requestId: String?) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
+  func uploadFileRequestPublisher(item: LinkedItem) -> AnyPublisher<UploadFileRequestPayload, SaveArticleError> {
     enum MutationResult {
       case success(payload: UploadFileRequestPayload)
       case error(errorCode: Enums.UploadFileRequestErrorCode?)
     }
 
     let input = InputObjects.UploadFileRequestInput(
-      url: pageScrapePayload.url,
+      url: item.unwrappedPageURLString,
       contentType: "application/pdf",
       createPageEntry: OptionalArgument(true),
-      clientRequestId: OptionalArgument(requestId)
+      clientRequestId: OptionalArgument(item.unwrappedID)
     )
 
     let selection = Selection<MutationResult, Unions.UploadFileRequestResult> {
@@ -92,25 +94,26 @@ private extension DataService {
   }
 
   // swiftlint:disable:next line_length
-  func uploadFilePublisher(fileUploadConfig: UploadFileRequestPayload, data: Data) -> AnyPublisher<String, SaveArticleError> {
-    let url = fileUploadConfig.urlString.flatMap { URL(string: $0) }
-    guard let url = url else { return Future { $0(.failure(.badData)) }.eraseToAnyPublisher() }
+  public func uploadFilePublisher(item: LinkedItem) -> AnyPublisher<String, SaveArticleError> {
+    var urlComponents = URLComponents(url: appEnvironment.serverBaseURL, resolvingAgainstBaseURL: true)!
+    // let headers = networker.defaultHeaders
 
-    var request = URLRequest(url: url)
-    request.httpMethod = "PUT"
-    request.addValue("application/pdf", forHTTPHeaderField: "content-type")
-    request.httpBody = data
+    urlComponents.path = "/api/page/pdf"
+    urlComponents.queryItems = [URLQueryItem(name: "url", value: item.pageURLString), URLQueryItem(name: "clientRequestId", value: item.unwrappedID)]
 
-    // TODO: Maybe better to copy into this directory immediately
-    // instead of loading and writing the data
-    let tempDir = FileManager.default.temporaryDirectory
-    let localURL = tempDir.appendingPathComponent(fileUploadConfig.uploadFileID ?? "temporary")
-    try? data.write(to: localURL)
+    if let localPdfURL = item.localPdfURL, let localUrl = URL(string: localPdfURL) {
+      print("UPLOADING TO URL", urlComponents.url)
+      var request = URLRequest(url: urlComponents.url!)
+      request.httpMethod = "PUT"
 
-    print("STARTING UPLOAD TASK WITH LOCAL URL", localURL)
+      networker.defaultHeaders.forEach { (key: String, value: String) in
+        request.addValue(value, forHTTPHeaderField: key)
+      }
+      request.setValue("application/pdf", forHTTPHeaderField: "content-type")
 
-    let task = networker.backgroundSession.uploadTask(with: request, fromFile: localURL)
-    task.resume()
+      let task = networker.backgroundSession.uploadTask(with: request, fromFile: localUrl)
+      task.resume()
+    }
 
     // Just return immediately at this point.
     return Empty(completeImmediately: true).eraseToAnyPublisher()

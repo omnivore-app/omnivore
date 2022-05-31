@@ -5,7 +5,7 @@ public struct PDFItem {
   public let objectID: NSManagedObjectID
   public let itemID: String
   public let pdfURL: URL?
-  public let documentData: Data?
+  public let localPdfURL: URL?
   public let title: String
   public let slug: String
   public let readingProgress: Double
@@ -22,7 +22,7 @@ public struct PDFItem {
       objectID: item.objectID,
       itemID: item.unwrappedID,
       pdfURL: URL(string: item.unwrappedPageURLString),
-      documentData: item.pdfData,
+      localPdfURL: URL(string: item.unwrappedLocalPdfURL),
       title: item.unwrappedID,
       slug: item.unwrappedSlug,
       readingProgress: item.readingProgress,

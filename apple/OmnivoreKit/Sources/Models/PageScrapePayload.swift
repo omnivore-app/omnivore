@@ -18,7 +18,7 @@ public struct PageScrapePayload {
   public enum ContentType {
     case none
     case html(html: String, title: String?)
-    case pdf(data: Data)
+    case pdf(localUrl: URL)
   }
 
   public let url: String
@@ -29,9 +29,9 @@ public struct PageScrapePayload {
     self.contentType = .none
   }
 
-  init(url: String, pdfData: Data) {
+  init(url: String, localUrl: URL) {
     self.url = url
-    self.contentType = .pdf(data: pdfData)
+    self.contentType = .pdf(localUrl: localUrl)
   }
 
   init(url: String, title: String?, html: String) {
@@ -248,12 +248,28 @@ private extension PageScrapePayload {
     return nil
   }
 
+  static func sharedContainerURL() -> URL {
+    FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: "group.app.omnivoreapp"
+    )!
+  }
+
   static func makeFromURL(_ url: URL) -> PageScrapePayload? {
     if url.isFileURL {
       let type = try? url.resourceValues(forKeys: [.typeIdentifierKey]).typeIdentifier
-      if type == UTType.pdf.identifier, let data = try? Data(contentsOf: url) {
-        return PageScrapePayload(url: url.absoluteString, pdfData: data)
+      if type == UTType.pdf.identifier {
+        // Copy PDFs into a temporary file where they are staged for processing.
+        var dest = sharedContainerURL()
+        let localFile = UUID().uuidString.lowercased() + ".pdf"
+        dest.appendPathComponent(localFile)
+        do {
+          try FileManager.default.copyItem(at: url, to: dest)
+          return PageScrapePayload(url: url.absoluteString, localUrl: dest)
+        } catch {
+          print("error copying file locally", error)
+        }
       }
+      // TODO:
       // Don't try to handle file URLs that are not PDFs.
       // In the future we can add image and other file type support here
       return nil

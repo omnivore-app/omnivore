@@ -18,25 +18,29 @@ public final class PDFViewerViewModel: ObservableObject {
   }
 
   public func dataURL(remoteURL: URL) -> URL {
-    if let storedURL = storedURL {
+    // TODO: we should probably not reach this point of localPdfURL is not set
+    // this means the PDF has not been downloaded yet, so we likely don't have
+    // a valid URL to work with.
+
+    if let storedURL = pdfItem.localPdfURL {
       return storedURL
     }
 
-    guard let data = pdfItem.documentData else { return remoteURL }
-
-    let subPath = pdfItem.title.isEmpty ? UUID().uuidString : pdfItem.title
-
-    let path = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(subPath)
-
-    do {
-      try data.write(to: path)
-      storedURL = path
-      return path
-    } catch {
-      return remoteURL
-    }
+//    guard let data = pdfItem.documentData else { return remoteURL }
+//
+//    let subPath = pdfItem.title.isEmpty ? UUID().uuidString : pdfItem.title
+//
+//    let path = FileManager.default
+//      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+//      .appendingPathComponent(subPath)
+//
+//    do {
+//      try data.write(to: path)
+//      storedURL = path
+//      return path
+//    } catch {
+    return remoteURL
+    //   }
   }
 
   public func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {

@@ -111,6 +111,7 @@ extension DataService {
           slug: try $0.slug(),
           isArchived: try $0.isArchived(),
           contentReader: try $0.contentReader().rawValue,
+          originalHtml: nil,
           labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
         ),
         htmlContent: try $0.content(),
@@ -217,7 +218,7 @@ extension DataService {
         linkedItem.isArchived = item.isArchived
         linkedItem.contentReader = item.contentReader
 
-        if linkedItem.isPDF, linkedItem.pdfData == nil {
+        if linkedItem.isPDF, linkedItem.localPdfURL == nil {
           do {
             try self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
           } catch {
@@ -257,9 +258,16 @@ extension DataService {
           let errorMessage = "pdfFetch failed. could not find LinkedItem from fetch request"
           throw BasicError.message(messageText: errorMessage)
         }
-        linkedItem.pdfData = data
+
+        let subPath = UUID().uuidString + ".pdf" // linkedItem.title.isEmpty ? UUID().uuidString : linkedItem.title
+
+        let path = FileManager.default
+          .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent(subPath)
 
         do {
+          try data.write(to: path)
+          linkedItem.localPdfURL = path.absoluteString
           try self?.backgroundContext.save()
           logger.debug("PDF data saved succesfully")
         } catch {

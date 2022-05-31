@@ -22,7 +22,7 @@ public extension PlatformViewController {
 
 final class ShareExtensionViewModel: ObservableObject {
   @Published var title: String?
-  @Published var status: ShareExtensionStatus = FeatureFlag.enableReadNow ? .processing : .success
+  @Published var status: ShareExtensionStatus = .processing
   @Published var debugText: String?
 
   var subscriptions = Set<AnyCancellable>()
@@ -60,53 +60,83 @@ final class ShareExtensionViewModel: ObservableObject {
   private func persist(pageScrapePayload: PageScrapePayload, requestId: String) {
     let services = Services()
 
-    guard services.authenticator.hasValidAuthToken else {
-      status = .failed(error: .unauthorized)
-      return
-    }
-
-    let saveLinkPublisher: AnyPublisher<Void, SaveArticleError> = {
-      if case let .pdf(data) = pageScrapePayload.contentType {
-        return services.dataService.uploadPDFPublisher(pageScrapePayload: pageScrapePayload,
-                                                       data: data,
-                                                       requestId: requestId)
-      } else if case let .html(html, title) = pageScrapePayload.contentType {
-        return services.dataService.savePagePublisher(pageScrapePayload: pageScrapePayload,
-                                                      html: html,
-                                                      title: title,
-                                                      requestId: requestId)
-      } else {
-        return services.dataService.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
-      }
-    }()
-
-    saveLinkPublisher
-      .sink { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
-        self?.debugText = "saveArticleError: \(error)"
-        self?.status = .failed(error: error)
-        if let backgroundTask = self?.backgroundTask {
-          UIApplication.shared.endBackgroundTask(backgroundTask)
-        }
-      } receiveValue: { [weak self] _ in
-        self?.status = .success
-        if let backgroundTask = self?.backgroundTask {
-          UIApplication.shared.endBackgroundTask(backgroundTask)
-        }
-      }
-      .store(in: &subscriptions)
-
-    // Check connection to get fast feedback for auth/network errors
     Task {
-      let hasConnectionAndValidToken = await services.dataService.hasConnectionAndValidToken()
-
-      if !hasConnectionAndValidToken {
-        DispatchQueue.main.async {
-          self.debugText = "saveArticleError: No connection or invalid token."
-          self.status = .failed(error: .unknown(description: ""))
+      do {
+        // Save locally, then attempt to sync to the server
+        let item = try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
+        // TODO: need to update this on the main thread and handle the result == false case here
+        if item != nil {
+          self.status = .saved
+        } else {
+          self.status = .failed(error: SaveArticleError.unknown(description: "Unable to save page"))
+          return
         }
+
+        // force a server sync
+        if let item = item {
+          let syncResult = services.dataService.syncLocalCreatedLinkedItem(item: item)
+          print("RESULT", syncResult)
+        }
+//          self.status = .synced
+//        } else {
+//          self.status = .syncFailed(error: SaveArticleError.unknown(description: "Unable to sync page"))
+//        }
+
+      } catch {
+        print("ERROR SAVING PAGE", error)
       }
     }
+    // First persist to Core Data
+    // services.dataService.persist(jsonArticle: article)
+
+//
+//    guard services.authenticator.hasValidAuthToken else {
+//      status = .failed(error: .unauthorized)
+//      return
+//    }
+//
+//    let saveLinkPublisher: AnyPublisher<Void, SaveArticleError> = {
+//      if case let .pdf(data) = pageScrapePayload.contentType {
+//        return services.dataService.uploadPDFPublisher(pageScrapePayload: pageScrapePayload,
+//                                                       data: data,
+//                                                       requestId: requestId)
+//      } else if case let .html(html, title) = pageScrapePayload.contentType {
+//        return services.dataService.savePagePublisher(pageScrapePayload: pageScrapePayload,
+//                                                      html: html,
+//                                                      title: title,
+//                                                      requestId: requestId)
+//      } else {
+//        return services.dataService.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
+//      }
+//    }()
+//
+//    saveLinkPublisher
+//      .sink { [weak self] completion in
+//        guard case let .failure(error) = completion else { return }
+//        self?.debugText = "saveArticleError: \(error)"
+//        self?.status = .failed(error: error)
+//        if let backgroundTask = self?.backgroundTask {
+//          UIApplication.shared.endBackgroundTask(backgroundTask)
+//        }
+//      } receiveValue: { [weak self] _ in
+//        self?.status = .success
+//        if let backgroundTask = self?.backgroundTask {
+//          UIApplication.shared.endBackgroundTask(backgroundTask)
+//        }
+//      }
+//      .store(in: &subscriptions)
+//
+//    // Check connection to get fast feedback for auth/network errors
+//    Task {
+//      let hasConnectionAndValidToken = await services.dataService.hasConnectionAndValidToken()
+//
+//      if !hasConnectionAndValidToken {
+//        DispatchQueue.main.async {
+//          self.debugText = "saveArticleError: No connection or invalid token."
+//          self.status = .failed(error: .unknown(description: ""))
+//        }
+//      }
+//    }
   }
 }
 

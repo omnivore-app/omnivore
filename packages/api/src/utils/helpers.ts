@@ -233,6 +233,18 @@ export const validatedDate = (
   }
 }
 
+export const fileNameForFilePath = (urlStr: string): string => {
+  const url = normalizeUrl(new URL(urlStr).href, {
+    stripHash: true,
+    stripWWW: false,
+  })
+  const fileName = decodeURI(path.basename(new URL(url).pathname)).replace(
+    /[^a-zA-Z0-9-_.]/g,
+    ''
+  )
+  return fileName
+}
+
 export const titleForFilePath = (url: string): string => {
   try {
     const title = decodeURI(path.basename(new URL(url).pathname, '.pdf'))
@@ -241,4 +253,13 @@ export const titleForFilePath = (url: string): string => {
     console.log(e)
   }
   return url
+}
+
+export const validateUuid = (str: string): boolean => {
+  const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+  return regexExp.test(str)
+}
+
+export const isString = (check: any): check is string => {
+  return (typeof check === 'string' || check instanceof String)
 }

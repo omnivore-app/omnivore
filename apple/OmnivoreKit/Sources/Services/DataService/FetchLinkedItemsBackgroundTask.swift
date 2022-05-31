@@ -33,6 +33,7 @@ extension DataService {
     let maxItemCount = 30
     let fetchResult = try await fetchLinkedItemIDs(limit: 10, cursor: cursor)
     let newItemsToFetch = await itemsNotInStore(from: fetchResult.itemIDs)
+    print("newItemsToFetch", newItemsToFetch)
     let itemsToFetch = previouslyFetchedIDs + newItemsToFetch
 
     if newItemsToFetch.isEmpty || itemsToFetch.count > maxItemCount || fetchResult.cursor == nil {

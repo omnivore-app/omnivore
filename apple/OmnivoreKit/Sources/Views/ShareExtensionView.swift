@@ -4,17 +4,23 @@ import Utils
 
 public enum ShareExtensionStatus {
   case processing
-  case success
+  case saved
+  case synced
   case failed(error: SaveArticleError)
+  case syncFailed(error: SaveArticleError)
 
   var displayMessage: String {
     switch self {
-    case .success:
-      return LocalText.saveArticleSavedState
-    case let .failed(error: error):
-      return error.displayMessage
     case .processing:
       return LocalText.saveArticleProcessingState
+    case .saved:
+      return LocalText.saveArticleSavedState
+    case .synced:
+      return "Synced"
+    case let .failed(error: error):
+      return "Save failed \(error.displayMessage)"
+    case let .syncFailed(error: error):
+      return "Sync failed \(error.displayMessage)"
     }
   }
 }
@@ -137,7 +143,7 @@ public struct ShareExtensionChildView: View {
 
       Spacer()
 
-      if case ShareExtensionStatus.success = status {
+      if case ShareExtensionStatus.saved = status {
         HStack(spacing: 4) {
           Text("Saved to Omnivore")
             .font(.appTitleThree)
@@ -203,7 +209,7 @@ public struct ShareExtensionChildView: View {
       .padding(.horizontal)
 
       HStack {
-        if case ShareExtensionStatus.success = status, FeatureFlag.enableReadNow {
+        if case ShareExtensionStatus.saved = status, FeatureFlag.enableReadNow {
           Button(
             action: { readNowButtonAction() },
             label: { Text("Read Now").frame(maxWidth: .infinity) }

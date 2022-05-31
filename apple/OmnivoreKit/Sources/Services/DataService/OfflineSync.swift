@@ -35,12 +35,34 @@ extension DataService {
     }
   }
 
+  public func syncLocalCreatedLinkedItem(item: LinkedItem) {
+    switch item.contentReader {
+    case "PDF":
+      // SaveFile
+      uploadFilePublisher(item: item)
+        .receive(on: DispatchQueue.main)
+        .eraseToAnyPublisher()
+    case "WEB":
+      if item.originalHtml != nil {
+        // SavePage
+      } else {
+        // SaveURL
+      }
+    case .none:
+      print("NONE HANDLER")
+    case .some:
+      print("SOME HANDLER")
+    }
+  }
+
   private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
     for item in unsyncedLinkedItems {
       guard let syncStatus = ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) else { continue }
 
       switch syncStatus {
-      case .isNSync, .isSyncing, .needsCreation:
+      case .needsCreation:
+        print("SYNCING LINKED ITEM", unsyncedLinkedItems)
+      case .isNSync, .isSyncing:
         break
       case .needsDeletion:
         item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
