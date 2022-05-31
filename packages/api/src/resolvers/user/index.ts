@@ -310,7 +310,7 @@ export const loginResolver: ResolverFn<
   }
 
   // check if password is correct
-  const validPassword = comparePassword(password, user.password)
+  const validPassword = await comparePassword(password, user.password)
   if (!validPassword) {
     return { errorCodes: [LoginErrorCode.InvalidCredentials] }
   }
@@ -331,7 +331,7 @@ export const signupResolver: ResolverFn<
 
   try {
     // hash password
-    const hashedPassword = hashPassword(password)
+    const hashedPassword = await hashPassword(password)
 
     const [user, profile] = await createUser({
       email,

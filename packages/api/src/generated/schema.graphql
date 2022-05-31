@@ -16,6 +16,31 @@ type AddPopularReadSuccess {
   pageId: String!
 }
 
+type ApiKey {
+  createdAt: Date!
+  expiresAt: Date!
+  id: ID!
+  key: String
+  name: String!
+  scopes: [String!]
+  usedAt: Date
+}
+
+type ApiKeysError {
+  errorCodes: [ApiKeysErrorCode!]!
+}
+
+enum ApiKeysErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union ApiKeysResult = ApiKeysError | ApiKeysSuccess
+
+type ApiKeysSuccess {
+  apiKeys: [ApiKey!]!
+}
+
 type ArchiveLinkError {
   errorCodes: [ArchiveLinkErrorCode!]!
   message: String!
@@ -500,18 +525,21 @@ type GenerateApiKeyError {
 }
 
 enum GenerateApiKeyErrorCode {
+  ALREADY_EXISTS
   BAD_REQUEST
+  UNAUTHORIZED
 }
 
 input GenerateApiKeyInput {
-  expiredAt: Date
-  scope: String
+  expiresAt: Date!
+  name: String!
+  scopes: [String!]
 }
 
 union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
 
 type GenerateApiKeySuccess {
-  apiKey: String!
+  apiKey: ApiKey!
 }
 
 type GetFollowersError {
@@ -749,6 +777,7 @@ type Mutation {
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
+  revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
   savePage(input: SavePageInput!): SaveResult!
@@ -856,6 +885,7 @@ type Profile {
 }
 
 type Query {
+  apiKeys: ApiKeysResult!
   article(slug: String!, username: String!): ArticleResult!
   articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
@@ -942,6 +972,22 @@ enum ReportType {
   CONTENT_DISPLAY
   CONTENT_VIOLATION
   SPAM
+}
+
+type RevokeApiKeyError {
+  errorCodes: [RevokeApiKeyErrorCode!]!
+}
+
+enum RevokeApiKeyErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union RevokeApiKeyResult = RevokeApiKeyError | RevokeApiKeySuccess
+
+type RevokeApiKeySuccess {
+  apiKey: ApiKey!
 }
 
 type SaveArticleReadingProgressError {

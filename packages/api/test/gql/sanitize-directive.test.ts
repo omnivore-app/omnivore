@@ -12,7 +12,7 @@ describe('Sanitize Directive', () => {
   let user: User
 
   before(async () => {
-    const hashedPassword = hashPassword(correctPassword)
+    const hashedPassword = await hashPassword(correctPassword)
     user = await createTestUser(username, '', hashedPassword)
     const res = await request
       .post('/local/debug/fake-user-login')

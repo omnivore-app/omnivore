@@ -34,6 +34,34 @@ export type AddPopularReadSuccess = {
   pageId: Scalars['String'];
 };
 
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  createdAt: Scalars['Date'];
+  expiresAt: Scalars['Date'];
+  id: Scalars['ID'];
+  key?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  scopes?: Maybe<Array<Scalars['String']>>;
+  usedAt?: Maybe<Scalars['Date']>;
+};
+
+export type ApiKeysError = {
+  __typename?: 'ApiKeysError';
+  errorCodes: Array<ApiKeysErrorCode>;
+};
+
+export enum ApiKeysErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ApiKeysResult = ApiKeysError | ApiKeysSuccess;
+
+export type ApiKeysSuccess = {
+  __typename?: 'ApiKeysSuccess';
+  apiKeys: Array<ApiKey>;
+};
+
 export type ArchiveLinkError = {
   __typename?: 'ArchiveLinkError';
   errorCodes: Array<ArchiveLinkErrorCode>;
@@ -570,19 +598,22 @@ export type GenerateApiKeyError = {
 };
 
 export enum GenerateApiKeyErrorCode {
-  BadRequest = 'BAD_REQUEST'
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
 }
 
 export type GenerateApiKeyInput = {
-  expiredAt?: InputMaybe<Scalars['Date']>;
-  scope?: InputMaybe<Scalars['String']>;
+  expiresAt: Scalars['Date'];
+  name: Scalars['String'];
+  scopes?: InputMaybe<Array<Scalars['String']>>;
 };
 
 export type GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess;
 
 export type GenerateApiKeySuccess = {
   __typename?: 'GenerateApiKeySuccess';
-  apiKey: Scalars['String'];
+  apiKey: ApiKey;
 };
 
 export type GetFollowersError = {
@@ -843,6 +874,7 @@ export type Mutation = {
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
   reportItem: ReportItemResult;
+  revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
   saveFile: SaveResult;
   savePage: SaveResult;
@@ -974,6 +1006,11 @@ export type MutationMergeHighlightArgs = {
 
 export type MutationReportItemArgs = {
   input: ReportItemInput;
+};
+
+
+export type MutationRevokeApiKeyArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -1192,6 +1229,7 @@ export type Profile = {
 
 export type Query = {
   __typename?: 'Query';
+  apiKeys: ApiKeysResult;
   article: ArticleResult;
   articles: ArticlesResult;
   articleSavingRequest: ArticleSavingRequestResult;
@@ -1364,6 +1402,24 @@ export enum ReportType {
   ContentViolation = 'CONTENT_VIOLATION',
   Spam = 'SPAM'
 }
+
+export type RevokeApiKeyError = {
+  __typename?: 'RevokeApiKeyError';
+  errorCodes: Array<RevokeApiKeyErrorCode>;
+};
+
+export enum RevokeApiKeyErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RevokeApiKeyResult = RevokeApiKeyError | RevokeApiKeySuccess;
+
+export type RevokeApiKeySuccess = {
+  __typename?: 'RevokeApiKeySuccess';
+  apiKey: ApiKey;
+};
 
 export type SaveArticleReadingProgressError = {
   __typename?: 'SaveArticleReadingProgressError';
@@ -2272,6 +2328,11 @@ export type ResolversTypes = {
   AddPopularReadErrorCode: AddPopularReadErrorCode;
   AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: ResolverTypeWrapper<AddPopularReadSuccess>;
+  ApiKey: ResolverTypeWrapper<ApiKey>;
+  ApiKeysError: ResolverTypeWrapper<ApiKeysError>;
+  ApiKeysErrorCode: ApiKeysErrorCode;
+  ApiKeysResult: ResolversTypes['ApiKeysError'] | ResolversTypes['ApiKeysSuccess'];
+  ApiKeysSuccess: ResolverTypeWrapper<ApiKeysSuccess>;
   ArchiveLinkError: ResolverTypeWrapper<ArchiveLinkError>;
   ArchiveLinkErrorCode: ArchiveLinkErrorCode;
   ArchiveLinkInput: ArchiveLinkInput;
@@ -2444,6 +2505,10 @@ export type ResolversTypes = {
   ReportItemInput: ReportItemInput;
   ReportItemResult: ResolverTypeWrapper<ReportItemResult>;
   ReportType: ReportType;
+  RevokeApiKeyError: ResolverTypeWrapper<RevokeApiKeyError>;
+  RevokeApiKeyErrorCode: RevokeApiKeyErrorCode;
+  RevokeApiKeyResult: ResolversTypes['RevokeApiKeyError'] | ResolversTypes['RevokeApiKeySuccess'];
+  RevokeApiKeySuccess: ResolverTypeWrapper<RevokeApiKeySuccess>;
   SaveArticleReadingProgressError: ResolverTypeWrapper<SaveArticleReadingProgressError>;
   SaveArticleReadingProgressErrorCode: SaveArticleReadingProgressErrorCode;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
@@ -2608,6 +2673,10 @@ export type ResolversParentTypes = {
   AddPopularReadError: AddPopularReadError;
   AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: AddPopularReadSuccess;
+  ApiKey: ApiKey;
+  ApiKeysError: ApiKeysError;
+  ApiKeysResult: ResolversParentTypes['ApiKeysError'] | ResolversParentTypes['ApiKeysSuccess'];
+  ApiKeysSuccess: ApiKeysSuccess;
   ArchiveLinkError: ArchiveLinkError;
   ArchiveLinkInput: ArchiveLinkInput;
   ArchiveLinkResult: ResolversParentTypes['ArchiveLinkError'] | ResolversParentTypes['ArchiveLinkSuccess'];
@@ -2745,6 +2814,9 @@ export type ResolversParentTypes = {
   ReminderSuccess: ReminderSuccess;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ReportItemResult;
+  RevokeApiKeyError: RevokeApiKeyError;
+  RevokeApiKeyResult: ResolversParentTypes['RevokeApiKeyError'] | ResolversParentTypes['RevokeApiKeySuccess'];
+  RevokeApiKeySuccess: RevokeApiKeySuccess;
   SaveArticleReadingProgressError: SaveArticleReadingProgressError;
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
   SaveArticleReadingProgressResult: ResolversParentTypes['SaveArticleReadingProgressError'] | ResolversParentTypes['SaveArticleReadingProgressSuccess'];
@@ -2888,6 +2960,31 @@ export type AddPopularReadResultResolvers<ContextType = ResolverContext, ParentT
 
 export type AddPopularReadSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadSuccess'] = ResolversParentTypes['AddPopularReadSuccess']> = {
   pageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ApiKeyResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKey'] = ResolversParentTypes['ApiKey']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scopes?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  usedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ApiKeysErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysError'] = ResolversParentTypes['ApiKeysError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ApiKeysErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ApiKeysResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysResult'] = ResolversParentTypes['ApiKeysResult']> = {
+  __resolveType: TypeResolveFn<'ApiKeysError' | 'ApiKeysSuccess', ParentType, ContextType>;
+};
+
+export type ApiKeysSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ApiKeysSuccess'] = ResolversParentTypes['ApiKeysSuccess']> = {
+  apiKeys?: Resolver<Array<ResolversTypes['ApiKey']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3276,7 +3373,7 @@ export type GenerateApiKeyResultResolvers<ContextType = ResolverContext, ParentT
 };
 
 export type GenerateApiKeySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeySuccess'] = ResolversParentTypes['GenerateApiKeySuccess']> = {
-  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  apiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3482,6 +3579,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
+  revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
   saveFile?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveFileArgs, 'input'>>;
   savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
@@ -3567,6 +3665,7 @@ export type ProfileResolvers<ContextType = ResolverContext, ParentType extends R
 };
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
@@ -3630,6 +3729,20 @@ export type ReminderSuccessResolvers<ContextType = ResolverContext, ParentType e
 
 export type ReportItemResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReportItemResult'] = ResolversParentTypes['ReportItemResult']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RevokeApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RevokeApiKeyError'] = ResolversParentTypes['RevokeApiKeyError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RevokeApiKeyErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RevokeApiKeyResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RevokeApiKeyResult'] = ResolversParentTypes['RevokeApiKeyResult']> = {
+  __resolveType: TypeResolveFn<'RevokeApiKeyError' | 'RevokeApiKeySuccess', ParentType, ContextType>;
+};
+
+export type RevokeApiKeySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RevokeApiKeySuccess'] = ResolversParentTypes['RevokeApiKeySuccess']> = {
+  apiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4163,6 +4276,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
   AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
+  ApiKey?: ApiKeyResolvers<ContextType>;
+  ApiKeysError?: ApiKeysErrorResolvers<ContextType>;
+  ApiKeysResult?: ApiKeysResultResolvers<ContextType>;
+  ApiKeysSuccess?: ApiKeysSuccessResolvers<ContextType>;
   ArchiveLinkError?: ArchiveLinkErrorResolvers<ContextType>;
   ArchiveLinkResult?: ArchiveLinkResultResolvers<ContextType>;
   ArchiveLinkSuccess?: ArchiveLinkSuccessResolvers<ContextType>;
@@ -4279,6 +4396,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   ReminderResult?: ReminderResultResolvers<ContextType>;
   ReminderSuccess?: ReminderSuccessResolvers<ContextType>;
   ReportItemResult?: ReportItemResultResolvers<ContextType>;
+  RevokeApiKeyError?: RevokeApiKeyErrorResolvers<ContextType>;
+  RevokeApiKeyResult?: RevokeApiKeyResultResolvers<ContextType>;
+  RevokeApiKeySuccess?: RevokeApiKeySuccessResolvers<ContextType>;
   SaveArticleReadingProgressError?: SaveArticleReadingProgressErrorResolvers<ContextType>;
   SaveArticleReadingProgressResult?: SaveArticleReadingProgressResultResolvers<ContextType>;
   SaveArticleReadingProgressSuccess?: SaveArticleReadingProgressSuccessResolvers<ContextType>;

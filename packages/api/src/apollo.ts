@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 import { ContextFunction } from 'apollo-server-core'
-import { Claims, ClaimsToSet, ResolverContext } from './resolvers/types'
+import { ClaimsToSet, ResolverContext } from './resolvers/types'
 import { SetClaimsRole } from './utils/dictionary'
 import Knex, { Transaction } from 'knex'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
@@ -24,6 +24,7 @@ import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
 import { createPubSubClient } from './datalayer/pubsub'
 import { initModels } from './server'
+import { getClaimsByToken } from './utils/auth'
 
 const signToken = promisify(jwt.sign)
 const logger = buildLogger('app.dispatch')
@@ -38,18 +39,13 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   req,
   res,
 }) => {
-  let claims: Claims | undefined
-
-  const token = req?.cookies?.auth || req?.headers?.authorization
-
   logger.info(`handling gql request`, {
     query: req.body.query,
     variables: req.body.variables,
   })
 
-  if (token && jwt.verify(token, env.server.jwtSecret)) {
-    claims = jwt.decode(token) as Claims
-  }
+  const token = req?.cookies?.auth || req?.headers?.authorization
+  const claims = await getClaimsByToken(token)
 
   async function setClaims(
     tx: Transaction,

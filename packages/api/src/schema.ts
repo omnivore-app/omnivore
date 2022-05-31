@@ -1415,14 +1415,15 @@ const schema = gql`
   }
 
   input GenerateApiKeyInput {
-    scope: String
-    expiredAt: Date
+    name: String!
+    scopes: [String!]
+    expiresAt: Date!
   }
 
   union GenerateApiKeyResult = GenerateApiKeySuccess | GenerateApiKeyError
 
   type GenerateApiKeySuccess {
-    apiKey: String!
+    apiKey: ApiKey!
   }
 
   type GenerateApiKeyError {
@@ -1431,6 +1432,8 @@ const schema = gql`
 
   enum GenerateApiKeyErrorCode {
     BAD_REQUEST
+    ALREADY_EXISTS
+    UNAUTHORIZED
   }
 
   # Query: search
@@ -1670,6 +1673,47 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union ApiKeysResult = ApiKeysSuccess | ApiKeysError
+
+  type ApiKeysSuccess {
+    apiKeys: [ApiKey!]!
+  }
+
+  type ApiKey {
+    id: ID!
+    name: String!
+    key: String
+    scopes: [String!]
+    createdAt: Date!
+    expiresAt: Date!
+    usedAt: Date
+  }
+
+  type ApiKeysError {
+    errorCodes: [ApiKeysErrorCode!]!
+  }
+
+  enum ApiKeysErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union RevokeApiKeyResult = RevokeApiKeySuccess | RevokeApiKeyError
+
+  type RevokeApiKeySuccess {
+    apiKey: ApiKey!
+  }
+
+  type RevokeApiKeyError {
+    errorCodes: [RevokeApiKeyErrorCode!]!
+  }
+
+  enum RevokeApiKeyErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1737,6 +1781,7 @@ const schema = gql`
     addPopularRead(name: String!): AddPopularReadResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
+    revokeApiKey(id: ID!): RevokeApiKeyResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -1778,6 +1823,7 @@ const schema = gql`
     subscriptions(sort: SortParams): SubscriptionsResult!
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
+    apiKeys: ApiKeysResult!
   }
 `
 

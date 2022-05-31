@@ -1,6 +1,5 @@
 import express from 'express'
 import { env } from '../../env'
-import * as jwt from 'jsonwebtoken'
 import { PageType, UploadFileStatus } from '../../generated/graphql'
 import {
   generateUploadFilePathName,
@@ -17,6 +16,7 @@ import { generateSlug } from '../../utils/helpers'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
 import { createPage } from '../../elastic/pages'
+import { getClaimsByToken } from '../../utils/auth'
 
 export function pdfAttachmentsRouter() {
   const router = express.Router()
@@ -31,7 +31,7 @@ export function pdfAttachmentsRouter() {
     }
 
     const token = req?.headers?.authorization
-    if (!token || !jwt.verify(token, env.server.jwtSecret)) {
+    if (!(await getClaimsByToken(token))) {
       return res.status(401).send('UNAUTHORIZED')
     }
 
@@ -94,7 +94,7 @@ export function pdfAttachmentsRouter() {
     }
 
     const token = req?.headers?.authorization
-    if (!token || !jwt.verify(token, env.server.jwtSecret)) {
+    if (!(await getClaimsByToken(token))) {
       return res.status(401).send('UNAUTHORIZED')
     }
 

@@ -21,7 +21,7 @@ describe('User API', () => {
   let anotherUser: User
 
   before(async () => {
-    const hashedPassword = hashPassword(correctPassword)
+    const hashedPassword = await hashPassword(correctPassword)
     // create test user and login
     user = await createTestUser(username, '', hashedPassword)
     const res = await request
