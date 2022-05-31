@@ -54,6 +54,7 @@ final class ShareExtensionViewModel: ObservableObject {
       case let .failure(error):
         if let backgroundTask = self.backgroundTask {
           UIApplication.shared.endBackgroundTask(backgroundTask)
+          self.backgroundTask = nil
         }
         self.debugText = error.message
       }
