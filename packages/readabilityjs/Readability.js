@@ -232,7 +232,7 @@ Readability.prototype = {
   PLACEHOLDER_CLASSES: ['tweet-placeholder', 'instagram-placeholder'],
 
   // Classes of embeds extracted by the extension
-  EMBEDS_CLASSES: ['omnivore-instagram-embed', 'tweet-placeholder'],
+  EMBEDS_CLASSES: ['omnivore-instagram-embed'],
 
   // These are the list of HTML entities that need to be escaped.
   HTML_ESCAPE_MAP: {
@@ -587,6 +587,12 @@ Readability.prototype = {
 
     while (node) {
       if (this.PLACEHOLDER_CLASSES.includes(node.className) || this.hasEmbed(node) || this.isEmbed(node)) {
+        node = this._getNextNode(node);
+        continue;
+      }
+
+      // If we have a node with only one child element which has the placeholder class, keep it
+      if (this._hasSingleTagInsideElement(node, "DIV") && this.PLACEHOLDER_CLASSES.includes(node.firstElementChild.className)) {
         node = this._getNextNode(node);
         continue;
       }
