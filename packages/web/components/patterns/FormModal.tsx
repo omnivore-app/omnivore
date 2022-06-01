@@ -8,7 +8,7 @@ import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
 import { FormInput } from '../elements/FormElements'
 
-interface FormInputProps {
+export interface FormInputProps {
   name: string
   label: string
   value?: string
@@ -19,7 +19,7 @@ interface FormInputProps {
   hidden?: boolean
 }
 
-interface FormModalProps {
+export interface FormModalProps {
   inputs?: FormInputProps[]
   title: string
   acceptButtonLabel?: string
@@ -35,7 +35,13 @@ export function FormModal(props: FormModalProps): JSX.Element {
         <VStack alignment="center" distribution="center">
           <StyledText style="modalHeadline">{props.title}</StyledText>
           <Box>
-            <form>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault()
+                props.onSubmit()
+                props.onOpenChange(false)
+              }}
+            >
               {props.inputs?.map((input) => (
                 <HStack key={input.name}>
                   <StyledText style={'boldText'}>{input.label}</StyledText>
@@ -57,7 +63,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
                 >
                   Cancel
                 </Button>
-                <Button style="ctaPill" onClick={() => props.onSubmit}>
+                <Button style="ctaPill">
                   {props.acceptButtonLabel || 'Submit'}
                 </Button>
               </HStack>
