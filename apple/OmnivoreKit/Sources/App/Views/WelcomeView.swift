@@ -162,7 +162,7 @@ struct WelcomeView: View {
   }
 
   public var body: some View {
-    ZStack {
+    ZStack(alignment: .leading) {
       Color.appDeepBackground
         .edgesIgnoringSafeArea(.all)
         .modifier(SizeModifier())
