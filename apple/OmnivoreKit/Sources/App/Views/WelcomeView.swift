@@ -14,6 +14,9 @@ struct WelcomeView: View {
 
   @State private var showRegistrationView = false
   @State private var showDebugModal = false
+  @State private var showTermsLinks = false
+  @State private var showTermsModal = false
+  @State private var showPrivacyModal = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
   @State private var containerSize: CGSize = .zero
 
@@ -60,8 +63,51 @@ struct WelcomeView: View {
         + Text("Privacy Policy").underline()
     }
     .font(.appSubheadline)
+    .confirmationDialog("", isPresented: $showTermsLinks, titleVisibility: .hidden) {
+      Button("View Terms of Service") {
+        showTermsModal = true
+      }
+
+      Button("View Privacy Policy") {
+        showPrivacyModal = true
+      }
+    }
+    .sheet(isPresented: $showPrivacyModal) {
+      VStack {
+        HStack {
+          Spacer()
+          Button(
+            action: {
+              showPrivacyModal = false
+            },
+            label: {
+              Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast)
+            }
+          )
+        }
+        .padding()
+        BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+      }
+    }
+    .sheet(isPresented: $showTermsModal) {
+      VStack {
+        HStack {
+          Spacer()
+          Button(
+            action: {
+              showTermsModal = false
+            },
+            label: {
+              Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast)
+            }
+          )
+        }
+        .padding()
+        BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+      }
+    }
     .onTapGesture {
-      print("show action sheet")
+      showTermsLinks = true
     }
   }
 
@@ -136,12 +182,12 @@ struct WelcomeView: View {
           Spacer()
         }
         .padding()
+        .sheet(isPresented: $showDebugModal) {
+          DebugMenuView(selectedEnvironment: $selectedEnvironment)
+        }
       }
     }
     .preferredColorScheme(.light)
-    .sheet(isPresented: $showDebugModal) {
-      DebugMenuView(selectedEnvironment: $selectedEnvironment)
-    }
     .task { selectedEnvironment = dataService.appEnvironment }
   }
 }
