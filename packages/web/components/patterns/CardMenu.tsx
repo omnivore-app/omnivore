@@ -14,6 +14,7 @@ export type CardMenuDropdownAction =
   | 'snooze'
   | 'set-labels'
   | 'showOriginal'
+  | 'unsubscribe'
 
 type CardMenuProps = {
   item: LibraryItemNode
@@ -81,6 +82,14 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         }}
         title="Remove"
       />
+      {!!props.item.subscription && (
+        <DropdownOption
+          onSelect={() => {
+            props.actionHandler('unsubscribe')
+          }}
+          title="Unsubscribe"
+        />
+      )}
     </Dropdown>
   )
 }

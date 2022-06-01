@@ -296,6 +296,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       case 'set-labels':
         setLabelsTarget(item)
         break
+      case 'unsubscribe':
+        performActionOnItem('unsubscribe', item)
+        break
     }
   }
 
