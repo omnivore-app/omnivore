@@ -25,6 +25,7 @@ final class ShareExtensionViewModel: ObservableObject {
   @Published var status: ShareExtensionStatus = .processing
   @Published var debugText: String?
 
+  let services = Services()
   var subscriptions = Set<AnyCancellable>()
   var backgroundTask: UIBackgroundTaskIdentifier?
   let requestID = UUID().uuidString.lowercased()
@@ -71,8 +72,6 @@ final class ShareExtensionViewModel: ObservableObject {
   }
 
   private func persist(pageScrapePayload: PageScrapePayload, requestId: String) async {
-    let services = Services()
-
     // Save locally first
     let linkedItem = try? await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
 
