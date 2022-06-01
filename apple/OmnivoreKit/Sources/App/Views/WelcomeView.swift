@@ -53,8 +53,16 @@ struct WelcomeView: View {
   }
 
   var footerView: some View {
-    Text("By signing up, you agree to Omnivore’s\nTerms of Service and Privacy Policy")
-      .font(.appSubheadline)
+    Group {
+      Text("By signing up, you agree to Omnivore’s\n")
+        + Text("Terms of Service").underline()
+        + Text(" and ")
+        + Text("Privacy Policy").underline()
+    }
+    .font(.appSubheadline)
+    .onTapGesture {
+      print("show action sheet")
+    }
   }
 
   var logoView: some View {
@@ -74,7 +82,6 @@ struct WelcomeView: View {
       AppleSignInButton {
         viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
       }
-      // set maxwidth = 260
 
       if AppKeys.sharedInstance?.iosClientGoogleId != nil {
         GoogleAuthButton {
@@ -92,7 +99,10 @@ struct WelcomeView: View {
         }
 
         if let loginError = viewModel.loginError {
-          LoginErrorMessageView(loginError: loginError)
+          HStack {
+            LoginErrorMessageView(loginError: loginError)
+            Spacer()
+          }
         }
       }
   }
@@ -128,6 +138,7 @@ struct WelcomeView: View {
         .padding()
       }
     }
+    .preferredColorScheme(.light)
     .sheet(isPresented: $showDebugModal) {
       DebugMenuView(selectedEnvironment: $selectedEnvironment)
     }
