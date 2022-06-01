@@ -16,6 +16,7 @@ public struct GoogleAuthButton: View {
         Text(LocalText.googleAuthButton)
           .font(isMacApp ? .appCaption : .appTitleThree)
           .foregroundColor(.black)
+          .fontWeight(Font.Weight.medium)
       }
       .frame(maxWidth: 300)
       .frame(height: isMacApp ? 30 : 54)

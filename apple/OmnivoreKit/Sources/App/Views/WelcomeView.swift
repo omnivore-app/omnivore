@@ -17,6 +17,7 @@ struct WelcomeView: View {
   @State private var showTermsLinks = false
   @State private var showTermsModal = false
   @State private var showPrivacyModal = false
+  @State private var showAboutPage = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
   @State private var containerSize: CGSize = .zero
 
@@ -42,7 +43,7 @@ struct WelcomeView: View {
       headlineText
 
       Button(
-        action: { print("learn more button tapped") },
+        action: { showAboutPage = true },
         label: {
           HStack(spacing: 4) {
             Text("Learn more")
@@ -104,6 +105,11 @@ struct WelcomeView: View {
         }
         .padding()
         BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+      }
+    }
+    .sheet(isPresented: $showAboutPage) {
+      if let url = URL(string: "https://omnivore.app/about") {
+        SafariView(url: url)
       }
     }
     .onTapGesture {
