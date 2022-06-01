@@ -124,6 +124,8 @@ struct WelcomeView: View {
   }
 
   var authProviderButtonStack: some View {
+    let useHorizontalLayout = containerSize.width > 400
+
     let buttonGroup = Group {
       AppleSignInButton {
         viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
@@ -138,7 +140,7 @@ struct WelcomeView: View {
 
     return
       VStack(alignment: .center, spacing: 16) {
-        if containerSize.width > 400 {
+        if useHorizontalLayout {
           HStack { buttonGroup }
         } else {
           buttonGroup
@@ -154,7 +156,7 @@ struct WelcomeView: View {
   }
 
   public var body: some View {
-    ZStack(alignment: .leading) {
+    ZStack {
       Color.appDeepBackground
         .edgesIgnoringSafeArea(.all)
         .modifier(SizeModifier())
@@ -177,7 +179,15 @@ struct WelcomeView: View {
           logoView
             .padding(.bottom, 20)
           headlineView
-          authProviderButtonStack
+          if containerSize.width > 400 {
+            authProviderButtonStack
+          } else {
+            HStack {
+              Spacer()
+              authProviderButtonStack
+              Spacer()
+            }
+          }
           footerView
           Spacer()
         }
