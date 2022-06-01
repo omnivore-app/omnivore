@@ -1,7 +1,9 @@
 var chai = require("chai");
 var sinon = require("sinon");
+var chaiAsPromised = require("chai-as-promised");
 const { parseHTML } = require("linkedom");
 
+chai.use(chaiAsPromised);
 chai.config.includeStack = true;
 var expect = chai.expect;
 
@@ -220,11 +222,11 @@ describe("Readability API", function() {
   describe("#parse", function() {
     var exampleSource = testPages[0].source;
 
-    it("shouldn't parse oversized documents as per configuration", function() {
+    it("shouldn't parse oversized documents as per configuration", async function() {
       var doc = new JSDOMParser().parse("<html><div>yo</div></html>");
-      expect(async function() {
-        await (new Readability(doc, { maxElemsToParse: 1 })).parse();
-      }).to.Throw("Aborting parsing document; 2 elements found");
+      await expect(
+        (new Readability(doc, { maxElemsToParse: 1 })).parse()
+      ).to.be.rejectedWith("Aborting parsing document; 2 elements found");
     });
 
     it("should run _cleanClasses with default configuration", async function() {
@@ -279,7 +281,7 @@ describe("Readability API", function() {
       var expected_xhtml = "<DIV class=\"page\" id=\"readability-page-1\">My cat: <img src=\"data:image/png;base64," +
         " iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0" +
         "Y4OHwAAAABJRU5ErkJggg==\" alt=\"Red dot\"></DIV>";
-      var content = await (new Readability(dom.document)).parse().content;
+      var content = (await (new Readability(dom.document)).parse()).content;
       expect(content).eql(expected_xhtml);
     });
 
@@ -296,11 +298,11 @@ describe("Readability API", function() {
         'https://webkit.org/demos/srcset/image-2x.png 2x,' +
         'https://webkit.org/demos/srcset/image-3x.png 3x,' +
         'https://webkit.org/demos/srcset/image-4x.png 4x,"></DIV>';
-      var content = await (new Readability(dom.document, {
+      var content = (await (new Readability(dom.document, {
         createImageProxyUrl: function(url) {
           return url;
         }
-      })).parse().content;
+      })).parse()).content;
       expect(content).eql(expected_xhtml);
     });
 
@@ -309,11 +311,11 @@ describe("Readability API", function() {
       var expected_xhtml = '<DIV class="page" id="readability-page-1">' +
         'My image: <img src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1" alt="" width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1">' +
         '</DIV>';
-      var content = await (new Readability(dom.document, {
+      var content = (await (new Readability(dom.document, {
         createImageProxyUrl: function(url) {
           return url;
         }
-      })).parse().content;
+      })).parse()).content;
       expect(content).eql(expected_xhtml);
     });
   });
