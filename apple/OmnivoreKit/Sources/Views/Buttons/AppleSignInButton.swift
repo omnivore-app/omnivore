@@ -19,7 +19,7 @@ public struct AppleSignInButton: View {
       onCompletion: onCompletion
     )
     .frame(height: 54)
-    .frame(maxWidth: 260)
+    .frame(maxWidth: 300)
     .cornerRadius(8)
     .signInWithAppleButtonStyle(.white)
   }
