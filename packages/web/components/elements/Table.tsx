@@ -3,7 +3,7 @@ import { styled } from '../tokens/stitches.config'
 import { StyledText } from './StyledText'
 import { InfoLink } from './InfoLink'
 import { Button } from './Button'
-import { Plus, Trash } from 'phosphor-react'
+import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { isDarkTheme } from '../../lib/themeUpdater'
 
 interface TableProps {
@@ -11,8 +11,9 @@ interface TableProps {
   infoLink?: string
   onAdd?: () => void
   headers: string[]
-  rows: string[][]
+  rows: Map<string, string[]>
   onDelete?: (id: string) => void
+  onEdit?: (id: string) => void
 }
 
 const HeaderWrapper = styled(Box, {
@@ -164,7 +165,7 @@ export function Table(props: TableProps): JSX.Element {
           </Box>
         ))}
       </TableHeading>
-      {props.rows.map((row, index) => (
+      {Array.from(props.rows.keys()).map((key, index) => (
         <TableCard
           key={index}
           css={{
@@ -175,9 +176,8 @@ export function Table(props: TableProps): JSX.Element {
               borderTopLeftRadius: index === 0 ? '5px' : '',
               borderTopRightRadius: index === 0 ? '5px' : '',
             },
-            borderBottomLeftRadius: index == props.rows.length - 1 ? '5px' : '',
-            borderBottomRightRadius:
-              index == props.rows.length - 1 ? '5px' : '',
+            borderBottomLeftRadius: index == props.rows.size - 1 ? '5px' : '',
+            borderBottomRightRadius: index == props.rows.size - 1 ? '5px' : '',
             padding: '10px 20px 10px 40px',
           }}
         >
@@ -191,7 +191,7 @@ export function Table(props: TableProps): JSX.Element {
               },
             }}
           >
-            {row.map((cell, index) => (
+            {props.rows.get(key)?.map((cell, index) => (
               <HStack
                 key={index}
                 css={{
@@ -210,16 +210,51 @@ export function Table(props: TableProps): JSX.Element {
                 ></Input>
               </HStack>
             ))}
-            {props.onDelete && (
-              <IconButton
-                style="ctaWhite"
-                css={{ mr: '$1', background: '$labelButtonsBg' }}
-                onClick={() => {
-                  props.onDelete && props.onDelete(row[0])
+            {props.onEdit && (
+              <Button
+                style="plainIcon"
+                css={{
+                  mr: '0px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: 'transparent',
+                  border: 0,
                 }}
+                onClick={() => props.onEdit && props.onEdit(key)}
               >
-                <Trash size={16} color={iconColor} />
-              </IconButton>
+                <PencilSimple size={24} color={iconColor} />
+                <StyledText
+                  color="$grayText"
+                  css={{ m: '0px', fontSize: '$5', marginLeft: '$2' }}
+                >
+                  Edit
+                </StyledText>
+              </Button>
+            )}
+            {props.onDelete && (
+              <Button
+                style="plainIcon"
+                css={{
+                  mr: '$1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: 'transparent',
+                  border: 0,
+                }}
+                onClick={() => props.onDelete && props.onDelete(key)}
+              >
+                <Trash size={24} color="#AA2D11" />
+                <StyledText
+                  css={{
+                    m: '0px',
+                    fontSize: '$5',
+                    marginLeft: '$2',
+                    color: '#AA2D11',
+                  }}
+                >
+                  Delete
+                </StyledText>
+              </Button>
             )}
           </Box>
         </TableCard>
