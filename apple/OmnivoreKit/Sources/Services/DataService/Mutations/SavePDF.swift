@@ -10,17 +10,17 @@ private struct UploadFileRequestPayload {
 }
 
 private extension DataService {
-  public func uploadFileRequest(item: LinkedItem) async throws -> URL {
+  public func uploadFileRequest(id: String, url: String) async throws -> URL {
     enum MutationResult {
       case success(payload: UploadFileRequestPayload)
       case error(errorCode: Enums.UploadFileRequestErrorCode?)
     }
 
     let input = InputObjects.UploadFileRequestInput(
-      url: item.unwrappedPageURLString,
+      url: url,
       contentType: "application/pdf",
       createPageEntry: OptionalArgument(true),
-      clientRequestId: OptionalArgument(item.unwrappedID)
+      clientRequestId: OptionalArgument(id)
     )
 
     let selection = Selection<MutationResult, Unions.UploadFileRequestResult> {
@@ -78,8 +78,8 @@ private extension DataService {
     }
   }
 
-  public func uploadFile(item: LinkedItem, url: URL) -> URLSessionTask? {
-    if let localPdfURL = item.localPdfURL, let localUrl = URL(string: localPdfURL) {
+  public func uploadFile(localPdfURL: String?, url: URL) -> URLSessionTask? {
+    if let localPdfURL = localPdfURL, let localUrl = URL(string: localPdfURL) {
       var request = URLRequest(url: url)
       request.httpMethod = "PUT"
       request.setValue("application/pdf", forHTTPHeaderField: "content-type")

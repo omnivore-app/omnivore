@@ -3,23 +3,23 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func savePage(item: LinkedItem) async throws {
+  func savePage(id: String, url: String, title: String, originalHtml: String) async throws {
     enum MutationResult {
       case saved(requestId: String, url: String)
       case error(errorCode: Enums.SaveErrorCode)
     }
 
     let input = InputObjects.SavePageInput(
-      url: item.unwrappedPageURLString,
+      url: url,
       source: "ios-page",
-      clientRequestId: item.unwrappedID,
-      title: OptionalArgument(item.title),
-      originalContent: item.originalHtml!
+      clientRequestId: id,
+      title: OptionalArgument(title),
+      originalContent: originalHtml
     )
 
     let selection = Selection<MutationResult, Unions.SaveResult> {
       try $0.on(
-        saveSuccess: .init { .saved(requestId: item.unwrappedID, url: (try? $0.url()) ?? "") },
+        saveSuccess: .init { .saved(requestId: id, url: (try? $0.url()) ?? "") },
         saveError: .init {
           .error(errorCode: (try? $0.errorCodes().first) ?? .unknown)
         }

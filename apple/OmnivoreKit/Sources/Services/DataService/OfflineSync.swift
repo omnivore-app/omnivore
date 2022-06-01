@@ -35,38 +35,40 @@ extension DataService {
     }
   }
 
-  public func syncLocalCreatedLinkedItem(item: LinkedItem) async -> Bool {
+  public func syncLocalCreatedLinkedItem(item: LinkedItem) {
     switch item.contentReader {
     case "PDF":
-      // SaveFile
-      do {
-        let uploadRequest = try await uploadFileRequest(item: item)
-        uploadFile(item: item, url: uploadRequest)
-      } catch {
-        logger.debug("Failed to upload PDF LinkedItem: \(error.localizedDescription)")
-        return false
+      let id = item.unwrappedID
+      let localPdfURL = item.localPdfURL
+      let url = item.unwrappedPageURLString
+      Task {
+        let uploadRequestUrl = try await uploadFileRequest(id: id, url: url)
+        await uploadFile(localPdfURL: localPdfURL, url: uploadRequestUrl)
+        try await backgroundContext.perform {
+          item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+          try self.backgroundContext.save()
+        }
       }
     case "WEB":
-      do {
-        if item.originalHtml != nil {
-          try await savePage(item: item)
+      let id = item.unwrappedID
+      let url = item.unwrappedPageURLString
+      let title = item.unwrappedTitle
+      let originalHtml = item.originalHtml
+
+      Task {
+        if let originalHtml = originalHtml {
+          try await savePage(id: id, url: url, title: title, originalHtml: originalHtml)
         } else {
-          try await saveURL(item: item)
+          try await saveURL(id: id, url: url)
         }
-        item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
-        print("ITEMS SYNCED")
-        try backgroundContext.save()
-        return true
-      } catch {
-        print("Error saving", error)
-        backgroundContext.rollback()
-        logger.debug("Failed to sync LinkedItem: \(error.localizedDescription)")
-        return false
+        try await backgroundContext.perform {
+          item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+          try self.backgroundContext.save()
+        }
       }
     default:
-      return false
+      break
     }
-    return false
   }
 
   private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
@@ -78,8 +80,7 @@ extension DataService {
         // TODO: We will want to sync items that need creation in the background
         // these items are forced to sync when saved, but should be re-tried in
         // the background.
-        // syncLocalCreatedLinkedItem(item: item)
-        break
+        syncLocalCreatedLinkedItem(item: item)
       case .isNSync, .isSyncing:
         break
       case .needsDeletion:
