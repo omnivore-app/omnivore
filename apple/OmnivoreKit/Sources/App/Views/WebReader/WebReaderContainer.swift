@@ -26,13 +26,6 @@ import WebKit
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @StateObject var viewModel = WebReaderViewModel()
 
-    var fontAdjustmentPopoverView: some View {
-      FontSizeAdjustmentPopoverView(
-        increaseFontAction: { increaseFontActionID = UUID() },
-        decreaseFontAction: { decreaseFontActionID = UUID() }
-      )
-    }
-
     func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
       if let replyHandler = replyHandler {
         viewModel.webViewActionWithReplyHandler(
@@ -150,9 +143,6 @@ import WebKit
             },
             webViewActionHandler: webViewActionHandler,
             navBarVisibilityRatioUpdater: {
-//              if $0 < 1 {
-//                showPreferencesPopover = false
-//              }
               navBarVisibilityRatio = $0
             },
             increaseFontActionID: $increaseFontActionID,
@@ -202,8 +192,11 @@ import WebKit
           Spacer()
         }
       }
-      .popover(isPresented: $showPreferencesPopover) {
-        Text("Popover")
+      .formSheet(isPresented: $showPreferencesPopover) {
+        WebPreferencesPopoverView(
+          increaseFontAction: { increaseFontActionID = UUID() },
+          decreaseFontAction: { decreaseFontActionID = UUID() }
+        )
       }
       .onDisappear {
         // Clear the shared webview content when exiting
