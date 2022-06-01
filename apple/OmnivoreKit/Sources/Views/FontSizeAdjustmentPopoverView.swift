@@ -21,39 +21,20 @@ public struct WebPreferencesPopoverView: View {
   }
 
   public var body: some View {
-    HStack(alignment: .center, spacing: 0) {
-      Button(
-        action: {
-          storedFontSize = max(storedFontSize - 2, 10)
-          decreaseFontAction()
-        },
-        label: {
-          Image(systemName: "minus")
-          #if os(iOS)
-            .foregroundColor(.systemLabel)
-            .padding()
-          #endif
-        }
-      )
-      .frame(width: 55, height: 40, alignment: .center)
-      Divider()
-        .frame(height: 30)
-        .background(Color.systemLabel)
-      Button(
-        action: {
+    VStack {
+      Stepper(
+        "Font Size:",
+        onIncrement: {
           storedFontSize = min(storedFontSize + 2, 28)
           increaseFontAction()
         },
-        label: {
-          Image(systemName: "plus")
-          #if os(iOS)
-            .foregroundColor(.systemLabel)
-            .padding()
-          #endif
+        onDecrement: {
+          storedFontSize = max(storedFontSize - 2, 10)
+          decreaseFontAction()
         }
       )
-      .frame(width: 55, height: 40, alignment: .center)
     }
+    .padding()
   }
 }
 
