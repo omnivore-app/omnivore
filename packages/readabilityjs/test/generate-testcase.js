@@ -192,7 +192,7 @@ function onResponseReceived(error, source, destRoot) {
     console.log("writing");
   }
   var sourcePath = path.join(destRoot, "source.html");
-  fs.writeFile(sourcePath, source, function (err) {
+  fs.writeFile(sourcePath, source, async function(err) {
     if (err) {
       console.error("Couldn't write data to source.html!");
       console.error(err);
@@ -201,11 +201,11 @@ function onResponseReceived(error, source, destRoot) {
     if (debug) {
       console.log("Running readability stuff");
     }
-    runReadability(source, path.join(destRoot, "expected.html"), path.join(destRoot, "expected-metadata.json"));
+    await runReadability(source, path.join(destRoot, "expected.html"), path.join(destRoot, "expected-metadata.json"));
   });
 }
 
-function runReadability(source, destPath, metadataDestPath) {
+async function runReadability(source, destPath, metadataDestPath) {
   var uri = "http://fakehost/test/page.html";
   var myReader, result, readerable;
   try {
@@ -215,7 +215,7 @@ function runReadability(source, destPath, metadataDestPath) {
     // We pass `caption` as a class to check that passing in extra classes works,
     // given that it appears in some of the test documents.
     myReader = new Readability(jsdom, { classesToPreserve: ["caption"], url: uri });
-    result = myReader.parse();
+    result = await myReader.parse();
   } catch (ex) {
     console.error(ex);
     ex.stack.forEach(console.log.bind(console));
@@ -225,7 +225,7 @@ function runReadability(source, destPath, metadataDestPath) {
     return;
   }
 
-  fs.writeFile(destPath, prettyPrint(result.content), function (fileWriteErr) {
+  fs.writeFile(destPath, prettyPrint(result.content), function(fileWriteErr) {
     if (fileWriteErr) {
       console.error("Couldn't write data to expected.html!");
       console.error(fileWriteErr);
@@ -240,7 +240,7 @@ function runReadability(source, destPath, metadataDestPath) {
     // Add isProbablyReaderable result
     result.readerable = readerable;
 
-    fs.writeFile(metadataDestPath, JSON.stringify(result, null, 2) + "\n", function (metadataWriteErr) {
+    fs.writeFile(metadataDestPath, JSON.stringify(result, null, 2) + "\n", function(metadataWriteErr) {
       if (metadataWriteErr) {
         console.error("Couldn't write data to expected-metadata.json!");
         console.error(metadataWriteErr);

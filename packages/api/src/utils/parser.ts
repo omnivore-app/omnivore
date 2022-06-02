@@ -133,12 +133,12 @@ const getPurifiedContent = (html: string): Document => {
   return parseHTML(clean).document
 }
 
-const getReadabilityResult = (
+const getReadabilityResult = async (
   url: string,
   html: string,
   document: Document,
   isNewsletter?: boolean
-): Readability.ParseResult | null => {
+): Promise<Readability.ParseResult | null> => {
   // First attempt to read the article as is.
   // if that fails attempt to purify then read
   const sources = [
@@ -157,7 +157,7 @@ const getReadabilityResult = (
     }
 
     try {
-      const article = new Readability(document, {
+      const article = await new Readability(document, {
         debug: DEBUG_MODE,
         createImageProxyUrl,
         keepTables: isNewsletter,
@@ -236,7 +236,7 @@ export const parsePreparedContent = async (
   await applyHandlers(url, dom)
 
   try {
-    article = getReadabilityResult(url, document, dom, isNewsletter)
+    article = await getReadabilityResult(url, document, dom, isNewsletter)
     if (!article?.textContent && allowRetry) {
       const newDocument = {
         ...preparedDocument,
@@ -406,10 +406,10 @@ export const parseUrlMetadata = async (
 // based on it's contents.
 // TODO: when we consolidate the handlers we could include this
 // as a utility method on each one.
-export const isProbablyNewsletter = (html: string): boolean => {
+export const isProbablyNewsletter = async (html: string): Promise<boolean> => {
   const dom = parseHTML(html).document
   const domCopy = parseHTML(dom.documentElement.outerHTML).document
-  const article = new Readability(domCopy, {
+  const article = await new Readability(domCopy, {
     debug: false,
     keepTables: true,
   }).parse()
