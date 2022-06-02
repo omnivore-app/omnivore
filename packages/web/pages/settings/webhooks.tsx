@@ -28,7 +28,7 @@ export default function Webhooks(): JSX.Element {
   const { webhooks, revalidate } = useGetWebhooksQuery()
   const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
   const [addModelOpen, setAddModelOpen] = useState(false)
-  const [onEditId, setOnEditId] = useState<string>('')
+  const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([
     'PAGE_CREATED',
@@ -109,7 +109,7 @@ export default function Webhooks(): JSX.Element {
 
   async function onUpdate(): Promise<void> {
     const result = await setWebhookMutation({
-      id: onEditId,
+      id: onEditWebhook?.id,
       url,
       eventTypes,
       enabled: enabled,
@@ -151,11 +151,11 @@ export default function Webhooks(): JSX.Element {
         />
       )}
 
-      {onEditId && (
+      {onEditWebhook && (
         <FormModal
           title={'Edit webhook'}
           onSubmit={onUpdate}
-          onOpenChange={() => setOnEditId('')}
+          onOpenChange={() => setOnEditWebhook(null)}
           inputs={formInputs}
           acceptButtonLabel={'Update'}
         />
