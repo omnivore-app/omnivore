@@ -13,7 +13,7 @@ interface TableProps {
   headers: string[]
   rows: Map<string, Record<string, any>>
   onDelete?: (id: string) => void
-  onUpdate?: (id: string) => void
+  onEdit?: (obj: any) => void
 }
 
 const HeaderWrapper = styled(Box, {
@@ -210,12 +210,12 @@ export function Table(props: TableProps): JSX.Element {
                 ></Input>
               </HStack>
             ))}
-            {props.onUpdate && (
+            {props.onEdit && (
               <IconButton
                 style="ctaWhite"
                 css={{ mr: '$1', background: '$labelButtonsBg' }}
                 onClick={() => {
-                  props.onUpdate && props.onUpdate(key)
+                  props.onEdit && props.onEdit(props.rows.get(key))
                 }}
               >
                 <PencilSimple size={24} color={iconColor} />
