@@ -164,34 +164,37 @@ export const searchHighlights = async (
 
     const searchBody = {
       query: {
-        nested: {
-          path: 'highlights',
-          query: {
-            bool: {
-              filter: [
-                {
+        bool: {
+          filter: [
+            {
+              nested: {
+                path: 'highlights',
+                query: {
                   term: {
                     'highlights.userId': userId,
                   },
                 },
-              ],
-              should: [
-                {
-                  multi_match: {
-                    query: query || '',
-                    fields: ['highlights.quote', 'highlights.annotation'],
-                    operator: 'and',
-                    type: 'cross_fields',
-                  },
-                },
-              ],
-              minimum_should_match: query ? 1 : 0,
+              },
             },
-          },
-          inner_hits: {},
+          ],
+          should: [
+            {
+              multi_match: {
+                query: query || '',
+                fields: [
+                  'highlights.quote^5',
+                  'title^3',
+                  'description^2',
+                  'content',
+                ],
+              },
+            },
+          ],
+          minimum_should_match: query ? 1 : 0,
         },
       },
       sort: [
+        '_score',
         {
           [sortField]: {
             order: sortOrder,
@@ -203,7 +206,7 @@ export const searchHighlights = async (
       ],
       from,
       size,
-      _source: ['title', 'slug', 'url', 'createdAt'],
+      _source: ['title', 'slug', 'url', 'createdAt', 'highlights'],
     }
 
     console.log('searching highlights in elastic', JSON.stringify(searchBody))
@@ -220,15 +223,13 @@ export const searchHighlights = async (
     const results: SearchItem[] = []
     response.body.hits.hits.forEach((hit) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-      hit.inner_hits.highlights.hits.hits.forEach(
-        (innerHit: { _source: Highlight }) => {
-          results.push({
-            ...hit._source,
-            ...innerHit._source,
-            pageId: hit._id,
-          })
-        }
-      )
+      hit._source.highlights?.forEach((highlight) => {
+        results.push({
+          ...highlight,
+          ...hit._source,
+          pageId: hit._id,
+        })
+      })
     })
 
     return [results, response.body.hits.total.value]
