@@ -30,33 +30,33 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([
-    'PAGE_CREATED',
-    'HIGHLIGHT_CREATED',
-  ])
+  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [enabled, setEnabled] = useState(false)
-  const [formInputs, setFormInputs] = useState<FormInputProps[]>([
-    {
-      label: 'URL',
-      onChange: setUrl,
-      name: 'url',
-      placeholder: 'https://example.com/webhook',
-      required: true,
-    },
-    {
-      label: 'Event Types',
-      name: 'eventTypes',
-      disabled: true,
-      value: eventTypes.join(', '),
-    },
-    {
-      label: 'Enabled',
-      name: 'enabled',
-      type: 'checkbox',
-      onChange: setEnabled,
-    },
-  ])
-  const { webhook } = useGetWebhookQuery(onEditId)
+  const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
+
+  useEffect(() => {
+    setFormInputs([
+      {
+        label: 'URL',
+        onChange: setUrl,
+        name: 'url',
+        placeholder: 'https://example.com/webhook',
+        required: true,
+      },
+      {
+        label: 'Event Types',
+        name: 'eventTypes',
+        value: 'PAGE_CREATED, HIGHLIGHT_CREATED',
+        onChange: setEventTypes,
+      },
+      {
+        label: 'Enabled',
+        name: 'enabled',
+        type: 'checkbox',
+        onChange: setEnabled,
+      },
+    ])
+  }, [addModelOpen])
 
   useEffect(() => {
     if (webhook) {
