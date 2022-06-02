@@ -41,12 +41,6 @@ public final class DataService: ObservableObject {
         }
       }
     }
-
-    NotificationCenter.default
-      .addObserver(self,
-                   selector: #selector(locallyCreatedItemSynced),
-                   name: NSNotification.LocallyCreatedItemSynced,
-                   object: nil)
   }
 
   public var currentViewer: Viewer? {
