@@ -59,30 +59,39 @@ export default function Webhooks(): JSX.Element {
   }, [addModelOpen])
 
   useEffect(() => {
-    if (webhook) {
-      setFormInputs([
-        {
-          label: 'URL',
-          onChange: setUrl,
-          name: 'url',
-          value: webhook.url,
-        },
-        {
-          label: 'Event Types',
-          name: 'eventTypes',
-          disabled: true,
-          value: webhook.eventTypes.join(', '),
-        },
-        {
-          label: 'Enabled',
-          name: 'enabled',
-          type: 'checkbox',
-          onChange: setEnabled,
-          value: webhook.enabled,
-        },
-      ])
-    }
-  }, [webhook])
+    setFormInputs([
+      {
+        label: 'URL',
+        onChange: setUrl,
+        name: 'url',
+        value: onEditWebhook?.url,
+        required: true,
+      },
+      {
+        label: 'Event Types',
+        name: 'eventTypes',
+        value: onEditWebhook?.eventTypes,
+        onChange: setEventTypes,
+      },
+      {
+        label: 'Enabled',
+        name: 'enabled',
+        type: 'checkbox',
+        onChange: setEnabled,
+        value: onEditWebhook?.enabled === 'Yes',
+      },
+    ])
+  }, [onEditWebhook])
+
+  const headers = ['URL', 'Event Types', 'Enabled']
+  const rows = new Map<string, Webhook>()
+  webhooks.forEach((webhook) =>
+    rows.set(webhook.id, {
+      url: webhook.url,
+      eventTypes: webhook.eventTypes.join(', '),
+      enabled: webhook.enabled ? 'Yes' : 'No',
+    })
+  )
 
   applyStoredTheme(false)
 
@@ -119,19 +128,8 @@ export default function Webhooks(): JSX.Element {
     } else {
       showErrorToast('Failed to update', { position: 'bottom-right' })
     }
-    setUrl('')
     revalidate()
   }
-
-  const headers = ['URL', 'Event Types', 'Enabled']
-  const rows = new Map<string, string[]>()
-  webhooks.forEach((webhook) =>
-    rows.set(webhook.id, [
-      webhook.url,
-      webhook.eventTypes.join(', '),
-      webhook.enabled ? 'Yes' : 'No',
-    ])
-  )
 
   return (
     <PrimaryLayout pageTestId={'webhooks'}>
