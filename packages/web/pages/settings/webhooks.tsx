@@ -112,7 +112,6 @@ export default function Webhooks(): JSX.Element {
     } else {
       showErrorToast('Failed to add', { position: 'bottom-right' })
     }
-    setUrl('')
     revalidate()
   }
 
