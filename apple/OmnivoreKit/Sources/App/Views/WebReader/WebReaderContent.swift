@@ -4,6 +4,8 @@ import Utils
 
 struct WebReaderContent {
   let textFontSize: Int
+  let lineHeight: Int
+  let margin: Int
   let htmlContent: String
   let highlightsJSONString: String
   let item: LinkedItem
@@ -14,9 +16,13 @@ struct WebReaderContent {
     highlightsJSONString: String,
     item: LinkedItem,
     isDark: Bool,
-    fontSize: Int
+    fontSize: Int,
+    lineHeight: Int,
+    margin: Int
   ) {
     self.textFontSize = fontSize
+    self.lineHeight = lineHeight
+    self.margin = margin
     self.htmlContent = htmlContent
     self.highlightsJSONString = highlightsJSONString
     self.item = item
@@ -71,6 +77,8 @@ struct WebReaderContent {
           }
 
           window.fontSize = \(textFontSize)
+          window.margin = \(margin)
+          window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")
         </script>
         <script src="bundle.js"></script>
