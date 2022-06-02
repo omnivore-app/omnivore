@@ -12,15 +12,19 @@ export const SelectOption: React.FC<{
   icon: string
   label: string
   description: string
-}> = ({ icon, label, description }) => {
-  const [checked, setChecked] = React.useState(false)
+  onCheck: (idx: number) => void
+  indexNum: number
+  isChecked: boolean
+}> = ({ icon, label, description, onCheck, indexNum, isChecked}) => {
 
-  const toggleChecked = () => setChecked(!checked)
+  const toggleChecked = () => {
+    onCheck(indexNum)
+  }
 
   return (
     <HStack onClick={toggleChecked} css={{
-      border: checked ? '1px solid #F9D354' : '1px solid #0000000F',
-      backgroundColor: checked ? '#FDFAEC' : '#FFFFFF',
+      border: isChecked ? '1px solid #F9D354' : '1px solid #0000000F',
+      backgroundColor: isChecked ? '#FDFAEC' : '#FFFFFF',
       boxShadow: '0px 3px 11px 0px #201F1D0A',
       justifyContent: 'flex-start',
       alignItems: 'center',
@@ -30,7 +34,7 @@ export const SelectOption: React.FC<{
       marginBottom: 7,
       width: '100%'
     }}>
-      <Checkbox {...{checked, setChecked}} />
+      <Checkbox checked={isChecked} setChecked={() => undefined} />
       <SpanBox css={{ marginLeft: '$2', width: '32px', height: '32px' }}>
         <Image width={32} height={32} layout="fixed"
           src={`/static/images/newsletter/${icon}`}
