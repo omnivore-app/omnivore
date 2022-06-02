@@ -6,7 +6,7 @@ import {
   useGetWebhooksQuery,
   WebhookEvent,
 } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebhookMutation'
@@ -30,68 +30,29 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
+  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([
+    'PAGE_CREATED',
+    'HIGHLIGHT_CREATED',
+  ])
   const [enabled, setEnabled] = useState(false)
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
 
-  useEffect(() => {
-    setFormInputs([
-      {
-        label: 'URL',
-        onChange: setUrl,
-        name: 'url',
-        placeholder: 'https://example.com/webhook',
-        required: true,
-      },
-      {
-        label: 'Event Types',
-        name: 'eventTypes',
-        value: 'PAGE_CREATED, HIGHLIGHT_CREATED',
-        onChange: setEventTypes,
-      },
-      {
-        label: 'Enabled',
-        name: 'enabled',
-        type: 'checkbox',
-        onChange: setEnabled,
-      },
-    ])
-  }, [addModelOpen])
-
-  useEffect(() => {
-    setFormInputs([
-      {
-        label: 'URL',
-        onChange: setUrl,
-        name: 'url',
-        value: onEditWebhook?.url,
-        required: true,
-      },
-      {
-        label: 'Event Types',
-        name: 'eventTypes',
-        value: onEditWebhook?.eventTypes,
-        onChange: setEventTypes,
-      },
-      {
-        label: 'Enabled',
-        name: 'enabled',
-        type: 'checkbox',
-        onChange: setEnabled,
-        value: onEditWebhook?.enabled === 'Yes',
-      },
-    ])
-  }, [onEditWebhook])
-
-  const headers = ['URL', 'Event Types', 'Enabled']
-  const rows = new Map<string, Webhook>()
-  webhooks.forEach((webhook) =>
-    rows.set(webhook.id, {
-      url: webhook.url,
-      eventTypes: webhook.eventTypes.join(', '),
-      enabled: webhook.enabled ? 'Yes' : 'No',
-    })
-  )
+  const [headers, setHeaders] = useState<string[]>([
+    'URL',
+    'Event Types',
+    'Enabled',
+  ])
+  const rows = useMemo(() => {
+    const rows = new Map<string, Webhook>()
+    webhooks.forEach((webhook) =>
+      rows.set(webhook.id, {
+        url: webhook.url,
+        eventTypes: webhook.eventTypes.join(', '),
+        enabled: webhook.enabled ? 'Yes' : 'No',
+      })
+    )
+    return rows
+  }, [webhooks])
 
   applyStoredTheme(false)
 
@@ -120,7 +81,7 @@ export default function Webhooks(): JSX.Element {
       id: onEditWebhook?.id,
       url,
       eventTypes,
-      enabled: enabled,
+      enabled,
     })
     if (result) {
       showSuccessToast('Updated', { position: 'bottom-right' })
@@ -175,8 +136,57 @@ export default function Webhooks(): JSX.Element {
         headers={headers}
         rows={rows}
         onDelete={setOnDeleteId}
-        onAdd={() => setAddModelOpen(true)}
-        onEdit={setOnEditWebhook}
+        onAdd={() => {
+          setFormInputs([
+            {
+              label: 'URL',
+              onChange: setUrl,
+              name: 'url',
+              placeholder: 'https://example.com/webhook',
+              required: true,
+            },
+            {
+              label: 'Event Types',
+              name: 'eventTypes',
+              value: eventTypes,
+              onChange: setEventTypes,
+              required: true,
+            },
+            {
+              label: 'Enabled',
+              name: 'enabled',
+              type: 'checkbox',
+              onChange: setEnabled,
+            },
+          ])
+          setAddModelOpen(true)
+        }}
+        onEdit={(webhook) => {
+          setFormInputs([
+            {
+              label: 'URL',
+              onChange: setUrl,
+              name: 'url',
+              value: webhook?.url,
+              required: true,
+            },
+            {
+              label: 'Event Types',
+              name: 'eventTypes',
+              value: webhook?.eventTypes,
+              onChange: setEventTypes,
+              required: true,
+            },
+            {
+              label: 'Enabled',
+              name: 'enabled',
+              type: 'checkbox',
+              onChange: setEnabled,
+              value: webhook?.enabled === 'Yes',
+            },
+          ])
+          setOnEditWebhook(webhook)
+        }}
       />
     </PrimaryLayout>
   )
