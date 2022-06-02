@@ -154,9 +154,10 @@ public final class DataService: ObservableObject {
 //        self.createThumbnailFor(inputUrl: localUrl, at: thumbnailUrl)
 //        linkedItem.imageURLString = thumbnailUrl.absoluteString
 
-      case let .html(html: html, title: title):
+      case let .html(html: html, title: title, iconURL: iconURL):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
+        linkedItem.imageURLString = iconURL
         linkedItem.title = title ?? self.titleFromPdfFile(pageScrape.url)
       case .none:
         print("SAVING URL", linkedItem.unwrappedPageURLString)

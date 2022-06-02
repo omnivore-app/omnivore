@@ -140,7 +140,7 @@ class ExtensionSaveService {
           try await services.dataService.syncUrl(id: requestId, url: pageScrapePayload.url)
         case let .pdf(localUrl):
           try await services.dataService.syncPdf(id: requestId, localPdfURL: localUrl, url: pageScrapePayload.url)
-        case let .html(html, title):
+        case let .html(html, title, _):
           try await services.dataService.syncPage(id: requestId, originalHtml: html, title: title, url: pageScrapePayload.url)
         }
 

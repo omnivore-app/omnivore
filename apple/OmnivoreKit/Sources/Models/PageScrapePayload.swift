@@ -9,15 +9,9 @@ import UniformTypeIdentifiers
 let URLREGEX = #"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"#
 
 public struct PageScrapePayload {
-  public struct HTMLPayload {
-    let url: String
-    let title: String?
-    let html: String
-  }
-
   public enum ContentType {
     case none
-    case html(html: String, title: String?)
+    case html(html: String, title: String?, iconURL: String?)
     case pdf(localUrl: URL)
   }
 
@@ -34,9 +28,9 @@ public struct PageScrapePayload {
     self.contentType = .pdf(localUrl: localUrl)
   }
 
-  init(url: String, title: String?, html: String) {
+  init(url: String, title: String?, html: String, iconURL: String? = nil) {
     self.url = url
-    self.contentType = .html(html: html, title: title)
+    self.contentType = .html(html: html, title: title, iconURL: iconURL)
   }
 }
 
@@ -280,8 +274,9 @@ private extension PageScrapePayload {
   static func makeFromDictionary(_ dictionary: NSDictionary) -> PageScrapePayload? {
     let results = dictionary[NSExtensionJavaScriptPreprocessingResultsKey] as? NSDictionary
     guard let url = results?["url"] as? String else { return nil }
-    let html = results?["documentHTML"] as? String
+    let html = results?["originalHTML"] as? String
     let title = results?["title"] as? String
+    let iconURL = results?["iconURL"] as? String
     let contentType = results?["contentType"] as? String
 
     // If we were not able to capture any HTML, treat this as a URL and
@@ -297,7 +292,7 @@ private extension PageScrapePayload {
     }
 
     if let html = html {
-      return PageScrapePayload(url: url, title: title, html: html)
+      return PageScrapePayload(url: url, title: title, html: html, iconURL: iconURL)
     }
 
     return PageScrapePayload(url: url)
