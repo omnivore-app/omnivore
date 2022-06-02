@@ -163,7 +163,7 @@ struct WelcomeView: View {
 
   public var body: some View {
     ZStack(alignment: .leading) {
-      Color.appDeepBackground
+      Color.appBackground
         .edgesIgnoringSafeArea(.all)
         .modifier(SizeModifier())
         .onPreferenceChange(SizePreferenceKey.self) {
