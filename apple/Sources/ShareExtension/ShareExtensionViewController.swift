@@ -12,7 +12,7 @@ import Utils
 
       embed(
         childViewController: UIViewController.makeShareExtensionController(extensionContext: extensionContext),
-        heightRatio: 0.3
+        heightRatio: 0.5
       )
     }
   }

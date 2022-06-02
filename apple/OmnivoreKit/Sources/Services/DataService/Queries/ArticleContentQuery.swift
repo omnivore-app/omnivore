@@ -308,7 +308,7 @@ extension DataService {
     }
   }
 
-  func syncUnsyncedArticleContent(itemID: String) async {
+  public func syncUnsyncedArticleContent(itemID: String) async {
     let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     linkedItemFetchRequest.predicate = NSPredicate(
       format: "id == %@", itemID

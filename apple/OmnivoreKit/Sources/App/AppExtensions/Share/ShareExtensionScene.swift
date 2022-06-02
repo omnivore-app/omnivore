@@ -20,29 +20,27 @@ public extension PlatformViewController {
   }
 }
 
-final class ShareExtensionViewModel: ObservableObject {
+public class ShareExtensionViewModel: ObservableObject {
   @Published var title: String?
   @Published var status: ShareExtensionStatus = .processing
   @Published var debugText: String?
 
-  var subscriptions = Set<AnyCancellable>()
-  var backgroundTask: UIBackgroundTaskIdentifier?
-  let requestID = UUID().uuidString.lowercased()
   let saveService = ExtensionSaveService()
+  let requestId = UUID().uuidString.lowercased()
 
   func handleReadNowAction(extensionContext: NSExtensionContext?) {
     #if os(iOS)
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
-        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestID)")
+        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
         application.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
       }
     #endif
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
-  func savePage(extensionContext: NSExtensionContext?) {
+  func savePage(extensionContext: NSExtensionContext?, shareExtensionViewModel: ShareExtensionChildViewModel) {
     if let extensionContext = extensionContext {
-      saveService.save(extensionContext, updateStatusFunc: updateStatus)
+      saveService.save(extensionContext, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
     } else {
       updateStatus(.failed(error: .unknown(description: "Internal Error")))
     }
@@ -58,13 +56,12 @@ final class ShareExtensionViewModel: ObservableObject {
 struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
   @StateObject private var viewModel = ShareExtensionViewModel()
+  @StateObject private var childViewModel = ShareExtensionChildViewModel()
 
   var body: some View {
     ShareExtensionChildView(
-      debugText: viewModel.debugText,
-      title: viewModel.title,
-      status: viewModel.status,
-      onAppearAction: { viewModel.savePage(extensionContext: extensionContext) },
+      viewModel: childViewModel,
+      onAppearAction: { viewModel.savePage(extensionContext: extensionContext, shareExtensionViewModel: childViewModel) },
       readNowButtonAction: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
       dismissButtonTappedAction: { _, _ in
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)

@@ -24,6 +24,8 @@ import Utils
 
       guard let username = username else { return }
 
+      // If the page was locally created, make sure they are synced before we pull content
+      await dataService.syncUnsyncedArticleContent(itemID: requestID)
       await fetchLinkedItem(dataService: dataService, requestID: requestID, username: username)
     }
 
