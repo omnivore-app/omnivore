@@ -44,7 +44,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
             >
               {props.inputs?.map((input) => (
                 <HStack key={input.name}>
-                  <StyledText style={'boldText'}>{input.label}</StyledText>
+                  <StyledText>{input.label}</StyledText>
                   <FormInput
                     key={input.name}
                     type={input.type || 'text'}
@@ -57,15 +57,10 @@ export function FormModal(props: FormModalProps): JSX.Element {
                 </HStack>
               ))}
               <HStack distribution="center">
-                <Button
-                  style="ctaPill"
-                  onClick={() => props.onOpenChange(false)}
-                >
+                <Button onClick={() => props.onOpenChange(false)}>
                   Cancel
                 </Button>
-                <Button style="ctaPill">
-                  {props.acceptButtonLabel || 'Submit'}
-                </Button>
+                <Button>{props.acceptButtonLabel || 'Submit'}</Button>
               </HStack>
             </form>
           </Box>
