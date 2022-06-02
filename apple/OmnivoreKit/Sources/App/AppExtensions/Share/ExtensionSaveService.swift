@@ -113,10 +113,6 @@ class ExtensionSaveService {
     }
 
     override func cancel() {
-//      task?.cancel()
-//      finishOperation()
-//
-//      storeUnresolvedSavedItem()
       super.cancel()
     }
 
