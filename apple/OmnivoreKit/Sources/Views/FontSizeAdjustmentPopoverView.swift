@@ -2,8 +2,6 @@ import SwiftUI
 import Utils
 
 public struct WebPreferencesPopoverView: View {
-  @State private var renderCount = 0
-
   let increaseFontAction: () -> Void
   let decreaseFontAction: () -> Void
   let increaseMarginAction: () -> Void
@@ -39,8 +37,8 @@ public struct WebPreferencesPopoverView: View {
 
   public var body: some View {
     VStack {
-      Stepper(
-        "Font Size (\(storedFontSize):",
+      LabelledStepper(
+        labelText: "Font Size (\(storedFontSize)):",
         onIncrement: {
           storedFontSize = min(storedFontSize + 2, 28)
           increaseFontAction()
@@ -51,8 +49,8 @@ public struct WebPreferencesPopoverView: View {
         }
       )
 
-      Stepper(
-        "Margin (\(storedMargin):",
+      LabelledStepper(
+        labelText: "Margin (\(storedMargin)):",
         onIncrement: {
           storedMargin = min(storedMargin + 45, 560)
           increaseMarginAction()
@@ -63,8 +61,8 @@ public struct WebPreferencesPopoverView: View {
         }
       )
 
-      Stepper(
-        "Line Spacing (\(storedLineSpacing):",
+      LabelledStepper(
+        labelText: "Line Spacing (\(storedLineSpacing)):",
         onIncrement: {
           storedLineSpacing = min(storedLineSpacing + 25, 300)
           increaseLineHeightAction()
@@ -74,10 +72,42 @@ public struct WebPreferencesPopoverView: View {
           decreaseLineHeightAction()
         }
       )
-
-      Text(String(renderCount))
     }
     .padding()
+  }
+}
+
+struct LabelledStepper: View {
+  let labelText: String
+  let onIncrement: () -> Void
+  let onDecrement: () -> Void
+
+  var body: some View {
+    HStack(alignment: .center, spacing: 0) {
+      Button(
+        action: onDecrement,
+        label: {
+          Image(systemName: "minus")
+          #if os(iOS)
+            .foregroundColor(.systemLabel)
+            .padding()
+          #endif
+        }
+      )
+      .frame(width: 55, height: 40, alignment: .center)
+      Text(labelText)
+      Button(
+        action: onIncrement,
+        label: {
+          Image(systemName: "plus")
+          #if os(iOS)
+            .foregroundColor(.systemLabel)
+            .padding()
+          #endif
+        }
+      )
+      .frame(width: 55, height: 40, alignment: .center)
+    }
   }
 }
 
