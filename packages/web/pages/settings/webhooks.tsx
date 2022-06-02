@@ -20,13 +20,30 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditId, setOnEditId] = useState<string>('')
   const [url, setUrl] = useState('')
-  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
+  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([
+    'PAGE_CREATED',
+    'HIGHLIGHT_CREATED',
+  ])
+  const [enabled, setEnabled] = useState(true)
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([
     {
       label: 'URL',
       onChange: setUrl,
       name: 'url',
       placeholder: 'https://example.com/webhook',
+      required: true,
+    },
+    {
+      label: 'Event Types',
+      name: 'eventTypes',
+      disabled: true,
+      value: eventTypes.join(', '),
+    },
+    {
+      label: 'Enabled',
+      name: 'enabled',
+      type: 'checkbox',
+      onChange: setEnabled,
     },
   ])
   const { webhook } = useGetWebhookQuery(onEditId)
@@ -39,6 +56,19 @@ export default function Webhooks(): JSX.Element {
           onChange: setUrl,
           name: 'url',
           value: webhook.url,
+        },
+        {
+          label: 'Event Types',
+          name: 'eventTypes',
+          disabled: true,
+          value: eventTypes.join(', '),
+        },
+        {
+          label: 'Enabled',
+          name: 'enabled',
+          type: 'checkbox',
+          onChange: setEnabled,
+          value: webhook.enabled,
         },
       ])
     }
@@ -57,10 +87,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onAdd(): Promise<void> {
-    const result = await setWebhookMutation('', url, [
-      'PAGE_CREATED',
-      'HIGHLIGHT_CREATED',
-    ])
+    const result = await setWebhookMutation({ url, eventTypes, enabled })
     if (result) {
       showSuccessToast('Added', { position: 'bottom-right' })
     } else {
@@ -71,10 +98,12 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onUpdate(): Promise<void> {
-    const result = await setWebhookMutation(onEditId, url, [
-      'PAGE_CREATED',
-      'HIGHLIGHT_CREATED',
-    ])
+    const result = await setWebhookMutation({
+      id: onEditId,
+      url,
+      eventTypes,
+      enabled: enabled || false,
+    })
     if (result) {
       showSuccessToast('Updated', { position: 'bottom-right' })
     } else {

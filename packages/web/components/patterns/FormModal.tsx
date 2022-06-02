@@ -11,12 +11,13 @@ import { FormInput } from '../elements/FormElements'
 export interface FormInputProps {
   name: string
   label: string
-  value?: string
-  onChange: (value: string) => void
+  value?: any
+  onChange?: (value: any) => void
   type?: string
   placeholder?: string
   disabled?: boolean
   hidden?: boolean
+  required?: boolean
 }
 
 export interface FormModalProps {
@@ -50,9 +51,16 @@ export function FormModal(props: FormModalProps): JSX.Element {
                     type={input.type || 'text'}
                     value={input.value}
                     placeholder={input.placeholder}
-                    onChange={(event) => input.onChange(event.target.value)}
+                    onChange={(event) => {
+                      input.onChange &&
+                        input.onChange(
+                          event.target.value || event.target.checked
+                        )
+                    }}
                     disabled={input.disabled}
                     hidden={input.hidden}
+                    required={input.required}
+                    checked={input.value}
                   />
                 </HStack>
               ))}

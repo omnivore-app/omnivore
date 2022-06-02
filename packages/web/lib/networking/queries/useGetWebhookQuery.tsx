@@ -18,6 +18,10 @@ interface WebhookData {
 }
 
 export function useGetWebhookQuery(id: string): WebhookQueryResponse {
+  if (!id) {
+    return {}
+  }
+
   const query = gql`
     query GetWebhook($id: ID!) {
       webhook(id: $id) {

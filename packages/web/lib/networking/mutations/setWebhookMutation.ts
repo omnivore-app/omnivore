@@ -2,6 +2,15 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 import { Webhook, WebhookEvent } from '../queries/useGetWebhooksQuery'
 
+export interface SetWebhookInput {
+  contentType?: string[]
+  enabled?: boolean
+  eventTypes: WebhookEvent[]
+  id?: string
+  method?: string
+  url: string
+}
+
 interface SetWebhookResult {
   setWebhook: SetWebhook
   errorCodes?: unknown[]
@@ -12,10 +21,8 @@ type SetWebhook = {
 }
 
 export async function setWebhookMutation(
-  id: string,
-  url: string,
-  eventTypes: WebhookEvent[]
-): Promise<any | undefined> {
+  input: SetWebhookInput
+): Promise<string | undefined> {
   const mutation = gql`
     mutation SetWebhook($input: SetWebhookInput!) {
       setWebhook(input: $input) {
@@ -33,7 +40,7 @@ export async function setWebhookMutation(
 
   try {
     const data = (await gqlFetcher(mutation, {
-      input: { id, url, eventTypes },
+      input,
     })) as SetWebhookResult
     return data.errorCodes ? undefined : data.setWebhook.webhook.id
   } catch (error) {
