@@ -32,7 +32,7 @@ public final class DataService: ObservableObject {
     self.backgroundContext = persistentContainer.newBackgroundContext()
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
-    if isFirstTimeRunningNewAppVersion() {
+    if isFirstTimeRunningNewAppBuild() {
       resetCoreData()
     } else {
       persistentContainer.loadPersistentStores { _, error in
@@ -91,14 +91,22 @@ public final class DataService: ObservableObject {
     backgroundContext = persistentContainer.newBackgroundContext()
   }
 
-  private func isFirstTimeRunningNewAppVersion() -> Bool {
-    let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString")
-    guard let appVersion = appVersion as? String else { return false }
+  private func isFirstTimeRunningNewAppBuild() -> Bool {
+    let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+    let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+
+    guard let appVersion = appVersion, let buildNumber = buildNumber else { return false }
 
     let lastUsedAppVersion = UserDefaults.standard.string(forKey: UserDefaultKey.lastUsedAppVersion.rawValue)
-    let isFirstRun = (lastUsedAppVersion ?? "unknown") != appVersion
     UserDefaults.standard.set(appVersion, forKey: UserDefaultKey.lastUsedAppVersion.rawValue)
-    return isFirstRun
+
+    let lastUsedAppBuildNumber = UserDefaults.standard.string(forKey: UserDefaultKey.lastUsedAppBuildNumber.rawValue)
+    UserDefaults.standard.set(buildNumber, forKey: UserDefaultKey.lastUsedAppBuildNumber.rawValue)
+
+    let isFirstRunOfVersion = (lastUsedAppVersion ?? "unknown") != appVersion
+    let isFirstRunWithBuildNumber = (lastUsedAppBuildNumber ?? "unknown") != buildNumber
+
+    return isFirstRunOfVersion || isFirstRunWithBuildNumber
   }
 
   public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws {

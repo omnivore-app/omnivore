@@ -7,4 +7,5 @@ public enum UserDefaultKey: String {
   case homeFeedlayoutPreference
   case lastSelectedLinkedItemFilter
   case lastUsedAppVersion
+  case lastUsedAppBuildNumber
 }
