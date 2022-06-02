@@ -153,7 +153,7 @@ import WebKit
             decreaseFontActionID: $decreaseFontActionID,
             increaseMarginActionID: $increaseMarginActionID,
             decreaseMarginActionID: $decreaseMarginActionID,
-            increaseLineHeightActionID: $increaseMarginActionID,
+            increaseLineHeightActionID: $increaseLineHeightActionID,
             decreaseLineHeightActionID: $decreaseLineHeightActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             showNavBarActionID: $showNavBarActionID,

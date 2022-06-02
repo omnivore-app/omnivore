@@ -35,18 +35,22 @@ public final class WebView: WKWebView {
   }
 
   public func increaseMargin() {
+    print("increase margin")
     dispatchEvent("increaseMargin")
   }
 
   public func decreaseMargin() {
+    print("decrease margin")
     dispatchEvent("decreaseMargin")
   }
 
   public func increaseLineHeight() {
+    print("increase line height")
     dispatchEvent("increaseLineHeight")
   }
 
   public func decreaseLineHeight() {
+    print("decrease line height")
     dispatchEvent("decreaseLineHeight")
   }
 
