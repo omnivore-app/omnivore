@@ -51,13 +51,13 @@ class ExtensionSaveService {
             shareExtensionViewModel.url = hostname
           case .none:
             shareExtensionViewModel.url = hostname
-            shareExtensionViewModel.title = "Saving: " + payload.url
+            shareExtensionViewModel.title = payload.url
             if var url = url {
               url.path = "/favicon.ico"
               shareExtensionViewModel.iconURL = url.url?.absoluteString
             }
           case let .pdf(localUrl: _):
-            shareExtensionViewModel.title = "Saving: " + payload.url
+            shareExtensionViewModel.title = payload.url
             shareExtensionViewModel.url = hostname
           }
         }

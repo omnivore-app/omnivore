@@ -197,12 +197,9 @@ public struct ShareExtensionChildView: View {
               .aspectRatio(contentMode: .fill)
               .frame(width: 61, height: 61)
               .clipped()
-          } else if case AsyncImageStatus.loading = imageStatus {
+          } else {
             Color.appButtonBackground
               .aspectRatio(contentMode: .fill)
-              .frame(width: 61, height: 61)
-          } else {
-            EmptyView()
               .frame(width: 61, height: 61)
           }
         }
