@@ -35,8 +35,10 @@ export function FormModal(props: FormModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent>
-        <VStack alignment="center" distribution="center">
+        <HStack css={{ padding: '20px 20px 20px 20px' }} alignment={'center'}>
           <StyledText style="modalHeadline">{props.title}</StyledText>
+        </HStack>
+        <VStack alignment="center" distribution="center">
           <Box>
             <form
               onSubmit={(event) => {
