@@ -35,61 +35,81 @@ public extension DataService {
     }
   }
 
-//  func syncPdf(item: LinkedItem, usingSession session: URLSession) async throws -> Bool {
-//    try backgroundContext.performAndWait {
-//      item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-//      try self.backgroundContext.save()
-//    }
-//
-//    let id = item.unwrappedID
-//    let localPdfURL = item.localPdfURL
-//    let url = item.unwrappedPageURLString
-//    let uploadRequestUrl = try await uploadFileRequest(id: id, url: url)
-//    return await try uploadFile(id: id, localPdfURL: localPdfURL, url: uploadRequestUrl, usingSession: session)
-//  }
+  private func updateLinkedItemStatus(id: String, status: ServerSyncStatus) async throws {
+    try backgroundContext.performAndWait {
+      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+
+      guard let linkedItem = (try? backgroundContext.fetch(fetchRequest))?.first else { return }
+      linkedItem.serverSyncStatus = Int64(status.rawValue)
+    }
+  }
 
   func syncPdf(id: String, localPdfURL: URL, url: String) async throws {
-//    try backgroundContext.performAndWait {
-//      item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-//      try self.backgroundContext.save()
-//    }
+    do {
+      let uploadRequest = try await uploadFileRequest(id: id, url: url)
+      if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
+        try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
+        // try await services.dataService.saveFilePublisher(requestId: requestId, uploadFileId: uploadFileID, url: url)
+      } else {
+        throw SaveArticleError.badData
+      }
 
-    let uploadRequest = try await uploadFileRequest(id: id, url: url)
-    if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
-      try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
-      // try await services.dataService.saveFilePublisher(requestId: requestId, uploadFileId: uploadFileID, url: url)
-    } else {
-      throw SaveArticleError.badData
+      try await updateLinkedItemStatus(id: id, status: .isNSync)
+      try backgroundContext.performAndWait {
+        try backgroundContext.save()
+      }
+    } catch {
+      backgroundContext.rollback()
+      throw error
     }
   }
 
   func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws {
-    //    try backgroundContext.performAndWait {
-    //      item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-    //      try self.backgroundContext.save()
-    //    }
-    try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
+    do {
+      try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
+      try await updateLinkedItemStatus(id: id, status: .isNSync)
+      try backgroundContext.performAndWait {
+        try backgroundContext.save()
+      }
+    } catch {
+      backgroundContext.performAndWait {
+        backgroundContext.rollback()
+      }
+      throw error
+    }
   }
 
   func syncUrl(id: String, url: String) async throws {
-    try await saveURL(id: id, url: url)
+    do {
+      try await updateLinkedItemStatus(id: id, status: .isSyncing)
+      try await saveURL(id: id, url: url)
+      try backgroundContext.performAndWait {
+        try backgroundContext.save()
+      }
+    } catch {
+      backgroundContext.performAndWait {
+        backgroundContext.rollback()
+      }
+      throw error
+    }
   }
 
   func syncLocalCreatedLinkedItem(item: LinkedItem) {
     switch item.contentReader {
     case "PDF":
-//      let id = item.unwrappedID
-//      let localPdfURL = item.localPdfURL
-//      let url = item.unwrappedPageURLString
-//      Task {
-//        let uploadRequestUrl = try await uploadFileRequest(id: id, url: url)
-//        uploadFile(id: id, localPdfURL: localPdfURL, url: uploadRequestUrl)
-//        try await backgroundContext.perform {
-//          item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
-//          try self.backgroundContext.save()
-//        }
-//      }
-      break
+      let id = item.unwrappedID
+      let localPdfURL = item.localPdfURL
+      let url = item.unwrappedPageURLString
+
+      if let pdfUrlStr = localPdfURL, let localPdfURL = URL(string: pdfUrlStr) {
+        Task {
+          try await syncPdf(id: id, localPdfURL: localPdfURL, url: url)
+        }
+      } else {
+        // TODO: This is an invalid object, we should have a way of reflecting that with an error state
+        // updateLinkedItemStatus(id: id, status: .)
+      }
     case "WEB":
       let id = item.unwrappedID
       let url = item.unwrappedPageURLString
@@ -98,13 +118,9 @@ public extension DataService {
 
       Task {
         if let originalHtml = originalHtml {
-          try await savePage(id: id, url: url, title: title, originalHtml: originalHtml)
+          try await syncPage(id: id, originalHtml: originalHtml, title: title, url: url)
         } else {
-          try await saveURL(id: id, url: url)
-        }
-        try await backgroundContext.perform {
-          item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
-          try self.backgroundContext.save()
+          try await syncUrl(id: id, url: url)
         }
       }
     default:

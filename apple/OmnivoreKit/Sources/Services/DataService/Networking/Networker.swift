@@ -20,28 +20,6 @@ public final class Networker: NSObject, URLSessionTaskDelegate {
     self.appEnvironment = appEnvironment
     self.urlSession = .shared
   }
-
-  public func createBackgroundSession() -> URLSession {
-    let sessionConfig = URLSessionConfiguration.background(withIdentifier: "app.omnivoreapp.BackgroundSessionConfig-")
-    sessionConfig.sharedContainerIdentifier = "group.app.omnivoreapp"
-    return URLSession(configuration: sessionConfig, delegate: self, delegateQueue: nil)
-  }
-
-  public func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-    print("finished upload on original request", task.originalRequest, "error", error)
-    if let httpResponse = task.response as? HTTPURLResponse {
-      if 200 ... 299 ~= httpResponse.statusCode {
-        // success
-        if let requestId = task.originalRequest?.value(forHTTPHeaderField: "clientRequestId") {
-          print("COMPLETED UPLOADED REQUEST ID", requestId)
-          DispatchQueue.main.async {
-            NotificationCenter.default.post(name: NSNotification.LocallyCreatedItemSynced, object: nil, userInfo: ["objectID": requestId])
-          }
-        }
-      }
-      print("DONE")
-    }
-  }
 }
 
 extension Networker {

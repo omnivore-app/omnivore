@@ -85,6 +85,9 @@ extension DataService {
       return cachedContent
     }
 
+    // If the page was locally created, make sure they are synced before we pull content
+    await syncUnsyncedArticleContent(itemID: itemID)
+
     enum QueryResult {
       case success(result: ArticleProps)
       case error(error: String)
@@ -302,6 +305,49 @@ extension DataService {
         highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString,
         contentStatus: .succeeded
       )
+    }
+  }
+
+  func syncUnsyncedArticleContent(itemID: String) async {
+    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    linkedItemFetchRequest.predicate = NSPredicate(
+      format: "id == %@", itemID
+    )
+
+    let context = backgroundContext
+
+    var id: String?
+    var url: String?
+    var title: String?
+    var originalHtml: String?
+    var serverSyncStatus: Int64?
+
+    backgroundContext.performAndWait {
+      guard let linkedItem = try? context.fetch(linkedItemFetchRequest).first else { return }
+      id = linkedItem.unwrappedID
+      url = linkedItem.unwrappedPageURLString
+      title = linkedItem.unwrappedTitle
+      originalHtml = linkedItem.originalHtml
+      serverSyncStatus = linkedItem.serverSyncStatus
+    }
+
+    if let id = id, let url = url, let title = title,
+       let serverSyncStatus = serverSyncStatus,
+       serverSyncStatus != ServerSyncStatus.isNSync.rawValue
+    {
+      do {
+        if let originalHtml = originalHtml {
+          try await savePage(id: id, url: url, title: title, originalHtml: originalHtml)
+        } else {
+          try await saveURL(id: id, url: url)
+        }
+        try backgroundContext.performAndWait {
+          try backgroundContext.save()
+        }
+      } catch {
+        // We don't propogate these errors, we just let it pass through so
+        // the user can attempt to fetch content again.
+      }
     }
   }
 }
