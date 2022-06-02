@@ -11,7 +11,7 @@ interface TableProps {
   infoLink?: string
   onAdd?: () => void
   headers: string[]
-  rows: Map<string, string[]>
+  rows: Map<string, Record<string, any>>
   onDelete?: (id: string) => void
   onUpdate?: (id: string) => void
 }
