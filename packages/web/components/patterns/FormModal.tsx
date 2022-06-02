@@ -6,6 +6,7 @@ import {
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
+import { useState } from 'react'
 
 export interface FormInputProps {
   name: string
@@ -28,6 +29,8 @@ export interface FormModalProps {
 }
 
 export function FormModal(props: FormModalProps): JSX.Element {
+  const [inputs, setInputs] = useState<FormInputProps[]>(props.inputs || [])
+
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
@@ -42,7 +45,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
                 props.onOpenChange(false)
               }}
             >
-              {props.inputs?.map((input) => (
+              {inputs.map((input, index) => (
                 <HStack key={input.name}>
                   <StyledText>{input.label}</StyledText>
                   <input
@@ -51,10 +54,13 @@ export function FormModal(props: FormModalProps): JSX.Element {
                     value={input.value}
                     placeholder={input.placeholder}
                     onChange={(event) => {
-                      input.onChange &&
+                      if (input.onChange) {
+                        inputs[index].value = event.target.value
+                        setInputs(inputs)
                         input.onChange(
                           event.target.value || event.target.checked
                         )
+                      }
                     }}
                     disabled={input.disabled}
                     hidden={input.hidden}
