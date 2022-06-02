@@ -12,10 +12,6 @@ struct FilterByLabelsView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
 
-//  init(initiallySelected: [LinkedItemLabel], initiallyNegated: [LinkedItemLabel], onSave:) {
-//
-//  }
-
   func isNegated(_ label: LinkedItemLabel) -> Bool {
     viewModel.negatedLabels.contains(where: { $0.id == label.id })
   }

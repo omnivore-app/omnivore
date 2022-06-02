@@ -34,43 +34,12 @@ struct ApplyLabelsView: View {
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
 
+  func isSelected(_ label: LinkedItemLabel) -> Bool {
+    viewModel.selectedLabels.contains(where: { $0.id == label.id })
+  }
+
   var innerBody: some View {
     List {
-      Section(header: Text("Assigned Labels")) {
-        if viewModel.selectedLabels.isEmpty {
-          Text("No labels are currently assigned.")
-        }
-        ForEach(viewModel.selectedLabels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-          HStack {
-            TextChip(feedItemLabel: label)
-            Spacer()
-            Button(
-              action: {
-                withAnimation {
-                  viewModel.removeLabelFromItem(label)
-                }
-              },
-              label: { Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast) }
-            )
-          }
-        }
-      }
-      Section(header: Text("Available Labels")) {
-        ForEach(viewModel.unselectedLabels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-          HStack {
-            TextChip(feedItemLabel: label)
-            Spacer()
-            Button(
-              action: {
-                withAnimation {
-                  viewModel.addLabelToItem(label)
-                }
-              },
-              label: { Image(systemName: "plus").foregroundColor(.appGrayTextContrast) }
-            )
-          }
-        }
-      }
       Section {
         Button(
           action: { viewModel.showCreateEmailModal = true },
@@ -83,6 +52,28 @@ struct ApplyLabelsView: View {
           }
         )
         .disabled(viewModel.isLoading)
+      }
+      Section {
+        ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+          Button(
+            action: {
+              if isSelected(label) {
+                viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
+              } else {
+                viewModel.selectedLabels.append(label)
+              }
+            },
+            label: {
+              HStack {
+                TextChip(feedItemLabel: label)
+                Spacer()
+                if isSelected(label) {
+                  Image(systemName: "checkmark")
+                }
+              }
+            }
+          )
+        }
       }
     }
     .navigationTitle(mode.navTitle)
