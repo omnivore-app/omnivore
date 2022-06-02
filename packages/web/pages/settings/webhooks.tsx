@@ -34,7 +34,9 @@ export default function Webhooks(): JSX.Element {
     'PAGE_CREATED',
     'HIGHLIGHT_CREATED',
   ])
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(true)
+  const [contentType, setContentType] = useState('application/json')
+  const [method, setMethod] = useState('POST')
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
 
   const [headers, setHeaders] = useState<string[]>([
@@ -153,10 +155,23 @@ export default function Webhooks(): JSX.Element {
               required: true,
             },
             {
+              label: 'Method',
+              name: 'method',
+              value: method,
+              disabled: true,
+            },
+            {
+              label: 'Content Type',
+              name: 'contentType',
+              value: contentType,
+              disabled: true,
+            },
+            {
               label: 'Enabled',
               name: 'enabled',
               type: 'checkbox',
               onChange: setEnabled,
+              value: enabled,
             },
           ])
           setAddModelOpen(true)
@@ -176,6 +191,18 @@ export default function Webhooks(): JSX.Element {
               value: webhook?.eventTypes,
               onChange: setEventTypes,
               required: true,
+            },
+            {
+              label: 'Method',
+              name: 'method',
+              value: method,
+              disabled: true,
+            },
+            {
+              label: 'Content Type',
+              name: 'contentType',
+              value: contentType,
+              disabled: true,
             },
             {
               label: 'Enabled',
