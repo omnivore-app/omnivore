@@ -158,12 +158,18 @@ export function Table(props: TableProps): JSX.Element {
                   color: '$grayTextContrast',
                   textTransform: 'uppercase',
                 },
+                width: '240px',
               }}
             >
               {header}
             </StyledText>
           </Box>
         ))}
+        <Box
+          css={{
+            width: '120px',
+          }}
+        ></Box>
       </TableHeading>
       {Array.from(props.rows.keys()).map((key, index) => (
         <TableCard
