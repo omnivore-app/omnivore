@@ -19,7 +19,7 @@ struct SafariWebLink: Identifiable {
       articleContent = try await dataService.fetchArticleContent(itemID: itemID)
     } catch {
       if retryCount == 0 {
-        await loadContent(dataService: dataService, itemID: itemID, retryCount: 1)
+        return await loadContent(dataService: dataService, itemID: itemID, retryCount: 1)
       }
       if let fetchError = error as? ContentFetchError {
         switch fetchError {
