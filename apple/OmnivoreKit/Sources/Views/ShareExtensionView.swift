@@ -196,12 +196,14 @@ public struct ShareExtensionChildView: View {
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(width: 61, height: 61)
+              .clipped()
           } else if case AsyncImageStatus.loading = imageStatus {
             Color.appButtonBackground
               .aspectRatio(contentMode: .fill)
               .frame(width: 61, height: 61)
           } else {
             EmptyView()
+              .frame(width: 61, height: 61)
           }
         }
       } else {
@@ -257,16 +259,12 @@ public struct ShareExtensionChildView: View {
       Spacer()
 
       HStack {
-        // if case ShareExtensionStatus.saved = status || case ShareExtensionStatus.synced = status {
-        Button(
-          action: { readNowButtonAction() },
-          label: { Text("Read Now").frame(maxWidth: .infinity) }
-        )
-        .buttonStyle(RoundedRectButtonStyle())
-        // }
-        if case ShareExtensionStatus.processing = viewModel.status, FeatureFlag.enableReadNow {
-          Button(action: {}, label: { ProgressView().frame(maxWidth: .infinity) })
-            .buttonStyle(RoundedRectButtonStyle())
+        if FeatureFlag.enableReadNow {
+          Button(
+            action: { readNowButtonAction() },
+            label: { Text("Read Now").frame(maxWidth: .infinity) }
+          )
+          .buttonStyle(RoundedRectButtonStyle())
         }
         Button(
           action: {
