@@ -6,7 +6,6 @@ import {
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
-import { FormInput } from '../elements/FormElements'
 
 export interface FormInputProps {
   name: string
@@ -46,7 +45,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
               {props.inputs?.map((input) => (
                 <HStack key={input.name}>
                   <StyledText>{input.label}</StyledText>
-                  <FormInput
+                  <input
                     key={input.name}
                     type={input.type || 'text'}
                     value={input.value}
