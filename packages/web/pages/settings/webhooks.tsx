@@ -12,7 +12,17 @@ import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebhookMutation'
 import { FormInputProps, FormModal } from '../../components/patterns/FormModal'
 import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
-import { useGetWebhookQuery } from '../../lib/networking/queries/useGetWebhookQuery'
+
+interface Webhook {
+  id?: string
+  url: string
+  eventTypes: string
+  contentType?: string
+  method?: string
+  enabled: string
+  createdAt?: Date
+  updatedAt?: Date
+}
 
 export default function Webhooks(): JSX.Element {
   const { webhooks, revalidate } = useGetWebhooksQuery()
