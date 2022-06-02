@@ -169,7 +169,7 @@ export default function Webhooks(): JSX.Element {
         rows={rows}
         onDelete={setOnDeleteId}
         onAdd={() => setAddModelOpen(true)}
-        onUpdate={setOnEditId}
+        onEdit={setOnEditWebhook}
       />
     </PrimaryLayout>
   )
