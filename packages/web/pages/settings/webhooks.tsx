@@ -6,21 +6,43 @@ import {
   useGetWebhooksQuery,
   WebhookEvent,
 } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebhookMutation'
 import { FormInputProps, FormModal } from '../../components/patterns/FormModal'
 import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
+import { useGetWebhookQuery } from '../../lib/networking/queries/useGetWebhookQuery'
 
 export default function Webhooks(): JSX.Element {
   const { webhooks, revalidate } = useGetWebhooksQuery()
-  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
   const [addModelOpen, setAddModelOpen] = useState(false)
-  const [editModelOpen, setEditModelOpen] = useState(false)
-  const [id, setId] = useState<string>('')
+  const [onEditId, setOnEditId] = useState<string>('')
   const [url, setUrl] = useState('')
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
+  const [formInputs, setFormInputs] = useState<FormInputProps[]>([
+    {
+      label: 'URL',
+      onChange: setUrl,
+      name: 'url',
+      placeholder: 'https://example.com/webhook',
+    },
+  ])
+  const { webhook } = useGetWebhookQuery(onEditId)
+
+  useEffect(() => {
+    if (webhook) {
+      setFormInputs([
+        {
+          label: 'URL',
+          onChange: setUrl,
+          name: 'url',
+          value: webhook.url,
+        },
+      ])
+    }
+  }, [webhook])
 
   applyStoredTheme(false)
 
@@ -48,6 +70,20 @@ export default function Webhooks(): JSX.Element {
     revalidate()
   }
 
+  async function onUpdate(): Promise<void> {
+    const result = await setWebhookMutation(onEditId, url, [
+      'PAGE_CREATED',
+      'HIGHLIGHT_CREATED',
+    ])
+    if (result) {
+      showSuccessToast('Updated', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to update', { position: 'bottom-right' })
+    }
+    setUrl('')
+    revalidate()
+  }
+
   const headers = ['URL', 'Event Types', 'Enabled']
   const rows = new Map<string, string[]>()
   webhooks.forEach((webhook) =>
@@ -57,14 +93,6 @@ export default function Webhooks(): JSX.Element {
       webhook.enabled ? 'Yes' : 'No',
     ])
   )
-  const addFormInputs: FormInputProps[] = [
-    {
-      label: 'URL',
-      onChange: setUrl,
-      name: 'url',
-      placeholder: 'https://example.com/webhook',
-    },
-  ]
 
   return (
     <PrimaryLayout pageTestId={'webhooks'}>
@@ -79,29 +107,40 @@ export default function Webhooks(): JSX.Element {
           title={'Add webhook'}
           onSubmit={onAdd}
           onOpenChange={setAddModelOpen}
-          inputs={addFormInputs}
+          inputs={formInputs}
           acceptButtonLabel={'Add'}
         />
       )}
 
-      {deleteId && (
+      {onEditId && (
+        <FormModal
+          title={'Edit webhook'}
+          onSubmit={onUpdate}
+          onOpenChange={() => setOnEditId('')}
+          inputs={formInputs}
+          acceptButtonLabel={'Update'}
+        />
+      )}
+
+      {onDeleteId && (
         <ConfirmationModal
           message={
             'Future events will no longer be delivered to this webhook. This action cannot be undone.'
           }
           onAccept={async () => {
-            await onDelete(deleteId)
-            setDeleteId(null)
+            await onDelete(onDeleteId)
+            setOnDeleteId(null)
           }}
-          onOpenChange={() => setDeleteId(null)}
+          onOpenChange={() => setOnDeleteId(null)}
         />
       )}
       <Table
         heading={'Webhooks'}
         headers={headers}
         rows={rows}
-        onDelete={setDeleteId}
+        onDelete={setOnDeleteId}
         onAdd={() => setAddModelOpen(true)}
+        onUpdate={setOnEditId}
       />
     </PrimaryLayout>
   )
