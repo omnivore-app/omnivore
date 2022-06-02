@@ -21,7 +21,7 @@ struct SafariWebLink: Identifiable {
       if let fetchError = error as? ContentFetchError {
         switch fetchError {
         case .network:
-          errorMessage = "We were unable to retrieve your content. Please ccheck network connectivity and try again."
+          errorMessage = "We were unable to retrieve your content. Please check network connectivity and try again."
         default:
           errorMessage = "We were unable to parse your content."
         }
