@@ -191,7 +191,7 @@ export function Table(props: TableProps): JSX.Element {
               },
             }}
           >
-            {props.rows.get(key)?.map((cell, index) => (
+            {Object.values(props.rows.get(key) || {}).map((cell, index) => (
               <HStack
                 key={index}
                 css={{
