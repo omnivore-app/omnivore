@@ -1,5 +1,5 @@
 import { Separator } from "@radix-ui/react-separator"
-import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa } from "phosphor-react"
+import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa, Tray } from "phosphor-react"
 import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticleQuery"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
@@ -174,8 +174,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
               tooltipContent="Unarchive"
               tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
             >
-              {/* // This should be unarchive icon */}
-              <ArchiveBox
+              <Tray
                 size={24}
                 color={theme.colors.readerFont.toString()}
               />
