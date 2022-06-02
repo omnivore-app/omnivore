@@ -3,14 +3,14 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-private struct UploadFileRequestPayload {
-  let uploadID: String?
-  let uploadFileID: String?
-  let urlString: String?
+public struct UploadFileRequestPayload {
+  public let uploadID: String?
+  public let uploadFileID: String?
+  public let urlString: String?
 }
 
-private extension DataService {
-  public func uploadFileRequest(id: String, url: String) async throws -> URL {
+public extension DataService {
+  func uploadFileRequest(id: String, url: String) async throws -> UploadFileRequestPayload {
     enum MutationResult {
       case success(payload: UploadFileRequestPayload)
       case error(errorCode: Enums.UploadFileRequestErrorCode?)
@@ -59,7 +59,7 @@ private extension DataService {
           switch payload.data {
           case let .success(payload):
             if let urlString = payload.urlString, let url = URL(string: urlString) {
-              continuation.resume(returning: url)
+              continuation.resume(returning: payload)
             } else {
               continuation.resume(throwing: SaveArticleError.unknown(description: "No upload URL"))
             }
@@ -78,29 +78,49 @@ private extension DataService {
     }
   }
 
-  public func uploadFile(localPdfURL: String?, url: URL) -> URLSessionTask? {
+  func uploadFile(id _: String, localPdfURL: URL, url: URL) async throws {
+    var request = URLRequest(url: url)
+    request.httpMethod = "PUT"
+    request.addValue("application/pdf", forHTTPHeaderField: "content-type")
+
+    return try await withCheckedThrowingContinuation { continuation in
+      let task = networker.urlSession.uploadTask(with: request, fromFile: localPdfURL) { _, response, _ in
+        print("UPLOAD RESPONSE", response)
+        if let httpResponse = response as? HTTPURLResponse, 200 ... 299 ~= httpResponse.statusCode {
+          continuation.resume()
+        } else {
+          continuation.resume(throwing: SaveArticleError.unknown(description: "Invalid response"))
+        }
+      }
+      task.resume()
+    }
+  }
+
+  func uploadFileInBackground(id: String, localPdfURL: String?, url: URL, usingSession session: URLSession) -> URLSessionTask? {
     if let localPdfURL = localPdfURL, let localUrl = URL(string: localPdfURL) {
       var request = URLRequest(url: url)
       request.httpMethod = "PUT"
       request.setValue("application/pdf", forHTTPHeaderField: "content-type")
+      request.setValue(id, forHTTPHeaderField: "clientRequestId")
 
-      let task = networker.backgroundSession.uploadTask(with: request, fromFile: localUrl)
-      task.resume()
+      let task = session.uploadTask(with: request, fromFile: localUrl)
       return task
     } else {
+      // TODO: How should we handle this scenario?
+      print("NOT UPLOADING PDF DOCUMENT YET")
       return nil
     }
   }
 
   // swiftlint:disable:next line_length
-  func saveFilePublisher(pageScrapePayload: PageScrapePayload, uploadFileId: String, requestId: String) -> AnyPublisher<Void, SaveArticleError> {
+  func saveFilePublisher(requestId: String, uploadFileId: String, url: String) async throws {
     enum MutationResult {
       case saved(requestId: String, url: String)
       case error(errorCode: Enums.SaveErrorCode)
     }
 
     let input = InputObjects.SaveFileInput(
-      url: pageScrapePayload.url,
+      url: url,
       source: "ios-file",
       clientRequestId: requestId,
       uploadFileId: uploadFileId
@@ -120,34 +140,31 @@ private extension DataService {
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
 
-    return Deferred {
-      Future { promise in
-        send(mutation, to: path, headers: headers) { result in
-          switch result {
-          case let .success(payload):
-            if let graphqlError = payload.errors {
-              promise(.failure(.unknown(description: graphqlError.first.debugDescription)))
-            }
-
-            switch payload.data {
-            case .saved:
-              promise(.success(()))
-            case let .error(errorCode: errorCode):
-              switch errorCode {
-              case .unauthorized:
-                promise(.failure(.unauthorized))
-              default:
-                promise(.failure(.unknown(description: errorCode.rawValue)))
-              }
-            }
-          case let .failure(error):
-            promise(.failure(SaveError.make(from: error)))
+    return try await withCheckedThrowingContinuation { continuation in
+      send(mutation, to: path, headers: headers) { result in
+        switch result {
+        case let .success(payload):
+          if let graphqlError = payload.errors {
+            continuation.resume(throwing: SaveArticleError.unknown(description: graphqlError.first.debugDescription))
+            return
           }
+
+          switch payload.data {
+          case .saved:
+            continuation.resume()
+          case let .error(errorCode: errorCode):
+            switch errorCode {
+            case .unauthorized:
+              continuation.resume(throwing: SaveArticleError.unauthorized)
+            default:
+              continuation.resume(throwing: SaveArticleError.unknown(description: errorCode.rawValue))
+            }
+          }
+        case let .failure(error):
+          continuation.resume(throwing: SaveArticleError.make(from: error))
         }
       }
     }
-    .receive(on: DispatchQueue.main)
-    .eraseToAnyPublisher()
   }
 }
 

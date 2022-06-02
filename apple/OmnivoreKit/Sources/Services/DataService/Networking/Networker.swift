@@ -4,6 +4,7 @@ import Models
 public final class Networker: NSObject, URLSessionTaskDelegate {
   let urlSession: URLSession
   let appEnvironment: AppEnvironment
+  var uploadQueue: [String: URLSessionUploadTask] = [:]
 
   var defaultHeaders: [String: String] {
     var headers = URLRequest.defaultHeaders
@@ -20,26 +21,26 @@ public final class Networker: NSObject, URLSessionTaskDelegate {
     self.urlSession = .shared
   }
 
-  lazy var backgroundSession: URLSession = {
-    let sessionConfig = URLSessionConfiguration.background(withIdentifier: "app.omnivoreapp.BackgroundSessionConfig")
+  public func createBackgroundSession() -> URLSession {
+    let sessionConfig = URLSessionConfiguration.background(withIdentifier: "app.omnivoreapp.BackgroundSessionConfig-")
     sessionConfig.sharedContainerIdentifier = "group.app.omnivoreapp"
     return URLSession(configuration: sessionConfig, delegate: self, delegateQueue: nil)
-  }()
-
-  public func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError: Error?) {
-    if let httpResponse = task.response as? HTTPURLResponse {
-      print("httpRespinse status code", httpResponse.statusCode)
-    }
-    print("finished upload of file:", task.taskIdentifier, task.currentRequest, task.response, "with error", didCompleteWithError)
   }
 
-  public func urlSession(_: URLSession,
-                         task: URLSessionTask,
-                         didSendBodyData _: Int64,
-                         totalBytesSent: Int64,
-                         totalBytesExpectedToSend _: Int64)
-  {
-    print("sent background data:", task.taskIdentifier, totalBytesSent)
+  public func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    print("finished upload on original request", task.originalRequest, "error", error)
+    if let httpResponse = task.response as? HTTPURLResponse {
+      if 200 ... 299 ~= httpResponse.statusCode {
+        // success
+        if let requestId = task.originalRequest?.value(forHTTPHeaderField: "clientRequestId") {
+          print("COMPLETED UPLOADED REQUEST ID", requestId)
+          DispatchQueue.main.async {
+            NotificationCenter.default.post(name: NSNotification.LocallyCreatedItemSynced, object: nil, userInfo: ["objectID": requestId])
+          }
+        }
+      }
+      print("DONE")
+    }
   }
 }
 

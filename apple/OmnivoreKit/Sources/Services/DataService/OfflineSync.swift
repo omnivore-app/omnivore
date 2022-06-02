@@ -2,8 +2,8 @@ import CoreData
 import Foundation
 import Models
 
-extension DataService {
-  func syncOfflineItemsWithServerIfNeeded() async throws {
+public extension DataService {
+  internal func syncOfflineItemsWithServerIfNeeded() async throws {
     // TODO: send a simple request to see if we're online?
     var unsyncedLinkedItems = [LinkedItem]()
     var unsyncedHighlights = [Highlight]()
@@ -35,20 +35,61 @@ extension DataService {
     }
   }
 
-  public func syncLocalCreatedLinkedItem(item: LinkedItem) {
+//  func syncPdf(item: LinkedItem, usingSession session: URLSession) async throws -> Bool {
+//    try backgroundContext.performAndWait {
+//      item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
+//      try self.backgroundContext.save()
+//    }
+//
+//    let id = item.unwrappedID
+//    let localPdfURL = item.localPdfURL
+//    let url = item.unwrappedPageURLString
+//    let uploadRequestUrl = try await uploadFileRequest(id: id, url: url)
+//    return await try uploadFile(id: id, localPdfURL: localPdfURL, url: uploadRequestUrl, usingSession: session)
+//  }
+
+  func syncPdf(id: String, localPdfURL: URL, url: String) async throws {
+//    try backgroundContext.performAndWait {
+//      item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
+//      try self.backgroundContext.save()
+//    }
+
+    let uploadRequest = try await uploadFileRequest(id: id, url: url)
+    if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
+      try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
+      // try await services.dataService.saveFilePublisher(requestId: requestId, uploadFileId: uploadFileID, url: url)
+    } else {
+      throw SaveArticleError.badData
+    }
+  }
+
+  func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws {
+    //    try backgroundContext.performAndWait {
+    //      item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
+    //      try self.backgroundContext.save()
+    //    }
+    try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
+  }
+
+  func syncUrl(id: String, url: String) async throws {
+    try await saveURL(id: id, url: url)
+  }
+
+  func syncLocalCreatedLinkedItem(item: LinkedItem) {
     switch item.contentReader {
     case "PDF":
-      let id = item.unwrappedID
-      let localPdfURL = item.localPdfURL
-      let url = item.unwrappedPageURLString
-      Task {
-        let uploadRequestUrl = try await uploadFileRequest(id: id, url: url)
-        await uploadFile(localPdfURL: localPdfURL, url: uploadRequestUrl)
-        try await backgroundContext.perform {
-          item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
-          try self.backgroundContext.save()
-        }
-      }
+//      let id = item.unwrappedID
+//      let localPdfURL = item.localPdfURL
+//      let url = item.unwrappedPageURLString
+//      Task {
+//        let uploadRequestUrl = try await uploadFileRequest(id: id, url: url)
+//        uploadFile(id: id, localPdfURL: localPdfURL, url: uploadRequestUrl)
+//        try await backgroundContext.perform {
+//          item.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+//          try self.backgroundContext.save()
+//        }
+//      }
+      break
     case "WEB":
       let id = item.unwrappedID
       let url = item.unwrappedPageURLString
@@ -77,9 +118,7 @@ extension DataService {
 
       switch syncStatus {
       case .needsCreation:
-        // TODO: We will want to sync items that need creation in the background
-        // these items are forced to sync when saved, but should be re-tried in
-        // the background.
+        item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
         syncLocalCreatedLinkedItem(item: item)
       case .isNSync, .isSyncing:
         break
@@ -126,6 +165,25 @@ extension DataService {
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
         }
+      }
+    }
+  }
+
+  @objc
+  func locallyCreatedItemSynced(notification: NSNotification) {
+    print("SYNCED LOCALLY CREATED ITEM", notification)
+    if let objectId = notification.userInfo?["objectID"] as? String {
+      do {
+        try backgroundContext.performAndWait {
+          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+          fetchRequest.predicate = NSPredicate(format: "id == %@", objectId)
+          if let existingItem = try? self.backgroundContext.fetch(fetchRequest).first {
+            existingItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+            try self.backgroundContext.save()
+          }
+        }
+      } catch {
+        print("ERROR", error)
       }
     }
   }

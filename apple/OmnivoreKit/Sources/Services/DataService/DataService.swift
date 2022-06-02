@@ -15,10 +15,10 @@ public final class DataService: ObservableObject {
   public static var showIntercomMessenger: (() -> Void)?
 
   public let appEnvironment: AppEnvironment
-  let networker: Networker
+  public let networker: Networker
 
   var persistentContainer: PersistentContainer
-  var backgroundContext: NSManagedObjectContext
+  public var backgroundContext: NSManagedObjectContext
   var subscriptions = Set<AnyCancellable>()
 
   public var viewContext: NSManagedObjectContext {
@@ -41,6 +41,12 @@ public final class DataService: ObservableObject {
         }
       }
     }
+
+    NotificationCenter.default
+      .addObserver(self,
+                   selector: #selector(locallyCreatedItemSynced),
+                   name: NSNotification.LocallyCreatedItemSynced,
+                   object: nil)
   }
 
   public var currentViewer: Viewer? {
@@ -101,9 +107,9 @@ public final class DataService: ObservableObject {
     return isFirstRun
   }
 
-  public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws -> LinkedItem? {
+  public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws {
     try await backgroundContext.perform { [weak self] in
-      guard let self = self else { return nil }
+      guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", requestId)
 
@@ -135,8 +141,6 @@ public final class DataService: ObservableObject {
 
       switch pageScrape.contentType {
       case let .pdf(localUrl):
-        print("SAVING PDF", localUrl)
-
         linkedItem.contentReader = "PDF"
         linkedItem.localPdfURL = localUrl.absoluteString
         linkedItem.title = self.titleFromPdfFile(pageScrape.url)
@@ -147,7 +151,6 @@ public final class DataService: ObservableObject {
 //        linkedItem.imageURLString = thumbnailUrl.absoluteString
 
       case let .html(html: html, title: title):
-        print("SAVING HTML", html, title ?? "no title")
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
         linkedItem.title = title ?? self.titleFromPdfFile(pageScrape.url)
@@ -165,7 +168,6 @@ public final class DataService: ObservableObject {
         print("Failed to save ArticleContent", error.localizedDescription, error)
         throw error
       }
-      return linkedItem
     }
   }
 
