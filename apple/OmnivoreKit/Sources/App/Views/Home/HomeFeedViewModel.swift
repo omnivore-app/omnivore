@@ -22,9 +22,10 @@ import Views
   @Published var selectedLinkItem: NSManagedObjectID?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
+  @Published var appliedFilter = LinkedItemFilter.inbox.rawValue
+  @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue)
-  var appliedFilter = LinkedItemFilter.inbox.rawValue
 
   var cursor: String?
 
@@ -111,7 +112,6 @@ import Views
 
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {
     let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
 
     var subPredicates = [NSPredicate]()
 
@@ -142,6 +142,8 @@ import Views
     }
 
     fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: subPredicates)
+    fetchRequest.sortDescriptors = (LinkedItemSort(rawValue: appliedSort) ?? .newest).sortDescriptors
+
     return fetchRequest
   }
 
@@ -197,7 +199,8 @@ import Views
 
   private var searchQuery: String {
     let filter = LinkedItemFilter(rawValue: appliedFilter) ?? .inbox
-    var query = "\(filter.queryString)"
+    let sort = LinkedItemSort(rawValue: appliedSort) ?? .newest
+    var query = "\(filter.queryString) \(sort.queryString)"
 
     if !searchTerm.isEmpty {
       query.append(" \(searchTerm)")

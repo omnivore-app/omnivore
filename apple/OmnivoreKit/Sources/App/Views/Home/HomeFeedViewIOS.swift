@@ -49,6 +49,9 @@ import Views
         .onChange(of: viewModel.appliedFilter) { _ in
           loadItems(isRefresh: true)
         }
+        .onChange(of: viewModel.appliedSort) { _ in
+          loadItems(isRefresh: true)
+        }
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item), onSave: nil)
         }
@@ -156,8 +159,20 @@ import Views
                   }
                 },
                 label: {
-                  TextChipButton.makeFilterButton(
+                  TextChipButton.makeMenuButton(
                     title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                  )
+                }
+              )
+              Menu(
+                content: {
+                  ForEach(LinkedItemSort.allCases, id: \.self) { sort in
+                    Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
+                  }
+                },
+                label: {
+                  TextChipButton.makeMenuButton(
+                    title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
                   )
                 }
               )

@@ -42,7 +42,7 @@ public struct TextChipButton: View {
     TextChipButton(title: "Labels", color: .systemGray6, actionType: .show, negated: false, onTap: onTap)
   }
 
-  public static func makeFilterButton(title: String) -> TextChipButton {
+  public static func makeMenuButton(title: String) -> TextChipButton {
     TextChipButton(title: title, color: .systemGray6, actionType: .show, negated: false, onTap: {})
   }
 
