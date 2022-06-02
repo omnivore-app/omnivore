@@ -13,7 +13,7 @@ interface TableProps {
   headers: string[]
   rows: Map<string, string[]>
   onDelete?: (id: string) => void
-  onEdit?: (id: string) => void
+  onUpdate?: (id: string) => void
 }
 
 const HeaderWrapper = styled(Box, {
@@ -210,51 +210,27 @@ export function Table(props: TableProps): JSX.Element {
                 ></Input>
               </HStack>
             ))}
-            {props.onEdit && (
-              <Button
-                style="plainIcon"
-                css={{
-                  mr: '0px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  backgroundColor: 'transparent',
-                  border: 0,
+            {props.onUpdate && (
+              <IconButton
+                style="ctaWhite"
+                css={{ mr: '$1', background: '$labelButtonsBg' }}
+                onClick={() => {
+                  props.onUpdate && props.onUpdate(key)
                 }}
-                onClick={() => props.onEdit && props.onEdit(key)}
               >
                 <PencilSimple size={24} color={iconColor} />
-                <StyledText
-                  color="$grayText"
-                  css={{ m: '0px', fontSize: '$5', marginLeft: '$2' }}
-                >
-                  Edit
-                </StyledText>
-              </Button>
+              </IconButton>
             )}
             {props.onDelete && (
-              <Button
-                style="plainIcon"
-                css={{
-                  mr: '$1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  backgroundColor: 'transparent',
-                  border: 0,
+              <IconButton
+                style="ctaWhite"
+                css={{ mr: '$1', background: '$labelButtonsBg' }}
+                onClick={() => {
+                  props.onDelete && props.onDelete(key)
                 }}
-                onClick={() => props.onDelete && props.onDelete(key)}
               >
-                <Trash size={24} color="#AA2D11" />
-                <StyledText
-                  css={{
-                    m: '0px',
-                    fontSize: '$5',
-                    marginLeft: '$2',
-                    color: '#AA2D11',
-                  }}
-                >
-                  Delete
-                </StyledText>
-              </Button>
+                <Trash size={16} color={iconColor} />
+              </IconButton>
             )}
           </Box>
         </TableCard>
