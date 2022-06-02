@@ -24,7 +24,7 @@ export default function Webhooks(): JSX.Element {
     'PAGE_CREATED',
     'HIGHLIGHT_CREATED',
   ])
-  const [enabled, setEnabled] = useState(true)
+  const [enabled, setEnabled] = useState(false)
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([
     {
       label: 'URL',
@@ -61,7 +61,7 @@ export default function Webhooks(): JSX.Element {
           label: 'Event Types',
           name: 'eventTypes',
           disabled: true,
-          value: eventTypes.join(', '),
+          value: webhook.eventTypes.join(', '),
         },
         {
           label: 'Enabled',
@@ -102,7 +102,7 @@ export default function Webhooks(): JSX.Element {
       id: onEditId,
       url,
       eventTypes,
-      enabled: enabled || false,
+      enabled: enabled,
     })
     if (result) {
       showSuccessToast('Updated', { position: 'bottom-right' })
