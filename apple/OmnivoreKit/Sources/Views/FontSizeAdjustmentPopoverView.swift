@@ -1,6 +1,143 @@
 import SwiftUI
 import Utils
 
+public struct WebPreferencesPopoverView: View {
+  let increaseFontAction: () -> Void
+  let decreaseFontAction: () -> Void
+  let increaseMarginAction: () -> Void
+  let decreaseMarginAction: () -> Void
+  let increaseLineHeightAction: () -> Void
+  let decreaseLineHeightAction: () -> Void
+  let dismissAction: () -> Void
+
+  static let preferredWebFontSizeKey = UserDefaultKey.preferredWebFontSize.rawValue
+  #if os(macOS)
+    @AppStorage(preferredWebFontSizeKey) var storedFontSize = Int(NSFont.userFont(ofSize: 16)?.pointSize ?? 16)
+  #else
+    @AppStorage(preferredWebFontSizeKey) var storedFontSize: Int = UITraitCollection.current.preferredWebFontSize
+  #endif
+
+  @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
+  @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
+
+  public init(
+    increaseFontAction: @escaping () -> Void,
+    decreaseFontAction: @escaping () -> Void,
+    increaseMarginAction: @escaping () -> Void,
+    decreaseMarginAction: @escaping () -> Void,
+    increaseLineHeightAction: @escaping () -> Void,
+    decreaseLineHeightAction: @escaping () -> Void,
+    dismissAction: @escaping () -> Void
+  ) {
+    self.increaseFontAction = increaseFontAction
+    self.decreaseFontAction = decreaseFontAction
+    self.increaseMarginAction = increaseMarginAction
+    self.decreaseMarginAction = decreaseMarginAction
+    self.increaseLineHeightAction = increaseLineHeightAction
+    self.decreaseLineHeightAction = decreaseLineHeightAction
+    self.dismissAction = dismissAction
+  }
+
+  public var body: some View {
+    VStack(alignment: .center) {
+      ZStack {
+        Text("Preferences").font(.appTitleTwo)
+        HStack {
+          Spacer()
+          Button(
+            action: dismissAction,
+            label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
+          )
+        }
+      }
+      .padding()
+
+      LabelledStepper(
+        labelText: "Font Size:",
+        onIncrement: {
+          storedFontSize = min(storedFontSize + 2, 28)
+          increaseFontAction()
+        },
+        onDecrement: {
+          storedFontSize = max(storedFontSize - 2, 10)
+          decreaseFontAction()
+        }
+      )
+
+      if UIDevice.isIPad {
+        LabelledStepper(
+          labelText: "Margin:",
+          onIncrement: {
+            storedMargin = min(storedMargin + 45, 560)
+            increaseMarginAction()
+          },
+          onDecrement: {
+            storedMargin = max(storedMargin - 45, 200)
+            decreaseMarginAction()
+          }
+        )
+      }
+
+      LabelledStepper(
+        labelText: "Line Spacing:",
+        onIncrement: {
+          storedLineSpacing = min(storedLineSpacing + 25, 300)
+          increaseLineHeightAction()
+        },
+        onDecrement: {
+          storedLineSpacing = max(storedLineSpacing - 25, 100)
+          decreaseLineHeightAction()
+        }
+      )
+
+      Spacer()
+    }
+    .padding()
+  }
+}
+
+struct LabelledStepper: View {
+  let labelText: String
+  let onIncrement: () -> Void
+  let onDecrement: () -> Void
+
+  var body: some View {
+    HStack(alignment: .center, spacing: 0) {
+      Text(labelText)
+      Spacer()
+      HStack(spacing: 0) {
+        Button(
+          action: onDecrement,
+          label: {
+            Image(systemName: "minus")
+            #if os(iOS)
+              .foregroundColor(.systemLabel)
+              .padding()
+            #endif
+          }
+        )
+        .frame(width: 55, height: 40, alignment: .center)
+        Divider()
+          .frame(height: 30)
+          .background(Color.systemLabel)
+        Button(
+          action: onIncrement,
+          label: {
+            Image(systemName: "plus")
+            #if os(iOS)
+              .foregroundColor(.systemLabel)
+              .padding()
+            #endif
+          }
+        )
+        .frame(width: 55, height: 40, alignment: .center)
+      }
+      .background(Color.appButtonBackground)
+      .cornerRadius(8)
+    }
+  }
+}
+
 public struct FontSizeAdjustmentPopoverView: View {
   let increaseFontAction: () -> Void
   let decreaseFontAction: () -> Void

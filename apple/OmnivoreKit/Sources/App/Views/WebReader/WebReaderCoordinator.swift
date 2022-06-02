@@ -17,6 +17,10 @@ final class WebReaderCoordinator: NSObject {
   var lastSavedAnnotationID: UUID?
   var previousIncreaseFontActionID: UUID?
   var previousDecreaseFontActionID: UUID?
+  var previousIncreaseMarginActionID: UUID?
+  var previousDecreaseMarginActionID: UUID?
+  var previousIncreaseLineHeightActionID: UUID?
+  var previousDecreaseLineHeightActionID: UUID?
   var previousShowNavBarActionID: UUID?
   var previousShareActionID: UUID?
   var updateNavBarVisibilityRatio: (Double) -> Void = { _ in }

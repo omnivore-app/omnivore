@@ -15,6 +15,10 @@ import WebKit
 
     @Binding var increaseFontActionID: UUID?
     @Binding var decreaseFontActionID: UUID?
+    @Binding var increaseMarginActionID: UUID?
+    @Binding var decreaseMarginActionID: UUID?
+    @Binding var increaseLineHeightActionID: UUID?
+    @Binding var decreaseLineHeightActionID: UUID?
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var showNavBarActionID: UUID?
     @Binding var shareActionID: UUID?
@@ -27,6 +31,16 @@ import WebKit
     func fontSize() -> Int {
       let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebFontSize.rawValue)
       return storedSize <= 1 ? UITraitCollection.current.preferredWebFontSize : storedSize
+    }
+
+    func lineHeight() -> Int {
+      let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebLineSpacing.rawValue)
+      return storedSize <= 1 ? 150 : storedSize
+    }
+
+    func margin() -> Int {
+      let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebMargin.rawValue)
+      return storedSize <= 1 ? 360 : storedSize
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -77,6 +91,26 @@ import WebKit
         (webView as? WebView)?.decreaseFontSize()
       }
 
+      if increaseMarginActionID != context.coordinator.previousIncreaseMarginActionID {
+        context.coordinator.previousIncreaseMarginActionID = increaseMarginActionID
+        (webView as? WebView)?.increaseMargin()
+      }
+
+      if decreaseMarginActionID != context.coordinator.previousDecreaseMarginActionID {
+        context.coordinator.previousDecreaseMarginActionID = decreaseMarginActionID
+        (webView as? WebView)?.decreaseMargin()
+      }
+
+      if increaseLineHeightActionID != context.coordinator.previousIncreaseLineHeightActionID {
+        context.coordinator.previousIncreaseLineHeightActionID = increaseLineHeightActionID
+        (webView as? WebView)?.increaseLineHeight()
+      }
+
+      if decreaseLineHeightActionID != context.coordinator.previousDecreaseLineHeightActionID {
+        context.coordinator.previousDecreaseLineHeightActionID = decreaseLineHeightActionID
+        (webView as? WebView)?.decreaseLineHeight()
+      }
+
       if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
         context.coordinator.previousShowNavBarActionID = showNavBarActionID
         context.coordinator.showNavBar()
@@ -116,7 +150,9 @@ import WebKit
           highlightsJSONString: highlightsJSONString,
           item: item,
           isDark: UITraitCollection.current.userInterfaceStyle == .dark,
-          fontSize: fontSize()
+          fontSize: fontSize(),
+          lineHeight: lineHeight(),
+          margin: margin()
         )
         .styledContent,
         baseURL: ViewsPackage.bundleURL

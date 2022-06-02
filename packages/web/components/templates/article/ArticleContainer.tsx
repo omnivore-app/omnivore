@@ -40,6 +40,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  // iOS app embed can overide the original margin and line height
+  const [marginOverride, setMarginOverride] = useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -74,8 +82,32 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     setHighlightReady(true)
   }, [props.article.highlights, setHighlightLocations])
 
-  // Listen for font size and color mode change events sent from host apps (ios, macos...)
+  // Listen for preference change events sent from host apps (ios, macos...)
   useEffect(() => {
+    const increaseLineHeight = () => {
+      setLineHeightOverride(
+        Math.min((lineHeightOverride ?? props.lineHeight ?? 150) + 25, 300)
+      )
+    }
+
+    const decreaseLineHeight = () => {
+      setLineHeightOverride(
+        Math.max((lineHeightOverride ?? props.lineHeight ?? 150) - 25, 100)
+      )
+    }
+
+    const increaseMargin = () => {
+      setMarginOverride(
+        Math.min((marginOverride ?? props.margin ?? 360) + 45, 560)
+      )
+    }
+
+    const decreaseMargin = () => {
+      setMarginOverride(
+        Math.max((marginOverride ?? props.margin ?? 360) - 45, 200)
+      )
+    }
+
     const increaseFontSize = async () => {
       await updateFontSize(Math.min(fontSize + 2, 28))
     }
@@ -101,6 +133,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       }
     }
 
+    document.addEventListener('increaseLineHeight', increaseLineHeight)
+    document.addEventListener('decreaseLineHeight', decreaseLineHeight)
+    document.addEventListener('increaseMargin', increaseMargin)
+    document.addEventListener('decreaseMargin', decreaseMargin)
     document.addEventListener('increaseFontSize', increaseFontSize)
     document.addEventListener('decreaseFontSize', decreaseFontSize)
     document.addEventListener('switchToDarkMode', switchToDarkMode)
@@ -108,6 +144,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     document.addEventListener('share', share)
 
     return () => {
+      document.removeEventListener('increaseLineHeight', increaseLineHeight)
+      document.removeEventListener('decreaseLineHeight', decreaseLineHeight)
+      document.removeEventListener('increaseMargin', increaseMargin)
+      document.removeEventListener('decreaseMargin', decreaseMargin)
       document.removeEventListener('increaseFontSize', increaseFontSize)
       document.removeEventListener('decreaseFontSize', decreaseFontSize)
       document.removeEventListener('switchToDarkMode', switchToDarkMode)
@@ -118,9 +158,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   const styles = {
     fontSize,
-    margin: props.margin ?? 360,
-    lineHeight: props.lineHeight ?? 150,
-    fontFamily: props.fontFamily ?? 'inter',
+    margin: marginOverride ?? props.margin ?? 360,
+    lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
+    fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
     readerFontColor: theme.colors.readerFont.toString(),
     readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),

@@ -34,6 +34,26 @@ public final class WebView: WKWebView {
     dispatchEvent("decreaseFontSize")
   }
 
+  public func increaseMargin() {
+    print("increase margin")
+    dispatchEvent("increaseMargin")
+  }
+
+  public func decreaseMargin() {
+    print("decrease margin")
+    dispatchEvent("decreaseMargin")
+  }
+
+  public func increaseLineHeight() {
+    print("increase line height")
+    dispatchEvent("increaseLineHeight")
+  }
+
+  public func decreaseLineHeight() {
+    print("decrease line height")
+    dispatchEvent("decreaseLineHeight")
+  }
+
   public func shareOriginalItem() {
     dispatchEvent("share")
   }
