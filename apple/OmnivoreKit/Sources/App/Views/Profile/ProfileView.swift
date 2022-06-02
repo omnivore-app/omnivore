@@ -135,7 +135,7 @@ struct ProfileView: View {
   }
 }
 
-private extension BasicWebAppView {
+extension BasicWebAppView {
   static func privacyPolicyWebView(baseURL: URL) -> BasicWebAppView {
     omnivoreWebView(path: "/app/privacy", baseURL: baseURL)
   }

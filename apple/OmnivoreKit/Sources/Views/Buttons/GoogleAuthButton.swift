@@ -12,13 +12,14 @@ public struct GoogleAuthButton: View {
       HStack(spacing: 8) {
         Image.googleIcon
           .resizable()
-          .frame(width: 12, height: 12)
+          .frame(width: 16, height: 16)
         Text(LocalText.googleAuthButton)
-          .font(isMacApp ? .appCaption : .appBody)
+          .font(isMacApp ? .appCaption : .appTitleThree)
           .foregroundColor(.black)
+          .fontWeight(Font.Weight.medium)
       }
-      .frame(maxWidth: .infinity)
-      .frame(height: isMacApp ? 30 : 44)
+      .frame(maxWidth: 300)
+      .frame(height: isMacApp ? 30 : 54)
     }
     .buttonStyle(GoogleButtonStyle())
   }
