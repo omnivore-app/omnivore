@@ -10,16 +10,6 @@ import Utils
 
 let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
-private extension String {
-  func replacingRegex(pattern: String, replaceWith: String = "") -> String {
-    do {
-      let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .anchorsMatchLines])
-      let range = NSRange(location: 0, length: utf16.count)
-      return regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: replaceWith)
-    } catch { return self }
-  }
-}
-
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
   public static var showIntercomMessenger: (() -> Void)?
@@ -117,40 +107,6 @@ public final class DataService: ObservableObject {
     let isFirstRunWithBuildNumber = (lastUsedAppBuildNumber ?? "unknown") != buildNumber
 
     return isFirstRunOfVersion || isFirstRunWithBuildNumber
-  }
-
-  // based losesly on the normalize-url npm package which we use on the backend
-  func normalizeURL(_ dirtyURL: String) -> String {
-    var urlString = dirtyURL
-
-    urlString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
-
-    if var urlObject = URLComponents(string: urlString) {
-      // Remove auth
-      if /* options.stripAuthentication */ true {
-        urlObject.user = nil
-        urlObject.password = nil
-      }
-
-      // Remove hash
-      if /* options.stripHash */ true {
-        urlObject.fragment = nil
-      }
-
-      urlObject.queryItems = urlObject.queryItems?.filter { item in
-        item.name.starts(with: "utm_")
-      }
-
-      if /* options.removeTrailingSlash */ true {
-        urlObject.path = urlObject.path.replacingRegex(pattern: "/$", replaceWith: "")
-      }
-
-      if let finalUrl = urlObject.url {
-        return finalUrl.absoluteString
-      }
-    }
-
-    return dirtyURL
   }
 
   public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws {
