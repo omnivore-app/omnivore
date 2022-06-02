@@ -20,83 +20,35 @@ public extension PlatformViewController {
   }
 }
 
-final class ShareExtensionViewModel: ObservableObject {
+public class ShareExtensionViewModel: ObservableObject {
   @Published var title: String?
-  @Published var status: ShareExtensionStatus = FeatureFlag.enableReadNow ? .processing : .success
+  @Published var status: ShareExtensionStatus = .processing
   @Published var debugText: String?
 
-  var subscriptions = Set<AnyCancellable>()
-  let requestID = UUID().uuidString.lowercased()
-
-  init() {}
+  let saveService = ExtensionSaveService()
+  let requestId = UUID().uuidString.lowercased()
 
   func handleReadNowAction(extensionContext: NSExtensionContext?) {
     #if os(iOS)
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
-        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestID)")
+        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
         application.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
       }
     #endif
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
-  func savePage(extensionContext: NSExtensionContext?) {
-    PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
-      switch result {
-      case let .success(payload):
-        self?.persist(pageScrapePayload: payload, requestId: self?.requestID ?? "")
-      case let .failure(error):
-        self?.debugText = error.message
-      }
+  func savePage(extensionContext: NSExtensionContext?, shareExtensionViewModel: ShareExtensionChildViewModel) {
+    if let extensionContext = extensionContext {
+      saveService.save(extensionContext, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
+    } else {
+      updateStatus(.failed(error: .unknown(description: "Internal Error")))
     }
   }
 
-  private func persist(pageScrapePayload: PageScrapePayload, requestId: String) {
-    let services = Services()
-
-    guard services.authenticator.hasValidAuthToken else {
-      status = .failed(error: .unauthorized)
-      return
-    }
-
-    let backgroundTask = UIApplication.shared.beginBackgroundTask(withName: requestId)
-    let saveLinkPublisher: AnyPublisher<Void, SaveArticleError> = {
-      if case let .pdf(data) = pageScrapePayload.contentType {
-        return services.dataService.uploadPDFPublisher(pageScrapePayload: pageScrapePayload,
-                                                       data: data,
-                                                       requestId: requestId)
-      } else if case let .html(html, title) = pageScrapePayload.contentType {
-        return services.dataService.savePagePublisher(pageScrapePayload: pageScrapePayload,
-                                                      html: html,
-                                                      title: title,
-                                                      requestId: requestId)
-      } else {
-        return services.dataService.saveUrlPublisher(pageScrapePayload: pageScrapePayload, requestId: requestId)
-      }
-    }()
-
-    saveLinkPublisher
-      .sink { [weak self] completion in
-        guard case let .failure(error) = completion else { return }
-        self?.debugText = "saveArticleError: \(error)"
-        self?.status = .failed(error: error)
-        UIApplication.shared.endBackgroundTask(backgroundTask)
-      } receiveValue: { [weak self] _ in
-        self?.status = .success
-        UIApplication.shared.endBackgroundTask(backgroundTask)
-      }
-      .store(in: &subscriptions)
-
-    // Check connection to get fast feedback for auth/network errors
-    Task {
-      let hasConnectionAndValidToken = await services.dataService.hasConnectionAndValidToken()
-
-      if !hasConnectionAndValidToken {
-        DispatchQueue.main.async {
-          self.debugText = "saveArticleError: No connection or invalid token."
-          self.status = .failed(error: .unknown(description: ""))
-        }
-      }
+  private func updateStatus(_ newStatus: ShareExtensionStatus) {
+    DispatchQueue.main.async {
+      self.status = newStatus
     }
   }
 }
@@ -104,13 +56,12 @@ final class ShareExtensionViewModel: ObservableObject {
 struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
   @StateObject private var viewModel = ShareExtensionViewModel()
+  @StateObject private var childViewModel = ShareExtensionChildViewModel()
 
   var body: some View {
     ShareExtensionChildView(
-      debugText: viewModel.debugText,
-      title: viewModel.title,
-      status: viewModel.status,
-      onAppearAction: { viewModel.savePage(extensionContext: extensionContext) },
+      viewModel: childViewModel,
+      onAppearAction: { viewModel.savePage(extensionContext: extensionContext, shareExtensionViewModel: childViewModel) },
       readNowButtonAction: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
       dismissButtonTappedAction: { _, _ in
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)

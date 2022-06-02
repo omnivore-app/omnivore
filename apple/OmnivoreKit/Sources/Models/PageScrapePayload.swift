@@ -9,16 +9,10 @@ import UniformTypeIdentifiers
 let URLREGEX = #"[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)"#
 
 public struct PageScrapePayload {
-  public struct HTMLPayload {
-    let url: String
-    let title: String?
-    let html: String
-  }
-
   public enum ContentType {
     case none
-    case html(html: String, title: String?)
-    case pdf(data: Data)
+    case html(html: String, title: String?, iconURL: String?)
+    case pdf(localUrl: URL)
   }
 
   public let url: String
@@ -29,14 +23,14 @@ public struct PageScrapePayload {
     self.contentType = .none
   }
 
-  init(url: String, pdfData: Data) {
+  init(url: String, localUrl: URL) {
     self.url = url
-    self.contentType = .pdf(data: pdfData)
+    self.contentType = .pdf(localUrl: localUrl)
   }
 
-  init(url: String, title: String?, html: String) {
+  init(url: String, title: String?, html: String, iconURL: String? = nil) {
     self.url = url
-    self.contentType = .html(html: html, title: title)
+    self.contentType = .html(html: html, title: title, iconURL: iconURL)
   }
 }
 
@@ -248,12 +242,28 @@ private extension PageScrapePayload {
     return nil
   }
 
+  static func sharedContainerURL() -> URL {
+    FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: "group.app.omnivoreapp"
+    )!
+  }
+
   static func makeFromURL(_ url: URL) -> PageScrapePayload? {
     if url.isFileURL {
       let type = try? url.resourceValues(forKeys: [.typeIdentifierKey]).typeIdentifier
-      if type == UTType.pdf.identifier, let data = try? Data(contentsOf: url) {
-        return PageScrapePayload(url: url.absoluteString, pdfData: data)
+      if type == UTType.pdf.identifier {
+        // Copy PDFs into a temporary file where they are staged for processing.
+        var dest = sharedContainerURL()
+        let localFile = UUID().uuidString.lowercased() + ".pdf"
+        dest.appendPathComponent(localFile)
+        do {
+          try FileManager.default.copyItem(at: url, to: dest)
+          return PageScrapePayload(url: url.absoluteString, localUrl: dest)
+        } catch {
+          print("error copying file locally", error)
+        }
       }
+      // TODO:
       // Don't try to handle file URLs that are not PDFs.
       // In the future we can add image and other file type support here
       return nil
@@ -264,8 +274,9 @@ private extension PageScrapePayload {
   static func makeFromDictionary(_ dictionary: NSDictionary) -> PageScrapePayload? {
     let results = dictionary[NSExtensionJavaScriptPreprocessingResultsKey] as? NSDictionary
     guard let url = results?["url"] as? String else { return nil }
-    let html = results?["documentHTML"] as? String
+    let html = results?["originalHTML"] as? String
     let title = results?["title"] as? String
+    let iconURL = results?["iconURL"] as? String
     let contentType = results?["contentType"] as? String
 
     // If we were not able to capture any HTML, treat this as a URL and
@@ -281,7 +292,7 @@ private extension PageScrapePayload {
     }
 
     if let html = html {
-      return PageScrapePayload(url: url, title: title, html: html)
+      return PageScrapePayload(url: url, title: title, html: html, iconURL: iconURL)
     }
 
     return PageScrapePayload(url: url)

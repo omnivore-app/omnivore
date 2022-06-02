@@ -21,6 +21,7 @@ struct InternalLinkedItem {
   let slug: String
   let isArchived: Bool
   let contentReader: String?
+  let originalHtml: String?
   var labels: [InternalLinkedItemLabel]
 
   var isPDF: Bool {
@@ -51,6 +52,7 @@ struct InternalLinkedItem {
     linkedItem.slug = slug
     linkedItem.isArchived = isArchived
     linkedItem.contentReader = contentReader
+    linkedItem.originalHtml = originalHtml
 
     for label in labels {
       linkedItem.addToLabels(label.asManagedObject(inContext: context))
@@ -107,6 +109,7 @@ extension JSONArticle {
       slug: slug,
       isArchived: isArchived,
       contentReader: contentReader,
+      originalHtml: nil,
       labels: []
     )
 

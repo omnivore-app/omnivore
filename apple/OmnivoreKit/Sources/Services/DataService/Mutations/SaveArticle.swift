@@ -92,7 +92,7 @@ public extension DataService {
     }
 
     let preparedDocument: InputObjects.PreparedDocumentInput? = {
-      if case let .html(html, title) = pageScrapePayload.contentType {
+      if case let .html(html, title, _) = pageScrapePayload.contentType {
         return InputObjects.PreparedDocumentInput(
           document: html,
           pageInfo: InputObjects.PageInfoInput(title: OptionalArgument(title))
@@ -217,16 +217,5 @@ public extension DataService {
     }
     .receive(on: DispatchQueue.main)
     .eraseToAnyPublisher()
-  }
-}
-
-private extension SaveArticleError {
-  static func make(from httpError: HttpError) -> SaveArticleError {
-    switch httpError {
-    case .network, .timeout:
-      return .network
-    case .badpayload, .badURL, .badstatus, .cancelled:
-      return .unknown(description: httpError.localizedDescription)
-    }
   }
 }

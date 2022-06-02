@@ -2,20 +2,61 @@ import Models
 import SwiftUI
 import Utils
 
+public class ShareExtensionChildViewModel: ObservableObject {
+  @Published public var status: ShareExtensionStatus = .processing
+  @Published public var title: String?
+  @Published public var url: String?
+  @Published public var iconURL: String?
+
+  public init() {}
+}
+
 public enum ShareExtensionStatus {
   case processing
-  case success
+  case saved
+  case synced
   case failed(error: SaveArticleError)
+  case syncFailed(error: SaveArticleError)
 
   var displayMessage: String {
     switch self {
-    case .success:
-      return LocalText.saveArticleSavedState
-    case let .failed(error: error):
-      return error.displayMessage
     case .processing:
       return LocalText.saveArticleProcessingState
+    case .saved:
+      return LocalText.saveArticleSavedState
+    case .synced:
+      return "Synced"
+    case let .failed(error: error):
+      return "Save failed \(error.displayMessage)"
+    case let .syncFailed(error: error):
+      return "Sync failed \(error.displayMessage)"
     }
+  }
+}
+
+struct CornerRadiusStyle: ViewModifier {
+  var radius: CGFloat
+  var corners: UIRectCorner
+
+  struct CornerRadiusShape: Shape {
+    var radius = CGFloat.infinity
+    var corners = UIRectCorner.allCorners
+
+    func path(in rect: CGRect) -> Path {
+      let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+      return Path(path.cgPath)
+    }
+  }
+
+  func body(content: Content) -> some View {
+    content
+      .clipShape(CornerRadiusShape(radius: radius, corners: corners))
+  }
+}
+
+extension View {
+  func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+    ModifiedContent(content: self, modifier: CornerRadiusStyle(radius: radius, corners: corners))
   }
 }
 
@@ -83,31 +124,25 @@ struct CheckmarkButtonView: View {
 }
 
 public struct ShareExtensionChildView: View {
-  let debugText: String?
-  let title: String?
-  let status: ShareExtensionStatus
+  let viewModel: ShareExtensionChildViewModel
   let onAppearAction: () -> Void
   let readNowButtonAction: () -> Void
   let dismissButtonTappedAction: (ReminderTime?, Bool) -> Void
 
+  @State var reminderTime: ReminderTime?
+  @State var hideUntilReminded = false
+
   public init(
-    debugText: String?,
-    title: String?,
-    status: ShareExtensionStatus,
+    viewModel: ShareExtensionChildViewModel,
     onAppearAction: @escaping () -> Void,
     readNowButtonAction: @escaping () -> Void,
     dismissButtonTappedAction: @escaping (ReminderTime?, Bool) -> Void
   ) {
-    self.debugText = debugText
-    self.title = title
-    self.status = status
+    self.viewModel = viewModel
     self.onAppearAction = onAppearAction
     self.readNowButtonAction = readNowButtonAction
     self.dismissButtonTappedAction = dismissButtonTappedAction
   }
-
-  @State var reminderTime: ReminderTime?
-  @State var hideUntilReminded = false
 
   private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
     if selectedTime == reminderTime {
@@ -119,100 +154,114 @@ public struct ShareExtensionChildView: View {
     }
   }
 
+  private var titleText: String {
+    switch viewModel.status {
+    case .saved, .synced:
+      return "Saved to Omnivore"
+    case .processing:
+      return "Saving to Omnivore"
+    default:
+      return "Error saving to Omnivore"
+    }
+  }
+
+  private var cloudIconName: String {
+    switch viewModel.status {
+    case .synced:
+      return "checkmark.icloud"
+    case .saved, .processing:
+      return "icloud"
+    case .failed(error: _), .syncFailed(error: _):
+      return "exclamationmark.icloud"
+    }
+  }
+
+  private var cloudIconColor: Color {
+    switch viewModel.status {
+    case .saved, .processing:
+      return .appGrayText
+    case .failed(error: _), .syncFailed(error: _):
+      return .red
+    case .synced:
+      return .blue
+    }
+  }
+
+  public var previewCard: some View {
+    HStack {
+      if let iconURLStr = viewModel.iconURL, let iconURL = URL(string: iconURLStr) {
+        AsyncLoadingImage(url: iconURL) { imageStatus in
+          if case let AsyncImageStatus.loaded(image) = imageStatus {
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 61, height: 61)
+              .clipped()
+          } else {
+            Color.appButtonBackground
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 61, height: 61)
+          }
+        }
+      } else {
+        EmptyView()
+          .frame(width: 61, height: 61)
+      }
+      VStack(alignment: .leading) {
+        Text(viewModel.title ?? "")
+          .lineLimit(1)
+          .foregroundColor(.appGrayText)
+          .font(Font.system(size: 15, weight: .semibold))
+        Text(viewModel.url ?? "")
+          .lineLimit(1)
+          .foregroundColor(.appGrayText)
+          .font(Font.system(size: 12, weight: .regular))
+      }
+      Spacer()
+      VStack {
+        Spacer()
+        Image(systemName: cloudIconName)
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+          .frame(width: 12, height: 12, alignment: .trailing)
+          .foregroundColor(cloudIconColor)
+          // .padding(.trailing, 6)
+          .padding(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 8))
+      }
+    }
+    .background(Color(hex: "#363636"))
+    .frame(maxWidth: .infinity, maxHeight: 61)
+    .cornerRadius(8)
+  }
+
   public var body: some View {
     VStack(alignment: .leading) {
-      #if DEBUG
-        if let debugText = debugText {
-          Text(debugText)
-        }
-      #endif
+      Text(titleText)
+        .foregroundColor(.appGrayText)
+        .font(Font.system(size: 17, weight: .semibold))
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, 23)
+        .padding(.bottom, 16)
 
-      if let title = title {
-        Text(title)
-          .font(.appHeadline)
-          .lineLimit(1)
-          .padding(.trailing, 50)
-        Divider()
-      }
+      Rectangle()
+        .foregroundColor(.appGrayText)
+        .frame(maxWidth: .infinity, maxHeight: 1)
+        .opacity(0.06)
+        .padding(.top, 0)
+        .padding(.bottom, 16)
+
+      previewCard
+        .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
 
       Spacer()
 
-      if case ShareExtensionStatus.success = status {
-        HStack(spacing: 4) {
-          Text("Saved to Omnivore")
-            .font(.appTitleThree)
-            .foregroundColor(.appGrayText)
-            .padding(.trailing, 16)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
-            .lineLimit(nil)
-        }
-        .padding()
-      } else if case let ShareExtensionStatus.failed(error) = status {
-        HStack {
-          Spacer()
-          Text(error.displayMessage)
-          Spacer()
-        }
-      } else {
-        HStack {
-          Spacer()
-          Text("Saving...")
-          Spacer()
-        }
-      }
-
-      ScrollView {
-        if FeatureFlag.enableRemindersFromShareExtension {
-          VStack(spacing: 0) {
-            CheckmarkButtonView(
-              titleText: "Remind me tonight",
-              isSelected: reminderTime == .tonight,
-              action: { handleReminderTimeSelection(.tonight) }
-            )
-
-            Divider()
-
-            CheckmarkButtonView(
-              titleText: "Remind me tomorrow",
-              isSelected: reminderTime == .tomorrow,
-              action: { handleReminderTimeSelection(.tomorrow) }
-            )
-
-            Divider()
-
-            CheckmarkButtonView(
-              titleText: "Remind me this weekend",
-              isSelected: reminderTime == .thisWeekend,
-              action: { handleReminderTimeSelection(.thisWeekend) }
-            )
-          }
-          .cornerRadius(8)
-        }
-
-        if FeatureFlag.enableSnoozeFromShareExtension {
-          CheckmarkButtonView(
-            titleText: "Hide it until then",
-            isSelected: hideUntilReminded,
-            action: { hideUntilReminded.toggle() }
-          )
-          .cornerRadius(8)
-          .padding(.top, 16)
-        }
-      }
-      .padding(.horizontal)
-
       HStack {
-        if case ShareExtensionStatus.success = status, FeatureFlag.enableReadNow {
+        if FeatureFlag.enableReadNow {
           Button(
             action: { readNowButtonAction() },
             label: { Text("Read Now").frame(maxWidth: .infinity) }
           )
           .buttonStyle(RoundedRectButtonStyle())
-        }
-        if case ShareExtensionStatus.processing = status, FeatureFlag.enableReadNow {
-          Button(action: {}, label: { ProgressView().frame(maxWidth: .infinity) })
-            .buttonStyle(RoundedRectButtonStyle())
         }
         Button(
           action: {

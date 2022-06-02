@@ -15,6 +15,7 @@ import { config, loggers } from 'winston'
 import { sentryConfig } from './sentry'
 import { makeApolloServer } from './apollo'
 import { authRouter } from './routers/auth/auth_router'
+import { pageRouter } from './routers/page_router'
 import { articleRouter } from './routers/article_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
 import { contentServiceRouter } from './routers/svc/content'
@@ -105,6 +106,7 @@ export const createApp = (): {
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
   app.use('/api/auth', authRouter())
+  app.use('/api/page', pageRouter())
   app.use('/api/article', articleRouter())
   app.use('/api/mobile-auth', mobileAuthRouter())
   app.use('/svc/pubsub/content', contentServiceRouter())

@@ -110,6 +110,7 @@ public extension DataService {
         slug: try $0.slug(),
         isArchived: try $0.isArchived(),
         contentReader: try $0.contentReader().rawValue,
+        originalHtml: nil,
         labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
       )
     }
@@ -174,6 +175,7 @@ private let libraryArticleSelection = Selection.Article {
     slug: try $0.slug(),
     isArchived: try $0.isArchived(),
     contentReader: try $0.contentReader().rawValue,
+    originalHtml: nil,
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
 }
