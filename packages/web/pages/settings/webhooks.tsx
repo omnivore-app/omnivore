@@ -19,7 +19,7 @@ interface Webhook {
   eventTypes: string
   contentType?: string
   method?: string
-  enabled: string
+  enabled?: string
   createdAt?: Date
   updatedAt?: Date
 }
@@ -42,7 +42,9 @@ export default function Webhooks(): JSX.Element {
   const [headers, setHeaders] = useState<string[]>([
     'URL',
     'Event Types',
-    'Enabled',
+    'Method',
+    'Content Type',
+    // 'Enabled',
   ])
   const rows = useMemo(() => {
     const rows = new Map<string, Webhook>()
@@ -50,7 +52,9 @@ export default function Webhooks(): JSX.Element {
       rows.set(webhook.id, {
         url: webhook.url,
         eventTypes: webhook.eventTypes.join(', '),
-        enabled: webhook.enabled ? 'Yes' : 'No',
+        method: webhook.method,
+        contentType: webhook.contentType,
+        // enabled: webhook.enabled ? 'Yes' : 'No',
       })
     )
     return rows
@@ -152,7 +156,7 @@ export default function Webhooks(): JSX.Element {
               name: 'eventTypes',
               value: eventTypes,
               onChange: setEventTypes,
-              required: true,
+              disabled: true,
             },
             {
               label: 'Method',
@@ -166,13 +170,13 @@ export default function Webhooks(): JSX.Element {
               value: contentType,
               disabled: true,
             },
-            {
-              label: 'Enabled',
-              name: 'enabled',
-              type: 'checkbox',
-              onChange: setEnabled,
-              value: enabled,
-            },
+            // {
+            //   label: 'Enabled',
+            //   name: 'enabled',
+            //   type: 'checkbox',
+            //   onChange: setEnabled,
+            //   value: enabled,
+            // },
           ])
           setAddModelOpen(true)
         }}
@@ -190,7 +194,7 @@ export default function Webhooks(): JSX.Element {
               name: 'eventTypes',
               value: webhook?.eventTypes,
               onChange: setEventTypes,
-              required: true,
+              disabled: true,
             },
             {
               label: 'Method',
@@ -204,13 +208,13 @@ export default function Webhooks(): JSX.Element {
               value: contentType,
               disabled: true,
             },
-            {
-              label: 'Enabled',
-              name: 'enabled',
-              type: 'checkbox',
-              onChange: setEnabled,
-              value: webhook?.enabled === 'Yes',
-            },
+            // {
+            //   label: 'Enabled',
+            //   name: 'enabled',
+            //   type: 'checkbox',
+            //   onChange: setEnabled,
+            //   value: webhook?.enabled === 'Yes',
+            // },
           ])
           setOnEditWebhook(webhook)
         }}
