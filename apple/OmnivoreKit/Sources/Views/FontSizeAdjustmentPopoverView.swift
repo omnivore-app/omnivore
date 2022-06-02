@@ -8,6 +8,7 @@ public struct WebPreferencesPopoverView: View {
   let decreaseMarginAction: () -> Void
   let increaseLineHeightAction: () -> Void
   let decreaseLineHeightAction: () -> Void
+  let dismissAction: () -> Void
 
   static let preferredWebFontSizeKey = UserDefaultKey.preferredWebFontSize.rawValue
   #if os(macOS)
@@ -25,7 +26,8 @@ public struct WebPreferencesPopoverView: View {
     increaseMarginAction: @escaping () -> Void,
     decreaseMarginAction: @escaping () -> Void,
     increaseLineHeightAction: @escaping () -> Void,
-    decreaseLineHeightAction: @escaping () -> Void
+    decreaseLineHeightAction: @escaping () -> Void,
+    dismissAction: @escaping () -> Void
   ) {
     self.increaseFontAction = increaseFontAction
     self.decreaseFontAction = decreaseFontAction
@@ -33,12 +35,25 @@ public struct WebPreferencesPopoverView: View {
     self.decreaseMarginAction = decreaseMarginAction
     self.increaseLineHeightAction = increaseLineHeightAction
     self.decreaseLineHeightAction = decreaseLineHeightAction
+    self.dismissAction = dismissAction
   }
 
   public var body: some View {
-    VStack {
+    VStack(alignment: .center) {
+      ZStack {
+        Text("Preferences").font(.appTitleTwo)
+        HStack {
+          Spacer()
+          Button(
+            action: dismissAction,
+            label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
+          )
+        }
+      }
+      .padding()
+
       LabelledStepper(
-        labelText: "Font Size (\(storedFontSize)):",
+        labelText: "Font Size:",
         onIncrement: {
           storedFontSize = min(storedFontSize + 2, 28)
           increaseFontAction()
@@ -49,20 +64,22 @@ public struct WebPreferencesPopoverView: View {
         }
       )
 
-      LabelledStepper(
-        labelText: "Margin (\(storedMargin)):",
-        onIncrement: {
-          storedMargin = min(storedMargin + 45, 560)
-          increaseMarginAction()
-        },
-        onDecrement: {
-          storedMargin = max(storedMargin - 45, 200)
-          decreaseMarginAction()
-        }
-      )
+      if UIDevice.isIPad {
+        LabelledStepper(
+          labelText: "Margin:",
+          onIncrement: {
+            storedMargin = min(storedMargin + 45, 560)
+            increaseMarginAction()
+          },
+          onDecrement: {
+            storedMargin = max(storedMargin - 45, 200)
+            decreaseMarginAction()
+          }
+        )
+      }
 
       LabelledStepper(
-        labelText: "Line Spacing (\(storedLineSpacing)):",
+        labelText: "Line Spacing:",
         onIncrement: {
           storedLineSpacing = min(storedLineSpacing + 25, 300)
           increaseLineHeightAction()
@@ -72,6 +89,8 @@ public struct WebPreferencesPopoverView: View {
           decreaseLineHeightAction()
         }
       )
+
+      Spacer()
     }
     .padding()
   }
@@ -84,29 +103,37 @@ struct LabelledStepper: View {
 
   var body: some View {
     HStack(alignment: .center, spacing: 0) {
-      Button(
-        action: onDecrement,
-        label: {
-          Image(systemName: "minus")
-          #if os(iOS)
-            .foregroundColor(.systemLabel)
-            .padding()
-          #endif
-        }
-      )
-      .frame(width: 55, height: 40, alignment: .center)
       Text(labelText)
-      Button(
-        action: onIncrement,
-        label: {
-          Image(systemName: "plus")
-          #if os(iOS)
-            .foregroundColor(.systemLabel)
-            .padding()
-          #endif
-        }
-      )
-      .frame(width: 55, height: 40, alignment: .center)
+      Spacer()
+      HStack(spacing: 0) {
+        Button(
+          action: onDecrement,
+          label: {
+            Image(systemName: "minus")
+            #if os(iOS)
+              .foregroundColor(.systemLabel)
+              .padding()
+            #endif
+          }
+        )
+        .frame(width: 55, height: 40, alignment: .center)
+        Divider()
+          .frame(height: 30)
+          .background(Color.systemLabel)
+        Button(
+          action: onIncrement,
+          label: {
+            Image(systemName: "plus")
+            #if os(iOS)
+              .foregroundColor(.systemLabel)
+              .padding()
+            #endif
+          }
+        )
+        .frame(width: 55, height: 40, alignment: .center)
+      }
+      .background(Color.appButtonBackground)
+      .cornerRadius(8)
     }
   }
 }

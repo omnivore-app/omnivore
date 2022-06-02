@@ -207,7 +207,8 @@ import WebKit
           increaseMarginAction: { increaseMarginActionID = UUID() },
           decreaseMarginAction: { decreaseMarginActionID = UUID() },
           increaseLineHeightAction: { increaseLineHeightActionID = UUID() },
-          decreaseLineHeightAction: { decreaseLineHeightActionID = UUID() }
+          decreaseLineHeightAction: { decreaseLineHeightActionID = UUID() },
+          dismissAction: { showPreferencesPopover = false }
         )
       }
       .onDisappear {
