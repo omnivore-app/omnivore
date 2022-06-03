@@ -5,7 +5,7 @@ public enum WebFont: String, CaseIterable {
   case inter = "Inter"
   case merriweather = "Merriweather"
   case lyon = "Lyon"
-  case sfmono = "SFMono"
+  case sfmono = "SF Mono"
   case tisa = "Tisa"
 }
 
