@@ -1258,6 +1258,25 @@ const schema = gql`
     errorCodes: [DeleteReminderErrorCode!]!
   }
 
+  type SendInstallInstructionsSuccess {
+    sent: Boolean!
+  }
+
+  enum SendInstallInstructionsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    FORBIDDEN
+  }
+
+  type SendInstallInstructionsError {
+    errorCodes: [SendInstallInstructionsErrorCode!]!
+  }
+
+  union SendInstallInstructionsResult =
+      SendInstallInstructionsSuccess
+    | SendInstallInstructionsError
+
   input SetDeviceTokenInput {
     id: ID
     token: String
@@ -1825,6 +1844,7 @@ const schema = gql`
     labels: LabelsResult!
     search(after: String, first: Int, query: String): SearchResult!
     subscriptions(sort: SortParams): SubscriptionsResult!
+    sendInstallInstructions: SendInstallInstructionsResult!
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
