@@ -78,37 +78,37 @@ import WebKit
     func updateUIView(_ webView: WKWebView, context: Context) {
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-        (webView as? WebView)?.saveAnnotation(annotation: annotation)
+        (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
       if increaseFontActionID != context.coordinator.previousIncreaseFontActionID {
         context.coordinator.previousIncreaseFontActionID = increaseFontActionID
-        (webView as? WebView)?.increaseFontSize()
+        (webView as? WebView)?.updateFontSize()
       }
 
       if decreaseFontActionID != context.coordinator.previousDecreaseFontActionID {
         context.coordinator.previousDecreaseFontActionID = decreaseFontActionID
-        (webView as? WebView)?.decreaseFontSize()
+        (webView as? WebView)?.updateFontSize()
       }
 
       if increaseMarginActionID != context.coordinator.previousIncreaseMarginActionID {
         context.coordinator.previousIncreaseMarginActionID = increaseMarginActionID
-        (webView as? WebView)?.increaseMargin()
+        (webView as? WebView)?.updateMargin()
       }
 
       if decreaseMarginActionID != context.coordinator.previousDecreaseMarginActionID {
         context.coordinator.previousDecreaseMarginActionID = decreaseMarginActionID
-        (webView as? WebView)?.decreaseMargin()
+        (webView as? WebView)?.updateMargin()
       }
 
       if increaseLineHeightActionID != context.coordinator.previousIncreaseLineHeightActionID {
         context.coordinator.previousIncreaseLineHeightActionID = increaseLineHeightActionID
-        (webView as? WebView)?.increaseLineHeight()
+        (webView as? WebView)?.updateLineHeight()
       }
 
       if decreaseLineHeightActionID != context.coordinator.previousDecreaseLineHeightActionID {
         context.coordinator.previousDecreaseLineHeightActionID = decreaseLineHeightActionID
-        (webView as? WebView)?.decreaseLineHeight()
+        (webView as? WebView)?.updateLineHeight()
       }
 
       if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
@@ -153,7 +153,7 @@ import WebKit
           fontSize: fontSize(),
           lineHeight: lineHeight(),
           margin: margin(),
-          fontFamily: .merriweather
+          fontFamily: .inter // TODO: lookup from user defaults
         )
         .styledContent,
         baseURL: ViewsPackage.bundleURL

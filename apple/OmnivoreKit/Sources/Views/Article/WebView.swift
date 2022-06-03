@@ -1,3 +1,4 @@
+import Utils
 import WebKit
 
 /// Describes actions that can be sent from the WebView back to native views.
@@ -26,41 +27,30 @@ public final class WebView: WKWebView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  public func increaseFontSize() {
-    dispatchEvent("increaseFontSize")
+  public func updateFontSize() {
+    if let fontSize = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFontSize.rawValue) as? Int {
+      dispatchEvent(.updateFontSize(size: fontSize))
+    }
   }
 
-  public func decreaseFontSize() {
-    dispatchEvent("decreaseFontSize")
+  public func updateMargin() {
+    if let margin = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebMargin.rawValue) as? Int {
+      dispatchEvent(.updateMargin(width: margin))
+    }
   }
 
-  public func increaseMargin() {
-    print("increase margin")
-    dispatchEvent("increaseMargin")
-  }
-
-  public func decreaseMargin() {
-    print("decrease margin")
-    dispatchEvent("decreaseMargin")
-  }
-
-  public func increaseLineHeight() {
-    print("increase line height")
-    dispatchEvent("increaseLineHeight")
-  }
-
-  public func decreaseLineHeight() {
-    print("decrease line height")
-    dispatchEvent("decreaseLineHeight")
+  public func updateLineHeight() {
+    if let height = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebLineSpacing.rawValue) as? Int {
+      dispatchEvent(.updateLineHeight(height: height))
+    }
   }
 
   public func shareOriginalItem() {
-    dispatchEvent("share")
+    dispatchEvent(.share)
   }
 
-  func dispatchEvent(_ name: String) {
-    let dispatch = "document.dispatchEvent(new Event('\(name)'));"
-    evaluateJavaScript(dispatch) { obj, err in
+  public func dispatchEvent(_ event: WebViewDispatchEvent) {
+    evaluateJavaScript(event.script) { obj, err in
       if let err = err { print(err) }
       if let obj = obj { print(obj) }
     }
@@ -70,12 +60,7 @@ public final class WebView: WKWebView {
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
       super.traitCollectionDidChange(previousTraitCollection)
       guard previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle else { return }
-
-      if traitCollection.userInterfaceStyle == .dark {
-        dispatchEvent("switchToDarkMode")
-      } else {
-        dispatchEvent("switchToLightMode")
-      }
+      dispatchEvent(.updateColorMode(isDark: traitCollection.userInterfaceStyle == .dark))
     }
 
   #elseif os(macOS)
@@ -169,28 +154,28 @@ public final class WebView: WKWebView {
     }
 
     @objc private func annotateSelection() {
-      dispatchEvent("annotate")
+      dispatchEvent(.annotate)
       hideMenu()
     }
 
     @objc private func highlightSelection() {
-      dispatchEvent("highlight")
+      dispatchEvent(.highlight)
       hideMenu()
     }
 
     @objc private func shareSelection() {
-      dispatchEvent("share")
+      dispatchEvent(.share)
       hideMenu()
     }
 
     @objc private func removeSelection() {
-      dispatchEvent("remove")
+      dispatchEvent(.remove)
       hideMenu()
     }
 
     @objc override public func copy(_ sender: Any?) {
       super.copy(sender)
-      dispatchEvent("copyHighlight")
+      dispatchEvent(.copyHighlight)
       hideMenu()
     }
 
@@ -209,7 +194,7 @@ public final class WebView: WKWebView {
 
     private func hideMenuAndDismissHighlight() {
       hideMenu()
-      dispatchEvent("dismissHighlight")
+      dispatchEvent(.dismissHighlight)
     }
 
     private func showHighlightMenu(_ rect: CGRect) {
@@ -233,14 +218,72 @@ public final class WebView: WKWebView {
 
       UIMenuController.shared.showMenu(from: self, rect: rect)
     }
-
-    public func saveAnnotation(annotation: String) {
-      // swiftlint:disable:next line_length
-      let dispatch = "var event = new Event('saveAnnotation');event.annotation = '\(annotation)';document.dispatchEvent(event);"
-      evaluateJavaScript(dispatch) { obj, err in
-        if let err = err { print(err) }
-        if let obj = obj { print(obj) }
-      }
-    }
   }
 #endif
+
+public enum WebViewDispatchEvent {
+  case updateLineHeight(height: Int)
+  case updateMargin(width: Int)
+  case updateFontSize(size: Int)
+  case updateColorMode(isDark: Bool)
+  case updateFontFamily(family: String)
+  case saveAnnotation(annotation: String)
+  case annotate
+  case highlight
+  case share
+  case remove
+  case copyHighlight
+  case dismissHighlight
+
+  var script: String {
+    "var event = new Event('\(eventName)');\(scriptPropertyLine)document.dispatchEvent(event);"
+  }
+
+  private var eventName: String {
+    switch self {
+    case .updateLineHeight:
+      return "updateLineHeight"
+    case .updateMargin:
+      return "updateMargin"
+    case .updateFontSize:
+      return "updateFontSize"
+    case .updateColorMode:
+      return "updateColorMode"
+    case .updateFontFamily:
+      return "updateFontFamily"
+    case .saveAnnotation:
+      return "saveAnnotation"
+    case .annotate:
+      return "annotate"
+    case .highlight:
+      return "highlight"
+    case .share:
+      return "share"
+    case .remove:
+      return "remove"
+    case .copyHighlight:
+      return "copyHighlight"
+    case .dismissHighlight:
+      return "dismissHighlight"
+    }
+  }
+
+  private var scriptPropertyLine: String {
+    switch self {
+    case let .updateLineHeight(height: height):
+      return "event.lineHeight = '\(height)';"
+    case let .updateMargin(width: width):
+      return "event.margin = '\(width)';"
+    case let .updateFontSize(size: size):
+      return "event.fontSize = '\(size)';"
+    case let .updateColorMode(isDark: isDark):
+      return "event.isDarkMode = '\(isDark)';"
+    case let .updateFontFamily(family: family):
+      return "event.fontFamily = '\(family)';"
+    case let .saveAnnotation(annotation: annotation):
+      return "event.annotation = '\(annotation)';"
+    case .annotate, .highlight, .share, .remove, .copyHighlight, .dismissHighlight:
+      return ""
+    }
+  }
+}
