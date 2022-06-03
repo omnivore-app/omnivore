@@ -156,11 +156,11 @@ public struct ShareExtensionChildView: View {
 
   private var titleText: String {
     switch viewModel.status {
-    case .saved, .synced:
+    case .saved, .synced, .syncFailed(error: _):
       return "Saved to Omnivore"
     case .processing:
       return "Saving to Omnivore"
-    default:
+    case .failed(error: _):
       return "Error saving to Omnivore"
     }
   }
