@@ -166,12 +166,12 @@ class ExtensionSaveService {
         }
 
       } catch {
-        print("ERROR SYNCING", error)
         updateStatus(newStatus: .syncFailed(error: SaveArticleError.unknown(description: "Unknown Error")))
+        return
       }
 
-      state = .finished
       updateStatus(newStatus: .synced)
+      state = .finished
     }
   }
 }
