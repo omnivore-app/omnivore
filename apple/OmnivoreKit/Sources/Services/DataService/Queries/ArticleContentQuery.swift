@@ -125,17 +125,17 @@ extension DataService {
 
     let selection = Selection<QueryResult, Unions.ArticleResult> {
       try $0.on(
-        articleSuccess: .init {
-          QueryResult.success(result: try $0.article(selection: articleContentSelection))
-        },
         articleError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
+        },
+        articleSuccess: .init {
+          QueryResult.success(result: try $0.article(selection: articleContentSelection))
         }
       )
     }
 
     let query = Selection.Query {
-      try $0.article(username: username, slug: itemID, selection: selection)
+      try $0.article(slug: itemID, username: username, selection: selection)
     }
 
     let path = appEnvironment.graphqlPath

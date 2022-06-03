@@ -33,12 +33,12 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.SaveArticleReadingProgressResult> {
       try $0.on(
+        saveArticleReadingProgressError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) },
         saveArticleReadingProgressSuccess: .init {
           .saved(
             readingProgress: try $0.updatedArticle(selection: Selection.Article { try $0.readingProgressPercent() })
           )
-        },
-        saveArticleReadingProgressError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) }
+        }
       )
     }
 
@@ -46,8 +46,8 @@ extension DataService {
       try $0.saveArticleReadingProgress(
         input: InputObjects.SaveArticleReadingProgressInput(
           id: itemID,
-          readingProgressPercent: readingProgress,
-          readingProgressAnchorIndex: anchorIndex
+          readingProgressAnchorIndex: anchorIndex,
+          readingProgressPercent: readingProgress
         ),
         selection: selection
       )

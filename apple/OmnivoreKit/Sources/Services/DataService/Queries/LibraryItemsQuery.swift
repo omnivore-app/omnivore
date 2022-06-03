@@ -24,6 +24,9 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.ArticlesResult> {
       try $0.on(
+        articlesError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
+        },
         articlesSuccess: .init {
           QueryResult.success(
             result: InternalHomeFeedData(
@@ -33,25 +36,23 @@ public extension DataService {
               })
             )
           )
-        },
-        articlesError: .init {
-          QueryResult.error(error: try $0.errorCodes().description)
         }
       )
     }
 
     let query = Selection.Query {
       try $0.articles(
+        after: OptionalArgument(cursor),
+        first: OptionalArgument(limit),
+        includePending: OptionalArgument(true),
+        query: OptionalArgument(searchQuery),
         sharedOnly: .present(false),
         sort: OptionalArgument(
           InputObjects.SortParams(
-            order: .present(.descending), by: .updatedTime
+            by: .updatedTime,
+            order: .present(.descending)
           )
         ),
-        after: OptionalArgument(cursor),
-        first: OptionalArgument(limit),
-        query: OptionalArgument(searchQuery),
-        includePending: OptionalArgument(true),
         selection: selection
       )
     }
@@ -117,18 +118,18 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.ArticleResult> {
       try $0.on(
-        articleSuccess: .init {
-          QueryResult.success(result: try $0.article(selection: articleSelection))
-        },
         articleError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
+        },
+        articleSuccess: .init {
+          QueryResult.success(result: try $0.article(selection: articleSelection))
         }
       )
     }
 
     let query = Selection.Query {
       // backend has a hack that allows us to pass in itemID in place of slug
-      try $0.article(username: username, slug: itemID, selection: selection)
+      try $0.article(slug: itemID, username: username, selection: selection)
     }
 
     let path = appEnvironment.graphqlPath
