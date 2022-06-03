@@ -58,17 +58,17 @@ export default function Webhooks(): JSX.Element {
   async function onDelete(id: string): Promise<void> {
     const result = await deleteWebhookMutation(id)
     if (result) {
-      showSuccessToast('Deleted', { position: 'bottom-right' })
+      showSuccessToast('Webhook deleted', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to delete', { position: 'bottom-right' })
     }
     revalidate()
   }
 
-  async function onAdd(): Promise<void> {
+  async function onCreate(): Promise<void> {
     const result = await setWebhookMutation({ url, eventTypes })
     if (result) {
-      showSuccessToast('Added', { position: 'bottom-right' })
+      showSuccessToast('Webhook created', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to add', { position: 'bottom-right' })
     }
@@ -82,7 +82,7 @@ export default function Webhooks(): JSX.Element {
       eventTypes,
     })
     if (result) {
-      showSuccessToast('Updated', { position: 'bottom-right' })
+      showSuccessToast('Webhook updated', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to update', { position: 'bottom-right' })
     }
@@ -100,7 +100,7 @@ export default function Webhooks(): JSX.Element {
       {addModelOpen && (
         <FormModal
           title={'Add webhook'}
-          onSubmit={onAdd}
+          onSubmit={onCreate}
           onOpenChange={setAddModelOpen}
           inputs={formInputs}
           acceptButtonLabel={'Add'}
