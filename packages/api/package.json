@@ -34,7 +34,7 @@
     "@opentelemetry/tracing": "^0.24.0",
     "@sendgrid/mail": "^7.6.0",
     "@sentry/integrations": "^6.19.1",
-    "@sentry/node": "^5.26.0",
+    "@sentry/node": "^7.0.0",
     "@sentry/tracing": "^5.26.0",
     "analytics-node": "^6.0.0",
     "apollo-datasource": "^3.3.1",
