@@ -10,12 +10,9 @@ public enum WebFont: String {
 }
 
 public struct WebPreferencesPopoverView: View {
-  let increaseFontAction: () -> Void
-  let decreaseFontAction: () -> Void
-  let increaseMarginAction: () -> Void
-  let decreaseMarginAction: () -> Void
-  let increaseLineHeightAction: () -> Void
-  let decreaseLineHeightAction: () -> Void
+  let updateFontAction: () -> Void
+  let updateMarginAction: () -> Void
+  let updateLineHeightAction: () -> Void
   let dismissAction: () -> Void
 
   static let preferredWebFontSizeKey = UserDefaultKey.preferredWebFontSize.rawValue
@@ -29,20 +26,14 @@ public struct WebPreferencesPopoverView: View {
   @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
 
   public init(
-    increaseFontAction: @escaping () -> Void,
-    decreaseFontAction: @escaping () -> Void,
-    increaseMarginAction: @escaping () -> Void,
-    decreaseMarginAction: @escaping () -> Void,
-    increaseLineHeightAction: @escaping () -> Void,
-    decreaseLineHeightAction: @escaping () -> Void,
+    updateFontAction: @escaping () -> Void,
+    updateMarginAction: @escaping () -> Void,
+    updateLineHeightAction: @escaping () -> Void,
     dismissAction: @escaping () -> Void
   ) {
-    self.increaseFontAction = increaseFontAction
-    self.decreaseFontAction = decreaseFontAction
-    self.increaseMarginAction = increaseMarginAction
-    self.decreaseMarginAction = decreaseMarginAction
-    self.increaseLineHeightAction = increaseLineHeightAction
-    self.decreaseLineHeightAction = decreaseLineHeightAction
+    self.updateFontAction = updateFontAction
+    self.updateMarginAction = updateMarginAction
+    self.updateLineHeightAction = updateLineHeightAction
     self.dismissAction = dismissAction
   }
 
@@ -64,11 +55,11 @@ public struct WebPreferencesPopoverView: View {
         labelText: "Font Size:",
         onIncrement: {
           storedFontSize = min(storedFontSize + 2, 28)
-          increaseFontAction()
+          updateFontAction()
         },
         onDecrement: {
           storedFontSize = max(storedFontSize - 2, 10)
-          decreaseFontAction()
+          updateFontAction()
         }
       )
 
@@ -77,11 +68,11 @@ public struct WebPreferencesPopoverView: View {
           labelText: "Margin:",
           onIncrement: {
             storedMargin = min(storedMargin + 45, 560)
-            increaseMarginAction()
+            updateMarginAction()
           },
           onDecrement: {
             storedMargin = max(storedMargin - 45, 200)
-            decreaseMarginAction()
+            updateMarginAction()
           }
         )
       }
@@ -90,11 +81,11 @@ public struct WebPreferencesPopoverView: View {
         labelText: "Line Spacing:",
         onIncrement: {
           storedLineSpacing = min(storedLineSpacing + 25, 300)
-          increaseLineHeightAction()
+          updateLineHeightAction()
         },
         onDecrement: {
           storedLineSpacing = max(storedLineSpacing - 25, 100)
-          decreaseLineHeightAction()
+          updateLineHeightAction()
         }
       )
 

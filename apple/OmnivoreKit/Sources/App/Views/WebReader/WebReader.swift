@@ -13,12 +13,9 @@ import WebKit
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
     let navBarVisibilityRatioUpdater: (Double) -> Void
 
-    @Binding var increaseFontActionID: UUID?
-    @Binding var decreaseFontActionID: UUID?
-    @Binding var increaseMarginActionID: UUID?
-    @Binding var decreaseMarginActionID: UUID?
-    @Binding var increaseLineHeightActionID: UUID?
-    @Binding var decreaseLineHeightActionID: UUID?
+    @Binding var updateFontActionID: UUID?
+    @Binding var updateMarginActionID: UUID?
+    @Binding var updateLineHeightActionID: UUID?
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var showNavBarActionID: UUID?
     @Binding var shareActionID: UUID?
@@ -81,33 +78,18 @@ import WebKit
         (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
-      if increaseFontActionID != context.coordinator.previousIncreaseFontActionID {
-        context.coordinator.previousIncreaseFontActionID = increaseFontActionID
+      if updateFontActionID != context.coordinator.previousUpdateFontActionID {
+        context.coordinator.previousUpdateFontActionID = updateFontActionID
         (webView as? WebView)?.updateFontSize()
       }
 
-      if decreaseFontActionID != context.coordinator.previousDecreaseFontActionID {
-        context.coordinator.previousDecreaseFontActionID = decreaseFontActionID
-        (webView as? WebView)?.updateFontSize()
-      }
-
-      if increaseMarginActionID != context.coordinator.previousIncreaseMarginActionID {
-        context.coordinator.previousIncreaseMarginActionID = increaseMarginActionID
+      if updateMarginActionID != context.coordinator.previousUpdateMarginActionID {
+        context.coordinator.previousUpdateMarginActionID = updateMarginActionID
         (webView as? WebView)?.updateMargin()
       }
 
-      if decreaseMarginActionID != context.coordinator.previousDecreaseMarginActionID {
-        context.coordinator.previousDecreaseMarginActionID = decreaseMarginActionID
-        (webView as? WebView)?.updateMargin()
-      }
-
-      if increaseLineHeightActionID != context.coordinator.previousIncreaseLineHeightActionID {
-        context.coordinator.previousIncreaseLineHeightActionID = increaseLineHeightActionID
-        (webView as? WebView)?.updateLineHeight()
-      }
-
-      if decreaseLineHeightActionID != context.coordinator.previousDecreaseLineHeightActionID {
-        context.coordinator.previousDecreaseLineHeightActionID = decreaseLineHeightActionID
+      if updateLineHeightActionID != context.coordinator.previousUpdateLineHeightActionID {
+        context.coordinator.previousUpdateLineHeightActionID = updateLineHeightActionID
         (webView as? WebView)?.updateLineHeight()
       }
 
