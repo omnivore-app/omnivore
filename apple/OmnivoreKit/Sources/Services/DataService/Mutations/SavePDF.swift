@@ -17,14 +17,15 @@ public extension DataService {
     }
 
     let input = InputObjects.UploadFileRequestInput(
-      url: url,
+      clientRequestId: OptionalArgument(id),
       contentType: "application/pdf",
       createPageEntry: OptionalArgument(true),
-      clientRequestId: OptionalArgument(id)
+      url: url
     )
 
     let selection = Selection<MutationResult, Unions.UploadFileRequestResult> {
       try $0.on(
+        uploadFileRequestError: .init { .error(errorCode: try? $0.errorCodes().first) },
         uploadFileRequestSuccess: .init {
           .success(
             payload: UploadFileRequestPayload(
@@ -33,8 +34,7 @@ public extension DataService {
               urlString: try $0.uploadSignedUrl()
             )
           )
-        },
-        uploadFileRequestError: .init { .error(errorCode: try? $0.errorCodes().first) }
+        }
       )
     }
 
@@ -120,16 +120,16 @@ public extension DataService {
     }
 
     let input = InputObjects.SaveFileInput(
-      url: url,
-      source: "ios-file",
       clientRequestId: requestId,
-      uploadFileId: uploadFileId
+      source: "ios-file",
+      uploadFileId: uploadFileId,
+      url: url
     )
 
     let selection = Selection<MutationResult, Unions.SaveResult> {
       try $0.on(
-        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") },
-        saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) }
+        saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) },
+        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") }
       )
     }
 

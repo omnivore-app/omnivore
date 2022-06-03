@@ -121,6 +121,7 @@ export type Article = {
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['Date'];
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -764,6 +765,7 @@ export type Link = {
   shareInfo: LinkShareInfo;
   shareStats: ShareStats;
   slug: Scalars['String'];
+  updatedAt: Scalars['Date'];
   url: Scalars['String'];
 };
 
@@ -1181,6 +1183,7 @@ export type Page = {
   readableHtml: Scalars['String'];
   title: Scalars['String'];
   type: PageType;
+  updatedAt: Scalars['Date'];
   url: Scalars['String'];
 };
 
@@ -1522,6 +1525,7 @@ export type SearchItem = {
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['Date'];
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -3038,6 +3042,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3501,6 +3506,7 @@ export type LinkResolvers<ContextType = ResolverContext, ParentType extends Reso
   shareInfo?: Resolver<ResolversTypes['LinkShareInfo'], ParentType, ContextType>;
   shareStats?: Resolver<ResolversTypes['ShareStats'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3642,6 +3648,7 @@ export type PageResolvers<ContextType = ResolverContext, ParentType extends Reso
   readableHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3808,6 +3815,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
