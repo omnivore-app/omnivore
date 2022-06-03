@@ -152,7 +152,8 @@ import WebKit
           isDark: UITraitCollection.current.userInterfaceStyle == .dark,
           fontSize: fontSize(),
           lineHeight: lineHeight(),
-          margin: margin()
+          margin: margin(),
+          fontFamily: .merriweather
         )
         .styledContent,
         baseURL: ViewsPackage.bundleURL

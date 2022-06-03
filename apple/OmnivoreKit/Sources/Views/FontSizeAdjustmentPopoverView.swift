@@ -1,6 +1,14 @@
 import SwiftUI
 import Utils
 
+public enum WebFont: String {
+  case inter = "Inter"
+  case merriweather = "Merriweather"
+  case lyon = "Lyon"
+  case sfmono = "SFMono"
+  case tisa = "Tisa"
+}
+
 public struct WebPreferencesPopoverView: View {
   let increaseFontAction: () -> Void
   let decreaseFontAction: () -> Void
