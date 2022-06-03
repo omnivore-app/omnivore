@@ -270,6 +270,7 @@ const schema = gql`
     slug: String!
     savedBy: User!
     savedAt: Date!
+    updatedAt: Date!
     savedByViewer: Boolean!
     postedByViewer: Boolean!
 
@@ -308,6 +309,7 @@ const schema = gql`
     originalHtml: String!
     readableHtml: String!
     createdAt: Date!
+    updatedAt: Date!
   }
 
   type Article {
@@ -327,6 +329,7 @@ const schema = gql`
     originalHtml: String
     createdAt: Date!
     savedAt: Date!
+    updatedAt: Date!
     publishedAt: Date
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
@@ -1449,6 +1452,7 @@ const schema = gql`
     pageType: PageType!
     contentReader: ContentReader!
     createdAt: Date!
+    updatedAt: Date!
     isArchived: Boolean!
     readingProgressPercent: Float
     readingProgressAnchorIndex: Int

@@ -97,6 +97,7 @@ type Article {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
+  updatedAt: Date!
   uploadFileId: ID
   url: String!
 }
@@ -675,6 +676,7 @@ type Link {
   shareInfo: LinkShareInfo!
   shareStats: ShareStats!
   slug: String!
+  updatedAt: Date!
   url: String!
 }
 
@@ -840,6 +842,7 @@ type Page {
   readableHtml: String!
   title: String!
   type: PageType!
+  updatedAt: Date!
   url: String!
 }
 
@@ -1085,6 +1088,7 @@ type SearchItem {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
+  updatedAt: Date!
   uploadFileId: ID
   url: String!
 }
