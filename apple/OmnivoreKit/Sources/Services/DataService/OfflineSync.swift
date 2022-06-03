@@ -60,7 +60,9 @@ public extension DataService {
         try backgroundContext.save()
       }
     } catch {
-      backgroundContext.rollback()
+      backgroundContext.performAndWait {
+        backgroundContext.rollback()
+      }
       throw error
     }
   }
