@@ -27,11 +27,14 @@ export default function SubscriptionsPage(): JSX.Element {
   }
 
   const headers = ['Name', 'Email', 'Updated Time']
-  const rows = subscriptions.map((subscription) => [
-    subscription.name,
-    subscription.newsletterEmail,
-    subscription.updatedAt.toString(),
-  ])
+  const rows = new Map<string, string[]>()
+  subscriptions.forEach((subscription) =>
+    rows.set(subscription.name, [
+      subscription.name,
+      subscription.newsletterEmail,
+      subscription.updatedAt.toString(),
+    ])
+  )
 
   return (
     <PrimaryLayout pageTestId="settings-subscriptions-tag">
@@ -64,13 +67,18 @@ export default function SubscriptionsPage(): JSX.Element {
       <Table
         heading={'Popular Newsletters'}
         headers={['Substack', 'Axios', 'Bloomberg']}
-        rows={[
-          [
-            'https://substack.com/',
-            'https://www.axios.com/newsletters',
-            'https://www.bloomberg.com/account/newsletters',
-          ],
-        ]}
+        rows={
+          new Map([
+            [
+              '0',
+              [
+                'https://substack.com/',
+                'https://www.axios.com/newsletters',
+                'https://www.bloomberg.com/account/newsletters',
+              ],
+            ],
+          ])
+        }
       />
     </PrimaryLayout>
   )

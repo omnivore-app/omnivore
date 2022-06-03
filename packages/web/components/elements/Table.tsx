@@ -3,7 +3,7 @@ import { styled } from '../tokens/stitches.config'
 import { StyledText } from './StyledText'
 import { InfoLink } from './InfoLink'
 import { Button } from './Button'
-import { Plus, Trash } from 'phosphor-react'
+import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { isDarkTheme } from '../../lib/themeUpdater'
 
 interface TableProps {
@@ -11,8 +11,9 @@ interface TableProps {
   infoLink?: string
   onAdd?: () => void
   headers: string[]
-  rows: string[][]
+  rows: Map<string, Record<string, any>>
   onDelete?: (id: string) => void
+  onEdit?: (obj: any) => void
 }
 
 const HeaderWrapper = styled(Box, {
@@ -157,14 +158,20 @@ export function Table(props: TableProps): JSX.Element {
                   color: '$grayTextContrast',
                   textTransform: 'uppercase',
                 },
+                width: '240px',
               }}
             >
               {header}
             </StyledText>
           </Box>
         ))}
+        <Box
+          css={{
+            width: '120px',
+          }}
+        ></Box>
       </TableHeading>
-      {props.rows.map((row, index) => (
+      {Array.from(props.rows.keys()).map((key, index) => (
         <TableCard
           key={index}
           css={{
@@ -175,9 +182,8 @@ export function Table(props: TableProps): JSX.Element {
               borderTopLeftRadius: index === 0 ? '5px' : '',
               borderTopRightRadius: index === 0 ? '5px' : '',
             },
-            borderBottomLeftRadius: index == props.rows.length - 1 ? '5px' : '',
-            borderBottomRightRadius:
-              index == props.rows.length - 1 ? '5px' : '',
+            borderBottomLeftRadius: index == props.rows.size - 1 ? '5px' : '',
+            borderBottomRightRadius: index == props.rows.size - 1 ? '5px' : '',
             padding: '10px 20px 10px 40px',
           }}
         >
@@ -191,7 +197,7 @@ export function Table(props: TableProps): JSX.Element {
               },
             }}
           >
-            {row.map((cell, index) => (
+            {Object.values(props.rows.get(key) || {}).map((cell, index) => (
               <HStack
                 key={index}
                 css={{
@@ -210,12 +216,24 @@ export function Table(props: TableProps): JSX.Element {
                 ></Input>
               </HStack>
             ))}
+            {props.onEdit && (
+              <IconButton
+                style="ctaWhite"
+                css={{ mr: '$1', background: '$labelButtonsBg' }}
+                onClick={() => {
+                  props.onEdit &&
+                    props.onEdit({ ...props.rows.get(key), id: key })
+                }}
+              >
+                <PencilSimple size={24} color={iconColor} />
+              </IconButton>
+            )}
             {props.onDelete && (
               <IconButton
                 style="ctaWhite"
                 css={{ mr: '$1', background: '$labelButtonsBg' }}
                 onClick={() => {
-                  props.onDelete && props.onDelete(row[0])
+                  props.onDelete && props.onDelete(key)
                 }}
               >
                 <Trash size={16} color={iconColor} />
