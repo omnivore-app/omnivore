@@ -16,6 +16,7 @@ public struct JSONArticle: Decodable {
   public let id: String
   public let title: String
   public let createdAt: Date
+  public let updatedAt: Date
   public let savedAt: Date
   public let image: String
   public let readingProgressPercent: Double
@@ -116,6 +117,7 @@ public extension LinkedItem {
       }
 
       guard context.hasChanges else { return }
+      self.updatedAt = Date()
 
       do {
         try context.save()
