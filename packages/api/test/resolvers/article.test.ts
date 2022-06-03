@@ -107,6 +107,8 @@ const articlesQuery = (after = '') => {
             id
             url
             linkId
+            createdAt
+            updatedAt
             originalArticleUrl
             labels {
               id
@@ -150,6 +152,7 @@ const getArticleQuery = (slug: string) => {
             annotation
             sharedAt
             createdAt
+            updatedAt
           }
         }
       }
@@ -174,6 +177,8 @@ const searchQuery = (keyword = '') => {
           node {
             id
             url
+            createdAt
+            updatedAt
           }
         }
         pageInfo {
