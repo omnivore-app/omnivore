@@ -1,6 +1,7 @@
 import Foundation
 
 public enum UserDefaultKey: String {
+  case preferredWebFont
   case preferredWebFontSize
   case preferredWebLineSpacing
   case preferredWebMargin

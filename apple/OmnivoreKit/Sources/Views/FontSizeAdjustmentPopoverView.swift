@@ -1,7 +1,7 @@
 import SwiftUI
 import Utils
 
-public enum WebFont: String {
+public enum WebFont: String, CaseIterable {
   case inter = "Inter"
   case merriweather = "Merriweather"
   case lyon = "Lyon"
@@ -24,6 +24,7 @@ public struct WebPreferencesPopoverView: View {
 
   @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
   @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
+  @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
 
   public init(
     updateFontAction: @escaping () -> Void,
@@ -51,45 +52,65 @@ public struct WebPreferencesPopoverView: View {
       }
       .padding()
 
-      LabelledStepper(
-        labelText: "Font Size:",
-        onIncrement: {
-          storedFontSize = min(storedFontSize + 2, 28)
-          updateFontAction()
-        },
-        onDecrement: {
-          storedFontSize = max(storedFontSize - 2, 10)
-          updateFontAction()
-        }
-      )
+      List {
+        Section("Sizing") {
+          LabelledStepper(
+            labelText: "Font Size:",
+            onIncrement: {
+              storedFontSize = min(storedFontSize + 2, 28)
+              updateFontAction()
+            },
+            onDecrement: {
+              storedFontSize = max(storedFontSize - 2, 10)
+              updateFontAction()
+            }
+          )
 
-      if UIDevice.isIPad {
-        LabelledStepper(
-          labelText: "Margin:",
-          onIncrement: {
-            storedMargin = min(storedMargin + 45, 560)
-            updateMarginAction()
-          },
-          onDecrement: {
-            storedMargin = max(storedMargin - 45, 200)
-            updateMarginAction()
+          if UIDevice.isIPad {
+            LabelledStepper(
+              labelText: "Margin:",
+              onIncrement: {
+                storedMargin = min(storedMargin + 45, 560)
+                updateMarginAction()
+              },
+              onDecrement: {
+                storedMargin = max(storedMargin - 45, 200)
+                updateMarginAction()
+              }
+            )
           }
-        )
-      }
 
-      LabelledStepper(
-        labelText: "Line Spacing:",
-        onIncrement: {
-          storedLineSpacing = min(storedLineSpacing + 25, 300)
-          updateLineHeightAction()
-        },
-        onDecrement: {
-          storedLineSpacing = max(storedLineSpacing - 25, 100)
-          updateLineHeightAction()
+          LabelledStepper(
+            labelText: "Line Spacing:",
+            onIncrement: {
+              storedLineSpacing = min(storedLineSpacing + 25, 300)
+              updateLineHeightAction()
+            },
+            onDecrement: {
+              storedLineSpacing = max(storedLineSpacing - 25, 100)
+              updateLineHeightAction()
+            }
+          )
         }
-      )
-
-      Spacer()
+        Section("Font Family") {
+          ForEach(WebFont.allCases, id: \.self) { font in
+            Button(
+              action: {
+                preferredFont = font.rawValue
+              },
+              label: {
+                HStack {
+                  Text(font.rawValue).foregroundColor(.appGrayTextContrast)
+                  Spacer()
+                  if font.rawValue == preferredFont {
+                    Image(systemName: "checkmark").foregroundColor(.appGrayTextContrast)
+                  }
+                }
+              }
+            )
+          }
+        }
+      }
     }
     .padding()
   }
