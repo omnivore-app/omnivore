@@ -27,6 +27,12 @@ public final class WebView: WKWebView {
     fatalError("init(coder:) has not been implemented")
   }
 
+  public func updateFontFamily() {
+    if let fontFamily = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFont.rawValue) as? String {
+      dispatchEvent(.updateFontFamily(family: fontFamily))
+    }
+  }
+
   public func updateFontSize() {
     if let fontSize = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebFontSize.rawValue) as? Int {
       dispatchEvent(.updateFontSize(size: fontSize))

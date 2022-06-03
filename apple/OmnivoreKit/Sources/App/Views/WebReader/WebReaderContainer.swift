@@ -15,6 +15,7 @@ import WebKit
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
     @State private var progressViewOpacity = 0.0
+    @State var updateFontFamilyActionID: UUID?
     @State var updateFontActionID: UUID?
     @State var updateMarginActionID: UUID?
     @State var updateLineHeightActionID: UUID?
@@ -146,6 +147,7 @@ import WebKit
             navBarVisibilityRatioUpdater: {
               navBarVisibilityRatio = $0
             },
+            updateFontFamilyActionID: $updateFontFamilyActionID,
             updateFontActionID: $updateFontActionID,
             updateMarginActionID: $updateMarginActionID,
             updateLineHeightActionID: $updateLineHeightActionID,
@@ -196,6 +198,7 @@ import WebKit
       }
       .formSheet(isPresented: $showPreferencesPopover) {
         WebPreferencesPopoverView(
+          updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
           updateFontAction: { updateFontActionID = UUID() },
           updateMarginAction: { updateMarginActionID = UUID() },
           updateLineHeightAction: { updateLineHeightActionID = UUID() },

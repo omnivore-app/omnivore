@@ -107,12 +107,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     interface UpdateFontFamilyEvent extends Event {
-      family?: string
+      fontFamily?: string
     }
 
     const updateFontFamily = (event: UpdateFontFamilyEvent) => {
       const newFontFamily =
-        event.family ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
+        event.fontFamily ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
+      console.log('setting font fam to', event.fontFamily)
       setFontFamilyOverride(newFontFamily)
     }
 

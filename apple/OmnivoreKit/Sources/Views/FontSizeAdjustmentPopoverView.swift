@@ -10,6 +10,7 @@ public enum WebFont: String, CaseIterable {
 }
 
 public struct WebPreferencesPopoverView: View {
+  let updateFontFamilyAction: () -> Void
   let updateFontAction: () -> Void
   let updateMarginAction: () -> Void
   let updateLineHeightAction: () -> Void
@@ -27,11 +28,13 @@ public struct WebPreferencesPopoverView: View {
   @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
 
   public init(
+    updateFontFamilyAction: @escaping () -> Void,
     updateFontAction: @escaping () -> Void,
     updateMarginAction: @escaping () -> Void,
     updateLineHeightAction: @escaping () -> Void,
     dismissAction: @escaping () -> Void
   ) {
+    self.updateFontFamilyAction = updateFontFamilyAction
     self.updateFontAction = updateFontAction
     self.updateMarginAction = updateMarginAction
     self.updateLineHeightAction = updateLineHeightAction
@@ -41,7 +44,7 @@ public struct WebPreferencesPopoverView: View {
   public var body: some View {
     VStack(alignment: .center) {
       ZStack {
-        Text("Preferences").font(.appTitleTwo)
+        Text("Preferences").font(.appTitleThree)
         HStack {
           Spacer()
           Button(
@@ -50,7 +53,6 @@ public struct WebPreferencesPopoverView: View {
           )
         }
       }
-      .padding()
 
       List {
         Section("Sizing") {
@@ -97,6 +99,7 @@ public struct WebPreferencesPopoverView: View {
             Button(
               action: {
                 preferredFont = font.rawValue
+                updateFontFamilyAction()
               },
               label: {
                 HStack {

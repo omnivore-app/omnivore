@@ -13,6 +13,7 @@ import WebKit
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
     let navBarVisibilityRatioUpdater: (Double) -> Void
 
+    @Binding var updateFontFamilyActionID: UUID?
     @Binding var updateFontActionID: UUID?
     @Binding var updateMarginActionID: UUID?
     @Binding var updateLineHeightActionID: UUID?
@@ -78,6 +79,11 @@ import WebKit
         (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
+      if updateFontFamilyActionID != context.coordinator.previousUpdateFontFamilyActionID {
+        context.coordinator.previousUpdateFontFamilyActionID = updateFontFamilyActionID
+        (webView as? WebView)?.updateFontFamily()
+      }
+
       if updateFontActionID != context.coordinator.previousUpdateFontActionID {
         context.coordinator.previousUpdateFontActionID = updateFontActionID
         (webView as? WebView)?.updateFontSize()
@@ -126,6 +132,9 @@ import WebKit
     }
 
     func loadContent(webView: WKWebView) {
+      let fontFamilyValue = UserDefaults.standard.string(forKey: UserDefaultKey.preferredWebFont.rawValue)
+      let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .inter
+
       webView.loadHTMLString(
         WebReaderContent(
           htmlContent: htmlContent,
@@ -135,7 +144,7 @@ import WebKit
           fontSize: fontSize(),
           lineHeight: lineHeight(),
           margin: margin(),
-          fontFamily: .inter // TODO: lookup from user defaults
+          fontFamily: fontFamily
         )
         .styledContent,
         baseURL: ViewsPackage.bundleURL
