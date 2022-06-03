@@ -31,11 +31,11 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
+  const eventTypeOptions = ['PAGE_CREATED', 'HIGHLIGHT_CREATED']
   const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [contentType, setContentType] = useState('application/json')
   const [method, setMethod] = useState('POST')
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
-  const eventTypeOptions = ['PAGE_CREATED', 'HIGHLIGHT_CREATED']
 
   const headers = ['URL', 'Event Types', 'Method', 'Content Type']
   const rows = useMemo(() => {
@@ -162,6 +162,8 @@ export default function Webhooks(): JSX.Element {
               disabled: true,
             },
           ])
+          setUrl('')
+          setEventTypes(eventTypeOptions as WebhookEvent[])
           setAddModelOpen(true)
         }}
         onEdit={(webhook) => {
@@ -196,6 +198,8 @@ export default function Webhooks(): JSX.Element {
               disabled: true,
             },
           ])
+          setUrl(webhook?.url)
+          setEventTypes(webhook?.eventTypes)
           setOnEditWebhook(webhook)
         }}
       />
