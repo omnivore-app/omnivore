@@ -1,6 +1,8 @@
 import { styled } from '../tokens/stitches.config'
 import { useState } from 'react'
 import Checkbox from './Checkbox'
+import { Box, HStack, VStack } from './LayoutPrimitives'
+import { StyledText } from './StyledText'
 
 export interface FormInputProps {
   name: string
@@ -41,22 +43,27 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
 
   if (props.type === 'checkbox') {
     return (
-      <div>
+      <VStack>
         {input.labels?.map((label, index) => (
-          <Checkbox
-            key={index}
-            checked={props.value[index]}
-            setChecked={
-              props.onChange ||
-              (() => {
-                return
-              })
-            }
-          >
-            {label}
-          </Checkbox>
+          <HStack key={index}>
+            <StyledText>{label}</StyledText>
+            <Box css={{ padding: '10px 0 0 10px' }}>
+              <Checkbox
+                key={index}
+                checked={input.value[index]}
+                setChecked={(arg) => {
+                  input.value[index] = arg
+                  setInput(input)
+                  props.onChange &&
+                    props.onChange(
+                      input.labels?.filter((_, i) => input.value[i])
+                    )
+                }}
+              ></Checkbox>
+            </Box>
+          </HStack>
         ))}
-      </div>
+      </VStack>
     )
   } else {
     return (

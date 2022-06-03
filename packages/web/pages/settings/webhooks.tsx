@@ -146,9 +146,10 @@ export default function Webhooks(): JSX.Element {
             {
               label: 'Event Types',
               name: 'eventTypes',
-              value: eventTypes,
+              value: [true, true],
               onChange: setEventTypes,
-              disabled: true,
+              labels: eventTypes,
+              type: 'checkbox',
             },
             {
               label: 'Method',
