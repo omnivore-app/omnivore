@@ -84,44 +84,56 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   // Listen for preference change events sent from host apps (ios, macos...)
   useEffect(() => {
-    const increaseLineHeight = () => {
-      setLineHeightOverride(
-        Math.min((lineHeightOverride ?? props.lineHeight ?? 150) + 25, 300)
-      )
+    interface UpdateLineHeightEvent extends Event {
+      lineHeight?: number
     }
 
-    const decreaseLineHeight = () => {
-      setLineHeightOverride(
-        Math.max((lineHeightOverride ?? props.lineHeight ?? 150) - 25, 100)
-      )
+    const updateLineHeight = (event: UpdateLineHeightEvent) => {
+      const newLineHeight = event.lineHeight ?? lineHeightOverride ?? 150
+      if (newLineHeight >= 100 && newLineHeight <= 300) {
+        setLineHeightOverride(newLineHeight)
+      }
     }
 
-    const increaseMargin = () => {
-      setMarginOverride(
-        Math.min((marginOverride ?? props.margin ?? 360) + 45, 560)
-      )
+    interface UpdateMarginEvent extends Event {
+      margin?: number
     }
 
-    const decreaseMargin = () => {
-      setMarginOverride(
-        Math.max((marginOverride ?? props.margin ?? 360) - 45, 200)
-      )
+    const updateMargin = (event: UpdateMarginEvent) => {
+      const newMargin = event.margin ?? marginOverride ?? 360
+      if (newMargin >= 200 && newMargin <= 560) {
+        setMarginOverride(newMargin)
+      }
     }
 
-    const increaseFontSize = async () => {
-      await updateFontSize(Math.min(fontSize + 2, 28))
+    interface UpdateFontFamilyEvent extends Event {
+      family?: string
     }
 
-    const decreaseFontSize = async () => {
-      await updateFontSize(Math.max(fontSize - 2, 10))
+    const updateFontFamily = (event: UpdateFontFamilyEvent) => {
+      const newFontFamily =
+        event.family ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
+      setFontFamilyOverride(newFontFamily)
     }
 
-    const switchToDarkMode = () => {
-      updateThemeLocally(ThemeId.Dark)
+    interface UpdateFontSizeEvent extends Event {
+      fontSize?: number
     }
 
-    const switchToLightMode = () => {
-      updateThemeLocally(ThemeId.Light)
+    const handleFontSizeChange = async (event: UpdateFontSizeEvent) => {
+      const newFontSize = event.fontSize ?? 18
+      if (newFontSize >= 10 && newFontSize <= 28) {
+        updateFontSize(newFontSize)
+      }
+    }
+
+    interface UpdateColorModeEvent extends Event {
+      isDark?: boolean
+    }
+
+    const updateColorMode = (event: UpdateColorModeEvent) => {
+      const isDark = event.isDark ?? false
+      updateThemeLocally(isDark ? ThemeId.Dark : ThemeId.Light)
     }
 
     const share = () => {
@@ -133,25 +145,19 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       }
     }
 
-    document.addEventListener('increaseLineHeight', increaseLineHeight)
-    document.addEventListener('decreaseLineHeight', decreaseLineHeight)
-    document.addEventListener('increaseMargin', increaseMargin)
-    document.addEventListener('decreaseMargin', decreaseMargin)
-    document.addEventListener('increaseFontSize', increaseFontSize)
-    document.addEventListener('decreaseFontSize', decreaseFontSize)
-    document.addEventListener('switchToDarkMode', switchToDarkMode)
-    document.addEventListener('switchToLightMode', switchToLightMode)
+    document.addEventListener('updateFontFamily', updateFontFamily)
+    document.addEventListener('updateLineHeight', updateLineHeight)
+    document.addEventListener('updateMargin', updateMargin)
+    document.addEventListener('updateFontSize', handleFontSizeChange)
+    document.addEventListener('updateColorMode', updateColorMode)
     document.addEventListener('share', share)
 
     return () => {
-      document.removeEventListener('increaseLineHeight', increaseLineHeight)
-      document.removeEventListener('decreaseLineHeight', decreaseLineHeight)
-      document.removeEventListener('increaseMargin', increaseMargin)
-      document.removeEventListener('decreaseMargin', decreaseMargin)
-      document.removeEventListener('increaseFontSize', increaseFontSize)
-      document.removeEventListener('decreaseFontSize', decreaseFontSize)
-      document.removeEventListener('switchToDarkMode', switchToDarkMode)
-      document.removeEventListener('switchToLightMode', switchToLightMode)
+      document.removeEventListener('updateFontFamily', updateFontFamily)
+      document.removeEventListener('updateLineHeight', updateLineHeight)
+      document.removeEventListener('updateMargin', updateMargin)
+      document.removeEventListener('updateFontSize', handleFontSizeChange)
+      document.removeEventListener('updateColorMode', updateColorMode)
       document.removeEventListener('share', share)
     }
   })
