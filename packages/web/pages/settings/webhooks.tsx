@@ -31,13 +31,11 @@ export default function Webhooks(): JSX.Element {
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([
-    'PAGE_CREATED',
-    'HIGHLIGHT_CREATED',
-  ])
+  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
   const [contentType, setContentType] = useState('application/json')
   const [method, setMethod] = useState('POST')
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
+  const eventTypeOptions = ['PAGE_CREATED', 'HIGHLIGHT_CREATED']
 
   const headers = ['URL', 'Event Types', 'Method', 'Content Type']
   const rows = useMemo(() => {
@@ -148,7 +146,7 @@ export default function Webhooks(): JSX.Element {
               name: 'eventTypes',
               value: [true, true],
               onChange: setEventTypes,
-              labels: eventTypes,
+              options: eventTypeOptions,
               type: 'checkbox',
             },
             {
@@ -178,9 +176,12 @@ export default function Webhooks(): JSX.Element {
             {
               label: 'Event Types',
               name: 'eventTypes',
-              value: webhook?.eventTypes,
+              value: eventTypeOptions.map((option) =>
+                webhook?.eventTypes.includes(option)
+              ),
               onChange: setEventTypes,
-              disabled: true,
+              options: eventTypeOptions,
+              type: 'checkbox',
             },
             {
               label: 'Method',

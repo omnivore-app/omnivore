@@ -15,7 +15,7 @@ export interface FormInputProps {
   hidden?: boolean
   required?: boolean
   css?: any
-  labels?: string[]
+  options?: string[]
 }
 
 export const FormInput = styled('input', {
@@ -44,7 +44,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
   if (props.type === 'checkbox') {
     return (
       <VStack>
-        {input.labels?.map((label, index) => (
+        {input.options?.map((label, index) => (
           <HStack key={index}>
             <StyledText>{label}</StyledText>
             <Box css={{ padding: '10px 0 0 10px' }}>
@@ -56,7 +56,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
                   setInput(input)
                   props.onChange &&
                     props.onChange(
-                      input.labels?.filter((_, i) => input.value[i])
+                      input.options?.filter((_, i) => input.value[i])
                     )
                 }}
               ></Checkbox>
@@ -74,8 +74,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
         placeholder={input.placeholder}
         onChange={(event) => {
           if (input.onChange) {
-            // input.value = event.target.value
-            setInput(input)
+            setInput({ ...input, value: event.target.value })
             input.onChange(event.target.value)
           }
         }}
