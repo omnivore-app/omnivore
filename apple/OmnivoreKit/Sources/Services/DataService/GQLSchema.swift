@@ -695,6 +695,7 @@ extension Objects {
     let title: [String: String]
     let unsubHttpUrl: [String: String]
     let unsubMailTo: [String: String]
+    let updatedAt: [String: DateTime]
     let uploadFileId: [String: String]
     let url: [String: String]
 
@@ -848,6 +849,10 @@ extension Objects.Article: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "updatedAt":
+        if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "uploadFileId":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -899,6 +904,7 @@ extension Objects.Article: Decodable {
     title = map["title"]
     unsubHttpUrl = map["unsubHttpUrl"]
     unsubMailTo = map["unsubMailTo"]
+    updatedAt = map["updatedAt"]
     uploadFileId = map["uploadFileId"]
     url = map["url"]
   }
@@ -1436,6 +1442,24 @@ extension Fields where TypeLock == Objects.Article {
       return data.unsubMailTo[field.alias!]
     case .mocking:
       return nil
+    }
+  }
+
+  func updatedAt() throws -> DateTime {
+    let field = GraphQLField.leaf(
+      name: "updatedAt",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.updatedAt[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return DateTime.mockValue
     }
   }
 
@@ -6455,6 +6479,7 @@ extension Objects {
     let shareInfo: [String: Objects.LinkShareInfo]
     let shareStats: [String: Objects.ShareStats]
     let slug: [String: String]
+    let updatedAt: [String: DateTime]
     let url: [String: String]
 
     enum TypeName: String, Codable {
@@ -6519,6 +6544,10 @@ extension Objects.Link: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "updatedAt":
+        if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "url":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -6544,6 +6573,7 @@ extension Objects.Link: Decodable {
     shareInfo = map["shareInfo"]
     shareStats = map["shareStats"]
     slug = map["slug"]
+    updatedAt = map["updatedAt"]
     url = map["url"]
   }
 }
@@ -6750,6 +6780,24 @@ extension Fields where TypeLock == Objects.Link {
       throw HttpError.badpayload
     case .mocking:
       return String.mockValue
+    }
+  }
+
+  func updatedAt() throws -> DateTime {
+    let field = GraphQLField.leaf(
+      name: "updatedAt",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.updatedAt[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return DateTime.mockValue
     }
   }
 
@@ -8849,6 +8897,7 @@ extension Objects {
     let readableHtml: [String: String]
     let title: [String: String]
     let type: [String: Enums.PageType]
+    let updatedAt: [String: DateTime]
     let url: [String: String]
 
     enum TypeName: String, Codable {
@@ -8917,6 +8966,10 @@ extension Objects.Page: Decodable {
         if let value = try container.decode(Enums.PageType?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "updatedAt":
+        if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "url":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -8943,6 +8996,7 @@ extension Objects.Page: Decodable {
     readableHtml = map["readableHtml"]
     title = map["title"]
     type = map["type"]
+    updatedAt = map["updatedAt"]
     url = map["url"]
   }
 }
@@ -9158,6 +9212,24 @@ extension Fields where TypeLock == Objects.Page {
       throw HttpError.badpayload
     case .mocking:
       return Enums.PageType.allCases.first!
+    }
+  }
+
+  func updatedAt() throws -> DateTime {
+    let field = GraphQLField.leaf(
+      name: "updatedAt",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.updatedAt[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return DateTime.mockValue
     }
   }
 
@@ -11203,6 +11275,7 @@ extension Objects {
     let title: [String: String]
     let unsubHttpUrl: [String: String]
     let unsubMailTo: [String: String]
+    let updatedAt: [String: DateTime]
     let uploadFileId: [String: String]
     let url: [String: String]
 
@@ -11328,6 +11401,10 @@ extension Objects.SearchItem: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "updatedAt":
+        if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "uploadFileId":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -11372,6 +11449,7 @@ extension Objects.SearchItem: Decodable {
     title = map["title"]
     unsubHttpUrl = map["unsubHttpUrl"]
     unsubMailTo = map["unsubMailTo"]
+    updatedAt = map["updatedAt"]
     uploadFileId = map["uploadFileId"]
     url = map["url"]
   }
@@ -11787,6 +11865,24 @@ extension Fields where TypeLock == Objects.SearchItem {
       return data.unsubMailTo[field.alias!]
     case .mocking:
       return nil
+    }
+  }
+
+  func updatedAt() throws -> DateTime {
+    let field = GraphQLField.leaf(
+      name: "updatedAt",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.updatedAt[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return DateTime.mockValue
     }
   }
 
