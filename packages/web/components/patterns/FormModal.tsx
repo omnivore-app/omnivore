@@ -7,21 +7,9 @@ import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
 import { useState } from 'react'
-import { FormInput } from '../elements/FormElements'
+import { FormInputProps, GeneralFormInput } from '../elements/FormElements'
 import { CrossIcon } from '../elements/images/CrossIcon'
 import { theme } from '../tokens/stitches.config'
-
-export interface FormInputProps {
-  name: string
-  label: string
-  value?: any
-  onChange?: (value: any) => void
-  type?: string
-  placeholder?: string
-  disabled?: boolean
-  hidden?: boolean
-  required?: boolean
-}
 
 export interface FormModalProps {
   inputs?: FormInputProps[]
@@ -89,40 +77,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
                     </StyledText>
                   </Box>
                   <Box css={{ width: '100%' }}>
-                    <FormInput
-                      key={input.name}
-                      type={input.type || 'text'}
-                      value={input.value}
-                      placeholder={input.placeholder}
-                      onChange={(event) => {
-                        if (input.onChange) {
-                          inputs[index].value = event.target.value
-                          setInputs(inputs)
-                          input.onChange(
-                            event.target.value || event.target.checked
-                          )
-                        }
-                      }}
-                      disabled={input.disabled}
-                      hidden={input.hidden}
-                      required={input.required}
-                      checked={input.value}
-                      css={{
-                        border: '1px solid $grayBorder',
-                        borderRadius: '8px',
-                        width: '100%',
-                        bg: 'transparent',
-                        fontSize: '16px',
-                        textIndent: '8px',
-                        marginBottom: '2px',
-                        color: '$grayTextContrast',
-                        '&:focus': {
-                          outline: 'none',
-                          boxShadow:
-                            '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
-                        },
-                      }}
-                    />
+                    <GeneralFormInput {...input} />
                   </Box>
                 </HStack>
               ))}

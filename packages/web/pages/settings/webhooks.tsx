@@ -10,8 +10,9 @@ import { useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebhookMutation'
-import { FormInputProps, FormModal } from '../../components/patterns/FormModal'
+import { FormModal } from '../../components/patterns/FormModal'
 import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
+import { FormInputProps } from '../../components/elements/FormElements'
 
 interface Webhook {
   id?: string
@@ -34,18 +35,11 @@ export default function Webhooks(): JSX.Element {
     'PAGE_CREATED',
     'HIGHLIGHT_CREATED',
   ])
-  const [enabled, setEnabled] = useState(true)
   const [contentType, setContentType] = useState('application/json')
   const [method, setMethod] = useState('POST')
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
 
-  const [headers, setHeaders] = useState<string[]>([
-    'URL',
-    'Event Types',
-    'Method',
-    'Content Type',
-    // 'Enabled',
-  ])
+  const headers = ['URL', 'Event Types', 'Method', 'Content Type']
   const rows = useMemo(() => {
     const rows = new Map<string, Webhook>()
     webhooks.forEach((webhook) =>
@@ -54,7 +48,6 @@ export default function Webhooks(): JSX.Element {
         eventTypes: webhook.eventTypes.join(', '),
         method: webhook.method,
         contentType: webhook.contentType,
-        // enabled: webhook.enabled ? 'Yes' : 'No',
       })
     )
     return rows
@@ -73,7 +66,7 @@ export default function Webhooks(): JSX.Element {
   }
 
   async function onAdd(): Promise<void> {
-    const result = await setWebhookMutation({ url, eventTypes, enabled })
+    const result = await setWebhookMutation({ url, eventTypes })
     if (result) {
       showSuccessToast('Added', { position: 'bottom-right' })
     } else {
@@ -87,7 +80,6 @@ export default function Webhooks(): JSX.Element {
       id: onEditWebhook?.id,
       url,
       eventTypes,
-      enabled,
     })
     if (result) {
       showSuccessToast('Updated', { position: 'bottom-right' })
@@ -170,13 +162,6 @@ export default function Webhooks(): JSX.Element {
               value: contentType,
               disabled: true,
             },
-            // {
-            //   label: 'Enabled',
-            //   name: 'enabled',
-            //   type: 'checkbox',
-            //   onChange: setEnabled,
-            //   value: enabled,
-            // },
           ])
           setAddModelOpen(true)
         }}
@@ -208,13 +193,6 @@ export default function Webhooks(): JSX.Element {
               value: contentType,
               disabled: true,
             },
-            // {
-            //   label: 'Enabled',
-            //   name: 'enabled',
-            //   type: 'checkbox',
-            //   onChange: setEnabled,
-            //   value: webhook?.enabled === 'Yes',
-            // },
           ])
           setOnEditWebhook(webhook)
         }}

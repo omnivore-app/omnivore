@@ -221,7 +221,8 @@ export function Table(props: TableProps): JSX.Element {
                 style="ctaWhite"
                 css={{ mr: '$1', background: '$labelButtonsBg' }}
                 onClick={() => {
-                  props.onEdit && props.onEdit(props.rows.get(key))
+                  props.onEdit &&
+                    props.onEdit({ ...props.rows.get(key), id: key })
                 }}
               >
                 <PencilSimple size={24} color={iconColor} />
