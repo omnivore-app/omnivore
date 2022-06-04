@@ -198,6 +198,7 @@ export interface Page {
   state: ArticleSavingRequestStatus
   taskName?: string
   language?: string
+  readAt?: Date
 }
 
 export interface SearchItem {
