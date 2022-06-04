@@ -41,6 +41,7 @@ const App = () => {
             highlightBarDisabled={true}
             highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
+            fontFamily={window.fontFamily ?? 'inter'}
             margin={window.margin}
             lineHeight={window.lineHeight}
             articleMutations={{

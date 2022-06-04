@@ -27,6 +27,8 @@ import SwiftUI
 
     func show() {
       guard hostVC == nil else { return }
+      // WIP: use subclass to control a max height we pass in for iphone
+//      let controller = FormSheetHostingController(rootView: content(), height: 100)
       let controller = UIHostingController(rootView: content())
 
       if controller.traitCollection.userInterfaceIdiom == .phone {
@@ -94,9 +96,51 @@ import SwiftUI
       modalSize: CGSize = CGSize(width: 320, height: 320),
       @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-      background(FormSheet(show: isPresented,
-                           modalSize: modalSize,
-                           content: content))
+      background(
+        FormSheet(
+          show: isPresented,
+          modalSize: modalSize,
+          content: content
+        )
+      )
+    }
+  }
+
+  final class FormSheetHostingController<Content: View>: UIHostingController<Content> {
+    let height: CGFloat
+
+    init(rootView: Content, height: CGFloat) {
+      self.height = height
+      super.init(rootView: rootView)
+    }
+
+    @available(*, unavailable)
+    @MainActor dynamic required init?(coder _: NSCoder) {
+      fatalError("init(coder:) has not been implemented")
+    }
+
+    override func updateViewConstraints() {
+      view.frame.size.height = UIScreen.main.bounds.height - height
+      view.frame.origin.y = height
+      view.roundCorners(corners: [.topLeft, .topRight], radius: 16.0)
+      super.updateViewConstraints()
+    }
+  }
+
+  extension UIView {
+    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+      let path = UIBezierPath(
+        roundedRect: bounds,
+        byRoundingCorners: corners,
+        cornerRadii:
+        CGSize(
+          width: radius,
+          height: radius
+        )
+      )
+      let mask = CAShapeLayer()
+      mask.path = path.cgPath
+      layer.mask = mask
     }
   }
 

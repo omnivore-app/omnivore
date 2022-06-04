@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import Utils
+import Views
 
 struct WebReaderContent {
   let textFontSize: Int
@@ -10,6 +11,7 @@ struct WebReaderContent {
   let highlightsJSONString: String
   let item: LinkedItem
   let themeKey: String
+  let fontFamily: WebFont
 
   init(
     htmlContent: String,
@@ -18,7 +20,8 @@ struct WebReaderContent {
     isDark: Bool,
     fontSize: Int,
     lineHeight: Int,
-    margin: Int
+    margin: Int,
+    fontFamily: WebFont
   ) {
     self.textFontSize = fontSize
     self.lineHeight = lineHeight
@@ -27,6 +30,7 @@ struct WebReaderContent {
     self.highlightsJSONString = highlightsJSONString
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
+    self.fontFamily = fontFamily
   }
 
   // swiftlint:disable line_length
@@ -77,6 +81,7 @@ struct WebReaderContent {
           }
 
           window.fontSize = \(textFontSize)
+          window.fontFamily = "\(fontFamily.rawValue)"
           window.margin = \(margin)
           window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")

@@ -13,12 +13,10 @@ import WebKit
     let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
     let navBarVisibilityRatioUpdater: (Double) -> Void
 
-    @Binding var increaseFontActionID: UUID?
-    @Binding var decreaseFontActionID: UUID?
-    @Binding var increaseMarginActionID: UUID?
-    @Binding var decreaseMarginActionID: UUID?
-    @Binding var increaseLineHeightActionID: UUID?
-    @Binding var decreaseLineHeightActionID: UUID?
+    @Binding var updateFontFamilyActionID: UUID?
+    @Binding var updateFontActionID: UUID?
+    @Binding var updateMarginActionID: UUID?
+    @Binding var updateLineHeightActionID: UUID?
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var showNavBarActionID: UUID?
     @Binding var shareActionID: UUID?
@@ -78,37 +76,27 @@ import WebKit
     func updateUIView(_ webView: WKWebView, context: Context) {
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-        (webView as? WebView)?.saveAnnotation(annotation: annotation)
+        (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
-      if increaseFontActionID != context.coordinator.previousIncreaseFontActionID {
-        context.coordinator.previousIncreaseFontActionID = increaseFontActionID
-        (webView as? WebView)?.increaseFontSize()
+      if updateFontFamilyActionID != context.coordinator.previousUpdateFontFamilyActionID {
+        context.coordinator.previousUpdateFontFamilyActionID = updateFontFamilyActionID
+        (webView as? WebView)?.updateFontFamily()
       }
 
-      if decreaseFontActionID != context.coordinator.previousDecreaseFontActionID {
-        context.coordinator.previousDecreaseFontActionID = decreaseFontActionID
-        (webView as? WebView)?.decreaseFontSize()
+      if updateFontActionID != context.coordinator.previousUpdateFontActionID {
+        context.coordinator.previousUpdateFontActionID = updateFontActionID
+        (webView as? WebView)?.updateFontSize()
       }
 
-      if increaseMarginActionID != context.coordinator.previousIncreaseMarginActionID {
-        context.coordinator.previousIncreaseMarginActionID = increaseMarginActionID
-        (webView as? WebView)?.increaseMargin()
+      if updateMarginActionID != context.coordinator.previousUpdateMarginActionID {
+        context.coordinator.previousUpdateMarginActionID = updateMarginActionID
+        (webView as? WebView)?.updateMargin()
       }
 
-      if decreaseMarginActionID != context.coordinator.previousDecreaseMarginActionID {
-        context.coordinator.previousDecreaseMarginActionID = decreaseMarginActionID
-        (webView as? WebView)?.decreaseMargin()
-      }
-
-      if increaseLineHeightActionID != context.coordinator.previousIncreaseLineHeightActionID {
-        context.coordinator.previousIncreaseLineHeightActionID = increaseLineHeightActionID
-        (webView as? WebView)?.increaseLineHeight()
-      }
-
-      if decreaseLineHeightActionID != context.coordinator.previousDecreaseLineHeightActionID {
-        context.coordinator.previousDecreaseLineHeightActionID = decreaseLineHeightActionID
-        (webView as? WebView)?.decreaseLineHeight()
+      if updateLineHeightActionID != context.coordinator.previousUpdateLineHeightActionID {
+        context.coordinator.previousUpdateLineHeightActionID = updateLineHeightActionID
+        (webView as? WebView)?.updateLineHeight()
       }
 
       if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
@@ -144,6 +132,9 @@ import WebKit
     }
 
     func loadContent(webView: WKWebView) {
+      let fontFamilyValue = UserDefaults.standard.string(forKey: UserDefaultKey.preferredWebFont.rawValue)
+      let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .inter
+
       webView.loadHTMLString(
         WebReaderContent(
           htmlContent: htmlContent,
@@ -152,7 +143,8 @@ import WebKit
           isDark: UITraitCollection.current.userInterfaceStyle == .dark,
           fontSize: fontSize(),
           lineHeight: lineHeight(),
-          margin: margin()
+          margin: margin(),
+          fontFamily: fontFamily
         )
         .styledContent,
         baseURL: ViewsPackage.bundleURL

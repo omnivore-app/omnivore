@@ -95,17 +95,17 @@ public enum WebViewManager {
 
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-        (webView as? WebView)?.saveAnnotation(annotation: annotation)
+        (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
       if sendIncreaseFontSignal {
         sendIncreaseFontSignal = false
-        (webView as? WebView)?.increaseFontSize()
+        (webView as? WebView)?.updateFontSize()
       }
 
       if sendDecreaseFontSignal {
         sendDecreaseFontSignal = false
-        (webView as? WebView)?.decreaseFontSize()
+        (webView as? WebView)?.updateFontSize()
       }
     }
   }

@@ -15,12 +15,10 @@ import WebKit
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
     @State private var progressViewOpacity = 0.0
-    @State var increaseFontActionID: UUID?
-    @State var decreaseFontActionID: UUID?
-    @State var increaseMarginActionID: UUID?
-    @State var decreaseMarginActionID: UUID?
-    @State var increaseLineHeightActionID: UUID?
-    @State var decreaseLineHeightActionID: UUID?
+    @State var updateFontFamilyActionID: UUID?
+    @State var updateFontActionID: UUID?
+    @State var updateMarginActionID: UUID?
+    @State var updateLineHeightActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
     @State var showNavBarActionID: UUID?
     @State var shareActionID: UUID?
@@ -149,12 +147,10 @@ import WebKit
             navBarVisibilityRatioUpdater: {
               navBarVisibilityRatio = $0
             },
-            increaseFontActionID: $increaseFontActionID,
-            decreaseFontActionID: $decreaseFontActionID,
-            increaseMarginActionID: $increaseMarginActionID,
-            decreaseMarginActionID: $decreaseMarginActionID,
-            increaseLineHeightActionID: $increaseLineHeightActionID,
-            decreaseLineHeightActionID: $decreaseLineHeightActionID,
+            updateFontFamilyActionID: $updateFontFamilyActionID,
+            updateFontActionID: $updateFontActionID,
+            updateMarginActionID: $updateMarginActionID,
+            updateLineHeightActionID: $updateLineHeightActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             showNavBarActionID: $showNavBarActionID,
             shareActionID: $shareActionID,
@@ -202,12 +198,10 @@ import WebKit
       }
       .formSheet(isPresented: $showPreferencesPopover) {
         WebPreferencesPopoverView(
-          increaseFontAction: { increaseFontActionID = UUID() },
-          decreaseFontAction: { decreaseFontActionID = UUID() },
-          increaseMarginAction: { increaseMarginActionID = UUID() },
-          decreaseMarginAction: { decreaseMarginActionID = UUID() },
-          increaseLineHeightAction: { increaseLineHeightActionID = UUID() },
-          decreaseLineHeightAction: { decreaseLineHeightActionID = UUID() },
+          updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
+          updateFontAction: { updateFontActionID = UUID() },
+          updateMarginAction: { updateMarginActionID = UUID() },
+          updateLineHeightAction: { updateLineHeightActionID = UUID() },
           dismissAction: { showPreferencesPopover = false }
         )
       }
