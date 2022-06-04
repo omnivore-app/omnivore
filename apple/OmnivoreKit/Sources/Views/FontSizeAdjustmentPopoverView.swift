@@ -12,6 +12,7 @@ public enum WebFont: String, CaseIterable {
 public struct WebPreferencesPopoverView: View {
   let updateFontFamilyAction: () -> Void
   let updateFontAction: () -> Void
+  let updateTextContrastAction: () -> Void
   let updateMarginAction: () -> Void
   let updateLineHeightAction: () -> Void
   let dismissAction: () -> Void
@@ -26,16 +27,19 @@ public struct WebPreferencesPopoverView: View {
   @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
   @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
   @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
+  @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = false
 
   public init(
     updateFontFamilyAction: @escaping () -> Void,
     updateFontAction: @escaping () -> Void,
+    updateTextContrastAction: @escaping () -> Void,
     updateMarginAction: @escaping () -> Void,
     updateLineHeightAction: @escaping () -> Void,
     dismissAction: @escaping () -> Void
   ) {
     self.updateFontFamilyAction = updateFontFamilyAction
     self.updateFontAction = updateFontAction
+    self.updateTextContrastAction = updateTextContrastAction
     self.updateMarginAction = updateMarginAction
     self.updateLineHeightAction = updateLineHeightAction
     self.dismissAction = dismissAction
@@ -60,69 +64,77 @@ public struct WebPreferencesPopoverView: View {
           }
         )
       }
-      .padding()
     }
+    .listStyle(.plain)
     .navigationBarTitleDisplayMode(.inline)
   }
 
   public var body: some View {
     NavigationView {
-      VStack(alignment: .center) {
-        Text("Reader Preferences")
-          .foregroundColor(.appGrayText)
-          .font(Font.system(size: 17, weight: .semibold))
+      ScrollView(showsIndicators: false) {
+        VStack(alignment: .center) {
+          VStack {
+            LabelledStepper(
+              labelText: "Font Size:",
+              onIncrement: {
+                storedFontSize = min(storedFontSize + 2, 28)
+                updateFontAction()
+              },
+              onDecrement: {
+                storedFontSize = max(storedFontSize - 2, 10)
+                updateFontAction()
+              }
+            )
 
-        LabelledStepper(
-          labelText: "Font Size:",
-          onIncrement: {
-            storedFontSize = min(storedFontSize + 2, 28)
-            updateFontAction()
-          },
-          onDecrement: {
-            storedFontSize = max(storedFontSize - 2, 10)
-            updateFontAction()
-          }
-        )
-
-        if UIDevice.isIPad {
-          LabelledStepper(
-            labelText: "Margin:",
-            onIncrement: {
-              storedMargin = min(storedMargin + 45, 560)
-              updateMarginAction()
-            },
-            onDecrement: {
-              storedMargin = max(storedMargin - 45, 200)
-              updateMarginAction()
+            if UIDevice.isIPad {
+              LabelledStepper(
+                labelText: "Margin:",
+                onIncrement: {
+                  storedMargin = min(storedMargin + 45, 560)
+                  updateMarginAction()
+                },
+                onDecrement: {
+                  storedMargin = max(storedMargin - 45, 200)
+                  updateMarginAction()
+                }
+              )
             }
-          )
-        }
 
-        LabelledStepper(
-          labelText: "Line Spacing:",
-          onIncrement: {
-            storedLineSpacing = min(storedLineSpacing + 25, 300)
-            updateLineHeightAction()
-          },
-          onDecrement: {
-            storedLineSpacing = max(storedLineSpacing - 25, 100)
-            updateLineHeightAction()
+            LabelledStepper(
+              labelText: "Line Spacing:",
+              onIncrement: {
+                storedLineSpacing = min(storedLineSpacing + 25, 300)
+                updateLineHeightAction()
+              },
+              onDecrement: {
+                storedLineSpacing = max(storedLineSpacing - 25, 100)
+                updateLineHeightAction()
+              }
+            )
+
+            Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
+              .frame(height: 40)
+              .padding(.trailing, 6)
+              .onChange(of: prefersHighContrastText) { _ in
+                updateTextContrastAction()
+              }
+
+            HStack {
+              NavigationLink(destination: fontList) {
+                Text("Change Reader Font")
+              }
+              Image(systemName: "chevron.right")
+              Spacer()
+            }
+            .frame(height: 40)
+
+            Spacer()
           }
-        )
-
-        HStack {
-          NavigationLink(destination: fontList) {
-            Text("Change Reader Font")
-          }
-          Image(systemName: "chevron.right")
-          Spacer()
         }
-        .frame(height: 40)
-
-        Spacer()
       }
       .padding()
-      .navigationBarHidden(true)
+      .navigationTitle("Reader Preferences")
+      .navigationBarTitleDisplayMode(.inline)
     }
     .accentColor(.appGrayTextContrast)
   }

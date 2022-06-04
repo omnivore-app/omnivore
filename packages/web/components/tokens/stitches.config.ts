@@ -139,6 +139,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // Reader Colors
         readerBg: '#E5E5E5',
         readerFont: '#3D3D3D',
+        readerFontHighContrast: 'black',
         readerFontTransparent: 'rgba(61,61,61,0.65)',
         readerHeader: '3D3D3D',
         readerTableHeader: '#FFFFFF',
@@ -194,6 +195,7 @@ const darkThemeSpec = {
     // Reader Colors
     readerBg: '#303030',
     readerFont: '#b9b9b9',
+    readerFontHighContrast: 'black',
     readerFontTransparent: 'rgba(185,185,185,0.65)',
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
