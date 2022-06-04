@@ -71,15 +71,8 @@ public struct WebPreferencesPopoverView: View {
 
   public var body: some View {
     NavigationView {
-      VStack(alignment: .center) {
-        Text("Reader Preferences")
-          .foregroundColor(.appGrayText)
-          .font(Font.system(size: 17, weight: .semibold))
-
-        Divider()
-          .padding(.bottom, 6)
-
-        ScrollView(showsIndicators: false) {
+      ScrollView(showsIndicators: false) {
+        VStack(alignment: .center) {
           VStack {
             LabelledStepper(
               labelText: "Font Size:",
@@ -121,6 +114,7 @@ public struct WebPreferencesPopoverView: View {
 
             Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
               .frame(height: 40)
+              .padding(.trailing, 6)
               .onChange(of: prefersHighContrastText) { _ in
                 updateTextContrastAction()
               }
@@ -139,7 +133,8 @@ public struct WebPreferencesPopoverView: View {
         }
       }
       .padding()
-      .navigationBarHidden(true)
+      .navigationTitle("Reader Preferences")
+      .navigationBarTitleDisplayMode(.inline)
     }
     .accentColor(.appGrayTextContrast)
   }
