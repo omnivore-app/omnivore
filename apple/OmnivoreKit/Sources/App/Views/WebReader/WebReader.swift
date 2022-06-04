@@ -15,6 +15,7 @@ import WebKit
 
     @Binding var updateFontFamilyActionID: UUID?
     @Binding var updateFontActionID: UUID?
+    @Binding var updateTextContrastActionID: UUID?
     @Binding var updateMarginActionID: UUID?
     @Binding var updateLineHeightActionID: UUID?
     @Binding var annotationSaveTransactionID: UUID?
@@ -87,6 +88,11 @@ import WebKit
       if updateFontActionID != context.coordinator.previousUpdateFontActionID {
         context.coordinator.previousUpdateFontActionID = updateFontActionID
         (webView as? WebView)?.updateFontSize()
+      }
+
+      if updateTextContrastActionID != context.coordinator.previousUpdateTextContrastActionID {
+        context.coordinator.previousUpdateTextContrastActionID = updateTextContrastActionID
+        (webView as? WebView)?.updateTextContrast()
       }
 
       if updateMarginActionID != context.coordinator.previousUpdateMarginActionID {

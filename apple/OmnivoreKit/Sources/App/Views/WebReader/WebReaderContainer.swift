@@ -17,6 +17,7 @@ import WebKit
     @State private var progressViewOpacity = 0.0
     @State var updateFontFamilyActionID: UUID?
     @State var updateFontActionID: UUID?
+    @State var updateTextContrastActionID: UUID?
     @State var updateMarginActionID: UUID?
     @State var updateLineHeightActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
@@ -149,6 +150,7 @@ import WebKit
             },
             updateFontFamilyActionID: $updateFontFamilyActionID,
             updateFontActionID: $updateFontActionID,
+            updateTextContrastActionID: $updateTextContrastActionID,
             updateMarginActionID: $updateMarginActionID,
             updateLineHeightActionID: $updateLineHeightActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
@@ -200,6 +202,7 @@ import WebKit
         WebPreferencesPopoverView(
           updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
           updateFontAction: { updateFontActionID = UUID() },
+          updateTextContrastAction: { updateTextContrastActionID = UUID() },
           updateMarginAction: { updateMarginActionID = UUID() },
           updateLineHeightAction: { updateLineHeightActionID = UUID() },
           dismissAction: { showPreferencesPopover = false }

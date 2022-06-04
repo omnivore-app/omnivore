@@ -51,6 +51,16 @@ public final class WebView: WKWebView {
     }
   }
 
+  public func updateTextContrast() {
+    let isHighContrast = UserDefaults.standard.value(
+      forKey: UserDefaultKey.prefersHighContrastWebFont.rawValue
+    ) as? Bool
+
+    if let isHighContrast = isHighContrast {
+      dispatchEvent(.handleFontContrastChange(isHighContrast: isHighContrast))
+    }
+  }
+
   public func shareOriginalItem() {
     dispatchEvent(.share)
   }
@@ -228,6 +238,7 @@ public final class WebView: WKWebView {
 #endif
 
 public enum WebViewDispatchEvent {
+  case handleFontContrastChange(isHighContrast: Bool)
   case updateLineHeight(height: Int)
   case updateMargin(width: Int)
   case updateFontSize(size: Int)
@@ -247,6 +258,8 @@ public enum WebViewDispatchEvent {
 
   private var eventName: String {
     switch self {
+    case .handleFontContrastChange:
+      return "handleFontContrastChange"
     case .updateLineHeight:
       return "updateLineHeight"
     case .updateMargin:
@@ -276,6 +289,8 @@ public enum WebViewDispatchEvent {
 
   private var scriptPropertyLine: String {
     switch self {
+    case let .handleFontContrastChange(isHighContrast: isHighContrast):
+      return "event.fontContrast = '\(isHighContrast ? "high" : "normal")';"
     case let .updateLineHeight(height: height):
       return "event.lineHeight = '\(height)';"
     case let .updateMargin(width: width):

@@ -12,6 +12,7 @@ public enum WebFont: String, CaseIterable {
 public struct WebPreferencesPopoverView: View {
   let updateFontFamilyAction: () -> Void
   let updateFontAction: () -> Void
+  let updateTextContrastAction: () -> Void
   let updateMarginAction: () -> Void
   let updateLineHeightAction: () -> Void
   let dismissAction: () -> Void
@@ -26,16 +27,19 @@ public struct WebPreferencesPopoverView: View {
   @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
   @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
   @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
+  @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = false
 
   public init(
     updateFontFamilyAction: @escaping () -> Void,
     updateFontAction: @escaping () -> Void,
+    updateTextContrastAction: @escaping () -> Void,
     updateMarginAction: @escaping () -> Void,
     updateLineHeightAction: @escaping () -> Void,
     dismissAction: @escaping () -> Void
   ) {
     self.updateFontFamilyAction = updateFontFamilyAction
     self.updateFontAction = updateFontAction
+    self.updateTextContrastAction = updateTextContrastAction
     self.updateMarginAction = updateMarginAction
     self.updateLineHeightAction = updateLineHeightAction
     self.dismissAction = dismissAction
@@ -86,6 +90,11 @@ public struct WebPreferencesPopoverView: View {
               updateLineHeightAction()
             }
           )
+
+          Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
+            .onChange(of: prefersHighContrastText) { _ in
+              updateTextContrastAction()
+            }
         }
         Section("Font Family") {
           ForEach(WebFont.allCases, id: \.self) { font in

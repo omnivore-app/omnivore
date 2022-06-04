@@ -5,6 +5,7 @@ public enum UserDefaultKey: String {
   case preferredWebFontSize
   case preferredWebLineSpacing
   case preferredWebMargin
+  case prefersHighContrastWebFont
   case userHasDeniedPushPrimer
   case firebasePushToken
   case homeFeedlayoutPreference
