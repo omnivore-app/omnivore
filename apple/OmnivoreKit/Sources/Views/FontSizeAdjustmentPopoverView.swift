@@ -100,11 +100,6 @@ public struct WebPreferencesPopoverView: View {
               updateMarginAction()
             }
           )
-
-          Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
-            .onChange(of: prefersHighContrastText) { _ in
-              updateTextContrastAction()
-            }
         }
 
         LabelledStepper(
@@ -118,6 +113,12 @@ public struct WebPreferencesPopoverView: View {
             updateLineHeightAction()
           }
         )
+
+        Toggle("High Contrast Text:", isOn: $prefersHighContrastText)
+          .frame(height: 40)
+          .onChange(of: prefersHighContrastText) { _ in
+            updateTextContrastAction()
+          }
 
         HStack {
           NavigationLink(destination: fontList) {
