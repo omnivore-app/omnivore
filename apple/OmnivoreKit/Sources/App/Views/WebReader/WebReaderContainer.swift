@@ -198,7 +198,7 @@ import WebKit
           Spacer()
         }
       }
-      .formSheet(isPresented: $showPreferencesPopover) {
+      .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
         WebPreferencesPopoverView(
           updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
           updateFontAction: { updateFontActionID = UUID() },
