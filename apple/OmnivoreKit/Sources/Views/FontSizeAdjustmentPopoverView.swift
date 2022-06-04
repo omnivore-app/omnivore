@@ -122,6 +122,8 @@ public struct WebPreferencesPopoverView: View {
       .padding()
     }
     .accentColor(.appGrayTextContrast)
+    .navigationTitle("kmlm")
+    .navigationBarTitleDisplayMode(.inline)
   }
 }
 
