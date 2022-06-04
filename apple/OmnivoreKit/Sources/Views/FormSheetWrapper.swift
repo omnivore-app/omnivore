@@ -39,8 +39,7 @@ import SwiftUI
 
       if UIDevice.isIPhone {
         if let sheet = controller.sheetPresentationController {
-          // sheet.preferredCornerRadius = 32
-          sheet.prefersGrabberVisible = true
+          sheet.prefersGrabberVisible = false
           sheet.detents = [.medium()]
           sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }

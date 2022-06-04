@@ -60,7 +60,9 @@ public struct WebPreferencesPopoverView: View {
           }
         )
       }
+      .padding()
     }
+    .navigationBarTitleDisplayMode(.inline)
   }
 
   public var body: some View {
@@ -120,10 +122,9 @@ public struct WebPreferencesPopoverView: View {
         Spacer()
       }
       .padding()
+      .navigationBarHidden(true)
     }
     .accentColor(.appGrayTextContrast)
-    .navigationTitle("kmlm")
-    .navigationBarTitleDisplayMode(.inline)
   }
 }
 
