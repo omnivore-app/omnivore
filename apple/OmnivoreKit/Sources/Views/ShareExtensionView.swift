@@ -256,7 +256,7 @@ public struct ShareExtensionChildView: View {
           .padding(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 8))
       }
     }
-    .background(Color(hex: "#363636"))
+    .background(Color.appButtonBackground)
     .frame(maxWidth: .infinity, maxHeight: 61)
     .cornerRadius(8)
   }
@@ -268,14 +268,14 @@ public struct ShareExtensionChildView: View {
         .font(Font.system(size: 17, weight: .semibold))
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, 23)
-        .padding(.bottom, 16)
+        .padding(.bottom, 12)
 
       Rectangle()
         .foregroundColor(.appGrayText)
         .frame(maxWidth: .infinity, maxHeight: 1)
         .opacity(0.06)
         .padding(.top, 0)
-        .padding(.bottom, 16)
+        .padding(.bottom, 18)
 
       previewCard
         .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
