@@ -49,9 +49,9 @@ import {
   isParsingTimeout,
   pageError,
   stringToHash,
+  titleForFilePath,
   userDataToUser,
   validatedDate,
-  titleForFilePath,
 } from '../../utils/helpers'
 import {
   ParsedContentPuppeteer,
@@ -729,9 +729,10 @@ export const saveArticleReadingProgressResolver = authorized<
       readingProgressAnchorIndex: shouldUpdate
         ? readingProgressAnchorIndex
         : page.readingProgressAnchorIndex,
+      readAt: new Date(),
     }
 
-    shouldUpdate && (await updatePage(id, updatedPart, { pubsub, uid }))
+    await updatePage(id, updatedPart, { pubsub, uid })
 
     return {
       updatedArticle: {
