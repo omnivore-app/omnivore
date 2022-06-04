@@ -43,16 +43,9 @@ public struct WebPreferencesPopoverView: View {
 
   public var body: some View {
     VStack(alignment: .center) {
-      ZStack {
-        Text("Preferences").font(.appTitleThree)
-        HStack {
-          Spacer()
-          Button(
-            action: dismissAction,
-            label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
-          )
-        }
-      }
+      Text("Reader Preferences")
+        .foregroundColor(.appGrayText)
+        .font(Font.system(size: 17, weight: .semibold))
 
       List {
         Section("Sizing") {

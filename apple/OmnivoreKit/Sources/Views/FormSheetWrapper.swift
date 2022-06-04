@@ -33,8 +33,8 @@ import SwiftUI
 
       if controller.traitCollection.userInterfaceIdiom == .phone {
         if let sheet = controller.sheetPresentationController {
-          sheet.preferredCornerRadius = 16
-          sheet.prefersGrabberVisible = false
+          // sheet.preferredCornerRadius = 32
+          sheet.prefersGrabberVisible = true
           sheet.detents = [.medium()]
           sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
         }
