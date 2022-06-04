@@ -147,18 +147,15 @@ public final class DataService: ObservableObject {
       case let .pdf(localUrl):
         linkedItem.contentReader = "PDF"
         linkedItem.localPdfURL = localUrl.absoluteString
-        linkedItem.title = self.titleFromPdfFile(pageScrape.url)
-
-//      TODO: Attempt to set thumbnail from PDF data
-//        let thumbnailUrl = DataService.thumbnailUrl(localUrl: localUrl)
-//        self.createThumbnailFor(inputUrl: localUrl, at: thumbnailUrl)
-//        linkedItem.imageURLString = thumbnailUrl.absoluteString
+        linkedItem.title = PDFUtils.titleFromPdfFile(pageScrape.url)
+//        let thumbnailUrl = PDFUtils.thumbnailUrl(localUrl: localUrl)
+//        linkedItem.imageURLString = await PDFUtils.createThumbnailFor(inputUrl: localUrl, at: thumbnailUrl)
 
       case let .html(html: html, title: title, iconURL: iconURL):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
         linkedItem.imageURLString = iconURL
-        linkedItem.title = title ?? self.titleFromPdfFile(pageScrape.url)
+        linkedItem.title = title ?? PDFUtils.titleFromPdfFile(pageScrape.url)
       case .none:
         print("SAVING URL", linkedItem.unwrappedPageURLString)
         linkedItem.contentReader = "WEB"
@@ -172,51 +169,6 @@ public final class DataService: ObservableObject {
 
         print("Failed to save ArticleContent", error.localizedDescription, error)
         throw error
-      }
-    }
-  }
-
-  func titleFromPdfFile(_ urlStr: String) -> String {
-    let url = URL(string: urlStr)
-    if let url = url {
-      return url.lastPathComponent
-    }
-    return urlStr
-  }
-
-  func titleFromUrl(_ urlStr: String) -> String {
-    let url = URL(string: urlStr)
-    if let url = url {
-      return url.lastPathComponent
-    }
-    return urlStr
-  }
-
-  func thumbnailUrl(localUrl: URL) -> URL {
-    var thumbnailUrl = localUrl
-    thumbnailUrl.appendPathExtension(".pdf")
-    return thumbnailUrl
-  }
-
-  // TODO: we can try to use this to create PDF thumbnails locally
-  func createThumbnailFor(inputUrl: URL, at outputUrl: URL) {
-    let size = CGSize(width: 80, height: 80)
-    let scale = UIScreen.main.scale
-
-    // Create the thumbnail request.
-    let request =
-      QLThumbnailGenerator.Request(
-        fileAt: inputUrl,
-        size: size,
-        scale: scale,
-        representationTypes: .all
-      )
-
-    // Retrieve the singleton instance of the thumbnail generator and generate the thumbnails.
-    let generator = QLThumbnailGenerator.shared
-    generator.saveBestRepresentation(for: request, to: outputUrl, contentType: UTType.jpeg.identifier) { error in
-      if let error = error {
-        print(error.localizedDescription)
       }
     }
   }

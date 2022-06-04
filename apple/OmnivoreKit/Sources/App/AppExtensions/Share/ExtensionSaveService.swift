@@ -8,6 +8,7 @@
 import Foundation
 import Models
 import Services
+import Utils
 import Views
 
 class ExtensionSaveService {
@@ -56,13 +57,19 @@ class ExtensionSaveService {
               url.path = "/favicon.ico"
               shareExtensionViewModel.iconURL = url.url?.absoluteString
             }
-          case let .pdf(localUrl: _):
-            shareExtensionViewModel.title = payload.url
+          case let .pdf(localUrl: localUrl):
             shareExtensionViewModel.url = hostname
+            shareExtensionViewModel.title = PDFUtils.titleFromPdfFile(localUrl.absoluteString)
+            Task {
+              let localThumbnail = try await PDFUtils.createThumbnailFor(inputUrl: localUrl)
+              DispatchQueue.main.async {
+                shareExtensionViewModel.iconURL = localThumbnail?.absoluteString
+              }
+            }
           }
         }
         self.queueSaveOperation(payload, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
-      case let .failure(error):
+      case let .failure:
         DispatchQueue.main.async {
           shareExtensionViewModel.status = .failed(error: .unknown(description: "Could not retrieve content"))
         }

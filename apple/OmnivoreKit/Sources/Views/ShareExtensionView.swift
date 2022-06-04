@@ -187,12 +187,37 @@ public struct ShareExtensionChildView: View {
     }
   }
 
+  private func localImage(from: URL) -> Image? {
+    do {
+      if let data = try? Data(contentsOf: from), let img = UIImage(data: data) {
+        return Image(uiImage: img)
+      }
+    } catch {
+      return nil
+    }
+    return nil
+  }
+
   public var previewCard: some View {
     HStack {
       if let iconURLStr = viewModel.iconURL, let iconURL = URL(string: iconURLStr) {
-        AsyncLoadingImage(url: iconURL) { imageStatus in
-          if case let AsyncImageStatus.loaded(image) = imageStatus {
-            image
+        if !iconURL.isFileURL {
+          AsyncLoadingImage(url: iconURL) { imageStatus in
+            if case let AsyncImageStatus.loaded(image) = imageStatus {
+              image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 61, height: 61)
+                .clipped()
+            } else {
+              Color.appButtonBackground
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 61, height: 61)
+            }
+          }
+        } else {
+          if let localImage = localImage(from: iconURL) {
+            localImage
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(width: 61, height: 61)
@@ -204,9 +229,11 @@ public struct ShareExtensionChildView: View {
           }
         }
       } else {
-        EmptyView()
+        Color.appButtonBackground
+          .aspectRatio(contentMode: .fill)
           .frame(width: 61, height: 61)
       }
+
       VStack(alignment: .leading) {
         Text(viewModel.title ?? "")
           .lineLimit(1)
