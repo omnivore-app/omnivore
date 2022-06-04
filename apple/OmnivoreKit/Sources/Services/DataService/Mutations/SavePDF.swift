@@ -19,7 +19,7 @@ public extension DataService {
     let input = InputObjects.UploadFileRequestInput(
       clientRequestId: OptionalArgument(id),
       contentType: "application/pdf",
-      createPageEntry: OptionalArgument(true),
+      createPageEntry: OptionalArgument(false),
       url: url
     )
 
@@ -85,7 +85,6 @@ public extension DataService {
 
     return try await withCheckedThrowingContinuation { continuation in
       let task = networker.urlSession.uploadTask(with: request, fromFile: localPdfURL) { _, response, _ in
-        print("UPLOAD RESPONSE", response)
         if let httpResponse = response as? HTTPURLResponse, 200 ... 299 ~= httpResponse.statusCode {
           continuation.resume()
         } else {
@@ -107,7 +106,6 @@ public extension DataService {
       return task
     } else {
       // TODO: How should we handle this scenario?
-      print("NOT UPLOADING PDF DOCUMENT YET")
       return nil
     }
   }
