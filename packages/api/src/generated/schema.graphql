@@ -902,6 +902,7 @@ type Query {
   newsletterEmails: NewsletterEmailsResult!
   reminder(linkId: ID!): ReminderResult!
   search(after: String, first: Int, query: String): SearchResult!
+  sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
   user(userId: ID, username: String): UserResult!
@@ -1078,6 +1079,7 @@ type SearchItem {
   pageType: PageType!
   publishedAt: Date
   quote: String
+  readAt: Date
   readingProgressAnchorIndex: Int
   readingProgressPercent: Float
   shortId: String
