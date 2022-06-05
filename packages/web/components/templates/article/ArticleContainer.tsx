@@ -49,7 +49,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
     null
   )
-  const [highContrastFont, setHighContrastFont] = useState(props.highContrastFont ?? false)
+  const [highContrastFont, setHighContrastFont] = useState(
+    props.highContrastFont ?? false
+  )
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -113,8 +115,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const updateFontFamily = (event: UpdateFontFamilyEvent) => {
-      const newFontFamily =
-        event.fontFamily ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
+      const newFontFamily = event.fontFamily ?? fontFamilyOverride
       console.log('setting font fam to', event.fontFamily)
       setFontFamilyOverride(newFontFamily)
     }
@@ -162,7 +163,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     document.addEventListener('updateMargin', updateMargin)
     document.addEventListener('updateFontSize', handleFontSizeChange)
     document.addEventListener('updateColorMode', updateColorMode)
-    document.addEventListener('handleFontContrastChange', handleFontContrastChange)
+    document.addEventListener(
+      'handleFontContrastChange',
+      handleFontContrastChange
+    )
     document.addEventListener('share', share)
 
     return () => {
@@ -171,7 +175,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       document.removeEventListener('updateMargin', updateMargin)
       document.removeEventListener('updateFontSize', handleFontSizeChange)
       document.removeEventListener('updateColorMode', updateColorMode)
-      document.removeEventListener('handleFontContrastChange', handleFontContrastChange)
+      document.removeEventListener(
+        'handleFontContrastChange',
+        handleFontContrastChange
+      )
       document.removeEventListener('share', share)
     }
   })
@@ -180,8 +187,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     fontSize,
     margin: marginOverride ?? props.margin ?? 360,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
-    fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
-    readerFontColor: highContrastFont ? theme.colors.readerFontHighContrast.toString() : theme.colors.readerFont.toString(),
+    fontFamily:
+      fontFamilyOverride ??
+      props.fontFamily ??
+      (props.isAppleAppEmbed ? undefined : 'inter'),
+    readerFontColor: highContrastFont
+      ? theme.colors.readerFontHighContrast.toString()
+      : theme.colors.readerFont.toString(),
     readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerHeader.toString(),
