@@ -115,7 +115,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const updateFontFamily = (event: UpdateFontFamilyEvent) => {
-      const newFontFamily = event.fontFamily ?? fontFamilyOverride
+      const newFontFamily =
+        event.fontFamily ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
       console.log('setting font fam to', event.fontFamily)
       setFontFamilyOverride(newFontFamily)
     }
@@ -187,10 +188,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     fontSize,
     margin: marginOverride ?? props.margin ?? 360,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
-    fontFamily:
-      fontFamilyOverride ??
-      props.fontFamily ??
-      (props.isAppleAppEmbed ? undefined : 'inter'),
+    fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
     readerFontColor: highContrastFont
       ? theme.colors.readerFontHighContrast.toString()
       : theme.colors.readerFont.toString(),

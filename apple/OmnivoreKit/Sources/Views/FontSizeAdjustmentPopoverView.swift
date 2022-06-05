@@ -6,7 +6,7 @@ public enum WebFont: String, CaseIterable {
   case merriweather = "Merriweather"
   case lyon = "Lyon"
   case tisa = "Tisa"
-  case system = "undefined"
+  case system = "unset"
 
   var displayValue: String {
     switch self {
