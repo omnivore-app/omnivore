@@ -189,8 +189,8 @@ public struct ShareExtensionChildView: View {
     }
   }
 
-  private func localImage(from: URL) -> Image? {
-    if let data = try? Data(contentsOf: from), let img = UIImage(data: data) {
+  private func localImage(from url: URL) -> Image? {
+    if let data = try? Data(contentsOf: url), let img = UIImage(data: data) {
       return Image(uiImage: img)
     }
     return nil
