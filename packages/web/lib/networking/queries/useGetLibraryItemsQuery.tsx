@@ -76,6 +76,7 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
+  readAt?: string
 }
 
 export type PageInfo = {
@@ -127,6 +128,7 @@ export function useGetLibraryItemsQuery({
               annotation
               state
               siteName
+              readAt
             }
           }
           pageInfo {
