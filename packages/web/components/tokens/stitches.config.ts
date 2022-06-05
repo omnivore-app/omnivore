@@ -195,14 +195,13 @@ const darkThemeSpec = {
     // Reader Colors
     readerBg: '#303030',
     readerFont: '#b9b9b9',
-    readerFontHighContrast: 'black',
+    readerFontHighContrast: 'white',
     readerFontTransparent: 'rgba(185,185,185,0.65)',
     readerHeader: '#b9b9b9',
     readerTableHeader: '#FFFFFF',
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
     avatarFont: 'rgba(255, 255, 255, 0.8)',
-
 
     //utility
     textDefault: 'rgba(255, 255, 255, 0.8)',

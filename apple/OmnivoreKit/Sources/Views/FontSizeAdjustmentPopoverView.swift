@@ -5,8 +5,17 @@ public enum WebFont: String, CaseIterable {
   case inter = "Inter"
   case merriweather = "Merriweather"
   case lyon = "Lyon"
-  case sfmono = "SF Mono"
   case tisa = "Tisa"
+  case system = "unset"
+
+  var displayValue: String {
+    switch self {
+    case .inter, .merriweather, .lyon, .tisa:
+      return rawValue
+    case .system:
+      return "System Default"
+    }
+  }
 }
 
 public struct WebPreferencesPopoverView: View {
@@ -55,7 +64,7 @@ public struct WebPreferencesPopoverView: View {
           },
           label: {
             HStack {
-              Text(font.rawValue).foregroundColor(.appGrayTextContrast)
+              Text(font.displayValue).foregroundColor(.appGrayTextContrast)
               Spacer()
               if font.rawValue == preferredFont {
                 Image(systemName: "checkmark").foregroundColor(.appGrayTextContrast)
@@ -67,6 +76,7 @@ public struct WebPreferencesPopoverView: View {
     }
     .listStyle(.plain)
     .navigationBarTitleDisplayMode(.inline)
+    .navigationTitle("Reader Font")
   }
 
   public var body: some View {
