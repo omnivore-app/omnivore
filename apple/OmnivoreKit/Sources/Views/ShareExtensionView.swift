@@ -178,8 +178,10 @@ public struct ShareExtensionChildView: View {
 
   private var cloudIconColor: Color {
     switch viewModel.status {
-    case .saved, .processing:
+    case .saved:
       return .appGrayText
+    case .processing:
+      return .clear
     case .failed(error: _), .syncFailed(error: _):
       return .red
     case .synced:
@@ -188,12 +190,8 @@ public struct ShareExtensionChildView: View {
   }
 
   private func localImage(from: URL) -> Image? {
-    do {
-      if let data = try? Data(contentsOf: from), let img = UIImage(data: data) {
-        return Image(uiImage: img)
-      }
-    } catch {
-      return nil
+    if let data = try? Data(contentsOf: from), let img = UIImage(data: data) {
+      return Image(uiImage: img)
     }
     return nil
   }
