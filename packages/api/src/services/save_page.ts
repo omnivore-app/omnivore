@@ -117,7 +117,6 @@ export const savePage = async (
         ctx
       ))
     ) {
-      console.log('FAILED TO UPDATE EXISTING PAGE WITH', input)
       return {
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to update existing page',
@@ -125,16 +124,22 @@ export const savePage = async (
     }
     input.clientRequestId = existingPage.id
   } else if (shouldParseInBackend(input)) {
-    await createPageSaveRequest(
-      saver.userId,
-      input.url,
-      ctx.models,
-      ctx.pubsub,
-      input.clientRequestId
-    )
+    try {
+      await createPageSaveRequest(
+        saver.userId,
+        input.url,
+        ctx.models,
+        ctx.pubsub,
+        input.clientRequestId
+      )
+    } catch (e) {
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create page save request',
+      }
+    }
   } else {
     if (!(await createPage(articleToSave, ctx))) {
-      console.log('FAILED TO CREATE PAGE WITH INPUT', input)
       return {
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to create new page',
