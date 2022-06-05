@@ -7,7 +7,7 @@ function iconURL() {
 
     return document.querySelector("link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']").href
   } catch {}
-  return null
+  return undefined
 }
 
 ShareExtension.prototype = {
