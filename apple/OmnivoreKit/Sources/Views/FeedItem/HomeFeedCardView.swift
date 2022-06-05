@@ -66,7 +66,7 @@ public struct FeedCard: View {
         }
       }
 
-      if item.sortedLabels.count > 0 {
+      if item.hasLabels {
         // Category Labels
         ScrollView(.horizontal, showsIndicators: false) {
           HStack {
@@ -93,5 +93,6 @@ public struct FeedCard: View {
       maxHeight: nil,
       alignment: .topLeading
     )
+    .overlay(SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) ?? ServerSyncStatus.isNSync), alignment: .bottomTrailing)
   }
 }

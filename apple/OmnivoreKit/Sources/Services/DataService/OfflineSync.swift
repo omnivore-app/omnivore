@@ -69,12 +69,14 @@ public extension DataService {
 
   func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws {
     do {
-      try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
+      let newId = try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
+      print("NEW ID FOR ITEM", newId, "FROM OLD ID", id)
       try await updateLinkedItemStatus(id: id, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
     } catch {
+      print("ERROR SYNCING PAGE", error)
       backgroundContext.performAndWait {
         backgroundContext.rollback()
       }
@@ -183,25 +185,6 @@ public extension DataService {
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
         }
-      }
-    }
-  }
-
-  @objc
-  func locallyCreatedItemSynced(notification: NSNotification) {
-    print("SYNCED LOCALLY CREATED ITEM", notification)
-    if let objectId = notification.userInfo?["objectID"] as? String {
-      do {
-        try backgroundContext.performAndWait {
-          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-          fetchRequest.predicate = NSPredicate(format: "id == %@", objectId)
-          if let existingItem = try? self.backgroundContext.fetch(fetchRequest).first {
-            existingItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
-            try self.backgroundContext.save()
-          }
-        }
-      } catch {
-        print("ERROR", error)
       }
     }
   }
