@@ -35,18 +35,22 @@ public extension DataService {
     }
   }
 
-  private func updateLinkedItemStatus(id: String, status: ServerSyncStatus) async throws {
+  private func updateLinkedItemStatus(id: String, newId _: String?, status: ServerSyncStatus) async throws {
     try backgroundContext.performAndWait {
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", id)
 
       guard let linkedItem = (try? backgroundContext.fetch(fetchRequest))?.first else { return }
+      // TODO: handle item id changes
+      // linkedItem.id =
       linkedItem.serverSyncStatus = Int64(status.rawValue)
     }
   }
 
   func syncPdf(id: String, localPdfURL: URL, url: String) async throws {
     do {
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
+
       let uploadRequest = try await uploadFileRequest(id: id, url: url)
       if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
         try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
@@ -55,7 +59,7 @@ public extension DataService {
         throw SaveArticleError.badData
       }
 
-      try await updateLinkedItemStatus(id: id, status: .isNSync)
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
@@ -69,14 +73,14 @@ public extension DataService {
 
   func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws {
     do {
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
+
       let newId = try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
-      print("NEW ID FOR ITEM", newId, "FROM OLD ID", id)
-      try await updateLinkedItemStatus(id: id, status: .isNSync)
+      try await updateLinkedItemStatus(id: id, newId: newId, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
     } catch {
-      print("ERROR SYNCING PAGE", error)
       backgroundContext.performAndWait {
         backgroundContext.rollback()
       }
@@ -86,8 +90,10 @@ public extension DataService {
 
   func syncUrl(id: String, url: String) async throws {
     do {
-      try await updateLinkedItemStatus(id: id, status: .isSyncing)
-      try await saveURL(id: id, url: url)
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
+
+      let newId = try await saveURL(id: id, url: url)
+      try await updateLinkedItemStatus(id: id, newId: newId, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
