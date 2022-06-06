@@ -17,28 +17,6 @@ public final class PDFViewerViewModel: ObservableObject {
     self.pdfItem = pdfItem
   }
 
-  public func dataURL(remoteURL: URL) -> URL {
-    if let storedURL = storedURL {
-      return storedURL
-    }
-
-    guard let data = pdfItem.documentData else { return remoteURL }
-
-    let subPath = pdfItem.title.isEmpty ? UUID().uuidString : pdfItem.title
-
-    let path = FileManager.default
-      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(subPath)
-
-    do {
-      try data.write(to: path)
-      storedURL = path
-      return path
-    } catch {
-      return remoteURL
-    }
-  }
-
   public func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
     onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }

@@ -1,7 +1,9 @@
 var chai = require("chai");
 var sinon = require("sinon");
+var chaiAsPromised = require("chai-as-promised");
 const { parseHTML } = require("linkedom");
 
+chai.use(chaiAsPromised);
 chai.config.includeStack = true;
 var expect = chai.expect;
 
@@ -59,13 +61,13 @@ function runTestsWithItems(label, domGenerationFn, source, expectedContent, expe
 
     var result;
 
-    before(function() {
+    before(async function() {
       try {
         var doc = domGenerationFn(source);
         // Provide one class name to preserve, which we know appears in a few
         // of the test documents.
         var myReader = new Readability(doc, { classesToPreserve: ["caption"], url: uri });
-        result = myReader.parse();
+        result = await myReader.parse();
       } catch (err) {
         throw reformatError(err);
       }
@@ -220,70 +222,70 @@ describe("Readability API", function() {
   describe("#parse", function() {
     var exampleSource = testPages[0].source;
 
-    it("shouldn't parse oversized documents as per configuration", function() {
+    it("shouldn't parse oversized documents as per configuration", async function() {
       var doc = new JSDOMParser().parse("<html><div>yo</div></html>");
-      expect(function() {
-        new Readability(doc, {maxElemsToParse: 1}).parse();
-      }).to.Throw("Aborting parsing document; 2 elements found");
+      await expect(
+        (new Readability(doc, { maxElemsToParse: 1 })).parse()
+      ).to.be.rejectedWith("Aborting parsing document; 2 elements found");
     });
 
-    it("should run _cleanClasses with default configuration", function() {
+    it("should run _cleanClasses with default configuration", async function() {
       var doc = parseHTML(exampleSource).document;
       var parser = new Readability(doc);
 
       parser._cleanClasses = sinon.fake();
 
-      parser.parse();
+      await parser.parse();
 
       expect(parser._cleanClasses.called).eql(true);
     });
 
-    it("should run _cleanClasses when option keepClasses = false", function() {
+    it("should run _cleanClasses when option keepClasses = false", async function() {
       var doc = parseHTML(exampleSource).document;
-      var parser = new Readability(doc, {keepClasses: false});
+      var parser = new Readability(doc, { keepClasses: false });
 
       parser._cleanClasses = sinon.fake();
 
-      parser.parse();
+      await parser.parse();
 
       expect(parser._cleanClasses.called).eql(true);
     });
 
-    it("shouldn't run _cleanClasses when option keepClasses = true", function() {
+    it("shouldn't run _cleanClasses when option keepClasses = true", async function() {
       var doc = parseHTML(exampleSource).document;
-      var parser = new Readability(doc, {keepClasses: true});
+      var parser = new Readability(doc, { keepClasses: true });
 
       parser._cleanClasses = sinon.fake();
 
-      parser.parse();
+      await parser.parse();
 
       expect(parser._cleanClasses.called).eql(false);
     });
 
-    xit("should use custom content serializer sent as option", function() {
-      var dom = new JSDOM("My cat: <img src=''>");
+    xit("should use custom content serializer sent as option", async function() {
+      var dom = parseHTML("<html><body>My cat: <img src=''></body></html>");
       var expected_xhtml = "<div xmlns=\"http://www.w3.org/1999/xhtml\" id=\"readability-page-1\" class=\"page\">My cat: <img src=\"\" /></div>";
       var xml = new dom.window.XMLSerializer();
-      var content = new Readability(dom.window.document, {
+      var content = await (new Readability(dom.window.document, {
         serializer: function(el) {
           return xml.serializeToString(el.firstChild);
         }
-      }).parse().content;
+      })).parse().content;
       expect(content).eql(expected_xhtml);
     });
 
-    it("should not proxy image with data uri", function() {
+    it("should not proxy image with data uri", async function() {
       var dom = parseHTML("<html><body>My cat: <img src=\"data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUA" +
         "AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==\"" +
         " alt=\"Red dot\" /></body></html>");
       var expected_xhtml = "<DIV class=\"page\" id=\"readability-page-1\">My cat: <img src=\"data:image/png;base64," +
         " iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0" +
         "Y4OHwAAAABJRU5ErkJggg==\" alt=\"Red dot\"></DIV>";
-      var content = new Readability(dom.document).parse().content;
+      var content = (await (new Readability(dom.document)).parse()).content;
       expect(content).eql(expected_xhtml);
     });
 
-    it("should handle srcset elements with density descriptors", function() {
+    it("should handle srcset elements with density descriptors", async function() {
       var dom = parseHTML('<html><body>My image: <img src="https://webkit.org/demos/srcset/image-src.png" ' +
         'srcset="https://webkit.org/demos/srcset/image-1x.png 1x, ' +
         'https://webkit.org/demos/srcset/image-2x.png 2x, ' +
@@ -291,29 +293,29 @@ describe("Readability API", function() {
         'https://webkit.org/demos/srcset/image-4x.png 4x">' +
         '</body></html>');
       var expected_xhtml = '<DIV class="page" id="readability-page-1">My image: ' +
-                           '<img src="https://webkit.org/demos/srcset/image-src.png" ' +
-                           'srcset="https://webkit.org/demos/srcset/image-1x.png 1x,' +
-                           'https://webkit.org/demos/srcset/image-2x.png 2x,' +
-                           'https://webkit.org/demos/srcset/image-3x.png 3x,' +
-                           'https://webkit.org/demos/srcset/image-4x.png 4x,"></DIV>';
-      var content = new Readability(dom.document, {
+        '<img src="https://webkit.org/demos/srcset/image-src.png" ' +
+        'srcset="https://webkit.org/demos/srcset/image-1x.png 1x,' +
+        'https://webkit.org/demos/srcset/image-2x.png 2x,' +
+        'https://webkit.org/demos/srcset/image-3x.png 3x,' +
+        'https://webkit.org/demos/srcset/image-4x.png 4x,"></DIV>';
+      var content = (await (new Readability(dom.document, {
         createImageProxyUrl: function(url) {
           return url;
         }
-      }).parse().content;
+      })).parse()).content;
       expect(content).eql(expected_xhtml);
     });
 
-    it("should remove srcset elements that are lazy loading placeholders", function() {
+    it("should remove srcset elements that are lazy loading placeholders", async function() {
       var dom = parseHTML('<html><body>My image: <img class="shrinkToFit jetpack-lazy-image" src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&#038;ssl=1" alt width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&amp;is-pending-load=1#038;ssl=1" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></body></html>');
       var expected_xhtml = '<DIV class="page" id="readability-page-1">' +
         'My image: <img src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1" alt="" width="900" height="380" data-recalc-dims="1" data-lazy-src="https://i0.wp.com/cdn-images-1.medium.com/max/2000/1*rPXwIczUJRCE54v8FfAHGw.jpeg?resize=900%2C380&is-pending-load=1#038;ssl=1">' +
         '</DIV>';
-      var content = new Readability(dom.document, {
+      var content = (await (new Readability(dom.document, {
         createImageProxyUrl: function(url) {
           return url;
         }
-      }).parse().content;
+      })).parse()).content;
       expect(content).eql(expected_xhtml);
     });
   });

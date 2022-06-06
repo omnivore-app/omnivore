@@ -13,25 +13,32 @@ import SwiftUI
     var content: () -> Content
     var onDismiss: (() -> Void)?
     var modalSize: CGSize
+    let useSmallDetent: Bool
 
     private var hostVC: UIHostingController<Content>?
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) { fatalError("") }
 
-    init(content: @escaping () -> Content, modalSize: CGSize) {
+    init(content: @escaping () -> Content, modalSize: CGSize, useSmallDetent: Bool) {
       self.content = content
       self.modalSize = modalSize
+      self.useSmallDetent = useSmallDetent
       super.init(nibName: nil, bundle: nil)
     }
 
     func show() {
       guard hostVC == nil else { return }
-      let controller = UIHostingController(rootView: content())
+      let controller: UIHostingController<Content> = {
+        if UIDevice.isIPhone, useSmallDetent {
+          return FormSheetHostingController(rootView: content(), height: 100)
+        } else {
+          return UIHostingController(rootView: content())
+        }
+      }()
 
-      if controller.traitCollection.userInterfaceIdiom == .phone {
+      if UIDevice.isIPhone {
         if let sheet = controller.sheetPresentationController {
-          sheet.preferredCornerRadius = 16
           sheet.prefersGrabberVisible = false
           sheet.detents = [.medium()]
           sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
@@ -66,12 +73,17 @@ import SwiftUI
     @Binding var show: Bool
 
     let modalSize: CGSize
+    let useSmallDetent: Bool
     let content: () -> Content
 
     func makeUIViewController(
       context _: UIViewControllerRepresentableContext<FormSheet<Content>>
     ) -> FormSheetWrapper<Content> {
-      let controller = FormSheetWrapper(content: content, modalSize: modalSize)
+      let controller = FormSheetWrapper(
+        content: content,
+        modalSize: modalSize,
+        useSmallDetent: useSmallDetent
+      )
       controller.onDismiss = { self.show = false }
       return controller
     }
@@ -92,11 +104,55 @@ import SwiftUI
     func formSheet<Content: View>(
       isPresented: Binding<Bool>,
       modalSize: CGSize = CGSize(width: 320, height: 320),
+      useSmallDetent: Bool = false,
       @ViewBuilder content: @escaping () -> Content
     ) -> some View {
-      background(FormSheet(show: isPresented,
-                           modalSize: modalSize,
-                           content: content))
+      background(
+        FormSheet(
+          show: isPresented,
+          modalSize: modalSize,
+          useSmallDetent: useSmallDetent,
+          content: content
+        )
+      )
+    }
+  }
+
+  final class FormSheetHostingController<Content: View>: UIHostingController<Content> {
+    let height: CGFloat
+
+    init(rootView: Content, height: CGFloat) {
+      self.height = height
+      super.init(rootView: rootView)
+    }
+
+    @available(*, unavailable)
+    @MainActor dynamic required init?(coder _: NSCoder) {
+      fatalError("init(coder:) has not been implemented")
+    }
+
+    override func updateViewConstraints() {
+      view.frame.size.height = UIScreen.main.bounds.height - height
+      view.frame.origin.y = height
+      view.roundCorners(corners: [.topLeft, .topRight], radius: 16.0)
+      super.updateViewConstraints()
+    }
+  }
+
+  extension UIView {
+    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+      let path = UIBezierPath(
+        roundedRect: bounds,
+        byRoundingCorners: corners,
+        cornerRadii:
+        CGSize(
+          width: radius,
+          height: radius
+        )
+      )
+      let mask = CAShapeLayer()
+      mask.path = path.cgPath
+      layer.mask = mask
     }
   }
 

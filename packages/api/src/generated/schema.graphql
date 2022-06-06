@@ -97,6 +97,7 @@ type Article {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
+  updatedAt: Date!
   uploadFileId: ID
   url: String!
 }
@@ -675,6 +676,7 @@ type Link {
   shareInfo: LinkShareInfo!
   shareStats: ShareStats!
   slug: String!
+  updatedAt: Date!
   url: String!
 }
 
@@ -840,6 +842,7 @@ type Page {
   readableHtml: String!
   title: String!
   type: PageType!
+  updatedAt: Date!
   url: String!
 }
 
@@ -899,6 +902,7 @@ type Query {
   newsletterEmails: NewsletterEmailsResult!
   reminder(linkId: ID!): ReminderResult!
   search(after: String, first: Int, query: String): SearchResult!
+  sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
   user(userId: ID, username: String): UserResult!
@@ -1075,6 +1079,7 @@ type SearchItem {
   pageType: PageType!
   publishedAt: Date
   quote: String
+  readAt: Date
   readingProgressAnchorIndex: Int
   readingProgressPercent: Float
   shortId: String
@@ -1085,6 +1090,7 @@ type SearchItem {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
+  updatedAt: Date!
   uploadFileId: ID
   url: String!
 }
@@ -1099,6 +1105,23 @@ union SearchResult = SearchError | SearchSuccess
 type SearchSuccess {
   edges: [SearchItemEdge!]!
   pageInfo: PageInfo!
+}
+
+type SendInstallInstructionsError {
+  errorCodes: [SendInstallInstructionsErrorCode!]!
+}
+
+enum SendInstallInstructionsErrorCode {
+  BAD_REQUEST
+  FORBIDDEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SendInstallInstructionsResult = SendInstallInstructionsError | SendInstallInstructionsSuccess
+
+type SendInstallInstructionsSuccess {
+  sent: Boolean!
 }
 
 type SetBookmarkArticleError {

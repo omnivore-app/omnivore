@@ -79,6 +79,7 @@ export type LibraryItemNode = {
   pageType: PageType
   siteName?: string
   subscription?: string,
+  readAt?: string
 }
 
 export type PageInfo = {
@@ -131,6 +132,7 @@ export function useGetLibraryItemsQuery({
               state
               siteName
               subscription
+              readAt
             }
           }
           pageInfo {

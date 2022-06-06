@@ -84,69 +84,10 @@ final class RegistrationViewModel: ObservableObject {
   }
 }
 
-struct RegistrationView: View {
-  @EnvironmentObject var authenticator: Authenticator
-  @EnvironmentObject var dataService: DataService
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass
-  @StateObject private var viewModel = RegistrationViewModel()
-
-  var authenticationView: some View {
-    VStack(spacing: 0) {
-      VStack(spacing: 28) {
-        if horizontalSizeClass == .regular {
-          Spacer()
-        }
-
-        VStack(alignment: .center, spacing: 16) {
-          Text(LocalText.registrationViewHeadline)
-            .font(.appTitle)
-            .multilineTextAlignment(.center)
-            .padding(.bottom, horizontalSizeClass == .compact ? 0 : 50)
-            .padding(.top, horizontalSizeClass == .compact ? 30 : 0)
-
-          AppleSignInButton {
-            viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
-          }
-
-          if AppKeys.sharedInstance?.iosClientGoogleId != nil {
-            GoogleAuthButton {
-              viewModel.handleGoogleAuth(authenticator: authenticator)
-            }
-          }
-        }
-
-        if let loginError = viewModel.loginError {
-          LoginErrorMessageView(loginError: loginError)
-        }
-
-        Spacer()
-      }
-      .frame(maxWidth: 316)
-      .padding(.horizontal, 16)
-    }
-  }
-
-  var body: some View {
-    if let registrationState = viewModel.registrationState {
-      if case let RegistrationViewModel.RegistrationState.createProfile(userProfile) = registrationState {
-        CreateProfileView(userProfile: userProfile)
-      } else if case let RegistrationViewModel.RegistrationState.newAppleSignUp(userProfile) = registrationState {
-        NewAppleSignupView(
-          userProfile: userProfile,
-          showProfileEditView: { viewModel.registrationState = .createProfile(userProfile: userProfile) }
-        )
-      } else {
-        authenticationView
-      }
-    } else {
-      authenticationView
-    }
-  }
-}
-
 private func presentingViewController() -> PlatformViewController? {
   #if os(iOS)
-    return UIApplication.shared.windows
+    let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+    return scene?.windows
       .filter(\.isKeyWindow)
       .first?
       .rootViewController

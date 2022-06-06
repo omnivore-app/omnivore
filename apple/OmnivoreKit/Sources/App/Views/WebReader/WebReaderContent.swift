@@ -1,26 +1,36 @@
 import Foundation
 import Models
 import Utils
+import Views
 
 struct WebReaderContent {
   let textFontSize: Int
+  let lineHeight: Int
+  let margin: Int
   let htmlContent: String
   let highlightsJSONString: String
   let item: LinkedItem
   let themeKey: String
+  let fontFamily: WebFont
 
   init(
     htmlContent: String,
     highlightsJSONString: String,
     item: LinkedItem,
     isDark: Bool,
-    fontSize: Int
+    fontSize: Int,
+    lineHeight: Int,
+    margin: Int,
+    fontFamily: WebFont
   ) {
     self.textFontSize = fontSize
+    self.lineHeight = lineHeight
+    self.margin = margin
     self.htmlContent = htmlContent
     self.highlightsJSONString = highlightsJSONString
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
+    self.fontFamily = fontFamily
   }
 
   // swiftlint:disable line_length
@@ -71,6 +81,9 @@ struct WebReaderContent {
           }
 
           window.fontSize = \(textFontSize)
+          window.fontFamily = "\(fontFamily.rawValue)"
+          window.margin = \(margin)
+          window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")
         </script>
         <script src="bundle.js"></script>

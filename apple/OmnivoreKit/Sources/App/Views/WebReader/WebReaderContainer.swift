@@ -8,15 +8,18 @@ import WebKit
   struct WebReaderContainerView: View {
     let item: LinkedItem
 
-    @State private var showFontSizePopover = false
+    @State private var showPreferencesPopover = false
     @State private var showLabelsModal = false
     @State var showHighlightAnnotationModal = false
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
     @State private var showDeleteConfirmation = false
     @State private var progressViewOpacity = 0.0
-    @State var increaseFontActionID: UUID?
-    @State var decreaseFontActionID: UUID?
+    @State var updateFontFamilyActionID: UUID?
+    @State var updateFontActionID: UUID?
+    @State var updateTextContrastActionID: UUID?
+    @State var updateMarginActionID: UUID?
+    @State var updateLineHeightActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
     @State var showNavBarActionID: UUID?
     @State var shareActionID: UUID?
@@ -25,13 +28,6 @@ import WebKit
     @EnvironmentObject var dataService: DataService
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @StateObject var viewModel = WebReaderViewModel()
-
-    var fontAdjustmentPopoverView: some View {
-      FontSizeAdjustmentPopoverView(
-        increaseFontAction: { increaseFontActionID = UUID() },
-        decreaseFontAction: { decreaseFontActionID = UUID() }
-      )
-    }
 
     func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
       if let replyHandler = replyHandler {
@@ -75,7 +71,7 @@ import WebKit
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
         Button(
-          action: { showFontSizePopover.toggle() },
+          action: { showPreferencesPopover.toggle() },
           label: {
             Image(systemName: "textformat.size")
               .font(.appTitleTwo)
@@ -122,9 +118,6 @@ import WebKit
       .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
       .opacity(navBarVisibilityRatio)
       .background(Color.systemBackground)
-      .onTapGesture {
-        showFontSizePopover = false
-      }
       .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
         Button("Remove Link", role: .destructive) {
           Snackbar.show(message: "Link removed")
@@ -153,13 +146,13 @@ import WebKit
             },
             webViewActionHandler: webViewActionHandler,
             navBarVisibilityRatioUpdater: {
-              if $0 < 1 {
-                showFontSizePopover = false
-              }
               navBarVisibilityRatio = $0
             },
-            increaseFontActionID: $increaseFontActionID,
-            decreaseFontActionID: $decreaseFontActionID,
+            updateFontFamilyActionID: $updateFontFamilyActionID,
+            updateFontActionID: $updateFontActionID,
+            updateTextContrastActionID: $updateTextContrastActionID,
+            updateMarginActionID: $updateMarginActionID,
+            updateLineHeightActionID: $updateLineHeightActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             showNavBarActionID: $showNavBarActionID,
             shareActionID: $shareActionID,
@@ -200,33 +193,22 @@ import WebKit
               await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
             }
         }
-        if showFontSizePopover {
-          VStack {
-            Color.clear
-              .contentShape(Rectangle())
-              .frame(height: LinkItemDetailView.navBarHeight)
-            HStack {
-              Spacer()
-              fontAdjustmentPopoverView
-                .background(Color.appButtonBackground)
-                .cornerRadius(8)
-                .padding(.trailing, 44)
-            }
-            Spacer()
-          }
-          .background(
-            Color.clear
-              .contentShape(Rectangle())
-              .onTapGesture {
-                showFontSizePopover = false
-              }
-          )
-        }
         VStack(spacing: 0) {
           navBar
           Spacer()
         }
-      }.onDisappear {
+      }
+      .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
+        WebPreferencesPopoverView(
+          updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
+          updateFontAction: { updateFontActionID = UUID() },
+          updateTextContrastAction: { updateTextContrastActionID = UUID() },
+          updateMarginAction: { updateMarginActionID = UUID() },
+          updateLineHeightAction: { updateLineHeightActionID = UUID() },
+          dismissAction: { showPreferencesPopover = false }
+        )
+      }
+      .onDisappear {
         // Clear the shared webview content when exiting
         WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       }

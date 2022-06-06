@@ -85,6 +85,9 @@ extension DataService {
       return cachedContent
     }
 
+    // If the page was locally created, make sure they are synced before we pull content
+    await syncUnsyncedArticleContent(itemID: itemID)
+
     enum QueryResult {
       case success(result: ArticleProps)
       case error(error: String)
@@ -97,6 +100,7 @@ extension DataService {
           title: try $0.title(),
           createdAt: try $0.createdAt().value ?? Date(),
           savedAt: try $0.savedAt().value ?? Date(),
+          updatedAt: try $0.updatedAt().value ?? Date(),
           readingProgress: try $0.readingProgressPercent(),
           readingProgressAnchor: try $0.readingProgressAnchorIndex(),
           imageURLString: try $0.image(),
@@ -111,6 +115,7 @@ extension DataService {
           slug: try $0.slug(),
           isArchived: try $0.isArchived(),
           contentReader: try $0.contentReader().rawValue,
+          originalHtml: nil,
           labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
         ),
         htmlContent: try $0.content(),
@@ -121,17 +126,17 @@ extension DataService {
 
     let selection = Selection<QueryResult, Unions.ArticleResult> {
       try $0.on(
-        articleSuccess: .init {
-          QueryResult.success(result: try $0.article(selection: articleContentSelection))
-        },
         articleError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
+        },
+        articleSuccess: .init {
+          QueryResult.success(result: try $0.article(selection: articleContentSelection))
         }
       )
     }
 
     let query = Selection.Query {
-      try $0.article(username: username, slug: itemID, selection: selection)
+      try $0.article(slug: itemID, username: username, selection: selection)
     }
 
     let path = appEnvironment.graphqlPath
@@ -217,7 +222,7 @@ extension DataService {
         linkedItem.isArchived = item.isArchived
         linkedItem.contentReader = item.contentReader
 
-        if linkedItem.isPDF, linkedItem.pdfData == nil {
+        if linkedItem.isPDF, linkedItem.localPdfURL == nil {
           do {
             try self.fetchPDFData(slug: linkedItem.unwrappedSlug, pageURLString: linkedItem.unwrappedPageURLString)
           } catch {
@@ -257,9 +262,16 @@ extension DataService {
           let errorMessage = "pdfFetch failed. could not find LinkedItem from fetch request"
           throw BasicError.message(messageText: errorMessage)
         }
-        linkedItem.pdfData = data
+
+        let subPath = UUID().uuidString + ".pdf" // linkedItem.title.isEmpty ? UUID().uuidString : linkedItem.title
+
+        let path = FileManager.default
+          .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent(subPath)
 
         do {
+          try data.write(to: path)
+          linkedItem.localPdfURL = path.absoluteString
           try self?.backgroundContext.save()
           logger.debug("PDF data saved succesfully")
         } catch {
@@ -294,6 +306,49 @@ extension DataService {
         highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString,
         contentStatus: .succeeded
       )
+    }
+  }
+
+  public func syncUnsyncedArticleContent(itemID: String) async {
+    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    linkedItemFetchRequest.predicate = NSPredicate(
+      format: "id == %@", itemID
+    )
+
+    let context = backgroundContext
+
+    var id: String?
+    var url: String?
+    var title: String?
+    var originalHtml: String?
+    var serverSyncStatus: Int64?
+
+    backgroundContext.performAndWait {
+      guard let linkedItem = try? context.fetch(linkedItemFetchRequest).first else { return }
+      id = linkedItem.unwrappedID
+      url = linkedItem.unwrappedPageURLString
+      title = linkedItem.unwrappedTitle
+      originalHtml = linkedItem.originalHtml
+      serverSyncStatus = linkedItem.serverSyncStatus
+    }
+
+    if let id = id, let url = url, let title = title,
+       let serverSyncStatus = serverSyncStatus,
+       serverSyncStatus != ServerSyncStatus.isNSync.rawValue
+    {
+      do {
+        if let originalHtml = originalHtml {
+          try await savePage(id: id, url: url, title: title, originalHtml: originalHtml)
+        } else {
+          try await saveURL(id: id, url: url)
+        }
+        try backgroundContext.performAndWait {
+          try backgroundContext.save()
+        }
+      } catch {
+        // We don't propogate these errors, we just let it pass through so
+        // the user can attempt to fetch content again.
+      }
     }
   }
 }

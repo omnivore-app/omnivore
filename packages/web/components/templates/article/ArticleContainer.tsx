@@ -32,6 +32,7 @@ type ArticleContainerProps = {
   fontSize?: number
   fontFamily?: string
   lineHeight?: number
+  highContrastFont?: boolean
   showHighlightsModal: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -40,6 +41,17 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showShareModal, setShowShareModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
+  // iOS app embed can overide the original margin and line height
+  const [marginOverride, setMarginOverride] = useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
+    null
+  )
+  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
+    null
+  )
+  const [highContrastFont, setHighContrastFont] = useState(
+    props.highContrastFont ?? false
+  )
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -74,22 +86,68 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     setHighlightReady(true)
   }, [props.article.highlights, setHighlightLocations])
 
-  // Listen for font size and color mode change events sent from host apps (ios, macos...)
+  // Listen for preference change events sent from host apps (ios, macos...)
   useEffect(() => {
-    const increaseFontSize = async () => {
-      await updateFontSize(Math.min(fontSize + 2, 28))
+    interface UpdateLineHeightEvent extends Event {
+      lineHeight?: number
     }
 
-    const decreaseFontSize = async () => {
-      await updateFontSize(Math.max(fontSize - 2, 10))
+    const updateLineHeight = (event: UpdateLineHeightEvent) => {
+      const newLineHeight = event.lineHeight ?? lineHeightOverride ?? 150
+      if (newLineHeight >= 100 && newLineHeight <= 300) {
+        setLineHeightOverride(newLineHeight)
+      }
     }
 
-    const switchToDarkMode = () => {
-      updateThemeLocally(ThemeId.Dark)
+    interface UpdateMarginEvent extends Event {
+      margin?: number
     }
 
-    const switchToLightMode = () => {
-      updateThemeLocally(ThemeId.Light)
+    const updateMargin = (event: UpdateMarginEvent) => {
+      const newMargin = event.margin ?? marginOverride ?? 360
+      if (newMargin >= 200 && newMargin <= 560) {
+        setMarginOverride(newMargin)
+      }
+    }
+
+    interface UpdateFontFamilyEvent extends Event {
+      fontFamily?: string
+    }
+
+    const updateFontFamily = (event: UpdateFontFamilyEvent) => {
+      const newFontFamily =
+        event.fontFamily ?? fontFamilyOverride ?? props.fontFamily ?? 'inter'
+      console.log('setting font fam to', event.fontFamily)
+      setFontFamilyOverride(newFontFamily)
+    }
+
+    interface UpdateFontContrastEvent extends Event {
+      fontContrast?: 'high' | 'normal'
+    }
+
+    const handleFontContrastChange = async (event: UpdateFontContrastEvent) => {
+      const highContrast = event.fontContrast == 'high'
+      setHighContrastFont(highContrast)
+    }
+
+    interface UpdateFontSizeEvent extends Event {
+      fontSize?: number
+    }
+
+    const handleFontSizeChange = async (event: UpdateFontSizeEvent) => {
+      const newFontSize = event.fontSize ?? 18
+      if (newFontSize >= 10 && newFontSize <= 28) {
+        updateFontSize(newFontSize)
+      }
+    }
+
+    interface UpdateColorModeEvent extends Event {
+      isDark?: boolean
+    }
+
+    const updateColorMode = (event: UpdateColorModeEvent) => {
+      const isDark = event.isDark ?? false
+      updateThemeLocally(isDark ? ThemeId.Dark : ThemeId.Light)
     }
 
     const share = () => {
@@ -101,27 +159,39 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       }
     }
 
-    document.addEventListener('increaseFontSize', increaseFontSize)
-    document.addEventListener('decreaseFontSize', decreaseFontSize)
-    document.addEventListener('switchToDarkMode', switchToDarkMode)
-    document.addEventListener('switchToLightMode', switchToLightMode)
+    document.addEventListener('updateFontFamily', updateFontFamily)
+    document.addEventListener('updateLineHeight', updateLineHeight)
+    document.addEventListener('updateMargin', updateMargin)
+    document.addEventListener('updateFontSize', handleFontSizeChange)
+    document.addEventListener('updateColorMode', updateColorMode)
+    document.addEventListener(
+      'handleFontContrastChange',
+      handleFontContrastChange
+    )
     document.addEventListener('share', share)
 
     return () => {
-      document.removeEventListener('increaseFontSize', increaseFontSize)
-      document.removeEventListener('decreaseFontSize', decreaseFontSize)
-      document.removeEventListener('switchToDarkMode', switchToDarkMode)
-      document.removeEventListener('switchToLightMode', switchToLightMode)
+      document.removeEventListener('updateFontFamily', updateFontFamily)
+      document.removeEventListener('updateLineHeight', updateLineHeight)
+      document.removeEventListener('updateMargin', updateMargin)
+      document.removeEventListener('updateFontSize', handleFontSizeChange)
+      document.removeEventListener('updateColorMode', updateColorMode)
+      document.removeEventListener(
+        'handleFontContrastChange',
+        handleFontContrastChange
+      )
       document.removeEventListener('share', share)
     }
   })
 
   const styles = {
     fontSize,
-    margin: props.margin ?? 360,
-    lineHeight: props.lineHeight ?? 150,
-    fontFamily: props.fontFamily ?? 'inter',
-    readerFontColor: theme.colors.readerFont.toString(),
+    margin: marginOverride ?? props.margin ?? 360,
+    lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
+    fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
+    readerFontColor: highContrastFont
+      ? theme.colors.readerFontHighContrast.toString()
+      : theme.colors.readerFont.toString(),
     readerFontColorTransparent: theme.colors.readerFontTransparent.toString(),
     readerTableHeaderColor: theme.colors.readerTableHeader.toString(),
     readerHeadersColor: theme.colors.readerHeader.toString(),
@@ -133,7 +203,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         id="article-container"
         css={{
           padding: '16px',
-          maxWidth: '100%',
+          maxWidth: props.isAppleAppEmbed ? 1024 - styles.margin : '100%',
           background: props.isAppleAppEmbed
             ? 'unset'
             : theme.colors.grayBg.toString(),

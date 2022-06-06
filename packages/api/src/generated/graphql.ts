@@ -121,6 +121,7 @@ export type Article = {
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['Date'];
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -764,6 +765,7 @@ export type Link = {
   shareInfo: LinkShareInfo;
   shareStats: ShareStats;
   slug: Scalars['String'];
+  updatedAt: Scalars['Date'];
   url: Scalars['String'];
 };
 
@@ -1181,6 +1183,7 @@ export type Page = {
   readableHtml: Scalars['String'];
   title: Scalars['String'];
   type: PageType;
+  updatedAt: Scalars['Date'];
   url: Scalars['String'];
 };
 
@@ -1243,6 +1246,7 @@ export type Query = {
   newsletterEmails: NewsletterEmailsResult;
   reminder: ReminderResult;
   search: SearchResult;
+  sendInstallInstructions: SendInstallInstructionsResult;
   sharedArticle: SharedArticleResult;
   subscriptions: SubscriptionsResult;
   user: UserResult;
@@ -1512,6 +1516,7 @@ export type SearchItem = {
   pageType: PageType;
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
+  readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex?: Maybe<Scalars['Int']>;
   readingProgressPercent?: Maybe<Scalars['Float']>;
   shortId?: Maybe<Scalars['String']>;
@@ -1522,6 +1527,7 @@ export type SearchItem = {
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['Date'];
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -1538,6 +1544,25 @@ export type SearchSuccess = {
   __typename?: 'SearchSuccess';
   edges: Array<SearchItemEdge>;
   pageInfo: PageInfo;
+};
+
+export type SendInstallInstructionsError = {
+  __typename?: 'SendInstallInstructionsError';
+  errorCodes: Array<SendInstallInstructionsErrorCode>;
+};
+
+export enum SendInstallInstructionsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Forbidden = 'FORBIDDEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SendInstallInstructionsResult = SendInstallInstructionsError | SendInstallInstructionsSuccess;
+
+export type SendInstallInstructionsSuccess = {
+  __typename?: 'SendInstallInstructionsSuccess';
+  sent: Scalars['Boolean'];
 };
 
 export type SetBookmarkArticleError = {
@@ -2527,6 +2552,10 @@ export type ResolversTypes = {
   SearchItemEdge: ResolverTypeWrapper<SearchItemEdge>;
   SearchResult: ResolversTypes['SearchError'] | ResolversTypes['SearchSuccess'];
   SearchSuccess: ResolverTypeWrapper<SearchSuccess>;
+  SendInstallInstructionsError: ResolverTypeWrapper<SendInstallInstructionsError>;
+  SendInstallInstructionsErrorCode: SendInstallInstructionsErrorCode;
+  SendInstallInstructionsResult: ResolversTypes['SendInstallInstructionsError'] | ResolversTypes['SendInstallInstructionsSuccess'];
+  SendInstallInstructionsSuccess: ResolverTypeWrapper<SendInstallInstructionsSuccess>;
   SetBookmarkArticleError: ResolverTypeWrapper<SetBookmarkArticleError>;
   SetBookmarkArticleErrorCode: SetBookmarkArticleErrorCode;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
@@ -2832,6 +2861,9 @@ export type ResolversParentTypes = {
   SearchItemEdge: SearchItemEdge;
   SearchResult: ResolversParentTypes['SearchError'] | ResolversParentTypes['SearchSuccess'];
   SearchSuccess: SearchSuccess;
+  SendInstallInstructionsError: SendInstallInstructionsError;
+  SendInstallInstructionsResult: ResolversParentTypes['SendInstallInstructionsError'] | ResolversParentTypes['SendInstallInstructionsSuccess'];
+  SendInstallInstructionsSuccess: SendInstallInstructionsSuccess;
   SetBookmarkArticleError: SetBookmarkArticleError;
   SetBookmarkArticleInput: SetBookmarkArticleInput;
   SetBookmarkArticleResult: ResolversParentTypes['SetBookmarkArticleError'] | ResolversParentTypes['SetBookmarkArticleSuccess'];
@@ -3038,6 +3070,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3501,6 +3534,7 @@ export type LinkResolvers<ContextType = ResolverContext, ParentType extends Reso
   shareInfo?: Resolver<ResolversTypes['LinkShareInfo'], ParentType, ContextType>;
   shareStats?: Resolver<ResolversTypes['ShareStats'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3642,6 +3676,7 @@ export type PageResolvers<ContextType = ResolverContext, ParentType extends Reso
   readableHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -3679,6 +3714,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
+  sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
@@ -3798,6 +3834,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -3808,6 +3845,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3826,6 +3864,20 @@ export type SearchResultResolvers<ContextType = ResolverContext, ParentType exte
 export type SearchSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchSuccess'] = ResolversParentTypes['SearchSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['SearchItemEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SendInstallInstructionsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendInstallInstructionsError'] = ResolversParentTypes['SendInstallInstructionsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SendInstallInstructionsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SendInstallInstructionsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendInstallInstructionsResult'] = ResolversParentTypes['SendInstallInstructionsResult']> = {
+  __resolveType: TypeResolveFn<'SendInstallInstructionsError' | 'SendInstallInstructionsSuccess', ParentType, ContextType>;
+};
+
+export type SendInstallInstructionsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SendInstallInstructionsSuccess'] = ResolversParentTypes['SendInstallInstructionsSuccess']> = {
+  sent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4410,6 +4462,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;
   SearchResult?: SearchResultResolvers<ContextType>;
   SearchSuccess?: SearchSuccessResolvers<ContextType>;
+  SendInstallInstructionsError?: SendInstallInstructionsErrorResolvers<ContextType>;
+  SendInstallInstructionsResult?: SendInstallInstructionsResultResolvers<ContextType>;
+  SendInstallInstructionsSuccess?: SendInstallInstructionsSuccessResolvers<ContextType>;
   SetBookmarkArticleError?: SetBookmarkArticleErrorResolvers<ContextType>;
   SetBookmarkArticleResult?: SetBookmarkArticleResultResolvers<ContextType>;
   SetBookmarkArticleSuccess?: SetBookmarkArticleSuccessResolvers<ContextType>;

@@ -12,16 +12,19 @@ struct SafariWebLink: Identifiable {
   @Published var articleContent: ArticleContent?
   @Published var errorMessage: String?
 
-  func loadContent(dataService: DataService, itemID: String) async {
+  func loadContent(dataService: DataService, itemID: String, retryCount: Int = 0) async {
     errorMessage = nil
 
     do {
       articleContent = try await dataService.fetchArticleContent(itemID: itemID)
     } catch {
+      if retryCount == 0 {
+        return await loadContent(dataService: dataService, itemID: itemID, retryCount: 1)
+      }
       if let fetchError = error as? ContentFetchError {
         switch fetchError {
         case .network:
-          errorMessage = "We were unable to retrieve your content. Please ccheck network connectivity and try again."
+          errorMessage = "We were unable to retrieve your content. Please check network connectivity and try again."
         default:
           errorMessage = "We were unable to parse your content."
         }

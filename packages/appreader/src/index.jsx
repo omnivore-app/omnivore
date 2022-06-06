@@ -7,10 +7,11 @@ import '@omnivore/web/styles/globals.css'
 import '@omnivore/web/styles/articleInnerStyling.css'
 
 const mutation = async (name, input) => {
-  const result = await window?.webkit?.messageHandlers.articleAction?.postMessage({
-    actionID: name,
-    ...input
-  })
+  const result =
+    await window?.webkit?.messageHandlers.articleAction?.postMessage({
+      actionID: name,
+      ...input,
+    })
   console.log('action result', result, result.result)
   return result.result
 }
@@ -40,13 +41,20 @@ const App = () => {
             highlightBarDisabled={true}
             highlightsBaseURL="https://example.com"
             fontSize={window.fontSize ?? 18}
-            margin={0}
+            fontFamily={window.fontFamily ?? 'inter'}
+            margin={window.margin}
+            lineHeight={window.lineHeight}
             articleMutations={{
-              createHighlightMutation: (input) => mutation('createHighlight', input),
-              deleteHighlightMutation: (highlightId) => mutation('deleteHighlight', { highlightId }),
-              mergeHighlightMutation: (input) => mutation('mergeHighlight', input),
-              updateHighlightMutation: (input) => mutation('updateHighlight', input),
-              articleReadingProgressMutation: (input) => mutation('articleReadingProgress', input),
+              createHighlightMutation: (input) =>
+                mutation('createHighlight', input),
+              deleteHighlightMutation: (highlightId) =>
+                mutation('deleteHighlight', { highlightId }),
+              mergeHighlightMutation: (input) =>
+                mutation('mergeHighlight', input),
+              updateHighlightMutation: (input) =>
+                mutation('updateHighlight', input),
+              articleReadingProgressMutation: (input) =>
+                mutation('articleReadingProgress', input),
             }}
           />
         </VStack>

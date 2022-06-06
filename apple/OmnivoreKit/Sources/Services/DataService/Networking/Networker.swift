@@ -1,9 +1,10 @@
 import Foundation
 import Models
 
-public final class Networker {
+public final class Networker: NSObject, URLSessionTaskDelegate {
   let urlSession: URLSession
   let appEnvironment: AppEnvironment
+  var uploadQueue: [String: URLSessionUploadTask] = [:]
 
   var defaultHeaders: [String: String] {
     var headers = URLRequest.defaultHeaders
@@ -15,9 +16,9 @@ public final class Networker {
     return headers
   }
 
-  public init(appEnvironment: AppEnvironment, urlSession: URLSession = .shared) {
+  public init(appEnvironment: AppEnvironment) {
     self.appEnvironment = appEnvironment
-    self.urlSession = urlSession
+    self.urlSession = .shared
   }
 }
 

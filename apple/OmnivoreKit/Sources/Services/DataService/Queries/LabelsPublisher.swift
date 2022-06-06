@@ -12,11 +12,11 @@ public extension DataService {
 
     let selection = Selection<QueryResult, Unions.LabelsResult> {
       try $0.on(
-        labelsSuccess: .init {
-          QueryResult.success(result: try $0.labels(selection: feedItemLabelSelection.list))
-        },
         labelsError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
+        },
+        labelsSuccess: .init {
+          QueryResult.success(result: try $0.labels(selection: feedItemLabelSelection.list))
         }
       )
     }
