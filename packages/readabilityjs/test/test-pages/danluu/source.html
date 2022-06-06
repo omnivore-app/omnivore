@@ -1,0 +1,1806 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Latency mitigation strategies (by John Carmack)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      pre {
+        max-width: 100%;
+        height: auto;
+        white-space: pre-wrap;
+      }
+      .np {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-bottom: 0.5em;
+        font-style: italic;
+      }
+    </style>
+    <link rel="icon" href="data:;base64,=" />
+    <style type="text/css">
+      @font-face {
+        font-weight: 400;
+        font-style: normal;
+        font-family: 'Circular-Loom';
+
+        src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Book-cd7d2bcec649b1243839a15d5eb8f0a3.woff2')
+          format('woff2');
+      }
+
+      @font-face {
+        font-weight: 500;
+        font-style: normal;
+        font-family: 'Circular-Loom';
+
+        src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Medium-d74eac43c78bd5852478998ce63dceb3.woff2')
+          format('woff2');
+      }
+
+      @font-face {
+        font-weight: 700;
+        font-style: normal;
+        font-family: 'Circular-Loom';
+
+        src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Bold-83b8ceaf77f49c7cffa44107561909e4.woff2')
+          format('woff2');
+      }
+
+      @font-face {
+        font-weight: 900;
+        font-style: normal;
+        font-family: 'Circular-Loom';
+
+        src: url('https://cdn.loom.com/assets/fonts/circular/CircularXXWeb-Black-bf067ecb8aa777ceb6df7d72226febca.woff2')
+          format('woff2');
+      }
+    </style>
+  </head>
+  <body>
+    <strong>Latency mitigation strategies (by John Carmack)</strong>
+    <p>
+      <i
+        >this is an archive of an old article by John Carmack which seems to
+        have disappeared off of the internet</i
+      >
+    </p>
+    <h4 id="abstract">Abstract</h4>
+    <p>
+      Virtual reality (VR) is one of the most demanding human-in-the-loop
+      applications from a latency standpoint. The latency between the physical
+      movement of a user’s head and updated photons from a head mounted display
+      reaching their eyes is one of the most critical factors in providing a
+      high quality experience.
+    </p>
+    <p>
+      Human sensory systems can detect very small relative delays in parts of
+      the visual or, especially, audio fields, but when absolute delays are
+      below approximately 20 milliseconds they are generally imperceptible.
+      Interactive 3D systems today typically have latencies that are several
+      times that figure, but alternate configurations of the same hardware
+      components can allow that target to be reached.
+    </p>
+    <p>
+      A discussion of the sources of latency throughout a system follows, along
+      with techniques for reducing the latency in the processing done on the
+      host system.
+    </p>
+    <h4 id="introduction">Introduction</h4>
+    <p>
+      Updating the imagery in a head mounted display (HMD) based on a head
+      tracking sensor is a subtly different challenge than most human / computer
+      interactions. With a conventional mouse or game controller, the user is
+      consciously manipulating an interface to complete a task, while the goal
+      of virtual reality is to have the experience accepted at an unconscious
+      level.
+    </p>
+    <p>
+      Users can adapt to control systems with a significant amount of latency
+      and still perform challenging tasks or enjoy a game; many thousands of
+      people enjoyed playing early network games, even with 400+ milliseconds of
+      latency between pressing a key and seeing a response on screen.
+    </p>
+    <p>
+      If large amounts of latency are present in the VR system, users may still
+      be able to perform tasks, but it will be by the much less rewarding means
+      of using their head as a controller, rather than accepting that their head
+      is naturally moving around in a stable virtual world. Perceiving latency
+      in the response to head motion is also one of the primary causes of
+      simulator sickness. Other technical factors that affect the quality of a
+      VR experience, like head tracking accuracy and precision, may interact
+      with the perception of latency, or, like display resolution and color
+      depth, be largely orthogonal to it.
+    </p>
+    <p>
+      A total system latency of 50 milliseconds will feel responsive, but still
+      subtly lagging. One of the easiest ways to see the effects of latency in a
+      head mounted display is to roll your head side to side along the view
+      vector while looking at a clear vertical edge. Latency will show up as an
+      apparent tilting of the vertical line with the head motion; the view feels
+      “dragged along” with the head motion. When the latency is low enough, the
+      virtual world convincingly feels like you are simply rotating your view of
+      a stable world.
+    </p>
+    <p>
+      Extrapolation of sensor data can be used to mitigate some system latency,
+      but even with a sophisticated model of the motion of the human head, there
+      will be artifacts as movements are initiated and changed. It is always
+      better to not have a problem than to mitigate it, so true latency
+      reduction should be aggressively pursued, leaving extrapolation to smooth
+      out sensor jitter issues and perform only a small amount of prediction.
+    </p>
+    <h4 id="data-collection">Data collection</h4>
+    <p>
+      It is not usually possible to introspectively measure the complete system
+      latency of a VR system, because the sensors and display devices external
+      to the host processor make significant contributions to the total latency.
+      An effective technique is to record high speed video that simultaneously
+      captures the initiating physical motion and the eventual display update.
+      The system latency can then be determined by single stepping the video and
+      counting the number of video frames between the two events.
+    </p>
+    <p>
+      In most cases there will be a significant jitter in the resulting timings
+      due to aliasing between sensor rates, display rates, and camera rates, but
+      conventional applications tend to display total latencies in the dozens of
+      240 fps video frames.
+    </p>
+    <p>
+      On an unloaded Windows 7 system with the compositing Aero desktop
+      interface disabled, a gaming mouse dragging a window displayed on a 180 hz
+      CRT monitor can show a response on screen in the same 240 fps video frame
+      that the mouse was seen to first move, demonstrating an end to end latency
+      below four milliseconds. Many systems need to cooperate for this to
+      happen: The mouse updates 500 times a second, with no filtering or
+      buffering. The operating system immediately processes the update, and
+      immediately performs GPU accelerated rendering directly to the framebuffer
+      without any page flipping or buffering. The display accepts the video
+      signal with no buffering or processing, and the screen phosphors begin
+      emitting new photons within microseconds.
+    </p>
+    <p>
+      In a typical VR system, many things go far less optimally, sometimes
+      resulting in end to end latencies of over 100 milliseconds.
+    </p>
+    <h4 id="sensors">Sensors</h4>
+    <p>
+      Detecting a physical action can be as simple as a watching a circuit close
+      for a button press, or as complex as analyzing a live video feed to infer
+      position and orientation.
+    </p>
+    <p>
+      In the old days, executing an IO port input instruction could directly
+      trigger an analog to digital conversion on an ISA bus adapter card, giving
+      a latency on the order of a microsecond and no sampling jitter issues.
+      Today, sensors are systems unto themselves, and may have internal
+      pipelines and queues that need to be traversed before the information is
+      even put on the USB serial bus to be transmitted to the host.
+    </p>
+    <p>
+      Analog sensors have an inherent tension between random noise and sensor
+      bandwidth, and some combination of analog and digital filtering is usually
+      done on a signal before returning it. Sometimes this filtering is
+      excessive, which can contribute significant latency and remove subtle
+      motions completely.
+    </p>
+    <p>
+      Communication bandwidth delay on older serial ports or wireless links can
+      be significant in some cases. If the sensor messages occupy the full
+      bandwidth of a communication channel, latency equal to the repeat time of
+      the sensor is added simply for transferring the message. Video data
+      streams can stress even modern wired links, which may encourage the use of
+      data compression, which usually adds another full frame of latency if not
+      explicitly implemented in a pipelined manner.
+    </p>
+    <p>
+      Filtering and communication are constant delays, but the discretely
+      packetized nature of most sensor updates introduces a variable latency, or
+      “jitter” as the sensor data is used for a video frame rate that differs
+      from the sensor frame rate. This latency ranges from close to zero if the
+      sensor packet arrived just before it was queried, up to the repeat time
+      for sensor messages. Most USB HID devices update at 125 samples per
+      second, giving a jitter of up to 8 milliseconds, but it is possible to
+      receive 1000 updates a second from some USB hardware. The operating system
+      may impose an additional random delay of up to a couple milliseconds
+      between the arrival of a message and a user mode application getting the
+      chance to process it, even on an unloaded system.
+    </p>
+    <h4 id="displays">Displays</h4>
+    <p>
+      On old CRT displays, the voltage coming out of the video card directly
+      modulated the voltage of the electron gun, which caused the screen
+      phosphors to begin emitting photons a few microseconds after a pixel was
+      read from the frame buffer memory.
+    </p>
+    <p>
+      Early LCDs were notorious for “ghosting” during scrolling or animation,
+      still showing traces of old images many tens of milliseconds after the
+      image was changed, but significant progress has been made in the last two
+      decades. The transition times for LCD pixels vary based on the start and
+      end values being transitioned between, but a good panel today will have a
+      switching time around ten milliseconds, and optimized displays for active
+      3D and gaming can have switching times less than half that.
+    </p>
+    <p>
+      Modern displays are also expected to perform a wide variety of processing
+      on the incoming signal before they change the actual display elements. A
+      typical Full HD display today will accept 720p or interlaced composite
+      signals and convert them to the 1920×1080 physical pixels. 24 fps movie
+      footage will be converted to 60 fps refresh rates. Stereoscopic input may
+      be converted from side-by-side, top-down, or other formats to frame
+      sequential for active displays, or interlaced for passive displays.
+      Content protection may be applied. Many consumer oriented displays have
+      started applying motion interpolation and other sophisticated algorithms
+      that require multiple frames of buffering.
+    </p>
+    <p>
+      Some of these processing tasks could be handled by only buffering a single
+      scan line, but some of them fundamentally need one or more full frames of
+      buffering, and display vendors have tended to implement the general case
+      without optimizing for the cases that could be done with low or no delay.
+      Some consumer displays wind up buffering three or more frames internally,
+      resulting in 50 milliseconds of latency even when the input data could
+      have been fed directly into the display matrix.
+    </p>
+    <p>
+      Some less common display technologies have speed advantages over LCD
+      panels; OLED pixels can have switching times well under a millisecond, and
+      laser displays are as instantaneous as CRTs.
+    </p>
+    <p>
+      A subtle latency point is that most displays present an image
+      incrementally as it is scanned out from the computer, which has the effect
+      that the bottom of the screen changes 16 milliseconds later than the top
+      of the screen on a 60 fps display. This is rarely a problem on a static
+      display, but on a head mounted display it can cause the world to appear to
+      shear left and right, or “waggle” as the head is rotated, because the
+      source image was generated for an instant in time, but different parts are
+      presented at different times. This effect is usually masked by switching
+      times on LCD HMDs, but it is obvious with fast OLED HMDs.
+    </p>
+    <h4 id="host-processing">Host processing</h4>
+    <p>The classic processing model for a game or VR application is:</p>
+    <pre><code>Read user input -&gt; run simulation -&gt; issue rendering commands -&gt; graphics drawing -&gt; wait for vsync -&gt; scanout
+
+    I = Input sampling and dependent calculation
+    S = simulation / game execution
+    R = rendering engine
+    G = GPU drawing time
+    V = video scanout time
+    </code></pre>
+    <p>
+      All latencies are based on a frame time of roughly 16 milliseconds, a
+      progressively scanned display, and zero sensor and pixel latency.
+    </p>
+    <p>
+      If the performance demands of the application are well below what the
+      system can provide, a straightforward implementation with no parallel
+      overlap will usually provide fairly good latency values. However, if
+      running synchronized to the video refresh, the minimum latency will still
+      be 16 ms even if the system is infinitely fast. This rate feels good for
+      most eye-hand tasks, but it is still a perceptible lag that can be felt in
+      a head mounted display, or in the responsiveness of a mouse cursor.
+    </p>
+    <pre><code>Ample performance, vsync:
+    ISRG------------|VVVVVVVVVVVVVVVV|
+    .................. latency 16 – 32 milliseconds
+    </code></pre>
+    <p>
+      Running without vsync on a very fast system will deliver better latency,
+      but only over a fraction of the screen, and with visible tear lines. The
+      impact of the tear lines are related to the disparity between the two
+      frames that are being torn between, and the amount of time that the tear
+      lines are visible. Tear lines look worse on a continuously illuminated LCD
+      than on a CRT or laser projector, and worse on a 60 fps display than a 120
+      fps display. Somewhat counteracting that, slow switching LCD panels blur
+      the impact of the tear line relative to the faster displays.
+    </p>
+    <p>
+      If enough frames were rendered such that each scan line had a unique
+      image, the effect would be of a “rolling shutter”, rather than visible
+      tear lines, and the image would feel continuous. Unfortunately, even
+      rendering 1000 frames a second, giving approximately 15 bands on screen
+      separated by tear lines, is still quite objectionable on fast switching
+      displays, and few scenes are capable of being rendered at that rate, let
+      alone 60x higher for a true rolling shutter on a 1080P display.
+    </p>
+    <pre><code>Ample performance, unsynchronized:
+    ISRG
+    VVVVV
+    ..... latency 5 – 8 milliseconds at ~200 frames per second
+    </code></pre>
+    <p>
+      In most cases, performance is a constant point of concern, and a parallel
+      pipelined architecture is adopted to allow multiple processors to work in
+      parallel instead of sequentially. Large command buffers on GPUs can buffer
+      an entire frame of drawing commands, which allows them to overlap the work
+      on the CPU, which generally gives a significant frame rate boost at the
+      expense of added latency.
+    </p>
+    <pre><code>CPU:ISSSSSRRRRRR----|
+    GPU:                |GGGGGGGGGGG----|
+    VID:                |               |VVVVVVVVVVVVVVVV|
+        .................................. latency 32 – 48 milliseconds
+    </code></pre>
+    <p>
+      When the CPU load for the simulation and rendering no longer fit in a
+      single frame, multiple CPU cores can be used in parallel to produce more
+      frames. It is possible to reduce frame execution time without increasing
+      latency in some cases, but the natural split of simulation and rendering
+      has often been used to allow effective pipeline parallel operation. Work
+      queue approaches buffered for maximum overlap can cause an additional
+      frame of latency if they are on the critical user responsiveness path.
+    </p>
+    <pre><code>CPU1:ISSSSSSSS-------|
+    CPU2:                |RRRRRRRRR-------|
+    GPU :                |                |GGGGGGGGGG------|
+    VID :                |                |                |VVVVVVVVVVVVVVVV|
+         .................................................... latency 48 – 64 milliseconds
+    </code></pre>
+    <p>
+      Even if an application is running at a perfectly smooth 60 fps, it can
+      still have host latencies of over 50 milliseconds, and an application
+      targeting 30 fps could have twice that. Sensor and display latencies can
+      add significant additional amounts on top of that, so the goal of 20
+      milliseconds motion-to-photons latency is challenging to achieve.
+    </p>
+    <h4 id="latency-reduction-strategies">Latency Reduction Strategies</h4>
+    <h4 id="prevent-gpu-buffering">Prevent GPU buffering</h4>
+    <p>
+      The drive to win frame rate benchmark wars has led driver writers to
+      aggressively buffer drawing commands, and there have even been cases where
+      drivers ignored explicit calls to glFinish() in the name of improved
+      “performance”. Today’s fence primitives do appear to be reliably observed
+      for drawing primitives, but the semantics of buffer swaps are still
+      worryingly imprecise. A recommended sequence of commands to synchronize
+      with the vertical retrace and idle the GPU is:
+    </p>
+    <pre><code>SwapBuffers();
+    DrawTinyPrimitive();
+    InsertGPUFence();
+    BlockUntilFenceIsReached();
+    </code></pre>
+    <p>
+      While this should always prevent excessive command buffering on any
+      conformant driver, it could conceivably fail to provide an accurate
+      vertical sync timing point if the driver was transparently implementing
+      triple buffering.
+    </p>
+    <p>
+      To minimize the performance impact of synchronizing with the GPU, it is
+      important to have sufficient work ready to send to the GPU immediately
+      after the synchronization is performed. The details of exactly when the
+      GPU can begin executing commands are platform specific, but execution can
+      be explicitly kicked off with glFlush() or equivalent calls. If the code
+      issuing drawing commands does not proceed fast enough, the GPU may
+      complete all the work and go idle with a “pipeline bubble”. Because the
+      CPU time to issue a drawing command may have little relation to the GPU
+      time required to draw it, these pipeline bubbles may cause the GPU to take
+      noticeably longer to draw the frame than if it were completely buffered.
+      Ordering the drawing so that larger and slower operations happen first
+      will provide a cushion, as will pushing as much preparatory work as
+      possible before the synchronization point.
+    </p>
+    <pre><code>Run GPU with minimal buffering:
+    CPU1:ISSSSSSSS-------|
+    CPU2:                |RRRRRRRRR-------|
+    GPU :                |-GGGGGGGGGG-----|
+    VID :                |                |VVVVVVVVVVVVVVVV|
+         ................................... latency 32 – 48 milliseconds
+    </code></pre>
+    <p>
+      Tile based renderers, as are found in most mobile devices, inherently
+      require a full scene of command buffering before they can generate their
+      first tile of pixels, so synchronizing before issuing any commands will
+      destroy far more overlap. In a modern rendering engine there may be
+      multiple scene renders for each frame to handle shadows, reflections, and
+      other effects, but increased latency is still a fundamental drawback of
+      the technology.
+    </p>
+    <p>
+      High end, multiple GPU systems today are usually configured for AFR, or
+      Alternate Frame Rendering, where each GPU is allowed to take twice as long
+      to render a single frame, but the overall frame rate is maintained because
+      there are two GPUs producing frames
+    </p>
+    <pre><code>Alternate Frame Rendering dual GPU:
+    CPU1:IOSSSSSSS-------|IOSSSSSSS-------|
+    CPU2:                |RRRRRRRRR-------|RRRRRRRRR-------|
+    GPU1:                | GGGGGGGGGGGGGGGGGGGGGGGG--------|
+    GPU2:                |                | GGGGGGGGGGGGGGGGGGGGGGG---------|
+    VID :                |                |                |VVVVVVVVVVVVVVVV|
+         .................................................... latency 48 – 64 milliseconds
+    </code></pre>
+    <p>
+      Similarly to the case with CPU workloads, it is possible to have two or
+      more GPUs cooperate on a single frame in a way that delivers more work in
+      a constant amount of time, but it increases complexity and generally
+      delivers a lower total speedup.
+    </p>
+    <p>
+      An attractive direction for stereoscopic rendering is to have each GPU on
+      a dual GPU system render one eye, which would deliver maximum performance
+      and minimum latency, at the expense of requiring the application to
+      maintain buffers across two independent rendering contexts.
+    </p>
+    <p>
+      The downside to preventing GPU buffering is that throughput performance
+      may drop, resulting in more dropped frames under heavily loaded
+      conditions.
+    </p>
+    <h4 id="late-frame-scheduling">Late frame scheduling</h4>
+    <p>
+      Much of the work in the simulation task does not depend directly on the
+      user input, or would be insensitive to a frame of latency in it. If the
+      user processing is done last, and the input is sampled just before it is
+      needed, rather than stored off at the beginning of the frame, the total
+      latency can be reduced.
+    </p>
+    <p>
+      It is very difficult to predict the time required for the general
+      simulation work on the entire world, but the work just for the player’s
+      view response to the sensor input can be made essentially deterministic.
+      If this is split off from the main simulation task and delayed until
+      shortly before the end of the frame, it can remove nearly a full frame of
+      latency.
+    </p>
+    <pre><code>Late frame scheduling:
+    CPU1:SSSSSSSSS------I|
+    CPU2:                |RRRRRRRRR-------|
+    GPU :                |-GGGGGGGGGG-----|
+    VID :                |                |VVVVVVVVVVVVVVVV|
+                        .................... latency 18 – 34 milliseconds
+    </code></pre>
+    <p>
+      Adjusting the view is the most latency sensitive task; actions resulting
+      from other user commands, like animating a weapon or interacting with
+      other objects in the world, are generally insensitive to an additional
+      frame of latency, and can be handled in the general simulation task the
+      following frame.
+    </p>
+    <p>
+      The drawback to late frame scheduling is that it introduces a tight
+      scheduling requirement that usually requires busy waiting to meet, wasting
+      power. If your frame rate is determined by the video retrace rather than
+      an arbitrary time slice, assistance from the graphics driver in accurately
+      determining the current scanout position is helpful.
+    </p>
+    <h4 id="view-bypass">View bypass</h4>
+    <p>
+      An alternate way of accomplishing a similar, or slightly greater latency
+      reduction Is to allow the rendering code to modify the parameters
+      delivered to it by the game code, based on a newer sampling of user input.
+    </p>
+    <p>
+      At the simplest level, the user input can be used to calculate a delta
+      from the previous sampling to the current one, which can be used to modify
+      the view matrix that the game submitted to the rendering code.
+    </p>
+    <p>
+      Delta processing in this way is minimally intrusive, but there will often
+      be situations where the user input should not affect the rendering, such
+      as cinematic cut scenes or when the player has died. It can be argued that
+      a game designed from scratch for virtual reality should avoid those
+      situations, because a non-responsive view in a HMD is disorienting and
+      unpleasant, but conventional game design has many such cases.
+    </p>
+    <p>
+      A binary flag could be provided to disable the bypass calculation, but it
+      is useful to generalize such that the game provides an object or function
+      with embedded state that produces rendering parameters from sensor input
+      data instead of having the game provide the view parameters themselves. In
+      addition to handling the trivial case of ignoring sensor input, the
+      generator function can incorporate additional information such as a
+      head/neck positioning model that modified position based on orientation,
+      or lists of other models to be positioned relative to the updated view.
+    </p>
+    <p>
+      If the game and rendering code are running in parallel, it is important
+      that the parameter generation function does not reference any game state
+      to avoid race conditions.
+    </p>
+    <pre><code>View bypass:
+    CPU1:ISSSSSSSSS------|
+    CPU2:                |IRRRRRRRRR------|
+    GPU :                |--GGGGGGGGGG----|
+    VID :                |                |VVVVVVVVVVVVVVVV|
+                          .................. latency 16 – 32 milliseconds
+    </code></pre>
+    <p>
+      The input is only sampled once per frame, but it is simultaneously used by
+      both the simulation task and the rendering task. Some input processing
+      work is now duplicated by the simulation task and the render task, but it
+      is generally minimal.
+    </p>
+    <p>
+      The latency for parameters produced by the generator function is now
+      reduced, but other interactions with the world, like muzzle flashes and
+      physics responses, remain at the same latency as the standard model.
+    </p>
+    <p>
+      A modified form of view bypass could allow tile based GPUs to achieve
+      similar view latencies to non-tiled GPUs, or allow non-tiled GPUs to
+      achieve 100% utilization without pipeline bubbles by the following steps:
+    </p>
+    <p>
+      Inhibit the execution of GPU commands, forcing them to be buffered. OpenGL
+      has only the deprecated display list functionality to approximate this,
+      but a control extension could be formulated.
+    </p>
+    <p>
+      All calculations that depend on the view matrix must reference it
+      independently from a buffer object, rather than from inline parameters or
+      as a composite model-view-projection (MVP) matrix.
+    </p>
+    <p>
+      After all commands have been issued and the next frame has started, sample
+      the user input, run it through the parameter generator, and put the
+      resulting view matrix into the buffer object for referencing by the draw
+      commands.
+    </p>
+    <p>Kick off the draw command execution.</p>
+    <pre><code>Tiler optimized view bypass:
+    CPU1:ISSSSSSSSS------|
+    CPU2:                |IRRRRRRRRRR-----|I
+    GPU :                |                |-GGGGGGGGGG-----|
+    VID :                |                |                |VVVVVVVVVVVVVVVV|
+                                           .................. latency 16 – 32 milliseconds
+    </code></pre>
+    <p>
+      Any view frustum culling that was performed to avoid drawing some models
+      may be invalid if the new view matrix has changed substantially enough
+      from what was used during the rendering task. This can be mitigated at
+      some performance cost by using a larger frustum field of view for culling,
+      and hardware clip planes based on the culling frustum limits can be used
+      to guarantee a clean edge if necessary. Occlusion errors from culling,
+      where a bright object is seen that should have been occluded by an object
+      that was incorrectly culled, are very distracting, but a temporary clean
+      encroaching of black at a screen edge during rapid rotation is almost
+      unnoticeable.
+    </p>
+    <h4 id="time-warping">Time warping</h4>
+    <p>
+      If you had perfect knowledge of how long the rendering of a frame would
+      take, some additional amount of latency could be saved by late frame
+      scheduling the entire rendering task, but this is not practical due to the
+      wide variability in frame rendering times.
+    </p>
+    <pre><code>Late frame input sampled view bypass:
+    CPU1:ISSSSSSSSS------|
+    CPU2:                |----IRRRRRRRRR--|
+    GPU :                |------GGGGGGGGGG|
+    VID :                |                |VVVVVVVVVVVVVVVV|
+                              .............. latency 12 – 28 milliseconds
+    </code></pre>
+    <p>
+      However, a post processing task on the rendered image can be counted on to
+      complete in a fairly predictable amount of time, and can be late scheduled
+      more easily. Any pixel on the screen, along with the associated depth
+      buffer value, can be converted back to a world space position, which can
+      be re-transformed to a different screen space pixel location for a
+      modified set of view parameters.
+    </p>
+    <p>
+      After drawing a frame with the best information at your disposal, possibly
+      with bypassed view parameters, instead of displaying it directly, fetch
+      the latest user input, generate updated view parameters, and calculate a
+      transformation that warps the rendered image into a position that
+      approximates where it would be with the updated parameters. Using that
+      transform, warp the rendered image into an updated form on screen that
+      reflects the new input. If there are two dimensional overlays present on
+      the screen that need to remain fixed, they must be drawn or composited in
+      after the warp operation, to prevent them from incorrectly moving as the
+      view parameters change.
+    </p>
+    <pre><code>Late frame scheduled time warp:
+    CPU1:ISSSSSSSSS------|
+    CPU2:                |RRRRRRRRRR----IR|
+    GPU :                |-GGGGGGGGGG----G|
+    VID :                |                |VVVVVVVVVVVVVVVV|
+                                        .... latency 2 – 18 milliseconds
+    </code></pre>
+    <p>
+      If the difference between the view parameters at the time of the scene
+      rendering and the time of the final warp is only a change in direction,
+      the warped image can be almost exactly correct within the limits of the
+      image filtering. Effects that are calculated relative to the screen, like
+      depth based fog (versus distance based fog) and billboard sprites will be
+      slightly different, but not in a manner that is objectionable.
+    </p>
+    <p>
+      If the warp involves translation as well as direction changes, geometric
+      silhouette edges begin to introduce artifacts where internal parallax
+      would have revealed surfaces not visible in the original rendering. A
+      scene with no silhouette edges, like the inside of a box, can be warped
+      significant amounts and display only changes in texture density, but
+      translation warping realistic scenes will result in smears or gaps along
+      edges. In many cases these are difficult to notice, and they always
+      disappear when motion stops, but first person view hands and weapons are a
+      prominent case. This can be mitigated by limiting the amount of
+      translation warp, compressing or making constant the depth range of the
+      scene being warped to limit the dynamic separation, or rendering the
+      disconnected near field objects as a separate plane, to be composited in
+      after the warp.
+    </p>
+    <p>
+      If an image is being warped to a destination with the same field of view,
+      most warps will leave some corners or edges of the new image undefined,
+      because none of the source pixels are warped to their locations. This can
+      be mitigated by rendering a larger field of view than the destination
+      requires; but simply leaving unrendered pixels black is surprisingly
+      unobtrusive, especially in a wide field of view HMD.
+    </p>
+    <p>
+      A forward warp, where source pixels are deposited in their new positions,
+      offers the best accuracy for arbitrary transformations. At the limit, the
+      frame buffer and depth buffer could be treated as a height field, but
+      millions of half pixel sized triangles would have a severe performance
+      cost. Using a grid of triangles at some fraction of the depth buffer
+      resolution can bring the cost down to a very low level, and the trivial
+      case of treating the rendered image as a single quad avoids all silhouette
+      artifacts at the expense of incorrect pixel positions under translation.
+    </p>
+    <p>
+      Reverse warping, where the pixel in the source rendering is estimated
+      based on the position in the warped image, can be more convenient because
+      it is implemented completely in a fragment shader. It can produce
+      identical results for simple direction changes, but additional artifacts
+      near geometric boundaries are introduced if per-pixel depth information is
+      considered, unless considerable effort is expended to search a
+      neighborhood for the best source pixel.
+    </p>
+    <p>
+      If desired, it is straightforward to incorporate motion blur in a reverse
+      mapping by taking several samples along the line from the pixel being
+      warped to the transformed position in the source image.
+    </p>
+    <p>
+      Reverse mapping also allows the possibility of modifying the warp through
+      the video scanout. The view parameters can be predicted ahead in time to
+      when the scanout will read the bottom row of pixels, which can be used to
+      generate a second warp matrix. The warp to be applied can be interpolated
+      between the two of them based on the pixel row being processed. This can
+      correct for the “waggle” effect on a progressively scanned head mounted
+      display, where the 16 millisecond difference in time between the display
+      showing the top line and bottom line results in a perceived shearing of
+      the world under rapid rotation on fast switching displays.
+    </p>
+    <h4 id="continuously-updated-time-warping">
+      Continuously updated time warping
+    </h4>
+    <p>
+      If the necessary feedback and scheduling mechanisms are available, instead
+      of predicting what the warp transformation should be at the bottom of the
+      frame and warping the entire screen at once, the warp to screen can be
+      done incrementally while continuously updating the warp matrix as new
+      input arrives.
+    </p>
+    <pre><code>Continuous time warp:
+    CPU1:ISSSSSSSSS------|
+    CPU2:                |RRRRRRRRRRR-----|
+    GPU :                |-GGGGGGGGGGGG---|
+    WARP:                |               W| W W W W W W W W|
+    VID :                |                |VVVVVVVVVVVVVVVV|
+                                         ... latency 2 – 3 milliseconds for 500hz sensor updates
+    </code></pre>
+    <p>
+      The ideal interface for doing this would be some form of “scanout shader”
+      that would be called “just in time” for the video display. Several video
+      game systems like the Atari 2600, Jaguar, and Nintendo DS have had buffers
+      ranging from half a scan line to several scan lines that were filled up in
+      this manner.
+    </p>
+    <p>
+      Without new hardware support, it is still possible to incrementally
+      perform the warping directly to the front buffer being scanned for video,
+      and not perform a swap buffers operation at all.
+    </p>
+    <p>
+      A CPU core could be dedicated to the task of warping scan lines at roughly
+      the speed they are consumed by the video output, updating the time warp
+      matrix each scan line to blend in the most recently arrived sensor
+      information.
+    </p>
+    <p>
+      GPUs can perform the time warping operation much more efficiently than a
+      conventional CPU can, but the GPU will be busy drawing the next frame
+      during video scanout, and GPU drawing operations cannot currently be
+      scheduled with high precision due to the difficulty of task switching the
+      deep pipelines and extensive context state. However, modern GPUs are
+      beginning to allow compute tasks to run in parallel with graphics
+      operations, which may allow a fraction of a GPU to be dedicated to
+      performing the warp operations as a shared parameter buffer is updated by
+      the CPU.
+    </p>
+    <h4 id="discussion">Discussion</h4>
+    <p>
+      View bypass and time warping are complementary techniques that can be
+      applied independently or together. Time warping can warp from a source
+      image at an arbitrary view time / location to any other one, but artifacts
+      from internal parallax and screen edge clamping are reduced by using the
+      most recent source image possible, which view bypass rendering helps
+      provide.
+    </p>
+    <p>
+      Actions that require simulation state changes, like flipping a switch or
+      firing a weapon, still need to go through the full pipeline for 32 – 48
+      milliseconds of latency based on what scan line the result winds up
+      displaying on the screen, and translational information may not be
+      completely faithfully represented below the 16 – 32 milliseconds of the
+      view bypass rendering, but the critical head orientation feedback can be
+      provided in 2 – 18 milliseconds on a 60 hz display. In conjunction with
+      low latency sensors and displays, this will generally be perceived as
+      immediate. Continuous time warping opens up the possibility of latencies
+      below 3 milliseconds, which may cross largely unexplored thresholds in
+      human / computer interactivity.
+    </p>
+    <p>
+      Conventional computer interfaces are generally not as latency demanding as
+      virtual reality, but sensitive users can tell the difference in mouse
+      response down to the same 20 milliseconds or so, making it worthwhile to
+      apply these techniques even in applications without a VR focus.
+    </p>
+    <p>
+      A particularly interesting application is in “cloud gaming”, where a
+      simple client appliance or application forwards control information to a
+      remote server, which streams back real time video of the game. This offers
+      significant convenience benefits for users, but the inherent network and
+      compression latencies makes it a lower quality experience for action
+      oriented titles. View bypass and time warping can both be performed on the
+      server, regaining a substantial fraction of the latency imposed by the
+      network. If the cloud gaming client was made more sophisticated, time
+      warping could be performed locally, which could theoretically reduce the
+      latency to the same levels as local applications, but it would probably be
+      prudent to restrict the total amount of time warping to perhaps 30 or 40
+      milliseconds to limit the distance from the source images.
+    </p>
+    <h4 id="acknowledgements">Acknowledgements</h4>
+    <p>Zenimax for allowing me to publish this openly.</p>
+    <p>Hillcrest Labs for inertial sensors and experimental firmware.</p>
+    <p>Emagin for access to OLED displays.</p>
+    <p>Oculus for a prototype Rift HMD.</p>
+    <p>
+      Nvidia for an experimental driver with access to the current scan line
+      number.
+    </p>
+    <div class="np">
+      <a href="https://danluu.com/about/">← About danluu.com</a>
+      <a href="https://danluu.com/karajack/"
+        >Kara Swisher interview of Jack Dorsey →</a
+      >
+    </div>
+    <div class="np">
+      <a href="https://danluu.com/">Archive</a>
+      <a href="https://twitter.com/danluu">Twitter</a>
+    </div>
+    <div
+      class="webext-omnivore-toast"
+      style="
+        color: rgb(61, 61, 61) !important;
+        font: 700 13px Inter, sans-serif !important;
+        font-feature-settings: initial !important;
+        font-kerning: initial !important;
+        font-optical-sizing: initial !important;
+        font-palette: initial !important;
+        font-synthesis: initial !important;
+        font-variation-settings: initial !important;
+        forced-color-adjust: initial !important;
+        text-orientation: initial !important;
+        text-rendering: initial !important;
+        -webkit-font-smoothing: initial !important;
+        -webkit-locale: initial !important;
+        -webkit-text-orientation: initial !important;
+        -webkit-writing-mode: initial !important;
+        writing-mode: initial !important;
+        zoom: initial !important;
+        accent-color: initial !important;
+        align-content: initial !important;
+        align-items: center !important;
+        place-self: initial !important;
+        alignment-baseline: initial !important;
+        animation: initial !important;
+        app-region: initial !important;
+        appearance: initial !important;
+        aspect-ratio: initial !important;
+        backdrop-filter: initial !important;
+        backface-visibility: initial !important;
+        background: rgb(255, 255, 255) !important;
+        background-blend-mode: initial !important;
+        baseline-shift: initial !important;
+        block-size: initial !important;
+        border-block: initial !important;
+        border: initial !important;
+        border-radius: 10px !important;
+        border-collapse: initial !important;
+        border-end-end-radius: initial !important;
+        border-end-start-radius: initial !important;
+        border-inline: initial !important;
+        border-start-end-radius: initial !important;
+        border-start-start-radius: initial !important;
+        bottom: initial !important;
+        box-shadow: rgba(57, 59, 67, 0.25) 0px 1px 89px !important;
+        box-sizing: initial !important;
+        break-after: initial !important;
+        break-before: initial !important;
+        break-inside: initial !important;
+        buffered-rendering: initial !important;
+        caption-side: initial !important;
+        caret-color: initial !important;
+        clear: initial !important;
+        clip: initial !important;
+        clip-path: initial !important;
+        clip-rule: initial !important;
+        color-interpolation: initial !important;
+        color-interpolation-filters: initial !important;
+        color-rendering: initial !important;
+        color-scheme: initial !important;
+        columns: initial !important;
+        column-fill: initial !important;
+        gap: initial !important;
+        column-rule: initial !important;
+        column-span: initial !important;
+        contain: initial !important;
+        contain-intrinsic-block-size: initial !important;
+        contain-intrinsic-size: initial !important;
+        contain-intrinsic-inline-size: initial !important;
+        content: initial !important;
+        content-visibility: initial !important;
+        counter-increment: initial !important;
+        counter-reset: initial !important;
+        counter-set: initial !important;
+        cursor: initial !important;
+        cx: initial !important;
+        cy: initial !important;
+        d: initial !important;
+        display: flex !important;
+        dominant-baseline: initial !important;
+        empty-cells: initial !important;
+        fill: currentcolor !important;
+        fill-opacity: initial !important;
+        fill-rule: initial !important;
+        filter: initial !important;
+        flex: initial !important;
+        flex-flow: initial !important;
+        float: initial !important;
+        flood-color: initial !important;
+        flood-opacity: initial !important;
+        grid: initial !important;
+        grid-area: initial !important;
+        height: 80px !important;
+        hyphens: initial !important;
+        image-orientation: initial !important;
+        image-rendering: initial !important;
+        inline-size: initial !important;
+        inset-block: initial !important;
+        inset-inline: initial !important;
+        isolation: initial !important;
+        justify-content: center !important;
+        justify-items: initial !important;
+        left: initial !important;
+        letter-spacing: initial !important;
+        lighting-color: initial !important;
+        line-break: initial !important;
+        list-style: initial !important;
+        margin-block: initial !important;
+        margin: initial !important;
+        margin-inline: initial !important;
+        marker: initial !important;
+        mask: initial !important;
+        mask-type: initial !important;
+        max-block-size: initial !important;
+        max-height: initial !important;
+        max-inline-size: initial !important;
+        max-width: initial !important;
+        min-block-size: initial !important;
+        min-height: initial !important;
+        min-inline-size: initial !important;
+        min-width: initial !important;
+        mix-blend-mode: initial !important;
+        object-fit: initial !important;
+        object-position: initial !important;
+        offset: initial !important;
+        opacity: initial !important;
+        order: initial !important;
+        origin-trial-test-property: initial !important;
+        orphans: initial !important;
+        outline: initial !important;
+        outline-offset: initial !important;
+        overflow-anchor: initial !important;
+        overflow-clip-margin: initial !important;
+        overflow-wrap: initial !important;
+        overflow: hidden !important;
+        overscroll-behavior-block: initial !important;
+        overscroll-behavior-inline: initial !important;
+        overscroll-behavior: initial !important;
+        padding-block: initial !important;
+        padding: initial !important;
+        padding-inline: initial !important;
+        page: initial !important;
+        page-orientation: initial !important;
+        paint-order: initial !important;
+        perspective: initial !important;
+        perspective-origin: initial !important;
+        pointer-events: initial !important;
+        position: fixed !important;
+        quotes: initial !important;
+        r: initial !important;
+        resize: initial !important;
+        right: 45px !important;
+        ruby-position: initial !important;
+        rx: initial !important;
+        ry: initial !important;
+        scroll-behavior: initial !important;
+        scroll-margin-block: initial !important;
+        scroll-margin: initial !important;
+        scroll-margin-inline: initial !important;
+        scroll-padding-block: initial !important;
+        scroll-padding: initial !important;
+        scroll-padding-inline: initial !important;
+        scroll-snap-align: initial !important;
+        scroll-snap-stop: initial !important;
+        scroll-snap-type: initial !important;
+        scrollbar-gutter: initial !important;
+        shape-image-threshold: initial !important;
+        shape-margin: initial !important;
+        shape-outside: initial !important;
+        shape-rendering: initial !important;
+        size: initial !important;
+        speak: initial !important;
+        stop-color: initial !important;
+        stop-opacity: initial !important;
+        stroke: initial !important;
+        stroke-dasharray: initial !important;
+        stroke-dashoffset: initial !important;
+        stroke-linecap: initial !important;
+        stroke-linejoin: initial !important;
+        stroke-miterlimit: initial !important;
+        stroke-opacity: initial !important;
+        stroke-width: initial !important;
+        tab-size: initial !important;
+        table-layout: initial !important;
+        text-align: initial !important;
+        text-align-last: initial !important;
+        text-anchor: initial !important;
+        text-combine-upright: initial !important;
+        text-decoration: initial !important;
+        text-decoration-skip-ink: initial !important;
+        text-emphasis: initial !important;
+        text-emphasis-position: initial !important;
+        text-indent: initial !important;
+        text-overflow: initial !important;
+        text-shadow: initial !important;
+        text-size-adjust: initial !important;
+        text-transform: initial !important;
+        text-underline-offset: initial !important;
+        text-underline-position: initial !important;
+        top: 20px !important;
+        touch-action: initial !important;
+        transform: initial !important;
+        transform-box: initial !important;
+        transform-origin: initial !important;
+        transform-style: initial !important;
+        transition: all 300ms ease 0s !important;
+        user-select: none !important;
+        vector-effect: initial !important;
+        vertical-align: initial !important;
+        visibility: initial !important;
+        border-spacing: initial !important;
+        -webkit-border-image: initial !important;
+        -webkit-box-align: initial !important;
+        -webkit-box-decoration-break: initial !important;
+        -webkit-box-direction: initial !important;
+        -webkit-box-flex: initial !important;
+        -webkit-box-ordinal-group: initial !important;
+        -webkit-box-orient: initial !important;
+        -webkit-box-pack: initial !important;
+        -webkit-box-reflect: initial !important;
+        -webkit-highlight: initial !important;
+        -webkit-hyphenate-character: initial !important;
+        -webkit-line-break: initial !important;
+        -webkit-line-clamp: initial !important;
+        -webkit-mask-box-image: initial !important;
+        -webkit-mask: initial !important;
+        -webkit-mask-composite: initial !important;
+        -webkit-perspective-origin-x: initial !important;
+        -webkit-perspective-origin-y: initial !important;
+        -webkit-print-color-adjust: initial !important;
+        -webkit-rtl-ordering: initial !important;
+        -webkit-ruby-position: initial !important;
+        -webkit-tap-highlight-color: initial !important;
+        -webkit-text-combine: initial !important;
+        -webkit-text-decorations-in-effect: initial !important;
+        -webkit-text-fill-color: initial !important;
+        -webkit-text-security: initial !important;
+        -webkit-text-stroke: initial !important;
+        -webkit-transform-origin-x: initial !important;
+        -webkit-transform-origin-y: initial !important;
+        -webkit-transform-origin-z: initial !important;
+        -webkit-user-drag: initial !important;
+        -webkit-user-modify: initial !important;
+        white-space: initial !important;
+        widows: initial !important;
+        width: 240px !important;
+        will-change: initial !important;
+        word-break: initial !important;
+        word-spacing: initial !important;
+        x: initial !important;
+        y: initial !important;
+        z-index: 9999999 !important;
+      "
+    >
+      <svg
+        viewBox="0 0 16 16"
+        xmlns="http://www.w3.org/2000/svg"
+        style="
+          color: inherit !important;
+          font: initial !important;
+          font-feature-settings: initial !important;
+          font-kerning: initial !important;
+          font-optical-sizing: initial !important;
+          font-palette: initial !important;
+          font-synthesis: initial !important;
+          font-variation-settings: initial !important;
+          forced-color-adjust: initial !important;
+          text-orientation: initial !important;
+          text-rendering: initial !important;
+          -webkit-font-smoothing: initial !important;
+          -webkit-locale: initial !important;
+          -webkit-text-orientation: initial !important;
+          -webkit-writing-mode: initial !important;
+          writing-mode: initial !important;
+          zoom: initial !important;
+          accent-color: initial !important;
+          place-content: initial !important;
+          place-items: initial !important;
+          place-self: initial !important;
+          alignment-baseline: initial !important;
+          animation: initial !important;
+          app-region: initial !important;
+          appearance: initial !important;
+          aspect-ratio: initial !important;
+          backdrop-filter: initial !important;
+          backface-visibility: initial !important;
+          background: initial !important;
+          background-blend-mode: initial !important;
+          baseline-shift: initial !important;
+          block-size: initial !important;
+          border-block: initial !important;
+          border: initial !important;
+          border-radius: initial !important;
+          border-collapse: initial !important;
+          border-end-end-radius: initial !important;
+          border-end-start-radius: initial !important;
+          border-inline: initial !important;
+          border-start-end-radius: initial !important;
+          border-start-start-radius: initial !important;
+          inset: initial !important;
+          box-shadow: initial !important;
+          box-sizing: initial !important;
+          break-after: initial !important;
+          break-before: initial !important;
+          break-inside: initial !important;
+          buffered-rendering: initial !important;
+          caption-side: initial !important;
+          caret-color: initial !important;
+          clear: initial !important;
+          clip: initial !important;
+          clip-path: initial !important;
+          clip-rule: initial !important;
+          color-interpolation: initial !important;
+          color-interpolation-filters: initial !important;
+          color-rendering: initial !important;
+          color-scheme: initial !important;
+          columns: initial !important;
+          column-fill: initial !important;
+          gap: initial !important;
+          column-rule: initial !important;
+          column-span: initial !important;
+          contain: initial !important;
+          contain-intrinsic-block-size: initial !important;
+          contain-intrinsic-size: initial !important;
+          contain-intrinsic-inline-size: initial !important;
+          content: initial !important;
+          content-visibility: initial !important;
+          counter-increment: initial !important;
+          counter-reset: initial !important;
+          counter-set: initial !important;
+          cursor: initial !important;
+          cx: initial !important;
+          cy: initial !important;
+          d: initial !important;
+          display: initial !important;
+          dominant-baseline: initial !important;
+          empty-cells: initial !important;
+          fill: inherit !important;
+          fill-opacity: initial !important;
+          fill-rule: initial !important;
+          filter: initial !important;
+          flex: initial !important;
+          flex-flow: initial !important;
+          float: initial !important;
+          flood-color: initial !important;
+          flood-opacity: initial !important;
+          grid: initial !important;
+          grid-area: initial !important;
+          height: 20px !important;
+          hyphens: initial !important;
+          image-orientation: initial !important;
+          image-rendering: initial !important;
+          inline-size: initial !important;
+          inset-block: initial !important;
+          inset-inline: initial !important;
+          isolation: initial !important;
+          letter-spacing: initial !important;
+          lighting-color: initial !important;
+          line-break: initial !important;
+          list-style: initial !important;
+          margin-block: initial !important;
+          margin-bottom: initial !important;
+          margin-inline: initial !important;
+          margin-left: 24px !important;
+          margin-right: initial !important;
+          margin-top: initial !important;
+          marker: initial !important;
+          mask: initial !important;
+          mask-type: initial !important;
+          max-block-size: initial !important;
+          max-height: initial !important;
+          max-inline-size: initial !important;
+          max-width: initial !important;
+          min-block-size: initial !important;
+          min-height: initial !important;
+          min-inline-size: initial !important;
+          min-width: initial !important;
+          mix-blend-mode: initial !important;
+          object-fit: initial !important;
+          object-position: initial !important;
+          offset: initial !important;
+          opacity: initial !important;
+          order: initial !important;
+          origin-trial-test-property: initial !important;
+          orphans: initial !important;
+          outline: initial !important;
+          outline-offset: initial !important;
+          overflow-anchor: initial !important;
+          overflow-clip-margin: initial !important;
+          overflow-wrap: initial !important;
+          overflow: initial !important;
+          overscroll-behavior-block: initial !important;
+          overscroll-behavior-inline: initial !important;
+          overscroll-behavior: initial !important;
+          padding-block: initial !important;
+          padding: initial !important;
+          padding-inline: initial !important;
+          page: initial !important;
+          page-orientation: initial !important;
+          paint-order: initial !important;
+          perspective: initial !important;
+          perspective-origin: initial !important;
+          pointer-events: initial !important;
+          position: initial !important;
+          quotes: initial !important;
+          r: initial !important;
+          resize: initial !important;
+          ruby-position: initial !important;
+          rx: initial !important;
+          ry: initial !important;
+          scroll-behavior: initial !important;
+          scroll-margin-block: initial !important;
+          scroll-margin: initial !important;
+          scroll-margin-inline: initial !important;
+          scroll-padding-block: initial !important;
+          scroll-padding: initial !important;
+          scroll-padding-inline: initial !important;
+          scroll-snap-align: initial !important;
+          scroll-snap-stop: initial !important;
+          scroll-snap-type: initial !important;
+          scrollbar-gutter: initial !important;
+          shape-image-threshold: initial !important;
+          shape-margin: initial !important;
+          shape-outside: initial !important;
+          shape-rendering: initial !important;
+          size: initial !important;
+          speak: initial !important;
+          stop-color: initial !important;
+          stop-opacity: initial !important;
+          stroke: initial !important;
+          stroke-dasharray: initial !important;
+          stroke-dashoffset: initial !important;
+          stroke-linecap: initial !important;
+          stroke-linejoin: initial !important;
+          stroke-miterlimit: initial !important;
+          stroke-opacity: initial !important;
+          stroke-width: initial !important;
+          tab-size: initial !important;
+          table-layout: initial !important;
+          text-align: initial !important;
+          text-align-last: initial !important;
+          text-anchor: initial !important;
+          text-combine-upright: initial !important;
+          text-decoration: initial !important;
+          text-decoration-skip-ink: initial !important;
+          text-emphasis: initial !important;
+          text-emphasis-position: initial !important;
+          text-indent: initial !important;
+          text-overflow: initial !important;
+          text-shadow: initial !important;
+          text-size-adjust: initial !important;
+          text-transform: initial !important;
+          text-underline-offset: initial !important;
+          text-underline-position: initial !important;
+          touch-action: initial !important;
+          transform: initial !important;
+          transform-box: initial !important;
+          transform-origin: initial !important;
+          transform-style: initial !important;
+          transition: initial !important;
+          user-select: initial !important;
+          vector-effect: initial !important;
+          vertical-align: initial !important;
+          visibility: initial !important;
+          border-spacing: initial !important;
+          -webkit-border-image: initial !important;
+          -webkit-box-align: initial !important;
+          -webkit-box-decoration-break: initial !important;
+          -webkit-box-direction: initial !important;
+          -webkit-box-flex: initial !important;
+          -webkit-box-ordinal-group: initial !important;
+          -webkit-box-orient: initial !important;
+          -webkit-box-pack: initial !important;
+          -webkit-box-reflect: initial !important;
+          -webkit-highlight: initial !important;
+          -webkit-hyphenate-character: initial !important;
+          -webkit-line-break: initial !important;
+          -webkit-line-clamp: initial !important;
+          -webkit-mask-box-image: initial !important;
+          -webkit-mask: initial !important;
+          -webkit-mask-composite: initial !important;
+          -webkit-perspective-origin-x: initial !important;
+          -webkit-perspective-origin-y: initial !important;
+          -webkit-print-color-adjust: initial !important;
+          -webkit-rtl-ordering: initial !important;
+          -webkit-ruby-position: initial !important;
+          -webkit-tap-highlight-color: initial !important;
+          -webkit-text-combine: initial !important;
+          -webkit-text-decorations-in-effect: initial !important;
+          -webkit-text-fill-color: initial !important;
+          -webkit-text-security: initial !important;
+          -webkit-text-stroke: initial !important;
+          -webkit-transform-origin-x: initial !important;
+          -webkit-transform-origin-y: initial !important;
+          -webkit-transform-origin-z: initial !important;
+          -webkit-user-drag: initial !important;
+          -webkit-user-modify: initial !important;
+          white-space: initial !important;
+          widows: initial !important;
+          width: 20px !important;
+          will-change: initial !important;
+          word-break: initial !important;
+          word-spacing: initial !important;
+          x: initial !important;
+          y: initial !important;
+          z-index: initial !important;
+        "
+      >
+        <path
+          d="M8.25.004a8 8 0 0 1 0 15.992L8 16a.5.5 0 0 1-.09-.992L8 15a7 7 0 0 0 .24-13.996L8 1a.5.5 0 0 1-.09-.992L8 0l.25.004z"
+        >
+          <animateTransform
+            attributeName="transform"
+            attributeType="XML"
+            dur="800ms"
+            from="0 8 8"
+            repeatCount="indefinite"
+            to="360 8 8"
+            type="rotate"
+          ></animateTransform>
+        </path>
+      </svg>
+      <div
+        style="
+          color: inherit !important;
+          font: inherit !important;
+          font-feature-settings: initial !important;
+          font-kerning: initial !important;
+          font-optical-sizing: initial !important;
+          font-palette: initial !important;
+          font-synthesis: initial !important;
+          font-variation-settings: initial !important;
+          forced-color-adjust: initial !important;
+          text-orientation: initial !important;
+          text-rendering: initial !important;
+          -webkit-font-smoothing: initial !important;
+          -webkit-locale: initial !important;
+          -webkit-text-orientation: initial !important;
+          -webkit-writing-mode: initial !important;
+          writing-mode: initial !important;
+          zoom: initial !important;
+          accent-color: initial !important;
+          place-content: initial !important;
+          place-items: initial !important;
+          place-self: initial !important;
+          alignment-baseline: initial !important;
+          animation: initial !important;
+          app-region: initial !important;
+          appearance: initial !important;
+          aspect-ratio: initial !important;
+          backdrop-filter: initial !important;
+          backface-visibility: initial !important;
+          background: initial !important;
+          background-blend-mode: initial !important;
+          baseline-shift: initial !important;
+          block-size: initial !important;
+          border-block: initial !important;
+          border: initial !important;
+          border-radius: initial !important;
+          border-collapse: initial !important;
+          border-end-end-radius: initial !important;
+          border-end-start-radius: initial !important;
+          border-inline: initial !important;
+          border-start-end-radius: initial !important;
+          border-start-start-radius: initial !important;
+          inset: initial !important;
+          box-shadow: initial !important;
+          box-sizing: initial !important;
+          break-after: initial !important;
+          break-before: initial !important;
+          break-inside: initial !important;
+          buffered-rendering: initial !important;
+          caption-side: initial !important;
+          caret-color: initial !important;
+          clear: initial !important;
+          clip: initial !important;
+          clip-path: initial !important;
+          clip-rule: initial !important;
+          color-interpolation: initial !important;
+          color-interpolation-filters: initial !important;
+          color-rendering: initial !important;
+          color-scheme: initial !important;
+          columns: initial !important;
+          column-fill: initial !important;
+          gap: initial !important;
+          column-rule: initial !important;
+          column-span: initial !important;
+          contain: initial !important;
+          contain-intrinsic-block-size: initial !important;
+          contain-intrinsic-size: initial !important;
+          contain-intrinsic-inline-size: initial !important;
+          content: initial !important;
+          content-visibility: initial !important;
+          counter-increment: initial !important;
+          counter-reset: initial !important;
+          counter-set: initial !important;
+          cursor: initial !important;
+          cx: initial !important;
+          cy: initial !important;
+          d: initial !important;
+          display: initial !important;
+          dominant-baseline: initial !important;
+          empty-cells: initial !important;
+          fill: initial !important;
+          fill-opacity: initial !important;
+          fill-rule: initial !important;
+          filter: initial !important;
+          flex: 1 1 0% !important;
+          flex-flow: initial !important;
+          float: initial !important;
+          flood-color: initial !important;
+          flood-opacity: initial !important;
+          grid: initial !important;
+          grid-area: initial !important;
+          height: initial !important;
+          hyphens: initial !important;
+          image-orientation: initial !important;
+          image-rendering: initial !important;
+          inline-size: initial !important;
+          inset-block: initial !important;
+          inset-inline: initial !important;
+          isolation: initial !important;
+          letter-spacing: initial !important;
+          lighting-color: initial !important;
+          line-break: initial !important;
+          list-style: initial !important;
+          margin-block: initial !important;
+          margin: initial !important;
+          margin-inline: initial !important;
+          marker: initial !important;
+          mask: initial !important;
+          mask-type: initial !important;
+          max-block-size: initial !important;
+          max-height: initial !important;
+          max-inline-size: initial !important;
+          max-width: initial !important;
+          min-block-size: initial !important;
+          min-height: initial !important;
+          min-inline-size: initial !important;
+          min-width: initial !important;
+          mix-blend-mode: initial !important;
+          object-fit: initial !important;
+          object-position: initial !important;
+          offset: initial !important;
+          opacity: initial !important;
+          order: initial !important;
+          origin-trial-test-property: initial !important;
+          orphans: initial !important;
+          outline: initial !important;
+          outline-offset: initial !important;
+          overflow-anchor: initial !important;
+          overflow-clip-margin: initial !important;
+          overflow-wrap: initial !important;
+          overflow: initial !important;
+          overscroll-behavior-block: initial !important;
+          overscroll-behavior-inline: initial !important;
+          overscroll-behavior: initial !important;
+          padding-block: initial !important;
+          padding: 0px 24px !important;
+          padding-inline: initial !important;
+          page: initial !important;
+          page-orientation: initial !important;
+          paint-order: initial !important;
+          perspective: initial !important;
+          perspective-origin: initial !important;
+          pointer-events: initial !important;
+          position: initial !important;
+          quotes: initial !important;
+          r: initial !important;
+          resize: initial !important;
+          ruby-position: initial !important;
+          rx: initial !important;
+          ry: initial !important;
+          scroll-behavior: initial !important;
+          scroll-margin-block: initial !important;
+          scroll-margin: initial !important;
+          scroll-margin-inline: initial !important;
+          scroll-padding-block: initial !important;
+          scroll-padding: initial !important;
+          scroll-padding-inline: initial !important;
+          scroll-snap-align: initial !important;
+          scroll-snap-stop: initial !important;
+          scroll-snap-type: initial !important;
+          scrollbar-gutter: initial !important;
+          shape-image-threshold: initial !important;
+          shape-margin: initial !important;
+          shape-outside: initial !important;
+          shape-rendering: initial !important;
+          size: initial !important;
+          speak: initial !important;
+          stop-color: initial !important;
+          stop-opacity: initial !important;
+          stroke: initial !important;
+          stroke-dasharray: initial !important;
+          stroke-dashoffset: initial !important;
+          stroke-linecap: initial !important;
+          stroke-linejoin: initial !important;
+          stroke-miterlimit: initial !important;
+          stroke-opacity: initial !important;
+          stroke-width: initial !important;
+          tab-size: initial !important;
+          table-layout: initial !important;
+          text-align: initial !important;
+          text-align-last: initial !important;
+          text-anchor: initial !important;
+          text-combine-upright: initial !important;
+          text-decoration: initial !important;
+          text-decoration-skip-ink: initial !important;
+          text-emphasis: initial !important;
+          text-emphasis-position: initial !important;
+          text-indent: initial !important;
+          text-overflow: initial !important;
+          text-shadow: initial !important;
+          text-size-adjust: initial !important;
+          text-transform: initial !important;
+          text-underline-offset: initial !important;
+          text-underline-position: initial !important;
+          touch-action: initial !important;
+          transform: initial !important;
+          transform-box: initial !important;
+          transform-origin: initial !important;
+          transform-style: initial !important;
+          transition: initial !important;
+          user-select: initial !important;
+          vector-effect: initial !important;
+          vertical-align: initial !important;
+          visibility: initial !important;
+          border-spacing: initial !important;
+          -webkit-border-image: initial !important;
+          -webkit-box-align: initial !important;
+          -webkit-box-decoration-break: initial !important;
+          -webkit-box-direction: initial !important;
+          -webkit-box-flex: initial !important;
+          -webkit-box-ordinal-group: initial !important;
+          -webkit-box-orient: initial !important;
+          -webkit-box-pack: initial !important;
+          -webkit-box-reflect: initial !important;
+          -webkit-highlight: initial !important;
+          -webkit-hyphenate-character: initial !important;
+          -webkit-line-break: initial !important;
+          -webkit-line-clamp: initial !important;
+          -webkit-mask-box-image: initial !important;
+          -webkit-mask: initial !important;
+          -webkit-mask-composite: initial !important;
+          -webkit-perspective-origin-x: initial !important;
+          -webkit-perspective-origin-y: initial !important;
+          -webkit-print-color-adjust: initial !important;
+          -webkit-rtl-ordering: initial !important;
+          -webkit-ruby-position: initial !important;
+          -webkit-tap-highlight-color: initial !important;
+          -webkit-text-combine: initial !important;
+          -webkit-text-decorations-in-effect: initial !important;
+          -webkit-text-fill-color: initial !important;
+          -webkit-text-security: initial !important;
+          -webkit-text-stroke: initial !important;
+          -webkit-transform-origin-x: initial !important;
+          -webkit-transform-origin-y: initial !important;
+          -webkit-transform-origin-z: initial !important;
+          -webkit-user-drag: initial !important;
+          -webkit-user-modify: initial !important;
+          white-space: initial !important;
+          widows: initial !important;
+          width: initial !important;
+          will-change: initial !important;
+          word-break: initial !important;
+          word-spacing: initial !important;
+          x: initial !important;
+          y: initial !important;
+          z-index: initial !important;
+        "
+      >
+        Saving...
+      </div>
+    </div>
+    <div
+      class="webext-omnivore-backdrop"
+      style="
+        color: initial !important;
+        font: initial !important;
+        font-feature-settings: initial !important;
+        font-kerning: initial !important;
+        font-optical-sizing: initial !important;
+        font-palette: initial !important;
+        font-synthesis: initial !important;
+        font-variation-settings: initial !important;
+        forced-color-adjust: initial !important;
+        text-orientation: initial !important;
+        text-rendering: initial !important;
+        -webkit-font-smoothing: initial !important;
+        -webkit-locale: initial !important;
+        -webkit-text-orientation: initial !important;
+        -webkit-writing-mode: initial !important;
+        writing-mode: initial !important;
+        zoom: initial !important;
+        accent-color: initial !important;
+        place-content: initial !important;
+        place-items: initial !important;
+        place-self: initial !important;
+        alignment-baseline: initial !important;
+        animation: initial !important;
+        app-region: initial !important;
+        appearance: initial !important;
+        aspect-ratio: initial !important;
+        backdrop-filter: blur(4px) !important;
+        backface-visibility: initial !important;
+        background: rgb(255, 255, 255) !important;
+        background-blend-mode: initial !important;
+        baseline-shift: initial !important;
+        block-size: initial !important;
+        border-block: initial !important;
+        border: initial !important;
+        border-radius: initial !important;
+        border-collapse: initial !important;
+        border-end-end-radius: initial !important;
+        border-end-start-radius: initial !important;
+        border-inline: initial !important;
+        border-start-end-radius: initial !important;
+        border-start-start-radius: initial !important;
+        inset: 0px !important;
+        box-shadow: initial !important;
+        box-sizing: initial !important;
+        break-after: initial !important;
+        break-before: initial !important;
+        break-inside: initial !important;
+        buffered-rendering: initial !important;
+        caption-side: initial !important;
+        caret-color: initial !important;
+        clear: initial !important;
+        clip: initial !important;
+        clip-path: initial !important;
+        clip-rule: initial !important;
+        color-interpolation: initial !important;
+        color-interpolation-filters: initial !important;
+        color-rendering: initial !important;
+        color-scheme: initial !important;
+        columns: initial !important;
+        column-fill: initial !important;
+        gap: initial !important;
+        column-rule: initial !important;
+        column-span: initial !important;
+        contain: initial !important;
+        contain-intrinsic-block-size: initial !important;
+        contain-intrinsic-size: initial !important;
+        contain-intrinsic-inline-size: initial !important;
+        content: initial !important;
+        content-visibility: initial !important;
+        counter-increment: initial !important;
+        counter-reset: initial !important;
+        counter-set: initial !important;
+        cursor: initial !important;
+        cx: initial !important;
+        cy: initial !important;
+        d: initial !important;
+        display: initial !important;
+        dominant-baseline: initial !important;
+        empty-cells: initial !important;
+        fill: initial !important;
+        fill-opacity: initial !important;
+        fill-rule: initial !important;
+        filter: initial !important;
+        flex: initial !important;
+        flex-flow: initial !important;
+        float: initial !important;
+        flood-color: initial !important;
+        flood-opacity: initial !important;
+        grid: initial !important;
+        grid-area: initial !important;
+        height: initial !important;
+        hyphens: initial !important;
+        image-orientation: initial !important;
+        image-rendering: initial !important;
+        inline-size: initial !important;
+        inset-block: initial !important;
+        inset-inline: initial !important;
+        isolation: initial !important;
+        letter-spacing: initial !important;
+        lighting-color: initial !important;
+        line-break: initial !important;
+        list-style: initial !important;
+        margin-block: initial !important;
+        margin: initial !important;
+        margin-inline: initial !important;
+        marker: initial !important;
+        mask: initial !important;
+        mask-type: initial !important;
+        max-block-size: initial !important;
+        max-height: initial !important;
+        max-inline-size: initial !important;
+        max-width: initial !important;
+        min-block-size: initial !important;
+        min-height: initial !important;
+        min-inline-size: initial !important;
+        min-width: initial !important;
+        mix-blend-mode: initial !important;
+        object-fit: initial !important;
+        object-position: initial !important;
+        offset: initial !important;
+        opacity: 0 !important;
+        order: initial !important;
+        origin-trial-test-property: initial !important;
+        orphans: initial !important;
+        outline: initial !important;
+        outline-offset: initial !important;
+        overflow-anchor: initial !important;
+        overflow-clip-margin: initial !important;
+        overflow-wrap: initial !important;
+        overflow: initial !important;
+        overscroll-behavior-block: initial !important;
+        overscroll-behavior-inline: initial !important;
+        overscroll-behavior: initial !important;
+        padding-block: initial !important;
+        padding: initial !important;
+        padding-inline: initial !important;
+        page: initial !important;
+        page-orientation: initial !important;
+        paint-order: initial !important;
+        perspective: initial !important;
+        perspective-origin: initial !important;
+        pointer-events: initial !important;
+        position: fixed !important;
+        quotes: initial !important;
+        r: initial !important;
+        resize: initial !important;
+        ruby-position: initial !important;
+        rx: initial !important;
+        ry: initial !important;
+        scroll-behavior: initial !important;
+        scroll-margin-block: initial !important;
+        scroll-margin: initial !important;
+        scroll-margin-inline: initial !important;
+        scroll-padding-block: initial !important;
+        scroll-padding: initial !important;
+        scroll-padding-inline: initial !important;
+        scroll-snap-align: initial !important;
+        scroll-snap-stop: initial !important;
+        scroll-snap-type: initial !important;
+        scrollbar-gutter: initial !important;
+        shape-image-threshold: initial !important;
+        shape-margin: initial !important;
+        shape-outside: initial !important;
+        shape-rendering: initial !important;
+        size: initial !important;
+        speak: initial !important;
+        stop-color: initial !important;
+        stop-opacity: initial !important;
+        stroke: initial !important;
+        stroke-dasharray: initial !important;
+        stroke-dashoffset: initial !important;
+        stroke-linecap: initial !important;
+        stroke-linejoin: initial !important;
+        stroke-miterlimit: initial !important;
+        stroke-opacity: initial !important;
+        stroke-width: initial !important;
+        tab-size: initial !important;
+        table-layout: initial !important;
+        text-align: initial !important;
+        text-align-last: initial !important;
+        text-anchor: initial !important;
+        text-combine-upright: initial !important;
+        text-decoration: initial !important;
+        text-decoration-skip-ink: initial !important;
+        text-emphasis: initial !important;
+        text-emphasis-position: initial !important;
+        text-indent: initial !important;
+        text-overflow: initial !important;
+        text-shadow: initial !important;
+        text-size-adjust: initial !important;
+        text-transform: initial !important;
+        text-underline-offset: initial !important;
+        text-underline-position: initial !important;
+        touch-action: initial !important;
+        transform: initial !important;
+        transform-box: initial !important;
+        transform-origin: initial !important;
+        transform-style: initial !important;
+        transition: opacity 0.3s ease 0s !important;
+        user-select: initial !important;
+        vector-effect: initial !important;
+        vertical-align: initial !important;
+        visibility: initial !important;
+        border-spacing: initial !important;
+        -webkit-border-image: initial !important;
+        -webkit-box-align: initial !important;
+        -webkit-box-decoration-break: initial !important;
+        -webkit-box-direction: initial !important;
+        -webkit-box-flex: initial !important;
+        -webkit-box-ordinal-group: initial !important;
+        -webkit-box-orient: initial !important;
+        -webkit-box-pack: initial !important;
+        -webkit-box-reflect: initial !important;
+        -webkit-highlight: initial !important;
+        -webkit-hyphenate-character: initial !important;
+        -webkit-line-break: initial !important;
+        -webkit-line-clamp: initial !important;
+        -webkit-mask-box-image: initial !important;
+        -webkit-mask: initial !important;
+        -webkit-mask-composite: initial !important;
+        -webkit-perspective-origin-x: initial !important;
+        -webkit-perspective-origin-y: initial !important;
+        -webkit-print-color-adjust: initial !important;
+        -webkit-rtl-ordering: initial !important;
+        -webkit-ruby-position: initial !important;
+        -webkit-tap-highlight-color: initial !important;
+        -webkit-text-combine: initial !important;
+        -webkit-text-decorations-in-effect: initial !important;
+        -webkit-text-fill-color: initial !important;
+        -webkit-text-security: initial !important;
+        -webkit-text-stroke: initial !important;
+        -webkit-transform-origin-x: initial !important;
+        -webkit-transform-origin-y: initial !important;
+        -webkit-transform-origin-z: initial !important;
+        -webkit-user-drag: initial !important;
+        -webkit-user-modify: initial !important;
+        white-space: initial !important;
+        widows: initial !important;
+        width: initial !important;
+        will-change: initial !important;
+        word-break: initial !important;
+        word-spacing: initial !important;
+        x: initial !important;
+        y: initial !important;
+        z-index: 99999 !important;
+      "
+    ></div>
+  </body>
+</html>
