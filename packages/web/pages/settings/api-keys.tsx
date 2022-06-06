@@ -42,6 +42,11 @@ export default function ApiKeys(): JSX.Element {
     return rows
   }, [apiKeys])
 
+  // default expiry date is 1 year from now
+  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
+    .toISOString()
+    .split('T')[0]
+
   applyStoredTheme(false)
 
   async function onDelete(id: string): Promise<void> {
@@ -121,15 +126,17 @@ export default function ApiKeys(): JSX.Element {
               required: true,
             },
             {
-              label: 'Expired at',
+              label: 'Expired on',
               name: 'expiredAt',
               required: true,
               onChange: setExpiresAt,
               type: 'date',
+              min: new Date().toISOString().split('T')[0], // today
+              value: defaultExpiresAt,
             },
           ])
           setName('')
-          setExpiresAt(new Date(Date.now() + 1000 * 60 * 60 * 24 * 365))
+          setExpiresAt(new Date(defaultExpiresAt))
           setAddModelOpen(true)
         }}
       />

@@ -16,6 +16,7 @@ export interface FormInputProps {
   required?: boolean
   css?: any
   options?: string[]
+  min?: any
 }
 
 export const FormInput = styled('input', {
@@ -96,6 +97,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
           },
         }}
         name={input.name}
+        min={input.min}
       />
     )
   }
