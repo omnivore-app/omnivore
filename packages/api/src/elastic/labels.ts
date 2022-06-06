@@ -198,3 +198,60 @@ export const updateLabelInPage = async (
     return false
   }
 }
+
+export const setLabelsForHighlight = async (
+  highlightId: string,
+  labels: Label[],
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      body: {
+        script: {
+          source: `ctx._source.highlights[0].labels = params.labels`,
+          lang: 'painless',
+          params: {
+            labels: labels,
+          },
+        },
+        query: {
+          nested: {
+            path: 'highlights',
+            query: {
+              term: {
+                'highlights.id': highlightId,
+              },
+            },
+          },
+        },
+      },
+      refresh: ctx.refresh,
+      conflicts: 'proceed', // ignore conflicts
+    })
+
+    if (!body.updated) {
+      return false
+    }
+
+    for (const label of labels) {
+      await ctx.pubsub.entityCreated<Label & { highlightId: string }>(
+        EntityType.LABEL,
+        { highlightId, ...label },
+        ctx.uid
+      )
+    }
+
+    return true
+  } catch (e) {
+    if (
+      e instanceof ResponseError &&
+      e.message === 'document_missing_exception'
+    ) {
+      console.log('highlight has been deleted', highlightId)
+      return false
+    }
+    console.error('failed to set labels for highlight in elastic', e)
+    return false
+  }
+}
