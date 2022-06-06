@@ -22,7 +22,7 @@
     "256": "/images/extension/icon-256.png"
   },
 
-  "permissions": ["activeTab", "storage", "nativeMessaging", "https://*/**", "http://*/**"],
+  "permissions": ["activeTab", "storage", "https://*/**", "http://*/**"],
 
   "background": {
     "page": "/views/background.html",
