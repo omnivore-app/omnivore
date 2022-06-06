@@ -8,6 +8,7 @@ import { FormInputProps } from '../../components/elements/FormElements'
 import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { FormModal } from '../../components/patterns/FormModal'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 
 interface ApiKey {
   name: string
@@ -24,6 +25,7 @@ export default function ApiKeys(): JSX.Element {
   // const [scopes, setScopes] = useState<string[] | undefined>(undefined)
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
+  const [apiKeyGenerated, setApiKeyGenerated] = useState('')
 
   const headers = ['Name', 'Scopes', 'Used on', 'Expires on']
   const rows = useMemo(() => {
@@ -54,6 +56,7 @@ export default function ApiKeys(): JSX.Element {
   async function onCreate(): Promise<void> {
     const result = await generateApiKeyMutation({ name, expiresAt })
     if (result) {
+      setApiKeyGenerated(result)
       showSuccessToast('Api key generated', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to add', { position: 'bottom-right' })
@@ -76,6 +79,20 @@ export default function ApiKeys(): JSX.Element {
           onOpenChange={setAddModelOpen}
           inputs={formInputs}
           acceptButtonLabel={'Generate'}
+        />
+      )}
+
+      {apiKeyGenerated && (
+        <ConfirmationModal
+          message={`Api key generated. Copy the key and use it in your application.
+                    You won’t be able to see it again!
+                    Key: ${apiKeyGenerated}`}
+          acceptButtonLabel={'Copy'}
+          onAccept={async () => {
+            await navigator.clipboard.writeText(apiKeyGenerated)
+            setApiKeyGenerated('')
+          }}
+          onOpenChange={() => setApiKeyGenerated('')}
         />
       )}
 
