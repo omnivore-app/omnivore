@@ -143,7 +143,7 @@
    * capture them separately and concatenate them here with head and body tags
    * preserved.
    */
-    const contentCopyHtml = `<head>${document.head.innerHTML}</head><body>${contentCopyEl.innerHTML}</body>`;
+    const contentCopyHtml = `<html><head>${document.head.innerHTML}</head><body>${contentCopyEl.innerHTML}</body></html>`;
     // Cleaning up the copy element
     contentCopyEl.remove();
     return contentCopyHtml;
