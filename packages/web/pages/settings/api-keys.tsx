@@ -28,7 +28,7 @@ export default function ApiKeys(): JSX.Element {
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
 
-  const headers = ['Name', 'Scopes', 'Used on', 'Expires on']
+  const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
   const rows = useMemo(() => {
     const rows = new Map<string, ApiKey>()
     apiKeys.forEach((apiKey) =>
