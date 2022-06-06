@@ -61,6 +61,7 @@ export enum SortBy {
   UPDATED = 'updatedAt',
   SCORE = '_score',
   PUBLISHED = 'publishedAt',
+  READ = 'readAt',
 }
 
 export enum SortOrder {
@@ -176,6 +177,11 @@ const parseSortParams = (str?: string): SortParams | undefined => {
     case 'PUBLISHED':
       return {
         by: SortBy.PUBLISHED,
+        order: sortOrder,
+      }
+    case 'READ':
+      return {
+        by: SortBy.READ,
         order: sortOrder,
       }
   }
@@ -323,6 +329,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         }
         case 'saved':
+        case 'read':
         case 'published': {
           const dateFilter = parseDateFilter(keyword.keyword, keyword.value)
           dateFilter && result.dateFilters.push(dateFilter)

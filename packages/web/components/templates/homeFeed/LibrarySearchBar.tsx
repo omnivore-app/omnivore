@@ -22,7 +22,7 @@ type LibraryFilter =
   | 'type:file'
   | 'type:highlights'
   | `saved:${string}`
-  | `sort:updated`
+  | `sort:read`
 
 // get last week's date
 const recentlySavedStartDate = new Date(
@@ -122,13 +122,27 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
           </form>
         </Box>
         {searchTerm && (
-          <Button style='plainIcon' onClick={(event) => {
+          <Button
+            style="plainIcon"
+            onClick={(event) => {
               event.preventDefault()
               setSearchTerm('')
               props.applySearchQuery('')
               inputRef.current?.blur()
-            }} css={{ display: 'flex', flexDirection: 'row', mr: '8px', height: '100%', alignItems: 'center' }}>
-              <X width={16} height={16} color={theme.colors.grayTextContrast.toString()} />
+            }}
+            css={{
+              display: 'flex',
+              flexDirection: 'row',
+              mr: '8px',
+              height: '100%',
+              alignItems: 'center',
+            }}
+          >
+            <X
+              width={16}
+              height={16}
+              color={theme.colors.grayTextContrast.toString()}
+            />
           </Button>
         )}
       </HStack>
@@ -175,7 +189,7 @@ export function DropdownFilterMenu(
         hideSeparator
       />
       <DropdownOption
-        onSelect={() => props.onFilterChange(`sort:updated`)}
+        onSelect={() => props.onFilterChange(`sort:read`)}
         title="Recently Read"
         hideSeparator
       />

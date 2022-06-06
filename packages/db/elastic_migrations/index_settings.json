@@ -124,6 +124,9 @@
       "language": {
         "type": "keyword",
         "normalizer": "lowercase_normalizer"
+      },
+      "readAt": {
+        "type": "date"
       }
     }
   }

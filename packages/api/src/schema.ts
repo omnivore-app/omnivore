@@ -1495,6 +1495,7 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     siteName: String
     language: String
+    readAt: Date
   }
 
   type SearchItemEdge {
