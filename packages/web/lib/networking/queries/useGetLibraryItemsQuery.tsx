@@ -128,7 +128,6 @@ export function useGetLibraryItemsQuery({
               annotation
               state
               siteName
-              readAt
             }
           }
           pageInfo {
