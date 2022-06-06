@@ -34,7 +34,10 @@ export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
       const apiKeys = await getRepository(ApiKey).find({
         select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
         where: { user: { id: uid } },
-        order: { usedAt: 'DESC', createdAt: 'DESC' },
+        order: {
+          usedAt: { direction: 'DESC', nulls: 'last' },
+          createdAt: 'DESC',
+        },
       })
 
       return {

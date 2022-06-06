@@ -35,7 +35,9 @@ export default function ApiKeys(): JSX.Element {
       rows.set(apiKey.id, {
         name: apiKey.name,
         scopes: apiKey.scopes.join(', ') || 'All',
-        usedAt: apiKey.usedAt?.toISOString() || 'Never used',
+        usedAt: apiKey.usedAt
+          ? new Date(apiKey.usedAt).toISOString()
+          : 'Never used',
         expiresAt: new Date(apiKey.expiresAt).toDateString(),
       })
     )
