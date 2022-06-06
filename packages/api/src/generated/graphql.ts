@@ -883,6 +883,7 @@ export type Mutation = {
   setDeviceToken: SetDeviceTokenResult;
   setFollow: SetFollowResult;
   setLabels: SetLabelsResult;
+  setLabelsForHighlight: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
   setShareArticle: SetShareArticleResult;
   setShareHighlight: SetShareHighlightResult;
@@ -1051,6 +1052,11 @@ export type MutationSetFollowArgs = {
 
 export type MutationSetLabelsArgs = {
   input: SetLabelsInput;
+};
+
+
+export type MutationSetLabelsForHighlightArgs = {
+  input: SetLabelsForHighlightInput;
 };
 
 
@@ -1617,6 +1623,11 @@ export enum SetLabelsErrorCode {
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
+
+export type SetLabelsForHighlightInput = {
+  highlightId: Scalars['ID'];
+  labelIds: Array<Scalars['ID']>;
+};
 
 export type SetLabelsInput = {
   labelIds: Array<Scalars['ID']>;
@@ -2544,6 +2555,7 @@ export type ResolversTypes = {
   SetFollowSuccess: ResolverTypeWrapper<SetFollowSuccess>;
   SetLabelsError: ResolverTypeWrapper<SetLabelsError>;
   SetLabelsErrorCode: SetLabelsErrorCode;
+  SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
   SetLabelsResult: ResolversTypes['SetLabelsError'] | ResolversTypes['SetLabelsSuccess'];
   SetLabelsSuccess: ResolverTypeWrapper<SetLabelsSuccess>;
@@ -2845,6 +2857,7 @@ export type ResolversParentTypes = {
   SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
   SetFollowSuccess: SetFollowSuccess;
   SetLabelsError: SetLabelsError;
+  SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
   SetLabelsResult: ResolversParentTypes['SetLabelsError'] | ResolversParentTypes['SetLabelsSuccess'];
   SetLabelsSuccess: SetLabelsSuccess;
@@ -3588,6 +3601,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
   setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
   setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
+  setLabelsForHighlight?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsForHighlightArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
   setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;

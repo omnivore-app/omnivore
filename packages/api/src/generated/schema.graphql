@@ -786,6 +786,7 @@ type Mutation {
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
+  setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
@@ -1170,6 +1171,11 @@ enum SetLabelsErrorCode {
   BAD_REQUEST
   NOT_FOUND
   UNAUTHORIZED
+}
+
+input SetLabelsForHighlightInput {
+  highlightId: ID!
+  labelIds: [ID!]!
 }
 
 input SetLabelsInput {
