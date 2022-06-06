@@ -2,8 +2,12 @@ import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Toaster } from 'react-hot-toast'
 import { Table } from '../../components/elements/Table'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
+import { FormInputProps } from '../../components/elements/FormElements'
+import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { FormModal } from '../../components/patterns/FormModal'
 
 interface ApiKey {
   name: string
@@ -15,19 +19,21 @@ interface ApiKey {
 export default function ApiKeys(): JSX.Element {
   const { apiKeys, revalidate } = useGetApiKeysQuery()
   // const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
-  // const [addModelOpen, setAddModelOpen] = useState(false)
-  // const [url, setUrl] = useState('')
-  // const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
+  const [addModelOpen, setAddModelOpen] = useState(false)
+  const [name, setName] = useState('')
+  // const [scopes, setScopes] = useState<string[] | undefined>(undefined)
+  const [expiresAt, setExpiresAt] = useState<Date>(new Date())
+  const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
 
-  const headers = ['Name', 'Scopes', 'Used at', 'Expires at']
+  const headers = ['Name', 'Scopes', 'Used on', 'Expires on']
   const rows = useMemo(() => {
     const rows = new Map<string, ApiKey>()
     apiKeys.forEach((apiKey) =>
       rows.set(apiKey.id, {
         name: apiKey.name,
-        scopes: apiKey.scopes.join(', '),
-        usedAt: apiKey.usedAt?.toISOString() || 'Never',
-        expiresAt: apiKey.expiresAt.toISOString(),
+        scopes: apiKey.scopes.join(', ') || 'All',
+        usedAt: apiKey.usedAt?.toISOString() || 'Never used',
+        expiresAt: new Date(apiKey.expiresAt).toDateString(),
       })
     )
     return rows
@@ -44,16 +50,16 @@ export default function ApiKeys(): JSX.Element {
   //   }
   //   revalidate()
   // }
-  //
-  // async function onCreate(): Promise<void> {
-  //   const result = await setWebhookMutation({ url, eventTypes })
-  //   if (result) {
-  //     showSuccessToast('Webhook created', { position: 'bottom-right' })
-  //   } else {
-  //     showErrorToast('Failed to add', { position: 'bottom-right' })
-  //   }
-  //   revalidate()
-  // }
+
+  async function onCreate(): Promise<void> {
+    const result = await generateApiKeyMutation({ name, expiresAt })
+    if (result) {
+      showSuccessToast('Api key generated', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to add', { position: 'bottom-right' })
+    }
+    revalidate()
+  }
 
   return (
     <PrimaryLayout pageTestId={'api-keys'}>
@@ -63,15 +69,15 @@ export default function ApiKeys(): JSX.Element {
         }}
       />
 
-      {/*{addModelOpen && (*/}
-      {/*  <FormModal*/}
-      {/*    title={'Add webhook'}*/}
-      {/*    onSubmit={onCreate}*/}
-      {/*    onOpenChange={setAddModelOpen}*/}
-      {/*    inputs={formInputs}*/}
-      {/*    acceptButtonLabel={'Add'}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {addModelOpen && (
+        <FormModal
+          title={'Generate Api Key'}
+          onSubmit={onCreate}
+          onOpenChange={setAddModelOpen}
+          inputs={formInputs}
+          acceptButtonLabel={'Generate'}
+        />
+      )}
 
       {/*{onDeleteId && (*/}
       {/*  <ConfirmationModal*/}
@@ -90,40 +96,26 @@ export default function ApiKeys(): JSX.Element {
         headers={headers}
         rows={rows}
         // onDelete={setOnDeleteId}
-        // onAdd={() => {
-        //   setFormInputs([
-        //     {
-        //       label: 'URL',
-        //       onChange: setUrl,
-        //       name: 'url',
-        //       placeholder: 'https://example.com/webhook',
-        //       required: true,
-        //     },
-        //     {
-        //       label: 'Event Types',
-        //       name: 'eventTypes',
-        //       value: [true, true],
-        //       onChange: setEventTypes,
-        //       options: eventTypeOptions,
-        //       type: 'checkbox',
-        //     },
-        //     {
-        //       label: 'Method',
-        //       name: 'method',
-        //       value: method,
-        //       disabled: true,
-        //     },
-        //     {
-        //       label: 'Content Type',
-        //       name: 'contentType',
-        //       value: contentType,
-        //       disabled: true,
-        //     },
-        //   ])
-        //   setUrl('')
-        //   setEventTypes(eventTypeOptions as WebhookEvent[])
-        //   setAddModelOpen(true)
-        // }}
+        onAdd={() => {
+          setFormInputs([
+            {
+              label: 'Name',
+              onChange: setName,
+              name: 'name',
+              required: true,
+            },
+            {
+              label: 'Expired at',
+              name: 'expiredAt',
+              required: true,
+              onChange: setExpiresAt,
+              type: 'date',
+            },
+          ])
+          setName('')
+          setExpiresAt(new Date(Date.now() + 1000 * 60 * 60 * 24 * 365))
+          setAddModelOpen(true)
+        }}
       />
     </PrimaryLayout>
   )
