@@ -9,6 +9,7 @@ import { generateApiKeyMutation } from '../../lib/networking/mutations/generateA
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
 interface ApiKey {
   name: string
@@ -19,7 +20,7 @@ interface ApiKey {
 
 export default function ApiKeys(): JSX.Element {
   const { apiKeys, revalidate } = useGetApiKeysQuery()
-  // const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
+  const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModelOpen, setAddModelOpen] = useState(false)
   const [name, setName] = useState('')
   // const [scopes, setScopes] = useState<string[] | undefined>(undefined)
@@ -43,21 +44,21 @@ export default function ApiKeys(): JSX.Element {
 
   applyStoredTheme(false)
 
-  // async function onDelete(id: string): Promise<void> {
-  //   const result = await deleteWebhookMutation(id)
-  //   if (result) {
-  //     showSuccessToast('Webhook deleted', { position: 'bottom-right' })
-  //   } else {
-  //     showErrorToast('Failed to delete', { position: 'bottom-right' })
-  //   }
-  //   revalidate()
-  // }
+  async function onDelete(id: string): Promise<void> {
+    const result = await revokeApiKeyMutation(id)
+    if (result) {
+      showSuccessToast('API Key deleted', { position: 'bottom-right' })
+    } else {
+      showErrorToast('Failed to delete', { position: 'bottom-right' })
+    }
+    revalidate()
+  }
 
   async function onCreate(): Promise<void> {
     const result = await generateApiKeyMutation({ name, expiresAt })
     if (result) {
       setApiKeyGenerated(result)
-      showSuccessToast('Api key generated', { position: 'bottom-right' })
+      showSuccessToast('API key generated', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to add', { position: 'bottom-right' })
     }
@@ -74,7 +75,7 @@ export default function ApiKeys(): JSX.Element {
 
       {addModelOpen && (
         <FormModal
-          title={'Generate Api Key'}
+          title={'Generate API Key'}
           onSubmit={onCreate}
           onOpenChange={setAddModelOpen}
           inputs={formInputs}
@@ -84,7 +85,7 @@ export default function ApiKeys(): JSX.Element {
 
       {apiKeyGenerated && (
         <ConfirmationModal
-          message={`Api key generated. Copy the key and use it in your application.
+          message={`API key generated. Copy the key and use it in your application.
                     You won’t be able to see it again!
                     Key: ${apiKeyGenerated}`}
           acceptButtonLabel={'Copy'}
@@ -96,23 +97,21 @@ export default function ApiKeys(): JSX.Element {
         />
       )}
 
-      {/*{onDeleteId && (*/}
-      {/*  <ConfirmationModal*/}
-      {/*    message={*/}
-      {/*      'Future events will no longer be delivered to this webhook. This action cannot be undone.'*/}
-      {/*    }*/}
-      {/*    onAccept={async () => {*/}
-      {/*      await onDelete(onDeleteId)*/}
-      {/*      setOnDeleteId(null)*/}
-      {/*    }}*/}
-      {/*    onOpenChange={() => setOnDeleteId(null)}*/}
-      {/*  />*/}
-      {/*)}*/}
+      {onDeleteId && (
+        <ConfirmationModal
+          message={'API key would be revoked. This action cannot be undone.'}
+          onAccept={async () => {
+            await onDelete(onDeleteId)
+            setOnDeleteId('')
+          }}
+          onOpenChange={() => setOnDeleteId('')}
+        />
+      )}
       <Table
-        heading={'Api Keys'}
+        heading={'API Keys'}
         headers={headers}
         rows={rows}
-        // onDelete={setOnDeleteId}
+        onDelete={setOnDeleteId}
         onAdd={() => {
           setFormInputs([
             {
