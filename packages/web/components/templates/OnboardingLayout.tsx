@@ -5,6 +5,7 @@ import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { useRouter } from 'next/router'
+import { Toaster } from 'react-hot-toast'
 
 const TOTAL_ONBOARDING_PAGES = 6
 
@@ -65,6 +66,7 @@ export const OnboardingLayout = ({
         path={`/onboarding/0${pageNumber}`}
         title={`Onboarding - ${pageNumber}`}
       />
+      <Toaster />
       <Box
         css={{
           display: 'grid',
