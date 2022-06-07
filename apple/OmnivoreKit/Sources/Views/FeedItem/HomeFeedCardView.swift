@@ -93,6 +93,5 @@ public struct FeedCard: View {
       maxHeight: nil,
       alignment: .topLeading
     )
-    .overlay(SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) ?? ServerSyncStatus.isNSync), alignment: .bottomTrailing)
   }
 }
