@@ -177,6 +177,7 @@ extension DataService {
           }
 
           let articleContent = ArticleContent(
+            title: result.item.title,
             htmlContent: result.htmlContent,
             highlightsJSONString: result.highlights.asJSONString,
             contentStatus: result.item.isPDF ? .succeeded : .make(from: result.contentStatus)
@@ -302,6 +303,7 @@ extension DataService {
         .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
 
       return ArticleContent(
+        title: linkedItem.unwrappedTitle,
         htmlContent: htmlContent,
         highlightsJSONString: highlights.map { InternalHighlight.make(from: $0) }.asJSONString,
         contentStatus: .succeeded
