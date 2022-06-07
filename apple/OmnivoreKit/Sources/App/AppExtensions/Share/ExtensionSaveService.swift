@@ -18,7 +18,7 @@ class ExtensionSaveService {
     self.queue = OperationQueue()
   }
 
-  private func queueSaveOperation(_ pageScrape: PageScrapePayload, requestId: String, shareExtensionViewModel: ShareExtensionChildViewModel) {
+  private func queueSaveOperation(_ pageScrape: PageScrapePayload, shareExtensionViewModel: ShareExtensionChildViewModel) {
     ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in
       guard !expiring else {
         self.queue.cancelAllOperations()
@@ -26,14 +26,14 @@ class ExtensionSaveService {
         return
       }
 
-      let operation = SaveOperation(pageScrapePayload: pageScrape, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
+      let operation = SaveOperation(pageScrapePayload: pageScrape, shareExtensionViewModel: shareExtensionViewModel)
 
       self.queue.addOperation(operation)
       self.queue.waitUntilAllOperationsAreFinished()
     }
   }
 
-  public func save(_ extensionContext: NSExtensionContext, requestId: String, shareExtensionViewModel: ShareExtensionChildViewModel) {
+  public func save(_ extensionContext: NSExtensionContext, shareExtensionViewModel: ShareExtensionChildViewModel) {
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
       guard let self = self else { return }
 
@@ -68,8 +68,8 @@ class ExtensionSaveService {
             }
           }
         }
-        self.queueSaveOperation(payload, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
-      case let .failure:
+        self.queueSaveOperation(payload, shareExtensionViewModel: shareExtensionViewModel)
+      case .failure:
         DispatchQueue.main.async {
           shareExtensionViewModel.status = .failed(error: .unknown(description: "Could not retrieve content"))
         }
@@ -78,7 +78,6 @@ class ExtensionSaveService {
   }
 
   class SaveOperation: Operation, URLSessionDelegate {
-    let requestId: String
     let services: Services
     let pageScrapePayload: PageScrapePayload
     let shareExtensionViewModel: ShareExtensionChildViewModel
@@ -92,9 +91,8 @@ class ExtensionSaveService {
       case finished
     }
 
-    init(pageScrapePayload: PageScrapePayload, requestId: String, shareExtensionViewModel: ShareExtensionChildViewModel) {
+    init(pageScrapePayload: PageScrapePayload, shareExtensionViewModel: ShareExtensionChildViewModel) {
       self.pageScrapePayload = pageScrapePayload
-      self.requestId = requestId
       self.shareExtensionViewModel = shareExtensionViewModel
 
       self.state = .created
@@ -138,7 +136,7 @@ class ExtensionSaveService {
       queue = OperationQueue()
 
       Task {
-        await persist(services: self.services, pageScrapePayload: self.pageScrapePayload, requestId: self.requestId)
+        await persist(services: self.services, pageScrapePayload: self.pageScrapePayload)
       }
     }
 
@@ -146,38 +144,48 @@ class ExtensionSaveService {
       super.cancel()
     }
 
-    private func updateStatus(newStatus: ShareExtensionStatus) {
+    private func updateStatus(_ requestId: String?, newStatus: ShareExtensionStatus) {
       DispatchQueue.main.async {
         self.shareExtensionViewModel.status = newStatus
+        if let requestId = requestId {
+          self.shareExtensionViewModel.requestId = requestId
+        }
       }
     }
 
-    private func persist(services: Services, pageScrapePayload: PageScrapePayload, requestId: String) async {
+    private func persist(services: Services, pageScrapePayload: PageScrapePayload) async {
+      var requestId = shareExtensionViewModel.requestId
+
       do {
         try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
       } catch {
-        updateStatus(newStatus: .failed(error: SaveArticleError.unknown(description: "Unable to access content")))
+        updateStatus(nil, newStatus: .failed(error: SaveArticleError.unknown(description: "Unable to access content")))
         return
       }
 
       do {
-        updateStatus(newStatus: .saved)
+        updateStatus(requestId, newStatus: .saved)
 
         switch pageScrapePayload.contentType {
         case .none:
-          try await services.dataService.syncUrl(id: requestId, url: pageScrapePayload.url)
+          requestId = try await services.dataService.syncUrl(id: requestId, url: pageScrapePayload.url)
         case let .pdf(localUrl):
           try await services.dataService.syncPdf(id: requestId, localPdfURL: localUrl, url: pageScrapePayload.url)
         case let .html(html, title, _):
-          try await services.dataService.syncPage(id: requestId, originalHtml: html, title: title, url: pageScrapePayload.url)
+          requestId = try await services.dataService.syncPage(
+            id: requestId,
+            originalHtml: html,
+            title: title,
+            url: pageScrapePayload.url
+          )
         }
 
       } catch {
-        updateStatus(newStatus: .syncFailed(error: SaveArticleError.unknown(description: "Unknown Error")))
+        updateStatus(nil, newStatus: .syncFailed(error: SaveArticleError.unknown(description: "Unknown Error")))
         return
       }
 
-      updateStatus(newStatus: .synced)
+      updateStatus(requestId, newStatus: .synced)
       state = .finished
     }
   }

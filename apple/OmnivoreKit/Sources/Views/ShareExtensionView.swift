@@ -7,8 +7,11 @@ public class ShareExtensionChildViewModel: ObservableObject {
   @Published public var title: String?
   @Published public var url: String?
   @Published public var iconURL: String?
+  @Published public var requestId: String
 
-  public init() {}
+  public init() {
+    self.requestId = UUID().uuidString.lowercased()
+  }
 }
 
 public enum ShareExtensionStatus {
@@ -126,7 +129,7 @@ struct CheckmarkButtonView: View {
 public struct ShareExtensionChildView: View {
   let viewModel: ShareExtensionChildViewModel
   let onAppearAction: () -> Void
-  let readNowButtonAction: () -> Void
+  let readNowButtonAction: (String) -> Void
   let dismissButtonTappedAction: (ReminderTime?, Bool) -> Void
 
   @State var reminderTime: ReminderTime?
@@ -135,7 +138,7 @@ public struct ShareExtensionChildView: View {
   public init(
     viewModel: ShareExtensionChildViewModel,
     onAppearAction: @escaping () -> Void,
-    readNowButtonAction: @escaping () -> Void,
+    readNowButtonAction: @escaping (String) -> Void,
     dismissButtonTappedAction: @escaping (ReminderTime?, Bool) -> Void
   ) {
     self.viewModel = viewModel
@@ -281,13 +284,12 @@ public struct ShareExtensionChildView: View {
       Spacer()
 
       HStack {
-        if FeatureFlag.enableReadNow {
-          Button(
-            action: { readNowButtonAction() },
-            label: { Text("Read Now").frame(maxWidth: .infinity) }
-          )
-          .buttonStyle(RoundedRectButtonStyle())
-        }
+        Button(
+          action: { readNowButtonAction(self.viewModel.requestId) },
+          label: { Text("Read Now").frame(maxWidth: .infinity) }
+        )
+        .buttonStyle(RoundedRectButtonStyle())
+
         Button(
           action: {
             dismissButtonTappedAction(reminderTime, hideUntilReminded)

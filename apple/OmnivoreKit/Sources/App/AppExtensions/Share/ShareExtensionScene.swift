@@ -25,9 +25,8 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published var debugText: String?
 
   let saveService = ExtensionSaveService()
-  let requestId = UUID().uuidString.lowercased()
 
-  func handleReadNowAction(extensionContext: NSExtensionContext?) {
+  func handleReadNowAction(requestId: String, extensionContext: NSExtensionContext?) {
     #if os(iOS)
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
         let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
@@ -39,7 +38,7 @@ public class ShareExtensionViewModel: ObservableObject {
 
   func savePage(extensionContext: NSExtensionContext?, shareExtensionViewModel: ShareExtensionChildViewModel) {
     if let extensionContext = extensionContext {
-      saveService.save(extensionContext, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
+      saveService.save(extensionContext, shareExtensionViewModel: shareExtensionViewModel)
     } else {
       DispatchQueue.main.async {
         shareExtensionViewModel.status = .failed(error: .unknown(description: "Internal Error"))
@@ -57,7 +56,7 @@ struct ShareExtensionView: View {
     ShareExtensionChildView(
       viewModel: childViewModel,
       onAppearAction: { viewModel.savePage(extensionContext: extensionContext, shareExtensionViewModel: childViewModel) },
-      readNowButtonAction: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
+      readNowButtonAction: { viewModel.handleReadNowAction(requestId: $0, extensionContext: extensionContext) },
       dismissButtonTappedAction: { _, _ in
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
       }

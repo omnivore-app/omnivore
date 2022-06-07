@@ -72,7 +72,7 @@ public extension DataService {
     }
   }
 
-  func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws {
+  func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws -> String {
     do {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
@@ -81,6 +81,7 @@ public extension DataService {
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
+      return newId ?? id
     } catch {
       backgroundContext.performAndWait {
         backgroundContext.rollback()
@@ -89,7 +90,7 @@ public extension DataService {
     }
   }
 
-  func syncUrl(id: String, url: String) async throws {
+  func syncUrl(id: String, url: String) async throws -> String {
     do {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
@@ -98,6 +99,7 @@ public extension DataService {
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
+      return newId ?? id
     } catch {
       backgroundContext.performAndWait {
         backgroundContext.rollback()
