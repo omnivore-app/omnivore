@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "process.env.EXTENSION_NAME",
   "short_name": "process.env.EXTENSION_NAME",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "description": "Save articles to your Omnivore library",
   "author": "Omnivore Media, Inc",
   "default_locale": "en",
