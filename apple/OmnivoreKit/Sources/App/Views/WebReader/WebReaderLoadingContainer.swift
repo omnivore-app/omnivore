@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -23,6 +24,16 @@ import Utils
       }()
 
       guard let username = username else { return }
+
+      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "id == %@", requestID)
+      if let existingItem = try? dataService.viewContext.fetch(fetchRequest).first,
+         existingItem.serverSyncStatus == ServerSyncStatus.isNSync.rawValue
+      {
+        print("USING EXISTING ITEM", existingItem.serverSyncStatus)
+        item = existingItem
+        return
+      }
 
       // If the page was locally created, make sure they are synced before we pull content
       await dataService.syncUnsyncedArticleContent(itemID: requestID)
