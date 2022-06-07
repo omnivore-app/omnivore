@@ -121,6 +121,7 @@ public final class DataService: ObservableObject {
       let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
       let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
 
+      linkedItem.createdId = requestId
       linkedItem.id = existingItem?.unwrappedID ?? requestId
       linkedItem.title = normalizedURL
       linkedItem.pageURLString = normalizedURL
