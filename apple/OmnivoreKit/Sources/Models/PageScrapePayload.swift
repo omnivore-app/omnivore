@@ -53,7 +53,6 @@ public enum PageScraper {
 
     var pageScrapePayload: PageScrapePayload?
     let PDFKey = UTType.pdf.identifier
-    let publicFileKey = UTType.fileURL.identifier
     let propertyListKey = UTType.propertyList.identifier
 
     let group = DispatchGroup()
