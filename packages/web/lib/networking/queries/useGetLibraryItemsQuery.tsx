@@ -35,6 +35,7 @@ type LibraryItemAction =
   | 'mark-read'
   | 'mark-unread'
   | 'refresh'
+  | 'update-item'
 
 export type LibraryItemsData = {
   search: LibraryItems
@@ -304,6 +305,10 @@ export function useGetLibraryItemsQuery({
           readingProgressPercent: 0,
           readingProgressAnchorIndex: 0,
         })
+        break
+        case 'update-item':
+          updateData(item)
+          await mutate()
         break
       case 'refresh':
         await mutate()

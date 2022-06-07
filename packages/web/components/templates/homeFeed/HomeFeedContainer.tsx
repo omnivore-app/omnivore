@@ -39,7 +39,11 @@ import { SetLabelsModal } from '../article/SetLabelsModal'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
-import { State, PageType } from '../../../lib/networking/fragments/articleFragment'
+import {
+  State,
+  PageType,
+} from '../../../lib/networking/fragments/articleFragment'
+import { EditTitleModal } from './EditTitleModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -85,6 +89,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
   )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
+  const [showEditTitleModal, setShowEditTitleModal] = useState(false)
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
@@ -261,7 +266,10 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
           if (item.node.state === State.PROCESSING) {
             router.push(`/${username}/links/${item.node.id}`)
           } else {
-            const dl = item.node.pageType === PageType.HIGHLIGHTS ? `#${item.node.id}` : ''
+            const dl =
+              item.node.pageType === PageType.HIGHLIGHTS
+                ? `#${item.node.id}`
+                : ''
             router.push(`/${username}/${item.node.slug}` + dl)
           }
         }
@@ -295,6 +303,9 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         break
       case 'set-labels':
         setLabelsTarget(item)
+        break
+      case 'update-item':
+        performActionOnItem('update-item', item)
         break
     }
   }
@@ -454,6 +465,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
       setLabelsTarget={setLabelsTarget}
       showAddLinkModal={showAddLinkModal}
       setShowAddLinkModal={setShowAddLinkModal}
+      showEditTitleModal={showEditTitleModal}
+      setShowEditTitleModal={setShowEditTitleModal}
       setActiveItem={(item: LibraryItem) => {
         activateCard(item.node.id)
       }}
@@ -479,6 +492,8 @@ type HomeFeedContentProps = {
   setLabelsTarget: (target: LibraryItem | undefined) => void
   showAddLinkModal: boolean
   setShowAddLinkModal: (show: boolean) => void
+  showEditTitleModal: boolean
+  setShowEditTitleModal: (show: boolean) => void
   setActiveItem: (item: LibraryItem) => void
   actionHandler: (
     action: LinkedItemCardAction,
@@ -497,6 +512,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
+  const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -720,6 +736,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       if (action === 'delete') {
                         setShowRemoveLinkConfirmation(true)
                         setLinkToRemove(linkedItem)
+                      } else if (action === 'editTitle') {
+                        props.setShowEditTitleModal(true)
+                        setLinkToEdit(linkedItem)
                       } else {
                         props.actionHandler(action, linkedItem)
                       }
@@ -752,6 +771,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       </VStack>
       {props.showAddLinkModal && (
         <AddLinkModal onOpenChange={() => props.setShowAddLinkModal(false)} />
+      )}
+      {props.showEditTitleModal && (
+        <EditTitleModal
+          updateItem={(item: LibraryItem) => props.actionHandler('update-item', item)}
+          onOpenChange={() => props.setShowEditTitleModal(false)}
+          item={linkToEdit as LibraryItem}
+        />
       )}
       {props.shareTarget && viewerData?.me?.profile.username && (
         <ShareArticleModal

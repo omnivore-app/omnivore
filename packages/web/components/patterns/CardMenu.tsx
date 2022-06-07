@@ -14,6 +14,7 @@ export type CardMenuDropdownAction =
   | 'snooze'
   | 'set-labels'
   | 'showOriginal'
+  | 'editTitle'
 
 type CardMenuProps = {
   item: LibraryItemNode
@@ -45,6 +46,10 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
       <DropdownOption
         onSelect={() => props.actionHandler('showOriginal')}
         title="Open Original"
+      />
+      <DropdownOption
+        onSelect={() => props.actionHandler('editTitle')}
+        title="Edit Title"
       />
       {isVipUser(props.viewer) && (
         <DropdownOption
