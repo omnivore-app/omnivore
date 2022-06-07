@@ -35,14 +35,15 @@ public extension DataService {
     }
   }
 
-  private func updateLinkedItemStatus(id: String, newId _: String?, status: ServerSyncStatus) async throws {
-    try backgroundContext.performAndWait {
+  private func updateLinkedItemStatus(id: String, newId: String?, status: ServerSyncStatus) async throws {
+    backgroundContext.performAndWait {
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", id)
 
       guard let linkedItem = (try? backgroundContext.fetch(fetchRequest))?.first else { return }
-      // TODO: handle item id changes
-      // linkedItem.id =
+      if let newId = newId {
+        linkedItem.id = newId
+      }
       linkedItem.serverSyncStatus = Int64(status.rawValue)
     }
   }
