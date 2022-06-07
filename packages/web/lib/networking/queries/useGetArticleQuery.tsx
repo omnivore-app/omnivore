@@ -149,11 +149,11 @@ export const removeItemFromCache = (
   try {
     const mappedCache = cache as Map<string, unknown>
     mappedCache.forEach((value: any, key) => {
-      if (typeof value == 'object' && 'articles' in value) {
-        const articles = value.articles as LibraryItems
-        const idx = articles.edges.findIndex((edge) => edge.node.id == itemId)
+      if (typeof value == 'object' && 'search' in value) {
+        const search = value.search as LibraryItems
+        const idx = search.edges.findIndex((edge) => edge.node.id == itemId)
         if (idx > -1) {
-          value.articles.edges.splice(idx, 1)
+          value.search.edges.splice(idx, 1)
           mutate(key, value, false)
         }
       }
@@ -161,7 +161,7 @@ export const removeItemFromCache = (
 
     mappedCache.forEach((value: any, key) => {
       if (Array.isArray(value)) {
-        const idx = value.findIndex((item) => 'articles' in item)
+        const idx = value.findIndex((item) => 'search' in item)
         if (idx > -1) {
           mutate(key, value, false)
         }
