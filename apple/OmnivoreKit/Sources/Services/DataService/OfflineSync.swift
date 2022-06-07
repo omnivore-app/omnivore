@@ -48,7 +48,7 @@ public extension DataService {
     }
   }
 
-  func syncPdf(id: String, localPdfURL: URL, url: String) async throws {
+  func createPageFromPdf(id: String, localPdfURL: URL, url: String) async throws {
     do {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
@@ -72,7 +72,7 @@ public extension DataService {
     }
   }
 
-  func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws -> String {
+  func createPage(id: String, originalHtml: String, title: String?, url: String) async throws -> String {
     do {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
@@ -90,7 +90,7 @@ public extension DataService {
     }
   }
 
-  func syncUrl(id: String, url: String) async throws -> String {
+  func createPageFromUrl(id: String, url: String) async throws -> String {
     do {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
@@ -117,7 +117,7 @@ public extension DataService {
 
       if let pdfUrlStr = localPdfURL, let localPdfURL = URL(string: pdfUrlStr) {
         Task {
-          try await syncPdf(id: id, localPdfURL: localPdfURL, url: url)
+          try await createPageFromPdf(id: id, localPdfURL: localPdfURL, url: url)
         }
       } else {
         // TODO: This is an invalid object, we should have a way of reflecting that with an error state
@@ -131,9 +131,9 @@ public extension DataService {
 
       Task {
         if let originalHtml = originalHtml {
-          try await syncPage(id: id, originalHtml: originalHtml, title: title, url: url)
+          try await createPage(id: id, originalHtml: originalHtml, title: title, url: url)
         } else {
-          try await syncUrl(id: id, url: url)
+          try await createPageFromUrl(id: id, url: url)
         }
       }
     default:
