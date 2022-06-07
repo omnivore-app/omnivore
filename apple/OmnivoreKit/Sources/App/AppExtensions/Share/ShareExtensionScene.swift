@@ -22,7 +22,6 @@ public extension PlatformViewController {
 
 public class ShareExtensionViewModel: ObservableObject {
   @Published var title: String?
-  @Published var status: ShareExtensionStatus = .processing
   @Published var debugText: String?
 
   let saveService = ExtensionSaveService()
@@ -42,13 +41,9 @@ public class ShareExtensionViewModel: ObservableObject {
     if let extensionContext = extensionContext {
       saveService.save(extensionContext, requestId: requestId, shareExtensionViewModel: shareExtensionViewModel)
     } else {
-      updateStatus(.failed(error: .unknown(description: "Internal Error")))
-    }
-  }
-
-  private func updateStatus(_ newStatus: ShareExtensionStatus) {
-    DispatchQueue.main.async {
-      self.status = newStatus
+      DispatchQueue.main.async {
+        shareExtensionViewModel.status = .failed(error: .unknown(description: "Internal Error"))
+      }
     }
   }
 }
