@@ -37,6 +37,7 @@ type LibraryItemAction =
   | 'mark-unread'
   | 'refresh'
   | 'unsubscribe'
+  | 'update-item'
 
 export type LibraryItemsData = {
   search: LibraryItems
@@ -195,6 +196,10 @@ export function useGetLibraryItemsQuery({
     }
   }
 
+  const getIndexOf = (page: LibraryItems, item: LibraryItem) => {
+    return page.edges.findIndex(i => i.node.id === item.node.id)
+  }
+
   const performActionOnItem = async (
     action: LibraryItemAction,
     item: LibraryItem
@@ -207,13 +212,14 @@ export function useGetLibraryItemsQuery({
       if (!responsePages) {
         return
       }
+
       for (const searchResults of responsePages) {
-        const itemIndex = searchResults.search.edges.indexOf(item)
+        const itemIndex = getIndexOf(searchResults.search, item)
         if (itemIndex !== -1) {
           if (typeof mutatedItem === 'undefined') {
             searchResults.search.edges.splice(itemIndex, 1)
           } else {
-            searchResults.search.edges[itemIndex] = mutatedItem
+            searchResults.search.edges.splice(itemIndex, 1, mutatedItem)
           }
           break
         }
@@ -330,6 +336,8 @@ export function useGetLibraryItemsQuery({
             }
           })
         }
+        case 'update-item':
+          updateData(item)
         break
       case 'refresh':
         await mutate()
