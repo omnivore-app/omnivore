@@ -18,7 +18,7 @@ interface ApiKey {
   usedAt: string
 }
 
-export default function ApiKeys(): JSX.Element {
+export default function Api(): JSX.Element {
   const { apiKeys, revalidate } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModelOpen, setAddModelOpen] = useState(false)
