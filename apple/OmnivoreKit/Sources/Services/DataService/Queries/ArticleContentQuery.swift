@@ -101,6 +101,7 @@ extension DataService {
           createdAt: try $0.createdAt().value ?? Date(),
           savedAt: try $0.savedAt().value ?? Date(),
           updatedAt: try $0.updatedAt().value ?? Date(),
+          state: try $0.state()?.rawValue ?? "SUCCEEDED",
           readingProgress: try $0.readingProgressPercent(),
           readingProgressAnchor: try $0.readingProgressAnchorIndex(),
           imageURLString: try $0.image(),
@@ -222,6 +223,7 @@ extension DataService {
         linkedItem.slug = item.slug
         linkedItem.isArchived = item.isArchived
         linkedItem.contentReader = item.contentReader
+        linkedItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
 
         if linkedItem.isPDF, linkedItem.localPdfURL == nil {
           do {

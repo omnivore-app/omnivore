@@ -43,6 +43,7 @@
         <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="siteName" optional="YES" attributeType="String"/>
         <attribute name="slug" attributeType="String"/>
+        <attribute name="state" optional="YES" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
@@ -90,7 +91,7 @@
     </entity>
     <elements>
         <element name="Highlight" positionX="27" positionY="225" width="128" height="224"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="419"/>
+        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="434"/>
         <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="134"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
