@@ -33,7 +33,7 @@ import { getPageById } from '../../elastic/pages'
 import {
   deleteLabel,
   setLabelsForHighlight,
-  updateLabelInPage,
+  updateLabel,
   updateLabelsInPage,
 } from '../../elastic/labels'
 import { getHighlightById } from '../../elastic/highlights'
@@ -179,7 +179,7 @@ export const deleteLabelResolver = authorized<
     }
 
     // delete label in elastic pages and highlights
-    await deleteLabel(uid, labelId, {
+    await deleteLabel(labelId, {
       pubsub: createPubSubClient(),
       uid,
     })
@@ -322,15 +322,10 @@ export const updateLabelResolver = authorized<
       }
     }
 
-    const updated = await updateLabelInPage(label, {
+    await updateLabel(label, {
       pubsub,
       uid,
     })
-    if (!updated) {
-      return {
-        errorCodes: [UpdateLabelErrorCode.BadRequest],
-      }
-    }
 
     return { label }
   } catch (error) {

@@ -95,7 +95,6 @@ export const updateLabelsInPage = async (
 }
 
 export const deleteLabel = async (
-  userId: string,
   label: string,
   ctx: PageContext
 ): Promise<boolean> => {
@@ -119,7 +118,7 @@ export const deleteLabel = async (
           bool: {
             must: {
               term: {
-                userId,
+                userId: ctx.uid,
               },
             },
             should: [
@@ -167,7 +166,7 @@ export const deleteLabel = async (
   }
 }
 
-export const updateLabelInPage = async (
+export const updateLabel = async (
   label: Label,
   ctx: PageContext
 ): Promise<boolean> => {
@@ -176,8 +175,14 @@ export const updateLabelInPage = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source: `ctx._source.labels.removeIf(l -> l.id == params.label.id);
-                   ctx._source.labels.add(params.label)`,
+          source: `if (ctx._source.labels != null) {
+                     ctx._source.labels.removeIf(l -> l.id == params.label.id);
+                     ctx._source.labels.add(params.label)
+                   }
+                   if (ctx._source.highlights != null) {
+                     ctx._source.highlights[0].labels.removeIf(l -> l.id == params.label.id);
+                     ctx._source.highlights[0].labels.add(params.label)
+                   }`,
           lang: 'painless',
           params: {
             label: label,
@@ -185,12 +190,12 @@ export const updateLabelInPage = async (
         },
         query: {
           bool: {
-            filter: [
-              {
-                term: {
-                  userId: ctx.uid,
-                },
+            must: {
+              term: {
+                userId: ctx.uid,
               },
+            },
+            should: [
               {
                 nested: {
                   path: 'labels',
@@ -201,7 +206,23 @@ export const updateLabelInPage = async (
                   },
                 },
               },
+              {
+                nested: {
+                  path: 'highlights',
+                  query: {
+                    nested: {
+                      path: 'highlights.labels',
+                      query: {
+                        term: {
+                          'highlights.labels.id': label.id,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             ],
+            minimum_should_match: 1,
           },
         },
       },
