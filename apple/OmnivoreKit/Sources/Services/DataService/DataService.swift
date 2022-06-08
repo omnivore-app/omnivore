@@ -138,8 +138,8 @@ public final class DataService: ObservableObject {
       linkedItem.author = nil
       linkedItem.publishDate = nil
 
-      if let currentViewer = self.currentViewer {
-        linkedItem.slug = "\(currentViewer)/\(requestId)"
+      if let currentViewer = self.currentViewer, let username = currentViewer.username {
+        linkedItem.slug = "\(username)/\(requestId)"
       } else {
         // Technically this is invalid, but I don't think slug is used at all locally anymore
         linkedItem.slug = requestId
