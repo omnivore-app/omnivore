@@ -14,7 +14,10 @@ import { getRepository } from '../../src/entity/utils'
 import { getPageById } from '../../src/elastic/pages'
 import { addLabelInPage } from '../../src/elastic/labels'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { addHighlightToPage } from '../../src/elastic/highlights'
+import {
+  addHighlightToPage,
+  getHighlightById,
+} from '../../src/elastic/highlights'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -237,6 +240,30 @@ describe('Labels API', () => {
           const updatedPage = await getPageById(page.id)
 
           expect(updatedPage?.labels).not.to.include(toDeleteLabel)
+        })
+      })
+
+      context('when a highlight has this label', () => {
+        const highlightId = 'testDeleteLabel'
+
+        before(async () => {
+          const highlight: Highlight = {
+            id: highlightId,
+            patch: 'test patch',
+            quote: 'test quote',
+            shortId: 'test shortId',
+            userId: user.id,
+            createdAt: new Date(),
+            labels: [toDeleteLabel],
+          }
+          await addHighlightToPage(page.id, highlight, ctx)
+        })
+
+        it('should update highlight', async () => {
+          await graphqlRequest(query, authToken).expect(200)
+          const updatedHighlight = await getHighlightById(highlightId)
+
+          expect(updatedHighlight?.labels).not.to.include(toDeleteLabel)
         })
       })
     })

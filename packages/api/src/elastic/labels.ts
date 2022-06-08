@@ -286,7 +286,7 @@ export const deleteLabelForHighlights = async (
                   path: 'highlights',
                   query: {
                     nested: {
-                      path: 'labels',
+                      path: 'highlights.labels',
                       query: {
                         term: {
                           'highlights.labels.name': label,
