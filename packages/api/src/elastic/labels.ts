@@ -94,7 +94,7 @@ export const updateLabelsInPage = async (
   }
 }
 
-export const deleteLabelInPages = async (
+export const deleteLabel = async (
   userId: string,
   label: string,
   ctx: PageContext
@@ -104,8 +104,12 @@ export const deleteLabelInPages = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source:
-            'ctx._source.labels.removeIf(label -> label.name == params.label)',
+          source: `if (ctx._source.highlights != null) {
+                     ctx._source.highlights[0].labels.removeIf(label -> label.name == params.label)
+                   }
+                   if (ctx._source.labels != null) {
+                     ctx._source.labels.removeIf(label -> label.name == params.label)
+                   }`,
           lang: 'painless',
           params: {
             label: label,
@@ -113,12 +117,12 @@ export const deleteLabelInPages = async (
         },
         query: {
           bool: {
-            filter: [
-              {
-                term: {
-                  userId,
-                },
+            must: {
+              term: {
+                userId,
               },
+            },
+            should: [
               {
                 nested: {
                   path: 'labels',
@@ -129,11 +133,28 @@ export const deleteLabelInPages = async (
                   },
                 },
               },
+              {
+                nested: {
+                  path: 'highlights',
+                  query: {
+                    nested: {
+                      path: 'highlights.labels',
+                      query: {
+                        term: {
+                          'highlights.labels.name': label,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             ],
+            minimum_should_match: 1,
           },
         },
       },
       refresh: ctx.refresh,
+      conflicts: 'proceed', // ignore conflicts
     })
 
     body.updated > 0 &&
@@ -252,64 +273,6 @@ export const setLabelsForHighlight = async (
       return false
     }
     console.error('failed to set labels for highlight in elastic', e)
-    return false
-  }
-}
-
-export const deleteLabelForHighlights = async (
-  userId: string,
-  label: string,
-  ctx: PageContext
-): Promise<boolean> => {
-  try {
-    const { body } = await client.updateByQuery({
-      index: INDEX_ALIAS,
-      body: {
-        script: {
-          source:
-            'ctx._source.highlights[0].labels.removeIf(label -> label.name == params.label)',
-          lang: 'painless',
-          params: {
-            label: label,
-          },
-        },
-        query: {
-          bool: {
-            filter: [
-              {
-                term: {
-                  userId,
-                },
-              },
-              {
-                nested: {
-                  path: 'highlights',
-                  query: {
-                    nested: {
-                      path: 'highlights.labels',
-                      query: {
-                        term: {
-                          'highlights.labels.name': label,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-      refresh: ctx.refresh,
-      conflicts: 'proceed', // ignore conflicts
-    })
-
-    body.updated > 0 &&
-      (await ctx.pubsub.entityDeleted(EntityType.LABEL, label, ctx.uid))
-
-    return true
-  } catch (e) {
-    console.error('failed to delete a label for highlights in elastic', e)
     return false
   }
 }

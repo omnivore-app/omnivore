@@ -31,15 +31,13 @@ import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
 import { getPageById } from '../../elastic/pages'
 import {
-  deleteLabelForHighlights,
-  deleteLabelInPages,
+  deleteLabel,
   setLabelsForHighlight,
   updateLabelInPage,
   updateLabelsInPage,
 } from '../../elastic/labels'
 import { getHighlightById } from '../../elastic/highlights'
 import { getLabelsByIds } from '../../services/labels'
-import { PageContext } from '../../elastic/types'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -180,13 +178,11 @@ export const deleteLabelResolver = authorized<
       }
     }
 
-    const ctx: PageContext = {
+    // delete label in elastic pages and highlights
+    await deleteLabel(uid, labelId, {
       pubsub: createPubSubClient(),
       uid,
-    }
-    // delete label in elastic pages and highlights
-    await deleteLabelInPages(uid, label.name, ctx)
-    await deleteLabelForHighlights(uid, label.name, ctx)
+    })
 
     analytics.track({
       userId: uid,
