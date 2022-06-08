@@ -148,11 +148,8 @@ public final class DataService: ObservableObject {
       switch pageScrape.contentType {
       case let .pdf(localUrl):
         linkedItem.contentReader = "PDF"
-        linkedItem.localPdfURL = localUrl.absoluteString
         linkedItem.title = PDFUtils.titleFromPdfFile(pageScrape.url)
-//        let thumbnailUrl = PDFUtils.thumbnailUrl(localUrl: localUrl)
-//        linkedItem.imageURLString = await PDFUtils.createThumbnailFor(inputUrl: localUrl, at: thumbnailUrl)
-
+        linkedItem.localPDF = try PDFUtils.moveToLocal(url: localUrl)
       case let .html(html: html, title: title, iconURL: iconURL):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html

@@ -11,6 +11,30 @@ import QuickLookThumbnailing
 import UIKit
 
 public enum PDFUtils {
+  public static func moveToLocal(url: URL) throws -> String {
+    let subPath = UUID().uuidString + ".pdf"
+    let dest = FileManager.default
+      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(subPath)
+
+    try FileManager.default.moveItem(at: url, to: dest)
+    return subPath
+  }
+
+  public static func localPdfURL(filename: String) -> URL? {
+    let url = FileManager.default
+      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(filename)
+    return url
+  }
+
+  public static func exists(filename: String?) -> Bool {
+    if let filename = filename, let localPdfURL = localPdfURL(filename: filename) {
+      return FileManager.default.fileExists(atPath: localPdfURL.absoluteString)
+    }
+    return false
+  }
+
   public static func titleFromPdfFile(_ urlStr: String) -> String {
     let url = URL(string: urlStr)
     if let url = url {

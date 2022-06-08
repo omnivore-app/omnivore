@@ -95,21 +95,6 @@ public extension DataService {
     }
   }
 
-  func uploadFileInBackground(id: String, localPdfURL: String?, url: URL, usingSession session: URLSession) -> URLSessionTask? {
-    if let localPdfURL = localPdfURL, let localUrl = URL(string: localPdfURL) {
-      var request = URLRequest(url: url)
-      request.httpMethod = "PUT"
-      request.setValue("application/pdf", forHTTPHeaderField: "content-type")
-      request.setValue(id, forHTTPHeaderField: "clientRequestId")
-
-      let task = session.uploadTask(with: request, fromFile: localUrl)
-      return task
-    } else {
-      // TODO: How should we handle this scenario?
-      return nil
-    }
-  }
-
   func saveFilePublisher(requestId: String, uploadFileId: String, url: String) async throws -> String? {
     enum MutationResult {
       case saved(requestId: String, url: String)

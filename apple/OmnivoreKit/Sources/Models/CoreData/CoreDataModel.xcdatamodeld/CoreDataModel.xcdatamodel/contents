@@ -30,7 +30,7 @@
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="localPdfURL" optional="YES" attributeType="String"/>
+        <attribute name="localPDF" optional="YES" attributeType="String"/>
         <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
         <attribute name="originalHtml" optional="YES" attributeType="String"/>
         <attribute name="pageURLString" attributeType="String"/>

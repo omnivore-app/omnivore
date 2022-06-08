@@ -9,7 +9,6 @@ public final class PDFViewerViewModel: ObservableObject {
   @Published public var readerView: Bool = false
 
   public let pdfItem: PDFItem
-  private var storedURL: URL?
 
   var subscriptions = Set<AnyCancellable>()
 
@@ -80,5 +79,23 @@ public final class PDFViewerViewModel: ObservableObject {
     }
 
     return components?.url
+  }
+
+  public var itemDownloaded: Bool {
+    if let localPdfURL = pdfItem.localPdfURL, FileManager.default.fileExists(atPath: localPdfURL.path) {
+      return true
+    }
+    return false
+  }
+
+  public func downloadPDF(dataService: DataService) async -> URL? {
+    do {
+      if let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL) {
+        return localURL
+      }
+    } catch {
+      print("error downloading PDF", error)
+    }
+    return nil
   }
 }

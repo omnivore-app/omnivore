@@ -1,6 +1,7 @@
 import CoreData
 import Foundation
 import Models
+import Utils
 
 public extension DataService {
   internal func syncOfflineItemsWithServerIfNeeded() async throws {
@@ -55,7 +56,6 @@ public extension DataService {
       let uploadRequest = try await uploadFileRequest(id: id, url: url)
       if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
         try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
-        // try await services.dataService.saveFilePublisher(requestId: requestId, uploadFileId: uploadFileID, url: url)
       } else {
         throw SaveArticleError.badData
       }
@@ -112,10 +112,8 @@ public extension DataService {
     switch item.contentReader {
     case "PDF":
       let id = item.unwrappedID
-      let localPdfURL = item.localPdfURL
       let url = item.unwrappedPageURLString
-
-      if let pdfUrlStr = localPdfURL, let localPdfURL = URL(string: pdfUrlStr) {
+      if let localPDF = item.localPDF, let localPdfURL = PDFUtils.localPdfURL(filename: localPDF) {
         Task {
           try await createPageFromPdf(id: id, localPdfURL: localPdfURL, url: url)
         }

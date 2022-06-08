@@ -143,7 +143,7 @@ import Utils
     public var body: some View {
       if let item = viewModel.item, item.isReadyToRead {
         if let pdfItem = PDFItem.make(item: item), let urlStr = item.pageURLString, let remoteUrl = URL(string: urlStr) {
-          PDFViewer(remoteURL: remoteUrl, viewModel: PDFViewerViewModel(pdfItem: pdfItem))
+          PDFViewer(viewModel: PDFViewerViewModel(pdfItem: pdfItem))
             .navigationBarHidden(true)
             .navigationViewStyle(.stack)
             .accentColor(.appGrayTextContrast)

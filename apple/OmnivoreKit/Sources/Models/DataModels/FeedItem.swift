@@ -1,5 +1,6 @@
 import CoreData
 import Foundation
+import Utils
 
 public struct HomeFeedData { // TODO: rename this
   public let items: [NSManagedObjectID]
@@ -46,11 +47,7 @@ public extension LinkedItem {
   var isReadyToRead: Bool {
     if isPDF {
       // If its a PDF we verify the local file is available
-      if let localPdfURL = localPdfURL, let url = URL(string: localPdfURL), FileManager.default.fileExists(atPath: url.path) {
-        return true
-      } else {
-        return false
-      }
+      return PDFUtils.exists(filename: localPDF)
     }
     // Check the state and whether we have HTML
     return state == "SUCCEEDED"

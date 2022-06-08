@@ -2,14 +2,15 @@ import CoreData
 import Foundation
 import Models
 import SwiftGraphQL
+import Utils
 
-extension DataService {
-  struct PendingLink {
+public extension DataService {
+  internal struct PendingLink {
     let itemID: String
     let retryCount: Int
   }
 
-  public func prefetchPages(itemIDs: [String], username: String) async {
+  func prefetchPages(itemIDs: [String], username: String) async {
     // TODO: make this concurrent
     // TODO: make a non-pending page option for BG tasks
     for itemID in itemIDs {
@@ -17,7 +18,7 @@ extension DataService {
     }
   }
 
-  func prefetchPage(pendingLink: PendingLink, username: String) async {
+  internal func prefetchPage(pendingLink: PendingLink, username: String) async {
     let content = try? await articleContent(username: username, itemID: pendingLink.itemID, useCache: false)
 
     if content?.contentStatus == .processing, pendingLink.retryCount < 7 {
@@ -40,7 +41,7 @@ extension DataService {
     }
   }
 
-  public func fetchArticleContent(
+  func fetchArticleContent(
     itemID: String,
     username: String? = nil,
     requestCount: Int = 1
@@ -69,7 +70,7 @@ extension DataService {
   }
 
   // swiftlint:disable:next function_body_length
-  public func articleContent(
+  func articleContent(
     username: String,
     itemID: String,
     useCache: Bool
@@ -193,7 +194,7 @@ extension DataService {
     return articleContent
   }
 
-  func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) async throws {
+  internal func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) async throws {
     try await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -243,8 +244,10 @@ extension DataService {
     }
   }
 
-  func fetchPDFData(slug: String, pageURLString: String) async throws {
-    guard let url = URL(string: pageURLString) else { return }
+  func fetchPDFData(slug: String, pageURLString: String) async throws -> URL? {
+    guard let url = URL(string: pageURLString) else {
+      throw BasicError.message(messageText: "No PDF URL found")
+    }
     let result: (Data, URLResponse)? = try? await URLSession.shared.data(from: url)
     guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
       throw BasicError.message(messageText: "pdfFetch failed. no response or bad status code.")
@@ -252,6 +255,11 @@ extension DataService {
     guard let data = result?.0 else {
       throw BasicError.message(messageText: "pdfFetch failed. no data received.")
     }
+
+    var localPdfURL: URL?
+    let tempPath = FileManager.default
+      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(UUID().uuidString + ".pdf")
 
     try await backgroundContext.perform { [weak self] in
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -263,15 +271,11 @@ extension DataService {
         throw BasicError.message(messageText: errorMessage)
       }
 
-      let subPath = UUID().uuidString + ".pdf" // linkedItem.title.isEmpty ? UUID().uuidString : linkedItem.title
-
-      let path = FileManager.default
-        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent(subPath)
-
       do {
-        try data.write(to: path)
-        linkedItem.localPdfURL = path.absoluteString
+        try data.write(to: tempPath)
+        let localPDF = try PDFUtils.moveToLocal(url: tempPath)
+        localPdfURL = PDFUtils.localPdfURL(filename: localPDF)
+        linkedItem.localPDF = localPDF
         try self?.backgroundContext.save()
       } catch {
         self?.backgroundContext.rollback()
@@ -279,9 +283,11 @@ extension DataService {
         throw BasicError.message(messageText: errorMessage)
       }
     }
+
+    return localPdfURL
   }
 
-  func cachedArticleContent(itemID: String) async -> ArticleContent? {
+  internal func cachedArticleContent(itemID: String) async -> ArticleContent? {
     let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     linkedItemFetchRequest.predicate = NSPredicate(
       format: "id == %@", itemID
@@ -307,7 +313,7 @@ extension DataService {
     }
   }
 
-  public func syncUnsyncedArticleContent(itemID: String) async {
+  func syncUnsyncedArticleContent(itemID: String) async {
     let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
     linkedItemFetchRequest.predicate = NSPredicate(
       format: "id == %@", itemID
