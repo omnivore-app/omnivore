@@ -255,3 +255,61 @@ export const setLabelsForHighlight = async (
     return false
   }
 }
+
+export const deleteLabelForHighlights = async (
+  userId: string,
+  label: string,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const { body } = await client.updateByQuery({
+      index: INDEX_ALIAS,
+      body: {
+        script: {
+          source:
+            'ctx._source.highlights[0].labels.removeIf(label -> label.name == params.label)',
+          lang: 'painless',
+          params: {
+            label: label,
+          },
+        },
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                nested: {
+                  path: 'highlights',
+                  query: {
+                    nested: {
+                      path: 'labels',
+                      query: {
+                        term: {
+                          'highlights.labels.name': label,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      refresh: ctx.refresh,
+      conflicts: 'proceed', // ignore conflicts
+    })
+
+    body.updated > 0 &&
+      (await ctx.pubsub.entityDeleted(EntityType.LABEL, label, ctx.uid))
+
+    return true
+  } catch (e) {
+    console.error('failed to delete a label for highlights in elastic', e)
+    return false
+  }
+}
