@@ -336,7 +336,6 @@ extension DataService {
       serverSyncStatus = linkedItem.serverSyncStatus
     }
 
-    print("SERVER SYNC STATUS FOR LOADING ITEM", serverSyncStatus)
     if let id = id, let url = url, let title = title,
        let serverSyncStatus = serverSyncStatus,
        serverSyncStatus == ServerSyncStatus.needsCreation.rawValue
@@ -353,6 +352,7 @@ extension DataService {
       } catch {
         // We don't propogate these errors, we just let it pass through so
         // the user can attempt to fetch content again.
+        print("Error syncUnsyncedArticleContent")
       }
     }
   }

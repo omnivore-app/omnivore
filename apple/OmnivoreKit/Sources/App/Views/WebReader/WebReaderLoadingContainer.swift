@@ -26,7 +26,7 @@ import Utils
       guard let username = username else { return }
 
       let existing = existingItemOrItemId(dataService: dataService, requestID: requestID)
-      if let existingItem = existing.existingItem {
+      if let existingItem = existing.existingItem, existingItem.isReadyToRead {
         item = existingItem
         return
       }
@@ -117,7 +117,7 @@ import Utils
     @StateObject var viewModel = WebReaderLoadingContainerViewModel()
 
     public var body: some View {
-      if let item = viewModel.item {
+      if let item = viewModel.item, item.isReadyToRead {
         WebReaderContainerView(item: item)
           .navigationBarHidden(true)
           .navigationViewStyle(.stack)

@@ -125,6 +125,7 @@ public final class DataService: ObservableObject {
       linkedItem.id = existingItem?.unwrappedID ?? requestId
       linkedItem.title = normalizedURL
       linkedItem.pageURLString = normalizedURL
+      linkedItem.state = existingItem != nil ? existingItem?.state : "PROCESSING"
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsCreation.rawValue)
       linkedItem.savedAt = currentTime
       linkedItem.createdAt = currentTime
@@ -158,7 +159,6 @@ public final class DataService: ObservableObject {
         linkedItem.imageURLString = iconURL
         linkedItem.title = title ?? PDFUtils.titleFromPdfFile(pageScrape.url)
       case .none:
-        print("SAVING URL", linkedItem.unwrappedPageURLString)
         linkedItem.contentReader = "WEB"
       }
 

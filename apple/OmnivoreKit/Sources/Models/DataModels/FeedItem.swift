@@ -43,6 +43,19 @@ public extension LinkedItem {
     readingProgress >= 0.98
   }
 
+  var isReadyToRead: Bool {
+    if isPDF {
+      // If its a PDF we verify the local file is available
+      if let localPath = localPdfURL, FileManager.default.fileExists(atPath: localPath) {
+        return true
+      } else {
+        return false
+      }
+    }
+    // Check the state and whether we have HTML
+    return state == "SUCCEEDED"
+  }
+
   var isPDF: Bool {
     if let contentReader = contentReader {
       return contentReader == "PDF"
