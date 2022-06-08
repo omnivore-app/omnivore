@@ -66,3 +66,13 @@ export const addLabelToPage = async (
     ctx
   )
 }
+
+export const getLabelsByIds = async (
+  userId: string,
+  labelIds: string[]
+): Promise<Label[]> => {
+  return getRepository(Label).find({
+    where: { id: In(labelIds), user: { id: userId } },
+    select: ['id', 'name', 'color', 'description', 'createdAt'],
+  })
+}
