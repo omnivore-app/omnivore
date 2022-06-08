@@ -12,6 +12,7 @@ import {
   MutationCreateLabelArgs,
   MutationDeleteLabelArgs,
   MutationSetLabelsArgs,
+  MutationSetLabelsForHighlightArgs,
   MutationUpdateLabelArgs,
   SetLabelsError,
   SetLabelsErrorCode,
@@ -24,16 +25,19 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
-import { ILike, In } from 'typeorm'
+import { ILike } from 'typeorm'
 import { getRepository, setClaims } from '../../entity/utils'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
 import { getPageById } from '../../elastic/pages'
 import {
   deleteLabelInPages,
+  setLabelsForHighlight,
   updateLabelInPage,
   updateLabelsInPage,
 } from '../../elastic/labels'
+import { getHighlightById } from '../../elastic/highlights'
+import { getLabelsByIds } from '../../services/labels'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
@@ -223,11 +227,13 @@ export const setLabelsResolver = authorized<
         errorCodes: [SetLabelsErrorCode.NotFound],
       }
     }
+    if (page.userId !== uid) {
+      return {
+        errorCodes: [SetLabelsErrorCode.Unauthorized],
+      }
+    }
 
-    const labels = await getRepository(Label).find({
-      where: { id: In(labelIds), user: { id: user.id } },
-      select: ['id', 'name', 'color', 'description', 'createdAt'],
-    })
+    const labels = await getLabelsByIds(uid, labelIds)
     if (labels.length !== labelIds.length) {
       return {
         errorCodes: [SetLabelsErrorCode.NotFound],
@@ -331,6 +337,74 @@ export const updateLabelResolver = authorized<
     log.error('error updating label', error)
     return {
       errorCodes: [UpdateLabelErrorCode.BadRequest],
+    }
+  }
+})
+
+export const setLabelsForHighlightResolver = authorized<
+  SetLabelsSuccess,
+  SetLabelsError,
+  MutationSetLabelsForHighlightArgs
+>(async (_, { input }, { claims: { uid }, log, pubsub }) => {
+  log.info('setLabelsForHighlightResolver')
+
+  const { highlightId, labelIds } = input
+
+  try {
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [SetLabelsErrorCode.Unauthorized],
+      }
+    }
+
+    const highlight = await getHighlightById(highlightId)
+    if (!highlight) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
+      }
+    }
+    if (highlight.userId !== uid) {
+      return {
+        errorCodes: [SetLabelsErrorCode.Unauthorized],
+      }
+    }
+
+    const labels = await getLabelsByIds(uid, labelIds)
+    if (labels.length !== labelIds.length) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
+      }
+    }
+
+    // set labels in the highlights
+    const updated = await setLabelsForHighlight(highlightId, labels, {
+      pubsub,
+      uid,
+    })
+    if (!updated) {
+      return {
+        errorCodes: [SetLabelsErrorCode.NotFound],
+      }
+    }
+
+    analytics.track({
+      userId: uid,
+      event: 'labels_set_for_highlight',
+      properties: {
+        highlightId,
+        labelIds,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return {
+      labels,
+    }
+  } catch (error) {
+    log.error(error)
+    return {
+      errorCodes: [SetLabelsErrorCode.BadRequest],
     }
   }
 })
