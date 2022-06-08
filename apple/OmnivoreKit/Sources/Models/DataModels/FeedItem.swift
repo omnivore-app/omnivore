@@ -46,7 +46,7 @@ public extension LinkedItem {
   var isReadyToRead: Bool {
     if isPDF {
       // If its a PDF we verify the local file is available
-      if let localPath = localPdfURL, FileManager.default.fileExists(atPath: localPath) {
+      if let localPdfURL = localPdfURL, let url = URL(string: localPdfURL), FileManager.default.fileExists(atPath: url.path) {
         return true
       } else {
         return false

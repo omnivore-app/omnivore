@@ -33,7 +33,24 @@ import Utils
 
       // If the page was locally created, make sure they are synced before we pull content
       await dataService.syncUnsyncedArticleContent(itemID: existing.itemID)
-      await fetchLinkedItem(dataService: dataService, requestID: existing.itemID, username: username)
+
+      // Fetch the item and it's content
+      let item = await fetchLinkedItem(dataService: dataService, requestID: existing.itemID, username: username)
+      if let item = item, let itemID = item.id {
+        do {
+          let articleContent = try await dataService.fetchArticleContent(itemID: itemID, username: username, requestCount: 0)
+          // We've fetched the article content, now reload the item from core data
+          if let linkedItem = dataService.viewContext.object(with: item.objectID) as? LinkedItem {
+            self.item = linkedItem
+          } else {
+            self.item = nil
+          }
+        } catch {
+          self.item = nil
+        }
+      } else {
+        self.item = nil
+      }
     }
 
     private func fetchLinkedItem(
@@ -41,19 +58,22 @@ import Utils
       requestID: String,
       username: String,
       requestCount: Int = 1
-    ) async {
+    ) async -> LinkedItem? {
       guard requestCount < 7 else {
         errorMessage = "Unable to fetch item."
-        return
+        return nil
       }
+
+      print("FETCHING", requestID, requestCount)
 
       if let objectID = try? await dataService.fetchLinkedItem(username: username, itemID: requestID) {
         if let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem {
-          item = linkedItem
+          print(" - FROM DATA SERVICE", linkedItem)
+          return linkedItem
         } else {
           errorMessage = "Unable to fetch item."
         }
-        return
+        return nil
       }
 
       // Retry on error
@@ -62,20 +82,24 @@ import Utils
         try await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
 
         let existing = existingItemOrItemId(dataService: dataService, requestID: requestID)
-        if let existingItem = existing.existingItem {
-          item = existingItem
-          return
+        if let existingItem = existing.existingItem, existingItem.isReadyToRead {
+          print(" - FROM CORE DATA SERVICE", existingItem)
+          return existingItem
         }
 
-        await fetchLinkedItem(
+        let result = await fetchLinkedItem(
           dataService: dataService,
           requestID: existing.itemID,
           username: username,
           requestCount: requestCount + 1
         )
+        if let result = result {
+          return result
+        }
       } catch {
         errorMessage = "Unable to fetch item."
       }
+      return nil
     }
 
     private func existingItemOrItemId(dataService: DataService, requestID: String) -> (existingItem: LinkedItem?, itemID: String) {
@@ -118,11 +142,19 @@ import Utils
 
     public var body: some View {
       if let item = viewModel.item, item.isReadyToRead {
-        WebReaderContainerView(item: item)
-          .navigationBarHidden(true)
-          .navigationViewStyle(.stack)
-          .accentColor(.appGrayTextContrast)
-          .task { viewModel.trackReadEvent() }
+        if let pdfItem = PDFItem.make(item: item), let urlStr = item.pageURLString, let remoteUrl = URL(string: urlStr) {
+          PDFViewer(remoteURL: remoteUrl, viewModel: PDFViewerViewModel(pdfItem: pdfItem))
+            .navigationBarHidden(true)
+            .navigationViewStyle(.stack)
+            .accentColor(.appGrayTextContrast)
+            .task { viewModel.trackReadEvent() }
+        } else {
+          WebReaderContainerView(item: item)
+            .navigationBarHidden(true)
+            .navigationViewStyle(.stack)
+            .accentColor(.appGrayTextContrast)
+            .task { viewModel.trackReadEvent() }
+        }
       } else if let errorMessage = viewModel.errorMessage {
         Text(errorMessage)
       } else {
