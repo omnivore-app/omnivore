@@ -141,12 +141,13 @@ import Utils
           .task {
             // NOTE: the issue here is the PDF is downloaded, but saved to a URL we don't know about
             // because it is changed.
-            if let pdfURL = await viewModel.downloadPDF(dataService: dataService) {
+            let pdfURL = await viewModel.downloadPDF(dataService: dataService)
+            if let pdfURL = pdfURL {
               let document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
               pdfStateObject.document = document
               pdfStateObject.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
             } else {
-              errorMessage = "Unable to download PDF."
+              errorMessage = "Unable to download PDF: \(pdfURL)"
             }
           }
       }

@@ -11,6 +11,16 @@ import QuickLookThumbnailing
 import UIKit
 
 public enum PDFUtils {
+  public static func copyToLocal(url: URL) throws -> String {
+    let subPath = UUID().uuidString + ".pdf"
+    let dest = FileManager.default
+      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(subPath)
+
+    try FileManager.default.copyItem(at: url, to: dest)
+    return subPath
+  }
+
   public static func moveToLocal(url: URL) throws -> String {
     let subPath = UUID().uuidString + ".pdf"
     let dest = FileManager.default

@@ -19,7 +19,7 @@ public extension DataService {
     let input = InputObjects.UploadFileRequestInput(
       clientRequestId: OptionalArgument(id),
       contentType: "application/pdf",
-      createPageEntry: OptionalArgument(false),
+      createPageEntry: OptionalArgument(true),
       url: url
     )
 
@@ -82,6 +82,12 @@ public extension DataService {
     var request = URLRequest(url: url)
     request.httpMethod = "PUT"
     request.addValue("application/pdf", forHTTPHeaderField: "content-type")
+
+    print("UPLOADING PDF", localPdfURL)
+    let attr = try? FileManager.default.attributesOfItem(atPath: localPdfURL.path)
+    if let attr = attr {
+      print("UPLOADING ATTR", attr[.size])
+    }
 
     return try await withCheckedThrowingContinuation { continuation in
       let task = networker.urlSession.uploadTask(with: request, fromFile: localPdfURL) { _, response, _ in

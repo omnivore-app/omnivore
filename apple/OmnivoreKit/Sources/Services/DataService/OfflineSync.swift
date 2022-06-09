@@ -55,6 +55,11 @@ public extension DataService {
 
       let uploadRequest = try await uploadFileRequest(id: id, url: url)
       if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
+        let attr = try? FileManager.default.attributesOfItem(atPath: localPdfURL.path)
+        if let attr = attr {
+          print("ATTR", attr[.size])
+        }
+
         try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
       } else {
         throw SaveArticleError.badData

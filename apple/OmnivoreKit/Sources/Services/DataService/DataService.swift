@@ -149,7 +149,8 @@ public final class DataService: ObservableObject {
       case let .pdf(localUrl):
         linkedItem.contentReader = "PDF"
         linkedItem.title = PDFUtils.titleFromPdfFile(pageScrape.url)
-        linkedItem.localPDF = try PDFUtils.moveToLocal(url: localUrl)
+        print("PERSISTING PDF", localUrl)
+        linkedItem.localPDF = try PDFUtils.copyToLocal(url: localUrl)
       case let .html(html: html, title: title, iconURL: iconURL):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
