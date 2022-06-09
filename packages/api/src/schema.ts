@@ -435,6 +435,7 @@ const schema = gql`
     id: ID!
     uploadSignedUrl: String
     uploadFileId: ID
+    createdPageId: String
   }
 
   # Mutation: createArticle

@@ -2159,6 +2159,7 @@ export type UploadFileRequestResult = UploadFileRequestError | UploadFileRequest
 
 export type UploadFileRequestSuccess = {
   __typename?: 'UploadFileRequestSuccess';
+  createdPageId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   uploadFileId?: Maybe<Scalars['ID']>;
   uploadSignedUrl?: Maybe<Scalars['String']>;
@@ -4236,6 +4237,7 @@ export type UploadFileRequestResultResolvers<ContextType = ResolverContext, Pare
 };
 
 export type UploadFileRequestSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadFileRequestSuccess'] = ResolversParentTypes['UploadFileRequestSuccess']> = {
+  createdPageId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   uploadSignedUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
