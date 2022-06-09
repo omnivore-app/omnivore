@@ -18,6 +18,7 @@ import {
   addHighlightToPage,
   getHighlightById,
 } from '../../src/elastic/highlights'
+import { refreshIndex } from '../../src/elastic'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -219,34 +220,49 @@ describe('Labels API', () => {
     context('when label exists', () => {
       let toDeleteLabel: Label
 
-      before(async () => {
-        toDeleteLabel = await createTestLabel(user, 'label4', '#ffffff')
-        labelId = toDeleteLabel.id
-      })
+      context('when label is not used', () => {
+        before(async () => {
+          toDeleteLabel = await createTestLabel(
+            user,
+            'label not in use',
+            '#ffffff'
+          )
+          labelId = toDeleteLabel.id
+        })
 
-      it('should delete label', async () => {
-        await graphqlRequest(query, authToken).expect(200)
-        const label = await getRepository(Label).findOneBy({ id: labelId })
-        expect(label).to.not.exist
+        it('should delete label', async () => {
+          await graphqlRequest(query, authToken).expect(200)
+          const label = await getRepository(Label).findOneBy({ id: labelId })
+          expect(label).not.exist
+        })
       })
 
       context('when a page has this label', () => {
         before(async () => {
+          toDeleteLabel = await createTestLabel(user, 'page label', '#ffffff')
+          labelId = toDeleteLabel.id
           await addLabelInPage(page.id, toDeleteLabel, ctx)
         })
 
         it('should update page', async () => {
           await graphqlRequest(query, authToken).expect(200)
-          const updatedPage = await getPageById(page.id)
+          await refreshIndex()
 
-          expect(updatedPage?.labels).not.to.include(toDeleteLabel)
+          const updatedPage = await getPageById(page.id)
+          expect(updatedPage?.labels).not.deep.include(toDeleteLabel)
         })
       })
 
       context('when a highlight has this label', () => {
-        const highlightId = 'testDeleteLabel'
+        const highlightId = generateFakeUuid()
 
         before(async () => {
+          toDeleteLabel = await createTestLabel(
+            user,
+            'highlight label',
+            '#ffffff'
+          )
+          labelId = toDeleteLabel.id
           const highlight: Highlight = {
             id: highlightId,
             patch: 'test patch',
@@ -261,9 +277,10 @@ describe('Labels API', () => {
 
         it('should update highlight', async () => {
           await graphqlRequest(query, authToken).expect(200)
-          const updatedHighlight = await getHighlightById(highlightId)
+          await refreshIndex()
 
-          expect(updatedHighlight?.labels).not.to.include(toDeleteLabel)
+          const updatedHighlight = await getHighlightById(highlightId)
+          expect(updatedHighlight?.labels).not.deep.include(toDeleteLabel)
         })
       })
     })
