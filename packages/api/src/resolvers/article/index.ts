@@ -258,7 +258,9 @@ export const createArticleResolver = authorized<
           title ||
           parsedContent?.title ||
           preparedDocument?.pageInfo.title ||
-          croppedPathname,
+          croppedPathname ||
+          parsedContent?.siteName ||
+          url,
         author: parsedContent?.byline,
         url: normalizeUrl(canonicalUrl || url, {
           stripHash: true,
