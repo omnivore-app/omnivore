@@ -99,6 +99,7 @@ export const deleteLabel = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
+    console.log('deleting label', label)
     const { body } = await client.updateByQuery({
       index: INDEX_ALIAS,
       body: {
