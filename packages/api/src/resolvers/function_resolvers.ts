@@ -65,6 +65,7 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFollowResolver,
+  setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
   setShareArticleResolver,
@@ -161,6 +162,7 @@ export const functionResolvers = {
     setWebhook: setWebhookResolver,
     deleteWebhook: deleteWebhookResolver,
     revokeApiKey: revokeApiKeyResolver,
+    setLabelsForHighlight: setLabelsForHighlightResolver,
   },
   Query: {
     me: getMeUserResolver,

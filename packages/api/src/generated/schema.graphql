@@ -87,8 +87,8 @@ type Article {
   readingProgressPercent: Float!
   savedAt: Date!
   savedByViewer: Boolean
-  sharedComment: String
   shareInfo: LinkShareInfo
+  sharedComment: String
   siteIcon: String
   siteName: String
   slug: String!
@@ -156,6 +156,10 @@ type ArticleSavingRequestSuccess {
   articleSavingRequest: ArticleSavingRequest!
 }
 
+type ArticleSuccess {
+  article: Article!
+}
+
 type ArticlesError {
   errorCodes: [ArticlesErrorCode!]!
 }
@@ -169,10 +173,6 @@ union ArticlesResult = ArticlesError | ArticlesSuccess
 type ArticlesSuccess {
   edges: [ArticleEdge!]!
   pageInfo: PageInfo!
-}
-
-type ArticleSuccess {
-  article: Article!
 }
 
 enum ContentReader {
@@ -686,6 +686,20 @@ type LinkShareInfo {
   title: String!
 }
 
+type LogOutError {
+  errorCodes: [LogOutErrorCode!]!
+}
+
+enum LogOutErrorCode {
+  LOG_OUT_FAILED
+}
+
+union LogOutResult = LogOutError | LogOutSuccess
+
+type LogOutSuccess {
+  message: String
+}
+
 type LoginError {
   errorCodes: [LoginErrorCode!]!
 }
@@ -708,20 +722,6 @@ union LoginResult = LoginError | LoginSuccess
 
 type LoginSuccess {
   me: User!
-}
-
-type LogOutError {
-  errorCodes: [LogOutErrorCode!]!
-}
-
-enum LogOutErrorCode {
-  LOG_OUT_FAILED
-}
-
-union LogOutResult = LogOutError | LogOutSuccess
-
-type LogOutSuccess {
-  message: String
 }
 
 type MergeHighlightError {
@@ -775,8 +775,8 @@ type Mutation {
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
-  login(input: LoginInput!): LoginResult!
   logOut: LogOutResult!
+  login(input: LoginInput!): LoginResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -788,6 +788,7 @@ type Mutation {
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
+  setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
@@ -890,8 +891,8 @@ type Profile {
 type Query {
   apiKeys: ApiKeysResult!
   article(slug: String!, username: String!): ArticleResult!
-  articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   articleSavingRequest(id: ID!): ArticleSavingRequestResult!
+  articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
@@ -1195,6 +1196,11 @@ enum SetLabelsErrorCode {
   UNAUTHORIZED
 }
 
+input SetLabelsForHighlightInput {
+  highlightId: ID!
+  labelIds: [ID!]!
+}
+
 input SetLabelsInput {
   labelIds: [ID!]!
   pageId: ID!
@@ -1300,6 +1306,12 @@ type SetWebhookSuccess {
   webhook: Webhook!
 }
 
+type ShareStats {
+  readDuration: Int!
+  saveCount: Int!
+  viewCount: Int!
+}
+
 type SharedArticleError {
   errorCodes: [SharedArticleErrorCode!]!
 }
@@ -1312,12 +1324,6 @@ union SharedArticleResult = SharedArticleError | SharedArticleSuccess
 
 type SharedArticleSuccess {
   article: Article!
-}
-
-type ShareStats {
-  readDuration: Int!
-  saveCount: Int!
-  viewCount: Int!
 }
 
 type SignupError {
@@ -1396,6 +1402,12 @@ type Subscription {
   url: String
 }
 
+enum SubscriptionStatus {
+  ACTIVE
+  DELETED
+  UNSUBSCRIBED
+}
+
 type SubscriptionsError {
   errorCodes: [SubscriptionsErrorCode!]!
 }
@@ -1409,12 +1421,6 @@ union SubscriptionsResult = SubscriptionsError | SubscriptionsSuccess
 
 type SubscriptionsSuccess {
   subscriptions: [Subscription!]!
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  DELETED
-  UNSUBSCRIBED
 }
 
 type UnsubscribeError {
@@ -1707,6 +1713,10 @@ type UserPersonalization {
 
 union UserResult = UserError | UserSuccess
 
+type UserSuccess {
+  user: User!
+}
+
 type UsersError {
   errorCodes: [UsersErrorCode!]!
 }
@@ -1719,10 +1729,6 @@ union UsersResult = UsersError | UsersSuccess
 
 type UsersSuccess {
   users: [User!]!
-}
-
-type UserSuccess {
-  user: User!
 }
 
 type Webhook {
@@ -1760,6 +1766,10 @@ enum WebhookEvent {
 
 union WebhookResult = WebhookError | WebhookSuccess
 
+type WebhookSuccess {
+  webhook: Webhook!
+}
+
 type WebhooksError {
   errorCodes: [WebhooksErrorCode!]!
 }
@@ -1773,8 +1783,4 @@ union WebhooksResult = WebhooksError | WebhooksSuccess
 
 type WebhooksSuccess {
   webhooks: [Webhook!]!
-}
-
-type WebhookSuccess {
-  webhook: Webhook!
 }

@@ -1738,6 +1738,11 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input SetLabelsForHighlightInput {
+    highlightId: ID!
+    labelIds: [ID!]!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1806,6 +1811,7 @@ const schema = gql`
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
+    setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

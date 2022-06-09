@@ -4,6 +4,7 @@ import { InFilter, ReadFilter } from '../../src/utils/search'
 import {
   ArticleSavingRequestStatus,
   Highlight,
+  Label,
   Page,
   PageContext,
   PageType,
@@ -18,7 +19,7 @@ import {
   searchPages,
   updatePage,
 } from '../../src/elastic/pages'
-import { addLabelInPage } from '../../src/elastic/labels'
+import { addLabelInPage, setLabelsForHighlight } from '../../src/elastic/labels'
 import {
   addHighlightToPage,
   searchHighlights,
@@ -248,6 +249,56 @@ describe('elastic api', () => {
 
       expect(count).to.eq(1)
       expect(searchResults[0].id).to.eq(highlightId)
+    })
+  })
+
+  describe('setLabelsForHighlight', () => {
+    const page = {
+      id: 'testPageId',
+      hash: 'test set labels for highlight hash',
+      userId: userId,
+      pageType: PageType.Article,
+      title: 'test set labels for highlight title',
+      content: '<p>test</p>',
+      slug: 'test set labels for highlight slug',
+      createdAt: new Date(),
+      savedAt: new Date(),
+      readingProgressPercent: 100,
+      readingProgressAnchorIndex: 0,
+      url: 'https://blog.omnivore.app/p/setting-labels-for-highlight',
+      state: ArticleSavingRequestStatus.Succeeded,
+    }
+    const highlightId = 'highlightId'
+    const label: Label = {
+      id: 'test label id',
+      name: 'test label',
+      color: '#07D2D1',
+    }
+
+    before(async () => {
+      // create a testing page
+      await createPage(page, ctx)
+
+      const highlightData: Highlight = {
+        patch: 'test set labels patch',
+        quote: 'test set labels quote',
+        shortId: 'test set labels shortId',
+        id: highlightId,
+        userId: page.userId,
+        createdAt: new Date(),
+      }
+
+      await addHighlightToPage(page.id, highlightData, ctx)
+    })
+
+    after(async () => {
+      await deletePage(page.id, ctx)
+    })
+
+    it('sets labels for highlights', async () => {
+      const result = await setLabelsForHighlight(highlightId, [label], ctx)
+
+      expect(result).to.be.true
     })
   })
 })

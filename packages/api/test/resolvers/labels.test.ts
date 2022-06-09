@@ -9,11 +9,15 @@ import { Label } from '../../src/entity/label'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { Page, PageContext } from '../../src/elastic/types'
+import { Highlight, Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
 import { getPageById } from '../../src/elastic/pages'
 import { addLabelInPage } from '../../src/elastic/labels'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
+import {
+  addHighlightToPage,
+  getHighlightById,
+} from '../../src/elastic/highlights'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -238,6 +242,30 @@ describe('Labels API', () => {
           expect(updatedPage?.labels).not.to.include(toDeleteLabel)
         })
       })
+
+      context('when a highlight has this label', () => {
+        const highlightId = 'testDeleteLabel'
+
+        before(async () => {
+          const highlight: Highlight = {
+            id: highlightId,
+            patch: 'test patch',
+            quote: 'test quote',
+            shortId: 'test shortId',
+            userId: user.id,
+            createdAt: new Date(),
+            labels: [toDeleteLabel],
+          }
+          await addHighlightToPage(page.id, highlight, ctx)
+        })
+
+        it('should update highlight', async () => {
+          await graphqlRequest(query, authToken).expect(200)
+          const updatedHighlight = await getHighlightById(highlightId)
+
+          expect(updatedHighlight?.labels).not.to.include(toDeleteLabel)
+        })
+      })
     })
 
     context('when label not exist', () => {
@@ -437,6 +465,98 @@ describe('Labels API', () => {
       it('should return error code NOT_FOUND', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.updateLabel.errorCodes).to.eql(['NOT_FOUND'])
+      })
+    })
+  })
+
+  describe('Set labels for highlight', () => {
+    let query: string
+    let highlightId: string
+    let labelIds: string[] = []
+
+    beforeEach(() => {
+      query = `
+        mutation {
+          setLabelsForHighlight(
+            input: {
+              highlightId: "${highlightId}",
+              labelIds: [
+                "${labelIds[0]}",
+                "${labelIds[1]}"
+              ]
+            }
+          ) {
+            ... on SetLabelsSuccess {
+              labels {
+                id
+                name
+              }
+            }
+            ... on SetLabelsError {
+              errorCodes
+            }
+          }
+        }
+      `
+    })
+
+    context('when labels exists', () => {
+      before(async () => {
+        highlightId = 'highlight-id'
+        const highlight: Highlight = {
+          createdAt: new Date(),
+          id: highlightId,
+          patch: 'test patch',
+          quote: 'test quote',
+          shortId: 'test shortId',
+          userId: user.id,
+        }
+        await addHighlightToPage(page.id, highlight, ctx)
+        labelIds = [labels[0].id, labels[1].id]
+      })
+
+      it('should set labels for highlight', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(
+          res.body.data.setLabelsForHighlight.labels.map((l: any) => l.id)
+        ).to.eql(labelIds)
+      })
+    })
+
+    context('when labels not exist', () => {
+      before(async () => {
+        highlightId = 'highlight-id-2'
+        const highlight: Highlight = {
+          createdAt: new Date(),
+          id: highlightId,
+          patch: 'test patch',
+          quote: 'test quote',
+          shortId: 'test shortId',
+          userId: user.id,
+        }
+        await addHighlightToPage(page.id, highlight, ctx)
+        labelIds = [generateFakeUuid(), generateFakeUuid()]
+      })
+
+      it('should return error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.setLabelsForHighlight.errorCodes).to.eql([
+          'NOT_FOUND',
+        ])
+      })
+    })
+
+    context('when highlight not exist', () => {
+      before(() => {
+        highlightId = generateFakeUuid()
+        labelIds = [labels[0].id, labels[1].id]
+      })
+
+      it('should return error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.setLabelsForHighlight.errorCodes).to.eql([
+          'NOT_FOUND',
+        ])
       })
     })
   })

@@ -163,6 +163,7 @@ export interface Highlight {
   annotation?: string | null
   sharedAt?: Date | null
   updatedAt?: Date | null
+  labels?: Label[]
 }
 
 export interface Page {
