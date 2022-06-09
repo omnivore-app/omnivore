@@ -15,6 +15,13 @@ const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   : new Storage()
 const bucketName = env.fileUpload.gcsUploadBucket
 
+export const getFilePublicUrl = (filePathName: string): string => {
+  return storage
+    .bucket(bucketName)
+    .file(filePathName)
+    .publicUrl()
+}
+
 export const generateUploadSignedUrl = async (
   filePathName: string,
   contentType: string,

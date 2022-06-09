@@ -11,6 +11,7 @@ import { WithDataSourcesContext } from '../types'
 import {
   generateUploadSignedUrl,
   generateUploadFilePathName,
+  getFilePublicUrl,
 } from '../../utils/uploads'
 import path from 'path'
 import normalizeUrl from 'normalize-url'
@@ -99,11 +100,12 @@ export const uploadFileRequestResolver: ResolverFn<
       input.contentType
     )
 
-    // If this is a file URL, we swap in the GCS signed
-    // URL
+    const publicUrl = getFilePublicUrl(uploadFilePathName)
+
+    // If this is a file URL, we swap in the GCS public URL
     if (isFileUrl(input.url)) {
       await models.uploadFile.update(uploadFileData.id, {
-        url: uploadSignedUrl,
+        url: publicUrl,
         status: UploadFileStatus.Initialized,
       })
     }
@@ -135,7 +137,7 @@ export const uploadFileRequestResolver: ResolverFn<
       } else {
         const pageId = await createPage(
           {
-            url: isFileUrl(input.url) ? uploadSignedUrl : input.url,
+            url: isFileUrl(input.url) ? publicUrl : input.url,
             id: input.clientRequestId || '',
             userId: claims.uid,
             title: title,
