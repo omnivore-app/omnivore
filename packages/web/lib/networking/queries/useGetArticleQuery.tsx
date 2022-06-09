@@ -40,6 +40,7 @@ export type ArticleAttributes = {
   author?: string
   image?: string
   savedAt: string
+  isArchived: boolean
   createdAt: string
   publishedAt?: string
   description?: string
