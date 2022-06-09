@@ -22,7 +22,7 @@ public struct PDFItem {
       objectID: item.objectID,
       itemID: item.unwrappedID,
       pdfURL: URL(string: item.unwrappedPageURLString),
-      localPdfURL: item.localPdfURL.flatMap { URL(string: $0) },
+      localPdfURL: nil, // item.localPdfURL.flatMap { URL(string: $0) },
       title: item.unwrappedID,
       slug: item.unwrappedSlug,
       readingProgress: item.readingProgress,

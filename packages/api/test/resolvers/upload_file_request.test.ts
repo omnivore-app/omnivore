@@ -89,10 +89,17 @@ describe('uploadFileRequest API', () => {
       })
 
       it('should create an article if create article is true', async () => {
-        const res = uploadFileRequest(authToken, 'https://www.google.com', clientRequestId, true).expect(200)
+        const res = await uploadFileRequest(authToken, 'https://www.google.com', clientRequestId, true)
         expect(res.body.data.uploadFileRequest.createdPageId).to.eql(clientRequestId)
         const page = await getPageById(clientRequestId)
         expect(page).to.be
+      })
+
+      it('should not save a file:// URL', async () => {
+        const res = await uploadFileRequest(authToken, 'file://foo.bar', clientRequestId, true)
+        expect(res.body.data.uploadFileRequest.createdPageId).to.eql(clientRequestId)
+        const page = await getPageById(clientRequestId)
+        expect(page.url).to.startWith("https://")
       })
     })
   })
