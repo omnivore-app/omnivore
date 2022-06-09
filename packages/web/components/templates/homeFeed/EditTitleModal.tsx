@@ -62,7 +62,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', maxWidth: '20em', pt: '0px' }}
+        css={{ bg: '$grayBg', pt: '0px' }}
         onInteractOutside={() => {
           // remove focus from modal
           (document.activeElement as HTMLElement).blur()
@@ -75,7 +75,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
             css={{ width: '100%', mt: '4px' }}
           >
             <StyledText style="modalHeadline">
-              Edit Title or Description
+              Edit Title and Description
             </StyledText>
             <Button
               css={{ p: '10px', cursor: 'pointer', pt: '2px' }}
@@ -121,10 +121,9 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
               >
                 <StyledTextArea
                   css={{
-                    mt: '$2',
-                    width: '95%',
-                    p: '$1',
+                    p: '14px',
                     height: '$6',
+                    width: '100%',
                   }}
                   placeholder="Edit Description"
                   value={description}
