@@ -179,7 +179,7 @@ export const deleteLabelResolver = authorized<
     }
 
     // delete label in elastic pages and highlights
-    await deleteLabel(labelId, {
+    await deleteLabel(label.name, {
       pubsub: createPubSubClient(),
       uid,
     })
