@@ -66,7 +66,7 @@ public struct FeedCard: View {
         }
       }
 
-      if item.sortedLabels.count > 0 {
+      if item.hasLabels {
         // Category Labels
         ScrollView(.horizontal, showsIndicators: false) {
           HStack {

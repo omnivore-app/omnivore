@@ -300,7 +300,7 @@ struct LinkItemDetailView: View {
   @ViewBuilder private var fixedNavBarReader: some View {
     if let pdfItem = viewModel.pdfItem, let pdfURL = pdfItem.pdfURL {
       #if os(iOS)
-        PDFViewer(remoteURL: pdfURL, viewModel: PDFViewerViewModel(pdfItem: pdfItem))
+        PDFViewer(viewModel: PDFViewerViewModel(pdfItem: pdfItem))
           .navigationBarTitleDisplayMode(.inline)
       #elseif os(macOS)
         PDFWrapperView(pdfURL: pdfURL)

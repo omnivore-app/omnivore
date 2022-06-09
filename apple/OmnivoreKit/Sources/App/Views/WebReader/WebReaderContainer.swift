@@ -89,6 +89,7 @@ import WebKit
               Button(
                 action: {
                   dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+                  presentationMode.wrappedValue.dismiss()
                   Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
                 },
                 label: {
@@ -122,6 +123,7 @@ import WebKit
         Button("Remove Link", role: .destructive) {
           Snackbar.show(message: "Link removed")
           dataService.removeLink(objectID: item.objectID)
+          presentationMode.wrappedValue.dismiss()
         }
         Button("Cancel", role: .cancel, action: {})
       }
@@ -134,9 +136,8 @@ import WebKit
       ZStack {
         if let articleContent = viewModel.articleContent {
           WebReader(
-            htmlContent: articleContent.htmlContent,
-            highlightsJSONString: articleContent.highlightsJSONString,
             item: item,
+            articleContent: articleContent,
             openLinkAction: {
               #if os(macOS)
                 NSWorkspace.shared.open($0)

@@ -3,7 +3,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func saveURL(id: String, url: String) async throws {
+  func saveURL(id: String, url: String) async throws -> String? {
     enum MutationResult {
       case saved(requestId: String, url: String)
       case error(errorCode: Enums.SaveErrorCode)
@@ -18,7 +18,13 @@ public extension DataService {
     let selection = Selection<MutationResult, Unions.SaveResult> {
       try $0.on(
         saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) },
-        saveSuccess: .init { .saved(requestId: id, url: (try? $0.url()) ?? "") }
+        saveSuccess: .init {
+          if let requestId = try? $0.clientRequestId(), let url = try? $0.url() {
+            return .saved(requestId: requestId, url: url)
+          } else {
+            return .error(errorCode: .unknown)
+          }
+        }
       )
     }
 
@@ -41,8 +47,8 @@ public extension DataService {
           }
 
           switch payload.data {
-          case .saved:
-            continuation.resume()
+          case let .saved(requestId: requestId, url: _):
+            continuation.resume(returning: requestId)
           case let .error(errorCode: errorCode):
             switch errorCode {
             case .unauthorized:

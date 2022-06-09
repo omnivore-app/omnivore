@@ -121,9 +121,11 @@ public final class DataService: ObservableObject {
       let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
       let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
 
+      linkedItem.createdId = requestId
       linkedItem.id = existingItem?.unwrappedID ?? requestId
       linkedItem.title = normalizedURL
       linkedItem.pageURLString = normalizedURL
+      linkedItem.state = existingItem != nil ? existingItem?.state : "PROCESSING"
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsCreation.rawValue)
       linkedItem.savedAt = currentTime
       linkedItem.createdAt = currentTime
@@ -136,8 +138,8 @@ public final class DataService: ObservableObject {
       linkedItem.author = nil
       linkedItem.publishDate = nil
 
-      if let currentViewer = self.currentViewer {
-        linkedItem.slug = "\(currentViewer)/\(requestId)"
+      if let currentViewer = self.currentViewer, let username = currentViewer.username {
+        linkedItem.slug = "\(username)/\(requestId)"
       } else {
         // Technically this is invalid, but I don't think slug is used at all locally anymore
         linkedItem.slug = requestId
@@ -146,18 +148,15 @@ public final class DataService: ObservableObject {
       switch pageScrape.contentType {
       case let .pdf(localUrl):
         linkedItem.contentReader = "PDF"
-        linkedItem.localPdfURL = localUrl.absoluteString
         linkedItem.title = PDFUtils.titleFromPdfFile(pageScrape.url)
-//        let thumbnailUrl = PDFUtils.thumbnailUrl(localUrl: localUrl)
-//        linkedItem.imageURLString = await PDFUtils.createThumbnailFor(inputUrl: localUrl, at: thumbnailUrl)
-
+        print("PERSISTING PDF", localUrl)
+        linkedItem.localPDF = try PDFUtils.copyToLocal(url: localUrl)
       case let .html(html: html, title: title, iconURL: iconURL):
         linkedItem.contentReader = "WEB"
         linkedItem.originalHtml = html
         linkedItem.imageURLString = iconURL
         linkedItem.title = title ?? PDFUtils.titleFromPdfFile(pageScrape.url)
       case .none:
-        print("SAVING URL", linkedItem.unwrappedPageURLString)
         linkedItem.contentReader = "WEB"
       }
 
