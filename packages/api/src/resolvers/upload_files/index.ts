@@ -23,7 +23,7 @@ import { validateUrl } from '../../services/create_page_save_request'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
-  return parsedUrl.protocol == 'file://'
+  return parsedUrl.protocol == 'file:'
 }
 
 export const uploadFileRequestResolver: ResolverFn<
@@ -99,6 +99,15 @@ export const uploadFileRequestResolver: ResolverFn<
       input.contentType
     )
 
+    // If this is a file URL, we swap in the GCS signed
+    // URL
+    if (isFileUrl(input.url)) {
+      await models.uploadFile.update(uploadFileData.id, {
+        url: uploadSignedUrl,
+        status: UploadFileStatus.Initialized,
+      })
+    }
+
     let createdPageId: string | undefined = undefined
     if (input.createPageEntry) {
       // If we have a file:// URL, don't try to match it
@@ -126,7 +135,7 @@ export const uploadFileRequestResolver: ResolverFn<
       } else {
         const pageId = await createPage(
           {
-            url: input.url,
+            url: isFileUrl(input.url) ? uploadSignedUrl : input.url,
             id: input.clientRequestId || '',
             userId: claims.uid,
             title: title,
