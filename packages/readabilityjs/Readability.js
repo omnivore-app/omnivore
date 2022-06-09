@@ -2754,7 +2754,8 @@ Readability.prototype = {
           (!isList && li > p) ||
           (input > Math.floor(p/3)) ||
           (!isList && headingDensity < 0.9 && contentLength < 25 && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
-          (!isList && weight < 25 && linkDensity > 0.2) ||
+          // ignores link density for the links inside the .post-body div (the main content)
+          (!isList && weight < 25 && linkDensity > 0.2 && !(node.parentElement.className.includes("post-body") && linkDensity === 1)) ||
           // some website like https://substack.com might have their custom styling of tweets
           // we should omit ignoring their particular case by checking against "tweet" classname
           (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||
