@@ -115,10 +115,12 @@ export const uploadFileRequestResolver: ResolverFn<
       // If we have a file:// URL, don't try to match it
       // and create a copy of the page, just create a
       // new item.
-      const page = isFileUrl(input.url) ? await getPageByParam({
-        userId: claims.uid,
-        url: input.url,
-      }) : undefined
+      const page = isFileUrl(input.url)
+        ? await getPageByParam({
+            userId: claims.uid,
+            url: input.url,
+          })
+        : undefined
 
       if (page) {
         if (
