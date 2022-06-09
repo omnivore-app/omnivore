@@ -19,6 +19,12 @@ import { env } from '../../env'
 import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
 import { PageType } from '../../elastic/types'
 import { generateSlug } from '../../utils/helpers'
+import { validateUrl } from '../../services/create_page_save_request'
+
+const isFileUrl = (url: string): boolean => {
+  const parsedUrl = new URL(url)
+  return parsedUrl.protocol == 'file://'
+}
 
 export const uploadFileRequestResolver: ResolverFn<
   UploadFileRequestResult,
@@ -60,6 +66,17 @@ export const uploadFileRequestResolver: ResolverFn<
     if (!fileName) {
       fileName = 'content.pdf'
     }
+
+    if (!isFileUrl(url)) {
+      try {
+        validateUrl(url)
+      } catch (error) {
+        console.log('illegal file input url', error)
+        return {
+          errorCodes: [UploadFileRequestErrorCode.BadInput],
+        }
+      }
+    }
   } catch {
     return { errorCodes: [UploadFileRequestErrorCode.BadInput] }
   }
@@ -84,10 +101,14 @@ export const uploadFileRequestResolver: ResolverFn<
 
     let createdPageId: string | undefined = undefined
     if (input.createPageEntry) {
-      const page = await getPageByParam({
+      // If we have a file:// URL, don't try to match it
+      // and create a copy of the page, just create a
+      // new item.
+      const page = isFileUrl(input.url) ? await getPageByParam({
         userId: claims.uid,
         url: input.url,
-      })
+      }) : undefined
+
       if (page) {
         if (
           !(await updatePage(
