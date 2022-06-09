@@ -5,6 +5,7 @@ import type { LibraryItemNode } from '../../../lib/networking/queries/useGetLibr
 export type LinkedItemCardAction =
   | 'showDetail'
   | 'showOriginal'
+  | 'editTitle'
   | 'archive'
   | 'unarchive'
   | 'delete'
@@ -14,6 +15,7 @@ export type LinkedItemCardAction =
   | 'snooze'
   | 'set-labels'
   | 'unsubscribe'
+  | 'update-item'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode
