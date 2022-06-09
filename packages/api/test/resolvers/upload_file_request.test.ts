@@ -99,7 +99,7 @@ describe('uploadFileRequest API', () => {
         const res = await uploadFileRequest(authToken, 'file://foo.bar', clientRequestId, true)
         expect(res.body.data.uploadFileRequest.createdPageId).to.eql(clientRequestId)
         const page = await getPageById(clientRequestId)
-        expect(page.url).to.startWith("https://")
+        expect(page?.url).to.startWith("https://")
       })
     })
   })
