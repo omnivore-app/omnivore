@@ -31,3 +31,15 @@ export const initElasticsearch = async (): Promise<void> => {
     throw e
   }
 }
+
+export const refreshIndex = async (): Promise<void> => {
+  try {
+    const { body } = await client.indices.refresh({
+      index: INDEX_ALIAS,
+    })
+    console.log('elastic refresh: ', body)
+  } catch (e) {
+    console.error('failed to refresh elastic index', e)
+    throw e
+  }
+}
