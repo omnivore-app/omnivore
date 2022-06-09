@@ -90,6 +90,9 @@ public final class PDFViewerViewModel: ObservableObject {
 
   public func downloadPDF(dataService: DataService) async -> URL? {
     do {
+      if itemDownloaded {
+        return pdfItem.localPdfURL
+      }
       if let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL) {
         return localURL
       }
