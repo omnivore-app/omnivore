@@ -1,16 +1,27 @@
 import React from 'react'
-import Link from 'next/link'
 import { OnboardingLayout } from '../OnboardingLayout'
 import MobileInstallHelp from '../../elements/MobileInstallHelp'
 import ExtensionsInstallHelp from '../../elements/ExtensionsInstallHelp'
-import { StyledAnchor } from '../../elements/StyledText'
 import { Box } from '../../elements/LayoutPrimitives'
+import { sendInstallInstructions } from '../../../lib/networking/queries/sendInstallInstructions'
+import { Button } from '../../elements/Button'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 
 type OnboardingInstallInstructionsProps = {
   pageNumber: number
 }
 
 export const OnboardingInstallInstructions = (props: OnboardingInstallInstructionsProps) => {
+  const onEmailInstructionsClick = async () => {
+    const res = await sendInstallInstructions()
+    if (res !== undefined) {
+      showSuccessToast('Instructions Email Sent', { position: 'bottom-right' })
+    }
+    else {
+      showErrorToast('Failed to send', { position: 'bottom-right' })
+    }
+  }
+
   return (
     <OnboardingLayout
       pageNumber={props.pageNumber}
@@ -68,19 +79,19 @@ export const OnboardingInstallInstructions = (props: OnboardingInstallInstructio
             },
           }}
         >
-          <Link passHref href="#">
-            <StyledAnchor
-              css={{
-                fontWeight: '400',
-                fontSize: '14px',
-                lineHeight: '17.5px',
-                color: 'rgba(10, 8, 6, 0.8)',
-                textDecoration: 'underline',
-              }}
-            >
-              Email me instructions
-            </StyledAnchor>
-          </Link>
+          <Box
+            onClick={onEmailInstructionsClick}
+            css={{
+              fontWeight: '400',
+              fontSize: '14px',
+              lineHeight: '17.5px',
+              color: 'rgba(10, 8, 6, 0.8)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+            }}
+          >
+            Email me instructions
+          </Box>
         </Box>
       </Box>
     </OnboardingLayout>
