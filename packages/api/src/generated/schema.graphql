@@ -1665,6 +1665,7 @@ input UploadFileRequestInput {
 union UploadFileRequestResult = UploadFileRequestError | UploadFileRequestSuccess
 
 type UploadFileRequestSuccess {
+  createdPageId: String
   id: ID!
   uploadFileId: ID
   uploadSignedUrl: String

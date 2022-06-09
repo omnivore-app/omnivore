@@ -82,20 +82,26 @@ export const uploadFileRequestResolver: ResolverFn<
       input.contentType
     )
 
+    let createdPageId: string | undefined = undefined
     if (input.createPageEntry) {
       const page = await getPageByParam({
         userId: claims.uid,
         url: input.url,
       })
       if (page) {
-        await updatePage(
-          page.id,
-          {
-            savedAt: new Date(),
-            archivedAt: null,
-          },
-          ctx
-        )
+        if (
+          !(await updatePage(
+            page.id,
+            {
+              savedAt: new Date(),
+              archivedAt: null,
+            },
+            ctx
+          ))
+        ) {
+          return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
+        }
+        createdPageId = page.id
       } else {
         const pageId = await createPage(
           {
@@ -119,10 +125,15 @@ export const uploadFileRequestResolver: ResolverFn<
         if (!pageId) {
           return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
         }
+        createdPageId = pageId
       }
     }
 
-    return { id: uploadFileData.id, uploadSignedUrl }
+    return {
+      id: uploadFileData.id,
+      uploadSignedUrl,
+      createdPageId: createdPageId,
+    }
   } else {
     return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
   }
