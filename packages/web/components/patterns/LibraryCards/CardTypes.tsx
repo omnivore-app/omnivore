@@ -13,6 +13,7 @@ export type LinkedItemCardAction =
   | 'share'
   | 'snooze'
   | 'set-labels'
+  | 'unsubscribe'
 
 export type LinkedItemCardProps = {
   item: LibraryItemNode

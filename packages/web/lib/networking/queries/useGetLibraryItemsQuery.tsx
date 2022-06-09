@@ -5,6 +5,7 @@ import type { PageType, State } from '../fragments/articleFragment'
 import { ContentReader } from '../fragments/articleFragment'
 import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
 import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
+import { unsubscribeMutation } from '../mutations/unsubscribeMutation'
 import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
 import { Label } from './../fragments/labelFragment'
 import { showErrorToast, showSuccessToast } from '../../toastHelpers'
@@ -35,6 +36,7 @@ type LibraryItemAction =
   | 'mark-read'
   | 'mark-unread'
   | 'refresh'
+  | 'unsubscribe'
 
 export type LibraryItemsData = {
   search: LibraryItems
@@ -76,6 +78,8 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
+  subscription?: string,
+  readAt?: string
 }
 
 export type PageInfo = {
@@ -127,6 +131,8 @@ export function useGetLibraryItemsQuery({
               annotation
               state
               siteName
+              subscription
+              readAt
             }
           }
           pageInfo {
@@ -304,6 +310,26 @@ export function useGetLibraryItemsQuery({
           readingProgressPercent: 0,
           readingProgressAnchorIndex: 0,
         })
+        break
+      case 'unsubscribe':
+        if (!!item.node.subscription) {
+          updateData({
+            cursor: item.cursor,
+            node: {
+              ...item.node,
+              subscription: undefined,
+            },
+          })
+          unsubscribeMutation(item.node.subscription).then((res) => {
+            if (res) {
+              showSuccessToast('Unsubscribed successfully', { position: 'bottom-right' })
+            } else {
+              showErrorToast('Error unsubscribing', {
+                position: 'bottom-right',
+              })
+            }
+          })
+        }
         break
       case 'refresh':
         await mutate()
