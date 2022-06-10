@@ -1177,9 +1177,9 @@ export type NewsletterEmailsSuccess = {
 
 export type Page = {
   __typename?: 'Page';
-  author: Scalars['String'];
+  author?: Maybe<Scalars['String']>;
   createdAt: Scalars['Date'];
-  description: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   hash: Scalars['String'];
   id: Scalars['ID'];
   image: Scalars['String'];
@@ -2035,7 +2035,7 @@ export type UpdatePageResult = UpdatePageError | UpdatePageSuccess;
 
 export type UpdatePageSuccess = {
   __typename?: 'UpdatePageSuccess';
-  updatedPage: Page;
+  updatedPage: Article;
 };
 
 export type UpdateReminderError = {
@@ -3679,9 +3679,9 @@ export type NewsletterEmailsSuccessResolvers<ContextType = ResolverContext, Pare
 };
 
 export type PageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Page'] = ResolversParentTypes['Page']> = {
-  author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -4166,7 +4166,7 @@ export type UpdatePageResultResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type UpdatePageSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePageSuccess'] = ResolversParentTypes['UpdatePageSuccess']> = {
-  updatedPage?: Resolver<ResolversTypes['Page'], ParentType, ContextType>;
+  updatedPage?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

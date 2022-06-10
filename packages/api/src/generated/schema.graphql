@@ -831,9 +831,9 @@ type NewsletterEmailsSuccess {
 }
 
 type Page {
-  author: String!
+  author: String
   createdAt: Date!
-  description: String!
+  description: String
   hash: String!
   id: ID!
   image: String!
@@ -1551,7 +1551,7 @@ input UpdatePageInput {
 union UpdatePageResult = UpdatePageError | UpdatePageSuccess
 
 type UpdatePageSuccess {
-  updatedPage: Page!
+  updatedPage: Article!
 }
 
 type UpdateReminderError {

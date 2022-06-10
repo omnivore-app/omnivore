@@ -302,8 +302,8 @@ const schema = gql`
     type: PageType!
     image: String!
     title: String!
-    author: String!
-    description: String!
+    author: String
+    description: String
     publishedAt: Date
 
     originalHtml: String!
@@ -514,7 +514,7 @@ const schema = gql`
   }
 
   type UpdatePageSuccess {
-    updatedPage: Page!
+    updatedPage: Article!
   }
 
   enum UpdatePageErrorCode {

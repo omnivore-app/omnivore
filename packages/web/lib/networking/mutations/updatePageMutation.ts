@@ -11,14 +11,10 @@ export async function updatePageMutation(
   input: UpdatePageInput
 ): Promise<string | undefined> {
   const mutation = gql`
-    mutation {
-      updatePage(
-        input: {
-          pageId: "${input.pageId}"
-          title: "${input.title}"
-          description: "${input.description}"
-        }
-      ) {
+    mutation UpdatePage(
+      $input: UpdatePageInput!
+    ) {
+      updatePage(input: $input) {
         ... on UpdatePageSuccess {
           updatedPage {
             id
@@ -39,7 +35,9 @@ export async function updatePageMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation)
+    const data = await gqlFetcher(mutation, {
+      input,
+    })
     const output = data as any
     return output.updatePage
   } catch (err) {
