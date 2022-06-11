@@ -142,6 +142,7 @@ import Utils
             // NOTE: the issue here is the PDF is downloaded, but saved to a URL we don't know about
             // because it is changed.
             let pdfURL = await viewModel.downloadPDF(dataService: dataService)
+            print("PDF URL", pdfURL)
             if let pdfURL = pdfURL {
               let document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
               pdfStateObject.document = document

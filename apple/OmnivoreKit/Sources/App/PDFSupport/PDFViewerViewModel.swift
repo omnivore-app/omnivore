@@ -3,6 +3,7 @@ import CoreData
 import Foundation
 import Models
 import Services
+import Utils
 
 public final class PDFViewerViewModel: ObservableObject {
   @Published public var errorMessage: String?
@@ -92,6 +93,12 @@ public final class PDFViewerViewModel: ObservableObject {
     do {
       if itemDownloaded {
         return pdfItem.localPdfURL
+      }
+      if let tempURL = pdfItem.tempPDFURL {
+        if let localURL = try? PDFUtils.copyToLocal(url: tempURL) {
+          return tempURL
+          // return URL(string: localURL)
+        }
       }
       if let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL) {
         return localURL

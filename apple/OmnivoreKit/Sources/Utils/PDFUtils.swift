@@ -45,6 +45,13 @@ public enum PDFUtils {
     return false
   }
 
+  public static func tempExists(tempPDFURL: URL?) -> Bool {
+    if let tempPDFURL = tempPDFURL {
+      return FileManager.default.fileExists(atPath: tempPDFURL.path)
+    }
+    return false
+  }
+
   public static func titleFromPdfFile(_ urlStr: String) -> String {
     let url = URL(string: urlStr)
     if let url = url {

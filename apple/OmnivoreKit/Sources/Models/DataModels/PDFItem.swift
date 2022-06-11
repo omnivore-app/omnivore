@@ -7,6 +7,7 @@ public struct PDFItem {
   public let itemID: String
   public let pdfURL: URL?
   public let localPDF: String?
+  public let tempPDFURL: URL?
   public let title: String
   public let slug: String
   public let readingProgress: Double
@@ -24,6 +25,7 @@ public struct PDFItem {
       itemID: item.unwrappedID,
       pdfURL: URL(string: item.unwrappedPageURLString),
       localPDF: item.localPDF,
+      tempPDFURL: item.tempPDFURL,
       title: item.unwrappedID,
       slug: item.unwrappedSlug,
       readingProgress: item.readingProgress,
