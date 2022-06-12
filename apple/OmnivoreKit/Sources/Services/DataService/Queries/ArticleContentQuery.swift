@@ -195,6 +195,8 @@ public extension DataService {
   }
 
   internal func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) async throws {
+    var needsPDFDownload = false
+
     try await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -226,19 +228,53 @@ public extension DataService {
       linkedItem.isArchived = item.isArchived
       linkedItem.contentReader = item.contentReader
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+
+      if item.isPDF {
+        needsPDFDownload = true
+
+        // Check if we already have the PDF item locally. Either in temporary
+        // space, or in the documents directory
+        if let localPDF = existingItem?.localPDF {
+          if PDFUtils.exists(filename: localPDF) {
+            linkedItem.localPDF = localPDF
+            needsPDFDownload = false
+          }
+        }
+
+        if let tempPDFURL = existingItem?.tempPDFURL {
+          linkedItem.localPDF = try? PDFUtils.moveToLocal(url: tempPDFURL)
+          PDFUtils.exists(filename: linkedItem.localPDF)
+          if linkedItem.localPDF != nil {
+            needsPDFDownload = false
+          }
+        }
+      }
     }
 
     if item.isPDF {
-      try await fetchPDFData(slug: item.slug, pageURLString: item.pageURLString)
+      if needsPDFDownload {
+        print("PDF does not exist, downloading", item.id, item.title)
+        try await backgroundContext.perform {
+          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+          fetchRequest.predicate = NSPredicate(format: "id == %@", item.id)
+
+          let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
+          print("EXISTING ITEM", existingItem)
+        }
+
+        try await fetchPDFData(slug: item.slug, pageURLString: item.pageURLString)
+      } else {
+        print("PDF already exists, not downloading", item.id)
+      }
     }
 
     try await backgroundContext.perform { [weak self] in
       do {
         try self?.backgroundContext.save()
-        logger.debug("ArticleContent saved succesfully")
+        // logger.debug("ArticleContent saved succesfully")
       } catch {
         self?.backgroundContext.rollback()
-        logger.debug("Failed to save ArticleContent")
+        // logger.debug("Failed to save ArticleContent")
         throw error
       }
     }
@@ -275,6 +311,7 @@ public extension DataService {
         try data.write(to: tempPath)
         let localPDF = try PDFUtils.moveToLocal(url: tempPath)
         localPdfURL = PDFUtils.localPdfURL(filename: localPDF)
+        linkedItem.tempPDFURL = nil
         linkedItem.localPDF = localPDF
         try self?.backgroundContext.save()
       } catch {
