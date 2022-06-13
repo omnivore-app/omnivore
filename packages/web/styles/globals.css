@@ -82,192 +82,129 @@ div#appleid-signin {
 }
 
 @font-face {
-  font-family: "Lyon";
+  font-family: 'Lora';
   font-weight: 400;
   font-style: normal;
-  src: url('/static/fonts/Lyon/Lyon-Text-Regular.otf');
+  src: url('/static/fonts/Lora/Lora-Regular.ttf');
 }
 
 @font-face {
-  font-family: "Lyon";
+  font-family: 'Lora';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Lora/Lora-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Lora';
   font-weight: 400;
   font-style: italic;
-  src: url('/static/fonts/Lyon/Lyon-Text-Regular-Italic.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 500;
-  font-style: normal;
-  src: url('/static/fonts/Lyon/Lyon-Text-Regular-No.2.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 500;
-  font-style: italic;
-  src: url('/static/fonts/Lyon/Lyon-Text-Regular-No.2-Italic.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 600;
-  font-style: normal;
-  src: url('/static/fonts/Lyon/Lyon-Text-Semibold.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 600;
-  font-style: italic;
-  src: url('/static/fonts/Lyon/Lyon-Text-Semibold-Italic.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 700;
-  font-style: normal;
-  src: url('/static/fonts/Lyon/Lyon-Text-Bold.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 700;
-  font-style: italic;
-  src: url('/static/fonts/Lyon/Lyon-Text-Bold-Italic.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 900;
-  font-style: normal;
-  src: url('/static/fonts/Lyon/Lyon-Text-Black.otf');
-}
-
-@font-face {
-  font-family: "Lyon";
-  font-weight: 900;
-  font-style: italic;
-  src: url('/static/fonts/Lyon/Lyon-Text-Black-Italic.otf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 100;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Thin.ttf'); 
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 100;
-  font-style: italic;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Thin-Italic.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 300;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Light.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 300;
-  font-style: italic;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Light-Italic.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 400;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Regular.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 500;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Medium.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 500;
-  font-style: italic;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Medium-Italic.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 600;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Semibold.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 600;
-  font-style: italic;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Semibold-Italic.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 700;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Bold.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 700;
-  font-style: italic;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Bold-Italic.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 900;
-  font-style: normal;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Black.ttf');
-}
-
-@font-face {
-  font-family: "Tisa";
-  font-weight: 900;
-  font-style: italic;
-  src: url('/static/fonts/Tisa/Tisa-Sans-Pro-Black-Italic.ttf');
+  src: url('/static/fonts/Lora/Lora-Italic.ttf');
 }
 
 @font-face {
   font-family: 'Merriweather';
-  font-style: normal;
-  font-weight: 300;
-  src: url('/static/fonts/Merriweather/merriweather-v21-latin-300.woff');
-}
-
-@font-face {
-  font-family: 'Merriweather';
-  font-style: normal;
   font-weight: 400;
-  src: url('/static/fonts/Merriweather/merriweather-v21-latin-regular.woff');
+  font-style: normal;
+  src: url('/static/fonts/Merriweather/Merriweather-Regular.ttf');
 }
 
 @font-face {
   font-family: 'Merriweather';
-  font-style: normal;
   font-weight: 700;
-  src: url('/static/fonts/Merriweather/merriweather-v21-latin-700.woff');
+  font-style: normal;
+  src: url('/static/fonts/Merriweather/Merriweather-Bold.ttf');
 }
 
 @font-face {
   font-family: 'Merriweather';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Merriweather/Merriweather-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 400;
   font-style: normal;
-  font-weight: 900;
-  src: url('/static/fonts/Merriweather/merriweather-v21-latin-900.woff');
+  src: url('/static/fonts/Open_Sans/OpenSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Open_Sans/OpenSans-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Open_Sans/OpenSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Roboto/Roboto-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Roboto/Roboto-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Roboto/Roboto-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Crimson_Text/CrimsonText-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Crimson_Text/CrimsonText-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Crimson_Text/CrimsonText-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/SourceSerifPro-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/SourceSerifPro-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Source_Serif_Pro/SourceSerifPro-Italic.ttf');
 }
 
 @font-face {

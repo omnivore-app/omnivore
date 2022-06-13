@@ -3,14 +3,17 @@ import Utils
 
 public enum WebFont: String, CaseIterable {
   case inter = "Inter"
-  case merriweather = "Merriweather"
-  case lyon = "Lyon"
-  case tisa = "Tisa"
   case system = "unset"
+  case merriweather = "Merriweather"
+  case lora = "Lora"
+  case opensans = "Open Sans"
+  case roboto = "Roboto"
+  case crimsontext = "Crimson Text"
+  case sourceserifpro = "Source Serif Pro"
 
   var displayValue: String {
     switch self {
-    case .inter, .merriweather, .lyon, .tisa:
+    case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro:
       return rawValue
     case .system:
       return "System Default"
