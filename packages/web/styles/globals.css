@@ -82,6 +82,132 @@ div#appleid-signin {
 }
 
 @font-face {
+  font-family: 'Lora';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Lora/Lora-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Lora/Lora-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Lora/Lora-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Merriweather/Merriweather-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Merriweather/Merriweather-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Merriweather/Merriweather-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Open_Sans/OpenSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Open_Sans/OpenSans-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Open_Sans/OpenSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Roboto/Roboto-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Roboto/Roboto-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Roboto/Roboto-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Crimson_Text/CrimsonText-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Crimson_Text/CrimsonText-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Crimson_Text/CrimsonText-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/SourceSerifPro-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Source_Serif_Pro/SourceSerifPro-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Source_Serif_Pro/SourceSerifPro-Italic.ttf');
+}
+
+@font-face {
   font-family: 'SF Mono';
   font-weight: 400;
   font-style: normal;
