@@ -251,7 +251,7 @@ public extension DataService {
       }
     }
 
-    if item.isPDF && needsPDFDownload {
+    if item.isPDF, needsPDFDownload {
       try await fetchPDFData(slug: item.slug, pageURLString: item.pageURLString)
     }
 
