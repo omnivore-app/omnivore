@@ -39,9 +39,9 @@ public final class WebView: WKWebView {
     }
   }
 
-  public func updateMargin() {
-    if let margin = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebMargin.rawValue) as? Int {
-      dispatchEvent(.updateMargin(width: margin))
+  public func updateMaxWidthPercentage() {
+    if let maxWidthPercentage = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) as? Int {
+      dispatchEvent(.updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage))
     }
   }
 
@@ -240,7 +240,7 @@ public final class WebView: WKWebView {
 public enum WebViewDispatchEvent {
   case handleFontContrastChange(isHighContrast: Bool)
   case updateLineHeight(height: Int)
-  case updateMargin(width: Int)
+  case updateMaxWidthPercentage(maxWidthPercentage: Int)
   case updateFontSize(size: Int)
   case updateColorMode(isDark: Bool)
   case updateFontFamily(family: String)
@@ -262,8 +262,8 @@ public enum WebViewDispatchEvent {
       return "handleFontContrastChange"
     case .updateLineHeight:
       return "updateLineHeight"
-    case .updateMargin:
-      return "updateMargin"
+    case .updateMaxWidthPercentage:
+      return "updateMaxWidthPercentage"
     case .updateFontSize:
       return "updateFontSize"
     case .updateColorMode:
@@ -293,8 +293,8 @@ public enum WebViewDispatchEvent {
       return "event.fontContrast = '\(isHighContrast ? "high" : "normal")';"
     case let .updateLineHeight(height: height):
       return "event.lineHeight = '\(height)';"
-    case let .updateMargin(width: width):
-      return "event.margin = '\(width)';"
+    case let .updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage):
+      return "event.maxWidthPercentage = '\(maxWidthPercentage)';"
     case let .updateFontSize(size: size):
       return "event.fontSize = '\(size)';"
     case let .updateColorMode(isDark: isDark):

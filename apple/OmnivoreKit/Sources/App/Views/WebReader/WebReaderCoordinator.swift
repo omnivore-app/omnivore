@@ -18,7 +18,7 @@ final class WebReaderCoordinator: NSObject {
   var previousUpdateFontFamilyActionID: UUID?
   var previousUpdateFontActionID: UUID?
   var previousUpdateTextContrastActionID: UUID?
-  var previousUpdateMarginActionID: UUID?
+  var previousUpdateMaxWidthActionID: UUID?
   var previousUpdateLineHeightActionID: UUID?
   var previousShowNavBarActionID: UUID?
   var previousShareActionID: UUID?

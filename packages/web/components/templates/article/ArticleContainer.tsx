@@ -32,17 +32,19 @@ type ArticleContainerProps = {
   fontSize?: number
   fontFamily?: string
   lineHeight?: number
+  maxWidthPercentage?: number
   highContrastFont?: boolean
   showHighlightsModal: boolean
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
-  const [showShareModal, setShowShareModal] = useState(false)
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [marginOverride, setMarginOverride] = useState<number | null>(null)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
+    number | null
+  >(null)
   const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
     null
   )
@@ -99,14 +101,15 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       }
     }
 
-    interface UpdateMarginEvent extends Event {
-      margin?: number
+    interface UpdateMaxWidthPercentageEvent extends Event {
+      maxWidthPercentage?: number
     }
 
-    const updateMargin = (event: UpdateMarginEvent) => {
-      const newMargin = event.margin ?? marginOverride ?? 360
-      if (newMargin >= 200 && newMargin <= 560) {
-        setMarginOverride(newMargin)
+    const updateMaxWidthPercentage = (event: UpdateMaxWidthPercentageEvent) => {
+      const newMaxWidthPercentage =
+        event.maxWidthPercentage ?? maxWidthPercentageOverride ?? 100
+      if (newMaxWidthPercentage >= 40 && newMaxWidthPercentage <= 100) {
+        setMaxWidthPercentageOverride(newMaxWidthPercentage)
       }
     }
 
@@ -161,7 +164,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     document.addEventListener('updateFontFamily', updateFontFamily)
     document.addEventListener('updateLineHeight', updateLineHeight)
-    document.addEventListener('updateMargin', updateMargin)
+    document.addEventListener(
+      'updateMaxWidthPercentage',
+      updateMaxWidthPercentage
+    )
     document.addEventListener('updateFontSize', handleFontSizeChange)
     document.addEventListener('updateColorMode', updateColorMode)
     document.addEventListener(
@@ -173,7 +179,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
       document.removeEventListener('updateLineHeight', updateLineHeight)
-      document.removeEventListener('updateMargin', updateMargin)
+      document.removeEventListener(
+        'updateMaxWidthPercentage',
+        updateMaxWidthPercentage
+      )
       document.removeEventListener('updateFontSize', handleFontSizeChange)
       document.removeEventListener('updateColorMode', updateColorMode)
       document.removeEventListener(
@@ -186,7 +195,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
   const styles = {
     fontSize,
-    margin: marginOverride ?? props.margin ?? 360,
+    margin: props.margin ?? 360,
+    maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
     fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
     readerFontColor: highContrastFont
@@ -197,28 +207,13 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
-  // Margin should be in rage of 200...560
-  // For Apple embeds we want to convery that to
-  // a maxWidthPercentage with 40% as the lower bound
-  // (40% when margin is 560, 100% when margin is 200)
-  function appEmbedMaxWidthPercentage(margin: number): number {
-    if (margin < 200 || margin > 560) {
-      return 100
-    }
-
-    const ratio = (margin - 200) / 360
-    return 100 - ratio * 60
-  }
-
   return (
     <>
       <Box
         id="article-container"
         css={{
           padding: '16px',
-          maxWidth: props.isAppleAppEmbed
-            ? `${appEmbedMaxWidthPercentage(styles.margin)}%`
-            : '100%',
+          maxWidth: `${styles.maxWidthPercentage ?? 100}%`,
           background: props.isAppleAppEmbed
             ? 'unset'
             : theme.colors.grayBg.toString(),
@@ -241,7 +236,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: 1024 - styles.margin,
+            maxWidth: styles.maxWidthPercentage
+              ? `${styles.maxWidthPercentage}%`
+              : 1024 - styles.margin,
           },
         }}
       >

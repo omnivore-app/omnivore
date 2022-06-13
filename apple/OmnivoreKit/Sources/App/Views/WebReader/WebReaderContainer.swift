@@ -18,7 +18,7 @@ import WebKit
     @State var updateFontFamilyActionID: UUID?
     @State var updateFontActionID: UUID?
     @State var updateTextContrastActionID: UUID?
-    @State var updateMarginActionID: UUID?
+    @State var updateMaxWidthActionID: UUID?
     @State var updateLineHeightActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
     @State var showNavBarActionID: UUID?
@@ -152,7 +152,7 @@ import WebKit
             updateFontFamilyActionID: $updateFontFamilyActionID,
             updateFontActionID: $updateFontActionID,
             updateTextContrastActionID: $updateTextContrastActionID,
-            updateMarginActionID: $updateMarginActionID,
+            updateMaxWidthActionID: $updateMaxWidthActionID,
             updateLineHeightActionID: $updateLineHeightActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             showNavBarActionID: $showNavBarActionID,
@@ -204,7 +204,7 @@ import WebKit
           updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
           updateFontAction: { updateFontActionID = UUID() },
           updateTextContrastAction: { updateTextContrastActionID = UUID() },
-          updateMarginAction: { updateMarginActionID = UUID() },
+          updateMaxWidthAction: { updateMaxWidthActionID = UUID() },
           updateLineHeightAction: { updateLineHeightActionID = UUID() },
           dismissAction: { showPreferencesPopover = false }
         )
