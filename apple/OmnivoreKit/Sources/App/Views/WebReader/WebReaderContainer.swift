@@ -165,7 +165,7 @@ import WebKit
               showNavBarActionID = UUID()
             }
           }
-          .sheet(item: $safariWebLink) {
+          .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
           .sheet(isPresented: $showHighlightAnnotationModal) {
