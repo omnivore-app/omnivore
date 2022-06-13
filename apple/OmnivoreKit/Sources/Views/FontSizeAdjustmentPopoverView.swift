@@ -147,11 +147,12 @@ public struct WebPreferencesPopoverView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(
             action: dismissAction,
-            label: { Text("Done").foregroundColor(.appGrayTextContrast) }
+            label: { Text("Done").foregroundColor(.appGrayTextContrast).padding() }
           )
         }
       }
     }
+    .navigationViewStyle(.stack)
     .accentColor(.appGrayTextContrast)
   }
 }
