@@ -15,7 +15,7 @@ import WebKit
     @Binding var updateFontFamilyActionID: UUID?
     @Binding var updateFontActionID: UUID?
     @Binding var updateTextContrastActionID: UUID?
-    @Binding var updateMarginActionID: UUID?
+    @Binding var updateMaxWidthActionID: UUID?
     @Binding var updateLineHeightActionID: UUID?
     @Binding var annotationSaveTransactionID: UUID?
     @Binding var showNavBarActionID: UUID?
@@ -36,9 +36,9 @@ import WebKit
       return storedSize <= 1 ? 150 : storedSize
     }
 
-    func margin() -> Int {
-      let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebMargin.rawValue)
-      return storedSize <= 1 ? 360 : storedSize
+    func maxWidthPercentage() -> Int {
+      let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebMaxWidthPercentage.rawValue)
+      return storedSize <= 1 ? 100 : storedSize
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -94,9 +94,9 @@ import WebKit
         (webView as? WebView)?.updateTextContrast()
       }
 
-      if updateMarginActionID != context.coordinator.previousUpdateMarginActionID {
-        context.coordinator.previousUpdateMarginActionID = updateMarginActionID
-        (webView as? WebView)?.updateMargin()
+      if updateMaxWidthActionID != context.coordinator.previousUpdateMaxWidthActionID {
+        context.coordinator.previousUpdateMaxWidthActionID = updateMaxWidthActionID
+        (webView as? WebView)?.updateMaxWidthPercentage()
       }
 
       if updateLineHeightActionID != context.coordinator.previousUpdateLineHeightActionID {
@@ -147,7 +147,7 @@ import WebKit
           isDark: UITraitCollection.current.userInterfaceStyle == .dark,
           fontSize: fontSize(),
           lineHeight: lineHeight(),
-          margin: margin(),
+          maxWidthPercentage: maxWidthPercentage(),
           fontFamily: fontFamily
         )
         .styledContent,

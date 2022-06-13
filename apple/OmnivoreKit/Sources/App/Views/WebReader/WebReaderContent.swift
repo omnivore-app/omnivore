@@ -6,7 +6,7 @@ import Views
 struct WebReaderContent {
   let textFontSize: Int
   let lineHeight: Int
-  let margin: Int
+  let maxWidthPercentage: Int
   let item: LinkedItem
   let themeKey: String
   let fontFamily: WebFont
@@ -18,12 +18,12 @@ struct WebReaderContent {
     isDark: Bool,
     fontSize: Int,
     lineHeight: Int,
-    margin: Int,
+    maxWidthPercentage: Int,
     fontFamily: WebFont
   ) {
     self.textFontSize = fontSize
     self.lineHeight = lineHeight
-    self.margin = margin
+    self.maxWidthPercentage = maxWidthPercentage
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
     self.fontFamily = fontFamily
@@ -79,7 +79,7 @@ struct WebReaderContent {
 
           window.fontSize = \(textFontSize)
           window.fontFamily = "\(fontFamily.rawValue)"
-          window.margin = \(margin)
+          window.maxWidthPercentage = \(maxWidthPercentage)
           window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")
         </script>
