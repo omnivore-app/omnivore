@@ -38,7 +38,11 @@ import WebKit
 
     func margin() -> Int {
       let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebMargin.rawValue)
-      return storedSize <= 1 ? 360 : storedSize
+      if storedSize < 1 {
+        return UIDevice.isIPhone ? 200 : 360
+      } else {
+        return storedSize
+      }
     }
 
     func makeUIView(context: Context) -> WKWebView {

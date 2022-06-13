@@ -34,7 +34,7 @@ public struct WebPreferencesPopoverView: View {
   #endif
 
   @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
-  @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
+  @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = UIDevice.isIPhone ? 200 : 360
   @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
   @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = false
 
@@ -96,19 +96,17 @@ public struct WebPreferencesPopoverView: View {
               }
             )
 
-            if UIDevice.isIPad {
-              LabelledStepper(
-                labelText: "Margin:",
-                onIncrement: {
-                  storedMargin = min(storedMargin + 45, 560)
-                  updateMarginAction()
-                },
-                onDecrement: {
-                  storedMargin = max(storedMargin - 45, 200)
-                  updateMarginAction()
-                }
-              )
-            }
+            LabelledStepper(
+              labelText: "Margin:",
+              onIncrement: {
+                storedMargin = min(storedMargin + 45, 560)
+                updateMarginAction()
+              },
+              onDecrement: {
+                storedMargin = max(storedMargin - 45, 200)
+                updateMarginAction()
+              }
+            )
 
             LabelledStepper(
               labelText: "Line Spacing:",

@@ -197,13 +197,28 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     readerHeadersColor: theme.colors.readerHeader.toString(),
   }
 
+  // Margin should be in rage of 200...560
+  // For Apple embeds we want to convery that to
+  // a maxWidthPercentage with 40% as the lower bound
+  // (40% when margin is 560, 100% when margin is 200)
+  function appEmbedMaxWidthPercentage(margin: number): number {
+    if (margin < 200 || margin > 560) {
+      return 100
+    }
+
+    const ratio = (margin - 200) / 360
+    return 100 - ratio * 60
+  }
+
   return (
     <>
       <Box
         id="article-container"
         css={{
           padding: '16px',
-          maxWidth: props.isAppleAppEmbed ? 1024 - styles.margin : '100%',
+          maxWidth: props.isAppleAppEmbed
+            ? `${appEmbedMaxWidthPercentage(styles.margin)}%`
+            : '100%',
           background: props.isAppleAppEmbed
             ? 'unset'
             : theme.colors.grayBg.toString(),
@@ -226,11 +241,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: 1024 - styles.margin,
-          },
-          '@lg': {
-            margin: `30px 0`,
-            width: 'auto',
             maxWidth: 1024 - styles.margin,
           },
         }}
