@@ -2209,7 +2209,7 @@ Readability.prototype = {
     for (const element of Array.from(e.getElementsByTagName('a'))) {
 
       if (this.isEmbed(element)) {
-        continue;
+        return;
       }
 
       // Create tweets placeholders from links
@@ -2223,7 +2223,7 @@ Readability.prototype = {
           tweet.innerText = 'Tweet placeholder';
           tweet.className = 'tweet-placeholder';
           tweet.setAttribute('data-tweet-id', match[2]);
-          element.parentNode.replaceChild(tweet, element);
+          element.parentNode.replaceChildren(tweet);
 
           // remove all containers the tweet is nested in (if they contain the tweet only)
           let tweetParent = tweet.parentElement || tweet.parentNode;
