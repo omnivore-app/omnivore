@@ -54,18 +54,14 @@ public extension DataService {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
       let uploadRequest = try await uploadFileRequest(id: id, url: url)
+      print("UPLOAD REQUEST, ORIGINAL ID, NEW ID", id, uploadRequest.pageId)
       if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
-        let attr = try? FileManager.default.attributesOfItem(atPath: localPdfURL.path)
-        if let attr = attr {
-          print("ATTR", attr[.size])
-        }
-
-        try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
+        try await uploadFile(id: uploadRequest.pageId, localPdfURL: localPdfURL, url: uploadUrl)
       } else {
         throw SaveArticleError.badData
       }
 
-      try await updateLinkedItemStatus(id: id, newId: nil, status: .isNSync)
+      try await updateLinkedItemStatus(id: id, newId: uploadRequest.pageId, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }

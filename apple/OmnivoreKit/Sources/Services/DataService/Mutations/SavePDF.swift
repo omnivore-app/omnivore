@@ -4,6 +4,7 @@ import Models
 import SwiftGraphQL
 
 public struct UploadFileRequestPayload {
+  public let pageId: String
   public let uploadID: String?
   public let uploadFileID: String?
   public let urlString: String?
@@ -29,6 +30,7 @@ public extension DataService {
         uploadFileRequestSuccess: .init {
           .success(
             payload: UploadFileRequestPayload(
+              pageId: (try $0.createdPageId()) ?? id,
               uploadID: try $0.id(),
               uploadFileID: try $0.uploadFileId(),
               urlString: try $0.uploadSignedUrl()

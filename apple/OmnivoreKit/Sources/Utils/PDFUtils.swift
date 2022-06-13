@@ -35,12 +35,21 @@ public enum PDFUtils {
     let url = FileManager.default
       .urls(for: .documentDirectory, in: .userDomainMask)[0]
       .appendingPathComponent(filename)
+
     return url
   }
 
   public static func exists(filename: String?) -> Bool {
     if let filename = filename, let localPdfURL = localPdfURL(filename: filename) {
-      return FileManager.default.fileExists(atPath: localPdfURL.absoluteString)
+      let result = FileManager.default.fileExists(atPath: localPdfURL.path)
+      return result
+    }
+    return false
+  }
+
+  public static func tempExists(tempPDFURL: URL?) -> Bool {
+    if let tempPDFURL = tempPDFURL {
+      return FileManager.default.fileExists(atPath: tempPDFURL.path)
     }
     return false
   }

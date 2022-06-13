@@ -47,7 +47,7 @@ public extension LinkedItem {
   var isReadyToRead: Bool {
     if isPDF {
       // If its a PDF we verify the local file is available
-      return PDFUtils.exists(filename: localPDF)
+      return PDFUtils.exists(filename: localPDF) || PDFUtils.tempExists(tempPDFURL: tempPDFURL)
     }
     // Check the state and whether we have HTML
     return state == "SUCCEEDED"

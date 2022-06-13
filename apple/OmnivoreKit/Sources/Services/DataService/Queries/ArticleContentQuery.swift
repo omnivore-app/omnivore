@@ -195,6 +195,8 @@ public extension DataService {
   }
 
   internal func persistArticleContent(item: InternalLinkedItem, htmlContent: String, highlights: [InternalHighlight]) async throws {
+    var needsPDFDownload = false
+
     try await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
@@ -226,9 +228,30 @@ public extension DataService {
       linkedItem.isArchived = item.isArchived
       linkedItem.contentReader = item.contentReader
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
+
+      if item.isPDF {
+        needsPDFDownload = true
+
+        // Check if we already have the PDF item locally. Either in temporary
+        // space, or in the documents directory
+        if let localPDF = existingItem?.localPDF {
+          if PDFUtils.exists(filename: localPDF) {
+            linkedItem.localPDF = localPDF
+            needsPDFDownload = false
+          }
+        }
+
+        if let tempPDFURL = existingItem?.tempPDFURL {
+          linkedItem.localPDF = try? PDFUtils.moveToLocal(url: tempPDFURL)
+          PDFUtils.exists(filename: linkedItem.localPDF)
+          if linkedItem.localPDF != nil {
+            needsPDFDownload = false
+          }
+        }
+      }
     }
 
-    if item.isPDF {
+    if item.isPDF && needsPDFDownload {
       try await fetchPDFData(slug: item.slug, pageURLString: item.pageURLString)
     }
 
@@ -275,6 +298,7 @@ public extension DataService {
         try data.write(to: tempPath)
         let localPDF = try PDFUtils.moveToLocal(url: tempPath)
         localPdfURL = PDFUtils.localPdfURL(filename: localPDF)
+        linkedItem.tempPDFURL = nil
         linkedItem.localPDF = localPDF
         try self?.backgroundContext.save()
       } catch {
