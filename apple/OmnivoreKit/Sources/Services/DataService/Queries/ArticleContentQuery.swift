@@ -251,30 +251,17 @@ public extension DataService {
       }
     }
 
-    if item.isPDF {
-      if needsPDFDownload {
-        print("PDF does not exist, downloading", item.id, item.title)
-        try await backgroundContext.perform {
-          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-          fetchRequest.predicate = NSPredicate(format: "id == %@", item.id)
-
-          let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
-          print("EXISTING ITEM", existingItem)
-        }
-
-        try await fetchPDFData(slug: item.slug, pageURLString: item.pageURLString)
-      } else {
-        print("PDF already exists, not downloading", item.id)
-      }
+    if item.isPDF && needsPDFDownload {
+      try await fetchPDFData(slug: item.slug, pageURLString: item.pageURLString)
     }
 
     try await backgroundContext.perform { [weak self] in
       do {
         try self?.backgroundContext.save()
-        // logger.debug("ArticleContent saved succesfully")
+        logger.debug("ArticleContent saved succesfully")
       } catch {
         self?.backgroundContext.rollback()
-        // logger.debug("Failed to save ArticleContent")
+        logger.debug("Failed to save ArticleContent")
         throw error
       }
     }

@@ -97,7 +97,6 @@ public final class PDFViewerViewModel: ObservableObject {
       if let tempURL = pdfItem.tempPDFURL {
         if let localURL = try? PDFUtils.copyToLocal(url: tempURL) {
           return tempURL
-          // return URL(string: localURL)
         }
       }
       if let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL) {
