@@ -143,6 +143,14 @@ public struct WebPreferencesPopoverView: View {
       .padding()
       .navigationTitle("Reader Preferences")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button(
+            action: dismissAction,
+            label: { Text("Done").foregroundColor(.appGrayTextContrast) }
+          )
+        }
+      }
     }
     .accentColor(.appGrayTextContrast)
   }
