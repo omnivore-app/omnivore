@@ -3,7 +3,7 @@ import {
   ModalContent,
   ModalOverlay,
 } from '../../elements/ModalPrimitives'
-import { VStack, HStack, Box } from '../../elements/LayoutPrimitives'
+import { VStack, HStack, Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
@@ -69,15 +69,15 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
           ;(document.activeElement as HTMLElement).blur()
         }}
       >
-        <VStack distribution="start" css={{ p: '$2' }}>
+        <VStack distribution="start">
           <HStack
             distribution="between"
             alignment="center"
-            css={{ width: '100%', mt: '4px' }}
+            css={{ width: '100%', mt: '4px', px: '16px', py: '16px' }}
           >
             <StyledText style="modalHeadline">Add a Link</StyledText>
             <Button
-              css={{ p: '10px', cursor: 'pointer', pt: '2px' }}
+              css={{ cursor: 'pointer',  }}
               style="ghost"
               onClick={() => {
                 props.onOpenChange(false)
@@ -89,8 +89,8 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
               />
             </Button>
           </HStack>
-          <StyledText css={{ mt: '22px', mb: '6px' }}>Link</StyledText>
-          <Box css={{ width: '100%' }}>
+          <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />          
+          <Box css={{ width: '100%',  px: '16px', pt: '42px', pb: '24px' }}>
             <form
               onSubmit={(event) => {
                 event.preventDefault()
@@ -121,10 +121,10 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                   borderRadius: '8px',
                   border: '1px solid $grayTextContrast',
                   width: '100%',
-                  p: '$2',
+                  p: '6px',
                 }}
               />
-              <HStack distribution="center" css={{ mt: '12px', width: '100%' }}>
+              <HStack distribution="end" css={{ mt: '16px', width: '100%' }}>
                 <Button style="ctaDarkYellow" css={{ mb: '0px' }}>
                   Add Link
                 </Button>
