@@ -82,19 +82,13 @@ export function FormModal(props: FormModalProps): JSX.Element {
                 </HStack>
               ))}
               <HStack
-                alignment={'center'}
-                distribution="center"
+                alignment="end"
+                distribution="end"
                 css={{
-                  padding: '20px 0 20px 0',
+                  width: '100%',
+                  padding: '32px 22px 20px 0',
                 }}
               >
-                <Button
-                  style={'ctaPill'}
-                  onClick={() => props.onOpenChange(false)}
-                  css={{ marginRight: '20px' }}
-                >
-                  Cancel
-                </Button>
                 <Button style={'ctaDarkYellow'}>
                   {props.acceptButtonLabel || 'Submit'}
                 </Button>
