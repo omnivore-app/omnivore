@@ -83,6 +83,10 @@ import WebKit
           content: {
             Group {
               Button(
+                action: { print("show edit modal") },
+                label: { Label("Edit Title/Description", systemImage: "textbox") }
+              )
+              Button(
                 action: { showLabelsModal = true },
                 label: { Label("Edit Labels", systemImage: "tag") }
               )

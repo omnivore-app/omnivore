@@ -44,6 +44,10 @@ public struct GridCard: View {
   var contextMenuView: some View {
     Group {
       Button(
+        action: { print("show edit modal") },
+        label: { Label("Edit Title/Description", systemImage: "textbox") }
+      )
+      Button(
         action: { menuActionHandler(.editLabels) },
         label: { Label("Edit Labels", systemImage: "tag") }
       )

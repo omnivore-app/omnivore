@@ -27,6 +27,10 @@ import Views
             )
             .contextMenu {
               Button(
+                action: { print("show edit modal") },
+                label: { Label("Edit Title/Description", systemImage: "textbox") }
+              )
+              Button(
                 action: { viewModel.itemUnderLabelEdit = item },
                 label: { Label("Edit Labels", systemImage: "tag") }
               )

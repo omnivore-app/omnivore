@@ -207,6 +207,10 @@ struct LinkItemDetailView: View {
         content: {
           Group {
             Button(
+              action: { print("show edit modal") },
+              label: { Label("Edit Title/Description", systemImage: "textbox") }
+            )
+            Button(
               action: { viewModel.handleArchiveAction(dataService: dataService) },
               label: {
                 Label(
