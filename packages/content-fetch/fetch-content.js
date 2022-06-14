@@ -63,6 +63,7 @@ const enableJavascriptForUrl = async (url) => {
 
 // launch Puppeteer
 const getBrowserPromise = (async () => {
+  console.log("starting with proxy url", process.env.PROXY_URL)
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -328,20 +329,6 @@ async function fetchContent(req, res) {
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
       console.log(`parse-page`, logRecord);
-
-      // return res.send({
-      //     url: finalUrl,
-      //     articleSavingRequestId,
-      //     preparedDocument: {
-      //       document: content,
-      //       pageInfo: {
-      //         title,
-      //         canonicalUrl: finalUrl,
-      //       },
-      //     },
-      //     skipParsing: !content,
-      //     timeTaken: Date.now() - functionStartTime,
-      //   })
     }
   } catch (e) {
     console.log('error', e)
