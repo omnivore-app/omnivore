@@ -123,7 +123,7 @@ export function Table(props: TableProps): JSX.Element {
                   },
                 }}
               >
-                <SpanBox>Add More</SpanBox>
+                <SpanBox>Create</SpanBox>
               </SpanBox>
               <SpanBox
                 css={{
