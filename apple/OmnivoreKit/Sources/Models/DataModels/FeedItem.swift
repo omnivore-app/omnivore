@@ -111,7 +111,9 @@ public extension LinkedItem {
     inContext context: NSManagedObjectContext,
     newReadingProgress: Double? = nil,
     newAnchorIndex: Int? = nil,
-    newIsArchivedValue: Bool? = nil
+    newIsArchivedValue: Bool? = nil,
+    newTitle: String? = nil,
+    newDescription: String? = nil
   ) {
     context.perform {
       if let newReadingProgress = newReadingProgress {
@@ -124,6 +126,14 @@ public extension LinkedItem {
 
       if let newIsArchivedValue = newIsArchivedValue {
         self.isArchived = newIsArchivedValue
+      }
+
+      if let newTitle = newTitle {
+        self.title = newTitle
+      }
+
+      if let newDescription = newDescription {
+        self.descriptionText = newDescription
       }
 
       guard context.hasChanges else { return }

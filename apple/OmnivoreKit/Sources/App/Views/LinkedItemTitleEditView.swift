@@ -4,10 +4,8 @@ import SwiftUI
 import Views
 
 @MainActor final class LinkedItemTitleEditViewModel: ObservableObject {
-  @Published var isLoading = false
   @Published var title = ""
   @Published var description = ""
-  @Published var errorMessage: String?
 
   func load(item: LinkedItem) {
     title = item.unwrappedTitle
@@ -15,17 +13,17 @@ import Views
   }
 
   func submit(dataService: DataService, item: LinkedItem) {
-    isLoading = true
-    print(item.title)
-    print(dataService.currentViewer?.unwrappedName)
-    isLoading = false
+    dataService.updateLinkedItemTitleAndDescription(
+      itemID: item.unwrappedID,
+      title: title,
+      description: description
+    )
   }
 }
 
 struct LinkedItemTitleEditView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @StateObject var viewModel = LinkedItemTitleEditViewModel()
 
   let item: LinkedItem
@@ -56,13 +54,7 @@ struct LinkedItemTitleEditView: View {
                 .strokeBorder(Color.appGrayBorder, lineWidth: 1)
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.systemBackground))
             )
-            .frame(height: 160)
-        }
-
-        if let errorMessage = viewModel.errorMessage {
-          Text(errorMessage)
-            .font(.appCaption)
-            .foregroundColor(.red)
+            .frame(height: 200)
         }
       }
       .padding()
@@ -80,6 +72,7 @@ struct LinkedItemTitleEditView: View {
             Button(
               action: {
                 viewModel.submit(dataService: dataService, item: item)
+                presentationMode.wrappedValue.dismiss()
               },
               label: { Text("Save").foregroundColor(.appGrayTextContrast) }
             )
