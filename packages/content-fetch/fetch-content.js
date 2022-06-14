@@ -86,8 +86,9 @@ const getBrowserPromise = (async () => {
       '--no-sandbox',
       '--no-zygote',
       '--use-gl=swiftshader',
-      '--window-size=1920,1080', // https://source.chromium.org/search?q=lang:cpp+symbol:kWindowSize&ss=chromium
-    ],
+      process.env.PROXY_URL ? '--proxy-server=' + process.env.PROXY_URL : undefined,
+      '--window-size=1920,1080',
+    ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
     headless: true,
@@ -177,7 +178,6 @@ const sendCreateArticleMutation = async (userId, input) => {
       'Content-Type': 'application/json',
     },
   });
-  console.log('response', response);
   return response.data.data.createArticle;
 };
 
