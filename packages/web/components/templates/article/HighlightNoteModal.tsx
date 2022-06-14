@@ -126,7 +126,7 @@ export function HighlightNoteModal(
               padding: '22px 22px 20px 0',
             }}
           >
-            <Button style={'ctaDarkYellow'} onClick={props.saveNoteChanges}>
+            <Button style={'ctaDarkYellow'} onClick={saveNoteChanges}>
               Save
             </Button>
           </HStack>
