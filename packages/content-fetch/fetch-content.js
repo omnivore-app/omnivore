@@ -665,6 +665,9 @@ async function retrieveHtml(page) {
       };
     }
   }
+  console.log('DOM CONTENT')
+  console.log(domContent)
+
   if (domContent == 'IS_BLOCKED') {
     return { isBlocked: true };
   }
