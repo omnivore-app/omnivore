@@ -132,7 +132,7 @@ export default function Api(): JSX.Element {
               name: 'expiredAt',
               required: true,
               onChange: (e) => {
-                var additionalDays = 0
+                let additionalDays = 0
                 switch(e.target.value) {
                   case '7 days':
                     additionalDays = 7
@@ -147,7 +147,7 @@ export default function Api(): JSX.Element {
                     additionalDays = 365
                     break
                 }
-                var newExpires = new Date()
+                const newExpires = new Date()
                 newExpires.setDate(newExpires.getDate() + additionalDays)
                 setExpiresAt(newExpires)
               },
