@@ -28,6 +28,8 @@ const NON_SCRIPT_HOSTS= ['medium.com']
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
+const { parseHTML } = require('linkedom');
+
 // Add stealth plugin to hide puppeteer usage
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
@@ -46,6 +48,21 @@ const userAgentForUrl = (url) => {
   }
   return DESKTOP_USER_AGENT
 };
+
+const fetchContentWithScrapingBee = async (url) => {
+  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+    params: {
+      'api_key':  process.env.SCRAPINGBEE_API_KEY,
+      'url': url,
+      'render_js': 'false',
+      'premium_proxy': 'true',
+      'country_code':'us'
+    }
+  })
+
+  const dom = parseHTML(response.data).document;
+  return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
+}
 
 const enableJavascriptForUrl = async (url) => {
   try {
@@ -304,8 +321,15 @@ async function fetchContent(req, res) {
     } else {
       if (!content || !title) {
         const result = await retrieveHtml(page);
-        title = result.title;
-        content = result.domContent;
+        if (result.isBlocked) {
+          console.log("PAGE IS BLOCKED", url)
+          const sbResult = await fetchContentWithScrapingBee(url)
+          title = sbResult.title
+          content = sbResult.domContent
+        } else {
+          title = result.title;
+          content = result.domContent;
+        }
       } else {
         console.log('using prefetched content and title');
         console.log(content);
@@ -407,7 +431,8 @@ async function retrievePage(url) {
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
   const context = await browser.createIncognitoBrowserContext();
-  const page = await context.newPage();
+  const page = await context.newPage()
+
   if (!enableJavascriptForUrl(url)) {
     page.setJavaScriptEnabled(false)
   }
@@ -547,7 +572,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      page.waitForTimeout(1000), //5 second timeout
+      page.waitForTimeout(1000),
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
@@ -615,6 +640,11 @@ async function retrieveHtml(page) {
           }
         }
       });
+
+      if (document.querySelector('[data-translate="managed_checking_msg"]')) {
+        return 'IS_BLOCKED'
+      }
+
       return document.documentElement.outerHTML;
     }, iframes);
     logRecord.puppeteerSuccess = true;
@@ -634,6 +664,9 @@ async function retrieveHtml(page) {
         stack: e.stack,
       };
     }
+  }
+  if (domContent == 'IS_BLOCKED') {
+    return { isBlocked: true };
   }
   return { domContent, title };
 }
