@@ -1,8 +1,8 @@
 import { styled } from '../tokens/stitches.config'
 import { useState } from 'react'
 import Checkbox from './Checkbox'
-import { Box, HStack, VStack } from './LayoutPrimitives'
-import { StyledText } from './StyledText'
+import { HStack, VStack } from './LayoutPrimitives'
+import { Label } from '@radix-ui/react-dropdown-menu'
 
 export interface FormInputProps {
   name: string
@@ -43,28 +43,41 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
   const [input, setInput] = useState<FormInputProps>(props)
 
   if (props.type === 'checkbox') {
+    const StyledLabel = styled(Label, {
+      color: '$grayTextContrast',
+      fontSize: 13,
+      padding: '5px 10px',
+      cursor: 'default',
+    })
+
     return (
       <VStack>
         {input.options?.map((label, index) => (
-          <HStack key={index}>
-            <StyledText>{label}</StyledText>
-            <Box css={{ padding: '10px 0 0 10px' }}>
-              <Checkbox
-                key={index}
-                checked={input.value[index]}
-                setChecked={(arg) => {
-                  input.value[index] = arg
-                  setInput(input)
-                  props.onChange &&
-                    props.onChange(
-                      input.options?.filter((_, i) => input.value[i])
-                    )
-                }}
-              ></Checkbox>
-            </Box>
+          <HStack key={index} alignment='center'>
+            <Checkbox
+              key={index}
+              checked={input.value[index]}
+              setChecked={(arg) => {
+                input.value[index] = arg
+                setInput(input)
+                props.onChange &&
+                  props.onChange(
+                    input.options?.filter((_, i) => input.value[i])
+                  )
+              }}
+            ></Checkbox>
+            <StyledLabel>{label}</StyledLabel>
           </HStack>
         ))}
       </VStack>
+    )
+  } else if (props.type === 'select') {
+    return (
+      <select onChange={input.onChange}>
+        {input.options?.map((label, index) => (
+          <option key={index} value={label}>{label}</option>
+        ))}
+      </select>
     )
   } else {
     return (

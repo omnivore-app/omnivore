@@ -261,7 +261,7 @@ export default function EmailsPage(): JSX.Element {
               }}
             >
               <StyledText
-                style="highlightTitle"
+                style="menuTitle"
                 css={{
                   color: '$grayTextContrast',
                 }}
@@ -271,7 +271,7 @@ export default function EmailsPage(): JSX.Element {
             </Box>
             <Box style={{ flex: '51%' }}>
               <StyledText
-                style="highlightTitle"
+                style="menuTitle"
                 css={{
                   color: '$grayTextContrast',
                 }}
