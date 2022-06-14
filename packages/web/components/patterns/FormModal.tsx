@@ -72,11 +72,11 @@ export function FormModal(props: FormModalProps): JSX.Element {
                       paddingTop: '5px',
                     }}
                   >
-                    <StyledText style={'highlightTitle'}>
+                    <StyledText style={'menuTitle'}>
                       {input.label}
                     </StyledText>
                   </Box>
-                  <Box css={{ width: '100%' }}>
+                  <Box css={{ width: '100%', marginRight: '20px' }}>
                     <GeneralFormInput {...input} />
                   </Box>
                 </HStack>

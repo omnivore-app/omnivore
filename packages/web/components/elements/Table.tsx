@@ -150,7 +150,7 @@ export function Table(props: TableProps): JSX.Element {
           >
             <StyledText
               key={index}
-              style="highlightTitle"
+              style="menuTitle"
               css={{
                 color: '$grayTextContrast',
                 '@md': {

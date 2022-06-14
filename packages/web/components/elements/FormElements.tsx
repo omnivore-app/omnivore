@@ -66,6 +66,14 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
         ))}
       </VStack>
     )
+  } else if (props.type === 'select') {
+    return (
+      <select onChange={input.onChange}>
+        {input.options?.map((label, index) => (
+          <option key={index} value={label}>{label}</option>
+        ))}
+      </select>
+    )
   } else {
     return (
       <FormInput
