@@ -10,6 +10,7 @@ import WebKit
 
     @State private var showPreferencesPopover = false
     @State private var showLabelsModal = false
+    @State private var showTitleEdit = false
     @State var showHighlightAnnotationModal = false
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
@@ -83,7 +84,7 @@ import WebKit
           content: {
             Group {
               Button(
-                action: { print("show edit modal") },
+                action: { showTitleEdit = true },
                 label: { Label("Edit Title/Description", systemImage: "textbox") }
               )
               Button(
@@ -133,6 +134,9 @@ import WebKit
       }
       .sheet(isPresented: $showLabelsModal) {
         ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
+      }
+      .sheet(isPresented: $showTitleEdit) {
+        LinkedItemTitleEditView(item: item)
       }
     }
 

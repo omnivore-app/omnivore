@@ -55,6 +55,9 @@ import Views
         .sheet(item: $viewModel.itemUnderLabelEdit) { item in
           ApplyLabelsView(mode: .item(item), onSave: nil)
         }
+        .sheet(item: $viewModel.itemUnderTitleEdit) { item in
+          LinkedItemTitleEditView(item: item)
+        }
         .toolbar {
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
@@ -231,7 +234,7 @@ import Views
             )
             .contextMenu {
               Button(
-                action: { print("show edit modal") },
+                action: { viewModel.itemUnderTitleEdit = item },
                 label: { Label("Edit Title/Description", systemImage: "textbox") }
               )
               Button(
@@ -348,6 +351,8 @@ import Views
         confirmationShown = true
       case .editLabels:
         viewModel.itemUnderLabelEdit = item
+      case .editTitle:
+        viewModel.itemUnderTitleEdit = item
       }
     }
 
