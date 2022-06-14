@@ -119,6 +119,7 @@ struct LinkItemDetailView: View {
   static let navBarHeight = 50.0
   @ObservedObject private var viewModel: LinkItemDetailViewModel
   @State private var showFontSizePopover = false
+  @State private var showTitleEdit = false
   @State private var navBarVisibilityRatio = 1.0
   @State private var showDeleteConfirmation = false
 
@@ -207,6 +208,10 @@ struct LinkItemDetailView: View {
         content: {
           Group {
             Button(
+              action: { showTitleEdit = true },
+              label: { Label("Edit Title/Description", systemImage: "textbox") }
+            )
+            Button(
               action: { viewModel.handleArchiveAction(dataService: dataService) },
               label: {
                 Label(
@@ -239,6 +244,11 @@ struct LinkItemDetailView: View {
         viewModel.handleDeleteAction(dataService: dataService)
       }
       Button("Cancel", role: .cancel, action: {})
+    }
+    .sheet(isPresented: $showTitleEdit) {
+      if let item = viewModel.item {
+        LinkedItemTitleEditView(item: item)
+      }
     }
   }
 
