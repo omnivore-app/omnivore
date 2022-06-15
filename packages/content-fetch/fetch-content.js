@@ -104,7 +104,6 @@ const getBrowserPromise = (async () => {
       '--no-sandbox',
       '--no-zygote',
       '--use-gl=swiftshader',
-      process.env.PROXY_URL ? '--proxy-server=' + process.env.PROXY_URL : undefined,
       '--window-size=1920,1080',
     ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
@@ -667,7 +666,6 @@ async function retrieveHtml(page) {
   }
   console.log('DOM CONTENT')
   console.log(domContent)
-
   if (domContent == 'IS_BLOCKED') {
     return { isBlocked: true };
   }
