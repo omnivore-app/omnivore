@@ -5023,19 +5023,19 @@
     any-observable "^0.3.0"
 
 "@segment/analytics-next@^1.33.5":
-  version "1.34.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.34.0.tgz#dfc0ec53a39f3131adf7181d6f6cc74a84f7e8c5"
-  integrity sha512-3hbpLhMqgBrdv8WWB+qZY34F0SE4qx+zbx28D5YHpI5U1u0dEd34IjNSoBigkEHVNOV2Z1Rkyr1UBbQtZVb6Xw==
+  version "1.38.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.38.0.tgz#efbe0e1f8a3c6bd1522efad8d5ba70ed8c0af4e4"
+  integrity sha512-904AYNi6wekvAVcaVGQhcH5Jeif98JvN5YEmsuiDuw+j6oiWijdJN6krY4QLh703zPIJvZVf5j+JSh13mZNaiA==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics.js-video-plugins" "^0.2.1"
-    "@segment/facade" "3.4.8"
-    "@segment/tsub" "^0.1.10"
-    dset "^3.0.0"
+    "@segment/facade" "^3.4.9"
+    "@segment/tsub" "^0.1.12"
+    dset "^3.1.2"
     js-cookie "^2.2.1"
-    node-fetch "^2.6.1"
+    node-fetch "^2.6.7"
     spark-md5 "^3.0.1"
-    tslib "^2.1.0"
+    tslib "^2.4.0"
     unfetch "^4.1.0"
 
 "@segment/analytics.js-video-plugins@^0.2.1":
@@ -5045,10 +5045,10 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/facade@3.4.8":
-  version "3.4.8"
-  resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.4.8.tgz#6a8b669115c9a0b1903d3ee2364f62e267a47cc6"
-  integrity sha512-WFtyFUcDPHaUB1Rikrn8dZVCLPkdJmkkHSTgL5gwI8qKuZzRkpsKyeFUmmehmYbF1Jw+sESzKXzf23DFkKFm3A==
+"@segment/facade@^3.4.9":
+  version "3.4.9"
+  resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.4.9.tgz#07e614073fa873910035c085e69bccd27df088a6"
+  integrity sha512-0RTLB0g4HiJASc6pTD2/Tru+Qz+VPGL1W+/EvkBGhY6WYk00cZhTjLsMJ8X5BO6iPqLb3vsxtfjVM/RREG5oQQ==
   dependencies:
     "@segment/isodate-traverse" "^1.1.1"
     inherits "^2.0.4"
@@ -5075,14 +5075,14 @@
     component-type "^1.2.1"
     join-component "^1.1.0"
 
-"@segment/tsub@^0.1.10":
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@segment/tsub/-/tsub-0.1.10.tgz#7f6d323751d39f4d3c91f1e8b496b50246782b83"
-  integrity sha512-3Ov132lcoMYU6N9QtLncUjvhD80QhikLPhLAWg6zPkOijfv4AI0x8MNaXcuDEHRfPtF2rri4vZ3EsRlleTifew==
+"@segment/tsub@^0.1.12":
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/@segment/tsub/-/tsub-0.1.12.tgz#1c301a8b81e5dbda54eb0435ae808fbe65553f23"
+  integrity sha512-35JB0+HuMZrn7mus/s4yOHAcuid+MzaOYxV8YAogTR4Z7AsHwn/Zn/y9XdoHp2kKdn54s6jO4IaO826v0j7qmw==
   dependencies:
     "@stdlib/math-base-special-ldexp" "^0.0.5"
     dlv "^1.1.3"
-    dset "3.1.1"
+    dset "^3.1.1"
     tiny-hashes "^1.0.1"
 
 "@sendgrid/client@^7.6.0":
@@ -12371,10 +12371,10 @@ downshift@^6.0.15:
     react-is "^17.0.2"
     tslib "^2.3.0"
 
-dset@3.1.1, dset@^3.0.0, dset@^3.1.0:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.1.tgz#07de5af7a8d03eab337ad1a8ba77fe17bba61a8c"
-  integrity sha512-hYf+jZNNqJBD2GiMYb+5mqOIX4R4RRHXU3qWMWYN+rqcR2/YpRL2bUHr8C8fU+5DNvqYjJ8YvMGSLuVPWU1cNg==
+dset@^3.1.0, dset@^3.1.1, dset@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/dset/-/dset-3.1.2.tgz#89c436ca6450398396dc6538ea00abc0c54cd45a"
+  integrity sha512-g/M9sqy3oHe477Ar4voQxWtaPIFw1jTdKZuomOjhCcBx9nHUNn0pu6NopuFFrTh/TRZIKEj+76vLWFu9BNKk+Q==
 
 duplexer3@^0.1.4:
   version "0.1.4"
@@ -23713,15 +23713,20 @@ tslib@^1.0.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2, tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1, tslib@~2.3.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
-  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
+tslib@^2, tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1, tslib@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
+  integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
 tslib@~2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.3.tgz#8e0741ac45fc0c226e58a17bfc3e64b9bc6ca61c"
   integrity sha512-uZtkfKblCEQtZKBF6EBXVZeQNl82yqtDQdv+eck8u7tdPxjLu2/lp5/uPW+um2tpuxINHWy3GhiccY7QgEaVHQ==
+
+tslib@~2.3.0:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsutils@^3.21.0:
   version "3.21.0"
