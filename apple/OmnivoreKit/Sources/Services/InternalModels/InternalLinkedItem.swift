@@ -7,6 +7,7 @@ struct InternalLinkedItem {
   let title: String
   let createdAt: Date
   let savedAt: Date
+  let readAt: Date?
   let updatedAt: Date
   let state: String
   var readingProgress: Double
@@ -42,6 +43,7 @@ struct InternalLinkedItem {
     linkedItem.createdAt = createdAt
     linkedItem.savedAt = savedAt
     linkedItem.updatedAt = updatedAt
+    linkedItem.readAt = readAt
     linkedItem.state = state
     linkedItem.readingProgress = readingProgress
     linkedItem.readingProgressAnchor = Int64(readingProgressAnchor)
@@ -53,6 +55,7 @@ struct InternalLinkedItem {
     linkedItem.siteName = siteName
     linkedItem.author = author
     linkedItem.publishDate = publishDate
+    linkedItem.readAt = readAt
     linkedItem.slug = slug
     linkedItem.isArchived = isArchived
     linkedItem.contentReader = contentReader
@@ -99,6 +102,7 @@ extension JSONArticle {
       title: title,
       createdAt: createdAt,
       savedAt: savedAt,
+      readAt: readAt,
       updatedAt: updatedAt,
       state: "SUCCEEDED",
       readingProgress: readingProgressPercent,

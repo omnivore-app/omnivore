@@ -101,6 +101,7 @@ public extension DataService {
           title: try $0.title(),
           createdAt: try $0.createdAt().value ?? Date(),
           savedAt: try $0.savedAt().value ?? Date(),
+          readAt: try $0.readAt()?.value,
           updatedAt: try $0.updatedAt().value ?? Date(),
           state: try $0.state()?.rawValue ?? "SUCCEEDED",
           readingProgress: try $0.readingProgressPercent(),
@@ -225,6 +226,7 @@ public extension DataService {
       linkedItem.author = item.author
       linkedItem.publishDate = item.publishDate
       linkedItem.slug = item.slug
+      linkedItem.readAt = item.readAt
       linkedItem.isArchived = item.isArchived
       linkedItem.contentReader = item.contentReader
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)

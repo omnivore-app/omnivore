@@ -681,6 +681,7 @@ extension Objects {
     let pageType: [String: Enums.PageType]
     let postedByViewer: [String: Bool]
     let publishedAt: [String: DateTime]
+    let readAt: [String: DateTime]
     let readingProgressAnchorIndex: [String: Int]
     let readingProgressPercent: [String: Double]
     let savedAt: [String: DateTime]
@@ -793,6 +794,10 @@ extension Objects.Article: Decodable {
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "readAt":
+        if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "readingProgressAnchorIndex":
         if let value = try container.decode(Int?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -890,6 +895,7 @@ extension Objects.Article: Decodable {
     pageType = map["pageType"]
     postedByViewer = map["postedByViewer"]
     publishedAt = map["publishedAt"]
+    readAt = map["readAt"]
     readingProgressAnchorIndex = map["readingProgressAnchorIndex"]
     readingProgressPercent = map["readingProgressPercent"]
     savedAt = map["savedAt"]
@@ -1214,6 +1220,21 @@ extension Fields where TypeLock == Objects.Article {
     switch response {
     case let .decoding(data):
       return data.publishedAt[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func readAt() throws -> DateTime? {
+    let field = GraphQLField.leaf(
+      name: "readAt",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.readAt[field.alias!]
     case .mocking:
       return nil
     }
