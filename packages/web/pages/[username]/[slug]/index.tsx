@@ -151,6 +151,7 @@ export default function Home(): JSX.Element {
         <ArticleActionsMenu
           article={article}
           layout='top'
+          fontFamily={readerSettings.fontFamily}
           lineHeight={readerSettings.lineHeight}
           marginWidth={readerSettings.marginWidth}
           showReaderDisplaySettings={article?.contentReader != 'PDF'}
@@ -188,6 +189,7 @@ export default function Home(): JSX.Element {
           <ArticleActionsMenu
             article={article}
             layout='side'
+            fontFamily={readerSettings.fontFamily}
             lineHeight={readerSettings.lineHeight}
             marginWidth={readerSettings.marginWidth}
             showReaderDisplaySettings={true}
@@ -224,6 +226,7 @@ export default function Home(): JSX.Element {
                 fontSize={readerSettings.fontSize}
                 margin={readerSettings.marginWidth}
                 lineHeight={readerSettings.lineHeight}
+                fontFamily={readerSettings.fontFamily}
                 labels={labels}
                 showHighlightsModal={showHighlightsModal}
                 setShowHighlightsModal={setShowHighlightsModal}
@@ -259,6 +262,7 @@ export default function Home(): JSX.Element {
         <DisplaySettingsModal
           lineHeight={readerSettings.lineHeight}
           marginWidth={readerSettings.marginWidth}
+          fontFamily={readerSettings.fontFamily}
           articleActionHandler={actionHandler}
           onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
         />

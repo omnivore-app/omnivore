@@ -16,6 +16,7 @@ type ArticleActionsMenuProps = {
   layout: ArticleActionsMenuLayout
   lineHeight: number
   marginWidth: number
+  fontFamily: string
   showReaderDisplaySettings?: boolean
   articleActionHandler: (action: string, arg?: unknown) => void
 }
@@ -81,6 +82,7 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
             }
           >
             <ReaderSettingsControl
+              fontFamily={props.fontFamily}
               lineHeight={props.lineHeight}
               marginWidth={props.marginWidth}
               articleActionHandler={props.articleActionHandler}
