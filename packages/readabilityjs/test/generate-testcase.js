@@ -15,6 +15,21 @@ var testcaseRoot = path.join(__dirname, "test-pages");
 
 var argURL = process.argv[3]; // Could be undefined, we'll warn if it is if that is an issue.
 
+const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
+const enableJavascriptForUrl = async (url) => {
+  try {
+    const u = new URL(url);
+    for (const host of NON_SCRIPT_HOSTS) {
+      if (u.hostname.endsWith(host)) {
+        return false;
+      }
+    }
+  } catch (e) {
+    console.log('error getting hostname for url', url, e)
+  }
+  return true
+};
+
 function generateTestcase(slug) {
   var destRoot = path.join(testcaseRoot, slug);
 
@@ -59,6 +74,9 @@ async function fetchSource(url, callbackFn) {
   });
 
   const page = await browser.newPage();
+  if (!await enableJavascriptForUrl(url)) {
+    await page.setJavaScriptEnabled(false);
+  }
   const ua = generateRandomUA();
   await page.setUserAgent(ua);
 
@@ -105,7 +123,6 @@ async function fetchSource(url, callbackFn) {
             })()`);
           } catch (e) {
             console.error('error in scrolling url', { e, url });
-            logRecord.scrollError = true;
           } finally {
             resolve(true);
           }
