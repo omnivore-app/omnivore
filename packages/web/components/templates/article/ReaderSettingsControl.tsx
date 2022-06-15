@@ -100,7 +100,11 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             </Box>
           </HStack>
         </HStack>
-        <HorizontalDivider />
+        <HorizontalDivider css={{
+          '@smDown': {
+            display: 'none',
+          },
+        }}/>
         <VStack
           css={{
             p: '0px',
@@ -108,6 +112,9 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             pb: '14px',
             width: '100%',
             height: '100%',
+            '@smDown': {
+              display: 'none',
+            },
           }}
         >
           <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '8px', m: '0px', pt: '14px' }}>Margin:</StyledText>
