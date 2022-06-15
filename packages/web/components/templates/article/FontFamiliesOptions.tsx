@@ -52,7 +52,7 @@ export function FontFamiliesOptions(props: FontFamiliesListProps): JSX.Element {
               Back
             </StyledText>
           </HStack>
-          <StyledText css={{m: 0, fontSize: 16, fontWeight: '600'}}>Select Font</StyledText>
+          {/* <StyledText css={{m: 0, fontSize: 16, fontWeight: '600'}}>Select Font</StyledText> */}
         </HStack>
       </Box>
       <Box css={{px: 15, width: '100%', pb: 15}}>

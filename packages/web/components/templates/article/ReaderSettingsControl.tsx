@@ -23,6 +23,12 @@ const VerticalDivider = styled(SpanBox, {
   background: `${theme.colors.grayLine.toString()}`,
 })
 
+const HorizontalDivider = styled(SpanBox, {
+  width: '100%',
+  height: '1px',
+  background: `${theme.colors.grayLine.toString()}`,
+})
+
 export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
   const [lineHeight, setLineHeight] = useState(props.lineHeight)
   const [marginWidth, setMarginWidth] = useState(props.marginWidth)
@@ -68,36 +74,33 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
           </Button>
         </HStack>
         <HStack
-          distribution='between'
+          distribution="start"
           alignment='center'
           css={{
-            p: '0px',
             m: '0px',
+            px: '12px',
+            py: '12px',
             width: '100%',
             height: '100%',
-            '@mdDown': {
-              display: 'none',
-            },
-            mx: 10,
-            maxWidth: 230,
           }}
         >
-          <StyledText css={{ m: '0px', pt: '14px' }}>Font:</StyledText>
+          <StyledText css={{ m: '0px' }}>Font:</StyledText>
           <HStack
             alignment='center'
-            css={{cursor: 'pointer'}}
+            css={{cursor: 'pointer', marginLeft: 'auto' }}
             onClick={() => setShowFontOptions(true)}
           >
             <StyledText
-              css={{ m: '0px', pt: '14px', fontSize: 17, fontWeight: '600', fontFamily: fontFamily, textTransform: 'capitalize' }}
+              css={{ m: '0px',fontSize: 17, fontWeight: '600', fontFamily: fontFamily, textTransform: 'capitalize' }}
             >
               {fontFamily}
             </StyledText>
-            <Box css={{paddingTop: 14, top: 1, position: 'relative', pl: 15}}>
+            <Box css={{  }}>
               <CaretRight width={16} height={16} color={theme.colors.grayTextContrast.toString()}/>
             </Box>
           </HStack>
         </HStack>
+        <HorizontalDivider />
         <VStack
           css={{
             p: '0px',
@@ -105,9 +108,6 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             pb: '14px',
             width: '100%',
             height: '100%',
-            '@mdDown': {
-              display: 'none',
-            },
           }}
         >
           <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '8px', m: '0px', pt: '14px' }}>Margin:</StyledText>
@@ -133,10 +133,12 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
 
           </HStack>
         </VStack>
+        <HorizontalDivider />
+
         <VStack css={{
           p: '0px',
           m: '0px',
-          pb: '12px',
+          pb: '14px',
           width: '100%',
           height: '100%',
         }}>
@@ -161,8 +163,10 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
               <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
             </Button>
           </HStack>
+        </VStack>
+          <HorizontalDivider />
 
-          <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '8px', pb: '0px', pt: '16px', height: '42px', alignItems: 'center' }}
+          <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '8px', pb: '14px', pt: '16px', height: '42px', alignItems: 'center' }}
             onClick={() => {
               setMarginWidth(290)
               setLineHeight(150)
@@ -172,7 +176,6 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
           >
             Reset to default
           </Button>
-        </VStack>
         </>
       )}
     </VStack>
