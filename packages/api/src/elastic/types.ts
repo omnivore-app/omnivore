@@ -224,6 +224,7 @@ export interface SearchItem {
   userId: string
   state?: ArticleSavingRequestStatus
   language?: string
+  readAt?: Date
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
