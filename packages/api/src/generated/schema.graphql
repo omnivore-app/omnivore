@@ -83,6 +83,7 @@ type Article {
   pageType: PageType
   postedByViewer: Boolean
   publishedAt: Date
+  readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
   savedAt: Date!
