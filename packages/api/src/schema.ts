@@ -351,6 +351,7 @@ const schema = gql`
     unsubHttpUrl: String
     state: ArticleSavingRequestStatus
     language: String
+    readAt: Date
   }
 
   # Query: article

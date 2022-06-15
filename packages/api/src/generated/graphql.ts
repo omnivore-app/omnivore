@@ -107,6 +107,7 @@ export type Article = {
   pageType?: Maybe<PageType>;
   postedByViewer?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['Date']>;
+  readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
   savedAt: Scalars['Date'];
@@ -3070,6 +3071,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   pageType?: Resolver<Maybe<ResolversTypes['PageType']>, ParentType, ContextType>;
   postedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;

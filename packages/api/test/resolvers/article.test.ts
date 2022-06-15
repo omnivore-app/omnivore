@@ -302,6 +302,7 @@ const saveArticleReadingProgressQuery = (
           updatedArticle {
             id
             readingProgressPercent
+            readAt
           }
         }
         ... on SaveArticleReadingProgressError {
@@ -845,6 +846,8 @@ describe('Article API', () => {
           res.body.data.saveArticleReadingProgress.updatedArticle
             .readingProgressPercent
         ).to.eq(progress)
+        expect(res.body.data.saveArticleReadingProgress.updatedArticle.readAt)
+          .not.null
       })
 
       it('should not allow setting the reading progress lower than current progress', async () => {
