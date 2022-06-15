@@ -16,7 +16,7 @@ var testcaseRoot = path.join(__dirname, "test-pages");
 var argURL = process.argv[3]; // Could be undefined, we'll warn if it is if that is an issue.
 
 const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
-const enableJavascriptForUrl = async (url) => {
+const enableJavascriptForUrl = (url) => {
   try {
     const u = new URL(url);
     for (const host of NON_SCRIPT_HOSTS) {
@@ -74,7 +74,7 @@ async function fetchSource(url, callbackFn) {
   });
 
   const page = await browser.newPage();
-  if (!await enableJavascriptForUrl(url)) {
+  if (!enableJavascriptForUrl(url)) {
     await page.setJavaScriptEnabled(false);
   }
   const ua = generateRandomUA();

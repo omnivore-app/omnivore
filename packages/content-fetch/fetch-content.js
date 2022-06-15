@@ -64,7 +64,7 @@ const fetchContentWithScrapingBee = async (url) => {
   return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
 }
 
-const enableJavascriptForUrl = async (url) => {
+const enableJavascriptForUrl = (url) => {
   try {
     const u = new URL(url);
     for (const host of NON_SCRIPT_HOSTS) {
@@ -432,7 +432,7 @@ async function retrievePage(url) {
   const context = await browser.createIncognitoBrowserContext();
   const page = await context.newPage()
 
-  if (!await enableJavascriptForUrl(url)) {
+  if (!enableJavascriptForUrl(url)) {
     await page.setJavaScriptEnabled(false);
   }
   await page.setUserAgent(userAgentForUrl(url));
