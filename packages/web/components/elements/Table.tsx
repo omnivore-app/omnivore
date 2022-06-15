@@ -123,7 +123,7 @@ export function Table(props: TableProps): JSX.Element {
                   },
                 }}
               >
-                <SpanBox>Add More</SpanBox>
+                <SpanBox>Create</SpanBox>
               </SpanBox>
               <SpanBox
                 css={{
@@ -150,7 +150,7 @@ export function Table(props: TableProps): JSX.Element {
           >
             <StyledText
               key={index}
-              style="highlightTitle"
+              style="menuTitle"
               css={{
                 color: '$grayTextContrast',
                 '@md': {

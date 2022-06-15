@@ -1,5 +1,6 @@
 import CoreData
 import Foundation
+import Utils
 
 public struct HomeFeedData { // TODO: rename this
   public let items: [NSManagedObjectID]
@@ -41,6 +42,15 @@ public extension LinkedItem {
 
   var isRead: Bool {
     readingProgress >= 0.98
+  }
+
+  var isReadyToRead: Bool {
+    if isPDF {
+      // If its a PDF we verify the local file is available
+      return PDFUtils.exists(filename: localPDF) || PDFUtils.tempExists(tempPDFURL: tempPDFURL)
+    }
+    // Check the state and whether we have HTML
+    return state == "SUCCEEDED"
   }
 
   var isPDF: Bool {
@@ -101,7 +111,9 @@ public extension LinkedItem {
     inContext context: NSManagedObjectContext,
     newReadingProgress: Double? = nil,
     newAnchorIndex: Int? = nil,
-    newIsArchivedValue: Bool? = nil
+    newIsArchivedValue: Bool? = nil,
+    newTitle: String? = nil,
+    newDescription: String? = nil
   ) {
     context.perform {
       if let newReadingProgress = newReadingProgress {
@@ -114,6 +126,14 @@ public extension LinkedItem {
 
       if let newIsArchivedValue = newIsArchivedValue {
         self.isArchived = newIsArchivedValue
+      }
+
+      if let newTitle = newTitle {
+        self.title = newTitle
+      }
+
+      if let newDescription = newDescription {
+        self.descriptionText = newDescription
       }
 
       guard context.hasChanges else { return }

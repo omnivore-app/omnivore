@@ -1,6 +1,7 @@
 import CoreData
 import Foundation
 import Models
+import Utils
 
 public extension DataService {
   internal func syncOfflineItemsWithServerIfNeeded() async throws {
@@ -35,27 +36,32 @@ public extension DataService {
     }
   }
 
-  private func updateLinkedItemStatus(id: String, status: ServerSyncStatus) async throws {
-    try backgroundContext.performAndWait {
+  private func updateLinkedItemStatus(id: String, newId: String?, status: ServerSyncStatus) async throws {
+    backgroundContext.performAndWait {
       let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", id)
 
       guard let linkedItem = (try? backgroundContext.fetch(fetchRequest))?.first else { return }
+      if let newId = newId {
+        linkedItem.id = newId
+      }
       linkedItem.serverSyncStatus = Int64(status.rawValue)
     }
   }
 
-  func syncPdf(id: String, localPdfURL: URL, url: String) async throws {
+  func createPageFromPdf(id: String, localPdfURL: URL, url: String) async throws {
     do {
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
+
       let uploadRequest = try await uploadFileRequest(id: id, url: url)
+      print("UPLOAD REQUEST, ORIGINAL ID, NEW ID", id, uploadRequest.pageId)
       if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
-        try await uploadFile(id: id, localPdfURL: localPdfURL, url: uploadUrl)
-        // try await services.dataService.saveFilePublisher(requestId: requestId, uploadFileId: uploadFileID, url: url)
+        try await uploadFile(id: uploadRequest.pageId, localPdfURL: localPdfURL, url: uploadUrl)
       } else {
         throw SaveArticleError.badData
       }
 
-      try await updateLinkedItemStatus(id: id, status: .isNSync)
+      try await updateLinkedItemStatus(id: id, newId: uploadRequest.pageId, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
@@ -67,13 +73,16 @@ public extension DataService {
     }
   }
 
-  func syncPage(id: String, originalHtml: String, title: String?, url: String) async throws {
+  func createPage(id: String, originalHtml: String, title: String?, url: String) async throws -> String {
     do {
-      try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
-      try await updateLinkedItemStatus(id: id, status: .isNSync)
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
+
+      let newId = try await savePage(id: id, url: url, title: title ?? url, originalHtml: originalHtml)
+      try await updateLinkedItemStatus(id: id, newId: newId, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
+      return newId ?? id
     } catch {
       backgroundContext.performAndWait {
         backgroundContext.rollback()
@@ -82,13 +91,16 @@ public extension DataService {
     }
   }
 
-  func syncUrl(id: String, url: String) async throws {
+  func createPageFromUrl(id: String, url: String) async throws -> String {
     do {
-      try await updateLinkedItemStatus(id: id, status: .isSyncing)
-      try await saveURL(id: id, url: url)
+      try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
+
+      let newId = try await saveURL(id: id, url: url)
+      try await updateLinkedItemStatus(id: id, newId: newId, status: .isNSync)
       try backgroundContext.performAndWait {
         try backgroundContext.save()
       }
+      return newId ?? id
     } catch {
       backgroundContext.performAndWait {
         backgroundContext.rollback()
@@ -101,12 +113,10 @@ public extension DataService {
     switch item.contentReader {
     case "PDF":
       let id = item.unwrappedID
-      let localPdfURL = item.localPdfURL
       let url = item.unwrappedPageURLString
-
-      if let pdfUrlStr = localPdfURL, let localPdfURL = URL(string: pdfUrlStr) {
+      if let localPDF = item.localPDF, let localPdfURL = PDFUtils.localPdfURL(filename: localPDF) {
         Task {
-          try await syncPdf(id: id, localPdfURL: localPdfURL, url: url)
+          try await createPageFromPdf(id: id, localPdfURL: localPdfURL, url: url)
         }
       } else {
         // TODO: This is an invalid object, we should have a way of reflecting that with an error state
@@ -120,9 +130,9 @@ public extension DataService {
 
       Task {
         if let originalHtml = originalHtml {
-          try await syncPage(id: id, originalHtml: originalHtml, title: title, url: url)
+          try await createPage(id: id, originalHtml: originalHtml, title: title, url: url)
         } else {
-          try await syncUrl(id: id, url: url)
+          try await createPageFromUrl(id: id, url: url)
         }
       }
     default:
@@ -183,25 +193,6 @@ public extension DataService {
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
         }
-      }
-    }
-  }
-
-  @objc
-  func locallyCreatedItemSynced(notification: NSNotification) {
-    print("SYNCED LOCALLY CREATED ITEM", notification)
-    if let objectId = notification.userInfo?["objectID"] as? String {
-      do {
-        try backgroundContext.performAndWait {
-          let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-          fetchRequest.predicate = NSPredicate(format: "id == %@", objectId)
-          if let existingItem = try? self.backgroundContext.fetch(fetchRequest).first {
-            existingItem.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
-            try self.backgroundContext.save()
-          }
-        }
-      } catch {
-        print("ERROR", error)
       }
     }
   }

@@ -3,21 +3,19 @@ import {
   ModalContent,
   ModalOverlay,
 } from './../../elements/ModalPrimitives'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CommentIcon } from '../../elements/images/CommentIcon'
 import { theme } from '../../tokens/stitches.config'
 import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { HighlightView } from '../../patterns/HighlightView'
 import { useCallback, useState } from 'react'
 import { StyledTextArea } from '../../elements/StyledTextArea'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { readableUpdatedAtMessage } from './../../../lib/dateFormatting'
 import { useConfirmListener } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { createHighlight } from '../../../lib/highlights/createHighlight'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { showErrorToast } from '../../../lib/toastHelpers'
+import { CrossIcon } from '../../elements/images/CrossIcon'
 
 type HighlightNoteModalProps = {
   author: string
@@ -82,27 +80,36 @@ export function HighlightNoteModal(
           event.preventDefault()
         }}
       >
-        <HighlightNoteModalHeader
-          headlineText='Notes'
-          saveNoteChanges={saveNoteChanges}
-          onOpenChange={props.onOpenChange}
-        />
-          {props.highlight && (
-            <Box css={{
-              width: '100%',
-              '@mdDown':{
-                display: 'none',
-              },
-            }}>
-              <HighlightView {...props} highlight={props.highlight} />
-            </Box>
-          )}
+        <VStack>
+          <HStack
+            distribution="between"
+            alignment="center"
+            css={{ width: '100%' }}
+          >
+            <StyledText style="modalHeadline" css={{ p: '16px' }}>
+              Notes
+            </StyledText>
+            <Button
+              css={{ pt: '16px', pr: '16px' }}
+              style="ghost"
+              onClick={() => {
+                props.onOpenChange(false)
+              }}
+            >
+              <CrossIcon
+                size={20}
+                strokeColor={theme.colors.grayText.toString()}
+              />
+            </Button>
+          </HStack>
+          <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />
           <StyledTextArea
             css={{
               mt: '$2',
               width: '95%',
-              p: '$1',
+              p: '0px',
               height: '$6',
+              marginLeft: '16px',
             }}
             autoFocus
             placeholder={'Add your note here'}
@@ -110,53 +117,21 @@ export function HighlightNoteModal(
             onChange={handleNoteContentChange}
             maxLength={4000}
           />
-        {updatedAtMessage ? (
-          <StyledText style="caption">{updatedAtMessage}</StyledText>
-        ) : null}
+            <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />
+          <HStack
+            alignment="end"
+            distribution="end"
+            css={{
+              width: '100%',
+              padding: '22px 22px 20px 0',
+            }}
+          >
+            <Button style={'ctaDarkYellow'} onClick={saveNoteChanges}>
+              Save
+            </Button>
+          </HStack>
+        </VStack>
       </ModalContent>
     </ModalRoot>
-  )
-}
-
-type HighlightNoteModalHeaderProps = {
-  headlineText: string
-  saveNoteChanges: () => void
-  onOpenChange: (open: boolean) => void
-}
-
-function HighlightNoteModalHeader(
-  props: HighlightNoteModalHeaderProps
-): JSX.Element {
-  return (
-    <Box
-      css={{
-        display: 'grid',
-        gridTemplateColumns: '1fr auto 1fr',
-      }}
-    >
-      <Button
-        style="ctaSecondary"
-        onClick={() => {
-          props.onOpenChange(false)
-        }}
-        css={{ justifySelf: 'start' }}
-      >
-        Cancel
-      </Button>
-      <HStack alignment="center">
-        <CommentIcon
-          size={24}
-          strokeColor={theme.colors.grayTextContrast.toString()}
-        />
-        <StyledText>&nbsp; {props.headlineText}</StyledText>
-      </HStack>
-      <Button
-        style="ctaSecondary"
-        onClick={props.saveNoteChanges}
-        css={{ justifySelf: 'end' }}
-      >
-        Save
-      </Button>
-    </Box>
   )
 }

@@ -42,9 +42,9 @@ public extension LinkedItemSort {
   var sortDescriptors: [NSSortDescriptor] {
     switch self {
     case .newest /* , .relevance */:
-      return [NSSortDescriptor(keyPath: \LinkedItem.createdAt, ascending: false)]
+      return [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
     case .oldest:
-      return [NSSortDescriptor(keyPath: \LinkedItem.createdAt, ascending: true)]
+      return [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: true)]
 //    case .recentlyRead:
 //      return [NSSortDescriptor(keyPath: \LinkedItem.updatedAt, ascending: false)]
     case .recentlyPublished:

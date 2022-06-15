@@ -107,12 +107,13 @@ export type Article = {
   pageType?: Maybe<PageType>;
   postedByViewer?: Maybe<Scalars['Boolean']>;
   publishedAt?: Maybe<Scalars['Date']>;
+  readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
   savedAt: Scalars['Date'];
   savedByViewer?: Maybe<Scalars['Boolean']>;
-  sharedComment?: Maybe<Scalars['String']>;
   shareInfo?: Maybe<LinkShareInfo>;
+  sharedComment?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
@@ -192,6 +193,11 @@ export type ArticleSavingRequestSuccess = {
   articleSavingRequest: ArticleSavingRequest;
 };
 
+export type ArticleSuccess = {
+  __typename?: 'ArticleSuccess';
+  article: Article;
+};
+
 export type ArticlesError = {
   __typename?: 'ArticlesError';
   errorCodes: Array<ArticlesErrorCode>;
@@ -207,11 +213,6 @@ export type ArticlesSuccess = {
   __typename?: 'ArticlesSuccess';
   edges: Array<ArticleEdge>;
   pageInfo: PageInfo;
-};
-
-export type ArticleSuccess = {
-  __typename?: 'ArticleSuccess';
-  article: Article;
 };
 
 export enum ContentReader {
@@ -776,6 +777,22 @@ export type LinkShareInfo = {
   title: Scalars['String'];
 };
 
+export type LogOutError = {
+  __typename?: 'LogOutError';
+  errorCodes: Array<LogOutErrorCode>;
+};
+
+export enum LogOutErrorCode {
+  LogOutFailed = 'LOG_OUT_FAILED'
+}
+
+export type LogOutResult = LogOutError | LogOutSuccess;
+
+export type LogOutSuccess = {
+  __typename?: 'LogOutSuccess';
+  message?: Maybe<Scalars['String']>;
+};
+
 export type LoginError = {
   __typename?: 'LoginError';
   errorCodes: Array<LoginErrorCode>;
@@ -800,22 +817,6 @@ export type LoginResult = LoginError | LoginSuccess;
 export type LoginSuccess = {
   __typename?: 'LoginSuccess';
   me: User;
-};
-
-export type LogOutError = {
-  __typename?: 'LogOutError';
-  errorCodes: Array<LogOutErrorCode>;
-};
-
-export enum LogOutErrorCode {
-  LogOutFailed = 'LOG_OUT_FAILED'
-}
-
-export type LogOutResult = LogOutError | LogOutSuccess;
-
-export type LogOutSuccess = {
-  __typename?: 'LogOutSuccess';
-  message?: Maybe<Scalars['String']>;
 };
 
 export type MergeHighlightError = {
@@ -872,8 +873,8 @@ export type Mutation = {
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
-  login: LoginResult;
   logOut: LogOutResult;
+  login: LoginResult;
   mergeHighlight: MergeHighlightResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
@@ -885,6 +886,7 @@ export type Mutation = {
   setDeviceToken: SetDeviceTokenResult;
   setFollow: SetFollowResult;
   setLabels: SetLabelsResult;
+  setLabelsForHighlight: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
   setShareArticle: SetShareArticleResult;
   setShareHighlight: SetShareHighlightResult;
@@ -1056,6 +1058,11 @@ export type MutationSetLabelsArgs = {
 };
 
 
+export type MutationSetLabelsForHighlightArgs = {
+  input: SetLabelsForHighlightInput;
+};
+
+
 export type MutationSetLinkArchivedArgs = {
   input: ArchiveLinkInput;
 };
@@ -1171,9 +1178,9 @@ export type NewsletterEmailsSuccess = {
 
 export type Page = {
   __typename?: 'Page';
-  author: Scalars['String'];
+  author?: Maybe<Scalars['String']>;
   createdAt: Scalars['Date'];
-  description: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
   hash: Scalars['String'];
   id: Scalars['ID'];
   image: Scalars['String'];
@@ -1234,8 +1241,8 @@ export type Query = {
   __typename?: 'Query';
   apiKeys: ApiKeysResult;
   article: ArticleResult;
-  articles: ArticlesResult;
   articleSavingRequest: ArticleSavingRequestResult;
+  articles: ArticlesResult;
   feedArticles: FeedArticlesResult;
   getFollowers: GetFollowersResult;
   getFollowing: GetFollowingResult;
@@ -1263,6 +1270,11 @@ export type QueryArticleArgs = {
 };
 
 
+export type QueryArticleSavingRequestArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryArticlesArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -1270,11 +1282,6 @@ export type QueryArticlesArgs = {
   query?: InputMaybe<Scalars['String']>;
   sharedOnly?: InputMaybe<Scalars['Boolean']>;
   sort?: InputMaybe<SortParams>;
-};
-
-
-export type QueryArticleSavingRequestArgs = {
-  id: Scalars['ID'];
 };
 
 
@@ -1643,6 +1650,11 @@ export enum SetLabelsErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
+export type SetLabelsForHighlightInput = {
+  highlightId: Scalars['ID'];
+  labelIds: Array<Scalars['ID']>;
+};
+
 export type SetLabelsInput = {
   labelIds: Array<Scalars['ID']>;
   pageId: Scalars['ID'];
@@ -1757,6 +1769,13 @@ export type SetWebhookSuccess = {
   webhook: Webhook;
 };
 
+export type ShareStats = {
+  __typename?: 'ShareStats';
+  readDuration: Scalars['Int'];
+  saveCount: Scalars['Int'];
+  viewCount: Scalars['Int'];
+};
+
 export type SharedArticleError = {
   __typename?: 'SharedArticleError';
   errorCodes: Array<SharedArticleErrorCode>;
@@ -1771,13 +1790,6 @@ export type SharedArticleResult = SharedArticleError | SharedArticleSuccess;
 export type SharedArticleSuccess = {
   __typename?: 'SharedArticleSuccess';
   article: Article;
-};
-
-export type ShareStats = {
-  __typename?: 'ShareStats';
-  readDuration: Scalars['Int'];
-  saveCount: Scalars['Int'];
-  viewCount: Scalars['Int'];
 };
 
 export type SignupError = {
@@ -1861,6 +1873,12 @@ export type Subscription = {
   url?: Maybe<Scalars['String']>;
 };
 
+export enum SubscriptionStatus {
+  Active = 'ACTIVE',
+  Deleted = 'DELETED',
+  Unsubscribed = 'UNSUBSCRIBED'
+}
+
 export type SubscriptionsError = {
   __typename?: 'SubscriptionsError';
   errorCodes: Array<SubscriptionsErrorCode>;
@@ -1877,12 +1895,6 @@ export type SubscriptionsSuccess = {
   __typename?: 'SubscriptionsSuccess';
   subscriptions: Array<Subscription>;
 };
-
-export enum SubscriptionStatus {
-  Active = 'ACTIVE',
-  Deleted = 'DELETED',
-  Unsubscribed = 'UNSUBSCRIBED'
-}
 
 export type UnsubscribeError = {
   __typename?: 'UnsubscribeError';
@@ -2024,7 +2036,7 @@ export type UpdatePageResult = UpdatePageError | UpdatePageSuccess;
 
 export type UpdatePageSuccess = {
   __typename?: 'UpdatePageSuccess';
-  updatedPage: Page;
+  updatedPage: Article;
 };
 
 export type UpdateReminderError = {
@@ -2148,6 +2160,7 @@ export type UploadFileRequestResult = UploadFileRequestError | UploadFileRequest
 
 export type UploadFileRequestSuccess = {
   __typename?: 'UploadFileRequestSuccess';
+  createdPageId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   uploadFileId?: Maybe<Scalars['ID']>;
   uploadSignedUrl?: Maybe<Scalars['String']>;
@@ -2200,6 +2213,11 @@ export type UserPersonalization = {
 
 export type UserResult = UserError | UserSuccess;
 
+export type UserSuccess = {
+  __typename?: 'UserSuccess';
+  user: User;
+};
+
 export type UsersError = {
   __typename?: 'UsersError';
   errorCodes: Array<UsersErrorCode>;
@@ -2214,11 +2232,6 @@ export type UsersResult = UsersError | UsersSuccess;
 export type UsersSuccess = {
   __typename?: 'UsersSuccess';
   users: Array<User>;
-};
-
-export type UserSuccess = {
-  __typename?: 'UserSuccess';
-  user: User;
 };
 
 export type Webhook = {
@@ -2258,6 +2271,11 @@ export enum WebhookEvent {
 
 export type WebhookResult = WebhookError | WebhookSuccess;
 
+export type WebhookSuccess = {
+  __typename?: 'WebhookSuccess';
+  webhook: Webhook;
+};
+
 export type WebhooksError = {
   __typename?: 'WebhooksError';
   errorCodes: Array<WebhooksErrorCode>;
@@ -2273,11 +2291,6 @@ export type WebhooksResult = WebhooksError | WebhooksSuccess;
 export type WebhooksSuccess = {
   __typename?: 'WebhooksSuccess';
   webhooks: Array<Webhook>;
-};
-
-export type WebhookSuccess = {
-  __typename?: 'WebhookSuccess';
-  webhook: Webhook;
 };
 
 
@@ -2375,11 +2388,11 @@ export type ResolversTypes = {
   ArticleSavingRequestResult: ResolversTypes['ArticleSavingRequestError'] | ResolversTypes['ArticleSavingRequestSuccess'];
   ArticleSavingRequestStatus: ArticleSavingRequestStatus;
   ArticleSavingRequestSuccess: ResolverTypeWrapper<ArticleSavingRequestSuccess>;
+  ArticleSuccess: ResolverTypeWrapper<ArticleSuccess>;
   ArticlesError: ResolverTypeWrapper<ArticlesError>;
   ArticlesErrorCode: ArticlesErrorCode;
   ArticlesResult: ResolversTypes['ArticlesError'] | ResolversTypes['ArticlesSuccess'];
   ArticlesSuccess: ResolverTypeWrapper<ArticlesSuccess>;
-  ArticleSuccess: ResolverTypeWrapper<ArticleSuccess>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   ContentReader: ContentReader;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
@@ -2492,15 +2505,15 @@ export type ResolversTypes = {
   LabelsSuccess: ResolverTypeWrapper<LabelsSuccess>;
   Link: ResolverTypeWrapper<Link>;
   LinkShareInfo: ResolverTypeWrapper<LinkShareInfo>;
+  LogOutError: ResolverTypeWrapper<LogOutError>;
+  LogOutErrorCode: LogOutErrorCode;
+  LogOutResult: ResolversTypes['LogOutError'] | ResolversTypes['LogOutSuccess'];
+  LogOutSuccess: ResolverTypeWrapper<LogOutSuccess>;
   LoginError: ResolverTypeWrapper<LoginError>;
   LoginErrorCode: LoginErrorCode;
   LoginInput: LoginInput;
   LoginResult: ResolversTypes['LoginError'] | ResolversTypes['LoginSuccess'];
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
-  LogOutError: ResolverTypeWrapper<LogOutError>;
-  LogOutErrorCode: LogOutErrorCode;
-  LogOutResult: ResolversTypes['LogOutError'] | ResolversTypes['LogOutSuccess'];
-  LogOutSuccess: ResolverTypeWrapper<LogOutSuccess>;
   MergeHighlightError: ResolverTypeWrapper<MergeHighlightError>;
   MergeHighlightErrorCode: MergeHighlightErrorCode;
   MergeHighlightInput: MergeHighlightInput;
@@ -2573,6 +2586,7 @@ export type ResolversTypes = {
   SetFollowSuccess: ResolverTypeWrapper<SetFollowSuccess>;
   SetLabelsError: ResolverTypeWrapper<SetLabelsError>;
   SetLabelsErrorCode: SetLabelsErrorCode;
+  SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
   SetLabelsResult: ResolversTypes['SetLabelsError'] | ResolversTypes['SetLabelsSuccess'];
   SetLabelsSuccess: ResolverTypeWrapper<SetLabelsSuccess>;
@@ -2596,11 +2610,11 @@ export type ResolversTypes = {
   SetWebhookInput: SetWebhookInput;
   SetWebhookResult: ResolversTypes['SetWebhookError'] | ResolversTypes['SetWebhookSuccess'];
   SetWebhookSuccess: ResolverTypeWrapper<SetWebhookSuccess>;
+  ShareStats: ResolverTypeWrapper<ShareStats>;
   SharedArticleError: ResolverTypeWrapper<SharedArticleError>;
   SharedArticleErrorCode: SharedArticleErrorCode;
   SharedArticleResult: ResolversTypes['SharedArticleError'] | ResolversTypes['SharedArticleSuccess'];
   SharedArticleSuccess: ResolverTypeWrapper<SharedArticleSuccess>;
-  ShareStats: ResolverTypeWrapper<ShareStats>;
   SignupError: ResolverTypeWrapper<SignupError>;
   SignupErrorCode: SignupErrorCode;
   SignupInput: SignupInput;
@@ -2615,11 +2629,11 @@ export type ResolversTypes = {
   SubscribeResult: ResolversTypes['SubscribeError'] | ResolversTypes['SubscribeSuccess'];
   SubscribeSuccess: ResolverTypeWrapper<SubscribeSuccess>;
   Subscription: ResolverTypeWrapper<{}>;
+  SubscriptionStatus: SubscriptionStatus;
   SubscriptionsError: ResolverTypeWrapper<SubscriptionsError>;
   SubscriptionsErrorCode: SubscriptionsErrorCode;
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
-  SubscriptionStatus: SubscriptionStatus;
   UnsubscribeError: ResolverTypeWrapper<UnsubscribeError>;
   UnsubscribeErrorCode: UnsubscribeErrorCode;
   UnsubscribeResult: ResolversTypes['UnsubscribeError'] | ResolversTypes['UnsubscribeSuccess'];
@@ -2680,21 +2694,21 @@ export type ResolversTypes = {
   UserErrorCode: UserErrorCode;
   UserPersonalization: ResolverTypeWrapper<UserPersonalization>;
   UserResult: ResolversTypes['UserError'] | ResolversTypes['UserSuccess'];
+  UserSuccess: ResolverTypeWrapper<UserSuccess>;
   UsersError: ResolverTypeWrapper<UsersError>;
   UsersErrorCode: UsersErrorCode;
   UsersResult: ResolversTypes['UsersError'] | ResolversTypes['UsersSuccess'];
   UsersSuccess: ResolverTypeWrapper<UsersSuccess>;
-  UserSuccess: ResolverTypeWrapper<UserSuccess>;
   Webhook: ResolverTypeWrapper<Webhook>;
   WebhookError: ResolverTypeWrapper<WebhookError>;
   WebhookErrorCode: WebhookErrorCode;
   WebhookEvent: WebhookEvent;
   WebhookResult: ResolversTypes['WebhookError'] | ResolversTypes['WebhookSuccess'];
+  WebhookSuccess: ResolverTypeWrapper<WebhookSuccess>;
   WebhooksError: ResolverTypeWrapper<WebhooksError>;
   WebhooksErrorCode: WebhooksErrorCode;
   WebhooksResult: ResolversTypes['WebhooksError'] | ResolversTypes['WebhooksSuccess'];
   WebhooksSuccess: ResolverTypeWrapper<WebhooksSuccess>;
-  WebhookSuccess: ResolverTypeWrapper<WebhookSuccess>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -2719,10 +2733,10 @@ export type ResolversParentTypes = {
   ArticleSavingRequestError: ArticleSavingRequestError;
   ArticleSavingRequestResult: ResolversParentTypes['ArticleSavingRequestError'] | ResolversParentTypes['ArticleSavingRequestSuccess'];
   ArticleSavingRequestSuccess: ArticleSavingRequestSuccess;
+  ArticleSuccess: ArticleSuccess;
   ArticlesError: ArticlesError;
   ArticlesResult: ResolversParentTypes['ArticlesError'] | ResolversParentTypes['ArticlesSuccess'];
   ArticlesSuccess: ArticlesSuccess;
-  ArticleSuccess: ArticleSuccess;
   Boolean: Scalars['Boolean'];
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
@@ -2813,13 +2827,13 @@ export type ResolversParentTypes = {
   LabelsSuccess: LabelsSuccess;
   Link: Link;
   LinkShareInfo: LinkShareInfo;
+  LogOutError: LogOutError;
+  LogOutResult: ResolversParentTypes['LogOutError'] | ResolversParentTypes['LogOutSuccess'];
+  LogOutSuccess: LogOutSuccess;
   LoginError: LoginError;
   LoginInput: LoginInput;
   LoginResult: ResolversParentTypes['LoginError'] | ResolversParentTypes['LoginSuccess'];
   LoginSuccess: LoginSuccess;
-  LogOutError: LogOutError;
-  LogOutResult: ResolversParentTypes['LogOutError'] | ResolversParentTypes['LogOutSuccess'];
-  LogOutSuccess: LogOutSuccess;
   MergeHighlightError: MergeHighlightError;
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
@@ -2877,6 +2891,7 @@ export type ResolversParentTypes = {
   SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
   SetFollowSuccess: SetFollowSuccess;
   SetLabelsError: SetLabelsError;
+  SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
   SetLabelsResult: ResolversParentTypes['SetLabelsError'] | ResolversParentTypes['SetLabelsSuccess'];
   SetLabelsSuccess: SetLabelsSuccess;
@@ -2896,10 +2911,10 @@ export type ResolversParentTypes = {
   SetWebhookInput: SetWebhookInput;
   SetWebhookResult: ResolversParentTypes['SetWebhookError'] | ResolversParentTypes['SetWebhookSuccess'];
   SetWebhookSuccess: SetWebhookSuccess;
+  ShareStats: ShareStats;
   SharedArticleError: SharedArticleError;
   SharedArticleResult: ResolversParentTypes['SharedArticleError'] | ResolversParentTypes['SharedArticleSuccess'];
   SharedArticleSuccess: SharedArticleSuccess;
-  ShareStats: ShareStats;
   SignupError: SignupError;
   SignupInput: SignupInput;
   SignupResult: ResolversParentTypes['SignupError'] | ResolversParentTypes['SignupSuccess'];
@@ -2960,17 +2975,17 @@ export type ResolversParentTypes = {
   UserError: UserError;
   UserPersonalization: UserPersonalization;
   UserResult: ResolversParentTypes['UserError'] | ResolversParentTypes['UserSuccess'];
+  UserSuccess: UserSuccess;
   UsersError: UsersError;
   UsersResult: ResolversParentTypes['UsersError'] | ResolversParentTypes['UsersSuccess'];
   UsersSuccess: UsersSuccess;
-  UserSuccess: UserSuccess;
   Webhook: Webhook;
   WebhookError: WebhookError;
   WebhookResult: ResolversParentTypes['WebhookError'] | ResolversParentTypes['WebhookSuccess'];
+  WebhookSuccess: WebhookSuccess;
   WebhooksError: WebhooksError;
   WebhooksResult: ResolversParentTypes['WebhooksError'] | ResolversParentTypes['WebhooksSuccess'];
   WebhooksSuccess: WebhooksSuccess;
-  WebhookSuccess: WebhookSuccess;
 };
 
 export type SanitizeDirectiveArgs = {
@@ -3056,12 +3071,13 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   pageType?: Resolver<Maybe<ResolversTypes['PageType']>, ParentType, ContextType>;
   postedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   savedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   shareInfo?: Resolver<Maybe<ResolversTypes['LinkShareInfo']>, ParentType, ContextType>;
+  sharedComment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3118,6 +3134,11 @@ export type ArticleSavingRequestSuccessResolvers<ContextType = ResolverContext, 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSuccess'] = ResolversParentTypes['ArticleSuccess']> = {
+  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type ArticlesErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticlesError'] = ResolversParentTypes['ArticlesError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['ArticlesErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3130,11 +3151,6 @@ export type ArticlesResultResolvers<ContextType = ResolverContext, ParentType ex
 export type ArticlesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticlesSuccess'] = ResolversParentTypes['ArticlesSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['ArticleEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ArticleSuccess'] = ResolversParentTypes['ArticleSuccess']> = {
-  article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3546,20 +3562,6 @@ export type LinkShareInfoResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type LoginErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginError'] = ResolversParentTypes['LoginError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['LoginErrorCode']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type LoginResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginResult'] = ResolversParentTypes['LoginResult']> = {
-  __resolveType: TypeResolveFn<'LoginError' | 'LoginSuccess', ParentType, ContextType>;
-};
-
-export type LoginSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginSuccess'] = ResolversParentTypes['LoginSuccess']> = {
-  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type LogOutErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutError'] = ResolversParentTypes['LogOutError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['LogOutErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3571,6 +3573,20 @@ export type LogOutResultResolvers<ContextType = ResolverContext, ParentType exte
 
 export type LogOutSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LogOutSuccess'] = ResolversParentTypes['LogOutSuccess']> = {
   message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LoginErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginError'] = ResolversParentTypes['LoginError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['LoginErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LoginResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginResult'] = ResolversParentTypes['LoginResult']> = {
+  __resolveType: TypeResolveFn<'LoginError' | 'LoginSuccess', ParentType, ContextType>;
+};
+
+export type LoginSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['LoginSuccess'] = ResolversParentTypes['LoginSuccess']> = {
+  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3609,8 +3625,8 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
-  login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
+  login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
@@ -3622,6 +3638,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
   setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
   setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
+  setLabelsForHighlight?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsForHighlightArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
   setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
@@ -3664,9 +3681,9 @@ export type NewsletterEmailsSuccessResolvers<ContextType = ResolverContext, Pare
 };
 
 export type PageResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Page'] = ResolversParentTypes['Page']> = {
-  author?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3702,8 +3719,8 @@ export type ProfileResolvers<ContextType = ResolverContext, ParentType extends R
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
-  articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, RequireFields<QueryArticleSavingRequestArgs, 'id'>>;
+  articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
   getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
@@ -3995,6 +4012,13 @@ export type SetWebhookSuccessResolvers<ContextType = ResolverContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ShareStatsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ShareStats'] = ResolversParentTypes['ShareStats']> = {
+  readDuration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  saveCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  viewCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SharedArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SharedArticleError'] = ResolversParentTypes['SharedArticleError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SharedArticleErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4006,13 +4030,6 @@ export type SharedArticleResultResolvers<ContextType = ResolverContext, ParentTy
 
 export type SharedArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SharedArticleSuccess'] = ResolversParentTypes['SharedArticleSuccess']> = {
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ShareStatsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ShareStats'] = ResolversParentTypes['ShareStats']> = {
-  readDuration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  saveCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  viewCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4151,7 +4168,7 @@ export type UpdatePageResultResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type UpdatePageSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePageSuccess'] = ResolversParentTypes['UpdatePageSuccess']> = {
-  updatedPage?: Resolver<ResolversTypes['Page'], ParentType, ContextType>;
+  updatedPage?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4222,6 +4239,7 @@ export type UploadFileRequestResultResolvers<ContextType = ResolverContext, Pare
 };
 
 export type UploadFileRequestSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UploadFileRequestSuccess'] = ResolversParentTypes['UploadFileRequestSuccess']> = {
+  createdPageId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   uploadSignedUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -4265,6 +4283,11 @@ export type UserResultResolvers<ContextType = ResolverContext, ParentType extend
   __resolveType: TypeResolveFn<'UserError' | 'UserSuccess', ParentType, ContextType>;
 };
 
+export type UserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserSuccess'] = ResolversParentTypes['UserSuccess']> = {
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UsersErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UsersError'] = ResolversParentTypes['UsersError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UsersErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4276,11 +4299,6 @@ export type UsersResultResolvers<ContextType = ResolverContext, ParentType exten
 
 export type UsersSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UsersSuccess'] = ResolversParentTypes['UsersSuccess']> = {
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type UserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserSuccess'] = ResolversParentTypes['UserSuccess']> = {
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4305,6 +4323,11 @@ export type WebhookResultResolvers<ContextType = ResolverContext, ParentType ext
   __resolveType: TypeResolveFn<'WebhookError' | 'WebhookSuccess', ParentType, ContextType>;
 };
 
+export type WebhookSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhookSuccess'] = ResolversParentTypes['WebhookSuccess']> = {
+  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type WebhooksErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhooksError'] = ResolversParentTypes['WebhooksError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['WebhooksErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4316,11 +4339,6 @@ export type WebhooksResultResolvers<ContextType = ResolverContext, ParentType ex
 
 export type WebhooksSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhooksSuccess'] = ResolversParentTypes['WebhooksSuccess']> = {
   webhooks?: Resolver<Array<ResolversTypes['Webhook']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type WebhookSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['WebhookSuccess'] = ResolversParentTypes['WebhookSuccess']> = {
-  webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4343,10 +4361,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   ArticleSavingRequestError?: ArticleSavingRequestErrorResolvers<ContextType>;
   ArticleSavingRequestResult?: ArticleSavingRequestResultResolvers<ContextType>;
   ArticleSavingRequestSuccess?: ArticleSavingRequestSuccessResolvers<ContextType>;
+  ArticleSuccess?: ArticleSuccessResolvers<ContextType>;
   ArticlesError?: ArticlesErrorResolvers<ContextType>;
   ArticlesResult?: ArticlesResultResolvers<ContextType>;
   ArticlesSuccess?: ArticlesSuccessResolvers<ContextType>;
-  ArticleSuccess?: ArticleSuccessResolvers<ContextType>;
   CreateArticleError?: CreateArticleErrorResolvers<ContextType>;
   CreateArticleResult?: CreateArticleResultResolvers<ContextType>;
   CreateArticleSavingRequestError?: CreateArticleSavingRequestErrorResolvers<ContextType>;
@@ -4423,12 +4441,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   LabelsSuccess?: LabelsSuccessResolvers<ContextType>;
   Link?: LinkResolvers<ContextType>;
   LinkShareInfo?: LinkShareInfoResolvers<ContextType>;
-  LoginError?: LoginErrorResolvers<ContextType>;
-  LoginResult?: LoginResultResolvers<ContextType>;
-  LoginSuccess?: LoginSuccessResolvers<ContextType>;
   LogOutError?: LogOutErrorResolvers<ContextType>;
   LogOutResult?: LogOutResultResolvers<ContextType>;
   LogOutSuccess?: LogOutSuccessResolvers<ContextType>;
+  LoginError?: LoginErrorResolvers<ContextType>;
+  LoginResult?: LoginResultResolvers<ContextType>;
+  LoginSuccess?: LoginSuccessResolvers<ContextType>;
   MergeHighlightError?: MergeHighlightErrorResolvers<ContextType>;
   MergeHighlightResult?: MergeHighlightResultResolvers<ContextType>;
   MergeHighlightSuccess?: MergeHighlightSuccessResolvers<ContextType>;
@@ -4489,10 +4507,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetWebhookError?: SetWebhookErrorResolvers<ContextType>;
   SetWebhookResult?: SetWebhookResultResolvers<ContextType>;
   SetWebhookSuccess?: SetWebhookSuccessResolvers<ContextType>;
+  ShareStats?: ShareStatsResolvers<ContextType>;
   SharedArticleError?: SharedArticleErrorResolvers<ContextType>;
   SharedArticleResult?: SharedArticleResultResolvers<ContextType>;
   SharedArticleSuccess?: SharedArticleSuccessResolvers<ContextType>;
-  ShareStats?: ShareStatsResolvers<ContextType>;
   SignupError?: SignupErrorResolvers<ContextType>;
   SignupResult?: SignupResultResolvers<ContextType>;
   SignupSuccess?: SignupSuccessResolvers<ContextType>;
@@ -4540,17 +4558,17 @@ export type Resolvers<ContextType = ResolverContext> = {
   UserError?: UserErrorResolvers<ContextType>;
   UserPersonalization?: UserPersonalizationResolvers<ContextType>;
   UserResult?: UserResultResolvers<ContextType>;
+  UserSuccess?: UserSuccessResolvers<ContextType>;
   UsersError?: UsersErrorResolvers<ContextType>;
   UsersResult?: UsersResultResolvers<ContextType>;
   UsersSuccess?: UsersSuccessResolvers<ContextType>;
-  UserSuccess?: UserSuccessResolvers<ContextType>;
   Webhook?: WebhookResolvers<ContextType>;
   WebhookError?: WebhookErrorResolvers<ContextType>;
   WebhookResult?: WebhookResultResolvers<ContextType>;
+  WebhookSuccess?: WebhookSuccessResolvers<ContextType>;
   WebhooksError?: WebhooksErrorResolvers<ContextType>;
   WebhooksResult?: WebhooksResultResolvers<ContextType>;
   WebhooksSuccess?: WebhooksSuccessResolvers<ContextType>;
-  WebhookSuccess?: WebhookSuccessResolvers<ContextType>;
 };
 
 export type DirectiveResolvers<ContextType = ResolverContext> = {

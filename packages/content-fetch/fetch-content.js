@@ -24,8 +24,11 @@ const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) Apple
 const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
+const NON_SCRIPT_HOSTS= ['medium.com']
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
+
+const { parseHTML } = require('linkedom');
 
 // Add stealth plugin to hide puppeteer usage
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -46,8 +49,38 @@ const userAgentForUrl = (url) => {
   return DESKTOP_USER_AGENT
 };
 
+const fetchContentWithScrapingBee = async (url) => {
+  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+    params: {
+      'api_key':  process.env.SCRAPINGBEE_API_KEY,
+      'url': url,
+      'render_js': 'false',
+      'premium_proxy': 'true',
+      'country_code':'us'
+    }
+  })
+
+  const dom = parseHTML(response.data).document;
+  return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
+}
+
+const enableJavascriptForUrl = async (url) => {
+  try {
+    const u = new URL(url);
+    for (const host of NON_SCRIPT_HOSTS) {
+      if (u.hostname.endsWith(host)) {
+        return false;
+      }
+    }
+  } catch (e) {
+    console.log('error getting hostname for url', url, e)
+  }
+  return true
+};
+
 // launch Puppeteer
 const getBrowserPromise = (async () => {
+  console.log("starting with proxy url", process.env.PROXY_URL)
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -71,8 +104,8 @@ const getBrowserPromise = (async () => {
       '--no-sandbox',
       '--no-zygote',
       '--use-gl=swiftshader',
-      '--window-size=1920,1080', // https://source.chromium.org/search?q=lang:cpp+symbol:kWindowSize&ss=chromium
-    ],
+      '--window-size=1920,1080',
+    ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
     headless: true,
@@ -162,7 +195,6 @@ const sendCreateArticleMutation = async (userId, input) => {
       'Content-Type': 'application/json',
     },
   });
-  console.log('response', response);
   return response.data.data.createArticle;
 };
 
@@ -288,8 +320,15 @@ async function fetchContent(req, res) {
     } else {
       if (!content || !title) {
         const result = await retrieveHtml(page);
-        title = result.title;
-        content = result.domContent;
+        if (result.isBlocked) {
+          console.log("PAGE IS BLOCKED", url)
+          const sbResult = await fetchContentWithScrapingBee(url)
+          title = sbResult.title
+          content = sbResult.domContent
+        } else {
+          title = result.title;
+          content = result.domContent;
+        }
       } else {
         console.log('using prefetched content and title');
         console.log(content);
@@ -313,20 +352,6 @@ async function fetchContent(req, res) {
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
       console.log(`parse-page`, logRecord);
-
-      // return res.send({
-      //     url: finalUrl,
-      //     articleSavingRequestId,
-      //     preparedDocument: {
-      //       document: content,
-      //       pageInfo: {
-      //         title,
-      //         canonicalUrl: finalUrl,
-      //       },
-      //     },
-      //     skipParsing: !content,
-      //     timeTaken: Date.now() - functionStartTime,
-      //   })
     }
   } catch (e) {
     console.log('error', e)
@@ -405,7 +430,11 @@ async function retrievePage(url) {
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
   const context = await browser.createIncognitoBrowserContext();
-  const page = await context.newPage();
+  const page = await context.newPage()
+
+  if (!enableJavascriptForUrl(url)) {
+    page.setJavaScriptEnabled(false)
+  }
   await page.setUserAgent(userAgentForUrl(url));
 
   const client = await page.target().createCDPSession();
@@ -542,7 +571,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      page.waitForTimeout(1000), //5 second timeout
+      page.waitForTimeout(1000),
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
@@ -610,6 +639,11 @@ async function retrieveHtml(page) {
           }
         }
       });
+
+      if (document.querySelector('[data-translate="managed_checking_msg"]')) {
+        return 'IS_BLOCKED'
+      }
+
       return document.documentElement.outerHTML;
     }, iframes);
     logRecord.puppeteerSuccess = true;
@@ -629,6 +663,11 @@ async function retrieveHtml(page) {
         stack: e.stack,
       };
     }
+  }
+  console.log('DOM CONTENT')
+  console.log(domContent)
+  if (domContent == 'IS_BLOCKED') {
+    return { isBlocked: true };
   }
   return { domContent, title };
 }

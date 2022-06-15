@@ -2209,7 +2209,7 @@ Readability.prototype = {
     for (const element of Array.from(e.getElementsByTagName('a'))) {
 
       if (this.isEmbed(element)) {
-        continue;
+        return;
       }
 
       // Create tweets placeholders from links
@@ -2223,7 +2223,7 @@ Readability.prototype = {
           tweet.innerText = 'Tweet placeholder';
           tweet.className = 'tweet-placeholder';
           tweet.setAttribute('data-tweet-id', match[2]);
-          element.parentNode.replaceChild(tweet, element);
+          element.parentNode.replaceChildren(tweet);
 
           // remove all containers the tweet is nested in (if they contain the tweet only)
           let tweetParent = tweet.parentElement || tweet.parentNode;
@@ -2754,7 +2754,8 @@ Readability.prototype = {
           (!isList && li > p) ||
           (input > Math.floor(p/3)) ||
           (!isList && headingDensity < 0.9 && contentLength < 25 && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
-          (!isList && weight < 25 && linkDensity > 0.2) ||
+          // ignores link density for the links inside the .post-body div (the main content)
+          (!isList && weight < 25 && linkDensity > 0.2 && !(node.parentElement.className.includes("post-body") && linkDensity === 1)) ||
           // some website like https://substack.com might have their custom styling of tweets
           // we should omit ignoring their particular case by checking against "tweet" classname
           (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||

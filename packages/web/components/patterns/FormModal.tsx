@@ -72,29 +72,23 @@ export function FormModal(props: FormModalProps): JSX.Element {
                       paddingTop: '5px',
                     }}
                   >
-                    <StyledText style={'highlightTitle'}>
+                    <StyledText style={'menuTitle'}>
                       {input.label}
                     </StyledText>
                   </Box>
-                  <Box css={{ width: '100%' }}>
+                  <Box css={{ width: '100%', marginRight: '20px' }}>
                     <GeneralFormInput {...input} />
                   </Box>
                 </HStack>
               ))}
               <HStack
-                alignment={'center'}
-                distribution="center"
+                alignment="end"
+                distribution="end"
                 css={{
-                  padding: '20px 0 20px 0',
+                  width: '100%',
+                  padding: '32px 22px 20px 0',
                 }}
               >
-                <Button
-                  style={'ctaPill'}
-                  onClick={() => props.onOpenChange(false)}
-                  css={{ marginRight: '20px' }}
-                >
-                  Cancel
-                </Button>
                 <Button style={'ctaDarkYellow'}>
                   {props.acceptButtonLabel || 'Submit'}
                 </Button>

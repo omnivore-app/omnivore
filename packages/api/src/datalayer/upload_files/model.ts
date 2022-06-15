@@ -46,7 +46,7 @@ export const createKeys = exclude(keys, defaultedKeys)
 export type CreateSet = PickTuple<UploadFileData, typeof createKeys> &
   Partialize<DefaultedSet>
 
-export const updateKeys = ['status'] as const
+export const updateKeys = ['url', 'status'] as const
 
 export type UpdateSet = PickTuple<UploadFileData, typeof updateKeys>
 

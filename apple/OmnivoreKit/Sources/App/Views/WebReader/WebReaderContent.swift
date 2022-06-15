@@ -6,31 +6,28 @@ import Views
 struct WebReaderContent {
   let textFontSize: Int
   let lineHeight: Int
-  let margin: Int
-  let htmlContent: String
-  let highlightsJSONString: String
+  let maxWidthPercentage: Int
   let item: LinkedItem
   let themeKey: String
   let fontFamily: WebFont
+  let articleContent: ArticleContent
 
   init(
-    htmlContent: String,
-    highlightsJSONString: String,
     item: LinkedItem,
+    articleContent: ArticleContent,
     isDark: Bool,
     fontSize: Int,
     lineHeight: Int,
-    margin: Int,
+    maxWidthPercentage: Int,
     fontFamily: WebFont
   ) {
     self.textFontSize = fontSize
     self.lineHeight = lineHeight
-    self.margin = margin
-    self.htmlContent = htmlContent
-    self.highlightsJSONString = highlightsJSONString
+    self.maxWidthPercentage = maxWidthPercentage
     self.item = item
     self.themeKey = isDark ? "Gray" : "LightGray"
     self.fontFamily = fontFamily
+    self.articleContent = articleContent
   }
 
   // swiftlint:disable line_length
@@ -52,7 +49,7 @@ struct WebReaderContent {
       <body>
         <div id="root" />
         <div id='_omnivore-htmlContent' style="display: none;">
-          \(htmlContent)
+          \(articleContent.htmlContent)
         </div>
         <script type="text/javascript">
           window.omnivoreEnv = {
@@ -70,19 +67,19 @@ struct WebReaderContent {
             savedAt: \(savedAt),
             publishedAt: \(publishedAt),
             url: `\(item.unwrappedPageURLString)`,
-            title: `\(item.unwrappedTitle.replacingOccurrences(of: "`", with: "\\`"))`,
+            title: `\(articleContent.title.replacingOccurrences(of: "`", with: "\\`"))`,
             content: document.getElementById('_omnivore-htmlContent').innerHTML,
             originalArticleUrl: "\(item.unwrappedPageURLString)",
             contentReader: "WEB",
             readingProgressPercent: \(item.readingProgress),
             readingProgressAnchorIndex: \(item.readingProgressAnchor),
             labels: \(item.labelsJSONString),
-            highlights: \(highlightsJSONString),
+            highlights: \(articleContent.highlightsJSONString),
           }
 
           window.fontSize = \(textFontSize)
           window.fontFamily = "\(fontFamily.rawValue)"
-          window.margin = \(margin)
+          window.maxWidthPercentage = \(maxWidthPercentage)
           window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")
         </script>

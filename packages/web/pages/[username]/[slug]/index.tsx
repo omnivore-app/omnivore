@@ -62,6 +62,28 @@ export default function Home(): JSX.Element {
 
   const actionHandler = useCallback(async(action: string, arg?: unknown) => {
     switch (action) {
+      case 'unarchive':
+          if (article) {
+            removeItemFromCache(cache, mutate, article.id)
+
+            setLinkArchivedMutation({
+              linkId: article.id,
+              archived: false,
+            }).then((res) => {
+              if (res) {
+                showSuccessToast('Link unarchived', {
+                  position: 'bottom-right',
+                })
+              } else {
+                showErrorToast('Error unarchiving link', {
+                  position: 'bottom-right',
+                })
+              }
+            })
+
+            router.push(`/home`)
+          }
+          break
       case 'archive':
         if (article) {
           removeItemFromCache(cache, mutate, article.id)

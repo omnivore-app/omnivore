@@ -4,6 +4,7 @@ import Models
 import SwiftGraphQL
 
 public struct UploadFileRequestPayload {
+  public let pageId: String
   public let uploadID: String?
   public let uploadFileID: String?
   public let urlString: String?
@@ -19,7 +20,7 @@ public extension DataService {
     let input = InputObjects.UploadFileRequestInput(
       clientRequestId: OptionalArgument(id),
       contentType: "application/pdf",
-      createPageEntry: OptionalArgument(false),
+      createPageEntry: OptionalArgument(true),
       url: url
     )
 
@@ -29,6 +30,7 @@ public extension DataService {
         uploadFileRequestSuccess: .init {
           .success(
             payload: UploadFileRequestPayload(
+              pageId: (try $0.createdPageId()) ?? id,
               uploadID: try $0.id(),
               uploadFileID: try $0.uploadFileId(),
               urlString: try $0.uploadSignedUrl()
@@ -83,6 +85,12 @@ public extension DataService {
     request.httpMethod = "PUT"
     request.addValue("application/pdf", forHTTPHeaderField: "content-type")
 
+    print("UPLOADING PDF", localPdfURL)
+    let attr = try? FileManager.default.attributesOfItem(atPath: localPdfURL.path)
+    if let attr = attr {
+      print("UPLOADING ATTR", attr[.size])
+    }
+
     return try await withCheckedThrowingContinuation { continuation in
       let task = networker.urlSession.uploadTask(with: request, fromFile: localPdfURL) { _, response, _ in
         if let httpResponse = response as? HTTPURLResponse, 200 ... 299 ~= httpResponse.statusCode {
@@ -95,23 +103,7 @@ public extension DataService {
     }
   }
 
-  func uploadFileInBackground(id: String, localPdfURL: String?, url: URL, usingSession session: URLSession) -> URLSessionTask? {
-    if let localPdfURL = localPdfURL, let localUrl = URL(string: localPdfURL) {
-      var request = URLRequest(url: url)
-      request.httpMethod = "PUT"
-      request.setValue("application/pdf", forHTTPHeaderField: "content-type")
-      request.setValue(id, forHTTPHeaderField: "clientRequestId")
-
-      let task = session.uploadTask(with: request, fromFile: localUrl)
-      return task
-    } else {
-      // TODO: How should we handle this scenario?
-      return nil
-    }
-  }
-
-  // swiftlint:disable:next line_length
-  func saveFilePublisher(requestId: String, uploadFileId: String, url: String) async throws {
+  func saveFilePublisher(requestId: String, uploadFileId: String, url: String) async throws -> String? {
     enum MutationResult {
       case saved(requestId: String, url: String)
       case error(errorCode: Enums.SaveErrorCode)
@@ -127,7 +119,13 @@ public extension DataService {
     let selection = Selection<MutationResult, Unions.SaveResult> {
       try $0.on(
         saveError: .init { .error(errorCode: (try? $0.errorCodes().first) ?? .unknown) },
-        saveSuccess: .init { .saved(requestId: requestId, url: (try? $0.url()) ?? "") }
+        saveSuccess: .init {
+          if let requestId = try? $0.clientRequestId(), let url = try? $0.url() {
+            return .saved(requestId: requestId, url: url)
+          } else {
+            return .error(errorCode: .unknown)
+          }
+        }
       )
     }
 
@@ -148,8 +146,8 @@ public extension DataService {
           }
 
           switch payload.data {
-          case .saved:
-            continuation.resume()
+          case let .saved(requestId: requestId, url: _):
+            continuation.resume(returning: requestId)
           case let .error(errorCode: errorCode):
             switch errorCode {
             case .unauthorized:

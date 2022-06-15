@@ -6,6 +6,7 @@ public enum GridCardAction {
   case toggleArchiveStatus
   case delete
   case editLabels
+  case editTitle
 }
 
 public struct GridCard: View {
@@ -43,6 +44,10 @@ public struct GridCard: View {
 
   var contextMenuView: some View {
     Group {
+      Button(
+        action: { menuActionHandler(.editTitle) },
+        label: { Label("Edit Title/Description", systemImage: "textbox") }
+      )
       Button(
         action: { menuActionHandler(.editLabels) },
         label: { Label("Edit Labels", systemImage: "tag") }
@@ -160,6 +165,10 @@ public struct GridCard: View {
               .padding(.horizontal)
             }
             .onTapGesture { tapHandler() }
+          }
+
+          if let status = item.serverSyncStatus, status != ServerSyncStatus.isNSync.rawValue {
+            SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(status)) ?? ServerSyncStatus.isNSync)
           }
         }
         .padding(.horizontal, 0)

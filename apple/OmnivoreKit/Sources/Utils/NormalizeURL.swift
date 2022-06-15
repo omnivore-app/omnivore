@@ -26,8 +26,12 @@ public func normalizeURL(_ dirtyURL: String) -> String {
     }
 
     urlObject.queryItems = urlObject.queryItems?.filter { item in
-      item.name.starts(with: "utm_")
+      !item.name.starts(with: "utm_")
     }
+
+    urlObject.queryItems = urlObject.queryItems?.sorted(by: { first, second in
+      first.name <= second.name
+    })
 
     if /* options.removeTrailingSlash */ true {
       urlObject.path = urlObject.path.replacingRegex(pattern: "/$", replaceWith: "")

@@ -14,6 +14,7 @@ import Views
   @Published var isLoading = false
   @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: LinkedItem?
+  @Published var itemUnderTitleEdit: LinkedItem?
   @Published var searchTerm = ""
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()

@@ -184,9 +184,9 @@ export const createTestLabel = async (
   color: string
 ): Promise<Label> => {
   return getRepository(Label).save({
-    user: user,
-    name: name,
-    color: color,
+    user,
+    name,
+    color,
   })
 }
 

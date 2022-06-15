@@ -302,8 +302,8 @@ const schema = gql`
     type: PageType!
     image: String!
     title: String!
-    author: String!
-    description: String!
+    author: String
+    description: String
     publishedAt: Date
 
     originalHtml: String!
@@ -351,6 +351,7 @@ const schema = gql`
     unsubHttpUrl: String
     state: ArticleSavingRequestStatus
     language: String
+    readAt: Date
   }
 
   # Query: article
@@ -435,6 +436,7 @@ const schema = gql`
     id: ID!
     uploadSignedUrl: String
     uploadFileId: ID
+    createdPageId: String
   }
 
   # Mutation: createArticle
@@ -513,7 +515,7 @@ const schema = gql`
   }
 
   type UpdatePageSuccess {
-    updatedPage: Page!
+    updatedPage: Article!
   }
 
   enum UpdatePageErrorCode {
@@ -1738,6 +1740,11 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input SetLabelsForHighlightInput {
+    highlightId: ID!
+    labelIds: [ID!]!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1806,6 +1813,7 @@ const schema = gql`
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
+    setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

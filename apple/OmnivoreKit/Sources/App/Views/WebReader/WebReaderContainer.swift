@@ -10,6 +10,7 @@ import WebKit
 
     @State private var showPreferencesPopover = false
     @State private var showLabelsModal = false
+    @State private var showTitleEdit = false
     @State var showHighlightAnnotationModal = false
     @State var safariWebLink: SafariWebLink?
     @State private var navBarVisibilityRatio = 1.0
@@ -18,7 +19,7 @@ import WebKit
     @State var updateFontFamilyActionID: UUID?
     @State var updateFontActionID: UUID?
     @State var updateTextContrastActionID: UUID?
-    @State var updateMarginActionID: UUID?
+    @State var updateMaxWidthActionID: UUID?
     @State var updateLineHeightActionID: UUID?
     @State var annotationSaveTransactionID: UUID?
     @State var showNavBarActionID: UUID?
@@ -83,12 +84,17 @@ import WebKit
           content: {
             Group {
               Button(
+                action: { showTitleEdit = true },
+                label: { Label("Edit Title/Description", systemImage: "textbox") }
+              )
+              Button(
                 action: { showLabelsModal = true },
                 label: { Label("Edit Labels", systemImage: "tag") }
               )
               Button(
                 action: {
                   dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+                  presentationMode.wrappedValue.dismiss()
                   Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
                 },
                 label: {
@@ -122,11 +128,15 @@ import WebKit
         Button("Remove Link", role: .destructive) {
           Snackbar.show(message: "Link removed")
           dataService.removeLink(objectID: item.objectID)
+          presentationMode.wrappedValue.dismiss()
         }
         Button("Cancel", role: .cancel, action: {})
       }
       .sheet(isPresented: $showLabelsModal) {
         ApplyLabelsView(mode: .item(item), onSave: { _ in showLabelsModal = false })
+      }
+      .sheet(isPresented: $showTitleEdit) {
+        LinkedItemTitleEditView(item: item)
       }
     }
 
@@ -134,9 +144,8 @@ import WebKit
       ZStack {
         if let articleContent = viewModel.articleContent {
           WebReader(
-            htmlContent: articleContent.htmlContent,
-            highlightsJSONString: articleContent.highlightsJSONString,
             item: item,
+            articleContent: articleContent,
             openLinkAction: {
               #if os(macOS)
                 NSWorkspace.shared.open($0)
@@ -151,7 +160,7 @@ import WebKit
             updateFontFamilyActionID: $updateFontFamilyActionID,
             updateFontActionID: $updateFontActionID,
             updateTextContrastActionID: $updateTextContrastActionID,
-            updateMarginActionID: $updateMarginActionID,
+            updateMaxWidthActionID: $updateMaxWidthActionID,
             updateLineHeightActionID: $updateLineHeightActionID,
             annotationSaveTransactionID: $annotationSaveTransactionID,
             showNavBarActionID: $showNavBarActionID,
@@ -164,7 +173,7 @@ import WebKit
               showNavBarActionID = UUID()
             }
           }
-          .sheet(item: $safariWebLink) {
+          .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
           .sheet(isPresented: $showHighlightAnnotationModal) {
@@ -203,7 +212,7 @@ import WebKit
           updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
           updateFontAction: { updateFontActionID = UUID() },
           updateTextContrastAction: { updateTextContrastActionID = UUID() },
-          updateMarginAction: { updateMarginActionID = UUID() },
+          updateMaxWidthAction: { updateMaxWidthActionID = UUID() },
           updateLineHeightAction: { updateLineHeightActionID = UUID() },
           dismissAction: { showPreferencesPopover = false }
         )

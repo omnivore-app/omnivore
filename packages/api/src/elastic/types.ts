@@ -163,6 +163,7 @@ export interface Highlight {
   annotation?: string | null
   sharedAt?: Date | null
   updatedAt?: Date | null
+  labels?: Label[]
 }
 
 export interface Page {
@@ -223,6 +224,7 @@ export interface SearchItem {
   userId: string
   state?: ArticleSavingRequestStatus
   language?: string
+  readAt?: Date
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const

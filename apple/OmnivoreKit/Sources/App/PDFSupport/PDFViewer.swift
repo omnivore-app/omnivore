@@ -21,15 +21,14 @@ import Utils
       let url: URL
     }
 
-    let pdfURL: URL
     let viewModel: PDFViewerViewModel
 
     @StateObject var pdfStateObject = PDFStateObject()
     @State var readerView: Bool = false
     @State private var shareLink: ShareLink?
+    @State private var errorMessage: String?
 
-    init(remoteURL: URL, viewModel: PDFViewerViewModel) {
-      self.pdfURL = viewModel.pdfItem.localPdfURL ?? remoteURL
+    init(viewModel: PDFViewerViewModel) {
       self.viewModel = viewModel
     }
 
@@ -135,12 +134,21 @@ import Utils
           .sheet(item: $shareLink) {
             ShareSheet(activityItems: [$0.url])
           }
+      } else if let errorMessage = errorMessage {
+        Text(errorMessage)
       } else {
         ProgressView()
           .task {
-            let document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
-            pdfStateObject.document = document
-            pdfStateObject.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
+            // NOTE: the issue here is the PDF is downloaded, but saved to a URL we don't know about
+            // because it is changed.
+            let pdfURL = await viewModel.downloadPDF(dataService: dataService)
+            if let pdfURL = pdfURL {
+              let document = HighlightedDocument(url: pdfURL, viewModel: viewModel)
+              pdfStateObject.document = document
+              pdfStateObject.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
+            } else {
+              errorMessage = "Unable to download PDF: \(pdfURL)"
+            }
           }
       }
     }

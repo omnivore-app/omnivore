@@ -43,6 +43,7 @@ const App = () => {
             fontSize={window.fontSize ?? 18}
             fontFamily={window.fontFamily ?? 'inter'}
             margin={window.margin}
+            maxWidthPercentage={window.maxWidthPercentage}
             lineHeight={window.lineHeight}
             articleMutations={{
               createHighlightMutation: (input) =>

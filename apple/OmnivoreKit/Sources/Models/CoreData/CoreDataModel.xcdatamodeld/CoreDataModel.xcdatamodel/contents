@@ -24,12 +24,13 @@
         <attribute name="author" optional="YES" attributeType="String"/>
         <attribute name="contentReader" optional="YES" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="createdId" optional="YES" attributeType="String"/>
         <attribute name="descriptionText" optional="YES" attributeType="String"/>
         <attribute name="htmlContent" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="localPdfURL" optional="YES" attributeType="String"/>
+        <attribute name="localPDF" optional="YES" attributeType="String"/>
         <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
         <attribute name="originalHtml" optional="YES" attributeType="String"/>
         <attribute name="pageURLString" attributeType="String"/>
@@ -42,6 +43,8 @@
         <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="siteName" optional="YES" attributeType="String"/>
         <attribute name="slug" attributeType="String"/>
+        <attribute name="state" optional="YES" attributeType="String"/>
+        <attribute name="tempPDFURL" optional="YES" attributeType="URI"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="highlights" toMany="YES" deletionRule="Cascade" destinationEntity="Highlight" inverseName="linkedItem" inverseEntity="Highlight"/>
@@ -89,7 +92,7 @@
     </entity>
     <elements>
         <element name="Highlight" positionX="27" positionY="225" width="128" height="224"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="404"/>
+        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="449"/>
         <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="134"/>
         <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
         <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>

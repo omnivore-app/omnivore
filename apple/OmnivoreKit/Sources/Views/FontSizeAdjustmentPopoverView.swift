@@ -3,14 +3,17 @@ import Utils
 
 public enum WebFont: String, CaseIterable {
   case inter = "Inter"
-  case merriweather = "Merriweather"
-  case lyon = "Lyon"
-  case tisa = "Tisa"
   case system = "unset"
+  case merriweather = "Merriweather"
+  case lora = "Lora"
+  case opensans = "Open Sans"
+  case roboto = "Roboto"
+  case crimsontext = "Crimson Text"
+  case sourceserifpro = "Source Serif Pro"
 
   var displayValue: String {
     switch self {
-    case .inter, .merriweather, .lyon, .tisa:
+    case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro:
       return rawValue
     case .system:
       return "System Default"
@@ -22,7 +25,7 @@ public struct WebPreferencesPopoverView: View {
   let updateFontFamilyAction: () -> Void
   let updateFontAction: () -> Void
   let updateTextContrastAction: () -> Void
-  let updateMarginAction: () -> Void
+  let updateMaxWidthAction: () -> Void
   let updateLineHeightAction: () -> Void
   let dismissAction: () -> Void
 
@@ -34,7 +37,7 @@ public struct WebPreferencesPopoverView: View {
   #endif
 
   @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
-  @AppStorage(UserDefaultKey.preferredWebMargin.rawValue) var storedMargin = 360
+  @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
   @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
   @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = false
 
@@ -42,14 +45,14 @@ public struct WebPreferencesPopoverView: View {
     updateFontFamilyAction: @escaping () -> Void,
     updateFontAction: @escaping () -> Void,
     updateTextContrastAction: @escaping () -> Void,
-    updateMarginAction: @escaping () -> Void,
+    updateMaxWidthAction: @escaping () -> Void,
     updateLineHeightAction: @escaping () -> Void,
     dismissAction: @escaping () -> Void
   ) {
     self.updateFontFamilyAction = updateFontFamilyAction
     self.updateFontAction = updateFontAction
     self.updateTextContrastAction = updateTextContrastAction
-    self.updateMarginAction = updateMarginAction
+    self.updateMaxWidthAction = updateMaxWidthAction
     self.updateLineHeightAction = updateLineHeightAction
     self.dismissAction = dismissAction
   }
@@ -96,19 +99,17 @@ public struct WebPreferencesPopoverView: View {
               }
             )
 
-            if UIDevice.isIPad {
-              LabelledStepper(
-                labelText: "Margin:",
-                onIncrement: {
-                  storedMargin = min(storedMargin + 45, 560)
-                  updateMarginAction()
-                },
-                onDecrement: {
-                  storedMargin = max(storedMargin - 45, 200)
-                  updateMarginAction()
-                }
-              )
-            }
+            LabelledStepper(
+              labelText: "Margin:",
+              onIncrement: {
+                storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+                updateMaxWidthAction()
+              },
+              onDecrement: {
+                storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
+                updateMaxWidthAction()
+              }
+            )
 
             LabelledStepper(
               labelText: "Line Spacing:",
@@ -145,7 +146,16 @@ public struct WebPreferencesPopoverView: View {
       .padding()
       .navigationTitle("Reader Preferences")
       .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button(
+            action: dismissAction,
+            label: { Text("Done").foregroundColor(.appGrayTextContrast).padding() }
+          )
+        }
+      }
     }
+    .navigationViewStyle(.stack)
     .accentColor(.appGrayTextContrast)
   }
 }

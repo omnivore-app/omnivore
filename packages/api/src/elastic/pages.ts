@@ -188,7 +188,7 @@ export const createPage = async (
 
     return body._id as string
   } catch (e) {
-    console.error('failed to create a page in elastic', e)
+    console.error('failed to create a page in elastic', JSON.stringify(e))
     return undefined
   }
 }

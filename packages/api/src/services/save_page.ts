@@ -1,6 +1,11 @@
 import { PubsubClient } from '../datalayer/pubsub'
 import { homePageURL } from '../env'
-import { Maybe, SavePageInput, SaveResult } from '../generated/graphql'
+import {
+  Maybe,
+  SaveErrorCode,
+  SavePageInput,
+  SaveResult,
+} from '../generated/graphql'
 import { DataModels } from '../resolvers/types'
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
 import { parsePreparedContent } from '../utils/parser'
@@ -102,25 +107,44 @@ export const savePage = async (
     state: ArticleSavingRequestStatus.Succeeded,
   })
   if (existingPage) {
-    await updatePage(
-      existingPage.id,
-      {
-        savedAt: new Date(),
-        archivedAt: undefined,
-      },
-      ctx
-    )
+    if (
+      !(await updatePage(
+        existingPage.id,
+        {
+          savedAt: new Date(),
+          archivedAt: undefined,
+        },
+        ctx
+      ))
+    ) {
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to update existing page',
+      }
+    }
     input.clientRequestId = existingPage.id
   } else if (shouldParseInBackend(input)) {
-    await createPageSaveRequest(
-      saver.userId,
-      input.url,
-      ctx.models,
-      ctx.pubsub,
-      input.clientRequestId
-    )
+    try {
+      await createPageSaveRequest(
+        saver.userId,
+        input.url,
+        ctx.models,
+        ctx.pubsub,
+        input.clientRequestId
+      )
+    } catch (e) {
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create page save request',
+      }
+    }
   } else {
-    await createPage(articleToSave, ctx)
+    if (!(await createPage(articleToSave, ctx))) {
+      return {
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create new page',
+      }
+    }
   }
 
   return {
