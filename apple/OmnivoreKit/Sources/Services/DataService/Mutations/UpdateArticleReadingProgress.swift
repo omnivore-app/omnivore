@@ -27,7 +27,7 @@ extension DataService {
 
   func syncLinkReadingProgress(itemID: String, objectID: NSManagedObjectID, readingProgress: Double, anchorIndex: Int) {
     enum MutationResult {
-      case saved(updatedAt: Date?)
+      case saved(readAt: Date?)
       case error(errorCode: Enums.SaveArticleReadingProgressErrorCode)
     }
 
@@ -36,7 +36,7 @@ extension DataService {
         saveArticleReadingProgressError: .init { .error(errorCode: try $0.errorCodes().first ?? .badData) },
         saveArticleReadingProgressSuccess: .init {
           .saved(
-            updatedAt: try $0.updatedArticle(selection: Selection.Article { try $0.updatedAt().value })
+            readAt: try $0.updatedArticle(selection: Selection.Article { try $0.readAt()?.value })
           )
         }
       )
@@ -64,8 +64,8 @@ extension DataService {
       context.perform {
         guard let linkedItem = context.object(with: objectID) as? LinkedItem else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
-        if let mutationResult = data?.data, case let MutationResult.saved(updatedAt) = mutationResult {
-          linkedItem.updatedAt = updatedAt
+        if let mutationResult = data?.data, case let MutationResult.saved(readAt) = mutationResult {
+          linkedItem.readAt = readAt
         }
 
         do {

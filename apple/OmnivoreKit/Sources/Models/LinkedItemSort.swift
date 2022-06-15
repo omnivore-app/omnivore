@@ -41,7 +41,10 @@ public extension LinkedItemSort {
     case .oldest:
       return [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: true)]
     case .recentlyRead:
-      return [NSSortDescriptor(keyPath: \LinkedItem.updatedAt, ascending: false)]
+      return [
+        NSSortDescriptor(keyPath: \LinkedItem.readAt, ascending: false),
+        NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)
+      ]
     case .recentlyPublished:
       return [NSSortDescriptor(keyPath: \LinkedItem.publishDate, ascending: false)]
     }

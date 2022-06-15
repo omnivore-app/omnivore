@@ -19,6 +19,7 @@ public struct JSONArticle: Decodable {
   public let createdAt: Date
   public let updatedAt: Date
   public let savedAt: Date
+  public let readAt: Date?
   public let image: String
   public let readingProgressPercent: Double
   public let readingProgressAnchorIndex: Int
