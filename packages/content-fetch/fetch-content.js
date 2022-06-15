@@ -397,7 +397,7 @@ function getUrl(req) {
 }
 
 
-async function blockResources(page) {
+async function blockResources(client) {
   const blockedResources = [
     // Assets
     // '*/favicon.ico',
@@ -420,7 +420,7 @@ async function blockResources(page) {
     'sp.analytics.yahoo.com',
   ]
 
-  await page._client.send('Network.setBlockedURLs', { urls: blockedResources });
+  await client.send('Network.setBlockedURLs', { urls: blockedResources });
 }
 
 async function retrievePage(url) {
@@ -432,8 +432,8 @@ async function retrievePage(url) {
   const context = await browser.createIncognitoBrowserContext();
   const page = await context.newPage()
 
-  if (!enableJavascriptForUrl(url)) {
-    page.setJavaScriptEnabled(false)
+  if (!await enableJavascriptForUrl(url)) {
+    await page.setJavaScriptEnabled(false)
   }
   await page.setUserAgent(userAgentForUrl(url));
 
@@ -453,7 +453,7 @@ async function retrievePage(url) {
   const path = require('path');
   const download_path = path.resolve('./download_dir/');
 
-  await page._client.send('Page.setDownloadBehavior', {
+  await client.send('Page.setDownloadBehavior', {
       behavior: 'allow',
       userDataDir: './',
       downloadPath: download_path,
@@ -482,7 +482,7 @@ async function retrievePage(url) {
     } catch {}
   });
 
-  await blockResources(page);
+  await blockResources(client);
 
   /*
     * Disallow MathJax from running in Puppeteer and modifying the document,
@@ -666,7 +666,7 @@ async function retrieveHtml(page) {
   }
   console.log('DOM CONTENT')
   console.log(domContent)
-  if (domContent == 'IS_BLOCKED') {
+  if (domContent === 'IS_BLOCKED') {
     return { isBlocked: true };
   }
   return { domContent, title };

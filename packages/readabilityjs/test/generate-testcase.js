@@ -80,7 +80,7 @@ async function fetchSource(url, callbackFn) {
       }
     });
 
-    await page.goto(url, { waitUntil: ['load'] });
+    await page.goto(url, { waitUntil: ['networkidle2'] });
 
     /* scroll with a 5 second timeout */
     await Promise.race([
