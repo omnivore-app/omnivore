@@ -32,7 +32,8 @@ export interface SearchFilter {
   sortParams?: SortParams
   hasFilters: HasFilter[]
   dateFilters: DateFilter[]
-  termFilters: TermFilter[]
+  termFilters: FieldFilter[]
+  matchFilters: FieldFilter[]
 }
 
 export enum LabelFilterType {
@@ -74,7 +75,7 @@ export interface SortParams {
   order?: SortOrder
 }
 
-export interface TermFilter {
+export interface FieldFilter {
   field: string
   value: string
 }
@@ -225,10 +226,10 @@ const parseDateFilter = (
   }
 }
 
-const parseTermFilter = (
+const parseFieldFilter = (
   field: string,
   str?: string
-): TermFilter | undefined => {
+): FieldFilter | undefined => {
   if (str === undefined) {
     return undefined
   }
@@ -250,6 +251,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     hasFilters: [],
     dateFilters: [],
     termFilters: [],
+    matchFilters: [],
   }
 
   if (!searchQuery) {
@@ -261,6 +263,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       hasFilters: [],
       dateFilters: [],
       termFilters: [],
+      matchFilters: [],
     }
   }
 
@@ -276,6 +279,9 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'published',
       'subscription',
       'language',
+      'title',
+      'description',
+      'content',
     ],
     tokenize: true,
   })
@@ -338,8 +344,16 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         // term filters
         case 'subscription':
         case 'language': {
-          const termFilter = parseTermFilter(keyword.keyword, keyword.value)
-          termFilter && result.termFilters.push(termFilter)
+          const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
+          fieldFilter && result.termFilters.push(fieldFilter)
+          break
+        }
+        // match filters
+        case 'title':
+        case 'description':
+        case 'content': {
+          const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
+          fieldFilter && result.matchFilters.push(fieldFilter)
           break
         }
       }
