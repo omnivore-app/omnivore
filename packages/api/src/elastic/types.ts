@@ -42,6 +42,11 @@ export interface SearchBody {
               }
             }
           }
+        | {
+            match: {
+              [K: string]: string
+            }
+          }
       )[]
       should: {
         multi_match: {
