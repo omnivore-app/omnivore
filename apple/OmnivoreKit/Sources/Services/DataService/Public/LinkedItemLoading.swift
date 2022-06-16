@@ -25,7 +25,7 @@ public extension DataService {
 
     return LinkedItemQueryResult(itemIDs: itemIDs, cursor: fetchResult.cursor)
   }
-  
+
   /// Requests a single `LinkedItem` from the server and stores it in CoreData
   /// - Parameters:
   ///   - username: the Viewer's username

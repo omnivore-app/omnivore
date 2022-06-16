@@ -1,10 +1,10 @@
 import Foundation
 
-public enum ArticleContentStatus {
-  case failed
-  case processing
-  case succeeded
-  case unknown
+public enum ArticleContentStatus: String {
+  case failed = "FAILED"
+  case processing = "PROCESSING"
+  case succeeded = "SUCCEEDED"
+  case unknown = "UNKNOWN"
 }
 
 public struct ArticleContent {

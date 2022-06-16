@@ -16,7 +16,7 @@ struct SafariWebLink: Identifiable {
     errorMessage = nil
 
     do {
-      articleContent = try await dataService.fetchArticleContent(itemID: itemID)
+      articleContent = try await dataService.loadArticleContent(itemID: itemID)
     } catch {
       if retryCount == 0 {
         return await loadContent(dataService: dataService, itemID: itemID, retryCount: 1)

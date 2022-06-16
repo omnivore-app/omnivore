@@ -38,7 +38,7 @@ import Utils
       let item = await fetchLinkedItem(dataService: dataService, requestID: existing.itemID, username: username)
       if let item = item, let itemID = item.id {
         do {
-          let articleContent = try await dataService.fetchArticleContent(itemID: itemID, username: username, requestCount: 0)
+          let articleContent = try await dataService.loadArticleContent(itemID: itemID, username: username, requestCount: 0)
           // We've fetched the article content, now reload the item from core data
           if let linkedItem = dataService.viewContext.object(with: item.objectID) as? LinkedItem {
             self.item = linkedItem
