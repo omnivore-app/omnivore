@@ -47,35 +47,59 @@ public final class Services {
     }
 
     static func performBackgroundFetch(task: BGAppRefreshTask) {
+      let startTime = Date()
       Services.logger.debug("starting background fetch")
       scheduleBackgroundFetch()
       let services = Services()
 
       task.expirationHandler = {
-        EventTracker.trackForDebugging("background fetch expiration handler called")
+        EventTracker.track(
+          .backgroundFetch(
+            jobStatus: .timeExpired,
+            itemCount: 0,
+            secondsElapsed: Int(startTime.timeIntervalSinceNow)
+          )
+        )
         logger.debug("handling background fetch expiration")
       }
 
       guard services.authenticator.hasValidAuthToken else {
-        EventTracker.trackForDebugging("background fetch failed: user does not have a valid auth token")
-        Services.logger.debug("background fetch failed: user does not habe a valid auth token")
+        EventTracker.track(
+          .backgroundFetch(
+            jobStatus: .authFailure,
+            itemCount: 0,
+            secondsElapsed: Int(startTime.timeIntervalSinceNow)
+          )
+        )
         task.setTaskCompleted(success: false)
         return
       }
 
       Task {
         do {
-          try await services.dataService.fetchLinkedItemsBackgroundTask()
-          logger.debug("fetch complete")
-          EventTracker.trackForDebugging("background fetch task completed successfully")
+          let fetchedItemCount = try await services.dataService.fetchLinkedItemsBackgroundTask()
+          EventTracker.track(
+            .backgroundFetch(
+              jobStatus: .success,
+              itemCount: fetchedItemCount,
+              secondsElapsed: Int(startTime.timeIntervalSinceNow)
+            )
+          )
           task.setTaskCompleted(success: true)
         } catch {
-          logger.debug("fetch failed")
-          EventTracker.trackForDebugging("background fetch task failed")
+          EventTracker.track(
+            .backgroundFetch(
+              jobStatus: .failed,
+              itemCount: 0,
+              secondsElapsed: Int(startTime.timeIntervalSinceNow)
+            )
+          )
           task.setTaskCompleted(success: false)
         }
       }
     }
   }
 #endif
+
+// Command to simulate BG Task
 // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"app.omnivore.fetchLinkedItems"]

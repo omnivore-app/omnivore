@@ -2235,7 +2235,7 @@ Readability.prototype = {
           if (tweetParent && tweetParent.className.includes('twitter-tweet')) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
           }
-        } else if (element.parentNode.className === 'tweet') {
+        } else if (element.parentNode && element.parentNode.className === 'tweet') {
           // Create tweets placeholders from classname
           try {
             const response = await axios.get(link);

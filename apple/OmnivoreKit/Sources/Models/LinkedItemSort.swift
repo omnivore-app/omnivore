@@ -3,9 +3,8 @@ import Foundation
 public enum LinkedItemSort: String, CaseIterable {
   case newest
   case oldest
-  // case recentlyRead
+  case recentlyRead
   case recentlyPublished
-//  case relevance
 }
 
 public extension LinkedItemSort {
@@ -15,12 +14,10 @@ public extension LinkedItemSort {
       return "Newest"
     case .oldest:
       return "Oldest"
-//    case .recentlyRead:
-//      return "Recently Read"
+    case .recentlyRead:
+      return "Recently Read"
     case .recentlyPublished:
       return "Recently Published"
-//    case .relevance:
-//      return "Relevance"
     }
   }
 
@@ -30,23 +27,24 @@ public extension LinkedItemSort {
       return "sort:saved"
     case .oldest:
       return "sort:saved-ASC"
-//    case .recentlyRead:
-//      return "sort:updated"
+    case .recentlyRead:
+      return "sort:read"
     case .recentlyPublished:
       return "sort:published"
-//    case .relevance:
-//      return "relevance"
     }
   }
 
   var sortDescriptors: [NSSortDescriptor] {
     switch self {
-    case .newest /* , .relevance */:
+    case .newest:
       return [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)]
     case .oldest:
       return [NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: true)]
-//    case .recentlyRead:
-//      return [NSSortDescriptor(keyPath: \LinkedItem.updatedAt, ascending: false)]
+    case .recentlyRead:
+      return [
+        NSSortDescriptor(keyPath: \LinkedItem.readAt, ascending: false),
+        NSSortDescriptor(keyPath: \LinkedItem.savedAt, ascending: false)
+      ]
     case .recentlyPublished:
       return [NSSortDescriptor(keyPath: \LinkedItem.publishDate, ascending: false)]
     }

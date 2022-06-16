@@ -17,7 +17,8 @@ type DisplaySettingsModalProps = {
   onOpenChange: (open: boolean) => void
   lineHeight: number
   marginWidth: number
-  articleActionHandler: (action: string, arg?: number) => void
+  fontFamily: string
+  articleActionHandler: (action: string, arg?: number | string) => void
 }
 
 export function DisplaySettingsModal(props: DisplaySettingsModalProps): JSX.Element {
@@ -54,6 +55,7 @@ export function DisplaySettingsModal(props: DisplaySettingsModalProps): JSX.Elem
           <ReaderSettingsControl
             lineHeight={props.lineHeight}
             marginWidth={props.marginWidth}
+            fontFamily={props.fontFamily}
             articleActionHandler={props.articleActionHandler}
           />
         </VStack>

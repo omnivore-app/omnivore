@@ -4,11 +4,13 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
-  public func fetchLinkedItemsBackgroundTask() async throws {
+  public func fetchLinkedItemsBackgroundTask() async throws -> Int {
+    var fetchedItemCount = 0
+
     // Query the server for item IDs and compare against CoreData
     // to see what we're missing
     let missingItemIds = try await fetchMissingItemIDs()
-    guard !missingItemIds.isEmpty else { return }
+    guard !missingItemIds.isEmpty else { return 0 }
 
     let username: String? = await backgroundContext.perform(schedule: .immediate) {
       let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
@@ -24,8 +26,11 @@ extension DataService {
     for itemID in missingItemIds { // TOOD: run these in parallel
       logger.debug("fetching item with ID: \(itemID)")
       _ = try await articleContent(username: username, itemID: itemID, useCache: false)
+      fetchedItemCount += 1
       logger.debug("done fetching item with ID: \(itemID)")
     }
+
+    return fetchedItemCount
   }
 
   func fetchMissingItemIDs(previouslyFetchedIDs: [String] = [], cursor: String? = nil) async throws -> [String] {

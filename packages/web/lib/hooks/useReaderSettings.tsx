@@ -3,6 +3,8 @@ import { userPersonalizationMutation } from "../networking/mutations/userPersona
 import { useGetUserPreferences, UserPreferences } from "../networking/queries/useGetUserPreferences"
 import { usePersistedState } from "./usePersistedState"
 
+const DEFAULT_FONT = 'Inter'
+
 export type ReaderSettings = {
   preferencesData: UserPreferences | undefined
   fontSize: number
@@ -20,6 +22,9 @@ export type ReaderSettings = {
   setShowEditDisplaySettingsModal: (showEditDisplaySettingsModal: boolean) => void
 
   actionHandler: (action: string, arg?: unknown) => void
+  
+  fontFamily: string,
+  setFontFamily: (newStyle: string) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
@@ -27,6 +32,7 @@ export const useReaderSettings = (): ReaderSettings => {
   const [fontSize, setFontSize] = useState(preferencesData?.fontSize ?? 20)
   const [lineHeight, setLineHeight] = usePersistedState({ key: 'lineHeight', initialValue: 150 })
   const [marginWidth, setMarginWidth] = usePersistedState({ key: 'marginWidth', initialValue: 200 })
+  const [fontFamily, setFontFamily] = usePersistedState({ key: 'fontFamily', initialValue: DEFAULT_FONT })
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
 
@@ -67,6 +73,10 @@ export const useReaderSettings = (): ReaderSettings => {
         setShowEditDisplaySettingsModal(true)
         break
       }
+      case 'setFontFamily': {
+        setFontFamily(arg as unknown as string)
+        break
+      }
       case 'setLabels': {
         setShowSetLabelsModal(true)
         break
@@ -75,11 +85,12 @@ export const useReaderSettings = (): ReaderSettings => {
         updateFontSize(20)
         setMarginWidth(290)
         setLineHeight(150)
+        setFontFamily(DEFAULT_FONT)
         break
       }
     }
-  }, [fontSize, setFontSize, lineHeight,
-      setLineHeight, marginWidth, setMarginWidth])
+  }, [fontSize, setFontSize, lineHeight, fontFamily,
+      setLineHeight, marginWidth, setMarginWidth, setFontFamily])
 
   return {
     preferencesData,
@@ -87,6 +98,6 @@ export const useReaderSettings = (): ReaderSettings => {
     setFontSize,  setLineHeight, setMarginWidth,
     showSetLabelsModal, showEditDisplaySettingsModal,
     setShowSetLabelsModal, setShowEditDisplaySettingsModal,
-    actionHandler,
+    actionHandler, setFontFamily, fontFamily,
   }
 }
