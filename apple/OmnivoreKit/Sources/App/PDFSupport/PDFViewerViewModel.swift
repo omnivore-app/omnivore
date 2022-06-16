@@ -94,12 +94,16 @@ public final class PDFViewerViewModel: ObservableObject {
       if itemDownloaded {
         return pdfItem.localPdfURL
       }
+
       if let tempURL = pdfItem.tempPDFURL {
-        if let localURL = try? PDFUtils.copyToLocal(url: tempURL) {
+        if (try? PDFUtils.copyToLocal(url: tempURL)) != nil {
           return tempURL
         }
       }
-      if let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL) {
+
+      let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL)
+
+      if let localURL = localURL {
         return localURL
       }
     } catch {

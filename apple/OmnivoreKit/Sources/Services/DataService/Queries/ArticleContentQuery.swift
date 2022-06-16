@@ -11,6 +11,7 @@ struct ArticleProps {
 }
 
 extension DataService {
+  // swiftlint:disable:next function_body_length
   func articleContentFetch(username: String, itemID: String) async throws -> ArticleProps {
     enum QueryResult {
       case success(result: ArticleProps)
