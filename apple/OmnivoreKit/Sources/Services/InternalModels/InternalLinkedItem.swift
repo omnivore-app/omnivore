@@ -70,7 +70,7 @@ struct InternalLinkedItem {
 }
 
 extension Sequence where Element == InternalLinkedItem {
-  func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
+  func persist(context: NSManagedObjectContext) -> [NSManagedObjectID]? {
     var linkedItems: [LinkedItem]?
     context.performAndWait {
       linkedItems = map { $0.asManagedObject(inContext: context) }
@@ -83,7 +83,12 @@ extension Sequence where Element == InternalLinkedItem {
         print("Failed to save LinkedItems: \(error.localizedDescription)")
       }
     }
-    return linkedItems
+
+    if let linkedItems = linkedItems {
+      return linkedItems.map(\.objectID)
+    } else {
+      return nil
+    }
   }
 }
 

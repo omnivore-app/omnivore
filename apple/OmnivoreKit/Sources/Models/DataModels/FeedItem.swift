@@ -2,12 +2,12 @@ import CoreData
 import Foundation
 import Utils
 
-public struct HomeFeedData { // TODO: rename this
-  public let items: [NSManagedObjectID]
+public struct LinkedItemQueryResult {
+  public let itemIDs: [NSManagedObjectID]
   public let cursor: String?
 
-  public init(items: [NSManagedObjectID], cursor: String?) {
-    self.items = items
+  public init(itemIDs: [NSManagedObjectID], cursor: String?) {
+    self.itemIDs = itemIDs
     self.cursor = cursor
   }
 }

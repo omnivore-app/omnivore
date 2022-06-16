@@ -3,22 +3,25 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-public extension DataService {
+struct InternalLinkedItemQueryResult {
+  let items: [InternalLinkedItem]
+  let cursor: String?
+}
+
+extension DataService {
+  /// Performs GraphQL request to fetch `InternalLinkedItem`s and a cursor value
+  /// - Parameters:
+  ///   - limit: max number of items to return
+  ///   - searchQuery: search query used by server to narrow search
+  ///   - cursor: cursor to indicate batch cutoff
+  /// - Returns: `InternalLinkedItemQueryResult` or a `ContentFetchError` if request fails.
   func fetchLinkedItems(
     limit: Int,
     searchQuery: String?,
     cursor: String?
-  ) async throws -> HomeFeedData {
-    // Send offline changes to server before fetching items
-    try? await syncOfflineItemsWithServerIfNeeded()
-
-    struct InternalHomeFeedData {
-      let items: [InternalLinkedItem]
-      let cursor: String?
-    }
-
+  ) async throws -> InternalLinkedItemQueryResult {
     enum QueryResult {
-      case success(result: InternalHomeFeedData)
+      case success(result: InternalLinkedItemQueryResult)
       case error(error: String)
     }
 
@@ -29,7 +32,7 @@ public extension DataService {
         },
         articlesSuccess: .init {
           QueryResult.success(
-            result: InternalHomeFeedData(
+            result: InternalLinkedItemQueryResult(
               items: try $0.edges(selection: articleEdgeSelection.list),
               cursor: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.endCursor()
@@ -61,27 +64,29 @@ public extension DataService {
     let headers = networker.defaultHeaders
 
     return try await withCheckedThrowingContinuation { continuation in
-      send(query, to: path, headers: headers) { [weak self] queryResult in
+      send(query, to: path, headers: headers) { queryResult in
         guard let payload = try? queryResult.get() else {
-          continuation.resume(throwing: BasicError.message(messageText: "network error"))
+          continuation.resume(throwing: ContentFetchError.network)
           return
         }
 
         switch payload.data {
         case let .success(result: result):
-          if let context = self?.backgroundContext, let items = result.items.persist(context: context) {
-            continuation.resume(returning: HomeFeedData(items: items.map(\.objectID), cursor: result.cursor))
-          } else {
-            continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
-          }
-        case .error:
-          continuation.resume(throwing: BasicError.message(messageText: "LinkedItem fetch error"))
+          continuation.resume(returning: result)
+        case let .error(error):
+          continuation.resume(throwing: ContentFetchError.unknown(description: error.description))
         }
       }
     }
   }
 
-  func fetchLinkedItem(username: String, itemID: String) async throws -> NSManagedObjectID {
+  /// Performs GraphQL request to fetch a single `InternalLinkedItem`
+  /// - Parameters:
+  ///   - username: the Viewer's username
+  ///   - itemID: id of the item being requested
+  /// - Returns: Returns an `InternalLinkedItem` or throws a `ContentFetchError` if
+  /// request could not be completed
+  func fetchLinkedItem(username: String, itemID: String) async throws -> InternalLinkedItem {
     struct ArticleProps {
       let item: InternalLinkedItem
     }
@@ -91,41 +96,13 @@ public extension DataService {
       case error(error: String)
     }
 
-    let articleSelection = Selection.Article {
-      InternalLinkedItem(
-        id: try $0.id(),
-        title: try $0.title(),
-        createdAt: try $0.createdAt().value ?? Date(),
-        savedAt: try $0.savedAt().value ?? Date(),
-        readAt: try $0.readAt()?.value,
-        updatedAt: try $0.updatedAt().value ?? Date(),
-        state: try $0.state()?.rawValue ?? "SUCCEEDED",
-        readingProgress: try $0.readingProgressPercent(),
-        readingProgressAnchor: try $0.readingProgressAnchorIndex(),
-        imageURLString: try $0.image(),
-        onDeviceImageURLString: nil,
-        documentDirectoryPath: nil,
-        pageURLString: try $0.url(),
-        descriptionText: try $0.description(),
-        publisherURLString: try $0.originalArticleUrl(),
-        siteName: try $0.siteName(),
-        author: try $0.author(),
-        publishDate: try $0.publishedAt()?.value,
-        slug: try $0.slug(),
-        isArchived: try $0.isArchived(),
-        contentReader: try $0.contentReader().rawValue,
-        originalHtml: nil,
-        labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
-      )
-    }
-
     let selection = Selection<QueryResult, Unions.ArticleResult> {
       try $0.on(
         articleError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
         },
         articleSuccess: .init {
-          QueryResult.success(result: try $0.article(selection: articleSelection))
+          QueryResult.success(result: try $0.article(selection: libraryArticleSelection))
         }
       )
     }
@@ -139,20 +116,16 @@ public extension DataService {
     let headers = networker.defaultHeaders
 
     return try await withCheckedThrowingContinuation { continuation in
-      send(query, to: path, headers: headers) { [weak self] queryResult in
+      send(query, to: path, headers: headers) { queryResult in
         guard let payload = try? queryResult.get() else {
           continuation.resume(throwing: ContentFetchError.network)
           return
         }
         switch payload.data {
         case let .success(result: result):
-          if let context = self?.backgroundContext, let item = [result].persist(context: context)?.first {
-            continuation.resume(returning: item.objectID)
-          } else {
-            continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
-          }
-        case .error:
-          continuation.resume(throwing: BasicError.message(messageText: "LinkedItem fetch error"))
+          continuation.resume(returning: result)
+        case let .error(error):
+          continuation.resume(throwing: ContentFetchError.unknown(description: error.description))
         }
       }
     }

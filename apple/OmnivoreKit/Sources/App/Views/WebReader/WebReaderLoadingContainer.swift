@@ -64,11 +64,8 @@ import Utils
         return nil
       }
 
-      print("FETCHING", requestID, requestCount)
-
-      if let objectID = try? await dataService.fetchLinkedItem(username: username, itemID: requestID) {
+      if let objectID = try? await dataService.loadLinkedItem(username: username, itemID: requestID) {
         if let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem {
-          print(" - FROM DATA SERVICE", linkedItem)
           return linkedItem
         } else {
           errorMessage = "Unable to fetch item."
