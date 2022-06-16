@@ -82,7 +82,7 @@ extension DataService {
       title: fetchResult.item.title,
       htmlContent: fetchResult.htmlContent,
       highlightsJSONString: fetchResult.highlights.asJSONString,
-      contentStatus: fetchResult.item.isPDF ? .succeeded : .make(from: fetchResult.item.state)
+      contentStatus: fetchResult.item.isPDF ? .succeeded : fetchResult.item.state
     )
 
     if articleContent.contentStatus == .succeeded {
@@ -119,7 +119,7 @@ extension DataService {
       linkedItem.addToHighlights(NSSet(array: highlightObjects))
       linkedItem.htmlContent = articleProps.htmlContent
       linkedItem.id = articleProps.item.id
-      linkedItem.state = articleProps.item.state
+      linkedItem.state = articleProps.item.state.rawValue
       linkedItem.title = articleProps.item.title
       linkedItem.createdAt = articleProps.item.createdAt
       linkedItem.savedAt = articleProps.item.savedAt
@@ -287,12 +287,5 @@ extension DataService {
       // the user can attempt to fetch content again.
       print("Error syncUnsyncedArticleContent")
     }
-  }
-}
-
-private extension ArticleContentStatus {
-  static func make(from status: String?) -> ArticleContentStatus {
-    guard let status = status else { return .unknown }
-    return ArticleContentStatus(rawValue: status) ?? .unknown
   }
 }

@@ -8,7 +8,6 @@ struct ArticleProps {
   let item: InternalLinkedItem
   let htmlContent: String
   let highlights: [InternalHighlight]
-  let contentStatus: ArticleContentStatus? // TODO: remove this?
 }
 
 extension DataService {
@@ -27,7 +26,7 @@ extension DataService {
           savedAt: try $0.savedAt().value ?? Date(),
           readAt: try $0.readAt()?.value,
           updatedAt: try $0.updatedAt().value ?? Date(),
-          state: try $0.state()?.rawValue ?? "SUCCEEDED",
+          state: try $0.state()?.rawValue.asArticleContentStatus ?? .succeeded,
           readingProgress: try $0.readingProgressPercent(),
           readingProgressAnchor: try $0.readingProgressAnchorIndex(),
           imageURLString: try $0.image(),
@@ -46,8 +45,7 @@ extension DataService {
           labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
         ),
         htmlContent: try $0.content(),
-        highlights: try $0.highlights(selection: highlightSelection.list),
-        contentStatus: try $0.state()?.articleContentStatus
+        highlights: try $0.highlights(selection: highlightSelection.list)
       )
     }
 
@@ -83,19 +81,6 @@ extension DataService {
           continuation.resume(throwing: ContentFetchError.badData)
         }
       }
-    }
-  }
-}
-
-extension Enums.ArticleSavingRequestStatus {
-  var articleContentStatus: ArticleContentStatus {
-    switch self {
-    case .failed:
-      return .failed
-    case .processing:
-      return .processing
-    case .succeeded:
-      return .succeeded
     }
   }
 }

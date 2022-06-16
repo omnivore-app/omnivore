@@ -25,3 +25,9 @@ public struct ArticleContent {
     self.contentStatus = contentStatus
   }
 }
+
+public extension String {
+  var asArticleContentStatus: ArticleContentStatus? {
+    ArticleContentStatus(rawValue: self)
+  }
+}
