@@ -206,7 +206,15 @@ export const searchHighlights = async (
       ],
       from,
       size,
-      _source: ['title', 'slug', 'url', 'createdAt', 'highlights'],
+      _source: [
+        'title',
+        'slug',
+        'url',
+        'savedAt',
+        'highlights',
+        'readingProgressPercent',
+        'readingProgressAnchorIndex',
+      ],
     }
 
     console.log('searching highlights in elastic', JSON.stringify(searchBody))
