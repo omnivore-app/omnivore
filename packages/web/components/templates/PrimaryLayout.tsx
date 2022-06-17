@@ -21,7 +21,6 @@ type PrimaryLayoutProps = {
   pageTestId: string
   hideHeader?: boolean
   pageMetaDataProps?: PageMetaDataProps
-  scrollElementRef?: MutableRefObject<HTMLDivElement | null>
   headerToolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
 }
@@ -63,8 +62,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
       <Box css={{
-        height: '100vh',
-        width: '100vw',
+        minHeight: '100vh',
+        minWidth: '100vw',
         bg: 'transparent',
         '@smDown': {
           bg: '$grayBase',
@@ -76,24 +75,19 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           userInitials={viewerData?.me?.name.charAt(0) ?? ''}
           profileImageURL={viewerData?.me?.profile.pictureUrl}
           isTransparent={true}
-          scrollElementRef={props.scrollElementRef}
           toolbarControl={props.headerToolbarControl}
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
           setShowLogoutConfirmation={setShowLogoutConfirmation}
           setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
         />
         <Box
-          ref={props.scrollElementRef}
           css={{
-            position: 'fixed',
-            overflowY: 'auto',
-            height: '100%',
-            width: '100vw',
+            minHeight: '100%',
+            minWidth: '100vw',
             bg: '$grayBase',
           }}
         >
-                  <Box
-          ref={props.scrollElementRef}
+          <Box
           css={{
             height: '48px',
             bg: '$grayBase',

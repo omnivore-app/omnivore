@@ -93,7 +93,6 @@ function AppArticleEmbedContent(
         >
           <ArticleContainer
             article={articleData.article.article}
-            scrollElementRef={scrollRef}
             isAppleAppEmbed={true}
             highlightBarDisabled={props.highlightBarDisabled}
             highlightsBaseURL={`${webBaseURL}/${props.username}/${props.slug}/highlights`}
