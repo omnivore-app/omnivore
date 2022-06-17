@@ -47,9 +47,6 @@ import { EditTitleModal } from './EditTitleModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
-export type HomeFeedContainerProps = {
-}
-
 const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
 
 const SAVED_SEARCHES: Record<string, string> = {
@@ -64,7 +61,7 @@ const SAVED_SEARCHES: Record<string, string> = {
   Newsletters: `in:inbox label:Newsletter`,
 }
 
-export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
+export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const defaultQuery = {
