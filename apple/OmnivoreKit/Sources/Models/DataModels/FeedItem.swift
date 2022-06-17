@@ -51,7 +51,7 @@ public extension LinkedItem {
       return PDFUtils.exists(filename: localPDF) || PDFUtils.tempExists(tempPDFURL: tempPDFURL)
     }
     // Check the state and whether we have HTML
-    return state == "SUCCEEDED"
+    return state == ArticleContentStatus.succeeded.rawValue
   }
 
   var isPDF: Bool {

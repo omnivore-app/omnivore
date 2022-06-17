@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 
 public enum ArticleContentStatus: String {
@@ -12,17 +13,20 @@ public struct ArticleContent {
   public let htmlContent: String
   public let highlightsJSONString: String
   public let contentStatus: ArticleContentStatus
+  public let objectID: NSManagedObjectID?
 
   public init(
     title: String,
     htmlContent: String,
     highlightsJSONString: String,
-    contentStatus: ArticleContentStatus
+    contentStatus: ArticleContentStatus,
+    objectID: NSManagedObjectID?
   ) {
     self.title = title
     self.htmlContent = htmlContent
     self.highlightsJSONString = highlightsJSONString
     self.contentStatus = contentStatus
+    self.objectID = objectID
   }
 }
 

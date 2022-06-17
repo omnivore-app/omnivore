@@ -40,4 +40,15 @@ public extension DataService {
 
     return persistedItemID
   }
+
+  func loadItemContentUsingRequestID(requestID: String) async throws -> NSManagedObjectID? {
+    let username: String? = await username()
+    guard let username = username else { throw BasicError.message(messageText: "unauthorized user") }
+
+    // If the page was locally created, make sure they are synced before we pull content
+    await syncUnsyncedArticleContent(itemID: requestID)
+
+    let articleContent = try await loadArticleContentWithRetries(itemID: requestID, username: username, requestCount: 0)
+    return articleContent.objectID
+  }
 }

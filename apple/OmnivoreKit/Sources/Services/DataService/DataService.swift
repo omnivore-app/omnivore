@@ -49,6 +49,19 @@ public final class DataService: ObservableObject {
     return try? persistentContainer.viewContext.fetch(fetchRequest).first
   }
 
+  public func username() async -> String? {
+    if let cachedUsername = currentViewer?.username {
+      return cachedUsername
+    }
+
+    if let viewerObjectID = try? await fetchViewer() {
+      let viewer = backgroundContext.object(with: viewerObjectID) as? Viewer
+      return viewer?.unwrappedUsername
+    }
+
+    return nil
+  }
+
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {
     do {
       try ValetKey.appEnvironmentString.setValue(appEnvironment.rawValue)
