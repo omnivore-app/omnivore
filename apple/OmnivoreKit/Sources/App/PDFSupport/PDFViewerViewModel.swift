@@ -1,27 +1,23 @@
-import Combine
-import CoreData
 import Foundation
 import Models
 import Services
 import Utils
 
-public final class PDFViewerViewModel: ObservableObject {
-  @Published public var errorMessage: String?
-  @Published public var readerView: Bool = false
+final class PDFViewerViewModel: ObservableObject {
+  @Published var errorMessage: String?
+  @Published var readerView: Bool = false
 
-  public let pdfItem: PDFItem
+  let pdfItem: PDFItem
 
-  var subscriptions = Set<AnyCancellable>()
-
-  public init(pdfItem: PDFItem) {
+  init(pdfItem: PDFItem) {
     self.pdfItem = pdfItem
   }
 
-  public func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
+  func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
     onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }
 
-  public func createHighlight(
+  func createHighlight(
     dataService: DataService,
     shortId: String,
     highlightID: String,
@@ -37,7 +33,8 @@ public final class PDFViewerViewModel: ObservableObject {
     )
   }
 
-  public func mergeHighlight(
+  // swiftlint:disable:next function_parameter_count
+  func mergeHighlight(
     dataService: DataService,
     shortId: String,
     highlightID: String,
@@ -55,13 +52,13 @@ public final class PDFViewerViewModel: ObservableObject {
     )
   }
 
-  public func removeHighlights(dataService: DataService, highlightIds: [String]) {
+  func removeHighlights(dataService: DataService, highlightIds: [String]) {
     highlightIds.forEach { highlightID in
       dataService.deleteHighlight(highlightID: highlightID)
     }
   }
 
-  public func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int) {
+  func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int) {
     dataService.updateLinkReadingProgress(
       itemID: pdfItem.itemID,
       readingProgress: percent,
@@ -69,7 +66,7 @@ public final class PDFViewerViewModel: ObservableObject {
     )
   }
 
-  public func highlightShareURL(dataService: DataService, shortId: String) -> URL? {
+  func highlightShareURL(dataService: DataService, shortId: String) -> URL? {
     let baseURL = dataService.appEnvironment.serverBaseURL
     var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
 
@@ -82,17 +79,10 @@ public final class PDFViewerViewModel: ObservableObject {
     return components?.url
   }
 
-  public var itemDownloaded: Bool {
-    if let localPdfURL = pdfItem.localPdfURL, FileManager.default.fileExists(atPath: localPdfURL.path) {
-      return true
-    }
-    return false
-  }
-
-  public func downloadPDF(dataService: DataService) async -> URL? {
+  func downloadPDF(dataService: DataService) async -> URL? {
     do {
-      if itemDownloaded {
-        return pdfItem.localPdfURL
+      if let localPdfURL = pdfItem.localPdfURL, FileManager.default.fileExists(atPath: localPdfURL.path) {
+        return localPdfURL
       }
 
       if let tempURL = pdfItem.tempPDFURL {
@@ -101,14 +91,10 @@ public final class PDFViewerViewModel: ObservableObject {
         }
       }
 
-      let localURL = try await dataService.fetchPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL)
-
-      if let localURL = localURL {
-        return localURL
-      }
+      return try await dataService.loadPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL)
     } catch {
       print("error downloading PDF", error)
+      return nil
     }
-    return nil
   }
 }

@@ -170,7 +170,11 @@ class ExtensionSaveService {
         case .none:
           requestId = try await services.dataService.createPageFromUrl(id: requestId, url: pageScrapePayload.url)
         case let .pdf(localUrl):
-          try await services.dataService.createPageFromPdf(id: requestId, localPdfURL: localUrl, url: pageScrapePayload.url)
+          try await services.dataService.createPageFromPdf(
+            id: requestId,
+            localPdfURL: localUrl,
+            url: pageScrapePayload.url
+          )
         case let .html(html, title, _):
           requestId = try await services.dataService.createPage(
             id: requestId,

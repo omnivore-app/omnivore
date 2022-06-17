@@ -34,8 +34,8 @@ import Utils
     @StateObject var viewModel = WebReaderLoadingContainerViewModel()
 
     public var body: some View {
-      if let item = viewModel.item, item.isReadyToRead {
-        if let pdfItem = PDFItem.make(item: item), let urlStr = item.pageURLString, let remoteUrl = URL(string: urlStr) {
+      if let item = viewModel.item {
+        if let pdfItem = PDFItem.make(item: item) {
           PDFViewer(viewModel: PDFViewerViewModel(pdfItem: pdfItem))
             .navigationBarHidden(true)
             .navigationViewStyle(.stack)

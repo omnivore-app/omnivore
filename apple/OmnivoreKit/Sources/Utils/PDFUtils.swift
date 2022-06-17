@@ -1,10 +1,3 @@
-//
-//  PDFUtils.swift
-//
-//
-//  Created by Jackson Harper on 6/3/22.
-//
-
 import CoreImage
 import Foundation
 import QuickLookThumbnailing
@@ -43,13 +36,6 @@ public enum PDFUtils {
     if let filename = filename, let localPdfURL = localPdfURL(filename: filename) {
       let result = FileManager.default.fileExists(atPath: localPdfURL.path)
       return result
-    }
-    return false
-  }
-
-  public static func tempExists(tempPDFURL: URL?) -> Bool {
-    if let tempPDFURL = tempPDFURL {
-      return FileManager.default.fileExists(atPath: tempPDFURL.path)
     }
     return false
   }

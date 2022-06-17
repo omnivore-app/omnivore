@@ -4,19 +4,23 @@ import Models
 import Utils
 
 public extension DataService {
-  func fetchPDFData(slug: String, pageURLString: String) async throws -> URL? {
+  func loadPDFData(slug: String, pageURLString: String) async throws -> URL? {
     guard let url = URL(string: pageURLString) else {
       throw BasicError.message(messageText: "No PDF URL found")
     }
+
     let result: (Data, URLResponse)? = try? await URLSession.shared.data(from: url)
+
     guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
       throw BasicError.message(messageText: "pdfFetch failed. no response or bad status code.")
     }
+
     guard let data = result?.0 else {
       throw BasicError.message(messageText: "pdfFetch failed. no data received.")
     }
 
     var localPdfURL: URL?
+
     let tempPath = FileManager.default
       .urls(for: .cachesDirectory, in: .userDomainMask)[0]
       .appendingPathComponent(UUID().uuidString + ".pdf")
