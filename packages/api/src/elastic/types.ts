@@ -219,12 +219,13 @@ export interface SearchItem {
   uploadFileId?: string | null
   url: string
   archivedAt?: Date | null
-  readingProgressPercent?: number
-  readingProgressAnchorIndex?: number
+  readingProgressPercent: number
+  readingProgressAnchorIndex: number
   userId: string
   state?: ArticleSavingRequestStatus
   language?: string
   readAt?: Date
+  savedAt: Date
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
