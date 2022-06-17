@@ -168,7 +168,7 @@ struct CreateProfileView: View {
                     .foregroundColor(.red)
                 }
               }
-              .animation(.default)
+              .animation(.default, value: 0.35)
 
               VStack(alignment: .leading, spacing: 6) {
                 Text("Bio (optional)")

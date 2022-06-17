@@ -11,7 +11,7 @@ extension DataService {
     quote: String,
     patch: String,
     articleId: String,
-    overlapHighlightIdList: [String] // TODO: pass in annotation?
+    overlapHighlightIdList: [String]
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
       id: highlightID,

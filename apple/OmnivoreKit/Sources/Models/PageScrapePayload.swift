@@ -262,9 +262,8 @@ private extension PageScrapePayload {
           print("error copying file locally", error)
         }
       }
-      // TODO:
-      // Don't try to handle file URLs that are not PDFs.
-      // In the future we can add image and other file type support here
+
+      // If file is not a pdf then return nil
       return nil
     }
     return PageScrapePayload(url: url.absoluteString)

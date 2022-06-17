@@ -117,9 +117,6 @@ public extension DataService {
         Task {
           try await createPageFromPdf(id: id, localPdfURL: localPdfURL, url: url)
         }
-      } else {
-        // TODO: This is an invalid object, we should have a way of reflecting that with an error state
-        // updateLinkedItemStatus(id: id, status: .)
       }
     case "WEB":
       let id = item.unwrappedID
