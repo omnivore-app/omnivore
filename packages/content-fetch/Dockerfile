@@ -1,3 +1,4 @@
+
 FROM node:14.18-alpine
 
 # Installs latest Chromium (92) package.
@@ -9,6 +10,10 @@ RUN apk add --no-cache \
       ca-certificates \
       ttf-freefont \
       nodejs \
+      gcc \
+      g++ \
+      python3 \
+      make \
       yarn
 
 # Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
