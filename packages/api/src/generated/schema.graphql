@@ -1093,7 +1093,7 @@ type SearchItem {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
-  updatedAt: Date!
+  updatedAt: Date
   uploadFileId: ID
   url: String!
 }

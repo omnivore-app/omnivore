@@ -1535,7 +1535,7 @@ export type SearchItem = {
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
-  updatedAt: Scalars['Date'];
+  updatedAt?: Maybe<Scalars['Date']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -3864,7 +3864,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

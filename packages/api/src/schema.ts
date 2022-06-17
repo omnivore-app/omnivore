@@ -1473,7 +1473,7 @@ const schema = gql`
     pageType: PageType!
     contentReader: ContentReader!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     isArchived: Boolean!
     readingProgressPercent: Float!
     readingProgressAnchorIndex: Int!
