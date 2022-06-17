@@ -26,6 +26,7 @@ extension DataService {
     }
   }
 
+  // swiftlint:disable:next function_body_length
   func syncLabelCreation(label: InternalLinkedItemLabel) {
     enum MutationResult {
       case saved(label: InternalLinkedItemLabel)

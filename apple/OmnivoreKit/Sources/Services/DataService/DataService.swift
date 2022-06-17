@@ -122,6 +122,7 @@ public final class DataService: ObservableObject {
     return isFirstRunOfVersion || isFirstRunWithBuildNumber
   }
 
+  // swiftlint:disable:next function_body_length
   public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws {
     let normalizedURL = normalizeURL(pageScrape.url)
 

@@ -5,6 +5,7 @@ import UserNotifications
 import Utils
 import Views
 
+// swiftlint:disable file_length
 #if os(iOS)
   private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
 
@@ -196,7 +197,10 @@ import Views
             }
             .padding(.horizontal)
             .sheet(isPresented: $showLabelsSheet) {
-              FilterByLabelsView(initiallySelected: viewModel.selectedLabels, initiallyNegated: viewModel.negatedLabels) {
+              FilterByLabelsView(
+                initiallySelected: viewModel.selectedLabels,
+                initiallyNegated: viewModel.negatedLabels
+              ) {
                 self.viewModel.selectedLabels = $0
                 self.viewModel.negatedLabels = $1
               }

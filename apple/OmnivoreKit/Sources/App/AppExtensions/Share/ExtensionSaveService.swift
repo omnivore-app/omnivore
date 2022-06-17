@@ -18,7 +18,10 @@ class ExtensionSaveService {
     self.queue = OperationQueue()
   }
 
-  private func queueSaveOperation(_ pageScrape: PageScrapePayload, shareExtensionViewModel: ShareExtensionChildViewModel) {
+  private func queueSaveOperation(
+    _ pageScrape: PageScrapePayload,
+    shareExtensionViewModel: ShareExtensionChildViewModel
+  ) {
     ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in
       guard !expiring else {
         self.queue.cancelAllOperations()
@@ -85,6 +88,7 @@ class ExtensionSaveService {
     var queue: OperationQueue?
     var uploadTask: URLSessionTask?
 
+    // swiftlint:disable:next nesting
     enum State: Int {
       case created
       case started

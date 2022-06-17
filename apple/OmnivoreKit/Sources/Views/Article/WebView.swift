@@ -40,7 +40,9 @@ public final class WebView: WKWebView {
   }
 
   public func updateMaxWidthPercentage() {
-    if let maxWidthPercentage = UserDefaults.standard.value(forKey: UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) as? Int {
+    if let maxWidthPercentage = UserDefaults.standard.value(
+      forKey: UserDefaultKey.preferredWebMaxWidthPercentage.rawValue
+    ) as? Int {
       dispatchEvent(.updateMaxWidthPercentage(maxWidthPercentage: maxWidthPercentage))
     }
   }

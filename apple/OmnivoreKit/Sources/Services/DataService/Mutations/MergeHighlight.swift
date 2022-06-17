@@ -38,6 +38,7 @@ extension DataService {
     return internalHighlight.encoded()
   }
 
+  // swiftlint:disable:next function_body_length
   func syncHighlightMerge(highlight: InternalHighlight, articleId: String, overlapHighlightIdList: [String]) {
     enum MutationResult {
       case saved(highlight: InternalHighlight)

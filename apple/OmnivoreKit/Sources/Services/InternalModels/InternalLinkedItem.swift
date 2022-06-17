@@ -31,7 +31,7 @@ struct InternalLinkedItem {
     if let contentReader = contentReader {
       return contentReader == "PDF"
     }
-    return (pageURLString ?? "").hasSuffix("pdf")
+    return pageURLString.hasSuffix("pdf")
   }
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {

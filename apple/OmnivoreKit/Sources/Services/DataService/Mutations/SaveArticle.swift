@@ -84,8 +84,11 @@ public extension Networker {
 }
 
 public extension DataService {
-  // swiftlint:disable:next line_length
-  func saveArticlePublisher(pageScrapePayload: PageScrapePayload, uploadFileId: String?) -> AnyPublisher<Void, SaveArticleError> {
+  // swiftlint:disable:next function_body_length
+  func saveArticlePublisher(
+    pageScrapePayload: PageScrapePayload,
+    uploadFileId: String?
+  ) -> AnyPublisher<Void, SaveArticleError> {
     enum MutationResult {
       case saved(created: Bool)
       case error(errorCode: Enums.CreateArticleErrorCode)
