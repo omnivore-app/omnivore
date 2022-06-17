@@ -36,7 +36,6 @@ const App = () => {
           <ArticleContainer
             article={window.omnivoreArticle}
             labels={window.omnivoreArticle.labels}
-            scrollElementRef={React.createRef()}
             isAppleAppEmbed={true}
             highlightBarDisabled={true}
             highlightsBaseURL="https://example.com"

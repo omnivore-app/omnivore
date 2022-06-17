@@ -14,26 +14,6 @@ type Effect = (offset: ScrollOffsetChangeset) => void
 
 export function useScrollWatcher(
   effect: Effect,
-  interval: number
-): (node: HTMLDivElement | null) => void {
-  const [scrollableElement, setScrollableElement] =
-    useState<HTMLDivElement | null>(null)
-
-  useScrollWatcherInternal(effect, scrollableElement, interval)
-
-  const ref = useRef<HTMLDivElement | null>(null)
-
-  const setRef = useCallback((node) => {
-    setScrollableElement(node)
-    ref.current = node
-  }, [])
-
-  return setRef
-}
-
-function useScrollWatcherInternal(
-  effect: Effect,
-  element: HTMLDivElement | null,
   delay: number
 ): void {
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
@@ -45,8 +25,8 @@ function useScrollWatcherInternal(
   useEffect(() => {
     const callback = () => {
       const newOffset = {
-        x: element?.scrollLeft ?? window?.scrollX ?? 0,
-        y: element?.scrollTop ?? window?.scrollY ?? 0,
+        x: window.document.documentElement.scrollLeft ?? window?.scrollX ?? 0,
+        y: window.document.documentElement.scrollTop ?? window?.scrollY ?? 0,
       }
       effect({ current: newOffset, previous: currentOffset })
       setCurrentOffset(newOffset)
@@ -59,9 +39,8 @@ function useScrollWatcherInternal(
       }
     }
 
-    (element ?? window)?.addEventListener('scroll', handleScroll)
-
+    window.addEventListener('scroll', handleScroll)
     return () =>
-      (element ?? window)?.removeEventListener('scroll', handleScroll)
-  }, [currentOffset, delay, effect, element])
+      window.removeEventListener('scroll', handleScroll)
+  }, [currentOffset, delay, effect])
 }

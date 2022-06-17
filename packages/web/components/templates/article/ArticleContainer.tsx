@@ -24,7 +24,6 @@ type ArticleContainerProps = {
   article: ArticleAttributes
   labels: Label[]
   articleMutations: ArticleMutations
-  scrollElementRef: MutableRefObject<HTMLDivElement | null>
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
   highlightsBaseURL: string
@@ -281,7 +280,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           articleId={props.article.id}
           content={props.article.content}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
-          scrollElementRef={props.scrollElementRef}
           articleMutations={props.articleMutations}
         />
         <Button

@@ -5,10 +5,6 @@ import { darkenTheme, lightenTheme, updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
 import { ThemeId } from './../tokens/stitches.config'
 import { useCallback, useEffect, useState } from 'react'
-import {
-  ScrollOffsetChangeset,
-  useScrollWatcher,
-} from '../../lib/hooks/useScrollWatcher'
 import { useRouter } from 'next/router'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -21,7 +17,6 @@ type HeaderProps = {
   hideHeader?: boolean
   profileImageURL?: string
   isTransparent: boolean
-  scrollElementRef?: React.RefObject<HTMLDivElement>
   toolbarControl?: JSX.Element
   alwaysDisplayToolbar?: boolean
   setShowLogoutConfirmation: (showShareModal: boolean) => void
@@ -48,19 +43,26 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     })
   )
 
-  const setScrollWatchedElement = useScrollWatcher(
-    (changeset: ScrollOffsetChangeset) => {
-      const isScrolledBeyondMinThreshold = changeset.current.y >= 50
-      const isScrollingDown = changeset.current.y > changeset.previous.y
+/*
+  useRegisterActions([
+    {
+      id: 'lightTheme',
+      section: 'Preferences',
+      name: 'Change theme (lighter) ',
+      shortcut: ['v', 'l'],
+      keywords: 'light theme',
+      perform: () => lightenTheme(),
     },
-    0
-  )
-
-  useEffect(() => {
-    if (props.scrollElementRef) {
-      setScrollWatchedElement(props.scrollElementRef.current)
-    }
-  }, [props.scrollElementRef, setScrollWatchedElement])
+    {
+      id: 'darkTheme',
+      section: 'Preferences',
+      name: 'Change theme (darker) ',
+      shortcut: ['v', 'd'],
+      keywords: 'dark theme',
+      perform: () => darkenTheme(),
+    },
+  ])
+  */
 
   const initAnalytics = useCallback(() => {
     setupAnalytics(props.user)

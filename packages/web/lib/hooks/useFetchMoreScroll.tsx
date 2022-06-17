@@ -1,29 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-type SetRef = (node: HTMLDivElement | null) => void
-
-export const useFetchMoreScroll = (
-  callback: () => void,
-): SetRef => {
-  const [scrollableElement, setScrollableElement] =useState<HTMLDivElement | null>(null)
-
-  useFetchMoreInternal(scrollableElement, callback)
-
-  const ref = useRef<HTMLDivElement | null>(null)
-  const setRef = useCallback((node) => {
-    setScrollableElement(node)
-    ref.current = node
-  }, [])
-
-  return setRef
-}
-
-const useFetchMoreInternal = (node: HTMLDivElement | null, callback: () => void, delay = 500): void => {
+export const useFetchMore = (callback: () => void, delay = 500): void => {
   const [first, setFirst] = useState(true)
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !node) {
+    if (typeof window === 'undefined') {
       return
     }
 
@@ -32,7 +14,7 @@ const useFetchMoreInternal = (node: HTMLDivElement | null, callback: () => void,
         scrollTop,
         scrollHeight,
         clientHeight
-      } = node;
+      } = window.document.documentElement;
 
       if (scrollTop + clientHeight >= scrollHeight - (scrollHeight / 3)) {
         callback()
@@ -51,10 +33,10 @@ const useFetchMoreInternal = (node: HTMLDivElement | null, callback: () => void,
       }
     }
 
-    node.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll)
 
     return () => {
-      node.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('scroll', handleScroll)
     }
-  }, [node, callback, delay, first, setFirst])
+  }, [callback, delay, first, setFirst])
 }

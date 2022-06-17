@@ -146,7 +146,6 @@ export default function Home(): JSX.Element {
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
-      scrollElementRef={scrollRef}
       headerToolbarControl={
         <ArticleActionsMenu
           article={article}
@@ -219,7 +218,6 @@ export default function Home(): JSX.Element {
             {article && viewerData?.me ? (
               <ArticleContainer
                 article={article}
-                scrollElementRef={scrollRef}
                 isAppleAppEmbed={false}
                 highlightBarDisabled={false}
                 highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
