@@ -1082,8 +1082,9 @@ type SearchItem {
   publishedAt: Date
   quote: String
   readAt: Date
-  readingProgressAnchorIndex: Int
-  readingProgressPercent: Float
+  readingProgressAnchorIndex: Int!
+  readingProgressPercent: Float!
+  savedAt: Date!
   shortId: String
   siteName: String
   slug: String!
@@ -1092,7 +1093,7 @@ type SearchItem {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
-  updatedAt: Date!
+  updatedAt: Date
   uploadFileId: ID
   url: String!
 }

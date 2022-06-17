@@ -1524,8 +1524,9 @@ export type SearchItem = {
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['Date']>;
-  readingProgressAnchorIndex?: Maybe<Scalars['Int']>;
-  readingProgressPercent?: Maybe<Scalars['Float']>;
+  readingProgressAnchorIndex: Scalars['Int'];
+  readingProgressPercent: Scalars['Float'];
+  savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
@@ -1534,7 +1535,7 @@ export type SearchItem = {
   title: Scalars['String'];
   unsubHttpUrl?: Maybe<Scalars['String']>;
   unsubMailTo?: Maybe<Scalars['String']>;
-  updatedAt: Scalars['Date'];
+  updatedAt?: Maybe<Scalars['Date']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
 };
@@ -3852,8 +3853,9 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  readingProgressAnchorIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  readingProgressPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -3862,7 +3864,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

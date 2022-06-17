@@ -162,7 +162,7 @@ export interface Highlight {
   suffix?: string | null
   annotation?: string | null
   sharedAt?: Date | null
-  updatedAt?: Date | null
+  updatedAt?: Date
   labels?: Label[]
 }
 
@@ -219,12 +219,14 @@ export interface SearchItem {
   uploadFileId?: string | null
   url: string
   archivedAt?: Date | null
-  readingProgressPercent?: number
-  readingProgressAnchorIndex?: number
+  readingProgressPercent: number
+  readingProgressAnchorIndex: number
   userId: string
   state?: ArticleSavingRequestStatus
   language?: string
   readAt?: Date
+  savedAt: Date
+  updatedAt?: Date
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
