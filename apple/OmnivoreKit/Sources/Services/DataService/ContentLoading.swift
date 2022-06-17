@@ -1,7 +1,6 @@
 import CoreData
 import Foundation
 import Models
-import SwiftGraphQL
 import Utils
 
 struct PendingLink {
@@ -176,10 +175,12 @@ extension DataService {
   /// Queries CoreData for a LinkedItem using a requestID.
   /// - Parameter requestID: A requestID used to check on a newly created item.
   /// - Returns: The id of the CoreData object if found.
-  func linkedItemID(from requestID: String) -> String? {
-    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "createdId == %@ OR id == %@", requestID, requestID)
-    return try? backgroundContext.fetch(fetchRequest).first?.unwrappedID
+  func linkedItemID(from requestID: String) async -> String? {
+    await backgroundContext.perform(schedule: .immediate) {
+      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "createdId == %@ OR id == %@", requestID, requestID)
+      return try? self.backgroundContext.fetch(fetchRequest).first?.unwrappedID
+    }
   }
 
   func syncUnsyncedArticleContent(itemID: String) async {
