@@ -10,6 +10,7 @@ const os = require('os');
 exports.mediumHandler = {
 
   shouldPrehandle: (url, env) => {
+    const u = new URL(url);
     return u.hostname.endsWith('medium.com')
   },
 
