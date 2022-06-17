@@ -10,10 +10,7 @@ const os = require('os');
 exports.mediumHandler = {
 
   shouldPrehandle: (url, env) => {
-    const MEDIUM_URL_MATCH =
-      /https?:\/\/(www\.)?medium.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
-    const res =  MEDIUM_URL_MATCH.test(url.toString())
-    return res
+    return u.hostname.endsWith('medium.com')
   },
 
   prehandle: async (url, env) => {
