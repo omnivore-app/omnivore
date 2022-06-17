@@ -25,15 +25,15 @@ extension DataService {
       case error(error: String)
     }
 
-    let selection = Selection<QueryResult, Unions.ArticlesResult> {
+    let selection = Selection<QueryResult, Unions.SearchResult> {
       try $0.on(
-        articlesError: .init {
+        searchError: .init {
           QueryResult.error(error: try $0.errorCodes().description)
         },
-        articlesSuccess: .init {
+        searchSuccess: .init {
           QueryResult.success(
             result: InternalLinkedItemQueryResult(
-              items: try $0.edges(selection: articleEdgeSelection.list),
+              items: try $0.edges(selection: searchItemEdgeSelection.list),
               cursor: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.endCursor()
               })
@@ -44,18 +44,10 @@ extension DataService {
     }
 
     let query = Selection.Query {
-      try $0.articles(
+      try $0.search(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
-        includePending: OptionalArgument(true),
         query: OptionalArgument(searchQuery),
-        sharedOnly: .present(false),
-        sort: OptionalArgument(
-          InputObjects.SortParams(
-            by: .updatedTime,
-            order: .present(.descending)
-          )
-        ),
         selection: selection
       )
     }
@@ -160,6 +152,34 @@ private let libraryArticleSelection = Selection.Article {
   )
 }
 
-private let articleEdgeSelection = Selection.ArticleEdge {
-  try $0.node(selection: libraryArticleSelection)
+private let searchItemSelection = Selection.SearchItem {
+  InternalLinkedItem(
+    id: try $0.id(),
+    title: try $0.title(),
+    createdAt: try $0.createdAt().value ?? Date(),
+    savedAt: try $0.savedAt().value ?? Date(),
+    readAt: try $0.readAt()?.value,
+    updatedAt: try $0.updatedAt()?.value ?? Date(),
+    state: try $0.state()?.rawValue.asArticleContentStatus ?? .succeeded,
+    readingProgress: try $0.readingProgressPercent(),
+    readingProgressAnchor: try $0.readingProgressAnchorIndex(),
+    imageURLString: try $0.image(),
+    onDeviceImageURLString: nil,
+    documentDirectoryPath: nil,
+    pageURLString: try $0.url(),
+    descriptionText: try $0.description(),
+    publisherURLString: try $0.originalArticleUrl(),
+    siteName: try $0.siteName(),
+    author: try $0.author(),
+    publishDate: try $0.publishedAt()?.value,
+    slug: try $0.slug(),
+    isArchived: try $0.isArchived(),
+    contentReader: try $0.contentReader().rawValue,
+    originalHtml: nil,
+    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+  )
+}
+
+private let searchItemEdgeSelection = Selection.SearchItemEdge {
+  try $0.node(selection: searchItemSelection)
 }
