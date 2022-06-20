@@ -62,8 +62,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
       <Box css={{
-        minHeight: '100vh',
-        minWidth: '100vw',
+        width: '100vw',
+        height: '100vh',
         bg: 'transparent',
         '@smDown': {
           bg: '$grayBase',
