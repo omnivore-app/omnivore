@@ -125,7 +125,7 @@ services:
   content-fetch:
     build:
       context: .
-      dockerfile: ./packages/content-fetch/Dockerfile
+      dockerfile: ./packages/content-fetch/Dockerfile-local
     container_name: "omnivore-content-fetch"
     expose:
       - 9090
