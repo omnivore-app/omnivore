@@ -11333,6 +11333,7 @@ extension Objects {
     let readAt: [String: DateTime]
     let readingProgressAnchorIndex: [String: Int]
     let readingProgressPercent: [String: Double]
+    let savedAt: [String: DateTime]
     let shortId: [String: String]
     let siteName: [String: String]
     let slug: [String: String]
@@ -11439,6 +11440,10 @@ extension Objects.SearchItem: Decodable {
         if let value = try container.decode(Double?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "savedAt":
+        if let value = try container.decode(DateTime?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "shortId":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -11512,6 +11517,7 @@ extension Objects.SearchItem: Decodable {
     readAt = map["readAt"]
     readingProgressAnchorIndex = map["readingProgressAnchorIndex"]
     readingProgressPercent = map["readingProgressPercent"]
+    savedAt = map["savedAt"]
     shortId = map["shortId"]
     siteName = map["siteName"]
     slug = map["slug"]
@@ -11798,7 +11804,7 @@ extension Fields where TypeLock == Objects.SearchItem {
     }
   }
 
-  func readingProgressAnchorIndex() throws -> Int? {
+  func readingProgressAnchorIndex() throws -> Int {
     let field = GraphQLField.leaf(
       name: "readingProgressAnchorIndex",
       arguments: []
@@ -11807,13 +11813,16 @@ extension Fields where TypeLock == Objects.SearchItem {
 
     switch response {
     case let .decoding(data):
-      return data.readingProgressAnchorIndex[field.alias!]
+      if let data = data.readingProgressAnchorIndex[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
     case .mocking:
-      return nil
+      return Int.mockValue
     }
   }
 
-  func readingProgressPercent() throws -> Double? {
+  func readingProgressPercent() throws -> Double {
     let field = GraphQLField.leaf(
       name: "readingProgressPercent",
       arguments: []
@@ -11822,9 +11831,30 @@ extension Fields where TypeLock == Objects.SearchItem {
 
     switch response {
     case let .decoding(data):
-      return data.readingProgressPercent[field.alias!]
+      if let data = data.readingProgressPercent[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
     case .mocking:
-      return nil
+      return Double.mockValue
+    }
+  }
+
+  func savedAt() throws -> DateTime {
+    let field = GraphQLField.leaf(
+      name: "savedAt",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.savedAt[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return DateTime.mockValue
     }
   }
 
@@ -11954,7 +11984,7 @@ extension Fields where TypeLock == Objects.SearchItem {
     }
   }
 
-  func updatedAt() throws -> DateTime {
+  func updatedAt() throws -> DateTime? {
     let field = GraphQLField.leaf(
       name: "updatedAt",
       arguments: []
@@ -11963,12 +11993,9 @@ extension Fields where TypeLock == Objects.SearchItem {
 
     switch response {
     case let .decoding(data):
-      if let data = data.updatedAt[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.updatedAt[field.alias!]
     case .mocking:
-      return DateTime.mockValue
+      return nil
     }
   }
 

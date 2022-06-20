@@ -11,7 +11,7 @@ extension DataService {
     quote: String,
     patch: String,
     articleId: String,
-    overlapHighlightIdList: [String] // TODO: pass in annotation?
+    overlapHighlightIdList: [String]
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
       id: highlightID,
@@ -38,6 +38,7 @@ extension DataService {
     return internalHighlight.encoded()
   }
 
+  // swiftlint:disable:next function_body_length
   func syncHighlightMerge(highlight: InternalHighlight, articleId: String, overlapHighlightIdList: [String]) {
     enum MutationResult {
       case saved(highlight: InternalHighlight)

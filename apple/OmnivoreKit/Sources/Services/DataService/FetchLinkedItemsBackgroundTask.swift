@@ -25,7 +25,7 @@ extension DataService {
     // Fetch the items
     for itemID in missingItemIds { // TOOD: run these in parallel
       logger.debug("fetching item with ID: \(itemID)")
-      _ = try await articleContent(username: username, itemID: itemID, useCache: false)
+      _ = try await loadArticleContent(username: username, itemID: itemID, useCache: false)
       fetchedItemCount += 1
       logger.debug("done fetching item with ID: \(itemID)")
     }

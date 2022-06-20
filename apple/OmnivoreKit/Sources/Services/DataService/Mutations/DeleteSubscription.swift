@@ -13,7 +13,9 @@ public extension DataService {
     let selection = Selection<MutationResult, Unions.UnsubscribeResult> {
       try $0.on(
         unsubscribeError: .init { .error(errorMessage: (try $0.errorCodes().first ?? .unauthorized).rawValue) },
-        unsubscribeSuccess: .init { .success(id: try $0.subscription(selection: Selection.Subscription { try $0.id() })) }
+        unsubscribeSuccess: .init {
+          .success(id: try $0.subscription(selection: Selection.Subscription { try $0.id() }))
+        }
       )
     }
 

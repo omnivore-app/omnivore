@@ -256,28 +256,14 @@ private extension PageScrapePayload {
         let localFile = UUID().uuidString.lowercased() + ".pdf"
         dest.appendPathComponent(localFile)
         do {
-          print("EXISTING PDF URL", url)
-          let attr = try? FileManager.default.attributesOfItem(atPath: url.path)
-          if let attr = attr {
-            print("EXISTING FILE SIZE", attr[.size])
-          }
-
           try FileManager.default.copyItem(at: url, to: dest)
-          print("COPIED TO URL", dest)
-
-          let attr2 = try? FileManager.default.attributesOfItem(atPath: dest.path)
-          if let attr2 = attr2 {
-            print("COPIED FILE SIZE", attr2[.size])
-          }
-
           return PageScrapePayload(url: url.absoluteString, localUrl: dest)
         } catch {
           print("error copying file locally", error)
         }
       }
-      // TODO:
-      // Don't try to handle file URLs that are not PDFs.
-      // In the future we can add image and other file type support here
+
+      // If file is not a pdf then return nil
       return nil
     }
     return PageScrapePayload(url: url.absoluteString)

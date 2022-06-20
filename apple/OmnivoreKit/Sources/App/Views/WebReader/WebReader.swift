@@ -73,6 +73,7 @@ import WebKit
       return webView
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func updateUIView(_ webView: WKWebView, context: Context) {
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID

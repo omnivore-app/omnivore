@@ -2,6 +2,7 @@ import Combine
 import SwiftUI
 import Utils
 
+// swiftlint:disable file_length
 #if os(iOS)
   import PSPDFKit
   import PSPDFKitUI
@@ -147,7 +148,7 @@ import Utils
               pdfStateObject.document = document
               pdfStateObject.coordinator = PDFViewCoordinator(document: document, viewModel: viewModel)
             } else {
-              errorMessage = "Unable to download PDF: \(pdfURL)"
+              errorMessage = "Unable to download PDF: \(pdfURL?.description ?? "")"
             }
           }
       }
@@ -220,6 +221,7 @@ import Utils
         return result
       }
 
+      // swiftlint:disable:next function_body_length
       func highlightSelection(pageView: PDFPageView, selectedText: String, dataService: DataService) -> String {
         let highlightID = UUID().uuidString.lowercased()
         let quote = quoteFromSelectedText(selectedText)

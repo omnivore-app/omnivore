@@ -5,7 +5,6 @@ import Utils
 
 public extension DataService {
   internal func syncOfflineItemsWithServerIfNeeded() async throws {
-    // TODO: send a simple request to see if we're online?
     var unsyncedLinkedItems = [LinkedItem]()
     var unsyncedHighlights = [Highlight]()
 
@@ -118,9 +117,6 @@ public extension DataService {
         Task {
           try await createPageFromPdf(id: id, localPdfURL: localPdfURL, url: url)
         }
-      } else {
-        // TODO: This is an invalid object, we should have a way of reflecting that with an error state
-        // updateLinkedItemStatus(id: id, status: .)
       }
     case "WEB":
       let id = item.unwrappedID
@@ -130,9 +126,9 @@ public extension DataService {
 
       Task {
         if let originalHtml = originalHtml {
-          try await createPage(id: id, originalHtml: originalHtml, title: title, url: url)
+          _ = try await createPage(id: id, originalHtml: originalHtml, title: title, url: url)
         } else {
-          try await createPageFromUrl(id: id, url: url)
+          _ = try await createPageFromUrl(id: id, url: url)
         }
       }
     default:

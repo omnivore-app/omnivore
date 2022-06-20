@@ -2,12 +2,12 @@ import CoreData
 import Foundation
 import Utils
 
-public struct HomeFeedData { // TODO: rename this
-  public let items: [NSManagedObjectID]
+public struct LinkedItemQueryResult {
+  public let itemIDs: [NSManagedObjectID]
   public let cursor: String?
 
-  public init(items: [NSManagedObjectID], cursor: String?) {
-    self.items = items
+  public init(itemIDs: [NSManagedObjectID], cursor: String?) {
+    self.itemIDs = itemIDs
     self.cursor = cursor
   }
 }
@@ -43,15 +43,6 @@ public extension LinkedItem {
 
   var isRead: Bool {
     readingProgress >= 0.98
-  }
-
-  var isReadyToRead: Bool {
-    if isPDF {
-      // If its a PDF we verify the local file is available
-      return PDFUtils.exists(filename: localPDF) || PDFUtils.tempExists(tempPDFURL: tempPDFURL)
-    }
-    // Check the state and whether we have HTML
-    return state == "SUCCEEDED"
   }
 
   var isPDF: Bool {
