@@ -223,6 +223,7 @@ type ArticleKeyboardAction =
   | 'decrementFontSize'
   | 'incrementMarginWidth'
   | 'decrementMarginWidth'
+  | 'editDisplaySettings'
   | 'setLabels'
 
 export function articleKeyboardCommands(
@@ -265,6 +266,12 @@ export function articleKeyboardCommands(
       actionDescription: 'Decrease margin width',
       shortcutKeyDescription: '[',
       callback: () => actionHandler('decrementMarginWidth'),
+    },
+    {
+      shortcutKeys: ['d'],
+      actionDescription: 'Edit Display Settings',
+      shortcutKeyDescription: 'd',
+      callback: () => actionHandler('editDisplaySettings'),
     },
     {
       shortcutKeys: ['l'],

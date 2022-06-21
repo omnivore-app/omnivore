@@ -11,6 +11,7 @@ const FONT_FAMILIES = [
   'Open Sans',
   'Roboto',
   'Crimson Text',
+  'OpenDyslexic',
   'Source Serif Pro'
 ]
 

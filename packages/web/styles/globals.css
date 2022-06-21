@@ -187,6 +187,27 @@ div#appleid-signin {
 }
 
 @font-face {
+  font-family: 'OpenDyslexic';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/OpenDyslexic/OpenDyslexicAlta-Regular.otf');
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/OpenDyslexic/OpenDyslexicAlta-Bold.otf');
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/OpenDyslexic/OpenDyslexicAlta-Italic.otf');
+}
+
+@font-face {
   font-family: 'Source Serif Pro';
   font-weight: 400;
   font-style: normal;

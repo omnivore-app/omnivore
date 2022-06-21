@@ -255,12 +255,8 @@ export default function Home(): JSX.Element {
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}
-
       {readerSettings.showEditDisplaySettingsModal && (
         <DisplaySettingsModal
-          lineHeight={readerSettings.lineHeight}
-          marginWidth={readerSettings.marginWidth}
-          fontFamily={readerSettings.fontFamily}
           articleActionHandler={actionHandler}
           onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
         />

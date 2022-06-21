@@ -6,14 +6,10 @@ import { useEffect, useState } from 'react'
 import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, CaretRight } from 'phosphor-react'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
-import { FontStepperDown } from '../../elements/images/FontStepperDown'
-import { FontStepperUp } from '../../elements/images/FontStepperUp'
 import { FontFamiliesOptions } from './FontFamiliesOptions'
+import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 
 type ReaderSettingsProps = {
-  marginWidth: number
-  lineHeight: number
-  fontFamily: string
   articleActionHandler: (action: string, arg?: number | string) => void
 }
 
@@ -30,26 +26,17 @@ const HorizontalDivider = styled(SpanBox, {
 })
 
 export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
-  const [lineHeight, setLineHeight] = useState(props.lineHeight)
-  const [marginWidth, setMarginWidth] = useState(props.marginWidth)
-  const [fontFamily, setFontFamily] = useState(props.fontFamily)
-
   const [showFontOptions, setShowFontOptions] = useState(false)
-
-  useEffect(() => {
-    setLineHeight(props.lineHeight)
-    setMarginWidth(props.marginWidth)
-    setFontFamily(props.fontFamily)
-  }, [props.lineHeight, props.marginWidth, props.fontFamily, setLineHeight, setMarginWidth, setFontFamily])
+  const readeringSettings = useReaderSettings()
 
   return (
-    <VStack>
+    <VStack css={{ width: '100%' }}>
       {showFontOptions ? (
         <FontFamiliesOptions
-          selected={fontFamily}
+          selected={readeringSettings.fontFamily}
           setShowFontFamilies={setShowFontOptions}
           onSelect={(font: string) => {
-            setFontFamily(font)
+            readeringSettings.setFontFamily(font)
             props.articleActionHandler('setFontFamily', font)
           }}
         />
@@ -60,17 +47,17 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
           distribution='between'
           css={{
             width: '100%',
-            height: '70px',
-            marginTop: '4px',
+            height: '44px',
+            verticalAlign: 'baseline',
             borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
           }}
         >
-          <Button style='plainIcon' css={{ width: '50%' }} onClick={() => props.articleActionHandler('decrementFontSize')}>
-            <FontStepperDown color={theme.colors.readerFont.toString()} />
+          <Button style='plainIcon' css={{ width: '50%', fontSize: '32px' }} onClick={() => props.articleActionHandler('decrementFontSize')}>
+            -
           </Button>
           <VerticalDivider />
-          <Button style='plainIcon' css={{ width: '50%', height: '100%' }} onClick={() => props.articleActionHandler('incrementFontSize')}>
-            <FontStepperUp color={theme.colors.readerFont.toString()} />
+          <Button style='plainIcon' css={{ width: '50%', height: '100%', fontSize: '32px' }} onClick={() => props.articleActionHandler('incrementFontSize')}>
+            +
           </Button>
         </HStack>
         <HStack
@@ -81,7 +68,8 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             px: '12px',
             py: '12px',
             width: '100%',
-            height: '100%',
+            height: '44px',
+            verticalAlign: 'baseline'
           }}
         >
           <StyledText css={{ m: '0px' }}>Font:</StyledText>
@@ -91,9 +79,9 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             onClick={() => setShowFontOptions(true)}
           >
             <StyledText
-              css={{ m: '0px',fontSize: 17, fontWeight: '600', fontFamily: fontFamily, textTransform: 'capitalize' }}
+              css={{ m: '0px', fontFamily: readeringSettings.fontFamily, textTransform: 'capitalize' }}
             >
-              {fontFamily}
+              {readeringSettings.fontFamily}
             </StyledText>
             <Box css={{  }}>
               <CaretRight width={16} height={16} color={theme.colors.grayTextContrast.toString()}/>
@@ -117,22 +105,22 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             },
           }}
         >
-          <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '8px', m: '0px', pt: '14px' }}>Margin:</StyledText>
+          <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Margin:</StyledText>
           <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
-            <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
-              const newMarginWith = Math.max(marginWidth - 45, 200)
-              setMarginWidth(newMarginWith)
+            <Button style='plainIcon' css={{ pt: '10px', pl: '12px' }} onClick={() => {
+              const newMarginWith = Math.max(readeringSettings.marginWidth - 45, 200)
+              readeringSettings.setMarginWidth(newMarginWith)
               props.articleActionHandler('setMarginWidth', newMarginWith)
             }}>
               <ArrowsOutLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
             </Button>
-            <TickedRangeSlider min={200} max={560} step={45} value={marginWidth} onChange={(value) => {
-              setMarginWidth(value)
+            <TickedRangeSlider min={200} max={560} step={45} value={readeringSettings.marginWidth} onChange={(value) => {
+              readeringSettings.setMarginWidth(value)
               props.articleActionHandler('setMarginWidth', value)
             }} />
-            <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
-              const newMarginWith = Math.min(marginWidth + 45, 560)
-              setMarginWidth(newMarginWith)
+            <Button style='plainIcon' css={{ pt: '10px', pr: '12px' }} onClick={() => {
+              const newMarginWith = Math.min(readeringSettings.marginWidth + 45, 560)
+              readeringSettings.setMarginWidth(newMarginWith)
               props.articleActionHandler('setMarginWidth', newMarginWith)
             }}>
               <ArrowsInLineHorizontal size={24} color={theme.colors.readerFont.toString()} />
@@ -151,20 +139,20 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
         }}>
           <StyledText color={theme.colors.readerFontTransparent.toString()} css={{ pl: '12px', m: '0px', pt: '14px' }}>Line Spacing:</StyledText>
           <HStack distribution='between' css={{ gap: '16px', alignItems: 'center', alignSelf: 'center' }}>
-            <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
-              const newLineHeight = Math.max(lineHeight - 25, 100)
-              setLineHeight(newLineHeight)
+            <Button style='plainIcon' css={{ pt: '10px', pl: '12px' }} onClick={() => {
+              const newLineHeight = Math.max(readeringSettings.lineHeight - 25, 100)
+              readeringSettings.setLineHeight(newLineHeight)
               props.articleActionHandler('setLineHeight', newLineHeight)
             }}>
               <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
             </Button>
-            <TickedRangeSlider min={100} max={300} step={25} value={lineHeight} onChange={(value) => {
-              setLineHeight(value)
+            <TickedRangeSlider min={100} max={300} step={25} value={readeringSettings.lineHeight} onChange={(value) => {
+              readeringSettings.setLineHeight(value)
               props.articleActionHandler('setLineHeight', value)
             }} />
-            <Button style='plainIcon' css={{ pt: '10px', px: '4px' }} onClick={() => {
-              const newLineHeight = Math.min(lineHeight + 25, 300)
-              setLineHeight(newLineHeight)
+            <Button style='plainIcon' css={{ pt: '10px', pr: '12px' }} onClick={() => {
+              const newLineHeight = Math.min(readeringSettings.lineHeight + 25, 300)
+              readeringSettings.setLineHeight(newLineHeight)
               props.articleActionHandler('setLineHeight', newLineHeight)
             }}>
               <AlignCenterHorizontalSimple size={25} color={theme.colors.readerFont.toString()} />
@@ -173,10 +161,11 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
         </VStack>
           <HorizontalDivider />
 
-          <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '8px', pb: '14px', pt: '16px', height: '42px', alignItems: 'center' }}
+          <Button style='plainIcon' css={{ justifyContent: 'center', textDecoration: 'underline', display: 'flex', gap: '4px', width: '100%', fontSize: '12px', p: '12px', pb: '14px', pt: '16px', height: '42px', alignItems: 'center' }}
             onClick={() => {
-              setMarginWidth(290)
-              setLineHeight(150)
+              readeringSettings.setFontFamily('Inter')
+              readeringSettings.setMarginWidth(290)
+              readeringSettings.setLineHeight(150)
               props.articleActionHandler('resetReaderSettings')
               showSuccessToast('Display settings reset', { position: 'bottom-right' })
             }}
