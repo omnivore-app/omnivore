@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import GoogleSignIn
 import Models
@@ -19,11 +18,9 @@ public final class Authenticator: ObservableObject {
   }
 
   @Published public internal(set) var isLoggedIn: Bool
-  @Published public var pendinguserProfile = UserProfile(username: "", name: "", bio: nil)
 
   let networker: Networker
 
-  var subscriptions = Set<AnyCancellable>()
   var pendingUserToken: String?
 
   public init(networker: Networker) {
