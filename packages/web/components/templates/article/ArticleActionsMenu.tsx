@@ -189,9 +189,6 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       <DisplaySettingsModal
         centerX={props.layout != 'side'}
         triggerElementRef={displaySettingsButtonRef}
-        lineHeight={readerSettings.lineHeight}
-        marginWidth={readerSettings.marginWidth}
-        fontFamily={readerSettings.fontFamily}
         articleActionHandler={props.articleActionHandler}
         onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
       />
