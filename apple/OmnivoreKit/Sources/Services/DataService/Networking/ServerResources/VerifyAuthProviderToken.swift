@@ -27,7 +27,7 @@ extension Networker {
     )
 
     do {
-      return try await urlSession.performReq(resource: resource)
+      return try await urlSession.performRequest(resource: resource)
     } catch {
       if let error = error as? ServerError {
         throw LoginError.make(serverError: error)

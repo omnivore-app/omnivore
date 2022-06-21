@@ -14,7 +14,7 @@ extension Networker {
     )
 
     do {
-      return try await urlSession.performReq(resource: resource)
+      return try await urlSession.performRequest(resource: resource)
     } catch {
       throw (error as? ServerError) ?? .unknown
     }
