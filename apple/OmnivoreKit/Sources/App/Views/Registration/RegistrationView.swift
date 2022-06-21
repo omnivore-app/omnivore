@@ -66,21 +66,18 @@ final class RegistrationViewModel: ObservableObject {
       .store(in: &subscriptions)
   }
 
-  func handleGoogleAuth(authenticator: Authenticator) {
-    authenticator
-      .handleGoogleAuth(presentingViewController: presentingViewController())
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case let .failure(loginError) = completion else { return }
-          self?.loginError = loginError
-        },
-        receiveValue: { [weak self] isNewAccount in
-          if isNewAccount {
-            self?.registrationState = .createProfile(userProfile: UserProfile(username: "", name: ""))
-          }
-        }
-      )
-      .store(in: &subscriptions)
+  func handleGoogleAuth(authenticator: Authenticator) async {
+    guard let presentingViewController = presentingViewController() else { return }
+    let googleAuthResponse = await authenticator.handleGoogleAuth(presenting: presentingViewController)
+
+    switch googleAuthResponse {
+    case let .loginError(error):
+      loginError = error
+    case .newOmnivoreUser:
+      registrationState = .createProfile(userProfile: UserProfile(username: "", name: ""))
+    case .existingOmnivoreUser:
+      break
+    }
   }
 }
 
