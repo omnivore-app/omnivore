@@ -3,7 +3,7 @@ import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { styled, theme } from '../../tokens/stitches.config'
 import { useEffect, useState } from 'react'
-import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, CaretRight } from 'phosphor-react'
+import { AlignCenterHorizontalSimple, ArrowsInLineHorizontal, ArrowsOutLineHorizontal, CaretRight, Cursor } from 'phosphor-react'
 import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { FontFamiliesOptions } from './FontFamiliesOptions'
@@ -69,24 +69,16 @@ export function ReaderSettingsControl(props: ReaderSettingsProps): JSX.Element {
             py: '12px',
             width: '100%',
             height: '44px',
-            verticalAlign: 'baseline'
+            verticalAlign: 'baseline',
+            cursor: 'pointer',
           }}
+          onClick={() => setShowFontOptions(true)}
         >
           <StyledText css={{ m: '0px' }}>Font:</StyledText>
-          <HStack
-            alignment='center'
-            css={{cursor: 'pointer', marginLeft: 'auto' }}
-            onClick={() => setShowFontOptions(true)}
-          >
-            <StyledText
-              css={{ m: '0px', fontFamily: readeringSettings.fontFamily, textTransform: 'capitalize' }}
-            >
-              {readeringSettings.fontFamily}
-            </StyledText>
-            <Box css={{  }}>
-              <CaretRight width={16} height={16} color={theme.colors.grayTextContrast.toString()}/>
-            </Box>
-          </HStack>
+          <StyledText css={{ m: '0px', marginLeft: 'auto', pr: '4px', fontFamily: readeringSettings.fontFamily, textTransform: 'capitalize' }}>
+            {readeringSettings.fontFamily}
+          </StyledText>
+          <CaretRight width={16} height={16} color={theme.colors.grayTextContrast.toString()}/>
         </HStack>
         <HorizontalDivider css={{
           '@smDown': {

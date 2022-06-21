@@ -32,7 +32,7 @@ function FontOption(props: FontOptionProps):JSX.Element {
   return (
     <HStack distribution='between' alignment='start' css={{width: '100%', pt: '14px'}}>
       <StyledText
-        css={{ m: '0px', fontSize: 16, fontWeight: isSelected ? 'bold' : 'regular', fontFamily: props.family, textTransform: 'capitalize', cursor: 'pointer' }}
+        css={{ m: '0px', fontSize: 16, fontFamily: props.family, textTransform: 'capitalize', cursor: 'pointer' }}
         onClick={() => props.onSelect(props.family)}
       >
         {props.family}
@@ -58,7 +58,7 @@ export function FontFamiliesOptions(props: FontFamiliesListProps): JSX.Element {
             <Box css={{position: 'relative', top: 2, right: 5}}>
               <CaretLeft color={theme.colors.textSubtle.toString()} size={15} />
             </Box>
-            <StyledText css={{m: 0, pt: 4, fontSize: 12, fontWeight: '600', color: theme.colors.textSubtle.toString()}}>
+            <StyledText css={{m: 0, pt: 4, fontSize: 12, color: theme.colors.textSubtle.toString()}}>
               Back
             </StyledText>
           </HStack>
