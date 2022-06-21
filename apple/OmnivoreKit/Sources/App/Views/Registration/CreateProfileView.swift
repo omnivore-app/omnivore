@@ -53,29 +53,27 @@ import Views
       return
     }
 
-    dataService.validateUsernamePublisher(username: username).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case let .failure(usernameError) = completion else { return }
+    Task {
+      do {
+        try await dataService.validateUsernamePublisher(username: username)
+      } catch {
+        let usernameError = (error as? UsernameAvailabilityError) ?? .unknown
         switch usernameError {
         case .tooShort:
-          self?.potentialUsernameStatus = .tooShort
+          potentialUsernameStatus = .tooShort
         case .tooLong:
-          self?.potentialUsernameStatus = .tooLong
+          potentialUsernameStatus = .tooLong
         case .invalidPattern:
-          self?.potentialUsernameStatus = .invalidPattern
+          potentialUsernameStatus = .invalidPattern
         case .nameUnavailable:
-          self?.potentialUsernameStatus = .unavailable
+          potentialUsernameStatus = .unavailable
         case .internalServer, .unknown:
-          self?.loginError = .unknown
+          loginError = .unknown
         case .network:
-          self?.loginError = .network
+          loginError = .network
         }
-      },
-      receiveValue: { [weak self] in
-        self?.potentialUsernameStatus = .available
       }
-    )
-    .store(in: &subscriptions)
+    }
   }
 
   func submitProfile(userProfile: UserProfile, authenticator: Authenticator) async {
