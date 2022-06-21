@@ -1,4 +1,3 @@
-import Combine
 import Models
 import Services
 import SwiftUI
@@ -7,8 +6,6 @@ import Views
 
 @MainActor final class NewAppleSignupViewModel: ObservableObject {
   @Published var loginError: LoginError?
-
-  var subscriptions = Set<AnyCancellable>()
 
   init() {}
 
