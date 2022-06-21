@@ -16,9 +16,6 @@ export type ArticleActionsMenuLayout = 'top' | 'side'
 type ArticleActionsMenuProps = {
   article?: ArticleAttributes
   layout: ArticleActionsMenuLayout
-  lineHeight: number
-  marginWidth: number
-  fontFamily: string
   showReaderDisplaySettings?: boolean
   articleActionHandler: (action: string, arg?: unknown) => void
 }
