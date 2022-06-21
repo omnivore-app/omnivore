@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import GoogleSignIn
 import Models
@@ -12,10 +11,40 @@ public enum GoogleAuthResponse {
 
 extension Authenticator {
   public func handleGoogleAuth(presenting: PlatformViewController) async -> GoogleAuthResponse {
-    let authToken = try? await googleSignIn(presenting: presenting)
-    guard let authToken = authToken else { return .loginError(error: .unauthorized) }
-    // TODO: sync with server
-    return .existingOmnivoreUser
+    let idToken = try? await googleSignIn(presenting: presenting)
+    guard let idToken = idToken else { return .loginError(error: .unauthorized) }
+
+    do {
+      let authPayload = try await networker.submitGoogleToken(idToken: idToken)
+      try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
+      try ValetKey.authToken.setValue(authPayload.authToken)
+      DispatchQueue.main.async {
+        self.isLoggedIn = true
+      }
+      return .existingOmnivoreUser
+    } catch {
+      let loginError = (error as? LoginError) ?? .unknown
+
+      switch loginError {
+      case .unauthorized, .unknown:
+        return await createPendingUser(idToken: idToken)
+      case .network:
+        return .loginError(error: .network)
+      }
+    }
+  }
+
+  func createPendingUser(idToken: String) async -> GoogleAuthResponse {
+    do {
+      let params = CreatePendingAccountParams(token: idToken, provider: .google, fullName: nil)
+      let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
+      let pendingUserAuthPayload = try await networker.createPendingUser(params: encodedParams)
+      pendingUserToken = pendingUserAuthPayload.pendingUserToken
+      return .newOmnivoreUser
+    } catch {
+      let loginError = LoginError.make(serverError: (error as? ServerError) ?? .unknown)
+      return .loginError(error: loginError)
+    }
   }
 
   func googleSignIn(presenting: PlatformViewController) async throws -> String {
@@ -42,103 +71,3 @@ extension Authenticator {
     }
   }
 }
-
-// #if os(iOS)
-//  import UIKit
-//
-//  public extension Authenticator {
-//    func handleGoogleAuthDep(presentingViewController: PlatformViewController?) -> AnyPublisher<Bool, LoginError> {
-//      Future { [weak self] promise in
-//        guard let self = self, let presenting = presentingViewController else { return }
-//
-//        // swiftlint:disable:next line_length
-//        self.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: self.googleAuthRequest(redirectURL: nil), presenting: presenting) { authState, authError in
-//          self.resolveAuthResponse(promise: promise, authState: authState, authError: authError)
-//        }
-//      }
-//      .eraseToAnyPublisher()
-//    }
-//  }
-// #endif
-
-// #if os(macOS)
-//  import AppKit
-//
-//  public extension Authenticator {
-//    func handleGoogleAuthDep(presentingViewController _: PlatformViewController?) -> AnyPublisher<Bool, LoginError> {
-//      authRedirectHandler = OIDRedirectHTTPHandler(
-//        successURL: URL(string: "https://omnivore.app")!
-//      )
-//      let redirectURL = authRedirectHandler?.startHTTPListener(nil)
-//      let authRequest = googleAuthRequest(redirectURL: redirectURL)
-//
-//      return Future { [weak self] promise in
-//        guard let self = self else { return }
-//
-//        // swiftlint:disable:next line_length
-//        self.authRedirectHandler?.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: authRequest) { authState, authError in
-//          NSRunningApplication.current.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
-//          self.resolveAuthResponse(promise: promise, authState: authState, authError: authError)
-//        }
-//      }
-//      .eraseToAnyPublisher()
-//    }
-//  }
-// #endif
-
-// private extension Authenticator {
-//  func resolveAuthResponse(
-//    promise: @escaping (Result<Bool, LoginError>) -> Void,
-//    authState: OIDAuthState?,
-//    authError: Error?
-//  ) {
-//    if let idToken = authState?.lastTokenResponse?.idToken {
-//      Task {
-//        do {
-//          let authPayload = try await networker.submitGoogleToken(idToken: idToken)
-//          try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
-//          try ValetKey.authToken.setValue(authPayload.authToken)
-//          DispatchQueue.main.async {
-//            self.isLoggedIn = true
-//          }
-//        } catch {
-//          if let error = error as? LoginError {
-//            switch error {
-//            case .unauthorized, .unknown:
-//              self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
-//            case .network:
-//              promise(.failure(error))
-//            }
-//            self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
-//          }
-//        }
-//      }
-//    } else {
-//      resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
-//    }
-//  }
-//
-//  func resolveAuthResponseForAccountCreation(
-//    promise: @escaping (Result<Bool, LoginError>) -> Void,
-//    authState: OIDAuthState?,
-//    authError _: Error?
-//  ) {
-//    if let idToken = authState?.lastTokenResponse?.idToken {
-//      let params = CreatePendingAccountParams(token: idToken, provider: .google, fullName: nil)
-//      let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
-//
-//      networker
-//        .createPendingUser(params: encodedParams)
-//        .sink { completion in
-//          guard case let .failure(serverError) = completion else { return }
-//          promise(.failure(LoginError.make(serverError: serverError)))
-//        } receiveValue: { [weak self] in
-//          self?.pendingUserToken = $0.pendingUserToken
-//          promise(.success(true))
-//        }
-//        .store(in: &subscriptions)
-//    } else {
-//      promise(.failure(.unauthorized))
-//    }
-//  }
-// }

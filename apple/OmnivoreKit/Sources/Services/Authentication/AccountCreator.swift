@@ -40,7 +40,7 @@ extension Authenticator {
     let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
 
     return networker
-      .createPendingUser(params: encodedParams)
+      .createPendingUserDep(params: encodedParams)
       .tryMap { [weak self] in
         self?.pendingUserToken = $0.pendingUserToken
         return $0.pendingUserProfile
