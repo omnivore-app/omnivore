@@ -11,6 +11,7 @@ struct WebReaderContent {
   let themeKey: String
   let fontFamily: WebFont
   let articleContent: ArticleContent
+  let prefersHighContrastText: Bool
 
   init(
     item: LinkedItem,
@@ -19,7 +20,8 @@ struct WebReaderContent {
     fontSize: Int,
     lineHeight: Int,
     maxWidthPercentage: Int,
-    fontFamily: WebFont
+    fontFamily: WebFont,
+    prefersHighContrastText: Bool
   ) {
     self.textFontSize = fontSize
     self.lineHeight = lineHeight
@@ -28,6 +30,7 @@ struct WebReaderContent {
     self.themeKey = isDark ? "Gray" : "LightGray"
     self.fontFamily = fontFamily
     self.articleContent = articleContent
+    self.prefersHighContrastText = prefersHighContrastText
   }
 
   // swiftlint:disable line_length
@@ -82,6 +85,7 @@ struct WebReaderContent {
           window.maxWidthPercentage = \(maxWidthPercentage)
           window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")
+          window.prefersHighContrastFont = \(prefersHighContrastText)
         </script>
         <script src="bundle.js"></script>
         <script src="mathJaxConfiguration.js" id="MathJax-script"></script>
