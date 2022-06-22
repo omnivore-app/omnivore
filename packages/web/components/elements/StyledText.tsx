@@ -3,7 +3,7 @@ import { styled } from '../tokens/stitches.config'
 const textVariants = {
   style: {
     body: {
-      fontSize: '$2',
+      fontSize: '16px',
       lineHeight: '1.25',
     },
     logoTitle: {

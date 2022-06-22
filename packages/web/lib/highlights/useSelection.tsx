@@ -27,6 +27,7 @@ export function useSelection(
       const { range, isReverseSelected, selection } = result
       const [selectionStart, selectionEnd] = wrapHighlightTagAroundRange(range)
       const rangeRect = rangeToPos(range, isReverseSelected)
+      console.log('range rect', rangeRect)
 
       let shouldCancelSelection = false
       const overlapHighlights: HighlightLocation[] = []
@@ -176,10 +177,7 @@ async function makeSelectionRange(): Promise<
   const end = range.compareBoundaryPoints(Range.END_TO_END, allowedRange)
   const isRangeAllowed = start >= 0 && end <= 0
 
-  const isReverseSelected =
-    range.startContainer === selection.focusNode &&
-    range.endOffset === selection.anchorOffset
-
+  const isReverseSelected = true
   return isRangeAllowed ? { range, isReverseSelected, selection } : undefined
 }
 
@@ -192,7 +190,7 @@ export type RangeEndPos = {
   height: number
 }
 
-const rangeToPos = (range: Range, getFirst = false): RangeEndPos => {
+const rangeToPos = (range: Range, getFirst = true): RangeEndPos => {
   if (typeof window === 'undefined' || !range) {
     return { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 }
   }
@@ -204,9 +202,11 @@ const rangeToPos = (range: Range, getFirst = false): RangeEndPos => {
   }
 
   const rect = rects[getFirst ? 0 : rects.length - 1]
+  console.log('using rect', rect, 'from rects', rects)
+
   return {
     left: window.scrollX + rect.left,
-    top: window.scrollY + rect.top,
+    top: rect.top,
     right: window.scrollX + rect.right,
     bottom: window.scrollY + rect.bottom,
     width: rect.width,

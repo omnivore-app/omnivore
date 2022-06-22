@@ -10,6 +10,8 @@ import { CommentIcon } from '../elements/images/CommentIcon'
 import { ShareIcon } from '../elements/images/ShareIcon'
 import { TrashIcon } from '../elements/images/TrashIcon'
 import { isAndroid } from '../../lib/deviceType'
+import { PencilWithColorIcon } from '../tokens/icons/PencilWithColor'
+import { Note } from 'phosphor-react'
 
 type PageCoordinates = {
   pageX: number
@@ -59,10 +61,22 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
     return (
       <AnchoredPopover
         xAnchorCoordinate={props.anchorCoordinates.pageX}
-        yAnchorCoordinate={props.anchorCoordinates.pageY}
+        yAnchorCoordinate={props.anchorCoordinates.pageY - 48 - 48 - 8}
         preventAutoFocus={false}
+        
+      >
+        <Box
+        css={{
+          width: '320px',
+          // maxWidth: '240px',
+          background: '$grayBg',
+          borderRadius: '4px',
+          border: '1px solid $grayBorder',
+          boxShadow: theme.shadows.cardBoxShadow.toString(),
+        }}
       >
         <BarContent {...props} />
+        </Box>
       </AnchoredPopover>
     )
   }
@@ -116,7 +130,8 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           }}
         >
           <HStack css={{ height: '100%', alignItems: 'center' }}>
-            <PenIcon size={28} strokeColor={theme.colors.readerFont.toString()} />
+            {/* <PenIcon size={28} strokeColor={theme.colors.readerFont.toString()} /> */}
+            <PencilWithColorIcon width={24} height={24} color={theme.colors.readerFont.toString()} />
             <StyledText
               style="body"
               css={{
@@ -149,7 +164,14 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         onClick={() => props.handleButtonClick('comment')}
         css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px' }}
       >
-        <CommentIcon size={28} strokeColor={theme.colors.readerFont.toString()} />
+        <Note size={24} color={theme.colors.readerFont.toString()} />
+        <StyledText style="body" css={{ pb: '4px',
+                pl: '12px',
+                m: '0px',
+                color: 'white',
+                fontWeight: '400',
+                fontSize: '16px', }}>Note</StyledText>
+        {/* <CommentIcon size={28} strokeColor={theme.colors.readerFont.toString()} /> */}
       </Button>
       {/* <Separator />
       <Button
