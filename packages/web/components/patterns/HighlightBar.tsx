@@ -10,7 +10,7 @@ import { CommentIcon } from '../elements/images/CommentIcon'
 import { ShareIcon } from '../elements/images/ShareIcon'
 import { TrashIcon } from '../elements/images/TrashIcon'
 import { isAndroid } from '../../lib/deviceType'
-import { PencilWithColorIcon } from '../tokens/icons/PencilWithColor'
+import { PencilWithColorIcon } from '../elements/images/PencilWithColor'
 import { Note } from 'phosphor-react'
 
 type PageCoordinates = {
