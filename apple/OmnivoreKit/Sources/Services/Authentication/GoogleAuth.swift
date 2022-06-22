@@ -10,8 +10,11 @@ public enum GoogleAuthResponse {
 }
 
 extension Authenticator {
-  public func handleGoogleAuth(presenting: PlatformViewController) async -> GoogleAuthResponse {
-    let idToken = try? await googleSignIn(presenting: presenting)
+  public func handleGoogleAuth() async -> GoogleAuthResponse {
+    let idToken = await withCheckedContinuation { continuation in
+      googleSignIn { continuation.resume(returning: $0) }
+    }
+
     guard let idToken = idToken else { return .loginError(error: .unauthorized) }
 
     do {
@@ -47,27 +50,47 @@ extension Authenticator {
     }
   }
 
-  func googleSignIn(presenting: PlatformViewController) async throws -> String {
-    try await withCheckedThrowingContinuation { continuation in
-      let clientID = "\(AppKeys.sharedInstance?.iosClientGoogleId ?? "").apps.googleusercontent.com"
-      GIDSignIn.sharedInstance.signIn(
-        with: GIDConfiguration(clientID: clientID),
-        presenting: presenting
-      ) { user, error in
-        guard let user = user, error == nil else {
-          continuation.resume(throwing: LoginError.unauthorized)
+  func googleSignIn(completion: @escaping (String?) -> Void) {
+    #if os(iOS)
+      let presenting = presentingViewController()
+    #else
+      let presenting = NSApplication.shared.windows.first
+    #endif
+
+    guard let presenting = presenting else {
+      completion(nil)
+      return
+    }
+    let clientID = "\(AppKeys.sharedInstance?.iosClientGoogleId ?? "").apps.googleusercontent.com"
+
+    GIDSignIn.sharedInstance.signIn(
+      with: GIDConfiguration(clientID: clientID),
+      presenting: presenting
+    ) { user, error in
+      guard let user = user, error == nil else {
+        completion(nil)
+        return
+      }
+
+      user.authentication.do { authentication, error in
+        guard let idToken = authentication?.idToken, error == nil else {
+          completion(nil)
           return
         }
-
-        user.authentication.do { authentication, error in
-          guard let idToken = authentication?.idToken, error == nil else {
-            continuation.resume(throwing: LoginError.unauthorized)
-            return
-          }
-
-          continuation.resume(returning: idToken)
-        }
+        completion(idToken)
       }
     }
   }
+}
+
+private func presentingViewController() -> PlatformViewController? {
+  #if os(iOS)
+    let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+    return scene?.windows
+      .filter(\.isKeyWindow)
+      .first?
+      .rootViewController
+  #elseif os(macOS)
+    return nil
+  #endif
 }

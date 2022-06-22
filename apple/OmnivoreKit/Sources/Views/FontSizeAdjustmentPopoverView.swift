@@ -81,7 +81,9 @@ public struct WebPreferencesPopoverView: View {
       }
     }
     .listStyle(.plain)
-    .navigationBarTitleDisplayMode(.inline)
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+    #endif
     .navigationTitle("Reader Font")
   }
 
@@ -148,9 +150,11 @@ public struct WebPreferencesPopoverView: View {
       }
       .padding()
       .navigationTitle("Reader Preferences")
-      .navigationBarTitleDisplayMode(.inline)
+      #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+      #endif
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .barTrailing) {
           Button(
             action: dismissAction,
             label: { Text("Done").foregroundColor(.appGrayTextContrast).padding() }
@@ -158,7 +162,9 @@ public struct WebPreferencesPopoverView: View {
         }
       }
     }
-    .navigationViewStyle(.stack)
+    #if os(iOS)
+      .navigationViewStyle(.stack)
+    #endif
     .accentColor(.appGrayTextContrast)
   }
 }
