@@ -30,7 +30,7 @@ type FontOptionProps = {
 function FontOption(props: FontOptionProps):JSX.Element {
   const isSelected = props.selected === props.family
   return (
-    <HStack distribution='between' alignment='start' css={{width: '100%', pt: '14px'}}>
+    <HStack distribution='between' alignment='start' css={{ width: '100%', pt: '14px' }}>
       <StyledText
         css={{ m: '0px', fontSize: 16, fontFamily: props.family, textTransform: 'capitalize', cursor: 'pointer' }}
         onClick={() => props.onSelect(props.family)}
@@ -60,7 +60,7 @@ export function FontFamiliesOptions(props: FontFamiliesListProps): JSX.Element {
           </HStack>
         </HStack>
       </Box>
-      <Box css={{ pl: 15, pb: 15}}>
+      <Box css={{ px: 15, pb: 15, width: '100%' }}>
         {FONT_FAMILIES.map((family) => (
           <FontOption selected={props.selected} family={family} onSelect={props.onSelect} key={`font-${family}`} />
         ))}
