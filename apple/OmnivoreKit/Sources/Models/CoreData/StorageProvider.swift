@@ -14,10 +14,14 @@ public class PersistentContainer: NSPersistentContainer {
 
     // Store the sqlite file in the app group container.
     // This allows shared access for app and app extensions.
-    let appGroupID = "group.app.omnivoreapp"
-    // TODO: fix this for macos...it's crashing locally when using forSecurityApplicationGroupIdentifier
+    #if os(iOS)
+      let appGroupID = "group.app.omnivoreapp"
+    #else
+      let appGroupID = "QJF2XZ86HB.app.omnivore.app"
+    #endif
     let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
     let appGroupContainerURL = appGroupContainer?.appendingPathComponent("store.sqlite")
+
     container.persistentStoreDescriptions.first!.url = appGroupContainerURL
 
     container.viewContext.automaticallyMergesChangesFromParent = true
