@@ -4,8 +4,13 @@ import Foundation
 import Models
 import OSLog
 import QuickLookThumbnailing
-import UIKit
 import Utils
+
+#if os(iOS)
+  import UIKit
+#else
+  import AppKit
+#endif
 
 let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 

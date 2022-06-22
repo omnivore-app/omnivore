@@ -10,8 +10,8 @@ public enum GoogleAuthResponse {
 }
 
 extension Authenticator {
-  public func handleGoogleAuth(presenting: PlatformViewController) async -> GoogleAuthResponse {
-    let idToken = try? await googleSignIn(presenting: presenting)
+  public func handleGoogleAuth() async -> GoogleAuthResponse {
+    let idToken = try? await googleSignIn()
     guard let idToken = idToken else { return .loginError(error: .unauthorized) }
 
     do {
@@ -47,9 +47,20 @@ extension Authenticator {
     }
   }
 
-  func googleSignIn(presenting: PlatformViewController) async throws -> String {
-    try await withCheckedThrowingContinuation { continuation in
+  func googleSignIn() async throws -> String {
+    #if os(iOS)
+      let presenting = presentingViewController()
+    #else
+      let presenting = await NSApplication.shared.mainWindow
+    #endif
+
+    guard let presenting = presenting else {
+      throw LoginError.unknown
+    }
+    return try await withCheckedThrowingContinuation { continuation in
+
       let clientID = "\(AppKeys.sharedInstance?.iosClientGoogleId ?? "").apps.googleusercontent.com"
+
       GIDSignIn.sharedInstance.signIn(
         with: GIDConfiguration(clientID: clientID),
         presenting: presenting
@@ -70,4 +81,16 @@ extension Authenticator {
       }
     }
   }
+}
+
+private func presentingViewController() -> PlatformViewController? {
+  #if os(iOS)
+    let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+    return scene?.windows
+      .filter(\.isKeyWindow)
+      .first?
+      .rootViewController
+  #elseif os(macOS)
+    return nil
+  #endif
 }

@@ -86,9 +86,9 @@ public final class WebView: WKWebView {
       super.viewDidChangeEffectiveAppearance()
       switch effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) {
       case .some(.darkAqua):
-        dispatchEvent("switchToDarkMode")
+        dispatchEvent(.updateColorMode(isDark: true))
       default:
-        dispatchEvent("switchToLightMode")
+        dispatchEvent(.updateColorMode(isDark: false))
       }
     }
   #endif
