@@ -1,15 +1,16 @@
-import { Button } from '../elements/Button'
-import { HStack, Box } from '../elements/LayoutPrimitives'
-import { AnchoredPopover } from '../patterns/AnchoredPopover'
-import { StyledText } from '../elements/StyledText'
 import { highlightBarKeyboardCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { styled, theme } from '../tokens/stitches.config'
-import { PenIcon } from '../elements/images/PenIcon'
-import { CommentIcon } from '../elements/images/CommentIcon'
-import { ShareIcon } from '../elements/images/ShareIcon'
-import { TrashIcon } from '../elements/images/TrashIcon'
 import { isAndroid } from '../../lib/deviceType'
+
+import { styled, theme } from '../tokens/stitches.config'
+import { AnchoredPopover } from '../patterns/AnchoredPopover'
+
+import { StyledText } from '../elements/StyledText'
+import { Button } from '../elements/Button'
+import { HStack, Box } from '../elements/LayoutPrimitives'
+import { TrashIcon } from '../elements/images/TrashIcon'
+import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
+import { Note } from 'phosphor-react'
 
 type PageCoordinates = {
   pageX: number
@@ -48,7 +49,9 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
           '@smDown': {
             maxWidth: '80%',
-            bottom: `calc(28px + ${isAndroid() ? 30 : 0}px + env(safe-area-inset-bottom, 40px))`,
+            bottom: `calc(28px + ${
+              isAndroid() ? 30 : 0
+            }px + env(safe-area-inset-bottom, 40px))`,
           },
         }}
       >
@@ -62,7 +65,17 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
         yAnchorCoordinate={props.anchorCoordinates.pageY}
         preventAutoFocus={false}
       >
-        <BarContent {...props} />
+        <Box>
+          css=
+          {{
+            width: '350px',
+            background: '$grayBg',
+            borderRadius: '4px',
+            border: '1px solid $grayBorder',
+            boxShadow: theme.shadows.cardBoxShadow.toString(),
+          }}
+          <BarContent {...props} />
+        </Box>
       </AnchoredPopover>
     )
   }
@@ -116,7 +129,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           }}
         >
           <HStack css={{ height: '100%', alignItems: 'center' }}>
-            <PenIcon size={28} strokeColor={theme.colors.readerFont.toString()} />
+            <PenWithColorIcon />
             <StyledText
               style="body"
               css={{
@@ -139,7 +152,10 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           onClick={() => props.handleButtonClick('delete')}
           css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px' }}
         >
-          <TrashIcon size={28} strokeColor={theme.colors.readerFont.toString()} />
+          <TrashIcon
+            size={28}
+            strokeColor={theme.colors.readerFont.toString()}
+          />
         </Button>
       )}
       <Separator />
@@ -149,7 +165,22 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         onClick={() => props.handleButtonClick('comment')}
         css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px' }}
       >
-        <CommentIcon size={28} strokeColor={theme.colors.readerFont.toString()} />
+        <HStack css={{ height: '100%', alignItems: 'center' }}>
+          <Note size={24} color={theme.colors.readerFont.toString()} />
+          <StyledText
+            style="body"
+            css={{
+              pb: '4px',
+              pl: '12px',
+              m: '0px',
+              color: '$readerFont',
+              fontWeight: '400',
+              fontSize: '16px',
+            }}
+          >
+            Note
+          </StyledText>
+        </HStack>
       </Button>
       {/* <Separator />
       <Button
