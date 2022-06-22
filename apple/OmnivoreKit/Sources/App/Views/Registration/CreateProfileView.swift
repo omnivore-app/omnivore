@@ -5,7 +5,7 @@ import SwiftUI
 import Utils
 import Views
 
-final class CreateProfileViewModel: ObservableObject {
+@MainActor final class CreateProfileViewModel: ObservableObject {
   private(set) var initialUserProfile = UserProfile(username: "", name: "", bio: nil)
   var isConfigured = false
 
@@ -39,7 +39,9 @@ final class CreateProfileViewModel: ObservableObject {
 
     switch profileOrError {
     case let .left(userProfile):
-      submitProfile(userProfile: userProfile, authenticator: authenticator)
+      Task {
+        await submitProfile(userProfile: userProfile, authenticator: authenticator)
+      }
     case let .right(errorMessage):
       validationErrorMessage = errorMessage
     }
@@ -51,41 +53,37 @@ final class CreateProfileViewModel: ObservableObject {
       return
     }
 
-    dataService.validateUsernamePublisher(username: username).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case let .failure(usernameError) = completion else { return }
+    Task {
+      do {
+        try await dataService.validateUsernamePublisher(username: username)
+      } catch {
+        let usernameError = (error as? UsernameAvailabilityError) ?? .unknown
         switch usernameError {
         case .tooShort:
-          self?.potentialUsernameStatus = .tooShort
+          potentialUsernameStatus = .tooShort
         case .tooLong:
-          self?.potentialUsernameStatus = .tooLong
+          potentialUsernameStatus = .tooLong
         case .invalidPattern:
-          self?.potentialUsernameStatus = .invalidPattern
+          potentialUsernameStatus = .invalidPattern
         case .nameUnavailable:
-          self?.potentialUsernameStatus = .unavailable
+          potentialUsernameStatus = .unavailable
         case .internalServer, .unknown:
-          self?.loginError = .unknown
+          loginError = .unknown
         case .network:
-          self?.loginError = .network
+          loginError = .network
         }
-      },
-      receiveValue: { [weak self] in
-        self?.potentialUsernameStatus = .available
       }
-    )
-    .store(in: &subscriptions)
+    }
   }
 
-  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
-    authenticator
-      .createAccount(userProfile: userProfile).sink(
-        receiveCompletion: { [weak self] completion in
-          guard case let .failure(loginError) = completion else { return }
-          self?.loginError = loginError
-        },
-        receiveValue: { _ in }
-      )
-      .store(in: &subscriptions)
+  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) async {
+    do {
+      try await authenticator.createAccount(userProfile: userProfile)
+    } catch {
+      if let error = error as? LoginError {
+        loginError = error
+      }
+    }
   }
 
   func configure(profile: UserProfile, dataService: DataService) {

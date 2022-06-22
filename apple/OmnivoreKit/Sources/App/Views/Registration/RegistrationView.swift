@@ -1,12 +1,11 @@
 import AuthenticationServices
-import Combine
 import Models
 import Services
 import SwiftUI
 import Utils
 import Views
 
-final class RegistrationViewModel: ObservableObject {
+@MainActor final class RegistrationViewModel: ObservableObject {
   enum RegistrationState {
     case createProfile(userProfile: UserProfile)
     case newAppleSignUp(userProfile: UserProfile)
@@ -15,12 +14,10 @@ final class RegistrationViewModel: ObservableObject {
   @Published var loginError: LoginError?
   @Published var registrationState: RegistrationState?
 
-  var subscriptions = Set<AnyCancellable>()
-
   func handleAppleSignInCompletion(result: Result<ASAuthorization, Error>, authenticator: Authenticator) {
     switch AppleSigninPayload.parse(authResult: result) {
     case let .success(payload):
-      handleAppleToken(payload: payload, authenticator: authenticator)
+      Task { await handleAppleToken(payload: payload, authenticator: authenticator) }
     case let .failure(error):
       switch error {
       case .unauthorized, .unknown:
@@ -31,56 +28,48 @@ final class RegistrationViewModel: ObservableObject {
     }
   }
 
-  private func handleAppleToken(payload: AppleSigninPayload, authenticator: Authenticator) {
-    authenticator.submitAppleToken(token: payload.token).sink(
-      receiveCompletion: { [weak self] completion in
-        guard case let .failure(loginError) = completion else { return }
-        switch loginError {
-        case .unauthorized, .unknown:
-          self?.handleAppleSignUp(authenticator: authenticator, payload: payload)
-        case .network:
-          self?.loginError = loginError
-        }
-      },
-      receiveValue: { _ in }
-    )
-    .store(in: &subscriptions)
+  private func handleAppleToken(payload: AppleSigninPayload, authenticator: Authenticator) async {
+    do {
+      try await authenticator.submitAppleToken(token: payload.token)
+    } catch {
+      let submitTokenError = (error as? LoginError) ?? .unknown
+      switch submitTokenError {
+      case .unauthorized, .unknown:
+        await handleAppleSignUp(authenticator: authenticator, payload: payload)
+      case .network:
+        loginError = submitTokenError
+      }
+    }
   }
 
-  private func handleAppleSignUp(authenticator: Authenticator, payload: AppleSigninPayload) {
-    authenticator
-      .createPendingAccountUsingApple(token: payload.token, name: payload.fullName)
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case let .failure(loginError) = completion else { return }
-          self?.loginError = loginError
-        },
-        receiveValue: { [weak self] userProfile in
-          if userProfile.name.isEmpty {
-            self?.registrationState = .createProfile(userProfile: userProfile)
-          } else {
-            self?.registrationState = .newAppleSignUp(userProfile: userProfile)
-          }
-        }
+  private func handleAppleSignUp(authenticator: Authenticator, payload: AppleSigninPayload) async {
+    do {
+      let pendingUserProfile = try await authenticator.createPendingAccountUsingApple(
+        token: payload.token,
+        name: payload.fullName
       )
-      .store(in: &subscriptions)
+      if pendingUserProfile.name.isEmpty {
+        registrationState = .createProfile(userProfile: pendingUserProfile)
+      } else {
+        registrationState = .newAppleSignUp(userProfile: pendingUserProfile)
+      }
+    } catch {
+      loginError = (error as? LoginError) ?? .unknown
+    }
   }
 
-  func handleGoogleAuth(authenticator: Authenticator) {
-    authenticator
-      .handleGoogleAuth(presentingViewController: presentingViewController())
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard case let .failure(loginError) = completion else { return }
-          self?.loginError = loginError
-        },
-        receiveValue: { [weak self] isNewAccount in
-          if isNewAccount {
-            self?.registrationState = .createProfile(userProfile: UserProfile(username: "", name: ""))
-          }
-        }
-      )
-      .store(in: &subscriptions)
+  func handleGoogleAuth(authenticator: Authenticator) async {
+    guard let presentingViewController = presentingViewController() else { return }
+    let googleAuthResponse = await authenticator.handleGoogleAuth(presenting: presentingViewController)
+
+    switch googleAuthResponse {
+    case let .loginError(error):
+      loginError = error
+    case .newOmnivoreUser:
+      registrationState = .createProfile(userProfile: UserProfile(username: "", name: ""))
+    case .existingOmnivoreUser:
+      break
+    }
   }
 }
 

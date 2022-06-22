@@ -1,4 +1,3 @@
-import Combine
 import CoreData
 import Models
 import Services
@@ -10,8 +9,6 @@ import Views
   let pdfItem: PDFItem?
   let item: LinkedItem?
   @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
-
-  var subscriptions = Set<AnyCancellable>()
 
   init(linkedItemObjectID: NSManagedObjectID, dataService: DataService) {
     if let linkedItem = dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem {

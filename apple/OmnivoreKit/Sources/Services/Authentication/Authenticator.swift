@@ -1,12 +1,15 @@
-import AppAuth
-import Combine
 import Foundation
+import GoogleSignIn
 import Models
 import Utils
 import WebKit
 
 public final class Authenticator: ObservableObject {
   public static var unregisterIntercomUser: (() -> Void)?
+
+  public static func handleGoogleURL(url: URL) {
+    GIDSignIn.sharedInstance.handle(url)
+  }
 
   public enum AuthStatus {
     case loggedOut
@@ -15,17 +18,10 @@ public final class Authenticator: ObservableObject {
   }
 
   @Published public internal(set) var isLoggedIn: Bool
-  @Published public var pendinguserProfile = UserProfile(username: "", name: "", bio: nil)
 
   let networker: Networker
 
-  var subscriptions = Set<AnyCancellable>()
-  var currentAuthorizationFlow: OIDExternalUserAgentSession?
   var pendingUserToken: String?
-
-  #if os(macOS)
-    var authRedirectHandler: OIDRedirectHTTPHandler?
-  #endif
 
   public init(networker: Networker) {
     self.networker = networker

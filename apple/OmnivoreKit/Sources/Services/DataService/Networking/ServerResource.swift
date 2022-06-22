@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import Models
 import Utils
@@ -37,7 +36,7 @@ extension ServerResponse {
 struct EmptyResponse: Decodable {}
 
 extension URLSession {
-  func performReq<ResponseModel>(
+  func performRequest<ResponseModel>(
     resource: ServerResource<ResponseModel>
   ) async throws -> ResponseModel {
     do {
@@ -60,30 +59,6 @@ extension URLSession {
       NetworkRequestLogger.log(request: resource.urlRequest, serverResponse: serverResponse)
       throw ServerError(serverResponse: serverResponse)
     }
-  }
-
-  // TODO: remove performRequest
-  // swiftlint:disable:next line_length
-  func performRequest<ResponseModel>(resource: ServerResource<ResponseModel>) -> AnyPublisher<ResponseModel, ServerError> {
-    let request = resource.urlRequest
-
-    return dataTaskPublisher(for: resource.urlRequest)
-      .tryMap { data, response -> ResponseModel in
-        let serverResponse = ServerResponse(data: data, response: response)
-        NetworkRequestLogger.log(request: request, serverResponse: serverResponse)
-
-        if let decodedValue = resource.decode(serverResponse) {
-          return decodedValue
-        }
-
-        throw ServerError(serverResponse: serverResponse)
-      }
-      .mapError { error -> ServerError in
-        let serverResponse = ServerResponse(error: error)
-        NetworkRequestLogger.log(request: request, serverResponse: serverResponse)
-        return ServerError(serverResponse: serverResponse)
-      }
-      .eraseToAnyPublisher()
   }
 }
 

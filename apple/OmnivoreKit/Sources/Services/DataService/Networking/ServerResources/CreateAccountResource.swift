@@ -1,8 +1,7 @@
-import Combine
 import Foundation
 
 extension Networker {
-  func createAccount(params: Data) -> AnyPublisher<AuthPayload, ServerError> {
+  func createAccount(params: Data) async throws -> AuthPayload {
     let urlRequest = URLRequest.create(
       baseURL: appEnvironment.serverBaseURL,
       urlPath: "/api/mobile-auth/create-account",
@@ -14,9 +13,10 @@ extension Networker {
       decode: AuthPayload.decode
     )
 
-    return urlSession
-      .performRequest(resource: resource)
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
+    do {
+      return try await urlSession.performRequest(resource: resource)
+    } catch {
+      throw (error as? ServerError) ?? .unknown
+    }
   }
 }

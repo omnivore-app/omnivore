@@ -1,4 +1,3 @@
-import Combine
 import CoreData
 import CoreImage
 import Foundation
@@ -19,7 +18,6 @@ public final class DataService: ObservableObject {
 
   var persistentContainer: PersistentContainer
   public var backgroundContext: NSManagedObjectContext
-  var subscriptions = Set<AnyCancellable>()
 
   public var viewContext: NSManagedObjectContext {
     persistentContainer.viewContext
