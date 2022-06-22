@@ -33,9 +33,6 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         <ArticleActionsMenu
           article={undefined}
           layout='top'
-          fontFamily={readerSettings.fontFamily}
-          lineHeight={readerSettings.lineHeight}
-          marginWidth={readerSettings.marginWidth}
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
@@ -62,9 +59,6 @@ export default function ArticleSavingRequestPage(): JSX.Element {
         <ArticleActionsMenu
           article={undefined}
           layout='side'
-          fontFamily={readerSettings.fontFamily}
-          lineHeight={readerSettings.lineHeight}
-          marginWidth={readerSettings.marginWidth}
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />

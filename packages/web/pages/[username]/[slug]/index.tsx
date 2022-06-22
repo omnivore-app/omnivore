@@ -150,9 +150,6 @@ export default function Home(): JSX.Element {
         <ArticleActionsMenu
           article={article}
           layout='top'
-          fontFamily={readerSettings.fontFamily}
-          lineHeight={readerSettings.lineHeight}
-          marginWidth={readerSettings.marginWidth}
           showReaderDisplaySettings={article?.contentReader != 'PDF'}
           articleActionHandler={actionHandler}
         />
@@ -188,9 +185,6 @@ export default function Home(): JSX.Element {
           <ArticleActionsMenu
             article={article}
             layout='side'
-            fontFamily={readerSettings.fontFamily}
-            lineHeight={readerSettings.lineHeight}
-            marginWidth={readerSettings.marginWidth}
             showReaderDisplaySettings={true}
             articleActionHandler={actionHandler}
           />
@@ -255,12 +249,9 @@ export default function Home(): JSX.Element {
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}
-
       {readerSettings.showEditDisplaySettingsModal && (
         <DisplaySettingsModal
-          lineHeight={readerSettings.lineHeight}
-          marginWidth={readerSettings.marginWidth}
-          fontFamily={readerSettings.fontFamily}
+          centerX={true}
           articleActionHandler={actionHandler}
           onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
         />

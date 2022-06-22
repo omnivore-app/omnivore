@@ -7,16 +7,15 @@ import { Box, SpanBox } from "../../elements/LayoutPrimitives"
 import { TooltipWrapped } from "../../elements/Tooltip"
 import { styled, theme } from "../../tokens/stitches.config"
 import { SetLabelsControl } from "./SetLabelsControl"
-import { ReaderSettingsControl } from "./ReaderSettingsControl"
+import { DisplaySettingsModal } from "./DisplaySettingsModal"
+import { useReaderSettings } from "../../../lib/hooks/useReaderSettings"
+import { useRef } from "react"
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
 type ArticleActionsMenuProps = {
   article?: ArticleAttributes
   layout: ArticleActionsMenuLayout
-  lineHeight: number
-  marginWidth: number
-  fontFamily: string
   showReaderDisplaySettings?: boolean
   articleActionHandler: (action: string, arg?: unknown) => void
 }
@@ -56,6 +55,9 @@ const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
 }
 
 export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element {
+  const readerSettings = useReaderSettings()
+  const displaySettingsButtonRef = useRef<HTMLElement | null>(null)
+
   return (
     <>
     <Box
@@ -70,29 +72,19 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
     >
       {props.showReaderDisplaySettings && (
         <>
-          <ActionDropdown
-            layout={props.layout}
-            triggerElement={
-              <TooltipWrapped
-                tooltipContent="Adjust Display Settings"
-                tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
-              >
-                <TextAa size={24} color={theme.colors.readerFont.toString()} />
-              </TooltipWrapped>
-            }
+        <Button style='articleActionIcon' onClick={() => readerSettings.setShowEditDisplaySettingsModal(true)}>
+          <TooltipWrapped
+            tooltipContent="Adjust Display Settings"
+            tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
           >
-            <ReaderSettingsControl
-              fontFamily={props.fontFamily}
-              lineHeight={props.lineHeight}
-              marginWidth={props.marginWidth}
-              articleActionHandler={props.articleActionHandler}
-            />
-          </ActionDropdown>
-
-          <MenuSeparator layout={props.layout} />
+            <SpanBox ref={displaySettingsButtonRef}>
+              <TextAa size={24} color={theme.colors.readerFont.toString()}  />
+            </SpanBox>
+          </TooltipWrapped>
+        </Button>
+        <MenuSeparator layout={props.layout} />
         </>
       )}
-
       <SpanBox css={{
         'display': 'flex',
         '@smDown': {
@@ -190,6 +182,14 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}
     </Box>
+    {readerSettings.showEditDisplaySettingsModal && (
+      <DisplaySettingsModal
+        centerX={props.layout != 'side'}
+        triggerElementRef={displaySettingsButtonRef}
+        articleActionHandler={props.articleActionHandler}
+        onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
+      />
+    )}
     </>
   )
 }

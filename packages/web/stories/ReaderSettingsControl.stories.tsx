@@ -15,8 +15,8 @@ export default {
 
 export const ReaderSettingsStory: ComponentStory<typeof ReaderSettingsControl> = (args: any) => {
   return (
-    <div style={{ width: '265px', border: '2px solid black' }}>
-      <ReaderSettingsControl fontFamily='Inter' marginWidth={300} lineHeight={200} articleActionHandler={(action) => {
+    <div style={{ width: '245px', border: '2px solid black' }}>
+      <ReaderSettingsControl articleActionHandler={(action) => {
         console.log('articleActionHandler')
       }} />
     </div>
