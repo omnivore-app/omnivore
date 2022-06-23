@@ -230,6 +230,9 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 
 // Apply global styles in here
 export const globalStyles = globalCss({
+  'body': {
+    backgroundColor: '$grayBase'
+  },
   '*': {
     '&:focus': {
       outline: 'none',
