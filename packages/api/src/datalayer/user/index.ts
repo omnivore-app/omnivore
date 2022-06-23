@@ -327,6 +327,17 @@ class UserModel extends DataModel<UserData, CreateSet, UpdateSet> {
     }
     return this.kx.transaction((tx) => this.updateProfile(userId, set, tx))
   }
+
+  @logMethod
+  deleteUser(userId: string, tx: Knex.Transaction): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = super.delete(userId, tx) as any
+    if (result.error) {
+      return false
+    } else {
+      return true
+    }
+  }
 }
 
 export default UserModel

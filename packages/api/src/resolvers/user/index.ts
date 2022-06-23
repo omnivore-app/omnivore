@@ -1,4 +1,8 @@
 import {
+  DeleteAccountSuccess,
+  DeleteAccountError,
+  DeleteAccountErrorCode,
+  MutationDeleteAccountArgs,
   GoogleSignupResult,
   LoginErrorCode,
   LoginResult,
@@ -355,3 +359,38 @@ export const signupResolver: ResolverFn<
     return { errorCodes: [SignupErrorCode.Unknown] }
   }
 }
+
+export const deleteAccountResolver = authorized<
+  DeleteAccountSuccess,
+  DeleteAccountError,
+  MutationDeleteAccountArgs
+>(async (_, { userID }, { models, claims, log }) => {
+  const user = await models.user.get(userID)
+
+  if (!user || user.id !== claims.uid) {
+    return {
+      errorCodes: [DeleteAccountErrorCode.Unauthorized],
+    }
+  }
+
+  const deleteUserResult = await authTrx((tx) =>
+    models.user.deleteUser(userID as string, tx)
+  )
+
+  if (!deleteUserResult) {
+    return {
+      errorCodes: [DeleteAccountErrorCode.Forbidden],
+    }
+  }
+
+  log.info('Deleting a user account', {
+    userID,
+    labels: {
+      source: 'resolver',
+      resolver: 'deleteAccountResolver',
+      uid: claims.uid,
+    },
+  })
+
+  return { userID }
+})
