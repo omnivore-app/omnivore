@@ -59,7 +59,8 @@ interface BackendEnv {
   queue: {
     location: string
     name: string
-    puppeteerTaskHanderUrl: string
+    contentFetchUrl: string
+    contentFetchGCFUrl: string
     reminderTaskHanderUrl: string
   }
   fileUpload: {
@@ -191,7 +192,8 @@ export function getEnv(): BackendEnv {
   const queue = {
     location: parse('PUPPETEER_QUEUE_LOCATION'),
     name: parse('PUPPETEER_QUEUE_NAME'),
-    puppeteerTaskHanderUrl: parse('PUPPETEER_TASK_HANDLER_URL'),
+    contentFetchUrl: parse('CONTENT_FETCH_URL'),
+    contentFetchGCFUrl: parse('CONTENT_FETCH_GCF_URL'),
     reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
   }
   const imageProxy = {
