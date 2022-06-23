@@ -26,7 +26,7 @@ struct DebugMenuView: View {
 
       Button(
         action: {
-          authenticator.logout()
+          authenticator.logout(dataService: dataService)
           dataService.switchAppEnvironment(appEnvironment: selectedEnvironment)
         },
         label: { Text("Apply Changes") }
