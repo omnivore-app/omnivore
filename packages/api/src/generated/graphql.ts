@@ -424,6 +424,24 @@ export type CreateReminderSuccess = {
   reminder: Reminder;
 };
 
+export type DeleteAccountError = {
+  __typename?: 'DeleteAccountError';
+  errorCodes: Array<DeleteAccountErrorCode>;
+};
+
+export enum DeleteAccountErrorCode {
+  Forbidden = 'FORBIDDEN',
+  Unauthorized = 'UNAUTHORIZED',
+  UserNotFound = 'USER_NOT_FOUND'
+}
+
+export type DeleteAccountResult = DeleteAccountError | DeleteAccountSuccess;
+
+export type DeleteAccountSuccess = {
+  __typename?: 'DeleteAccountSuccess';
+  userID: Scalars['ID'];
+};
+
 export type DeleteHighlightError = {
   __typename?: 'DeleteHighlightError';
   errorCodes: Array<DeleteHighlightErrorCode>;
@@ -863,6 +881,7 @@ export type Mutation = {
   createNewsletterEmail: CreateNewsletterEmailResult;
   createReaction: CreateReactionResult;
   createReminder: CreateReminderResult;
+  deleteAccount: DeleteAccountResult;
   deleteHighlight: DeleteHighlightResult;
   deleteHighlightReply: DeleteHighlightReplyResult;
   deleteLabel: DeleteLabelResult;
@@ -945,6 +964,11 @@ export type MutationCreateReactionArgs = {
 
 export type MutationCreateReminderArgs = {
   input: CreateReminderInput;
+};
+
+
+export type MutationDeleteAccountArgs = {
+  userID: Scalars['ID'];
 };
 
 
@@ -2437,6 +2461,10 @@ export type ResolversTypes = {
   CreateReminderResult: ResolversTypes['CreateReminderError'] | ResolversTypes['CreateReminderSuccess'];
   CreateReminderSuccess: ResolverTypeWrapper<CreateReminderSuccess>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  DeleteAccountError: ResolverTypeWrapper<DeleteAccountError>;
+  DeleteAccountErrorCode: DeleteAccountErrorCode;
+  DeleteAccountResult: ResolversTypes['DeleteAccountError'] | ResolversTypes['DeleteAccountSuccess'];
+  DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
@@ -2772,6 +2800,9 @@ export type ResolversParentTypes = {
   CreateReminderResult: ResolversParentTypes['CreateReminderError'] | ResolversParentTypes['CreateReminderSuccess'];
   CreateReminderSuccess: CreateReminderSuccess;
   Date: Scalars['Date'];
+  DeleteAccountError: DeleteAccountError;
+  DeleteAccountResult: ResolversParentTypes['DeleteAccountError'] | ResolversParentTypes['DeleteAccountSuccess'];
+  DeleteAccountSuccess: DeleteAccountSuccess;
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
   DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
@@ -3274,6 +3305,20 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
+export type DeleteAccountErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteAccountError'] = ResolversParentTypes['DeleteAccountError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteAccountErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteAccountResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteAccountResult'] = ResolversParentTypes['DeleteAccountResult']> = {
+  __resolveType: TypeResolveFn<'DeleteAccountError' | 'DeleteAccountSuccess', ParentType, ContextType>;
+};
+
+export type DeleteAccountSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteAccountSuccess'] = ResolversParentTypes['DeleteAccountSuccess']> = {
+  userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightError'] = ResolversParentTypes['DeleteHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3617,6 +3662,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
   createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
   createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
+  deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
@@ -4394,6 +4440,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateReminderResult?: CreateReminderResultResolvers<ContextType>;
   CreateReminderSuccess?: CreateReminderSuccessResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  DeleteAccountError?: DeleteAccountErrorResolvers<ContextType>;
+  DeleteAccountResult?: DeleteAccountResultResolvers<ContextType>;
+  DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
   DeleteHighlightError?: DeleteHighlightErrorResolvers<ContextType>;
   DeleteHighlightReplyError?: DeleteHighlightReplyErrorResolvers<ContextType>;
   DeleteHighlightReplyResult?: DeleteHighlightReplyResultResolvers<ContextType>;
