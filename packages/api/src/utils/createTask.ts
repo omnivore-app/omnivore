@@ -19,7 +19,7 @@ const createHttpTaskWithToken = async ({
   project,
   queue = env.queue.name,
   location = env.queue.location,
-  taskHandlerUrl = env.queue.puppeteerTaskHanderUrl,
+  taskHandlerUrl = env.queue.contentFetchUrl,
   serviceAccountEmail = `${process.env.GOOGLE_CLOUD_PROJECT}@appspot.gserviceaccount.com`,
   payload,
   priority = 'high',
@@ -43,6 +43,8 @@ const createHttpTaskWithToken = async ({
   // Construct the fully qualified queue name.
   if (priority === 'low') {
     queue = `${queue}-low`
+    // use GCF url for low priority tasks
+    taskHandlerUrl = env.queue.contentFetchGCFUrl
   }
 
   const parent = client.queuePath(project, location, queue)
@@ -224,7 +226,7 @@ export const enqueueParseRequest = async (
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
     // Calling the handler function directly.
     setTimeout(() => {
-      axios.post(env.queue.puppeteerTaskHanderUrl, payload).catch((error) => {
+      axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
         console.error(error)
         logger.warning(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
