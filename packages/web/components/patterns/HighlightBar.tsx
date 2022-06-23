@@ -72,7 +72,7 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
             background: '$grayBg',
             borderRadius: '4px',
             border: '1px solid $grayBorder',
-            boxShadow: theme.shadows.cardBoxShadow.toString(),
+            boxShadow: '$cardBoxShadow',
           }}
           <BarContent {...props} />
         </Box>
@@ -124,7 +124,6 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             height: '100%',
             m: 0,
             p: 0,
-            pt: '6px',
             alignItems: 'baseline',
           }}
         >
@@ -133,7 +132,6 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             <StyledText
               style="body"
               css={{
-                pb: '4px',
                 pl: '12px',
                 m: '0px',
                 color: '$readerFont',
@@ -150,7 +148,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           style="plainIcon"
           title="Remove Highlight"
           onClick={() => props.handleButtonClick('delete')}
-          css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px' }}
+          css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px'}}
         >
           <TrashIcon
             size={28}
@@ -163,14 +161,13 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         style="plainIcon"
         title="Add Note to Highlight"
         onClick={() => props.handleButtonClick('comment')}
-        css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px' }}
+        css={{ color: '$readerFont', height: '100%', m: 0, p: 0}}
       >
         <HStack css={{ height: '100%', alignItems: 'center' }}>
           <Note size={24} color={theme.colors.readerFont.toString()} />
           <StyledText
             style="body"
             css={{
-              pb: '4px',
               pl: '12px',
               m: '0px',
               color: '$readerFont',
