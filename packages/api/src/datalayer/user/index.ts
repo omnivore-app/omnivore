@@ -10,7 +10,7 @@ import {
   UpdateSet,
   UserData,
 } from './model'
-import DataModel, { MAX_RECORDS_LIMIT } from '../model'
+import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
 import Knex from 'knex'
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
 import { Table } from '../../utils/dictionary'
@@ -329,14 +329,11 @@ class UserModel extends DataModel<UserData, CreateSet, UpdateSet> {
   }
 
   @logMethod
-  deleteUser(userId: string, tx: Knex.Transaction): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = super.delete(userId, tx) as any
-    if (result.error) {
-      return false
-    } else {
-      return true
-    }
+  deleteUser(
+    userId: string,
+    tx: Knex.Transaction
+  ): Promise<UserData | { error: DataModelError }> {
+    return super.delete(userId, tx)
   }
 }
 

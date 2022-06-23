@@ -38,6 +38,7 @@ import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
 import { comparePassword, hashPassword } from '../../utils/auth'
+import type { UserData } from '../../datalayer/user/model'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -364,7 +365,7 @@ export const deleteAccountResolver = authorized<
   DeleteAccountSuccess,
   DeleteAccountError,
   MutationDeleteAccountArgs
->(async (_, { userID }, { models, claims, log }) => {
+>(async (_, { userID }, { models, claims, log, authTrx }) => {
   const user = await models.user.get(userID)
 
   if (!user || user.id !== claims.uid) {
@@ -374,14 +375,8 @@ export const deleteAccountResolver = authorized<
   }
 
   const deleteUserResult = await authTrx((tx) =>
-    models.user.deleteUser(userID as string, tx)
+    models.user.deleteUser(claims.uid, tx)
   )
-
-  if (!deleteUserResult) {
-    return {
-      errorCodes: [DeleteAccountErrorCode.Forbidden],
-    }
-  }
 
   log.info('Deleting a user account', {
     userID,
@@ -392,5 +387,11 @@ export const deleteAccountResolver = authorized<
     },
   })
 
-  return { userID }
+  if ((deleteUserResult as UserData).id !== undefined) {
+    return { userID }
+  } else {
+    return {
+      errorCodes: [DeleteAccountErrorCode.Forbidden],
+    }
+  }
 })
