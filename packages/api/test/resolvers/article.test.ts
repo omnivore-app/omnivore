@@ -1003,5 +1003,22 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[4].node.id).to.eq(highlights[0].id)
       })
     })
+
+    context('when is:unread is in the query', () => {
+      before(() => {
+        keyword = 'search is:unread'
+      })
+
+      it('should return unread articles in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges.length).to.eq(5)
+        expect(res.body.data.search.edges[0].node.id).to.eq(pages[4].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(pages[3].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+      })
+    })
   })
 })
