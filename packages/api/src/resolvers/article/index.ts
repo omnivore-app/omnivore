@@ -813,7 +813,7 @@ export const searchResolver = authorized<
     },
   })
 
-  let results: (SearchItemData | Page)[]
+  let results: SearchItemData[]
   let totalCount: number
 
   const searchType = searchQuery.typeFilter

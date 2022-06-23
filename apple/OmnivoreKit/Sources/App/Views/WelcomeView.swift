@@ -1,4 +1,3 @@
-import Combine
 import Models
 import Services
 import SwiftUI
@@ -139,7 +138,9 @@ struct WelcomeView: View {
 
       if AppKeys.sharedInstance?.iosClientGoogleId != nil {
         GoogleAuthButton {
-          viewModel.handleGoogleAuth(authenticator: authenticator)
+          Task {
+            await viewModel.handleGoogleAuth(authenticator: authenticator)
+          }
         }
       }
     }

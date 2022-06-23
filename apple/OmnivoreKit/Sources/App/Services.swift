@@ -102,4 +102,5 @@ public final class Services {
 #endif
 
 // Command to simulate BG Task
+// swiftlint:disable:next line_length
 // e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"app.omnivore.fetchLinkedItems"]

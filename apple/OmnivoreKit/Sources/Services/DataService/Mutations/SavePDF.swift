@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import Models
 import SwiftGraphQL
@@ -11,6 +10,7 @@ public struct UploadFileRequestPayload {
 }
 
 public extension DataService {
+  // swiftlint:disable:next function_body_length
   func uploadFileRequest(id: String, url: String) async throws -> UploadFileRequestPayload {
     enum MutationResult {
       case success(payload: UploadFileRequestPayload)
@@ -60,11 +60,7 @@ public extension DataService {
 
           switch payload.data {
           case let .success(payload):
-            if let urlString = payload.urlString, let url = URL(string: urlString) {
-              continuation.resume(returning: payload)
-            } else {
-              continuation.resume(throwing: SaveArticleError.unknown(description: "No upload URL"))
-            }
+            continuation.resume(returning: payload)
           case let .error(errorCode: errorCode):
             switch errorCode {
             case .unauthorized:
@@ -84,12 +80,6 @@ public extension DataService {
     var request = URLRequest(url: url)
     request.httpMethod = "PUT"
     request.addValue("application/pdf", forHTTPHeaderField: "content-type")
-
-    print("UPLOADING PDF", localPdfURL)
-    let attr = try? FileManager.default.attributesOfItem(atPath: localPdfURL.path)
-    if let attr = attr {
-      print("UPLOADING ATTR", attr[.size])
-    }
 
     return try await withCheckedThrowingContinuation { continuation in
       let task = networker.urlSession.uploadTask(with: request, fromFile: localPdfURL) { _, response, _ in

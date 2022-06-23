@@ -9,7 +9,7 @@ struct InternalLinkedItem {
   let savedAt: Date
   let readAt: Date?
   let updatedAt: Date
-  let state: String
+  let state: ArticleContentStatus
   var readingProgress: Double
   var readingProgressAnchor: Int
   let imageURLString: String?
@@ -31,7 +31,7 @@ struct InternalLinkedItem {
     if let contentReader = contentReader {
       return contentReader == "PDF"
     }
-    return (pageURLString ?? "").hasSuffix("pdf")
+    return pageURLString.hasSuffix("pdf")
   }
 
   func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {
@@ -44,7 +44,7 @@ struct InternalLinkedItem {
     linkedItem.savedAt = savedAt
     linkedItem.updatedAt = updatedAt
     linkedItem.readAt = readAt
-    linkedItem.state = state
+    linkedItem.state = state.rawValue
     linkedItem.readingProgress = readingProgress
     linkedItem.readingProgressAnchor = Int64(readingProgressAnchor)
     linkedItem.imageURLString = imageURLString
@@ -70,7 +70,7 @@ struct InternalLinkedItem {
 }
 
 extension Sequence where Element == InternalLinkedItem {
-  func persist(context: NSManagedObjectContext) -> [LinkedItem]? {
+  func persist(context: NSManagedObjectContext) -> [NSManagedObjectID]? {
     var linkedItems: [LinkedItem]?
     context.performAndWait {
       linkedItems = map { $0.asManagedObject(inContext: context) }
@@ -83,7 +83,12 @@ extension Sequence where Element == InternalLinkedItem {
         print("Failed to save LinkedItems: \(error.localizedDescription)")
       }
     }
-    return linkedItems
+
+    if let linkedItems = linkedItems {
+      return linkedItems.map(\.objectID)
+    } else {
+      return nil
+    }
   }
 }
 
@@ -104,7 +109,7 @@ extension JSONArticle {
       savedAt: savedAt,
       readAt: readAt,
       updatedAt: updatedAt,
-      state: "SUCCEEDED",
+      state: .succeeded,
       readingProgress: readingProgressPercent,
       readingProgressAnchor: readingProgressAnchorIndex,
       imageURLString: image,

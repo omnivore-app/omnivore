@@ -24,7 +24,7 @@ const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) Apple
 const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
-const NON_SCRIPT_HOSTS= ['medium.com']
+const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
@@ -64,7 +64,7 @@ const fetchContentWithScrapingBee = async (url) => {
   return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
 }
 
-const enableJavascriptForUrl = async (url) => {
+const enableJavascriptForUrl = (url) => {
   try {
     const u = new URL(url);
     for (const host of NON_SCRIPT_HOSTS) {
@@ -397,7 +397,7 @@ function getUrl(req) {
 }
 
 
-async function blockResources(page) {
+async function blockResources(client) {
   const blockedResources = [
     // Assets
     // '*/favicon.ico',
@@ -420,7 +420,7 @@ async function blockResources(page) {
     'sp.analytics.yahoo.com',
   ]
 
-  await page._client.send('Network.setBlockedURLs', { urls: blockedResources });
+  await client.send('Network.setBlockedURLs', { urls: blockedResources });
 }
 
 async function retrievePage(url) {
@@ -433,7 +433,7 @@ async function retrievePage(url) {
   const page = await context.newPage()
 
   if (!enableJavascriptForUrl(url)) {
-    page.setJavaScriptEnabled(false)
+    await page.setJavaScriptEnabled(false);
   }
   await page.setUserAgent(userAgentForUrl(url));
 
@@ -453,7 +453,7 @@ async function retrievePage(url) {
   const path = require('path');
   const download_path = path.resolve('./download_dir/');
 
-  await page._client.send('Page.setDownloadBehavior', {
+  await client.send('Page.setDownloadBehavior', {
       behavior: 'allow',
       userDataDir: './',
       downloadPath: download_path,
@@ -482,7 +482,7 @@ async function retrievePage(url) {
     } catch {}
   });
 
-  await blockResources(page);
+  await blockResources(client);
 
   /*
     * Disallow MathJax from running in Puppeteer and modifying the document,
@@ -666,7 +666,7 @@ async function retrieveHtml(page) {
   }
   console.log('DOM CONTENT')
   console.log(domContent)
-  if (domContent == 'IS_BLOCKED') {
+  if (domContent === 'IS_BLOCKED') {
     return { isBlocked: true };
   }
   return { domContent, title };

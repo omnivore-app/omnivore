@@ -1,20 +1,18 @@
-import Combine
 import Foundation
 import Models
 
 public extension Authenticator {
-  func submitAppleToken(token: String) -> AnyPublisher<Void, LoginError> {
-    networker
-      .submitAppleToken(token: token)
-      .tryMap { [weak self] in
-        try ValetKey.authCookieString.setValue($0.commentedAuthCookieString)
-        try ValetKey.authToken.setValue($0.authToken)
-        self?.isLoggedIn = true
+  func submitAppleToken(token: String) async throws {
+    do {
+      let authPayload = try await networker.submitAppleToken(token: token)
+      try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
+      try ValetKey.authToken.setValue(authPayload.authToken)
+      DispatchQueue.main.async {
+        self.isLoggedIn = true
       }
-      .mapError { error in
-        let serverError = (error as? ServerError) ?? ServerError.unknown
-        return LoginError.make(serverError: serverError)
-      }
-      .eraseToAnyPublisher()
+    } catch {
+      let serverError = (error as? ServerError) ?? ServerError.unknown
+      throw LoginError.make(serverError: serverError)
+    }
   }
 }

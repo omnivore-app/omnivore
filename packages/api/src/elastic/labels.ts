@@ -104,7 +104,7 @@ export const deleteLabel = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source: `if (ctx._source.highlights != null) {
+          source: `if (ctx._source.highlights != null && ctx._source.highlights[0].labels != null) {
                      ctx._source.highlights[0].labels.removeIf(label -> label.name == params.label)
                    }
                    if (ctx._source.labels != null) {

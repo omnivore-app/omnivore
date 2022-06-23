@@ -82,7 +82,7 @@ const logAppliedMigrations = (
       console.log(`  ${actionLabel} ${migration.name}`)
     }
   } else {
-    log(`No migrations applied.`)
+    log(`No Postgres migrations applied.`)
   }
 }
 
@@ -95,14 +95,21 @@ export const esClient = new Client({
     password: process.env.ELASTIC_PASSWORD || '',
   },
 })
+// read index settings from file
+const indexSettings = readFileSync(
+  join(__dirname, 'elastic_migrations', 'index_settings.json'),
+  'utf8'
+)
+const INDEX_NAME = 'pages'
+const createIndex = async (): Promise<void> => {
+  // create index
+  await esClient.indices.create({
+    index: INDEX_NAME,
+    body: JSON.parse(indexSettings),
+  })
+}
 
 const updateMappings = async (): Promise<void> => {
-  // read index settings from file
-  const indexSettings = readFileSync(
-    join(__dirname, 'elastic_migrations', 'index_settings.json'),
-    'utf8'
-  )
-
   // update mappings
   await esClient.indices.putMapping({
     index: INDEX_ALIAS,
@@ -110,56 +117,73 @@ const updateMappings = async (): Promise<void> => {
   })
 }
 
-postgrator
+// postgres migration
+const postgresMigration = postgrator
   .migrate(targetMigration)
   .then(logAppliedMigrations)
   .catch((error) => {
-    log(`${chalk.red('Migration failed: ')}${error.message}`, chalk.red)
+    log(
+      `${chalk.red('Postgres migration failed: ')}${error.message}`,
+      chalk.red
+    )
     const { appliedMigrations } = error
     logAppliedMigrations(appliedMigrations)
     process.exit(1)
   })
-  .then(() => console.log('\nExiting...'))
 
-log('Starting updating elasticsearch index mappings...')
-
-updateMappings()
-  .then(() => console.log('\nUpdating elastic mappings completed.'))
-  .catch((error) => {
-    log(`${chalk.red('Updating failed: ')}${error.message}`, chalk.red)
-    process.exit(1)
+// elastic migration
+log('Creating elastic index...')
+const elasticMigration = esClient.indices
+  .exists({ index: INDEX_ALIAS })
+  .then(({ body: exists }) => {
+    if (!exists) {
+      return createIndex().then(() => log('Elastic index created.'))
+    } else {
+      log('Elastic index already exists.')
+    }
   })
-
-log('Starting adding default state to pages in elasticsearch...')
-esClient
-  .update_by_query({
-    index: INDEX_ALIAS,
-    requests_per_second: 250,
-    scroll_size: 500,
-    timeout: '30m',
-    body: {
-      script: {
-        source: 'ctx._source.state = params.state',
-        lang: 'painless',
-        params: {
-          state: 'SUCCEEDED',
-        },
-      },
-      query: {
-        bool: {
-          must_not: [
-            {
-              exists: {
-                field: 'state',
-              },
+  .then(() => {
+    log('Updating elastic index mappings...')
+    return updateMappings().then(() => {
+      log('Elastic index mappings updated.')
+    })
+  })
+  .then(() => {
+    log('Adding default state to pages in elastic...')
+    return esClient
+      .update_by_query({
+        index: INDEX_ALIAS,
+        requests_per_second: 250,
+        scroll_size: 500,
+        timeout: '30m',
+        body: {
+          script: {
+            source: 'ctx._source.state = params.state',
+            lang: 'painless',
+            params: {
+              state: 'SUCCEEDED',
             },
-          ],
+          },
+          query: {
+            bool: {
+              must_not: [
+                {
+                  exists: {
+                    field: 'state',
+                  },
+                },
+              ],
+            },
+          },
         },
-      },
-    },
+      })
+      .then(() => log('Default state added.'))
   })
-  .then(() => console.log('\nAdding default state completed.'))
   .catch((error) => {
-    log(`${chalk.red('Adding failed: ')}${error.message}`, chalk.red)
+    log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
+    const { appliedMigrations } = error
+    logAppliedMigrations(appliedMigrations)
     process.exit(1)
   })
+
+Promise.all([postgresMigration, elasticMigration]).then(() => log('Exiting...'))

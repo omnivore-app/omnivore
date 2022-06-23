@@ -31,7 +31,7 @@ import {
   createReminderMutation,
   ReminderType,
 } from '../../../lib/networking/mutations/createReminderMutation'
-import { useFetchMoreScroll } from '../../../lib/hooks/useFetchMoreScroll'
+import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
@@ -47,10 +47,6 @@ import { EditTitleModal } from './EditTitleModal'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
-export type HomeFeedContainerProps = {
-  scrollElementRef: React.RefObject<HTMLDivElement>
-}
-
 const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
 
 const SAVED_SEARCHES: Record<string, string> = {
@@ -65,7 +61,7 @@ const SAVED_SEARCHES: Record<string, string> = {
   Newsletters: `in:inbox label:Newsletter`,
 }
 
-export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
+export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const defaultQuery = {
@@ -175,7 +171,8 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
     [libraryItems]
   )
 
-  const isVisible = function (ele: HTMLElement, container: HTMLElement) {
+  const isVisible = function (ele: HTMLElement) {
+    const container = window.document.documentElement
     const eleTop = ele.offsetTop
     const eleBottom = eleTop + ele.clientHeight
 
@@ -192,8 +189,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
         if (target) {
           try {
             if (
-              props.scrollElementRef.current &&
-              !isVisible(target, props.scrollElementRef.current)
+              !isVisible(target)
             ) {
               target.scrollIntoView({
                 block: 'center',
@@ -424,11 +420,7 @@ export function HomeFeedContainer(props: HomeFeedContainerProps): JSX.Element {
     })
   )
 
-  const setFetchMoreRef = useFetchMoreScroll(handleFetchMore)
-
-  useEffect(() => {
-    setFetchMoreRef(props.scrollElementRef.current)
-  }, [props.scrollElementRef, setFetchMoreRef])
+  useFetchMore(handleFetchMore)
 
   return (
     <HomeFeedGrid

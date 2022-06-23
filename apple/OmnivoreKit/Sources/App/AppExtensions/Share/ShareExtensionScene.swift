@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import Models
 import Services
@@ -55,7 +54,12 @@ struct ShareExtensionView: View {
   var body: some View {
     ShareExtensionChildView(
       viewModel: childViewModel,
-      onAppearAction: { viewModel.savePage(extensionContext: extensionContext, shareExtensionViewModel: childViewModel) },
+      onAppearAction: {
+        viewModel.savePage(
+          extensionContext: extensionContext,
+          shareExtensionViewModel: childViewModel
+        )
+      },
       readNowButtonAction: { viewModel.handleReadNowAction(requestId: $0, extensionContext: extensionContext) },
       dismissButtonTappedAction: { _, _ in
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)

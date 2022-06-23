@@ -36,7 +36,7 @@ public struct Snackbar: View {
             .cornerRadius(5)
             .offset(x: 0, y: -8)
             .shadow(color: .gray, radius: 2)
-            .animation(Animation.spring())
+            .animation(.spring(), value: true)
           }
         }
       }

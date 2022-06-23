@@ -1,12 +1,16 @@
-import Combine
 import CoreData
 import CoreImage
 import Foundation
 import Models
 import OSLog
 import QuickLookThumbnailing
-import UIKit
 import Utils
+
+#if os(iOS)
+  import UIKit
+#else
+  import AppKit
+#endif
 
 let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
@@ -19,7 +23,6 @@ public final class DataService: ObservableObject {
 
   var persistentContainer: PersistentContainer
   public var backgroundContext: NSManagedObjectContext
-  var subscriptions = Set<AnyCancellable>()
 
   public var viewContext: NSManagedObjectContext {
     persistentContainer.viewContext
@@ -47,6 +50,19 @@ public final class DataService: ObservableObject {
     let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
     fetchRequest.fetchLimit = 1 // we should only have one viewer saved
     return try? persistentContainer.viewContext.fetch(fetchRequest).first
+  }
+
+  public func username() async -> String? {
+    if let cachedUsername = currentViewer?.username {
+      return cachedUsername
+    }
+
+    if let viewerObjectID = try? await fetchViewer() {
+      let viewer = backgroundContext.object(with: viewerObjectID) as? Viewer
+      return viewer?.unwrappedUsername
+    }
+
+    return nil
   }
 
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {
@@ -109,6 +125,7 @@ public final class DataService: ObservableObject {
     return isFirstRunOfVersion || isFirstRunWithBuildNumber
   }
 
+  // swiftlint:disable:next function_body_length
   public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws {
     let normalizedURL = normalizeURL(pageScrape.url)
 

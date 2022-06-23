@@ -58,11 +58,17 @@ public extension LinkedItemFilter {
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
     case .readlater:
       // non-archived or deleted items without the Newsletter label
-      let nonNewsletterLabelPredicate = NSPredicate(format: "NOT SUBQUERY(labels, $label, $label.name == \"Newsletter\") .@count > 0")
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate])
+      let nonNewsletterLabelPredicate = NSPredicate(
+        format: "NOT SUBQUERY(labels, $label, $label.name == \"Newsletter\") .@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate
+      ])
     case .newsletters:
       // non-archived or deleted items with the Newsletter label
-      let newsletterLabelPredicate = NSPredicate(format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0")
+      let newsletterLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
+      )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
     case .all:
       // include everything undeleted

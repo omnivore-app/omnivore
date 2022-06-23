@@ -1473,10 +1473,10 @@ const schema = gql`
     pageType: PageType!
     contentReader: ContentReader!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     isArchived: Boolean!
-    readingProgressPercent: Float
-    readingProgressAnchorIndex: Int
+    readingProgressPercent: Float!
+    readingProgressAnchorIndex: Int!
     author: String
     image: String
     description: String
@@ -1498,6 +1498,7 @@ const schema = gql`
     siteName: String
     language: String
     readAt: Date
+    savedAt: Date!
   }
 
   type SearchItemEdge {

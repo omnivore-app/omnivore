@@ -25,7 +25,6 @@ export type ArticleProps = {
   initialAnchorIndex: number
   initialReadingProgress?: number
   highlightHref: MutableRefObject<string | null>
-  scrollElementRef: MutableRefObject<HTMLDivElement | null>
   articleMutations: ArticleMutations
 }
 
@@ -89,16 +88,9 @@ export function Article(props: ArticleProps): JSX.Element {
     }
   }, [readingProgress])
 
-  const setScrollWatchedElement = useScrollWatcher(
+  useScrollWatcher(
     (changeset: ScrollOffsetChangeset) => {
-      const scrollContainer = props.scrollElementRef.current
-      if (scrollContainer) {
-        const newReadingProgress =
-          (changeset.current.y + scrollContainer.clientHeight) /
-          scrollContainer.scrollHeight
-
-        debouncedSetReadingProgress(newReadingProgress * 100)
-      } else if (window && window.document.scrollingElement) {
+      if (window && window.document.scrollingElement) {
         const newReadingProgress =
           window.scrollY / window.document.scrollingElement.scrollHeight
         const adjustedReadingProgress =
@@ -130,10 +122,6 @@ export function Article(props: ArticleProps): JSX.Element {
     },
     []
   )
-
-  useEffect(() => {
-    setScrollWatchedElement(props.scrollElementRef.current)
-  }, [props.scrollElementRef, setScrollWatchedElement])
 
   // Scroll to initial anchor position
   useEffect(() => {
@@ -175,17 +163,11 @@ export function Article(props: ArticleProps): JSX.Element {
         }
 
         const calculatedOffset = calculateOffset(anchorElement)
-
-        if (props.scrollElementRef.current) {
-          props.scrollElementRef.current?.scroll(0, calculatedOffset - 100)
-        } else {
-          window.document.documentElement.scroll(0, calculatedOffset - 100)
-        }
+        window.document.documentElement.scroll(0, calculatedOffset - 100)
       }
     }
   }, [
     props.highlightReady,
-    props.scrollElementRef,
     props.initialAnchorIndex,
     props.initialReadingProgress,
     shouldScrollToInitialPosition,

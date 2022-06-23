@@ -1,9 +1,8 @@
-import Combine
 import Foundation
 import Models
 
 extension Networker {
-  func createPendingUser(params: Data) -> AnyPublisher<PendingUserAuthPayload, ServerError> {
+  func createPendingUser(params: Data) async throws -> PendingUserAuthPayload {
     let urlRequest = URLRequest.create(
       baseURL: appEnvironment.serverBaseURL,
       urlPath: "/api/mobile-auth/sign-up",
@@ -15,9 +14,10 @@ extension Networker {
       decode: PendingUserAuthPayload.decode
     )
 
-    return urlSession
-      .performRequest(resource: resource)
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
+    do {
+      return try await urlSession.performRequest(resource: resource)
+    } catch {
+      throw (error as? ServerError) ?? .unknown
+    }
   }
 }

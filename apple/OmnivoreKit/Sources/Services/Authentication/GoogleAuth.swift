@@ -1,123 +1,96 @@
-import AppAuth
-import Combine
 import Foundation
+import GoogleSignIn
 import Models
 import Utils
 
-#if os(iOS)
-  import UIKit
+public enum GoogleAuthResponse {
+  case loginError(error: LoginError)
+  case newOmnivoreUser
+  case existingOmnivoreUser
+}
 
-  public extension Authenticator {
-    func handleGoogleAuth(presentingViewController: PlatformViewController?) -> AnyPublisher<Bool, LoginError> {
-      Future { [weak self] promise in
-        guard let self = self, let presenting = presentingViewController else { return }
-
-        // swiftlint:disable:next line_length
-        self.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: self.googleAuthRequest(redirectURL: nil), presenting: presenting) { authState, authError in
-          self.resolveAuthResponse(promise: promise, authState: authState, authError: authError)
-        }
-      }
-      .eraseToAnyPublisher()
+extension Authenticator {
+  public func handleGoogleAuth() async -> GoogleAuthResponse {
+    let idToken = await withCheckedContinuation { continuation in
+      googleSignIn { continuation.resume(returning: $0) }
     }
-  }
-#endif
 
-#if os(macOS)
-  import AppKit
+    guard let idToken = idToken else { return .loginError(error: .unauthorized) }
 
-  public extension Authenticator {
-    func handleGoogleAuth(presentingViewController _: PlatformViewController?) -> AnyPublisher<Bool, LoginError> {
-      authRedirectHandler = OIDRedirectHTTPHandler(
-        successURL: URL(string: "https://omnivore.app")!
-      )
-      let redirectURL = authRedirectHandler?.startHTTPListener(nil)
-      let authRequest = googleAuthRequest(redirectURL: redirectURL)
-
-      return Future { [weak self] promise in
-        guard let self = self else { return }
-
-        // swiftlint:disable:next line_length
-        self.authRedirectHandler?.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: authRequest) { authState, authError in
-          NSRunningApplication.current.activate(options: [.activateAllWindows, .activateIgnoringOtherApps])
-          self.resolveAuthResponse(promise: promise, authState: authState, authError: authError)
-        }
+    do {
+      let authPayload = try await networker.submitGoogleToken(idToken: idToken)
+      try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
+      try ValetKey.authToken.setValue(authPayload.authToken)
+      DispatchQueue.main.async {
+        self.isLoggedIn = true
       }
-      .eraseToAnyPublisher()
-    }
-  }
-#endif
+      return .existingOmnivoreUser
+    } catch {
+      let loginError = (error as? LoginError) ?? .unknown
 
-private extension Authenticator {
-  func resolveAuthResponse(
-    promise: @escaping (Result<Bool, LoginError>) -> Void,
-    authState: OIDAuthState?,
-    authError: Error?
-  ) {
-    if let idToken = authState?.lastTokenResponse?.idToken {
-      Task {
-        do {
-          let authPayload = try await networker.submitGoogleToken(idToken: idToken)
-          try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
-          try ValetKey.authToken.setValue(authPayload.authToken)
-          DispatchQueue.main.async {
-            self.isLoggedIn = true
-          }
-        } catch {
-          if let error = error as? LoginError {
-            switch error {
-            case .unauthorized, .unknown:
-              self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
-            case .network:
-              promise(.failure(error))
-            }
-            self.resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
-          }
-        }
+      switch loginError {
+      case .unauthorized, .unknown:
+        return await createPendingUser(idToken: idToken)
+      case .network:
+        return .loginError(error: .network)
       }
-    } else {
-      resolveAuthResponseForAccountCreation(promise: promise, authState: authState, authError: authError)
     }
   }
 
-  func resolveAuthResponseForAccountCreation(
-    promise: @escaping (Result<Bool, LoginError>) -> Void,
-    authState: OIDAuthState?,
-    authError _: Error?
-  ) {
-    if let idToken = authState?.lastTokenResponse?.idToken {
+  func createPendingUser(idToken: String) async -> GoogleAuthResponse {
+    do {
       let params = CreatePendingAccountParams(token: idToken, provider: .google, fullName: nil)
       let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
-
-      networker
-        .createPendingUser(params: encodedParams)
-        .sink { completion in
-          guard case let .failure(serverError) = completion else { return }
-          promise(.failure(LoginError.make(serverError: serverError)))
-        } receiveValue: { [weak self] in
-          self?.pendingUserToken = $0.pendingUserToken
-          promise(.success(true))
-        }
-        .store(in: &subscriptions)
-    } else {
-      promise(.failure(.unauthorized))
+      let pendingUserAuthPayload = try await networker.createPendingUser(params: encodedParams)
+      pendingUserToken = pendingUserAuthPayload.pendingUserToken
+      return .newOmnivoreUser
+    } catch {
+      let loginError = LoginError.make(serverError: (error as? ServerError) ?? .unknown)
+      return .loginError(error: loginError)
     }
   }
 
-  func googleAuthRequest(redirectURL: URL?) -> OIDAuthorizationRequest {
-    let authEndpoint = URL(string: "https://accounts.google.com/o/oauth2/v2/auth")!
-    let tokenEndpoint = URL(string: "https://www.googleapis.com/oauth2/v4/token")!
-    let iosClientGoogleId = AppKeys.sharedInstance?.iosClientGoogleId ?? ""
-    let scopes = ["profile", "email"]
+  func googleSignIn(completion: @escaping (String?) -> Void) {
+    #if os(iOS)
+      let presenting = presentingViewController()
+    #else
+      let presenting = NSApplication.shared.windows.first
+    #endif
 
-    return OIDAuthorizationRequest(
-      configuration: OIDServiceConfiguration(authorizationEndpoint: authEndpoint, tokenEndpoint: tokenEndpoint),
-      clientId: "\(iosClientGoogleId).apps.googleusercontent.com",
-      scopes: scopes,
-      redirectURL: redirectURL ?? URL(
-        string: "com.googleusercontent.apps.\(iosClientGoogleId):/oauth2redirect/google"
-      )!,
-      responseType: "code",
-      additionalParameters: nil
-    )
+    guard let presenting = presenting else {
+      completion(nil)
+      return
+    }
+    let clientID = "\(AppKeys.sharedInstance?.iosClientGoogleId ?? "").apps.googleusercontent.com"
+
+    GIDSignIn.sharedInstance.signIn(
+      with: GIDConfiguration(clientID: clientID),
+      presenting: presenting
+    ) { user, error in
+      guard let user = user, error == nil else {
+        completion(nil)
+        return
+      }
+
+      user.authentication.do { authentication, error in
+        guard let idToken = authentication?.idToken, error == nil else {
+          completion(nil)
+          return
+        }
+        completion(idToken)
+      }
+    }
   }
+}
+
+private func presentingViewController() -> PlatformViewController? {
+  #if os(iOS)
+    let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+    return scene?.windows
+      .filter(\.isKeyWindow)
+      .first?
+      .rootViewController
+  #elseif os(macOS)
+    return nil
+  #endif
 }

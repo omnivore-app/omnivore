@@ -97,6 +97,7 @@ struct InnerRootView: View {
         }
       }
     #endif
+    .onOpenURL { Authenticator.handleGoogleURL(url: $0) }
   }
 
   #if os(iOS)

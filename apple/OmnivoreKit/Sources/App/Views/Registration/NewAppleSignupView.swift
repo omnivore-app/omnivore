@@ -1,27 +1,22 @@
-import Combine
 import Models
 import Services
 import SwiftUI
 import Utils
 import Views
 
-final class NewAppleSignupViewModel: ObservableObject {
+@MainActor final class NewAppleSignupViewModel: ObservableObject {
   @Published var loginError: LoginError?
-
-  var subscriptions = Set<AnyCancellable>()
 
   init() {}
 
-  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) {
-    authenticator
-      .createAccount(userProfile: userProfile).sink(
-        receiveCompletion: { [weak self] completion in
-          guard case let .failure(loginError) = completion else { return }
-          self?.loginError = loginError
-        },
-        receiveValue: { _ in }
-      )
-      .store(in: &subscriptions)
+  func submitProfile(userProfile: UserProfile, authenticator: Authenticator) async {
+    do {
+      try await authenticator.createAccount(userProfile: userProfile)
+    } catch {
+      if let error = error as? LoginError {
+        loginError = error
+      }
+    }
   }
 }
 
@@ -48,7 +43,11 @@ struct NewAppleSignupView: View {
 
       VStack {
         Button(
-          action: { viewModel.submitProfile(userProfile: userProfile, authenticator: authenticator) },
+          action: {
+            Task {
+              await viewModel.submitProfile(userProfile: userProfile, authenticator: authenticator)
+            }
+          },
           label: { Text("Continue") }
         )
         .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))

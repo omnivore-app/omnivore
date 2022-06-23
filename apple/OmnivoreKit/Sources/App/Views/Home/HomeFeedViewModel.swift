@@ -62,7 +62,7 @@ import Views
       Task { _ = try? await dataService.fetchViewer() }
     }
 
-    let queryResult = try? await dataService.fetchLinkedItems(
+    let queryResult = try? await dataService.loadLinkedItems(
       limit: 10,
       searchQuery: searchQuery,
       cursor: isRefresh ? nil : cursor
@@ -81,7 +81,7 @@ import Views
       let newItems: [LinkedItem] = {
         var itemObjects = [LinkedItem]()
         dataService.viewContext.performAndWait {
-          itemObjects = queryResult.items.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
+          itemObjects = queryResult.itemIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItem }
         }
         return itemObjects
       }()

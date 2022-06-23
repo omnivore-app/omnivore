@@ -9,6 +9,7 @@ import {
 } from './types'
 import {
   DateFilter,
+  FieldFilter,
   HasFilter,
   InFilter,
   LabelFilter,
@@ -17,7 +18,6 @@ import {
   SortBy,
   SortOrder,
   SortParams,
-  TermFilter,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
@@ -48,8 +48,8 @@ const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
     case ReadFilter.UNREAD:
       body.query.bool.filter.push({
         range: {
-          readingProgress: {
-            gte: 98,
+          readingProgressPercent: {
+            lt: 98,
           },
         },
       })
@@ -57,8 +57,8 @@ const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
     case ReadFilter.READ:
       body.query.bool.filter.push({
         range: {
-          readingProgress: {
-            lt: 98,
+          readingProgressPercent: {
+            gte: 98,
           },
         },
       })
@@ -158,10 +158,20 @@ const appendDateFilters = (body: SearchBody, filters: DateFilter[]): void => {
   })
 }
 
-const appendTermFilters = (body: SearchBody, filters: TermFilter[]): void => {
+const appendTermFilters = (body: SearchBody, filters: FieldFilter[]): void => {
   filters.forEach((filter) => {
     body.query.bool.filter.push({
       term: {
+        [filter.field]: filter.value,
+      },
+    })
+  })
+}
+
+const appendMatchFilters = (body: SearchBody, filters: FieldFilter[]): void => {
+  filters.forEach((filter) => {
+    body.query.bool.filter.push({
+      match: {
         [filter.field]: filter.value,
       },
     })
@@ -337,7 +347,8 @@ export const searchPages = async (
     labelFilters: LabelFilter[]
     hasFilters: HasFilter[]
     dateFilters: DateFilter[]
-    termFilters?: TermFilter[]
+    termFilters?: FieldFilter[]
+    matchFilters?: FieldFilter[]
     includePending?: boolean | null
   },
   userId: string
@@ -355,6 +366,7 @@ export const searchPages = async (
       hasFilters,
       dateFilters,
       termFilters,
+      matchFilters,
     } = args
     // default order is descending
     const sortOrder = sort?.order || SortOrder.DESCENDING
@@ -422,6 +434,9 @@ export const searchPages = async (
     }
     if (termFilters) {
       appendTermFilters(body, termFilters)
+    }
+    if (matchFilters) {
+      appendMatchFilters(body, matchFilters)
     }
 
     if (!args.includePending) {

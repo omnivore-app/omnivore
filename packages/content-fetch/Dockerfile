@@ -39,3 +39,4 @@ RUN yarn install --pure-lockfile
 EXPOSE 8080
 
 ENTRYPOINT ["yarn", "start"]
+

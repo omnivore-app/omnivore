@@ -8,19 +8,16 @@ export default function Home(): JSX.Element {
 }
 
 function LoadedContent(): JSX.Element {
-  const scrollRef = useRef<HTMLDivElement | null>(null)
-
   return (
     <PrimaryLayout
       pageMetaDataProps={{
         title: 'Home - Omnivore',
         path: '/home',
       }}
-      scrollElementRef={scrollRef}
       pageTestId="home-page-tag"
     >
-      <VStack alignment="center" distribution="center" ref={scrollRef}>
-        <HomeFeedContainer scrollElementRef={scrollRef} />
+      <VStack alignment="center" distribution="center">
+        <HomeFeedContainer />
       </VStack>
     </PrimaryLayout>
   )

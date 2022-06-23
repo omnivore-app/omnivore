@@ -39,7 +39,7 @@ extension Networker {
     )
 
     do {
-      let authVerification = try await urlSession.performReq(resource: resource)
+      let authVerification = try await urlSession.performRequest(resource: resource)
       return authVerification.authStatus.isAuthenticated
     } catch {
       return false

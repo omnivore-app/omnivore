@@ -14,6 +14,7 @@ final class UtilsTests: XCTestCase {
     XCTAssertEqual(normalizeURL("https://omnivore.app/"), "https://omnivore.app")
 
     // utm_ removed
+    // swiftlint:disable:next line_length
     XCTAssertEqual(normalizeURL("https://omnivore.app/?aa=a&bb=b&utm_track=track&cc=c"), "https://omnivore.app?aa=a&bb=b&cc=c")
 
     // query params sorted
