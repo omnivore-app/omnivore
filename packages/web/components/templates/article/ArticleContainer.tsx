@@ -56,10 +56,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
-  const [highlightReady, setHighlightReady] = useState(false)
-  const [highlightLocations, setHighlightLocations] = useState<
-    HighlightLocation[]
-  >([])
 
   const updateFontSize = async (newFontSize: number) => {
     if (fontSize !== newFontSize) {
@@ -71,21 +67,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   useEffect(() => {
     updateFontSize(props.fontSize ?? 20)
   }, [props.fontSize])
-
-  // Load the highlights
-  useEffect(() => {
-    const res: HighlightLocation[] = []
-    props.article.highlights.forEach((highlight) => {
-      try {
-        const offset = makeHighlightStartEndOffset(highlight)
-        res.push(offset)
-      } catch (err) {
-        console.error(err)
-      }
-    })
-    setHighlightLocations(res)
-    setHighlightReady(true)
-  }, [props.article.highlights, setHighlightLocations])
 
   // Listen for preference change events sent from host apps (ios, macos...)
   useEffect(() => {
@@ -275,10 +256,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           ) : null}
         </VStack>
         <Article
-          highlightReady={highlightReady}
-          highlightHref={highlightHref}
           articleId={props.article.id}
           content={props.article.content}
+          highlightHref={highlightHref}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           articleMutations={props.articleMutations}
         />
@@ -300,7 +280,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <Box css={{ height: '100px' }} />
       </Box>
       <HighlightsLayer
-        highlightLocations={highlightLocations}
+        scrollToHighlight={highlightHref}
         highlights={props.article.highlights}
         articleTitle={props.article.title}
         articleAuthor={props.article.author ?? ''}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useState, MutableRefObject } from 'react'
 import { makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGenerator'
 import type { HighlightLocation } from '../../../lib/highlights/highlightGenerator'
 import { useSelection } from '../../../lib/highlights/useSelection'
@@ -27,9 +27,10 @@ type HighlightsLayerProps = {
   highlightBarDisabled: boolean
   showHighlightsModal: boolean
   highlightsBaseURL: string
+  scrollToHighlight: MutableRefObject<string | null>
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
-  highlightLocations: HighlightLocation[]
+
 }
 
 type HighlightModalAction = 'none' | 'addComment' | 'share'
@@ -50,6 +51,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [highlightModalAction, setHighlightModalAction] =
     useState<HighlightActionProps>({ highlightModalAction: 'none' })
 
+  const [highlightLocations, setHighlightLocations] = useState<
+    HighlightLocation[]
+  >([])
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [focusedHighlight, setFocusedHighlight] = useState<
@@ -57,11 +61,35 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(
-    props.highlightLocations,
+    highlightLocations,
     false //noteModal.open,
   )
 
   const canShareNative = useCanShareNative()
+
+  // Load the highlights
+  useEffect(() => {
+    const res: HighlightLocation[] = []
+    highlights.forEach((highlight) => {
+      try {
+        const offset = makeHighlightStartEndOffset(highlight)
+        res.push(offset)
+      } catch (err) {
+        console.error(err)
+      }
+    })
+    setHighlightLocations(res)
+
+    // If we were given an initial highlight to scroll to we do
+    // that now that all the content has been injected into the
+    // page.
+    if (props.scrollToHighlight.current) {
+      const anchorElement = document.querySelector(`[omnivore-highlight-id="${props.scrollToHighlight.current}"]`)
+      if (anchorElement) {
+        anchorElement.scrollIntoView({ behavior: 'auto' })
+      }
+    }
+  }, [highlights, setHighlightLocations])
 
   const removeHighlightCallback = useCallback(
     async (id?: string) => {
@@ -73,7 +101,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       if (didDeleteHighlight) {
         removeHighlights(
           highlights.map(($0) => $0.id),
-          props.highlightLocations
+          highlightLocations
         )
         setHighlights(highlights.filter(($0) => $0.id !== highlightId))
         setFocusedHighlight(undefined)
@@ -81,16 +109,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         console.error('Failed to delete highlight')
       }
     },
-    [focusedHighlight, highlights, props.highlightLocations]
+    [focusedHighlight, highlights, highlightLocations]
   )
 
   const updateHighlightsCallback = useCallback(
     (highlight: Highlight) => {
-      removeHighlights([highlight.id], props.highlightLocations)
+      removeHighlights([highlight.id], highlightLocations)
       const keptHighlights = highlights.filter(($0) => $0.id !== highlight.id)
       setHighlights([...keptHighlights, highlight])
     },
-    [highlights, props.highlightLocations]
+    [highlights, highlightLocations]
   )
 
   const handleNativeShare = useCallback(
@@ -143,7 +171,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       selection: selection,
       articleId: props.articleId,
       existingHighlights: highlights,
-      highlightStartEndOffsets: props.highlightLocations,
+      highlightStartEndOffsets: highlightLocations,
       annotation: note,
     }, props.articleMutations)
 
@@ -198,21 +226,21 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       selectionData,
       setSelectionData,
       canShareNative,
-      props.highlightLocations,
+      highlightLocations,
     ]
   )
 
   const scrollToHighlight = (id: string) => {
     const foundElement = document.querySelector(`[omnivore-highlight-id="${id}"]`)
     if(foundElement){
-      foundElement.scrollIntoView({
-        block: 'center',
-        behavior: 'smooth'
-      })
-      window.location.hash = `#${id}`
-      props.setShowHighlightsModal(false)
-    }
-  }
+         foundElement.scrollIntoView({
+            block: 'center',
+            behavior: 'smooth'
+          })
+          window.location.hash = `#${id}`
+          props.setShowHighlightsModal(false)
+        }
+      }
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
   const handleClickHighlight = useCallback(
@@ -257,7 +285,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         })
       } else setFocusedHighlight(undefined)
     },
-    [highlights, props.highlightLocations]
+    [highlights, highlightLocations]
   )
 
   useEffect(() => {
@@ -465,10 +493,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   if (props.showHighlightsModal) {
     return (
       <HighlightsModal
-      highlights={highlights}
-      onOpenChange={() => props.setShowHighlightsModal(false)}
-      scrollToHighlight={scrollToHighlight}
-      deleteHighlightAction={(highlightId: string) => {
+        highlights={highlights}
+        onOpenChange={() => props.setShowHighlightsModal(false)}
+        deleteHighlightAction={(highlightId: string) => {
           removeHighlightCallback(highlightId)
         }}
       />
