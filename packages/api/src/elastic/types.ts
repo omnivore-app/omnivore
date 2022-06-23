@@ -14,7 +14,7 @@ export interface SearchBody {
         | { exists: { field: string } }
         | {
             range: {
-              readingProgress: { gte: number } | { lt: number }
+              readingProgressPercent: { gte: number } | { lt: number }
             }
           }
         | {
