@@ -65,15 +65,15 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
         yAnchorCoordinate={props.anchorCoordinates.pageY}
         preventAutoFocus={false}
       >
-        <Box>
-          css=
-          {{
+        <Box
+          css={{
             width: '350px',
+            height: '48px',
             background: '$grayBg',
             borderRadius: '4px',
             border: '1px solid $grayBorder',
             boxShadow: '$cardBoxShadow',
-          }}
+          }}>
           <BarContent {...props} />
         </Box>
       </AnchoredPopover>
@@ -132,7 +132,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             <StyledText
               style="body"
               css={{
-                pl: '12px',
+                p: '0 12px',
                 m: '0px',
                 color: '$readerFont',
                 fontWeight: '400',
@@ -168,7 +168,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           <StyledText
             style="body"
             css={{
-              pl: '12px',
+              p: '0 12px',
               m: '0px',
               color: '$readerFont',
               fontWeight: '400',

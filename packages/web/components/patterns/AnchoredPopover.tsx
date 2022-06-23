@@ -24,6 +24,8 @@ export function AnchoredPopover(props: AnchoredPopoverProps): JSX.Element {
     <Root defaultOpen modal>
       <StyledAnchor />
       <Content
+        side="top"
+        sideOffset={18}
         onOpenAutoFocus={(event) => {
           if (props.preventAutoFocus) {
             event.preventDefault()
