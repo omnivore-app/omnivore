@@ -321,7 +321,6 @@ async function fetchContent(req, res) {
       if (!content || !title) {
         const result = await retrieveHtml(page);
         if (result.isBlocked) {
-          console.log("PAGE IS BLOCKED", url)
           const sbResult = await fetchContentWithScrapingBee(url)
           title = sbResult.title
           content = sbResult.domContent
@@ -597,12 +596,16 @@ async function retrieveHtml(page) {
       Array.from(document.body.getElementsByTagName('*')).forEach(el => {
         const style = window.getComputedStyle(el);
 
-        // Removing blurred images since they are mostly the copies of lazy loaded ones
-        if (['img', 'image'].includes(el.tagName.toLowerCase())) {
-          const filter = style.getPropertyValue('filter');
-          if (filter && filter.startsWith('blur')) {
-            el.parentNode && el.parentNode.removeChild(el);
+        try {
+          // Removing blurred images since they are mostly the copies of lazy loaded ones
+          if (['img', 'image'].includes(el.tagName.toLowerCase())) {
+            const filter = style.getPropertyValue('filter');
+            if (filter && filter.startsWith('blur')) {
+              el.parentNode && el.parentNode.removeChild(el);
+            }
           }
+        } catch (err) {
+          // throw Error('error with element: ' + JSON.stringify(Array.from(document.body.getElementsByTagName('*'))))
         }
 
         // convert all nodes with background image to img nodes
@@ -640,7 +643,8 @@ async function retrieveHtml(page) {
         }
       });
 
-      if (document.querySelector('[data-translate="managed_checking_msg"]')) {
+      if (document.querySelector('[data-translate="managed_checking_msg"]') ||
+          document.getElementById('px-block-form-wrapper')) {
         return 'IS_BLOCKED'
       }
 
@@ -664,8 +668,6 @@ async function retrieveHtml(page) {
       };
     }
   }
-  console.log('DOM CONTENT')
-  console.log(domContent)
   if (domContent === 'IS_BLOCKED') {
     return { isBlocked: true };
   }
