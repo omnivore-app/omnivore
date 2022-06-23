@@ -66,24 +66,26 @@ struct LinkedItemTitleEditView: View {
     NavigationView {
       editForm
         .navigationTitle("Edit Title and Description")
+      #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .barTrailing) {
-            Button(
-              action: {
-                viewModel.submit(dataService: dataService, item: item)
-                presentationMode.wrappedValue.dismiss()
-              },
-              label: { Text("Save").foregroundColor(.appGrayTextContrast) }
-            )
-          }
-          ToolbarItem(placement: .barLeading) {
-            Button(
-              action: { presentationMode.wrappedValue.dismiss() },
-              label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
-            )
-          }
+      #endif
+      .toolbar {
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: {
+              viewModel.submit(dataService: dataService, item: item)
+              presentationMode.wrappedValue.dismiss()
+            },
+            label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+          )
         }
+        ToolbarItem(placement: .barLeading) {
+          Button(
+            action: { presentationMode.wrappedValue.dismiss() },
+            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+          )
+        }
+      }
     }
     .task { viewModel.load(item: item) }
   }

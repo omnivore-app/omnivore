@@ -82,8 +82,8 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
         />
         <Box
           css={{
-            minHeight: '100%',
-            minWidth: '100vw',
+            height: '100%',
+            width: '100vw',
             bg: '$grayBase',
           }}
         >

@@ -1,7 +1,11 @@
 import CoreImage
 import Foundation
 import QuickLookThumbnailing
-import UIKit
+#if os(iOS)
+  import UIKit
+#else
+  import AppKit
+#endif
 
 public enum PDFUtils {
   public static func copyToLocal(url: URL) throws -> String {
@@ -64,7 +68,11 @@ public enum PDFUtils {
 
   public static func createThumbnailFor(inputUrl: URL) async throws -> URL? {
     let size = CGSize(width: 80, height: 80)
-    let scale = await UIScreen.main.scale
+    #if os(iOS)
+      let scale = await UIScreen.main.scale
+    #else
+      let scale = NSScreen.main?.backingScaleFactor ?? 1
+    #endif
     let outputUrl = thumbnailUrl(localUrl: inputUrl)
 
     // Create the thumbnail request.

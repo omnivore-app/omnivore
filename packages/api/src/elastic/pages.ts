@@ -48,8 +48,8 @@ const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
     case ReadFilter.UNREAD:
       body.query.bool.filter.push({
         range: {
-          readingProgress: {
-            gte: 98,
+          readingProgressPercent: {
+            lt: 98,
           },
         },
       })
@@ -57,8 +57,8 @@ const appendReadFilter = (body: SearchBody, filter: ReadFilter): void => {
     case ReadFilter.READ:
       body.query.bool.filter.push({
         range: {
-          readingProgress: {
-            lt: 98,
+          readingProgressPercent: {
+            gte: 98,
           },
         },
       })

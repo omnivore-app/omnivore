@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Jackson Harper on 6/1/22.
-//
-
 import Foundation
 import Models
 import Services
@@ -18,23 +11,25 @@ class ExtensionSaveService {
     self.queue = OperationQueue()
   }
 
-  private func queueSaveOperation(
-    _ pageScrape: PageScrapePayload,
-    shareExtensionViewModel: ShareExtensionChildViewModel
-  ) {
-    ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in
-      guard !expiring else {
-        self.queue.cancelAllOperations()
+  #if os(iOS)
+    private func queueSaveOperation(
+      _ pageScrape: PageScrapePayload,
+      shareExtensionViewModel: ShareExtensionChildViewModel
+    ) {
+      ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in
+        guard !expiring else {
+          self.queue.cancelAllOperations()
+          self.queue.waitUntilAllOperationsAreFinished()
+          return
+        }
+
+        let operation = SaveOperation(pageScrapePayload: pageScrape, shareExtensionViewModel: shareExtensionViewModel)
+
+        self.queue.addOperation(operation)
         self.queue.waitUntilAllOperationsAreFinished()
-        return
       }
-
-      let operation = SaveOperation(pageScrapePayload: pageScrape, shareExtensionViewModel: shareExtensionViewModel)
-
-      self.queue.addOperation(operation)
-      self.queue.waitUntilAllOperationsAreFinished()
     }
-  }
+  #endif
 
   public func save(_ extensionContext: NSExtensionContext, shareExtensionViewModel: ShareExtensionChildViewModel) {
     PageScraper.scrape(extensionContext: extensionContext) { [weak self] result in
@@ -71,7 +66,10 @@ class ExtensionSaveService {
             }
           }
         }
-        self.queueSaveOperation(payload, shareExtensionViewModel: shareExtensionViewModel)
+        #if os(iOS)
+          // TODO: need alternative call for macos
+          self.queueSaveOperation(payload, shareExtensionViewModel: shareExtensionViewModel)
+        #endif
       case .failure:
         DispatchQueue.main.async {
           shareExtensionViewModel.status = .failed(error: .unknown(description: "Could not retrieve content"))
