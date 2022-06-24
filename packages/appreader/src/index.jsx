@@ -44,6 +44,7 @@ const App = () => {
             margin={window.margin}
             maxWidthPercentage={window.maxWidthPercentage}
             lineHeight={window.lineHeight}
+            highContrastFont={window.prefersHighContrastFont ?? true}
             articleMutations={{
               createHighlightMutation: (input) =>
                 mutation('createHighlight', input),

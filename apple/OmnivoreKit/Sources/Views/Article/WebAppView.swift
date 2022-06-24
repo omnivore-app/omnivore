@@ -129,7 +129,7 @@ public enum WebViewManager {
     }
 
     func fontSize() -> Int {
-      let storedSize = UserDefaults.standard.integer(forKey: "preferredWebFontSize")
+      let storedSize = UserDefaults.standard.integer(forKey: UserDefaultKey.preferredWebFontSize.rawValue)
       return storedSize <= 1 ? Int(NSFont.userFont(ofSize: 16)?.pointSize ?? 16) : storedSize
     }
 

@@ -139,6 +139,16 @@ import WebKit
 
     func loadContent(webView: WKWebView) {
       let fontFamilyValue = UserDefaults.standard.string(forKey: UserDefaultKey.preferredWebFont.rawValue)
+
+      let prefersHighContrastText: Bool = {
+        let key = UserDefaultKey.prefersHighContrastWebFont.rawValue
+        if UserDefaults.standard.object(forKey: key) != nil {
+          return UserDefaults.standard.bool(forKey: key)
+        } else {
+          return true
+        }
+      }()
+
       let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .inter
 
       webView.loadHTMLString(
@@ -149,7 +159,8 @@ import WebKit
           fontSize: fontSize(),
           lineHeight: lineHeight(),
           maxWidthPercentage: maxWidthPercentage(),
-          fontFamily: fontFamily
+          fontFamily: fontFamily,
+          prefersHighContrastText: prefersHighContrastText
         )
         .styledContent,
         baseURL: ViewsPackage.bundleURL

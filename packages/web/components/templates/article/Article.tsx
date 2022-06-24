@@ -21,7 +21,6 @@ import { ArticleMutations } from '../../../lib/articleActions'
 export type ArticleProps = {
   articleId: string
   content: string
-  highlightReady: boolean
   initialAnchorIndex: number
   initialReadingProgress?: number
   highlightHref: MutableRefObject<string | null>
@@ -128,13 +127,16 @@ export function Article(props: ArticleProps): JSX.Element {
     if (typeof window === 'undefined') {
       return
     }
-
-    if (props.highlightReady) {
       if (!shouldScrollToInitialPosition) {
         return
       }
 
       setShouldScrollToInitialPosition(false)
+
+      // If we are scrolling to a highlight, dont scroll to read position
+      if (props.highlightHref.current) {
+        return
+      }
 
       if (props.initialReadingProgress && props.initialReadingProgress >= 98) {
         return
@@ -165,9 +167,7 @@ export function Article(props: ArticleProps): JSX.Element {
         const calculatedOffset = calculateOffset(anchorElement)
         window.document.documentElement.scroll(0, calculatedOffset - 100)
       }
-    }
   }, [
-    props.highlightReady,
     props.initialAnchorIndex,
     props.initialReadingProgress,
     shouldScrollToInitialPosition,
