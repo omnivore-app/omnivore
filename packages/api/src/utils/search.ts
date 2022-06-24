@@ -217,6 +217,9 @@ const parseDateFilter = (
       break
     case 'SAVED':
       field = 'savedAt'
+      break
+    case 'UPDATED':
+      field = 'updatedAt'
   }
 
   return {
@@ -282,6 +285,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'title',
       'description',
       'content',
+      'updated',
     ],
     tokenize: true,
   })
@@ -336,6 +340,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         }
         case 'saved':
         case 'read':
+        case 'updated':
         case 'published': {
           const dateFilter = parseDateFilter(keyword.keyword, keyword.value)
           dateFilter && result.dateFilters.push(dateFilter)
