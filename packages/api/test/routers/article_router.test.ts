@@ -13,7 +13,7 @@ describe('/article/save API', () => {
   // We need to mock the pupeeteer-parse
   // service here because in dev mode the task gets
   // called immediately.
-  nock(env.queue.puppeteerTaskHanderUrl).post('/').reply(200)
+  nock(env.queue.contentFetchUrl).post('/').reply(200)
 
   before(async () => {
     // create test user and login

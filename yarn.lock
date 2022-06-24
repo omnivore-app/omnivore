@@ -12122,6 +12122,11 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
+diff@~1.0.7:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/diff/-/diff-1.0.8.tgz#343276308ec991b7bc82267ed55bc1411f971666"
+  integrity sha512-1zEb73vemXFpUmfh3fsta4YHz3lwebxXvaWmPbFv9apujQBWDnkrPDLXLQs1gZo4RCWMDsT89r0Pf/z8/02TGA==
+
 diffie-hellman@^5.0.0:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/diffie-hellman/-/diffie-hellman-5.0.3.tgz#40e8ee98f55a2149607146921c63e1ae5f3d2875"
@@ -16800,6 +16805,11 @@ jsdom@^16.6.0:
     ws "^7.4.6"
     xml-name-validator "^3.0.0"
 
+jsesc@0.4.3, jsesc@~0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.4.3.tgz#a9c7f90afd5a1bf2ee64df6c416dab61672d2ae9"
+  integrity sha512-+K+Jwd+GvlNdjr++NWuKdCQytzMT/rCdf2VIWssgG+Gtcmkp6gJd83yg6PQ/mOMHeZN+GFZtgcSZn6uK1yQTKg==
+
 jsesc@^2.5.1:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-2.5.2.tgz#80564d2e483dacf6e8ef209650a67df3f0c283a4"
@@ -18325,6 +18335,18 @@ minipass@^3.0.0, minipass@^3.1.0, minipass@^3.1.1, minipass@^3.1.3:
   dependencies:
     yallist "^4.0.0"
 
+ministyle@~0.1.3:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/ministyle/-/ministyle-0.1.4.tgz#b10481eb16aa8f7b6cd983817393a44da0e5a0cd"
+  integrity sha512-79lcayY8O2Zc0rbvyEsPfmmd0WrJEZMTXVykjGugGyg8Q5xycgFb5uKkFISvDIseUssx7BEsj5uXdosX74WTgA==
+
+miniwrite@~0.1.3:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/miniwrite/-/miniwrite-0.1.4.tgz#72f02385c0ac37d542efe27dc6764b31908725ce"
+  integrity sha512-DqfQBUZyn1X966AxHozdgP0fp++SExNkeGa5gdVJKCVtLB916ZGh8tay7he4d89J/cI+EkLVhtqHqeEpdezPVQ==
+  dependencies:
+    mkdirp "~0.3.5"
+
 minizlib@^1.3.3:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/minizlib/-/minizlib-1.3.3.tgz#2290de96818a34c29551c8a8d301216bd65a861d"
@@ -18404,6 +18426,21 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
+
+mkdirp@~0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.3.5.tgz#de3e5f8961c88c787ee1368df849ac4413eca8d7"
+  integrity sha512-8OCq0De/h9ZxseqzCH8Kw/Filf5pF/vMI6+BH7Lu0jXz2pqYCjTAQRolSxRIi+Ax+oCCjlxoJMP0YQ4XlrQNHg==
+
+mocha-unfunk-reporter@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/mocha-unfunk-reporter/-/mocha-unfunk-reporter-0.4.0.tgz#59eda97aec6ae6e26d7af4173490a65b7b082d20"
+  integrity sha512-i/m/IDdhOcpJAFNKLGP6NzRVAvGfhSiAuH5SP3SgiUONAemjhevV7H151eZUd4QrBYkEg5RxYlJ2MRUWetF6Rg==
+  dependencies:
+    jsesc "0.4.3"
+    ministyle "~0.1.3"
+    miniwrite "~0.1.3"
+    unfunk-diff "~0.0.1"
 
 mocha@^8.2.0:
   version "8.4.0"
@@ -20716,9 +20753,9 @@ puppeteer-core@^13.7.0:
     ws "8.5.0"
 
 puppeteer-extra-plugin-stealth@^2.9.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/puppeteer-extra-plugin-stealth/-/puppeteer-extra-plugin-stealth-2.9.0.tgz#aa39f4469bf47343af4517efe9f97846228b3b01"
-  integrity sha512-erZ9lkIcOkfYmLPP2jv2AiqvNBFhQJinWJhcm40pqSjwJTsZXHsTARUyRCsBYEEBvNIs3Wz3E0zVlTRc4IJ6Hg==
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/puppeteer-extra-plugin-stealth/-/puppeteer-extra-plugin-stealth-2.10.0.tgz#583512dcef66af79e5736b02ed6856fd4171b80a"
+  integrity sha512-Bpotsjr9cqjzn7On/hL9xzzpxLFWza0mRCwhzNEGPdORbjkXDGu7dg+6mgVg6EtSI9lOr8M1bUJBFvJhVpFJzA==
   dependencies:
     debug "^4.1.1"
     puppeteer-extra-plugin "^3.2.0"
@@ -23937,6 +23974,15 @@ unfetch@^4.1.0, unfetch@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/unfetch/-/unfetch-4.2.0.tgz#7e21b0ef7d363d8d9af0fb929a5555f6ef97a3be"
   integrity sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==
+
+unfunk-diff@~0.0.1:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/unfunk-diff/-/unfunk-diff-0.0.2.tgz#8560d6b5cb3dcb1ed4d541e7fe59cea514697578"
+  integrity sha512-fX/Foa+fUI0zei97myff0DLxBSuUmiMm5TuQlTLVvJnfTjkVbmMC+HuG5mZvX9tuOxACjbhIpW4U1I2AYDMmKA==
+  dependencies:
+    diff "~1.0.7"
+    jsesc "~0.4.3"
+    ministyle "~0.1.3"
 
 unherit@^1.0.4:
   version "1.1.3"

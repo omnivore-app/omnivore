@@ -22,8 +22,6 @@ import {
 } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { ShareArticleModal } from '../article/ShareArticleModal'
-import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
-import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
 import { SnoozeLinkModal } from '../article/SnoozeLinkModal'
@@ -44,6 +42,7 @@ import {
   PageType,
 } from '../../../lib/networking/fragments/articleFragment'
 import { EditTitleModal } from './EditTitleModal'
+import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -62,6 +61,8 @@ const SAVED_SEARCHES: Record<string, string> = {
 }
 
 export function HomeFeedContainer(): JSX.Element {
+  useGetUserPreferences()
+
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const defaultQuery = {
@@ -499,12 +500,7 @@ type HomeFeedContentProps = {
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
-
-  const { preferencesData, isValidating: isValidatingPreferences } =
-    useGetUserPreferences()
-  const [layout, setLayout] = useState<LayoutType>(
-    (preferencesData?.libraryLayoutType as LayoutType) || 'GRID_LAYOUT'
-  )
+  const [layout, setLayout] = usePersistedState<LayoutType>({ key: 'libraryLayout', initialValue: 'GRID_LAYOUT' })
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
@@ -514,7 +510,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     async (newLayout: LayoutType) => {
       if (layout === newLayout) return
       setLayout(newLayout)
-      userPersonalizationMutation({ libraryLayoutType: newLayout })
     },
     [layout, setLayout]
   )
@@ -580,26 +575,22 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               justifyContent: 'center',
             }}
           >
-            {!isValidatingPreferences && (
-              <>
-                <StyledToggleButton
-                  data-state={layout === 'GRID_LAYOUT' ? 'on' : 'off'}
-                  onClick={() => {
-                    updateLayout('GRID_LAYOUT')
-                  }}
-                >
-                  <GridLayoutIcon color={'rgb(211, 211, 213)'} />
-                </StyledToggleButton>
-                <StyledToggleButton
-                  data-state={layout === 'LIST_LAYOUT' ? 'on' : 'off'}
-                  onClick={() => {
-                    updateLayout('LIST_LAYOUT')
-                  }}
-                >
-                  <ListLayoutIcon color={'rgb(211, 211, 213)'} />
-                </StyledToggleButton>
-              </>
-            )}
+            <StyledToggleButton
+              data-state={layout === 'GRID_LAYOUT' ? 'on' : 'off'}
+              onClick={() => {
+                updateLayout('GRID_LAYOUT')
+              }}
+            >
+              <GridLayoutIcon color={'rgb(211, 211, 213)'} />
+            </StyledToggleButton>
+            <StyledToggleButton
+              data-state={layout === 'LIST_LAYOUT' ? 'on' : 'off'}
+              onClick={() => {
+                updateLayout('LIST_LAYOUT')
+              }}
+            >
+              <ListLayoutIcon color={'rgb(211, 211, 213)'} />
+            </StyledToggleButton>
           </Box>
           <Button
             style="ctaDarkYellow"

@@ -114,6 +114,7 @@
     "chai-string": "^1.5.0",
     "circular-dependency-plugin": "^5.2.0",
     "mocha": "^9.0.1",
+    "mocha-unfunk-reporter": "^0.4.0",
     "nock": "^13.2.4",
     "nyc": "^15.1.0",
     "postgrator": "^4.2.0",

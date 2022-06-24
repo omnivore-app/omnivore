@@ -59,7 +59,8 @@ interface BackendEnv {
   queue: {
     location: string
     name: string
-    puppeteerTaskHanderUrl: string
+    contentFetchUrl: string
+    contentFetchGCFUrl: string
     reminderTaskHanderUrl: string
   }
   fileUpload: {
@@ -100,7 +101,8 @@ const nullableEnvVars = [
   'SAMPLE_METRICS_LOCALLY',
   'PUPPETEER_QUEUE_LOCATION',
   'PUPPETEER_QUEUE_NAME',
-  'PUPPETEER_TASK_HANDLER_URL',
+  'CONTENT_FETCH_URL',
+  'CONTENT_FETCH_GCF_URL',
   'PREVIEW_IMAGE_WRAPPER_ID',
   'PREVIEW_GENERATION_SERVICE_URL',
   'GCS_UPLOAD_SA_KEY_FILE_PATH',
@@ -191,7 +193,8 @@ export function getEnv(): BackendEnv {
   const queue = {
     location: parse('PUPPETEER_QUEUE_LOCATION'),
     name: parse('PUPPETEER_QUEUE_NAME'),
-    puppeteerTaskHanderUrl: parse('PUPPETEER_TASK_HANDLER_URL'),
+    contentFetchUrl: parse('CONTENT_FETCH_URL'),
+    contentFetchGCFUrl: parse('CONTENT_FETCH_GCF_URL'),
     reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
   }
   const imageProxy = {
