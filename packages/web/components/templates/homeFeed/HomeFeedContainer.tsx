@@ -1,6 +1,7 @@
 import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
 import type {
   LibraryItem,
+  LibraryItemsData,
   LibraryItemsQueryInput,
 } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
@@ -41,8 +42,11 @@ import {
   State,
   PageType,
 } from '../../../lib/networking/fragments/articleFragment'
+import { useRegisterActions, createAction, useKBar } from 'kbar'
 import { EditTitleModal } from './EditTitleModal'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
+import { searchQuery } from '../../../lib/networking/queries/search'
+import debounce from 'lodash/debounce'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -60,11 +64,24 @@ const SAVED_SEARCHES: Record<string, string> = {
   Newsletters: `in:inbox label:Newsletter`,
 }
 
+const fetchSearchResults = async (query: string, cb: any) => {
+  if (!query.startsWith('#')) return
+  const res = await searchQuery({ limit: 10, searchQuery: query.substring(1)})
+  cb(res);
+};
+
+const debouncedFetchSearchResults = debounce((query, cb) => {
+  fetchSearchResults(query, cb);
+}, 300);
+
 export function HomeFeedContainer(): JSX.Element {
   useGetUserPreferences()
 
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
+  const { queryValue } = useKBar((state) => ({queryValue: state.searchQuery}));
+  const [searchResults, setSearchResults] = useState<LibraryItem[]>([]);
+
   const defaultQuery = {
     limit: 10,
     sortDescending: true,
@@ -101,6 +118,16 @@ export function HomeFeedContainer(): JSX.Element {
 
   const { itemsPages, size, setSize, isValidating, performActionOnItem } =
   useGetLibraryItemsQuery(queryInputs)
+
+  useEffect(() => {
+    if (queryValue.startsWith('#')) {
+      debouncedFetchSearchResults(queryValue, (data: LibraryItemsData) => {
+        setSearchResults(data?.search.edges || [])
+      })
+    }
+    else setSearchResults([])
+
+  }, [queryValue])
 
   useEffect(() => {
     if (!router.isReady) return
@@ -421,6 +448,72 @@ export function HomeFeedContainer(): JSX.Element {
     })
   )
 
+  const ARCHIVE_ACTION = !activeItem?.node.isArchived ?
+    createAction({
+      section: 'Library',
+      name: 'Archive selected item',
+      shortcut: ['e'],
+      perform: () => handleCardAction('archive', activeItem),
+    }) :
+    createAction({
+      section: 'Library',
+      name: 'UnArchive selected item',
+      shortcut: ['e'],
+      perform: () => handleCardAction('unarchive', activeItem),
+    })
+
+  const ACTIVE_ACTIONS = [
+    ARCHIVE_ACTION,
+    createAction({
+      section: 'Library',
+      name: 'Remove item',
+      shortcut: ['r'],
+      perform: () => handleCardAction('delete', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Edit item labels',
+      shortcut: ['l'],
+      perform: () => handleCardAction('set-labels', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Mark item as read',
+      shortcut: ['Shift', 'i'],
+      perform: () => handleCardAction('mark-read', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Mark item as unread',
+      shortcut: ['Shift', 'u'],
+      perform: () => handleCardAction('mark-unread', activeItem),
+    }),
+  ]
+
+  const UNACTIVE_ACTIONS = [
+    createAction({
+      section: 'Library',
+      name: 'Sort item in ascending order',
+      shortcut: ['s', 'o'],
+      perform: () => setQueryInputs({ ...queryInputs, sortDescending: false }),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Sort item in descending order',
+      shortcut: ['s', 'n'],
+      perform: () => setQueryInputs({ ...queryInputs, sortDescending: true }),
+    }),
+  ]
+
+  useRegisterActions(searchResults.map(link => ({
+    id: link.node.id,
+    section: 'Search Results',
+    name: link.node.title,
+    keywords: '#' + link.node.title,
+    perform: () => handleCardAction('showDetail', link),
+  })), [searchResults])
+
+  useRegisterActions(activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS, [activeCardId, activeItem]);
   useFetchMore(handleFetchMore)
 
   return (

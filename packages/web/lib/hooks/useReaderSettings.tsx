@@ -1,3 +1,4 @@
+import { useRegisterActions } from "kbar"
 import { useCallback, useState } from "react"
 import { userPersonalizationMutation } from "../networking/mutations/userPersonalizationMutation"
 import { useGetUserPreferences, UserPreferences } from "../networking/queries/useGetUserPreferences"
@@ -36,12 +37,12 @@ export const useReaderSettings = (): ReaderSettings => {
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] = useState(false)
 
-  const actionHandler = useCallback(async(action: string, arg?: unknown) => {
-    const updateFontSize =  async(newFontSize: number) => {
-      setFontSize(newFontSize)
-      await userPersonalizationMutation({ fontSize: newFontSize })
-    }
+  const updateFontSize = async (newFontSize: number) => {
+    setFontSize(newFontSize)
+    await userPersonalizationMutation({ fontSize: newFontSize })
+  }
 
+  const actionHandler = useCallback(async(action: string, arg?: unknown) => {
     switch (action) {
       case 'incrementFontSize':
         await updateFontSize(Math.min(fontSize + 2, 28))
@@ -91,6 +92,45 @@ export const useReaderSettings = (): ReaderSettings => {
     }
   }, [fontSize, setFontSize, lineHeight, fontFamily,
       setLineHeight, marginWidth, setMarginWidth, setFontFamily])
+  
+  
+  useRegisterActions([
+    {
+      id: 'increaseFont',
+      section: 'Article',
+      name: 'Increase font size',
+      shortcut: ['+'],
+      perform: () => actionHandler('incrementFontSize'),
+    },
+    {
+      id: 'decreaseFont',
+      section: 'Article',
+      name: 'Decrease font size',
+      shortcut: ['-'],
+      perform: () => actionHandler('decrementFontSize'),
+    },
+    {
+      id: 'increaseMargin',
+      section: 'Article',
+      name: 'Increase margin width',
+      shortcut: [']'],
+      perform: () => actionHandler('incrementMarginWidth'),
+    },
+    {
+      id: 'decreaseMargin',
+      section: 'Article',
+      name: 'Decrease margin width',
+      shortcut: ['['],
+      perform: () => actionHandler('decrementMarginWidth'),
+    },
+    {
+      id: 'edit_a',
+      section: 'Article',
+      name: 'Edit labels',
+      shortcut: ['l'],
+      perform: () => setShowSetLabelsModal(true),
+    },
+  ], [fontSize, marginWidth, setFontSize, setMarginWidth])
 
   return {
     preferencesData,

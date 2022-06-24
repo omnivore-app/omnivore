@@ -10,6 +10,7 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
+import { useRegisterActions } from 'kbar'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -30,12 +31,12 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
   useKeyboardShortcuts(
     primaryCommands((action) => {
       switch (action) {
-        case 'themeDarker':
-          darkenTheme()
-          break
-        case 'themeLighter':
-          lightenTheme()
-          break
+        // case 'themeDarker':
+        //   darkenTheme()
+        //   break
+        // case 'themeLighter':
+        //   lightenTheme()
+        //   break
         case 'toggleShortcutHelpModalDisplay':
           props.setShowKeyboardCommandsModal(true)
           break
@@ -43,7 +44,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     })
   )
 
-/*
   useRegisterActions([
     {
       id: 'lightTheme',
@@ -62,7 +62,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       perform: () => darkenTheme(),
     },
   ])
-  */
 
   const initAnalytics = useCallback(() => {
     setupAnalytics(props.user)
