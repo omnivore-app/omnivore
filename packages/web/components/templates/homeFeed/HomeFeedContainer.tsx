@@ -499,10 +499,7 @@ type HomeFeedContentProps = {
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
-
-  const { preferencesData, isValidating: isValidatingPreferences } =
-    useGetUserPreferences()
-  const [layout, setLayout] = usePersistedState({ key: 'libraryLayout', initialValue: 'GRID_LAYOUT' })
+  const [layout, setLayout] = usePersistedState<LayoutType>({ key: 'libraryLayout', initialValue: 'GRID_LAYOUT' })
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
@@ -578,26 +575,22 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
               justifyContent: 'center',
             }}
           >
-            {!isValidatingPreferences && (
-              <>
-                <StyledToggleButton
-                  data-state={layout === 'GRID_LAYOUT' ? 'on' : 'off'}
-                  onClick={() => {
-                    updateLayout('GRID_LAYOUT')
-                  }}
-                >
-                  <GridLayoutIcon color={'rgb(211, 211, 213)'} />
-                </StyledToggleButton>
-                <StyledToggleButton
-                  data-state={layout === 'LIST_LAYOUT' ? 'on' : 'off'}
-                  onClick={() => {
-                    updateLayout('LIST_LAYOUT')
-                  }}
-                >
-                  <ListLayoutIcon color={'rgb(211, 211, 213)'} />
-                </StyledToggleButton>
-              </>
-            )}
+            <StyledToggleButton
+              data-state={layout === 'GRID_LAYOUT' ? 'on' : 'off'}
+              onClick={() => {
+                updateLayout('GRID_LAYOUT')
+              }}
+            >
+              <GridLayoutIcon color={'rgb(211, 211, 213)'} />
+            </StyledToggleButton>
+            <StyledToggleButton
+              data-state={layout === 'LIST_LAYOUT' ? 'on' : 'off'}
+              onClick={() => {
+                updateLayout('LIST_LAYOUT')
+              }}
+            >
+              <ListLayoutIcon color={'rgb(211, 211, 213)'} />
+            </StyledToggleButton>
           </Box>
           <Button
             style="ctaDarkYellow"
