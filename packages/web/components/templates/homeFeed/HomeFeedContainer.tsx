@@ -22,8 +22,6 @@ import {
 } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { ShareArticleModal } from '../article/ShareArticleModal'
-import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
-import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
 import { SnoozeLinkModal } from '../article/SnoozeLinkModal'
@@ -44,6 +42,7 @@ import {
   PageType,
 } from '../../../lib/networking/fragments/articleFragment'
 import { EditTitleModal } from './EditTitleModal'
+import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -62,6 +61,8 @@ const SAVED_SEARCHES: Record<string, string> = {
 }
 
 export function HomeFeedContainer(): JSX.Element {
+  useGetUserPreferences()
+
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const defaultQuery = {
