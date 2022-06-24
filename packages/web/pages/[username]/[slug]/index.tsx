@@ -29,6 +29,7 @@ import { SetLabelsModal } from '../../../components/templates/article/SetLabelsM
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
+import { useRegisterActions } from 'kbar'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -137,6 +138,23 @@ export default function Home(): JSX.Element {
       })
     }
   }, [article, viewerData])
+  
+  useRegisterActions([
+    {
+      id: 'open',
+      section: 'Article',
+      name: 'Open original article page',
+      shortcut: ['o'],
+      perform: () => actionHandler('openOriginalArticle')
+    },
+    {
+      id: 'back',
+      section: 'Article',
+      name: 'Back to library',
+      shortcut: ['u'],
+      perform: () => router.push(`/home`),
+    },
+  ], [article])
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')
@@ -190,55 +208,55 @@ export default function Home(): JSX.Element {
           />
         ) : null}
       </VStack>
-        {article && viewerData?.me && article.contentReader == 'PDF' ? (
-          <PdfArticleContainerNoSSR
-            article={article}
-            showHighlightsModal={showHighlightsModal}
-            setShowHighlightsModal={setShowHighlightsModal}
-            viewerUsername={viewerData.me?.profile?.username}
-          />
-        ) : (
-          <VStack
-            alignment="center"
-            distribution="center"
-            ref={scrollRef}
-            className="disable-webkit-callout"
-            css={{
-              '@smDown': {
-                background: theme.colors.grayBg.toString(),
-              }
-            }}
-          >
-            {article && viewerData?.me ? (
-              <ArticleContainer
-                article={article}
-                isAppleAppEmbed={false}
-                highlightBarDisabled={false}
-                highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
-                fontSize={readerSettings.fontSize}
-                margin={readerSettings.marginWidth}
-                lineHeight={readerSettings.lineHeight}
-                fontFamily={readerSettings.fontFamily}
-                labels={labels}
-                showHighlightsModal={showHighlightsModal}
-                setShowHighlightsModal={setShowHighlightsModal}
-                articleMutations={{
-                  createHighlightMutation,
-                  deleteHighlightMutation,
-                  mergeHighlightMutation,
-                  updateHighlightMutation,
-                  articleReadingProgressMutation,
-                }}
-              />
-            ) : (
-              <SkeletonArticleContainer
-                margin={readerSettings.marginWidth}
-                lineHeight={readerSettings.lineHeight}
-                fontSize={readerSettings.fontSize}
-              />
-            )}
-            </VStack>
+      {article && viewerData?.me && article.contentReader == 'PDF' ? (
+        <PdfArticleContainerNoSSR
+          article={article}
+          showHighlightsModal={showHighlightsModal}
+          setShowHighlightsModal={setShowHighlightsModal}
+          viewerUsername={viewerData.me?.profile?.username}
+        />
+      ) : (
+        <VStack
+          alignment="center"
+          distribution="center"
+          ref={scrollRef}
+          className="disable-webkit-callout"
+          css={{
+            '@smDown': {
+              background: theme.colors.grayBg.toString(),
+            }
+          }}
+        >
+          {article && viewerData?.me ? (
+            <ArticleContainer
+              article={article}
+              isAppleAppEmbed={false}
+              highlightBarDisabled={false}
+              highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
+              fontSize={readerSettings.fontSize}
+              margin={readerSettings.marginWidth}
+              lineHeight={readerSettings.lineHeight}
+              fontFamily={readerSettings.fontFamily}
+              labels={labels}
+              showHighlightsModal={showHighlightsModal}
+              setShowHighlightsModal={setShowHighlightsModal}
+              articleMutations={{
+                createHighlightMutation,
+                deleteHighlightMutation,
+                mergeHighlightMutation,
+                updateHighlightMutation,
+                articleReadingProgressMutation,
+              }}
+            />
+          ) : (
+            <SkeletonArticleContainer
+              margin={readerSettings.marginWidth}
+              lineHeight={readerSettings.lineHeight}
+              fontSize={readerSettings.fontSize}
+            />
           )}
+        </VStack>
+      )}
 
       {article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal

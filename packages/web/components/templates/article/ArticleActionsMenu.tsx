@@ -177,7 +177,6 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         )}
 
       {/* <MenuSeparator layout={props.layout} />
-
       <Button style='articleActionIcon'>
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}

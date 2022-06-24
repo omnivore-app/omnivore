@@ -10,6 +10,8 @@ const disabledTargets = ['INPUT', 'TEXTAREA']
     ]
 */
 
+const KBAR_KEYS = ['control', 'meta', 'v', 'i', 's', 'n', '[', ']']
+
 type KeyPressed = {
   [name: string]: boolean
 }
@@ -52,7 +54,8 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
         })
       })
     })
-
+    
+    KBAR_KEYS.map((key) => currentKeys[key.toLowerCase()] = false)
     return currentKeys
   }, [commands])
 
