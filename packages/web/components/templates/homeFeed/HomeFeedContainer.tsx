@@ -502,9 +502,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const { preferencesData, isValidating: isValidatingPreferences } =
     useGetUserPreferences()
-  const [layout, setLayout] = useState<LayoutType>(
-    (preferencesData?.libraryLayoutType as LayoutType) || 'GRID_LAYOUT'
-  )
+  const [layout, setLayout] = usePersistedState({ key: 'libraryLayout', initialValue: 'GRID_LAYOUT' })
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
