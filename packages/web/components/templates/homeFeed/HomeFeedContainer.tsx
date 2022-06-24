@@ -510,7 +510,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     async (newLayout: LayoutType) => {
       if (layout === newLayout) return
       setLayout(newLayout)
-      userPersonalizationMutation({ libraryLayoutType: newLayout })
     },
     [layout, setLayout]
   )
