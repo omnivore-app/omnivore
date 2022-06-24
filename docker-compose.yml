@@ -93,7 +93,7 @@ services:
       - SSO_JWT_SECRET=some_sso_secret
       - CLIENT_URL=http://localhost:3000
       - GATEWAY_URL=http://localhost:8080/api
-      - PUPPETEER_TASK_HANDLER_URL=http://content-fetch:8080/?token=some_token
+      - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
       - REMINDER_TASK_HANDLER_URL=/svc/reminders/trigger
     depends_on:
       migrate:
