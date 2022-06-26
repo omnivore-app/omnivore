@@ -338,7 +338,7 @@ export const createArticleResolver = authorized<
         articleToSave.id = newPageId
       } else {
         // update existing page's state from processing to succeeded
-        articleToSave.archivedAt = archive ? saveTime : undefined
+        articleToSave.archivedAt = archive ? saveTime : null
         const updated = await updatePage(pageId, articleToSave, {
           ...ctx,
           uid,
