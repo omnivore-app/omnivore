@@ -37,7 +37,6 @@ struct LabelsView: View {
         List {
           innerBody
         }
-        .listStyle(InsetListStyle())
       #endif
     }
     .task { await viewModel.loadLabels(dataService: dataService, item: nil) }
@@ -108,80 +107,104 @@ struct CreateLabelView: View {
     return [firstSwatch] + webSwatches + additionalSwatches
   }()
 
-  var body: some View {
-    NavigationView {
-      VStack {
-        HStack {
-          if !newLabelName.isEmpty, newLabelColor != .clear {
-            TextChip(text: newLabelName, color: newLabelColor)
-          } else {
-            Text("Assign a name and color.").font(.appBody)
-          }
-          Spacer()
+  var innerBody: some View {
+    VStack {
+      HStack {
+        if !newLabelName.isEmpty, newLabelColor != .clear {
+          TextChip(text: newLabelName, color: newLabelColor)
+        } else {
+          Text("Assign a name and color.").font(.appBody)
         }
-        .padding(.bottom, 8)
+        Spacer()
+      }
+      .padding(.bottom, 8)
 
-        TextField("Label Name", text: $newLabelName)
-        #if os(iOS)
-          .keyboardType(.alphabet)
-        #endif
-        .textFieldStyle(StandardTextFieldStyle())
+      TextField("Label Name", text: $newLabelName)
+      #if os(iOS)
+        .keyboardType(.alphabet)
+      #endif
+      .textFieldStyle(StandardTextFieldStyle())
 
-        ScrollView(.horizontal, showsIndicators: false) {
-          LazyHGrid(rows: rows, alignment: .top, spacing: 20) {
-            ForEach(swatches, id: \.self) { swatch in
-              ZStack {
-                Circle()
-                  .fill(swatch)
-                  .frame(width: 50, height: 50)
-                  .onTapGesture {
-                    newLabelColor = swatch
-                  }
-                  .padding(10)
-
-                if newLabelColor == swatch {
-                  Circle()
-                    .stroke(swatch, lineWidth: 5)
-                    .frame(width: 60, height: 60)
+      ScrollView(.horizontal, showsIndicators: false) {
+        LazyHGrid(rows: rows, alignment: .top, spacing: 20) {
+          ForEach(swatches, id: \.self) { swatch in
+            ZStack {
+              Circle()
+                .fill(swatch)
+                .frame(width: 50, height: 50)
+                .onTapGesture {
+                  newLabelColor = swatch
                 }
+                .padding(10)
+
+              if newLabelColor == swatch {
+                Circle()
+                  .stroke(swatch, lineWidth: 5)
+                  .frame(width: 60, height: 60)
               }
             }
           }
         }
-        Spacer()
       }
-      .padding()
-      .toolbar {
+      Spacer()
+    }
+    .padding()
+    .toolbar {
+      #if os(iOS)
         ToolbarItem(placement: .barLeading) {
-          Button(
-            action: { viewModel.showCreateEmailModal = false },
-            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
-          )
+          cancelCreateLabelButton
         }
         ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: {
-              viewModel.createLabel(
-                dataService: dataService,
-                name: newLabelName,
-                color: newLabelColor,
-                description: nil
-              )
-            },
-            label: { Text("Create").foregroundColor(.appGrayTextContrast) }
-          )
-          .opacity(shouldDisableCreateButton ? 0.2 : 1)
-          .disabled(shouldDisableCreateButton)
+          createLabelButton
         }
-      }
-      .navigationTitle("Create New Label")
-      #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
+      #else
+        ToolbarItemGroup {
+          createLabelButton
+          cancelCreateLabelButton
+        }
       #endif
-      .onAppear {
-        newLabelColor = swatches.first ?? .clear
-      }
     }
+  }
+
+  var cancelCreateLabelButton: some View {
+    Button(
+      action: { viewModel.showCreateEmailModal = false },
+      label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+    )
+  }
+
+  var createLabelButton: some View {
+    Button(
+      action: {
+        viewModel.createLabel(
+          dataService: dataService,
+          name: newLabelName,
+          color: newLabelColor,
+          description: nil
+        )
+      },
+      label: { Text("Create").foregroundColor(.appGrayTextContrast) }
+    )
+    .opacity(shouldDisableCreateButton ? 0.2 : 1)
+    .disabled(shouldDisableCreateButton)
+  }
+
+  var body: some View {
+    #if os(iOS)
+      NavigationView {
+        innerBody
+          .navigationTitle("Create New Label")
+          .navigationBarTitleDisplayMode(.inline)
+          .task {
+            newLabelColor = swatches.first ?? .clear
+          }
+      }
+    #else
+      innerBody
+        .task {
+          newLabelColor = swatches.first ?? .clear
+        }
+    #endif
   }
 }
 
