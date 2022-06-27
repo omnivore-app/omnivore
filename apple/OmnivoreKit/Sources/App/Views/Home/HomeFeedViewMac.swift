@@ -64,17 +64,6 @@ import Views
                 }
               }
             }
-            .alert("Are you sure?", isPresented: $confirmationShown) {
-              Button("Remove Link", role: .destructive) {
-                if let itemToRemove = itemToRemove {
-                  withAnimation {
-                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                    self.itemToRemove = nil
-                  }
-                }
-              }
-              Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-            }
           }
         }
 
@@ -120,7 +109,24 @@ import Views
           }
         }
       }
-      .onAppear {
+      .alert("Are you sure?", isPresented: $confirmationShown) {
+        Button("Remove Link", role: .destructive) {
+          if let itemToRemove = itemToRemove {
+            withAnimation {
+              viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+              self.itemToRemove = nil
+            }
+          }
+        }
+        Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+      }
+      .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+        ApplyLabelsView(mode: .item(item), onSave: nil)
+      }
+      .sheet(item: $viewModel.itemUnderTitleEdit) { item in
+        LinkedItemTitleEditView(item: item)
+      }
+      .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)
         }
