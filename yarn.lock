@@ -4286,12 +4286,12 @@
     "@opentelemetry/semantic-conventions" "1.2.0"
     jaeger-client "^3.15.0"
 
-"@opentelemetry/instrumentation-dns@^0.27.1":
-  version "0.27.1"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-dns/-/instrumentation-dns-0.27.1.tgz#5b341f18d959f15cb88095070a2c931d57d3652a"
-  integrity sha512-NwLMHthT7/YncTZcfYbb24n8z/mFYSWPlZkWOhG6XVRAE0KsDLlMsrwvha5Yg/4vhv4nj2qLM9bk5+zA5a/ZfA==
+"@opentelemetry/instrumentation-dns@^0.29.0":
+  version "0.29.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-dns/-/instrumentation-dns-0.29.0.tgz#efd21eb9d8938de97e225b52f8a432d6072b4096"
+  integrity sha512-3WTC4m6JKviaABiR3a+56WUMvrUp9WW9EYC0+LRpqm7RK/1a5bYq2Cozc2SlFYX9ZfWKMqGS39/fU24mKQ5toA==
   dependencies:
-    "@opentelemetry/instrumentation" "^0.27.0"
+    "@opentelemetry/instrumentation" "^0.29.2"
     "@opentelemetry/semantic-conventions" "^1.0.0"
     semver "^7.3.2"
 
@@ -4352,7 +4352,7 @@
     semver "^7.3.2"
     shimmer "^1.2.1"
 
-"@opentelemetry/instrumentation@0.29.2":
+"@opentelemetry/instrumentation@0.29.2", "@opentelemetry/instrumentation@^0.29.2":
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.29.2.tgz#70e6d4e1a84508f5e9d8c7c426adcd7b0dba6c95"
   integrity sha512-LXx5V0ONNATQFCE8C5uqnxWSm4rcXLssdLHdXjtGdxRmURqj/JO8jYefqXCD0LzsqEQ6yxOx2GZ0dgXvhBVdTw==
