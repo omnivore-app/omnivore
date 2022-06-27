@@ -1,15 +1,18 @@
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/router'
 import { Toaster } from 'react-hot-toast'
-import { Table } from '../../components/elements/Table'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useMemo, useState } from 'react'
-import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
-import { FormInputProps } from '../../components/elements/FormElements'
-import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
+
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
+import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
+import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
+
+import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { Table } from '../../components/elements/Table'
+import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
 interface ApiKey {
   name: string
@@ -21,12 +24,28 @@ interface ApiKey {
 export default function Api(): JSX.Element {
   const { apiKeys, revalidate } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
-  const [addModelOpen, setAddModelOpen] = useState(false)
-  const [name, setName] = useState('')
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [name, setName] = useState<string>('')
+  const [value, setValue] = useState<string>('')
   // const [scopes, setScopes] = useState<string[] | undefined>(undefined)
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
+  // default expiry date is 1 year from now
+  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
+    .toISOString()
+    .split('T')[0]
+
+  const router = useRouter()
+  useEffect(() => {
+    if (Object.keys(router.query).length) {
+      //setValue(`${router.query.create}`)
+      //console.log(value);
+      setExpiresAt(new Date(defaultExpiresAt))
+      onAdd()
+      setAddModalOpen(true)
+    }
+  }, [router])
 
   const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
   const rows = useMemo(() => {
@@ -43,11 +62,6 @@ export default function Api(): JSX.Element {
     )
     return rows
   }, [apiKeys])
-
-  // default expiry date is 1 year from now
-  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
-    .toISOString()
-    .split('T')[0]
 
   applyStoredTheme(false)
 
@@ -72,6 +86,46 @@ export default function Api(): JSX.Element {
     revalidate()
   }
 
+  function onAdd() {
+    return setFormInputs([
+      {
+        label: 'Name',
+        onChange: setName,
+        name: 'name',
+        value: value,
+        required: true,
+      },
+      {
+        label: 'Expires in',
+        name: 'expiredAt',
+        required: true,
+        onChange: (e) => {
+          let additionalDays = 0
+          switch (e.target.value) {
+            case '7 days':
+              additionalDays = 7
+              break
+            case '30 days':
+              additionalDays = 30
+              break
+            case '90 days':
+              additionalDays = 90
+              break
+            case '1 year':
+              additionalDays = 365
+              break
+          }
+          const newExpires = new Date()
+          newExpires.setDate(newExpires.getDate() + additionalDays)
+          setExpiresAt(newExpires)
+        },
+        type: 'select',
+        options: ['7 days', '30 days', '90 days', '1 year'],
+        value: defaultExpiresAt,
+      },
+    ])
+  }
+
   return (
     <PrimaryLayout pageTestId={'api-keys'}>
       <Toaster
@@ -80,11 +134,11 @@ export default function Api(): JSX.Element {
         }}
       />
 
-      {addModelOpen && (
+      {addModalOpen && (
         <FormModal
           title={'Generate API Key'}
           onSubmit={onCreate}
-          onOpenChange={setAddModelOpen}
+          onOpenChange={setAddModalOpen}
           inputs={formInputs}
           acceptButtonLabel={'Generate'}
         />
@@ -114,51 +168,17 @@ export default function Api(): JSX.Element {
           onOpenChange={() => setOnDeleteId('')}
         />
       )}
+
       <Table
         heading={'API Keys'}
         headers={headers}
         rows={rows}
         onDelete={setOnDeleteId}
         onAdd={() => {
-          setFormInputs([
-            {
-              label: 'Name',
-              onChange: setName,
-              name: 'name',
-              required: true,
-            },
-            {
-              label: 'Expires in',
-              name: 'expiredAt',
-              required: true,
-              onChange: (e) => {
-                let additionalDays = 0
-                switch(e.target.value) {
-                  case '7 days':
-                    additionalDays = 7
-                    break
-                  case '30 days':
-                    additionalDays = 30
-                    break
-                  case '90 days':
-                    additionalDays = 90
-                    break
-                  case '1 year':
-                    additionalDays = 365
-                    break
-                }
-                const newExpires = new Date()
-                newExpires.setDate(newExpires.getDate() + additionalDays)
-                setExpiresAt(newExpires)
-              },
-              type: 'select',
-              options: ['7 days', '30 days', '90 days', '1 year'],
-              value: defaultExpiresAt,
-            },
-          ])
+          onAdd()
           setName('')
           setExpiresAt(new Date(defaultExpiresAt))
-          setAddModelOpen(true)
+          setAddModalOpen(true)
         }}
       />
     </PrimaryLayout>
