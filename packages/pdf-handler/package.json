@@ -26,7 +26,7 @@
     "@google-cloud/functions-framework": "3.1.0",
     "@google-cloud/pubsub": "^2.16.3",
     "@google-cloud/storage": "^5.18.1",
-    "axios": "^0.26.0",
+    "axios": "^0.27.2",
     "concurrently": "^7.0.0",
     "pdfjs-dist": "^2.9.359"
   }
