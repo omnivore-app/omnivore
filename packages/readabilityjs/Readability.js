@@ -65,8 +65,8 @@ const extractPublishedDateFromAuthor = (author)=> {
 
 /**
  * Public constructor.
- * @param {HTMLDocument} doc     The document to parse.
- * @param {Object}       options The options object.
+ * @param {Document} doc     The document to parse.
+ * @param {Object}   options The options object.
  */
 function Readability(doc, options) {
   // In some older versions, people passed a URI as the first argument. Cope:
@@ -171,14 +171,14 @@ Readability.prototype = {
     // Readability-readerable.js. Please keep both copies in sync.
     articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
     articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*/i,
-    unlikelyCandidates: /-ad-|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs/i,
+    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
       return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners`, 'i')
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners/i,
-    negative: /-ad-|hidden|^hid$| hid$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget|controls|video-controls/i,
+    negative: /\bad\b|hidden|^hid$| hid$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget|controls|video-controls/i,
     extraneous: /print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility/i,
     byline: /byline|author|dateline|writtenby|p-author/i,
     publishedDate: /published|modified|created|updated/i,
@@ -1517,9 +1517,9 @@ Readability.prototype = {
       // Checking for the figures inside of the <header> tags and appending them to the content if not there aleady,
       // b/c some articles contains first image nested into the <header> elemens that is not considered as an article content at all.
       // Example article: https://www.vanityfair.com/news/2020/12/trump-vaccine-summit-herd-immunity
-      const headerNodes = this._getAllNodesWithTag(this._doc.documentElement, ['HEADER']);
+      const headerNodes = this._doc.documentElement && this._getAllNodesWithTag(this._doc.documentElement, ['HEADER']);
       const alreadyExistingFigures = this._getAllNodesWithTag(articleContent, ['FIGURE']);
-      this._forEachNode(headerNodes, headerNode => {
+      headerNodes && this._forEachNode(headerNodes, headerNode => {
         if (!headerNode || !headerNode.readability || !headerNode.readability.contentScore)
           return;
 
