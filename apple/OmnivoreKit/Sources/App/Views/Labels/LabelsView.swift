@@ -17,27 +17,27 @@ struct LabelsView: View {
       #if os(iOS)
         Form {
           innerBody
-            .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
-              Button("Delete Label", role: .destructive) {
-                if let label = labelToRemove {
-                  withAnimation {
-                    viewModel.deleteLabel(
-                      dataService: dataService,
-                      labelID: label.unwrappedID,
-                      name: label.unwrappedName
-                    )
-                  }
-                }
-                self.labelToRemove = nil
-              }
-              Button("Cancel", role: .cancel) { self.labelToRemove = nil }
-            }
         }
       #elseif os(macOS)
         List {
           innerBody
         }
       #endif
+    }
+    .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
+      Button("Delete Label", role: .destructive) {
+        if let label = labelToRemove {
+          withAnimation {
+            viewModel.deleteLabel(
+              dataService: dataService,
+              labelID: label.unwrappedID,
+              name: label.unwrappedName
+            )
+          }
+        }
+        self.labelToRemove = nil
+      }
+      Button("Cancel", role: .cancel) { self.labelToRemove = nil }
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel)
