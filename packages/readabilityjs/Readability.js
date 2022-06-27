@@ -65,8 +65,8 @@ const extractPublishedDateFromAuthor = (author)=> {
 
 /**
  * Public constructor.
- * @param {HTMLDocument} doc     The document to parse.
- * @param {Object}       options The options object.
+ * @param {Document} doc     The document to parse.
+ * @param {Object}   options The options object.
  */
 function Readability(doc, options) {
   // In some older versions, people passed a URI as the first argument. Cope:
@@ -1517,9 +1517,9 @@ Readability.prototype = {
       // Checking for the figures inside of the <header> tags and appending them to the content if not there aleady,
       // b/c some articles contains first image nested into the <header> elemens that is not considered as an article content at all.
       // Example article: https://www.vanityfair.com/news/2020/12/trump-vaccine-summit-herd-immunity
-      const headerNodes = this._getAllNodesWithTag(this._doc.documentElement, ['HEADER']);
+      const headerNodes = this._doc.documentElement && this._getAllNodesWithTag(this._doc.documentElement, ['HEADER']);
       const alreadyExistingFigures = this._getAllNodesWithTag(articleContent, ['FIGURE']);
-      this._forEachNode(headerNodes, headerNode => {
+      headerNodes && this._forEachNode(headerNodes, headerNode => {
         if (!headerNode || !headerNode.readability || !headerNode.readability.contentScore)
           return;
 
