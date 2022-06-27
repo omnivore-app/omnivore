@@ -174,7 +174,7 @@ Readability.prototype = {
     unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
-      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners`, 'i')
+      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity`, 'i')
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners/i,
