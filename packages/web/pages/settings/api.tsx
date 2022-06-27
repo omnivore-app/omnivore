@@ -39,13 +39,12 @@ export default function Api(): JSX.Element {
   const router = useRouter()
   useEffect(() => {
     if (Object.keys(router.query).length) {
-      //setValue(`${router.query.create}`)
-      //console.log(value);
+      setValue(`${router.query?.create}`)
       setExpiresAt(new Date(defaultExpiresAt))
       onAdd()
       setAddModalOpen(true)
     }
-  }, [router])
+  }, [router.query])
 
   const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
   const rows = useMemo(() => {
@@ -92,7 +91,7 @@ export default function Api(): JSX.Element {
         label: 'Name',
         onChange: setName,
         name: 'name',
-        value: value,
+        value: `${router.query ? router.query?.create : value}`,
         required: true,
       },
       {
