@@ -2,7 +2,7 @@ import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Toaster } from 'react-hot-toast'
 import { Table } from '../../components/elements/Table'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
 import { FormInputProps } from '../../components/elements/FormElements'
 import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
@@ -10,6 +10,7 @@ import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
+import { useRouter } from 'next/router'
 
 interface ApiKey {
   name: string
@@ -19,6 +20,13 @@ interface ApiKey {
 }
 
 export default function Api(): JSX.Element {
+  const router = useRouter()
+
+  // default expiry date is 1 year from now
+  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
+    .toISOString()
+    .split('T')[0]
+
   const { apiKeys, revalidate } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModelOpen, setAddModelOpen] = useState(false)
@@ -27,6 +35,56 @@ export default function Api(): JSX.Element {
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
+
+  useEffect(() => {
+    const createName = router.query.create as string
+    if (router.isReady && createName) {
+      console.log('isReady:', router.isReady)
+      console.log('query', router.query.create)
+      setFormInputs([
+        {
+          label: 'Name',
+          onChange: setName,
+          name: 'name',
+          required: true,
+          // Note here that we use `createName` and not name because setName
+          // is async so even if we call it before setFormInputs it might
+          // not have the value set yet.
+          value: createName,
+        },
+        {
+          label: 'Expires in',
+          name: 'expiredAt',
+          required: true,
+          onChange: (e) => {
+            let additionalDays = 0
+            switch (e.target.value) {
+              case '7 days':
+                additionalDays = 7
+                break
+              case '30 days':
+                additionalDays = 30
+                break
+              case '90 days':
+                additionalDays = 90
+                break
+              case '1 year':
+                additionalDays = 365
+                break
+            }
+            const newExpires = new Date()
+            newExpires.setDate(newExpires.getDate() + additionalDays)
+            setExpiresAt(newExpires)
+          },
+          type: 'select',
+          options: ['7 days', '30 days', '90 days', '1 year'],
+          value: defaultExpiresAt,
+        },
+      ])
+      setName(createName)
+      setAddModelOpen(true)
+    }
+  }, [router])
 
   const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
   const rows = useMemo(() => {
@@ -43,11 +101,6 @@ export default function Api(): JSX.Element {
     )
     return rows
   }, [apiKeys])
-
-  // default expiry date is 1 year from now
-  const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
-    .toISOString()
-    .split('T')[0]
 
   applyStoredTheme(false)
 
@@ -133,7 +186,7 @@ export default function Api(): JSX.Element {
               required: true,
               onChange: (e) => {
                 let additionalDays = 0
-                switch(e.target.value) {
+                switch (e.target.value) {
                   case '7 days':
                     additionalDays = 7
                     break
