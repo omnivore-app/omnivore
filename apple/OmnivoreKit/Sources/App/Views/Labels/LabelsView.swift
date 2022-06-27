@@ -46,7 +46,7 @@ struct LabelsView: View {
     Group {
       Section(footer: Text(footerText)) {
         Button(
-          action: { viewModel.showCreateEmailModal = true },
+          action: { viewModel.showCreateLabelModal = true },
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
@@ -77,7 +77,7 @@ struct LabelsView: View {
       }
     }
     .navigationTitle("Labels")
-    .sheet(isPresented: $viewModel.showCreateEmailModal) {
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel)
     }
   }
@@ -168,7 +168,7 @@ struct CreateLabelView: View {
 
   var cancelCreateLabelButton: some View {
     Button(
-      action: { viewModel.showCreateEmailModal = false },
+      action: { viewModel.showCreateLabelModal = false },
       label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
     )
   }

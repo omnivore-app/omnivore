@@ -42,7 +42,7 @@ struct ApplyLabelsView: View {
     List {
       Section {
         Button(
-          action: { viewModel.showCreateEmailModal = true },
+          action: { viewModel.showCreateLabelModal = true },
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
@@ -102,7 +102,7 @@ struct ApplyLabelsView: View {
         }
       }
     #endif
-    .sheet(isPresented: $viewModel.showCreateEmailModal) {
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel)
     }
   }
