@@ -39,6 +39,9 @@ struct LabelsView: View {
         }
       #endif
     }
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
+      CreateLabelView(viewModel: viewModel)
+    }
     .task { await viewModel.loadLabels(dataService: dataService, item: nil) }
   }
 
@@ -77,9 +80,6 @@ struct LabelsView: View {
       }
     }
     .navigationTitle("Labels")
-    .sheet(isPresented: $viewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: viewModel)
-    }
   }
 }
 
