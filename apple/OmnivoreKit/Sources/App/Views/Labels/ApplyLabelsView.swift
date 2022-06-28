@@ -74,7 +74,7 @@ struct ApplyLabelsView: View {
             }
           )
           #if os(macOS)
-          .buttonStyle(PlainButtonStyle())
+            .buttonStyle(PlainButtonStyle())
           #endif
         }
       }

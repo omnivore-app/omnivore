@@ -63,30 +63,61 @@ struct LinkedItemTitleEditView: View {
   }
 
   var body: some View {
-    NavigationView {
-      editForm
-        .navigationTitle("Edit Title and Description")
+    Group {
       #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
+        iOSBody
+      #else
+        macOSBody
       #endif
-      .toolbar {
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: {
-              viewModel.submit(dataService: dataService, item: item)
-              presentationMode.wrappedValue.dismiss()
-            },
-            label: { Text("Save").foregroundColor(.appGrayTextContrast) }
-          )
-        }
-        ToolbarItem(placement: .barLeading) {
-          Button(
-            action: { presentationMode.wrappedValue.dismiss() },
-            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
-          )
-        }
-      }
     }
     .task { viewModel.load(item: item) }
   }
+
+  #if os(iOS)
+    var iOSBody: some View {
+      NavigationView {
+        editForm
+          .navigationTitle("Edit Title and Description")
+          .navigationBarTitleDisplayMode(.inline)
+          .toolbar {
+            ToolbarItem(placement: .barTrailing) {
+              Button(
+                action: {
+                  viewModel.submit(dataService: dataService, item: item)
+                  presentationMode.wrappedValue.dismiss()
+                },
+                label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+              )
+            }
+            ToolbarItem(placement: .barLeading) {
+              Button(
+                action: { presentationMode.wrappedValue.dismiss() },
+                label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+              )
+            }
+          }
+      }
+    }
+  #else
+    var macOSBody: some View {
+      editForm
+        .toolbar {
+          ToolbarItemGroup {
+            Button(
+              action: {
+                viewModel.submit(dataService: dataService, item: item)
+                presentationMode.wrappedValue.dismiss()
+              },
+              label: { Text("Save").foregroundColor(.appGrayTextContrast) }
+            )
+
+            Button(
+              action: { presentationMode.wrappedValue.dismiss() },
+              label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+            )
+          }
+        }
+        .frame(minWidth: 400, minHeight: 400)
+    }
+  #endif
 }
