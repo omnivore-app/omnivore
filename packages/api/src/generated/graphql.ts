@@ -1512,6 +1512,7 @@ export type SearchItem = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
@@ -3841,6 +3842,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
