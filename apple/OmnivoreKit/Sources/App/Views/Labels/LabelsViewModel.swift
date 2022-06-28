@@ -8,7 +8,7 @@ import Views
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var unselectedLabels = [LinkedItemLabel]()
   @Published var labels = [LinkedItemLabel]()
-  @Published var showCreateEmailModal = false
+  @Published var showCreateLabelModal = false
   @Published var labelSearchFilter = ""
 
   func loadLabels(
@@ -53,7 +53,7 @@ import Views
     }
 
     isLoading = false
-    showCreateEmailModal = false
+    showCreateLabelModal = false
   }
 
   func deleteLabel(dataService: DataService, labelID: String, name: String) {
