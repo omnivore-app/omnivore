@@ -180,6 +180,9 @@ const searchQuery = (keyword = '') => {
             url
             createdAt
             updatedAt
+            highlights {
+              id
+            }
           }
         }
         pageInfo {
@@ -1020,6 +1023,15 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
         expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
         expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+      })
+
+      it('should return highlights in pages', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges[0].node.highlights.length).to.eql(1)
+        expect(res.body.data.search.edges[0].node.highlights[0].id).to.eq(
+          highlights[4].id
+        )
       })
     })
 

@@ -25,7 +25,8 @@ export const addHighlightToPage = async (
                     ctx._source.highlights = [params.highlight]
                   } else {
                     ctx._source.highlights.add(params.highlight) 
-                  }`,
+                  }
+                  ctx._source.updatedAt = params.highlight.updatedAt`,
           lang: 'painless',
           params: {
             highlight: highlight,
@@ -102,11 +103,12 @@ export const deleteHighlight = async (
       index: INDEX_ALIAS,
       body: {
         script: {
-          source:
-            'ctx._source.highlights.removeIf(h -> h.id == params.highlightId)',
+          source: `ctx._source.highlights.removeIf(h -> h.id == params.highlightId);
+                   ctx._source.updatedAt = params.updatedAt`,
           lang: 'painless',
           params: {
             highlightId: highlightId,
+            updatedAt: new Date(),
           },
         },
         query: {
@@ -257,7 +259,8 @@ export const updateHighlight = async (
       body: {
         script: {
           source: `ctx._source.highlights.removeIf(h -> h.id == params.highlight.id);
-                   ctx._source.highlights.add(params.highlight)`,
+                   ctx._source.highlights.add(params.highlight);
+                   ctx._source.updatedAt = params.highlight.updatedAt`,
           lang: 'painless',
           params: {
             highlight: highlight,
