@@ -47,7 +47,7 @@ import WebKit
     }
 
     public func makeNSView(context _: Context) -> WKWebView {
-      let webView = WebView(frame: CGRect.zero)
+      let webView = OmnivoreWebView(frame: CGRect.zero)
       if let url = request.url {
         // Dark mode is still rendering a white background on mac for some reason.
         // Forcing light mode for now until we figure out a fix

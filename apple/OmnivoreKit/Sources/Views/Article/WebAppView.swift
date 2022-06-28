@@ -20,12 +20,12 @@ enum WebViewConfigurationManager {
 
 public enum WebViewManager {
   public static let sharedView = create()
-  public static func shared() -> WebView {
+  public static func shared() -> OmnivoreWebView {
     sharedView
   }
 
-  public static func create() -> WebView {
-    WebView(frame: CGRect.zero, configuration: WebViewConfigurationManager.create())
+  public static func create() -> OmnivoreWebView {
+    OmnivoreWebView(frame: CGRect.zero, configuration: WebViewConfigurationManager.create())
   }
 }
 
@@ -95,17 +95,17 @@ public enum WebViewManager {
 
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-        (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
+        (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
       if sendIncreaseFontSignal {
         sendIncreaseFontSignal = false
-        (webView as? WebView)?.updateFontSize()
+        (webView as? OmnivoreWebView)?.updateFontSize()
       }
 
       if sendDecreaseFontSignal {
         sendDecreaseFontSignal = false
-        (webView as? WebView)?.updateFontSize()
+        (webView as? OmnivoreWebView)?.updateFontSize()
       }
     }
   }
@@ -135,7 +135,7 @@ public enum WebViewManager {
 
     func makeNSView(context: Context) -> WKWebView {
       let contentController = WKUserContentController()
-      let webView = WebView(frame: CGRect.zero)
+      let webView = OmnivoreWebView(frame: CGRect.zero)
 
       webView.navigationDelegate = context.coordinator
       webView.configuration.userContentController = contentController
@@ -170,17 +170,17 @@ public enum WebViewManager {
 
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-        (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
+        (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
       if sendIncreaseFontSignal {
         sendIncreaseFontSignal = false
-        (webView as? WebView)?.updateFontSize()
+        (webView as? OmnivoreWebView)?.updateFontSize()
       }
 
       if sendDecreaseFontSignal {
         sendDecreaseFontSignal = false
-        (webView as? WebView)?.updateFontSize()
+        (webView as? OmnivoreWebView)?.updateFontSize()
       }
     }
   }

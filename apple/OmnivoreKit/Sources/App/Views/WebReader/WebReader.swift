@@ -77,32 +77,32 @@ import WebKit
     func updateUIView(_ webView: WKWebView, context: Context) {
       if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
         context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
-        (webView as? WebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
+        (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       }
 
       if updateFontFamilyActionID != context.coordinator.previousUpdateFontFamilyActionID {
         context.coordinator.previousUpdateFontFamilyActionID = updateFontFamilyActionID
-        (webView as? WebView)?.updateFontFamily()
+        (webView as? OmnivoreWebView)?.updateFontFamily()
       }
 
       if updateFontActionID != context.coordinator.previousUpdateFontActionID {
         context.coordinator.previousUpdateFontActionID = updateFontActionID
-        (webView as? WebView)?.updateFontSize()
+        (webView as? OmnivoreWebView)?.updateFontSize()
       }
 
       if updateTextContrastActionID != context.coordinator.previousUpdateTextContrastActionID {
         context.coordinator.previousUpdateTextContrastActionID = updateTextContrastActionID
-        (webView as? WebView)?.updateTextContrast()
+        (webView as? OmnivoreWebView)?.updateTextContrast()
       }
 
       if updateMaxWidthActionID != context.coordinator.previousUpdateMaxWidthActionID {
         context.coordinator.previousUpdateMaxWidthActionID = updateMaxWidthActionID
-        (webView as? WebView)?.updateMaxWidthPercentage()
+        (webView as? OmnivoreWebView)?.updateMaxWidthPercentage()
       }
 
       if updateLineHeightActionID != context.coordinator.previousUpdateLineHeightActionID {
         context.coordinator.previousUpdateLineHeightActionID = updateLineHeightActionID
-        (webView as? WebView)?.updateLineHeight()
+        (webView as? OmnivoreWebView)?.updateLineHeight()
       }
 
       if showNavBarActionID != context.coordinator.previousShowNavBarActionID {
@@ -112,7 +112,7 @@ import WebKit
 
       if shareActionID != context.coordinator.previousShareActionID {
         context.coordinator.previousShareActionID = shareActionID
-        (webView as? WebView)?.shareOriginalItem()
+        (webView as? OmnivoreWebView)?.shareOriginalItem()
       }
 
       // If the webview had been terminated `needsReload` will have been set to true
