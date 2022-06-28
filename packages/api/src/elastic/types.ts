@@ -232,6 +232,8 @@ export interface SearchItem {
   readAt?: Date
   savedAt: Date
   updatedAt?: Date
+  labels?: Label[]
+  highlights?: Highlight[]
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
