@@ -73,3 +73,13 @@ public final class BasicWebAppViewCoordinator: NSObject {
     super.init()
   }
 }
+
+extension WKWebView {
+  func injectCookie(cookieString: String?, url: URL) {
+    if let cookieString = cookieString {
+      for cookie in HTTPCookie.cookies(withResponseHeaderFields: ["Set-Cookie": cookieString], for: url) {
+        configuration.websiteDataStore.httpCookieStore.setCookie(cookie) {}
+      }
+    }
+  }
+}

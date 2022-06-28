@@ -32,22 +32,6 @@ public final class RootViewModel: ObservableObject {
     #endif
   }
 
-  func webAppWrapperViewModel(webLinkPath: String) -> WebAppWrapperViewModel {
-    let baseURL = services.dataService.appEnvironment.webAppBaseURL
-
-    let urlRequest = URLRequest.webRequest(
-      baseURL: services.dataService.appEnvironment.webAppBaseURL,
-      urlPath: webLinkPath,
-      queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
-    )
-
-    return WebAppWrapperViewModel(
-      webViewURLRequest: urlRequest,
-      baseURL: baseURL,
-      rawAuthCookie: services.authenticator.omnivoreAuthCookieString
-    )
-  }
-
   func triggerPushNotificationRequestIfNeeded() {
     guard FeatureFlag.enablePushNotifications else { return }
 

@@ -8,7 +8,6 @@ import Views
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   let pdfItem: PDFItem?
   let item: LinkedItem?
-  @Published var webAppWrapperViewModel: WebAppWrapperViewModel?
 
   init(linkedItemObjectID: NSManagedObjectID, dataService: DataService) {
     if let linkedItem = dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem {
@@ -42,32 +41,6 @@ import Views
     )
   }
 
-  func loadWebAppWrapper(dataService: DataService, rawAuthCookie: String?) async {
-    let viewer: Viewer? = await {
-      if let currentViewer = dataService.currentViewer {
-        return currentViewer
-      }
-
-      guard let viewerObjectID = try? await dataService.fetchViewer() else { return nil }
-
-      var result: Viewer?
-
-      await dataService.viewContext.perform {
-        result = dataService.viewContext.object(with: viewerObjectID) as? Viewer
-      }
-
-      return result
-    }()
-
-    if let viewer = viewer {
-      createWebAppWrapperViewModel(
-        username: viewer.unwrappedUsername,
-        dataService: dataService,
-        rawAuthCookie: rawAuthCookie
-      )
-    }
-  }
-
   func trackReadEvent() {
     guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
     guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
@@ -88,23 +61,6 @@ import Views
 
   var isItemArchived: Bool {
     item?.isArchived ?? pdfItem?.isArchived ?? false
-  }
-
-  private func createWebAppWrapperViewModel(username: String, dataService: DataService, rawAuthCookie: String?) {
-    guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
-    let baseURL = dataService.appEnvironment.webAppBaseURL
-
-    let urlRequest = URLRequest.webRequest(
-      baseURL: dataService.appEnvironment.webAppBaseURL,
-      urlPath: "/app/\(username)/\(slug)",
-      queryParams: ["isAppEmbedView": "true", "highlightBarDisabled": isMacApp ? "false" : "true"]
-    )
-
-    webAppWrapperViewModel = WebAppWrapperViewModel(
-      webViewURLRequest: urlRequest,
-      baseURL: baseURL,
-      rawAuthCookie: rawAuthCookie
-    )
   }
 }
 
@@ -144,13 +100,6 @@ struct LinkItemDetailView: View {
     )
   }
 
-  var fontAdjustmentPopoverView: some View {
-    FontSizeAdjustmentPopoverView(
-      increaseFontAction: { viewModel.webAppWrapperViewModel?.sendIncreaseFontSignal = true },
-      decreaseFontAction: { viewModel.webAppWrapperViewModel?.sendDecreaseFontSignal = true }
-    )
-  }
-
   // We always want this hidden but setting it to false initially
   // fixes a bug where SwiftUI searchable will always show the nav bar
   // if the search field is active when pushing.
@@ -174,8 +123,11 @@ struct LinkItemDetailView: View {
           }
       }
     #else
-      fixedNavBarReader
-        .task { viewModel.trackReadEvent() }
+      // TODO: make pdf item work for macos
+      if let item = viewModel.item {
+        WebReaderContainerView(item: item)
+          .task { viewModel.trackReadEvent() }
+      }
     #endif
   }
 
@@ -249,61 +201,6 @@ struct LinkItemDetailView: View {
     }
   }
 
-  #if os(iOS)
-    @ViewBuilder private var hidingNavBarReader: some View {
-      if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
-        ZStack {
-          WebAppWrapperView(
-            viewModel: webAppWrapperViewModel,
-            navBarVisibilityRatioUpdater: {
-              if $0 < 1 {
-                showFontSizePopover = false
-              }
-              navBarVisibilityRatio = $0
-            }
-          )
-          if showFontSizePopover {
-            VStack {
-              Color.clear
-                .contentShape(Rectangle())
-                .frame(height: LinkItemDetailView.navBarHeight)
-              HStack {
-                Spacer()
-                fontAdjustmentPopoverView
-                  .background(Color.appButtonBackground)
-                  .cornerRadius(8)
-                  .padding(.trailing, 44)
-              }
-              Spacer()
-            }
-            .background(
-              Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {
-                  showFontSizePopover = false
-                }
-            )
-          }
-          VStack(spacing: 0) {
-            navBar
-            Spacer()
-          }
-        }
-      } else {
-        VStack(spacing: 0) {
-          navBar
-          Spacer()
-        }
-        .task {
-          await viewModel.loadWebAppWrapper(
-            dataService: dataService,
-            rawAuthCookie: authenticator.omnivoreAuthCookieString
-          )
-        }
-      }
-    }
-  #endif
-
   @ViewBuilder private var fixedNavBarReader: some View {
     if let pdfItem = viewModel.pdfItem, let pdfURL = pdfItem.pdfURL {
       #if os(iOS)
@@ -312,38 +209,11 @@ struct LinkItemDetailView: View {
       #elseif os(macOS)
         PDFWrapperView(pdfURL: pdfURL)
       #endif
-    } else if let webAppWrapperViewModel = viewModel.webAppWrapperViewModel {
-      WebAppWrapperView(viewModel: webAppWrapperViewModel)
-        .toolbar {
-          ToolbarItem(placement: .automatic) {
-            Button(
-              action: { showFontSizePopover = true },
-              label: {
-                Image(systemName: "textformat.size")
-              }
-            )
-            #if os(iOS)
-              .fittedPopover(isPresented: $showFontSizePopover) {
-                fontAdjustmentPopoverView
-              }
-            #else
-              .popover(isPresented: $showFontSizePopover) {
-                fontAdjustmentPopoverView
-              }
-            #endif
-          }
-        }
     } else {
       HStack(alignment: .center) {
         Spacer()
         Text("Loading...")
         Spacer()
-      }
-      .task {
-        await viewModel.loadWebAppWrapper(
-          dataService: dataService,
-          rawAuthCookie: authenticator.omnivoreAuthCookieString
-        )
       }
     }
   }
