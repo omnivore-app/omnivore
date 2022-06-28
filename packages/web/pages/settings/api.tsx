@@ -113,13 +113,15 @@ export default function Api(): JSX.Element {
             case '1 year':
               additionalDays = 365
               break
+            case 'never':
+              break;
           }
           const newExpires = new Date()
           newExpires.setDate(newExpires.getDate() + additionalDays)
           setExpiresAt(newExpires)
         },
         type: 'select',
-        options: ['7 days', '30 days', '90 days', '1 year'],
+        options: ['7 days', '30 days', '90 days', '1 year', 'never'],
         value: defaultExpiresAt,
       },
     ])
