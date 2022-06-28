@@ -91,7 +91,7 @@ export default function Api(): JSX.Element {
         label: 'Name',
         onChange: setName,
         name: 'name',
-        value: `${router.query ? router.query?.create : value}`,
+        value: `${router.query?.create ? router.query?.create : value}`,
         required: true,
       },
       {
