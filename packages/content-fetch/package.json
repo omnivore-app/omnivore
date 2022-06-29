@@ -12,10 +12,10 @@
     "linkedom": "^0.14.9",
     "luxon": "^2.3.1",
     "puppeteer-core": "^16.1.0",
-    "underscore": "^1.13.4"
+    "underscore": "^1.13.4",
+    "@omnivore/puppeteer-parse": "^1.0.0"
   },
   "scripts": {
-    "start": "node app.js",
-    "test": "yarn mocha"
+    "start": "node app.js"
   }
 }
