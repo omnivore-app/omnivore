@@ -22,6 +22,8 @@ interface ApiKey {
 }
 
 export default function Api(): JSX.Element {
+  const router = useRouter()
+
   const { apiKeys, revalidate } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -32,18 +34,17 @@ export default function Api(): JSX.Element {
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
   const [dropdownValue, setDropdownValue] = useState<string>('30 days')
   const dropdownMap = new Map([
-    ['7', '7 days'],
-    ['30', '30 days'],
-    ['90', '90 days'],
-    ['365', '1 year'],
-    ['never', 'never'],
+    ['7', 'in 7 days'],
+    ['30', 'in 30 days'],
+    ['90', 'in 90 days'],
+    ['365', 'in 1 year'],
+    ['never', 'Never'],
   ])
-
-  const router = useRouter()
   // default expiry date is 1 year from now
   const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
     .toISOString()
     .split('T')[0]
+  const neverExpiresDate = new Date(8640000000000000)
 
   useEffect(() => {
     if (Object.keys(router.query).length) {
@@ -65,7 +66,10 @@ export default function Api(): JSX.Element {
         usedAt: apiKey.usedAt
           ? new Date(apiKey.usedAt).toISOString()
           : 'Never used',
-        expiresAt: new Date(apiKey.expiresAt).toDateString(),
+        expiresAt:
+          new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
+            ? new Date(apiKey.expiresAt).toDateString()
+            : 'Never',
       })
     )
     return rows
@@ -104,34 +108,46 @@ export default function Api(): JSX.Element {
         required: true,
       },
       {
-        label: 'Expires in',
+        label: 'Expires',
         name: 'expiredAt',
         required: true,
         onChange: (e) => {
           let additionalDays = 0
           switch (e.target.value) {
-            case '7 days':
+            case 'in 7 days':
               additionalDays = 7
               break
-            case '30 days':
+            case 'in 30 days':
               additionalDays = 30
               break
-            case '90 days':
+            case 'in 90 days':
               additionalDays = 90
               break
-            case '1 year':
+            case 'in 1 year':
               additionalDays = 365
               break
-            case 'never':
+            case 'Never':
               break
           }
-          const newExpires = new Date()
-          newExpires.setDate(newExpires.getDate() + additionalDays)
+          const newExpires = additionalDays ? new Date() : neverExpiresDate
+          if (additionalDays) {
+            newExpires.setDate(newExpires.getDate() + additionalDays)
+          }
           setExpiresAt(newExpires)
         },
         type: 'select',
-        options: ['7 days', '30 days', '90 days', '1 year', 'never'],
-        value: `${router.query?.expire ? dropdownMap.get(`${router.query.expire}`) : dropdownValue}`
+        options: [
+          'in 7 days',
+          'in 30 days',
+          'in 90 days',
+          'in 1 year',
+          'Never',
+        ],
+        value: `${
+          router.query?.expire
+            ? dropdownMap.get(`${router.query.expire}`)
+            : dropdownValue
+        }`,
       },
     ])
   }
