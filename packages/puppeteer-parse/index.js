@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Url = require('url');
+const puppeteer = require('puppeteer-extra');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -38,69 +39,16 @@ const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) Apple
 const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
+const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
-const filePath = `${os.tmpdir()}/previewImage.png`;
+const path = require("path");
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
+const { parseHTML } = require('linkedom');
 
-const colors = {
-  emerg: 'inverse underline magenta',
-  alert: 'underline magenta',
-  crit: 'inverse underline red', // Any error that is forcing a shutdown of the service or application to prevent data loss.
-  error: 'underline red', // Any error which is fatal to the operation, but not the service or application
-  warning: 'underline yellow', // Anything that can potentially cause application oddities
-  notice: 'underline cyan', // Normal but significant condition
-  info: 'underline green', // Generally useful information to log
-  debug: 'underline gray',
-};
-
-const googleConfigs = {
-  level: 'info',
-  logName: 'logger',
-  levels: config.syslog.levels,
-  resource: {
-    labels: {
-      function_name: process.env.FUNCTION_TARGET,
-      project_id: process.env.GCP_PROJECT,
-    },
-    type: 'cloud_function',
-  },
-};
-
-function localConfig(id) {
-  return {
-    level: 'debug',
-    format: format.combine(
-      format.colorize({ all: true, colors }),
-      format(info =>
-        Object.assign(info, {
-          timestamp: DateTime.local().toLocaleString(DateTime.TIME_24_WITH_SECONDS),
-        }),
-      )(),
-      format.printf(info => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { timestamp, message, level, ...meta } = info;
-
-        return `[${id}@${info.timestamp}] ${info.message}${
-          Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : ''
-        }`;
-      }),
-    ),
-  };
-}
-
-function buildLoggerTransport(id, options) {
-  return process.env.IS_LOCAL
-    ? new transports.Console(localConfig(id))
-    : new LoggingWinston({ ...googleConfigs, ...{ logName: id }, ...options });
-}
-
-function buildLogger(id, options) {
-  return loggers.get(id, {
-    levels: config.syslog.levels,
-    transports: [buildLoggerTransport(id, options)],
-  });
-}
+// Add stealth plugin to hide puppeteer usage
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 
 const userAgentForUrl = (url) => {
   try {
@@ -116,15 +64,38 @@ const userAgentForUrl = (url) => {
   return DESKTOP_USER_AGENT
 };
 
+const fetchContentWithScrapingBee = async (url) => {
+  const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+    params: {
+      'api_key':  process.env.SCRAPINGBEE_API_KEY,
+      'url': url,
+      'render_js': 'false',
+      'premium_proxy': 'true',
+      'country_code':'us'
+    }
+  })
+
+  const dom = parseHTML(response.data).document;
+  return { title: dom.title, domContent: dom.documentElement.outerHTML, url: url }
+}
+
+const enableJavascriptForUrl = (url) => {
+  try {
+    const u = new URL(url);
+    for (const host of NON_SCRIPT_HOSTS) {
+      if (u.hostname.endsWith(host)) {
+        return false;
+      }
+    }
+  } catch (e) {
+    console.log('error getting hostname for url', url, e)
+  }
+  return true
+};
+
 // launch Puppeteer
-const getBrowserPromise = (async () => {
-  // return puppeteer.launch({
-  //   args: chromium.args,
-  //   defaultViewport: chromium.defaultViewport,
-  //   executablePath: process.env.CHROMIUM_PATH,
-  //   headless: chromium.headless,
-  //   ignoreHTTPSErrors: true,
-  // });
+const getBrowserPromise = (async (proxyUrl, chromiumPath) => {
+  console.log("starting with proxy url", proxyUrl)
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -151,8 +122,8 @@ const getBrowserPromise = (async () => {
       '--window-size=1920,1080',
     ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
-    executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.LAUNCH_HEADLESS,
+    executablePath: chromiumPath,
+    headless: true,
     timeout: 120000, // 2 minutes
   });
 })();
@@ -170,7 +141,7 @@ const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentOb
   })
 };
 
-const getUploadIdAndSignedUrl = async (userId, url) => {
+const getUploadIdAndSignedUrl = async (userId, url, articleSavingRequestId) => {
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
   const data = JSON.stringify({
     query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
@@ -188,17 +159,18 @@ const getUploadIdAndSignedUrl = async (userId, url) => {
       input: {
         url,
         contentType: 'application/pdf',
+        clientRequestId: articleSavingRequestId,
       }
     }
   });
 
   const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-  {
-    headers: {
-      Cookie: `auth=${auth};`,
-      'Content-Type': 'application/json',
-    },
-  });
+    {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    });
   return response.data.data.uploadFileRequest;
 };
 
@@ -231,12 +203,12 @@ const sendCreateArticleMutation = async (userId, input) => {
 
   const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
   const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-  {
-    headers: {
-      Cookie: `auth=${auth};`,
-      'Content-Type': 'application/json',
-    },
-  });
+    {
+      headers: {
+        Cookie: `auth=${auth};`,
+        'Content-Type': 'application/json',
+      },
+    });
   return response.data.data.createArticle;
 };
 
@@ -249,24 +221,8 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
   );
 };
 
-/**
- * Cloud Function entry point, HTTP trigger.
- * Loads the requested URL via Puppeteer, captures page content and sends it to backend
- *
- * @param {Object} req Cloud Function request context.
- * @param {Object} res Cloud Function response context.
- */
-exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
+async function fetchContent(req, res) {
   functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
 
   let url = getUrl(req);
   const userId = req.body.userId || req.query.userId;
@@ -281,7 +237,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     },
   };
 
-  logger.info(`Article parsing request`, logRecord);
+  console.log(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
@@ -306,16 +262,15 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
   let context, page, finalUrl;
   try {
-    if ((!content || !title) && contentType !== 'application/pdf') {
-      const result = await retrievePage(url)
-      if (result && result.context) { context = result.context }
-      if (result && result.page) { page = result.page }
-      if (result && result.finalUrl) { finalUrl = result.finalUrl }
-      if (result && result.contentType) { contentType = result.contentType }
-      console.log('context, page, finalUrl, contentType', context, page, finalUrl, contentType);
-    } else {
-      finalUrl = url
-    }
+  if ((!content || !title) && contentType !== 'application/pdf') {
+    const result = await retrievePage(url)
+    if (result && result.context) { context = result.context }
+    if (result && result.page) { page = result.page }
+    if (result && result.finalUrl) { finalUrl = result.finalUrl }
+    if (result && result.contentType) { contentType = result.contentType }
+  } else {
+    finalUrl = url
+  }
 
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
@@ -323,14 +278,20 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     } else {
       if (!content || !title) {
         const result = await retrieveHtml(page);
-        title = result.title;
-        content = result.domContent;
+        if (result.isBlocked) {
+          const sbResult = await fetchContentWithScrapingBee(url)
+          title = sbResult.title
+          content = sbResult.domContent
+        } else {
+          title = result.title;
+          content = result.domContent;
+        }
       } else {
         console.log('using prefetched content and title');
         console.log(content);
       }
 
-      logRecord.contentFetchTime = Date.now() - functionStartTime;
+      logRecord.fetchContentTime = Date.now() - functionStartTime;
 
       const apiResponse = await sendCreateArticleMutation(userId, {
         url: finalUrl,
@@ -347,12 +308,12 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
       logRecord.totalTime = Date.now() - functionStartTime;
       logRecord.result = apiResponse.createArticle;
-      logger.info(`parse-page`, logRecord);
+      console.log(`parse-page`, logRecord);
     }
   } catch (e) {
     console.log('error', e)
     logRecord.error = e.message;
-    logger.error(`Error while retrieving page`, logRecord);
+    console.log(`Error while retrieving page`, logRecord);
     return res.sendStatus(503);
   } finally {
     if (context) {
@@ -361,136 +322,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
   }
 
   return res.sendStatus(200);
-});
-
-/**
- * Cloud Function entry point, HTTP trigger.
- * Loads the requested URL via Puppeteer and captures a screenshot of the provided element
- *
- * @param {Object} req Cloud Function request context.
- * Inlcudes:
- *  * url - URL address of the page to open
- * @param {Object} res Cloud Function response context.
- */
-exports.preview = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
-  functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const logger = buildLogger('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
-
-  if (!process.env.PREVIEW_IMAGE_BUCKET) {
-    logger.error(`PREVIEW_IMAGE_BUCKET not set`)
-    return res.sendStatus(500);
-  }
-
-  const url = getUrl(req);
-  console.log('preview request url', url);
-
-  logRecord = {
-    url,
-    query: req.query,
-    origin: req.get('Origin'),
-    labels: {
-      source: 'publicImagePreview',
-    },
-  };
-
-  logger.info(`Public preview image generation request`, logRecord);
-
-  if (!url) {
-    logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse is not specified`, logRecord);
-    return res.sendStatus(400);
-  }
-  const { origin } = new URL(url);
-  if (!ALLOWED_ORIGINS.some(o => o === origin)) {
-    logRecord.forbiddenOrigin = true;
-    logger.error(`This origin is not allowed: ${origin}`, logRecord);
-    return res.sendStatus(400);
-  }
-
-  const browser = await getBrowserPromise;
-  logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
-
-  const page = await browser.newPage();
-  const pageLoadingStart = Date.now();
-  const modifiedUrl = new URL(url);
-  modifiedUrl.searchParams.append('fontSize', 24);
-  modifiedUrl.searchParams.append('adjustAspectRatio', 1.91);
-  try {
-    await page.goto(modifiedUrl);
-    logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
-  } catch (error) {
-    console.log('error going to page: ', modifiedUrl)
-    console.log(error)
-    throw error
-  }
-
-  // We lookup the destination path from our own page content and avoid trusting any passed query params
-  // selector - CSS selector of the element to get screenshot of
-  const selector = decodeURIComponent(
-    await page.$eval(
-      "head > meta[name='omnivore:preview_image_selector']",
-      element => element.content,
-    ),
-  );
-  if (!selector) {
-    logRecord.selectorIsInvalid = true;
-    logger.error(`Valid element selector is not specified`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  logRecord.selector = selector;
-
-  // destination - destination pathname for the image to save with
-  const destination = decodeURIComponent(
-    await page.$eval(
-      "head > meta[name='omnivore:preview_image_destination']",
-      element => element.content,
-    ),
-  );
-  if (!destination) {
-    logRecord.destinationIsInvalid = true;
-    logger.error(`Valid file destination is not specified`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  logRecord.destination = destination;
-
-  const screenshotTakingStart = Date.now();
-  try {
-    await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
-  } catch (error) {
-    logRecord.elementNotFound = true;
-    logger.error(`Element is not presented on the page`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  const element = await page.$(selector);
-  await element.screenshot({ path: filePath }); // take screenshot of the element in puppeteer
-  logRecord.timing = { ...logRecord.timing, screenshotTaken: Date.now() - screenshotTakingStart };
-
-  await page.close();
-
-  try {
-    const [file] = await previewBucket.upload(filePath, {
-      destination,
-      metadata: logRecord,
-    });
-    logRecord.file = file.metadata;
-  } catch (e) {
-    console.log('error uploading to bucket, this is non-fatal', e)
-  }
-
-  logger.info(`preview-image`, logRecord);
-  return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
-});
+}
 
 function validateUrlString(url) {
   const u = new URL(url);
@@ -509,16 +341,15 @@ function validateUrlString(url) {
 }
 
 function getUrl(req) {
-  if (req.query.url || req.body.url) {
-    const urlStr = req.query.url || req.body.url;
-    validateUrlString(urlStr);
-
-    const url = Url.parse(urlStr);
-    return url.href;
+  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+  if (!urlStr) {
+    throw new Error('No URL specified');
   }
-  try {
-    return Url.parse(JSON.parse(req.body).url).href;
-  } catch (e) {}
+
+  validateUrlString(urlStr);
+
+  const parsed = Url.parse(urlStr);
+  return parsed.href;
 }
 
 async function blockResources(client) {
@@ -554,7 +385,11 @@ async function retrievePage(url) {
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
   const context = await browser.createIncognitoBrowserContext();
-  const page = await context.newPage();
+  const page = await context.newPage()
+
+  if (!enableJavascriptForUrl(url)) {
+    await page.setJavaScriptEnabled(false);
+  }
   await page.setUserAgent(userAgentForUrl(url));
 
   const client = await page.target().createCDPSession();
@@ -570,16 +405,15 @@ async function retrievePage(url) {
     ],
   });
 
-  const path = require('path');
   const download_path = path.resolve('./download_dir/');
 
   await client.send('Page.setDownloadBehavior', {
-      behavior: 'allow',
-      userDataDir: './',
-      downloadPath: download_path,
+    behavior: 'allow',
+    userDataDir: './',
+    downloadPath: download_path,
   })
 
-  client.on('Network.requestIntercepted', async e => {
+  client.on('Network.requestIntercepted', async (e) => {
     const headers = e.responseHeaders || {};
 
     const [contentType] = (headers['content-type'] || headers['Content-Type'] || '')
@@ -605,10 +439,10 @@ async function retrievePage(url) {
   await blockResources(client);
 
   /*
-  * Disallow MathJax from running in Puppeteer and modifying the document,
-  * we shall instead run it in our frontend application to transform any
-  * mathjax content when present.
-  */
+    * Disallow MathJax from running in Puppeteer and modifying the document,
+    * we shall instead run it in our frontend application to transform any
+    * mathjax content when present.
+    */
   await page.setRequestInterception(true);
   let requestCount = 0;
   page.on('request', request => {
@@ -629,7 +463,6 @@ async function retrievePage(url) {
     }
     request.continue();
   });
-
 
   // Puppeteer fails during download of PDf files,
   // so record the failure and use those items
@@ -719,12 +552,16 @@ async function retrieveHtml(page) {
       Array.from(document.body.getElementsByTagName('*')).forEach(el => {
         const style = window.getComputedStyle(el);
 
-        // Removing blurred images since they are mostly the copies of lazy loaded ones
-        if (['img', 'image'].includes(el.tagName.toLowerCase())) {
-          const filter = style.getPropertyValue('filter');
-          if (filter && filter.startsWith('blur')) {
-            el.parentNode && el.parentNode.removeChild(el);
+        try {
+          // Removing blurred images since they are mostly the copies of lazy loaded ones
+          if (['img', 'image'].includes(el.tagName.toLowerCase())) {
+            const filter = style.getPropertyValue('filter');
+            if (filter && filter.startsWith('blur')) {
+              el.parentNode && el.parentNode.removeChild(el);
+            }
           }
+        } catch (err) {
+          // throw Error('error with element: ' + JSON.stringify(Array.from(document.body.getElementsByTagName('*'))))
         }
 
         // convert all nodes with background image to img nodes
@@ -761,6 +598,12 @@ async function retrieveHtml(page) {
           }
         }
       });
+
+      if (document.querySelector('[data-translate="managed_checking_msg"]') ||
+        document.getElementById('px-block-form-wrapper')) {
+        return 'IS_BLOCKED'
+      }
+
       return document.documentElement.outerHTML;
     }, iframes);
     logRecord.puppeteerSuccess = true;
@@ -781,5 +624,15 @@ async function retrieveHtml(page) {
       };
     }
   }
+  if (domContent === 'IS_BLOCKED') {
+    return { isBlocked: true };
+  }
   return { domContent, title };
 }
+
+module.exports = {
+  fetchContent,
+  getBrowserPromise,
+  getUrl,
+};
+

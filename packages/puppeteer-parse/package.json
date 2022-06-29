@@ -1,7 +1,7 @@
 {
   "name": "@omnivore/puppeteer-parse",
   "version": "1.0.0",
-  "description": "Google Cloud Function that accepts URL of the article and parses its content",
+  "description": "Accepts URL of the article and parses its content",
   "main": "index.js",
   "dependencies": {
     "@google-cloud/functions-framework": "^3.1.2",
@@ -20,8 +20,6 @@
     "winston": "^3.3.3"
   },
   "scripts": {
-    "start": "npx functions-framework --port=9090 --target=puppeteer",
-    "start_preview": "npx functions-framework --target=preview",
     "test": "yarn mocha"
   }
 }
