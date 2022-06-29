@@ -95,33 +95,35 @@ export default function Api(): JSX.Element {
         required: true,
       },
       {
-        label: 'Expires in',
+        label: 'Expires',
         name: 'expiredAt',
         required: true,
         onChange: (e) => {
           let additionalDays = 0
           switch (e.target.value) {
-            case '7 days':
+            case 'in 7 days':
               additionalDays = 7
               break
-            case '30 days':
+            case 'in 30 days':
               additionalDays = 30
               break
-            case '90 days':
+            case 'in 90 days':
               additionalDays = 90
               break
-            case '1 year':
+            case 'in 1 year':
               additionalDays = 365
               break
-            case 'never':
+            case 'Never':
               break;
           }
-          const newExpires = new Date()
-          newExpires.setDate(newExpires.getDate() + additionalDays)
+          const newExpires = additionalDays ? new Date() : new Date(8640000000000000)
+          if (additionalDays) {
+            newExpires.setDate(newExpires.getDate() + additionalDays)
+          }
           setExpiresAt(newExpires)
         },
         type: 'select',
-        options: ['7 days', '30 days', '90 days', '1 year', 'never'],
+        options: ['in 7 days', 'in 30 days', 'in 90 days', 'in 1 year', 'Never'],
         value: defaultExpiresAt,
       },
     ])
