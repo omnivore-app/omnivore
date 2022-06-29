@@ -297,7 +297,7 @@ async function fetchContent(req, res) {
       if (result && result.title) { title = result.title }
       if (result && result.content) { content = result.content }
       if (result && result.contentType) { contentType = result.contentType }
-      console.log('handled w/result: ', result)\
+      console.log('handled w/result: ', result)
     } catch (e) {
       console.log('error with handler: ', handler, e);
     }
