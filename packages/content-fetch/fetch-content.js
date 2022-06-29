@@ -300,6 +300,7 @@ async function fetchContent(req, res) {
     } catch (e) {
       console.log('error with handler: ', handler, e);
     }
+    console.log('handled w/result: ', result)
   }
 
   var context, page, finalUrl;
@@ -310,6 +311,7 @@ async function fetchContent(req, res) {
     if (result && result.finalUrl) { finalUrl = result.finalUrl }
     if (result && result.contentType) { contentType = result.contentType }
   } else {
+    console.log('not using retrievePage, using final url', url)
     finalUrl = url
   }
 
@@ -319,6 +321,8 @@ async function fetchContent(req, res) {
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
     } else {
       if (!content || !title) {
+        console.log('fetching content and title');
+
         const result = await retrieveHtml(page);
         if (result.isBlocked) {
           const sbResult = await fetchContentWithScrapingBee(url)
