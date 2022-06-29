@@ -35,6 +35,7 @@ export default function Api(): JSX.Element {
   const defaultExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
     .toISOString()
     .split('T')[0]
+  const neverExpiresDate = new Date(8640000000000000)
 
   const router = useRouter()
   useEffect(() => {
@@ -56,7 +57,9 @@ export default function Api(): JSX.Element {
         usedAt: apiKey.usedAt
           ? new Date(apiKey.usedAt).toISOString()
           : 'Never used',
-        expiresAt: new Date(apiKey.expiresAt).toDateString(),
+        expiresAt: new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
+          ? new Date(apiKey.expiresAt).toDateString()
+          : 'Never',
       })
     )
     return rows
@@ -116,7 +119,7 @@ export default function Api(): JSX.Element {
             case 'Never':
               break;
           }
-          const newExpires = additionalDays ? new Date() : new Date(8640000000000000)
+          const newExpires = additionalDays ? new Date() : neverExpiresDate
           if (additionalDays) {
             newExpires.setDate(newExpires.getDate() + additionalDays)
           }
