@@ -322,10 +322,7 @@ import WebKit
       )
       .styledContent
 
-//      webView.loadFileURL(ViewsPackage.bundleURL, allowingReadAccessTo: ViewsPackage.bundleURL)
-      // macOS isn't loading the resources at the baseURL here for some reason
-      // maybe it needs the `allowingReadAccessTo` permission?
-      webView.loadHTMLString(htmlString, baseURL: ViewsPackage.bundleURL)
+      webView.loadHTMLString(htmlString, baseURL: ViewsPackage.resourceURL)
     }
   }
 
