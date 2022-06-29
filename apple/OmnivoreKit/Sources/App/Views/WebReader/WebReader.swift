@@ -149,7 +149,7 @@ import WebKit
         }
       }()
 
-      let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .inter
+      let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .system
 
       webView.loadHTMLString(
         WebReaderContent(
@@ -308,22 +308,24 @@ import WebKit
         }
       }()
 
-      let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .inter
+      let fontFamily = fontFamilyValue.flatMap { WebFont(rawValue: $0) } ?? .system
 
-      webView.loadHTMLString(
-        WebReaderContent(
-          item: item,
-          articleContent: articleContent,
-          isDark: NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua,
-          fontSize: fontSize(),
-          lineHeight: lineHeight(),
-          maxWidthPercentage: maxWidthPercentage(),
-          fontFamily: fontFamily,
-          prefersHighContrastText: prefersHighContrastText
-        )
-        .styledContent,
-        baseURL: ViewsPackage.bundleURL
+      let htmlString = WebReaderContent(
+        item: item,
+        articleContent: articleContent,
+        isDark: NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua,
+        fontSize: fontSize(),
+        lineHeight: lineHeight(),
+        maxWidthPercentage: maxWidthPercentage(),
+        fontFamily: fontFamily,
+        prefersHighContrastText: prefersHighContrastText
       )
+      .styledContent
+
+//      webView.loadFileURL(ViewsPackage.bundleURL, allowingReadAccessTo: ViewsPackage.bundleURL)
+      // macOS isn't loading the resources at the baseURL here for some reason
+      // maybe it needs the `allowingReadAccessTo` permission?
+      webView.loadHTMLString(htmlString, baseURL: ViewsPackage.bundleURL)
     }
   }
 
