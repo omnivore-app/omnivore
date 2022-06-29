@@ -427,9 +427,12 @@ async function retrievePage(url) {
 
   const browser = await getBrowserPromise;
   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
+  console.log('opened browser', logRecord)
 
   const context = await browser.createIncognitoBrowserContext();
   const page = await context.newPage()
+  console.log('created context and page', logRecord)
+
 
   if (!enableJavascriptForUrl(url)) {
     await page.setJavaScriptEnabled(false);
@@ -437,6 +440,7 @@ async function retrievePage(url) {
   await page.setUserAgent(userAgentForUrl(url));
 
   const client = await page.target().createCDPSession();
+  console.log('created puppeteer client', logRecord)
 
   // intercept request when response headers was received
   await client.send('Network.setRequestInterception', {
