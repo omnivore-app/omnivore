@@ -136,13 +136,7 @@ export default function Api(): JSX.Element {
           setExpiresAt(newExpires)
         },
         type: 'select',
-        options: [
-          'in 7 days',
-          'in 30 days',
-          'in 90 days',
-          'in 1 year',
-          'Never',
-        ],
+        options: [...dropdownMap.values()],
         value: `${
           router.query?.expire
             ? dropdownMap.get(`${router.query.expire}`)
