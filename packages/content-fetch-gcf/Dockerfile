@@ -100,13 +100,13 @@ COPY tsconfig.json .
 COPY .prettierrc .
 COPY .eslintrc .
 
-COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
+COPY /packages/content-fetch-gcf/package.json ./packages/content-fetch-gcf/package.json
 
 RUN yarn install --pure-lockfile
 
-ADD /packages/puppeteer-parse ./packages/puppeteer-parse
+ADD /packages/content-fetch-gcf ./packages/content-fetch-gcf
 
 EXPOSE 8080
 
 # USER pptruser
-ENTRYPOINT ["yarn", "workspace", "@omnivore/puppeteer-parse", "start"]
+ENTRYPOINT ["yarn", "workspace", "@omnivore/content-fetch-gcf", "start"]
