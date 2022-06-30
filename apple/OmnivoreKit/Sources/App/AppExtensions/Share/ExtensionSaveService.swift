@@ -4,7 +4,7 @@ import Services
 import Utils
 import Views
 
-class ExtensionSaveService {
+final class ExtensionSaveService {
   #if os(macOS)
     let services = Services()
   #endif
@@ -86,7 +86,7 @@ class ExtensionSaveService {
     }
   }
 
-  class SaveOperation: Operation, URLSessionDelegate {
+  final class SaveOperation: Operation, URLSessionDelegate {
     let services: Services
     let pageScrapePayload: PageScrapePayload
     let shareExtensionViewModel: ShareExtensionChildViewModel
@@ -109,7 +109,7 @@ class ExtensionSaveService {
       self.services = Services()
     }
 
-    open var state: State = .created {
+    public var state: State = .created {
       willSet {
         willChangeValue(forKey: "isReady")
         willChangeValue(forKey: "isExecuting")
@@ -164,6 +164,8 @@ class ExtensionSaveService {
 
 extension ShareExtensionChildViewModel {
   func createPage(services: Services, pageScrapePayload: PageScrapePayload) async -> Bool {
+    var newRequestID: String?
+
     do {
       try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
     } catch {
@@ -179,7 +181,7 @@ extension ShareExtensionChildViewModel {
 
       switch pageScrapePayload.contentType {
       case .none:
-        requestId = try await services.dataService.createPageFromUrl(id: requestId, url: pageScrapePayload.url)
+        newRequestID = try await services.dataService.createPageFromUrl(id: requestId, url: pageScrapePayload.url)
       case let .pdf(localUrl):
         try await services.dataService.createPageFromPdf(
           id: requestId,
@@ -187,14 +189,13 @@ extension ShareExtensionChildViewModel {
           url: pageScrapePayload.url
         )
       case let .html(html, title, _):
-        requestId = try await services.dataService.createPage(
+        newRequestID = try await services.dataService.createPage(
           id: requestId,
           originalHtml: html,
           title: title,
           url: pageScrapePayload.url
         )
       }
-
     } catch {
       updateStatusOnMain(
         requestId: nil,
@@ -203,11 +204,11 @@ extension ShareExtensionChildViewModel {
       return false
     }
 
-    updateStatusOnMain(requestId: requestId, newStatus: .synced)
+    updateStatusOnMain(requestId: newRequestID, newStatus: .synced)
     return true
   }
 
-  public func updateStatusOnMain(requestId: String?, newStatus: ShareExtensionStatus) {
+  func updateStatusOnMain(requestId: String?, newStatus: ShareExtensionStatus) {
     DispatchQueue.main.async {
       self.status = newStatus
       if let requestId = requestId {
