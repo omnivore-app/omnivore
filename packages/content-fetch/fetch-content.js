@@ -110,7 +110,6 @@ const getBrowserPromise = (async () => {
     executablePath: process.env.CHROMIUM_PATH ,
     headless: true,
     timeout: 0,
-    userDataDir: '/tmp/puppeteer',
   });
 })();
 
