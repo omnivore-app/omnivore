@@ -51,6 +51,7 @@ struct WebReaderContent {
       </head>
       <body>
         <div id="root" />
+    <div>HIIIIII</div>
         <div id='_omnivore-htmlContent' style="display: none;">
           \(articleContent.htmlContent)
         </div>
@@ -86,6 +87,7 @@ struct WebReaderContent {
           window.lineHeight = \(lineHeight)
           window.localStorage.setItem("theme", "\(themeKey)")
           window.prefersHighContrastFont = \(prefersHighContrastText)
+          window.enableHighlightBar = \(isMacApp)
         </script>
         <script src="bundle.js"></script>
         <script src="mathJaxConfiguration.js" id="MathJax-script"></script>

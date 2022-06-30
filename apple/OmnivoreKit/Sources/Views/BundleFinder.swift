@@ -5,4 +5,8 @@ public enum ViewsPackage {
   public static var bundleURL: URL {
     Bundle.module.bundleURL
   }
+
+  public static var resourceURL: URL {
+    Bundle.module.resourceURL ?? bundleURL
+  }
 }
