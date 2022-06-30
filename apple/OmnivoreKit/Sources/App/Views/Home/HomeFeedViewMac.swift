@@ -18,93 +18,104 @@ import Views
     }
 
     var body: some View {
-      List {
-        Section {
-          ForEach(viewModel.items) { item in
-            FeedCardNavigationLink(
-              item: item,
-              viewModel: viewModel
-            )
-            .contextMenu {
-              Button(
-                action: { viewModel.itemUnderTitleEdit = item },
-                label: { Label("Edit Title/Description", systemImage: "textbox") }
+      ZStack {
+        if let linkRequest = viewModel.linkRequest {
+          NavigationLink(
+            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
+            tag: linkRequest,
+            selection: $viewModel.linkRequest
+          ) {
+            EmptyView()
+          }
+        }
+        List {
+          Section {
+            ForEach(viewModel.items) { item in
+              FeedCardNavigationLink(
+                item: item,
+                viewModel: viewModel
               )
-              Button(
-                action: { viewModel.itemUnderLabelEdit = item },
-                label: { Label("Edit Labels", systemImage: "tag") }
-              )
-              Button(action: {
-                withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(
-                    dataService: dataService,
-                    objectID: item.objectID,
-                    archived: !item.isArchived
-                  )
-                }
-              }, label: {
-                Label(
-                  item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+              .contextMenu {
+                Button(
+                  action: { viewModel.itemUnderTitleEdit = item },
+                  label: { Label("Edit Title/Description", systemImage: "textbox") }
                 )
-              })
-              Button(
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: { Label("Delete", systemImage: "trash") }
-              )
-              if FeatureFlag.enableSnooze {
-                Button {
-                  viewModel.itemToSnoozeID = item.id
-                  viewModel.snoozePresented = true
-                } label: {
-                  Label { Text("Snooze") } icon: { Image.moon }
+                Button(
+                  action: { viewModel.itemUnderLabelEdit = item },
+                  label: { Label("Edit Labels", systemImage: "tag") }
+                )
+                Button(action: {
+                  withAnimation(.linear(duration: 0.4)) {
+                    viewModel.setLinkArchived(
+                      dataService: dataService,
+                      objectID: item.objectID,
+                      archived: !item.isArchived
+                    )
+                  }
+                }, label: {
+                  Label(
+                    item.isArchived ? "Unarchive" : "Archive",
+                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                  )
+                })
+                Button(
+                  action: {
+                    itemToRemove = item
+                    confirmationShown = true
+                  },
+                  label: { Label("Delete", systemImage: "trash") }
+                )
+                if FeatureFlag.enableSnooze {
+                  Button {
+                    viewModel.itemToSnoozeID = item.id
+                    viewModel.snoozePresented = true
+                  } label: {
+                    Label { Text("Snooze") } icon: { Image.moon }
+                  }
                 }
               }
             }
           }
-        }
 
-        if viewModel.isLoading {
-          LoadingSection()
+          if viewModel.isLoading {
+            LoadingSection()
+          }
         }
-      }
-      .listStyle(PlainListStyle())
-      .navigationTitle("Home")
-      .searchable(
-        text: $viewModel.searchTerm,
-        placement: .toolbar
-      ) {
-        if viewModel.searchTerm.isEmpty {
-          Text("Inbox").searchCompletion("in:inbox ")
-          Text("All").searchCompletion("in:all ")
-          Text("Archived").searchCompletion("in:archive ")
-          Text("Files").searchCompletion("type:file ")
+        .listStyle(PlainListStyle())
+        .navigationTitle("Home")
+        .searchable(
+          text: $viewModel.searchTerm,
+          placement: .toolbar
+        ) {
+          if viewModel.searchTerm.isEmpty {
+            Text("Inbox").searchCompletion("in:inbox ")
+            Text("All").searchCompletion("in:all ")
+            Text("Archived").searchCompletion("in:archive ")
+            Text("Files").searchCompletion("type:file ")
+          }
         }
-      }
-      .onChange(of: viewModel.searchTerm) { _ in
-        // Maybe we should debounce this, but
-        // it feels like it works ok without
-        loadItems(isRefresh: true)
-      }
-      .onSubmit(of: .search) {
-        loadItems(isRefresh: true)
-      }
-      .toolbar {
-        ToolbarItem {
-          Button(
-            action: {
-              loadItems(isRefresh: true)
-            },
-            label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-          )
-          .disabled(viewModel.isLoading)
-          .opacity(viewModel.isLoading ? 0 : 1)
-          .overlay {
-            if viewModel.isLoading {
-              ProgressView()
+        .onChange(of: viewModel.searchTerm) { _ in
+          // Maybe we should debounce this, but
+          // it feels like it works ok without
+          loadItems(isRefresh: true)
+        }
+        .onSubmit(of: .search) {
+          loadItems(isRefresh: true)
+        }
+        .toolbar {
+          ToolbarItem {
+            Button(
+              action: {
+                loadItems(isRefresh: true)
+              },
+              label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+            )
+            .disabled(viewModel.isLoading)
+            .opacity(viewModel.isLoading ? 0 : 1)
+            .overlay {
+              if viewModel.isLoading {
+                ProgressView()
+              }
             }
           }
         }
