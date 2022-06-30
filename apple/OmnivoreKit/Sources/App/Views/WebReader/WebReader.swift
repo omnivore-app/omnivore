@@ -58,7 +58,6 @@ struct WebReader: PlatformViewRepresentable {
       webView.scrollView.delegate = context.coordinator
       webView.scrollView.contentInset.top = readerViewNavBarHeight
       webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
-      // TODO: unsure if needed for macos
       webView.configuration.userContentController.add(webView, name: "viewerAction")
     #else
       webView.setValue(false, forKey: "drawsBackground")
