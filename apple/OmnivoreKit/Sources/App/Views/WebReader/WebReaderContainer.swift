@@ -59,17 +59,19 @@ struct WebReaderContainerView: View {
 
   var navBar: some View {
     HStack(alignment: .center) {
-      Button(
-        action: { self.presentationMode.wrappedValue.dismiss() },
-        label: {
-          Image(systemName: "chevron.backward")
-            .font(.appTitleTwo)
-            .foregroundColor(.appGrayTextContrast)
-            .padding(.horizontal)
-        }
-      )
-      .scaleEffect(navBarVisibilityRatio)
-      Spacer()
+      #if os(iOS)
+        Button(
+          action: { self.presentationMode.wrappedValue.dismiss() },
+          label: {
+            Image(systemName: "chevron.backward")
+              .font(.appTitleTwo)
+              .foregroundColor(.appGrayTextContrast)
+              .padding(.horizontal)
+          }
+        )
+        .scaleEffect(navBarVisibilityRatio)
+        Spacer()
+      #endif
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {
@@ -79,6 +81,9 @@ struct WebReaderContainerView: View {
       )
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio)
+      #if os(macOS)
+        Spacer()
+      #endif
       Menu(
         content: {
           Group {
@@ -93,7 +98,9 @@ struct WebReaderContainerView: View {
             Button(
               action: {
                 dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
-                presentationMode.wrappedValue.dismiss()
+                #if os(iOS)
+                  presentationMode.wrappedValue.dismiss()
+                #endif
                 Snackbar.show(message: !item.isArchived ? "Link archived" : "Link moved to Inbox")
               },
               label: {
@@ -114,11 +121,19 @@ struct WebReaderContainerView: View {
           }
         },
         label: {
-          Image.profile
-            .padding(.horizontal)
-            .scaleEffect(navBarVisibilityRatio)
+          #if os(iOS)
+            Image.profile
+              .padding(.horizontal)
+              .scaleEffect(navBarVisibilityRatio)
+          #else
+            Text("Options")
+          #endif
         }
       )
+      #if os(macOS)
+        .frame(maxWidth: 100)
+        .padding(.trailing, 16)
+      #endif
     }
     .frame(height: readerViewNavBarHeight * navBarVisibilityRatio)
     .opacity(navBarVisibilityRatio)
@@ -127,7 +142,9 @@ struct WebReaderContainerView: View {
       Button("Remove Link", role: .destructive) {
         Snackbar.show(message: "Link removed")
         dataService.removeLink(objectID: item.objectID)
-        presentationMode.wrappedValue.dismiss()
+        #if os(iOS)
+          presentationMode.wrappedValue.dismiss()
+        #endif
       }
       Button("Cancel", role: .cancel, action: {})
     }
@@ -137,6 +154,9 @@ struct WebReaderContainerView: View {
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemTitleEditView(item: item)
     }
+    #if os(macOS)
+      .buttonStyle(PlainButtonStyle())
+    #endif
   }
 
   var webPreferencesPopoverView: some View {
@@ -184,7 +204,6 @@ struct WebReaderContainerView: View {
           }
         }
         #if os(iOS)
-          // TODO: fix for mac
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
