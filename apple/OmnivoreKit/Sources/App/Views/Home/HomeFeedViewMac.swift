@@ -131,6 +131,15 @@ import Views
           loadItems(isRefresh: true)
         }
       }
+      .handlesExternalEvents(preferring: Set(["shareExtensionRequestID"]), allowing: Set(["*"]))
+      .onOpenURL { url in
+        viewModel.linkRequest = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+          if let linkRequestID = DeepLink.make(from: url)?.linkRequestID {
+            viewModel.linkRequest = LinkRequest(id: UUID(), serverID: linkRequestID)
+          }
+        }
+      }
     }
   }
 

@@ -26,11 +26,16 @@ public class ShareExtensionViewModel: ObservableObject {
   let saveService = ExtensionSaveService()
 
   func handleReadNowAction(requestId: String, extensionContext: NSExtensionContext?) {
-    // TODO: write macos version
     #if os(iOS)
+      let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
-        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
         application.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
+      }
+    #else
+      let deepLinkUrl = URL(string: "omnivore://shareExtensionRequestID/\(requestId)")
+      let workspace = NSWorkspace.value(forKeyPath: #keyPath(NSWorkspace.shared)) as? NSWorkspace
+      if let workspace = workspace, let deepLinkUrl = deepLinkUrl {
+        workspace.open(deepLinkUrl)
       }
     #endif
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
