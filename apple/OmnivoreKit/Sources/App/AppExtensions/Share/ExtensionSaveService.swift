@@ -5,6 +5,10 @@ import Utils
 import Views
 
 class ExtensionSaveService {
+  #if os(macOS)
+    let services = Services()
+  #endif
+
   let queue: OperationQueue
 
   init() {
@@ -66,9 +70,13 @@ class ExtensionSaveService {
             }
           }
         }
+
         #if os(iOS)
-          // TODO: need alternative call for macos
           self.queueSaveOperation(payload, shareExtensionViewModel: shareExtensionViewModel)
+        #else
+          Task {
+            await shareExtensionViewModel.createPage(services: self.services, pageScrapePayload: payload)
+          }
         #endif
       case .failure:
         DispatchQueue.main.async {
@@ -138,61 +146,73 @@ class ExtensionSaveService {
       queue = OperationQueue()
 
       Task {
-        await persist(services: self.services, pageScrapePayload: self.pageScrapePayload)
+        let pageCreated = await shareExtensionViewModel.createPage(
+          services: services,
+          pageScrapePayload: pageScrapePayload
+        )
+        if pageCreated {
+          state = .finished
+        }
       }
     }
 
     override func cancel() {
       super.cancel()
     }
+  }
+}
 
-    private func updateStatus(_ requestId: String?, newStatus: ShareExtensionStatus) {
-      DispatchQueue.main.async {
-        self.shareExtensionViewModel.status = newStatus
-        if let requestId = requestId {
-          self.shareExtensionViewModel.requestId = requestId
-        }
-      }
+extension ShareExtensionChildViewModel {
+  func createPage(services: Services, pageScrapePayload: PageScrapePayload) async -> Bool {
+    do {
+      try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
+    } catch {
+      updateStatusOnMain(
+        requestId: nil,
+        newStatus: .failed(error: SaveArticleError.unknown(description: "Unable to access content"))
+      )
+      return false
     }
 
-    private func persist(services: Services, pageScrapePayload: PageScrapePayload) async {
-      var requestId = shareExtensionViewModel.requestId
+    do {
+      updateStatusOnMain(requestId: requestId, newStatus: .saved)
 
-      do {
-        try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
-      } catch {
-        updateStatus(nil, newStatus: .failed(error: SaveArticleError.unknown(description: "Unable to access content")))
-        return
+      switch pageScrapePayload.contentType {
+      case .none:
+        requestId = try await services.dataService.createPageFromUrl(id: requestId, url: pageScrapePayload.url)
+      case let .pdf(localUrl):
+        try await services.dataService.createPageFromPdf(
+          id: requestId,
+          localPdfURL: localUrl,
+          url: pageScrapePayload.url
+        )
+      case let .html(html, title, _):
+        requestId = try await services.dataService.createPage(
+          id: requestId,
+          originalHtml: html,
+          title: title,
+          url: pageScrapePayload.url
+        )
       }
 
-      do {
-        updateStatus(requestId, newStatus: .saved)
+    } catch {
+      updateStatusOnMain(
+        requestId: nil,
+        newStatus: .syncFailed(error: SaveArticleError.unknown(description: "Unknown Error"))
+      )
+      return false
+    }
 
-        switch pageScrapePayload.contentType {
-        case .none:
-          requestId = try await services.dataService.createPageFromUrl(id: requestId, url: pageScrapePayload.url)
-        case let .pdf(localUrl):
-          try await services.dataService.createPageFromPdf(
-            id: requestId,
-            localPdfURL: localUrl,
-            url: pageScrapePayload.url
-          )
-        case let .html(html, title, _):
-          requestId = try await services.dataService.createPage(
-            id: requestId,
-            originalHtml: html,
-            title: title,
-            url: pageScrapePayload.url
-          )
-        }
+    updateStatusOnMain(requestId: requestId, newStatus: .synced)
+    return true
+  }
 
-      } catch {
-        updateStatus(nil, newStatus: .syncFailed(error: SaveArticleError.unknown(description: "Unknown Error")))
-        return
+  public func updateStatusOnMain(requestId: String?, newStatus: ShareExtensionStatus) {
+    DispatchQueue.main.async {
+      self.status = newStatus
+      if let requestId = requestId {
+        self.requestId = requestId
       }
-
-      updateStatus(requestId, newStatus: .synced)
-      state = .finished
     }
   }
 }

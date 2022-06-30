@@ -26,6 +26,7 @@ public class ShareExtensionViewModel: ObservableObject {
   let saveService = ExtensionSaveService()
 
   func handleReadNowAction(requestId: String, extensionContext: NSExtensionContext?) {
+    // TODO: write macos version
     #if os(iOS)
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
         let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
