@@ -49,6 +49,9 @@ struct WebReader: PlatformViewRepresentable {
     let contentController = WKUserContentController()
 
     webView.navigationDelegate = context.coordinator
+    webView.configuration.userContentController = contentController
+    webView.configuration.userContentController.removeAllScriptMessageHandlers()
+
     #if os(iOS)
       webView.isOpaque = false
       webView.backgroundColor = .clear
@@ -60,9 +63,6 @@ struct WebReader: PlatformViewRepresentable {
     #else
       webView.setValue(false, forKey: "drawsBackground")
     #endif
-    webView.configuration.userContentController = contentController
-
-    webView.configuration.userContentController.removeAllScriptMessageHandlers()
 
     for action in WebViewAction.allCases {
       webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
