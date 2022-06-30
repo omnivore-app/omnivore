@@ -3,6 +3,7 @@ import Models
 import Services
 import SwiftUI
 import Utils
+import Views
 
 @MainActor final class WebReaderLoadingContainerViewModel: ObservableObject {
   @Published var item: LinkedItem?
@@ -42,7 +43,9 @@ public struct WebReaderLoadingContainer: View {
             .accentColor(.appGrayTextContrast)
             .task { viewModel.trackReadEvent() }
         #else
-          // TODO: implement pdf view for macOS
+          if let pdfURL = pdfItem.pdfURL {
+            PDFWrapperView(pdfURL: pdfURL)
+          }
         #endif
       } else {
         WebReaderContainerView(item: item)

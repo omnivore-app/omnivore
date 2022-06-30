@@ -106,29 +106,25 @@ struct LinkItemDetailView: View {
   @State var hideNavBar = false
 
   var body: some View {
-    #if os(iOS)
-      if viewModel.pdfItem != nil {
-        fixedNavBarReader
-          .navigationBarHidden(hideNavBar)
-          .task {
-            hideNavBar = true
-            viewModel.trackReadEvent()
-          }
-      } else if let item = viewModel.item {
-        WebReaderContainerView(item: item)
-          .navigationBarHidden(hideNavBar)
-          .task {
-            hideNavBar = true
-            viewModel.trackReadEvent()
-          }
+    if viewModel.pdfItem != nil {
+      fixedNavBarReader
+      #if os(iOS)
+        .navigationBarHidden(hideNavBar)
+      #endif
+      .task {
+        hideNavBar = true
+        viewModel.trackReadEvent()
       }
-    #else
-      // TODO: make pdf item work for macos
-      if let item = viewModel.item {
-        WebReaderContainerView(item: item)
-          .task { viewModel.trackReadEvent() }
+    } else if let item = viewModel.item {
+      WebReaderContainerView(item: item)
+      #if os(iOS)
+        .navigationBarHidden(hideNavBar)
+      #endif
+      .task {
+        hideNavBar = true
+        viewModel.trackReadEvent()
       }
-    #endif
+    }
   }
 
   var navBar: some View {
