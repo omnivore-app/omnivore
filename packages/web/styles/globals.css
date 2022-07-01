@@ -274,6 +274,15 @@ div#appleid-signin {
   cursor: pointer;
 }
 
+select {
+  color: var(--colors-grayTextContrast);
+  background-color: transparent;
+}
+
+select option {
+  background-color: transparent;
+}
+
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   border: none;
