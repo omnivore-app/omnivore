@@ -42,7 +42,7 @@ struct ApplyLabelsView: View {
     List {
       Section {
         Button(
-          action: { viewModel.showCreateEmailModal = true },
+          action: { viewModel.showCreateLabelModal = true },
           label: {
             HStack {
               Image(systemName: "plus.circle.fill").foregroundColor(.green)
@@ -73,6 +73,9 @@ struct ApplyLabelsView: View {
               }
             }
           )
+          #if os(macOS)
+            .buttonStyle(PlainButtonStyle())
+          #endif
         }
       }
     }
@@ -81,47 +84,65 @@ struct ApplyLabelsView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .navigationBarLeading) {
-          Button(
-            action: { presentationMode.wrappedValue.dismiss() },
-            label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
-          )
+          cancelButton
         }
         ToolbarItem(placement: .navigationBarTrailing) {
-          Button(
-            action: {
-              switch mode {
-              case let .item(feedItem):
-                viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
-              case .list:
-                onSave?(viewModel.selectedLabels)
-              }
-              presentationMode.wrappedValue.dismiss()
-            },
-            label: { Text(mode.confirmButtonText).foregroundColor(.appGrayTextContrast) }
-          )
+          saveItemChangesButton
+        }
+      }
+    #else
+      .toolbar {
+        ToolbarItemGroup {
+          cancelButton
+          saveItemChangesButton
         }
       }
     #endif
-    .sheet(isPresented: $viewModel.showCreateEmailModal) {
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel)
     }
   }
 
+  var saveItemChangesButton: some View {
+    Button(
+      action: {
+        switch mode {
+        case let .item(feedItem):
+          viewModel.saveItemLabelChanges(itemID: feedItem.unwrappedID, dataService: dataService)
+        case .list:
+          onSave?(viewModel.selectedLabels)
+        }
+        presentationMode.wrappedValue.dismiss()
+      },
+      label: { Text(mode.confirmButtonText).foregroundColor(.appGrayTextContrast) }
+    )
+  }
+
+  var cancelButton: some View {
+    Button(
+      action: { presentationMode.wrappedValue.dismiss() },
+      label: { Text("Cancel").foregroundColor(.appGrayTextContrast) }
+    )
+  }
+
   var body: some View {
-    NavigationView {
-      if viewModel.isLoading {
-        EmptyView()
-      } else {
-        #if os(iOS)
-          innerBody
-            .searchable(
-              text: $viewModel.labelSearchFilter,
-              placement: .navigationBarDrawer(displayMode: .always)
-            )
-        #else
-          innerBody
-        #endif
-      }
+    Group {
+      #if os(iOS)
+        NavigationView {
+          if viewModel.isLoading {
+            EmptyView()
+          } else {
+            innerBody
+              .searchable(
+                text: $viewModel.labelSearchFilter,
+                placement: .navigationBarDrawer(displayMode: .always)
+              )
+          }
+        }
+      #elseif os(macOS)
+        innerBody
+          .frame(minWidth: 400, minHeight: 400)
+      #endif
     }
     .task {
       switch mode {

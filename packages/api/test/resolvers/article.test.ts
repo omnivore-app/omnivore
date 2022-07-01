@@ -77,6 +77,7 @@ const createArticleQuery = (
           id
           title
           content
+          isArchived
         }
         user {
           id
@@ -179,6 +180,9 @@ const searchQuery = (keyword = '') => {
             url
             createdAt
             updatedAt
+            highlights {
+              id
+            }
           }
         }
         pageInfo {
@@ -369,6 +373,41 @@ describe('Article API', () => {
 
         expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
         pageId = res.body.data.createArticle.createdArticle.id
+      })
+    })
+
+    context('when saving an archived article', () => {
+      before(async () => {
+        url = 'https://example.com/saving-archived-article.com'
+        source = 'puppeteer-parse'
+        document = '<p>test</p>'
+        title = 'new title'
+
+        await createPage(
+          {
+            content: document,
+            createdAt: new Date(),
+            hash: 'test hash',
+            id: '',
+            pageType: PageType.Article,
+            readingProgressAnchorIndex: 0,
+            readingProgressPercent: 0,
+            savedAt: new Date(),
+            slug: 'test saving an archived article slug',
+            state: ArticleSavingRequestStatus.Succeeded,
+            title,
+            userId: user.id,
+            url,
+            archivedAt: new Date(),
+          },
+          ctx
+        )
+      })
+
+      it('should unarchive the article', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.createArticle.createdArticle.isArchived).to.false
       })
     })
   })
@@ -984,6 +1023,15 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
         expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
         expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+      })
+
+      it('should return highlights in pages', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges[0].node.highlights.length).to.eql(1)
+        expect(res.body.data.search.edges[0].node.highlights[0].id).to.eq(
+          highlights[4].id
+        )
       })
     })
 

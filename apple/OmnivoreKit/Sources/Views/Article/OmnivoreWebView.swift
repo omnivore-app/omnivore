@@ -8,7 +8,7 @@ public enum WebViewAction: String, CaseIterable {
   case readingProgressUpdate
 }
 
-public final class WebView: WKWebView {
+public final class OmnivoreWebView: WKWebView {
   #if os(iOS)
     private var panGestureRecognizer: UIPanGestureRecognizer?
     private var tapGestureRecognizer: UITapGestureRecognizer?
@@ -95,7 +95,7 @@ public final class WebView: WKWebView {
 }
 
 #if os(iOS)
-  extension WebView: UIGestureRecognizerDelegate, WKScriptMessageHandler {
+  extension OmnivoreWebView: UIGestureRecognizerDelegate, WKScriptMessageHandler {
     func initNativeIOSMenus() {
       isUserInteractionEnabled = true
 
