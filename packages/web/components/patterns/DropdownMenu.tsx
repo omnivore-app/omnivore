@@ -19,6 +19,7 @@ export type HeaderDropdownAction =
   | 'navigate-to-labels'
   | 'navigate-to-profile'
   | 'navigate-to-subscriptions'
+  | 'navigate-to-api'
   | 'increaseFontSize'
   | 'decreaseFontSize'
   | 'logout'
@@ -75,6 +76,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-labels')}
         title="Labels"
+      />
+      <DropdownOption
+        onSelect={() => props.actionHandler('navigate-to-api')}
+        title="API"
       />
       {/* <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-subscriptions')}
