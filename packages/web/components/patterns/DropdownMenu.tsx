@@ -79,7 +79,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       />
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-api')}
-        title="API"
+        title="API Keys"
       />
       {/* <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-subscriptions')}
