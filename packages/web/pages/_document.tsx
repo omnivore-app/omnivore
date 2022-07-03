@@ -50,7 +50,7 @@ export default class Document extends NextDocument {
             dangerouslySetInnerHTML={{ __html: getCssText() }}
           />
           <link rel="manifest" href="/manifest.webmanifest" />
-          <script async src="/static/scripts/intercom.js" />
+          {/* <script async src="/static/scripts/intercom.js" /> */}
           <script async src="/static/scripts/inject-sw.js" />
 
           {/* prefetch (not preload) fonts that will be used by the reader */}

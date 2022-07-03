@@ -15,10 +15,10 @@ const initAnalytics = (user?: UserBasicData): void => {
     vertical_padding: 120,
     custom_launcher_selector: '.custom-intercom-launcher',
   }
-  if (user) {
-    window.Intercom('boot', userInfo(user))
-  }
-  window.ANALYTICS_INITIALIZED = true
+  // if (user) {
+  //   window.Intercom('boot', userInfo(user))
+  // }
+  // window.ANALYTICS_INITIALIZED = true
 }
 
 export const setupAnalytics = (user?: UserBasicData): void => {
@@ -26,7 +26,7 @@ export const setupAnalytics = (user?: UserBasicData): void => {
   if (!window.Intercom) return
   if (!window.ANALYTICS_INITIALIZED) initAnalytics(user)
 
-  if (user) {
-    window.Intercom('update', userInfo(user))
-  }
+  // if (user) {
+  //   window.Intercom('update', userInfo(user))
+  // }
 }

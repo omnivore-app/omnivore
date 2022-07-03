@@ -8,6 +8,8 @@ import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
 import { segmentApiKey } from '../lib/appConfig'
 import { TooltipProvider } from '../components/elements/Tooltip'
 import TopBarProgress from 'react-topbar-progress-indicator'
+import { LiveChatLoaderProvider } from 'react-live-chat-loader'
+
 
 TopBarProgress.config({
   barColors: {
@@ -52,9 +54,11 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
 
   return (
     <IdProvider>
-      <TooltipProvider delayDuration={200}>
-        <Component {...pageProps} />
-      </TooltipProvider>
+      <LiveChatLoaderProvider providerKey={process.env.NEXT_PUBLIC_INTERCOM_APP_ID || ''} provider="intercom">
+        <TooltipProvider delayDuration={200}>
+          <Component {...pageProps} />
+        </TooltipProvider>
+      </LiveChatLoaderProvider>
     </IdProvider>
   )
 }
