@@ -12,7 +12,7 @@ public enum WebFont: String, CaseIterable {
   case sourceserifpro = "Source Serif Pro"
   case openDyslexic = "OpenDyslexic"
 
-  var displayValue: String {
+  public var displayValue: String {
     switch self {
     case .inter, .merriweather, .lora, .opensans, .roboto, .crimsontext, .sourceserifpro:
       return rawValue

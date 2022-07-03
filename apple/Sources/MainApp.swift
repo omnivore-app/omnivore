@@ -33,6 +33,9 @@ struct MainApp: App {
       WindowGroup {
         RootView(intercomProvider: nil)
       }
+      .commands {
+        MacMenuCommands()
+      }
     #endif
   }
 }
