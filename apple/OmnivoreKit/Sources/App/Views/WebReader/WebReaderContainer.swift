@@ -15,11 +15,7 @@ struct WebReaderContainerView: View {
   @State private var navBarVisibilityRatio = 1.0
   @State private var showDeleteConfirmation = false
   @State private var progressViewOpacity = 0.0
-  @State var updateFontFamilyActionID: UUID?
-  @State var updateFontActionID: UUID?
-  @State var updateTextContrastActionID: UUID?
-  @State var updateMaxWidthActionID: UUID?
-  @State var updateLineHeightActionID: UUID?
+  @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
   @State var showNavBarActionID: UUID?
   @State var shareActionID: UUID?
@@ -162,11 +158,7 @@ struct WebReaderContainerView: View {
   #if os(iOS)
     var webPreferencesPopoverView: some View {
       WebPreferencesPopoverView(
-        updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
-        updateFontAction: { updateFontActionID = UUID() },
-        updateTextContrastAction: { updateTextContrastActionID = UUID() },
-        updateMaxWidthAction: { updateMaxWidthActionID = UUID() },
-        updateLineHeightAction: { updateLineHeightActionID = UUID() },
+        updateReaderPreferences: { readerSettingsChangedTransactionID = UUID() },
         dismissAction: { showPreferencesPopover = false }
       )
     }
@@ -189,11 +181,7 @@ struct WebReaderContainerView: View {
           navBarVisibilityRatioUpdater: {
             navBarVisibilityRatio = $0
           },
-          updateFontFamilyActionID: $updateFontFamilyActionID,
-          updateFontActionID: $updateFontActionID,
-          updateTextContrastActionID: $updateTextContrastActionID,
-          updateMaxWidthActionID: $updateMaxWidthActionID,
-          updateLineHeightActionID: $updateLineHeightActionID,
+          readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
           annotationSaveTransactionID: $annotationSaveTransactionID,
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,

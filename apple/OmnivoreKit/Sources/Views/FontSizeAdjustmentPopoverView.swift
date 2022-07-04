@@ -26,11 +26,7 @@ public enum WebFont: String, CaseIterable {
 
 #if os(iOS)
   public struct WebPreferencesPopoverView: View {
-    let updateFontFamilyAction: () -> Void
-    let updateFontAction: () -> Void
-    let updateTextContrastAction: () -> Void
-    let updateMaxWidthAction: () -> Void
-    let updateLineHeightAction: () -> Void
+    let updateReaderPreferences: () -> Void
     let dismissAction: () -> Void
 
     @AppStorage(UserDefaultKey.preferredWebFontSize.rawValue) var storedFontSize: Int =
@@ -41,18 +37,10 @@ public enum WebFont: String, CaseIterable {
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
 
     public init(
-      updateFontFamilyAction: @escaping () -> Void,
-      updateFontAction: @escaping () -> Void,
-      updateTextContrastAction: @escaping () -> Void,
-      updateMaxWidthAction: @escaping () -> Void,
-      updateLineHeightAction: @escaping () -> Void,
+      updateReaderPreferences: @escaping () -> Void,
       dismissAction: @escaping () -> Void
     ) {
-      self.updateFontFamilyAction = updateFontFamilyAction
-      self.updateFontAction = updateFontAction
-      self.updateTextContrastAction = updateTextContrastAction
-      self.updateMaxWidthAction = updateMaxWidthAction
-      self.updateLineHeightAction = updateLineHeightAction
+      self.updateReaderPreferences = updateReaderPreferences
       self.dismissAction = dismissAction
     }
 
@@ -62,7 +50,7 @@ public enum WebFont: String, CaseIterable {
           Button(
             action: {
               preferredFont = font.rawValue
-              updateFontFamilyAction()
+              updateReaderPreferences()
             },
             label: {
               HStack {
@@ -90,11 +78,11 @@ public enum WebFont: String, CaseIterable {
                 labelText: "Font Size:",
                 onIncrement: {
                   storedFontSize = min(storedFontSize + 2, 28)
-                  updateFontAction()
+                  updateReaderPreferences()
                 },
                 onDecrement: {
                   storedFontSize = max(storedFontSize - 2, 10)
-                  updateFontAction()
+                  updateReaderPreferences()
                 }
               )
 
@@ -102,11 +90,11 @@ public enum WebFont: String, CaseIterable {
                 labelText: "Margin:",
                 onIncrement: {
                   storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
-                  updateMaxWidthAction()
+                  updateReaderPreferences()
                 },
                 onDecrement: {
                   storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
-                  updateMaxWidthAction()
+                  updateReaderPreferences()
                 }
               )
 
@@ -114,11 +102,11 @@ public enum WebFont: String, CaseIterable {
                 labelText: "Line Spacing:",
                 onIncrement: {
                   storedLineSpacing = min(storedLineSpacing + 25, 300)
-                  updateLineHeightAction()
+                  updateReaderPreferences()
                 },
                 onDecrement: {
                   storedLineSpacing = max(storedLineSpacing - 25, 100)
-                  updateLineHeightAction()
+                  updateReaderPreferences()
                 }
               )
 
@@ -126,7 +114,7 @@ public enum WebFont: String, CaseIterable {
                 .frame(height: 40)
                 .padding(.trailing, 6)
                 .onChange(of: prefersHighContrastText) { _ in
-                  updateTextContrastAction()
+                  updateReaderPreferences()
                 }
 
               HStack {
