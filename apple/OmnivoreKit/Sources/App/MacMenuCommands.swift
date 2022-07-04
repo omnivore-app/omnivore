@@ -9,8 +9,9 @@ import Views
     )
     @AppStorage(UserDefaultKey.preferredWebLineSpacing.rawValue) var storedLineSpacing = 150
     @AppStorage(UserDefaultKey.preferredWebMaxWidthPercentage.rawValue) var storedMaxWidthPercentage = 100
-    @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
-    @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
+
+    @Binding var preferredFont: String
+    @Binding var prefersHighContrastText: Bool
 
     public var fontSizeButtons: some View {
       Group {
@@ -76,7 +77,13 @@ import Views
       }
     }
 
-    public init() {}
+    public init(
+      preferredFont: Binding<String>,
+      prefersHighContrastText: Binding<Bool>
+    ) {
+      self._preferredFont = preferredFont
+      self._prefersHighContrastText = prefersHighContrastText
+    }
 
     public var body: some Commands {
       CommandMenu("Reader Settings") {
@@ -96,20 +103,12 @@ import Views
           ForEach(WebFont.allCases, id: \.self) { font in
             Text(font.displayValue).tag(font.rawValue)
           }
-          // TODO: fix this since it doesn't work
-          .onChange(of: preferredFont) { _ in
-            NSNotification.readerSettingsChanged()
-          }
         }
 
         Toggle(
           isOn: $prefersHighContrastText,
           label: { Text("High Contrast Text") }
         )
-        // TODO: fix this since it doesn't work
-        .onChange(of: prefersHighContrastText) { _ in
-          NSNotification.readerSettingsChanged()
-        }
       }
     }
   }

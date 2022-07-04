@@ -1,19 +1,22 @@
 // swiftlint:disable weak_delegate
 import App
 import SwiftUI
+import Utils
 
 #if os(macOS)
   import AppKit
+  import Views
 #elseif os(iOS)
   import Intercom
   import UIKit
-  import Utils
 #endif
 
 @main
 struct MainApp: App {
   #if os(macOS)
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
+    @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
   #elseif os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   #endif
@@ -34,7 +37,16 @@ struct MainApp: App {
         RootView(intercomProvider: nil)
       }
       .commands {
-        MacMenuCommands()
+        MacMenuCommands(
+          preferredFont: $preferredFont,
+          prefersHighContrastText: $prefersHighContrastText
+        )
+      }
+      .onChange(of: preferredFont) { _ in
+        NSNotification.readerSettingsChanged()
+      }
+      .onChange(of: prefersHighContrastText) { _ in
+        NSNotification.readerSettingsChanged()
       }
     #endif
   }
