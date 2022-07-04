@@ -224,10 +224,12 @@ struct WebReaderContainerView: View {
             await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
           }
       }
-      VStack(spacing: 0) {
-        navBar
-        Spacer()
-      }
+      #if os(iOS)
+        VStack(spacing: 0) {
+          navBar
+          Spacer()
+        }
+      #endif
     }
     #if os(iOS)
       .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
