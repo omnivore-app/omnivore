@@ -159,16 +159,18 @@ struct WebReaderContainerView: View {
     #endif
   }
 
-  var webPreferencesPopoverView: some View {
-    WebPreferencesPopoverView(
-      updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
-      updateFontAction: { updateFontActionID = UUID() },
-      updateTextContrastAction: { updateTextContrastActionID = UUID() },
-      updateMaxWidthAction: { updateMaxWidthActionID = UUID() },
-      updateLineHeightAction: { updateLineHeightActionID = UUID() },
-      dismissAction: { showPreferencesPopover = false }
-    )
-  }
+  #if os(iOS)
+    var webPreferencesPopoverView: some View {
+      WebPreferencesPopoverView(
+        updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
+        updateFontAction: { updateFontActionID = UUID() },
+        updateTextContrastAction: { updateTextContrastActionID = UUID() },
+        updateMaxWidthAction: { updateMaxWidthActionID = UUID() },
+        updateLineHeightAction: { updateLineHeightActionID = UUID() },
+        dismissAction: { showPreferencesPopover = false }
+      )
+    }
+  #endif
 
   var body: some View {
     ZStack {
@@ -242,11 +244,6 @@ struct WebReaderContainerView: View {
     #if os(iOS)
       .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
         webPreferencesPopoverView
-      }
-    #else
-      .sheet(isPresented: $showPreferencesPopover) {
-        webPreferencesPopoverView
-          .frame(minWidth: 400, minHeight: 400)
       }
     #endif
     .onDisappear {
