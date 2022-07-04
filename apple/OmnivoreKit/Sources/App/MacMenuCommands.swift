@@ -22,6 +22,7 @@ import Views
           },
           label: { Text("Increase Reader Font Size") }
         )
+        .keyboardShortcut("+")
 
         Button(
           action: {
@@ -31,6 +32,7 @@ import Views
           label: { Text("Decrease Reader Font Size")
           }
         )
+        .keyboardShortcut("-")
       }
     }
 
@@ -44,6 +46,7 @@ import Views
           label: { Text("Increase Reader Margin")
           }
         )
+        .keyboardShortcut("]")
 
         Button(
           action: {
@@ -53,6 +56,7 @@ import Views
           label: { Text("Decrease Reader Margin")
           }
         )
+        .keyboardShortcut("[")
       }
     }
 
@@ -65,6 +69,7 @@ import Views
           },
           label: { Text("Increase Reader Line Spacing") }
         )
+        .keyboardShortcut("l")
 
         Button(
           action: {
@@ -73,7 +78,7 @@ import Views
           },
           label: { Text("Decrease Reader Line Spacing") }
         )
-//          .keyboardShortcut("l")
+        .keyboardShortcut("k")
       }
     }
 
