@@ -233,6 +233,10 @@ struct WebReaderContainerView: View {
       .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
         webPreferencesPopoverView
       }
+    #else
+      .onReceive(NSNotification.readerSettingsChangedPublisher) { _ in
+        readerSettingsChangedTransactionID = UUID()
+      }
     #endif
     .onDisappear {
       // Clear the shared webview content when exiting
