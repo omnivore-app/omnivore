@@ -17,22 +17,22 @@ import Views
       Group {
         Button(
           action: {
-            storedFontSize = min(storedFontSize + 2, 28)
-            NSNotification.readerSettingsChanged()
-          },
-          label: { Text("Increase Reader Font Size") }
-        )
-        .keyboardShortcut("+")
-
-        Button(
-          action: {
             storedFontSize = max(storedFontSize - 2, 10)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Decrease Reader Font Size")
+          label: { Text("Decrease Font Size")
           }
         )
         .keyboardShortcut("-")
+
+        Button(
+          action: {
+            storedFontSize = min(storedFontSize + 2, 28)
+            NSNotification.readerSettingsChanged()
+          },
+          label: { Text("Increase Font Size") }
+        )
+        .keyboardShortcut("+")
       }
     }
 
@@ -40,23 +40,23 @@ import Views
       Group {
         Button(
           action: {
-            storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
-            NSNotification.readerSettingsChanged()
-          },
-          label: { Text("Increase Reader Margin")
-          }
-        )
-        .keyboardShortcut("]")
-
-        Button(
-          action: {
             storedMaxWidthPercentage = min(storedMaxWidthPercentage + 10, 100)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Decrease Reader Margin")
+          label: { Text("Decrease Margin")
           }
         )
         .keyboardShortcut("[")
+
+        Button(
+          action: {
+            storedMaxWidthPercentage = max(storedMaxWidthPercentage - 10, 40)
+            NSNotification.readerSettingsChanged()
+          },
+          label: { Text("Increase Margin")
+          }
+        )
+        .keyboardShortcut("]")
       }
     }
 
@@ -64,21 +64,21 @@ import Views
       Group {
         Button(
           action: {
-            storedLineSpacing = min(storedLineSpacing + 25, 300)
-            NSNotification.readerSettingsChanged()
-          },
-          label: { Text("Increase Reader Line Spacing") }
-        )
-        .keyboardShortcut("l")
-
-        Button(
-          action: {
             storedLineSpacing = max(storedLineSpacing - 25, 100)
             NSNotification.readerSettingsChanged()
           },
-          label: { Text("Decrease Reader Line Spacing") }
+          label: { Text("Decrease Line Spacing") }
         )
         .keyboardShortcut("k")
+
+        Button(
+          action: {
+            storedLineSpacing = min(storedLineSpacing + 25, 300)
+            NSNotification.readerSettingsChanged()
+          },
+          label: { Text("Increase Line Spacing") }
+        )
+        .keyboardShortcut("l")
       }
     }
 
@@ -91,7 +91,7 @@ import Views
     }
 
     public var body: some Commands {
-      CommandMenu("Reader Settings") {
+      CommandMenu("Reader Display") {
         fontSizeButtons
 
         Divider()

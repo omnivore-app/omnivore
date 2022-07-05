@@ -81,8 +81,8 @@ struct WebReader: PlatformViewRepresentable {
       (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
     }
 
-    if readerSettingsChangedTransactionID != context.coordinator.previousReaderSettingsChangedTransactionID {
-      context.coordinator.previousReaderSettingsChangedTransactionID = readerSettingsChangedTransactionID
+    if readerSettingsChangedTransactionID != context.coordinator.previousReaderSettingsChangedUUID {
+      context.coordinator.previousReaderSettingsChangedUUID = readerSettingsChangedTransactionID
       (webView as? OmnivoreWebView)?.updateFontFamily()
       (webView as? OmnivoreWebView)?.updateFontSize()
       (webView as? OmnivoreWebView)?.updateTextContrast()
