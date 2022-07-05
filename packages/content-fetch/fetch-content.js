@@ -540,7 +540,7 @@ async function retrievePage(url) {
   });
 
   try {
-    const response = await page.goto(url, { waitUntil: ['networkidle2'] });
+    const response = await page.goto(url, { timeout: 8 * 1000, waitUntil: ['networkidle2'] });
     const finalUrl = response.url();
     const contentType = response.headers()['content-type'];
 
