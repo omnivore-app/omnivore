@@ -301,18 +301,18 @@ async function fetchContent(req, res) {
     }
   }
 
-  var context, page, finalUrl;
-  if ((!content || !title) && contentType !== 'application/pdf') {
-    const result = await retrievePage(url)
-    if (result && result.context) { context = result.context }
-    if (result && result.page) { page = result.page }
-    if (result && result.finalUrl) { finalUrl = result.finalUrl }
-    if (result && result.contentType) { contentType = result.contentType }
-  } else {
-    finalUrl = url
-  }
-
+  let context, page, finalUrl;
   try {
+    if ((!content || !title) && contentType !== 'application/pdf') {
+      const result = await retrievePage(url)
+      if (result && result.context) { context = result.context }
+      if (result && result.page) { page = result.page }
+      if (result && result.finalUrl) { finalUrl = result.finalUrl }
+      if (result && result.contentType) { contentType = result.contentType }
+    } else {
+      finalUrl = url
+    }
+
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
@@ -355,7 +355,29 @@ async function fetchContent(req, res) {
     console.log('error', e)
     logRecord.error = e.message;
     console.log(`Error while retrieving page`, logRecord);
-    return res.sendStatus(503);
+
+    // fallback to scrapingbee
+    const sbResult = await fetchContentWithScrapingBee(url);
+    const url = finalUrl || sbResult.url;
+    const content = sbResult.domContent;
+    logRecord.fetchContentTime = Date.now() - functionStartTime;
+
+    const apiResponse = await sendCreateArticleMutation(userId, {
+      url,
+      articleSavingRequestId,
+      preparedDocument: {
+        document: content,
+        pageInfo: {
+          title: sbResult.title,
+          canonicalUrl: url,
+        },
+      },
+      skipParsing: !content,
+    });
+
+    logRecord.totalTime = Date.now() - functionStartTime;
+    logRecord.result = apiResponse.createArticle;
+    console.log(`parse-page`, logRecord);
   } finally {
     if (context) {
       await context.close();
