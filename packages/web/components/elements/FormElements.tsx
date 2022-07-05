@@ -73,7 +73,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     )
   } else if (props.type === 'select') {
     return (
-      <select onChange={input.onChange}>
+      <select onChange={input.onChange} value={input.value}>
         {input.options?.map((label, index) => (
           <option key={index} value={label}>{label}</option>
         ))}
