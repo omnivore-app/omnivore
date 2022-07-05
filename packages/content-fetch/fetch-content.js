@@ -358,18 +358,18 @@ async function fetchContent(req, res) {
 
     // fallback to scrapingbee
     const sbResult = await fetchContentWithScrapingBee(url);
-    const url = finalUrl || sbResult.url;
+    const sbUrl = finalUrl || sbResult.url;
     const content = sbResult.domContent;
     logRecord.fetchContentTime = Date.now() - functionStartTime;
 
     const apiResponse = await sendCreateArticleMutation(userId, {
-      url,
+      url: sbUrl,
       articleSavingRequestId,
       preparedDocument: {
         document: content,
         pageInfo: {
           title: sbResult.title,
-          canonicalUrl: url,
+          canonicalUrl: sbUrl,
         },
       },
       skipParsing: !content,
