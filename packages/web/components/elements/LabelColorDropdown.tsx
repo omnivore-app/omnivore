@@ -10,7 +10,12 @@ import {
   LabelColorObject,
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
-import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
+import {
+  getLuminanceFromRGB,
+  hextoRGB,
+  increaseBrightness,
+  labelColorObjects,
+} from '../../utils/settings-page/labels/labelColorObjects'
 import { DropdownOption } from './DropdownElements'
 import { isDarkTheme } from '../../lib/themeUpdater'
 import { LabelColor } from '../../lib/networking/fragments/labelFragment'
@@ -78,8 +83,8 @@ const MainContainer = styled(Box, {
     border: '1px solid $grayBorderHover',
   },
   '@mdDown': {
-    width: '100%'
-  }
+    width: '100%',
+  },
 })
 
 const CustomLabelWrapper = styled(Box, {
@@ -107,10 +112,20 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
   } = props
 
   const isDarkMode = isDarkTheme()
-  const iconColor = isDarkMode ? '#FFFFFF': '#0A0806'
-  const [open, setOpen] = useState<boolean | undefined>(false);
+  const iconColor = isDarkMode ? '#FFFFFF' : '#0A0806'
+  const [open, setOpen] = useState<boolean | undefined>(false)
 
   const handleCustomColorChange = (color: string) => {
+    console.log(color);
+    const rgb = hextoRGB(color)
+    const luminance = rgb && getLuminanceFromRGB(rgb)
+
+    if (luminance && luminance < 0.4) {
+      console.log('luminance', luminance);
+      color = increaseBrightness(rgb)
+    }
+    console.log('New color', color);
+
     setLabelColorHex({
       rowId: labelId,
       value: color.toUpperCase() as LabelColor,
@@ -119,7 +134,7 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
 
   const handleOpen = (open: boolean) => {
     if (canEdit && open) setOpen(true)
-    else if((isCreateMode && !canEdit) && open) setOpen(true)
+    else if (isCreateMode && !canEdit && open) setOpen(true)
     else setOpen(false)
   }
 
@@ -131,7 +146,7 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
           width: '100%',
           '@md': {
             minWidth: '170px',
-            width: 'auto'
+            width: 'auto',
           },
         }}
       >
@@ -296,6 +311,7 @@ function getLabelColorObject(color: LabelColor) {
   if (labelColorObjects[color]) {
     return labelColorObjects[color]
   }
+
   const colorObject: LabelColorObject = {
     colorName: 'Custom',
     text: color,

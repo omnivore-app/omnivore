@@ -47,6 +47,60 @@ export const labelColorObjects: LabelColorObjects = {
 
 export const randomLabelColorHex = () => {
   const colorHexes = Object.keys(labelColorObjects).slice(0, -1)
-  const randomColorHex = colorHexes[Math.floor(Math.random() * colorHexes.length)]
+  const randomColorHex =
+    colorHexes[Math.floor(Math.random() * colorHexes.length)]
   return randomColorHex
 }
+
+export const hextoRGB = (hex: string) => {
+  // strip the leading # if it's there
+  hex = hex.replace(/^\s*#|\s*$/g, '')
+  // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+  if (hex.length == 3) {
+    hex = hex.replace(/(.)/g, '$1$1')
+  }
+  const aRgbHex = hex.match(/.{1,2}/g)
+  if (aRgbHex) {
+    const aRgb = [
+      parseInt(aRgbHex[0], 16),
+      parseInt(aRgbHex[1], 16),
+      parseInt(aRgbHex[2], 16),
+    ]
+    return aRgb
+  }
+}
+
+// returns a hexadecimal value with increased brightness
+export const increaseBrightness = (rgb: Array<number>) => {
+  // increase brightness by 50%
+  const r = Math.round(Math.min(255, rgb[0] * 1.5))
+  const g = Math.round(Math.min(255, rgb[1] * 1.5))
+  const b = Math.round(Math.min(255, rgb[2] * 1.5))
+
+  let red = r.toString(16)
+  let green = g.toString(16)
+  let blue = b.toString(16)
+
+  if (red.length == 1) red = '0' + red
+  if (green.length == 1) green = '0' + green
+  if (blue.length == 1) blue = '0' + blue
+
+  return `#${red}${green}${blue}`
+}
+
+export const getLuminanceFromRGB = (rgb: Array<number>) => {
+  const r = rgb[0] / 255
+  const g = rgb[1] / 255
+  const b = rgb[2] / 255
+  const red = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4)
+  const green = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4)
+  const blue = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4)
+  // For the sRGB colorspace, the relative luminance of a color is defined as:
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+  return luminance
+}
+
+// return '#' +
+// ((0|(1<<8) + rgb[0] + (256 - rgb[0]) * percent / 100).toString(16)).substr(1) +
+// ((0|(1<<8) + rgb[1] + (256 - rgb[1]) * percent / 100).toString(16)).substr(1) +
+// ((0|(1<<8) + rgb[2] + (256 - rgb[2]) * percent / 100).toString(16)).substr(1);
