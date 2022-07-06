@@ -368,7 +368,13 @@ export const deleteAccountResolver = authorized<
 >(async (_, { userID }, { models, claims, log, authTrx }) => {
   const user = await models.user.get(userID)
 
-  if (!user || user.id !== claims.uid) {
+  if (!user) {
+    return {
+      errorCodes: [DeleteAccountErrorCode.UserNotFound],
+    }
+  }
+
+  if (user.id !== claims.uid) {
     return {
       errorCodes: [DeleteAccountErrorCode.Unauthorized],
     }
