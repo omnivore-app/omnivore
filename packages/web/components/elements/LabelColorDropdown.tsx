@@ -11,7 +11,6 @@ import {
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
 import {
-  colorLuminance,
   getLuminanceFromRGB,
   hextoRGB,
   increaseBrightness,
