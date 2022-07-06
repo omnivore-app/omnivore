@@ -457,6 +457,17 @@ const beehiivNewsletterHref = (dom: Document): string | undefined => {
   return res
 }
 
+const revueNewsletterHref = (dom: Document): string | undefined => {
+  const viewOnline = dom.querySelectorAll('table tr td div a[target="_blank"]')
+  let res: string | undefined = undefined
+  viewOnline.forEach((e) => {
+    if (e.textContent === 'View online') {
+      res = e.getAttribute('href') || undefined
+    }
+  })
+  return res
+}
+
 const findNewsletterHeaderHref = (dom: Document): string | undefined => {
   // Substack header links
   const postLink = dom.querySelector('h1 a ')
@@ -468,6 +479,12 @@ const findNewsletterHeaderHref = (dom: Document): string | undefined => {
   const beehiiv = beehiivNewsletterHref(dom)
   if (beehiiv) {
     return beehiiv
+  }
+
+  // Check if this is a revue newsletter
+  const revue = revueNewsletterHref(dom)
+  if (revue) {
+    return revue
   }
 
   return undefined
