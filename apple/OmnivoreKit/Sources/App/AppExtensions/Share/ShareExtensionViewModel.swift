@@ -11,10 +11,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
 
-  #if os(macOS)
-    let services = Services()
-  #endif
-
+  let services = Services()
   let queue = OperationQueue()
 
   func handleReadNowAction(extensionContext: NSExtensionContext?) {

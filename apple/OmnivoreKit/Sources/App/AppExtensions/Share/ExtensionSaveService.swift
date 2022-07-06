@@ -56,7 +56,7 @@ extension ShareExtensionViewModel {
     }
   }
 
-  func createPage(services: Services, pageScrapePayload: PageScrapePayload) async -> Bool {
+  func createPage(pageScrapePayload: PageScrapePayload) async -> Bool {
     var newRequestID: String?
 
     do {
@@ -112,7 +112,6 @@ extension ShareExtensionViewModel {
 }
 
 final class SaveOperation: Operation, URLSessionDelegate {
-  let services: Services
   let pageScrapePayload: PageScrapePayload
   let shareExtensionViewModel: ShareExtensionViewModel
 
@@ -130,7 +129,6 @@ final class SaveOperation: Operation, URLSessionDelegate {
     self.shareExtensionViewModel = shareExtensionViewModel
 
     self.state = .created
-    self.services = Services()
   }
 
   public var state: State = .created {
@@ -171,7 +169,6 @@ final class SaveOperation: Operation, URLSessionDelegate {
 
     Task {
       let pageCreated = await shareExtensionViewModel.createPage(
-        services: services,
         pageScrapePayload: pageScrapePayload
       )
       if pageCreated {

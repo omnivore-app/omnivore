@@ -6,6 +6,10 @@ public enum PublicValet {
   public static var storedAppEnvironment: AppEnvironment? {
     ValetKey.appEnvironmentString.value().flatMap { AppEnvironment(rawValue: $0) }
   }
+
+  public static var authToken: String? {
+    ValetKey.authToken.value()
+  }
 }
 
 enum ValetKey: String {
