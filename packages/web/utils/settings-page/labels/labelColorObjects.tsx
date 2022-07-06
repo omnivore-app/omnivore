@@ -71,11 +71,10 @@ export const hextoRGB = (hex: string) => {
 }
 
 // returns a hexadecimal value with increased brightness
-export const increaseBrightness = (rgb: Array<number>) => {
-  // increase brightness by 50%
-  const r = Math.round(Math.min(255, rgb[0] * 1.5))
-  const g = Math.round(Math.min(255, rgb[1] * 1.5))
-  const b = Math.round(Math.min(255, rgb[2] * 1.5))
+export const increaseBrightness = (rgb: Array<number>, brightness: number) => {
+  const r = Math.round(Math.min(Math.max(0, rgb[0] + rgb[0] * brightness), 255))
+  const g = Math.round(Math.min(Math.max(0, rgb[1] + rgb[1] * brightness), 255))
+  const b = Math.round(Math.min(Math.max(0, rgb[2] + rgb[2] * brightness), 255))
 
   let red = r.toString(16)
   let green = g.toString(16)
@@ -99,8 +98,3 @@ export const getLuminanceFromRGB = (rgb: Array<number>) => {
   const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
   return luminance
 }
-
-// return '#' +
-// ((0|(1<<8) + rgb[0] + (256 - rgb[0]) * percent / 100).toString(16)).substr(1) +
-// ((0|(1<<8) + rgb[1] + (256 - rgb[1]) * percent / 100).toString(16)).substr(1) +
-// ((0|(1<<8) + rgb[2] + (256 - rgb[2]) * percent / 100).toString(16)).substr(1);

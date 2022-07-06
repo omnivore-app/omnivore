@@ -11,6 +11,7 @@ import {
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
 import {
+  colorLuminance,
   getLuminanceFromRGB,
   hextoRGB,
   increaseBrightness,
@@ -116,19 +117,15 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
   const [open, setOpen] = useState<boolean | undefined>(false)
 
   const handleCustomColorChange = (color: string) => {
-    console.log(color);
     const rgb = hextoRGB(color)
     const luminance = rgb && getLuminanceFromRGB(rgb)
-
-    if (luminance && luminance < 0.4) {
-      console.log('luminance', luminance);
-      color = increaseBrightness(rgb)
+    let newColor = ''
+    if (luminance && luminance < 0.5) {
+      newColor = increaseBrightness(rgb, 4)
     }
-    console.log('New color', color);
-
     setLabelColorHex({
       rowId: labelId,
-      value: color.toUpperCase() as LabelColor,
+      value: newColor.toUpperCase() as LabelColor,
     })
   }
 
