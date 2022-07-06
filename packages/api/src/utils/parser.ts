@@ -443,6 +443,14 @@ export const isProbablyNewsletter = async (html: string): Promise<boolean> => {
     }
   }
 
+  // Check if this is a newsletter from revue
+  if (dom.querySelectorAll('img[src*="getrevue.co"]').length > 0) {
+    const getrevueUrl = revueNewsletterHref(dom)
+    if (getrevueUrl) {
+      return true
+    }
+  }
+
   return false
 }
 
