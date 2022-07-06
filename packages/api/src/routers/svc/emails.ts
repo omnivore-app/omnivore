@@ -89,6 +89,7 @@ export function emailsServiceRouter() {
         to: newsletterEmail.user.email,
         subject: `Fwd: ${data.subject}`,
         html: data.html,
+        replyTo: data.from,
       })
 
       if (!result) {
