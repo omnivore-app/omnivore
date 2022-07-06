@@ -4,12 +4,20 @@ import Utils
 import Views
 
 public class ShareExtensionViewModel: ObservableObject {
-  @Published var title: String?
+  @Published public var status: ShareExtensionStatus = .processing
+  @Published public var title: String?
+  @Published public var url: String?
+  @Published public var iconURL: String?
+  @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
 
-  let saveService = ExtensionSaveService()
+  #if os(macOS)
+    let services = Services()
+  #endif
 
-  func handleReadNowAction(requestId: String, extensionContext: NSExtensionContext?) {
+  let queue = OperationQueue()
+
+  func handleReadNowAction(extensionContext: NSExtensionContext?) {
     #if os(iOS)
       if let application = UIApplication.value(forKeyPath: #keyPath(UIApplication.shared)) as? UIApplication {
         let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
@@ -19,27 +27,31 @@ public class ShareExtensionViewModel: ObservableObject {
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
-  func savePage(extensionContext: NSExtensionContext?, shareExtensionViewModel: ShareExtensionChildViewModel) {
+  func savePage(extensionContext: NSExtensionContext?) {
     if let extensionContext = extensionContext {
-      saveService.save(extensionContext, shareExtensionViewModel: shareExtensionViewModel)
+      save(extensionContext)
     } else {
       DispatchQueue.main.async {
-        shareExtensionViewModel.status = .failed(error: .unknown(description: "Internal Error"))
+        self.status = .failed(error: .unknown(description: "Internal Error"))
       }
     }
   }
-}
 
-public class ShareExtensionChildViewModel: ObservableObject {
-  @Published public var status: ShareExtensionStatus = .processing
-  @Published public var title: String?
-  @Published public var url: String?
-  @Published public var iconURL: String?
-  @Published public var requestId: String
+  #if os(iOS)
+    func queueSaveOperation(_ payload: PageScrapePayload) {
+      ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in
+        guard !expiring else {
+          self.queue.cancelAllOperations()
+          self.queue.waitUntilAllOperationsAreFinished()
+          return
+        }
 
-  public init() {
-    self.requestId = UUID().uuidString.lowercased()
-  }
+        let operation = SaveOperation(pageScrapePayload: payload, shareExtensionViewModel: self)
+        self.queue.addOperation(operation)
+        self.queue.waitUntilAllOperationsAreFinished()
+      }
+    }
+  #endif
 }
 
 public enum ShareExtensionStatus {

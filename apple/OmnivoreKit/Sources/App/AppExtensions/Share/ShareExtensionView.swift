@@ -4,48 +4,12 @@ import SwiftUI
 import Utils
 import Views
 
-struct ShareExtensionView: View {
+public struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
   @StateObject private var viewModel = ShareExtensionViewModel()
-  @StateObject private var childViewModel = ShareExtensionChildViewModel()
-
-  var body: some View {
-    ShareExtensionChildView(
-      viewModel: childViewModel,
-      onAppearAction: {
-        viewModel.savePage(
-          extensionContext: extensionContext,
-          shareExtensionViewModel: childViewModel
-        )
-      },
-      readNowButtonAction: { viewModel.handleReadNowAction(requestId: $0, extensionContext: extensionContext) },
-      dismissButtonTappedAction: { _, _ in
-        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-      }
-    )
-  }
-}
-
-public struct ShareExtensionChildView: View {
-  let viewModel: ShareExtensionChildViewModel
-  let onAppearAction: () -> Void
-  let readNowButtonAction: (String) -> Void
-  let dismissButtonTappedAction: (ReminderTime?, Bool) -> Void
 
   @State var reminderTime: ReminderTime?
   @State var hideUntilReminded = false
-
-  public init(
-    viewModel: ShareExtensionChildViewModel,
-    onAppearAction: @escaping () -> Void,
-    readNowButtonAction: @escaping (String) -> Void,
-    dismissButtonTappedAction: @escaping (ReminderTime?, Bool) -> Void
-  ) {
-    self.viewModel = viewModel
-    self.onAppearAction = onAppearAction
-    self.readNowButtonAction = readNowButtonAction
-    self.dismissButtonTappedAction = dismissButtonTappedAction
-  }
 
   private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
     if selectedTime == reminderTime {
@@ -191,14 +155,14 @@ public struct ShareExtensionChildView: View {
 
       HStack {
         Button(
-          action: { readNowButtonAction(self.viewModel.requestId) },
+          action: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
           label: { Text("Read Now").frame(maxWidth: .infinity) }
         )
         .buttonStyle(RoundedRectButtonStyle())
 
         Button(
           action: {
-            dismissButtonTappedAction(reminderTime, hideUntilReminded)
+            extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
           },
           label: {
             Text("Dismiss")
@@ -216,7 +180,7 @@ public struct ShareExtensionChildView: View {
       alignment: .topLeading
     )
     .onAppear {
-      onAppearAction()
+      viewModel.savePage(extensionContext: extensionContext)
     }
   }
 }
