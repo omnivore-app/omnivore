@@ -1,13 +1,13 @@
 import {
-  DeleteAccountSuccess,
   DeleteAccountError,
   DeleteAccountErrorCode,
-  MutationDeleteAccountArgs,
+  DeleteAccountSuccess,
   GoogleSignupResult,
   LoginErrorCode,
   LoginResult,
   LogOutErrorCode,
   LogOutResult,
+  MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
   MutationLoginArgs,
@@ -39,6 +39,7 @@ import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
 import { comparePassword, hashPassword } from '../../utils/auth'
 import type { UserData } from '../../datalayer/user/model'
+import { deletePagesByParam } from '../../elastic/pages'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -365,7 +366,7 @@ export const deleteAccountResolver = authorized<
   DeleteAccountSuccess,
   DeleteAccountError,
   MutationDeleteAccountArgs
->(async (_, { userID }, { models, claims, log, authTrx }) => {
+>(async (_, { userID }, { models, claims, log, authTrx, pubsub }) => {
   const user = await models.user.get(userID)
 
   if (!user) {
@@ -383,6 +384,9 @@ export const deleteAccountResolver = authorized<
   const deleteUserResult = await authTrx((tx) =>
     models.user.deleteUser(claims.uid, tx)
   )
+
+  // delete this user's pages in elastic
+  await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
 
   log.info('Deleting a user account', {
     userID,
