@@ -130,6 +130,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             )
           }
 
+          const unsubscribe = parseUnsubscribe(unSubHeader)
           // queue non-newsletter emails
           await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
             json: {
@@ -138,6 +139,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
               subject: subject,
               html: html,
               text: text,
+              unsubMailTo: unsubscribe.mailTo,
+              unsubHttpUrl: unsubscribe.httpUrl,
             },
           })
         }
