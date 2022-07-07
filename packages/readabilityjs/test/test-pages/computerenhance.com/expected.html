@@ -155,6 +155,19 @@
             <p> As a simple example, suppose a commercial CDN distributes the payload of ddosfuntimes.com. On the main page, there’s an XHR to target.ddosfuntimes.com. Even though the CDN is a completely different set of IP addresses as target.ddosfuntimes.com, this is completely legal under XHR policy. </p>
             <p> The owners of ddosfuntimes.com can go ahead and set the IP address in their DNS records to point target.ddosfuntimes.com at any server they want, and they will receive all the XHR traffic from every browser that visits the page. And to the best of my knowledge, there isn’t a damn thing the target can do about that. </p>
             <p> So unless I’m missing something, XHR already allows you to target any website you wish with unwanted traffic from anyone who visits your site. So why the concern about UDP? </p>
+            <div id="footnote-1">
+                <p><a href="#footnote-anchor-1" contenteditable="false" rel="">1</a></p>
+                <div>
+                    <p>
+                        <span>This is way off topic, but in case it struck people as odd: all secure systems have a root trust problem. At some point you have to get</span> <em>something</em> <span>from</span> <em>somebody</em> <span>that you will just blindly trust. This is the root of the chain of trust, and unfortunately, there’s really nothing you can do to make it secure. You just have to hope that this initial exchange is trusted.</span>
+                    </p>
+                    <p> So in the case of web browsers, you have to keep in mind that HTTPS doesn’t actually guarantee you anything beyond a chain of trust. You are implicitly trusting that a) nobody messed with the browser when you downloaded it, b) none of the certificate authorities trusted by that browser download have been compromised, c) the certificate for signing browser root certificate updates hasn’t itself been compromised. </p>
+                    <p> Etc., etc. </p>
+                    <p>
+                        <span>So in general, when we talk about adding security to a protocol, we can only talk about securing it</span> <em>up to a point</em><span>. No matter what we do, there will never be a way for it to be</span> <em>completely</em> <span>secure, because the chain of trust is not infinite, and any of its endpoints (in this case, the browser itself or any certificate authority) can lie to you for as long as it takes for a security firm to catch them doing it.</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </article>
 </DIV>
