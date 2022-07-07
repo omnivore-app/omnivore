@@ -588,4 +588,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Webhook'),
   ...resultResolveTypeResolver('ApiKeys'),
   ...resultResolveTypeResolver('RevokeApiKey'),
+  ...resultResolveTypeResolver('DeleteAccount'),
 }
