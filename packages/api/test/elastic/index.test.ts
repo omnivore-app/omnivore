@@ -329,9 +329,12 @@ describe('elastic api', () => {
     })
 
     it('deletes page by userId', async () => {
-      const deleted = await deletePagesByParam({
-        userId,
-      })
+      const deleted = await deletePagesByParam(
+        {
+          userId,
+        },
+        ctx
+      )
 
       expect(deleted).to.be.true
     })
