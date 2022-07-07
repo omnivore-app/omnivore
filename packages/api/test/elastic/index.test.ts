@@ -14,6 +14,7 @@ import {
   countByCreatedAt,
   createPage,
   deletePage,
+  deletePagesByParam,
   getPageById,
   getPageByParam,
   searchPages,
@@ -299,6 +300,40 @@ describe('elastic api', () => {
       const result = await setLabelsForHighlight(highlightId, [label], ctx)
 
       expect(result).to.be.true
+    })
+  })
+
+  describe('deletePagesByParam', () => {
+    const userId = 'test user id'
+
+    before(async () => {
+      // create a testing page
+      await createPage(
+        {
+          content: 'deletePagesByParam content',
+          createdAt: new Date(),
+          hash: '',
+          id: '',
+          pageType: PageType.Article,
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+          savedAt: new Date(),
+          slug: 'deletePagesByParam slug',
+          state: ArticleSavingRequestStatus.Succeeded,
+          title: 'deletePagesByParam title',
+          url: 'https://localhost/deletePagesByParam',
+          userId,
+        },
+        ctx
+      )
+    })
+
+    it('deletes page by userId', async () => {
+      const deleted = await deletePagesByParam({
+        userId,
+      })
+
+      expect(deleted).to.be.true
     })
   })
 })
