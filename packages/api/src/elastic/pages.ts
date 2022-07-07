@@ -511,7 +511,8 @@ export const countByCreatedAt = async (
 }
 
 export const deletePagesByParam = async <K extends keyof ParamSet>(
-  param: Record<K, Page[K]>
+  param: Record<K, Page[K]>,
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const params = {
@@ -533,7 +534,14 @@ export const deletePagesByParam = async <K extends keyof ParamSet>(
       body: params,
     })
 
-    return body.deleted > 0
+    if (body.deleted > 0) {
+      // * means deleting all pages of the same user
+      await ctx.pubsub.entityDeleted(EntityType.PAGE, '*', ctx.uid)
+
+      return true
+    }
+
+    return false
   } catch (e) {
     console.error('failed to delete pages by param in elastic', e)
     return false
