@@ -13,6 +13,8 @@ interface ForwardEmailMessage {
   to: string
   subject: string
   html: string
+  unsubMailTo?: string
+  unsubHttpUrl?: string
 }
 
 export function emailsServiceRouter() {
@@ -61,6 +63,8 @@ export function emailsServiceRouter() {
           url:
             (await findNewsletterUrl(data.html)) ||
             'https://omnivore.app/no_url?q' + uuid(),
+          unsubMailTo: data.unsubMailTo,
+          unsubHttpUrl: data.unsubHttpUrl,
         })
         res.status(200).send('Newsletter')
         return
