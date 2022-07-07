@@ -153,6 +153,10 @@ public struct ShareExtensionView: View {
 
       Spacer()
 
+      if let item = viewModel.linkedItem {
+        ApplyLabelsView(mode: .item(item), onSave: nil)
+      }
+
       HStack {
         Button(
           action: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
@@ -182,5 +186,6 @@ public struct ShareExtensionView: View {
     .onAppear {
       viewModel.savePage(extensionContext: extensionContext)
     }
+    .environmentObject(viewModel.services.dataService)
   }
 }

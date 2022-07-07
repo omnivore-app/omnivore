@@ -8,6 +8,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var title: String?
   @Published public var url: String?
   @Published public var iconURL: String?
+  @Published public var linkedItem: LinkedItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
 
