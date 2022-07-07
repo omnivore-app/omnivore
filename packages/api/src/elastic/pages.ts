@@ -309,7 +309,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.error('failed to get pages by param in elastic', e)
+    console.error('failed to get page by param in elastic', e)
     return undefined
   }
 }
@@ -507,5 +507,35 @@ export const countByCreatedAt = async (
   } catch (e) {
     console.error('failed to count pages in elastic', e)
     return 0
+  }
+}
+
+export const deletePagesByParam = async <K extends keyof ParamSet>(
+  param: Record<K, Page[K]>
+): Promise<boolean> => {
+  try {
+    const params = {
+      query: {
+        bool: {
+          filter: Object.keys(param).map((key) => {
+            return {
+              term: {
+                [key]: param[key as K],
+              },
+            }
+          }),
+        },
+      },
+    }
+
+    const { body } = await client.deleteByQuery({
+      index: INDEX_ALIAS,
+      body: params,
+    })
+
+    return body.deleted > 0
+  } catch (e) {
+    console.error('failed to delete pages by param in elastic', e)
+    return false
   }
 }
