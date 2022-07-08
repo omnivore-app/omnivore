@@ -10,6 +10,7 @@ import {
   handleConfirmation,
   isConfirmationEmail,
   NewsletterHandler,
+  parseUnsubscribe,
 } from './newsletter'
 import { PubSub } from '@google-cloud/pubsub'
 import { handlePdfAttachment } from './pdf'
@@ -21,7 +22,6 @@ import { MorningBrewHandler } from './morning-brew-handler'
 
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
-
 const NEWSLETTER_HANDLERS = [
   new SubstackHandler(),
   new AxiosHandler(),
@@ -114,6 +114,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             )
           }
 
+          const unsubscribe = parseUnsubscribe(unSubHeader)
           // queue non-newsletter emails
           await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
             json: {
@@ -122,6 +123,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
               subject: subject,
               html: html,
               text: text,
+              unsubMailTo: unsubscribe.mailTo,
+              unsubHttpUrl: unsubscribe.httpUrl,
             },
           })
         }

@@ -2,6 +2,11 @@ import { PubSub } from '@google-cloud/pubsub'
 import { v4 as uuidv4 } from 'uuid'
 import addressparser from 'addressparser'
 
+interface Unsubscribe {
+  mailTo?: string
+  httpUrl?: string
+}
+
 const pubsub = new PubSub()
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
@@ -12,9 +17,13 @@ const CONFIRMATION_CODE_PATTERN = /^\(#\d+\)/
 const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
 const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
 
-interface Unsubscribe {
-  mailTo?: string
-  httpUrl?: string
+export const parseUnsubscribe = (unSubHeader: string): Unsubscribe => {
+  // parse list-unsubscribe header
+  // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
+  return {
+    mailTo: unSubHeader.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
+    httpUrl: unSubHeader.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
+  }
 }
 
 export class NewsletterHandler {
@@ -48,15 +57,6 @@ export class NewsletterHandler {
     return from
   }
 
-  parseUnsubscribe(unSubHeader: string): Unsubscribe {
-    // parse list-unsubscribe header
-    // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
-    return {
-      mailTo: unSubHeader.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
-      httpUrl: unSubHeader.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
-    }
-  }
-
   async handleNewsletter(
     email: string,
     html: string,
@@ -78,7 +78,7 @@ export class NewsletterHandler {
       this.parseNewsletterUrl(postHeader, html) ||
       `${this.defaultUrl}?source=newsletters&id=${uuidv4()}`
     const author = this.parseAuthor(from)
-    const unsubscribe = this.parseUnsubscribe(unSubHeader)
+    const unsubscribe = parseUnsubscribe(unSubHeader)
     const message = {
       email,
       content: html,
