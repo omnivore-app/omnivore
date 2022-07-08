@@ -8,6 +8,7 @@ import {
 import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { currentThemeName } from '../../lib/themeUpdater'
+import { Check } from 'phosphor-react'
 
 export type HeaderDropdownAction =
   | 'apply-darker-theme'
@@ -39,32 +40,37 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
 
   return (
     <Dropdown triggerElement={props.triggerElement}>
-      <VStack css={{ p: '$2' }}>
+      <VStack css={{ py: '12px', px: '24px' }}>
         <StyledText style="menuTitle">Theme</StyledText>
-        <HStack css={{ mt: '6px', mb: '6px', width: '100%', gap: '8px' }}>
+        <HStack css={{ py: '8px', width: '100%', gap: '8px' }}>
           <Button
             style="themeSwitch"
-            css={{ background: '#FFFFFF', width: '50%' }}
+            css={{ background: '#FFFFFF' }}
+            data-state={isDark ? 'unselected' : 'selected' }
             onClick={() => {
               props.actionHandler('apply-lighter-theme')
               setCurrentTheme(currentThemeName())
             }}
           >
-            {isDark ? '' : '✓'}
+            {!isDark && (
+              <Check color='#F9D354' size={32} />
+            )}
           </Button>
           <Button
             style="themeSwitch"
-            css={{ background: '#3D3D3D', width: '50%' }}
+            css={{ background: '#3D3D3D' }}
+            data-state={isDark ? 'selected' : 'unselected' }
             onClick={() => {
               props.actionHandler('apply-dark-theme')
               setCurrentTheme(currentThemeName())
             }}
           >
-            {isDark ? '✓' : ''}
+            {isDark && (
+              <Check color='#F9D354' size={32} />
+            )}
           </Button>
         </HStack>
       </VStack>
-      <DropdownSeparator />
       <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-install')}
         title="Install"
@@ -77,10 +83,6 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onSelect={() => props.actionHandler('navigate-to-labels')}
         title="Labels"
       />
-      <DropdownOption
-        onSelect={() => props.actionHandler('navigate-to-api')}
-        title="API Keys"
-      />
       {/* <DropdownOption
         onSelect={() => props.actionHandler('navigate-to-subscriptions')}
         title="Subscriptions"
@@ -92,7 +94,6 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
       <DropdownOption
         onSelect={() => props.actionHandler('logout')}
         title="Logout"
-        hideSeparator
       />
     </Dropdown>
   )

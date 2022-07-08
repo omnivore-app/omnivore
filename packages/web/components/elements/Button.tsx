@@ -181,14 +181,20 @@ export const Button = styled('button', {
       },
       themeSwitch: {
         p: '0px',
-        m: '4px',
+        m: '0px',
         ml: '0px',
-        width: '24px',
-        height: '24px',
+        width: '68px',
+        height: '52px',
         fontSize: '14px',
-        borderRadius: '4px',
-        border: '1px solid rgb(243, 243, 243)',
-        '&:hover': { transform: 'scale(1.2)' }
+        border: 'unset',
+        borderRadius: '6px',
+        '&:hover': {
+          transform: 'scale(1.1)',
+          border: '2px solid #F9D354',
+        },
+        '&[data-state="selected"]': {
+          border: '2px solid #F9D354',
+        }
       },
     },
   },

@@ -13,8 +13,10 @@ import { CSS } from '@stitches/react';
 import { styled } from './../tokens/stitches.config'
 
 const itemStyles = {
-  fontSize: 13,
-  padding: '$2',
+  fontSize: '16px',
+  fontWeight: 'semibold',
+  py: '12px',
+  px: '24px',
   borderRadius: 3,
   cursor: 'default',
   color: '$grayText',
@@ -46,11 +48,11 @@ const StyledTriggerItem = styled(TriggerItem, {
 })
 
 export const DropdownContent = styled(Content, {
-  minWidth: 130,
+  width: 195,
   backgroundColor: '$grayBg',
-  borderRadius: '0.5em',
-  padding: 5,
-  outline: '1px solid $grayBorder',
+  borderRadius: '6px',
+  outline: '1px solid #323232',
+  border: '1px solid $grayBorder',
   boxShadow: '$cardBoxShadow',
 })
 
@@ -101,7 +103,6 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
       <StyledItem onSelect={props.onSelect}>
         {props.title ?? props.children}
       </StyledItem>
-      {props.hideSeparator ? null : <DropdownSeparator />}
     </>
   )
 }
