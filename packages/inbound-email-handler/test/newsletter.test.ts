@@ -3,12 +3,13 @@ import {
   getConfirmationCode,
   isConfirmationEmail,
   NewsletterHandler,
+  parseUnsubscribe,
 } from '../src/newsletter'
 import { SubstackHandler } from '../src/substack-handler'
 import { AxiosHandler } from '../src/axios-handler'
 import { BloombergHandler } from '../src/bloomberg-handler'
 import { GolangHandler } from '../src/golang-handler'
-import { getNewsletterHandler, parseUnsubscribe } from '../src'
+import { getNewsletterHandler } from '../src'
 import { MorningBrewHandler } from '../src/morning-brew-handler'
 
 describe('Confirmation email test', () => {

@@ -10,6 +10,7 @@ import {
   handleConfirmation,
   isConfirmationEmail,
   NewsletterHandler,
+  parseUnsubscribe,
 } from './newsletter'
 import { PubSub } from '@google-cloud/pubsub'
 import { handlePdfAttachment } from './pdf'
@@ -19,16 +20,8 @@ import { BloombergHandler } from './bloomberg-handler'
 import { GolangHandler } from './golang-handler'
 import { MorningBrewHandler } from './morning-brew-handler'
 
-interface Unsubscribe {
-  mailTo?: string
-  httpUrl?: string
-}
-
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
-const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
-const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
-
 const NEWSLETTER_HANDLERS = [
   new SubstackHandler(),
   new AxiosHandler(),
@@ -36,15 +29,6 @@ const NEWSLETTER_HANDLERS = [
   new GolangHandler(),
   new MorningBrewHandler(),
 ]
-
-export const parseUnsubscribe = (unSubHeader: string): Unsubscribe => {
-  // parse list-unsubscribe header
-  // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
-  return {
-    mailTo: unSubHeader.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
-    httpUrl: unSubHeader.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
-  }
-}
 
 export const getNewsletterHandler = (
   postHeader: string,

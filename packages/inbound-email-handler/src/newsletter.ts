@@ -1,7 +1,11 @@
 import { PubSub } from '@google-cloud/pubsub'
 import { v4 as uuidv4 } from 'uuid'
 import addressparser from 'addressparser'
-import { parseUnsubscribe } from './index'
+
+interface Unsubscribe {
+  mailTo?: string
+  httpUrl?: string
+}
 
 const pubsub = new PubSub()
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
@@ -10,6 +14,17 @@ const EMAIL_FORWARDING_SENDER_ADDRESSES = [
   'Gmail Team <forwarding-noreply@google.com>',
 ]
 const CONFIRMATION_CODE_PATTERN = /^\(#\d+\)/
+const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
+const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
+
+export const parseUnsubscribe = (unSubHeader: string): Unsubscribe => {
+  // parse list-unsubscribe header
+  // e.g. List-Unsubscribe: <https://omnivore.com/unsub>, <mailto:unsub@omnivore.com>
+  return {
+    mailTo: unSubHeader.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
+    httpUrl: unSubHeader.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
+  }
+}
 
 export class NewsletterHandler {
   protected senderRegex = /NEWSLETTER_SENDER_REGEX/
