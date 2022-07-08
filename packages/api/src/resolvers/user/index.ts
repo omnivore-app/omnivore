@@ -38,7 +38,6 @@ import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
 import { comparePassword, hashPassword } from '../../utils/auth'
-import type { UserData } from '../../datalayer/user/model'
 import { deletePagesByParam } from '../../elastic/pages'
 
 export const updateUserResolver = authorized<
@@ -366,9 +365,8 @@ export const deleteAccountResolver = authorized<
   DeleteAccountSuccess,
   DeleteAccountError,
   MutationDeleteAccountArgs
->(async (_, { userID }, { models, claims, log, authTrx, pubsub }) => {
+>(async (_, { userID }, { models, claims, log, pubsub }) => {
   const user = await models.user.get(userID)
-
   if (!user) {
     return {
       errorCodes: [DeleteAccountErrorCode.UserNotFound],
@@ -381,13 +379,6 @@ export const deleteAccountResolver = authorized<
     }
   }
 
-  const deleteUserResult = await authTrx((tx) =>
-    models.user.deleteUser(claims.uid, tx)
-  )
-
-  // delete this user's pages in elastic
-  await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
-
   log.info('Deleting a user account', {
     userID,
     labels: {
@@ -397,11 +388,17 @@ export const deleteAccountResolver = authorized<
     },
   })
 
-  if ((deleteUserResult as UserData).id !== undefined) {
-    return { userID }
-  } else {
+  const deletedUser = await models.user.delete(userID)
+  if ('error' in deletedUser) {
+    log.error('Error deleting user account', deletedUser.error)
+
     return {
-      errorCodes: [DeleteAccountErrorCode.Forbidden],
+      errorCodes: [DeleteAccountErrorCode.UserNotFound],
     }
   }
+
+  // delete this user's pages in elastic
+  await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
+
+  return { userID }
 })

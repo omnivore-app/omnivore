@@ -306,7 +306,7 @@ export const createArticleResolver = authorized<
       let uploadFileUrlOverride = ''
       if (uploadFileId) {
         const uploadFileData = await authTrx(async (tx) => {
-          return await models.uploadFile.setFileUploadComplete(uploadFileId, tx)
+          return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
         })
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
           return pageError(

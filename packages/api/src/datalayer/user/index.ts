@@ -329,11 +329,15 @@ class UserModel extends DataModel<UserData, CreateSet, UpdateSet> {
   }
 
   @logMethod
-  deleteUser(
+  async delete(
     userId: string,
-    tx: Knex.Transaction
+    tx?: Knex.Transaction
   ): Promise<UserData | { error: DataModelError }> {
-    return super.delete(userId, tx)
+    if (tx) {
+      return super.delete(userId, tx)
+    }
+
+    return this.kx.transaction((tx) => super.delete(userId, tx))
   }
 }
 

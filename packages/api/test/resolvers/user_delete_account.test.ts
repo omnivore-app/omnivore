@@ -1,4 +1,4 @@
-import { createTestUser } from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
@@ -13,12 +13,10 @@ const deleteAccountRequest = async (authToken: string, userId: string) => {
   const mutation = `
   mutation {
     deleteAccount(
-      input: {
-        userId: "${userId}",
-      }
+      userID: "${userId}",
     ) {
       ... on DeleteAccountSuccess {
-        userId
+        userID
       }
       ... on DeleteAccountError {
         errorCodes
@@ -30,7 +28,7 @@ const deleteAccountRequest = async (authToken: string, userId: string) => {
 }
 
 describe('the deleteAccount API', () => {
-  const username = 'fakeUser'
+  const username = 'newFakeUser'
   let authToken: string
   let user: User
 
@@ -44,6 +42,10 @@ describe('the deleteAccount API', () => {
     authToken = res.body.authToken
   })
 
+  after(async () => {
+    await deleteTestUser(username)
+  })
+
   context('deleting a user that exists', () => {
     it('should return a unauthorized error if authToken is invalid', async () => {
       const res = await deleteAccountRequest('invalid-auth-token', user.id)
@@ -54,7 +56,7 @@ describe('the deleteAccount API', () => {
 
     it('should return the user id after a successful user deletion', async () => {
       const res = await deleteAccountRequest(authToken, user.id)
-      expect(res.body.data.deleteAccount.userId).to.eql(user.id)
+      expect(res.body.data.deleteAccount.userID).to.eql(user.id)
     })
   })
 
