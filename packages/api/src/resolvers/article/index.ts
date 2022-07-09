@@ -69,6 +69,7 @@ import { parseSearchQuery } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import graphqlFields from 'graphql-fields'
 
 import {
   ArticleSavingRequestStatus,
@@ -397,11 +398,13 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims, pubsub }) => {
+> = async (_obj, { slug }, { claims, pubsub }, info) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
     }
+
+    const includeOriginalHtml = !!(graphqlFields(info).article.originalHtml)
 
     analytics.track({
       userId: claims?.uid,
@@ -414,8 +417,8 @@ export const getArticleResolver: ResolverFn<
 
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
-      (await getPageByParam({ userId: claims.uid, slug })) ||
-      (await getPageByParam({ userId: claims.uid, _id: slug }))
+      (await getPageByParam({ userId: claims.uid, slug }, includeOriginalHtml)) ||
+      (await getPageByParam({ userId: claims.uid, _id: slug }, includeOriginalHtml))
 
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }

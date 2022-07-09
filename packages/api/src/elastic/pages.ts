@@ -274,7 +274,8 @@ export const deletePage = async (
 }
 
 export const getPageByParam = async <K extends keyof ParamSet>(
-  param: Record<K, Page[K]>
+  param: Record<K, Page[K]>,
+  includeOriginalHtml = false
 ): Promise<Page | undefined> => {
   try {
     const params = {
@@ -291,7 +292,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       },
       size: 1,
       _source: {
-        excludes: ['originalHtml'],
+        excludes: includeOriginalHtml ? [] : ['originalHtml'],
       },
     }
 
