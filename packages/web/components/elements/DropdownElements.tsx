@@ -117,7 +117,6 @@ export type DropdownSide = 'top' | 'right' | 'bottom' | 'left'
 
 type DropdownProps = {
   labelText?: string
-  showArrow?: boolean
   triggerElement: React.ReactNode
   children: React.ReactNode
   styledArrow?: boolean
@@ -158,7 +157,6 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
     align,
     triggerElement,
     labelText,
-    showArrow = true,
     disabled = false,
     side = 'bottom',
     sideOffset = 0,

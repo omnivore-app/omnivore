@@ -204,7 +204,6 @@ export default function ExtensionsInstallHelp({
         }}
       >
         <Dropdown
-          showArrow={false}
           triggerElement={
             <HStack
               css={{
