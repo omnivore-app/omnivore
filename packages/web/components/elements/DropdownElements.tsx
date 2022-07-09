@@ -54,10 +54,55 @@ export const DropdownContent = styled(Content, {
   outline: '1px solid #323232',
   border: '1px solid $grayBorder',
   boxShadow: '$cardBoxShadow',
+  '--arrow-visibility': '',
+  '&[data-side="top"]': {
+    '--arrow-visibility': 'collapse',
+  },
+  '&[data-side="bottom"]': {
+    '--arrow-top': -13,
+  },
+  '&[data-align="start"]': {
+    '--arrow-before-left': '9px',
+    '--arrow-before-right': 'auto',
+    '--arrow-after-left': '10px',
+    '--arrow-after-right': 'auto',
+  },
+  '&[data-align="center"]': {
+    '--arrow-before-left': 'auto',
+    '--arrow-before-right': '90px',
+    '--arrow-after-left': 'auto',
+    '--arrow-after-right': '91px',
+  },
+  '&[data-align="end"]': {
+    '--arrow-before-left': 'auto',
+    '--arrow-before-right': '9px',
+    '--arrow-after-left': 'auto',
+    '--arrow-after-right': '10px',
+  },
+  '&:before': {
+    top: 'calc(var(--arrow-top) * 1px - 2px)',
+    left: 'var(--arrow-before-left)',
+    right: 'var(--arrow-before-right)',
+    border: '8px solid transparent',
+    borderBottomColor: '$grayBorder',
+  },
+  '&:after': {
+    top: 'calc(var(--arrow-top) * 1px)',
+    left: 'var(--arrow-after-left)',
+    right: 'var(--arrow-after-right)',
+    border: '7px solid transparent',
+    borderBottomColor: '$grayBg',
+  },
+  '&:before, &:after': {
+    visibility: 'var(--arrow-visibility)',
+    position: 'absolute',
+    display: 'inline-block',
+    content: '',
+  },
 })
 
 const StyledArrow = styled(Arrow, {
-  fill: '$grayBg',
+  visibility: 'hidden',
 })
 
 const StyledLabel = styled(Label, {
@@ -137,7 +182,7 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}
         {children}
-        {showArrow && <StyledArrow offset={20} width={20} height={10} />}
+        <StyledArrow />
       </DropdownContent>
     </Root>
   )

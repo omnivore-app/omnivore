@@ -111,7 +111,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
-        grayBorder: 'rgba(0, 0, 0, 0.06)',
+        grayBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
 
@@ -176,7 +176,7 @@ const darkThemeSpec = {
     grayBg: '#3B3938',
     grayBgActive: '#4f4d4c',
     grayTextContrast: '#D8D7D7',
-    grayBorder: 'rgba(255, 255, 255, 0.06)',
+    grayBorder: '#323232',
     graySolid: '#9C9B9A',
 
     grayBgSubtle: 'hsl(0 0% 9.8%)',
