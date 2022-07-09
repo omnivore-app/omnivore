@@ -10,7 +10,7 @@ import {
   UpdateSet,
   UserData,
 } from './model'
-import DataModel, { MAX_RECORDS_LIMIT } from '../model'
+import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
 import Knex from 'knex'
 import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logMethod } from '../helpers'
 import { Table } from '../../utils/dictionary'
@@ -326,6 +326,18 @@ class UserModel extends DataModel<UserData, CreateSet, UpdateSet> {
       return profile
     }
     return this.kx.transaction((tx) => this.updateProfile(userId, set, tx))
+  }
+
+  @logMethod
+  async delete(
+    userId: string,
+    tx?: Knex.Transaction
+  ): Promise<UserData | { error: DataModelError }> {
+    if (tx) {
+      return super.delete(userId, tx)
+    }
+
+    return this.kx.transaction((tx) => super.delete(userId, tx))
   }
 }
 

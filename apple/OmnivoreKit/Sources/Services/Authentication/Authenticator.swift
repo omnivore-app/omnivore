@@ -36,7 +36,8 @@ public final class Authenticator: ObservableObject {
     ValetKey.authToken.value()
   }
 
-  public func logout() {
+  public func logout(dataService: DataService) {
+    dataService.resetCoreData()
     clearCreds()
     Authenticator.unregisterIntercomUser?()
     isLoggedIn = false

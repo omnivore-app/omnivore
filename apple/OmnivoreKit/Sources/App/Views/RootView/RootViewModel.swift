@@ -27,7 +27,7 @@ public final class RootViewModel: ObservableObject {
 
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {
-        services.authenticator.logout()
+        services.authenticator.logout(dataService: services.dataService)
       }
     #endif
   }

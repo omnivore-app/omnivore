@@ -3383,6 +3383,136 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+  struct DeleteAccountError {
+    let __typename: TypeName = .deleteAccountError
+    let errorCodes: [String: [Enums.DeleteAccountErrorCode]]
+
+    enum TypeName: String, Codable {
+      case deleteAccountError = "DeleteAccountError"
+    }
+  }
+}
+
+extension Objects.DeleteAccountError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.DeleteAccountErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.DeleteAccountError {
+  func errorCodes() throws -> [Enums.DeleteAccountErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias DeleteAccountError<T> = Selection<T, Objects.DeleteAccountError>
+}
+
+extension Objects {
+  struct DeleteAccountSuccess {
+    let __typename: TypeName = .deleteAccountSuccess
+    let userId: [String: String]
+
+    enum TypeName: String, Codable {
+      case deleteAccountSuccess = "DeleteAccountSuccess"
+    }
+  }
+}
+
+extension Objects.DeleteAccountSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "userId":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    userId = map["userId"]
+  }
+}
+
+extension Fields where TypeLock == Objects.DeleteAccountSuccess {
+  func userId() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "userID",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.userId[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias DeleteAccountSuccess<T> = Selection<T, Objects.DeleteAccountSuccess>
+}
+
+extension Objects {
   struct DeleteHighlightError {
     let __typename: TypeName = .deleteHighlightError
     let errorCodes: [String: [Enums.DeleteHighlightErrorCode]]
@@ -7383,6 +7513,7 @@ extension Objects {
     let createNewsletterEmail: [String: Unions.CreateNewsletterEmailResult]
     let createReaction: [String: Unions.CreateReactionResult]
     let createReminder: [String: Unions.CreateReminderResult]
+    let deleteAccount: [String: Unions.DeleteAccountResult]
     let deleteHighlight: [String: Unions.DeleteHighlightResult]
     let deleteHighlightReply: [String: Unions.DeleteHighlightReplyResult]
     let deleteLabel: [String: Unions.DeleteLabelResult]
@@ -7478,6 +7609,10 @@ extension Objects.Mutation: Decodable {
         }
       case "createReminder":
         if let value = try container.decode(Unions.CreateReminderResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "deleteAccount":
+        if let value = try container.decode(Unions.DeleteAccountResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "deleteHighlight":
@@ -7667,6 +7802,7 @@ extension Objects.Mutation: Decodable {
     createNewsletterEmail = map["createNewsletterEmail"]
     createReaction = map["createReaction"]
     createReminder = map["createReminder"]
+    deleteAccount = map["deleteAccount"]
     deleteHighlight = map["deleteHighlight"]
     deleteHighlightReply = map["deleteHighlightReply"]
     deleteLabel = map["deleteLabel"]
@@ -7876,6 +8012,25 @@ extension Fields where TypeLock == Objects.Mutation {
     switch response {
     case let .decoding(data):
       if let data = data.createReminder[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func deleteAccount<Type>(userId: String, selection: Selection<Type, Unions.DeleteAccountResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "deleteAccount",
+      arguments: [Argument(name: "userID", type: "ID!", value: userId)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.deleteAccount[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -18212,6 +18367,80 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct DeleteAccountResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.DeleteAccountErrorCode]]
+    let userId: [String: String]
+
+    enum TypeName: String, Codable {
+      case deleteAccountError = "DeleteAccountError"
+      case deleteAccountSuccess = "DeleteAccountSuccess"
+    }
+  }
+}
+
+extension Unions.DeleteAccountResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.DeleteAccountErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "userId":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    userId = map["userId"]
+  }
+}
+
+extension Fields where TypeLock == Unions.DeleteAccountResult {
+  func on<Type>(deleteAccountError: Selection<Type, Objects.DeleteAccountError>, deleteAccountSuccess: Selection<Type, Objects.DeleteAccountSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "DeleteAccountError", selection: deleteAccountError.selection), GraphQLField.fragment(type: "DeleteAccountSuccess", selection: deleteAccountSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .deleteAccountError:
+        let data = Objects.DeleteAccountError(errorCodes: data.errorCodes)
+        return try deleteAccountError.decode(data: data)
+      case .deleteAccountSuccess:
+        let data = Objects.DeleteAccountSuccess(userId: data.userId)
+        return try deleteAccountSuccess.decode(data: data)
+      }
+    case .mocking:
+      return deleteAccountError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias DeleteAccountResult<T> = Selection<T, Unions.DeleteAccountResult>
+}
+
+extension Unions {
   struct DeleteHighlightReplyResult {
     let __typename: TypeName
     let errorCodes: [String: [Enums.DeleteHighlightReplyErrorCode]]
@@ -22231,6 +22460,17 @@ extension Enums {
     case notFound = "NOT_FOUND"
 
     case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
+  /// DeleteAccountErrorCode
+  enum DeleteAccountErrorCode: String, CaseIterable, Codable {
+    case forbidden = "FORBIDDEN"
+
+    case unauthorized = "UNAUTHORIZED"
+
+    case userNotFound = "USER_NOT_FOUND"
   }
 }
 

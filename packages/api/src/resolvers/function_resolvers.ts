@@ -30,6 +30,7 @@ import {
   createLabelResolver,
   createNewsletterEmailResolver,
   createReminderResolver,
+  deleteAccountResolver,
   deleteHighlightResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
@@ -118,6 +119,7 @@ export const functionResolvers = {
     googleLogin: googleLoginResolver,
     googleSignup: googleSignupResolver,
     logOut: logOutResolver,
+    deleteAccount: deleteAccountResolver,
     saveArticleReadingProgress: saveArticleReadingProgressResolver,
     updateUser: updateUserResolver,
     updateUserProfile: updateUserProfileResolver,
@@ -586,4 +588,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Webhook'),
   ...resultResolveTypeResolver('ApiKeys'),
   ...resultResolveTypeResolver('RevokeApiKey'),
+  ...resultResolveTypeResolver('DeleteAccount'),
 }

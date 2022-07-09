@@ -32,7 +32,7 @@ services:
       - http.cors.allow-credentials=true
       - http.port=9201
     volumes:
-      - ./.docker/elastic-test-data:/usr/share/elasticsearch-test/data
+      - ./.docker/elastic-test-data:/usr/share/elasticsearch/data
     ports:
       - "9201:9201"
 
