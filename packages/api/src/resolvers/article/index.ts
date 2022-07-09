@@ -404,7 +404,7 @@ export const getArticleResolver: ResolverFn<
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
     }
 
-    const includeOriginalHtml = !!(graphqlFields(info).article.originalHtml)
+    const includeOriginalHtml = !!graphqlFields(info).article.originalHtml
 
     analytics.track({
       userId: claims?.uid,
@@ -417,8 +417,14 @@ export const getArticleResolver: ResolverFn<
 
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
-      (await getPageByParam({ userId: claims.uid, slug }, includeOriginalHtml)) ||
-      (await getPageByParam({ userId: claims.uid, _id: slug }, includeOriginalHtml))
+      (await getPageByParam(
+        { userId: claims.uid, slug },
+        includeOriginalHtml
+      )) ||
+      (await getPageByParam(
+        { userId: claims.uid, _id: slug },
+        includeOriginalHtml
+      ))
 
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
