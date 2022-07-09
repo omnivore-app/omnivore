@@ -102,7 +102,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
-        cardBoxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.1)',
+        cardBoxShadow: '0px 16px 25px 16px rgba(32, 31, 29, 0.1)',
       },
       zIndices: {},
       transitions: {},
@@ -111,7 +111,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
-        grayBorder: 'rgba(0, 0, 0, 0.06)',
+        grayBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
 
@@ -172,12 +172,11 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
 const darkThemeSpec = {
   colors: {
-    // Grayscale (top ones have been updated from new designs)
     grayBase: '#252525',
     grayBg: '#3B3938',
     grayBgActive: '#4f4d4c',
     grayTextContrast: '#D8D7D7',
-    grayBorder: 'rgba(255, 255, 255, 0.06)',
+    grayBorder: '#323232',
     graySolid: '#9C9B9A',
 
     grayBgSubtle: 'hsl(0 0% 9.8%)',
@@ -213,7 +212,7 @@ const darkThemeSpec = {
   },
   shadows: {
     cardBoxShadow:
-      '0px 0px 9px -2px rgba(255, 255, 255, 0.09), 0px 7px 12px rgba(255, 255, 255, 0.07)',
+      '0px 0px 9px -2px rgba(5, 5, 5, 0.16), 0px 7px 12px rgba(0, 0, 0, 0.13)',
   },
 }
 

@@ -131,12 +131,14 @@ const textVariants = {
       fontSize: '14px',
     },
     menuTitle: {
-      fontSize: 13,
       pt: '0px',
       m: '0px',
-      borderRadius: 3,
       cursor: 'default',
-      color: '$grayText'
+      color: '$grayText',
+      fontSize: 16,
+      fontFamily: 'inter',
+      fontWeight: '500',
+      lineHeight: 'unset',
     },
     error: {
       color: '$error',
