@@ -57,7 +57,7 @@ export function useGetArticleOriginalHtmlQuery({
     makeGqlFetcher(variables)
   )
 
-  let resultData: ArticleData | undefined = data as ArticleData
+  const resultData: ArticleData | undefined = data as ArticleData
   console.log("RESULT", JSON.stringify(data))
 
   return resultData?.article.article.originalHtml
