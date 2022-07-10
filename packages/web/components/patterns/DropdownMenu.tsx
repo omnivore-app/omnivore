@@ -42,7 +42,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     <Dropdown triggerElement={props.triggerElement}>
       <VStack css={{ py: '12px', px: '24px' }}>
         <StyledText style="menuTitle">Theme</StyledText>
-        <HStack css={{ py: '8px', width: '100%', gap: '8px' }}>
+        <HStack css={{ py: '8px', width: '100%', gap: '25px' }}>
           <Button
             style="themeSwitch"
             css={{ background: '#FFFFFF' }}

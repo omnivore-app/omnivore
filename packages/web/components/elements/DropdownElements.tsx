@@ -19,7 +19,7 @@ const itemStyles = {
   px: '24px',
   borderRadius: 3,
   cursor: 'default',
-  color: '$grayText',
+  color: '$utilityTextDefault',
 
   '&:focus': {
     outline: 'none',
@@ -106,7 +106,7 @@ const StyledArrow = styled(Arrow, {
 })
 
 const StyledLabel = styled(Label, {
-  color: '$grayText',
+  color: '$utilityTextDefault',
   fontSize: 13,
   padding: '5px 10px',
   cursor: 'default',
