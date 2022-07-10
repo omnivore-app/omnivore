@@ -114,12 +114,13 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
+        utilityTextDefault: '#3B3938',
 
         grayBgSubtle: 'hsl(0 0% 97.3%)',
         grayBgHover: 'hsl(0 0% 93.0%)',
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
-        grayText: 'hsl(0 0% 43.5%)',
+        grayText: '#3B3938',
 
         // Semantic Colors
         highlightBackground: 'rgba(255, 210, 52, 0.65)',
@@ -178,12 +179,13 @@ const darkThemeSpec = {
     grayTextContrast: '#D8D7D7',
     grayBorder: '#323232',
     graySolid: '#9C9B9A',
+    utilityTextDefault: '#CDCDCD',
 
     grayBgSubtle: 'hsl(0 0% 9.8%)',
     grayBgHover: 'hsl(0 0% 13.8%)',
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
-    grayText: 'hsl(0 0% 62.8%)',
+    grayText: '#CDCDCD',
 
     // Semantic Colors
     highlightBackground: '#867740',
