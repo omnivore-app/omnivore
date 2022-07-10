@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { styled } from '../tokens/stitches.config'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { HexColorPicker } from 'react-colorful'
+import {getLuminance, lighten, toHex} from 'color2k'
 import { HStack, SpanBox } from './LayoutPrimitives'
 import { CaretDown } from 'phosphor-react'
 import { StyledText } from './StyledText'
@@ -11,9 +12,6 @@ import {
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
 import {
-  getLuminanceFromRGB,
-  hextoRGB,
-  increaseBrightness,
   labelColorObjects,
 } from '../../utils/settings-page/labels/labelColorObjects'
 import { DropdownOption } from './DropdownElements'
@@ -114,13 +112,23 @@ export const LabelColorDropdown = (props: LabelColorDropdownProps) => {
   const isDarkMode = isDarkTheme()
   const iconColor = isDarkMode ? '#FFFFFF' : '#0A0806'
   const [open, setOpen] = useState<boolean | undefined>(false)
-
   const handleCustomColorChange = (color: string) => {
-    const rgb = hextoRGB(color)
-    const luminance = rgb && getLuminanceFromRGB(rgb)
-    let newColor = ''
-    if (luminance && luminance < 0.5) {
-      newColor = increaseBrightness(rgb, 4)
+    // const { background } = getLabelColorObject(
+    //   color as LabelColor
+    // )
+    // console.log('background',toHex(background));
+
+    const luminance = getLuminance(color)
+    let newColor = color
+    if(isDarkMode){
+       if(luminance < 0.5) {
+        newColor = toHex(lighten(color, 0.5))
+       }
+    } else {
+      // light mode
+      // set color as background color
+      // If background is dark, set label color as white
+      // if background is light, set label color as black
     }
     setLabelColorHex({
       rowId: labelId,
