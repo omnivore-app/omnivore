@@ -17,7 +17,6 @@ import { deleteHighlightMutation } from '../../../lib/networking/mutations/delet
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
-import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import Script from 'next/script'
 import { theme } from '../../../components/tokens/stitches.config'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
@@ -153,6 +152,26 @@ export default function Home(): JSX.Element {
       name: 'Back to library',
       shortcut: ['u'],
       perform: () => router.push(`/home`),
+    },
+    {
+      id: 'highlight',
+      section: 'Article',
+      name: 'Highlight selected text',
+      shortcut: ['h'],
+      perform: () => {
+        const event = new Event('highlight');
+        document.dispatchEvent(event);
+      },
+    },
+    {
+      id: 'note',
+      section: 'Article',
+      name: 'Highlight selected text and add a note',
+      shortcut: ['n'],
+      perform: () => {
+        const event = new Event('annotate');
+        document.dispatchEvent(event);
+      },
     },
   ], [article])
 

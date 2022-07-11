@@ -1,5 +1,3 @@
-import { highlightBarKeyboardCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { isAndroid } from '../../lib/deviceType'
 
 import { styled, theme } from '../tokens/stitches.config'
@@ -82,21 +80,6 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
 }
 
 function BarContent(props: HighlightBarProps): JSX.Element {
-  useKeyboardShortcuts(
-    highlightBarKeyboardCommands((action) => {
-      switch (action) {
-        case 'createHighlight':
-          props.handleButtonClick('create')
-          break
-        case 'openNoteModal':
-          props.handleButtonClick('comment')
-          break
-        case 'openPostModal':
-          break
-      }
-    })
-  )
-
   const Separator = styled('div', {
     width: '1px',
     maxWidth: '1px',

@@ -48,7 +48,7 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     {
       id: 'lightTheme',
       section: 'Preferences',
-      name: 'Change theme (lighter) ',
+      name: 'Change theme (light) ',
       shortcut: ['v', 'l'],
       keywords: 'light theme',
       perform: () => lightenTheme(),
@@ -56,7 +56,7 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
     {
       id: 'darkTheme',
       section: 'Preferences',
-      name: 'Change theme (darker) ',
+      name: 'Change theme (dark) ',
       shortcut: ['v', 'd'],
       keywords: 'dark theme',
       perform: () => darkenTheme(),

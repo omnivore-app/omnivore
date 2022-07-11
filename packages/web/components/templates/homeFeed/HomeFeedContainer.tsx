@@ -491,18 +491,18 @@ export function HomeFeedContainer(): JSX.Element {
   ]
 
   const UNACTIVE_ACTIONS = [
-    createAction({
-      section: 'Library',
-      name: 'Sort item in ascending order',
-      shortcut: ['s', 'o'],
-      perform: () => setQueryInputs({ ...queryInputs, sortDescending: false }),
-    }),
-    createAction({
-      section: 'Library',
-      name: 'Sort item in descending order',
-      shortcut: ['s', 'n'],
-      perform: () => setQueryInputs({ ...queryInputs, sortDescending: true }),
-    }),
+    // createAction({
+    //   section: 'Library',
+    //   name: 'Sort in ascending order',
+    //   shortcut: ['s', 'o'],
+    //   perform: () => setQueryInputs({ ...queryInputs, sortDescending: false }),
+    // }),
+    // createAction({
+    //   section: 'Library',
+    //   name: 'Sort in descending order',
+    //   shortcut: ['s', 'n'],
+    //   perform: () => setQueryInputs({ ...queryInputs, sortDescending: true }),
+    // }),
   ]
 
   useRegisterActions(searchResults.map(link => ({
