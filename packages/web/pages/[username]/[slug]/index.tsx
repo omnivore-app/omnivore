@@ -142,16 +142,23 @@ export default function Home(): JSX.Element {
     {
       id: 'open',
       section: 'Article',
-      name: 'Open original article page',
+      name: 'Open original article',
       shortcut: ['o'],
       perform: () => actionHandler('openOriginalArticle')
     },
     {
       id: 'back',
-      section: 'Article',
-      name: 'Back to library',
+      section: 'Navigation',
+      name: 'Return to library',
       shortcut: ['u'],
       perform: () => router.push(`/home`),
+    },
+    {
+      id: 'archive',
+      section: 'Article',
+      name: 'Archive current item',
+      shortcut: ['e'],
+      perform: () => actionHandler('archive'),
     },
     {
       id: 'highlight',
