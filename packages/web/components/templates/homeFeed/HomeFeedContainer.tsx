@@ -42,7 +42,7 @@ import {
   State,
   PageType,
 } from '../../../lib/networking/fragments/articleFragment'
-import { useRegisterActions, createAction, useKBar } from 'kbar'
+import { useRegisterActions, createAction, useKBar, Action } from 'kbar'
 import { EditTitleModal } from './EditTitleModal'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { searchQuery } from '../../../lib/networking/queries/search'
@@ -490,7 +490,7 @@ export function HomeFeedContainer(): JSX.Element {
     }),
   ]
 
-  const UNACTIVE_ACTIONS = [
+  const UNACTIVE_ACTIONS: Action[] = [
     // createAction({
     //   section: 'Library',
     //   name: 'Sort in ascending order',
