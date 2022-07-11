@@ -1,7 +1,8 @@
+import { getLuminance } from 'color2k'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { SpanBox } from './LayoutPrimitives'
-
+import { isDarkTheme } from '../../lib/themeUpdater'
 type LabelChipProps = {
   text: string
   color: string // expected to be a RGB hex color string
@@ -9,6 +10,7 @@ type LabelChipProps = {
 
 export function LabelChip(props: LabelChipProps): JSX.Element {
   const router = useRouter()
+
   const hexToRgb = (hex: string) => {
     const bigint = parseInt(hex.substring(1), 16)
     const r = (bigint >> 16) & 255
@@ -17,19 +19,27 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
 
     return [r, g, b]
   }
+  const isDarkMode = isDarkTheme()
+  const luminance = getLuminance(props.color)
   const color = hexToRgb(props.color)
-
   return (
-    <Button style="plainIcon" onClick={(e) => {
-      router.push(`/home?q=label:"${props.text}"`)
-      e.stopPropagation()
-    }}>
+    <Button
+      style="plainIcon"
+      onClick={(e) => {
+        router.push(`/home?q=label:"${props.text}"`)
+        e.stopPropagation()
+      }}
+    >
       <SpanBox
         css={{
           display: 'inline-table',
           margin: '4px',
           borderRadius: '32px',
-          color: props.color,
+          color: isDarkMode
+            ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`
+            : luminance > 0.5
+            ? '#000000'
+            : '#ffffff',
           fontSize: '12px',
           fontWeight: 'bold',
           padding: '2px 5px 2px 5px',
@@ -37,7 +47,9 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
           cursor: 'pointer',
           backgroundClip: 'padding-box',
           border: `1px solid rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.7)`,
-          backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`,
+          backgroundColor: isDarkMode
+            ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.08)`
+            : props.color,
         }}
       >
         {props.text}
