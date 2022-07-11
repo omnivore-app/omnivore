@@ -61,6 +61,10 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
 
   const [keys, setKeys] = useReducer(keysReducer, initalKeyMapping)
 
+  const metaPressed = useCallback(() => {
+    return keys['meta'] === true
+  }, [keys])
+
   const applyCommands = useCallback(
     (updatedKeys: KeyPressed, disabled?: boolean) => {
       let commandApplied = false
@@ -69,6 +73,7 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
           return
         }
         const tempState = { ...updatedKeys }
+
         const arePressed = command.shortcutKeys.every((key) => {
           const aliases = key.split('|')
           for (const k of aliases) {
@@ -107,6 +112,10 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
 
       if (keys[key] === undefined) return
       if (keys[key] === false) {
+        if (key === 'k' && metaPressed()) {
+          // not setting the K value because meta is already pressed
+          return
+        }
         setKeys({ type: ActionType.SET_KEY_DOWN, key })
       }
       const commandApplied = applyCommands(
