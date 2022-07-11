@@ -147,8 +147,8 @@ export default function Home(): JSX.Element {
       perform: () => actionHandler('openOriginalArticle')
     },
     {
-      id: 'back',
-      section: 'Navigation',
+      id: 'back_home',
+      section: 'Article',
       name: 'Return to library',
       shortcut: ['u'],
       perform: () => router.push(`/home`),
@@ -166,8 +166,7 @@ export default function Home(): JSX.Element {
       name: 'Highlight selected text',
       shortcut: ['h'],
       perform: () => {
-        const event = new Event('highlight');
-        document.dispatchEvent(event);
+        document.dispatchEvent(new Event('highlight'));
       },
     },
     {
@@ -176,11 +175,10 @@ export default function Home(): JSX.Element {
       name: 'Highlight selected text and add a note',
       shortcut: ['n'],
       perform: () => {
-        const event = new Event('annotate');
-        document.dispatchEvent(event);
+        document.dispatchEvent(new Event('annotate'));
       },
     },
-  ], [article])
+  ], [])
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')

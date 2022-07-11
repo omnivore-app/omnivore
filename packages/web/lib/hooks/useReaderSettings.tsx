@@ -130,7 +130,7 @@ export const useReaderSettings = (): ReaderSettings => {
       shortcut: ['l'],
       perform: () => setShowSetLabelsModal(true),
     },
-  ], [fontSize, marginWidth, setFontSize, setMarginWidth])
+  ], [])
 
   return {
     preferencesData,

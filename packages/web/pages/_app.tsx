@@ -16,6 +16,7 @@ import {
   KBarSearch,
 } from 'kbar'
 import { animatorStyle, KBarResultsComponents, searchStyle } from '../components/elements/KBar'
+import { darkenTheme, lightenTheme } from '../lib/themeUpdater'
 
 TopBarProgress.config({
   barColors: {
@@ -35,6 +36,22 @@ const generateActions = (router: NextRouter) => {
       shortcut: ['g', 'h'],
       keywords: 'go home',
       perform: () => router?.push('/home'),
+    },
+    {
+      id: 'lightTheme',
+      section: 'Preferences',
+      name: 'Change theme (light) ',
+      shortcut: ['v', 'l'],
+      keywords: 'light theme',
+      perform: () => lightenTheme(),
+    },
+    {
+      id: 'darkTheme',
+      section: 'Preferences',
+      name: 'Change theme (dark) ',
+      shortcut: ['v', 'd'],
+      keywords: 'dark theme',
+      perform: () => darkenTheme(),
     },
   ]
 

@@ -1,7 +1,7 @@
 import { Box, HStack } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from './../elements/images/OmnivoreNameLogo'
 import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
-import { darkenTheme, lightenTheme, updateTheme } from '../../lib/themeUpdater'
+import { updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
 import { ThemeId } from './../tokens/stitches.config'
 import { useCallback, useEffect, useState } from 'react'
@@ -10,7 +10,6 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { setupAnalytics } from '../../lib/analytics'
-import { useRegisterActions } from 'kbar'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -43,25 +42,6 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       }
     })
   )
-
-  useRegisterActions([
-    {
-      id: 'lightTheme',
-      section: 'Preferences',
-      name: 'Change theme (light) ',
-      shortcut: ['v', 'l'],
-      keywords: 'light theme',
-      perform: () => lightenTheme(),
-    },
-    {
-      id: 'darkTheme',
-      section: 'Preferences',
-      name: 'Change theme (dark) ',
-      shortcut: ['v', 'd'],
-      keywords: 'dark theme',
-      perform: () => darkenTheme(),
-    },
-  ])
 
   const initAnalytics = useCallback(() => {
     setupAnalytics(props.user)
