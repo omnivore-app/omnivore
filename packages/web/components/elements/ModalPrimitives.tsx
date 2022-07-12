@@ -37,7 +37,7 @@ export const ModalContent = styled(Modal, {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: '90vw',
-  maxWidth: '600px',
+  maxWidth: '450px',
   maxHeight: '85vh',
   '@smDown': {
     maxWidth: '95%',

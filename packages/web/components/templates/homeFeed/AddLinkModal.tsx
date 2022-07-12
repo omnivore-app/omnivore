@@ -63,7 +63,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', maxWidth: '20em', pt: '0px' }}
+        css={{ bg: '$grayBg', height: '218px' }}
         onInteractOutside={() => {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
@@ -89,7 +89,6 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
               />
             </Button>
           </HStack>
-          <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />          
           <Box css={{ width: '100%',  px: '16px', pt: '42px', pb: '24px' }}>
             <form
               onSubmit={(event) => {

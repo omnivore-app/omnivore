@@ -73,7 +73,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     )
   } else if (props.type === 'select') {
     return (
-      <select onChange={input.onChange}>
+      <select onChange={input.onChange} style={{ padding: '8px', height: '38px', borderRadius: '6px', minWidth: '196px' }}>
         {input.options?.map((label, index) => (
           <option key={index} value={label}>{label}</option>
         ))}
@@ -103,6 +103,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
           fontSize: '16px',
           textIndent: '8px',
           marginBottom: '2px',
+          height: '38px',
           color: '$grayTextContrast',
           '&:focus': {
             outline: 'none',

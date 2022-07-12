@@ -45,7 +45,7 @@ const textVariants = {
     },
     modalHeadline: {
       fontWeight: '500',
-      fontSize: '16px',
+      fontSize: '24px',
       lineHeight: '1',
       color: '$grayText',
       margin: 0,
@@ -65,7 +65,7 @@ const textVariants = {
     shareHighlightModalAnnotation: {
       fontSize: '18px',
       lineHeight: '23.4px',
-      color: '$textSubtle',
+      color: '$utilityTextSubtle',
       m: 0,
     },
     footnote: {
@@ -105,7 +105,7 @@ const textVariants = {
       lineHeight: '22.5px',
       letterSpacing: '0.01em',
       margin: '0px',
-      color: '$textSubtle',
+      color: '$utilityTextSubtle',
     },
     highlightTitle: {
       fontSize: '14px',
@@ -133,9 +133,8 @@ const textVariants = {
     menuTitle: {
       pt: '0px',
       m: '0px',
-      cursor: 'default',
-      color: '$grayText',
-      fontSize: 16,
+      color: '$utilityTextSubtle',
+      fontSize: 14,
       fontFamily: 'inter',
       fontWeight: '500',
       lineHeight: 'unset',

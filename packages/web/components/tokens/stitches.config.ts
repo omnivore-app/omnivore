@@ -114,7 +114,10 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
+        textDefault: 'rgba(255, 255, 255, 0.8)',
         utilityTextDefault: '#3B3938',
+        utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
+        textNonessential: 'rgba(10, 8, 6, 0.4)',
 
         grayBgSubtle: 'hsl(0 0% 97.3%)',
         grayBgHover: 'hsl(0 0% 93.0%)',
@@ -153,8 +156,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         tooltipIcons: '#FDFAEC',
 
         //utility
-        textDefault: 'rgba(10, 8, 6, 0.8)',
-        textSubtle: 'rgba(10, 8, 6, 0.65)',
+        utilityTextSubtle: 'rgba(10, 8, 6, 0.65)',
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
       },
@@ -179,7 +181,9 @@ const darkThemeSpec = {
     grayTextContrast: '#D8D7D7',
     grayBorder: '#323232',
     graySolid: '#9C9B9A',
+    textDefault: 'rgba(10, 8, 6, 0.8)',
     utilityTextDefault: '#CDCDCD',
+    textNonessential: 'rgba(97, 97, 97, 1)',
 
     grayBgSubtle: 'hsl(0 0% 9.8%)',
     grayBgHover: 'hsl(0 0% 13.8%)',
@@ -205,8 +209,7 @@ const darkThemeSpec = {
     avatarFont: 'rgba(255, 255, 255, 0.8)',
 
     //utility
-    textDefault: 'rgba(255, 255, 255, 0.8)',
-    textSubtle: 'rgba(255, 255, 255, 0.65)',
+    utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
     textNonEssential: 'rgba(10, 8, 6, 0.4)',
     overlay: 'rgba(10, 8, 6, 0.65)',
 

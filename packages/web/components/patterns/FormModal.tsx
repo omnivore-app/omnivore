@@ -8,8 +8,8 @@ import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
 import { useState } from 'react'
 import { FormInputProps, GeneralFormInput } from '../elements/FormElements'
-import { CrossIcon } from '../elements/images/CrossIcon'
 import { theme } from '../tokens/stitches.config'
+import { X } from 'phosphor-react'
 
 export interface FormModalProps {
   inputs?: FormInputProps[]
@@ -30,30 +30,31 @@ export function FormModal(props: FormModalProps): JSX.Element {
           event.preventDefault()
           props.onOpenChange(false)
         }}
-        css={{ overflow: 'auto', p: '0' }}
+        css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack>
           <HStack
             distribution="between"
             alignment="center"
-            css={{ width: '100%' }}
+            css={{ height: '68px', width: '100%' }}
           >
-            <StyledText style="modalHeadline" css={{ p: '16px' }}>
+            <StyledText style="modalHeadline" css={{  }}>
               {props.title}
             </StyledText>
             <Button
-              css={{ pt: '16px', pr: '16px' }}
+              css={{ ml: 'auto' }}
               style="ghost"
               onClick={() => {
                 props.onOpenChange(false)
               }}
             >
-              <CrossIcon
-                size={20}
-                strokeColor={theme.colors.grayText.toString()}
+              <X
+                size={24}
+                color={theme.colors.textNonessential.toString()}
               />
             </Button>
           </HStack>
+
           <Box css={{ width: '100%' }}>
             <form
               onSubmit={(event) => {
@@ -63,32 +64,32 @@ export function FormModal(props: FormModalProps): JSX.Element {
               }}
             >
               {inputs.map((input, index) => (
-                <HStack key={index} css={{ padding: '10px 0 0 10px' }}>
-                  <Box
-                    css={{
-                      p: '0',
-                      width: '25%',
-                      paddingLeft: '16px',
-                      paddingTop: '5px',
-                    }}
-                  >
-                    <StyledText style={'menuTitle'}>
+                <VStack key={index}>
+                  <StyledText style={'menuTitle'} css={{ pt: index > 0 ? '10px' : 'unset' }}>
                       {input.label}
                     </StyledText>
-                  </Box>
-                  <Box css={{ width: '100%', marginRight: '20px' }}>
+                  <Box css={{ width: '100%' }}>
                     <GeneralFormInput {...input} />
                   </Box>
-                </HStack>
+                </VStack>
               ))}
               <HStack
-                alignment="end"
+                alignment="center"
                 distribution="end"
                 css={{
+                  gap: '10px',
                   width: '100%',
-                  padding: '32px 22px 20px 0',
+                  height: '80px',
                 }}
               >
+                <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
+                  console.log('cancelinmg')
+                    event.preventDefault()
+                    props.onOpenChange(false)
+                  }}
+                >
+                  {'Cancel'}
+                </Button>
                 <Button style={'ctaDarkYellow'}>
                   {props.acceptButtonLabel || 'Submit'}
                 </Button>
