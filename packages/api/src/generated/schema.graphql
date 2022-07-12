@@ -924,7 +924,7 @@ type Query {
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
-  typeahead(query: String!): TypeaheadResult!
+  typeahead(query: String!, size: Int): TypeaheadResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!

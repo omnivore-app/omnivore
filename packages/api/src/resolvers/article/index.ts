@@ -22,6 +22,7 @@ import {
   QueryArticleArgs,
   QueryArticlesArgs,
   QuerySearchArgs,
+  QueryTypeaheadArgs,
   ResolverFn,
   SaveArticleReadingProgressError,
   SaveArticleReadingProgressErrorCode,
@@ -35,6 +36,9 @@ import {
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
+  TypeaheadError,
+  TypeaheadErrorCode,
+  TypeaheadSuccess,
 } from '../../generated/graphql'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Merge } from '../../util'
@@ -82,6 +86,7 @@ import {
   deletePage,
   getPageById,
   getPageByParam,
+  searchAsYouType,
   searchPages,
   updatePage,
 } from '../../elastic/pages'
@@ -888,4 +893,26 @@ export const searchResolver = authorized<
       totalCount,
     },
   }
+})
+
+export const typeaheadResolver = authorized<
+  TypeaheadSuccess,
+  TypeaheadError,
+  QueryTypeaheadArgs
+>(async (_obj, { query, size }, { claims }) => {
+  if (!claims?.uid) {
+    return { errorCodes: [TypeaheadErrorCode.Unauthorized] }
+  }
+
+  analytics.track({
+    userId: claims.uid,
+    event: 'typeahead',
+    properties: {
+      env: env.server.apiEnv,
+      query,
+      size,
+    },
+  })
+
+  return { items: await searchAsYouType(claims.uid, query, size || undefined) }
 })
