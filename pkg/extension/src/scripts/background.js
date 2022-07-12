@@ -47,6 +47,17 @@ function removeStorage (itemsToRemove) {
   });
 }
 
+function getCurrentTab () {
+  return new Promise((resolve) => {
+    browserApi.tabs.query({
+      active: true,
+      currentWindow: true
+    }, function (tabs) {
+      resolve(tabs[0] || null);
+    });
+  });
+}
+
 function setupConnection(xhr) {
   xhr.setRequestHeader('Content-Type', 'application/json');
   if (authToken) {
@@ -164,6 +175,119 @@ function clearClickCompleteState () {
   });
 }
 
+function handleSaveResponse (tab, xhr) {
+  if (xhr.readyState === 4) {
+    if (xhr.status === 200) {
+      const { data } = JSON.parse(xhr.response);
+      if ('createArticle' in data) {
+        if ('errorCodes' in data.createArticle) {
+          const messagePayload = {
+            text: descriptions[data.createArticle.errorCodes[0]] || 'Unable to save page',
+            type: 'error'
+          };
+
+          if (data.createArticle.errorCodes[0] === 'UNAUTHORIZED') {
+            messagePayload.errorCode = 401;
+            messagePayload.url = omnivoreURL;
+
+            clearClickCompleteState();
+          }
+
+          browserApi.tabs.sendMessage(tab.id, {
+            action: ACTIONS.ShowMessage,
+            payload: messagePayload
+          });
+        } else {
+          const article = data.createArticle.createdArticle;
+          const user = data.createArticle.user;
+          const link = omnivoreURL + (article.hasContent ? (`/${user.profile.username}/` + article.slug) : '/home');
+          browserApi.tabs.sendMessage(tab.id, {
+            action: ACTIONS.ShowMessage,
+            payload: {
+              text: 'Saved to Omnivore',
+              link: link,
+              linkText: 'View',
+              type: 'success'
+            }
+          });
+        }
+      } else {
+        if ('errorCodes' in data.createArticleSavingRequest) {
+          browserApi.tabs.sendMessage(tab.id, {
+            action: ACTIONS.ShowMessage,
+            payload: {
+              text: descriptions[data.createArticleSavingRequest.errorCodes[0]] || 'Unable to save page',
+              type: 'error'
+            }
+          });
+        } else {
+          const articleSavingRequest = data.createArticleSavingRequest.articleSavingRequest;
+          const link = omnivoreURL + '/article/sr/' + articleSavingRequest.id;
+          browserApi.tabs.sendMessage(tab.id, {
+            action: ACTIONS.ShowMessage,
+            payload: {
+              text: 'Saved to Omnivore',
+              link: link,
+              linkText: 'View',
+              type: 'success'
+            }
+          });
+        }
+      }
+    } else if (xhr.status === 400) {
+      browserApi.tabs.sendMessage(tab.id, {
+        action: ACTIONS.ShowMessage,
+        payload: {
+          text: 'Unable to save page',
+          type: 'error'
+        }
+      });
+    }
+  }
+}
+
+async function saveUrl (currentTab, url) {
+  browserApi.tabs.sendMessage(currentTab.id, {
+    action: ACTIONS.ShowMessage,
+    payload: {
+      type: 'loading',
+      text: 'Saving...'
+    }
+  });
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', omnivoreGraphqlURL + 'graphql', true);
+    setupConnection(xhr);
+    xhr.onerror = (err) => {
+      resolve(null);
+    };
+    xhr.onload = (res) => {
+      try {
+        handleSaveResponse(currentTab, xhr)
+      } catch (err) {
+        console.log('response error', err)
+      }
+      resolve({});
+    };
+
+    const data = JSON.stringify({
+      query: CREATE_ARTICLE_SAVING_REQUEST_QUERY,
+      variables: {
+        input: {
+          url
+        }
+      }
+    });
+
+    xhr.send(data);
+  })
+  .catch((err) => {
+    console.error('error saving url', err)
+    return undefined
+  });
+}
+
 function saveArticle (tab) {
   browserApi.tabs.sendMessage(tab.id, {
     action: ACTIONS.ShowMessage,
@@ -183,72 +307,7 @@ function saveArticle (tab) {
   };
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        const { data } = JSON.parse(xhr.response);
-        if ('createArticle' in data) {
-          if ('errorCodes' in data.createArticle) {
-            const messagePayload = {
-              text: descriptions[data.createArticle.errorCodes[0]] || 'Unable to save page',
-              type: 'error'
-            };
-
-            if (data.createArticle.errorCodes[0] === 'UNAUTHORIZED') {
-              messagePayload.errorCode = 401;
-              messagePayload.url = omnivoreURL;
-
-              clearClickCompleteState();
-            }
-
-            browserApi.tabs.sendMessage(tab.id, {
-              action: ACTIONS.ShowMessage,
-              payload: messagePayload
-            });
-          } else {
-            const article = data.createArticle.createdArticle;
-            const user = data.createArticle.user;
-            const link = omnivoreURL + (article.hasContent ? (`/${user.profile.username}/` + article.slug) : '/home');
-            browserApi.tabs.sendMessage(tab.id, {
-              action: ACTIONS.ShowMessage,
-              payload: {
-                text: 'Saved to Omnivore',
-                link: link,
-                linkText: 'View',
-                type: 'success'
-              }
-            });
-          }
-        } else {
-          if ('errorCodes' in data.createArticleSavingRequest) {
-            browserApi.tabs.sendMessage(tab.id, {
-              action: ACTIONS.ShowMessage,
-              payload: {
-                text: descriptions[data.createArticleSavingRequest.errorCodes[0]] || 'Unable to save page',
-                type: 'error'
-              }
-            });
-          } else {
-            const articleSavingRequest = data.createArticleSavingRequest.articleSavingRequest;
-            const link = omnivoreURL + '/article/sr/' + articleSavingRequest.id;
-            browserApi.tabs.sendMessage(tab.id, {
-              action: ACTIONS.ShowMessage,
-              payload: {
-                text: 'Saved to Omnivore',
-                link: link,
-                linkText: 'View',
-                type: 'success'
-              }
-            });
-          }
-        }
-      } else if (xhr.status === 400) {
-        browserApi.tabs.sendMessage(tab.id, {
-          action: ACTIONS.ShowMessage,
-          payload: {
-            text: 'Unable to save page',
-            type: 'error'
-          }
-        });
-      }
+      handleSaveResponse(tab, xhr)
     }
   };
 
@@ -484,18 +543,13 @@ function checkAuthOnFirstClickPostInstall (tabId) {
   });
 }
 
-function getCurrentTab () {
-  return new Promise((resolve) => {
-    browserApi.tabs.query({
-      active: true,
-      currentWindow: true
-    }, function (tabs) {
-      resolve(tabs[0] || null);
-    });
-  });
+function handleActionClick () {
+  executeAction(function (currentTab) {
+    onExtensionClick(currentTab.id);
+  })
 }
 
-function handleActionClick () {
+function executeAction(action) {
   getCurrentTab().then((currentTab) => {
     browserApi.tabs.sendMessage(currentTab.id, {
       action: ACTIONS.Ping
@@ -504,7 +558,7 @@ function handleActionClick () {
         // Content script ready
         const isSignedUp = await checkAuthOnFirstClickPostInstall(currentTab.id);
         if (isSignedUp) {
-          onExtensionClick(currentTab.id);
+          action(currentTab);
         }
       } else {
         const extensionManifest = browserApi.runtime.getManifest();
@@ -518,7 +572,7 @@ function handleActionClick () {
         executeScripts(currentTab.id, scriptFiles, async function () {
           const isSignedUp = await checkAuthOnFirstClickPostInstall(currentTab.id);
           if (isSignedUp) {
-            onExtensionClick(currentTab.id);
+            action(currentTab);
           }
         });
       }
@@ -643,6 +697,17 @@ function init () {
   // set initial extension icon
   browserActionApi.setIcon({
     path: getIconPath(true)
+  });
+
+  browserApi.contextMenus.create({
+    id: "log-selection",
+    title: "Save to Omnivore",
+    contexts: ["link"],
+    onclick: async function(obj) {
+      executeAction(async function (currentTab) {
+        await saveUrl(currentTab, obj.linkUrl)
+      })
+    },
   });
 }
 

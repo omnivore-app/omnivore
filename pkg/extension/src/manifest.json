@@ -22,7 +22,7 @@
     "256": "/images/extension/icon-256.png"
   },
 
-  "permissions": ["activeTab", "storage", "https://*/**", "http://*/**"],
+  "permissions": ["activeTab", "storage", "contextMenus", "https://*/**", "http://*/**"],
 
   "background": {
     "page": "/views/background.html",
@@ -70,6 +70,15 @@
       "48": "/images/toolbar/icon-48.png"
     },
     "default_title": "Omnivore Save Article"
+  },
+
+  "commands": {
+    "_execute_browser_action": {
+        "suggested_key": {
+          "default": "Alt + O"
+        },
+        "description": "Save the current tab to Omnivore"
+    }
   },
 
   "web_accessible_resources": ["views/cta-popup.html"]
