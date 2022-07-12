@@ -1763,6 +1763,26 @@ const schema = gql`
     labelIds: [ID!]!
   }
 
+  union TypeaheadResult = TypeaheadSuccess | TypeaheadError
+
+  type TypeaheadSuccess {
+    items: [TypeaheadItem!]!
+  }
+
+  type TypeaheadError {
+    errorCodes: [TypeaheadErrorCode!]!
+  }
+
+  enum TypeaheadErrorCode {
+    UNAUTHORIZED
+  }
+
+  type TypeaheadItem {
+    id: ID!
+    title: String!
+    slug: String!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1876,6 +1896,7 @@ const schema = gql`
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
+    typeahead(query: String!): TypeaheadResult!
   }
 `
 
