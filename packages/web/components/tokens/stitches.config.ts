@@ -156,7 +156,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         tooltipIcons: '#FDFAEC',
 
         //utility
-        utilityTextSubtle: 'rgba(10, 8, 6, 0.65)',
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
       },
