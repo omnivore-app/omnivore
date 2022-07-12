@@ -7860,7 +7860,7 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.7.1.tgz#c6b9198178da504dfca1fd0be9b2e1002f1586f0"
   integrity sha512-ncRdc45SoYJ2H4eWU9ReDfp3vtFqDYhjOsKlFFUDEn8V1Bgr2RjYal8YT5byfadWIRluhPFU6JiDOl0H6Sl87A==
 
-"@types/node@^10.1.0", "@types/node@^10.11.0":
+"@types/node@^10.1.0":
   version "10.17.60"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.60.tgz#35f3d6213daed95da7f0f73e75bcc6980e90597b"
   integrity sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==
@@ -19945,12 +19945,9 @@ parse-json@^5.2.0:
     lines-and-columns "^1.1.6"
 
 parse-multipart-data@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/parse-multipart-data/-/parse-multipart-data-1.2.1.tgz#813fbe04f4018521e4db2422802de618ebe499be"
-  integrity sha512-R5X4KciY9tTsB9QEFDpx2dDrcvK8P06MbMML7CYoIt4RcGgMEgmxv54dEP2NANOd29JGA60uQ/P9UcaH/XE6oQ==
-  dependencies:
-    "@types/node" "^10.11.0"
-    typescript "^2.9.2"
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/parse-multipart-data/-/parse-multipart-data-1.3.0.tgz#052b5da3866cdc73c5d11727cbe9a6e33acf3feb"
+  integrity sha512-ymOiW2z+Ld3UxKdICkS8Ts0EKAQH5IhM/CbqRYf/oY1JbSGrL/4HZcv729EHR5apGDSaD1Le8tT8A22OjBzZrg==
 
 parse-passwd@^1.0.0:
   version "1.0.0"
@@ -24086,11 +24083,6 @@ typeorm@^0.3.4:
     uuid "^8.3.2"
     xml2js "^0.4.23"
     yargs "^17.3.1"
-
-typescript@^2.9.2:
-  version "2.9.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
-  integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
 
 typescript@^4.4.3:
   version "4.4.3"
