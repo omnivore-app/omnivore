@@ -133,8 +133,8 @@ const textVariants = {
     menuTitle: {
       pt: '0px',
       m: '0px',
-      color: '$utilityTextSubtle',
-      fontSize: 14,
+      color: '$utilityTextDefault',
+      fontSize: 16,
       fontFamily: 'inter',
       fontWeight: '500',
       lineHeight: 'unset',
