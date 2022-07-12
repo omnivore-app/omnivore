@@ -14,7 +14,7 @@ import { styled } from './../tokens/stitches.config'
 
 const itemStyles = {
   fontSize: '16px',
-  fontWeight: 'semibold',
+  fontWeight: '500',
   py: '12px',
   px: '24px',
   borderRadius: 3,
