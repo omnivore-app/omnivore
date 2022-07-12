@@ -25,7 +25,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
   const lightenColor = lighten(props.color, 0.5)
   const color = hexToRgb(props.color)
   const darkThemeTextColor =
-    luminance > 0.4
+    luminance > 0.2
       ? `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`
       : lightenColor
   const lightThemeTextColor = luminance > 0.5 ? '#000000' : '#ffffff'
