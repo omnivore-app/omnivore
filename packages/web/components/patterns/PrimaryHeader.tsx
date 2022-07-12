@@ -1,7 +1,7 @@
 import { Box, HStack } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from './../elements/images/OmnivoreNameLogo'
 import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
-import { darkenTheme, lightenTheme, updateTheme } from '../../lib/themeUpdater'
+import { updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
 import { ThemeId } from './../tokens/stitches.config'
 import { useCallback, useEffect, useState } from 'react'
@@ -30,39 +30,18 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
   useKeyboardShortcuts(
     primaryCommands((action) => {
       switch (action) {
-        case 'themeDarker':
-          darkenTheme()
-          break
-        case 'themeLighter':
-          lightenTheme()
-          break
+        // case 'themeDarker':
+        //   darkenTheme()
+        //   break
+        // case 'themeLighter':
+        //   lightenTheme()
+        //   break
         case 'toggleShortcutHelpModalDisplay':
           props.setShowKeyboardCommandsModal(true)
           break
       }
     })
   )
-
-/*
-  useRegisterActions([
-    {
-      id: 'lightTheme',
-      section: 'Preferences',
-      name: 'Change theme (lighter) ',
-      shortcut: ['v', 'l'],
-      keywords: 'light theme',
-      perform: () => lightenTheme(),
-    },
-    {
-      id: 'darkTheme',
-      section: 'Preferences',
-      name: 'Change theme (darker) ',
-      shortcut: ['v', 'd'],
-      keywords: 'dark theme',
-      perform: () => darkenTheme(),
-    },
-  ])
-  */
 
   const initAnalytics = useCallback(() => {
     setupAnalytics(props.user)
