@@ -1,5 +1,9 @@
 import { Root, Overlay, Content } from '@radix-ui/react-dialog'
+import { X } from 'phosphor-react'
 import { styled, keyframes, theme } from '../tokens/stitches.config'
+import { Button } from './Button'
+import { HStack } from './LayoutPrimitives'
+import { StyledText } from './StyledText'
 
 export const ModalRoot = styled(Root, {})
 
@@ -44,3 +48,65 @@ export const ModalContent = styled(Modal, {
     width: '95%',
   },
 })
+
+export type ModalTitleBarProps = {
+  title: string
+  onOpenChange: (open: boolean) => void
+}
+
+export const ModalTitleBar = (props: ModalTitleBarProps) => {
+  return (
+    <HStack
+      distribution="between"
+      alignment="center"
+      css={{ height: '68px', width: '100%' }}
+    >
+      <StyledText style="modalHeadline" css={{  }}>
+        {props.title}
+      </StyledText>
+      <Button
+        css={{ ml: 'auto' }}
+        style="ghost"
+        onClick={() => {
+          props.onOpenChange(false)
+        }}
+      >
+        <X
+          size={24}
+          color={theme.colors.textNonessential.toString()}
+        />
+      </Button>
+    </HStack>
+  )
+}
+
+type ModalButtonBarProps = {
+  acceptButtonLabel?: string
+  onOpenChange: (open: boolean) => void
+}
+
+export const ModalButtonBar = (props: ModalButtonBarProps) => {
+  return (
+    <HStack
+      alignment="center"
+      distribution="end"
+      css={{
+        gap: '10px',
+        width: '100%',
+        height: '80px',
+      }}
+    >
+      <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
+        console.log('cancelinmg')
+          event.preventDefault()
+          props.onOpenChange(false)
+        }}
+      >
+        {'Cancel'}
+      </Button>
+      <Button style={'ctaDarkYellow'}>
+        {props.acceptButtonLabel || 'Submit'}
+      </Button>
+    </HStack>
+  )
+}

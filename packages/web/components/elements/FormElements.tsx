@@ -96,7 +96,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
         hidden={input.hidden}
         required={input.required}
         css={{
-          border: '1px solid $grayBorder',
+          border: '1px solid $textNonessential',
           borderRadius: '8px',
           width: '100%',
           bg: 'transparent',

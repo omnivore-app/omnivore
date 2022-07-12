@@ -2,6 +2,8 @@ import {
   ModalRoot,
   ModalContent,
   ModalOverlay,
+  ModalTitleBar,
+  ModalButtonBar,
 } from './../../elements/ModalPrimitives'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -75,41 +77,22 @@ export function HighlightNoteModal(
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ overflow: 'auto' }}
+        css={{ bg: '$grayBg', px: '24px' }}
         onPointerDownOutside={(event) => {
           event.preventDefault()
         }}
       >
         <VStack>
-          <HStack
-            distribution="between"
-            alignment="center"
-            css={{ width: '100%' }}
-          >
-            <StyledText style="modalHeadline" css={{ p: '16px' }}>
-              Notes
-            </StyledText>
-            <Button
-              css={{ pt: '16px', pr: '16px' }}
-              style="ghost"
-              onClick={() => {
-                props.onOpenChange(false)
-              }}
-            >
-              <CrossIcon
-                size={20}
-                strokeColor={theme.colors.grayText.toString()}
-              />
-            </Button>
-          </HStack>
-          <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />
+          <ModalTitleBar title="Notes" onOpenChange={props.onOpenChange} />
           <StyledTextArea
             css={{
-              mt: '$2',
-              width: '95%',
-              p: '0px',
-              height: '$6',
-              marginLeft: '16px',
+              mt: '16px',
+              p: '6px',
+              width: '100%',
+              height: '248px',
+              fontSize: '14px',
+              border: '1px solid $textNonessential',
+              borderRadius: '6px'
             }}
             autoFocus
             placeholder={'Add your note here'}
@@ -117,19 +100,7 @@ export function HighlightNoteModal(
             onChange={handleNoteContentChange}
             maxLength={4000}
           />
-            <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />
-          <HStack
-            alignment="end"
-            distribution="end"
-            css={{
-              width: '100%',
-              padding: '22px 22px 20px 0',
-            }}
-          >
-            <Button style={'ctaDarkYellow'} onClick={saveNoteChanges}>
-              Save
-            </Button>
-          </HStack>
+          <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel="Save" />
         </VStack>
       </ModalContent>
     </ModalRoot>

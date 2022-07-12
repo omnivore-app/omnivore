@@ -1,7 +1,9 @@
 import {
+  ModalButtonBar,
   ModalContent,
   ModalOverlay,
   ModalRoot,
+  ModalTitleBar,
 } from '../elements/ModalPrimitives'
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
@@ -33,28 +35,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
         css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack>
-          <HStack
-            distribution="between"
-            alignment="center"
-            css={{ height: '68px', width: '100%' }}
-          >
-            <StyledText style="modalHeadline" css={{  }}>
-              {props.title}
-            </StyledText>
-            <Button
-              css={{ ml: 'auto' }}
-              style="ghost"
-              onClick={() => {
-                props.onOpenChange(false)
-              }}
-            >
-              <X
-                size={24}
-                color={theme.colors.textNonessential.toString()}
-              />
-            </Button>
-          </HStack>
-
+          <ModalTitleBar title={props.title} onOpenChange={props.onOpenChange} />
           <Box css={{ width: '100%' }}>
             <form
               onSubmit={(event) => {
@@ -66,34 +47,14 @@ export function FormModal(props: FormModalProps): JSX.Element {
               {inputs.map((input, index) => (
                 <VStack key={index}>
                   <StyledText style={'menuTitle'} css={{ pt: index > 0 ? '10px' : 'unset' }}>
-                      {input.label}
+                    {input.label}
                     </StyledText>
                   <Box css={{ width: '100%' }}>
                     <GeneralFormInput {...input} />
                   </Box>
                 </VStack>
               ))}
-              <HStack
-                alignment="center"
-                distribution="end"
-                css={{
-                  gap: '10px',
-                  width: '100%',
-                  height: '80px',
-                }}
-              >
-                <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
-                  console.log('cancelinmg')
-                    event.preventDefault()
-                    props.onOpenChange(false)
-                  }}
-                >
-                  {'Cancel'}
-                </Button>
-                <Button style={'ctaDarkYellow'}>
-                  {props.acceptButtonLabel || 'Submit'}
-                </Button>
-              </HStack>
+              <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel={props.acceptButtonLabel} />
             </form>
           </Box>
         </VStack>
