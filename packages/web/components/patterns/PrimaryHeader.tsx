@@ -1,4 +1,4 @@
-import { Box, HStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from './../elements/images/OmnivoreNameLogo'
 import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
 import { updateTheme } from '../../lib/themeUpdater'
@@ -105,15 +105,36 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
 
   return (
     <>
-      <NavHeader
-        {...props}
-        isVisible={true}
-        username={props.user?.profile.username}
-        actionHandler={headerDropdownActionHandler}
-        isDisplayingShadow={isScrolled}
-        toolbarControl={props.toolbarControl}
-        alwaysDisplayToolbar={props.alwaysDisplayToolbar}
-      />
+      <SpanBox css={{
+        '@lgDown': {
+          display: 'none',
+        }
+      }}>
+        <FloatingNavHeader
+          {...props}
+          isVisible={true}
+          username={props.user?.profile.username}
+          actionHandler={headerDropdownActionHandler}
+          isDisplayingShadow={isScrolled}
+          toolbarControl={props.toolbarControl}
+          alwaysDisplayToolbar={props.alwaysDisplayToolbar}
+        />
+      </SpanBox>
+      <SpanBox css={{
+        '@lg': {
+          display: 'none',
+        }
+      }}>
+        <NavHeader
+          {...props}
+          isVisible={true}
+          username={props.user?.profile.username}
+          actionHandler={headerDropdownActionHandler}
+          isDisplayingShadow={isScrolled}
+          toolbarControl={props.toolbarControl}
+          alwaysDisplayToolbar={props.alwaysDisplayToolbar}
+        />
+      </SpanBox>
     </>
   )
 }
@@ -132,8 +153,7 @@ type NavHeaderProps = {
 }
 
 function NavHeader(props: NavHeaderProps): JSX.Element {
-  const router = useRouter()
-  const currentPath = decodeURI(router.asPath)
+  console.log("creating NavHeader")
 
   return (
     <nav>
@@ -166,7 +186,6 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           >
             <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
           </Box>
-          <NavLinks currentPath={currentPath} isLoggedIn={!!props.username} />
         </HStack>
 
         {props.toolbarControl && (
@@ -209,24 +228,47 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
   )
 }
 
-type UserNavLinksProps = {
-  isLoggedIn: boolean
-  currentPath: string
-}
-
-function NavLinks(props: UserNavLinksProps): JSX.Element {
+function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
   return (
     <>
-      {/* <HeaderNavLink
-        isActive={props.currentPath.startsWith('/home')}
-        href={props.isLoggedIn ? '/home' : '/login'}
-        text="Home"
-      /> */}
-      {/* <HeaderNavLink
-        isActive={props.currentPath == '/discover'}
-        href="/discover"
-        text="Discover"
-      /> */}
+      <HStack alignment="center" distribution="start">
+        <Box
+          css={{
+            top: '13px',
+            left: '18px',
+            position: 'fixed',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
+        </Box>
+      </HStack>
+
+      {props.username && (
+        <HStack
+          alignment="center"
+          css={{
+            top: '13px',
+            right: '18px',
+            position: 'fixed',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <DropdownMenu
+            username={props.username}
+            triggerElement={
+              <AvatarDropdown
+                userInitials={props.userInitials}
+                profileImageURL={props.profileImageURL}
+              />
+            }
+            actionHandler={props.actionHandler}
+          />
+        </HStack>
+      )}
     </>
   )
 }
+
