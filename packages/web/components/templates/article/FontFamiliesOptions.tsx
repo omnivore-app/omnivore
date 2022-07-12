@@ -55,7 +55,7 @@ export function FontFamiliesOptions(props: FontFamiliesListProps): JSX.Element {
             css={{ cursor: 'pointer', py: '4px', width: '100%' }}
             onClick={() => props.setShowFontFamilies(false)}
           >
-            <CaretLeft color={theme.colors.textSubtle.toString()} size={15} />
+            <CaretLeft color={theme.colors.utilityTextSubtle.toString()} size={15} />
             <StyledText css={{ textAlign: 'center', m: 0, fontSize: 14, fontWeight: 'bold', width: '100%', wordWrap: 'revert' }}>Choose Font</StyledText>
           </HStack>
         </HStack>

@@ -49,7 +49,6 @@ export function useGetApiKeysQuery(): ApiKeysQueryResponse {
   `
 
   const { data, mutate, error, isValidating } = useSWR(query, publicGqlFetcher)
-  console.log('api keys data', data)
 
   try {
     if (data) {
