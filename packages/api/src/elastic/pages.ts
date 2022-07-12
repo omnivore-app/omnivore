@@ -548,3 +548,50 @@ export const deletePagesByParam = async <K extends keyof ParamSet>(
     return false
   }
 }
+
+export const searchAsYouType = async (
+  userId: string,
+  query: string,
+  size = 5
+): Promise<Page[]> => {
+  try {
+    const { body } = await client.search<SearchResponse<Page>>({
+      index: INDEX_ALIAS,
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                multi_match: {
+                  query,
+                  type: 'bool_prefix',
+                  fields: ['title', 'title._2gram', 'title._3gram'],
+                },
+              },
+            ],
+          },
+        },
+        _source: ['title', 'slug'],
+        size,
+      },
+    })
+
+    if (body.hits.total.value === 0) {
+      return []
+    }
+
+    return body.hits.hits.map((hit: { _source: Page; _id: string }) => ({
+      ...hit._source,
+      id: hit._id,
+    }))
+  } catch (e) {
+    console.error('failed to search as you type in elastic', e)
+
+    return []
+  }
+}

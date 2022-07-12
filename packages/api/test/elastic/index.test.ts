@@ -17,6 +17,7 @@ import {
   deletePagesByParam,
   getPageById,
   getPageByParam,
+  searchAsYouType,
   searchPages,
   updatePage,
 } from '../../src/elastic/pages'
@@ -337,6 +338,41 @@ describe('elastic api', () => {
       )
 
       expect(deleted).to.be.true
+    })
+  })
+
+  describe('searchAsYouType', () => {
+    before(async () => {
+      // create a testing page
+      await createPage(
+        {
+          content: '',
+          createdAt: new Date(),
+          hash: '',
+          id: '',
+          pageType: PageType.Article,
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+          savedAt: new Date(),
+          slug: '',
+          state: ArticleSavingRequestStatus.Succeeded,
+          title: 'search as you type',
+          url: '',
+          userId,
+        },
+        ctx
+      )
+    })
+
+    after(async () => {
+      // delete the testing page
+      await deletePagesByParam({ userId }, ctx)
+    })
+
+    it('searches pages', async () => {
+      const searchResults = await searchAsYouType(userId, 'search')
+      expect(searchResults).to.have.lengthOf(1)
+      expect(searchResults[0].title).to.eq('search as you type')
     })
   })
 })
