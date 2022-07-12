@@ -1763,21 +1763,21 @@ const schema = gql`
     labelIds: [ID!]!
   }
 
-  union TypeaheadResult = TypeaheadSuccess | TypeaheadError
+  union TypeaheadSearchResult = TypeaheadSearchSuccess | TypeaheadSearchError
 
-  type TypeaheadSuccess {
-    items: [TypeaheadItem!]!
+  type TypeaheadSearchSuccess {
+    items: [TypeaheadSearchItem!]!
   }
 
-  type TypeaheadError {
-    errorCodes: [TypeaheadErrorCode!]!
+  type TypeaheadSearchError {
+    errorCodes: [TypeaheadSearchErrorCode!]!
   }
 
-  enum TypeaheadErrorCode {
+  enum TypeaheadSearchErrorCode {
     UNAUTHORIZED
   }
 
-  type TypeaheadItem {
+  type TypeaheadSearchItem {
     id: ID!
     title: String!
     slug: String!
@@ -1896,7 +1896,7 @@ const schema = gql`
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
-    typeahead(query: String!, size: Int): TypeaheadResult!
+    typeaheadSearch(query: String!, size: Int): TypeaheadSearchResult!
   }
 `
 

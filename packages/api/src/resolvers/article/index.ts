@@ -22,7 +22,7 @@ import {
   QueryArticleArgs,
   QueryArticlesArgs,
   QuerySearchArgs,
-  QueryTypeaheadArgs,
+  QueryTypeaheadSearchArgs,
   ResolverFn,
   SaveArticleReadingProgressError,
   SaveArticleReadingProgressErrorCode,
@@ -36,9 +36,9 @@ import {
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
-  TypeaheadError,
-  TypeaheadErrorCode,
-  TypeaheadSuccess,
+  TypeaheadSearchError,
+  TypeaheadSearchErrorCode,
+  TypeaheadSearchSuccess,
 } from '../../generated/graphql'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Merge } from '../../util'
@@ -895,13 +895,13 @@ export const searchResolver = authorized<
   }
 })
 
-export const typeaheadResolver = authorized<
-  TypeaheadSuccess,
-  TypeaheadError,
-  QueryTypeaheadArgs
+export const typeaheadSearchResolver = authorized<
+  TypeaheadSearchSuccess,
+  TypeaheadSearchError,
+  QueryTypeaheadSearchArgs
 >(async (_obj, { query, size }, { claims }) => {
   if (!claims?.uid) {
-    return { errorCodes: [TypeaheadErrorCode.Unauthorized] }
+    return { errorCodes: [TypeaheadSearchErrorCode.Unauthorized] }
   }
 
   analytics.track({
