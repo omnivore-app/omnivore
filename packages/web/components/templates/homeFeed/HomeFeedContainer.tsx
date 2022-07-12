@@ -47,6 +47,7 @@ import { EditTitleModal } from './EditTitleModal'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
 import { searchQuery } from '../../../lib/networking/queries/search'
 import debounce from 'lodash/debounce'
+import { SearchItem, TypeaheadSearchItemsData, typeaheadSearchQuery } from '../../../lib/networking/queries/typeaheadSearch'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -66,7 +67,7 @@ const SAVED_SEARCHES: Record<string, string> = {
 
 const fetchSearchResults = async (query: string, cb: any) => {
   if (!query.startsWith('#')) return
-  const res = await searchQuery({ limit: 10, searchQuery: query.substring(1)})
+  const res = await typeaheadSearchQuery({ limit: 10, searchQuery: query.substring(1)})
   cb(res);
 };
 
@@ -80,7 +81,7 @@ export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const { queryValue } = useKBar((state) => ({queryValue: state.searchQuery}));
-  const [searchResults, setSearchResults] = useState<LibraryItem[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
 
   const defaultQuery = {
     limit: 10,
@@ -121,8 +122,8 @@ export function HomeFeedContainer(): JSX.Element {
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
-      debouncedFetchSearchResults(queryValue, (data: LibraryItemsData) => {
-        setSearchResults(data?.search.edges || [])
+      debouncedFetchSearchResults(queryValue, (data: TypeaheadSearchItemsData) => {
+        setSearchResults(data?.typeaheadSearch.items || [])
       })
     }
     else setSearchResults([])
@@ -506,11 +507,17 @@ export function HomeFeedContainer(): JSX.Element {
   ]
 
   useRegisterActions(searchResults.map(link => ({
-    id: link.node.id,
+    id: link.id,
     section: 'Search Results',
-    name: link.node.title,
-    keywords: '#' + link.node.title,
-    perform: () => handleCardAction('showDetail', link),
+    name: link.title,
+    keywords: '#' + link.title,
+    perform: () => {
+      const username = viewerData?.me?.profile.username
+      if (username) {
+        setActiveCardId(link.id)
+        router.push(`/${username}/${link.slug}`)
+      }
+    },
   })), [searchResults])
 
   useRegisterActions(activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS, [activeCardId, activeItem]);
