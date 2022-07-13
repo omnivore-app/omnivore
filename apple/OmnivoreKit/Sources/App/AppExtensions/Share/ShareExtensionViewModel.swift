@@ -91,7 +91,7 @@ public class ShareExtensionViewModel: ObservableObject {
           self.queueSaveOperation(payload)
         #else
           Task {
-            await createPage(services: self.services, pageScrapePayload: payload)
+            await self.createPage(pageScrapePayload: payload)
           }
         #endif
       case .failure:
