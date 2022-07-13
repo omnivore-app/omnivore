@@ -37,12 +37,12 @@ public final class Authenticator: ObservableObject {
     ValetKey.authToken.value()
   }
 
-  public func logout(dataService: DataService, showAppleRevokeTokenAlert _: Bool = false) {
+  public func logout(dataService: DataService, isAccountDeletion: Bool = false) {
     dataService.resetCoreData()
     clearCreds()
     Authenticator.unregisterIntercomUser?()
     isLoggedIn = false
-    showAppleRevokeTokenAlert = true
+    showAppleRevokeTokenAlert = isAccountDeletion
   }
 
   public func clearCreds() {
