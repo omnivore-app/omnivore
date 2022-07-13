@@ -39,6 +39,9 @@ import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
 import { comparePassword, hashPassword } from '../../utils/auth'
 import { deletePagesByParam } from '../../elastic/pages'
+import { setClaims } from '../../entity/utils'
+import { User as UserEntity } from '../../entity/user'
+import { AppDataSource } from '../../server'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -388,9 +391,12 @@ export const deleteAccountResolver = authorized<
     },
   })
 
-  const deletedUser = await models.user.delete(userID)
-  if ('error' in deletedUser) {
-    log.error('Error deleting user account', deletedUser.error)
+  const result = await AppDataSource.transaction(async (t) => {
+    await setClaims(t, claims.uid)
+    return t.getRepository(UserEntity).delete(userID)
+  })
+  if (!result.affected) {
+    log.error('Error deleting user account')
 
     return {
       errorCodes: [DeleteAccountErrorCode.UserNotFound],
