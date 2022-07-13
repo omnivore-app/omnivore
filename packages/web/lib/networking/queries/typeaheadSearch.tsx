@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { LibraryItemsData } from './useGetLibraryItemsQuery'
 
 export type LibraryItemsQueryInput = {
   limit?: number
@@ -25,9 +24,9 @@ export async function typeaheadSearchQuery({
   limit = 10,
   searchQuery,
 }: LibraryItemsQueryInput): Promise<TypeaheadSearchItemsData | undefined> {
-    const query = gql`
-    query TypeaheadSearch($query: String!, $size: Int) {
-      typeaheadSearch(query: $query, size: $size) {
+  const query = gql`
+    query TypeaheadSearch($query: String!, $first: Int) {
+      typeaheadSearch(query: $query, first: $first) {
         ... on TypeaheadSearchSuccess {
           items {
             id
@@ -48,8 +47,8 @@ export async function typeaheadSearchQuery({
   }
 
   try {
-    const data = (await gqlFetcher(query, {...variables}))
-    return data as TypeaheadSearchItemsData || undefined;
+    const data = await gqlFetcher(query, { ...variables })
+    return (data as TypeaheadSearchItemsData) || undefined
   } catch (error) {
     console.log('search error', error)
     return undefined
