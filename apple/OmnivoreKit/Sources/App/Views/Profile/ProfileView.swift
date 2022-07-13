@@ -40,7 +40,7 @@ import Views
 
     do {
       try await dataService.deleteAccount(userID: currentViewer.unwrappedUserID)
-      authenticator.logout(dataService: dataService)
+      authenticator.logout(dataService: dataService, showAppleRevokeTokenAlert: true)
     } catch {
       deleteAccountErrorMessage = "We were unable to delete your account."
     }
