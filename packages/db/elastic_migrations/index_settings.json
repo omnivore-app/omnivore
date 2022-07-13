@@ -130,7 +130,7 @@
         "type": "date"
       },
       "siteName": {
-        "type": "text"
+        "type": "search_as_you_type"
       },
       "subscription": {
         "type": "keyword",
