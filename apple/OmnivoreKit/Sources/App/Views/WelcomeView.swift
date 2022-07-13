@@ -132,7 +132,7 @@ struct WelcomeView: View {
   }
 
   var authProviderButtonStack: some View {
-    let useHorizontalLayout = containerSize.width > 400
+    let useHorizontalLayout = containerSize.width > 500
 
     let buttonGroup = Group {
       AppleSignInButton {
@@ -166,7 +166,7 @@ struct WelcomeView: View {
   }
 
   public var body: some View {
-    ZStack(alignment: .leading) {
+    ZStack(alignment: viewModel.registrationState == nil ? .leading : .center) {
       Color.appBackground
         .edgesIgnoringSafeArea(.all)
         .modifier(SizeModifier())
@@ -189,7 +189,7 @@ struct WelcomeView: View {
           logoView
             .padding(.bottom, 20)
           headlineView
-          if containerSize.width > 400 {
+          if containerSize.width > 500 {
             authProviderButtonStack
           } else {
             HStack {
