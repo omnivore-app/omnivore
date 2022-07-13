@@ -4,6 +4,6 @@
 
 BEGIN;
 
--- do nothing here, there's no reason to undo this migration.
+REVOKE DELETE ON omnivore.user FROM omnivore_user;
 
 COMMIT;
