@@ -1781,6 +1781,7 @@ const schema = gql`
     id: ID!
     title: String!
     slug: String!
+    siteName: String
   }
 
   # Mutations

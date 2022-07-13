@@ -1454,6 +1454,7 @@ enum TypeaheadSearchErrorCode {
 
 type TypeaheadSearchItem {
   id: ID!
+  siteName: String
   slug: String!
   title: String!
 }

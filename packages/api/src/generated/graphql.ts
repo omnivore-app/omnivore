@@ -1941,6 +1941,7 @@ export enum TypeaheadSearchErrorCode {
 export type TypeaheadSearchItem = {
   __typename?: 'TypeaheadSearchItem';
   id: Scalars['ID'];
+  siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   title: Scalars['String'];
 };
@@ -4185,6 +4186,7 @@ export type TypeaheadSearchErrorResolvers<ContextType = ResolverContext, ParentT
 
 export type TypeaheadSearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchItem'] = ResolversParentTypes['TypeaheadSearchItem']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
