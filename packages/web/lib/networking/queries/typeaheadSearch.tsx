@@ -18,6 +18,7 @@ export type SearchItem = {
   id: string
   title: string
   slug: string
+  siteName?: string
 }
 
 export async function typeaheadSearchQuery({
@@ -32,6 +33,7 @@ export async function typeaheadSearchQuery({
             id
             title
             slug
+            siteName
           }
         }
         ... on TypeaheadSearchError {
