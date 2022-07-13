@@ -56,6 +56,7 @@ import Views
     Task {
       do {
         try await dataService.validateUsernamePublisher(username: username)
+        potentialUsernameStatus = .available
       } catch {
         let usernameError = (error as? UsernameAvailabilityError) ?? .unknown
         switch usernameError {
@@ -152,6 +153,9 @@ struct CreateProfileView: View {
                       .font(.appFootnote)
                       .foregroundColor(.appGrayText)
                     TextField("", text: $viewModel.potentialUsername)
+                    #if os(iOS)
+                      .textInputAutocapitalization(.never)
+                    #endif
                   }
 
                   if viewModel.potentialUsernameStatus == .available {

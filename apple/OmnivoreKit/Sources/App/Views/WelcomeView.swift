@@ -8,6 +8,7 @@ struct WelcomeView: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var authenticator: Authenticator
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  @Environment(\.openURL) var openURL
 
   @StateObject private var viewModel = RegistrationViewModel()
 
@@ -19,6 +20,9 @@ struct WelcomeView: View {
   @State private var showAboutPage = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
   @State private var containerSize: CGSize = .zero
+
+  // swiftlint:disable:next line_length
+  let deletedAccountConfirmationMessage = "Your account has been deleted. Additional steps may be needed if Sign in with Apple was used to register."
 
   func handleHiddenGestureAction() {
     if !Bundle.main.isAppStoreBuild {
@@ -132,7 +136,7 @@ struct WelcomeView: View {
   }
 
   var authProviderButtonStack: some View {
-    let useHorizontalLayout = containerSize.width > 400
+    let useHorizontalLayout = containerSize.width > 500
 
     let buttonGroup = Group {
       AppleSignInButton {
@@ -166,7 +170,7 @@ struct WelcomeView: View {
   }
 
   public var body: some View {
-    ZStack(alignment: .leading) {
+    ZStack(alignment: viewModel.registrationState == nil ? .leading : .center) {
       Color.appBackground
         .edgesIgnoringSafeArea(.all)
         .modifier(SizeModifier())
@@ -189,7 +193,7 @@ struct WelcomeView: View {
           logoView
             .padding(.bottom, 20)
           headlineView
-          if containerSize.width > 400 {
+          if containerSize.width > 500 {
             authProviderButtonStack
           } else {
             HStack {
@@ -204,6 +208,12 @@ struct WelcomeView: View {
         .padding()
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
+        }
+        .alert(deletedAccountConfirmationMessage, isPresented: $authenticator.showAppleRevokeTokenAlert) {
+          Button("View Details") {
+            openURL(URL(string: "https://support.apple.com/en-us/HT210426")!)
+          }
+          Button("Dismiss") { self.authenticator.showAppleRevokeTokenAlert = false }
         }
       }
     }
