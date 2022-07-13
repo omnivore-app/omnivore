@@ -28,6 +28,11 @@ public struct PageScrapePayload {
     self.contentType = .pdf(localUrl: localUrl)
   }
 
+  init(localUrl: URL) {
+    self.url = localUrl.absoluteString
+    self.contentType = .pdf(localUrl: localUrl)
+  }
+
   init(url: String, title: String?, html: String, iconURL: String? = nil) {
     self.url = url
     self.contentType = .html(html: html, title: title, iconURL: iconURL)
@@ -238,13 +243,36 @@ private extension PageScrapePayload {
     if let url = item as? NSURL {
       return makeFromURL(url as URL)
     }
+    if let data = item as? NSData {
+      return makeFromData(data)
+    }
     return nil
   }
 
   static func sharedContainerURL() -> URL {
-    FileManager.default.containerURL(
-      forSecurityApplicationGroupIdentifier: "group.app.omnivoreapp"
+    #if os(iOS)
+      let appGroupID = "group.app.omnivoreapp"
+    #else
+      let appGroupID = "QJF2XZ86HB.app.omnivore.app"
+    #endif
+    return FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: appGroupID
     )!
+  }
+
+  static func makeFromData(_ data: NSData) -> PageScrapePayload? {
+    // Copy PDFs into a temporary file where they are staged for processing.
+    var fileURL = sharedContainerURL()
+    let filePath = UUID().uuidString.lowercased() + ".pdf"
+    fileURL.appendPathComponent(filePath)
+
+    do {
+      try data.write(to: fileURL)
+      return PageScrapePayload(localUrl: fileURL)
+    } catch {
+      print("error copying file locally", error)
+      return nil
+    }
   }
 
   static func makeFromURL(_ url: URL) -> PageScrapePayload? {

@@ -1,125 +1,15 @@
 import Models
+import Services
 import SwiftUI
 import Utils
+import Views
 
-public class ShareExtensionChildViewModel: ObservableObject {
-  @Published public var status: ShareExtensionStatus = .processing
-  @Published public var title: String?
-  @Published public var url: String?
-  @Published public var iconURL: String?
-  @Published public var requestId: String
-
-  public init() {
-    self.requestId = UUID().uuidString.lowercased()
-  }
-}
-
-public enum ShareExtensionStatus {
-  case processing
-  case saved
-  case synced
-  case failed(error: SaveArticleError)
-  case syncFailed(error: SaveArticleError)
-
-  var displayMessage: String {
-    switch self {
-    case .processing:
-      return LocalText.saveArticleProcessingState
-    case .saved:
-      return LocalText.saveArticleSavedState
-    case .synced:
-      return "Synced"
-    case let .failed(error: error):
-      return "Save failed \(error.displayMessage)"
-    case let .syncFailed(error: error):
-      return "Sync failed \(error.displayMessage)"
-    }
-  }
-}
-
-private extension SaveArticleError {
-  var displayMessage: String {
-    switch self {
-    case .unauthorized:
-      return LocalText.extensionAppUnauthorized
-    case .network:
-      return LocalText.networkError
-    case .badData, .unknown:
-      return LocalText.genericError
-    }
-  }
-}
-
-struct IconButtonView: View {
-  let title: String
-  let systemIconName: String
-  let action: () -> Void
-
-  var body: some View {
-    Button(action: action) {
-      VStack(alignment: .center, spacing: 8) {
-        Image(systemName: systemIconName)
-          .font(.appTitle)
-          .foregroundColor(.appYellow48)
-        Text(title)
-          .font(.appBody)
-          .foregroundColor(.appGrayText)
-      }
-      .frame(
-        maxWidth: .infinity,
-        maxHeight: .infinity
-      )
-      .background(Color.appButtonBackground)
-      .cornerRadius(8)
-    }
-    .frame(height: 100)
-  }
-}
-
-struct CheckmarkButtonView: View {
-  let titleText: String
-  let isSelected: Bool
-  let action: () -> Void
-
-  var body: some View {
-    Button(
-      action: action,
-      label: {
-        HStack {
-          Text(titleText)
-          Spacer()
-          if isSelected {
-            Image(systemName: "checkmark")
-              .foregroundColor(.appYellow48)
-          }
-        }
-        .padding(.vertical, 8)
-      }
-    )
-    .buttonStyle(RectButtonStyle())
-  }
-}
-
-public struct ShareExtensionChildView: View {
-  let viewModel: ShareExtensionChildViewModel
-  let onAppearAction: () -> Void
-  let readNowButtonAction: (String) -> Void
-  let dismissButtonTappedAction: (ReminderTime?, Bool) -> Void
+public struct ShareExtensionView: View {
+  let extensionContext: NSExtensionContext?
+  @StateObject private var viewModel = ShareExtensionViewModel()
 
   @State var reminderTime: ReminderTime?
   @State var hideUntilReminded = false
-
-  public init(
-    viewModel: ShareExtensionChildViewModel,
-    onAppearAction: @escaping () -> Void,
-    readNowButtonAction: @escaping (String) -> Void,
-    dismissButtonTappedAction: @escaping (ReminderTime?, Bool) -> Void
-  ) {
-    self.viewModel = viewModel
-    self.onAppearAction = onAppearAction
-    self.readNowButtonAction = readNowButtonAction
-    self.dismissButtonTappedAction = dismissButtonTappedAction
-  }
 
   private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
     if selectedTime == reminderTime {
@@ -263,16 +153,20 @@ public struct ShareExtensionChildView: View {
 
       Spacer()
 
+      if let item = viewModel.linkedItem {
+        ApplyLabelsView(mode: .item(item), onSave: nil)
+      }
+
       HStack {
         Button(
-          action: { readNowButtonAction(self.viewModel.requestId) },
+          action: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
           label: { Text("Read Now").frame(maxWidth: .infinity) }
         )
         .buttonStyle(RoundedRectButtonStyle())
 
         Button(
           action: {
-            dismissButtonTappedAction(reminderTime, hideUntilReminded)
+            extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
           },
           label: {
             Text("Dismiss")
@@ -290,7 +184,8 @@ public struct ShareExtensionChildView: View {
       alignment: .topLeading
     )
     .onAppear {
-      onAppearAction()
+      viewModel.savePage(extensionContext: extensionContext)
     }
+    .environmentObject(viewModel.services.dataService)
   }
 }

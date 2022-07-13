@@ -3,23 +3,23 @@ import Models
 import SwiftUI
 import Utils
 
-enum AsyncImageStatus {
+public enum AsyncImageStatus {
   case loading
   case loaded(image: Image)
   case error
 }
 
-struct AsyncLoadingImage<Content: View>: View {
+public struct AsyncLoadingImage<Content: View>: View {
   let viewBuilder: (AsyncImageStatus) -> Content
   let url: URL
   @StateObject private var imageLoader = ImageLoader()
 
-  init(url: URL, @ViewBuilder viewBuilder: @escaping (AsyncImageStatus) -> Content) {
+  public init(url: URL, @ViewBuilder viewBuilder: @escaping (AsyncImageStatus) -> Content) {
     self.url = url
     self.viewBuilder = viewBuilder
   }
 
-  var body: some View {
+  public var body: some View {
     viewBuilder(imageLoader.status)
       .task { await imageLoader.load(fromUrl: url) }
   }

@@ -52,6 +52,9 @@ struct WelcomeView: View {
         }
       )
       .foregroundColor(.appGrayTextContrast)
+      #if os(macOS)
+        .buttonStyle(PlainButtonStyle())
+      #endif
     }
   }
 

@@ -11,11 +11,7 @@ struct WebReader: PlatformViewRepresentable {
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityRatioUpdater: (Double) -> Void
 
-  @Binding var updateFontFamilyActionID: UUID?
-  @Binding var updateFontActionID: UUID?
-  @Binding var updateTextContrastActionID: UUID?
-  @Binding var updateMaxWidthActionID: UUID?
-  @Binding var updateLineHeightActionID: UUID?
+  @Binding var readerSettingsChangedTransactionID: UUID?
   @Binding var annotationSaveTransactionID: UUID?
   @Binding var showNavBarActionID: UUID?
   @Binding var shareActionID: UUID?
@@ -79,35 +75,18 @@ struct WebReader: PlatformViewRepresentable {
     return webView
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   private func updatePlatformView(_ webView: WKWebView, context: Context) {
     if annotationSaveTransactionID != context.coordinator.lastSavedAnnotationID {
       context.coordinator.lastSavedAnnotationID = annotationSaveTransactionID
       (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
     }
 
-    if updateFontFamilyActionID != context.coordinator.previousUpdateFontFamilyActionID {
-      context.coordinator.previousUpdateFontFamilyActionID = updateFontFamilyActionID
+    if readerSettingsChangedTransactionID != context.coordinator.previousReaderSettingsChangedUUID {
+      context.coordinator.previousReaderSettingsChangedUUID = readerSettingsChangedTransactionID
       (webView as? OmnivoreWebView)?.updateFontFamily()
-    }
-
-    if updateFontActionID != context.coordinator.previousUpdateFontActionID {
-      context.coordinator.previousUpdateFontActionID = updateFontActionID
       (webView as? OmnivoreWebView)?.updateFontSize()
-    }
-
-    if updateTextContrastActionID != context.coordinator.previousUpdateTextContrastActionID {
-      context.coordinator.previousUpdateTextContrastActionID = updateTextContrastActionID
       (webView as? OmnivoreWebView)?.updateTextContrast()
-    }
-
-    if updateMaxWidthActionID != context.coordinator.previousUpdateMaxWidthActionID {
-      context.coordinator.previousUpdateMaxWidthActionID = updateMaxWidthActionID
       (webView as? OmnivoreWebView)?.updateMaxWidthPercentage()
-    }
-
-    if updateLineHeightActionID != context.coordinator.previousUpdateLineHeightActionID {
-      context.coordinator.previousUpdateLineHeightActionID = updateLineHeightActionID
       (webView as? OmnivoreWebView)?.updateLineHeight()
     }
 
