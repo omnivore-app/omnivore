@@ -899,7 +899,7 @@ export const typeaheadSearchResolver = authorized<
   TypeaheadSearchSuccess,
   TypeaheadSearchError,
   QueryTypeaheadSearchArgs
->(async (_obj, { query, size }, { claims }) => {
+>(async (_obj, { query, first }, { claims }) => {
   if (!claims?.uid) {
     return { errorCodes: [TypeaheadSearchErrorCode.Unauthorized] }
   }
@@ -910,9 +910,9 @@ export const typeaheadSearchResolver = authorized<
     properties: {
       env: env.server.apiEnv,
       query,
-      size,
+      first,
     },
   })
 
-  return { items: await searchAsYouType(claims.uid, query, size || undefined) }
+  return { items: await searchAsYouType(claims.uid, query, first || undefined) }
 })

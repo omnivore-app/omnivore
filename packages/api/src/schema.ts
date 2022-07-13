@@ -1896,7 +1896,7 @@ const schema = gql`
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
-    typeaheadSearch(query: String!, size: Int): TypeaheadSearchResult!
+    typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
   }
 `
 

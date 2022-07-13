@@ -1353,8 +1353,8 @@ export type QuerySubscriptionsArgs = {
 
 
 export type QueryTypeaheadSearchArgs = {
+  first?: InputMaybe<Scalars['Int']>;
   query: Scalars['String'];
-  size?: InputMaybe<Scalars['Int']>;
 };
 
 
