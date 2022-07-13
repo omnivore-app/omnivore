@@ -570,13 +570,20 @@ export const searchAsYouType = async (
                 multi_match: {
                   query,
                   type: 'bool_prefix',
-                  fields: ['title', 'title._2gram', 'title._3gram'],
+                  fields: [
+                    'title',
+                    'title._2gram',
+                    'title._3gram',
+                    'siteName',
+                    'siteName._2gram',
+                    'siteName._3gram',
+                  ],
                 },
               },
             ],
           },
         },
-        _source: ['title', 'slug'],
+        _source: ['title', 'slug', 'siteName'],
         size,
       },
     })
