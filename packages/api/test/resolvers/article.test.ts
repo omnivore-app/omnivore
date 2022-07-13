@@ -317,6 +317,25 @@ const saveArticleReadingProgressQuery = (
     `
 }
 
+const typeaheadSearchQuery = (keyword: string) => {
+  return `
+  query {
+    typeaheadSearch(query: "${keyword}") {
+      ... on TypeaheadSearchSuccess {
+        items {
+          id
+          slug
+          title
+        }
+      }
+      ... on TypeaheadSearchError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 describe('Article API', () => {
   const username = 'fakeUser'
   let authToken: string
@@ -1067,6 +1086,56 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
         expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
       })
+    })
+  })
+
+  describe('TypeaheadSearch API', () => {
+    const pages: Page[] = []
+
+    let query = ''
+    let keyword = 'typeahead'
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        const page: Page = {
+          id: '',
+          hash: '',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'typeahead search page',
+          content: '',
+          slug: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgressPercent: 0,
+          readingProgressAnchorIndex: 0,
+          url: '',
+          savedAt: new Date(),
+          state: ArticleSavingRequestStatus.Succeeded,
+        }
+        const pageId = await createPage(page, ctx)
+        if (!pageId) {
+          expect.fail('Failed to create page')
+        }
+        page.id = pageId
+        pages.push(page)
+      }
+    })
+
+    beforeEach(async () => {
+      query = typeaheadSearchQuery(keyword)
+    })
+
+    it('should return pages with typeahead prefix', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.search.edges.length).to.eql(5)
+      expect(res.body.data.search.edges[0].node.id).to.eq(pages[4].id)
+      expect(res.body.data.search.edges[1].node.id).to.eq(pages[3].id)
+      expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
+      expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
+      expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
     })
   })
 })

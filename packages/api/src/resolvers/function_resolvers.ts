@@ -76,6 +76,7 @@ import {
   signupResolver,
   subscribeResolver,
   subscriptionsResolver,
+  typeaheadSearchResolver,
   unsubscribeResolver,
   updateHighlightResolver,
   updateLabelResolver,
@@ -188,6 +189,7 @@ export const functionResolvers = {
     webhooks: webhooksResolver,
     webhook: webhookResolver,
     apiKeys: apiKeysResolver,
+    typeaheadSearch: typeaheadSearchResolver,
   },
   User: {
     async sharedArticles(
@@ -589,4 +591,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('ApiKeys'),
   ...resultResolveTypeResolver('RevokeApiKey'),
   ...resultResolveTypeResolver('DeleteAccount'),
+  ...resultResolveTypeResolver('TypeaheadSearch'),
 }

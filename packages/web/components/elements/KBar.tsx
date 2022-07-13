@@ -14,13 +14,14 @@ export const searchStyle = {
 }
 
 export const animatorStyle = {
-  maxWidth: '600px',
   width: '100%',
-  backgroundColor: theme.colors.grayBase.toString(),
-  color: theme.colors.grayTextContrast.toString(),
-  borderRadius: '8px',
   overflow: 'hidden',
-  boxShadow: '0px 6px 20px rgba(0, 0, 0, 0.2)',
+  maxWidth: '600px',
+  borderRadius: '8px',
+  color: theme.colors.grayTextContrast.toString(),
+  backgroundColor: theme.colors.grayBase.toString(),
+  boxShadow: theme.shadows.cardBoxShadow.toString(),
+  border: `1px solid ${theme.colors.grayBorder.toString()}`,
 }
 
 const groupNameStyle = {

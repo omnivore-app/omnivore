@@ -1280,6 +1280,7 @@ export type Query = {
   sendInstallInstructions: SendInstallInstructionsResult;
   sharedArticle: SharedArticleResult;
   subscriptions: SubscriptionsResult;
+  typeaheadSearch: TypeaheadSearchResult;
   user: UserResult;
   users: UsersResult;
   validateUsername: Scalars['Boolean'];
@@ -1348,6 +1349,12 @@ export type QuerySharedArticleArgs = {
 
 export type QuerySubscriptionsArgs = {
   sort?: InputMaybe<SortParams>;
+};
+
+
+export type QueryTypeaheadSearchArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  query: Scalars['String'];
 };
 
 
@@ -1920,6 +1927,30 @@ export type SubscriptionsResult = SubscriptionsError | SubscriptionsSuccess;
 export type SubscriptionsSuccess = {
   __typename?: 'SubscriptionsSuccess';
   subscriptions: Array<Subscription>;
+};
+
+export type TypeaheadSearchError = {
+  __typename?: 'TypeaheadSearchError';
+  errorCodes: Array<TypeaheadSearchErrorCode>;
+};
+
+export enum TypeaheadSearchErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type TypeaheadSearchItem = {
+  __typename?: 'TypeaheadSearchItem';
+  id: Scalars['ID'];
+  siteName?: Maybe<Scalars['String']>;
+  slug: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export type TypeaheadSearchResult = TypeaheadSearchError | TypeaheadSearchSuccess;
+
+export type TypeaheadSearchSuccess = {
+  __typename?: 'TypeaheadSearchSuccess';
+  items: Array<TypeaheadSearchItem>;
 };
 
 export type UnsubscribeError = {
@@ -2664,6 +2695,11 @@ export type ResolversTypes = {
   SubscriptionsErrorCode: SubscriptionsErrorCode;
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
+  TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
+  TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
+  TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
+  TypeaheadSearchResult: ResolversTypes['TypeaheadSearchError'] | ResolversTypes['TypeaheadSearchSuccess'];
+  TypeaheadSearchSuccess: ResolverTypeWrapper<TypeaheadSearchSuccess>;
   UnsubscribeError: ResolverTypeWrapper<UnsubscribeError>;
   UnsubscribeErrorCode: UnsubscribeErrorCode;
   UnsubscribeResult: ResolversTypes['UnsubscribeError'] | ResolversTypes['UnsubscribeSuccess'];
@@ -2961,6 +2997,10 @@ export type ResolversParentTypes = {
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
+  TypeaheadSearchError: TypeaheadSearchError;
+  TypeaheadSearchItem: TypeaheadSearchItem;
+  TypeaheadSearchResult: ResolversParentTypes['TypeaheadSearchError'] | ResolversParentTypes['TypeaheadSearchSuccess'];
+  TypeaheadSearchSuccess: TypeaheadSearchSuccess;
   UnsubscribeError: UnsubscribeError;
   UnsubscribeResult: ResolversParentTypes['UnsubscribeError'] | ResolversParentTypes['UnsubscribeSuccess'];
   UnsubscribeSuccess: UnsubscribeSuccess;
@@ -3782,6 +3822,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
+  typeaheadSearch?: Resolver<ResolversTypes['TypeaheadSearchResult'], ParentType, ContextType, RequireFields<QueryTypeaheadSearchArgs, 'query'>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
@@ -4135,6 +4176,28 @@ export type SubscriptionsResultResolvers<ContextType = ResolverContext, ParentTy
 
 export type SubscriptionsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsSuccess'] = ResolversParentTypes['SubscriptionsSuccess']> = {
   subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TypeaheadSearchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchError'] = ResolversParentTypes['TypeaheadSearchError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['TypeaheadSearchErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TypeaheadSearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchItem'] = ResolversParentTypes['TypeaheadSearchItem']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TypeaheadSearchResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchResult'] = ResolversParentTypes['TypeaheadSearchResult']> = {
+  __resolveType: TypeResolveFn<'TypeaheadSearchError' | 'TypeaheadSearchSuccess', ParentType, ContextType>;
+};
+
+export type TypeaheadSearchSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchSuccess'] = ResolversParentTypes['TypeaheadSearchSuccess']> = {
+  items?: Resolver<Array<ResolversTypes['TypeaheadSearchItem']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4574,6 +4637,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
+  TypeaheadSearchError?: TypeaheadSearchErrorResolvers<ContextType>;
+  TypeaheadSearchItem?: TypeaheadSearchItemResolvers<ContextType>;
+  TypeaheadSearchResult?: TypeaheadSearchResultResolvers<ContextType>;
+  TypeaheadSearchSuccess?: TypeaheadSearchSuccessResolvers<ContextType>;
   UnsubscribeError?: UnsubscribeErrorResolvers<ContextType>;
   UnsubscribeResult?: UnsubscribeResultResolvers<ContextType>;
   UnsubscribeSuccess?: UnsubscribeSuccessResolvers<ContextType>;

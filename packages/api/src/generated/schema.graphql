@@ -924,6 +924,7 @@ type Query {
   sendInstallInstructions: SendInstallInstructionsResult!
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
+  typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1441,6 +1442,27 @@ union SubscriptionsResult = SubscriptionsError | SubscriptionsSuccess
 
 type SubscriptionsSuccess {
   subscriptions: [Subscription!]!
+}
+
+type TypeaheadSearchError {
+  errorCodes: [TypeaheadSearchErrorCode!]!
+}
+
+enum TypeaheadSearchErrorCode {
+  UNAUTHORIZED
+}
+
+type TypeaheadSearchItem {
+  id: ID!
+  siteName: String
+  slug: String!
+  title: String!
+}
+
+union TypeaheadSearchResult = TypeaheadSearchError | TypeaheadSearchSuccess
+
+type TypeaheadSearchSuccess {
+  items: [TypeaheadSearchItem!]!
 }
 
 type UnsubscribeError {

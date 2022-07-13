@@ -1763,6 +1763,27 @@ const schema = gql`
     labelIds: [ID!]!
   }
 
+  union TypeaheadSearchResult = TypeaheadSearchSuccess | TypeaheadSearchError
+
+  type TypeaheadSearchSuccess {
+    items: [TypeaheadSearchItem!]!
+  }
+
+  type TypeaheadSearchError {
+    errorCodes: [TypeaheadSearchErrorCode!]!
+  }
+
+  enum TypeaheadSearchErrorCode {
+    UNAUTHORIZED
+  }
+
+  type TypeaheadSearchItem {
+    id: ID!
+    title: String!
+    slug: String!
+    siteName: String
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1876,6 +1897,7 @@ const schema = gql`
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
+    typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
   }
 `
 
