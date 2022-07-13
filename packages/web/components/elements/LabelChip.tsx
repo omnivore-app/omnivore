@@ -22,7 +22,7 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
   }
   const isDarkMode = isDarkTheme()
   const luminance = getLuminance(props.color)
-  const lightenColor = lighten(props.color, 0.5)
+  const lightenColor = lighten(props.color, 0.2)
   const color = hexToRgb(props.color)
   const darkThemeTextColor =
     luminance > 0.2
