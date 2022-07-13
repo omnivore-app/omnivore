@@ -329,20 +329,15 @@ export const createArticleResolver = authorized<
         )
       }
 
-      // create new page in elastic
-      if (!pageId) {
-        const newPageId = await createPage(articleToSave, { ...ctx, uid })
-        if (!newPageId) {
-          return pageError(
-            {
-              errorCodes: [CreateArticleErrorCode.ElasticError],
-            },
-            ctx,
-            pageId
-          )
-        }
-        articleToSave.id = newPageId
-      } else {
+      if (
+        pageId ||
+        (pageId = (
+          await getPageByParam({
+            userId: uid,
+            url: articleToSave.url,
+          })
+        )?.id)
+      ) {
         // update existing page's state from processing to succeeded
         articleToSave.archivedAt = archive ? saveTime : null
         const updated = await updatePage(pageId, articleToSave, {
@@ -359,6 +354,19 @@ export const createArticleResolver = authorized<
             pageId
           )
         }
+      } else {
+        // create new page in elastic
+        const newPageId = await createPage(articleToSave, { ...ctx, uid })
+        if (!newPageId) {
+          return pageError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            pageId
+          )
+        }
+        articleToSave.id = newPageId
       }
 
       log.info(
