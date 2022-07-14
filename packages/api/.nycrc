@@ -8,7 +8,7 @@
   "reporter": [
     "text-summary"
   ],
-  "branches": 40,
+  "branches": 0,
   "lines": 0,
   "functions": 0,
   "statements": 60
