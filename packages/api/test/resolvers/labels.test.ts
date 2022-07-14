@@ -11,7 +11,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { Highlight, Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
-import { getPageById } from '../../src/elastic/pages'
+import { deletePagesByParam, getPageById } from '../../src/elastic/pages'
 import { addLabelInPage } from '../../src/elastic/labels'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
@@ -66,6 +66,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
+    await deletePagesByParam({ userId: user.id }, ctx)
     await deleteTestUser(username)
   })
 
