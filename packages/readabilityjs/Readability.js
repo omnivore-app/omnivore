@@ -2879,7 +2879,6 @@ Readability.prototype = {
    *  4. Replace the current DOM tree with the new one.
    *  5. Read peacefully.
    *
-   * @return void
    **/
   parse: async function() {
     // Avoid parsing too large documents, as per configuration option
