@@ -271,6 +271,7 @@ describe('Labels API', () => {
             userId: user.id,
             createdAt: new Date(),
             labels: [toDeleteLabel],
+            updatedAt: new Date(),
           }
           await addHighlightToPage(page.id, highlight, ctx)
         })
@@ -527,6 +528,7 @@ describe('Labels API', () => {
           quote: 'test quote',
           shortId: 'test shortId',
           userId: user.id,
+          updatedAt: new Date(),
         }
         await addHighlightToPage(page.id, highlight, ctx)
         labelIds = [labels[0].id, labels[1].id]
@@ -550,6 +552,7 @@ describe('Labels API', () => {
           quote: 'test quote',
           shortId: 'test shortId',
           userId: user.id,
+          updatedAt: new Date(),
         }
         await addHighlightToPage(page.id, highlight, ctx)
         labelIds = [generateFakeUuid(), generateFakeUuid()]

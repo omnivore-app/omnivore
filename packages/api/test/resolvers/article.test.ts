@@ -460,6 +460,7 @@ describe('Article API', () => {
             createdAt: new Date(),
             patch: 'test patch',
             quote: 'test quote',
+            updatedAt: new Date(),
           },
         ],
       } as Page
