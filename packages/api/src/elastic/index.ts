@@ -12,6 +12,7 @@ export const client = new Client({
     password: env.elastic.password,
   },
 })
+const INDEX_NAME = 'pages'
 
 const createIndex = async (): Promise<void> => {
   // read index settings from file
@@ -22,7 +23,7 @@ const createIndex = async (): Promise<void> => {
 
   // create index
   await client.indices.create({
-    index: INDEX_ALIAS,
+    index: INDEX_NAME,
     body: indexSettings,
   })
 }
