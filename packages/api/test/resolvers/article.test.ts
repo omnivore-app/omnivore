@@ -1131,12 +1131,12 @@ describe('Article API', () => {
     it('should return pages with typeahead prefix', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      expect(res.body.data.search.items.length).to.eql(5)
-      expect(res.body.data.search.items[0].node.id).to.eq(pages[4].id)
-      expect(res.body.data.search.items[1].node.id).to.eq(pages[3].id)
-      expect(res.body.data.search.items[2].node.id).to.eq(pages[2].id)
-      expect(res.body.data.search.items[3].node.id).to.eq(pages[1].id)
-      expect(res.body.data.search.items[4].node.id).to.eq(pages[0].id)
+      expect(res.body.data.typeaheadSearch.items.length).to.eql(5)
+      expect(res.body.data.typeaheadSearch.items[0].id).to.eq(pages[0].id)
+      expect(res.body.data.typeaheadSearch.items[1].id).to.eq(pages[1].id)
+      expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
+      expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
+      expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
     })
   })
 })
