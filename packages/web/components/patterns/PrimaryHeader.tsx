@@ -153,8 +153,6 @@ type NavHeaderProps = {
 }
 
 function NavHeader(props: NavHeaderProps): JSX.Element {
-  console.log("creating NavHeader")
-
   return (
     <nav>
       <HStack
