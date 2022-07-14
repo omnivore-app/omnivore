@@ -1,7 +1,7 @@
 import { env } from '../env'
 import { Client } from '@elastic/elasticsearch'
+import { readFileSync } from 'fs'
 
-export const INDEX_NAME = 'pages'
 export const INDEX_ALIAS = 'pages_alias'
 export const client = new Client({
   node: env.elastic.url,
@@ -13,6 +13,20 @@ export const client = new Client({
   },
 })
 
+const createIndex = async (): Promise<void> => {
+  // read index settings from file
+  const indexSettings = readFileSync(
+    __dirname + '/../../../db/elastic_migrations/index_settings.json',
+    'utf8'
+  )
+
+  // create index
+  await client.indices.create({
+    index: INDEX_ALIAS,
+    body: indexSettings,
+  })
+}
+
 export const initElasticsearch = async (): Promise<void> => {
   try {
     const response = await client.info()
@@ -23,7 +37,11 @@ export const initElasticsearch = async (): Promise<void> => {
       index: INDEX_ALIAS,
     })
     if (!indexExists) {
-      throw new Error('elastic index does not exist')
+      console.log('creating index...')
+      await createIndex()
+
+      console.log('refreshing index...')
+      await refreshIndex()
     }
     console.log('elastic client is ready')
   } catch (e) {
