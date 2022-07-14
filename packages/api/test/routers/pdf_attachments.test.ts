@@ -31,7 +31,7 @@ describe('PDF attachments Router', () => {
   })
 
   describe('upload', () => {
-    it('create upload file request and return id and url', async () => {
+    xit('create upload file request and return id and url', async () => {
       const testFile = 'testFile.pdf'
 
       const res = await request
@@ -64,7 +64,7 @@ describe('PDF attachments Router', () => {
       uploadFileId = res.body.id
     })
 
-    it('create article with uploaded file id and url', async () => {
+    xit('create article with uploaded file id and url', async () => {
       // create article
       const res2 = await request
         .post('/svc/pdf-attachments/create-article')
