@@ -239,6 +239,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             position: 'fixed',
             display: 'flex',
             alignItems: 'center',
+            zIndex: 100,
           }}
         >
           <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
