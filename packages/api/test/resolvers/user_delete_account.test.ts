@@ -1,5 +1,5 @@
 import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import 'mocha'
@@ -47,13 +47,6 @@ describe('the deleteAccount API', () => {
   })
 
   context('deleting a user that exists', () => {
-    it('should return a unauthorized error if authToken is invalid', async () => {
-      const res = await deleteAccountRequest('invalid-auth-token', user.id)
-      expect(res.body.data.deleteAccount.errorCodes).to.contain(
-        DeleteAccountErrorCode.Unauthorized
-      )
-    })
-
     it('should return the user id after a successful user deletion', async () => {
       const res = await deleteAccountRequest(authToken, user.id)
       expect(res.body.data.deleteAccount.userID).to.eql(user.id)
@@ -62,7 +55,7 @@ describe('the deleteAccount API', () => {
 
   context('deleting a user that does not exist', () => {
     it('should return a user not found error if user id is invalid', async () => {
-      const res = await deleteAccountRequest(authToken, 'invalid-user-id')
+      const res = await deleteAccountRequest(authToken, generateFakeUuid())
       expect(res.body.data.deleteAccount.errorCodes).to.contain(
         DeleteAccountErrorCode.UserNotFound
       )

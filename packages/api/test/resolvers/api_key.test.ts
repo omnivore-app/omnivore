@@ -3,6 +3,8 @@ import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import supertest from 'supertest'
+import { getRepository } from '../../src/entity/utils'
+import { ApiKey } from '../../src/entity/api_key'
 
 const testAPIKey = (apiKey: string): supertest.Test => {
   const query = `
@@ -155,6 +157,8 @@ describe('Api Key resolver', () => {
   })
 
   describe('get api keys', () => {
+    let apiKeys = [] as ApiKey[]
+
     before(async () => {
       name = 'test-get-api-keys'
       query = `
@@ -178,8 +182,10 @@ describe('Api Key resolver', () => {
       }
     `
 
-      const response = await graphqlRequest(query, authToken)
-      apiKeyId = response.body.data.generateApiKey.apiKey.id
+      apiKeys = await getRepository(ApiKey).find({
+        select: ['id', 'name'],
+        where: { user: { id: user.id } },
+      })
     })
 
     it('should get api keys', async () => {
@@ -190,8 +196,6 @@ describe('Api Key resolver', () => {
             apiKeys {
               id
               name
-              expiresAt
-              usedAt
             }
           }
           ... on ApiKeysError {
@@ -203,9 +207,7 @@ describe('Api Key resolver', () => {
 
       const response = await graphqlRequest(query, authToken).expect(200)
       expect(response.body.data.apiKeys.apiKeys).to.be.an('array')
-      expect(response.body.data.apiKeys.apiKeys[0].id).to.eql(apiKeyId)
-      expect(response.body.data.apiKeys.apiKeys[0].name).to.eql(name)
-      expect(response.body.data.apiKeys.apiKeys[0].usedAt).to.be.null
+      expect(response.body.data.apiKeys.apiKeys).to.eql(apiKeys)
     })
   })
 })

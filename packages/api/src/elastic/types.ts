@@ -167,7 +167,7 @@ export interface Highlight {
   suffix?: string | null
   annotation?: string | null
   sharedAt?: Date | null
-  updatedAt?: Date
+  updatedAt: Date
   labels?: Label[]
 }
 
