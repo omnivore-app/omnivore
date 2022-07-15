@@ -101,7 +101,6 @@ const getBrowserPromise = (async () => {
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
-      '--no-sandbox',
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
