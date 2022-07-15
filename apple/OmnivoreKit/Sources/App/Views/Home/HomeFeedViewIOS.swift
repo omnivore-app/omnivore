@@ -22,7 +22,6 @@ import Views
       ZStack {
         if let linkRequest = viewModel.linkRequest {
           NavigationLink(
-            // TODO: add alt for macOS
             destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
             tag: linkRequest,
             selection: $viewModel.linkRequest

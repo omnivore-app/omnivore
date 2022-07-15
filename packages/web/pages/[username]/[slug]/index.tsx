@@ -17,7 +17,6 @@ import { deleteHighlightMutation } from '../../../lib/networking/mutations/delet
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
-import { userPersonalizationMutation } from '../../../lib/networking/mutations/userPersonalizationMutation'
 import Script from 'next/script'
 import { theme } from '../../../components/tokens/stitches.config'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
@@ -29,6 +28,7 @@ import { SetLabelsModal } from '../../../components/templates/article/SetLabelsM
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
+import { useRegisterActions } from 'kbar'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -121,6 +121,23 @@ export default function Home(): JSX.Element {
     }
   }, [article, cache, mutate, router, readerSettings])
 
+  useEffect(() => {
+    const archive = () => {
+      actionHandler('archive')
+    }
+    const openOriginalArticle = () => {
+      actionHandler('openOriginalArticle')
+    }
+
+    document.addEventListener('archive', archive)
+    document.addEventListener('openOriginalArticle', openOriginalArticle)
+
+    return () => {
+      document.removeEventListener('archive', archive)
+      document.removeEventListener('openOriginalArticle', openOriginalArticle)
+    }
+  }, [actionHandler])
+
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
       actionHandler(action)
@@ -137,6 +154,52 @@ export default function Home(): JSX.Element {
       })
     }
   }, [article, viewerData])
+  
+  useRegisterActions([
+    {
+      id: 'open',
+      section: 'Article',
+      name: 'Open original article',
+      shortcut: ['o'],
+      perform: () => {
+        document.dispatchEvent(new Event('openOriginalArticle'));
+      }
+    },
+    {
+      id: 'back_home',
+      section: 'Article',
+      name: 'Return to library',
+      shortcut: ['u'],
+      perform: () => router.push(`/home`),
+    },
+    {
+      id: 'archive',
+      section: 'Article',
+      name: 'Archive current item',
+      shortcut: ['e'],
+      perform: () => {
+        document.dispatchEvent(new Event('archive'));
+      }
+    },
+    {
+      id: 'highlight',
+      section: 'Article',
+      name: 'Highlight selected text',
+      shortcut: ['h'],
+      perform: () => {
+        document.dispatchEvent(new Event('highlight'));
+      },
+    },
+    {
+      id: 'note',
+      section: 'Article',
+      name: 'Highlight selected text and add a note',
+      shortcut: ['n'],
+      perform: () => {
+        document.dispatchEvent(new Event('annotate'));
+      },
+    },
+  ], [])
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')
@@ -190,55 +253,55 @@ export default function Home(): JSX.Element {
           />
         ) : null}
       </VStack>
-        {article && viewerData?.me && article.contentReader == 'PDF' ? (
-          <PdfArticleContainerNoSSR
-            article={article}
-            showHighlightsModal={showHighlightsModal}
-            setShowHighlightsModal={setShowHighlightsModal}
-            viewerUsername={viewerData.me?.profile?.username}
-          />
-        ) : (
-          <VStack
-            alignment="center"
-            distribution="center"
-            ref={scrollRef}
-            className="disable-webkit-callout"
-            css={{
-              '@smDown': {
-                background: theme.colors.grayBg.toString(),
-              }
-            }}
-          >
-            {article && viewerData?.me ? (
-              <ArticleContainer
-                article={article}
-                isAppleAppEmbed={false}
-                highlightBarDisabled={false}
-                highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
-                fontSize={readerSettings.fontSize}
-                margin={readerSettings.marginWidth}
-                lineHeight={readerSettings.lineHeight}
-                fontFamily={readerSettings.fontFamily}
-                labels={labels}
-                showHighlightsModal={showHighlightsModal}
-                setShowHighlightsModal={setShowHighlightsModal}
-                articleMutations={{
-                  createHighlightMutation,
-                  deleteHighlightMutation,
-                  mergeHighlightMutation,
-                  updateHighlightMutation,
-                  articleReadingProgressMutation,
-                }}
-              />
-            ) : (
-              <SkeletonArticleContainer
-                margin={readerSettings.marginWidth}
-                lineHeight={readerSettings.lineHeight}
-                fontSize={readerSettings.fontSize}
-              />
-            )}
-            </VStack>
+      {article && viewerData?.me && article.contentReader == 'PDF' ? (
+        <PdfArticleContainerNoSSR
+          article={article}
+          showHighlightsModal={showHighlightsModal}
+          setShowHighlightsModal={setShowHighlightsModal}
+          viewerUsername={viewerData.me?.profile?.username}
+        />
+      ) : (
+        <VStack
+          alignment="center"
+          distribution="center"
+          ref={scrollRef}
+          className="disable-webkit-callout"
+          css={{
+            '@smDown': {
+              background: theme.colors.grayBg.toString(),
+            }
+          }}
+        >
+          {article && viewerData?.me ? (
+            <ArticleContainer
+              article={article}
+              isAppleAppEmbed={false}
+              highlightBarDisabled={false}
+              highlightsBaseURL={`${webBaseURL}/${viewerData.me?.profile?.username}/${slug}/highlights`}
+              fontSize={readerSettings.fontSize}
+              margin={readerSettings.marginWidth}
+              lineHeight={readerSettings.lineHeight}
+              fontFamily={readerSettings.fontFamily}
+              labels={labels}
+              showHighlightsModal={showHighlightsModal}
+              setShowHighlightsModal={setShowHighlightsModal}
+              articleMutations={{
+                createHighlightMutation,
+                deleteHighlightMutation,
+                mergeHighlightMutation,
+                updateHighlightMutation,
+                articleReadingProgressMutation,
+              }}
+            />
+          ) : (
+            <SkeletonArticleContainer
+              margin={readerSettings.marginWidth}
+              lineHeight={readerSettings.lineHeight}
+              fontSize={readerSettings.fontSize}
+            />
           )}
+        </VStack>
+      )}
 
       {article && readerSettings.showSetLabelsModal && (
         <SetLabelsModal

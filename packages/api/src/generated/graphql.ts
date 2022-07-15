@@ -424,6 +424,24 @@ export type CreateReminderSuccess = {
   reminder: Reminder;
 };
 
+export type DeleteAccountError = {
+  __typename?: 'DeleteAccountError';
+  errorCodes: Array<DeleteAccountErrorCode>;
+};
+
+export enum DeleteAccountErrorCode {
+  Forbidden = 'FORBIDDEN',
+  Unauthorized = 'UNAUTHORIZED',
+  UserNotFound = 'USER_NOT_FOUND'
+}
+
+export type DeleteAccountResult = DeleteAccountError | DeleteAccountSuccess;
+
+export type DeleteAccountSuccess = {
+  __typename?: 'DeleteAccountSuccess';
+  userID: Scalars['ID'];
+};
+
 export type DeleteHighlightError = {
   __typename?: 'DeleteHighlightError';
   errorCodes: Array<DeleteHighlightErrorCode>;
@@ -863,6 +881,7 @@ export type Mutation = {
   createNewsletterEmail: CreateNewsletterEmailResult;
   createReaction: CreateReactionResult;
   createReminder: CreateReminderResult;
+  deleteAccount: DeleteAccountResult;
   deleteHighlight: DeleteHighlightResult;
   deleteHighlightReply: DeleteHighlightReplyResult;
   deleteLabel: DeleteLabelResult;
@@ -945,6 +964,11 @@ export type MutationCreateReactionArgs = {
 
 export type MutationCreateReminderArgs = {
   input: CreateReminderInput;
+};
+
+
+export type MutationDeleteAccountArgs = {
+  userID: Scalars['ID'];
 };
 
 
@@ -1256,6 +1280,7 @@ export type Query = {
   sendInstallInstructions: SendInstallInstructionsResult;
   sharedArticle: SharedArticleResult;
   subscriptions: SubscriptionsResult;
+  typeaheadSearch: TypeaheadSearchResult;
   user: UserResult;
   users: UsersResult;
   validateUsername: Scalars['Boolean'];
@@ -1324,6 +1349,12 @@ export type QuerySharedArticleArgs = {
 
 export type QuerySubscriptionsArgs = {
   sort?: InputMaybe<SortParams>;
+};
+
+
+export type QueryTypeaheadSearchArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  query: Scalars['String'];
 };
 
 
@@ -1898,6 +1929,30 @@ export type SubscriptionsSuccess = {
   subscriptions: Array<Subscription>;
 };
 
+export type TypeaheadSearchError = {
+  __typename?: 'TypeaheadSearchError';
+  errorCodes: Array<TypeaheadSearchErrorCode>;
+};
+
+export enum TypeaheadSearchErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type TypeaheadSearchItem = {
+  __typename?: 'TypeaheadSearchItem';
+  id: Scalars['ID'];
+  siteName?: Maybe<Scalars['String']>;
+  slug: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export type TypeaheadSearchResult = TypeaheadSearchError | TypeaheadSearchSuccess;
+
+export type TypeaheadSearchSuccess = {
+  __typename?: 'TypeaheadSearchSuccess';
+  items: Array<TypeaheadSearchItem>;
+};
+
 export type UnsubscribeError = {
   __typename?: 'UnsubscribeError';
   errorCodes: Array<UnsubscribeErrorCode>;
@@ -2437,6 +2492,10 @@ export type ResolversTypes = {
   CreateReminderResult: ResolversTypes['CreateReminderError'] | ResolversTypes['CreateReminderSuccess'];
   CreateReminderSuccess: ResolverTypeWrapper<CreateReminderSuccess>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  DeleteAccountError: ResolverTypeWrapper<DeleteAccountError>;
+  DeleteAccountErrorCode: DeleteAccountErrorCode;
+  DeleteAccountResult: ResolversTypes['DeleteAccountError'] | ResolversTypes['DeleteAccountSuccess'];
+  DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
   DeleteHighlightError: ResolverTypeWrapper<DeleteHighlightError>;
   DeleteHighlightErrorCode: DeleteHighlightErrorCode;
   DeleteHighlightReplyError: ResolverTypeWrapper<DeleteHighlightReplyError>;
@@ -2636,6 +2695,11 @@ export type ResolversTypes = {
   SubscriptionsErrorCode: SubscriptionsErrorCode;
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
+  TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
+  TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
+  TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
+  TypeaheadSearchResult: ResolversTypes['TypeaheadSearchError'] | ResolversTypes['TypeaheadSearchSuccess'];
+  TypeaheadSearchSuccess: ResolverTypeWrapper<TypeaheadSearchSuccess>;
   UnsubscribeError: ResolverTypeWrapper<UnsubscribeError>;
   UnsubscribeErrorCode: UnsubscribeErrorCode;
   UnsubscribeResult: ResolversTypes['UnsubscribeError'] | ResolversTypes['UnsubscribeSuccess'];
@@ -2772,6 +2836,9 @@ export type ResolversParentTypes = {
   CreateReminderResult: ResolversParentTypes['CreateReminderError'] | ResolversParentTypes['CreateReminderSuccess'];
   CreateReminderSuccess: CreateReminderSuccess;
   Date: Scalars['Date'];
+  DeleteAccountError: DeleteAccountError;
+  DeleteAccountResult: ResolversParentTypes['DeleteAccountError'] | ResolversParentTypes['DeleteAccountSuccess'];
+  DeleteAccountSuccess: DeleteAccountSuccess;
   DeleteHighlightError: DeleteHighlightError;
   DeleteHighlightReplyError: DeleteHighlightReplyError;
   DeleteHighlightReplyResult: ResolversParentTypes['DeleteHighlightReplyError'] | ResolversParentTypes['DeleteHighlightReplySuccess'];
@@ -2930,6 +2997,10 @@ export type ResolversParentTypes = {
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
+  TypeaheadSearchError: TypeaheadSearchError;
+  TypeaheadSearchItem: TypeaheadSearchItem;
+  TypeaheadSearchResult: ResolversParentTypes['TypeaheadSearchError'] | ResolversParentTypes['TypeaheadSearchSuccess'];
+  TypeaheadSearchSuccess: TypeaheadSearchSuccess;
   UnsubscribeError: UnsubscribeError;
   UnsubscribeResult: ResolversParentTypes['UnsubscribeError'] | ResolversParentTypes['UnsubscribeSuccess'];
   UnsubscribeSuccess: UnsubscribeSuccess;
@@ -3274,6 +3345,20 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
+export type DeleteAccountErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteAccountError'] = ResolversParentTypes['DeleteAccountError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteAccountErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteAccountResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteAccountResult'] = ResolversParentTypes['DeleteAccountResult']> = {
+  __resolveType: TypeResolveFn<'DeleteAccountError' | 'DeleteAccountSuccess', ParentType, ContextType>;
+};
+
+export type DeleteAccountSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteAccountSuccess'] = ResolversParentTypes['DeleteAccountSuccess']> = {
+  userID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteHighlightError'] = ResolversParentTypes['DeleteHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3617,6 +3702,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
   createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
   createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
+  deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
@@ -3736,6 +3822,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
+  typeaheadSearch?: Resolver<ResolversTypes['TypeaheadSearchResult'], ParentType, ContextType, RequireFields<QueryTypeaheadSearchArgs, 'query'>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
@@ -4092,6 +4179,28 @@ export type SubscriptionsSuccessResolvers<ContextType = ResolverContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TypeaheadSearchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchError'] = ResolversParentTypes['TypeaheadSearchError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['TypeaheadSearchErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TypeaheadSearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchItem'] = ResolversParentTypes['TypeaheadSearchItem']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TypeaheadSearchResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchResult'] = ResolversParentTypes['TypeaheadSearchResult']> = {
+  __resolveType: TypeResolveFn<'TypeaheadSearchError' | 'TypeaheadSearchSuccess', ParentType, ContextType>;
+};
+
+export type TypeaheadSearchSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchSuccess'] = ResolversParentTypes['TypeaheadSearchSuccess']> = {
+  items?: Resolver<Array<ResolversTypes['TypeaheadSearchItem']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UnsubscribeErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UnsubscribeError'] = ResolversParentTypes['UnsubscribeError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UnsubscribeErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4394,6 +4503,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateReminderResult?: CreateReminderResultResolvers<ContextType>;
   CreateReminderSuccess?: CreateReminderSuccessResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  DeleteAccountError?: DeleteAccountErrorResolvers<ContextType>;
+  DeleteAccountResult?: DeleteAccountResultResolvers<ContextType>;
+  DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
   DeleteHighlightError?: DeleteHighlightErrorResolvers<ContextType>;
   DeleteHighlightReplyError?: DeleteHighlightReplyErrorResolvers<ContextType>;
   DeleteHighlightReplyResult?: DeleteHighlightReplyResultResolvers<ContextType>;
@@ -4525,6 +4637,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
+  TypeaheadSearchError?: TypeaheadSearchErrorResolvers<ContextType>;
+  TypeaheadSearchItem?: TypeaheadSearchItemResolvers<ContextType>;
+  TypeaheadSearchResult?: TypeaheadSearchResultResolvers<ContextType>;
+  TypeaheadSearchSuccess?: TypeaheadSearchSuccessResolvers<ContextType>;
   UnsubscribeError?: UnsubscribeErrorResolvers<ContextType>;
   UnsubscribeResult?: UnsubscribeResultResolvers<ContextType>;
   UnsubscribeSuccess?: UnsubscribeSuccessResolvers<ContextType>;

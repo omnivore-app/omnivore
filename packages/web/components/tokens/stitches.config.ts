@@ -102,7 +102,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderStyles: {},
       shadows: {
         panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
-        cardBoxShadow: '0px 0px 4px 0px rgba(0, 0, 0, 0.1)',
+        cardBoxShadow: '0px 16px 25px 16px rgba(32, 31, 29, 0.1)',
       },
       zIndices: {},
       transitions: {},
@@ -111,15 +111,19 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBase: '#F8F8F8',
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
-        grayBorder: 'rgba(0, 0, 0, 0.06)',
+        grayBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
+        textDefault: 'rgba(255, 255, 255, 0.8)',
+        utilityTextDefault: '#3B3938',
+        utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
+        textNonessential: 'rgba(10, 8, 6, 0.4)',
 
         grayBgSubtle: 'hsl(0 0% 97.3%)',
         grayBgHover: 'hsl(0 0% 93.0%)',
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
-        grayText: 'hsl(0 0% 43.5%)',
+        grayText: '#3B3938',
 
         // Semantic Colors
         highlightBackground: 'rgba(255, 210, 52, 0.65)',
@@ -152,8 +156,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         tooltipIcons: '#FDFAEC',
 
         //utility
-        textDefault: 'rgba(10, 8, 6, 0.8)',
-        textSubtle: 'rgba(10, 8, 6, 0.65)',
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
       },
@@ -172,19 +174,21 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
 const darkThemeSpec = {
   colors: {
-    // Grayscale (top ones have been updated from new designs)
     grayBase: '#252525',
     grayBg: '#3B3938',
     grayBgActive: '#4f4d4c',
     grayTextContrast: '#D8D7D7',
-    grayBorder: 'rgba(255, 255, 255, 0.06)',
+    grayBorder: '#323232',
     graySolid: '#9C9B9A',
+    textDefault: 'rgba(10, 8, 6, 0.8)',
+    utilityTextDefault: '#CDCDCD',
+    textNonessential: 'rgba(97, 97, 97, 1)',
 
     grayBgSubtle: 'hsl(0 0% 9.8%)',
     grayBgHover: 'hsl(0 0% 13.8%)',
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
-    grayText: 'hsl(0 0% 62.8%)',
+    grayText: '#CDCDCD',
 
     // Semantic Colors
     highlightBackground: '#867740',
@@ -204,8 +208,7 @@ const darkThemeSpec = {
     avatarFont: 'rgba(255, 255, 255, 0.8)',
 
     //utility
-    textDefault: 'rgba(255, 255, 255, 0.8)',
-    textSubtle: 'rgba(255, 255, 255, 0.65)',
+    utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
     textNonEssential: 'rgba(10, 8, 6, 0.4)',
     overlay: 'rgba(10, 8, 6, 0.65)',
 
@@ -213,7 +216,7 @@ const darkThemeSpec = {
   },
   shadows: {
     cardBoxShadow:
-      '0px 0px 9px -2px rgba(255, 255, 255, 0.09), 0px 7px 12px rgba(255, 255, 255, 0.07)',
+      '0px 0px 9px -2px rgba(5, 5, 5, 0.16), 0px 7px 12px rgba(0, 0, 0, 0.13)',
   },
 }
 

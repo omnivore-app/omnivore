@@ -42,7 +42,6 @@ type ActionDropdownProps = {
 
 const ActionDropdown = (props: ActionDropdownProps): JSX.Element => {
   return <Dropdown
-    showArrow={true}
     css={{ m: '0px', p: '0px', overflow: 'hidden', width: '265px', maxWidth: '265px', '@smDown': { width: '230px' } }}
     side={props.layout == 'side' ? 'right' : 'bottom'}
     sideOffset={props.layout == 'side' ? 8 : 0}
@@ -177,7 +176,6 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
         )}
 
       {/* <MenuSeparator layout={props.layout} />
-
       <Button style='articleActionIcon'>
         <DotsThree size={24} color={theme.colors.readerFont.toString()} />
       </Button> */}

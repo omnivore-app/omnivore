@@ -13,11 +13,13 @@ import { CSS } from '@stitches/react';
 import { styled } from './../tokens/stitches.config'
 
 const itemStyles = {
-  fontSize: 13,
-  padding: '$2',
+  fontSize: '16px',
+  fontWeight: '500',
+  py: '12px',
+  px: '24px',
   borderRadius: 3,
   cursor: 'default',
-  color: '$grayText',
+  color: '$utilityTextDefault',
 
   '&:focus': {
     outline: 'none',
@@ -46,20 +48,65 @@ const StyledTriggerItem = styled(TriggerItem, {
 })
 
 export const DropdownContent = styled(Content, {
-  minWidth: 130,
+  width: 195,
   backgroundColor: '$grayBg',
-  borderRadius: '0.5em',
-  padding: 5,
-  outline: '1px solid $grayBorder',
+  borderRadius: '6px',
+  outline: '1px solid #323232',
+  border: '1px solid $grayBorder',
   boxShadow: '$cardBoxShadow',
+  '--arrow-visibility': '',
+  '&[data-side="top"]': {
+    '--arrow-visibility': 'collapse',
+  },
+  '&[data-side="bottom"]': {
+    '--arrow-top': -13,
+  },
+  '&[data-align="start"]': {
+    '--arrow-before-left': '9px',
+    '--arrow-before-right': 'auto',
+    '--arrow-after-left': '10px',
+    '--arrow-after-right': 'auto',
+  },
+  '&[data-align="center"]': {
+    '--arrow-before-left': 'auto',
+    '--arrow-before-right': '90px',
+    '--arrow-after-left': 'auto',
+    '--arrow-after-right': '91px',
+  },
+  '&[data-align="end"]': {
+    '--arrow-before-left': 'auto',
+    '--arrow-before-right': '9px',
+    '--arrow-after-left': 'auto',
+    '--arrow-after-right': '10px',
+  },
+  '&:before': {
+    top: 'calc(var(--arrow-top) * 1px - 2px)',
+    left: 'var(--arrow-before-left)',
+    right: 'var(--arrow-before-right)',
+    border: '8px solid transparent',
+    borderBottomColor: '$grayBorder',
+  },
+  '&:after': {
+    top: 'calc(var(--arrow-top) * 1px)',
+    left: 'var(--arrow-after-left)',
+    right: 'var(--arrow-after-right)',
+    border: '7px solid transparent',
+    borderBottomColor: '$grayBg',
+  },
+  '&:before, &:after': {
+    visibility: 'var(--arrow-visibility)',
+    position: 'absolute',
+    display: 'inline-block',
+    content: '',
+  },
 })
 
 const StyledArrow = styled(Arrow, {
-  fill: '$grayBg',
+  visibility: 'hidden',
 })
 
 const StyledLabel = styled(Label, {
-  color: '$grayText',
+  color: '$utilityTextDefault',
   fontSize: 13,
   padding: '5px 10px',
   cursor: 'default',
@@ -70,7 +117,6 @@ export type DropdownSide = 'top' | 'right' | 'bottom' | 'left'
 
 type DropdownProps = {
   labelText?: string
-  showArrow?: boolean
   triggerElement: React.ReactNode
   children: React.ReactNode
   styledArrow?: boolean
@@ -101,7 +147,6 @@ export function DropdownOption(props: DropdownOptionProps): JSX.Element {
       <StyledItem onSelect={props.onSelect}>
         {props.title ?? props.children}
       </StyledItem>
-      {props.hideSeparator ? null : <DropdownSeparator />}
     </>
   )
 }
@@ -112,7 +157,6 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
     align,
     triggerElement,
     labelText,
-    showArrow = true,
     disabled = false,
     side = 'bottom',
     sideOffset = 0,
@@ -136,7 +180,7 @@ export function Dropdown(props: DropdownProps & PopperContentProps): JSX.Element
       >
         {labelText && <StyledLabel>{labelText}</StyledLabel>}
         {children}
-        {showArrow && <StyledArrow offset={20} width={20} height={10} />}
+        <StyledArrow />
       </DropdownContent>
     </Root>
   )

@@ -20,7 +20,7 @@ export const Button = styled('button', {
       },
       ctaDarkYellow: {
         border: 0,
-        fontSize: '14px',
+        fontSize: '16px',
         fontWeight: 500,
         fontStyle: 'normal',
         fontFamily: 'Inter',
@@ -29,6 +29,21 @@ export const Button = styled('button', {
         color: '$omnivoreGray',
         bg: '$omnivoreCtaYellow',
         p: '10px 12px',
+      },
+      ctaOutlineYellow: {
+        boxSizing: 'border-box',
+        '-moz-box-sizing': 'border-box',
+        '-webkit-box-sizing': 'border-box',
+        border: '1px solid $omnivoreCtaYellow',
+        fontSize: '16px',
+        fontWeight: 500,
+        fontStyle: 'normal',
+        fontFamily: 'Inter',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        color: '$utilityTextDefault',
+        bg: 'transparent',
+        p: '9px 12px',
       },
       ctaLightGray: {
         border: 0,
@@ -181,14 +196,20 @@ export const Button = styled('button', {
       },
       themeSwitch: {
         p: '0px',
-        m: '4px',
+        m: '0px',
         ml: '0px',
-        width: '24px',
-        height: '24px',
+        width: '60px',
+        height: '48px',
         fontSize: '14px',
-        borderRadius: '4px',
-        border: '1px solid rgb(243, 243, 243)',
-        '&:hover': { transform: 'scale(1.2)' }
+        border: 'unset',
+        borderRadius: '6px',
+        '&:hover': {
+          transform: 'scale(1.1)',
+          border: '2px solid #F9D354',
+        },
+        '&[data-state="selected"]': {
+          border: '2px solid #F9D354',
+        }
       },
     },
   },

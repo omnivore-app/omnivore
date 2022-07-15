@@ -301,18 +301,18 @@ async function fetchContent(req, res) {
     }
   }
 
-  var context, page, finalUrl;
-  if ((!content || !title) && contentType !== 'application/pdf') {
-    const result = await retrievePage(url)
-    if (result && result.context) { context = result.context }
-    if (result && result.page) { page = result.page }
-    if (result && result.finalUrl) { finalUrl = result.finalUrl }
-    if (result && result.contentType) { contentType = result.contentType }
-  } else {
-    finalUrl = url
-  }
-
+  let context, page, finalUrl;
   try {
+    if ((!content || !title) && contentType !== 'application/pdf') {
+      const result = await retrievePage(url)
+      if (result && result.context) { context = result.context }
+      if (result && result.page) { page = result.page }
+      if (result && result.finalUrl) { finalUrl = result.finalUrl }
+      if (result && result.contentType) { contentType = result.contentType }
+    } else {
+      finalUrl = url
+    }
+
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
@@ -355,7 +355,29 @@ async function fetchContent(req, res) {
     console.log('error', e)
     logRecord.error = e.message;
     console.log(`Error while retrieving page`, logRecord);
-    return res.sendStatus(503);
+
+    // fallback to scrapingbee
+    const sbResult = await fetchContentWithScrapingBee(url);
+    const sbUrl = finalUrl || sbResult.url;
+    const content = sbResult.domContent;
+    logRecord.fetchContentTime = Date.now() - functionStartTime;
+
+    const apiResponse = await sendCreateArticleMutation(userId, {
+      url: sbUrl,
+      articleSavingRequestId,
+      preparedDocument: {
+        document: content,
+        pageInfo: {
+          title: sbResult.title,
+          canonicalUrl: sbUrl,
+        },
+      },
+      skipParsing: !content,
+    });
+
+    logRecord.totalTime = Date.now() - functionStartTime;
+    logRecord.result = apiResponse.createArticle;
+    console.log(`parse-page`, logRecord);
   } finally {
     if (context) {
       await context.close();
@@ -518,7 +540,7 @@ async function retrievePage(url) {
   });
 
   try {
-    const response = await page.goto(url, { waitUntil: ['networkidle2'] });
+    const response = await page.goto(url, { timeout: 8 * 1000, waitUntil: ['networkidle2'] });
     const finalUrl = response.url();
     const contentType = response.headers()['content-type'];
 

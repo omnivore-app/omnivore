@@ -2,6 +2,8 @@ import {
   ModalRoot,
   ModalContent,
   ModalOverlay,
+  ModalTitleBar,
+  ModalButtonBar,
 } from '../../elements/ModalPrimitives'
 import { VStack, HStack, Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -63,34 +65,15 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent
-        css={{ bg: '$grayBg', maxWidth: '20em', pt: '0px' }}
+        css={{ bg: '$grayBg', px: '24px' }}
         onInteractOutside={() => {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
         }}
       >
         <VStack distribution="start">
-          <HStack
-            distribution="between"
-            alignment="center"
-            css={{ width: '100%', mt: '4px', px: '16px', py: '16px' }}
-          >
-            <StyledText style="modalHeadline">Add a Link</StyledText>
-            <Button
-              css={{ cursor: 'pointer',  }}
-              style="ghost"
-              onClick={() => {
-                props.onOpenChange(false)
-              }}
-            >
-              <CrossIcon
-                size={11}
-                strokeColor={theme.colors.grayTextContrast.toString()}
-              />
-            </Button>
-          </HStack>
-          <SpanBox css={{ width: '100%', height: '1px', opacity: '0.2', backgroundColor: theme.colors.grayText.toString() }} />          
-          <Box css={{ width: '100%',  px: '16px', pt: '42px', pb: '24px' }}>
+          <ModalTitleBar title="Add Link" onOpenChange={props.onOpenChange} />
+          <Box css={{ width: '100%', py: '16px' }}>
             <form
               onSubmit={(event) => {
                 event.preventDefault()
@@ -119,16 +102,15 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
                 onChange={(event) => setLink(event.target.value)}
                 css={{
                   borderRadius: '8px',
-                  border: '1px solid $grayTextContrast',
+                  border: '1px solid $textNonessential',
                   width: '100%',
+                  height: '38px',
                   p: '6px',
+                  mb: '13px',
+                  fontSize: '14px',
                 }}
               />
-              <HStack distribution="end" css={{ mt: '16px', width: '100%' }}>
-                <Button style="ctaDarkYellow" css={{ mb: '0px' }}>
-                  Add Link
-                </Button>
-              </HStack>
+              <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel="Add Link" />
             </form>
           </Box>
         </VStack>

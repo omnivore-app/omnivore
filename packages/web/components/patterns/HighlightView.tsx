@@ -16,23 +16,17 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
     () => props.highlight.quote.split('\n'),
     [props.highlight.quote]
   )
-  const annotation = props.highlight.annotation ?? '';
 
   const StyledQuote = styled(Blockquote, {
-    margin: '0px 24px 16px 24px',
+    margin: '0px 0px 0px 0px',
     fontSize: '18px',
     lineHeight: '27px',
-    color: '$textDefault',
+    color: '$utilityTextDefault',
     cursor: 'pointer',
   })
 
   return (
     <VStack css={{ width: '100%', boxSizing: 'border-box' }}>
-      {annotation && (
-        <Box css={{p:'16px', m:'16px', ml:'24px', mr:'24px', borderRadius: '6px', bg: '$grayBase'}}>
-          <StyledText style='shareHighlightModalAnnotation'>{annotation}</StyledText>
-        </Box>)
-      }
       <StyledQuote onClick={() => {
         if (props.scrollToHighlight) {
           props.scrollToHighlight(props.highlight.id)

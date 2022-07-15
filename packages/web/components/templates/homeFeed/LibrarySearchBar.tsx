@@ -171,27 +171,22 @@ export function DropdownFilterMenu(
       <DropdownOption
         onSelect={() => props.onFilterChange('in:archive')}
         title="Archived"
-        hideSeparator
       />
       <DropdownOption
         onSelect={() => props.onFilterChange('type:file')}
         title="Files"
-        hideSeparator
       />
       <DropdownOption
         onSelect={() => props.onFilterChange('type:highlights')}
         title="Highlights"
-        hideSeparator
       />
       <DropdownOption
         onSelect={() => props.onFilterChange(`saved:${recentlySavedStartDate}`)}
         title="Recently Saved"
-        hideSeparator
       />
       <DropdownOption
         onSelect={() => props.onFilterChange(`sort:read`)}
         title="Recently Read"
-        hideSeparator
       />
     </Dropdown>
   )

@@ -1,7 +1,7 @@
-import { Box, HStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox } from '../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from './../elements/images/OmnivoreNameLogo'
 import { DropdownMenu, HeaderDropdownAction } from './../patterns/DropdownMenu'
-import { darkenTheme, lightenTheme, updateTheme } from '../../lib/themeUpdater'
+import { updateTheme } from '../../lib/themeUpdater'
 import { AvatarDropdown } from './../elements/AvatarDropdown'
 import { ThemeId } from './../tokens/stitches.config'
 import { useCallback, useEffect, useState } from 'react'
@@ -30,39 +30,18 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
   useKeyboardShortcuts(
     primaryCommands((action) => {
       switch (action) {
-        case 'themeDarker':
-          darkenTheme()
-          break
-        case 'themeLighter':
-          lightenTheme()
-          break
+        // case 'themeDarker':
+        //   darkenTheme()
+        //   break
+        // case 'themeLighter':
+        //   lightenTheme()
+        //   break
         case 'toggleShortcutHelpModalDisplay':
           props.setShowKeyboardCommandsModal(true)
           break
       }
     })
   )
-
-/*
-  useRegisterActions([
-    {
-      id: 'lightTheme',
-      section: 'Preferences',
-      name: 'Change theme (lighter) ',
-      shortcut: ['v', 'l'],
-      keywords: 'light theme',
-      perform: () => lightenTheme(),
-    },
-    {
-      id: 'darkTheme',
-      section: 'Preferences',
-      name: 'Change theme (darker) ',
-      shortcut: ['v', 'd'],
-      keywords: 'dark theme',
-      perform: () => darkenTheme(),
-    },
-  ])
-  */
 
   const initAnalytics = useCallback(() => {
     setupAnalytics(props.user)
@@ -126,15 +105,36 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
 
   return (
     <>
-      <NavHeader
-        {...props}
-        isVisible={true}
-        username={props.user?.profile.username}
-        actionHandler={headerDropdownActionHandler}
-        isDisplayingShadow={isScrolled}
-        toolbarControl={props.toolbarControl}
-        alwaysDisplayToolbar={props.alwaysDisplayToolbar}
-      />
+      <SpanBox css={{
+        '@lgDown': {
+          display: 'none',
+        }
+      }}>
+        <FloatingNavHeader
+          {...props}
+          isVisible={true}
+          username={props.user?.profile.username}
+          actionHandler={headerDropdownActionHandler}
+          isDisplayingShadow={isScrolled}
+          toolbarControl={props.toolbarControl}
+          alwaysDisplayToolbar={props.alwaysDisplayToolbar}
+        />
+      </SpanBox>
+      <SpanBox css={{
+        '@lg': {
+          display: 'none',
+        }
+      }}>
+        <NavHeader
+          {...props}
+          isVisible={true}
+          username={props.user?.profile.username}
+          actionHandler={headerDropdownActionHandler}
+          isDisplayingShadow={isScrolled}
+          toolbarControl={props.toolbarControl}
+          alwaysDisplayToolbar={props.alwaysDisplayToolbar}
+        />
+      </SpanBox>
     </>
   )
 }
@@ -153,9 +153,6 @@ type NavHeaderProps = {
 }
 
 function NavHeader(props: NavHeaderProps): JSX.Element {
-  const router = useRouter()
-  const currentPath = decodeURI(router.asPath)
-
   return (
     <nav>
       <HStack
@@ -187,7 +184,6 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
           >
             <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
           </Box>
-          <NavLinks currentPath={currentPath} isLoggedIn={!!props.username} />
         </HStack>
 
         {props.toolbarControl && (
@@ -230,24 +226,48 @@ function NavHeader(props: NavHeaderProps): JSX.Element {
   )
 }
 
-type UserNavLinksProps = {
-  isLoggedIn: boolean
-  currentPath: string
-}
-
-function NavLinks(props: UserNavLinksProps): JSX.Element {
+function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
   return (
     <>
-      {/* <HeaderNavLink
-        isActive={props.currentPath.startsWith('/home')}
-        href={props.isLoggedIn ? '/home' : '/login'}
-        text="Home"
-      /> */}
-      {/* <HeaderNavLink
-        isActive={props.currentPath == '/discover'}
-        href="/discover"
-        text="Discover"
-      /> */}
+      <HStack alignment="center" distribution="start">
+        <Box
+          css={{
+            top: '13px',
+            left: '18px',
+            position: 'fixed',
+            display: 'flex',
+            alignItems: 'center',
+            zIndex: 100,
+          }}
+        >
+          <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />
+        </Box>
+      </HStack>
+
+      {props.username && (
+        <HStack
+          alignment="center"
+          css={{
+            top: '13px',
+            right: '18px',
+            position: 'fixed',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <DropdownMenu
+            username={props.username}
+            triggerElement={
+              <AvatarDropdown
+                userInitials={props.userInitials}
+                profileImageURL={props.profileImageURL}
+              />
+            }
+            actionHandler={props.actionHandler}
+          />
+        </HStack>
+      )}
     </>
   )
 }
+

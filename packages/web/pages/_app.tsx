@@ -2,12 +2,21 @@ import '../styles/globals.css'
 import '../styles/articleInnerStyling.css'
 import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'
-import { useRouter } from 'next/router'
+import { NextRouter, useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
 import { segmentApiKey } from '../lib/appConfig'
 import { TooltipProvider } from '../components/elements/Tooltip'
 import TopBarProgress from 'react-topbar-progress-indicator'
+import {
+  KBarProvider,
+  KBarPortal,
+  KBarPositioner,
+  KBarAnimator,
+  KBarSearch,
+} from 'kbar'
+import { animatorStyle, KBarResultsComponents, searchStyle } from '../components/elements/KBar'
+import { darkenTheme, lightenTheme } from '../lib/themeUpdater'
 
 TopBarProgress.config({
   barColors: {
@@ -16,7 +25,38 @@ TopBarProgress.config({
   },
   shadowBlur: 0,
   barThickness: 2,
-});
+})
+
+const generateActions = (router: NextRouter) => {
+  const defaultActions = [
+    {
+      id: 'home',
+      section: 'Navigation',
+      name: 'Go to Home (Library) ',
+      shortcut: ['g', 'h'],
+      keywords: 'go home',
+      perform: () => router?.push('/home'),
+    },
+    {
+      id: 'lightTheme',
+      section: 'Preferences',
+      name: 'Change theme (light) ',
+      shortcut: ['v', 'l'],
+      keywords: 'light theme',
+      perform: () => lightenTheme(),
+    },
+    {
+      id: 'darkTheme',
+      section: 'Preferences',
+      name: 'Change theme (dark) ',
+      shortcut: ['v', 'd'],
+      keywords: 'dark theme',
+      perform: () => darkenTheme(),
+    },
+  ]
+
+  return defaultActions
+}
 
 function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
@@ -51,11 +91,21 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   }, [router.events, analytics])
 
   return (
-    <IdProvider>
-      <TooltipProvider delayDuration={200}>
-        <Component {...pageProps} />
-      </TooltipProvider>
-    </IdProvider>
+    <KBarProvider actions={generateActions(router)}>
+      <KBarPortal>
+        <KBarPositioner>
+          <KBarAnimator style={animatorStyle}>
+            <KBarSearch style={searchStyle} />
+            <KBarResultsComponents />
+          </KBarAnimator>
+        </KBarPositioner>
+      </KBarPortal>
+      <IdProvider>
+        <TooltipProvider delayDuration={200}>
+          <Component {...pageProps} />
+        </TooltipProvider>
+      </IdProvider>
+    </KBarProvider>
   )
 }
 

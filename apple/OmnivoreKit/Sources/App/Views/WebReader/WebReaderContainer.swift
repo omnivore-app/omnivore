@@ -15,11 +15,7 @@ struct WebReaderContainerView: View {
   @State private var navBarVisibilityRatio = 1.0
   @State private var showDeleteConfirmation = false
   @State private var progressViewOpacity = 0.0
-  @State var updateFontFamilyActionID: UUID?
-  @State var updateFontActionID: UUID?
-  @State var updateTextContrastActionID: UUID?
-  @State var updateMaxWidthActionID: UUID?
-  @State var updateLineHeightActionID: UUID?
+  @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
   @State var showNavBarActionID: UUID?
   @State var shareActionID: UUID?
@@ -159,16 +155,14 @@ struct WebReaderContainerView: View {
     #endif
   }
 
-  var webPreferencesPopoverView: some View {
-    WebPreferencesPopoverView(
-      updateFontFamilyAction: { updateFontFamilyActionID = UUID() },
-      updateFontAction: { updateFontActionID = UUID() },
-      updateTextContrastAction: { updateTextContrastActionID = UUID() },
-      updateMaxWidthAction: { updateMaxWidthActionID = UUID() },
-      updateLineHeightAction: { updateLineHeightActionID = UUID() },
-      dismissAction: { showPreferencesPopover = false }
-    )
-  }
+  #if os(iOS)
+    var webPreferencesPopoverView: some View {
+      WebPreferencesPopoverView(
+        updateReaderPreferences: { readerSettingsChangedTransactionID = UUID() },
+        dismissAction: { showPreferencesPopover = false }
+      )
+    }
+  #endif
 
   var body: some View {
     ZStack {
@@ -187,11 +181,7 @@ struct WebReaderContainerView: View {
           navBarVisibilityRatioUpdater: {
             navBarVisibilityRatio = $0
           },
-          updateFontFamilyActionID: $updateFontFamilyActionID,
-          updateFontActionID: $updateFontActionID,
-          updateTextContrastActionID: $updateTextContrastActionID,
-          updateMaxWidthActionID: $updateMaxWidthActionID,
-          updateLineHeightActionID: $updateLineHeightActionID,
+          readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
           annotationSaveTransactionID: $annotationSaveTransactionID,
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
@@ -234,19 +224,20 @@ struct WebReaderContainerView: View {
             await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
           }
       }
-      VStack(spacing: 0) {
-        navBar
-        Spacer()
-      }
+      #if os(iOS)
+        VStack(spacing: 0) {
+          navBar
+          Spacer()
+        }
+      #endif
     }
     #if os(iOS)
       .formSheet(isPresented: $showPreferencesPopover, useSmallDetent: false) {
         webPreferencesPopoverView
       }
     #else
-      .sheet(isPresented: $showPreferencesPopover) {
-        webPreferencesPopoverView
-          .frame(minWidth: 400, minHeight: 400)
+      .onReceive(NSNotification.readerSettingsChangedPublisher) { _ in
+        readerSettingsChangedTransactionID = UUID()
       }
     #endif
     .onDisappear {

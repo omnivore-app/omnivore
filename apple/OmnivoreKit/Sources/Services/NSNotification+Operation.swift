@@ -1,10 +1,3 @@
-//
-//  NSNotification+Operation.swift
-//
-//
-//  Created by Jackson Harper on 1/31/22.
-//
-
 import Foundation
 import Models
 
@@ -12,6 +5,7 @@ public extension NSNotification {
   static let PushJSONArticle = Notification.Name("PushJSONArticle")
   static let OperationSuccess = Notification.Name("OperationSuccess")
   static let OperationFailure = Notification.Name("OperationFailure")
+  static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: PushJSONArticle)
@@ -23,6 +17,10 @@ public extension NSNotification {
 
   static var operationFailedPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: OperationFailure)
+  }
+
+  static var readerSettingsChangedPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: ReaderSettingsChanged)
   }
 
   internal var operationMessage: String? {
@@ -46,5 +44,9 @@ public extension NSNotification {
 
   static func operationFailed(message: String) {
     NotificationCenter.default.post(name: NSNotification.OperationFailure, object: nil, userInfo: ["message": message])
+  }
+
+  static func readerSettingsChanged() {
+    NotificationCenter.default.post(name: NSNotification.ReaderSettingsChanged, object: nil)
   }
 }

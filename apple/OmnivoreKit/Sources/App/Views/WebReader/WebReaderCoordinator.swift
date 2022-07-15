@@ -15,11 +15,7 @@ final class WebReaderCoordinator: NSObject {
   var linkHandler: (URL) -> Void = { _ in }
   var needsReload = false
   var lastSavedAnnotationID: UUID?
-  var previousUpdateFontFamilyActionID: UUID?
-  var previousUpdateFontActionID: UUID?
-  var previousUpdateTextContrastActionID: UUID?
-  var previousUpdateMaxWidthActionID: UUID?
-  var previousUpdateLineHeightActionID: UUID?
+  var previousReaderSettingsChangedUUID: UUID?
   var previousShowNavBarActionID: UUID?
   var previousShareActionID: UUID?
   var updateNavBarVisibilityRatio: (Double) -> Void = { _ in }

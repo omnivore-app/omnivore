@@ -443,6 +443,22 @@ export const isProbablyNewsletter = async (html: string): Promise<boolean> => {
     }
   }
 
+  // Check if this is a newsletter from revue
+  if (dom.querySelectorAll('img[src*="getrevue.co"]').length > 0) {
+    const getrevueUrl = revueNewsletterHref(dom)
+    if (getrevueUrl) {
+      return true
+    }
+  }
+
+  // Check if this is a convertkit.com newsletter
+  if (dom.querySelectorAll('img[src*="convertkit-mail.com"]').length > 0) {
+    const convertkitUrl = convertkitNewsletterHref(dom)
+    if (convertkitUrl) {
+      return true
+    }
+  }
+
   return false
 }
 
@@ -451,6 +467,28 @@ const beehiivNewsletterHref = (dom: Document): string | undefined => {
   let res: string | undefined = undefined
   readOnline.forEach((e) => {
     if (e.textContent === 'Read Online') {
+      res = e.getAttribute('href') || undefined
+    }
+  })
+  return res
+}
+
+const convertkitNewsletterHref = (dom: Document): string | undefined => {
+  const readOnline = dom.querySelectorAll('table tr td div a')
+  let res: string | undefined = undefined
+  readOnline.forEach((e) => {
+    if (e.textContent === 'View this email in your browser') {
+      res = e.getAttribute('href') || undefined
+    }
+  })
+  return res
+}
+
+const revueNewsletterHref = (dom: Document): string | undefined => {
+  const viewOnline = dom.querySelectorAll('table tr td div a[target="_blank"]')
+  let res: string | undefined = undefined
+  viewOnline.forEach((e) => {
+    if (e.textContent === 'View online') {
       res = e.getAttribute('href') || undefined
     }
   })
@@ -468,6 +506,18 @@ const findNewsletterHeaderHref = (dom: Document): string | undefined => {
   const beehiiv = beehiivNewsletterHref(dom)
   if (beehiiv) {
     return beehiiv
+  }
+
+  // Check if this is a revue newsletter
+  const revue = revueNewsletterHref(dom)
+  if (revue) {
+    return revue
+  }
+
+  // Check if this is a convertkit.com newsletter
+  const convertkitUrl = convertkitNewsletterHref(dom)
+  if (convertkitUrl) {
+    return convertkitUrl
   }
 
   return undefined

@@ -2,6 +2,7 @@ import {
   ModalRoot,
   ModalOverlay,
   ModalContent,
+  ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 import { Box, HStack, VStack, Separator, SpanBox } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -33,29 +34,11 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
           event.preventDefault()
           props.onOpenChange(false)
         }}
-        css={{ overflow: 'auto', p: '0' }}
+        css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
-          <HStack
-            distribution="between"
-            alignment="center"
-            css={{ width: '100%' }}
-          >
-            <StyledText style="modalHeadline" css={{ p: '16px' }}>All your highlights and notes</StyledText>
-            <Button
-              css={{ pt: '16px', pr: '16px' }}
-              style="ghost"
-              onClick={() => {
-                props.onOpenChange(false)
-              }}
-            >
-              <CrossIcon
-                size={20}
-                strokeColor={theme.colors.grayText.toString()}
-              />
-            </Button>
-          </HStack>
-          <Box css={{ overflow: 'auto', mt: '$2', width: '100%' }}>
+          <ModalTitleBar title="All your highlights and notes" onOpenChange={props.onOpenChange} />
+          <Box css={{ overflow: 'auto', mt: '24px', width: '100%' }}>
             {props.highlights.map((highlight) => (
               <ModalHighlightView
                 key={highlight.id}
@@ -161,10 +144,10 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
       <VStack>
         <HighlightView scrollToHighlight={props.scrollToHighlight} highlight={props.highlight} />
         {props.highlight.annotation && !isEditing ? (
-          <StyledText css={{ px: '24px' }}>{props.highlight.annotation}</StyledText>
+          <StyledText css={{ borderRadius: '6px', bg: '$grayBase', p: '16px', width: '100%' }}>{props.highlight.annotation}</StyledText>
         ) : null}
         {isEditing ? <TextEditArea /> : <ButtonStack />}
-        <Separator css={{ mt: '$2', mb: '$4' }} />
+        <Separator css={{ mt: '$2', mb: '$4', background: '$grayTextContrast' }} />
         {showDeleteConfirmation ? (
           <ConfirmationModal
             message={'Are you sure you want to delete this highlight?'}

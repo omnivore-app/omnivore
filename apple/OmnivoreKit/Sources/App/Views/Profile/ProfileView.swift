@@ -7,6 +7,7 @@ import Views
 @MainActor final class ProfileContainerViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var profileCardData = ProfileCardData()
+  @Published var deleteAccountErrorMessage: String?
 
   var appVersionString: String {
     if let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
@@ -28,6 +29,20 @@ import Views
       if let viewer = dataService.viewContext.object(with: viewerObjectID) as? Viewer {
         self.loadProfileCardData(viewer: viewer)
       }
+    }
+  }
+
+  func deleteAccount(dataService: DataService, authenticator: Authenticator) async {
+    guard let currentViewer = dataService.currentViewer else {
+      deleteAccountErrorMessage = "Unable to load account information."
+      return
+    }
+
+    do {
+      try await dataService.deleteAccount(userID: currentViewer.unwrappedUserID)
+      authenticator.logout(dataService: dataService, isAccountDeletion: true)
+    } catch {
+      deleteAccountErrorMessage = "We were unable to delete your account."
     }
   }
 
@@ -106,14 +121,10 @@ struct ProfileView: View {
       }
 
       Section(footer: Text(viewModel.appVersionString)) {
-        if FeatureFlag.showAccountDeletion {
-          NavigationLink(
-            destination: ManageAccountView(handleAccountDeletion: {
-              print("delete account")
-            })
-          ) {
-            Text("Manage Account")
-          }
+        NavigationLink(
+          destination: ManageAccountView()
+        ) {
+          Text("Manage Account")
         }
 
         Text("Logout")
@@ -124,7 +135,7 @@ struct ProfileView: View {
             Alert(
               title: Text("Are you sure you want to logout?"),
               primaryButton: .destructive(Text("Confirm")) {
-                authenticator.logout()
+                authenticator.logout(dataService: dataService)
               },
               secondaryButton: .cancel()
             )

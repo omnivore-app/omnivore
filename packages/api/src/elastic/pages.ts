@@ -274,7 +274,8 @@ export const deletePage = async (
 }
 
 export const getPageByParam = async <K extends keyof ParamSet>(
-  param: Record<K, Page[K]>
+  param: Record<K, Page[K]>,
+  includeOriginalHtml = false
 ): Promise<Page | undefined> => {
   try {
     const params = {
@@ -291,7 +292,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       },
       size: 1,
       _source: {
-        excludes: ['originalHtml'],
+        excludes: includeOriginalHtml ? [] : ['originalHtml'],
       },
     }
 
@@ -309,7 +310,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
       id: body.hits.hits[0]._id,
     } as Page
   } catch (e) {
-    console.error('failed to get pages by param in elastic', e)
+    console.error('failed to get page by param in elastic', e)
     return undefined
   }
 }
@@ -507,5 +508,97 @@ export const countByCreatedAt = async (
   } catch (e) {
     console.error('failed to count pages in elastic', e)
     return 0
+  }
+}
+
+export const deletePagesByParam = async <K extends keyof ParamSet>(
+  param: Record<K, Page[K]>,
+  ctx: PageContext
+): Promise<boolean> => {
+  try {
+    const params = {
+      query: {
+        bool: {
+          filter: Object.keys(param).map((key) => {
+            return {
+              term: {
+                [key]: param[key as K],
+              },
+            }
+          }),
+        },
+      },
+    }
+
+    const { body } = await client.deleteByQuery({
+      index: INDEX_ALIAS,
+      body: params,
+    })
+
+    if (body.deleted > 0) {
+      // * means deleting all pages of the same user
+      await ctx.pubsub.entityDeleted(EntityType.PAGE, '*', ctx.uid)
+
+      return true
+    }
+
+    return false
+  } catch (e) {
+    console.error('failed to delete pages by param in elastic', e)
+    return false
+  }
+}
+
+export const searchAsYouType = async (
+  userId: string,
+  query: string,
+  size = 5
+): Promise<Page[]> => {
+  try {
+    const { body } = await client.search<SearchResponse<Page>>({
+      index: INDEX_ALIAS,
+      body: {
+        query: {
+          bool: {
+            filter: [
+              {
+                term: {
+                  userId,
+                },
+              },
+              {
+                multi_match: {
+                  query,
+                  type: 'bool_prefix',
+                  fields: [
+                    'title',
+                    'title._2gram',
+                    'title._3gram',
+                    'siteName',
+                    'siteName._2gram',
+                    'siteName._3gram',
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        _source: ['title', 'slug', 'siteName'],
+        size,
+      },
+    })
+
+    if (body.hits.total.value === 0) {
+      return []
+    }
+
+    return body.hits.hits.map((hit: { _source: Page; _id: string }) => ({
+      ...hit._source,
+      id: hit._id,
+    }))
+  } catch (e) {
+    console.error('failed to search as you type in elastic', e)
+
+    return []
   }
 }

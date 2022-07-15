@@ -18,6 +18,7 @@ public final class Authenticator: ObservableObject {
   }
 
   @Published public internal(set) var isLoggedIn: Bool
+  @Published public var showAppleRevokeTokenAlert = false
 
   let networker: Networker
 
@@ -36,10 +37,12 @@ public final class Authenticator: ObservableObject {
     ValetKey.authToken.value()
   }
 
-  public func logout() {
+  public func logout(dataService: DataService, isAccountDeletion: Bool = false) {
+    dataService.resetCoreData()
     clearCreds()
     Authenticator.unregisterIntercomUser?()
     isLoggedIn = false
+    showAppleRevokeTokenAlert = isAccountDeletion
   }
 
   public func clearCreds() {

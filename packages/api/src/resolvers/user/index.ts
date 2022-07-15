@@ -1,9 +1,13 @@
 import {
+  DeleteAccountError,
+  DeleteAccountErrorCode,
+  DeleteAccountSuccess,
   GoogleSignupResult,
   LoginErrorCode,
   LoginResult,
   LogOutErrorCode,
   LogOutResult,
+  MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
   MutationLoginArgs,
@@ -34,6 +38,10 @@ import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
 import { comparePassword, hashPassword } from '../../utils/auth'
+import { deletePagesByParam } from '../../elastic/pages'
+import { setClaims } from '../../entity/utils'
+import { User as UserEntity } from '../../entity/user'
+import { AppDataSource } from '../../server'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -355,3 +363,48 @@ export const signupResolver: ResolverFn<
     return { errorCodes: [SignupErrorCode.Unknown] }
   }
 }
+
+export const deleteAccountResolver = authorized<
+  DeleteAccountSuccess,
+  DeleteAccountError,
+  MutationDeleteAccountArgs
+>(async (_, { userID }, { models, claims, log, pubsub }) => {
+  const user = await models.user.get(userID)
+  if (!user) {
+    return {
+      errorCodes: [DeleteAccountErrorCode.UserNotFound],
+    }
+  }
+
+  if (user.id !== claims.uid) {
+    return {
+      errorCodes: [DeleteAccountErrorCode.Unauthorized],
+    }
+  }
+
+  log.info('Deleting a user account', {
+    userID,
+    labels: {
+      source: 'resolver',
+      resolver: 'deleteAccountResolver',
+      uid: claims.uid,
+    },
+  })
+
+  const result = await AppDataSource.transaction(async (t) => {
+    await setClaims(t, claims.uid)
+    return t.getRepository(UserEntity).delete(userID)
+  })
+  if (!result.affected) {
+    log.error('Error deleting user account')
+
+    return {
+      errorCodes: [DeleteAccountErrorCode.UserNotFound],
+    }
+  }
+
+  // delete this user's pages in elastic
+  await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
+
+  return { userID }
+})

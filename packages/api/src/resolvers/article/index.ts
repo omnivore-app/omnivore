@@ -22,6 +22,7 @@ import {
   QueryArticleArgs,
   QueryArticlesArgs,
   QuerySearchArgs,
+  QueryTypeaheadSearchArgs,
   ResolverFn,
   SaveArticleReadingProgressError,
   SaveArticleReadingProgressErrorCode,
@@ -35,6 +36,9 @@ import {
   SetShareArticleError,
   SetShareArticleErrorCode,
   SetShareArticleSuccess,
+  TypeaheadSearchError,
+  TypeaheadSearchErrorCode,
+  TypeaheadSearchSuccess,
 } from '../../generated/graphql'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Merge } from '../../util'
@@ -69,6 +73,7 @@ import { parseSearchQuery } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import graphqlFields from 'graphql-fields'
 
 import {
   ArticleSavingRequestStatus,
@@ -81,6 +86,7 @@ import {
   deletePage,
   getPageById,
   getPageByParam,
+  searchAsYouType,
   searchPages,
   updatePage,
 } from '../../elastic/pages'
@@ -306,7 +312,7 @@ export const createArticleResolver = authorized<
       let uploadFileUrlOverride = ''
       if (uploadFileId) {
         const uploadFileData = await authTrx(async (tx) => {
-          return await models.uploadFile.setFileUploadComplete(uploadFileId, tx)
+          return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
         })
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
           return pageError(
@@ -323,20 +329,15 @@ export const createArticleResolver = authorized<
         )
       }
 
-      // create new page in elastic
-      if (!pageId) {
-        const newPageId = await createPage(articleToSave, { ...ctx, uid })
-        if (!newPageId) {
-          return pageError(
-            {
-              errorCodes: [CreateArticleErrorCode.ElasticError],
-            },
-            ctx,
-            pageId
-          )
-        }
-        articleToSave.id = newPageId
-      } else {
+      if (
+        pageId ||
+        (pageId = (
+          await getPageByParam({
+            userId: uid,
+            url: articleToSave.url,
+          })
+        )?.id)
+      ) {
         // update existing page's state from processing to succeeded
         articleToSave.archivedAt = archive ? saveTime : null
         const updated = await updatePage(pageId, articleToSave, {
@@ -353,6 +354,19 @@ export const createArticleResolver = authorized<
             pageId
           )
         }
+      } else {
+        // create new page in elastic
+        const newPageId = await createPage(articleToSave, { ...ctx, uid })
+        if (!newPageId) {
+          return pageError(
+            {
+              errorCodes: [CreateArticleErrorCode.ElasticError],
+            },
+            ctx,
+            pageId
+          )
+        }
+        articleToSave.id = newPageId
       }
 
       log.info(
@@ -397,11 +411,13 @@ export const getArticleResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryArticleArgs
-> = async (_obj, { slug }, { claims, pubsub }) => {
+> = async (_obj, { slug }, { claims, pubsub }, info) => {
   try {
     if (!claims?.uid) {
       return { errorCodes: [ArticleErrorCode.Unauthorized] }
     }
+
+    const includeOriginalHtml = !!graphqlFields(info).article.originalHtml
 
     analytics.track({
       userId: claims?.uid,
@@ -414,8 +430,14 @@ export const getArticleResolver: ResolverFn<
 
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
-      (await getPageByParam({ userId: claims.uid, slug })) ||
-      (await getPageByParam({ userId: claims.uid, _id: slug }))
+      (await getPageByParam(
+        { userId: claims.uid, slug },
+        includeOriginalHtml
+      )) ||
+      (await getPageByParam(
+        { userId: claims.uid, _id: slug },
+        includeOriginalHtml
+      ))
 
     if (!page) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
@@ -879,4 +901,26 @@ export const searchResolver = authorized<
       totalCount,
     },
   }
+})
+
+export const typeaheadSearchResolver = authorized<
+  TypeaheadSearchSuccess,
+  TypeaheadSearchError,
+  QueryTypeaheadSearchArgs
+>(async (_obj, { query, first }, { claims }) => {
+  if (!claims?.uid) {
+    return { errorCodes: [TypeaheadSearchErrorCode.Unauthorized] }
+  }
+
+  analytics.track({
+    userId: claims.uid,
+    event: 'typeahead',
+    properties: {
+      env: env.server.apiEnv,
+      query,
+      first,
+    },
+  })
+
+  return { items: await searchAsYouType(claims.uid, query, first || undefined) }
 })

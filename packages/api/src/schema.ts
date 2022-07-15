@@ -189,6 +189,22 @@ const schema = gql`
     message: String
   }
 
+  enum DeleteAccountErrorCode {
+    USER_NOT_FOUND
+    UNAUTHORIZED
+    FORBIDDEN
+  }
+
+  type DeleteAccountError {
+    errorCodes: [DeleteAccountErrorCode!]!
+  }
+
+  type DeleteAccountSuccess {
+    userID: ID!
+  }
+
+  union DeleteAccountResult = DeleteAccountSuccess | DeleteAccountError
+
   union UpdateUserResult = UpdateUserSuccess | UpdateUserError
   input UpdateUserInput {
     name: String! @sanitize(maxLength: 50)
@@ -1747,11 +1763,33 @@ const schema = gql`
     labelIds: [ID!]!
   }
 
+  union TypeaheadSearchResult = TypeaheadSearchSuccess | TypeaheadSearchError
+
+  type TypeaheadSearchSuccess {
+    items: [TypeaheadSearchItem!]!
+  }
+
+  type TypeaheadSearchError {
+    errorCodes: [TypeaheadSearchErrorCode!]!
+  }
+
+  enum TypeaheadSearchErrorCode {
+    UNAUTHORIZED
+  }
+
+  type TypeaheadSearchItem {
+    id: ID!
+    title: String!
+    slug: String!
+    siteName: String
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
     googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
     logOut: LogOutResult!
+    deleteAccount(userID: ID!): DeleteAccountResult!
     updateUser(input: UpdateUserInput!): UpdateUserResult!
     updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
     createArticle(input: CreateArticleInput!): CreateArticleResult!
@@ -1859,6 +1897,7 @@ const schema = gql`
     webhooks: WebhooksResult!
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
+    typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
   }
 `
 

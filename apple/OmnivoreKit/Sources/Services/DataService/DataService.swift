@@ -95,7 +95,7 @@ public final class DataService: ObservableObject {
     }
   }
 
-  private func resetCoreData() {
+  func resetCoreData() {
     clearCoreData()
 
     persistentContainer = PersistentContainer.make()

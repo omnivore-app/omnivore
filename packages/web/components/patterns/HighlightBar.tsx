@@ -1,5 +1,3 @@
-import { highlightBarKeyboardCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { isAndroid } from '../../lib/deviceType'
 
 import { styled, theme } from '../tokens/stitches.config'
@@ -10,7 +8,7 @@ import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
 import { TrashIcon } from '../elements/images/TrashIcon'
 import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
-import { Note } from 'phosphor-react'
+import { Note, Trash, TrashSimple } from 'phosphor-react'
 
 type PageCoordinates = {
   pageX: number
@@ -82,21 +80,6 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
 }
 
 function BarContent(props: HighlightBarProps): JSX.Element {
-  useKeyboardShortcuts(
-    highlightBarKeyboardCommands((action) => {
-      switch (action) {
-        case 'createHighlight':
-          props.handleButtonClick('create')
-          break
-        case 'openNoteModal':
-          props.handleButtonClick('comment')
-          break
-        case 'openPostModal':
-          break
-      }
-    })
-  )
-
   const Separator = styled('div', {
     width: '1px',
     maxWidth: '1px',
@@ -148,12 +131,26 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           style="plainIcon"
           title="Remove Highlight"
           onClick={() => props.handleButtonClick('delete')}
-          css={{ color: '$readerFont', height: '100%', m: 0, p: 0, pt: '6px'}}
+          css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
         >
-          <TrashIcon
-            size={28}
-            strokeColor={theme.colors.readerFont.toString()}
-          />
+          <HStack css={{ height: '100%', alignItems: 'center' }}>
+            <Trash
+              size={24}
+              color={theme.colors.omnivoreRed.toString()}
+            />
+            <StyledText
+              style="body"
+              css={{
+                pl: '12px',
+                m: '0px',
+                color: '$readerFont',
+                fontWeight: '400',
+                fontSize: '16px',
+              }}
+            >
+              Delete
+            </StyledText>
+          </HStack>
         </Button>
       )}
       <Separator />

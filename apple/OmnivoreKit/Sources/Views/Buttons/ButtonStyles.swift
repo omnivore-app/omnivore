@@ -42,16 +42,16 @@ public struct RoundedRectButtonStyle: ButtonStyle {
   }
 }
 
-struct RectButtonStyle: ButtonStyle {
+public struct RectButtonStyle: ButtonStyle {
   let backgroundColor: Color
   let textColor: Color
 
-  init(color: Color = .appButtonBackground, textColor: Color = .appGrayText) {
+  public init(color: Color = .appButtonBackground, textColor: Color = .appGrayText) {
     self.backgroundColor = color
     self.textColor = textColor
   }
 
-  func makeBody(configuration: Configuration) -> some View {
+  public func makeBody(configuration: Configuration) -> some View {
     configuration.label
       .font(.appBody)
       .foregroundColor(textColor)

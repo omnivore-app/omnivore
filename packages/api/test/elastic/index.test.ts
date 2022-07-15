@@ -14,8 +14,10 @@ import {
   countByCreatedAt,
   createPage,
   deletePage,
+  deletePagesByParam,
   getPageById,
   getPageByParam,
+  searchAsYouType,
   searchPages,
   updatePage,
 } from '../../src/elastic/pages'
@@ -234,6 +236,7 @@ describe('elastic api', () => {
         id: highlightId,
         userId: page.userId,
         createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       await addHighlightToPage(page.id, highlightData, ctx)
@@ -286,6 +289,7 @@ describe('elastic api', () => {
         id: highlightId,
         userId: page.userId,
         createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       await addHighlightToPage(page.id, highlightData, ctx)
@@ -299,6 +303,78 @@ describe('elastic api', () => {
       const result = await setLabelsForHighlight(highlightId, [label], ctx)
 
       expect(result).to.be.true
+    })
+  })
+
+  describe('deletePagesByParam', () => {
+    const userId = 'test user id'
+
+    before(async () => {
+      // create a testing page
+      await createPage(
+        {
+          content: 'deletePagesByParam content',
+          createdAt: new Date(),
+          hash: '',
+          id: '',
+          pageType: PageType.Article,
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+          savedAt: new Date(),
+          slug: 'deletePagesByParam slug',
+          state: ArticleSavingRequestStatus.Succeeded,
+          title: 'deletePagesByParam title',
+          url: 'https://localhost/deletePagesByParam',
+          userId,
+        },
+        ctx
+      )
+    })
+
+    it('deletes page by userId', async () => {
+      const deleted = await deletePagesByParam(
+        {
+          userId,
+        },
+        ctx
+      )
+
+      expect(deleted).to.be.true
+    })
+  })
+
+  describe('searchAsYouType', () => {
+    before(async () => {
+      // create a testing page
+      await createPage(
+        {
+          content: '',
+          createdAt: new Date(),
+          hash: '',
+          id: '',
+          pageType: PageType.Article,
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+          savedAt: new Date(),
+          slug: '',
+          state: ArticleSavingRequestStatus.Succeeded,
+          title: 'search as you type',
+          url: '',
+          userId,
+        },
+        ctx
+      )
+    })
+
+    after(async () => {
+      // delete the testing page
+      await deletePagesByParam({ userId }, ctx)
+    })
+
+    it('searches pages', async () => {
+      const searchResults = await searchAsYouType(userId, 'search')
+      expect(searchResults).to.have.lengthOf(1)
+      expect(searchResults[0].title).to.eq('search as you type')
     })
   })
 })

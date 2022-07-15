@@ -38,11 +38,18 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { EmptyLibrary } from './EmptyLibrary'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import {
-  State,
   PageType,
+  State,
 } from '../../../lib/networking/fragments/articleFragment'
+import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import { EditTitleModal } from './EditTitleModal'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
+import debounce from 'lodash/debounce'
+import {
+  SearchItem,
+  TypeaheadSearchItemsData,
+  typeaheadSearchQuery,
+} from '../../../lib/networking/queries/typeaheadSearch'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -60,11 +67,27 @@ const SAVED_SEARCHES: Record<string, string> = {
   Newsletters: `in:inbox label:Newsletter`,
 }
 
+const fetchSearchResults = async (query: string, cb: any) => {
+  if (!query.startsWith('#')) return
+  const res = await typeaheadSearchQuery({
+    limit: 10,
+    searchQuery: query.substring(1),
+  })
+  cb(res)
+}
+
+const debouncedFetchSearchResults = debounce((query, cb) => {
+  fetchSearchResults(query, cb)
+}, 300)
+
 export function HomeFeedContainer(): JSX.Element {
   useGetUserPreferences()
 
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
+  const { queryValue } = useKBar((state) => ({ queryValue: state.searchQuery }))
+  const [searchResults, setSearchResults] = useState<SearchItem[]>([])
+
   const defaultQuery = {
     limit: 10,
     sortDescending: true,
@@ -100,7 +123,18 @@ export function HomeFeedContainer(): JSX.Element {
   )
 
   const { itemsPages, size, setSize, isValidating, performActionOnItem } =
-  useGetLibraryItemsQuery(queryInputs)
+    useGetLibraryItemsQuery(queryInputs)
+
+  useEffect(() => {
+    if (queryValue.startsWith('#')) {
+      debouncedFetchSearchResults(
+        queryValue,
+        (data: TypeaheadSearchItemsData) => {
+          setSearchResults(data?.typeaheadSearch.items || [])
+        }
+      )
+    } else setSearchResults([])
+  }, [queryValue])
 
   useEffect(() => {
     if (!router.isReady) return
@@ -189,9 +223,7 @@ export function HomeFeedContainer(): JSX.Element {
         const target = document.getElementById(id)
         if (target) {
           try {
-            if (
-              !isVisible(target)
-            ) {
+            if (!isVisible(target)) {
               target.scrollIntoView({
                 block: 'center',
                 behavior: isSmouth ? 'smooth' : 'auto',
@@ -421,6 +453,84 @@ export function HomeFeedContainer(): JSX.Element {
     })
   )
 
+  const ARCHIVE_ACTION = !activeItem?.node.isArchived
+    ? createAction({
+        section: 'Library',
+        name: 'Archive selected item',
+        shortcut: ['e'],
+        perform: () => handleCardAction('archive', activeItem),
+      })
+    : createAction({
+        section: 'Library',
+        name: 'UnArchive selected item',
+        shortcut: ['e'],
+        perform: () => handleCardAction('unarchive', activeItem),
+      })
+
+  const ACTIVE_ACTIONS = [
+    ARCHIVE_ACTION,
+    createAction({
+      section: 'Library',
+      name: 'Remove item',
+      shortcut: ['r'],
+      perform: () => handleCardAction('delete', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Edit item labels',
+      shortcut: ['l'],
+      perform: () => handleCardAction('set-labels', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Mark item as read',
+      shortcut: ['Shift', 'i'],
+      perform: () => handleCardAction('mark-read', activeItem),
+    }),
+    createAction({
+      section: 'Library',
+      name: 'Mark item as unread',
+      shortcut: ['Shift', 'u'],
+      perform: () => handleCardAction('mark-unread', activeItem),
+    }),
+  ]
+
+  const UNACTIVE_ACTIONS: Action[] = [
+    // createAction({
+    //   section: 'Library',
+    //   name: 'Sort in ascending order',
+    //   shortcut: ['s', 'o'],
+    //   perform: () => setQueryInputs({ ...queryInputs, sortDescending: false }),
+    // }),
+    // createAction({
+    //   section: 'Library',
+    //   name: 'Sort in descending order',
+    //   shortcut: ['s', 'n'],
+    //   perform: () => setQueryInputs({ ...queryInputs, sortDescending: true }),
+    // }),
+  ]
+
+  useRegisterActions(
+    searchResults.map((link) => ({
+      id: link.id,
+      section: 'Search Results',
+      name: link.title,
+      keywords: '#' + link.title + ' #' + link.siteName,
+      perform: () => {
+        const username = viewerData?.me?.profile.username
+        if (username) {
+          setActiveCardId(link.id)
+          router.push(`/${username}/${link.slug}`)
+        }
+      },
+    })),
+    [searchResults]
+  )
+
+  useRegisterActions(
+    activeCardId ? [...ACTIVE_ACTIONS, ...UNACTIVE_ACTIONS] : UNACTIVE_ACTIONS,
+    [activeCardId, activeItem]
+  )
   useFetchMore(handleFetchMore)
 
   return (
@@ -500,7 +610,10 @@ type HomeFeedContentProps = {
 
 function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
-  const [layout, setLayout] = usePersistedState<LayoutType>({ key: 'libraryLayout', initialValue: 'GRID_LAYOUT' })
+  const [layout, setLayout] = usePersistedState<LayoutType>({
+    key: 'libraryLayout',
+    initialValue: 'GRID_LAYOUT',
+  })
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
@@ -761,7 +874,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       )}
       {props.showEditTitleModal && (
         <EditTitleModal
-          updateItem={(item: LibraryItem) => props.actionHandler('update-item', item)}
+          updateItem={(item: LibraryItem) =>
+            props.actionHandler('update-item', item)
+          }
           onOpenChange={() => props.setShowEditTitleModal(false)}
           item={linkToEdit as LibraryItem}
         />

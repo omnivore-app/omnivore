@@ -3,6 +3,7 @@ import {
   getConfirmationCode,
   isConfirmationEmail,
   NewsletterHandler,
+  parseUnsubscribe,
 } from '../src/newsletter'
 import { SubstackHandler } from '../src/substack-handler'
 import { AxiosHandler } from '../src/axios-handler'
@@ -158,17 +159,13 @@ describe('Newsletter email test', () => {
     it('returns mail to address if exists', () => {
       const header = `<https://omnivore.com/unsub>, <mailto:${mailTo}>`
 
-      expect(new NewsletterHandler().parseUnsubscribe(header).mailTo).to.equal(
-        mailTo
-      )
+      expect(parseUnsubscribe(header).mailTo).to.equal(mailTo)
     })
 
     it('returns http url if exists', () => {
       const header = `<${httpUrl}>`
 
-      expect(new NewsletterHandler().parseUnsubscribe(header).httpUrl).to.equal(
-        httpUrl
-      )
+      expect(parseUnsubscribe(header).httpUrl).to.equal(httpUrl)
     })
   })
 })

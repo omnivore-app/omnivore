@@ -30,6 +30,7 @@ import {
   createLabelResolver,
   createNewsletterEmailResolver,
   createReminderResolver,
+  deleteAccountResolver,
   deleteHighlightResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
@@ -75,6 +76,7 @@ import {
   signupResolver,
   subscribeResolver,
   subscriptionsResolver,
+  typeaheadSearchResolver,
   unsubscribeResolver,
   updateHighlightResolver,
   updateLabelResolver,
@@ -118,6 +120,7 @@ export const functionResolvers = {
     googleLogin: googleLoginResolver,
     googleSignup: googleSignupResolver,
     logOut: logOutResolver,
+    deleteAccount: deleteAccountResolver,
     saveArticleReadingProgress: saveArticleReadingProgressResolver,
     updateUser: updateUserResolver,
     updateUserProfile: updateUserProfileResolver,
@@ -186,6 +189,7 @@ export const functionResolvers = {
     webhooks: webhooksResolver,
     webhook: webhookResolver,
     apiKeys: apiKeysResolver,
+    typeaheadSearch: typeaheadSearchResolver,
   },
   User: {
     async sharedArticles(
@@ -586,4 +590,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('Webhook'),
   ...resultResolveTypeResolver('ApiKeys'),
   ...resultResolveTypeResolver('RevokeApiKey'),
+  ...resultResolveTypeResolver('DeleteAccount'),
+  ...resultResolveTypeResolver('TypeaheadSearch'),
 }

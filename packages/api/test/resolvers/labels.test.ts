@@ -11,7 +11,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { Highlight, Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
-import { getPageById } from '../../src/elastic/pages'
+import { deletePagesByParam, getPageById } from '../../src/elastic/pages'
 import { addLabelInPage } from '../../src/elastic/labels'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
@@ -66,6 +66,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
+    await deletePagesByParam({ userId: user.id }, ctx)
     await deleteTestUser(username)
   })
 
@@ -271,6 +272,7 @@ describe('Labels API', () => {
             userId: user.id,
             createdAt: new Date(),
             labels: [toDeleteLabel],
+            updatedAt: new Date(),
           }
           await addHighlightToPage(page.id, highlight, ctx)
         })
@@ -527,6 +529,7 @@ describe('Labels API', () => {
           quote: 'test quote',
           shortId: 'test shortId',
           userId: user.id,
+          updatedAt: new Date(),
         }
         await addHighlightToPage(page.id, highlight, ctx)
         labelIds = [labels[0].id, labels[1].id]
@@ -550,6 +553,7 @@ describe('Labels API', () => {
           quote: 'test quote',
           shortId: 'test shortId',
           userId: user.id,
+          updatedAt: new Date(),
         }
         await addHighlightToPage(page.id, highlight, ctx)
         labelIds = [generateFakeUuid(), generateFakeUuid()]
