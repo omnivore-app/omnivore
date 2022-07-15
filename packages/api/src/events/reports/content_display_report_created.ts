@@ -20,7 +20,7 @@ export class ContentDisplayReportSubscriber
   async afterInsert(event: InsertEvent<ContentDisplayReport>): Promise<void> {
     const report = event.entity
     const message = `A new content display report was created by:
-                    ${report.userId} for URL': ${report.originalUrl}
+                    ${report.userId} for URL: ${report.originalUrl}
                     ${report.reportComment}`
 
     console.log(message)
