@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
     res.send(403)
     return
   }
-  fetchContent(req, res)
+  return fetchContent(req, res)
 });
 
 app.post('/', (req, res) => {
@@ -25,7 +25,7 @@ app.post('/', (req, res) => {
     res.send(403)
     return
   }
-  fetchContent(req, res)
+  return fetchContent(req, res)
 });
 
 const PORT = parseInt(process.env.PORT) || 8080;
