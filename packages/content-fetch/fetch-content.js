@@ -105,7 +105,6 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
-      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
     ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
