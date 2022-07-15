@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Url = require('url');
-const puppeteer = require('puppeteer-extra');
+const puppeteer = require('puppeteer-core');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -31,8 +31,8 @@ const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/pl
 const { parseHTML } = require('linkedom');
 
 // Add stealth plugin to hide puppeteer usage
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// puppeteer.use(StealthPlugin());
 
 
 const userAgentForUrl = (url) => {
@@ -105,10 +105,11 @@ const getBrowserPromise = (async () => {
       '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
+      process.env.LAUNCH_HEADLESS ? '--single-process' : '--start-maximized',
     ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
-    headless: true,
+    headless: !!process.env.LAUNCH_HEADLESS,
     timeout: 0,
   });
 })();
