@@ -10,6 +10,8 @@ import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKe
 
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { Table } from '../../components/elements/Table'
+import TableR from '../../components/elements/Table-Responsive'
+
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
@@ -57,9 +59,10 @@ export default function Api(): JSX.Element {
         usedAt: apiKey.usedAt
           ? new Date(apiKey.usedAt).toISOString()
           : 'Never used',
-        expiresAt: new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
-          ? new Date(apiKey.expiresAt).toDateString()
-          : 'Never',
+        expiresAt:
+          new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
+            ? new Date(apiKey.expiresAt).toDateString()
+            : 'Never',
       })
     )
     return rows
@@ -117,7 +120,7 @@ export default function Api(): JSX.Element {
               additionalDays = 365
               break
             case 'Never':
-              break;
+              break
           }
           const newExpires = additionalDays ? new Date() : neverExpiresDate
           if (additionalDays) {
@@ -126,7 +129,13 @@ export default function Api(): JSX.Element {
           setExpiresAt(newExpires)
         },
         type: 'select',
-        options: ['in 7 days', 'in 30 days', 'in 90 days', 'in 1 year', 'Never'],
+        options: [
+          'in 7 days',
+          'in 30 days',
+          'in 90 days',
+          'in 1 year',
+          'Never',
+        ],
         value: defaultExpiresAt,
       },
     ])
@@ -186,6 +195,14 @@ export default function Api(): JSX.Element {
           setExpiresAt(new Date(defaultExpiresAt))
           setAddModalOpen(true)
         }}
+      />
+      
+      {/* TESTING NEW TABLE */}
+      <TableR
+        headers={headers}
+        heading={'API Keys1'}
+        rows={rows}
+        onDelete={setOnDeleteId}
       />
     </PrimaryLayout>
   )
