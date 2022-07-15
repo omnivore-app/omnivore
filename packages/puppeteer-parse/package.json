@@ -14,8 +14,6 @@
     "linkedom": "^0.14.9",
     "luxon": "^2.3.1",
     "puppeteer-core": "^15.3.2",
-    "puppeteer-extra": "^3.2.3",
-    "puppeteer-extra-plugin-stealth": "^2.9.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
