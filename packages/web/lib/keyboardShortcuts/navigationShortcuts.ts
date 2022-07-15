@@ -199,13 +199,13 @@ export function highlightBarKeyboardCommands(
     {
       shortcutKeys: ['shift', 'h'],
       actionDescription: 'Highlight selected text',
-      shortcutKeyDescription: 'shift + h',
+      shortcutKeyDescription: 'h',
       callback: () => actionHandler('createHighlight'),
     },
     {
       shortcutKeys: ['shift', 'c'],
       actionDescription: 'Annotate selected text',
-      shortcutKeyDescription: 'shift + c',
+      shortcutKeyDescription: 'n',
       callback: () => setTimeout(() => actionHandler('openNoteModal'), 0),
     },
     // {
