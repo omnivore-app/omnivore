@@ -744,7 +744,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      await page.waitForTimeout(1000), //5 second timeout
+      await page.waitForTimeout(1000), // 1 second timeout
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
