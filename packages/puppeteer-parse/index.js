@@ -23,8 +23,9 @@ const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 const { derstandardHandler } = require('./derstandard-handler');
 const { imageHandler } = require('./image-handler');
-// const puppeteer = require('puppeteer-core');
+
 const chromium = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer-core');
 
 // Add stealth plugin to hide puppeteer usage
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -124,7 +125,7 @@ const userAgentForUrl = (url) => {
 
 // launch Puppeteer
 const getBrowserPromise = (async () => {
-  return chromium.puppeteer.launch({
+  return puppeteer.launch({
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
     executablePath: await chromium.executablePath,
