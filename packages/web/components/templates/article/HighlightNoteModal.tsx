@@ -82,26 +82,34 @@ export function HighlightNoteModal(
           event.preventDefault()
         }}
       >
-        <VStack>
-          <ModalTitleBar title="Notes" onOpenChange={props.onOpenChange} />
-          <StyledTextArea
-            css={{
-              mt: '16px',
-              p: '6px',
-              width: '100%',
-              height: '248px',
-              fontSize: '14px',
-              border: '1px solid $textNonessential',
-              borderRadius: '6px'
-            }}
-            autoFocus
-            placeholder={'Add your note here'}
-            value={noteContent}
-            onChange={handleNoteContentChange}
-            maxLength={4000}
-          />
-          <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel="Save" />
-        </VStack>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            saveNoteChanges()
+            props.onOpenChange(false)
+          }}
+        >
+          <VStack>
+            <ModalTitleBar title="Notes" onOpenChange={props.onOpenChange} />
+            <StyledTextArea
+              css={{
+                mt: '16px',
+                p: '6px',
+                width: '100%',
+                height: '248px',
+                fontSize: '14px',
+                border: '1px solid $textNonessential',
+                borderRadius: '6px'
+              }}
+              autoFocus
+              placeholder={'Add your note here'}
+              value={noteContent}
+              onChange={handleNoteContentChange}
+              maxLength={4000}
+            />
+            <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel="Save" />
+          </VStack>
+        </form>
       </ModalContent>
     </ModalRoot>
   )
