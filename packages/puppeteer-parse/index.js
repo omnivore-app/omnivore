@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Url = require('url');
-const chromium = require('chrome-aws-lambda');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -24,11 +23,11 @@ const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 const { derstandardHandler } = require('./derstandard-handler');
 const { imageHandler } = require('./image-handler');
-const puppeteer = require('puppeteer-extra');
+const puppeteer = require('puppeteer-core');
 
 // Add stealth plugin to hide puppeteer usage
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// puppeteer.use(StealthPlugin());
 
 const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
@@ -125,12 +124,34 @@ const userAgentForUrl = (url) => {
 // launch Puppeteer
 const getBrowserPromise = (async () => {
   return puppeteer.launch({
-    args: chromium.args,
+    args: [
+      '--allow-running-insecure-content',
+      '--autoplay-policy=user-gesture-required',
+      '--disable-component-update',
+      '--disable-domain-reliability',
+      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+      '--disable-print-preview',
+      '--disable-setuid-sandbox',
+      '--disable-site-isolation-trials',
+      '--disable-speech-api',
+      '--disable-web-security',
+      '--disk-cache-size=33554432',
+      '--enable-features=SharedArrayBuffer',
+      '--hide-scrollbars',
+      '--ignore-gpu-blocklist',
+      '--in-process-gpu',
+      '--mute-audio',
+      '--no-default-browser-check',
+      '--no-pings',
+      '--no-sandbox',
+      '--no-zygote',
+      '--use-gl=swiftshader',
+      '--window-size=1920,1080',
+    ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
-    executablePath: process.env.CHROMIUM_PATH || (await chromium.executablePath),
-    headless: process.env.LAUNCH_HEADLESS ? true : chromium.headless,
+    executablePath: process.env.CHROMIUM_PATH,
+    headless: !!process.env.LAUNCH_HEADLESS,
     timeout: 0,
-    userDataDir: '/tmp/puppeteer',
   });
 })();
 
@@ -179,10 +200,10 @@ const getUploadIdAndSignedUrl = async (userId, url) => {
   return response.data.data.uploadFileRequest;
 };
 
-const uploadPdf = async (url, userId) => {
+const uploadPdf = async (url, userId, articleSavingRequestId) => {
   validateUrlString(url);
 
-  const uploadResult = await getUploadIdAndSignedUrl(userId, url);
+  const uploadResult = await getUploadIdAndSignedUrl(userId, url, articleSavingRequestId);
   await uploadToSignedUrl(uploadResult, 'application/pdf', url);
   return uploadResult.id;
 };
@@ -258,7 +279,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
   let url = getUrl(req);
   const userId = req.body.userId || req.query.userId;
-  const articleSavingRequestId = req.body.saveRequestId || req.query.saveRequestId;
+  const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
 
   logRecord = {
     url,
@@ -277,11 +298,11 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     return res.sendStatus(400);
   }
 
-  if (!userId || !articleSavingRequestId) {
-    Object.assign(logRecord, { invalidParams: true, body: req.body, query: req.query });
-    logger.error(`Invalid parameters`, logRecord);
-    return res.sendStatus(400);
-  }
+  // if (!userId || !articleSavingRequestId) {
+  //   Object.assign(logRecord, { invalidParams: true, body: req.body, query: req.query });
+  //   logger.error(`Invalid parameters`, logRecord);
+  //   return res.sendStatus(400);
+  // }
 
   // Before we run the regular handlers we check to see if we need tp
   // pre-resolve the URL. TODO: This should probably happen recursively,
@@ -348,7 +369,7 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
 
   try {
     if (contentType === 'application/pdf') {
-      const uploadedFileId = await uploadPdf(finalUrl, userId);
+      const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
       const l = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
     } else {
       if (!content || !title) {
@@ -551,7 +572,7 @@ function getUrl(req) {
   } catch (e) {}
 }
 
-async function blockResources(page) {
+async function blockResources(client) {
   const blockedResources = [
     // Assets
     // '*/favicon.ico',
@@ -574,7 +595,7 @@ async function blockResources(page) {
     'sp.analytics.yahoo.com',
   ]
 
-  await page._client.send('Network.setBlockedURLs', { urls: blockedResources });
+  await client.send('Network.setBlockedURLs', { urls: blockedResources });
 }
 
 async function retrievePage(url) {
@@ -603,7 +624,7 @@ async function retrievePage(url) {
   const path = require('path');
   const download_path = path.resolve('./download_dir/');
 
-  await page._client.send('Page.setDownloadBehavior', {
+  await client.send('Page.setDownloadBehavior', {
       behavior: 'allow',
       userDataDir: './',
       downloadPath: download_path,
@@ -632,7 +653,7 @@ async function retrievePage(url) {
     } catch {}
   });
 
-  await blockResources(page);
+  await blockResources(client);
 
   /*
   * Disallow MathJax from running in Puppeteer and modifying the document,
@@ -683,6 +704,7 @@ async function retrievePage(url) {
     if (lastPdfUrl) {
       return { context, page, finalUrl: lastPdfUrl, contentType: 'application/pdf' };
     }
+    await context.close();
     throw error;
   }
 }
@@ -722,7 +744,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      page.waitForTimeout(5000), //5 second timeout
+      await page.waitForTimeout(1000), // 1 second timeout
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
