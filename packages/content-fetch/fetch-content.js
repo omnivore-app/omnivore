@@ -101,7 +101,6 @@ const getBrowserPromise = (async () => {
       '--mute-audio',
       '--no-default-browser-check',
       '--no-pings',
-      '--no-zygote',
       '--use-gl=swiftshader',
       '--window-size=1920,1080',
     ].filter((item) => !!item),
@@ -591,7 +590,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      page.waitForTimeout(1000),
+      await page.waitForTimeout(1000),
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
