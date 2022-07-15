@@ -8,7 +8,6 @@ const moduleExports = {
     ],
   },
   rewrites: () => [
-    { source: '/about', destination: '/static/landing/about.html' },
     {
       source: '/api/graphql',
       destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/graphql`,
