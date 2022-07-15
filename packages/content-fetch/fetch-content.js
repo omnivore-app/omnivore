@@ -380,7 +380,7 @@ async function fetchContent(req, res) {
     console.log(`parse-page`, logRecord);
   } finally {
     if (context) {
-      await context.browser().close();
+      await context.close();
     }
   }
 
@@ -552,7 +552,7 @@ async function retrievePage(url) {
     if (lastPdfUrl) {
       return { context, page, finalUrl: lastPdfUrl, contentType: 'application/pdf' };
     }
-    await browser.close();
+    await context.close();
     throw error;
   }
 }
