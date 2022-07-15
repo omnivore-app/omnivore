@@ -553,6 +553,7 @@ async function retrievePage(url) {
     if (lastPdfUrl) {
       return { context, page, finalUrl: lastPdfUrl, contentType: 'application/pdf' };
     }
+    await context.close();
     throw error;
   }
 }
