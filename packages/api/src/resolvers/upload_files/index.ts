@@ -163,7 +163,6 @@ export const uploadFileRequestResolver: ResolverFn<
       }
     }
 
-    console.log("createdPageId", createdPageId)
     return {
       id: uploadFileData.id,
       uploadSignedUrl,
