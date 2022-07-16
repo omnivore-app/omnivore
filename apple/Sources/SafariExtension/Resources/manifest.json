@@ -11,7 +11,7 @@
     "url": "https://omnivore.app/"
   },
   "homepage_url": "https://omnivore.app/",
-  "content_security_policy": "default-src 'none'; child-src 'none'; manifest-src 'none'; media-src 'none'; object-src 'none'; prefetch-src 'none'; worker-src 'none'; connect-src https://storage.googleapis.com/ https://omnivore.app/api/ blob:; frame-src 'none'; font-src 'none'; img-src data:; script-src 'self'; script-src-elem 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; base-uri 'none'; form-action 'none'; block-all-mixed-content; upgrade-insecure-requests; report-uri https://api.jeurissen.co/reports/csp/webext/omnivore/",
+  "content_security_policy": "default-src 'none'; child-src 'none'; manifest-src 'none'; media-src 'none'; object-src 'none'; prefetch-src 'none'; worker-src 'none'; connect-src https://storage.googleapis.com/ https://api-prod.omnivore.app/api/ blob:; frame-src 'none'; font-src 'none'; img-src data:; script-src 'self'; script-src-elem 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; base-uri 'none'; form-action 'none'; block-all-mixed-content; upgrade-insecure-requests; report-uri https://api.jeurissen.co/reports/csp/webext/omnivore/",
   "icons": {
     "16": "/images/extension/icon-16.png",
     "24": "/images/extension/icon-24.png",
