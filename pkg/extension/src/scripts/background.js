@@ -13,6 +13,8 @@
 
 'use strict';
 
+import { v4 as uuidv4 } from 'uuid';
+
 let authToken = undefined;
 const omnivoreURL = process.env.OMNIVORE_URL;
 const omnivoreGraphqlURL = process.env.OMNIVORE_GRAPHQL_URL;
@@ -76,7 +78,7 @@ function uploadFile ({ id, uploadSignedUrl }, contentType, contentObjUrl) {
         xhr.setRequestHeader('Content-Type', contentType);
 
         xhr.onerror = () => {
-          resolve(null);
+          resolve(undefined);
         };
         xhr.onload = () => {
           // Uploaded.
@@ -91,14 +93,13 @@ function uploadFile ({ id, uploadSignedUrl }, contentType, contentObjUrl) {
     });
 }
 
-function savePdfFile (tab, url, contentType, contentObjUrl) {
+function savePdfFile(tab, url, contentType, contentObjUrl) {
   return new Promise(resolve => {
     const xhr = new XMLHttpRequest();
     xhr.onreadystatechange = async function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           const { data } = JSON.parse(xhr.response);
-
           if ('errorCodes' in data.uploadFileRequest) {
             if (data.uploadFileRequest.errorCodes[0] === 'UNAUTHORIZED') {
               clearClickCompleteState();
@@ -114,7 +115,7 @@ function savePdfFile (tab, url, contentType, contentObjUrl) {
             }
           }
 
-          if (!data.uploadFileRequest || !data.uploadFileRequest.id || 'errorCodes' in data.uploadFileRequest) {
+          if (!data.uploadFileRequest || !data.uploadFileRequest.id || !data.uploadFileRequest.createdPageId || 'errorCodes' in data.uploadFileRequest) {
             browserApi.tabs.sendMessage(tab.id, {
               action: ACTIONS.ShowMessage,
               payload: {
@@ -123,9 +124,26 @@ function savePdfFile (tab, url, contentType, contentObjUrl) {
               }
             });
           } else {
-            const uploadFileId = await uploadFile(data.uploadFileRequest, contentType, contentObjUrl);
+            const result = await uploadFile(data.uploadFileRequest, contentType, contentObjUrl);
             URL.revokeObjectURL(contentObjUrl);
-            return resolve(uploadFileId);
+
+            if (!result) {
+              return undefined
+            }
+
+            const createdPageId = data.uploadFileRequest.createdPageId
+            const url = omnivoreURL + '/article/sr/' + createdPageId
+
+            browserApi.tabs.sendMessage(tab.id, {
+              action: ACTIONS.ShowMessage,
+              payload: {
+                text: 'Saved to Omnivore',
+                link: url,
+                linkText: 'Read Now',
+                type: 'success'
+              }
+            })
+            return resolve(data.uploadFileRequest);
           }
         } else if (xhr.status === 400) {
           browserApi.tabs.sendMessage(tab.id, {
@@ -148,6 +166,7 @@ function savePdfFile (tab, url, contentType, contentObjUrl) {
           }
           ... on UploadFileRequestSuccess {
             id
+            createdPageId
             uploadSignedUrl
           }
         }
@@ -155,7 +174,8 @@ function savePdfFile (tab, url, contentType, contentObjUrl) {
       variables: {
         input: {
           url,
-          contentType
+          contentType,
+          createPageEntry: true,
         }
       }
     });
@@ -175,65 +195,47 @@ function clearClickCompleteState () {
   });
 }
 
-function handleSaveResponse (tab, xhr) {
+function handleSaveResponse(tab, field, xhr) {
   if (xhr.readyState === 4) {
     if (xhr.status === 200) {
       const { data } = JSON.parse(xhr.response);
-      if ('createArticle' in data) {
-        if ('errorCodes' in data.createArticle) {
-          const messagePayload = {
-            text: descriptions[data.createArticle.errorCodes[0]] || 'Unable to save page',
-            type: 'error'
-          };
-
-          if (data.createArticle.errorCodes[0] === 'UNAUTHORIZED') {
-            messagePayload.errorCode = 401;
-            messagePayload.url = omnivoreURL;
-
-            clearClickCompleteState();
-          }
-
-          browserApi.tabs.sendMessage(tab.id, {
-            action: ACTIONS.ShowMessage,
-            payload: messagePayload
-          });
-        } else {
-          const article = data.createArticle.createdArticle;
-          const user = data.createArticle.user;
-          const link = omnivoreURL + (article.hasContent ? (`/${user.profile.username}/` + article.slug) : '/home');
-          browserApi.tabs.sendMessage(tab.id, {
-            action: ACTIONS.ShowMessage,
-            payload: {
-              text: 'Saved to Omnivore',
-              link: link,
-              linkText: 'View',
-              type: 'success'
-            }
-          });
-        }
-      } else {
-        if ('errorCodes' in data.createArticleSavingRequest) {
-          browserApi.tabs.sendMessage(tab.id, {
-            action: ACTIONS.ShowMessage,
-            payload: {
-              text: descriptions[data.createArticleSavingRequest.errorCodes[0]] || 'Unable to save page',
-              type: 'error'
-            }
-          });
-        } else {
-          const articleSavingRequest = data.createArticleSavingRequest.articleSavingRequest;
-          const link = omnivoreURL + '/article/sr/' + articleSavingRequest.id;
-          browserApi.tabs.sendMessage(tab.id, {
-            action: ACTIONS.ShowMessage,
-            payload: {
-              text: 'Saved to Omnivore',
-              link: link,
-              linkText: 'View',
-              type: 'success'
-            }
-          });
-        }
+      const item = data[field]
+      if (!item) {
+        return undefined
       }
+
+      if ('errorCodes' in item) {
+        const messagePayload = {
+          text: descriptions[data.createArticle.errorCodes[0]] || 'Unable to save page',
+          type: 'error'
+        }
+
+        if (item.errorCodes[0] === 'UNAUTHORIZED') {
+          messagePayload.errorCode = 401
+          messagePayload.url = omnivoreURL
+          clearClickCompleteState()
+        }
+
+        browserApi.tabs.sendMessage(tab.id, {
+          action: ACTIONS.ShowMessage,
+          payload: messagePayload
+        })
+
+        return undefined
+      }
+
+      const url = item['url']
+      browserApi.tabs.sendMessage(tab.id, {
+        action: ACTIONS.ShowMessage,
+        payload: {
+          text: 'Saved to Omnivore',
+          link: url ?? omnivoreURL + '/home',
+          linkText: 'Read Now',
+          type: 'success'
+        }
+      })
+
+      return item
     } else if (xhr.status === 400) {
       browserApi.tabs.sendMessage(tab.id, {
         action: ACTIONS.ShowMessage,
@@ -241,12 +243,22 @@ function handleSaveResponse (tab, xhr) {
           text: 'Unable to save page',
           type: 'error'
         }
-      });
+      })
+      return undefined
     }
   }
 }
 
-async function saveUrl (currentTab, url) {
+async function saveUrl(currentTab, url) {
+  const requestId = uuidv4()
+  await saveApiRequest(currentTab, SAVE_URL_QUERY, 'saveUrl', {
+    source: 'extension',
+    clientRequestId: requestId,
+    url: encodeURI(url),
+  })
+}
+
+async function saveApiRequest(currentTab, query, field, input) {
   browserApi.tabs.sendMessage(currentTab.id, {
     action: ACTIONS.ShowMessage,
     payload: {
@@ -256,61 +268,47 @@ async function saveUrl (currentTab, url) {
   });
 
   return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', omnivoreGraphqlURL + 'graphql', true);
-    setupConnection(xhr);
-    xhr.onerror = (err) => {
-      resolve(null);
-    };
-    xhr.onload = (res) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', omnivoreGraphqlURL + 'graphql', true)
+    setupConnection(xhr)
+
+    xhr.onerror = (err) => { reject(err) }
+
+    xhr.onload = () => {
       try {
-        handleSaveResponse(currentTab, xhr)
+        const res = handleSaveResponse(currentTab, field, xhr)
+        if (!res) {
+          return reject()
+        }
+        resolve(res);
       } catch (err) {
-        console.log('response error', err)
+        reject(err)
       }
-      resolve({});
-    };
+    }
 
     const data = JSON.stringify({
-      query: CREATE_ARTICLE_SAVING_REQUEST_QUERY,
+      query,
       variables: {
-        input: {
-          url
-        }
+        input
       }
-    });
+    })
 
     xhr.send(data);
   })
   .catch((err) => {
-    console.error('error saving url', err)
+    console.log('error saving page', err)
+    browserApi.tabs.sendMessage(currentTab.id, {
+      action: ACTIONS.ShowMessage,
+      payload: {
+        text: 'Unable to save page',
+        type: 'error',
+      }
+    });
     return undefined
   });
 }
 
 function saveArticle (tab) {
-  browserApi.tabs.sendMessage(tab.id, {
-    action: ACTIONS.ShowMessage,
-    payload: {
-      type: 'loading',
-      text: 'Saving...'
-    }
-  });
-
-  const xhr = new XMLHttpRequest();
-  const descriptions = {
-    BAD_DATA: 'Unable to save page',
-    NOT_ALLOWED_TO_PARSE: 'Not allowed to parse this article',
-    UNAUTHORIZED: 'Please login to Omnivore to authorize this action',
-    UNABLE_TO_FETCH: 'Unable to fetch page',
-    PAYLOAD_TOO_LARGE: 'This article is too large'
-  };
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      handleSaveResponse(tab, xhr)
-    }
-  };
-
   browserApi.tabs.sendMessage(tab.id, {
     action: ACTIONS.GetContent
   }, async (response) => {
@@ -319,56 +317,42 @@ function saveArticle (tab) {
       return;
     }
 
+    const requestId = uuidv4()
     const { type, pageInfo, doc, uploadContentObjUrl } = response;
 
-    let uploadResult = null;
-
     switch(type) {
-      case 'pdf': {
-        // For PDFs, we first upload the PDF file before passing the upload file ID in createArticle
-        uploadResult = await savePdfFile(tab, encodeURI(tab.url), pageInfo.contentType, uploadContentObjUrl);
-        if (!uploadResult || !uploadResult.id) {
-          browserApi.tabs.sendMessage(tab.id, {
-            action: ACTIONS.ShowMessage,
-            payload: {
-              text: 'Unable to save page',
-              type: 'error'
-            }
-          });
-          return;
-        }
+      case 'html': {
+        await saveApiRequest(tab, SAVE_PAGE_QUERY, 'savePage', {
+          source: 'extension',
+          clientRequestId: requestId,
+          originalContent: doc,
+          title: pageInfo.title,
+          url: encodeURI(tab.url),
+        })
+        break
       }
       case 'url': {
-        // We don't have to special case URL, it will fall through
-        // and be handled when isContentAvailable returns false
+        await saveApiRequest(tab, SAVE_URL_QUERY, 'saveUrl', {
+          source: 'extension',
+          clientRequestId: requestId,
+          url: encodeURI(tab.url),
+        })
+        break
+      }
+      case 'pdf': {
+        const uploadResult = await savePdfFile(tab, encodeURI(tab.url), pageInfo.contentType, uploadContentObjUrl);
+        if (!uploadResult || !uploadResult.id) {
+          // If the upload failed for any reason, try to save the PDF URL instead
+          await saveApiRequest(tab, SAVE_URL_QUERY, 'saveUrl', {
+            source: 'extension',
+            clientRequestId: requestId,
+            url: encodeURI(tab.url),
+          })
+          return;
+        }
+        break
       }
     }
-
-    const isContentAvailable = (doc && doc.length) || uploadResult;
-    const query = isContentAvailable ? CREATE_ARTICLE_QUERY : CREATE_ARTICLE_SAVING_REQUEST_QUERY;
-    const input = {
-      url: encodeURI(tab.url)
-    };
-
-    if (isContentAvailable) {
-      input.preparedDocument = {
-        document: doc,
-        pageInfo
-      };
-      input.uploadFileId = (uploadResult && uploadResult.id) || null;
-    }
-
-    const data = JSON.stringify({
-      query,
-      variables: {
-        input
-      }
-    });
-
-    xhr.open('POST', omnivoreGraphqlURL + 'graphql', true);
-    setupConnection(xhr);
-
-    xhr.send(data);
   });
 }
 
@@ -700,7 +684,7 @@ function init () {
   });
 
   browserApi.contextMenus.create({
-    id: "log-selection",
+    id: "save-selection",
     title: "Save to Omnivore",
     contexts: ["link"],
     onclick: async function(obj) {

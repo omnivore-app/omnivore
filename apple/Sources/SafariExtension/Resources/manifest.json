@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Omnivore",
   "short_name": "Omnivore",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "description": "Save articles to your Omnivore library",
   "author": "Omnivore Media, Inc",
   "default_locale": "en",
@@ -79,6 +79,14 @@
       "48": "/images/toolbar/icon-48.png"
     },
     "default_title": "Omnivore Save Article"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt + O"
+      },
+      "description": "Save the current tab to Omnivore"
+    }
   },
   "web_accessible_resources": [
     "views/cta-popup.html"
