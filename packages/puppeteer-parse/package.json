@@ -13,7 +13,7 @@
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.9",
     "luxon": "^2.3.1",
-    "puppeteer-core": "^15.3.2",
+    "puppeteer-core": "^15.4.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
