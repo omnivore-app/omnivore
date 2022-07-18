@@ -326,8 +326,8 @@ describe("Test pages", function() {
     describe(testPage.dir, function() {
       var uri = "http://fakehost/test/page.html";
 
-      runTestsWithItems("jsdom", function(source) {
-        var doc =parseHTML(source).document;
+      runTestsWithItems("linkedom", function(source) {
+        var doc = parseHTML(source).document;
         removeCommentNodesRecursively(doc);
         return doc;
       }, testPage.source, testPage.expectedContent, testPage.expectedMetadata, uri);
