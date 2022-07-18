@@ -444,7 +444,10 @@ export const isProbablyNewsletter = async (html: string): Promise<boolean> => {
   }
 
   // Check if this is a newsletter from revue
-  if (dom.querySelectorAll('img[src*="getrevue.co"]').length > 0) {
+  if (
+    dom.querySelectorAll('img[src*="getrevue.co"], img[src*="revue.email"]')
+      .length > 0
+  ) {
     const getrevueUrl = revueNewsletterHref(dom)
     if (getrevueUrl) {
       return true
@@ -452,14 +455,11 @@ export const isProbablyNewsletter = async (html: string): Promise<boolean> => {
   }
 
   // Check if this is a convertkit.com newsletter
-  if (dom.querySelectorAll('img[src*="convertkit-mail.com"]').length > 0) {
-    const convertkitUrl = convertkitNewsletterHref(dom)
-    if (convertkitUrl) {
-      return true
-    }
-  }
-
-  return false
+  return (
+    dom.querySelectorAll(
+      'img[src*="convertkit.com"], img[src*="convertkit-mail.com"]'
+    ).length > 0
+  )
 }
 
 const beehiivNewsletterHref = (dom: Document): string | undefined => {
