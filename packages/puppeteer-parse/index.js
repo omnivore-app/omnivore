@@ -23,6 +23,7 @@ const { pdfHandler } = require('./pdf-handler');
 const { mediumHandler } = require('./medium-handler');
 const { derstandardHandler } = require('./derstandard-handler');
 const { imageHandler } = require('./image-handler');
+const { scrappingBeeHandler } = require('./scrapingBee-handler');
 
 const chromium = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
@@ -265,6 +266,7 @@ const handlers = {
   'medium': mediumHandler,
   'derstandard': derstandardHandler,
   'image': imageHandler,
+  'scrappingBee': scrappingBeeHandler,
 };
 
 /**
