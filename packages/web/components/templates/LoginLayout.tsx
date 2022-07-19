@@ -89,7 +89,11 @@ function OmnivoreIllustration({ isLargeLayout }: OmnivoreIllustrationProps) {
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
       backgroundPositionY: '70px',
-      backgroundImage: `image-set(
+      backgroundImage: `-webkit-image-set(
+        url('/static/images/landing-illustration.png') 1x,
+        url('/static/images/landing-illustration@2x.png') 2x
+      )`,
+      'background-image': `image-set(
         url('/static/images/landing-illustration.png') 1x,
         url('/static/images/landing-illustration@2x.png') 2x
       )`
