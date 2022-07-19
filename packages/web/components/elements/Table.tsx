@@ -1,10 +1,13 @@
-import { Box, HStack, SpanBox, VStack } from './LayoutPrimitives'
+import { Box, SpanBox, VStack } from './LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
 import { StyledText } from './StyledText'
 import { InfoLink } from './InfoLink'
 import { Button } from './Button'
 import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { isDarkTheme } from '../../lib/themeUpdater'
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
+import { IconButton } from './Button'
 
 interface TableProps {
   heading: string
@@ -23,64 +26,64 @@ const HeaderWrapper = styled(Box, {
   },
 })
 
-const TableCard = styled(Box, {
-  backgroundColor: '$grayBg',
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 12px',
-  border: '0.5px solid $grayBgActive',
-  width: '100%',
+// const TableCard = styled(Box, {
+//   backgroundColor: '$grayBg',
+//   display: 'flex',
+//   alignItems: 'center',
+//   padding: '10px 12px',
+//   border: '0.5px solid $grayBgActive',
+//   width: '100%',
 
-  '&:hover': {
-    border: '0.5px solid #FFD234',
-  },
-  '@md': {
-    paddingLeft: '0',
-  },
-})
+//   '&:hover': {
+//     border: '0.5px solid #FFD234',
+//   },
+//   '@md': {
+//     paddingLeft: '0',
+//   },
+// })
 
-const TableHeading = styled(Box, {
-  backgroundColor: '$grayBgActive',
-  border: '1px solid rgba(0, 0, 0, 0.06)',
-  display: 'none',
-  alignItems: 'center',
-  padding: '14px 0 14px 40px',
-  borderRadius: '5px 5px 0px 0px',
-  width: '100%',
-  '@md': {
-    display: 'flex',
-  },
-})
+// const TableHeading = styled(Box, {
+//   backgroundColor: '$grayBgActive',
+//   border: '1px solid rgba(0, 0, 0, 0.06)',
+//   display: 'none',
+//   alignItems: 'center',
+//   padding: '14px 0 14px 40px',
+//   borderRadius: '5px 5px 0px 0px',
+//   width: '100%',
+//   '@md': {
+//     display: 'flex',
+//   },
+// })
 
-const Input = styled('input', {
-  backgroundColor: 'transparent',
-  color: '$grayTextContrast',
-  marginTop: '5px',
-  '&[disabled]': {
-    border: 'none',
-  },
-})
+// const Input = styled('input', {
+//   backgroundColor: 'transparent',
+//   color: '$grayTextContrast',
+//   marginTop: '5px',
+//   '&[disabled]': {
+//     border: 'none',
+//   },
+// })
 
-const IconButton = styled(Button, {
-  variants: {
-    style: {
-      ctaWhite: {
-        color: 'red',
-        padding: '10px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        border: '1px solid $grayBorder',
-        boxSizing: 'border-box',
-        borderRadius: 6,
-        width: 40,
-        height: 40,
-      },
-    },
-  },
-})
+// const IconButton = styled(Button, {
+//   variants: {
+//     style: {
+//       ctaWhite: {
+//         color: 'red',
+//         padding: '10px',
+//         display: 'flex',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         border: '1px solid $grayBorder',
+//         boxSizing: 'border-box',
+//         borderRadius: 6,
+//         width: 40,
+//         height: 40,
+//       },
+//     },
+//   },
+// })
 
-export function Table(props: TableProps): JSX.Element {
+export function TableR(props: TableProps): JSX.Element {
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
 
   return (
@@ -140,7 +143,7 @@ export function Table(props: TableProps): JSX.Element {
           )}
         </Box>
       </HeaderWrapper>
-      <TableHeading>
+      {/* <TableHeading>
         {props.headers.map((header, index) => (
           <Box
             key={index}
@@ -170,8 +173,8 @@ export function Table(props: TableProps): JSX.Element {
             width: '120px',
           }}
         ></Box>
-      </TableHeading>
-      {Array.from(props.rows.keys()).map((key, index) => (
+      </TableHeading> */}
+      {/* {Array.from(props.rows.keys()).map((key, index) => (
         <TableCard
           key={index}
           css={{
@@ -241,7 +244,95 @@ export function Table(props: TableProps): JSX.Element {
             )}
           </Box>
         </TableCard>
-      ))}
+      ))} */}
+      {/* <Box css={{ ml: '25px' }}>
+        <StyledText style="fixedHeadline">{props.heading}</StyledText>
+      </Box> */}
+      <Box
+        css={{
+          backgroundColor: '$grayBg',
+          margin: ' 0 auto',
+          border: '0.5px solid $grayBgActive',
+          width: '100%',
+          mt: '$3',
+          '&:hover': {
+            border: '0.5px solid #FFD234',
+          },
+        }}
+      >
+        <Table>
+          <Thead>
+            <Tr>
+              {props.headers.map((header: string, index: number) => (
+                <Th key={index}>
+                  <SpanBox
+                    css={{
+                      textTransform: 'uppercase',
+                      display: 'flex',
+                      fontWeight: 600,
+                      padding: '20px 10px',
+                      color: '$grayTextContrast',
+                      fontSize: '$2',
+                    }}
+                  >
+                    {header}
+                  </SpanBox>
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {Array.from(props.rows.keys()).map((key, index) => (
+              <Tr key={index}>
+                {Object.values(props.rows.get(key) || {}).map((cell, index) => (
+                  <Td key={index}>
+                    <SpanBox
+                      key={index}
+                      css={{
+                        display: 'flex',
+                        justifyContent: 'left',
+                        padding: '20px 10px',
+                        color: '$grayTextContrast',
+                        fontSize: '$1',
+                      }}
+                    >
+                      {cell}
+                    </SpanBox>
+                  </Td>
+                ))}
+
+                {props.onDelete && (
+                  <Td>
+                    <IconButton
+                      style="ctaWhite"
+                      css={{ mr: '$1', background: '$labelButtonsBg' }}
+                      onClick={() => {
+                        props.onDelete && props.onDelete(key)
+                      }}
+                    >
+                      <Trash size={16} color={iconColor} />
+                    </IconButton>
+                  </Td>
+                )}
+                {props.onEdit && (
+                  <Td>
+                    <IconButton
+                      style="ctaWhite"
+                      css={{ mr: '$1', background: '$labelButtonsBg' }}
+                      onClick={() => {
+                        props.onEdit &&
+                          props.onEdit({ ...props.rows.get(key), id: key })
+                      }}
+                    >
+                      <PencilSimple size={24} color={iconColor} />
+                    </IconButton>
+                  </Td>
+                )}
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </Box>
     </VStack>
   )
 }

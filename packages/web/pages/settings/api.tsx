@@ -9,8 +9,7 @@ import { generateApiKeyMutation } from '../../lib/networking/mutations/generateA
 import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Table } from '../../components/elements/Table'
-import TableR from '../../components/elements/Table-Responsive'
+import { TableR } from '../../components/elements/Table'
 
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
@@ -184,7 +183,7 @@ export default function Api(): JSX.Element {
         />
       )}
 
-      <Table
+      <TableR
         heading={'API Keys'}
         headers={headers}
         rows={rows}
@@ -196,14 +195,22 @@ export default function Api(): JSX.Element {
           setAddModalOpen(true)
         }}
       />
-      
+
       {/* TESTING NEW TABLE */}
-      <TableR
+
+      
+      {/* <TableR
         headers={headers}
-        heading={'API Keys1'}
+        heading={'API Keys'}
         rows={rows}
         onDelete={setOnDeleteId}
-      />
+        onAdd={() => {
+          onAdd()
+          setName('')
+          setExpiresAt(new Date(defaultExpiresAt))
+          setAddModalOpen(true)
+        }} */}
+   
     </PrimaryLayout>
   )
 }
