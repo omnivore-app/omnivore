@@ -108,7 +108,7 @@ export function EmailLogin(): JSX.Element {
             textAlign: 'center'
           }}
         >
-          Don't have an account? {' '}
+          Don&apos;t have an account? {' '}
           <Link href="/email-signup" passHref>
             <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Sign up</StyledTextSpan>
           </Link>
