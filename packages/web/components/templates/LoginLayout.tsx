@@ -82,13 +82,18 @@ type OmnivoreIllustrationProps = {
 
 function OmnivoreIllustration({ isLargeLayout }: OmnivoreIllustrationProps) {
   return (
-    <img
-      style={{ marginRight: '57px', objectFit: 'fill' }}
-      width='100%'
-      srcSet="/static/images/landing-illustration.png 1x,
-              /static/images/landing-illustration@2x.png 2x"
-      alt="Screenshot of Omnivore"
-    />
+    <Box css={{
+      width: '100%',
+      height: '100%',
+      marginRight: '57px',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundPositionY: '70px',
+      backgroundImage: `image-set(
+        url('/static/images/landing-illustration.png') 1x,
+        url('/static/images/landing-illustration@2x.png') 2x
+      )`
+    }} />
   )
 }
 
