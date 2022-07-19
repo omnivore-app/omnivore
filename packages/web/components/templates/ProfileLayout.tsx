@@ -14,13 +14,6 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
         distribution="center"
         css={{ bg: '$omnivoreYellow', height: '100vh' }}
       >
-        <Box
-          css={{
-            position: 'relative',
-            height: '100%',
-            width: '100%',
-          }}
-        ></Box>
         {props.children}
       </VStack>
 
@@ -37,7 +30,7 @@ export function ProfileLayout(props: ProfileLayoutProps): JSX.Element {
           alignment="center"
           distribution="between"
           css={{
-            mt: '1px',
+            mt: '18px',
             ml: '18px',
             mr: '0',
             '@smDown': {
