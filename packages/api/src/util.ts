@@ -73,6 +73,11 @@ interface BackendEnv {
     username: string
     password: string
   }
+  sender: {
+    message: string
+    feedback: string
+    general: string
+  }
 }
 
 /***
@@ -214,6 +219,11 @@ export function getEnv(): BackendEnv {
     username: parse('ELASTIC_USERNAME'),
     password: parse('ELASTIC_PASSWORD'),
   }
+  const sender = {
+    message: parse('SENDER_MESSAGE'),
+    feedback: parse('SENDER_FEEDBACK'),
+    general: parse('SENDER_GENERAL'),
+  }
 
   return {
     pg,
@@ -230,6 +240,7 @@ export function getEnv(): BackendEnv {
     fileUpload,
     queue,
     elastic,
+    sender,
   }
 }
 
