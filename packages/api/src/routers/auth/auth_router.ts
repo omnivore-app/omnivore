@@ -452,14 +452,14 @@ export function authRouter() {
         if (data.signup.__typename === 'SignupError') {
           const errorCodes = data.signup.errorCodes.join(',')
           return res.redirect(
-            `${env.client.url}/email-registration?errorCodes=${errorCodes}`
+            `${env.client.url}/email-signup?errorCodes=${errorCodes}`
           )
         }
 
         res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
       } catch (e) {
         logger.info('email-signup exception:', e)
-        res.redirect(`${env.client.url}/email-registration?errorCodes=UNKNOWN`)
+        res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
       }
     }
   )
