@@ -7,6 +7,7 @@ import { authorized } from '../../utils/helpers'
 import { sendEmail } from '../../utils/sendEmail'
 import { AppDataSource } from '../../server'
 import { User } from '../../entity/user'
+import { env } from '../../env'
 
 const INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID =
   'd-c576bdc3b9a849dab250655ba14c7794'
@@ -25,7 +26,7 @@ export const sendInstallInstructionsResolver = authorized<
     }
 
     const sendInstallInstructions = await sendEmail({
-      from: 'msgs@omnivore.app',
+      from: env.sender.message,
       templateId: INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID,
       to: user?.email,
     })
