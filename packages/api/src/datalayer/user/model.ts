@@ -57,6 +57,11 @@ export enum RegistrationType {
   Email = 'EMAIL',
 }
 
+export enum StatusType {
+  Active = 'ACTIVE',
+  Pending = 'PENDING',
+}
+
 export const keys = [
   'id',
   'name',
