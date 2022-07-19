@@ -1,5 +1,5 @@
 import { AuthProvider } from '../routers/auth/auth_types'
-import { MembershipTier } from '../datalayer/user/model'
+import { MembershipTier, StatusType } from '../datalayer/user/model'
 import { EntityManager } from 'typeorm'
 import { User } from '../entity/user'
 import { Profile } from '../entity/profile'
@@ -22,6 +22,7 @@ export const createUser = async (input: {
   membershipTier?: MembershipTier
   inviteCode?: string
   password?: string
+  pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
   const existingUser = await getUser(input.email)
   if (existingUser) {
@@ -68,6 +69,9 @@ export const createUser = async (input: {
         email: input.email,
         sourceUserId: input.sourceUserId,
         password: input.password,
+        status: input.pendingConfirmation
+          ? StatusType.Pending
+          : StatusType.Active,
       })
       const profile = await t.getRepository(Profile).save({
         username: input.username,
