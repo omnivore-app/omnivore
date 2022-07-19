@@ -16,7 +16,7 @@ Cypress.Commands.add('login', (email, password) => {
 })
 
 Cypress.Commands.add('registerEmail', (email, username, password, fullName) => {
-  cy.visit('/email-registration')
+  cy.visit('/email-signup')
 
   cy.get('input[name=email]').type(email)
   cy.get('input[name=username]').type(username)

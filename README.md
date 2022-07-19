@@ -86,7 +86,7 @@ Open <http://localhost:3000> and confirm Omnivore is running
 Omnivore uses social login, but for testing there is an email + password
 option.
 
-Go to <http://localhost:3000/email-registration> in your browser.
+Go to <http://localhost:3000/email-signup> in your browser.
 
 
 ### Frontend Development
