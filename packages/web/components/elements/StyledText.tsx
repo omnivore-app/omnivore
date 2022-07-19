@@ -33,7 +33,8 @@ const textVariants = {
       fontWeight: '500',
     },
     subHeadline: {
-      fontSize: '$5',
+      fontSize: '24px',
+      fontWeight: '500',
     },
     boldHeadline: {
       fontWeight: 'bold',

@@ -97,7 +97,6 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
       }}
     >
       <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
-        console.log('cancelinmg')
           event.preventDefault()
           props.onOpenChange(false)
         }}
