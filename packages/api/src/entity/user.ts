@@ -7,7 +7,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { MembershipTier, RegistrationType } from '../datalayer/user/model'
+import {
+  MembershipTier,
+  RegistrationType,
+  StatusType,
+} from '../datalayer/user/model'
 import { NewsletterEmail } from './newsletter_email'
 import { Profile } from './profile'
 import { Label } from './label'
@@ -53,4 +57,7 @@ export class User {
 
   @OneToMany(() => Subscription, (subscription) => subscription.user)
   subscriptions?: Subscription[]
+
+  @Column({ type: 'enum', enum: StatusType })
+  status!: string
 }
