@@ -9,6 +9,9 @@ import { Invite } from '../entity/groups/invite'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { AppDataSource } from '../server'
 import { getRepository } from '../entity/utils'
+import { generateVerificationToken } from '../utils/auth'
+import { env } from '../env'
+import { sendEmail } from '../utils/sendEmail'
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -89,6 +92,20 @@ export const createUser = async (input: {
       return [user, profile]
     }
   )
+
+  // send confirmation email
+  if (input.pendingConfirmation) {
+    // generate confirmation link
+    const confirmationToken = generateVerificationToken(user.id)
+    const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
+    // send email
+    await sendEmail({
+      from: env.sender.message,
+      to: user.email,
+      subject: 'Confirm your email',
+      text: `Please confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
+    })
+  }
 
   return [user, profile]
 }
