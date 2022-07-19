@@ -106,7 +106,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
           />
         </Box>
       )}
-
+{/* 
       <StyledText
         style="caption"
         css={{
@@ -131,7 +131,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
           </Link>{' '}
           with your email address.
         </SpanBox>
-      </StyledText>
+      </StyledText> */}
 
       </VStack>
       <TermAndConditionsFooter />
