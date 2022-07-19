@@ -1,0 +1,12 @@
+{
+  "title": "No really, why can't we have raw UDP in JavaScript?",
+  "byline": "Casey Muratori",
+  "dir": null,
+  "excerpt": "In my opinion, the pat answers about security are incomplete. I'd like to see a detailed writeup of specifically why a raw UDP API cannot be made as secure as current HTTPS.",
+  "siteName": "Computer, Enhance!",
+  "siteIcon": "https://substackcdn.com/icons/substack/favicon.ico",
+  "previewImage": "https://substackcdn.com/image/fetch/w_1200,h_600,c_limit,f_jpg,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg",
+  "publishedDate": "2022-07-05T02:58:16.000Z",
+  "language": "English",
+  "readerable": true
+}

@@ -12,7 +12,6 @@ exports.tDotCoHandler = {
 
   shouldResolve: function (url, env) {
     const T_DOT_CO_URL_MATCH = /^https:\/\/(?:www\.)?t\.co\/.*$/;
-    console.log('should preresolve?', T_DOT_CO_URL_MATCH.test(url), url)
     return T_DOT_CO_URL_MATCH.test(url);
   },
 

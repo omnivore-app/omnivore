@@ -9,6 +9,8 @@ import {
 } from '../../lib/appConfig'
 import AppleLogin from 'react-apple-login'
 
+const StyledTextSpan = styled('span', StyledText)
+
 export type LoginFormProps = {
   errorMessage?: string
 }
@@ -104,19 +106,36 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
           />
         </Box>
       )}
-      </VStack>  
+{/* 
+      <StyledText
+        style="caption"
+        css={{
+          pt: '16px',
+          maxWidth: '220px',
+          textAlign: 'left',
+          color: '$omnivoreLightGray',
+        }}
+      >
+        <SpanBox>
+          Use your email address to{' '}
+          <Link href="/email-login" passHref>
+            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>
+              Login
+            </StyledTextSpan>
+          </Link>{' '}
+          or{' '}
+          <Link href="/email-signup" passHref>
+            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>
+              Signup
+            </StyledTextSpan>
+          </Link>{' '}
+          with your email address.
+        </SpanBox>
+      </StyledText> */}
+
+      </VStack>
       <TermAndConditionsFooter />
     </VStack>
-  )
-}
-
-function LoginFormHeader() {
-  
-
-  return (
-    <>
-      
-    </>
   )
 }
 
@@ -148,8 +167,6 @@ function GoogleAuthButton() {
 }
 
 export function TermAndConditionsFooter(): JSX.Element {
-  const StyledTextSpan = styled('span', StyledText)
-
   return (
     <StyledText
       style="caption"

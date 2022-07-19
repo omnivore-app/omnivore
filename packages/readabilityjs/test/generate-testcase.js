@@ -6,7 +6,6 @@ var prettyPrint = require("./utils").prettyPrint;
 var htmltidy = require("htmltidy2").tidy;
 
 var { Readability, isProbablyReaderable } = require("../index");
-var JSDOMParser = require("../JSDOMParser");
 const { generate: generateRandomUA } = require("modern-random-ua/random_ua");
 const puppeteer = require('puppeteer');
 const { parseHTML } = require("linkedom");
@@ -226,12 +225,12 @@ async function runReadability(source, destPath, metadataDestPath) {
   var uri = "http://fakehost/test/page.html";
   var myReader, result, readerable;
   try {
-    // Use jsdom for isProbablyReaderable because it supports querySelectorAll
-    var jsdom = parseHTML(source).document;
-    readerable = isProbablyReaderable(jsdom);
+    // Use linkedom for isProbablyReaderable because it supports querySelectorAll
+    var dom = parseHTML(source).document;
+    readerable = isProbablyReaderable(dom);
     // We pass `caption` as a class to check that passing in extra classes works,
     // given that it appears in some of the test documents.
-    myReader = new Readability(jsdom, { classesToPreserve: ["caption"], url: uri });
+    myReader = new Readability(dom, { classesToPreserve: ["caption"], url: uri });
     result = await myReader.parse();
   } catch (ex) {
     console.error(ex);
@@ -274,7 +273,7 @@ if (process.argv.length < 3) {
 if (process.argv[2] === "all") {
   fs.readdir(testcaseRoot, function (err, files) {
     if (err) {
-      console.error("error reading testcaseses");
+      console.error("error reading testcases");
       return;
     }
 

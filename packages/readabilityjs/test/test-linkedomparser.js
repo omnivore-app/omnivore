@@ -10,7 +10,7 @@ var BASETESTCASE = '<html><body><p>Some text and <a class="someclass" href="#">a
 
 var baseDoc = new JSDOMParser().parse(BASETESTCASE, "http://fakehost/");
 
-describe("Test JSDOM functionality", function() {
+describe("Test linkedom functionality", function() {
   function nodeExpect(actual, expected) {
     try {
       expect(actual).eql(expected);

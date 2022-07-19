@@ -236,6 +236,7 @@ describe('elastic api', () => {
         id: highlightId,
         userId: page.userId,
         createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       await addHighlightToPage(page.id, highlightData, ctx)
@@ -288,6 +289,7 @@ describe('elastic api', () => {
         id: highlightId,
         userId: page.userId,
         createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       await addHighlightToPage(page.id, highlightData, ctx)

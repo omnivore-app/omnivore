@@ -153,8 +153,6 @@ type NavHeaderProps = {
 }
 
 function NavHeader(props: NavHeaderProps): JSX.Element {
-  console.log("creating NavHeader")
-
   return (
     <nav>
       <HStack
@@ -239,6 +237,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             position: 'fixed',
             display: 'flex',
             alignItems: 'center',
+            zIndex: 100,
           }}
         >
           <OmnivoreNameLogo href={props.username ? '/home' : '/login'} />

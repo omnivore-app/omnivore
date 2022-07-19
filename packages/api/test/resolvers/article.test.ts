@@ -1,4 +1,4 @@
-import { createTestLabel, createTestUser, deleteTestUser } from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import {
   createTestElasticPage,
   generateFakeUuid,
@@ -10,7 +10,6 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { Label } from '../../src/entity/label'
 import { UploadFileStatus } from '../../src/generated/graphql'
 import {
   ArticleSavingRequestStatus,
@@ -460,6 +459,7 @@ describe('Article API', () => {
             createdAt: new Date(),
             patch: 'test patch',
             quote: 'test quote',
+            updatedAt: new Date(),
           },
         ],
       } as Page
@@ -523,167 +523,6 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.article.errorCodes).to.eql(['NOT_FOUND'])
-      })
-    })
-  })
-
-  describe('GetArticles', () => {
-    const url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
-
-    let query = ''
-    let after = ''
-    let pages: Page[] = []
-    let label: Label
-
-    before(async () => {
-      // Create some test pages
-      for (let i = 0; i < 15; i++) {
-        const page: Page = {
-          id: '',
-          hash: 'test hash',
-          userId: user.id,
-          pageType: PageType.Article,
-          title: 'test title',
-          content: '<p>test</p>',
-          slug: 'test slug',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          readingProgressPercent: 100,
-          readingProgressAnchorIndex: 0,
-          url: url,
-          savedAt: new Date(),
-          state: ArticleSavingRequestStatus.Succeeded,
-        } as Page
-        const pageId = await createPage(page, ctx)
-        if (!pageId) {
-          expect.fail('Failed to create page')
-        }
-        page.id = pageId
-        pages.push(page)
-      }
-      //  create testing labels
-      label = await createTestLabel(user, 'label', '#ffffff')
-      //  set label to the last page
-      await updatePage(
-        pages[14].id,
-        {
-          labels: [{ id: label.id, name: label.name, color: label.color }],
-        },
-        ctx
-      )
-    })
-
-    beforeEach(async () => {
-      query = articlesQuery(after)
-    })
-
-    it('should return originalArticleUrl', async () => {
-      const res = await graphqlRequest(query, authToken).expect(200)
-
-      expect(res.body.data.articles.edges[0].node.originalArticleUrl).to.eql(
-        url
-      )
-    })
-
-    context('when there are pages with labels', () => {
-      it('should return labels', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.articles.edges[0].node.labels[0].id).to.eql(
-          label.id
-        )
-      })
-    })
-
-    context('when we fetch the first page', () => {
-      before(() => {
-        after = ''
-      })
-
-      it('should return the first five items in desc order', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[14].id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[13].id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[12].id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[11].id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[10].id)
-      })
-
-      it('should set the pageInfo', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.articles.pageInfo.endCursor).to.eql('5')
-        expect(res.body.data.articles.pageInfo.startCursor).to.eql('')
-        expect(res.body.data.articles.pageInfo.totalCount, 'totalCount').to.eql(
-          15
-        )
-        expect(
-          res.body.data.articles.pageInfo.hasNextPage,
-          'hasNextPage'
-        ).to.eql(true)
-      })
-    })
-
-    context('when we fetch the second page', () => {
-      before(() => {
-        after = '5'
-      })
-
-      it('should return the second five items', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[9].id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[8].id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[7].id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[6].id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[5].id)
-      })
-
-      it('should set the pageInfo', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.articles.pageInfo.totalCount, 'totalCount').to.eql(
-          15
-        )
-        expect(
-          res.body.data.articles.pageInfo.startCursor,
-          'st artCursor'
-        ).to.eql('5')
-        expect(res.body.data.articles.pageInfo.endCursor, 'endCursor').to.eql(
-          '10'
-        )
-        expect(
-          res.body.data.articles.pageInfo.hasNextPage,
-          'hasNextPage'
-        ).to.eql(true)
-        // We don't implement hasPreviousPage in the API and should probably remove it
-        // expect(res.body.data.articles.pageInfo.hasPreviousPage).to.eql(true)
-      })
-    })
-
-    context('when there are pages with failed state', () => {
-      before(async () => {
-        for (let i = 0; i < 5; i++) {
-          await updatePage(
-            pages[i].id,
-            {
-              state: ArticleSavingRequestStatus.Failed,
-            },
-            ctx
-          )
-        }
-        after = '10'
-      })
-      it('should include state=failed pages', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.articles.edges.length).to.eql(5)
-        expect(res.body.data.articles.edges[0].node.id).to.eql(pages[4].id)
-        expect(res.body.data.articles.edges[1].node.id).to.eql(pages[3].id)
-        expect(res.body.data.articles.edges[2].node.id).to.eql(pages[2].id)
-        expect(res.body.data.articles.edges[3].node.id).to.eql(pages[1].id)
-        expect(res.body.data.articles.edges[4].node.id).to.eql(pages[0].id)
       })
     })
   })
@@ -947,7 +786,7 @@ describe('Article API', () => {
         uploadFileId = generateFakeUuid()
       })
 
-      it('should return Unauthorized error', async () => {
+      xit('should return Unauthorized error', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveFile.errorCodes).to.eql(['UNAUTHORIZED'])
       })
@@ -966,7 +805,7 @@ describe('Article API', () => {
         uploadFileId = uploadFile.id
       })
 
-      it('should return the new url', async () => {
+      xit('should return the new url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveFile.url).to.startsWith(
           'http://localhost:3000/fakeUser/links'
@@ -1130,12 +969,12 @@ describe('Article API', () => {
     it('should return pages with typeahead prefix', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      expect(res.body.data.search.edges.length).to.eql(5)
-      expect(res.body.data.search.edges[0].node.id).to.eq(pages[4].id)
-      expect(res.body.data.search.edges[1].node.id).to.eq(pages[3].id)
-      expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
-      expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
-      expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+      expect(res.body.data.typeaheadSearch.items.length).to.eql(5)
+      expect(res.body.data.typeaheadSearch.items[0].id).to.eq(pages[0].id)
+      expect(res.body.data.typeaheadSearch.items[1].id).to.eq(pages[1].id)
+      expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
+      expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
+      expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
     })
   })
 })

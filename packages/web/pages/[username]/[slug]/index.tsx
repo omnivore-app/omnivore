@@ -121,6 +121,23 @@ export default function Home(): JSX.Element {
     }
   }, [article, cache, mutate, router, readerSettings])
 
+  useEffect(() => {
+    const archive = () => {
+      actionHandler('archive')
+    }
+    const openOriginalArticle = () => {
+      actionHandler('openOriginalArticle')
+    }
+
+    document.addEventListener('archive', archive)
+    document.addEventListener('openOriginalArticle', openOriginalArticle)
+
+    return () => {
+      document.removeEventListener('archive', archive)
+      document.removeEventListener('openOriginalArticle', openOriginalArticle)
+    }
+  }, [actionHandler])
+
   useKeyboardShortcuts(
     articleKeyboardCommands(router, async (action) => {
       actionHandler(action)
@@ -144,7 +161,9 @@ export default function Home(): JSX.Element {
       section: 'Article',
       name: 'Open original article',
       shortcut: ['o'],
-      perform: () => actionHandler('openOriginalArticle')
+      perform: () => {
+        document.dispatchEvent(new Event('openOriginalArticle'));
+      }
     },
     {
       id: 'back_home',
@@ -158,7 +177,9 @@ export default function Home(): JSX.Element {
       section: 'Article',
       name: 'Archive current item',
       shortcut: ['e'],
-      perform: () => actionHandler('archive'),
+      perform: () => {
+        document.dispatchEvent(new Event('archive'));
+      }
     },
     {
       id: 'highlight',

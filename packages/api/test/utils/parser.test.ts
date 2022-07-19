@@ -41,10 +41,15 @@ describe('isProbablyNewsletter', () => {
 
 describe('findNewsletterUrl', async () => {
   it('gets the URL from the header if it is a substack newsletter', async () => {
-    nock('https://newsletter.slowchinese.net')
+    nock('https://email.mg2.substack.com')
       .head(
-        '/p/companies-that-eat-people-217?token=eyJ1c2VyX2lkIjoxMTU0MzM0NSwicG9zdF9pZCI6NDg3MjA5NDAsImlhdCI6MTY0NTI1NzQ1MSwiaXNzIjoicHViLTI4MDUzMSIsInN1YiI6InBvc3QtcmVhY3Rpb24ifQ.l5F3Kx6K9tvy9cRAXx3MepobQBCJDJQgAxOpA0INIZA'
+        '/c/eJxNkk2TojAQhn-N3KTyQfg4cGDGchdnYcsZx9K5UCE0EMVAkTiKv36iHnarupNUd7rfVJ4W3EDTj1M89No496Uw0wCxgovuwBgYnbOGsZBVjDHzKPWYU8VehUMWOlIX9Qhw4rKLzXgGZziXnRTcyF7dK0iIGMVOG_OS1aTmKPRDilgVhTQUPCQIcE0x-MFTmJ8rCUpA3KtuenR2urg1ZtAzmszI0tq_Z7m66y-ilQo0uAqMTQ7WRX8auJKg56blZg7WB-iHDuYEBzO6NP0R1IwuYFphQbbTjnTH9NBfs80nym4Zyj8uUvyKbtUyGr5eUz9fNDQ7JCxfJDo9dW1lY9lmj_JNivPbGmf2Pt_lN9tDit9b-WeTetni85Z9pDpVOd7L1E_Vy7egayNO23ZP34eSeLJeux1b0rer_xaZ7ykS78nuSjMY-nL98rparNZNcv07JCjN06_EkTFBxBqOUMACErnELUNMSxTUjLDQZwzcqa4bRjCfeejUEFefS224OLr2S5wxPtij7lVrs80d2CNseRV2P52VNFMBipcdVE-U5jkRD7hFAwpGOylVwU2Mfc9qBh7DoR89yVnWXhgQFHnIsbpVb6tU_B-hH_2yzWY'
       )
+      .reply(302, undefined, {
+        Location:
+          'https://newsletter.slowchinese.net/p/companies-that-eat-people-217',
+      })
+      .get('/p/companies-that-eat-people-217')
       .reply(200, '')
     const html = load('./test/utils/data/substack-forwarded-newsletter.html')
     const url = await findNewsletterUrl(html)

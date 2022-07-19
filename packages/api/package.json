@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "~7.12.0",
-    "@google-cloud/logging-winston": "^4.1.2",
+    "@google-cloud/logging-winston": "^5.1.1",
     "@google-cloud/monitoring": "^3.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^1.1.0",
     "@google-cloud/pubsub": "^2.16.0",

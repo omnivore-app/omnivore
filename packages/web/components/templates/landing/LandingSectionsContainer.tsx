@@ -86,6 +86,7 @@ const callToActionStyles = {
   border: '1px solid #D8D7D5',
   boxShadow: '0px 7px 8px rgba(32, 31, 29, 0.03), 0px 18px 24px rgba(32, 31, 29, 0.03)',
   padding: 40,
+  marginTop: 64,
   height: 330,
   '@mdDown': {
     display: 'none',
