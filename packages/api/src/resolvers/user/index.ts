@@ -350,6 +350,7 @@ export const signupResolver: ResolverFn<
       pictureUrl: pictureUrl || undefined,
       bio: bio || undefined,
       password: hashedPassword,
+      pendingConfirmation: true,
     })
 
     return {
