@@ -22,7 +22,6 @@
   }
 
   browserApi.runtime.onMessage.addListener(({ action, payload }, sender, sendResponse) => {
-    /* async actions */
     if (action === ACTIONS.GetContent) {
       prepareContent().then((pageContent) => {
         sendResponse({
