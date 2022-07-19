@@ -12,6 +12,7 @@ import {
   getUserFollowers,
   getUserFollowing,
 } from '../../src/services/followers'
+import { StatusType } from '../../src/datalayer/user/model'
 
 describe('create a user with an invite', () => {
   it('follows the other user in the group', async () => {
@@ -49,5 +50,18 @@ describe('create a user with an invite', () => {
     const profile = await getProfile(user)
 
     expect(profile).to.exist
+  })
+})
+
+describe('create a pending user', () => {
+  it('creates a pending user', async () => {
+    after(async () => {
+      await deleteTestUser(name)
+    })
+
+    const name = 'pendingUser'
+    const user = await createTestUser(name, undefined, undefined, true)
+
+    expect(user.status).to.equal(StatusType.Pending)
   })
 })
