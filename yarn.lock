@@ -5042,16 +5042,16 @@
     any-observable "^0.3.0"
 
 "@segment/analytics-next@^1.33.5":
-  version "1.38.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.38.0.tgz#efbe0e1f8a3c6bd1522efad8d5ba70ed8c0af4e4"
-  integrity sha512-904AYNi6wekvAVcaVGQhcH5Jeif98JvN5YEmsuiDuw+j6oiWijdJN6krY4QLh703zPIJvZVf5j+JSh13mZNaiA==
+  version "1.40.0"
+  resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.40.0.tgz#703d2389340e5511b4080ea003668cd0bcb32024"
+  integrity sha512-Kg5C55BCB+/jRcFTWU2vEZdUb7nPaKutkAHobSQRld/RQWX24RcMzx20jtspZ8m0FCXQrg0Mm8Khpk2sNvh3Hg==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
     "@segment/analytics.js-video-plugins" "^0.2.1"
     "@segment/facade" "^3.4.9"
     "@segment/tsub" "^0.1.12"
     dset "^3.1.2"
-    js-cookie "^2.2.1"
+    js-cookie "3.0.1"
     node-fetch "^2.6.7"
     spark-md5 "^3.0.1"
     tslib "^2.4.0"
@@ -16774,10 +16774,10 @@ js-beautify@^1.13.0:
     glob "^7.1.3"
     nopt "^5.0.0"
 
-js-cookie@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.2.1.tgz#69e106dc5d5806894562902aa5baec3744e9b2b8"
-  integrity sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==
+js-cookie@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.1.tgz#9e39b4c6c2f56563708d7d31f6f5f21873a92414"
+  integrity sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==
 
 js-string-escape@^1.0.1:
   version "1.0.1"
