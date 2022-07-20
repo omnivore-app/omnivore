@@ -1,5 +1,5 @@
 import { isDarkTheme } from '../../lib/themeUpdater'
-import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import { Table as ResponsiveTable, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { Box, SpanBox, VStack } from './LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
@@ -30,7 +30,7 @@ const newThead = {
   background: '#156'
 }
 
-export function TableNew(props: TableProps): JSX.Element {
+export function Table(props: TableProps): JSX.Element {
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
 
   return (
@@ -102,7 +102,7 @@ export function TableNew(props: TableProps): JSX.Element {
           },
         }}
       >
-        <Table>
+        <ResponsiveTable>
           <Thead className={newThead}>
               <Tr>
                 {props.headers.map((header: string, index: number) => (
@@ -182,7 +182,7 @@ export function TableNew(props: TableProps): JSX.Element {
               </Tr>
             ))}
           </Tbody>
-        </Table>
+        </ResponsiveTable>
       </Box>
     </VStack>
   )

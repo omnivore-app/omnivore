@@ -9,7 +9,7 @@ import { generateApiKeyMutation } from '../../lib/networking/mutations/generateA
 import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { TableNew } from '../../components/elements/Table'
+import { Table } from '../../components/elements/Table'
 
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
@@ -183,7 +183,7 @@ export default function Api(): JSX.Element {
         />
       )}
 
-      <TableNew
+      <Table
         heading={'API Keys'}
         headers={headers}
         rows={rows}
