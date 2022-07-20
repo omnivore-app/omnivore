@@ -8,6 +8,7 @@ import { InfoLink } from './InfoLink'
 import { Button } from './Button'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
 import { IconButton } from './Button'
+
 interface TableProps {
   heading: string
   infoLink?: string
@@ -25,7 +26,11 @@ const HeaderWrapper = styled(Box, {
   },
 })
 
-export function TableR(props: TableProps): JSX.Element {
+const newThead = {
+  background: '#156'
+}
+
+export function TableNew(props: TableProps): JSX.Element {
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
 
   return (
@@ -98,26 +103,27 @@ export function TableR(props: TableProps): JSX.Element {
         }}
       >
         <Table>
-          <Thead>
-            <Tr>
-              {props.headers.map((header: string, index: number) => (
-                <Th key={index}>
-                  <SpanBox
-                    css={{
-                      textTransform: 'uppercase',
-                      display: 'flex',
-                      fontWeight: 600,
-                      padding: '20px 10px 20px 40px',
-                      color: '$grayTextContrast',
-                      fontSize: '$2',
-                    }}
-                  >
-                    {header}
-                  </SpanBox>
-                </Th>
-              ))}
-            </Tr>
+          <Thead className={newThead}>
+              <Tr>
+                {props.headers.map((header: string, index: number) => (
+                  <Th key={index}>
+                    <SpanBox
+                      css={{
+                        textTransform: 'uppercase',
+                        display: 'flex',
+                        fontWeight: 600,
+                        padding: '20px 10px 20px 40px',
+                        color: '$grayTextContrast',
+                        fontSize: '$2',
+                      }}
+                    >
+                      {header}
+                    </SpanBox>
+                  </Th>
+                ))}
+              </Tr>
           </Thead>
+
           <Tbody>
             {Array.from(props.rows.keys()).map((key, index) => (
               <Tr key={index}>
@@ -142,7 +148,11 @@ export function TableR(props: TableProps): JSX.Element {
                   <Td>
                     <IconButton
                       style="ctaWhite"
-                      css={{ mr: '$1', background: '$labelButtonsBg', margin: '20px 10px 20px 40px', }}
+                      css={{
+                        mr: '$1',
+                        background: '$labelButtonsBg',
+                        margin: '20px 10px 20px 40px',
+                      }}
                       onClick={() => {
                         props.onDelete && props.onDelete(key)
                       }}
@@ -155,7 +165,11 @@ export function TableR(props: TableProps): JSX.Element {
                   <Td>
                     <IconButton
                       style="ctaWhite"
-                      css={{ mr: '$1', background: '$labelButtonsBg', margin: '20px 10px 20px 40px', }}
+                      css={{
+                        mr: '$1',
+                        background: '$labelButtonsBg',
+                        margin: '20px 10px 20px 40px',
+                      }}
                       onClick={() => {
                         props.onEdit &&
                           props.onEdit({ ...props.rows.get(key), id: key })
