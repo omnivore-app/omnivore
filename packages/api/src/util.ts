@@ -119,6 +119,9 @@ const nullableEnvVars = [
   'ELASTIC_USERNAME',
   'ELASTIC_PASSWORD',
   'GCS_UPLOAD_PRIVATE_BUCKET',
+  'SENDER_MESSAGE',
+  'SENDER_FEEDBACK',
+  'SENDER_GENERAL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
