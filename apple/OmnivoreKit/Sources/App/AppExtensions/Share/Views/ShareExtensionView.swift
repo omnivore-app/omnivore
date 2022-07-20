@@ -240,11 +240,25 @@ struct ApplyLabelsListView: View {
           #endif
         }
       }
+      Button(
+        action: { viewModel.showCreateLabelModal = true },
+        label: {
+          HStack {
+            Image(systemName: "plus.circle.fill").foregroundColor(.green)
+            Text("Create a new Label").foregroundColor(.appGrayTextContrast)
+            Spacer()
+          }
+        }
+      )
+      .disabled(viewModel.isLoading)
     }
     .listStyle(PlainListStyle())
     .padding(.vertical, 0)
     .task {
       await viewModel.loadLabels(dataService: dataService, item: linkedItem)
+    }
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
+      CreateLabelView(viewModel: viewModel)
     }
   }
 }
