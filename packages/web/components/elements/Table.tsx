@@ -106,7 +106,7 @@ export function Table(props: TableProps): JSX.Element {
           },
         }}
       >
-        <StyledTable>
+        <StyledTable css={{ /* can also style here now */ }}>
           <Thead className={newThead}>
               <Tr>
                 {props.headers.map((header: string, index: number) => (
