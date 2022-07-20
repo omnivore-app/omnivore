@@ -360,20 +360,30 @@ describe('User API', () => {
     })
 
     context('when inputs are valid and user not exists', () => {
-      before(() => {
+      beforeEach(() => {
         password = correctPassword
         username = 'Some_username'
         email = `${username}@fake.com`
       })
 
-      after(async () => {
+      afterEach(async () => {
         await deleteTestUser(username)
       })
 
       it('responds with 200', async () => {
-        const res = await graphqlRequest(query).expect(200)
+        return graphqlRequest(query).expect(200)
+      })
+
+      it('returns the user', async () => {
+        const res = await graphqlRequest(query).send()
+        expect(res.body.data.signup.me.profile.username).to.eql(username)
+      })
+
+      it('creates user with correct username', async () => {
+        const res = await graphqlRequest(query).send()
+
         const user = await getUser(res.body.data.signup.me.id)
-        expect(user).to.exist
+        expect(user?.profile?.username).to.eql(username)
       })
     })
 
