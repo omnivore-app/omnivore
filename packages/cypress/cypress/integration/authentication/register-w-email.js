@@ -5,7 +5,7 @@ const fullName = 'Test User'
 
 describe('Register with email', () => {
   it('creates a new user', function () {
-    cy.visit('/email-registration')
+    cy.visit('/email-signup')
 
     cy.get('input[name=email]').type(email)
     cy.get('input[name=username]').type(username)
