@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import SwiftUI
 import Utils
@@ -104,9 +105,13 @@ public class ShareExtensionViewModel: ObservableObject {
 
   func createPage(pageScrapePayload: PageScrapePayload) async -> Bool {
     var newRequestID: String?
+    var linkedItemObjectID: NSManagedObjectID?
 
     do {
-      try await services.dataService.persistPageScrapePayload(pageScrapePayload, requestId: requestId)
+      linkedItemObjectID = try await services.dataService.persistPageScrapePayload(
+        pageScrapePayload,
+        requestId: requestId
+      )
     } catch {
       updateStatusOnMain(
         requestId: nil,
@@ -116,7 +121,7 @@ public class ShareExtensionViewModel: ObservableObject {
     }
 
     do {
-      updateStatusOnMain(requestId: requestId, newStatus: .saved)
+      updateStatusOnMain(requestId: requestId, newStatus: .saved, objectID: linkedItemObjectID)
 
       switch pageScrapePayload.contentType {
       case .none:
@@ -147,11 +152,15 @@ public class ShareExtensionViewModel: ObservableObject {
     return true
   }
 
-  func updateStatusOnMain(requestId: String?, newStatus: ShareExtensionStatus) {
+  func updateStatusOnMain(requestId: String?, newStatus: ShareExtensionStatus, objectID: NSManagedObjectID? = nil) {
     DispatchQueue.main.async {
       self.status = newStatus
       if let requestId = requestId {
         self.requestId = requestId
+      }
+
+      if let objectID = objectID {
+        self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? LinkedItem
       }
     }
   }

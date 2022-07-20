@@ -154,6 +154,7 @@ public struct ShareExtensionView: View {
       Spacer()
 
       if let item = viewModel.linkedItem {
+        // TODO: modify view to work for share ext only
         ApplyLabelsView(mode: .item(item), onSave: nil)
       }
 

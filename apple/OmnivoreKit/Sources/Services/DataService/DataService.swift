@@ -126,7 +126,12 @@ public final class DataService: ObservableObject {
   }
 
   // swiftlint:disable:next function_body_length
-  public func persistPageScrapePayload(_ pageScrape: PageScrapePayload, requestId: String) async throws {
+  public func persistPageScrapePayload(
+    _ pageScrape: PageScrapePayload,
+    requestId: String
+  ) async throws -> NSManagedObjectID? {
+    var objectID: NSManagedObjectID?
+
     let normalizedURL = normalizeURL(pageScrape.url)
 
     try await backgroundContext.perform { [weak self] in
@@ -179,6 +184,7 @@ public final class DataService: ObservableObject {
       do {
         try self.backgroundContext.save()
         logger.debug("ArticleContent saved succesfully")
+        objectID = linkedItem.objectID
       } catch {
         self.backgroundContext.rollback()
 
@@ -186,5 +192,6 @@ public final class DataService: ObservableObject {
         throw error
       }
     }
+    return objectID
   }
 }
