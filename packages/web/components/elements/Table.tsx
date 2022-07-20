@@ -30,6 +30,10 @@ const newThead = {
   background: '#156'
 }
 
+const StyledTable = styled(ResponsiveTable, {
+  // Add css here
+})
+
 export function Table(props: TableProps): JSX.Element {
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
 
@@ -102,7 +106,7 @@ export function Table(props: TableProps): JSX.Element {
           },
         }}
       >
-        <ResponsiveTable>
+        <StyledTable>
           <Thead className={newThead}>
               <Tr>
                 {props.headers.map((header: string, index: number) => (
@@ -182,7 +186,7 @@ export function Table(props: TableProps): JSX.Element {
               </Tr>
             ))}
           </Tbody>
-        </ResponsiveTable>
+        </StyledTable>
       </Box>
     </VStack>
   )
