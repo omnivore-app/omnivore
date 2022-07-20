@@ -1,13 +1,16 @@
 import SwiftUI
 
 public struct SearchBar: View {
+  private let horizontalPadding: Double
   @Binding var searchTerm: String
   @FocusState private var isFocused: Bool
 
   public init(
-    searchTerm: Binding<String>
+    searchTerm: Binding<String>,
+    horizontalPadding: Double = 10
   ) {
     self._searchTerm = searchTerm
+    self.horizontalPadding = horizontalPadding
   }
 
   public var body: some View {
@@ -39,7 +42,7 @@ public struct SearchBar: View {
             }
           }
         )
-        .padding(.horizontal, 10)
+        .padding(.horizontal, horizontalPadding)
 
       if isFocused {
         Button(

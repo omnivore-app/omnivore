@@ -151,10 +151,10 @@ public struct ShareExtensionView: View {
       previewCard
         .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
 
-      Spacer()
-
       if let item = viewModel.linkedItem {
         ApplyLabelsListView(linkedItem: item)
+      } else {
+        Spacer()
       }
 
       HStack {
@@ -202,19 +202,18 @@ struct ApplyLabelsListView: View {
 
   var body: some View {
     List {
-//      Section {
-//        Button(
-//          action: { viewModel.showCreateLabelModal = true },
-//          label: {
-//            HStack {
-//              Image(systemName: "plus.circle.fill").foregroundColor(.green)
-//              Text("Create a new Label").foregroundColor(.appGrayTextContrast)
-//              Spacer()
-//            }
-//          }
-//        )
-//        .disabled(viewModel.isLoading)
-//      }
+      Section(
+        content: {
+          SearchBar(searchTerm: $viewModel.labelSearchFilter, horizontalPadding: 0)
+            .listRowSeparator(.hidden)
+        },
+        header: {
+          Text("Apply Labels")
+            .font(.appFootnote)
+            .foregroundColor(.appGrayText)
+        }
+      )
+      .listRowSeparator(.hidden)
       Section {
         ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
           Button(
@@ -242,6 +241,8 @@ struct ApplyLabelsListView: View {
         }
       }
     }
+    .listStyle(PlainListStyle())
+    .padding(.vertical, 0)
     .task {
       await viewModel.loadLabels(dataService: dataService, item: linkedItem)
     }
