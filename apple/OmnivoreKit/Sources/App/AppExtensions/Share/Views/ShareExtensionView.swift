@@ -154,8 +154,7 @@ public struct ShareExtensionView: View {
       Spacer()
 
       if let item = viewModel.linkedItem {
-        // TODO: modify view to work for share ext only
-        ApplyLabelsView(mode: .item(item), onSave: nil)
+        ApplyLabelsListView(linkedItem: item)
       }
 
       HStack {
@@ -188,5 +187,63 @@ public struct ShareExtensionView: View {
       viewModel.savePage(extensionContext: extensionContext)
     }
     .environmentObject(viewModel.services.dataService)
+  }
+}
+
+struct ApplyLabelsListView: View {
+  @EnvironmentObject var dataService: DataService
+  @StateObject var viewModel = LabelsViewModel()
+
+  let linkedItem: LinkedItem
+
+  func isSelected(_ label: LinkedItemLabel) -> Bool {
+    viewModel.selectedLabels.contains(where: { $0.id == label.id })
+  }
+
+  var body: some View {
+    List {
+//      Section {
+//        Button(
+//          action: { viewModel.showCreateLabelModal = true },
+//          label: {
+//            HStack {
+//              Image(systemName: "plus.circle.fill").foregroundColor(.green)
+//              Text("Create a new Label").foregroundColor(.appGrayTextContrast)
+//              Spacer()
+//            }
+//          }
+//        )
+//        .disabled(viewModel.isLoading)
+//      }
+      Section {
+        ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+          Button(
+            action: {
+              if isSelected(label) {
+                viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
+              } else {
+                viewModel.selectedLabels.append(label)
+              }
+              viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
+            },
+            label: {
+              HStack {
+                TextChip(feedItemLabel: label)
+                Spacer()
+                if isSelected(label) {
+                  Image(systemName: "checkmark")
+                }
+              }
+            }
+          )
+          #if os(macOS)
+            .buttonStyle(PlainButtonStyle())
+          #endif
+        }
+      }
+    }
+    .task {
+      await viewModel.loadLabels(dataService: dataService, item: linkedItem)
+    }
   }
 }
