@@ -263,17 +263,19 @@ describe('auth router', () => {
 
   describe('confirm-email', () => {
     const confirmEmailRequest = (token: string): supertest.Test => {
-      return request.get(`${route}/confirm-email/${token}`).send()
+      return request.post(`${route}/confirm-email`).send({ token })
     }
 
     let user: User
     let token: string
 
     before(async () => {
+      sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
       user = await createTestUser('pendingUser', undefined, 'password', true)
     })
 
     after(async () => {
+      sinon.restore()
       await deleteTestUser(user.name)
     })
 
