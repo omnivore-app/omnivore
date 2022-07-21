@@ -230,14 +230,18 @@ struct ApplyLabelsListView: View {
                 TextChip(feedItemLabel: label)
                 Spacer()
                 if isSelected(label) {
-                  Image(systemName: "checkmark")
+                  Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.checkmarkBlue)
+                } else {
+                  Image(systemName: "circle")
+                    .foregroundColor(.appGraySolid)
                 }
               }
+              .contentShape(Rectangle())
             }
           )
-          #if os(macOS)
-            .buttonStyle(PlainButtonStyle())
-          #endif
+          .listRowSeparator(.hidden)
+          .buttonStyle(PlainButtonStyle())
         }
       }
       Button(
