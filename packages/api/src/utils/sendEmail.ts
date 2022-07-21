@@ -30,14 +30,18 @@ export const sendEmail = async (msg: MailDataRequired): Promise<boolean> => {
 
   console.log('sending email', msg)
 
-  await client.send(msg).catch((error) => {
+  try {
+    const response = await client.send(msg)
+    console.log('email sent', response)
+
+    return true
+  } catch (error) {
     console.log('error sending email', error)
     const err = asSendGridError(error)
     if (err) {
       console.log('sendgrid error:', JSON.stringify(err.response?.body))
     }
-    return false
-  })
 
-  return true
+    return false
+  }
 }
