@@ -68,20 +68,63 @@ public extension Color {
     )
   }
 
+  // TODO: remove this?
   var isDark: Bool {
+    guard let lum = luminance else { return false }
+    return lum < 0.50
+  }
+
+  var luminance: Float? {
     #if os(iOS)
       guard let components = UIColor(self).cgColor.components, components.count >= 3 else {
-        return false
+        return nil
       }
     #endif
 
     #if os(macOS)
       guard let components = NSColor(self).cgColor.components, components.count >= 3 else {
-        return false
+        return nil
       }
     #endif
 
-    let lum = 0.2126 * Float(components[0]) + 0.7152 * Float(components[1]) + 0.0722 * Float(components[2])
-    return lum < 0.50
+    return 0.2126 * Float(components[0]) + 0.7152 * Float(components[1]) + 0.0722 * Float(components[2])
+  }
+
+  static var isDarkMode: Bool {
+    #if os(iOS)
+      UITraitCollection.current.userInterfaceStyle == .dark
+    #else
+      NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua
+    #endif
+  }
+
+  static func lighten(color: Color, by percentage: CGFloat) -> Color {
+    if let lightenedUIColor = UIColor(color).adjust(by: abs(percentage)) {
+      return Color(lightenedUIColor)
+    } else {
+      return color
+    }
+  }
+}
+
+extension UIColor {
+  func lighter(by percentage: CGFloat = 30.0) -> UIColor? {
+    adjust(by: abs(percentage))
+  }
+
+  func darker(by percentage: CGFloat = 30.0) -> UIColor? {
+    adjust(by: -1 * abs(percentage))
+  }
+
+  func adjust(by percentage: CGFloat = 30.0) -> UIColor? {
+    var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+    if getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+      return UIColor(red: min(red + percentage / 100, 1.0),
+                     green: min(green + percentage / 100, 1.0),
+                     blue: min(blue + percentage / 100, 1.0),
+                     alpha: alpha)
+    } else {
+      return nil
+    }
   }
 }

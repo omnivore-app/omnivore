@@ -3,6 +3,8 @@ import SwiftUI
 import Utils
 
 public struct TextChip: View {
+  @Environment(\.colorScheme) var colorScheme
+
   public init(text: String, color: Color, negated: Bool = false) {
     self.text = text
     self.color = color
@@ -22,7 +24,32 @@ public struct TextChip: View {
   let negated: Bool
 
   var textColor: Color {
-    color.isDark ? .white : .black
+    guard let luminance = color.luminance else {
+      return .white
+    }
+
+    if colorScheme == .light {
+      return luminance > 0.5 ? .black : .white
+    }
+
+    if luminance > 0.2 {
+      return color
+    }
+
+    // lighten the color by 20%
+    return Color.lighten(color: color, by: 20)
+  }
+
+  var backgroundColor: Color {
+    color.opacity(colorScheme == .dark ? 0.08 : 1)
+  }
+
+  var borderColor: Color {
+    if colorScheme == .dark {
+      return textColor
+    } else {
+      return color.opacity(0.7)
+    }
   }
 
   public var body: some View {
@@ -30,10 +57,12 @@ public struct TextChip: View {
       .strikethrough(color: negated ? textColor : .clear)
       .padding(.horizontal, 10)
       .padding(.vertical, 5)
-      .font(.appFootnote)
+      .font(.appCaptionBold)
       .foregroundColor(textColor)
       .lineLimit(1)
-      .background(Capsule().fill(color))
+      .background(Capsule().fill(backgroundColor))
+      .overlay(Capsule().stroke(borderColor, lineWidth: 1))
+      .padding(1)
   }
 }
 
