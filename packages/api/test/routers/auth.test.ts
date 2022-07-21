@@ -8,6 +8,7 @@ import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
 import supertest from 'supertest'
+import { hashPassword } from '../../src/utils/auth'
 
 describe('auth router', () => {
   const route = '/api/auth'
@@ -135,6 +136,87 @@ describe('auth router', () => {
         )
         expect(res.header.location).to.endWith(
           '/email-signup?errorCodes=INVALID_USERNAME'
+        )
+      })
+    })
+  })
+
+  describe('login', () => {
+    const loginRequest = (email: string, password: string): supertest.Test => {
+      return request.post(`${route}/email-login`).send({
+        email,
+        password,
+      })
+    }
+    const correctPassword = 'correctPassword'
+
+    let user: User
+    let email: string
+    let password: string
+
+    before(async () => {
+      const hashedPassword = await hashPassword(correctPassword)
+      user = await createTestUser('login_test_user', undefined, hashedPassword)
+    })
+
+    after(async () => {
+      await deleteTestUser(user.name)
+    })
+
+    context('when email and password are valid', () => {
+      before(() => {
+        email = user.email
+        password = correctPassword
+      })
+
+      it('redirects to waitlist page', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        expect(res.header.location).to.endWith('/waitlist')
+      })
+    })
+
+    context('when user not exists', () => {
+      before(() => {
+        email = 'Some email'
+      })
+
+      it('redirects with error code UserNotFound', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        expect(res.header.location).to.endWith(
+          '/email-login?errorCodes=USER_NOT_FOUND'
+        )
+      })
+    })
+
+    context('when user has no password stored in db', () => {
+      before(async () => {
+        const anotherUser = await createTestUser('another_user')
+        email = anotherUser.email
+        password = 'Some password'
+      })
+
+      after(async () => {
+        await deleteTestUser('another_user')
+      })
+
+      it('redirects with error code WrongSource', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        expect(res.header.location).to.endWith(
+          '/email-login?errorCodes=WRONG_SOURCE'
+        )
+      })
+    })
+
+    context('when password is wrong', () => {
+      before(() => {
+        email = user.email
+        password = 'Wrong password'
+      })
+
+      it('redirects with error code InvalidCredentials', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        expect(res.header.location).to.endWith(
+          '/email-login?errorCodes=INVALID_CREDENTIALS'
         )
       })
     })

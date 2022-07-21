@@ -2,7 +2,6 @@ import { createTestUser, deleteTestUser, getProfile, getUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import {
-  LoginErrorCode,
   UpdateUserErrorCode,
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
@@ -236,91 +235,6 @@ describe('User API', () => {
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
-    })
-  })
-
-  describe('login', () => {
-    let query: string
-    let email: string
-    let password: string
-
-    beforeEach(() => {
-      query = `
-        mutation {
-          login(
-            input: {
-              email: "${email}"
-              password: "${password}"
-            }
-          ) {
-            ... on LoginSuccess {
-              me {
-                id
-                name
-                profile {
-                  username
-                }
-              }
-            }
-            ... on LoginError {
-              errorCodes
-            }
-          }
-        }
-      `
-    })
-
-    context('when email and password are valid', () => {
-      before(() => {
-        email = user.email
-        password = correctPassword
-      })
-
-      it('responds with 200', async () => {
-        const res = await graphqlRequest(query).expect(200)
-        expect(res.body.data.login.me.id).to.eql(user.id)
-      })
-    })
-
-    context('when user not exists', () => {
-      before(() => {
-        email = 'Some email'
-      })
-
-      it('responds with error code UserNotFound', async () => {
-        const response = await graphqlRequest(query).expect(200)
-        expect(response.body.data.login.errorCodes).to.eql([
-          LoginErrorCode.UserNotFound,
-        ])
-      })
-    })
-
-    context('when user has no password stored in db', () => {
-      before(() => {
-        email = anotherUser.email
-        password = 'Some password'
-      })
-
-      it('responds with error code WrongSource', async () => {
-        const response = await graphqlRequest(query).expect(200)
-        expect(response.body.data.login.errorCodes).to.eql([
-          LoginErrorCode.WrongSource,
-        ])
-      })
-    })
-
-    context('when password is wrong', () => {
-      before(() => {
-        email = user.email
-        password = 'Some password'
-      })
-
-      it('responds with error code UserNotFound', async () => {
-        const response = await graphqlRequest(query).expect(200)
-        expect(response.body.data.login.errorCodes).to.eql([
-          LoginErrorCode.InvalidCredentials,
-        ])
-      })
     })
   })
 })

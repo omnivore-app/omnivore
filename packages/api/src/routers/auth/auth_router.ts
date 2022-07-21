@@ -37,9 +37,10 @@ import {
   RegistrationType,
   UserData,
 } from '../../datalayer/user/model'
-import { hashPassword } from '../../utils/auth'
+import { comparePassword, hashPassword } from '../../utils/auth'
 import { createUser } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
+import { initModels } from '../../server'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -359,56 +360,42 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password } = req.body
-      if (!email || !password) {
-        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
-        return
-      }
-
-      const query = `
-      mutation login{
-        login(input: {
-          email: "${email}",
-          password: "${password}"
-        }) {
-          __typename
-          ... on LoginError { errorCodes }
-          ... on LoginSuccess {
-            me {
-              id
-              name
-              profile {
-                username
-              }
-            }
-          }
-        }
-      }`
 
       try {
-        const result = await axios.post(env.server.gateway_url + '/graphql', {
-          query,
+        const models = initModels(kx, false)
+        const user = await models.user.getWhere({
+          email,
         })
-        const { data } = result.data
-
-        if (data.login.__typename === 'LoginError') {
-          const errorCodes = data.login.errorCodes.join(',')
+        if (!user?.id) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${errorCodes}`
+            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
         }
 
-        if (!result.headers['set-cookie']) {
+        if (!user?.password) {
+          // user has no password, so they need to set one
           return res.redirect(
-            `${env.client.url}/${
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (req.params as any)?.action
-            }?errorCodes=unknown`
+            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.WrongSource}`
           )
         }
 
-        res.setHeader('set-cookie', result.headers['set-cookie'])
+        // check if password is correct
+        const validPassword = await comparePassword(password, user.password)
+        if (!validPassword) {
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+          )
+        }
 
-        await handleSuccessfulLogin(req, res, data.login.me, false)
+        // set auth cookie in response header
+        const token = await signToken({ uid: user.id }, env.server.jwtSecret)
+
+        res.cookie('auth', token, {
+          httpOnly: true,
+          expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
+        })
+
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
         res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)

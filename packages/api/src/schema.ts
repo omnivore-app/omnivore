@@ -1410,11 +1410,6 @@ const schema = gql`
 
   union UpdateLabelResult = UpdateLabelSuccess | UpdateLabelError
 
-  input LoginInput {
-    password: String!
-    email: String!
-  }
-
   input SetLabelsInput {
     pageId: ID!
     labelIds: [ID!]!
@@ -1825,7 +1820,6 @@ const schema = gql`
     createLabel(input: CreateLabelInput!): CreateLabelResult!
     updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
     deleteLabel(id: ID!): DeleteLabelResult!
-    login(input: LoginInput!): LoginResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
     unsubscribe(name: String!): UnsubscribeResult!

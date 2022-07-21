@@ -10,7 +10,6 @@ import {
   MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
-  MutationLoginArgs,
   MutationUpdateUserArgs,
   MutationUpdateUserProfileArgs,
   QueryUserArgs,
@@ -35,7 +34,6 @@ import { env } from '../../env'
 import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
-import { comparePassword } from '../../utils/auth'
 import { deletePagesByParam } from '../../elastic/pages'
 import { setClaims } from '../../entity/utils'
 import { User as UserEntity } from '../../entity/user'
@@ -293,37 +291,6 @@ export function isErrorWithCode(error: unknown): error is ErrorWithCode {
     (error as ErrorWithCode).errorCode !== undefined &&
     typeof (error as ErrorWithCode).errorCode === 'string'
   )
-}
-
-export const loginResolver: ResolverFn<
-  LoginResult,
-  unknown,
-  WithDataSourcesContext,
-  MutationLoginArgs
-> = async (_obj, { input }, { models, setAuth }) => {
-  const { email, password } = input
-
-  const user = await models.user.getWhere({
-    email,
-  })
-  if (!user?.id) {
-    return { errorCodes: [LoginErrorCode.UserNotFound] }
-  }
-
-  if (!user?.password) {
-    // user has no password, so they need to set one
-    return { errorCodes: [LoginErrorCode.WrongSource] }
-  }
-
-  // check if password is correct
-  const validPassword = await comparePassword(password, user.password)
-  if (!validPassword) {
-    return { errorCodes: [LoginErrorCode.InvalidCredentials] }
-  }
-
-  // set auth cookie in response header
-  await setAuth({ uid: user.id })
-  return { me: userDataToUser(user) }
 }
 
 export const deleteAccountResolver = authorized<
