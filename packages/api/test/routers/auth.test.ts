@@ -1,5 +1,5 @@
 import { createTestUser, deleteTestUser } from '../db'
-import { request } from '../util'
+import { generateFakeUuid, request } from '../util'
 import { expect } from 'chai'
 import { StatusType } from '../../src/datalayer/user/model'
 import { getRepository } from '../../src/entity/utils'
@@ -8,7 +8,7 @@ import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
 import supertest from 'supertest'
-import { hashPassword } from '../../src/utils/auth'
+import { generateVerificationToken, hashPassword } from '../../src/utils/auth'
 
 describe('auth router', () => {
   const route = '/api/auth'
@@ -256,6 +256,80 @@ describe('auth router', () => {
         const res = await loginRequest(email, password).expect(302)
         expect(res.header.location).to.endWith(
           '/email-login?errorCodes=INVALID_CREDENTIALS'
+        )
+      })
+    })
+  })
+
+  describe('confirm-email', () => {
+    const confirmEmailRequest = (token: string): supertest.Test => {
+      return request.get(`${route}/confirm-email/${token}`).send()
+    }
+
+    let user: User
+    let token: string
+
+    before(async () => {
+      user = await createTestUser('pendingUser', undefined, 'password', true)
+    })
+
+    after(async () => {
+      await deleteTestUser(user.name)
+    })
+
+    context('when token is valid', () => {
+      before(() => {
+        token = generateVerificationToken(user.id)
+      })
+
+      it('redirects to email-login page', async () => {
+        const res = await confirmEmailRequest(token).expect(302)
+        expect(res.header.location).to.endWith(
+          '/email-login?message=EMAIL_VERIFIED'
+        )
+      })
+
+      it('sets user as active', async () => {
+        await confirmEmailRequest(token).expect(302)
+        const updatedUser = await getRepository(User).findOneBy({
+          name: user.name,
+        })
+        expect(updatedUser?.status).to.eql(StatusType.Active)
+      })
+    })
+
+    context('when token is invalid', () => {
+      it('redirects to confirm-email with error code InvalidToken', async () => {
+        const res = await confirmEmailRequest('invalid_token').expect(302)
+        expect(res.header.location).to.endWith(
+          '/confirm-email?errorCodes=INVALID_TOKEN'
+        )
+      })
+    })
+
+    context('when token is expired', () => {
+      before(() => {
+        token = generateVerificationToken(user.id, -1)
+      })
+
+      it('redirects to confirm-email page with error code TokenExpired', async () => {
+        const res = await confirmEmailRequest(token).expect(302)
+        expect(res.header.location).to.endWith(
+          '/confirm-email?errorCodes=TOKEN_EXPIRED'
+        )
+      })
+    })
+
+    context('when user is not found', () => {
+      before(() => {
+        const nonExistsUserId = generateFakeUuid()
+        token = generateVerificationToken(nonExistsUserId)
+      })
+
+      it('redirects to confirm-email page with error code UserNotFound', async () => {
+        const res = await confirmEmailRequest(token).expect(302)
+        expect(res.header.location).to.endWith(
+          '/confirm-email?errorCodes=USER_NOT_FOUND'
         )
       })
     })

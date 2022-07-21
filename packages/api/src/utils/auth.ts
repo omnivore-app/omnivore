@@ -68,22 +68,28 @@ export const getClaimsByToken = async (
   try {
     jwt.verify(token, env.server.jwtSecret) &&
       (claims = jwt.decode(token) as Claims)
-  } catch (e) {
-    if (e instanceof jwt.JsonWebTokenError) {
-      console.log(`not a jwt token, checking api key`, { token })
-      claims = await claimsFromApiKey(token)
-    } else {
-      throw e
-    }
-  }
 
-  return claims
+    return claims
+  } catch (e) {
+    if (
+      e instanceof jwt.JsonWebTokenError &&
+      !(e instanceof jwt.TokenExpiredError)
+    ) {
+      console.log(`not a jwt token, checking api key`, { token })
+      return claimsFromApiKey(token)
+    }
+
+    throw e
+  }
 }
 
-export const generateVerificationToken = (userId: string): string => {
+export const generateVerificationToken = (
+  userId: string,
+  expireInDays = 1
+): string => {
   const iat = Math.floor(Date.now() / 1000)
   const exp = Math.floor(
-    new Date(Date.now() + 1000 * 60 * 60 * 24).getTime() / 1000
+    new Date(Date.now() + 1000 * 60 * 60 * 24 * expireInDays).getTime() / 1000
   )
 
   return jwt.sign({ uid: userId, iat, exp }, env.server.jwtSecret)
