@@ -38,10 +38,16 @@ import {
   StatusType,
   UserData,
 } from '../../datalayer/user/model'
-import { comparePassword, hashPassword } from '../../utils/auth'
+import {
+  comparePassword,
+  getClaimsByToken,
+  hashPassword,
+} from '../../utils/auth'
 import { createUser, sendConfirmationEmail } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
 import { initModels } from '../../server'
+import { getRepository } from '../../entity/utils'
+import { User } from '../../entity/user'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -445,13 +451,61 @@ export function authRouter() {
 
         res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
       } catch (e) {
-        logger.error('email-signup exception:', e)
+        logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
           return res.redirect(
             `${env.client.url}/email-signup?errorCodes=${e.errorCode}`
           )
         }
         res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
+      }
+    }
+  )
+
+  router.options(
+    '/confirm-email',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.get(
+    '/confirm-email/:token',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const token = req.params.token
+
+      try {
+        // verify token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          return res.redirect(
+            `${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`
+          )
+        }
+
+        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/confirm-email?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          await getRepository(User).update(
+            { id: user.id },
+            { status: StatusType.Active }
+          )
+        }
+
+        res.redirect(`${env.client.url}/email-login?message=EMAIL_VERIFIED`)
+      } catch (e) {
+        logger.info('confirm-email exception:', e)
+        if (e instanceof jwt.TokenExpiredError) {
+          return res.redirect(
+            `${env.client.url}/confirm-email?errorCodes=TOKEN_EXPIRED`
+          )
+        }
+
+        res.redirect(`${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`)
       }
     }
   )
