@@ -1,5 +1,12 @@
 import { isDarkTheme } from '../../lib/themeUpdater'
-import { Table as ResponsiveTable, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import {
+  Table as ResponsiveTable,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from 'react-super-responsive-table'
 import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { Box, SpanBox, VStack } from './LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
@@ -26,12 +33,17 @@ const HeaderWrapper = styled(Box, {
   },
 })
 
-const newThead = {
-  background: '#156'
-}
-
 const StyledTable = styled(ResponsiveTable, {
-  // Add css here
+  margin: ' 0 auto',
+  border: '0.5px solid $grayBgActive',
+  backgroundColor: '$graySolid',
+  borderCollapse: 'collapse',
+  borderRadius:'5px',
+  width: '100%',
+  mt: '$3',
+  '&:hover': {
+    border: '0.5px solid #FFD234',
+  },
 })
 
 export function Table(props: TableProps): JSX.Element {
@@ -94,38 +106,26 @@ export function Table(props: TableProps): JSX.Element {
           )}
         </Box>
       </HeaderWrapper>
-      <Box
-        css={{
-          backgroundColor: '$grayBg',
-          margin: ' 0 auto',
-          border: '0.5px solid $grayBgActive',
-          width: '100%',
-          mt: '$3',
-          '&:hover': {
-            border: '0.5px solid #FFD234',
-          },
-        }}
-      >
-        <StyledTable css={{ /* can also style here now */ }}>
-          <Thead className={newThead}>
-              <Tr>
-                {props.headers.map((header: string, index: number) => (
-                  <Th key={index}>
-                    <SpanBox
-                      css={{
-                        textTransform: 'uppercase',
-                        display: 'flex',
-                        fontWeight: 600,
-                        padding: '20px 10px 20px 40px',
-                        color: '$grayTextContrast',
-                        fontSize: '$2',
-                      }}
-                    >
-                      {header}
-                    </SpanBox>
-                  </Th>
-                ))}
-              </Tr>
+        <StyledTable>
+          <Thead>
+            <Tr>
+              {props.headers.map((header: string, index: number) => (
+                <Th key={index}>
+                  <SpanBox
+                    css={{
+                      textTransform: 'uppercase',
+                      display: 'flex',
+                      fontWeight: 600,
+                      padding: '20px 10px 20px 40px',
+                      color: '$grayTextContrast',
+                      fontSize: '$2',
+                    }}
+                  >
+                    {header}
+                  </SpanBox>
+                </Th>
+              ))}
+            </Tr>
           </Thead>
 
           <Tbody>
@@ -187,7 +187,6 @@ export function Table(props: TableProps): JSX.Element {
             ))}
           </Tbody>
         </StyledTable>
-      </Box>
     </VStack>
   )
 }
