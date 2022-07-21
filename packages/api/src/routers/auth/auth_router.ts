@@ -467,11 +467,11 @@ export function authRouter() {
     cors<express.Request>({ ...corsConfig, maxAge: 600 })
   )
 
-  router.get(
-    '/confirm-email/:token',
+  router.post(
+    '/confirm-email',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const token = req.params.token
+      const token = req.body.token
 
       try {
         // verify token

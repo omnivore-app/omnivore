@@ -138,10 +138,10 @@ export const sendConfirmationEmail = async (user: {
 }): Promise<boolean> => {
   // generate confirmation link
   const confirmationToken = generateVerificationToken(user.id)
-  const confirmationLink = `${env.client.url}/api/auth/confirm-email/${confirmationToken}`
+  const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
   // send email
   return sendEmail({
-    from: `Omnivore <${env.sender.message}>`,
+    from: env.sender.message,
     to: user.email,
     subject: 'Confirm your email',
     text: `Hey ${user.name},\n\nPlease confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
