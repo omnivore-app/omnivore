@@ -94,7 +94,7 @@ describe('auth router', () => {
             username
           ).expect(302)
           expect(res.header.location).to.endWith(
-            '/email-registration?errorCodes=INVALID_EMAIL'
+            '/email-signup?errorCodes=INVALID_EMAIL'
           )
         })
       })
@@ -117,7 +117,7 @@ describe('auth router', () => {
           302
         )
         expect(res.header.location).to.endWith(
-          '/email-registration?errorCodes=USER_EXISTS'
+          '/email-signup?errorCodes=USER_EXISTS'
         )
       })
     })
@@ -134,7 +134,7 @@ describe('auth router', () => {
           302
         )
         expect(res.header.location).to.endWith(
-          '/email-registration?errorCodes=INVALID_USERNAME'
+          '/email-signup?errorCodes=INVALID_USERNAME'
         )
       })
     })
