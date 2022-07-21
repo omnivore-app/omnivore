@@ -181,6 +181,38 @@ describe('auth router', () => {
       })
     })
 
+    context('when user is not confirmed', async () => {
+      const pendingUser = await createTestUser(
+        'pending_user',
+        undefined,
+        correctPassword,
+        true
+      )
+
+      before(async () => {
+        email = pendingUser.email
+        password = correctPassword
+      })
+
+      after(async () => {
+        await deleteTestUser(pendingUser.name)
+      })
+
+      it('redirects with error code PendingVerification', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        expect(res.header.location).to.endWith(
+          '/email-login?errorCodes=PENDING_VERIFICATION'
+        )
+      })
+
+      it('sends a verification email', async () => {
+        const fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+        await loginRequest(email, password).expect(302)
+        sinon.restore()
+        expect(fake).to.have.been.calledOnce
+      })
+    })
+
     context('when user not exists', () => {
       before(() => {
         email = 'Some email'
@@ -194,15 +226,16 @@ describe('auth router', () => {
       })
     })
 
-    context('when user has no password stored in db', () => {
-      before(async () => {
-        const anotherUser = await createTestUser('another_user')
-        email = anotherUser.email
+    context('when user has no password stored in db', async () => {
+      const socialAccountUser = await createTestUser('social_account_user')
+
+      before(() => {
+        email = socialAccountUser.email
         password = 'Some password'
       })
 
       after(async () => {
-        await deleteTestUser('another_user')
+        await deleteTestUser(socialAccountUser.name)
       })
 
       it('redirects with error code WrongSource', async () => {

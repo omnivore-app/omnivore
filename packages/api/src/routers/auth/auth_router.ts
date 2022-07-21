@@ -35,10 +35,11 @@ import cors from 'cors'
 import {
   MembershipTier,
   RegistrationType,
+  StatusType,
   UserData,
 } from '../../datalayer/user/model'
 import { comparePassword, hashPassword } from '../../utils/auth'
-import { createUser } from '../../services/create_user'
+import { createUser, sendConfirmationEmail } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
 import { initModels } from '../../server'
 
@@ -369,6 +370,17 @@ export function authRouter() {
         if (!user?.id) {
           return res.redirect(
             `${env.client.url}/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
+          )
+        }
+
+        if (user.status === StatusType.Pending && user.email) {
+          await sendConfirmationEmail({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          })
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 

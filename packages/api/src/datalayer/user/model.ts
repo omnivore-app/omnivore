@@ -44,6 +44,7 @@ export interface UserData {
     private: boolean
   }
   password?: string | null
+  status?: StatusType
 }
 
 export enum MembershipTier {
@@ -72,6 +73,7 @@ export const keys = [
   'sourceUserId',
   'createdAt',
   'password',
+  'status',
 ] as const
 
 export const defaultedKeys = ['id', 'createdAt'] as const

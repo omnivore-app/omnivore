@@ -17,8 +17,6 @@ import sinonChai from 'sinon-chai'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
-import { getRepository } from '../../src/entity/utils'
-import { User } from '../../src/entity/user'
 
 chai.use(sinonChai)
 
@@ -99,10 +97,9 @@ describe('create user', () => {
         sinon.restore()
       })
 
-      it('does not create the user', async () => {
-        await expect(createTestUser(name, undefined, undefined, true)).to.be
+      it('rejects with error', async () => {
+        return expect(createTestUser(name, undefined, undefined, true)).to.be
           .rejected
-        expect(await getRepository(User).findOneBy({ name })).to.be.null
       })
     })
   })
