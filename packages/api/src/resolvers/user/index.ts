@@ -11,14 +11,12 @@ import {
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
   MutationLoginArgs,
-  MutationSignupArgs,
   MutationUpdateUserArgs,
   MutationUpdateUserProfileArgs,
   QueryUserArgs,
   QueryValidateUsernameArgs,
   ResolverFn,
   SignupErrorCode,
-  SignupResult,
   UpdateUserError,
   UpdateUserErrorCode,
   UpdateUserProfileError,
@@ -37,7 +35,7 @@ import { env } from '../../env'
 import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
-import { comparePassword, hashPassword } from '../../utils/auth'
+import { comparePassword } from '../../utils/auth'
 import { deletePagesByParam } from '../../elastic/pages'
 import { setClaims } from '../../entity/utils'
 import { User as UserEntity } from '../../entity/user'
@@ -326,43 +324,6 @@ export const loginResolver: ResolverFn<
   // set auth cookie in response header
   await setAuth({ uid: user.id })
   return { me: userDataToUser(user) }
-}
-
-export const signupResolver: ResolverFn<
-  SignupResult,
-  Record<string, unknown>,
-  WithDataSourcesContext,
-  MutationSignupArgs
-> = async (_obj, { input }) => {
-  const { email, username, name, bio, password, pictureUrl } = input
-  const lowerCasedUsername = username.toLowerCase()
-
-  try {
-    // hash password
-    const hashedPassword = await hashPassword(password)
-
-    const [user, profile] = await createUser({
-      email,
-      provider: 'EMAIL',
-      sourceUserId: email,
-      name,
-      username: lowerCasedUsername,
-      pictureUrl: pictureUrl || undefined,
-      bio: bio || undefined,
-      password: hashedPassword,
-      pendingConfirmation: true,
-    })
-
-    return {
-      me: userDataToUser({ ...user, profile: { ...profile, private: false } }),
-    }
-  } catch (err) {
-    console.log('error', err)
-    if (isErrorWithCode(err)) {
-      return { errorCodes: [err.errorCode as SignupErrorCode] }
-    }
-    return { errorCodes: [SignupErrorCode.Unknown] }
-  }
 }
 
 export const deleteAccountResolver = authorized<

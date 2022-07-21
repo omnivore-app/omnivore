@@ -37,6 +37,9 @@ import {
   RegistrationType,
   UserData,
 } from '../../datalayer/user/model'
+import { hashPassword } from '../../utils/auth'
+import { createUser } from '../../services/create_user'
+import { isErrorWithCode } from '../../resolvers'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -422,53 +425,33 @@ export function authRouter() {
     '/email-signup',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const { email, password, name, username, bio } = req.body
-      if (!email || !password || !name || !username) {
-        res.redirect(`${env.client.url}/email-signup?errorCodes=BAD_DATA`)
-        return
-      }
-
-      const query = `
-      mutation signup {
-        signup(input: {
-          email: "${email}",
-          password: "${password}",
-          name: "${name}",
-          username: "${username}",
-          bio: "${bio ?? ''}"
-        }) {
-          __typename
-          ... on SignupSuccess {
-            me {
-              id
-              name
-              profile {
-                username
-              }
-            }
-          }
-          ... on SignupError {
-            errorCodes
-          }
-        }
-      }`
+      const { email, password, name, username, bio, pictureUrl } = req.body
+      const lowerCasedUsername = username.toLowerCase()
 
       try {
-        const result = await axios.post(env.server.gateway_url + '/graphql', {
-          query,
-        })
-        const { data } = result.data
+        // hash password
+        const hashedPassword = await hashPassword(password)
 
-        if (data.signup.__typename === 'SignupError') {
-          const errorCodes = data.signup.errorCodes.join(',')
-          return res.redirect(
-            `${env.client.url}/email-signup?errorCodes=${errorCodes}`
-          )
-        }
+        await createUser({
+          email,
+          provider: 'EMAIL',
+          sourceUserId: email,
+          name,
+          username: lowerCasedUsername,
+          pictureUrl,
+          bio,
+          password: hashedPassword,
+          pendingConfirmation: true,
+        })
 
         res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
       } catch (e) {
-        logger.info('email-signup exception:', e)
+        logger.error('email-signup exception:', e)
+        if (isErrorWithCode(e)) {
+          return res.redirect(
+            `${env.client.url}/email-signup?errorCodes=${e.errorCode}`
+          )
+        }
         res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
       }
     }
