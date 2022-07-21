@@ -1,11 +1,6 @@
 import { isDarkTheme } from '../../lib/themeUpdater'
 import {
-  Table as ResponsiveTable,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  Table as ResponsiveTable, Thead, Tbody, Tr, Th, Td,
 } from 'react-super-responsive-table'
 import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { Box, SpanBox, VStack } from './LayoutPrimitives'
@@ -38,12 +33,15 @@ const StyledTable = styled(ResponsiveTable, {
   border: '0.5px solid $grayBgActive',
   backgroundColor: '$graySolid',
   borderCollapse: 'collapse',
-  borderRadius:'5px',
+  borderRadius: '5px',
   width: '100%',
   mt: '$3',
   '&:hover': {
     border: '0.5px solid #FFD234',
   },
+})
+const TableBody = styled(Tbody, {
+  backgroundColor: '$grayBg',
 })
 
 export function Table(props: TableProps): JSX.Element {
@@ -106,87 +104,87 @@ export function Table(props: TableProps): JSX.Element {
           )}
         </Box>
       </HeaderWrapper>
-        <StyledTable>
-          <Thead>
-            <Tr>
-              {props.headers.map((header: string, index: number) => (
-                <Th key={index}>
+      <StyledTable>
+        <Thead>
+          <Tr>
+            {props.headers.map((header: string, index: number) => (
+              <Th key={index}>
+                <SpanBox
+                  css={{
+                    textTransform: 'uppercase',
+                    display: 'flex',
+                    fontWeight: 600,
+                    padding: '20px 10px 20px 40px',
+                    color: '$grayTextContrast',
+                    fontSize: '$2',
+                  }}
+                >
+                  {header}
+                </SpanBox>
+              </Th>
+            ))}
+          </Tr>
+        </Thead>
+
+        <TableBody>
+          {Array.from(props.rows.keys()).map((key, index) => (
+            <Tr key={index}>
+              {Object.values(props.rows.get(key) || {}).map((cell, index) => (
+                <Td key={index}>
                   <SpanBox
+                    key={index}
                     css={{
-                      textTransform: 'uppercase',
                       display: 'flex',
-                      fontWeight: 600,
+                      justifyContent: 'left',
                       padding: '20px 10px 20px 40px',
                       color: '$grayTextContrast',
-                      fontSize: '$2',
+                      fontSize: '$1',
                     }}
                   >
-                    {header}
+                    {cell}
                   </SpanBox>
-                </Th>
+                </Td>
               ))}
+
+              {props.onDelete && (
+                <Td>
+                  <IconButton
+                    style="ctaWhite"
+                    css={{
+                      mr: '$1',
+                      background: '$labelButtonsBg',
+                      margin: '20px 10px 20px 40px',
+                    }}
+                    onClick={() => {
+                      props.onDelete && props.onDelete(key)
+                    }}
+                  >
+                    <Trash size={16} color={iconColor} />
+                  </IconButton>
+                </Td>
+              )}
+              {props.onEdit && (
+                <Td>
+                  <IconButton
+                    style="ctaWhite"
+                    css={{
+                      mr: '$1',
+                      background: '$labelButtonsBg',
+                      margin: '20px 10px 20px 40px',
+                    }}
+                    onClick={() => {
+                      props.onEdit &&
+                        props.onEdit({ ...props.rows.get(key), id: key })
+                    }}
+                  >
+                    <PencilSimple size={24} color={iconColor} />
+                  </IconButton>
+                </Td>
+              )}
             </Tr>
-          </Thead>
-
-          <Tbody>
-            {Array.from(props.rows.keys()).map((key, index) => (
-              <Tr key={index}>
-                {Object.values(props.rows.get(key) || {}).map((cell, index) => (
-                  <Td key={index}>
-                    <SpanBox
-                      key={index}
-                      css={{
-                        display: 'flex',
-                        justifyContent: 'left',
-                        padding: '20px 10px 20px 40px',
-                        color: '$grayTextContrast',
-                        fontSize: '$1',
-                      }}
-                    >
-                      {cell}
-                    </SpanBox>
-                  </Td>
-                ))}
-
-                {props.onDelete && (
-                  <Td>
-                    <IconButton
-                      style="ctaWhite"
-                      css={{
-                        mr: '$1',
-                        background: '$labelButtonsBg',
-                        margin: '20px 10px 20px 40px',
-                      }}
-                      onClick={() => {
-                        props.onDelete && props.onDelete(key)
-                      }}
-                    >
-                      <Trash size={16} color={iconColor} />
-                    </IconButton>
-                  </Td>
-                )}
-                {props.onEdit && (
-                  <Td>
-                    <IconButton
-                      style="ctaWhite"
-                      css={{
-                        mr: '$1',
-                        background: '$labelButtonsBg',
-                        margin: '20px 10px 20px 40px',
-                      }}
-                      onClick={() => {
-                        props.onEdit &&
-                          props.onEdit({ ...props.rows.get(key), id: key })
-                      }}
-                    >
-                      <PencilSimple size={24} color={iconColor} />
-                    </IconButton>
-                  </Td>
-                )}
-              </Tr>
-            ))}
-          </Tbody>
-        </StyledTable>
+          ))}
+        </TableBody>
+      </StyledTable>
     </VStack>
   )
 }
