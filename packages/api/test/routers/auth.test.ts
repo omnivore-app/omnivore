@@ -173,6 +173,12 @@ describe('auth router', () => {
         const res = await loginRequest(email, password).expect(302)
         expect(res.header.location).to.endWith('/waitlist')
       })
+
+      it('set auth token in cookie', async () => {
+        const res = await loginRequest(email, password).expect(302)
+        expect(res.header['set-cookie']).to.be.an('array')
+        expect(res.header['set-cookie'][0]).to.contain('auth')
+      })
     })
 
     context('when user not exists', () => {
