@@ -31,7 +31,7 @@ export class ContentDisplayReportSubscriber
         to: env.sender.feedback,
         subject: 'New content display report',
         text: message,
-        from: 'msgs@omnivore.app',
+        from: env.sender.message,
       })
     }
   }
