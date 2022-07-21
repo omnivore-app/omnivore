@@ -138,7 +138,7 @@ export const sendConfirmationEmail = async (user: {
 }): Promise<boolean> => {
   // generate confirmation link
   const confirmationToken = generateVerificationToken(user.id)
-  const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
+  const confirmationLink = `${env.client.url}/api/auth/confirm-email/${confirmationToken}`
   // send email
   return sendEmail({
     from: `Omnivore <${env.sender.message}>`,
