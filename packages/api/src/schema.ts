@@ -1415,25 +1415,6 @@ const schema = gql`
     email: String!
   }
 
-  input SignupInput {
-    email: String!
-    password: String! @sanitize(maxLength: 40)
-    username: String!
-    name: String!
-    pictureUrl: String
-    bio: String
-  }
-
-  type SignupSuccess {
-    me: User!
-  }
-
-  type SignupError {
-    errorCodes: [SignupErrorCode]!
-  }
-
-  union SignupResult = SignupSuccess | SignupError
-
   input SetLabelsInput {
     pageId: ID!
     labelIds: [ID!]!
@@ -1845,7 +1826,6 @@ const schema = gql`
     updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
     deleteLabel(id: ID!): DeleteLabelResult!
     login(input: LoginInput!): LoginResult!
-    signup(input: SignupInput!): SignupResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
     unsubscribe(name: String!): UnsubscribeResult!

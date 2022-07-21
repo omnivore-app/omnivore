@@ -3,16 +3,12 @@ import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import {
   LoginErrorCode,
-  SignupErrorCode,
   UpdateUserErrorCode,
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
 import { User } from '../../src/entity/user'
 import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
-import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
-import sinon from 'sinon'
-import * as util from '../../src/utils/sendEmail'
 
 describe('User API', () => {
   const username = 'fake_user'
@@ -323,134 +319,6 @@ describe('User API', () => {
         const response = await graphqlRequest(query).expect(200)
         expect(response.body.data.login.errorCodes).to.eql([
           LoginErrorCode.InvalidCredentials,
-        ])
-      })
-    })
-  })
-
-  describe('signup', () => {
-    let query: string
-    let email: string
-    let password: string
-    let username: string
-    let fake: (msg: MailDataRequired) => Promise<boolean>
-
-    beforeEach(() => {
-      query = `
-        mutation {
-          signup(
-            input: {
-              email: "${email}"
-              password: "${password}"
-              name: "Some name"
-              username: "${username}"
-            }
-          ) {
-            ... on SignupSuccess {
-              me {
-                id
-                name
-                profile {
-                  username
-                }
-              }
-            }
-            ... on SignupError {
-              errorCodes
-            }
-          }
-        }
-      `
-    })
-
-    context('when inputs are valid and user not exists', () => {
-      beforeEach(() => {
-        password = correctPassword
-        username = 'Some_username'
-        email = `${username}@fake.com`
-      })
-
-      afterEach(async () => {
-        await deleteTestUser(username)
-      })
-
-      context('when confirmation email sent', () => {
-        beforeEach(() => {
-          fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
-        })
-
-        afterEach(() => {
-          sinon.restore()
-        })
-
-        it('responds with 200', async () => {
-          return graphqlRequest(query).expect(200)
-        })
-
-        it('returns the user with the lowercase username', async () => {
-          const res = await graphqlRequest(query).expect(200)
-          expect(res.body.data.signup.me.profile.username).to.eql(
-            username.toLowerCase()
-          )
-        })
-      })
-
-      context('when confirmation email not sent', () => {
-        before(() => {
-          fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
-        })
-
-        after(() => {
-          sinon.restore()
-        })
-
-        it('responds with error code INVALID_EMAIL', async () => {
-          const res = await graphqlRequest(query).expect(200)
-          expect(res.body.data.signup.errorCodes).to.eql([
-            SignupErrorCode.InvalidEmail,
-          ])
-        })
-      })
-    })
-
-    context('when password is too long', () => {
-      before(() => {
-        email = 'Some_email'
-        password = 'Some_password_that_is_too_long_for_database'
-        username = 'Some_username'
-      })
-
-      it('responds with status code 400', async () => {
-        return graphqlRequest(query).expect(400)
-      })
-    })
-
-    context('when user exists', () => {
-      before(() => {
-        email = user.email
-        password = 'Some password'
-        username = 'Some username'
-      })
-
-      it('responds with error code UserExists', async () => {
-        const response = await graphqlRequest(query).expect(200)
-        expect(response.body.data.signup.errorCodes).to.eql([
-          SignupErrorCode.UserExists,
-        ])
-      })
-    })
-
-    context('when username is invalid', () => {
-      before(() => {
-        email = 'Some_email'
-        password = correctPassword
-        username = 'omnivore_admin'
-      })
-
-      it('responds with error code InvalidUsername', async () => {
-        const response = await graphqlRequest(query).expect(200)
-        expect(response.body.data.signup.errorCodes).to.eql([
-          SignupErrorCode.InvalidUsername,
         ])
       })
     })
