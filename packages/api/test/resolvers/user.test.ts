@@ -10,6 +10,9 @@ import {
 import { User } from '../../src/entity/user'
 import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
+import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+import sinon from 'sinon'
+import * as util from '../../src/utils/sendEmail'
 
 describe('User API', () => {
   const username = 'fake_user'
@@ -360,30 +363,29 @@ describe('User API', () => {
     })
 
     context('when inputs are valid and user not exists', () => {
+      let fake: (msg: MailDataRequired) => Promise<boolean>
+
       beforeEach(() => {
         password = correctPassword
         username = 'Some_username'
         email = `${username}@fake.com`
+        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
       })
 
       afterEach(async () => {
         await deleteTestUser(username)
+        sinon.restore()
       })
 
       it('responds with 200', async () => {
         return graphqlRequest(query).expect(200)
       })
 
-      it('returns the user', async () => {
-        const res = await graphqlRequest(query).send()
-        expect(res.body.data.signup.me.profile.username).to.eql(username)
-      })
-
-      it('creates user with correct username', async () => {
-        const res = await graphqlRequest(query).send()
-
-        const user = await getUser(res.body.data.signup.me.id)
-        expect(user?.profile?.username).to.eql(username)
+      it('returns the user with the lowercase username', async () => {
+        const res = await graphqlRequest(query).expect(200)
+        expect(res.body.data.signup.me.profile.username).to.eql(
+          username.toLowerCase()
+        )
       })
     })
 

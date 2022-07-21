@@ -72,10 +72,11 @@ describe('create a user with pending confirmation', () => {
     await deleteTestUser(name)
   })
 
-  it('creates a user with pending status', async () => {
+  it('creates the user with pending status and correct name', async () => {
     const user = await createTestUser(name, undefined, undefined, true)
 
-    expect(user.status).to.equal(StatusType.Pending)
+    expect(user.status).to.eql(StatusType.Pending)
+    expect(user.name).to.eql(name)
   })
 
   it('sends an email to the user', async () => {

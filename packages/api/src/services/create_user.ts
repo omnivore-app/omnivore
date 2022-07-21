@@ -100,7 +100,7 @@ export const createUser = async (input: {
     const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
     // send email
     const sent = await sendEmail({
-      from: env.sender.general,
+      from: env.sender.message,
       to: user.email,
       subject: 'Confirm your email',
       text: `Please confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
