@@ -59,5 +59,5 @@ export class User {
   subscriptions?: Subscription[]
 
   @Column({ type: 'enum', enum: StatusType })
-  status!: string
+  status!: StatusType
 }

@@ -8,7 +8,7 @@ import { validateUsername } from '../utils/usernamePolicy'
 import { Invite } from '../entity/groups/invite'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { AppDataSource } from '../server'
-import { getRepository, setClaims } from '../entity/utils'
+import { getRepository } from '../entity/utils'
 import { generateVerificationToken } from '../utils/auth'
 import { env } from '../env'
 import { sendEmail } from '../utils/sendEmail'
@@ -95,13 +95,6 @@ export const createUser = async (input: {
 
   if (input.pendingConfirmation) {
     if (!(await sendConfirmationEmail(user))) {
-      // delete user if email failed to send
-      await AppDataSource.transaction(async (e) => {
-        await setClaims(e, user.id)
-
-        return e.getRepository(User).delete(user.id)
-      })
-
       return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
     }
   }
@@ -138,7 +131,11 @@ const getUser = async (email: string): Promise<User | null> => {
   })
 }
 
-export const sendConfirmationEmail = async (user: User): Promise<boolean> => {
+export const sendConfirmationEmail = async (user: {
+  id: string
+  name: string
+  email: string
+}): Promise<boolean> => {
   // generate confirmation link
   const confirmationToken = generateVerificationToken(user.id)
   const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`

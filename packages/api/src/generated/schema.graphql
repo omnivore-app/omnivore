@@ -730,11 +730,6 @@ enum LoginErrorCode {
   WRONG_SOURCE
 }
 
-input LoginInput {
-  email: String!
-  password: String!
-}
-
 union LoginResult = LoginError | LoginSuccess
 
 type LoginSuccess {
@@ -794,7 +789,6 @@ type Mutation {
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   logOut: LogOutResult!
-  login(input: LoginInput!): LoginResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -812,7 +806,6 @@ type Mutation {
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
   setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
-  signup(input: SignupInput!): SignupResult!
   subscribe(name: String!): SubscribeResult!
   unsubscribe(name: String!): UnsubscribeResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
@@ -1347,10 +1340,6 @@ type SharedArticleSuccess {
   article: Article!
 }
 
-type SignupError {
-  errorCodes: [SignupErrorCode]!
-}
-
 enum SignupErrorCode {
   ACCESS_DENIED
   EXPIRED_TOKEN
@@ -1360,21 +1349,6 @@ enum SignupErrorCode {
   INVALID_USERNAME
   UNKNOWN
   USER_EXISTS
-}
-
-input SignupInput {
-  bio: String
-  email: String!
-  name: String!
-  password: String!
-  pictureUrl: String
-  username: String!
-}
-
-union SignupResult = SignupError | SignupSuccess
-
-type SignupSuccess {
-  me: User!
 }
 
 enum SortBy {
