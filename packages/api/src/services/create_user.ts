@@ -8,7 +8,7 @@ import { validateUsername } from '../utils/usernamePolicy'
 import { Invite } from '../entity/groups/invite'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { AppDataSource } from '../server'
-import { getRepository } from '../entity/utils'
+import { getRepository, setClaims } from '../entity/utils'
 import { generateVerificationToken } from '../utils/auth'
 import { env } from '../env'
 import { sendEmail } from '../utils/sendEmail'
@@ -107,6 +107,11 @@ export const createUser = async (input: {
     })
 
     if (!sent) {
+      // delete user if email failed to send
+      await AppDataSource.transaction(async (e) => {
+        await setClaims(e, user.id)
+        return e.getRepository(User).delete(user.id)
+      })
       return Promise.reject({ errorCode: SignupErrorCode.Unknown })
     }
   }
