@@ -147,6 +147,6 @@ export const sendConfirmationEmail = async (user: User): Promise<boolean> => {
     from: `Omnivore <${env.sender.message}>`,
     to: user.email,
     subject: 'Confirm your email',
-    text: `Hey ${user.name},\nPlease confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
+    text: `Hey ${user.name},\n\nPlease confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
   })
 }
