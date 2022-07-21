@@ -11,8 +11,7 @@ import Utils
       view.backgroundColor = .clear
 
       embed(
-        childViewController: UIViewController.makeShareExtensionController(extensionContext: extensionContext),
-        heightRatio: 0.75
+        childViewController: UIViewController.makeShareExtensionController(extensionContext: extensionContext)
       )
     }
   }
