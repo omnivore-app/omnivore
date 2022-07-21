@@ -93,20 +93,8 @@ export const createUser = async (input: {
     }
   )
 
-  // send confirmation email
   if (input.pendingConfirmation) {
-    // generate confirmation link
-    const confirmationToken = generateVerificationToken(user.id)
-    const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
-    // send email
-    const sent = await sendEmail({
-      from: env.sender.message,
-      to: user.email,
-      subject: 'Confirm your email',
-      text: `Please confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
-    })
-
-    if (!sent) {
+    if (!(await sendConfirmationEmail(user))) {
       // delete user if email failed to send
       await AppDataSource.transaction(async (e) => {
         await setClaims(e, user.id)
@@ -147,5 +135,18 @@ const getUser = async (email: string): Promise<User | null> => {
   return userRepo.findOne({
     where: { email: email },
     relations: ['profile'],
+  })
+}
+
+export const sendConfirmationEmail = async (user: User): Promise<boolean> => {
+  // generate confirmation link
+  const confirmationToken = generateVerificationToken(user.id)
+  const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
+  // send email
+  return sendEmail({
+    from: `Omnivore <${env.sender.message}>`,
+    to: user.email,
+    subject: 'Confirm your email',
+    text: `Hey ${user.name},\nPlease confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
   })
 }
