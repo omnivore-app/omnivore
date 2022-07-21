@@ -80,7 +80,7 @@ export const getClaimsByToken = async (
   return claims
 }
 
-export const generateVerificationToken = (userId: string) => {
+export const generateVerificationToken = (userId: string): string => {
   const iat = Math.floor(Date.now() / 1000)
   const exp = Math.floor(
     new Date(Date.now() + 1000 * 60 * 60 * 24).getTime() / 1000
