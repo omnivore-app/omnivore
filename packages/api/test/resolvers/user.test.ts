@@ -333,6 +333,7 @@ describe('User API', () => {
     let email: string
     let password: string
     let username: string
+    let fake: (msg: MailDataRequired) => Promise<boolean>
 
     beforeEach(() => {
       query = `
@@ -363,29 +364,52 @@ describe('User API', () => {
     })
 
     context('when inputs are valid and user not exists', () => {
-      let fake: (msg: MailDataRequired) => Promise<boolean>
-
       beforeEach(() => {
         password = correctPassword
         username = 'Some_username'
         email = `${username}@fake.com`
-        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
       })
 
       afterEach(async () => {
         await deleteTestUser(username)
-        sinon.restore()
       })
 
-      it('responds with 200', async () => {
-        return graphqlRequest(query).expect(200)
+      context('when confirmation email sent', () => {
+        beforeEach(() => {
+          fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+        })
+
+        afterEach(() => {
+          sinon.restore()
+        })
+
+        it('responds with 200', async () => {
+          return graphqlRequest(query).expect(200)
+        })
+
+        it('returns the user with the lowercase username', async () => {
+          const res = await graphqlRequest(query).expect(200)
+          expect(res.body.data.signup.me.profile.username).to.eql(
+            username.toLowerCase()
+          )
+        })
       })
 
-      it('returns the user with the lowercase username', async () => {
-        const res = await graphqlRequest(query).expect(200)
-        expect(res.body.data.signup.me.profile.username).to.eql(
-          username.toLowerCase()
-        )
+      context('when confirmation email not sent', () => {
+        before(() => {
+          fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
+        })
+
+        after(() => {
+          sinon.restore()
+        })
+
+        it('responds with error code INVALID_EMAIL', async () => {
+          const res = await graphqlRequest(query).expect(200)
+          expect(res.body.data.signup.errorCodes).to.eql([
+            SignupErrorCode.InvalidEmail,
+          ])
+        })
       })
     })
 
