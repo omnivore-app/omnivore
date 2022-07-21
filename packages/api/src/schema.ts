@@ -168,6 +168,7 @@ const schema = gql`
     USER_EXISTS
     EXPIRED_TOKEN
     INVALID_PASSWORD
+    INVALID_EMAIL
   }
 
   type GoogleSignupError {

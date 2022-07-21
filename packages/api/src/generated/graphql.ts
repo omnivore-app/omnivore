@@ -1834,6 +1834,7 @@ export enum SignupErrorCode {
   AccessDenied = 'ACCESS_DENIED',
   ExpiredToken = 'EXPIRED_TOKEN',
   GoogleAuthError = 'GOOGLE_AUTH_ERROR',
+  InvalidEmail = 'INVALID_EMAIL',
   InvalidPassword = 'INVALID_PASSWORD',
   InvalidUsername = 'INVALID_USERNAME',
   Unknown = 'UNKNOWN',

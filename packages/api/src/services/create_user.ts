@@ -110,9 +110,11 @@ export const createUser = async (input: {
       // delete user if email failed to send
       await AppDataSource.transaction(async (e) => {
         await setClaims(e, user.id)
+
         return e.getRepository(User).delete(user.id)
       })
-      return Promise.reject({ errorCode: SignupErrorCode.Unknown })
+
+      return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
     }
   }
 
