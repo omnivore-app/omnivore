@@ -1,5 +1,5 @@
 import 'mocha'
-import { expect } from 'chai'
+import chai, { expect } from 'chai'
 import 'chai/register-should'
 import {
   createTestUser,
@@ -13,6 +13,12 @@ import {
   getUserFollowing,
 } from '../../src/services/followers'
 import { StatusType } from '../../src/datalayer/user/model'
+import sinonChai from 'sinon-chai'
+import sinon from 'sinon'
+import * as util from '../../src/utils/sendEmail'
+import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+
+chai.use(sinonChai)
 
 describe('create a user with an invite', () => {
   it('follows the other user in the group', async () => {
@@ -53,15 +59,28 @@ describe('create a user with an invite', () => {
   })
 })
 
-describe('create a pending user', () => {
-  it('creates a pending user', async () => {
-    after(async () => {
-      await deleteTestUser(name)
-    })
+describe('create a user with pending confirmation', () => {
+  const name = 'pendingUser'
+  let fake: (msg: MailDataRequired) => Promise<boolean>
 
-    const name = 'pendingUser'
+  beforeEach(() => {
+    fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+  })
+
+  afterEach(async () => {
+    sinon.restore()
+    await deleteTestUser(name)
+  })
+
+  it('creates a user with pending status', async () => {
     const user = await createTestUser(name, undefined, undefined, true)
 
     expect(user.status).to.equal(StatusType.Pending)
+  })
+
+  it('sends an email to the user', async () => {
+    await createTestUser(name, undefined, undefined, true)
+
+    expect(fake).to.have.been.calledOnce
   })
 })
