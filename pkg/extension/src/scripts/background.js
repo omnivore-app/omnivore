@@ -308,12 +308,15 @@ async function saveApiRequest(currentTab, query, field, input) {
   });
 }
 
-function saveArticle (tab) {
+async function saveArticle (tab) {
   browserApi.tabs.sendMessage(tab.id, {
     action: ACTIONS.GetContent
   }, async (response) => {
     if (!response || typeof response !== 'object') {
-      // invalid response
+      // In the case of an invalid response, we attempt
+      // to just save the URL. This can happen in Firefox
+      // with PDF URLs
+      await saveUrl(tab, tab.url)
       return;
     }
 
@@ -421,7 +424,7 @@ function onExtensionClick (tabId) {
 
   /* Method to check tab loading state prior to save */
   function checkTabLoadingState (onSuccess, onPending) {
-    browserApi.tabs.get(tabId, (tab) => {
+    browserApi.tabs.get(tabId, async (tab) => {
       if (tab.status !== 'complete') {
         // show message to user on page yet to complete load
         browserApi.tabs.sendMessage(tab.id, {
@@ -438,7 +441,7 @@ function onExtensionClick (tabId) {
         if (onSuccess && typeof onSuccess === 'function') {
           onSuccess();
         }
-        saveArticle(tab);
+        await saveArticle(tab);
       }
     });
   }
@@ -454,12 +457,12 @@ function onExtensionClick (tabId) {
       /* timeout handling, clear timer and show timeout msg */
       clearPreviousIntervalTimer(tabId);
 
-      browserApi.tabs.get(tabId, (tab) => {
+      browserApi.tabs.get(tabId, async (tab) => {
         /*
          * post timeout, we proceed to save as some sites (people.com) take a
          * long time to reach complete state and remain in interactive state.
          */
-        saveArticle(tab);
+        await saveArticle(tab);
       });
     }, (intervalId, timeoutId) => {
       /* Track interval timer and timeout timer in browser storage keyed by tabId */
