@@ -7,12 +7,12 @@ import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { expect } from 'chai'
-import { describe } from 'mocha'
 import { getPageById } from '../../src/elastic/pages'
 import {
   ArticleSavingRequestErrorCode,
   CreateArticleSavingRequestErrorCode,
 } from '../../src/generated/graphql'
+import 'mocha'
 
 const articleSavingRequestQuery = (id: string) => `
   query {
