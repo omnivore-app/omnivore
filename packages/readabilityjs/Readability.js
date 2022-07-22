@@ -178,7 +178,7 @@ Readability.prototype = {
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners/i,
-    negative: /\bad\b|hidden|^hid$| hid$| hid |^hid |banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget|controls|video-controls/i,
+    negative: /\bad\b|hidden|^hid$| hid$| hid |^hid |banner|combx|comment|com-|contact|footer|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget|controls|video-controls/i,
     extraneous: /print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility/i,
     byline: /byline|author|dateline|writtenby|p-author/i,
     publishedDate: /published|modified|created|updated/i,
@@ -2879,7 +2879,6 @@ Readability.prototype = {
    *  4. Replace the current DOM tree with the new one.
    *  5. Read peacefully.
    *
-   * @return void
    **/
   parse: async function() {
     // Avoid parsing too large documents, as per configuration option

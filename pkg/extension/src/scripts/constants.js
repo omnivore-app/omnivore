@@ -30,6 +30,39 @@ window.DONT_REMOVE_ELEMENTS = [
   'title'
 ];
 
+window.SAVE_URL_QUERY = `mutation SaveUrl ($input: SaveUrlInput!) {
+  saveUrl(input:$input){
+    ... on SaveSuccess {
+      url
+    }
+    ... on SaveError {
+      errorCodes
+    }
+  }
+}`
+
+window.SAVE_FILE_QUERY = `mutation SaveFile ($input: SaveFileInput!) {
+  saveFile(input:$input){
+    ... on SaveSuccess {
+      url
+    }
+    ... on SaveError {
+      errorCodes
+    }
+  }
+}`
+
+window.SAVE_PAGE_QUERY = `mutation SavePage ($input: SavePageInput!) {
+  savePage(input:$input){
+    ... on SaveSuccess {
+      url
+    }
+    ... on SaveError {
+      errorCodes
+    }
+  }
+}`
+
 window.CREATE_ARTICLE_QUERY = `mutation CreateArticle ($input: CreateArticleInput!){
   createArticle(input:$input){
     ... on CreateArticleSuccess{

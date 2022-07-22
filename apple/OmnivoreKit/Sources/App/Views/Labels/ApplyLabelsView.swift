@@ -155,7 +155,7 @@ struct ApplyLabelsView: View {
   }
 }
 
-private extension Sequence where Element == LinkedItemLabel {
+extension Sequence where Element == LinkedItemLabel {
   func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
     if searchFilter.isEmpty {
       return map { $0 } // return the identity of the sequence

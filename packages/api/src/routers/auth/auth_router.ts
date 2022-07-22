@@ -356,6 +356,11 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password } = req.body
+      if (!email || !password) {
+        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
+        return
+      }
+
       const query = `
       mutation login{
         login(input: {
@@ -418,6 +423,11 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password, name, username, bio } = req.body
+      if (!email || !password || !name || !username) {
+        res.redirect(`${env.client.url}/email-signup?errorCodes=BAD_DATA`)
+        return
+      }
+
       const query = `
       mutation signup {
         signup(input: {
@@ -425,7 +435,7 @@ export function authRouter() {
           password: "${password}",
           name: "${name}",
           username: "${username}",
-          bio: "${bio}"
+          bio: "${bio ?? ''}"
         }) {
           __typename
           ... on SignupSuccess {
@@ -452,14 +462,14 @@ export function authRouter() {
         if (data.signup.__typename === 'SignupError') {
           const errorCodes = data.signup.errorCodes.join(',')
           return res.redirect(
-            `${env.client.url}/email-registration?errorCodes=${errorCodes}`
+            `${env.client.url}/email-signup?errorCodes=${errorCodes}`
           )
         }
 
         res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
       } catch (e) {
         logger.info('email-signup exception:', e)
-        res.redirect(`${env.client.url}/email-registration?errorCodes=UNKNOWN`)
+        res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
       }
     }
   )

@@ -38,6 +38,7 @@ extension Authenticator {
     do {
       let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
       let pendingUserAuthPayload = try await networker.createPendingUser(params: encodedParams)
+      pendingUserToken = pendingUserAuthPayload.pendingUserToken
       return pendingUserAuthPayload.pendingUserProfile
     } catch {
       throw LoginError.make(serverError: (error as? ServerError) ?? .unknown)

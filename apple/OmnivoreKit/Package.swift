@@ -56,7 +56,7 @@ let package = Package(
 var appPackageDependencies: [Target.Dependency] {
   var deps: [Target.Dependency] = ["Views", "Services", "Models", "Utils"]
 //  #if canImport(UIKit)
-//  deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
+  deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
 //  #endif
   return deps
 }
@@ -70,7 +70,7 @@ var dependencies: [Package.Dependency] {
     .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "6.2.2")
   ]
 //  #if canImport(UIKit)
-//  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", branch: "master"))
+  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", branch: "master"))
 //  #endif
   return deps
 }

@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -33,6 +34,17 @@ import Views
     }
 
     isLoading = false
+  }
+
+  func loadLabelsFromStore(dataService: DataService) async {
+    let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
+
+    let fetchedLabels = await dataService.viewContext.perform {
+      try? fetchRequest.execute()
+    }
+
+    labels = fetchedLabels ?? []
+    unselectedLabels = fetchedLabels ?? []
   }
 
   func createLabel(dataService: DataService, name: String, color: Color, description: String?) {

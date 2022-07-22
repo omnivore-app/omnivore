@@ -151,10 +151,10 @@ public struct ShareExtensionView: View {
       previewCard
         .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
 
-      Spacer()
-
       if let item = viewModel.linkedItem {
-        ApplyLabelsView(mode: .item(item), onSave: nil)
+        ApplyLabelsListView(linkedItem: item)
+      } else {
+        Spacer()
       }
 
       HStack {
@@ -187,5 +187,85 @@ public struct ShareExtensionView: View {
       viewModel.savePage(extensionContext: extensionContext)
     }
     .environmentObject(viewModel.services.dataService)
+  }
+}
+
+struct ApplyLabelsListView: View {
+  @EnvironmentObject var dataService: DataService
+  @StateObject var viewModel = LabelsViewModel()
+
+  let linkedItem: LinkedItem?
+
+  func isSelected(_ label: LinkedItemLabel) -> Bool {
+    viewModel.selectedLabels.contains(where: { $0.id == label.id })
+  }
+
+  var body: some View {
+    List {
+      Section(
+        content: {
+          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+            Button(
+              action: {
+                if isSelected(label) {
+                  viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
+                } else {
+                  viewModel.selectedLabels.append(label)
+                }
+                if let linkedItem = linkedItem {
+                  viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
+                }
+              },
+              label: {
+                HStack {
+                  TextChip(feedItemLabel: label)
+                  Spacer()
+                  if isSelected(label) {
+                    Image(systemName: "checkmark.circle.fill")
+                      .foregroundColor(.checkmarkBlue)
+                  } else {
+                    Image(systemName: "circle")
+                      .foregroundColor(.appGraySolid)
+                  }
+                }
+                .contentShape(Rectangle())
+              }
+            )
+            #if os(iOS)
+              .listRowSeparator(.hidden)
+            #endif
+            .buttonStyle(PlainButtonStyle())
+          }
+
+        },
+        header: {
+          Text("Labels")
+            .font(.appFootnote)
+            .foregroundColor(.appGrayText)
+        }
+      )
+      #if os(iOS)
+        .listRowSeparator(.hidden)
+      #endif
+      Button(
+        action: { viewModel.showCreateLabelModal = true },
+        label: {
+          HStack {
+            Image(systemName: "plus.circle.fill").foregroundColor(.green)
+            Text("Create a new Label").foregroundColor(.appGrayTextContrast)
+            Spacer()
+          }
+        }
+      )
+      .disabled(viewModel.isLoading)
+    }
+    .listStyle(PlainListStyle())
+    .padding(.vertical, 0)
+    .task {
+      await viewModel.loadLabelsFromStore(dataService: dataService)
+    }
+    .sheet(isPresented: $viewModel.showCreateLabelModal) {
+      CreateLabelView(viewModel: viewModel)
+    }
   }
 }

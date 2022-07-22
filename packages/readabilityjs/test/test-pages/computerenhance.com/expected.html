@@ -1,0 +1,173 @@
+<DIV class="page" id="readability-page-1">
+    <article>
+        <div>
+            <h3> In my opinion, the pat answers about security are incomplete. I'd like to see a detailed writeup of specifically why a raw UDP API cannot be made as secure as current HTTPS. </h3>
+        </div>
+        <div dir="auto">
+            <div>
+                <figure>
+                    <a target="_blank" rel="nofollow" href="https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg">
+                        <picture>
+                            <source type="image/webp" srcset="https://substackcdn.com/image/fetch/w_424,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 424w, https://substackcdn.com/image/fetch/w_848,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 848w, https://substackcdn.com/image/fetch/w_1272,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 1272w, https://substackcdn.com/image/fetch/w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 1456w" sizes="100vw"><img src="https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg" width="1456" height="971" data-attrs="{&quot;src&quot;:&quot;https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg&quot;,&quot;fullscreen&quot;:null,&quot;imageSize&quot;:null,&quot;height&quot;:971,&quot;width&quot;:1456,&quot;resizeWidth&quot;:null,&quot;bytes&quot;:7578043,&quot;alt&quot;:&quot;A sculpture of a cartoon character stuck in a pipe.&quot;,&quot;title&quot;:null,&quot;type&quot;:&quot;image/jpeg&quot;,&quot;href&quot;:null,&quot;belowTheFold&quot;:false}" alt="A sculpture of a cartoon character stuck in a pipe." title="A sculpture of a cartoon character stuck in a pipe." srcset="https://substackcdn.com/image/fetch/w_424,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 424w, https://substackcdn.com/image/fetch/w_848,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 848w, https://substackcdn.com/image/fetch/w_1272,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 1272w, https://substackcdn.com/image/fetch/w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F43e258db-6164-4e47-835f-d11f10847d9d_5616x3744.jpeg 1456w" sizes="100vw">
+                        </picture>
+                    </a>
+                </figure>
+            </div>
+            <p>
+                <span>By now I</span> <a href="https://twitter.com/cmuratori/status/1543874684868931584" rel="">should know better</a> <span>than to ask on Twitter for a “rigorous analysis” of anything. As George W. Bush said, “Fool me once, shame on you…</span> <a href="https://www.youtube.com/watch?v=ntwdH3Q54ZY" rel="">fool me can’t fooled again</a><span>.”</span>
+            </p>
+            <p> I don’t want to be “fool me can’t get fooled again”, so I officially give up on technical tweets. Today’s the last day I will ever post anything technical on Twitter, I promise. Instead, you will be forced to endure yet another Substack, so I can post 3,000-word posts that no one will read. </p>
+            <p> Here we go: </p>
+            <p> The goal with raw UDP is very simple: better performance and security on the server side. </p>
+            <p>
+                <span>HTTPS is an unbaked sausage made by grinding pure text HTTP with TLS and encasing the result in an arbitrary selection of third-party animal intestine… err, I mean, “highly secure” certificates provided by arbitrarily selected certificate providers. Implementing HTTPS is a massive amount of code that is inexorably slow. It is not only theoretically difficult to secure completely, but is</span> <a href="https://www.openssl.org/news/vulnerabilities.html" rel="">insecure in practice</a> <span>in popular implementations available to the public.</span>
+            </p>
+            <p>
+                <span>Oh, and the certificate authorities are also insecure, by the way - but that’s</span> <a href="https://en.wikipedia.org/wiki/DigiNotar" rel="">another story</a> <span>(and</span> <a href="https://decoded.avast.io/luigicamastra/backdoored-client-from-mongolian-ca-monpass/" rel="">another</a><span>, and</span> <a href="https://www.computerworld.com/article/2507090/firm-points-finger-at-iran-for-ssl-certificate-theft.html" rel="">another</a><span>, and</span> <a href="https://sslmate.com/resources/certificate_authority_failures" rel="">…</a><span>)</span>
+            </p>
+            <p> It also relied (up until recently) on TCP, which, unless you plan to write a completely custom network stack for every type of server/NIC you ever use, requires the underlying kernel to understand and track network connections. This means that you inherit substantial overhead, and perhaps vulnerabilities as well, from the TCP/IP substrate before you even begin to write your server code. </p>
+            <p> If you were a large company with significant academic and engineering resources, you might instead want to design your own private secure protocol that: </p>
+            <ol>
+                <li>
+                    <p> Uses encryption you control, so it cannot be bypassed by hacking the certificate authority, </p>
+                </li>
+                <li>
+                    <p> Uses UDP to avoid having OS connection state on the server side, and </p>
+                </li>
+                <li>
+                    <p> Uses a well-designed, known packet structure to improve throughput and reduce security vulnerabilities from HTTP/TLS parsing. </p>
+                </li>
+            </ol>
+            <p>
+                <span>The first thing on that list is half-possible now. Although there’s nothing you can (ever</span><a id="footnote-anchor-1" href="#footnote-1" rel="">1</a><span>) do to avoid man-in-the-middle attacks the very first time someone interacts with your server, web APIs have long made it possible to store data on the client for later use. One use for that data would be storing your own set of public keys.</span>
+            </p>
+            <p>
+                <span>So even using nothing newer than XHR and cookies, you could theoretically add your own layer of encryption to anything you send to the server. This would ensure that any subsequent hack of the certificate authority could not inspect or modify your packets. It’d be much less efficient than rolling your own top-to-bottom, because now you pay the entire cost for your encryption</span> <em>and</em> <span>TLS. But you</span> <em>can</em> <span>do it.</span>
+            </p>
+            <p>
+                <span>It’s slow, but possible. Call it</span> <em>half-possible</em><span>, like I did above.</span>
+            </p>
+            <p>
+                <span>The second thing on the list is sort-of possible now as well. If you can somehow manage to use</span> <a href="https://en.wikipedia.org/wiki/HTTP/3" rel="">HTTP/3</a> <span>exclusively as your target platform, you will still be talking HTTP but you’ll be doing it over UDP instead of TCP, and can manage connection state however you wish without OS intervention.</span>
+            </p>
+            <p>
+                <span>It is probably unrealistic to assume that you could do this in practice today. If you didn’t care about broad compatibility, you probably wouldn’t be deploying on the web anyway, so presumably the current adoption of HTTP/3 is insufficient. But at least it</span> <em>exists</em><span>, and perhaps if adoption continues to grow,</span> <em>eventually</em> <span>it will be possible to require HTTP/3 without losing a significant number of users. For now, it’s only something you can do on the side - you still have to have a traditional HTTPS fallback.</span>
+            </p>
+            <p>
+                <span>Which brings us to the third item on the list, and the real sticking point. As far as I’m aware, no current or planned future Web API ever lets you do number three. There are many new web “technologies” swarming around the custom packet idea (</span><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API" rel="">WebRTC</a><span>,</span> <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" rel="">WebSockets</a><span>,</span> <a href="https://github.com/w3c/webtransport" rel="">WebTransport</a><span>), but to the best of my knowledge, all of them require an HTTPS connection to be made first, so your “custom packet” servers still need to implement all of HTTPS anyway.</span>
+            </p>
+            <p> I can imagine someone raising the following objection at this point: “If you don’t support HTTPS on the server, how do you serve the WASM/JavaScript/whatever with the custom packet logic in the first place?” </p>
+            <p> That’s a reasonable question. </p>
+            <p> The answer is, the two most logical deployment scenarios I can think of both involve a separate server (or process) for the initial HTTPS transaction. </p>
+            <p> The first is what I imagine would be the most common: you upload to a CDN a traditional web package containing the PWA-style web worker necessary to do your own custom packet logic. The CDN serves this (static) content everywhere for you. They obviously implement HTTPS already, because that’s what they do for a living, and they’re not your servers anyway so you don’t care. </p>
+            <p>
+                <span>The second would be less common, but plausible: you run your own CDN-equivalent, because</span> <a href="https://knowyourmeme.com/memes/chuck-norris-facts" rel="">you’re just that hard core</a><span>. But you expect that your HTTPS code is more vulnerable than your custom code, since HTTPS is vastly more complicated and has ridiculous things in it like arbitrary text parsing, which no one in their right mind would ever put into a “secure” protocol. So you cabin your HTTPS server instances into their own restricted processes or own machines entirely. This prevents exploits of the HTTPS code from affecting anything other than newly connecting users - existing users (who are only talking to your custom servers) remain unharmed.</span>
+            </p>
+            <p> In neither scenario do you actually include HTTPS code in any of the processes running your actual secure server. </p>
+            <p> So that’s the hopefully-at-least-somewhat-convincing explanation of why someone might want raw UDP. Now the question is, can raw UDP be provided by a browser in a way that is “secure”? </p>
+            <p>
+                <span>I’m putting a lot of these words in scare quotes because browsers</span> <em>aren’t</em> <span>secure for any serious definition of that word, and hopefully that is overwhelmingly obvious to everyone who has ever used one. But just to be clear about the landscape, there are two different ways browsers are not secure:</span>
+            </p>
+            <ol>
+                <li>
+                    <p>
+                        <span>The web as a platform consists of massive, overlapping, poorly-specified APIs that require millions of lines of code to fully implement. As a result, browsers inexorably have</span> <a href="https://www.mozilla.org/en-US/security/known-vulnerabilities/firefox/" rel="">an effectively infinite number of security exploits</a> <span>waiting to be found.</span>
+                    </p>
+                </li>
+                <li>
+                    <p> Browsers include the ability, sans exploit, to transmit information from the client computer to any number of remote servers. Without the ability to control this behavior, the user’s data could be misappropriated. </p>
+                </li>
+            </ol>
+            <p> Clearly, for raw UDP, we only care about the second one of these. The first one happens in browsers all the time already and there’s no reason to suspect that raw UDP would somehow have more implementation code vulnerabilities on average than any other part of the sprawling browser substrate. </p>
+            <p>
+                <span>So the question is, assuming the browser</span> <em>has not</em> <span>been exploited, what is the security standard for web features, and can raw UDP be implemented under that standard or not?</span>
+            </p>
+            <p> As a point of comparison, I will use the example of the current camera/microphone/location policy as it presently exists. That will be our “gold standard”, since if it were not considered “secure” by web implementers, presumably it would not have been knowingly shipped in web browsers everywhere for the past several years. </p>
+            <p> As everyone who uses a web browser knows, a web site at present is allowed to ask you for permission, temporarily or permanently (your choice), to access your camera, microphone, and location data. Once you say “yes” to any one of these things, that site can transmit that data anywhere in the world, and use it for any purpose, trivially. </p>
+            <p> Allow me to provide a worked example. </p>
+            <p>
+                <span>Suppose I partner with Jeffrey Toobin to make a cybersex conduit site for people who, like him, see the value in quickly switching tabs away from your work meetings to get down to some</span> <em>real</em> <span>business. We launch cyberballsdeep.net, and it’s a big success.</span>
+            </p>
+            <p> When a user visits our site, they see at most two security-related things: </p>
+            <ol>
+                <li>
+                    <p> An allow/deny request for access to the microphone and camera, and </p>
+                </li>
+                <li>
+                    <p> A lock icon indicating that the connection has been signed by a third party warranting that this connection is end-to-end encrypted from the user’s machine to some server somewhere with the secure keys for cyberballsdeep.net. </p>
+                </li>
+            </ol>
+            <p> Assuming you click “allow” - which you have to in order to use the service - the servers at cyberballsdeep.net can now do anything they want with your (very sensitive) video data. They can, for example, record you while you are toobin’ and play it back at any time, anywhere, at their discretion. They could play it on a billboard in Times Square, they could send it to your spouse - anything goes. </p>
+            <p> So the “security standard” that you are getting, in practice, exactly mirrors the two things you saw: </p>
+            <ol>
+                <li>
+                    <p> You know your sensitive data will not be captured unless you click “allow”, and </p>
+                </li>
+                <li>
+                    <p> You know that nobody will be able to see your sensitive data unless either cyberballsdeep.net or the issuing certificate authority let them (either intentionally, or unintentionally if they’ve been hacked). </p>
+                </li>
+            </ol>
+            <p>
+                <span>That’s it. You don’t know anything else. In practice, you basically have no security guarantees other than a warrant that your sensitive data will go to a particular named party</span> <em>first</em> <span>before it goes somewhere else.</span>
+            </p>
+            <p>
+                <span>Hopefully we can all agree that this extremely low bar for security is the only hurdle one should have to clear in order to dismiss concerns of “security” as a reason not to implement a feature in a W3C spec. It’s not much, but it is</span> <em>something</em><span>.</span>
+            </p>
+            <p>
+                <span>OK, finally, with all that out of the way, this is what I actually wanted someone to point me to</span> <a href="https://twitter.com/cmuratori/status/1543874684868931584" rel="">when I asked about this on Twitter</a><span>. I just wanted to see that someone, somewhere, had worked out exactly why UDP could not be made to fit the same security model considered acceptable across other basic web features already deployed and considered “secure”.</span>
+            </p>
+            <p> Since nobody sent me such a thing, I am still stuck with my own security modeling, with nothing to compare against. My model goes something like this: </p>
+            <p> Step one - the “allow/deny” step - is easy for raw UDP to provide. The browser is still sitting between the JavaScript/WASM layer and the OS sockets layer, so it can ensure that inbound and outbound packets are filtered any way the browser wishes. </p>
+            <p> This means that it would be trivial for a browser to only allow UDP packets to and from servers that the user has authorized, as it does with microphone, camera, and location data. Any site that wishes to access raw UDP simply provides a hostname to the browser, and the browser asks the user whether they wish to allow the page to communicate with that site. </p>
+            <p> Furthermore, since the browser already allows the page to send as much HTTPS data as it wants back to the originating site, one could optionally allow any site to send UDP packets back to its own (exact) originating IP without asking the user. This is not necessary for raw UDP to work, but I can’t think of any violation of “step one” that would happen as a result, so it could be considered. </p>
+            <p>
+                <span>Note that this is</span> <em>not</em> <span>true for something like camera/microphone/location data. Those are additional data sources to which the page gets access, so if anything, raw UDP permission is</span> <em>less</em> <span>dangerous in terms of user permission, since at no time does the page itself get additional access to the user’s data, regardless of whether they allow UDP communication.</span>
+            </p>
+            <p> Which brings us to step two. </p>
+            <p> As far as I can tell, there’s actually nothing special about step two. The original web page was served by HTTPS, obviously, since that’s the only way the browser supports getting WASM/JavaScript downloaded in the first place. So the originating server and code are already exactly as “secure” as they would be in any other scenario. </p>
+            <p> The user had to affirmatively allow the destination name, so the page can only send UDP to a specifically approved endpoint. </p>
+            <p>
+                <span>So the only question is,</span> <em>can the user be sure that the data sent to that endpoint is encrypted such that only the endpoint or the certificate authority can decrypt it?</em>
+            </p>
+            <p>
+                <span>I can’t know the hivemind of a W3C committee (thank the heavens). But if I had to guess, I would suspect that this is why they didn’t want to allow raw UDP (or raw TCP for that matter). In their mind, it probably seems</span> <em>less secure</em> <span>than HTTPS to allow a web page to implement its own secure UDP protocol.</span>
+            </p>
+            <p>
+                <span>However, to my mind, this is based upon a flawed assumption. That assumption is that somehow web implementers</span> <em>can</em> <span>be trusted to deploy their encryption keys securely, but</span> <em>cannot</em> <span>be trusted to deploy their protocol securely.</span>
+            </p>
+            <p> To be more specific, HTTPS can be intercepted trivially if the attacker A) has a machine on the route between the endpoints and B) has access to the server’s keys, or any certificate authority’s signing capability. (A) either happens or it doesn’t - there’s no way to control it - so (B) is really the entire question. </p>
+            <p> So the notion that allowing web pages to use UDP for transmission is less secure than HTTPS seems to me to be predicated on the notion that web developers can be trusted to do something complicated in one place (run a set of servers without leaking keys), but also cannot be trusted to do something complicated in another (download, for example, a JavaScript UDP encryption library and use it). </p>
+            <p> Stated alternately, the hard constraint on the client side that you can’t roll your packet code “for security reasons” is nowhere to be found on the server side. There is no requirement anywhere in W3C or anywhere else that says your web server has to be… well… anything at all, really. You can just go ahead and write your own code from top to bottom. You can even have a dedicated web page on your site that has the entire cryptographic key set for the server posted on it for people to cut-and-paste, so everyone can impersonate your server to anyone, anywhere, at any time. You can leave a thumb drive with your keys at the bar. You can generate your keys with a random seed of 0x000000000000000000. Anything goes. </p>
+            <p>
+                <span>Nobody seems to be panicked about this. Nobody has pushed the policy that the W3C should standardize on a specific web server deployment that you are forced to use, or a set of n of them made by Google/Mozilla/Apple, or what have you. It is just assumed that everyone is allowed to write their own</span> <em>server</em> <span>packet handling, but that no one is allowed to write their own</span> <em>client</em> <span>packet handling.</span>
+            </p>
+            <p> So that’s what I would like explained. Internet, justify this! </p>
+            <p> I have seen people mention (but not support) a claim that raw UDP would cause “denial of service” problems because malicious web pages would send UDP packets to random servers in an attempt to overload them. This claim seems completely baseless to me, because there is no reason why you can’t employ the relevant XHR DDoS restrictions to UDP. If DDoS was the concern, just require that UDP packets be sent exclusively within the same domain as the originating code. </p>
+            <p>
+                <span>Furthermore, you could restrict the port ranges of raw web UDP to some assigned range. A new port range could be explicitly reserved</span> <em>just for raw web UDP</em> <span>if that makes people more comfortable, so it could literally be discarded at the gateway on any network that doesn’t want to support raw UDP for web, making it easier to deal with than UDP attacks from native code and viruses which can choose their ports at will.</span>
+            </p>
+            <p>
+                <span>At that point, I fail to see how raw UDP from the browser could be significantly more dangerous than XHR, unless I am missing some particularly clever use of UDP. And again,</span> <em>that’s why I asked for writeups in my original tweet</em><span>. I’m totally willing to believe I’m missing something, but I want to see a complete technical explanation about what it is.</span>
+            </p>
+            <p>
+                <span>Now, none of this is the same as saying I can’t see how you would perform DDoS attacks with raw UDP. I certainly can. I just can’t see how you would perform them</span> <em>more easily than with XHR,</em> <span>which obviously is considered “secure”</span><em>.</em>
+            </p>
+            <p> As a simple example, suppose a commercial CDN distributes the payload of ddosfuntimes.com. On the main page, there’s an XHR to target.ddosfuntimes.com. Even though the CDN is a completely different set of IP addresses as target.ddosfuntimes.com, this is completely legal under XHR policy. </p>
+            <p> The owners of ddosfuntimes.com can go ahead and set the IP address in their DNS records to point target.ddosfuntimes.com at any server they want, and they will receive all the XHR traffic from every browser that visits the page. And to the best of my knowledge, there isn’t a damn thing the target can do about that. </p>
+            <p> So unless I’m missing something, XHR already allows you to target any website you wish with unwanted traffic from anyone who visits your site. So why the concern about UDP? </p>
+            <div id="footnote-1">
+                <p><a href="#footnote-anchor-1" contenteditable="false" rel="">1</a></p>
+                <div>
+                    <p>
+                        <span>This is way off topic, but in case it struck people as odd: all secure systems have a root trust problem. At some point you have to get</span> <em>something</em> <span>from</span> <em>somebody</em> <span>that you will just blindly trust. This is the root of the chain of trust, and unfortunately, there’s really nothing you can do to make it secure. You just have to hope that this initial exchange is trusted.</span>
+                    </p>
+                    <p> So in the case of web browsers, you have to keep in mind that HTTPS doesn’t actually guarantee you anything beyond a chain of trust. You are implicitly trusting that a) nobody messed with the browser when you downloaded it, b) none of the certificate authorities trusted by that browser download have been compromised, c) the certificate for signing browser root certificate updates hasn’t itself been compromised. </p>
+                    <p> Etc., etc. </p>
+                    <p>
+                        <span>So in general, when we talk about adding security to a protocol, we can only talk about securing it</span> <em>up to a point</em><span>. No matter what we do, there will never be a way for it to be</span> <em>completely</em> <span>secure, because the chain of trust is not infinite, and any of its endpoints (in this case, the browser itself or any certificate authority) can lie to you for as long as it takes for a security firm to catch them doing it.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </article>
+</DIV>

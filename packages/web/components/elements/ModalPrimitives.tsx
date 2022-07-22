@@ -34,6 +34,7 @@ const Modal = styled(Content, {
   boxShadow: theme.shadows.cardBoxShadow.toString(),
   position: 'fixed',
   '&:focus': { outline: 'none' },
+  zIndex:'1',
 })
 
 export const ModalContent = styled(Modal, {
@@ -97,7 +98,6 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
       }}
     >
       <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
-        console.log('cancelinmg')
           event.preventDefault()
           props.onOpenChange(false)
         }}
