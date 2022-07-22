@@ -93,8 +93,9 @@ describe('create user', () => {
         fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
       })
 
-      after(() => {
+      after(async () => {
         sinon.restore()
+        await deleteTestUser(name)
       })
 
       it('rejects with error', async () => {
