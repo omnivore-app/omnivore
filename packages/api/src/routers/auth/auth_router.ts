@@ -33,7 +33,6 @@ import { corsConfig } from '../../utils/corsConfig'
 import cors from 'cors'
 
 import {
-  MembershipTier,
   RegistrationType,
   StatusType,
   UserData,
@@ -297,7 +296,7 @@ export function authRouter() {
 
     res.setHeader('set-cookie', result.headers['set-cookie'])
 
-    handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
+    await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
   })
 
   async function handleSuccessfulLogin(
@@ -331,10 +330,6 @@ export function authRouter() {
           return res.redirect(
             `${env.client.url}/settings/installation/extensions`
           )
-        }
-
-        if (user.membership === MembershipTier.WaitList) {
-          return res.redirect(`${env.client.url}/waitlist`)
         }
 
         return res.redirect(

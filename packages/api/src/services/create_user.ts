@@ -1,5 +1,5 @@
 import { AuthProvider } from '../routers/auth/auth_types'
-import { MembershipTier, StatusType } from '../datalayer/user/model'
+import { StatusType } from '../datalayer/user/model'
 import { EntityManager } from 'typeorm'
 import { User } from '../entity/user'
 import { Profile } from '../entity/profile'
@@ -22,7 +22,6 @@ export const createUser = async (input: {
   pictureUrl?: string
   bio?: string
   groups?: [string]
-  membershipTier?: MembershipTier
   inviteCode?: string
   password?: string
   pendingConfirmation?: boolean
@@ -65,9 +64,6 @@ export const createUser = async (input: {
       }
       const user = await t.getRepository(User).save({
         source: input.provider,
-        membership:
-          input.membershipTier ||
-          (hasInvite ? MembershipTier.Beta : MembershipTier.WaitList),
         name: input.name,
         email: input.email,
         sourceUserId: input.sourceUserId,

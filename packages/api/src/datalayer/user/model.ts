@@ -12,7 +12,6 @@ import { exclude, Partialize, PickTuple } from '../../util'
 //  source_user_id | text                     |           | not null |
 //  created_at     | timestamp with time zone |           | not null | CURRENT_TIMESTAMP
 //  updated_at     | timestamp with time zone |           | not null | CURRENT_TIMESTAMP
-//  membership     | omnivore.membership_tier |           | not null | 'WAIT_LIST'::omnivore.membership_tier
 
 //                         Table "omnivore.user_profile"
 //   Column    |           Type           | Collation | Nullable |       Default
@@ -30,7 +29,6 @@ export interface UserData {
   id: string
   name: string
   source: string
-  membership: string
   email?: string | null
   phone?: string | null
   sourceUserId: string
@@ -45,11 +43,6 @@ export interface UserData {
   }
   password?: string | null
   status?: StatusType
-}
-
-export enum MembershipTier {
-  WaitList = 'WAIT_LIST',
-  Beta = 'BETA',
 }
 
 export enum RegistrationType {
@@ -67,7 +60,6 @@ export const keys = [
   'id',
   'name',
   'source',
-  'membership',
   'email',
   'phone',
   'sourceUserId',
