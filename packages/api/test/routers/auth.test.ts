@@ -169,9 +169,9 @@ describe('auth router', () => {
         password = correctPassword
       })
 
-      it('redirects to waitlist page', async () => {
+      it('redirects to home page', async () => {
         const res = await loginRequest(email, password).expect(302)
-        expect(res.header.location).to.endWith('/waitlist')
+        expect(res.header.location).to.endWith('/home')
       })
 
       it('set auth token in cookie', async () => {

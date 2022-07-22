@@ -7,11 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import {
-  MembershipTier,
-  RegistrationType,
-  StatusType,
-} from '../datalayer/user/model'
+import { RegistrationType, StatusType } from '../datalayer/user/model'
 import { NewsletterEmail } from './newsletter_email'
 import { Profile } from './profile'
 import { Label } from './label'
@@ -33,9 +29,6 @@ export class User {
 
   @Column('text')
   sourceUserId!: string
-
-  @Column({ type: 'enum', enum: MembershipTier })
-  membership!: string
 
   @CreateDateColumn()
   createdAt!: Date
