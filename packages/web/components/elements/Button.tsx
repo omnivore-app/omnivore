@@ -217,3 +217,22 @@ export const Button = styled('button', {
     style: 'ctaWhite',
   },
 })
+
+export const IconButton = styled(Button, {
+  variants: {
+    style: {
+      ctaWhite: {
+        color: 'red',
+        padding: '10px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        border: '1px solid $grayBorder',
+        boxSizing: 'border-box',
+        borderRadius: 6,
+        width: 40,
+        height: 40,
+      },
+    },
+  },
+})

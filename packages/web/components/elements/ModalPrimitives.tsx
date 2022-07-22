@@ -34,6 +34,7 @@ const Modal = styled(Content, {
   boxShadow: theme.shadows.cardBoxShadow.toString(),
   position: 'fixed',
   '&:focus': { outline: 'none' },
+  zIndex:'1',
 })
 
 export const ModalContent = styled(Modal, {

@@ -52,6 +52,7 @@ export function EmailLogin(): JSX.Element {
             <BorderedFormInput
               key="email"
               type="text"
+              name="email"
               value={email}
               placeholder="Email"
               onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
@@ -63,6 +64,7 @@ export function EmailLogin(): JSX.Element {
             <BorderedFormInput
               key="password"
               type="password"
+              name="password"
               value={password}
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
