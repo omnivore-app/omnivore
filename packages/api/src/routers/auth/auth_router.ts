@@ -509,7 +509,7 @@ export function authRouter() {
           )
         }
 
-        res.set('Message', 'CONFIRMATION_SUCCESS')
+        res.set('Message', 'EMAIL_CONFIRMED')
         await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
@@ -582,11 +582,6 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { token, password } = req.body
-      if (!token || !password) {
-        return res.redirect(
-          `${env.client.url}/reset-password?errorCodes=INVALID_CREDENTIALS`
-        )
-      }
 
       try {
         // verify token
@@ -594,6 +589,12 @@ export function authRouter() {
         if (!claims) {
           return res.redirect(
             `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+          )
+        }
+
+        if (!password) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=INVALID_PASSWORD`
           )
         }
 
@@ -611,14 +612,17 @@ export function authRouter() {
         }
 
         const hashedPassword = await hashPassword(password)
-        await getRepository(User).update(
+        const updated = await getRepository(User).update(
           { id: user.id },
           { password: hashedPassword }
         )
+        if (!updated.affected) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=UNKNOWN`
+          )
+        }
 
-        res.set('Message', 'PASSWORD_RESET_SUCCESS')
-        await setAuthInCookie({ uid: user.id }, res)
-        await handleSuccessfulLogin(req, res, user, false)
+        res.redirect(`${env.client.url}/reset-password?message=SUCCESS`)
       } catch (e) {
         logger.info('reset-password exception:', e)
         if (e instanceof jwt.TokenExpiredError) {

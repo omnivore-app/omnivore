@@ -8,7 +8,11 @@ import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
 import supertest from 'supertest'
-import { generateVerificationToken, hashPassword } from '../../src/utils/auth'
+import {
+  comparePassword,
+  generateVerificationToken,
+  hashPassword,
+} from '../../src/utils/auth'
 
 describe('auth router', () => {
   const route = '/api/auth'
@@ -284,9 +288,15 @@ describe('auth router', () => {
         token = generateVerificationToken(user.id)
       })
 
-      it('logs in and redirects to home page', async () => {
+      it('set auth token in cookie', async () => {
         const res = await confirmEmailRequest(token).expect(302)
-        expect(res.header.location).to.endWith('/home')
+        expect(res.header['set-cookie']).to.be.an('array')
+        expect(res.header['set-cookie'][0]).to.contain('auth')
+      })
+
+      it('redirects to home page', async () => {
+        const res = await confirmEmailRequest(token).expect(302)
+        expect(res.header.location).to.endWith('/home?message=EMAIL_CONFIRMED')
       })
 
       it('sets user as active', async () => {
@@ -449,6 +459,92 @@ describe('auth router', () => {
         expect(res.header.location).to.endWith(
           '/forgot-password?errorCodes=INVALID_EMAIL'
         )
+      })
+    })
+  })
+
+  describe('reset-password', () => {
+    const resetPasswordRequest = (
+      token: string,
+      password: string
+    ): supertest.Test => {
+      return request.post(`${route}/reset-password`).send({
+        token,
+        password,
+      })
+    }
+
+    let user: User
+    let token: string
+
+    before(async () => {
+      user = await createTestUser('test_user', undefined, 'test_password')
+    })
+
+    after(async () => {
+      await deleteTestUser(user.name)
+    })
+
+    context('when token is valid', () => {
+      before(async () => {
+        token = generateVerificationToken(user.id)
+      })
+
+      context('when password is not empty', () => {
+        it('redirects to reset-password page with success message', async () => {
+          const res = await resetPasswordRequest(token, 'new_password').expect(
+            302
+          )
+          expect(res.header.location).to.endWith(
+            '/reset-password?message=SUCCESS'
+          )
+        })
+
+        it('resets password', async () => {
+          const password = 'test_reset_password'
+          await resetPasswordRequest(token, password).expect(302)
+          const updatedUser = await getRepository(User).findOneBy({
+            id: user?.id,
+          })
+          expect(await comparePassword(password, updatedUser?.password!)).to.be
+            .true
+        })
+      })
+
+      context('when password is empty', () => {
+        it('redirects to reset-password page with error code INVALID_PASSWORD', async () => {
+          const res = await resetPasswordRequest(token, '').expect(302)
+          expect(res.header.location).to.endWith(
+            '/reset-password?errorCodes=INVALID_PASSWORD'
+          )
+        })
+      })
+    })
+
+    context('when token is invalid', () => {
+      it('redirects to reset-password page with error code InvalidToken', async () => {
+        const res = await resetPasswordRequest(
+          'invalid_token',
+          'new_password'
+        ).expect(302)
+        expect(res.header.location).to.endWith(
+          '/reset-password?errorCodes=INVALID_TOKEN'
+        )
+      })
+
+      context('when token is expired', () => {
+        before(() => {
+          token = generateVerificationToken(user.id, -1)
+        })
+
+        it('redirects to reset-password page with error code ExpiredToken', async () => {
+          const res = await resetPasswordRequest(token, 'new_password').expect(
+            302
+          )
+          expect(res.header.location).to.endWith(
+            '/reset-password?errorCodes=TOKEN_EXPIRED'
+          )
+        })
       })
     })
   })
