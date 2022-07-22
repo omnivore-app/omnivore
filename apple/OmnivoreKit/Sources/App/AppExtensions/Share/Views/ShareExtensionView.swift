@@ -194,7 +194,7 @@ struct ApplyLabelsListView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = LabelsViewModel()
 
-  let linkedItem: LinkedItem
+  let linkedItem: LinkedItem?
 
   func isSelected(_ label: LinkedItemLabel) -> Bool {
     viewModel.selectedLabels.contains(where: { $0.id == label.id })
@@ -223,7 +223,9 @@ struct ApplyLabelsListView: View {
               } else {
                 viewModel.selectedLabels.append(label)
               }
-              viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
+              if let linkedItem = linkedItem {
+                viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
+              }
             },
             label: {
               HStack {
@@ -259,7 +261,7 @@ struct ApplyLabelsListView: View {
     .listStyle(PlainListStyle())
     .padding(.vertical, 0)
     .task {
-      await viewModel.loadLabels(dataService: dataService, item: linkedItem)
+      await viewModel.loadLabelsFromStore(dataService: dataService)
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel)
