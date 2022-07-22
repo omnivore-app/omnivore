@@ -14,6 +14,7 @@ import {
   KBarPositioner,
   KBarAnimator,
   KBarSearch,
+  Priority,
 } from 'kbar'
 import { animatorStyle, KBarResultsComponents, searchStyle } from '../components/elements/KBar'
 import { darkenTheme, lightenTheme } from '../lib/themeUpdater'
@@ -43,6 +44,7 @@ const generateActions = (router: NextRouter) => {
       name: 'Change theme (light) ',
       shortcut: ['v', 'l'],
       keywords: 'light theme',
+      priority: Priority.LOW,
       perform: () => lightenTheme(),
     },
     {
@@ -51,6 +53,7 @@ const generateActions = (router: NextRouter) => {
       name: 'Change theme (dark) ',
       shortcut: ['v', 'd'],
       keywords: 'dark theme',
+      priority: Priority.LOW,
       perform: () => darkenTheme(),
     },
   ]
