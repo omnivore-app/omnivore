@@ -1,11 +1,15 @@
 import * as bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
-import { Claims } from '../resolvers/types'
+import { Claims, ClaimsToSet } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { ApiKey } from '../entity/api_key'
 import crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
 import { env } from '../env'
+import express from 'express'
+import { promisify } from 'util'
+
+const signToken = promisify(jwt.sign)
 
 export const hashPassword = async (password: string, salt = 10) => {
   return bcrypt.hash(password, salt)
@@ -93,4 +97,18 @@ export const generateVerificationToken = (
   )
 
   return jwt.sign({ uid: userId, iat, exp }, env.server.jwtSecret)
+}
+
+export const setAuthInCookie = async (
+  claims: ClaimsToSet,
+  res: express.Response,
+  secret: string = env.server.jwtSecret
+) => {
+  // set auth cookie in response header
+  const token = await signToken(claims, secret)
+
+  res.cookie('auth', token, {
+    httpOnly: true,
+    expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
+  })
 }
