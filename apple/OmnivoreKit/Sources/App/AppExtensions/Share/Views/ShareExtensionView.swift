@@ -204,13 +204,42 @@ struct ApplyLabelsListView: View {
     List {
       Section(
         content: {
-          SearchBar(searchTerm: $viewModel.labelSearchFilter, horizontalPadding: 0)
-          #if os(iOS)
-            .listRowSeparator(.hidden)
-          #endif
+          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+            Button(
+              action: {
+                if isSelected(label) {
+                  viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
+                } else {
+                  viewModel.selectedLabels.append(label)
+                }
+                if let linkedItem = linkedItem {
+                  viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
+                }
+              },
+              label: {
+                HStack {
+                  TextChip(feedItemLabel: label)
+                  Spacer()
+                  if isSelected(label) {
+                    Image(systemName: "checkmark.circle.fill")
+                      .foregroundColor(.checkmarkBlue)
+                  } else {
+                    Image(systemName: "circle")
+                      .foregroundColor(.appGraySolid)
+                  }
+                }
+                .contentShape(Rectangle())
+              }
+            )
+            #if os(iOS)
+              .listRowSeparator(.hidden)
+            #endif
+            .buttonStyle(PlainButtonStyle())
+          }
+
         },
         header: {
-          Text("Apply Labels")
+          Text("Labels")
             .font(.appFootnote)
             .foregroundColor(.appGrayText)
         }
@@ -218,40 +247,6 @@ struct ApplyLabelsListView: View {
       #if os(iOS)
         .listRowSeparator(.hidden)
       #endif
-      Section {
-        ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-          Button(
-            action: {
-              if isSelected(label) {
-                viewModel.selectedLabels.removeAll(where: { $0.id == label.id })
-              } else {
-                viewModel.selectedLabels.append(label)
-              }
-              if let linkedItem = linkedItem {
-                viewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: dataService)
-              }
-            },
-            label: {
-              HStack {
-                TextChip(feedItemLabel: label)
-                Spacer()
-                if isSelected(label) {
-                  Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.checkmarkBlue)
-                } else {
-                  Image(systemName: "circle")
-                    .foregroundColor(.appGraySolid)
-                }
-              }
-              .contentShape(Rectangle())
-            }
-          )
-          #if os(iOS)
-            .listRowSeparator(.hidden)
-          #endif
-          .buttonStyle(PlainButtonStyle())
-        }
-      }
       Button(
         action: { viewModel.showCreateLabelModal = true },
         label: {
