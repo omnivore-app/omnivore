@@ -41,16 +41,17 @@ import {
   comparePassword,
   getClaimsByToken,
   hashPassword,
+  setAuthInCookie,
 } from '../../utils/auth'
-import {
-  createUser,
-  sendConfirmationEmail,
-  sendPasswordResetEmail,
-} from '../../services/create_user'
+import { createUser } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
 import { initModels } from '../../server'
 import { getRepository } from '../../entity/utils'
 import { User } from '../../entity/user'
+import {
+  sendConfirmationEmail,
+  sendPasswordResetEmail,
+} from '../../services/send_emails'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -325,6 +326,13 @@ export function authRouter() {
           }
         }
 
+        const message = res.get('Message')
+        if (message) {
+          return res.redirect(
+            `${env.client.url}/home?message=${encodeURIComponent(message)}`
+          )
+        }
+
         if (newUser) {
           if (redirectUri && redirectUri !== '/') {
             return res.redirect(
@@ -411,13 +419,7 @@ export function authRouter() {
         }
 
         // set auth cookie in response header
-        const token = await signToken({ uid: user.id }, env.server.jwtSecret)
-
-        res.cookie('auth', token, {
-          httpOnly: true,
-          expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
-        })
-
+        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
@@ -507,6 +509,8 @@ export function authRouter() {
           )
         }
 
+        res.set('Message', 'CONFIRMATION_SUCCESS')
+        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('confirm-email exception:', e)
@@ -522,18 +526,18 @@ export function authRouter() {
   )
 
   router.options(
-    '/email-reset-password',
+    '/forgot-password',
     cors<express.Request>({ ...corsConfig, maxAge: 600 })
   )
 
   router.post(
-    '/email-reset-password',
+    '/forgot-password',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const email = req.body.email
       if (!email) {
         return res.redirect(
-          `${env.client.url}/email-reset-password?errorCodes=INVALID_EMAIL`
+          `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
         )
       }
 
@@ -543,7 +547,7 @@ export function authRouter() {
         })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/email-reset-password?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/forgot-password?errorCodes=USER_NOT_FOUND`
           )
         }
 
@@ -555,16 +559,76 @@ export function authRouter() {
 
         if (!(await sendPasswordResetEmail(user))) {
           return res.redirect(
-            `${env.client.url}/email-reset-password?errorCodes=INVALID_EMAIL`
+            `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
           )
         }
 
-        res.redirect(`${env.client.url}/email-reset-password?message=SUCCESS`)
+        res.redirect(`${env.client.url}/forgot-password?message=SUCCESS`)
       } catch (e) {
-        logger.info('email-reset-password exception:', e)
+        logger.info('forgot-password exception:', e)
+
+        res.redirect(`${env.client.url}/forgot-password?errorCodes=UNKNOWN`)
+      }
+    }
+  )
+
+  router.options(
+    '/reset-password',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/reset-password',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const { token, password } = req.body
+      if (!token || !password) {
+        return res.redirect(
+          `${env.client.url}/reset-password?errorCodes=INVALID_CREDENTIALS`
+        )
+      }
+
+      try {
+        // verify token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+          )
+        }
+
+        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+          )
+        }
+
+        const hashedPassword = await hashPassword(password)
+        await getRepository(User).update(
+          { id: user.id },
+          { password: hashedPassword }
+        )
+
+        res.set('Message', 'PASSWORD_RESET_SUCCESS')
+        await setAuthInCookie({ uid: user.id }, res)
+        await handleSuccessfulLogin(req, res, user, false)
+      } catch (e) {
+        logger.info('reset-password exception:', e)
+        if (e instanceof jwt.TokenExpiredError) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=TOKEN_EXPIRED`
+          )
+        }
 
         res.redirect(
-          `${env.client.url}/email-reset-password?errorCodes=UNKNOWN`
+          `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
         )
       }
     }

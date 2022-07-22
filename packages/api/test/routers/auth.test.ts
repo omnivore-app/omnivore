@@ -335,9 +335,9 @@ describe('auth router', () => {
     })
   })
 
-  describe('email-reset-password', () => {
+  describe('forgot-password', () => {
     const emailResetPasswordReq = (email: string): supertest.Test => {
-      return request.post(`${route}/email-reset-password`).send({
+      return request.post(`${route}/forgot-password`).send({
         email,
       })
     }
@@ -379,10 +379,10 @@ describe('auth router', () => {
               sinon.restore()
             })
 
-            it('redirects to email-reset-password page with success message', async () => {
+            it('redirects to forgot-password page with success message', async () => {
               const res = await emailResetPasswordReq(email).expect(302)
               expect(res.header.location).to.endWith(
-                '/email-reset-password?message=SUCCESS'
+                '/forgot-password?message=SUCCESS'
               )
             })
           })
@@ -403,7 +403,7 @@ describe('auth router', () => {
             it('redirects to sign up page with error code INVALID_EMAIL', async () => {
               const res = await emailResetPasswordReq(email).expect(302)
               expect(res.header.location).to.endWith(
-                '/email-reset-password?errorCodes=INVALID_EMAIL'
+                '/forgot-password?errorCodes=INVALID_EMAIL'
               )
             })
           })
@@ -430,10 +430,10 @@ describe('auth router', () => {
           email = 'non_exists_email@domain.app'
         })
 
-        it('redirects to email-reset-password page with error code USER_NOT_FOUND', async () => {
+        it('redirects to forgot-password page with error code USER_NOT_FOUND', async () => {
           const res = await emailResetPasswordReq(email).expect(302)
           expect(res.header.location).to.endWith(
-            '/email-reset-password?errorCodes=USER_NOT_FOUND'
+            '/forgot-password?errorCodes=USER_NOT_FOUND'
           )
         })
       })
@@ -444,10 +444,10 @@ describe('auth router', () => {
         email = ''
       })
 
-      it('redirects to email-reset-password page with error code INVALID_EMAIL', async () => {
+      it('redirects to forgot-password page with error code INVALID_EMAIL', async () => {
         const res = await emailResetPasswordReq(email).expect(302)
         expect(res.header.location).to.endWith(
-          '/email-reset-password?errorCodes=INVALID_EMAIL'
+          '/forgot-password?errorCodes=INVALID_EMAIL'
         )
       })
     })
