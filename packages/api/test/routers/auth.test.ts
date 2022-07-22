@@ -186,14 +186,15 @@ describe('auth router', () => {
     })
 
     context('when user is not confirmed', async () => {
-      const pendingUser = await createTestUser(
-        'pending_user',
-        undefined,
-        correctPassword,
-        true
-      )
+      let pendingUser: User
 
       before(async () => {
+        pendingUser = await createTestUser(
+          'pending_user',
+          undefined,
+          correctPassword,
+          true
+        )
         email = pendingUser.email
         password = correctPassword
       })
@@ -231,9 +232,10 @@ describe('auth router', () => {
     })
 
     context('when user has no password stored in db', async () => {
-      const socialAccountUser = await createTestUser('social_account_user')
+      let socialAccountUser: User
 
-      before(() => {
+      before(async () => {
+        socialAccountUser = await createTestUser('social_account_user')
         email = socialAccountUser.email
         password = 'Some password'
       })
