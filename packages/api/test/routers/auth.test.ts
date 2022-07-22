@@ -186,7 +186,10 @@ describe('auth router', () => {
     })
 
     context('when user is not confirmed', async () => {
-      before(async () => {
+      let fake: (msg: MailDataRequired) => Promise<boolean>
+
+      beforeEach(async () => {
+        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
         await getRepository(User).update(user.id, {
           status: StatusType.Pending,
         })
@@ -194,10 +197,11 @@ describe('auth router', () => {
         password = correctPassword
       })
 
-      after(async () => {
+      afterEach(async () => {
         await getRepository(User).update(user.id, {
           status: StatusType.Active,
         })
+        sinon.restore()
       })
 
       it('redirects with error code PendingVerification', async () => {
@@ -208,9 +212,7 @@ describe('auth router', () => {
       })
 
       it('sends a verification email', async () => {
-        const fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
         await loginRequest(email, password).expect(302)
-        sinon.restore()
         expect(fake).to.have.been.calledOnce
       })
     })
