@@ -139,7 +139,7 @@ struct WebReader: PlatformViewRepresentable {
     let htmlString = WebReaderContent(
       item: item,
       articleContent: articleContent,
-      isDark: isDarkMode,
+      isDark: Color.isDarkMode,
       fontSize: fontSize(),
       lineHeight: lineHeight(),
       maxWidthPercentage: maxWidthPercentage(),
@@ -149,14 +149,6 @@ struct WebReader: PlatformViewRepresentable {
     .styledContent
 
     webView.loadHTMLString(htmlString, baseURL: ViewsPackage.resourceURL)
-  }
-
-  var isDarkMode: Bool {
-    #if os(iOS)
-      UITraitCollection.current.userInterfaceStyle == .dark
-    #else
-      NSApp.effectiveAppearance.name == NSAppearance.Name.darkAqua
-    #endif
   }
 }
 

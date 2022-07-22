@@ -19,7 +19,7 @@ import WebKit
       webView.isOpaque = false
       webView.backgroundColor = UIColor.clear
       if let url = request.url {
-        let themeID = UITraitCollection.current.userInterfaceStyle == .dark ? "Gray" : "LightGray"
+        let themeID = Color.isDarkMode ? "Gray" : "LightGray"
         webView.injectCookie(cookieString: "theme=\(themeID); Max-Age=31536000;", url: url)
       }
       return webView
