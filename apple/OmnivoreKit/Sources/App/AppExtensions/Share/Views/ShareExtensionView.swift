@@ -205,7 +205,9 @@ struct ApplyLabelsListView: View {
       Section(
         content: {
           SearchBar(searchTerm: $viewModel.labelSearchFilter, horizontalPadding: 0)
+          #if os(iOS)
             .listRowSeparator(.hidden)
+          #endif
         },
         header: {
           Text("Apply Labels")
@@ -213,7 +215,9 @@ struct ApplyLabelsListView: View {
             .foregroundColor(.appGrayText)
         }
       )
-      .listRowSeparator(.hidden)
+      #if os(iOS)
+        .listRowSeparator(.hidden)
+      #endif
       Section {
         ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
           Button(
@@ -242,7 +246,9 @@ struct ApplyLabelsListView: View {
               .contentShape(Rectangle())
             }
           )
-          .listRowSeparator(.hidden)
+          #if os(iOS)
+            .listRowSeparator(.hidden)
+          #endif
           .buttonStyle(PlainButtonStyle())
         }
       }

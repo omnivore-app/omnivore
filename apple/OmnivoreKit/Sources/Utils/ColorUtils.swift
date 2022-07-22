@@ -99,32 +99,60 @@ public extension Color {
   }
 
   static func lighten(color: Color, by percentage: CGFloat) -> Color {
-    if let lightenedUIColor = UIColor(color).adjust(by: abs(percentage)) {
-      return Color(lightenedUIColor)
+    #if os(iOS)
+      let lightenedColor = UIColor(color).adjust(by: abs(percentage))
+    #else
+      let lightenedColor = NSColor(color).adjust(by: abs(percentage))
+    #endif
+    if let lightenedColor = lightenedColor {
+      return Color(lightenedColor)
     } else {
       return color
     }
   }
 }
 
-extension UIColor {
-  func lighter(by percentage: CGFloat = 30.0) -> UIColor? {
-    adjust(by: abs(percentage))
-  }
+#if os(iOS)
+  extension UIColor {
+    func lighter(by percentage: CGFloat = 30.0) -> UIColor? {
+      adjust(by: abs(percentage))
+    }
 
-  func darker(by percentage: CGFloat = 30.0) -> UIColor? {
-    adjust(by: -1 * abs(percentage))
-  }
+    func darker(by percentage: CGFloat = 30.0) -> UIColor? {
+      adjust(by: -1 * abs(percentage))
+    }
 
-  func adjust(by percentage: CGFloat = 30.0) -> UIColor? {
-    var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
-    if getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
-      return UIColor(red: min(red + percentage / 100, 1.0),
+    func adjust(by percentage: CGFloat = 30.0) -> UIColor? {
+      var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+      if getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+        return UIColor(red: min(red + percentage / 100, 1.0),
+                       green: min(green + percentage / 100, 1.0),
+                       blue: min(blue + percentage / 100, 1.0),
+                       alpha: alpha)
+      } else {
+        return nil
+      }
+    }
+  }
+#endif
+
+#if os(macOS)
+  extension NSColor {
+    func lighter(by percentage: CGFloat = 30.0) -> NSColor? {
+      adjust(by: abs(percentage))
+    }
+
+    func darker(by percentage: CGFloat = 30.0) -> NSColor? {
+      adjust(by: -1 * abs(percentage))
+    }
+
+    func adjust(by percentage: CGFloat = 30.0) -> NSColor? {
+      var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+      getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+      return NSColor(red: min(red + percentage / 100, 1.0),
                      green: min(green + percentage / 100, 1.0),
                      blue: min(blue + percentage / 100, 1.0),
                      alpha: alpha)
-    } else {
-      return nil
     }
   }
-}
+#endif
