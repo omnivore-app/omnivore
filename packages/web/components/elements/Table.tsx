@@ -1,14 +1,19 @@
 import { isDarkTheme } from '../../lib/themeUpdater'
 import {
-  Table as ResponsiveTable, Thead, Tbody, Tr, Th, Td,
+  Table as ResponsiveTable,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
 } from 'react-super-responsive-table'
+import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
 import { PencilSimple, Plus, Trash } from 'phosphor-react'
 import { Box, SpanBox, VStack } from './LayoutPrimitives'
 import { styled } from '../tokens/stitches.config'
 import { StyledText } from './StyledText'
 import { InfoLink } from './InfoLink'
 import { Button } from './Button'
-import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
 import { IconButton } from './Button'
 
 interface TableProps {
@@ -42,6 +47,11 @@ const StyledTable = styled(ResponsiveTable, {
 })
 const TableBody = styled(Tbody, {
   backgroundColor: '$grayBg',
+})
+
+const TableRow = styled(Tr, {
+  border: '0 !important',
+  borderTop: '0.5px solid $grayBgActive !important',
 })
 
 export function Table(props: TableProps): JSX.Element {
@@ -128,7 +138,7 @@ export function Table(props: TableProps): JSX.Element {
 
         <TableBody>
           {Array.from(props.rows.keys()).map((key, index) => (
-            <Tr key={index}>
+            <TableRow key={index}>
               {Object.values(props.rows.get(key) || {}).map((cell, index) => (
                 <Td key={index}>
                   <SpanBox
@@ -181,7 +191,7 @@ export function Table(props: TableProps): JSX.Element {
                   </IconButton>
                 </Td>
               )}
-            </Tr>
+            </TableRow>
           ))}
         </TableBody>
       </StyledTable>
