@@ -1,11 +1,10 @@
 import { JsonResponsePayload, UserProfile } from '../auth_types'
 import {
-  decodePendingUserToken,
   createMobileAuthPayload,
+  decodePendingUserToken,
 } from './../jwt_helpers'
 import { createUser } from '../../../services/create_user'
 import { SignupErrorCode } from '../../../generated/graphql'
-import { MembershipTier } from '../../../datalayer/user/model'
 
 export async function createMobileAccountCreationResponse(
   pendingUserToken?: string,
@@ -34,7 +33,6 @@ export async function createMobileAccountCreationResponse(
       username: userProfile.username,
       pictureUrl: undefined,
       bio: userProfile.bio || undefined,
-      membershipTier: MembershipTier.Beta,
     })
 
     const mobileAuthPayload = await createMobileAuthPayload(user.id)

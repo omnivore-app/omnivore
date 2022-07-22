@@ -89,7 +89,7 @@ export function emailsServiceRouter() {
 
       // forward non-newsletter emails to the registered email address
       const result = await sendEmail({
-        from: 'msgs@omnivore.app',
+        from: env.sender.message,
         to: newsletterEmail.user.email,
         subject: `Fwd: ${data.subject}`,
         html: data.html,

@@ -1,5 +1,5 @@
 import { AuthProvider } from '../routers/auth/auth_types'
-import { MembershipTier } from '../datalayer/user/model'
+import { StatusType } from '../datalayer/user/model'
 import { EntityManager } from 'typeorm'
 import { User } from '../entity/user'
 import { Profile } from '../entity/profile'
@@ -9,6 +9,7 @@ import { Invite } from '../entity/groups/invite'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { AppDataSource } from '../server'
 import { getRepository } from '../entity/utils'
+import { sendConfirmationEmail } from './send_emails'
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -19,9 +20,9 @@ export const createUser = async (input: {
   pictureUrl?: string
   bio?: string
   groups?: [string]
-  membershipTier?: MembershipTier
   inviteCode?: string
   password?: string
+  pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
   const existingUser = await getUser(input.email)
   if (existingUser) {
@@ -61,13 +62,13 @@ export const createUser = async (input: {
       }
       const user = await t.getRepository(User).save({
         source: input.provider,
-        membership:
-          input.membershipTier ||
-          (hasInvite ? MembershipTier.Beta : MembershipTier.WaitList),
         name: input.name,
         email: input.email,
         sourceUserId: input.sourceUserId,
         password: input.password,
+        status: input.pendingConfirmation
+          ? StatusType.Pending
+          : StatusType.Active,
       })
       const profile = await t.getRepository(Profile).save({
         username: input.username,
@@ -85,6 +86,12 @@ export const createUser = async (input: {
       return [user, profile]
     }
   )
+
+  if (input.pendingConfirmation) {
+    if (!(await sendConfirmationEmail(user))) {
+      return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
+    }
+  }
 
   return [user, profile]
 }

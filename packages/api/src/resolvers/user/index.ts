@@ -10,15 +10,12 @@ import {
   MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
-  MutationLoginArgs,
-  MutationSignupArgs,
   MutationUpdateUserArgs,
   MutationUpdateUserProfileArgs,
   QueryUserArgs,
   QueryValidateUsernameArgs,
   ResolverFn,
   SignupErrorCode,
-  SignupResult,
   UpdateUserError,
   UpdateUserErrorCode,
   UpdateUserProfileError,
@@ -37,7 +34,6 @@ import { env } from '../../env'
 import { validateUsername } from '../../utils/usernamePolicy'
 import * as jwt from 'jsonwebtoken'
 import { createUser } from '../../services/create_user'
-import { comparePassword, hashPassword } from '../../utils/auth'
 import { deletePagesByParam } from '../../elastic/pages'
 import { setClaims } from '../../entity/utils'
 import { User as UserEntity } from '../../entity/user'
@@ -295,73 +291,6 @@ export function isErrorWithCode(error: unknown): error is ErrorWithCode {
     (error as ErrorWithCode).errorCode !== undefined &&
     typeof (error as ErrorWithCode).errorCode === 'string'
   )
-}
-
-export const loginResolver: ResolverFn<
-  LoginResult,
-  unknown,
-  WithDataSourcesContext,
-  MutationLoginArgs
-> = async (_obj, { input }, { models, setAuth }) => {
-  const { email, password } = input
-
-  const user = await models.user.getWhere({
-    email,
-  })
-  if (!user?.id) {
-    return { errorCodes: [LoginErrorCode.UserNotFound] }
-  }
-
-  if (!user?.password) {
-    // user has no password, so they need to set one
-    return { errorCodes: [LoginErrorCode.WrongSource] }
-  }
-
-  // check if password is correct
-  const validPassword = await comparePassword(password, user.password)
-  if (!validPassword) {
-    return { errorCodes: [LoginErrorCode.InvalidCredentials] }
-  }
-
-  // set auth cookie in response header
-  await setAuth({ uid: user.id })
-  return { me: userDataToUser(user) }
-}
-
-export const signupResolver: ResolverFn<
-  SignupResult,
-  Record<string, unknown>,
-  WithDataSourcesContext,
-  MutationSignupArgs
-> = async (_obj, { input }) => {
-  const { email, username, name, bio, password, pictureUrl } = input
-  const lowerCasedUsername = username.toLowerCase()
-
-  try {
-    // hash password
-    const hashedPassword = await hashPassword(password)
-
-    const [user, profile] = await createUser({
-      email,
-      provider: 'EMAIL',
-      sourceUserId: email,
-      name,
-      username: lowerCasedUsername,
-      pictureUrl: pictureUrl || undefined,
-      bio: bio || undefined,
-      password: hashedPassword,
-    })
-
-    return {
-      me: userDataToUser({ ...user, profile: { ...profile, private: false } }),
-    }
-  } catch (err) {
-    console.log('error', err)
-    if (isErrorWithCode(err)) {
-      return { errorCodes: [err.errorCode as SignupErrorCode] }
-    }
-    return { errorCodes: [SignupErrorCode.Unknown] }
-  }
 }
 
 export const deleteAccountResolver = authorized<

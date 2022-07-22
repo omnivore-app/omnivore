@@ -102,7 +102,7 @@ export function remindersServiceRouter() {
         console.log('dynamic template data:', dynamicTemplateData)
 
         await sendEmail({
-          from: 'msgs@omnivore.app',
+          from: env.sender.message,
           dynamicTemplateData: dynamicTemplateData,
           templateId: process.env.SENDGRID_REMINDER_TEMPLATE_ID,
           to: user.email,

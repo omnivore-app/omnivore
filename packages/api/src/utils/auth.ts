@@ -1,11 +1,15 @@
 import * as bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
-import { Claims } from '../resolvers/types'
+import { Claims, ClaimsToSet } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { ApiKey } from '../entity/api_key'
 import crypto from 'crypto'
 import * as jwt from 'jsonwebtoken'
 import { env } from '../env'
+import express from 'express'
+import { promisify } from 'util'
+
+const signToken = promisify(jwt.sign)
 
 export const hashPassword = async (password: string, salt = 10) => {
   return bcrypt.hash(password, salt)
@@ -68,14 +72,43 @@ export const getClaimsByToken = async (
   try {
     jwt.verify(token, env.server.jwtSecret) &&
       (claims = jwt.decode(token) as Claims)
-  } catch (e) {
-    if (e instanceof jwt.JsonWebTokenError) {
-      console.log(`not a jwt token, checking api key`, { token })
-      claims = await claimsFromApiKey(token)
-    } else {
-      throw e
-    }
-  }
 
-  return claims
+    return claims
+  } catch (e) {
+    if (
+      e instanceof jwt.JsonWebTokenError &&
+      !(e instanceof jwt.TokenExpiredError)
+    ) {
+      console.log(`not a jwt token, checking api key`, { token })
+      return claimsFromApiKey(token)
+    }
+
+    throw e
+  }
+}
+
+export const generateVerificationToken = (
+  userId: string,
+  expireInDays = 1
+): string => {
+  const iat = Math.floor(Date.now() / 1000)
+  const exp = Math.floor(
+    new Date(Date.now() + 1000 * 60 * 60 * 24 * expireInDays).getTime() / 1000
+  )
+
+  return jwt.sign({ uid: userId, iat, exp }, env.server.jwtSecret)
+}
+
+export const setAuthInCookie = async (
+  claims: ClaimsToSet,
+  res: express.Response,
+  secret: string = env.server.jwtSecret
+) => {
+  // set auth cookie in response header
+  const token = await signToken(claims, secret)
+
+  res.cookie('auth', token, {
+    httpOnly: true,
+    expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
+  })
 }

@@ -28,10 +28,10 @@ export class ContentDisplayReportSubscriber
     if (!env.dev.isLocal) {
       // If we are in the local environment, just log a message, otherwise email the report
       await sendEmail({
-        to: 'feedback@omnivore.app',
+        to: env.sender.feedback,
         subject: 'New content display report',
         text: message,
-        from: 'msgs@omnivore.app',
+        from: env.sender.message,
       })
     }
   }

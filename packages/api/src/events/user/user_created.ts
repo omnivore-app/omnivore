@@ -86,7 +86,6 @@ export class IdentifySegmentUser implements EntitySubscriberInterface<Profile> {
         traits: {
           name: profile.user.name,
           email: profile.user.email,
-          plan: profile.user.membership,
           source: profile.user.source,
           env: env.server.apiEnv,
         },

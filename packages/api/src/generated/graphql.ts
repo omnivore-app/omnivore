@@ -825,11 +825,6 @@ export enum LoginErrorCode {
   WrongSource = 'WRONG_SOURCE'
 }
 
-export type LoginInput = {
-  email: Scalars['String'];
-  password: Scalars['String'];
-};
-
 export type LoginResult = LoginError | LoginSuccess;
 
 export type LoginSuccess = {
@@ -893,7 +888,6 @@ export type Mutation = {
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
   logOut: LogOutResult;
-  login: LoginResult;
   mergeHighlight: MergeHighlightResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
@@ -911,7 +905,6 @@ export type Mutation = {
   setShareHighlight: SetShareHighlightResult;
   setUserPersonalization: SetUserPersonalizationResult;
   setWebhook: SetWebhookResult;
-  signup: SignupResult;
   subscribe: SubscribeResult;
   unsubscribe: UnsubscribeResult;
   updateHighlight: UpdateHighlightResult;
@@ -1022,11 +1015,6 @@ export type MutationGoogleSignupArgs = {
 };
 
 
-export type MutationLoginArgs = {
-  input: LoginInput;
-};
-
-
 export type MutationMergeHighlightArgs = {
   input: MergeHighlightInput;
 };
@@ -1109,11 +1097,6 @@ export type MutationSetUserPersonalizationArgs = {
 
 export type MutationSetWebhookArgs = {
   input: SetWebhookInput;
-};
-
-
-export type MutationSignupArgs = {
-  input: SignupInput;
 };
 
 
@@ -1825,36 +1808,16 @@ export type SharedArticleSuccess = {
   article: Article;
 };
 
-export type SignupError = {
-  __typename?: 'SignupError';
-  errorCodes: Array<Maybe<SignupErrorCode>>;
-};
-
 export enum SignupErrorCode {
   AccessDenied = 'ACCESS_DENIED',
   ExpiredToken = 'EXPIRED_TOKEN',
   GoogleAuthError = 'GOOGLE_AUTH_ERROR',
+  InvalidEmail = 'INVALID_EMAIL',
   InvalidPassword = 'INVALID_PASSWORD',
   InvalidUsername = 'INVALID_USERNAME',
   Unknown = 'UNKNOWN',
   UserExists = 'USER_EXISTS'
 }
-
-export type SignupInput = {
-  bio?: InputMaybe<Scalars['String']>;
-  email: Scalars['String'];
-  name: Scalars['String'];
-  password: Scalars['String'];
-  pictureUrl?: InputMaybe<Scalars['String']>;
-  username: Scalars['String'];
-};
-
-export type SignupResult = SignupError | SignupSuccess;
-
-export type SignupSuccess = {
-  __typename?: 'SignupSuccess';
-  me: User;
-};
 
 export enum SortBy {
   PublishedAt = 'PUBLISHED_AT',
@@ -2572,7 +2535,6 @@ export type ResolversTypes = {
   LogOutSuccess: ResolverTypeWrapper<LogOutSuccess>;
   LoginError: ResolverTypeWrapper<LoginError>;
   LoginErrorCode: LoginErrorCode;
-  LoginInput: LoginInput;
   LoginResult: ResolversTypes['LoginError'] | ResolversTypes['LoginSuccess'];
   LoginSuccess: ResolverTypeWrapper<LoginSuccess>;
   MergeHighlightError: ResolverTypeWrapper<MergeHighlightError>;
@@ -2676,11 +2638,7 @@ export type ResolversTypes = {
   SharedArticleErrorCode: SharedArticleErrorCode;
   SharedArticleResult: ResolversTypes['SharedArticleError'] | ResolversTypes['SharedArticleSuccess'];
   SharedArticleSuccess: ResolverTypeWrapper<SharedArticleSuccess>;
-  SignupError: ResolverTypeWrapper<SignupError>;
   SignupErrorCode: SignupErrorCode;
-  SignupInput: SignupInput;
-  SignupResult: ResolversTypes['SignupError'] | ResolversTypes['SignupSuccess'];
-  SignupSuccess: ResolverTypeWrapper<SignupSuccess>;
   SortBy: SortBy;
   SortOrder: SortOrder;
   SortParams: SortParams;
@@ -2900,7 +2858,6 @@ export type ResolversParentTypes = {
   LogOutResult: ResolversParentTypes['LogOutError'] | ResolversParentTypes['LogOutSuccess'];
   LogOutSuccess: LogOutSuccess;
   LoginError: LoginError;
-  LoginInput: LoginInput;
   LoginResult: ResolversParentTypes['LoginError'] | ResolversParentTypes['LoginSuccess'];
   LoginSuccess: LoginSuccess;
   MergeHighlightError: MergeHighlightError;
@@ -2984,10 +2941,6 @@ export type ResolversParentTypes = {
   SharedArticleError: SharedArticleError;
   SharedArticleResult: ResolversParentTypes['SharedArticleError'] | ResolversParentTypes['SharedArticleSuccess'];
   SharedArticleSuccess: SharedArticleSuccess;
-  SignupError: SignupError;
-  SignupInput: SignupInput;
-  SignupResult: ResolversParentTypes['SignupError'] | ResolversParentTypes['SignupSuccess'];
-  SignupSuccess: SignupSuccess;
   SortParams: SortParams;
   String: Scalars['String'];
   SubscribeError: SubscribeError;
@@ -3714,7 +3667,6 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
-  login?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
@@ -3732,7 +3684,6 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
-  signup?: Resolver<ResolversTypes['SignupResult'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'input'>>;
   subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'name'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
@@ -4121,20 +4072,6 @@ export type SharedArticleResultResolvers<ContextType = ResolverContext, ParentTy
 
 export type SharedArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SharedArticleSuccess'] = ResolversParentTypes['SharedArticleSuccess']> = {
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type SignupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupError'] = ResolversParentTypes['SignupError']> = {
-  errorCodes?: Resolver<Array<Maybe<ResolversTypes['SignupErrorCode']>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type SignupResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupResult'] = ResolversParentTypes['SignupResult']> = {
-  __resolveType: TypeResolveFn<'SignupError' | 'SignupSuccess', ParentType, ContextType>;
-};
-
-export type SignupSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SignupSuccess'] = ResolversParentTypes['SignupSuccess']> = {
-  me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4627,9 +4564,6 @@ export type Resolvers<ContextType = ResolverContext> = {
   SharedArticleError?: SharedArticleErrorResolvers<ContextType>;
   SharedArticleResult?: SharedArticleResultResolvers<ContextType>;
   SharedArticleSuccess?: SharedArticleSuccessResolvers<ContextType>;
-  SignupError?: SignupErrorResolvers<ContextType>;
-  SignupResult?: SignupResultResolvers<ContextType>;
-  SignupSuccess?: SignupSuccessResolvers<ContextType>;
   SubscribeError?: SubscribeErrorResolvers<ContextType>;
   SubscribeResult?: SubscribeResultResolvers<ContextType>;
   SubscribeSuccess?: SubscribeSuccessResolvers<ContextType>;

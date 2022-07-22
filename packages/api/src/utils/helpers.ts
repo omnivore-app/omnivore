@@ -7,11 +7,7 @@ import {
   ResolverFn,
 } from '../generated/graphql'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
-import {
-  MembershipTier,
-  RegistrationType,
-  UserData,
-} from '../datalayer/user/model'
+import { RegistrationType, UserData } from '../datalayer/user/model'
 import crypto from 'crypto'
 import slugify from 'voca/slugify'
 import { Merge } from '../util'
@@ -128,7 +124,6 @@ export const userDataToUser = (
   id: string
   name: string
   source: RegistrationType
-  membership: MembershipTier
   email?: string | null
   phone?: string | null
   picture?: string | null
@@ -149,11 +144,10 @@ export const userDataToUser = (
   ...user,
   name: user.name,
   source: user.source as RegistrationType,
-  membership: user.membership as MembershipTier,
   createdAt: user.createdAt || new Date(),
   friendsCount: user.friendsCount || 0,
   followersCount: user.followersCount || 0,
-  isFullUser: isFullUser(user.membership as MembershipTier),
+  isFullUser: true,
   viewerIsFollowing: user.viewerIsFollowing || user.isFriend || false,
   picture: user.profile.picture_url,
   sharedArticles: [],
@@ -165,10 +159,6 @@ export const userDataToUser = (
     pictureUrl: user.profile.picture_url,
   },
 })
-
-export const isFullUser = (membership: MembershipTier): boolean => {
-  return membership != MembershipTier.WaitList
-}
 
 export const generateSlug = (title: string): string => {
   return slugify(title).substring(0, 64) + '-' + Date.now().toString(16)
