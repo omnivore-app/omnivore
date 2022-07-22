@@ -42,7 +42,11 @@ import {
   getClaimsByToken,
   hashPassword,
 } from '../../utils/auth'
-import { createUser, sendConfirmationEmail } from '../../services/create_user'
+import {
+  createUser,
+  sendConfirmationEmail,
+  sendPasswordResetEmail,
+} from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
 import { initModels } from '../../server'
 import { getRepository } from '../../entity/utils'
@@ -302,7 +306,7 @@ export function authRouter() {
   async function handleSuccessfulLogin(
     req: express.Request,
     res: express.Response,
-    user: UserData,
+    user: UserData | User,
     newUser: boolean
   ): Promise<void> {
     try {
@@ -362,6 +366,12 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password } = req.body
+
+      if (!email || !password) {
+        return res.redirect(
+          `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+        )
+      }
 
       try {
         const models = initModels(kx, false)
@@ -426,6 +436,12 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password, name, username, bio, pictureUrl } = req.body
+
+      if (!email || !password || !name || !username) {
+        return res.redirect(
+          `${env.client.url}/email-signup?errorCodes=INVALID_CREDENTIALS`
+        )
+      }
       const lowerCasedUsername = username.toLowerCase()
 
       try {
@@ -491,7 +507,7 @@ export function authRouter() {
           )
         }
 
-        res.redirect(`${env.client.url}/email-login?message=EMAIL_VERIFIED`)
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('confirm-email exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
@@ -501,6 +517,55 @@ export function authRouter() {
         }
 
         res.redirect(`${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`)
+      }
+    }
+  )
+
+  router.options(
+    '/email-reset-password',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/email-reset-password',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const email = req.body.email
+      if (!email) {
+        return res.redirect(
+          `${env.client.url}/email-reset-password?errorCodes=INVALID_EMAIL`
+        )
+      }
+
+      try {
+        const user = await getRepository(User).findOneBy({
+          email,
+        })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/email-reset-password?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+          )
+        }
+
+        if (!(await sendPasswordResetEmail(user))) {
+          return res.redirect(
+            `${env.client.url}/email-reset-password?errorCodes=INVALID_EMAIL`
+          )
+        }
+
+        res.redirect(`${env.client.url}/email-reset-password?message=SUCCESS`)
+      } catch (e) {
+        logger.info('email-reset-password exception:', e)
+
+        res.redirect(
+          `${env.client.url}/email-reset-password?errorCodes=UNKNOWN`
+        )
       }
     }
   )

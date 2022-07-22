@@ -12,21 +12,21 @@ import { generateVerificationToken, hashPassword } from '../../src/utils/auth'
 
 describe('auth router', () => {
   const route = '/api/auth'
-  const signupRequest = (
-    email: string,
-    password: string,
-    name: string,
-    username: string
-  ): supertest.Test => {
-    return request.post(`${route}/email-signup`).send({
-      email,
-      password,
-      name,
-      username,
-    })
-  }
 
   describe('email signup', () => {
+    const signupRequest = (
+      email: string,
+      password: string,
+      name: string,
+      username: string
+    ): supertest.Test => {
+      return request.post(`${route}/email-signup`).send({
+        email,
+        password,
+        name,
+        username,
+      })
+    }
     const validPassword = 'validPassword'
 
     let email: string
@@ -284,11 +284,9 @@ describe('auth router', () => {
         token = generateVerificationToken(user.id)
       })
 
-      it('redirects to email-login page', async () => {
+      it('logs in and redirects to home page', async () => {
         const res = await confirmEmailRequest(token).expect(302)
-        expect(res.header.location).to.endWith(
-          '/email-login?message=EMAIL_VERIFIED'
-        )
+        expect(res.header.location).to.endWith('/home')
       })
 
       it('sets user as active', async () => {
@@ -332,6 +330,124 @@ describe('auth router', () => {
         const res = await confirmEmailRequest(token).expect(302)
         expect(res.header.location).to.endWith(
           '/confirm-email?errorCodes=USER_NOT_FOUND'
+        )
+      })
+    })
+  })
+
+  describe('email-reset-password', () => {
+    const emailResetPasswordReq = (email: string): supertest.Test => {
+      return request.post(`${route}/email-reset-password`).send({
+        email,
+      })
+    }
+
+    let email: string
+
+    context('when email is not empty', () => {
+      before(() => {
+        email = `some_email@domain.app`
+      })
+
+      context('when user exists', () => {
+        let user: User
+
+        before(async () => {
+          user = await createTestUser('test_user')
+          email = user.email
+        })
+
+        after(async () => {
+          await deleteTestUser(user.name)
+        })
+
+        context('when email is verified', () => {
+          let fake: (msg: MailDataRequired) => Promise<boolean>
+
+          before(async () => {
+            await getRepository(User).update(user.id, {
+              status: StatusType.Active,
+            })
+          })
+
+          context('when reset password email sent', () => {
+            before(() => {
+              fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+            })
+
+            after(() => {
+              sinon.restore()
+            })
+
+            it('redirects to email-reset-password page with success message', async () => {
+              const res = await emailResetPasswordReq(email).expect(302)
+              expect(res.header.location).to.endWith(
+                '/email-reset-password?message=SUCCESS'
+              )
+            })
+          })
+
+          context('when reset password email not sent', () => {
+            before(() => {
+              fake = sinon.replace(
+                util,
+                'sendEmail',
+                sinon.fake.resolves(false)
+              )
+            })
+
+            after(() => {
+              sinon.restore()
+            })
+
+            it('redirects to sign up page with error code INVALID_EMAIL', async () => {
+              const res = await emailResetPasswordReq(email).expect(302)
+              expect(res.header.location).to.endWith(
+                '/email-reset-password?errorCodes=INVALID_EMAIL'
+              )
+            })
+          })
+        })
+
+        context('when email is not verified', () => {
+          before(async () => {
+            await getRepository(User).update(user.id, {
+              status: StatusType.Pending,
+            })
+          })
+
+          it('redirects to email-login page with error code PENDING_VERIFICATION', async () => {
+            const res = await emailResetPasswordReq(email).expect(302)
+            expect(res.header.location).to.endWith(
+              '/email-login?errorCodes=PENDING_VERIFICATION'
+            )
+          })
+        })
+      })
+
+      context('when user does not exist', () => {
+        before(() => {
+          email = 'non_exists_email@domain.app'
+        })
+
+        it('redirects to email-reset-password page with error code USER_NOT_FOUND', async () => {
+          const res = await emailResetPasswordReq(email).expect(302)
+          expect(res.header.location).to.endWith(
+            '/email-reset-password?errorCodes=USER_NOT_FOUND'
+          )
+        })
+      })
+    })
+
+    context('when email is empty', () => {
+      before(() => {
+        email = ''
+      })
+
+      it('redirects to email-reset-password page with error code INVALID_EMAIL', async () => {
+        const res = await emailResetPasswordReq(email).expect(302)
+        expect(res.header.location).to.endWith(
+          '/email-reset-password?errorCodes=INVALID_EMAIL'
         )
       })
     })
