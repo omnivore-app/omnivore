@@ -186,21 +186,18 @@ describe('auth router', () => {
     })
 
     context('when user is not confirmed', async () => {
-      let pendingUser: User
-
       before(async () => {
-        pendingUser = await createTestUser(
-          'pending_user',
-          undefined,
-          correctPassword,
-          true
-        )
-        email = pendingUser.email
+        await getRepository(User).update(user.id, {
+          status: StatusType.Pending,
+        })
+        email = user.email
         password = correctPassword
       })
 
       after(async () => {
-        await deleteTestUser(pendingUser.name)
+        await getRepository(User).update(user.id, {
+          status: StatusType.Active,
+        })
       })
 
       it('redirects with error code PendingVerification', async () => {
@@ -232,16 +229,18 @@ describe('auth router', () => {
     })
 
     context('when user has no password stored in db', async () => {
-      let socialAccountUser: User
-
       before(async () => {
-        socialAccountUser = await createTestUser('social_account_user')
-        email = socialAccountUser.email
-        password = 'Some password'
+        await getRepository(User).update(user.id, {
+          password: '',
+        })
+        email = user.email
+        password = user.password!
       })
 
       after(async () => {
-        await deleteTestUser(socialAccountUser.name)
+        await getRepository(User).update(user.id, {
+          password,
+        })
       })
 
       it('redirects with error code WrongSource', async () => {
