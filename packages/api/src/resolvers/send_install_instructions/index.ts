@@ -27,7 +27,9 @@ export const sendInstallInstructionsResolver = authorized<
 
     const sendInstallInstructions = await sendEmail({
       from: env.sender.message,
-      templateId: INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID,
+      templateId:
+        env.sendgrid.installationTemplateId ||
+        INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID,
       to: user?.email,
     })
 

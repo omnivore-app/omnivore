@@ -104,7 +104,7 @@ export function remindersServiceRouter() {
         await sendEmail({
           from: env.sender.message,
           dynamicTemplateData: dynamicTemplateData,
-          templateId: process.env.SENDGRID_REMINDER_TEMPLATE_ID,
+          templateId: env.sendgrid.reminderTemplateId,
           to: user.email,
         })
 
