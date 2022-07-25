@@ -71,7 +71,8 @@ export const deleteTestUser = async (name: string) => {
 export const createTestUser = async (
   name: string,
   invite?: string | undefined,
-  password?: string
+  password?: string,
+  pendingConfirmation?: boolean
 ): Promise<User> => {
   const [newUser] = await createUser({
     provider: 'GOOGLE',
@@ -82,6 +83,7 @@ export const createTestUser = async (
     name: name,
     inviteCode: invite,
     password: password,
+    pendingConfirmation,
   })
 
   return newUser

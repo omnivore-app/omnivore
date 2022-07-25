@@ -168,6 +168,7 @@ const schema = gql`
     USER_EXISTS
     EXPIRED_TOKEN
     INVALID_PASSWORD
+    INVALID_EMAIL
   }
 
   type GoogleSignupError {
@@ -1409,30 +1410,6 @@ const schema = gql`
 
   union UpdateLabelResult = UpdateLabelSuccess | UpdateLabelError
 
-  input LoginInput {
-    password: String!
-    email: String!
-  }
-
-  input SignupInput {
-    email: String!
-    password: String! @sanitize(maxLength: 40)
-    username: String!
-    name: String!
-    pictureUrl: String
-    bio: String
-  }
-
-  type SignupSuccess {
-    me: User!
-  }
-
-  type SignupError {
-    errorCodes: [SignupErrorCode]!
-  }
-
-  union SignupResult = SignupSuccess | SignupError
-
   input SetLabelsInput {
     pageId: ID!
     labelIds: [ID!]!
@@ -1843,8 +1820,6 @@ const schema = gql`
     createLabel(input: CreateLabelInput!): CreateLabelResult!
     updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
     deleteLabel(id: ID!): DeleteLabelResult!
-    login(input: LoginInput!): LoginResult!
-    signup(input: SignupInput!): SignupResult!
     setLabels(input: SetLabelsInput!): SetLabelsResult!
     generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
     unsubscribe(name: String!): UnsubscribeResult!

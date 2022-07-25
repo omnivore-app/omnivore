@@ -33,10 +33,25 @@ import { corsConfig } from '../../utils/corsConfig'
 import cors from 'cors'
 
 import {
-  MembershipTier,
   RegistrationType,
+  StatusType,
   UserData,
 } from '../../datalayer/user/model'
+import {
+  comparePassword,
+  getClaimsByToken,
+  hashPassword,
+  setAuthInCookie,
+} from '../../utils/auth'
+import { createUser } from '../../services/create_user'
+import { isErrorWithCode } from '../../resolvers'
+import { initModels } from '../../server'
+import { getRepository } from '../../entity/utils'
+import { User } from '../../entity/user'
+import {
+  sendConfirmationEmail,
+  sendPasswordResetEmail,
+} from '../../services/send_emails'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -286,13 +301,13 @@ export function authRouter() {
 
     res.setHeader('set-cookie', result.headers['set-cookie'])
 
-    handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
+    await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
   })
 
   async function handleSuccessfulLogin(
     req: express.Request,
     res: express.Response,
-    user: UserData,
+    user: UserData | User,
     newUser: boolean
   ): Promise<void> {
     try {
@@ -311,6 +326,13 @@ export function authRouter() {
           }
         }
 
+        const message = res.get('Message')
+        if (message) {
+          return res.redirect(
+            `${env.client.url}/home?message=${encodeURIComponent(message)}`
+          )
+        }
+
         if (newUser) {
           if (redirectUri && redirectUri !== '/') {
             return res.redirect(
@@ -320,10 +342,6 @@ export function authRouter() {
           return res.redirect(
             `${env.client.url}/settings/installation/extensions`
           )
-        }
-
-        if (user.membership === MembershipTier.WaitList) {
-          return res.redirect(`${env.client.url}/waitlist`)
         }
 
         return res.redirect(
@@ -356,56 +374,53 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password } = req.body
+
       if (!email || !password) {
-        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
-        return
+        return res.redirect(
+          `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+        )
       }
 
-      const query = `
-      mutation login{
-        login(input: {
-          email: "${email}",
-          password: "${password}"
-        }) {
-          __typename
-          ... on LoginError { errorCodes }
-          ... on LoginSuccess {
-            me {
-              id
-              name
-              profile {
-                username
-              }
-            }
-          }
-        }
-      }`
-
       try {
-        const result = await axios.post(env.server.gateway_url + '/graphql', {
-          query,
+        const models = initModels(kx, false)
+        const user = await models.user.getWhere({
+          email,
         })
-        const { data } = result.data
-
-        if (data.login.__typename === 'LoginError') {
-          const errorCodes = data.login.errorCodes.join(',')
+        if (!user?.id) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${errorCodes}`
+            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
         }
 
-        if (!result.headers['set-cookie']) {
+        if (user.status === StatusType.Pending && user.email) {
+          await sendConfirmationEmail({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          })
           return res.redirect(
-            `${env.client.url}/${
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (req.params as any)?.action
-            }?errorCodes=unknown`
+            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
-        res.setHeader('set-cookie', result.headers['set-cookie'])
+        if (!user?.password) {
+          // user has no password, so they need to set one
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.WrongSource}`
+          )
+        }
 
-        await handleSuccessfulLogin(req, res, data.login.me, false)
+        // check if password is correct
+        const validPassword = await comparePassword(password, user.password)
+        if (!validPassword) {
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+          )
+        }
+
+        // set auth cookie in response header
+        await setAuthInCookie({ uid: user.id }, res)
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
         res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
@@ -422,54 +437,203 @@ export function authRouter() {
     '/email-signup',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const { email, password, name, username, bio } = req.body
-      if (!email || !password || !name || !username) {
-        res.redirect(`${env.client.url}/email-signup?errorCodes=BAD_DATA`)
-        return
-      }
+      const { email, password, name, username, bio, pictureUrl } = req.body
 
-      const query = `
-      mutation signup {
-        signup(input: {
-          email: "${email}",
-          password: "${password}",
-          name: "${name}",
-          username: "${username}",
-          bio: "${bio ?? ''}"
-        }) {
-          __typename
-          ... on SignupSuccess {
-            me {
-              id
-              name
-              profile {
-                username
-              }
-            }
-          }
-          ... on SignupError {
-            errorCodes
-          }
-        }
-      }`
+      if (!email || !password || !name || !username) {
+        return res.redirect(
+          `${env.client.url}/email-signup?errorCodes=INVALID_CREDENTIALS`
+        )
+      }
+      const lowerCasedUsername = username.toLowerCase()
 
       try {
-        const result = await axios.post(env.server.gateway_url + '/graphql', {
-          query,
-        })
-        const { data } = result.data
+        // hash password
+        const hashedPassword = await hashPassword(password)
 
-        if (data.signup.__typename === 'SignupError') {
-          const errorCodes = data.signup.errorCodes.join(',')
-          return res.redirect(
-            `${env.client.url}/email-signup?errorCodes=${errorCodes}`
-          )
-        }
+        await createUser({
+          email,
+          provider: 'EMAIL',
+          sourceUserId: email,
+          name,
+          username: lowerCasedUsername,
+          pictureUrl,
+          bio,
+          password: hashedPassword,
+          pendingConfirmation: true,
+        })
 
         res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
       } catch (e) {
         logger.info('email-signup exception:', e)
+        if (isErrorWithCode(e)) {
+          return res.redirect(
+            `${env.client.url}/email-signup?errorCodes=${e.errorCode}`
+          )
+        }
         res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
+      }
+    }
+  )
+
+  router.options(
+    '/confirm-email',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/confirm-email',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const token = req.body.token
+
+      try {
+        // verify token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          return res.redirect(
+            `${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`
+          )
+        }
+
+        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/confirm-email?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          await getRepository(User).update(
+            { id: user.id },
+            { status: StatusType.Active }
+          )
+        }
+
+        res.set('Message', 'EMAIL_CONFIRMED')
+        await setAuthInCookie({ uid: user.id }, res)
+        await handleSuccessfulLogin(req, res, user, false)
+      } catch (e) {
+        logger.info('confirm-email exception:', e)
+        if (e instanceof jwt.TokenExpiredError) {
+          return res.redirect(
+            `${env.client.url}/confirm-email?errorCodes=TOKEN_EXPIRED`
+          )
+        }
+
+        res.redirect(`${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`)
+      }
+    }
+  )
+
+  router.options(
+    '/forgot-password',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/forgot-password',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const email = req.body.email
+      if (!email) {
+        return res.redirect(
+          `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
+        )
+      }
+
+      try {
+        const user = await getRepository(User).findOneBy({
+          email,
+        })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/forgot-password?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+          )
+        }
+
+        if (!(await sendPasswordResetEmail(user))) {
+          return res.redirect(
+            `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
+          )
+        }
+
+        res.redirect(`${env.client.url}/forgot-password?message=SUCCESS`)
+      } catch (e) {
+        logger.info('forgot-password exception:', e)
+
+        res.redirect(`${env.client.url}/forgot-password?errorCodes=UNKNOWN`)
+      }
+    }
+  )
+
+  router.options(
+    '/reset-password',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/reset-password',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const { token, password } = req.body
+
+      try {
+        // verify token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+          )
+        }
+
+        if (!password) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=INVALID_PASSWORD`
+          )
+        }
+
+        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          return res.redirect(
+            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+          )
+        }
+
+        const hashedPassword = await hashPassword(password)
+        const updated = await getRepository(User).update(
+          { id: user.id },
+          { password: hashedPassword }
+        )
+        if (!updated.affected) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=UNKNOWN`
+          )
+        }
+
+        res.redirect(`${env.client.url}/reset-password?message=SUCCESS`)
+      } catch (e) {
+        logger.info('reset-password exception:', e)
+        if (e instanceof jwt.TokenExpiredError) {
+          return res.redirect(
+            `${env.client.url}/reset-password?errorCodes=TOKEN_EXPIRED`
+          )
+        }
+
+        res.redirect(
+          `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+        )
       }
     }
   )

@@ -24,7 +24,7 @@ import ScalarResolvers from './scalars'
 import * as Sentry from '@sentry/node'
 import { createPubSubClient } from './datalayer/pubsub'
 import { initModels } from './server'
-import { getClaimsByToken } from './utils/auth'
+import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 
 const signToken = promisify(jwt.sign)
 const logger = buildLogger('app.dispatch')
@@ -76,14 +76,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     setAuth: async (
       claims: ClaimsToSet,
       secret: string = env.server.jwtSecret
-    ) => {
-      const token = await signToken(claims, secret)
-
-      res.cookie('auth', token, {
-        httpOnly: true,
-        expires: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000),
-      })
-    },
+    ) => await setAuthInCookie(claims, res, secret),
     setClaims,
     authTrx: <TResult>(
       cb: (tx: Knex.Transaction) => TResult,
