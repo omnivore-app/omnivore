@@ -78,6 +78,12 @@ interface BackendEnv {
     feedback: string
     general: string
   }
+  sendgrid: {
+    confirmationTemplateId: string
+    reminderTemplateId: string
+    resetPasswordTemplateId: string
+    installationTemplateId: string
+  }
 }
 
 /***
@@ -122,6 +128,10 @@ const nullableEnvVars = [
   'SENDER_MESSAGE',
   'SENDER_FEEDBACK',
   'SENDER_GENERAL',
+  'SENDGRID_CONFIRMATION_TEMPLATE_ID',
+  'SENDGRID_REMINDER_TEMPLATE_ID',
+  'SENDGRID_RESET_PASSWORD_TEMPLATE_ID',
+  'SENDGRID_INSTALLATION_TEMPLATE_ID',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -228,6 +238,13 @@ export function getEnv(): BackendEnv {
     general: parse('SENDER_GENERAL'),
   }
 
+  const sendgrid = {
+    confirmationTemplateId: parse('SENDGRID_CONFIRMATION_TEMPLATE_ID'),
+    reminderTemplateId: parse('SENDGRID_REMINDER_TEMPLATE_ID'),
+    resetPasswordTemplateId: parse('SENDGRID_RESET_PASSWORD_TEMPLATE_ID'),
+    installationTemplateId: parse('SENDGRID_INSTALLATION_TEMPLATE_ID'),
+  }
+
   return {
     pg,
     client,
@@ -244,6 +261,7 @@ export function getEnv(): BackendEnv {
     queue,
     elastic,
     sender,
+    sendgrid,
   }
 }
 
