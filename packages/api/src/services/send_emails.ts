@@ -8,14 +8,19 @@ export const sendConfirmationEmail = async (user: {
   email: string
 }): Promise<boolean> => {
   // generate confirmation link
-  const confirmationToken = generateVerificationToken(user.id)
-  const confirmationLink = `${env.client.url}/confirm-email/${confirmationToken}`
+  const token = generateVerificationToken(user.id)
+  const link = `${env.client.url}/confirm-email/${token}`
   // send email
+  const dynamicTemplateData = {
+    name: user.name,
+    link,
+  }
+
   return sendEmail({
     from: env.sender.message,
     to: user.email,
-    subject: 'Confirm your email',
-    text: `Hey ${user.name},\n\nPlease confirm your email by clicking the link below:\n\n${confirmationLink}\n\n`,
+    templateId: env.sendgrid.confirmationTemplateId,
+    dynamicTemplateData,
   })
 }
 
@@ -28,10 +33,15 @@ export const sendPasswordResetEmail = async (user: {
   const token = generateVerificationToken(user.id)
   const link = `${env.client.url}/reset-password/${token}`
   // send email
+  const dynamicTemplateData = {
+    name: user.name,
+    link,
+  }
+
   return sendEmail({
     from: env.sender.message,
     to: user.email,
-    subject: 'Reset your password',
-    text: `Hey ${user.name},\n\nPlease reset your password by clicking the link below:\n\n${link}\n\n`,
+    templateId: env.sendgrid.resetPasswordTemplateId,
+    dynamicTemplateData,
   })
 }
