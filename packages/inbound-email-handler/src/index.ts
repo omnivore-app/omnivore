@@ -65,29 +65,24 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
     console.log('headers: ', headers)
 
     try {
-      const from = parsed.from.toString()
+      const from = parsed.from
       const subject = parsed.subject
       const html = parsed.html
       const text = parsed.text
 
       const forwardedAddress = headers['x-forwarded-to']
-      const recipientAddress = forwardedAddress
-        ? forwardedAddress.toString()
-        : parsed.to
-      const postHeader = headers['list-post']
-        ? headers['list-post'].toString()
-        : ''
-      const unSubHeader = headers['list-unsubscribe']
-        ? headers['list-unsubscribe'].toString()
-        : ''
+      const recipientAddress = forwardedAddress?.toString() || parsed.to
+      const postHeader = headers['list-post']?.toString()
+      const unSubHeader = headers['list-unsubscribe'].toString()
 
-      // check if it is a forwarding confirmation email or newsletter
-      const newsletterHandler = getNewsletterHandler(
-        postHeader,
-        from,
-        unSubHeader
-      )
       try {
+        // check if it is a forwarding confirmation email or newsletter
+        const newsletterHandler = getNewsletterHandler(
+          postHeader,
+          from,
+          unSubHeader
+        )
+
         if (newsletterHandler) {
           console.log('handleNewsletter', from, recipientAddress)
           await newsletterHandler.handleNewsletter(
