@@ -26,7 +26,7 @@
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
-    "@google-cloud/functions-framework": "3.1.0",
+    "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/pubsub": "^2.18.4",
     "@sendgrid/client": "^7.6.0",
     "@sentry/serverless": "^6.16.1",
