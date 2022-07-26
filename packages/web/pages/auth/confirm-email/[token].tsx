@@ -2,14 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Toaster } from 'react-hot-toast'
 
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { applyStoredTheme } from '../../../lib/themeUpdater'
 
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
+import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 
-import { HStack, SpanBox } from '../../components/elements/LayoutPrimitives'
-import { Loader } from '../../components/templates/SavingRequest'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { LoadingView } from '../../components/patterns/LoadingView'
+import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
+import { fetchEndpoint } from '../../../lib/appConfig'
+import { LoadingView } from '../../../components/patterns/LoadingView'
 
 export default function ConfirmEmail(): JSX.Element {
   const authForm = useRef<HTMLFormElement | null>(null)

@@ -499,7 +499,7 @@ describe('auth router', () => {
             302
           )
           expect(res.header.location).to.endWith(
-            '/reset-password?message=SUCCESS'
+            '/auth/reset-password?message=SUCCESS'
           )
         })
 
@@ -518,7 +518,7 @@ describe('auth router', () => {
         it('redirects to reset-password page with error code INVALID_PASSWORD', async () => {
           const res = await resetPasswordRequest(token, '').expect(302)
           expect(res.header.location).to.endWith(
-            '/reset-password?errorCodes=INVALID_PASSWORD'
+            '/auth/reset-password?errorCodes=INVALID_PASSWORD'
           )
         })
       })
@@ -531,7 +531,7 @@ describe('auth router', () => {
           'new_password'
         ).expect(302)
         expect(res.header.location).to.endWith(
-          '/reset-password?errorCodes=INVALID_TOKEN'
+          '/auth/reset-password?errorCodes=INVALID_TOKEN'
         )
       })
 
@@ -545,7 +545,7 @@ describe('auth router', () => {
             302
           )
           expect(res.header.location).to.endWith(
-            '/reset-password?errorCodes=TOKEN_EXPIRED'
+            '/auth/reset-password?errorCodes=TOKEN_EXPIRED'
           )
         })
       })

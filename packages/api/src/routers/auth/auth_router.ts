@@ -340,7 +340,7 @@ export function authRouter() {
             )
           }
           return res.redirect(
-            `${env.client.url}/settings/installation/extensions`
+            `${env.client.url}/home`
           )
         }
 
@@ -377,7 +377,7 @@ export function authRouter() {
 
       if (!email || !password) {
         return res.redirect(
-          `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+          `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
         )
       }
 
@@ -388,7 +388,7 @@ export function authRouter() {
         })
         if (!user?.id) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
         }
 
@@ -399,14 +399,14 @@ export function authRouter() {
             name: user.name,
           })
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
         if (!user?.password) {
           // user has no password, so they need to set one
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.WrongSource}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.WrongSource}`
           )
         }
 
@@ -414,7 +414,7 @@ export function authRouter() {
         const validPassword = await comparePassword(password, user.password)
         if (!validPassword) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
           )
         }
 
@@ -423,7 +423,7 @@ export function authRouter() {
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
-        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
+        res.redirect(`${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`)
       }
     }
   )
@@ -441,7 +441,7 @@ export function authRouter() {
 
       if (!email || !password || !name || !username) {
         return res.redirect(
-          `${env.client.url}/email-signup?errorCodes=INVALID_CREDENTIALS`
+          `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
         )
       }
       const lowerCasedUsername = username.toLowerCase()
@@ -462,15 +462,15 @@ export function authRouter() {
           pendingConfirmation: true,
         })
 
-        res.redirect(`${env.client.url}/verify-email?message=SIGNUP_SUCCESS`)
+        res.redirect(`${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`)
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
           return res.redirect(
-            `${env.client.url}/email-signup?errorCodes=${e.errorCode}`
+            `${env.client.url}/auth/email-signup?errorCodes=${e.errorCode}`
           )
         }
-        res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
+        res.redirect(`${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`)
       }
     }
   )
@@ -491,14 +491,14 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
           )
         }
 
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/confirm-email?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/confirm-email?errorCodes=USER_NOT_FOUND`
           )
         }
 
@@ -514,7 +514,7 @@ export function authRouter() {
 
           if (!updated.affected) {
             return res.redirect(
-              `${env.client.url}/confirm-email?errorCodes=UNKNOWN`
+              `${env.client.url}/auth/confirm-email?errorCodes=UNKNOWN`
             )
           }
         }
@@ -526,11 +526,11 @@ export function authRouter() {
         logger.info('confirm-email exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/confirm-email?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/confirm-email?errorCodes=TOKEN_EXPIRED`
           )
         }
 
-        res.redirect(`${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`)
+        res.redirect(`${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`)
       }
     }
   )
@@ -547,7 +547,7 @@ export function authRouter() {
       const email = req.body.email
       if (!email) {
         return res.redirect(
-          `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
+          `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
         )
       }
 
@@ -557,27 +557,27 @@ export function authRouter() {
         })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/forgot-password?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/forgot-password?errorCodes=USER_NOT_FOUND`
           )
         }
 
         if (user.status === StatusType.Pending) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
         if (!(await sendPasswordResetEmail(user))) {
           return res.redirect(
-            `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
+            `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
           )
         }
 
-        res.redirect(`${env.client.url}/forgot-password?message=SUCCESS`)
+        res.redirect(`${env.client.url}/auth/forgot-password?message=SUCCESS`)
       } catch (e) {
         logger.info('forgot-password exception:', e)
 
-        res.redirect(`${env.client.url}/forgot-password?errorCodes=UNKNOWN`)
+        res.redirect(`${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`)
       }
     }
   )
@@ -598,26 +598,26 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/reset-password?errorCodes=INVALID_TOKEN`
           )
         }
 
         if (!password) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=INVALID_PASSWORD`
+            `${env.client.url}/auth/reset-password?errorCodes=INVALID_PASSWORD`
           )
         }
 
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/reset-password?errorCodes=USER_NOT_FOUND`
           )
         }
 
         if (user.status === StatusType.Pending) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
@@ -632,21 +632,21 @@ export function authRouter() {
         )
         if (!updated.affected) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=UNKNOWN`
+            `${env.client.url}/auth/reset-password?errorCodes=UNKNOWN`
           )
         }
 
-        res.redirect(`${env.client.url}/reset-password?message=SUCCESS`)
+        res.redirect(`${env.client.url}/auth/reset-password?message=SUCCESS`)
       } catch (e) {
         logger.info('reset-password exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/reset-password?errorCodes=TOKEN_EXPIRED`
           )
         }
 
         res.redirect(
-          `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+          `${env.client.url}/auth/reset-password?errorCodes=INVALID_TOKEN`
         )
       }
     }

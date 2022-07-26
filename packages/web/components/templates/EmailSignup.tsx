@@ -173,7 +173,7 @@ export function EmailSignup(): JSX.Element {
           }}
         >
           Already have an account? {' '}
-          <Link href="/email-login" passHref>
+          <Link href="/auth/email-login" passHref>
             <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Login instead</StyledTextSpan>
           </Link>
         </StyledText>
