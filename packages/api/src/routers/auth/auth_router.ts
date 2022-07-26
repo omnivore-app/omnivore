@@ -19,7 +19,6 @@ import express from 'express'
 import axios from 'axios'
 import { env } from '../../env'
 import url from 'url'
-import { IntercomClient } from '../../utils/intercom'
 import { kx } from '../../datalayer/knex_config'
 import UserModel from '../../datalayer/user'
 import { buildLogger } from '../../utils/logger'
@@ -355,6 +354,8 @@ export function authRouter() {
         const ssoToken = createSsoToken(authToken, redirectUri)
         redirectUri = ssoRedirectURL(ssoToken)
       }
+
+      await setAuthInCookie({ uid: user.id }, res)
 
       return res.redirect(redirectUri)
     } catch (error) {
