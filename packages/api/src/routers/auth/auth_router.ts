@@ -329,7 +329,10 @@ export function authRouter() {
 
       if (newUser) {
         if (redirectUri && redirectUri !== '/') {
-          redirectUri = url.resolve(env.client.url, decodeURIComponent(redirectUri))
+          redirectUri = url.resolve(
+            env.client.url,
+            decodeURIComponent(redirectUri)
+          )
         } else {
           redirectUri = `${env.client.url}/home`
         }
@@ -340,7 +343,7 @@ export function authRouter() {
       const message = res.get('Message')
       if (message) {
         const u = new URL(redirectUri)
-        u.searchParams.append('message', message);
+        u.searchParams.append('message', message)
         redirectUri = u.toString()
       }
 
@@ -351,7 +354,6 @@ export function authRouter() {
       if (authToken) {
         const ssoToken = createSsoToken(authToken, redirectUri)
         redirectUri = ssoRedirectURL(ssoToken)
-
       }
 
       return res.redirect(redirectUri)
