@@ -339,9 +339,7 @@ export function authRouter() {
               url.resolve(env.client.url, decodeURIComponent(redirectUri))
             )
           }
-          return res.redirect(
-            `${env.client.url}/home`
-          )
+          return res.redirect(`${env.client.url}/home`)
         }
 
         return res.redirect(
@@ -423,7 +421,9 @@ export function authRouter() {
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
-        res.redirect(`${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`)
+        res.redirect(
+          `${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`
+        )
       }
     }
   )
@@ -462,7 +462,9 @@ export function authRouter() {
           pendingConfirmation: true,
         })
 
-        res.redirect(`${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`)
+        res.redirect(
+          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
+        )
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
@@ -530,7 +532,9 @@ export function authRouter() {
           )
         }
 
-        res.redirect(`${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`)
+        res.redirect(
+          `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
+        )
       }
     }
   )
@@ -556,15 +560,11 @@ export function authRouter() {
           email,
         })
         if (!user) {
-          return res.redirect(
-            `${env.client.url}/auth/auth/reset-sent`
-          )
+          return res.redirect(`${env.client.url}/auth/auth/reset-sent`)
         }
 
         if (user.status === StatusType.Pending) {
-          return res.redirect(
-            `${env.client.url}/auth/auth/reset-sent`
-          )
+          return res.redirect(`${env.client.url}/auth/auth/reset-sent`)
         }
 
         if (!(await sendPasswordResetEmail(user))) {
@@ -577,7 +577,9 @@ export function authRouter() {
       } catch (e) {
         logger.info('forgot-password exception:', e)
 
-        res.redirect(`${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`)
+        res.redirect(
+          `${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`
+        )
       }
     }
   )
@@ -636,6 +638,7 @@ export function authRouter() {
           )
         }
 
+        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('reset-password exception:', e)
