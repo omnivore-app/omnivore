@@ -45,8 +45,8 @@ import {
 } from '../../utils/auth'
 import { createUser } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
-import { initModels } from '../../server'
-import { getRepository } from '../../entity/utils'
+import { AppDataSource, initModels } from '../../server'
+import { getRepository, setClaims } from '../../entity/utils'
 import { User } from '../../entity/user'
 import {
   sendConfirmationEmail,
@@ -503,10 +503,21 @@ export function authRouter() {
         }
 
         if (user.status === StatusType.Pending) {
-          await getRepository(User).update(
-            { id: user.id },
-            { status: StatusType.Active }
+          const updated = await AppDataSource.transaction(
+            async (entityManager) => {
+              await setClaims(entityManager, user.id)
+              return getRepository(User).update(
+                { id: user.id },
+                { status: StatusType.Active }
+              )
+            }
           )
+
+          if (!updated.affected) {
+            return res.redirect(
+              `${env.client.url}/confirm-email?errorCodes=UNKNOWN`
+            )
+          }
         }
 
         res.set('Message', 'EMAIL_CONFIRMED')
@@ -612,9 +623,14 @@ export function authRouter() {
         }
 
         const hashedPassword = await hashPassword(password)
-        const updated = await getRepository(User).update(
-          { id: user.id },
-          { password: hashedPassword }
+        const updated = await AppDataSource.transaction(
+          async (entityManager) => {
+            await setClaims(entityManager, user.id)
+            return getRepository(User).update(
+              { id: user.id },
+              { password: hashedPassword }
+            )
+          }
         )
         if (!updated.affected) {
           return res.redirect(
