@@ -642,12 +642,12 @@ export function authRouter() {
         logger.info('reset-password exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/reset-password/?errorCodes=TOKEN_EXPIRED`
           )
         }
 
         res.redirect(
-          `${env.client.url}/auth/reset-password?errorCodes=INVALID_TOKEN`
+          `${env.client.url}/auth/reset-password/?errorCodes=INVALID_TOKEN`
         )
       }
     }
