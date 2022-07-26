@@ -15,6 +15,9 @@ import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
 import { parseHTML } from 'linkedom'
+import { getRepository } from '../entity/utils'
+import { User } from '../entity/user'
+import { ILike } from 'typeorm'
 
 const logger = buildLogger('utils.parse')
 
@@ -37,6 +40,7 @@ const DOM_PURIFY_CONFIG = {
     'data-feature',
   ],
 }
+const ARTICLE_PREFIX = 'omnivore:'
 
 interface ContentHandler {
   shouldPrehandle: (url: URL, dom: Document) => boolean
@@ -544,4 +548,14 @@ export const findNewsletterUrl = async (
   }
 
   return undefined
+}
+
+export const isProbablyArticle = async (
+  email: string,
+  subject: string
+): Promise<boolean> => {
+  const user = await getRepository(User).findOneBy({
+    email: ILike(email),
+  })
+  return !!user || subject.includes(ARTICLE_PREFIX)
 }

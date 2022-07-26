@@ -5,12 +5,15 @@ import 'chai/register-should'
 import fs from 'fs'
 import {
   findNewsletterUrl,
+  isProbablyArticle,
   isProbablyNewsletter,
   parsePageMetadata,
   parsePreparedContent,
 } from '../../src/utils/parser'
 import nock from 'nock'
 import chaiAsPromised from 'chai-as-promised'
+import { User } from '../../src/entity/user'
+import { createTestUser, deleteTestUser } from '../db'
 
 chai.use(chaiAsPromised)
 
@@ -133,5 +136,27 @@ describe('parsePreparedContent', async () => {
     expect(result.parsedContent?.title).to.equal(
       'The Ultimate Guide to Practicing Medicine in Singapore – Part 2'
     )
+  })
+})
+
+describe('isProbablyArticle', () => {
+  let user: User
+
+  before(async () => {
+    user = await createTestUser('fakeUser')
+  })
+
+  after(async () => {
+    await deleteTestUser(user.name)
+  })
+
+  it('returns true when email is signed up with us', async () => {
+    const email = user.email
+    expect(await isProbablyArticle(email, 'test subject')).to.be.true
+  })
+
+  it('returns true when subject has omnivore: prefix', async () => {
+    const subject = 'omnivore: test subject'
+    expect(await isProbablyArticle('test-email', subject)).to.be.true
   })
 })

@@ -70,10 +70,10 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const html = parsed.html
       const text = parsed.text
 
-      const forwardedAddress = headers['x-forwarded-to']
-      const recipientAddress = forwardedAddress?.toString() || parsed.to
+      const forwardedAddress = headers['x-forwarded-to']?.toString()
+      const recipientAddress = forwardedAddress || parsed.to
       const postHeader = headers['list-post']?.toString()
-      const unSubHeader = headers['list-unsubscribe'].toString()
+      const unSubHeader = headers['list-unsubscribe']?.toString()
 
       try {
         // check if it is a forwarding confirmation email or newsletter
@@ -93,36 +93,43 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
             from,
             unSubHeader
           )
-        } else {
-          console.log('non-newsletter email from:', from, recipientAddress)
-
-          if (isConfirmationEmail(from)) {
-            console.log('handleConfirmation', from)
-            await handleConfirmation(recipientAddress, subject)
-          } else if (pdfAttachment) {
-            console.log('handle PDF attachment', from, recipientAddress)
-            await handlePdfAttachment(
-              recipientAddress,
-              pdfAttachmentName,
-              pdfAttachment,
-              subject
-            )
-          }
-
-          const unsubscribe = parseUnsubscribe(unSubHeader)
-          // queue non-newsletter emails
-          await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
-            json: {
-              from: from,
-              to: recipientAddress,
-              subject: subject,
-              html: html,
-              text: text,
-              unsubMailTo: unsubscribe.mailTo,
-              unsubHttpUrl: unsubscribe.httpUrl,
-            },
-          })
+          return res.send('ok')
         }
+
+        console.log('non-newsletter email from:', from, recipientAddress)
+
+        if (isConfirmationEmail(from)) {
+          console.log('handleConfirmation', from)
+          await handleConfirmation(recipientAddress, subject)
+          return res.send('ok')
+        }
+
+        if (pdfAttachment) {
+          console.log('handle PDF attachment', from, recipientAddress)
+          await handlePdfAttachment(
+            recipientAddress,
+            pdfAttachmentName,
+            pdfAttachment,
+            subject
+          )
+          return res.send('ok')
+        }
+
+        const unsubscribe = parseUnsubscribe(unSubHeader)
+        // queue non-newsletter emails
+        await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
+          json: {
+            from: from,
+            to: recipientAddress,
+            subject: subject,
+            html: html,
+            text: text,
+            unsubMailTo: unsubscribe.mailTo,
+            unsubHttpUrl: unsubscribe.httpUrl,
+          },
+        })
+
+        res.send('ok')
       } catch (error) {
         console.log(
           'error handling emails, will forward.',
@@ -141,8 +148,6 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           },
         })
       }
-
-      res.send('ok')
     } catch (e) {
       console.log(e)
       res.send(e)
