@@ -106,6 +106,7 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
   return (
     <>
       <SpanBox css={{
+        display: props.alwaysDisplayToolbar ? 'none' : 'flex',
         '@lgDown': {
           display: 'none',
         }
@@ -122,7 +123,7 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       </SpanBox>
       <SpanBox css={{
         '@lg': {
-          display: 'none',
+          display: props.alwaysDisplayToolbar ? 'flex' : 'none',
         }
       }}>
         <NavHeader
