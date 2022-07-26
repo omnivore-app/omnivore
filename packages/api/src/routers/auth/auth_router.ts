@@ -420,13 +420,6 @@ export function authRouter() {
 
         // set auth cookie in response header
         await setAuthInCookie({ uid: user.id }, res)
-        const cookie = res.get('cookie')
-        if (!cookie) {
-          return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.AuthFailed}`
-          )
-        }
-        res.setHeader('set-cookie', cookie)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
