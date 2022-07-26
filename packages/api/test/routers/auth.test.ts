@@ -61,7 +61,7 @@ describe('auth router', () => {
           sinon.restore()
         })
 
-        it('redirects to login page', async () => {
+        it('redirects to verify email', async () => {
           const res = await signupRequest(
             email,
             password,
@@ -69,7 +69,7 @@ describe('auth router', () => {
             username
           ).expect(302)
           expect(res.header.location).to.endWith(
-            '/email-login?message=SIGNUP_SUCCESS'
+            '/verify-email?message=SIGNUP_SUCCESS'
           )
         })
 
@@ -173,9 +173,9 @@ describe('auth router', () => {
         password = correctPassword
       })
 
-      it('redirects to home page', async () => {
+      it('redirects to sso page', async () => {
         const res = await loginRequest(email, password).expect(302)
-        expect(res.header.location).to.endWith('/home')
+        expect(res.header.location).to.contain('/api/client/auth?tok')
       })
 
       it('set auth token in cookie', async () => {
