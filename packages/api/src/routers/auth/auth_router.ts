@@ -559,11 +559,11 @@ export function authRouter() {
           email,
         })
         if (!user) {
-          return res.redirect(`${env.client.url}/auth/auth/reset-sent`)
+          return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 
         if (user.status === StatusType.Pending) {
-          return res.redirect(`${env.client.url}/auth/auth/reset-sent`)
+          return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 
         if (!(await sendPasswordResetEmail(user))) {
