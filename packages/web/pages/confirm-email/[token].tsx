@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Toaster } from 'react-hot-toast'
 
@@ -12,36 +12,19 @@ import { fetchEndpoint } from '../../lib/appConfig'
 import { LoadingView } from '../../components/patterns/LoadingView'
 
 export default function ConfirmEmail(): JSX.Element {
+  const authForm = useRef<HTMLFormElement | null>(null)
   const router = useRouter()
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   applyStoredTheme(false)
 
   useEffect(() => {
-    if (!router || !router.isReady) {
+    if (!router || !router.isReady || !authForm.current) {
       return
     }
 
-    const token = router.query.token
-    fetch(`${fetchEndpoint}/auth/confirm-email`, {
-      method: 'POST',
-      redirect: 'follow',
-      mode: 'cors',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    }).then((response) => {
-      if (response.status === 200) {
-        window.localStorage.setItem('authVerified', 'true')
-        window.location.href = '/'
-      } else {
-        setErrorMessage('Error confirming email')
-      }
-    })
-
-  }, [router])
+    authForm.current?.submit()
+  }, [router, authForm])
 
   return (
     <PrimaryLayout pageTestId={'api-keys'}>
@@ -50,6 +33,13 @@ export default function ConfirmEmail(): JSX.Element {
           top: '5rem',
         }}
       />
+      <form
+       ref={authForm}
+       method="POST"
+       action={`${fetchEndpoint}/auth/confirm-email`}
+       >
+        <input type="hidden" name="token" value={router.query.token} />
+       </form>
       <HStack css={{ bg: '$grayBg', padding: '24px', width: '100%', height: '100%'}}>
         {errorMessage ? (
           <SpanBox >{errorMessage}</SpanBox>
