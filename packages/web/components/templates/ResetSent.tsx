@@ -1,9 +1,7 @@
-import { Box, HStack, MediumBreakpointBox, SpanBox, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack } from '../elements/LayoutPrimitives'
 import type { LoginFormProps } from './LoginForm'
-import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
-import { theme } from '../tokens/stitches.config'
 
-export function VerifyEmail(props: LoginFormProps): JSX.Element {
+export function ResetSent(props: LoginFormProps): JSX.Element {
   return (
     <>
       <HStack
@@ -22,11 +20,11 @@ export function VerifyEmail(props: LoginFormProps): JSX.Element {
         color: '$omnivoreGray',
         '@xl': { margin: '138px' },
         }}>
-        <h1>Verify your email address</h1>
+        <h1>Reset email sent</h1>
         <Box>
-          We sent a verification link to the email you provided.
-          Click the link to verify your email. You may need to check
-          your spam folder.
+          If there is an account assosciated with the email specified we sent a
+          password reset link. Click the link to reset your password. You may need
+          to check your spam folder.
         </Box>
       </Box>
     </HStack>

@@ -3,14 +3,12 @@ import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
 import { useEffect, useState } from 'react'
 import { FormInput } from '../elements/FormElements'
-import { TermAndConditionsFooter } from './LoginForm'
 import { fetchEndpoint } from '../../lib/appConfig'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { formatMessage } from '../../locales/en/messages'
 import { parseErrorCodes } from '../../lib/queryParamParser'
-import { LoadingView } from '../patterns/LoadingView'
 
 const BorderedFormInput = styled(FormInput, {
   height: '40px',
@@ -26,10 +24,9 @@ const FormLabel = styled('label', {
   color: '$omnivoreGray',
 })
 
-export function EmailResetPassword(): JSX.Element {
+export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
-  const [token, setToken] = useState<string | undefined>(undefined)
-  const [password, setPassword] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   useEffect(() => {
@@ -38,34 +35,24 @@ export function EmailResetPassword(): JSX.Element {
     const errorMsg = errorCode
       ? formatMessage({ id: `error.${errorCode}` })
       : undefined
-    
-    console.log('errorCode', errorCode, errorMsg)
-
     setErrorMessage(errorMsg)
-    setToken(router.query.token as string)
   }, [router.isReady, router.query])
 
-  if (!token) {
-    return <LoadingView />
-  }
-
   return (
-    <form action={`${fetchEndpoint}/auth/reset-password`} method="POST">
+    <form action={`${fetchEndpoint}/auth/forgot-password`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
+        <StyledText style="subHeadline">Reset your password</StyledText>
         <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
           <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Enter new password</FormLabel>
+            <FormLabel>Email</FormLabel>
             <BorderedFormInput
-              type="password"
-              key="password"
-              name="password"
-              value={password}
-              placeholder="Password"
-              onChange={(e) => { e.preventDefault(); setPassword(e.target.value); }}
+              key="email"
+              type="text"
+              name="email"
+              value={email}
+              placeholder="Email"
+              onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
             />
-            <FormLabel css={{ fontSize: '12px' }}>(Password must be at least 8 chars)</FormLabel>
-
-            <input type="hidden" name="token" value={token} />
           </SpanBox>
         </VStack>
         
@@ -73,7 +60,31 @@ export function EmailResetPassword(): JSX.Element {
           <StyledText style="error">{errorMessage}</StyledText>
         )}
         <Button type="submit" style="ctaDarkYellow" css={{  my: '$2' }}>
-          Update Password
+          Reset Password
+        </Button>
+        <Button
+          style="ghost"
+          onClick={async (e) => {
+            e.preventDefault()
+            window.localStorage.removeItem('authVerified')
+            window.localStorage.removeItem('authToken')
+            try {
+              await logoutMutation()
+            } catch (e) {
+              console.log('error logging out', e)
+            }
+            window.location.href = '/'
+          }}
+        >
+          <StyledText
+            css={{
+              color: '$omnivoreRed',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </StyledText>
         </Button>
       </VStack>
     </form>

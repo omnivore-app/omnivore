@@ -557,13 +557,13 @@ export function authRouter() {
         })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/auth/forgot-password?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/auth/reset-sent`
           )
         }
 
         if (user.status === StatusType.Pending) {
           return res.redirect(
-            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/auth/reset-sent`
           )
         }
 
@@ -573,7 +573,7 @@ export function authRouter() {
           )
         }
 
-        res.redirect(`${env.client.url}/auth/forgot-password?message=SUCCESS`)
+        res.redirect(`${env.client.url}/auth/reset-sent`)
       } catch (e) {
         logger.info('forgot-password exception:', e)
 
@@ -598,20 +598,20 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_TOKEN`
           )
         }
 
-        if (!password) {
+        if (!password || password.length < 8) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password?errorCodes=INVALID_PASSWORD`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_PASSWORD`
           )
         }
 
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`
           )
         }
 
@@ -632,11 +632,11 @@ export function authRouter() {
         )
         if (!updated.affected) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password?errorCodes=UNKNOWN`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`
           )
         }
 
-        res.redirect(`${env.client.url}/auth/reset-password?message=SUCCESS`)
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('reset-password exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
