@@ -506,10 +506,9 @@ export function authRouter() {
           const updated = await AppDataSource.transaction(
             async (entityManager) => {
               await setClaims(entityManager, user.id)
-              return getRepository(User).update(
-                { id: user.id },
-                { status: StatusType.Active }
-              )
+              return entityManager
+                .getRepository(User)
+                .update({ id: user.id }, { status: StatusType.Active })
             }
           )
 
@@ -626,10 +625,9 @@ export function authRouter() {
         const updated = await AppDataSource.transaction(
           async (entityManager) => {
             await setClaims(entityManager, user.id)
-            return getRepository(User).update(
-              { id: user.id },
-              { password: hashedPassword }
-            )
+            return entityManager
+              .getRepository(User)
+              .update({ id: user.id }, { password: hashedPassword })
           }
         )
         if (!updated.affected) {
