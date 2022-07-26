@@ -1,7 +1,7 @@
-import { Box, HStack, MediumBreakpointBox, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import type { LoginFormProps } from './LoginForm'
-import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
-import { theme } from '../tokens/stitches.config'
+import { Box, HStack, MediumBreakpointBox, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import type { LoginFormProps } from '../LoginForm'
+import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
+import { theme } from '../../tokens/stitches.config'
 
 export function VerifyEmail(props: LoginFormProps): JSX.Element {
   return (

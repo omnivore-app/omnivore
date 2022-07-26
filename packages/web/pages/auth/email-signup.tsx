@@ -1,6 +1,6 @@
 import { PageMetaData } from '../../components/patterns/PageMetaData'
 import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import { EmailSignup } from '../../components/templates/EmailSignup'
+import { EmailSignup } from '../../components/templates/auth/EmailSignup'
 
 export default function EmailRegistrationPage(): JSX.Element {
   return (

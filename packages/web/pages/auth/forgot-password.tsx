@@ -1,6 +1,6 @@
 import { PageMetaData } from '../../components/patterns/PageMetaData'
 import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import { EmailForgotPassword } from '../../components/templates/EmailForgotPassword'
+import { EmailForgotPassword } from '../../components/templates/auth/EmailForgotPassword'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import toast, { Toaster } from 'react-hot-toast'

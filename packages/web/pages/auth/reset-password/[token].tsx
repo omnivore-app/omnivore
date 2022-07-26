@@ -1,6 +1,6 @@
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { ProfileLayout } from '../../../components/templates/ProfileLayout'
-import { EmailResetPassword } from '../../../components/templates/EmailResetPassword'
+import { EmailResetPassword } from '../../../components/templates/auth/EmailResetPassword'
 
 export default function EmailRegistrationPage(): JSX.Element {
   return (

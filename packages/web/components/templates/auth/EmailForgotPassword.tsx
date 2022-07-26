@@ -1,14 +1,14 @@
-import { SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { Button } from '../elements/Button'
-import { StyledText } from '../elements/StyledText'
+import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Button } from '../../elements/Button'
+import { StyledText } from '../../elements/StyledText'
 import { useEffect, useState } from 'react'
-import { FormInput } from '../elements/FormElements'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
+import { FormInput } from '../../elements/FormElements'
+import { fetchEndpoint } from '../../../lib/appConfig'
+import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { formatMessage } from '../../locales/en/messages'
-import { parseErrorCodes } from '../../lib/queryParamParser'
+import { formatMessage } from '../../../locales/en/messages'
+import { parseErrorCodes } from '../../../lib/queryParamParser'
 
 const BorderedFormInput = styled(FormInput, {
   height: '40px',

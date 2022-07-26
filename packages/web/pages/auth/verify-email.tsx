@@ -1,5 +1,5 @@
 import { PageMetaData } from '../../components/patterns/PageMetaData'
-import { VerifyEmail } from '../../components/templates/VerifyEmail'
+import { VerifyEmail } from '../../components/templates/auth/VerifyEmail'
 
 export default function VerifyEmailPage(): JSX.Element {
   return (

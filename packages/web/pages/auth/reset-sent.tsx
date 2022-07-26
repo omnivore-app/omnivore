@@ -1,6 +1,6 @@
 import { PageMetaData } from '../../components/patterns/PageMetaData'
 import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import { ResetSent } from '../../components/templates/ResetSent'
+import { ResetSent } from '../../components/templates/auth/ResetSent'
 
 export default function EmailResetSent(): JSX.Element {
   return (
