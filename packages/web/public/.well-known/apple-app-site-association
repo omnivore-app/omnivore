@@ -13,5 +13,10 @@
         ]
       }
     ]
+  },
+  "webcredentials": {
+    "apps": [
+      "QJF2XZ86HB.app.omnivore.app"
+    ]
   }
 }
