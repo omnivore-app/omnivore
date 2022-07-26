@@ -4292,13 +4292,6 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/api-metrics/-/api-metrics-0.27.0.tgz#d8eca344ed1155f3ea8a8133ade827b4bb90efbf"
   integrity sha512-tB79288bwjkdhPNpw4UdOEy3bacVwtol6Que7cAu8KEJ9ULjRfSiwpYEwJY/oER3xZ7zNFz0uiJ7N1jSiotpVA==
 
-"@opentelemetry/api-metrics@0.28.0":
-  version "0.28.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/api-metrics/-/api-metrics-0.28.0.tgz#698acbb2f570ece49815fca8be6f3070ae41f016"
-  integrity sha512-UcrJqEiV20YTibYXUT0TDBtl4uLh4tMpAYSa1g1780QrVMlsOMAnBrdD3EYTMPog14Zw+2QzPnDJ4X7q67YrSA==
-  dependencies:
-    "@opentelemetry/api" "^1.0.0"
-
 "@opentelemetry/api-metrics@0.29.2":
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/api-metrics/-/api-metrics-0.29.2.tgz#daa823e0965754222b49a6ae6133df8b39ff8fd2"
@@ -4401,12 +4394,12 @@
     "@opentelemetry/semantic-conventions" "1.0.1"
     semver "^7.3.5"
 
-"@opentelemetry/instrumentation-pg@^0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-pg/-/instrumentation-pg-0.29.0.tgz#07f4c9a01d1294da6d5d341d97cf7501d3382552"
-  integrity sha512-ANHxShvLlp+B+TFFGDZ+ZyzRFCa3JrDwwGM63JptMZZDAiXsOj7vQGTvwegy5r5S+rRzt/Ebei1mfz0B9xFgIQ==
+"@opentelemetry/instrumentation-pg@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-pg/-/instrumentation-pg-0.30.0.tgz#5941dd2817a846e7b5bc283112a9cf46728d1f44"
+  integrity sha512-RQ3cTTJnCBE/9GagjSpaM+yzxN25MvEwOxDFes3y8c1cqrMgqxukQLm3MbcqCQ8e1g/8d18+oyiEeBUjZJ5jnw==
   dependencies:
-    "@opentelemetry/instrumentation" "^0.28.0"
+    "@opentelemetry/instrumentation" "^0.29.2"
     "@opentelemetry/semantic-conventions" "^1.0.0"
     "@types/pg" "8.6.1"
     "@types/pg-pool" "2.0.3"
@@ -4427,16 +4420,6 @@
   integrity sha512-LXx5V0ONNATQFCE8C5uqnxWSm4rcXLssdLHdXjtGdxRmURqj/JO8jYefqXCD0LzsqEQ6yxOx2GZ0dgXvhBVdTw==
   dependencies:
     "@opentelemetry/api-metrics" "0.29.2"
-    require-in-the-middle "^5.0.3"
-    semver "^7.3.2"
-    shimmer "^1.2.1"
-
-"@opentelemetry/instrumentation@^0.28.0":
-  version "0.28.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.28.0.tgz#152b1341be63991a9e940621e6b998b3d8d4ff9b"
-  integrity sha512-hcL+U02vp0vcouoMjoJArP0USBuBXnWF+sAt+Z5k77ROEcSCHZh0DkWigWGMyN8w3M5SpoqRlJiXLDM+9RtXNg==
-  dependencies:
-    "@opentelemetry/api-metrics" "0.28.0"
     require-in-the-middle "^5.0.3"
     semver "^7.3.2"
     shimmer "^1.2.1"
