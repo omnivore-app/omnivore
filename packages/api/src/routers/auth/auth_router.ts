@@ -52,6 +52,8 @@ import {
   sendConfirmationEmail,
   sendPasswordResetEmail,
 } from '../../services/send_emails'
+import { createWebAuthToken } from './jwt_helpers'
+import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -311,43 +313,48 @@ export function authRouter() {
     newUser: boolean
   ): Promise<void> {
     try {
-      const redirect = (res: express.Response): void => {
-        let redirectUri: string | null = null
-        if (req.query.state) {
-          // Google login case: redirect_uri is in query state param.
-          try {
-            const state = JSON.parse((req.query?.state || '') as string)
-            redirectUri = state?.redirect_uri
-          } catch (err) {
-            console.warn(
-              'handleSuccessfulLogin: failed to parse redirect query state param',
-              err
-            )
-          }
-        }
-
-        const message = res.get('Message')
-        if (message) {
-          return res.redirect(
-            `${env.client.url}/home?message=${encodeURIComponent(message)}`
+      let redirectUri: string | null = null
+      if (req.query.state) {
+        // Google login case: redirect_uri is in query state param.
+        try {
+          const state = JSON.parse((req.query?.state || '') as string)
+          redirectUri = state?.redirect_uri
+        } catch (err) {
+          console.warn(
+            'handleSuccessfulLogin: failed to parse redirect query state param',
+            err
           )
         }
-
-        if (newUser) {
-          if (redirectUri && redirectUri !== '/') {
-            return res.redirect(
-              url.resolve(env.client.url, decodeURIComponent(redirectUri))
-            )
-          }
-          return res.redirect(`${env.client.url}/home`)
-        }
-
-        return res.redirect(
-          url.resolve(env.client.url, decodeURIComponent(redirectUri || 'home'))
-        )
       }
 
-      redirect(res)
+      if (newUser) {
+        if (redirectUri && redirectUri !== '/') {
+          redirectUri = url.resolve(env.client.url, decodeURIComponent(redirectUri))
+        } else {
+          redirectUri = `${env.client.url}/home`
+        }
+      }
+
+      redirectUri = redirectUri ? redirectUri : `${env.client.url}/home`
+
+      const message = res.get('Message')
+      if (message) {
+        const u = new URL(redirectUri)
+        u.searchParams.append('message', message);
+        redirectUri = u.toString()
+      }
+
+      // If we do have an auth token, we want to try redirecting to the
+      // sso endpoint which will set a cookie for the client domain (omnivore.app)
+      // after we set a cookie for the API domain (api-prod.omnivore.app)
+      const authToken = await createWebAuthToken(user.id)
+      if (authToken) {
+        const ssoToken = createSsoToken(authToken, redirectUri)
+        redirectUri = ssoRedirectURL(ssoToken)
+
+      }
+
+      return res.redirect(redirectUri)
     } catch (error) {
       logger.info('handleSuccessfulLogin exception:', error)
       return res.redirect(`${env.client.url}/login?errorCodes=AUTH_FAILED`)
@@ -408,8 +415,6 @@ export function authRouter() {
           )
         }
 
-        // set auth cookie in response header
-        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
@@ -514,7 +519,6 @@ export function authRouter() {
         }
 
         res.set('Message', 'EMAIL_CONFIRMED')
-        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('confirm-email exception:', e)
@@ -630,7 +634,6 @@ export function authRouter() {
           )
         }
 
-        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('reset-password exception:', e)
