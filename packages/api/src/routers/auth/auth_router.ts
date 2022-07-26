@@ -347,15 +347,7 @@ export function authRouter() {
         )
       }
 
-      if (env.server.apiEnv && !env.dev.isLocal && IntercomClient) {
-        if (newUser) {
-          redirect(res)
-        } else {
-          redirect(res)
-        }
-      } else {
-        redirect(res)
-      }
+      redirect(res)
     } catch (error) {
       logger.info('handleSuccessfulLogin exception:', error)
       return res.redirect(`${env.client.url}/login?errorCodes=AUTH_FAILED`)
