@@ -5,6 +5,8 @@ import 'chai/register-should'
 import fs from 'fs'
 import {
   findNewsletterUrl,
+  generateUniqueUrl,
+  getTitleFromEmailSubject,
   isProbablyArticle,
   isProbablyNewsletter,
   parsePageMetadata,
@@ -158,5 +160,22 @@ describe('isProbablyArticle', () => {
   it('returns true when subject has omnivore: prefix', async () => {
     const subject = 'omnivore: test subject'
     expect(await isProbablyArticle('test-email', subject)).to.be.true
+  })
+})
+
+describe('generateUniqueUrl', () => {
+  it('generates a unique URL', () => {
+    const url1 = generateUniqueUrl()
+    const url2 = generateUniqueUrl()
+
+    expect(url1).to.not.eql(url2)
+  })
+})
+
+describe('getTitleFromEmailSubject', () => {
+  it('returns the title from the email subject', () => {
+    const title = 'test subject'
+    const subject = `omnivore: ${title}`
+    expect(getTitleFromEmailSubject(subject)).to.eql(title)
   })
 })

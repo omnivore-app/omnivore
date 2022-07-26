@@ -18,6 +18,7 @@ import { parseHTML } from 'linkedom'
 import { getRepository } from '../entity/utils'
 import { User } from '../entity/user'
 import { ILike } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 
 const logger = buildLogger('utils.parse')
 
@@ -558,4 +559,11 @@ export const isProbablyArticle = async (
     email: ILike(email),
   })
   return !!user || subject.includes(ARTICLE_PREFIX)
+}
+
+export const generateUniqueUrl = () => 'https://omnivore.app/no_url?q=' + uuid()
+
+export const getTitleFromEmailSubject = (subject: string) => {
+  const title = subject.replace(ARTICLE_PREFIX, '')
+  return title.trim()
 }

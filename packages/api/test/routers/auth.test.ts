@@ -1,6 +1,5 @@
 import { createTestUser, deleteTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
-import { expect } from 'chai'
 import { StatusType } from '../../src/datalayer/user/model'
 import { getRepository } from '../../src/entity/utils'
 import { User } from '../../src/entity/user'
@@ -13,6 +12,10 @@ import {
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
+import sinonChai from 'sinon-chai'
+import chai, { expect } from 'chai'
+
+chai.use(sinonChai)
 
 describe('auth router', () => {
   const route = '/api/auth'

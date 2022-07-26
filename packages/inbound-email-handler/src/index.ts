@@ -119,11 +119,11 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         // queue non-newsletter emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {
-            from: from,
+            from,
             to: recipientAddress,
-            subject: subject,
-            html: html,
-            text: text,
+            subject,
+            html,
+            text,
             unsubMailTo: unsubscribe.mailTo,
             unsubHttpUrl: unsubscribe.httpUrl,
           },
@@ -140,11 +140,11 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         // queue error emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {
-            from: from,
+            from,
             to: recipientAddress,
-            subject: subject,
-            html: html,
-            text: text,
+            subject,
+            html,
+            text,
           },
         })
       }

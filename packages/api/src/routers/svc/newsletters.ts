@@ -96,7 +96,7 @@ export function newsletterServiceRouter() {
 
       const result = await saveNewsletterEmail(data)
       if (!result) {
-        console.log('Error createing newsletter link from data', data)
+        console.log('Error creating newsletter link from data', data)
         res.status(500).send('Error creating newsletter link')
         return
       }
