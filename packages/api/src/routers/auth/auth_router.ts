@@ -469,7 +469,7 @@ export function authRouter() {
           pendingConfirmation: true,
         })
 
-        res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
+        res.redirect(`${env.client.url}/verify-email?message=SIGNUP_SUCCESS`)
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
