@@ -24,6 +24,8 @@ const errorMessages: Record<string, string> = {
   'error.EXPIRED_TOKEN':
     "Your sign up page has timed out, you'll be redirected to Google sign in page to authenticate again.",
   'error.USER_EXISTS': 'User with this email exists already',
+  'error.UNKNOWN': 'An unknown error occurred',
+  'error.INVALID_PASSWORD': 'Invalid password. Password must be at least 8 chars.'
 }
 
 const loginPageMessages: Record<string, string> = {

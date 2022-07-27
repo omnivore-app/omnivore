@@ -106,33 +106,6 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
           />
         </Box>
       )}
-{/* 
-      <StyledText
-        style="caption"
-        css={{
-          pt: '16px',
-          maxWidth: '220px',
-          textAlign: 'left',
-          color: '$omnivoreLightGray',
-        }}
-      >
-        <SpanBox>
-          Use your email address to{' '}
-          <Link href="/email-login" passHref>
-            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>
-              Login
-            </StyledTextSpan>
-          </Link>{' '}
-          or{' '}
-          <Link href="/email-signup" passHref>
-            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>
-              Signup
-            </StyledTextSpan>
-          </Link>{' '}
-          with your email address.
-        </SpanBox>
-      </StyledText> */}
-
       </VStack>
       <TermAndConditionsFooter />
     </VStack>

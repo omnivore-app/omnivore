@@ -19,7 +19,6 @@ import express from 'express'
 import axios from 'axios'
 import { env } from '../../env'
 import url from 'url'
-import { IntercomClient } from '../../utils/intercom'
 import { kx } from '../../datalayer/knex_config'
 import UserModel from '../../datalayer/user'
 import { buildLogger } from '../../utils/logger'
@@ -33,10 +32,27 @@ import { corsConfig } from '../../utils/corsConfig'
 import cors from 'cors'
 
 import {
-  MembershipTier,
   RegistrationType,
+  StatusType,
   UserData,
 } from '../../datalayer/user/model'
+import {
+  comparePassword,
+  getClaimsByToken,
+  hashPassword,
+  setAuthInCookie,
+} from '../../utils/auth'
+import { createUser } from '../../services/create_user'
+import { isErrorWithCode } from '../../resolvers'
+import { AppDataSource, initModels } from '../../server'
+import { getRepository, setClaims } from '../../entity/utils'
+import { User } from '../../entity/user'
+import {
+  sendConfirmationEmail,
+  sendPasswordResetEmail,
+} from '../../services/send_emails'
+import { createWebAuthToken } from './jwt_helpers'
+import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -286,60 +302,62 @@ export function authRouter() {
 
     res.setHeader('set-cookie', result.headers['set-cookie'])
 
-    handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
+    await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
   })
 
   async function handleSuccessfulLogin(
     req: express.Request,
     res: express.Response,
-    user: UserData,
+    user: UserData | User,
     newUser: boolean
   ): Promise<void> {
     try {
-      const redirect = (res: express.Response): void => {
-        let redirectUri: string | null = null
-        if (req.query.state) {
-          // Google login case: redirect_uri is in query state param.
-          try {
-            const state = JSON.parse((req.query?.state || '') as string)
-            redirectUri = state?.redirect_uri
-          } catch (err) {
-            console.warn(
-              'handleSuccessfulLogin: failed to parse redirect query state param',
-              err
-            )
-          }
-        }
-
-        if (newUser) {
-          if (redirectUri && redirectUri !== '/') {
-            return res.redirect(
-              url.resolve(env.client.url, decodeURIComponent(redirectUri))
-            )
-          }
-          return res.redirect(
-            `${env.client.url}/settings/installation/extensions`
+      let redirectUri: string | null = null
+      if (req.query.state) {
+        // Google login case: redirect_uri is in query state param.
+        try {
+          const state = JSON.parse((req.query?.state || '') as string)
+          redirectUri = state?.redirect_uri
+        } catch (err) {
+          console.warn(
+            'handleSuccessfulLogin: failed to parse redirect query state param',
+            err
           )
         }
-
-        if (user.membership === MembershipTier.WaitList) {
-          return res.redirect(`${env.client.url}/waitlist`)
-        }
-
-        return res.redirect(
-          url.resolve(env.client.url, decodeURIComponent(redirectUri || 'home'))
-        )
       }
 
-      if (env.server.apiEnv && !env.dev.isLocal && IntercomClient) {
-        if (newUser) {
-          redirect(res)
+      if (newUser) {
+        if (redirectUri && redirectUri !== '/') {
+          redirectUri = url.resolve(
+            env.client.url,
+            decodeURIComponent(redirectUri)
+          )
         } else {
-          redirect(res)
+          redirectUri = `${env.client.url}/home`
         }
-      } else {
-        redirect(res)
       }
+
+      redirectUri = redirectUri ? redirectUri : `${env.client.url}/home`
+
+      const message = res.get('Message')
+      if (message) {
+        const u = new URL(redirectUri)
+        u.searchParams.append('message', message)
+        redirectUri = u.toString()
+      }
+
+      // If we do have an auth token, we want to try redirecting to the
+      // sso endpoint which will set a cookie for the client domain (omnivore.app)
+      // after we set a cookie for the API domain (api-prod.omnivore.app)
+      const authToken = await createWebAuthToken(user.id)
+      if (authToken) {
+        const ssoToken = createSsoToken(authToken, redirectUri)
+        redirectUri = ssoRedirectURL(ssoToken)
+      }
+
+      await setAuthInCookie({ uid: user.id }, res)
+
+      return res.redirect(redirectUri)
     } catch (error) {
       logger.info('handleSuccessfulLogin exception:', error)
       return res.redirect(`${env.client.url}/login?errorCodes=AUTH_FAILED`)
@@ -356,59 +374,56 @@ export function authRouter() {
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const { email, password } = req.body
+
       if (!email || !password) {
-        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
-        return
+        return res.redirect(
+          `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+        )
       }
 
-      const query = `
-      mutation login{
-        login(input: {
-          email: "${email}",
-          password: "${password}"
-        }) {
-          __typename
-          ... on LoginError { errorCodes }
-          ... on LoginSuccess {
-            me {
-              id
-              name
-              profile {
-                username
-              }
-            }
-          }
-        }
-      }`
-
       try {
-        const result = await axios.post(env.server.gateway_url + '/graphql', {
-          query,
+        const models = initModels(kx, false)
+        const user = await models.user.getWhere({
+          email,
         })
-        const { data } = result.data
-
-        if (data.login.__typename === 'LoginError') {
-          const errorCodes = data.login.errorCodes.join(',')
+        if (!user?.id) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${errorCodes}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
         }
 
-        if (!result.headers['set-cookie']) {
+        if (user.status === StatusType.Pending && user.email) {
+          await sendConfirmationEmail({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          })
           return res.redirect(
-            `${env.client.url}/${
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (req.params as any)?.action
-            }?errorCodes=unknown`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
-        res.setHeader('set-cookie', result.headers['set-cookie'])
+        if (!user?.password) {
+          // user has no password, so they need to set one
+          return res.redirect(
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.WrongSource}`
+          )
+        }
 
-        await handleSuccessfulLogin(req, res, data.login.me, false)
+        // check if password is correct
+        const validPassword = await comparePassword(password, user.password)
+        if (!validPassword) {
+          return res.redirect(
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+          )
+        }
+
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
-        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
+        res.redirect(
+          `${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`
+        )
       }
     }
   )
@@ -422,54 +437,218 @@ export function authRouter() {
     '/email-signup',
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
-      const { email, password, name, username, bio } = req.body
-      if (!email || !password || !name || !username) {
-        res.redirect(`${env.client.url}/email-signup?errorCodes=BAD_DATA`)
-        return
-      }
+      const { email, password, name, username, bio, pictureUrl } = req.body
 
-      const query = `
-      mutation signup {
-        signup(input: {
-          email: "${email}",
-          password: "${password}",
-          name: "${name}",
-          username: "${username}",
-          bio: "${bio ?? ''}"
-        }) {
-          __typename
-          ... on SignupSuccess {
-            me {
-              id
-              name
-              profile {
-                username
-              }
-            }
-          }
-          ... on SignupError {
-            errorCodes
-          }
-        }
-      }`
+      if (!email || !password || !name || !username) {
+        return res.redirect(
+          `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
+        )
+      }
+      const lowerCasedUsername = username.toLowerCase()
 
       try {
-        const result = await axios.post(env.server.gateway_url + '/graphql', {
-          query,
-        })
-        const { data } = result.data
+        // hash password
+        const hashedPassword = await hashPassword(password)
 
-        if (data.signup.__typename === 'SignupError') {
-          const errorCodes = data.signup.errorCodes.join(',')
+        await createUser({
+          email,
+          provider: 'EMAIL',
+          sourceUserId: email,
+          name,
+          username: lowerCasedUsername,
+          pictureUrl,
+          bio,
+          password: hashedPassword,
+          pendingConfirmation: true,
+        })
+
+        res.redirect(
+          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
+        )
+      } catch (e) {
+        logger.info('email-signup exception:', e)
+        if (isErrorWithCode(e)) {
           return res.redirect(
-            `${env.client.url}/email-signup?errorCodes=${errorCodes}`
+            `${env.client.url}/auth/email-signup?errorCodes=${e.errorCode}`
+          )
+        }
+        res.redirect(`${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`)
+      }
+    }
+  )
+
+  router.options(
+    '/confirm-email',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/confirm-email',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const token = req.body.token
+
+      try {
+        // verify token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          return res.redirect(
+            `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
           )
         }
 
-        res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
+        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/auth/confirm-email?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          const updated = await AppDataSource.transaction(
+            async (entityManager) => {
+              await setClaims(entityManager, user.id)
+              return entityManager
+                .getRepository(User)
+                .update({ id: user.id }, { status: StatusType.Active })
+            }
+          )
+
+          if (!updated.affected) {
+            return res.redirect(
+              `${env.client.url}/auth/confirm-email?errorCodes=UNKNOWN`
+            )
+          }
+        }
+
+        res.set('Message', 'EMAIL_CONFIRMED')
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
-        logger.info('email-signup exception:', e)
-        res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
+        logger.info('confirm-email exception:', e)
+        if (e instanceof jwt.TokenExpiredError) {
+          return res.redirect(
+            `${env.client.url}/auth/confirm-email?errorCodes=TOKEN_EXPIRED`
+          )
+        }
+
+        res.redirect(
+          `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
+        )
+      }
+    }
+  )
+
+  router.options(
+    '/forgot-password',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/forgot-password',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const email = req.body.email
+      if (!email) {
+        return res.redirect(
+          `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
+        )
+      }
+
+      try {
+        const user = await getRepository(User).findOneBy({
+          email,
+        })
+        if (!user) {
+          return res.redirect(`${env.client.url}/auth/reset-sent`)
+        }
+
+        if (user.status === StatusType.Pending) {
+          return res.redirect(`${env.client.url}/auth/reset-sent`)
+        }
+
+        if (!(await sendPasswordResetEmail(user))) {
+          return res.redirect(
+            `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
+          )
+        }
+
+        res.redirect(`${env.client.url}/auth/reset-sent`)
+      } catch (e) {
+        logger.info('forgot-password exception:', e)
+
+        res.redirect(
+          `${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`
+        )
+      }
+    }
+  )
+
+  router.options(
+    '/reset-password',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
+
+  router.post(
+    '/reset-password',
+    cors<express.Request>(corsConfig),
+    async (req: express.Request, res: express.Response) => {
+      const { token, password } = req.body
+
+      try {
+        // verify token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          return res.redirect(
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_TOKEN`
+          )
+        }
+
+        if (!password || password.length < 8) {
+          return res.redirect(
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_PASSWORD`
+          )
+        }
+
+        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        if (!user) {
+          return res.redirect(
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`
+          )
+        }
+
+        if (user.status === StatusType.Pending) {
+          return res.redirect(
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
+          )
+        }
+
+        const hashedPassword = await hashPassword(password)
+        const updated = await AppDataSource.transaction(
+          async (entityManager) => {
+            await setClaims(entityManager, user.id)
+            return entityManager
+              .getRepository(User)
+              .update({ id: user.id }, { password: hashedPassword })
+          }
+        )
+        if (!updated.affected) {
+          return res.redirect(
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`
+          )
+        }
+
+        await handleSuccessfulLogin(req, res, user, false)
+      } catch (e) {
+        logger.info('reset-password exception:', e)
+        if (e instanceof jwt.TokenExpiredError) {
+          return res.redirect(
+            `${env.client.url}/auth/reset-password/?errorCodes=TOKEN_EXPIRED`
+          )
+        }
+
+        res.redirect(
+          `${env.client.url}/auth/reset-password/?errorCodes=INVALID_TOKEN`
+        )
       }
     }
   )

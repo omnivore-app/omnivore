@@ -27,7 +27,7 @@
     "@opentelemetry/instrumentation-graphql": "^0.29.0",
     "@opentelemetry/instrumentation-grpc": "^0.29.2",
     "@opentelemetry/instrumentation-http": "^0.27.0",
-    "@opentelemetry/instrumentation-pg": "^0.29.0",
+    "@opentelemetry/instrumentation-pg": "^0.30.0",
     "@opentelemetry/node": "^0.24.0",
     "@opentelemetry/resources": "^0.24.0",
     "@opentelemetry/semantic-conventions": "^1.0.1",
@@ -107,6 +107,8 @@
     "@types/oauth": "^0.9.1",
     "@types/private-ip": "^1.0.0",
     "@types/sanitize-html": "^1.27.1",
+    "@types/sinon": "^10.0.13",
+    "@types/sinon-chai": "^3.2.8",
     "@types/supertest": "^2.0.11",
     "@types/urlsafe-base64": "^1.0.28",
     "@types/uuid": "^8.3.0",
@@ -120,6 +122,8 @@
     "nock": "^13.2.4",
     "nyc": "^15.1.0",
     "postgrator": "^4.2.0",
+    "sinon": "^14.0.0",
+    "sinon-chai": "^3.7.0",
     "ts-node-dev": "^1.1.8"
   },
   "engines": {

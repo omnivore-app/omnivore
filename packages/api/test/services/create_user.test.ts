@@ -1,5 +1,5 @@
 import 'mocha'
-import { expect } from 'chai'
+import chai, { expect } from 'chai'
 import 'chai/register-should'
 import {
   createTestUser,
@@ -12,42 +12,96 @@ import {
   getUserFollowers,
   getUserFollowing,
 } from '../../src/services/followers'
+import { StatusType } from '../../src/datalayer/user/model'
+import sinonChai from 'sinon-chai'
+import sinon from 'sinon'
+import * as util from '../../src/utils/sendEmail'
+import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 
-describe('create a user with an invite', () => {
-  it('follows the other user in the group', async () => {
-    after(async () => {
-      await deleteTestUser(testOwner)
-      await deleteTestUser(testUser)
+chai.use(sinonChai)
+
+describe('create user', () => {
+  context('create a user with an invite', () => {
+    it('follows the other user in the group', async () => {
+      after(async () => {
+        await deleteTestUser(testOwner)
+        await deleteTestUser(testUser)
+      })
+
+      const testOwner = 'testowner'
+      const testUser = 'testuser'
+
+      const adminUser = await createTestUser(testOwner)
+      const [, invite] = await createGroup({
+        admin: adminUser,
+        name: 'testgroup',
+      })
+      const user = await createTestUser(testUser, invite.code)
+
+      expect(await getUserFollowers(user)).to.eql([adminUser])
+      expect(await getUserFollowing(user)).to.eql([adminUser])
+      expect(await getUserFollowers(adminUser)).to.eql([user])
+      expect(await getUserFollowing(adminUser)).to.eql([user])
     })
 
-    const testOwner = 'testowner'
-    const testUser = 'testuser'
+    it('creates profile when user exists but profile not', async () => {
+      after(async () => {
+        await deleteTestUser(name)
+      })
 
-    const adminUser = await createTestUser(testOwner)
-    const [, invite] = await createGroup({
-      admin: adminUser,
-      name: 'testgroup',
+      const name = 'userWithoutProfile'
+      const user = await createUserWithoutProfile(name)
+
+      await createTestUser(user.name)
+
+      const profile = await getProfile(user)
+
+      expect(profile).to.exist
     })
-    const user = await createTestUser(testUser, invite.code)
+  })
 
-    expect(await getUserFollowers(user)).to.eql([adminUser])
-    expect(await getUserFollowing(user)).to.eql([adminUser])
-    expect(await getUserFollowers(adminUser)).to.eql([user])
-    expect(await getUserFollowing(adminUser)).to.eql([user])
-  }).timeout(10000)
+  context('create a user with pending confirmation', () => {
+    const name = 'pendingUser'
+    let fake: (msg: MailDataRequired) => Promise<boolean>
 
-  it('creates profile when user exists but profile not', async () => {
-    after(async () => {
-      await deleteTestUser(name)
+    context('when email sends successfully', () => {
+      beforeEach(() => {
+        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+      })
+
+      afterEach(async () => {
+        sinon.restore()
+        await deleteTestUser(name)
+      })
+
+      it('creates the user with pending status and correct name', async () => {
+        const user = await createTestUser(name, undefined, undefined, true)
+
+        expect(user.status).to.eql(StatusType.Pending)
+        expect(user.name).to.eql(name)
+      })
+
+      it('sends an email to the user', async () => {
+        await createTestUser(name, undefined, undefined, true)
+
+        expect(fake).to.have.been.calledOnce
+      })
     })
 
-    const name = 'userWithoutProfile'
-    const user = await createUserWithoutProfile(name)
+    context('when failed to send email', () => {
+      before(() => {
+        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
+      })
 
-    await createTestUser(user.name)
+      after(async () => {
+        sinon.restore()
+        await deleteTestUser(name)
+      })
 
-    const profile = await getProfile(user)
-
-    expect(profile).to.exist
+      it('rejects with error', async () => {
+        return expect(createTestUser(name, undefined, undefined, true)).to.be
+          .rejected
+      })
+    })
   })
 })
