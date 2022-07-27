@@ -45,3 +45,24 @@ extension Authenticator {
     }
   }
 }
+
+// email auth
+public extension Authenticator {
+  func submitEmailLogin(
+    email: String,
+    password: String
+  ) async throws {
+    do {
+      let params = EmailSignInParams(email: email, password: password)
+      let authPayload = try await networker.submitEmailLogin(params: params)
+      try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
+      try ValetKey.authToken.setValue(authPayload.authToken)
+      DispatchQueue.main.async {
+        self.isLoggedIn = true
+      }
+    } catch {
+      let serverError = (error as? ServerError) ?? ServerError.unknown
+      throw LoginError.make(serverError: serverError)
+    }
+  }
+}

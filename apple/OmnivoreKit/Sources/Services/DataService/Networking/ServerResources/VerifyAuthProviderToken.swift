@@ -36,4 +36,29 @@ extension Networker {
       }
     }
   }
+
+  func submitEmailLogin(params: EmailSignInParams) async throws -> AuthPayload {
+    let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
+
+    let urlRequest = URLRequest.create(
+      baseURL: appEnvironment.serverBaseURL,
+      urlPath: "/api/mobile-auth/email-login",
+      requestMethod: .post(params: encodedParams)
+    )
+
+    let resource = ServerResource<AuthPayload>(
+      urlRequest: urlRequest,
+      decode: AuthPayload.decode
+    )
+
+    do {
+      return try await urlSession.performRequest(resource: resource)
+    } catch {
+      if let error = error as? ServerError {
+        throw LoginError.make(serverError: error)
+      } else {
+        throw LoginError.unknown
+      }
+    }
+  }
 }

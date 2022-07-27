@@ -11,10 +11,12 @@ import Views
     email: String,
     password: String,
     authenticator: Authenticator
-  ) {
-    print(email)
-    print(password)
-    print(authenticator.hasValidAuthToken)
+  ) async {
+    do {
+      try await authenticator.submitEmailLogin(email: email, password: password)
+    } catch {
+      loginError = error as? LoginError
+    }
   }
 }
 
@@ -56,11 +58,13 @@ struct EmailLoginView: View {
 
                 Button(
                   action: {
-                    viewModel.submitCredentials(
-                      email: email,
-                      password: password,
-                      authenticator: authenticator
-                    )
+                    Task {
+                      await viewModel.submitCredentials(
+                        email: email,
+                        password: password,
+                        authenticator: authenticator
+                      )
+                    }
                   },
                   label: { Text("Submit") }
                 )

@@ -18,6 +18,11 @@ struct SignInParams: Encodable {
   let provider: AuthProvider
 }
 
+struct EmailSignInParams: Encodable {
+  let email: String
+  let password: String
+}
+
 enum AuthProvider: String, Encodable {
   case apple = "APPLE"
   case google = "GOOGLE"
