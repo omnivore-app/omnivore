@@ -58,6 +58,8 @@ extension LoginError {
       return .unauthorized
     case .unknown:
       return .unknown
+    case .pendingEmailVerification:
+      return .pendingEmailVerification
     }
   }
 }

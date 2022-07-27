@@ -8,6 +8,11 @@ import {
 } from '../auth_types'
 import { createMobileAuthPayload } from '../jwt_helpers'
 import UserModel from '../../../datalayer/user'
+import { initModels } from '../../../server'
+import { sendConfirmationEmail } from '../../../services/send_emails'
+import { kx } from '../../../datalayer/knex_config'
+import { StatusType } from '../../../datalayer/user/model'
+import { comparePassword } from '../../../utils/auth'
 
 export async function createMobileSignInResponse(
   token?: string,
@@ -27,6 +32,52 @@ export async function createMobileSignInResponse(
     throw new Error(`Missing or unsupported provider ${provider}`)
   } catch (e) {
     console.log('createMobileSignInResponse error', e)
+    return authFailedPayload
+  }
+}
+
+export async function createMobileEmailSignInResponse(
+  email?: string,
+  password?: string
+): Promise<JsonResponsePayload> {
+  try {
+    if (!email || !password) {
+      throw new Error('Missing username or password')
+    }
+
+    const models = initModels(kx, false)
+    const user = await models.user.getWhere({
+      email,
+    })
+
+    if (!user?.id || !user?.password) {
+      throw new Error('user not found')
+    }
+
+    const validPassword = await comparePassword(password, user.password)
+    if (!validPassword) {
+      throw new Error('password is invalid')
+    }
+
+    if (user.status === StatusType.Pending && user.email) {
+      await sendConfirmationEmail({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      })
+      return {
+        statusCode: 418,
+        json: { errorCodes: ['PENDING_VERIFICATION'] },
+      }
+    }
+
+    const mobileAuthPayload = await createMobileAuthPayload(user.id)
+
+    return {
+      statusCode: 200,
+      json: mobileAuthPayload,
+    }
+  } catch (e) {
     return authFailedPayload
   }
 }

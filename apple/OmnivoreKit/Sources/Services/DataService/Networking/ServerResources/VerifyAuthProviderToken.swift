@@ -42,7 +42,7 @@ extension Networker {
 
     let urlRequest = URLRequest.create(
       baseURL: appEnvironment.serverBaseURL,
-      urlPath: "/api/mobile-auth/email-login",
+      urlPath: "/api/mobile-auth/email-sign-in",
       requestMethod: .post(params: encodedParams)
     )
 

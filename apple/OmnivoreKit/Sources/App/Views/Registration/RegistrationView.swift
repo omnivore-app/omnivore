@@ -20,7 +20,7 @@ import Views
       Task { await handleAppleToken(payload: payload, authenticator: authenticator) }
     case let .failure(error):
       switch error {
-      case .unauthorized, .unknown:
+      case .unauthorized, .unknown, .pendingEmailVerification:
         break
       case .network:
         loginError = error
@@ -34,7 +34,7 @@ import Views
     } catch {
       let submitTokenError = (error as? LoginError) ?? .unknown
       switch submitTokenError {
-      case .unauthorized, .unknown:
+      case .unauthorized, .unknown, .pendingEmailVerification:
         await handleAppleSignUp(authenticator: authenticator, payload: payload)
       case .network:
         loginError = submitTokenError
