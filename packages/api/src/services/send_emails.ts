@@ -9,7 +9,7 @@ export const sendConfirmationEmail = async (user: {
 }): Promise<boolean> => {
   // generate confirmation link
   const token = generateVerificationToken(user.id)
-  const link = `${env.client.url}/confirm-email/${token}`
+  const link = `${env.client.url}/auth/confirm-email/${token}`
   // send email
   const dynamicTemplateData = {
     name: user.name,
@@ -31,7 +31,7 @@ export const sendPasswordResetEmail = async (user: {
 }): Promise<boolean> => {
   // generate link
   const token = generateVerificationToken(user.id)
-  const link = `${env.client.url}/reset-password/${token}`
+  const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
     name: user.name,

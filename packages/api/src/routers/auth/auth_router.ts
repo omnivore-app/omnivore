@@ -19,7 +19,6 @@ import express from 'express'
 import axios from 'axios'
 import { env } from '../../env'
 import url from 'url'
-import { IntercomClient } from '../../utils/intercom'
 import { kx } from '../../datalayer/knex_config'
 import UserModel from '../../datalayer/user'
 import { buildLogger } from '../../utils/logger'
@@ -45,13 +44,15 @@ import {
 } from '../../utils/auth'
 import { createUser } from '../../services/create_user'
 import { isErrorWithCode } from '../../resolvers'
-import { initModels } from '../../server'
-import { getRepository } from '../../entity/utils'
+import { AppDataSource, initModels } from '../../server'
+import { getRepository, setClaims } from '../../entity/utils'
 import { User } from '../../entity/user'
 import {
   sendConfirmationEmail,
   sendPasswordResetEmail,
 } from '../../services/send_emails'
+import { createWebAuthToken } from './jwt_helpers'
+import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -311,53 +312,52 @@ export function authRouter() {
     newUser: boolean
   ): Promise<void> {
     try {
-      const redirect = (res: express.Response): void => {
-        let redirectUri: string | null = null
-        if (req.query.state) {
-          // Google login case: redirect_uri is in query state param.
-          try {
-            const state = JSON.parse((req.query?.state || '') as string)
-            redirectUri = state?.redirect_uri
-          } catch (err) {
-            console.warn(
-              'handleSuccessfulLogin: failed to parse redirect query state param',
-              err
-            )
-          }
-        }
-
-        const message = res.get('Message')
-        if (message) {
-          return res.redirect(
-            `${env.client.url}/home?message=${encodeURIComponent(message)}`
+      let redirectUri: string | null = null
+      if (req.query.state) {
+        // Google login case: redirect_uri is in query state param.
+        try {
+          const state = JSON.parse((req.query?.state || '') as string)
+          redirectUri = state?.redirect_uri
+        } catch (err) {
+          console.warn(
+            'handleSuccessfulLogin: failed to parse redirect query state param',
+            err
           )
         }
-
-        if (newUser) {
-          if (redirectUri && redirectUri !== '/') {
-            return res.redirect(
-              url.resolve(env.client.url, decodeURIComponent(redirectUri))
-            )
-          }
-          return res.redirect(
-            `${env.client.url}/settings/installation/extensions`
-          )
-        }
-
-        return res.redirect(
-          url.resolve(env.client.url, decodeURIComponent(redirectUri || 'home'))
-        )
       }
 
-      if (env.server.apiEnv && !env.dev.isLocal && IntercomClient) {
-        if (newUser) {
-          redirect(res)
+      if (newUser) {
+        if (redirectUri && redirectUri !== '/') {
+          redirectUri = url.resolve(
+            env.client.url,
+            decodeURIComponent(redirectUri)
+          )
         } else {
-          redirect(res)
+          redirectUri = `${env.client.url}/home`
         }
-      } else {
-        redirect(res)
       }
+
+      redirectUri = redirectUri ? redirectUri : `${env.client.url}/home`
+
+      const message = res.get('Message')
+      if (message) {
+        const u = new URL(redirectUri)
+        u.searchParams.append('message', message)
+        redirectUri = u.toString()
+      }
+
+      // If we do have an auth token, we want to try redirecting to the
+      // sso endpoint which will set a cookie for the client domain (omnivore.app)
+      // after we set a cookie for the API domain (api-prod.omnivore.app)
+      const authToken = await createWebAuthToken(user.id)
+      if (authToken) {
+        const ssoToken = createSsoToken(authToken, redirectUri)
+        redirectUri = ssoRedirectURL(ssoToken)
+      }
+
+      await setAuthInCookie({ uid: user.id }, res)
+
+      return res.redirect(redirectUri)
     } catch (error) {
       logger.info('handleSuccessfulLogin exception:', error)
       return res.redirect(`${env.client.url}/login?errorCodes=AUTH_FAILED`)
@@ -377,7 +377,7 @@ export function authRouter() {
 
       if (!email || !password) {
         return res.redirect(
-          `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+          `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
         )
       }
 
@@ -388,7 +388,7 @@ export function authRouter() {
         })
         if (!user?.id) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
         }
 
@@ -399,14 +399,14 @@ export function authRouter() {
             name: user.name,
           })
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
         if (!user?.password) {
           // user has no password, so they need to set one
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.WrongSource}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.WrongSource}`
           )
         }
 
@@ -414,16 +414,16 @@ export function authRouter() {
         const validPassword = await comparePassword(password, user.password)
         if (!validPassword) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
           )
         }
 
-        // set auth cookie in response header
-        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
-        res.redirect(`${env.client.url}/email-login?errorCodes=AUTH_FAILED`)
+        res.redirect(
+          `${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`
+        )
       }
     }
   )
@@ -441,7 +441,7 @@ export function authRouter() {
 
       if (!email || !password || !name || !username) {
         return res.redirect(
-          `${env.client.url}/email-signup?errorCodes=INVALID_CREDENTIALS`
+          `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
         )
       }
       const lowerCasedUsername = username.toLowerCase()
@@ -462,15 +462,17 @@ export function authRouter() {
           pendingConfirmation: true,
         })
 
-        res.redirect(`${env.client.url}/email-login?message=SIGNUP_SUCCESS`)
+        res.redirect(
+          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
+        )
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
           return res.redirect(
-            `${env.client.url}/email-signup?errorCodes=${e.errorCode}`
+            `${env.client.url}/auth/email-signup?errorCodes=${e.errorCode}`
           )
         }
-        res.redirect(`${env.client.url}/email-signup?errorCodes=UNKNOWN`)
+        res.redirect(`${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`)
       }
     }
   )
@@ -491,36 +493,47 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
           )
         }
 
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/confirm-email?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/confirm-email?errorCodes=USER_NOT_FOUND`
           )
         }
 
         if (user.status === StatusType.Pending) {
-          await getRepository(User).update(
-            { id: user.id },
-            { status: StatusType.Active }
+          const updated = await AppDataSource.transaction(
+            async (entityManager) => {
+              await setClaims(entityManager, user.id)
+              return entityManager
+                .getRepository(User)
+                .update({ id: user.id }, { status: StatusType.Active })
+            }
           )
+
+          if (!updated.affected) {
+            return res.redirect(
+              `${env.client.url}/auth/confirm-email?errorCodes=UNKNOWN`
+            )
+          }
         }
 
         res.set('Message', 'EMAIL_CONFIRMED')
-        await setAuthInCookie({ uid: user.id }, res)
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('confirm-email exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/confirm-email?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/confirm-email?errorCodes=TOKEN_EXPIRED`
           )
         }
 
-        res.redirect(`${env.client.url}/confirm-email?errorCodes=INVALID_TOKEN`)
+        res.redirect(
+          `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
+        )
       }
     }
   )
@@ -537,7 +550,7 @@ export function authRouter() {
       const email = req.body.email
       if (!email) {
         return res.redirect(
-          `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
+          `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
         )
       }
 
@@ -546,28 +559,26 @@ export function authRouter() {
           email,
         })
         if (!user) {
-          return res.redirect(
-            `${env.client.url}/forgot-password?errorCodes=USER_NOT_FOUND`
-          )
+          return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 
         if (user.status === StatusType.Pending) {
-          return res.redirect(
-            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
-          )
+          return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 
         if (!(await sendPasswordResetEmail(user))) {
           return res.redirect(
-            `${env.client.url}/forgot-password?errorCodes=INVALID_EMAIL`
+            `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
           )
         }
 
-        res.redirect(`${env.client.url}/forgot-password?message=SUCCESS`)
+        res.redirect(`${env.client.url}/auth/reset-sent`)
       } catch (e) {
         logger.info('forgot-password exception:', e)
 
-        res.redirect(`${env.client.url}/forgot-password?errorCodes=UNKNOWN`)
+        res.redirect(
+          `${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`
+        )
       }
     }
   )
@@ -588,51 +599,55 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_TOKEN`
           )
         }
 
-        if (!password) {
+        if (!password || password.length < 8) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=INVALID_PASSWORD`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_PASSWORD`
           )
         }
 
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`
           )
         }
 
         if (user.status === StatusType.Pending) {
           return res.redirect(
-            `${env.client.url}/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
           )
         }
 
         const hashedPassword = await hashPassword(password)
-        const updated = await getRepository(User).update(
-          { id: user.id },
-          { password: hashedPassword }
+        const updated = await AppDataSource.transaction(
+          async (entityManager) => {
+            await setClaims(entityManager, user.id)
+            return entityManager
+              .getRepository(User)
+              .update({ id: user.id }, { password: hashedPassword })
+          }
         )
         if (!updated.affected) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=UNKNOWN`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`
           )
         }
 
-        res.redirect(`${env.client.url}/reset-password?message=SUCCESS`)
+        await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('reset-password exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/reset-password?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/reset-password/?errorCodes=TOKEN_EXPIRED`
           )
         }
 
         res.redirect(
-          `${env.client.url}/reset-password?errorCodes=INVALID_TOKEN`
+          `${env.client.url}/auth/reset-password/?errorCodes=INVALID_TOKEN`
         )
       }
     }

@@ -1,15 +1,15 @@
-import { HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { Button } from '../elements/Button'
-import { StyledText } from '../elements/StyledText'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Button } from '../../elements/Button'
+import { StyledText } from '../../elements/StyledText'
 import { useEffect, useState } from 'react'
-import { FormInput } from '../elements/FormElements'
-import { TermAndConditionsFooter } from './LoginForm'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
+import { FormInput } from '../../elements/FormElements'
+import { TermAndConditionsFooter } from '../LoginForm'
+import { fetchEndpoint } from '../../../lib/appConfig'
+import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { parseErrorCodes } from '../../lib/queryParamParser'
-import { formatMessage } from '../../locales/en/messages'
+import { parseErrorCodes } from '../../../lib/queryParamParser'
+import { formatMessage } from '../../../locales/en/messages'
 import Link from 'next/link'
 
 const StyledTextSpan = styled('span', StyledText)
@@ -45,7 +45,7 @@ export function EmailLogin(): JSX.Element {
   return (
     <form action={`${fetchEndpoint}/auth/email-login`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
-        <StyledText style="subHeadline">Login</StyledText>
+        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>Login</StyledText>
         <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
@@ -111,7 +111,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           Don&apos;t have an account? {' '}
-          <Link href="/email-signup" passHref>
+          <Link href="/auth/email-signup" passHref>
             <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Sign up</StyledTextSpan>
           </Link>
         </StyledText>
@@ -126,7 +126,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           Forgot your password? {' '}
-          <Link href="/email-reset-password" passHref>
+          <Link href="/auth/forgot-password" passHref>
             <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Click here</StyledTextSpan>
           </Link>
         </StyledText>

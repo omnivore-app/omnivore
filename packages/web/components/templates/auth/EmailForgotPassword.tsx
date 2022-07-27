@@ -1,23 +1,21 @@
-import { SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { Button } from '../elements/Button'
-import { StyledText } from '../elements/StyledText'
+import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Button } from '../../elements/Button'
+import { StyledText } from '../../elements/StyledText'
 import { useEffect, useState } from 'react'
-import { FormInput } from '../elements/FormElements'
-import { TermAndConditionsFooter } from './LoginForm'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
+import { FormInput } from '../../elements/FormElements'
+import { fetchEndpoint } from '../../../lib/appConfig'
+import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
 import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
-import { formatMessage } from '../../locales/en/messages'
-import { parseErrorCodes } from '../../lib/queryParamParser'
-
-const StyledTextSpan = styled('span', StyledText)
+import { formatMessage } from '../../../locales/en/messages'
+import { parseErrorCodes } from '../../../lib/queryParamParser'
 
 const BorderedFormInput = styled(FormInput, {
   height: '40px',
   paddingLeft: '6px',
   borderRadius: '6px',
   background: 'white',
+  color: '$omnivoreGray',
   border: `1px solid 1px solid rgba(0, 0, 0, 0.06)`,
 })
 
@@ -26,9 +24,9 @@ const FormLabel = styled('label', {
   color: '$omnivoreGray',
 })
 
-export function EmailResetPassword(): JSX.Element {
+export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
-  const [email, setEmail] = useState<string | undefined>(undefined)
+  const [email, setEmail] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   useEffect(() => {
@@ -41,7 +39,7 @@ export function EmailResetPassword(): JSX.Element {
   }, [router.isReady, router.query])
 
   return (
-    <form action={`${fetchEndpoint}/auth/email-signup`} method="POST">
+    <form action={`${fetchEndpoint}/auth/forgot-password`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
         <StyledText style="subHeadline">Reset your password</StyledText>
         <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>

@@ -61,7 +61,7 @@ describe('auth router', () => {
           sinon.restore()
         })
 
-        it('redirects to login page', async () => {
+        it('redirects to verify email', async () => {
           const res = await signupRequest(
             email,
             password,
@@ -69,7 +69,7 @@ describe('auth router', () => {
             username
           ).expect(302)
           expect(res.header.location).to.endWith(
-            '/email-login?message=SIGNUP_SUCCESS'
+            '/verify-email?message=SIGNUP_SUCCESS'
           )
         })
 
@@ -173,9 +173,9 @@ describe('auth router', () => {
         password = correctPassword
       })
 
-      it('redirects to home page', async () => {
+      it('redirects to sso page', async () => {
         const res = await loginRequest(email, password).expect(302)
-        expect(res.header.location).to.endWith('/home')
+        expect(res.header.location).to.contain('/api/client/auth?tok')
       })
 
       it('set auth token in cookie', async () => {
@@ -297,9 +297,9 @@ describe('auth router', () => {
         expect(res.header['set-cookie'][0]).to.contain('auth')
       })
 
-      it('redirects to home page', async () => {
+      it('redirects to sso page', async () => {
         const res = await confirmEmailRequest(token).expect(302)
-        expect(res.header.location).to.endWith('/home?message=EMAIL_CONFIRMED')
+        expect(res.header.location).to.contain('/api/client/auth?tok')
       })
 
       it('sets user as active', async () => {
@@ -395,7 +395,7 @@ describe('auth router', () => {
             it('redirects to forgot-password page with success message', async () => {
               const res = await emailResetPasswordReq(email).expect(302)
               expect(res.header.location).to.endWith(
-                '/forgot-password?message=SUCCESS'
+                '/auth/reset-sent'
               )
             })
           })
@@ -432,7 +432,7 @@ describe('auth router', () => {
           it('redirects to email-login page with error code PENDING_VERIFICATION', async () => {
             const res = await emailResetPasswordReq(email).expect(302)
             expect(res.header.location).to.endWith(
-              '/email-login?errorCodes=PENDING_VERIFICATION'
+              '/auth/reset-sent'
             )
           })
         })
@@ -446,7 +446,7 @@ describe('auth router', () => {
         it('redirects to forgot-password page with error code USER_NOT_FOUND', async () => {
           const res = await emailResetPasswordReq(email).expect(302)
           expect(res.header.location).to.endWith(
-            '/forgot-password?errorCodes=USER_NOT_FOUND'
+            '/auth/reset-sent'
           )
         })
       })
@@ -498,8 +498,8 @@ describe('auth router', () => {
           const res = await resetPasswordRequest(token, 'new_password').expect(
             302
           )
-          expect(res.header.location).to.endWith(
-            '/reset-password?message=SUCCESS'
+          expect(res.header.location).to.contain(
+            '/api/client/auth?tok'
           )
         })
 
@@ -517,8 +517,8 @@ describe('auth router', () => {
       context('when password is empty', () => {
         it('redirects to reset-password page with error code INVALID_PASSWORD', async () => {
           const res = await resetPasswordRequest(token, '').expect(302)
-          expect(res.header.location).to.endWith(
-            '/reset-password?errorCodes=INVALID_PASSWORD'
+          expect(res.header.location).to.match(
+            /.*\/auth\/reset-password\/(.*)?\?errorCodes=INVALID_PASSWORD/g
           )
         })
       })
@@ -530,8 +530,8 @@ describe('auth router', () => {
           'invalid_token',
           'new_password'
         ).expect(302)
-        expect(res.header.location).to.endWith(
-          '/reset-password?errorCodes=INVALID_TOKEN'
+        expect(res.header.location).to.match(
+          /.*\/auth\/reset-password\/(.*)?\?errorCodes=INVALID_TOKEN/g
         )
       })
 
@@ -545,7 +545,7 @@ describe('auth router', () => {
             302
           )
           expect(res.header.location).to.endWith(
-            '/reset-password?errorCodes=TOKEN_EXPIRED'
+            '/auth/reset-password/?errorCodes=TOKEN_EXPIRED'
           )
         })
       })
