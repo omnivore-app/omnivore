@@ -25,12 +25,6 @@ describe('Emails Router', () => {
 
     await createTestNewsletterEmail(user, newsletterEmail)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!
-    sinon.replace(
-      sendNotification,
-      'sendMulticastPushNotifications',
-      sinon.fake.resolves(undefined)
-    )
-    sinon.replace(sendEmail, 'sendEmail', sinon.fake.resolves(true))
   })
 
   after(async () => {
@@ -45,13 +39,22 @@ describe('Emails Router', () => {
     const subject = 'test subject'
     const html = 'test html'
 
+    beforeEach(async () => {
+      sinon.replace(
+        sendNotification,
+        'sendMulticastPushNotifications',
+        sinon.fake.resolves(undefined)
+      )
+      sinon.replace(sendEmail, 'sendEmail', sinon.fake.resolves(true))
+    })
+
+    afterEach(() => {
+      sinon.restore()
+    })
+
     context('when email is a newsletter', () => {
       before(() => {
         sinon.replace(parser, 'isProbablyNewsletter', sinon.fake.resolves(true))
-      })
-
-      after(() => {
-        sinon.restore()
       })
 
       it('saves the email as a newsletter', async () => {
@@ -81,10 +84,6 @@ describe('Emails Router', () => {
         sinon.replace(parser, 'isProbablyArticle', sinon.fake.resolves(true))
       })
 
-      after(() => {
-        sinon.restore()
-      })
-
       it('saves the email as an article', async () => {
         const data = {
           message: {
@@ -110,10 +109,6 @@ describe('Emails Router', () => {
           sinon.fake.resolves(false)
         )
         sinon.replace(parser, 'isProbablyArticle', sinon.fake.resolves(false))
-      })
-
-      after(() => {
-        sinon.restore()
       })
 
       it('forwards the email', async () => {
