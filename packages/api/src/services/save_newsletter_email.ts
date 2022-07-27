@@ -11,6 +11,7 @@ import { getDeviceTokensByUserId } from './user_device_tokens'
 import { Page } from '../elastic/types'
 import { addLabelToPage } from './labels'
 import { saveSubscription } from './subscriptions'
+import { NewsletterEmail } from '../entity/newsletter_email'
 
 interface NewsletterMessage {
   email: string
@@ -20,6 +21,7 @@ interface NewsletterMessage {
   author: string
   unsubMailTo?: string
   unsubHttpUrl?: string
+  newsletterEmail?: NewsletterEmail
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -29,7 +31,8 @@ export const saveNewsletterEmail = async (
   ctx?: SaveContext
 ): Promise<boolean> => {
   // get user from newsletter email
-  const newsletterEmail = await getNewsletterEmail(data.email)
+  const newsletterEmail =
+    data.newsletterEmail || (await getNewsletterEmail(data.email))
 
   if (!newsletterEmail) {
     console.log('newsletter email not found', data.email)
