@@ -10,6 +10,7 @@ import { expect } from 'chai'
 import { request } from '../util'
 import * as parser from '../../src/utils/parser'
 import * as sendNotification from '../../src/utils/sendNotification'
+import * as sendEmail from '../../src/utils/sendEmail'
 
 describe('Emails Router', () => {
   const username = 'fakeUser'
@@ -29,6 +30,7 @@ describe('Emails Router', () => {
       'sendMulticastPushNotifications',
       sinon.fake.resolves(undefined)
     )
+    sinon.replace(sendEmail, 'sendEmail', sinon.fake.resolves(true))
   })
 
   after(async () => {
