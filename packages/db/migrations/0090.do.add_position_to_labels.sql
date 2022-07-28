@@ -4,7 +4,7 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.labels ADD COLUMN position INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE omnivore.labels ADD COLUMN position integer NOT NULL DEFAULT 0;
 
 WITH positions AS (
     SELECT
@@ -29,16 +29,21 @@ CREATE OR REPLACE FUNCTION update_label_position()
             UPDATE omnivore.labels SET position = position - 1 WHERE user_id = OLD.user_id AND position > OLD.position;
             RETURN OLD;
         ELSIF (TG_OP = 'INSERT') THEN
-            SELECT MAX(position) + 1 INTO new_position FROM omnivore.labels WHERE user_id = NEW.user_id;
+            SELECT COALESCE(MAX(position), 0) + 1 INTO new_position FROM omnivore.labels WHERE user_id = NEW.user_id;
             NEW.position = new_position;
             RETURN NEW;
         END IF;
     END;
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER update_label_position
-    BEFORE INSERT OR DELETE ON omnivore.labels
+CREATE TRIGGER increment_label_position
+    BEFORE INSERT ON omnivore.labels
     FOR EACH ROW
     EXECUTE FUNCTION update_label_position();
+
+CREATE TRIGGER decrement_label_position
+    AFTER DELETE ON omnivore.labels
+    FOR EACH ROW
+EXECUTE FUNCTION update_label_position();
 
 COMMIT;
