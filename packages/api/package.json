@@ -36,6 +36,7 @@
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^5.26.0",
     "@sentry/tracing": "^5.26.0",
+    "addressparser": "^1.0.1",
     "analytics-node": "^6.0.0",
     "apollo-datasource": "^3.3.1",
     "apollo-server-express": "^3.6.3",
@@ -87,6 +88,7 @@
   "devDependencies": {
     "@babel/register": "^7.14.5",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/addressparser": "^1.0.1",
     "@types/analytics-node": "^3.1.7",
     "@types/bcryptjs": "^2.4.2",
     "@types/chai": "^4.2.18",

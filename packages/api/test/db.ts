@@ -64,7 +64,7 @@ export const deleteTestUser = async (name: string) => {
   await AppDataSource.createQueryBuilder()
     .delete()
     .from(User)
-    .where({ email: `${name}@fake.com` })
+    .where({ email: `${name}@omnivore.app` })
     .execute()
 }
 
@@ -77,7 +77,7 @@ export const createTestUser = async (
   const [newUser] = await createUser({
     provider: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
-    email: `${name}@fake.com`,
+    email: `${name}@omnivore.app`,
     username: name,
     bio: `i am ${name}`,
     name: name,
@@ -93,7 +93,7 @@ export const createUserWithoutProfile = async (name: string): Promise<User> => {
   return getRepository(User).save({
     source: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
-    email: `${name}@fake.com`,
+    email: `${name}@omnivore.app`,
     name: name,
   })
 }
