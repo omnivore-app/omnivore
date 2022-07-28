@@ -230,7 +230,7 @@ struct WelcomeView: View {
         }
         .padding()
         .sheet(isPresented: $showEmailLoginModal) {
-          EmailLoginView()
+          EmailAuthView()
         }
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
