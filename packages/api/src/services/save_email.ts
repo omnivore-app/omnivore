@@ -1,5 +1,9 @@
 import { generateSlug, stringToHash, validatedDate } from '../utils/helpers'
-import { parsePreparedContent, parseUrlMetadata } from '../utils/parser'
+import {
+  FAKE_URL_PREFIX,
+  parsePreparedContent,
+  parseUrlMetadata,
+} from '../utils/parser'
 import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
@@ -20,6 +24,10 @@ export type SaveEmailInput = {
   unsubHttpUrl?: string
 }
 
+const isStubUrl = (url: string): boolean => {
+  return url.startsWith(FAKE_URL_PREFIX)
+}
+
 export const saveEmail = async (
   ctx: SaveContext,
   input: SaveEmailInput
@@ -37,7 +45,7 @@ export const saveEmail = async (
   )
   const content = parseResult.parsedContent?.content || input.originalContent
   const slug = generateSlug(input.title)
-  const metadata = await parseUrlMetadata(url)
+  const metadata = isStubUrl(url) ? undefined : await parseUrlMetadata(url)
 
   const articleToSave: Page = {
     id: '',

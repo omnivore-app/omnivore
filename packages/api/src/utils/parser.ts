@@ -44,6 +44,8 @@ const DOM_PURIFY_CONFIG = {
 }
 const ARTICLE_PREFIX = 'omnivore:'
 
+export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+
 interface ContentHandler {
   shouldPrehandle: (url: URL, dom: Document) => boolean
   prehandle: (url: URL, document: Document) => Promise<Document>
@@ -562,7 +564,7 @@ export const isProbablyArticle = async (
   return !!user || subject.includes(ARTICLE_PREFIX)
 }
 
-export const generateUniqueUrl = () => 'https://omnivore.app/no_url?q=' + uuid()
+export const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
 
 export const getTitleFromEmailSubject = (subject: string) => {
   const title = subject.replace(ARTICLE_PREFIX, '')
