@@ -8,7 +8,6 @@ import normalizeUrl from 'normalize-url'
 import { PubsubClient } from '../datalayer/pubsub'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
-import { urlAlphabet } from 'nanoid'
 
 export type SaveContext = {
   pubsub: PubsubClient
