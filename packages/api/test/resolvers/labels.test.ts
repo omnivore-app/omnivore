@@ -646,7 +646,7 @@ describe('Labels API', () => {
   })
 
   describe('Move label', () => {
-    const query = (labelId: string, afterLabelId?: string): string => `
+    const query = (labelId: string, afterLabelId: string): string => `
         mutation {
           moveLabel(
             input: {
@@ -691,6 +691,12 @@ describe('Labels API', () => {
         afterLabelId = labels[4].id
       })
 
+      after(async () => {
+        await graphqlRequest(query(labelId, labels[0].id), authToken).expect(
+          200
+        )
+      })
+
       it('moves label after the pointed label', async () => {
         const res = await graphqlRequest(
           query(labelId, afterLabelId),
@@ -712,13 +718,28 @@ describe('Labels API', () => {
       })
     })
 
+    context('when afterLabelId is null', () => {
+      before(() => {
+        labelId = labels[4].id
+      })
+
+      it('moves the label to the top', async () => {
+        const res = await graphqlRequest(query(labelId, ''), authToken).expect(
+          200
+        )
+        expect(res.body.data.moveLabel.label.position).to.eql(1)
+      })
+    })
+
     context('when label not exist', () => {
       before(() => {
         labelId = generateFakeUuid()
       })
 
       it('returns error code NOT_FOUND', async () => {
-        const res = await graphqlRequest(query(labelId), authToken).expect(200)
+        const res = await graphqlRequest(query(labelId, ''), authToken).expect(
+          200
+        )
         expect(res.body.data.moveLabel.errorCodes).to.eql(['NOT_FOUND'])
       })
     })

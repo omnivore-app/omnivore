@@ -465,6 +465,7 @@ export const moveLabelResolver = authorized<
       }
       newPosition = afterLabel.position
     }
+    const moveUp = newPosition < oldPosition
 
     // move label to the new position
     const updated = await AppDataSource.transaction(async (t) => {
@@ -474,10 +475,13 @@ export const moveLabelResolver = authorized<
       const updated = await t.getRepository(Label).update(
         {
           user: { id: uid },
-          position: Between(oldPosition, newPosition),
+          position: Between(
+            Math.min(newPosition, oldPosition),
+            Math.max(newPosition, oldPosition)
+          ),
         },
         {
-          position: () => `position + ${newPosition < oldPosition ? 1 : -1}`,
+          position: () => `position + ${moveUp ? 1 : -1}`,
         }
       )
       if (!updated.affected) {
