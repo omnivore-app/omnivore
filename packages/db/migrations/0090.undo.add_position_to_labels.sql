@@ -4,7 +4,9 @@
 
 BEGIN;
 
-DROP TRIGGER IF EXISTS update_label_position ON omnivore.labels;
+DROP TRIGGER IF EXISTS increment_label_position ON omnivore.labels;
+
+DROP TRIGGER IF EXISTS decrement_label_position ON omnivore.labels;
 
 DROP FUNCTION IF EXISTS update_label_position;
 
