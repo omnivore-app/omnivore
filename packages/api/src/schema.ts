@@ -1330,6 +1330,7 @@ const schema = gql`
     color: String!
     description: String
     createdAt: Date
+    position: Int
   }
 
   type LabelsSuccess {
@@ -1790,6 +1791,27 @@ const schema = gql`
     UNAUTHORIZED
   }
 
+  input MoveLabelInput {
+    labelId: ID!
+    afterLabelId: ID # null to move to the top
+  }
+
+  union MoveLabelResult = MoveLabelSuccess | MoveLabelError
+
+  type MoveLabelSuccess {
+    label: Label!
+  }
+
+  type MoveLabelError {
+    errorCodes: [MoveLabelErrorCode!]!
+  }
+
+  enum MoveLabelErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1858,6 +1880,7 @@ const schema = gql`
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
     setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
+    moveLabel(input: MoveLabelInput!): MoveLabelResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
