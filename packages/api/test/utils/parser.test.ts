@@ -182,11 +182,18 @@ describe('getTitleFromEmailSubject', () => {
 })
 
 describe('parseEmailAddress', () => {
-  const email = 'Tester <tester@omnivore.app>'
+  it('returns the name and address when in name <address> format', () => {
+    const name = 'test name'
+    const address = 'tester@omnivore.app'
+    const parsed = parseEmailAddress(`${name} <${address}>`)
+    expect(parsed.name).to.eql(name)
+    expect(parsed.address).to.eql(address)
+  })
 
-  it('returns the name and address', () => {
-    const { name, address } = parseEmailAddress(email)
-    expect(name).to.eql('Tester')
-    expect(address).to.eql('tester@omnivore.app')
+  it('returns the address when in address format', () => {
+    const address = 'tester@omnivore.app'
+    const parsed = parseEmailAddress(address)
+    expect(parsed.name).to.eql('')
+    expect(parsed.address).to.eql(address)
   })
 })

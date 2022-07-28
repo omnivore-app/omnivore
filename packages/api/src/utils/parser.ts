@@ -577,5 +577,5 @@ export const parseEmailAddress = (from: string): addressparser.EmailAddress => {
   if (parsed.length > 0) {
     return parsed[0]
   }
-  return { name: from, address: from }
+  return { name: '', address: from }
 }
