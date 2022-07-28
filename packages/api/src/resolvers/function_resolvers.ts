@@ -52,6 +52,7 @@ import {
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
+  moveLabelResolver,
   newsletterEmailsResolver,
   reminderResolver,
   reportItemResolver,
@@ -163,6 +164,7 @@ export const functionResolvers = {
     deleteWebhook: deleteWebhookResolver,
     revokeApiKey: revokeApiKeyResolver,
     setLabelsForHighlight: setLabelsForHighlightResolver,
+    moveLabel: moveLabelResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -589,4 +591,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('DeleteAccount'),
   ...resultResolveTypeResolver('TypeaheadSearch'),
   ...resultResolveTypeResolver('UpdatesSince'),
+  ...resultResolveTypeResolver('MoveLabel'),
 }
