@@ -26,6 +26,8 @@ type HighlightsModalProps = {
 }
 
 export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
+  const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] = useState<undefined | string>(undefined)
+
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
@@ -45,6 +47,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
                 highlight={highlight}
                 showDelete={!!props.deleteHighlightAction}
                 scrollToHighlight={props.scrollToHighlight}
+                setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
                 deleteHighlightAction={() => {
                   if (props.deleteHighlightAction) {
                     props.deleteHighlightAction(highlight.id)
@@ -60,6 +63,24 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
           </Box>
         </VStack>
       </ModalContent>
+      {showConfirmDeleteHighlightId ? (
+          <ConfirmationModal
+            message={'Are you sure you want to delete this highlight?'}
+            onAccept={() => {
+              if (props.deleteHighlightAction) {
+                props.deleteHighlightAction(showConfirmDeleteHighlightId)
+              }
+              setShowConfirmDeleteHighlightId(undefined)
+            }}
+            onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
+            icon={
+              <TrashIcon
+                size={40}
+                strokeColor={theme.colors.grayTextContrast.toString()}
+              />
+            }
+          />
+        ) : null}
     </ModalRoot>
   )
 }
@@ -69,11 +90,11 @@ type ModalHighlightViewProps = {
   showDelete: boolean
   scrollToHighlight?: (arg: string) => void;
   deleteHighlightAction: () => void
+  setShowConfirmDeleteHighlightId: (id: string | undefined) => void
 }
 
 function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false)
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   const [noteContent, setNoteContent] = useState(
     props.highlight.annotation ?? ''
@@ -92,18 +113,8 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
       distribution="end"
       css={{ width: '100%', pt: '$2' }}
     >
-      {/* <Button style="ghost" onClick={() => setIsEditing(true)}>
-        {props.highlight.annotation ? (
-          <Pen width={18} height={18} color={theme.colors.grayText.toString()} />
-        ) : (
-          <CommentIcon
-            size={24}
-            strokeColor={theme.colors.grayTextContrast.toString()}
-          />
-        )}
-      </Button> */}
       {props.showDelete && (
-        <Button style="ghost" onClick={() => setShowDeleteConfirmation(true)}>
+        <Button style="ghost" onClick={() => props.setShowConfirmDeleteHighlightId(props.highlight.id)}>
           <Trash width={18} height={18} color={theme.colors.grayText.toString()} />
         </Button>
       )}
@@ -148,22 +159,6 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
         ) : null}
         {isEditing ? <TextEditArea /> : <ButtonStack />}
         <Separator css={{ mt: '$2', mb: '$4', background: '$grayTextContrast' }} />
-        {showDeleteConfirmation ? (
-          <ConfirmationModal
-            message={'Are you sure you want to delete this highlight?'}
-            onAccept={() => {
-              setShowDeleteConfirmation(false)
-              props.deleteHighlightAction()
-            }}
-            onOpenChange={() => setShowDeleteConfirmation(false)}
-            icon={
-              <TrashIcon
-                size={40}
-                strokeColor={theme.colors.grayTextContrast.toString()}
-              />
-            }
-          />
-        ) : null}
       </VStack>
     </>
   )
