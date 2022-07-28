@@ -15,6 +15,11 @@ import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
 import { parseHTML } from 'linkedom'
+import { getRepository } from '../entity/utils'
+import { User } from '../entity/user'
+import { ILike } from 'typeorm'
+import { v4 as uuid } from 'uuid'
+import addressparser from 'addressparser'
 
 const logger = buildLogger('utils.parse')
 
@@ -37,6 +42,9 @@ const DOM_PURIFY_CONFIG = {
     'data-feature',
   ],
 }
+const ARTICLE_PREFIX = 'omnivore:'
+
+export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
 
 interface ContentHandler {
   shouldPrehandle: (url: URL, dom: Document) => boolean
@@ -544,4 +552,32 @@ export const findNewsletterUrl = async (
   }
 
   return undefined
+}
+
+export const isProbablyArticle = async (
+  email: string,
+  subject: string
+): Promise<boolean> => {
+  const user = await getRepository(User).findOneBy({
+    email: ILike(email),
+  })
+  return !!user || subject.includes(ARTICLE_PREFIX)
+}
+
+export const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
+
+export const getTitleFromEmailSubject = (subject: string) => {
+  const title = subject.replace(ARTICLE_PREFIX, '')
+  return title.trim()
+}
+
+export const parseEmailAddress = (from: string): addressparser.EmailAddress => {
+  // get author name from email
+  // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
+  // or 'Mike Allen <mike@axios.com>'
+  const parsed = addressparser(from)
+  if (parsed.length > 0) {
+    return parsed[0]
+  }
+  return { name: '', address: from }
 }

@@ -1,6 +1,5 @@
 import { createTestUser, deleteTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
-import { expect } from 'chai'
 import { StatusType } from '../../src/datalayer/user/model'
 import { getRepository } from '../../src/entity/utils'
 import { User } from '../../src/entity/user'
@@ -13,6 +12,10 @@ import {
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
+import sinonChai from 'sinon-chai'
+import chai, { expect } from 'chai'
+
+chai.use(sinonChai)
 
 describe('auth router', () => {
   const route = '/api/auth'
@@ -44,7 +47,7 @@ describe('auth router', () => {
       before(() => {
         password = validPassword
         username = 'Some_username'
-        email = `${username}@fake.com`
+        email = `${username}@omnivore.app`
         name = 'Some name'
       })
 
@@ -394,9 +397,7 @@ describe('auth router', () => {
 
             it('redirects to forgot-password page with success message', async () => {
               const res = await emailResetPasswordReq(email).expect(302)
-              expect(res.header.location).to.endWith(
-                '/auth/reset-sent'
-              )
+              expect(res.header.location).to.endWith('/auth/reset-sent')
             })
           })
 
@@ -431,9 +432,7 @@ describe('auth router', () => {
 
           it('redirects to email-login page with error code PENDING_VERIFICATION', async () => {
             const res = await emailResetPasswordReq(email).expect(302)
-            expect(res.header.location).to.endWith(
-              '/auth/reset-sent'
-            )
+            expect(res.header.location).to.endWith('/auth/reset-sent')
           })
         })
       })
@@ -445,9 +444,7 @@ describe('auth router', () => {
 
         it('redirects to forgot-password page with error code USER_NOT_FOUND', async () => {
           const res = await emailResetPasswordReq(email).expect(302)
-          expect(res.header.location).to.endWith(
-            '/auth/reset-sent'
-          )
+          expect(res.header.location).to.endWith('/auth/reset-sent')
         })
       })
     })
@@ -498,9 +495,7 @@ describe('auth router', () => {
           const res = await resetPasswordRequest(token, 'new_password').expect(
             302
           )
-          expect(res.header.location).to.contain(
-            '/api/client/auth?tok'
-          )
+          expect(res.header.location).to.contain('/api/client/auth?tok')
         })
 
         it('resets password', async () => {
