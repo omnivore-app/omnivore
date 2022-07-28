@@ -6,7 +6,6 @@ import {
   createConnection,
   Connection,
   JoinColumn,
-  OneToOne,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
@@ -41,13 +40,6 @@ export const registerDatabase = async (): Promise<Connection> => {
   return connection;
 };
 
-// Taken from GraphQL types
-// TODO: import from gql types
-export enum MembershipTier {
-  WaitList = 'WAIT_LIST',
-  Beta = 'BETA',
-}
-
 @Entity({ name: 'admin_user' })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -79,16 +71,6 @@ export class User extends BaseEntity {
 
   @Column({ type: 'timestamp' })
   public updated_at!: Date;
-
-  @Column({
-    type: 'enum',
-    enum: MembershipTier,
-    default: MembershipTier.Beta,
-  })
-  public membership!: MembershipTier;
-
-  //   @OneToOne(() => UserProfile, up => up.user)
-  //   profile!: UserProfile;
 
   @OneToMany(() => UserArticle, ua => ua.user)
   articles!: UserArticle[];
