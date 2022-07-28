@@ -63,17 +63,4 @@ public extension AppEnvironment {
       return URL(string: "http://localhost:3000")!
     }
   }
-
-  var highlightsServerBaseURL: URL {
-    switch self {
-    case .dev:
-      return URL(string: devHighlightsServerURL)!
-    case .demo:
-      return URL(string: demoHighlightsServerURL)!
-    case .prod:
-      return URL(string: prodHighlightsServerURL)!
-    case .test, .local:
-      return URL(string: "http://localhost:8080")!
-    }
-  }
 }

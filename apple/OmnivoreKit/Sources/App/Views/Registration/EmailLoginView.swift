@@ -32,29 +32,36 @@ struct EmailLoginView: View {
 
   var body: some View {
     NavigationView {
-      VStack(spacing: 0) {
-        VStack(spacing: 28) {
-          ScrollView(showsIndicators: false) {
-            if horizontalSizeClass == .regular {
-              Spacer(minLength: 150)
-            }
-            VStack(alignment: .center, spacing: 16) {
-              VStack(spacing: 16) {
+      ZStack {
+        Color.appBackground.edgesIgnoringSafeArea(.all)
+        VStack(spacing: 0) {
+          VStack(spacing: 28) {
+            ScrollView(showsIndicators: false) {
+              if horizontalSizeClass == .regular {
+                Spacer(minLength: 150)
+              }
+              VStack {
                 VStack(alignment: .leading, spacing: 6) {
                   Text("Email")
                     .font(.appFootnote)
                     .foregroundColor(.appGrayText)
                   TextField("", text: $email)
                     .textContentType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
                 }
+                .padding(.bottom, 8)
 
                 VStack(alignment: .leading, spacing: 6) {
                   Text("Password")
                     .font(.appFootnote)
                     .foregroundColor(.appGrayText)
-                  TextField("", text: $password)
+                  SecureField("", text: $password)
                     .textContentType(.password)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
                 }
+                .padding(.bottom, 16)
 
                 Button(
                   action: {
@@ -73,24 +80,37 @@ struct EmailLoginView: View {
                 if let loginError = viewModel.loginError {
                   LoginErrorMessageView(loginError: loginError)
                 }
+
+                HStack {
+                  Button(
+                    action: { print("switch to email signup") },
+                    label: {
+                      Text("Don't have an account?")
+                        .foregroundColor(.appGrayTextContrast)
+                        .underline()
+                    }
+                  )
+                  .padding(.vertical)
+                  Spacer()
+                }
               }
               .textFieldStyle(StandardTextFieldStyle())
             }
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-          Spacer()
+            Spacer()
+          }
         }
-      }
-      .frame(maxWidth: 300)
-      .navigationTitle("Sign In")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: { presentationMode.wrappedValue.dismiss() },
-            label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
-          )
+        .frame(maxWidth: 300)
+        .navigationTitle("Sign In")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+          ToolbarItem(placement: .barTrailing) {
+            Button(
+              action: { presentationMode.wrappedValue.dismiss() },
+              label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
+            )
+          }
         }
       }
     }
