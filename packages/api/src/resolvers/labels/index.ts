@@ -57,7 +57,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         relations: ['labels'],
         order: {
           labels: {
-            createdAt: 'DESC',
+            position: 'ASC',
           },
         },
       })

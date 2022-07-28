@@ -101,7 +101,7 @@ describe('Labels API', () => {
         user: { id: user.id },
       })
       expect(res.body.data.labels.labels).to.eql(
-        labels.reverse().map((label) => ({
+        labels.map((label) => ({
           id: label.id,
           name: label.name,
           color: label.color,
