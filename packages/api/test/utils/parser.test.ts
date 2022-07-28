@@ -9,6 +9,7 @@ import {
   getTitleFromEmailSubject,
   isProbablyArticle,
   isProbablyNewsletter,
+  parseEmailAddress,
   parsePageMetadata,
   parsePreparedContent,
 } from '../../src/utils/parser'
@@ -177,5 +178,15 @@ describe('getTitleFromEmailSubject', () => {
     const title = 'test subject'
     const subject = `omnivore: ${title}`
     expect(getTitleFromEmailSubject(subject)).to.eql(title)
+  })
+})
+
+describe('parseEmailAddress', () => {
+  const email = 'Tester <tester@omnivore.app>'
+
+  it('returns the name and address', () => {
+    const { name, address } = parseEmailAddress(email)
+    expect(name).to.eql('Tester')
+    expect(address).to.eql('tester@omnivore.app')
   })
 })

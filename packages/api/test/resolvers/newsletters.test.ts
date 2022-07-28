@@ -28,11 +28,11 @@ describe('Newsletters API', () => {
     //  create test newsletter emails
     const newsletterEmail1 = await createTestNewsletterEmail(
       user,
-      'Test_email_address_1@fake-email.com'
+      'Test_email_address_1@omnivore.app'
     )
     const newsletterEmail2 = await createTestNewsletterEmail(
       user,
-      'Test_email_address_2@fake-email.com'
+      'Test_email_address_2@omnivore.app'
     )
     newsletterEmails = [newsletterEmail1, newsletterEmail2]
   })

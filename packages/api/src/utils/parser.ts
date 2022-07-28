@@ -19,6 +19,7 @@ import { getRepository } from '../entity/utils'
 import { User } from '../entity/user'
 import { ILike } from 'typeorm'
 import { v4 as uuid } from 'uuid'
+import addressparser from 'addressparser'
 
 const logger = buildLogger('utils.parse')
 
@@ -566,4 +567,15 @@ export const generateUniqueUrl = () => 'https://omnivore.app/no_url?q=' + uuid()
 export const getTitleFromEmailSubject = (subject: string) => {
   const title = subject.replace(ARTICLE_PREFIX, '')
   return title.trim()
+}
+
+export const parseEmailAddress = (from: string): addressparser.EmailAddress => {
+  // get author name from email
+  // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
+  // or 'Mike Allen <mike@axios.com>'
+  const parsed = addressparser(from)
+  if (parsed.length > 0) {
+    return parsed[0]
+  }
+  return { name: from, address: from }
 }

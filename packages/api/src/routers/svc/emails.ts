@@ -13,6 +13,7 @@ import {
   getTitleFromEmailSubject,
   isProbablyArticle,
   isProbablyNewsletter,
+  parseEmailAddress,
 } from '../../utils/parser'
 import { saveNewsletterEmail } from '../../services/save_newsletter_email'
 import { saveEmail } from '../../services/save_email'
@@ -75,6 +76,7 @@ export function emailsServiceRouter() {
       }
       const user = newsletterEmail.user
       const ctx = { pubsub: createPubSubClient(), uid: user.id }
+      const parsedFrom = parseEmailAddress(data.from)
 
       if (await isProbablyNewsletter(data.html)) {
         logger.info('handling as newsletter', data)
@@ -83,7 +85,7 @@ export function emailsServiceRouter() {
             email: data.to,
             title: data.subject,
             content: data.html,
-            author: data.from,
+            author: parsedFrom.name,
             url: (await findNewsletterUrl(data.html)) || generateUniqueUrl(),
             unsubMailTo: data.unsubMailTo,
             unsubHttpUrl: data.unsubHttpUrl,
@@ -95,11 +97,11 @@ export function emailsServiceRouter() {
         return
       }
 
-      if (await isProbablyArticle(data.from, data.subject)) {
+      if (await isProbablyArticle(parsedFrom.address, data.subject)) {
         logger.info('handling as article', data)
         await saveEmail(ctx, {
           title: getTitleFromEmailSubject(data.subject),
-          author: data.from,
+          author: parsedFrom.name,
           url: generateUniqueUrl(),
           originalContent: data.html,
         })
