@@ -705,8 +705,11 @@ describe('Labels API', () => {
         expect(res.body.data.moveLabel.label.position).to.eql(
           labels[4].position
         )
-        const reorderedLabels = await getRepository(Label).findBy({
-          user: { id: user.id },
+        const reorderedLabels = await getRepository(Label).find({
+          where: {
+            user: { id: user.id },
+          },
+          order: { position: 'ASC' },
         })
         expect(reorderedLabels.map((l) => l.id)).to.eql([
           labels[0].id,
