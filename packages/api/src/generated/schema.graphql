@@ -1678,7 +1678,7 @@ type UpdateUserSuccess {
 }
 
 type UpdatesSinceError {
-  errorCodes: [UpdatesSinceErrorCode!]
+  errorCodes: [UpdatesSinceErrorCode!]!
 }
 
 enum UpdatesSinceErrorCode {

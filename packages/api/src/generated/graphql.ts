@@ -2183,7 +2183,7 @@ export type UpdateUserSuccess = {
 
 export type UpdatesSinceError = {
   __typename?: 'UpdatesSinceError';
-  errorCodes?: Maybe<Array<UpdatesSinceErrorCode>>;
+  errorCodes: Array<UpdatesSinceErrorCode>;
 };
 
 export enum UpdatesSinceErrorCode {
@@ -4339,7 +4339,7 @@ export type UpdateUserSuccessResolvers<ContextType = ResolverContext, ParentType
 };
 
 export type UpdatesSinceErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceError'] = ResolversParentTypes['UpdatesSinceError']> = {
-  errorCodes?: Resolver<Maybe<Array<ResolversTypes['UpdatesSinceErrorCode']>>, ParentType, ContextType>;
+  errorCodes?: Resolver<Array<ResolversTypes['UpdatesSinceErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

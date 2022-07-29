@@ -1783,7 +1783,7 @@ const schema = gql`
   }
 
   type UpdatesSinceError {
-    errorCodes: [UpdatesSinceErrorCode!]
+    errorCodes: [UpdatesSinceErrorCode!]!
   }
 
   enum UpdatesSinceErrorCode {

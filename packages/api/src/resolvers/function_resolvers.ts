@@ -82,6 +82,7 @@ import {
   updatePageResolver,
   updateReminderResolver,
   updateSharedCommentResolver,
+  updatesSinceResolver,
   updateUserProfileResolver,
   updateUserResolver,
   uploadFileRequestResolver,
@@ -186,6 +187,7 @@ export const functionResolvers = {
     webhook: webhookResolver,
     apiKeys: apiKeysResolver,
     typeaheadSearch: typeaheadSearchResolver,
+    updatesSince: updatesSinceResolver,
   },
   User: {
     async sharedArticles(
@@ -586,4 +588,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('RevokeApiKey'),
   ...resultResolveTypeResolver('DeleteAccount'),
   ...resultResolveTypeResolver('TypeaheadSearch'),
+  ...resultResolveTypeResolver('UpdatesSince'),
 }

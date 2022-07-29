@@ -23,6 +23,7 @@ import {
   QueryArticlesArgs,
   QuerySearchArgs,
   QueryTypeaheadSearchArgs,
+  QueryUpdatesSinceArgs,
   ResolverFn,
   SaveArticleReadingProgressError,
   SaveArticleReadingProgressErrorCode,
@@ -39,6 +40,10 @@ import {
   TypeaheadSearchError,
   TypeaheadSearchErrorCode,
   TypeaheadSearchSuccess,
+  UpdateReason,
+  UpdatesSinceError,
+  UpdatesSinceErrorCode,
+  UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { Merge } from '../../util'
 import {
@@ -68,7 +73,7 @@ import { createImageProxyUrl } from '../../utils/imageproxy'
 import normalizeUrl from 'normalize-url'
 import { WithDataSourcesContext } from '../types'
 
-import { parseSearchQuery } from '../../utils/search'
+import { parseSearchQuery, SortBy, SortOrder } from '../../utils/search'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
@@ -618,7 +623,7 @@ export const setBookmarkArticleResolver = authorized<
   async (
     _,
     { input: { articleID, bookmark } },
-    { models, authTrx, claims: { uid }, log, pubsub }
+    { claims: { uid }, log, pubsub }
   ) => {
     const page = await getPageById(articleID)
     if (!page) {
@@ -636,15 +641,14 @@ export const setBookmarkArticleResolver = authorized<
       }
 
       // delete the page
-      await updatePage(
+      const deleted = await updatePage(
         pageRemoved.id,
         { state: ArticleSavingRequestStatus.Deleted },
         { pubsub, uid }
       )
-
-      const highlightsUnshared = await authTrx(async (tx) => {
-        return models.highlight.unshareAllHighlights(articleID, uid, tx)
-      })
+      if (!deleted) {
+        return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
+      }
 
       analytics.track({
         userId: uid,
@@ -660,7 +664,6 @@ export const setBookmarkArticleResolver = authorized<
           content: undefined,
           originalHtml: undefined,
         }),
-        highlightsUnshared: highlightsUnshared.length,
         labels: {
           source: 'resolver',
           resolver: 'setBookmarkArticleResolver',
@@ -683,7 +686,13 @@ export const setBookmarkArticleResolver = authorized<
           userId: uid,
           slug: generateSlug(page.title),
         }
-        await updatePage(articleID, pageUpdated, { pubsub, uid })
+        const updated = await updatePage(articleID, pageUpdated, {
+          pubsub,
+          uid,
+        })
+        if (!updated) {
+          return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
+        }
 
         log.info('Article bookmarked', {
           page: Object.assign({}, page, {
@@ -927,3 +936,91 @@ export const typeaheadSearchResolver = authorized<
 
   return { items: await searchAsYouType(claims.uid, query, first || undefined) }
 })
+
+export const updatesSinceResolver = authorized<
+  UpdatesSinceSuccess,
+  UpdatesSinceError,
+  QueryUpdatesSinceArgs
+>(async (_obj, { since, first, after }, { claims: { uid } }) => {
+  if (!uid) {
+    return { errorCodes: [UpdatesSinceErrorCode.Unauthorized] }
+  }
+
+  analytics.track({
+    userId: uid,
+    event: 'updatesSince',
+    properties: {
+      env: env.server.apiEnv,
+      since,
+      first,
+      after,
+    },
+  })
+
+  const startCursor = after || ''
+  const size = first || 10
+  const startDate = new Date(since)
+  const [pages, totalCount] = (await searchPages(
+    {
+      from: Number(startCursor),
+      size: size + 1, // fetch one more item to get next cursor
+      includeDeleted: true,
+      dateFilters: [{ field: 'updatedAt', startDate }],
+      sort: { by: SortBy.UPDATED, order: SortOrder.ASCENDING },
+    },
+    uid
+  )) || [[], 0]
+
+  const start =
+    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+  const hasNextPage = pages.length > size
+  const endCursor = String(start + pages.length - (hasNextPage ? 1 : 0))
+
+  //TODO: refactor so that the lastCursor included
+  if (hasNextPage) {
+    // remove an extra if exists
+    pages.pop()
+  }
+
+  const edges = pages.map((p) => {
+    const updateReason = getUpdateReason(p, startDate)
+    return {
+      node:
+        updateReason === UpdateReason.Deleted
+          ? null
+          : ({
+              ...p,
+              image: p.image && createImageProxyUrl(p.image, 88, 88),
+              isArchived: !!p.archivedAt,
+              contentReader:
+                p.pageType === PageType.File
+                  ? ContentReader.Pdf
+                  : ContentReader.Web,
+            } as SearchItem),
+      cursor: endCursor,
+      itemID: p.id,
+      updateReason,
+    }
+  })
+
+  return {
+    edges,
+    pageInfo: {
+      hasPreviousPage: false,
+      startCursor,
+      hasNextPage,
+      endCursor,
+      totalCount,
+    },
+  }
+})
+
+const getUpdateReason = (page: Page, since: Date) => {
+  if (page.state === ArticleSavingRequestStatus.Deleted) {
+    return UpdateReason.Deleted
+  }
+  if (page.createdAt >= since) {
+    return UpdateReason.Created
+  }
+  return UpdateReason.Updated
+}
