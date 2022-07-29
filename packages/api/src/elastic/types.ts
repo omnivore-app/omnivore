@@ -264,9 +264,9 @@ export interface PageSearchArgs {
   inFilter?: InFilter
   readFilter?: ReadFilter
   typeFilter?: PageType
-  labelFilters: LabelFilter[]
-  hasFilters: HasFilter[]
-  dateFilters: DateFilter[]
+  labelFilters?: LabelFilter[]
+  hasFilters?: HasFilter[]
+  dateFilters?: DateFilter[]
   termFilters?: FieldFilter[]
   matchFilters?: FieldFilter[]
   includePending?: boolean | null
