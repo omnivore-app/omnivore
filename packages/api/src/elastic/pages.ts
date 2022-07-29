@@ -2,6 +2,7 @@ import {
   ArticleSavingRequestStatus,
   Page,
   PageContext,
+  PageSearchArgs,
   PageType,
   ParamSet,
   SearchBody,
@@ -17,7 +18,6 @@ import {
   ReadFilter,
   SortBy,
   SortOrder,
-  SortParams,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
@@ -337,21 +337,7 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
 }
 
 export const searchPages = async (
-  args: {
-    from?: number
-    size?: number
-    sort?: SortParams
-    query?: string
-    inFilter?: InFilter
-    readFilter?: ReadFilter
-    typeFilter?: PageType
-    labelFilters: LabelFilter[]
-    hasFilters: HasFilter[]
-    dateFilters: DateFilter[]
-    termFilters?: FieldFilter[]
-    matchFilters?: FieldFilter[]
-    includePending?: boolean | null
-  },
+  args: PageSearchArgs,
   userId: string
 ): Promise<[Page[], number] | undefined> => {
   try {
@@ -448,6 +434,14 @@ export const searchPages = async (
       })
     }
 
+    if (!args.includeDeleted) {
+      body.query.bool.must_not.push({
+        term: {
+          state: ArticleSavingRequestStatus.Deleted,
+        },
+      })
+    }
+
     console.log('searching pages in elastic', JSON.stringify(body))
 
     const response = await client.search<SearchResponse<Page>, SearchBody>({
@@ -533,6 +527,7 @@ export const deletePagesByParam = async <K extends keyof ParamSet>(
     const { body } = await client.deleteByQuery({
       index: INDEX_ALIAS,
       body: params,
+      conflicts: 'proceed',
     })
 
     if (body.deleted > 0) {
@@ -564,6 +559,11 @@ export const searchAsYouType = async (
               {
                 term: {
                   userId,
+                },
+              },
+              {
+                term: {
+                  state: ArticleSavingRequestStatus.Succeeded,
                 },
               },
               {

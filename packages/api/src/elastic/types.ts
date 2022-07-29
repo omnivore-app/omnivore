@@ -1,6 +1,15 @@
 // Define the type of the body for the Search request
 import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
+import {
+  DateFilter,
+  FieldFilter,
+  HasFilter,
+  InFilter,
+  LabelFilter,
+  ReadFilter,
+  SortParams,
+} from '../utils/search'
 
 export interface SearchBody {
   query: {
@@ -245,4 +254,21 @@ export interface PageContext {
   pubsub: PubsubClient
   refresh?: boolean
   uid: string
+}
+
+export interface PageSearchArgs {
+  from?: number
+  size?: number
+  sort?: SortParams
+  query?: string
+  inFilter?: InFilter
+  readFilter?: ReadFilter
+  typeFilter?: PageType
+  labelFilters: LabelFilter[]
+  hasFilters: HasFilter[]
+  dateFilters: DateFilter[]
+  termFilters?: FieldFilter[]
+  matchFilters?: FieldFilter[]
+  includePending?: boolean | null
+  includeDeleted?: boolean
 }

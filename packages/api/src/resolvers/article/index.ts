@@ -82,7 +82,6 @@ import {
 } from '../../elastic/types'
 import {
   createPage,
-  deletePage,
   getPageById,
   getPageByParam,
   searchAsYouType,
@@ -636,7 +635,12 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      await deletePage(pageRemoved.id, { pubsub, uid })
+      // delete the page
+      await updatePage(
+        pageRemoved.id,
+        { state: ArticleSavingRequestStatus.Deleted },
+        { pubsub, uid }
+      )
 
       const highlightsUnshared = await authTrx(async (tx) => {
         return models.highlight.unshareAllHighlights(articleID, uid, tx)

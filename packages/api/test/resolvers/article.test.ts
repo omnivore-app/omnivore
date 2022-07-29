@@ -649,7 +649,7 @@ describe('Article API', () => {
     let query = ''
     let articleId = ''
     let bookmark = true
-    let pageId = ''
+    let pageId: string
 
     before(async () => {
       const page: Page = {
@@ -667,16 +667,11 @@ describe('Article API', () => {
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
       }
-      const newPageId = await createPage(page, ctx)
-      if (newPageId) {
-        pageId = newPageId
-      }
+      pageId = (await createPage(page, ctx))!
     })
 
     after(async () => {
-      if (pageId) {
-        await deletePage(pageId, ctx)
-      }
+      await deletePage(pageId, ctx)
     })
 
     beforeEach(() => {
@@ -684,7 +679,7 @@ describe('Article API', () => {
     })
 
     context('when we set a bookmark on an article', () => {
-      before(async () => {
+      before(() => {
         articleId = pageId
         bookmark = true
       })
@@ -698,15 +693,15 @@ describe('Article API', () => {
     })
 
     context('when we unset a bookmark on an article', () => {
-      before(async () => {
+      before(() => {
         articleId = pageId
         bookmark = false
       })
 
       it('should delete an article', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const pageId = await getPageById(articleId)
-        expect(pageId).to.undefined
+        const page = await getPageById(articleId)
+        expect(page?.state).to.eql(ArticleSavingRequestStatus.Deleted)
       })
     })
   })
