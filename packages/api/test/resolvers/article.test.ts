@@ -10,7 +10,7 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { UploadFileStatus } from '../../src/generated/graphql'
+import { UpdateReason, UploadFileStatus } from '../../src/generated/graphql'
 import {
   ArticleSavingRequestStatus,
   Highlight,
@@ -970,6 +970,106 @@ describe('Article API', () => {
       expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
       expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
       expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
+    })
+  })
+
+  describe('UpdatesSince API', () => {
+    const updatesSinceQuery = (since: string) => `
+      query {
+        updatesSince(
+          since: "${since}") {
+          ... on UpdatesSinceSuccess {
+            edges {
+              cursor
+              node {
+                id
+                createdAt
+                updatedAt
+              }
+              itemID
+              updateReason
+            }
+            pageInfo {
+              hasNextPage
+              hasPreviousPage
+              startCursor
+              endCursor
+              totalCount
+            }
+          }
+          ... on UpdatesSinceError {
+            errorCodes
+          }
+        }
+      }
+    `
+    let since: string
+    let pageIds: string[] = []
+    let deletedPageIds: string[] = []
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        const page: Page = {
+          id: '',
+          hash: '',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'test page',
+          content: '',
+          slug: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgressPercent: 0,
+          readingProgressAnchorIndex: 0,
+          url: '',
+          savedAt: new Date(),
+          state: ArticleSavingRequestStatus.Succeeded,
+        }
+        const pageId = (await createPage(page, ctx))!
+        pageIds.push(pageId)
+      }
+
+      // set the since to be the date before deletion
+      since = new Date().toISOString()
+
+      // Delete some pages
+      for (let i = 0; i < 3; i++) {
+        await updatePage(
+          pageIds[i],
+          { state: ArticleSavingRequestStatus.Deleted },
+          ctx
+        )
+        deletedPageIds.push(pageIds[i])
+      }
+    })
+
+    after(async () => {
+      // Delete all pages
+      for (let i = 0; i < pageIds.length; i++) {
+        await deletePage(pageIds[i], ctx)
+      }
+    })
+
+    it('returns pages deleted after since', async () => {
+      const res = await graphqlRequest(
+        updatesSinceQuery(since),
+        authToken
+      ).expect(200)
+
+      expect(res.body.data.updatesSince.edges.length).to.eql(3)
+      expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
+        deletedPageIds[0]
+      )
+      expect(res.body.data.updatesSince.edges[1].itemID).to.eq(
+        deletedPageIds[1]
+      )
+      expect(res.body.data.updatesSince.edges[2].itemID).to.eq(
+        deletedPageIds[2]
+      )
+      expect(res.body.data.updatesSince.edges[2].updateReason).to.eq(
+        UpdateReason.Deleted
+      )
     })
   })
 })
