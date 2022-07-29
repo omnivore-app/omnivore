@@ -183,6 +183,7 @@ export enum ArticleSavingRequestErrorCode {
 export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess;
 
 export enum ArticleSavingRequestStatus {
+  Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED'

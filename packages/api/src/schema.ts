@@ -1000,6 +1000,7 @@ const schema = gql`
     PROCESSING
     SUCCEEDED
     FAILED
+    DELETED
   }
 
   type ArticleSavingRequest {

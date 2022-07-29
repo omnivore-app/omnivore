@@ -40,7 +40,6 @@ import {
   TypeaheadSearchErrorCode,
   TypeaheadSearchSuccess,
 } from '../../generated/graphql'
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Merge } from '../../util'
 import {
   getStorageFileDetails,

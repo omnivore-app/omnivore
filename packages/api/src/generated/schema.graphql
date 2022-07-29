@@ -148,6 +148,7 @@ enum ArticleSavingRequestErrorCode {
 union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess
 
 enum ArticleSavingRequestStatus {
+  DELETED
   FAILED
   PROCESSING
   SUCCEEDED

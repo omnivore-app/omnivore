@@ -146,6 +146,7 @@ export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
 }
 
 export interface Label {
