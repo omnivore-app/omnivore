@@ -29,7 +29,8 @@ CREATE OR REPLACE FUNCTION update_label_position()
             UPDATE omnivore.labels SET position = position - 1 WHERE user_id = OLD.user_id AND position > OLD.position;
             RETURN OLD;
         ELSIF (TG_OP = 'INSERT') THEN
-            SELECT COALESCE(MAX(position), 0) + 1 INTO new_position FROM omnivore.labels WHERE user_id = NEW.user_id;
+            SELECT COALESCE(MAX(position), 0) + 1 INTO new_position FROM omnivore.labels WHERE user_id = NEW.user_id AND name < NEW.name;
+            UPDATE omnivore.labels SET position = position + 1 WHERE user_id = NEW.user_id AND position >= new_position;
             NEW.position = new_position;
             RETURN NEW;
         END IF;
