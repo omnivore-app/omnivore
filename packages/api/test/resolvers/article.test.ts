@@ -1004,8 +1004,8 @@ describe('Article API', () => {
       }
     `
     let since: string
-    let pageIds: string[] = []
-    let deletedPageIds: string[] = []
+    let pages: Page[] = []
+    let deletedPages: Page[] = []
 
     before(async () => {
       // Create some test pages
@@ -1026,28 +1026,28 @@ describe('Article API', () => {
           savedAt: new Date(),
           state: ArticleSavingRequestStatus.Succeeded,
         }
-        const pageId = (await createPage(page, ctx))!
-        pageIds.push(pageId)
+        page.id = (await createPage(page, ctx))!
+        pages.push(page)
       }
 
-      // set the since to be the date before deletion
-      since = new Date().toISOString()
+      // set the since to be the timestamp before deletion
+      since = pages[4].createdAt.toISOString()
 
       // Delete some pages
       for (let i = 0; i < 3; i++) {
         await updatePage(
-          pageIds[i],
+          pages[i].id,
           { state: ArticleSavingRequestStatus.Deleted },
           ctx
         )
-        deletedPageIds.push(pageIds[i])
+        deletedPages.push(pages[i])
       }
     })
 
     after(async () => {
       // Delete all pages
-      for (let i = 0; i < pageIds.length; i++) {
-        await deletePage(pageIds[i], ctx)
+      for (let i = 0; i < pages.length; i++) {
+        await deletePage(pages[i].id, ctx)
       }
     })
 
@@ -1059,13 +1059,13 @@ describe('Article API', () => {
 
       expect(res.body.data.updatesSince.edges.length).to.eql(3)
       expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
-        deletedPageIds[0]
+        deletedPages[0].id
       )
       expect(res.body.data.updatesSince.edges[1].itemID).to.eq(
-        deletedPageIds[1]
+        deletedPages[1].id
       )
       expect(res.body.data.updatesSince.edges[2].itemID).to.eq(
-        deletedPageIds[2]
+        deletedPages[2].id
       )
       expect(res.body.data.updatesSince.edges[2].updateReason).to.eq(
         UpdateReason.Deleted
