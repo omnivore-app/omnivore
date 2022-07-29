@@ -752,5 +752,20 @@ describe('Labels API', () => {
         expect(res.body.data.moveLabel.errorCodes).to.eql(['NOT_FOUND'])
       })
     })
+
+    context('when after label not exist', () => {
+      before(() => {
+        labelId = labels[4].id
+        afterLabelId = generateFakeUuid()
+      })
+
+      it('returns error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(
+          query(labelId, afterLabelId),
+          authToken
+        ).expect(200)
+        expect(res.body.data.moveLabel.errorCodes).to.eql(['NOT_FOUND'])
+      })
+    })
   })
 })
