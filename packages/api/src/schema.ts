@@ -1761,6 +1761,34 @@ const schema = gql`
     siteName: String
   }
 
+  union UpdatesSinceResult = UpdatesSinceSuccess | UpdatesSinceError
+
+  type UpdatesSinceSuccess {
+    edges: [SyncUpdatedItemEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type SyncUpdatedItemEdge {
+    cursor: String!
+    updateReason: UpdateReason!
+    itemID: ID!
+    node: SearchItem # for created or updated items, null for deletions */
+  }
+
+  enum UpdateReason {
+    CREATED
+    UPDATED
+    DELETED
+  }
+
+  type UpdatesSinceError {
+    errorCodes: [UpdatesSinceErrorCode!]
+  }
+
+  enum UpdatesSinceErrorCode {
+    UNAUTHORIZED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1873,6 +1901,7 @@ const schema = gql`
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
+    updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
   }
 `
 

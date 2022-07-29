@@ -918,6 +918,7 @@ type Query {
   sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
   subscriptions(sort: SortParams): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
+  updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1419,6 +1420,13 @@ type SubscriptionsSuccess {
   subscriptions: [Subscription!]!
 }
 
+type SyncUpdatedItemEdge {
+  cursor: String!
+  itemID: ID!
+  node: SearchItem
+  updateReason: UpdateReason!
+}
+
 type TypeaheadSearchError {
   errorCodes: [TypeaheadSearchErrorCode!]!
 }
@@ -1571,6 +1579,12 @@ type UpdatePageSuccess {
   updatedPage: Article!
 }
 
+enum UpdateReason {
+  CREATED
+  DELETED
+  UPDATED
+}
+
 type UpdateReminderError {
   errorCodes: [UpdateReminderErrorCode!]!
 }
@@ -1660,6 +1674,21 @@ union UpdateUserResult = UpdateUserError | UpdateUserSuccess
 
 type UpdateUserSuccess {
   user: User!
+}
+
+type UpdatesSinceError {
+  errorCodes: [UpdatesSinceErrorCode!]
+}
+
+enum UpdatesSinceErrorCode {
+  UNAUTHORIZED
+}
+
+union UpdatesSinceResult = UpdatesSinceError | UpdatesSinceSuccess
+
+type UpdatesSinceSuccess {
+  edges: [SyncUpdatedItemEdge!]!
+  pageInfo: PageInfo!
 }
 
 type UploadFileRequestError {
