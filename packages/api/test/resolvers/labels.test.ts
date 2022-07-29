@@ -723,6 +723,12 @@ describe('Labels API', () => {
         labelId = labels[4].id
       })
 
+      after(async () => {
+        await graphqlRequest(query(labelId, labels[3].id), authToken).expect(
+          200
+        )
+      })
+
       it('moves the label to the top', async () => {
         const res = await graphqlRequest(query(labelId, ''), authToken).expect(
           200
