@@ -66,8 +66,8 @@ export async function createMobileEmailSignInResponse(
         name: user.name,
       })
       return {
-        statusCode: 418,
-        json: { errorCodes: ['PENDING_VERIFICATION'] },
+        statusCode: 200,
+        json: { pendingEmailVerification: true },
       }
     }
 

@@ -42,10 +42,9 @@ extension URLSession {
     do {
       let (data, response) = try await data(for: resource.urlRequest)
       let serverResponse = ServerResponse(data: data, response: response)
+      NetworkRequestLogger.log(request: resource.urlRequest, serverResponse: serverResponse)
 
       if let httpResponse = response as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode {
-        NetworkRequestLogger.log(request: resource.urlRequest, serverResponse: serverResponse)
-
         if let decodedValue = resource.decode(serverResponse) {
           return decodedValue
         }
@@ -56,7 +55,6 @@ extension URLSession {
       }
     } catch {
       let serverResponse = ServerResponse(error: error)
-      NetworkRequestLogger.log(request: resource.urlRequest, serverResponse: serverResponse)
       throw ServerError(serverResponse: serverResponse)
     }
   }

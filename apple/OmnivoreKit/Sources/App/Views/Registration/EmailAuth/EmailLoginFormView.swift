@@ -13,7 +13,13 @@ extension EmailAuthViewModel {
     do {
       try await authenticator.submitEmailLogin(email: email, password: password)
     } catch {
-      loginError = error as? LoginError
+      if let newLoginError = error as? LoginError {
+        if newLoginError == .pendingEmailVerification {
+          emailAuthState = .pendingEmailVerification
+        } else {
+          loginError = newLoginError
+        }
+      }
     }
   }
 }

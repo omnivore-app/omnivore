@@ -54,11 +54,18 @@ public extension Authenticator {
   ) async throws {
     do {
       let params = EmailSignInParams(email: email, password: password)
-      let authPayload = try await networker.submitEmailLogin(params: params)
-      try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
-      try ValetKey.authToken.setValue(authPayload.authToken)
-      DispatchQueue.main.async {
-        self.isLoggedIn = true
+      let emailAuthPayload = try await networker.submitEmailLogin(params: params)
+
+      if let authPayload = emailAuthPayload.authPayload {
+        try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
+        try ValetKey.authToken.setValue(authPayload.authToken)
+        DispatchQueue.main.async {
+          self.isLoggedIn = true
+        }
+      } else if emailAuthPayload.errorCodes != nil {
+        throw ServerError.pendingEmailVerification
+      } else {
+        throw ServerError.unknown
       }
     } catch {
       let serverError = (error as? ServerError) ?? ServerError.unknown

@@ -33,6 +33,11 @@ struct AuthPayload: Decodable {
   let authToken: String
 }
 
+struct EmailAuthPayload: Decodable {
+  let authPayload: AuthPayload?
+  let pendingEmailVerification: Bool?
+}
+
 struct CreateAccountParams: Encodable {
   let pendingUserToken: String
   let userProfile: UserProfile

@@ -9,6 +9,7 @@ enum EmailAuthState {
   case signIn
   case signUp
   case loading
+  case pendingEmailVerification
 }
 
 @MainActor final class EmailAuthViewModel: ObservableObject {
@@ -35,6 +36,8 @@ struct EmailAuthView: View {
       EmailSignupFormView(viewModel: viewModel)
     case .signIn:
       EmailLoginFormView(viewModel: viewModel)
+    case .pendingEmailVerification:
+      Text("Verify Your email")
     case .loading:
       VStack {
         Spacer()

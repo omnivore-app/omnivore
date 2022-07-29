@@ -37,7 +37,7 @@ extension Networker {
     }
   }
 
-  func submitEmailLogin(params: EmailSignInParams) async throws -> AuthPayload {
+  func submitEmailLogin(params: EmailSignInParams) async throws -> EmailAuthPayload {
     let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
 
     let urlRequest = URLRequest.create(
@@ -46,9 +46,9 @@ extension Networker {
       requestMethod: .post(params: encodedParams)
     )
 
-    let resource = ServerResource<AuthPayload>(
+    let resource = ServerResource<EmailAuthPayload>(
       urlRequest: urlRequest,
-      decode: AuthPayload.decode
+      decode: EmailAuthPayload.decode
     )
 
     do {
