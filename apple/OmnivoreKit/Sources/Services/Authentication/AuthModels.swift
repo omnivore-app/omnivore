@@ -23,6 +23,13 @@ struct EmailSignInParams: Encodable {
   let password: String
 }
 
+struct EmailSignUpParams: Encodable {
+  let email: String
+  let password: String
+  let username: String
+  let name: String
+}
+
 enum AuthProvider: String, Encodable {
   case apple = "APPLE"
   case google = "GOOGLE"
@@ -46,6 +53,10 @@ struct CreateAccountParams: Encodable {
 struct PendingUserAuthPayload: Decodable {
   let pendingUserToken: String
   let pendingUserProfile: UserProfile
+}
+
+struct PendingEmailVerificationAuthPayload: Decodable {
+  let pendingEmailVerificationToken: String
 }
 
 extension AuthPayload {

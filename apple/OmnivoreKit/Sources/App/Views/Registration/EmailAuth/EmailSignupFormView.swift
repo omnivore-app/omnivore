@@ -9,13 +9,18 @@ extension EmailAuthViewModel {
   func signUp(
     email: String,
     password: String,
-    username _: String,
-    fullName _: String,
+    username: String,
+    fullName: String,
     authenticator: Authenticator
   ) async {
     do {
-      // TODO: add function to sign up
-      try await authenticator.submitEmailLogin(email: email, password: password)
+      try await authenticator.submitUserSignUp(
+        email: email,
+        password: password,
+        username: username,
+        name: fullName
+      )
+      emailAuthState = .pendingEmailVerification
     } catch {
       loginError = error as? LoginError
     }

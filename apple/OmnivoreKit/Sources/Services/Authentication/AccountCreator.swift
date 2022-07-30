@@ -62,11 +62,27 @@ public extension Authenticator {
         DispatchQueue.main.async {
           self.isLoggedIn = true
         }
-      } else if emailAuthPayload.errorCodes != nil {
+      } else if emailAuthPayload.pendingEmailVerification == true {
         throw ServerError.pendingEmailVerification
       } else {
         throw ServerError.unknown
       }
+    } catch {
+      let serverError = (error as? ServerError) ?? ServerError.unknown
+      throw LoginError.make(serverError: serverError)
+    }
+  }
+
+  func submitUserSignUp(
+    email: String,
+    password: String,
+    username: String,
+    name: String
+  ) async throws {
+    do {
+      let params = EmailSignUpParams(email: email, password: password, username: username, name: name)
+      let authPayload = try await networker.submitEmailSignUp(params: params)
+      try ValetKey.authTokenWithPendingEmail.setValue(authPayload.pendingEmailVerificationToken)
     } catch {
       let serverError = (error as? ServerError) ?? ServerError.unknown
       throw LoginError.make(serverError: serverError)

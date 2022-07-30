@@ -61,4 +61,29 @@ extension Networker {
       }
     }
   }
+
+  func submitEmailSignUp(params: EmailSignUpParams) async throws -> PendingEmailVerificationAuthPayload {
+    let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
+
+    let urlRequest = URLRequest.create(
+      baseURL: appEnvironment.serverBaseURL,
+      urlPath: "/api/mobile-auth/email-sign-up",
+      requestMethod: .post(params: encodedParams)
+    )
+
+    let resource = ServerResource<PendingEmailVerificationAuthPayload>(
+      urlRequest: urlRequest,
+      decode: PendingEmailVerificationAuthPayload.decode
+    )
+
+    do {
+      return try await urlSession.performRequest(resource: resource)
+    } catch {
+      if let error = error as? ServerError {
+        throw LoginError.make(serverError: error)
+      } else {
+        throw LoginError.unknown
+      }
+    }
+  }
 }

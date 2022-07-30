@@ -22,7 +22,13 @@ enum EmailAuthState {
 
   func loadAuthState() {
     // check tokens here to determine pending/active/no user
-    emailAuthState = .signIn
+    if PublicValet.hasPendingEmailVerificationToken {
+      // TODO: make network request to check status
+      // if it's now active then log in the user\
+      emailAuthState = .pendingEmailVerification
+    } else {
+      emailAuthState = .signIn
+    }
   }
 }
 
