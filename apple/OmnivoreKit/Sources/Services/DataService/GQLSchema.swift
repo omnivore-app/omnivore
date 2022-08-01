@@ -7525,7 +7525,6 @@ extension Objects {
     let googleLogin: [String: Unions.LoginResult]
     let googleSignup: [String: Unions.GoogleSignupResult]
     let logOut: [String: Unions.LogOutResult]
-    let login: [String: Unions.LoginResult]
     let mergeHighlight: [String: Unions.MergeHighlightResult]
     let reportItem: [String: Objects.ReportItemResult]
     let revokeApiKey: [String: Unions.RevokeApiKeyResult]
@@ -7543,7 +7542,6 @@ extension Objects {
     let setShareHighlight: [String: Unions.SetShareHighlightResult]
     let setUserPersonalization: [String: Unions.SetUserPersonalizationResult]
     let setWebhook: [String: Unions.SetWebhookResult]
-    let signup: [String: Unions.SignupResult]
     let subscribe: [String: Unions.SubscribeResult]
     let unsubscribe: [String: Unions.UnsubscribeResult]
     let updateHighlight: [String: Unions.UpdateHighlightResult]
@@ -7659,10 +7657,6 @@ extension Objects.Mutation: Decodable {
         if let value = try container.decode(Unions.LogOutResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
-      case "login":
-        if let value = try container.decode(Unions.LoginResult?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
       case "mergeHighlight":
         if let value = try container.decode(Unions.MergeHighlightResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -7729,10 +7723,6 @@ extension Objects.Mutation: Decodable {
         }
       case "setWebhook":
         if let value = try container.decode(Unions.SetWebhookResult?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
-      case "signup":
-        if let value = try container.decode(Unions.SignupResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "subscribe":
@@ -7814,7 +7804,6 @@ extension Objects.Mutation: Decodable {
     googleLogin = map["googleLogin"]
     googleSignup = map["googleSignup"]
     logOut = map["logOut"]
-    login = map["login"]
     mergeHighlight = map["mergeHighlight"]
     reportItem = map["reportItem"]
     revokeApiKey = map["revokeApiKey"]
@@ -7832,7 +7821,6 @@ extension Objects.Mutation: Decodable {
     setShareHighlight = map["setShareHighlight"]
     setUserPersonalization = map["setUserPersonalization"]
     setWebhook = map["setWebhook"]
-    signup = map["signup"]
     subscribe = map["subscribe"]
     unsubscribe = map["unsubscribe"]
     updateHighlight = map["updateHighlight"]
@@ -8248,25 +8236,6 @@ extension Fields where TypeLock == Objects.Mutation {
     }
   }
 
-  func login<Type>(input: InputObjects.LoginInput, selection: Selection<Type, Unions.LoginResult>) throws -> Type {
-    let field = GraphQLField.composite(
-      name: "login",
-      arguments: [Argument(name: "input", type: "LoginInput!", value: input)],
-      selection: selection.selection
-    )
-    select(field)
-
-    switch response {
-    case let .decoding(data):
-      if let data = data.login[field.alias!] {
-        return try selection.decode(data: data)
-      }
-      throw HttpError.badpayload
-    case .mocking:
-      return selection.mock()
-    }
-  }
-
   func mergeHighlight<Type>(input: InputObjects.MergeHighlightInput, selection: Selection<Type, Unions.MergeHighlightResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "mergeHighlight",
@@ -8582,25 +8551,6 @@ extension Fields where TypeLock == Objects.Mutation {
     switch response {
     case let .decoding(data):
       if let data = data.setWebhook[field.alias!] {
-        return try selection.decode(data: data)
-      }
-      throw HttpError.badpayload
-    case .mocking:
-      return selection.mock()
-    }
-  }
-
-  func signup<Type>(input: InputObjects.SignupInput, selection: Selection<Type, Unions.SignupResult>) throws -> Type {
-    let field = GraphQLField.composite(
-      name: "signup",
-      arguments: [Argument(name: "input", type: "SignupInput!", value: input)],
-      selection: selection.selection
-    )
-    select(field)
-
-    switch response {
-    case let .decoding(data):
-      if let data = data.signup[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -9778,6 +9728,7 @@ extension Objects {
     let sendInstallInstructions: [String: Unions.SendInstallInstructionsResult]
     let sharedArticle: [String: Unions.SharedArticleResult]
     let subscriptions: [String: Unions.SubscriptionsResult]
+    let typeaheadSearch: [String: Unions.TypeaheadSearchResult]
     let user: [String: Unions.UserResult]
     let users: [String: Unions.UsersResult]
     let validateUsername: [String: Bool]
@@ -9870,6 +9821,10 @@ extension Objects.Query: Decodable {
         if let value = try container.decode(Unions.SubscriptionsResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "typeaheadSearch":
+        if let value = try container.decode(Unions.TypeaheadSearchResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "user":
         if let value = try container.decode(Unions.UserResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -9917,6 +9872,7 @@ extension Objects.Query: Decodable {
     sendInstallInstructions = map["sendInstallInstructions"]
     sharedArticle = map["sharedArticle"]
     subscriptions = map["subscriptions"]
+    typeaheadSearch = map["typeaheadSearch"]
     user = map["user"]
     users = map["users"]
     validateUsername = map["validateUsername"]
@@ -10234,6 +10190,25 @@ extension Fields where TypeLock == Objects.Query {
     switch response {
     case let .decoding(data):
       if let data = data.subscriptions[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func typeaheadSearch<Type>(first: OptionalArgument<Int> = .absent(), query: String, selection: Selection<Type, Unions.TypeaheadSearchResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "typeaheadSearch",
+      arguments: [Argument(name: "first", type: "Int", value: first), Argument(name: "query", type: "String!", value: query)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.typeaheadSearch[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -11474,6 +11449,7 @@ extension Objects {
     let contentReader: [String: Enums.ContentReader]
     let createdAt: [String: DateTime]
     let description: [String: String]
+    let highlights: [String: [Objects.Highlight]]
     let id: [String: String]
     let image: [String: String]
     let isArchived: [String: Bool]
@@ -11537,6 +11513,10 @@ extension Objects.SearchItem: Decodable {
         }
       case "description":
         if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "highlights":
+        if let value = try container.decode([Objects.Highlight]?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "id":
@@ -11658,6 +11638,7 @@ extension Objects.SearchItem: Decodable {
     contentReader = map["contentReader"]
     createdAt = map["createdAt"]
     description = map["description"]
+    highlights = map["highlights"]
     id = map["id"]
     image = map["image"]
     isArchived = map["isArchived"]
@@ -11766,6 +11747,22 @@ extension Fields where TypeLock == Objects.SearchItem {
       return data.description[field.alias!]
     case .mocking:
       return nil
+    }
+  }
+
+  func highlights<Type>(selection: Selection<Type, [Objects.Highlight]?>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "highlights",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return try selection.decode(data: data.highlights[field.alias!])
+    case .mocking:
+      return selection.mock()
     }
   }
 
@@ -13839,137 +13836,6 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
-  struct SignupError {
-    let __typename: TypeName = .signupError
-    let errorCodes: [String: [Enums.SignupErrorCode?]]
-
-    enum TypeName: String, Codable {
-      case signupError = "SignupError"
-    }
-  }
-}
-
-extension Objects.SignupError: Decodable {
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-
-    var map = HashMap()
-    for codingKey in container.allKeys {
-      if codingKey.isTypenameKey { continue }
-
-      let alias = codingKey.stringValue
-      let field = GraphQLField.getFieldNameFromAlias(alias)
-
-      switch field {
-      case "errorCodes":
-        if let value = try container.decode([Enums.SignupErrorCode?]?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
-      default:
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: decoder.codingPath,
-            debugDescription: "Unknown key \(field)."
-          )
-        )
-      }
-    }
-
-    errorCodes = map["errorCodes"]
-  }
-}
-
-extension Fields where TypeLock == Objects.SignupError {
-  func errorCodes() throws -> [Enums.SignupErrorCode?] {
-    let field = GraphQLField.leaf(
-      name: "errorCodes",
-      arguments: []
-    )
-    select(field)
-
-    switch response {
-    case let .decoding(data):
-      if let data = data.errorCodes[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
-    case .mocking:
-      return []
-    }
-  }
-}
-
-extension Selection where TypeLock == Never, Type == Never {
-  typealias SignupError<T> = Selection<T, Objects.SignupError>
-}
-
-extension Objects {
-  struct SignupSuccess {
-    let __typename: TypeName = .signupSuccess
-    let me: [String: Objects.User]
-
-    enum TypeName: String, Codable {
-      case signupSuccess = "SignupSuccess"
-    }
-  }
-}
-
-extension Objects.SignupSuccess: Decodable {
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-
-    var map = HashMap()
-    for codingKey in container.allKeys {
-      if codingKey.isTypenameKey { continue }
-
-      let alias = codingKey.stringValue
-      let field = GraphQLField.getFieldNameFromAlias(alias)
-
-      switch field {
-      case "me":
-        if let value = try container.decode(Objects.User?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
-      default:
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: decoder.codingPath,
-            debugDescription: "Unknown key \(field)."
-          )
-        )
-      }
-    }
-
-    me = map["me"]
-  }
-}
-
-extension Fields where TypeLock == Objects.SignupSuccess {
-  func me<Type>(selection: Selection<Type, Objects.User>) throws -> Type {
-    let field = GraphQLField.composite(
-      name: "me",
-      arguments: [],
-      selection: selection.selection
-    )
-    select(field)
-
-    switch response {
-    case let .decoding(data):
-      if let data = data.me[field.alias!] {
-        return try selection.decode(data: data)
-      }
-      throw HttpError.badpayload
-    case .mocking:
-      return selection.mock()
-    }
-  }
-}
-
-extension Selection where TypeLock == Never, Type == Never {
-  typealias SignupSuccess<T> = Selection<T, Objects.SignupSuccess>
-}
-
-extension Objects {
   struct SubscribeError {
     let __typename: TypeName = .subscribeError
     let errorCodes: [String: [Enums.SubscribeErrorCode]]
@@ -14498,6 +14364,271 @@ extension Fields where TypeLock == Objects.SubscriptionsSuccess {
 
 extension Selection where TypeLock == Never, Type == Never {
   typealias SubscriptionsSuccess<T> = Selection<T, Objects.SubscriptionsSuccess>
+}
+
+extension Objects {
+  struct TypeaheadSearchError {
+    let __typename: TypeName = .typeaheadSearchError
+    let errorCodes: [String: [Enums.TypeaheadSearchErrorCode]]
+
+    enum TypeName: String, Codable {
+      case typeaheadSearchError = "TypeaheadSearchError"
+    }
+  }
+}
+
+extension Objects.TypeaheadSearchError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.TypeaheadSearchErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.TypeaheadSearchError {
+  func errorCodes() throws -> [Enums.TypeaheadSearchErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias TypeaheadSearchError<T> = Selection<T, Objects.TypeaheadSearchError>
+}
+
+extension Objects {
+  struct TypeaheadSearchItem {
+    let __typename: TypeName = .typeaheadSearchItem
+    let id: [String: String]
+    let siteName: [String: String]
+    let slug: [String: String]
+    let title: [String: String]
+
+    enum TypeName: String, Codable {
+      case typeaheadSearchItem = "TypeaheadSearchItem"
+    }
+  }
+}
+
+extension Objects.TypeaheadSearchItem: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "id":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "siteName":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "slug":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "title":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    id = map["id"]
+    siteName = map["siteName"]
+    slug = map["slug"]
+    title = map["title"]
+  }
+}
+
+extension Fields where TypeLock == Objects.TypeaheadSearchItem {
+  func id() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "id",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.id[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func siteName() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "siteName",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.siteName[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func slug() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "slug",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.slug[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func title() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "title",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.title[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias TypeaheadSearchItem<T> = Selection<T, Objects.TypeaheadSearchItem>
+}
+
+extension Objects {
+  struct TypeaheadSearchSuccess {
+    let __typename: TypeName = .typeaheadSearchSuccess
+    let items: [String: [Objects.TypeaheadSearchItem]]
+
+    enum TypeName: String, Codable {
+      case typeaheadSearchSuccess = "TypeaheadSearchSuccess"
+    }
+  }
+}
+
+extension Objects.TypeaheadSearchSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "items":
+        if let value = try container.decode([Objects.TypeaheadSearchItem]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    items = map["items"]
+  }
+}
+
+extension Fields where TypeLock == Objects.TypeaheadSearchSuccess {
+  func items<Type>(selection: Selection<Type, [Objects.TypeaheadSearchItem]>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "items",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.items[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias TypeaheadSearchSuccess<T> = Selection<T, Objects.TypeaheadSearchSuccess>
 }
 
 extension Objects {
@@ -20925,80 +21056,6 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
-  struct SignupResult {
-    let __typename: TypeName
-    let errorCodes: [String: [Enums.SignupErrorCode?]]
-    let me: [String: Objects.User]
-
-    enum TypeName: String, Codable {
-      case signupError = "SignupError"
-      case signupSuccess = "SignupSuccess"
-    }
-  }
-}
-
-extension Unions.SignupResult: Decodable {
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
-
-    var map = HashMap()
-    for codingKey in container.allKeys {
-      if codingKey.isTypenameKey { continue }
-
-      let alias = codingKey.stringValue
-      let field = GraphQLField.getFieldNameFromAlias(alias)
-
-      switch field {
-      case "errorCodes":
-        if let value = try container.decode([Enums.SignupErrorCode?]?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
-      case "me":
-        if let value = try container.decode(Objects.User?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
-      default:
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: decoder.codingPath,
-            debugDescription: "Unknown key \(field)."
-          )
-        )
-      }
-    }
-
-    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
-
-    errorCodes = map["errorCodes"]
-    me = map["me"]
-  }
-}
-
-extension Fields where TypeLock == Unions.SignupResult {
-  func on<Type>(signupError: Selection<Type, Objects.SignupError>, signupSuccess: Selection<Type, Objects.SignupSuccess>) throws -> Type {
-    select([GraphQLField.fragment(type: "SignupError", selection: signupError.selection), GraphQLField.fragment(type: "SignupSuccess", selection: signupSuccess.selection)])
-
-    switch response {
-    case let .decoding(data):
-      switch data.__typename {
-      case .signupError:
-        let data = Objects.SignupError(errorCodes: data.errorCodes)
-        return try signupError.decode(data: data)
-      case .signupSuccess:
-        let data = Objects.SignupSuccess(me: data.me)
-        return try signupSuccess.decode(data: data)
-      }
-    case .mocking:
-      return signupError.mock()
-    }
-  }
-}
-
-extension Selection where TypeLock == Never, Type == Never {
-  typealias SignupResult<T> = Selection<T, Unions.SignupResult>
-}
-
-extension Unions {
   struct SubscribeResult {
     let __typename: TypeName
     let errorCodes: [String: [Enums.SubscribeErrorCode]]
@@ -21144,6 +21201,80 @@ extension Fields where TypeLock == Unions.SubscriptionsResult {
 
 extension Selection where TypeLock == Never, Type == Never {
   typealias SubscriptionsResult<T> = Selection<T, Unions.SubscriptionsResult>
+}
+
+extension Unions {
+  struct TypeaheadSearchResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.TypeaheadSearchErrorCode]]
+    let items: [String: [Objects.TypeaheadSearchItem]]
+
+    enum TypeName: String, Codable {
+      case typeaheadSearchError = "TypeaheadSearchError"
+      case typeaheadSearchSuccess = "TypeaheadSearchSuccess"
+    }
+  }
+}
+
+extension Unions.TypeaheadSearchResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.TypeaheadSearchErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "items":
+        if let value = try container.decode([Objects.TypeaheadSearchItem]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    items = map["items"]
+  }
+}
+
+extension Fields where TypeLock == Unions.TypeaheadSearchResult {
+  func on<Type>(typeaheadSearchError: Selection<Type, Objects.TypeaheadSearchError>, typeaheadSearchSuccess: Selection<Type, Objects.TypeaheadSearchSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "TypeaheadSearchError", selection: typeaheadSearchError.selection), GraphQLField.fragment(type: "TypeaheadSearchSuccess", selection: typeaheadSearchSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .typeaheadSearchError:
+        let data = Objects.TypeaheadSearchError(errorCodes: data.errorCodes)
+        return try typeaheadSearchError.decode(data: data)
+      case .typeaheadSearchSuccess:
+        let data = Objects.TypeaheadSearchSuccess(items: data.items)
+        return try typeaheadSearchSuccess.decode(data: data)
+      }
+    case .mocking:
+      return typeaheadSearchError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias TypeaheadSearchResult<T> = Selection<T, Unions.TypeaheadSearchResult>
 }
 
 extension Unions {
@@ -22856,6 +22987,8 @@ extension Enums {
 
     case googleAuthError = "GOOGLE_AUTH_ERROR"
 
+    case invalidEmail = "INVALID_EMAIL"
+
     case invalidPassword = "INVALID_PASSWORD"
 
     case invalidUsername = "INVALID_USERNAME"
@@ -22917,6 +23050,13 @@ extension Enums {
   enum SubscriptionsErrorCode: String, CaseIterable, Codable {
     case badRequest = "BAD_REQUEST"
 
+    case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
+  /// TypeaheadSearchErrorCode
+  enum TypeaheadSearchErrorCode: String, CaseIterable, Codable {
     case unauthorized = "UNAUTHORIZED"
   }
 }
@@ -23438,25 +23578,6 @@ extension InputObjects {
 }
 
 extension InputObjects {
-  struct LoginInput: Encodable, Hashable {
-    var email: String
-
-    var password: String
-
-    func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(email, forKey: .email)
-      try container.encode(password, forKey: .password)
-    }
-
-    enum CodingKeys: String, CodingKey {
-      case email
-      case password
-    }
-  }
-}
-
-extension InputObjects {
   struct MergeHighlightInput: Encodable, Hashable {
     var annotation: OptionalArgument<String> = .absent()
 
@@ -23903,41 +24024,6 @@ extension InputObjects {
       case id
       case method
       case url
-    }
-  }
-}
-
-extension InputObjects {
-  struct SignupInput: Encodable, Hashable {
-    var bio: OptionalArgument<String> = .absent()
-
-    var email: String
-
-    var name: String
-
-    var password: String
-
-    var pictureUrl: OptionalArgument<String> = .absent()
-
-    var username: String
-
-    func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      if bio.hasValue { try container.encode(bio, forKey: .bio) }
-      try container.encode(email, forKey: .email)
-      try container.encode(name, forKey: .name)
-      try container.encode(password, forKey: .password)
-      if pictureUrl.hasValue { try container.encode(pictureUrl, forKey: .pictureUrl) }
-      try container.encode(username, forKey: .username)
-    }
-
-    enum CodingKeys: String, CodingKey {
-      case bio
-      case email
-      case name
-      case password
-      case pictureUrl
-      case username
     }
   }
 }
