@@ -661,7 +661,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         alignment="center"
         css={{
           px: '$3',
-          width: '100%',
+          width: '75%',
+          display: 'inline-flex',
           '@smDown': {
             px: '$2',
           },

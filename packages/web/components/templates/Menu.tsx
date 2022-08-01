@@ -1,32 +1,21 @@
 import React, { ReactNode } from 'react'
+import { ProSidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
+import 'react-pro-sidebar/dist/css/styles.css'
 
 //import { useRouter } from 'next/router'
 
-type MenuItem = {
-  name: string
-  action?: () => void
-  url?: string
-}
-type MenuProps = {
-  items: Array<MenuItem>
-}
-
-export const Menu = ({ items }: MenuProps) => {
-  //const router = useRouter()
-  console.log(items)
+export const Menubar = () => {
   return (
     <>
-      {/* <nav id="menu">
-        <header>
-          <h2>Menu</h2>
-        </header>
-      </nav>
-
-      <main id="panel">
-        <header>
-          <h2>Panel</h2>
-        </header>
-      </main> */}
+      <ProSidebar style={{display: 'inline-block'}}>
+        <Menu iconShape="square" popperArrow={true}>
+          <MenuItem>Home</MenuItem>
+            <MenuItem>Today</MenuItem>
+            <MenuItem>Read Later</MenuItem>
+            <MenuItem>Highlights</MenuItem>
+            <MenuItem>NewsLetters</MenuItem>
+        </Menu>
+      </ProSidebar>
     </>
   )
 }

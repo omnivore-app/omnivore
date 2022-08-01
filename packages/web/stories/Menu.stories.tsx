@@ -1,11 +1,11 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 //import { updateThemeLocally } from '../lib/themeUpdater'
 //import { ThemeId } from '../components/tokens/stitches.config'
-import { Menu } from '../components/templates/Menu'
+import { Menubar } from '../components/templates/Menu'
 
 export default {
   title: 'Components/Menu',
-  component: Menu,
+  component: Menubar,
   argTypes: {
     item: {
       description: 'Menu Item',
@@ -17,13 +17,13 @@ export default {
       description: 'going to a specific link',
     },
   },
-} as ComponentMeta<typeof Menu>
+} as ComponentMeta<typeof Menubar>
 
-const Template: ComponentStory<typeof Menu> = (args) => (
-  <Menu {...args}>{args.items[0]}</Menu>
+const Template: ComponentStory<typeof Menubar> = () => (
+  <Menubar/>
 )
 
 export const MenuStory = Template.bind({})
 MenuStory.args = {
-  items: [{ name: 'Home' }],
+  items: ['Home', ],
 }
