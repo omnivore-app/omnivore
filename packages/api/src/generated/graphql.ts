@@ -331,6 +331,30 @@ export type CreateHighlightSuccess = {
   highlight: Highlight;
 };
 
+export type CreateIntegrationError = {
+  __typename?: 'CreateIntegrationError';
+  errorCodes: Array<CreateIntegrationErrorCode>;
+};
+
+export enum CreateIntegrationErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  InvalidToken = 'INVALID_TOKEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type CreateIntegrationInput = {
+  token: Scalars['String'];
+  type: IntegrationType;
+};
+
+export type CreateIntegrationResult = CreateIntegrationError | CreateIntegrationSuccess;
+
+export type CreateIntegrationSuccess = {
+  __typename?: 'CreateIntegrationSuccess';
+  integration: Integration;
+};
+
 export type CreateLabelError = {
   __typename?: 'CreateLabelError';
   errorCodes: Array<CreateLabelErrorCode>;
@@ -745,6 +769,19 @@ export type HighlightStats = {
   highlightCount: Scalars['Int'];
 };
 
+export type Integration = {
+  __typename?: 'Integration';
+  createdAt: Scalars['Date'];
+  enabled: Scalars['Boolean'];
+  id: Scalars['ID'];
+  type: IntegrationType;
+  updatedAt: Scalars['Date'];
+};
+
+export enum IntegrationType {
+  Readwise = 'READWISE'
+}
+
 export type Label = {
   __typename?: 'Label';
   color: Scalars['String'];
@@ -897,6 +934,7 @@ export type Mutation = {
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createHighlight: CreateHighlightResult;
   createHighlightReply: CreateHighlightReplyResult;
+  createIntegration: CreateIntegrationResult;
   createLabel: CreateLabelResult;
   createNewsletterEmail: CreateNewsletterEmailResult;
   createReaction: CreateReactionResult;
@@ -968,6 +1006,11 @@ export type MutationCreateHighlightArgs = {
 
 export type MutationCreateHighlightReplyArgs = {
   input: CreateHighlightReplyInput;
+};
+
+
+export type MutationCreateIntegrationArgs = {
+  input: CreateIntegrationInput;
 };
 
 
@@ -2505,6 +2548,11 @@ export type ResolversTypes = {
   CreateHighlightReplySuccess: ResolverTypeWrapper<CreateHighlightReplySuccess>;
   CreateHighlightResult: ResolversTypes['CreateHighlightError'] | ResolversTypes['CreateHighlightSuccess'];
   CreateHighlightSuccess: ResolverTypeWrapper<CreateHighlightSuccess>;
+  CreateIntegrationError: ResolverTypeWrapper<CreateIntegrationError>;
+  CreateIntegrationErrorCode: CreateIntegrationErrorCode;
+  CreateIntegrationInput: CreateIntegrationInput;
+  CreateIntegrationResult: ResolversTypes['CreateIntegrationError'] | ResolversTypes['CreateIntegrationSuccess'];
+  CreateIntegrationSuccess: ResolverTypeWrapper<CreateIntegrationSuccess>;
   CreateLabelError: ResolverTypeWrapper<CreateLabelError>;
   CreateLabelErrorCode: CreateLabelErrorCode;
   CreateLabelInput: CreateLabelInput;
@@ -2592,6 +2640,8 @@ export type ResolversTypes = {
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Integration: ResolverTypeWrapper<Integration>;
+  IntegrationType: IntegrationType;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
@@ -2859,6 +2909,10 @@ export type ResolversParentTypes = {
   CreateHighlightReplySuccess: CreateHighlightReplySuccess;
   CreateHighlightResult: ResolversParentTypes['CreateHighlightError'] | ResolversParentTypes['CreateHighlightSuccess'];
   CreateHighlightSuccess: CreateHighlightSuccess;
+  CreateIntegrationError: CreateIntegrationError;
+  CreateIntegrationInput: CreateIntegrationInput;
+  CreateIntegrationResult: ResolversParentTypes['CreateIntegrationError'] | ResolversParentTypes['CreateIntegrationSuccess'];
+  CreateIntegrationSuccess: CreateIntegrationSuccess;
   CreateLabelError: CreateLabelError;
   CreateLabelInput: CreateLabelInput;
   CreateLabelResult: ResolversParentTypes['CreateLabelError'] | ResolversParentTypes['CreateLabelSuccess'];
@@ -2929,6 +2983,7 @@ export type ResolversParentTypes = {
   HighlightStats: HighlightStats;
   ID: Scalars['ID'];
   Int: Scalars['Int'];
+  Integration: Integration;
   Label: Label;
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
@@ -3327,6 +3382,20 @@ export type CreateHighlightSuccessResolvers<ContextType = ResolverContext, Paren
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type CreateIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateIntegrationError'] = ResolversParentTypes['CreateIntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['CreateIntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateIntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateIntegrationResult'] = ResolversParentTypes['CreateIntegrationResult']> = {
+  __resolveType: TypeResolveFn<'CreateIntegrationError' | 'CreateIntegrationSuccess', ParentType, ContextType>;
+};
+
+export type CreateIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateIntegrationSuccess'] = ResolversParentTypes['CreateIntegrationSuccess']> = {
+  integration?: Resolver<ResolversTypes['Integration'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CreateLabelErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CreateLabelError'] = ResolversParentTypes['CreateLabelError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['CreateLabelErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3644,6 +3713,15 @@ export type HighlightStatsResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type IntegrationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Integration'] = ResolversParentTypes['Integration']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['IntegrationType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type LabelResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = {
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -3755,6 +3833,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
   createHighlightReply?: Resolver<ResolversTypes['CreateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightReplyArgs, 'input'>>;
+  createIntegration?: Resolver<ResolversTypes['CreateIntegrationResult'], ParentType, ContextType, RequireFields<MutationCreateIntegrationArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
   createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
@@ -4556,6 +4635,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   CreateHighlightReplySuccess?: CreateHighlightReplySuccessResolvers<ContextType>;
   CreateHighlightResult?: CreateHighlightResultResolvers<ContextType>;
   CreateHighlightSuccess?: CreateHighlightSuccessResolvers<ContextType>;
+  CreateIntegrationError?: CreateIntegrationErrorResolvers<ContextType>;
+  CreateIntegrationResult?: CreateIntegrationResultResolvers<ContextType>;
+  CreateIntegrationSuccess?: CreateIntegrationSuccessResolvers<ContextType>;
   CreateLabelError?: CreateLabelErrorResolvers<ContextType>;
   CreateLabelResult?: CreateLabelResultResolvers<ContextType>;
   CreateLabelSuccess?: CreateLabelSuccessResolvers<ContextType>;
@@ -4617,6 +4699,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   Highlight?: HighlightResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;
+  Integration?: IntegrationResolvers<ContextType>;
   Label?: LabelResolvers<ContextType>;
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;

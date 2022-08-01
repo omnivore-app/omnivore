@@ -4,15 +4,17 @@
 
 BEGIN;
 
+CREATE TYPE omnivore.integration_type AS ENUM ('READWISE');
+
 CREATE TABLE omnivore.integrations (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
-    name varchar(50) NOT NULL,
+    "type" integration_type NOT NULL,
     token varchar(255) NOT NULL,
-    enabled boolean NOT NULL DEFAULT true,
+    "enabled" boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
-    UNIQUE (user_id, name)
+    UNIQUE (user_id, "type")
 );
 
 CREATE TRIGGER update_integration_modtime BEFORE UPDATE ON omnivore.integrations

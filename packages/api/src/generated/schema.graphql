@@ -284,6 +284,28 @@ type CreateHighlightSuccess {
   highlight: Highlight!
 }
 
+type CreateIntegrationError {
+  errorCodes: [CreateIntegrationErrorCode!]!
+}
+
+enum CreateIntegrationErrorCode {
+  BAD_REQUEST
+  INVALID_TOKEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input CreateIntegrationInput {
+  token: String!
+  type: IntegrationType!
+}
+
+union CreateIntegrationResult = CreateIntegrationError | CreateIntegrationSuccess
+
+type CreateIntegrationSuccess {
+  integration: Integration!
+}
+
 type CreateLabelError {
   errorCodes: [CreateLabelErrorCode!]!
 }
@@ -658,6 +680,18 @@ type HighlightStats {
   highlightCount: Int!
 }
 
+type Integration {
+  createdAt: Date!
+  enabled: Boolean!
+  id: ID!
+  type: IntegrationType!
+  updatedAt: Date!
+}
+
+enum IntegrationType {
+  READWISE
+}
+
 type Label {
   color: String!
   createdAt: Date
@@ -796,6 +830,7 @@ type Mutation {
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createHighlightReply(input: CreateHighlightReplyInput!): CreateHighlightReplyResult!
+  createIntegration(input: CreateIntegrationInput!): CreateIntegrationResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
