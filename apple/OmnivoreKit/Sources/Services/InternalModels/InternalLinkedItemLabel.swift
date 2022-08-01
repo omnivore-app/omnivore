@@ -117,15 +117,16 @@ extension Sequence where Element == InternalLinkedItemLabel {
       let validLabelIDs = map(\.id)
       let invalidLinkedItemLabels = existingLabels.filter { !validLabelIDs.contains($0.unwrappedID) }
 
+      // Delete all existing labels that aren't part of the newly updated list
+      // received from the server
+      for linkedItem in invalidLinkedItemLabels {
+        context.delete(linkedItem)
+      }
+
       let labels = map { $0.asManagedObject(inContext: context) }
 
       do {
         try context.save()
-        // Delete all existing labels that aren't part of the newly updated list
-        // received from the server
-        for linkedItem in invalidLinkedItemLabels {
-          context.delete(linkedItem)
-        }
         logger.debug("labels saved succesfully")
         result = labels.map(\.objectID)
       } catch {
