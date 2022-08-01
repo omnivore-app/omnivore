@@ -84,6 +84,9 @@ interface BackendEnv {
     resetPasswordTemplateId: string
     installationTemplateId: string
   }
+  readwise: {
+    apiUrl: string
+  }
 }
 
 /***
@@ -132,6 +135,7 @@ const nullableEnvVars = [
   'SENDGRID_REMINDER_TEMPLATE_ID',
   'SENDGRID_RESET_PASSWORD_TEMPLATE_ID',
   'SENDGRID_INSTALLATION_TEMPLATE_ID',
+  'READWISE_API_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -245,6 +249,10 @@ export function getEnv(): BackendEnv {
     installationTemplateId: parse('SENDGRID_INSTALLATION_TEMPLATE_ID'),
   }
 
+  const readwise = {
+    apiUrl: parse('READWISE_API_URL'),
+  }
+
   return {
     pg,
     client,
@@ -262,6 +270,7 @@ export function getEnv(): BackendEnv {
     elastic,
     sender,
     sendgrid,
+    readwise,
   }
 }
 

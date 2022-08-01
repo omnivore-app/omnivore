@@ -1812,17 +1812,16 @@ const schema = gql`
     NOT_FOUND
   }
 
-  union CreateIntegrationResult =
-      CreateIntegrationSuccess
-    | CreateIntegrationError
+  union SetIntegrationResult = SetIntegrationSuccess | SetIntegrationError
 
-  type CreateIntegrationSuccess {
+  type SetIntegrationSuccess {
     integration: Integration!
   }
 
   type Integration {
     id: ID!
     type: IntegrationType!
+    token: String!
     enabled: Boolean!
     createdAt: Date!
     updatedAt: Date!
@@ -1832,20 +1831,23 @@ const schema = gql`
     READWISE
   }
 
-  type CreateIntegrationError {
-    errorCodes: [CreateIntegrationErrorCode!]!
+  type SetIntegrationError {
+    errorCodes: [SetIntegrationErrorCode!]!
   }
 
-  enum CreateIntegrationErrorCode {
+  enum SetIntegrationErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
     INVALID_TOKEN
+    ALREADY_EXISTS
   }
 
-  input CreateIntegrationInput {
+  input SetIntegrationInput {
+    id: ID
     type: IntegrationType!
     token: String!
+    enabled: Boolean
   }
 
   # Mutations
@@ -1917,7 +1919,7 @@ const schema = gql`
     revokeApiKey(id: ID!): RevokeApiKeyResult!
     setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
     moveLabel(input: MoveLabelInput!): MoveLabelResult!
-    createIntegration(input: CreateIntegrationInput!): CreateIntegrationResult!
+    setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

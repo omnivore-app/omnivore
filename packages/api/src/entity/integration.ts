@@ -25,7 +25,7 @@ export class Integration {
   @Column('enum', { enum: IntegrationType })
   type!: IntegrationType
 
-  @Column('varchar')
+  @Column('varchar', { length: 255 })
   token!: string
 
   @Column('boolean', { default: true })

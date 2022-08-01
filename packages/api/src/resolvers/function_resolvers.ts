@@ -97,6 +97,7 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
+import { setIntegrationResolver } from './integrations'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -165,6 +166,7 @@ export const functionResolvers = {
     revokeApiKey: revokeApiKeyResolver,
     setLabelsForHighlight: setLabelsForHighlightResolver,
     moveLabel: moveLabelResolver,
+    setIntegration: setIntegrationResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -592,4 +594,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('TypeaheadSearch'),
   ...resultResolveTypeResolver('UpdatesSince'),
   ...resultResolveTypeResolver('MoveLabel'),
+  ...resultResolveTypeResolver('SetIntegration'),
 }

@@ -284,28 +284,6 @@ type CreateHighlightSuccess {
   highlight: Highlight!
 }
 
-type CreateIntegrationError {
-  errorCodes: [CreateIntegrationErrorCode!]!
-}
-
-enum CreateIntegrationErrorCode {
-  BAD_REQUEST
-  INVALID_TOKEN
-  NOT_FOUND
-  UNAUTHORIZED
-}
-
-input CreateIntegrationInput {
-  token: String!
-  type: IntegrationType!
-}
-
-union CreateIntegrationResult = CreateIntegrationError | CreateIntegrationSuccess
-
-type CreateIntegrationSuccess {
-  integration: Integration!
-}
-
 type CreateLabelError {
   errorCodes: [CreateLabelErrorCode!]!
 }
@@ -684,6 +662,7 @@ type Integration {
   createdAt: Date!
   enabled: Boolean!
   id: ID!
+  token: String!
   type: IntegrationType!
   updatedAt: Date!
 }
@@ -830,7 +809,6 @@ type Mutation {
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createHighlightReply(input: CreateHighlightReplyInput!): CreateHighlightReplyResult!
-  createIntegration(input: CreateIntegrationInput!): CreateIntegrationResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
@@ -858,6 +836,7 @@ type Mutation {
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
+  setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
   setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
@@ -1258,6 +1237,31 @@ union SetFollowResult = SetFollowError | SetFollowSuccess
 
 type SetFollowSuccess {
   updatedUser: User!
+}
+
+type SetIntegrationError {
+  errorCodes: [SetIntegrationErrorCode!]!
+}
+
+enum SetIntegrationErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  INVALID_TOKEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetIntegrationInput {
+  enabled: Boolean
+  id: ID
+  token: String!
+  type: IntegrationType!
+}
+
+union SetIntegrationResult = SetIntegrationError | SetIntegrationSuccess
+
+type SetIntegrationSuccess {
+  integration: Integration!
 }
 
 type SetLabelsError {
