@@ -10,8 +10,6 @@ CREATE TABLE omnivore.integrations (
     name varchar(50) NOT NULL,
     token varchar(255) NOT NULL,
     enabled boolean NOT NULL DEFAULT true,
-    description varchar(255),
-    url varchar(255),
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
     UNIQUE (user_id, name)
