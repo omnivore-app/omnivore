@@ -33,7 +33,7 @@
     "@opentelemetry/semantic-conventions": "^1.0.1",
     "@opentelemetry/tracing": "^0.24.0",
     "@sendgrid/mail": "^7.6.0",
-    "@sentry/integrations": "^6.19.1",
+    "@sentry/integrations": "^7.8.1",
     "@sentry/node": "^5.26.0",
     "@sentry/tracing": "^5.26.0",
     "addressparser": "^1.0.1",
