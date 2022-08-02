@@ -1,21 +1,35 @@
 import { IntegrationType } from '../generated/graphql'
-import { env } from '../env'
+import { env, homePageURL } from '../env'
 import axios from 'axios'
 import { wait } from '../utils/helpers'
+import { Page } from '../elastic/types'
+import { getHighlightLocation } from './highlights'
 
 export interface ReadwiseHighlight {
-  text: string // The highlight text, (technically the only field required in a highlight object)
-  title?: string // The title of the page the highlight is on
-  author?: string // The author of the page the highlight is on
-  image_url?: string // The URL of the page image
-  source_url?: string // The URL of the page
-  source_type?: string // A meaningful unique identifier for your app
-  category?: string // One of: books, articles, tweets or podcasts
-  note?: string // Annotation note attached to the specific highlight
-  location?: number // Highlight's location in the source text. Used to order the highlights
-  location_type?: string // One of: page, order or time_offset
-  highlighted_at?: string // A datetime representing when the highlight was taken in the ISO 8601 format
-  highlight_url?: string // Unique url of the specific highlight
+  // The highlight text, (technically the only field required in a highlight object)
+  text: string
+  // The title of the page the highlight is on
+  title?: string
+  // The author of the page the highlight is on
+  author?: string
+  // The URL of the page image
+  image_url?: string
+  // The URL of the page
+  source_url?: string
+  // A meaningful unique identifier for your app
+  source_type?: string
+  // One of: books, articles, tweets or podcasts
+  category?: string
+  // Annotation note attached to the specific highlight
+  note?: string
+  // Highlight's location in the source text. Used to order the highlights
+  location?: number
+  // One of: page, order or time_offset
+  location_type?: string
+  // A datetime representing when the highlight was taken in the ISO 8601 format
+  highlighted_at?: string
+  // Unique url of the specific highlight
+  highlight_url?: string
 }
 
 const READWISE_API_URL = 'https://readwise.io/api/v2'
@@ -47,7 +61,44 @@ const validateReadwiseToken = async (token: string): Promise<boolean> => {
   }
 }
 
-export const createHighlightsInReadwise = async (
+const highlightUrl = (slug: string, highlightId: string): string =>
+  `${homePageURL()}/me/${slug}#${highlightId}`
+
+const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
+  if (!page.highlights) return []
+  return page.highlights.map((highlight) => {
+    const location = getHighlightLocation(highlight.patch)
+    return {
+      text: highlight.quote,
+      title: page.title,
+      author: page.author,
+      highlight_url: highlightUrl(page.slug, highlight.id),
+      highlighted_at: highlight.createdAt.toISOString(),
+      category: 'articles',
+      image_url: page.image,
+      location,
+      location_type: location ? 'page' : 'order',
+      note: highlight.annotation || undefined,
+      source_type: 'omnivore',
+      source_url: page.url,
+    }
+  })
+}
+
+export const syncWithIntegration = async (
+  token: string,
+  type: IntegrationType,
+  pages: Page[]
+): Promise<boolean> => {
+  switch (type) {
+    case IntegrationType.Readwise:
+      return syncWithReadwise(token, pages.flatMap(pageToReadwiseHighlight))
+    default:
+      return false
+  }
+}
+
+export const syncWithReadwise = async (
   token: string,
   highlights: ReadwiseHighlight[],
   retryCount = 0
@@ -57,10 +108,7 @@ export const createHighlightsInReadwise = async (
     const response = await axios.post(
       url,
       {
-        highlights: highlights.map((highlight) => ({
-          ...highlight,
-          source_type: 'omnivore',
-        })),
+        highlights,
       },
       {
         headers: {
@@ -81,7 +129,7 @@ export const createHighlightsInReadwise = async (
       // max retry count is 3
       const retryAfter = error.response?.headers['Retry-After'] || '10' // default to 10 seconds
       await wait(parseInt(retryAfter, 10) * 1000)
-      return createHighlightsInReadwise(token, highlights, retryCount + 1)
+      return syncWithReadwise(token, highlights, retryCount + 1)
     }
     console.log('Error creating highlights in Readwise', error)
     return false
