@@ -110,7 +110,7 @@ struct EmailSignupFormView: View {
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               SecureField("", text: $password)
-                .textContentType(.password)
+                .textContentType(.newPassword)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
                 .focused($focusedField, equals: .password)
