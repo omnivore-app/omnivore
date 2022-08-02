@@ -9,7 +9,7 @@ CREATE TYPE omnivore.integration_type AS ENUM ('READWISE');
 CREATE TABLE omnivore.integrations (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
-    "type" integration_type NOT NULL,
+    "type" omnivore.integration_type NOT NULL,
     token varchar(255) NOT NULL,
     "enabled" boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
