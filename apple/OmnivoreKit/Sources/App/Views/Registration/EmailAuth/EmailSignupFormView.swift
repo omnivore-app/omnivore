@@ -19,7 +19,7 @@ extension EmailAuthViewModel {
         username: potentialUsername,
         name: fullName
       )
-      emailAuthState = .pendingEmailVerification
+      emailAuthState = .pendingEmailVerification(email: email, password: password)
     } catch {
       loginError = error as? LoginError
     }

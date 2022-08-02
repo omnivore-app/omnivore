@@ -15,7 +15,7 @@ extension EmailAuthViewModel {
     } catch {
       if let newLoginError = error as? LoginError {
         if newLoginError == .pendingEmailVerification {
-          emailAuthState = .pendingEmailVerification
+          emailAuthState = .pendingEmailVerification(email: email, password: password)
         } else {
           loginError = newLoginError
         }
@@ -30,6 +30,7 @@ struct EmailLoginFormView: View {
   }
 
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  @Environment(\.openURL) var openURL
   @EnvironmentObject var authenticator: Authenticator
   @ObservedObject var viewModel: EmailAuthViewModel
 
@@ -90,17 +91,34 @@ struct EmailLoginFormView: View {
               LoginErrorMessageView(loginError: loginError)
             }
 
-            HStack {
-              Button(
-                action: { viewModel.emailAuthState = .signUp },
-                label: {
-                  Text("Don't have an account?")
-                    .foregroundColor(.appGrayTextContrast)
-                    .underline()
-                }
-              )
-              .padding(.vertical)
-              Spacer()
+            VStack(spacing: 0) {
+              HStack {
+                Button(
+                  action: { viewModel.emailAuthState = .signUp },
+                  label: {
+                    Text("Don't have an account?")
+                      .foregroundColor(.appGrayTextContrast)
+                      .underline()
+                  }
+                )
+                .padding(.vertical, 8)
+                Spacer()
+              }
+
+              HStack {
+                Button(
+                  action: {
+                    openURL(URL(string: "https://omnivore.app/auth/forgot-password")!)
+                  },
+                  label: {
+                    Text("Forgot your password?")
+                      .foregroundColor(.appGrayTextContrast)
+                      .underline()
+                  }
+                )
+                .padding(.vertical, 8)
+                Spacer()
+              }
             }
           }
           .textFieldStyle(StandardTextFieldStyle())
@@ -118,5 +136,52 @@ struct EmailLoginFormView: View {
       }
     }
     .navigationTitle("Sign In")
+  }
+}
+
+struct EmailPendingVerificationView: View {
+  let email: String
+  let password: String
+
+  @ObservedObject var viewModel: EmailAuthViewModel
+  @EnvironmentObject var authenticator: Authenticator
+
+  var verificationMessage: String {
+    "We've sent a verification email to \(email). Please verify your email and then tap the button below."
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text(verificationMessage)
+        .font(.appBody)
+
+      Button(
+        action: {
+          Task {
+            await viewModel.submitCredentials(
+              email: email,
+              password: password,
+              authenticator: authenticator
+            )
+          }
+        },
+        label: { Text("Check Status") }
+      )
+      .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
+
+      HStack {
+        Button(
+          action: { viewModel.emailAuthState = .signUp },
+          label: {
+            Text("Use a different email?")
+              .foregroundColor(.appGrayTextContrast)
+              .underline()
+          }
+        )
+        .padding(.vertical)
+        Spacer()
+      }
+    }
+    .navigationTitle("Verify Email")
   }
 }
