@@ -213,7 +213,7 @@ struct EmailSignupFormView: View {
         Spacer()
       }
     }
-    .navigationTitle("Sign Up")
+    .navigationTitle(focusedField == nil ? "Sign Up" : "")
     .task {
       viewModel.configureUsernameValidation(dataService: dataService)
     }

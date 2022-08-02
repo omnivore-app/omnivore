@@ -135,7 +135,7 @@ struct EmailLoginFormView: View {
         Spacer()
       }
     }
-    .navigationTitle("Sign In")
+    .navigationTitle(focusedField == nil ? "Sign In" : "")
   }
 }
 
