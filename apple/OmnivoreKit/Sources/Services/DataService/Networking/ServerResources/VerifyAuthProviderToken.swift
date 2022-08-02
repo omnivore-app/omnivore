@@ -62,7 +62,7 @@ extension Networker {
     }
   }
 
-  func submitEmailSignUp(params: EmailSignUpParams) async throws -> PendingEmailVerificationAuthPayload {
+  func submitEmailSignUp(params: EmailSignUpParams) async throws {
     let encodedParams = (try? JSONEncoder().encode(params)) ?? Data()
 
     let urlRequest = URLRequest.create(
@@ -71,13 +71,13 @@ extension Networker {
       requestMethod: .post(params: encodedParams)
     )
 
-    let resource = ServerResource<PendingEmailVerificationAuthPayload>(
+    let resource = ServerResource<EmptyResponse>(
       urlRequest: urlRequest,
-      decode: PendingEmailVerificationAuthPayload.decode
+      decode: EmptyResponse.decode
     )
 
     do {
-      return try await urlSession.performRequest(resource: resource)
+      _ = try await urlSession.performRequest(resource: resource)
     } catch {
       if let error = error as? ServerError {
         throw LoginError.make(serverError: error)

@@ -56,7 +56,8 @@ public extension Authenticator {
       let params = EmailSignInParams(email: email, password: password)
       let emailAuthPayload = try await networker.submitEmailLogin(params: params)
 
-      if let authPayload = emailAuthPayload.authPayload {
+      if let authCookieString = emailAuthPayload.authCookieString, let authToken = emailAuthPayload.authToken {
+        let authPayload = AuthPayload(authCookieString: authCookieString, authToken: authToken)
         try ValetKey.authCookieString.setValue(authPayload.commentedAuthCookieString)
         try ValetKey.authToken.setValue(authPayload.authToken)
         DispatchQueue.main.async {
@@ -81,8 +82,7 @@ public extension Authenticator {
   ) async throws {
     do {
       let params = EmailSignUpParams(email: email, password: password, username: username, name: name)
-      let authPayload = try await networker.submitEmailSignUp(params: params)
-      try ValetKey.authTokenWithPendingEmail.setValue(authPayload.pendingEmailVerificationToken)
+      try await networker.submitEmailSignUp(params: params)
     } catch {
       let serverError = (error as? ServerError) ?? ServerError.unknown
       throw LoginError.make(serverError: serverError)

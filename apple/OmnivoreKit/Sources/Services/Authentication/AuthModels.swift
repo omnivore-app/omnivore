@@ -41,7 +41,8 @@ struct AuthPayload: Decodable {
 }
 
 struct EmailAuthPayload: Decodable {
-  let authPayload: AuthPayload?
+  let authCookieString: String?
+  let authToken: String?
   let pendingEmailVerification: Bool?
 }
 

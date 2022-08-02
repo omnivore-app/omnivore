@@ -9,7 +9,6 @@ extension EmailAuthViewModel {
   func signUp(
     email: String,
     password: String,
-    username: String,
     fullName: String,
     authenticator: Authenticator
   ) async {
@@ -17,7 +16,7 @@ extension EmailAuthViewModel {
       try await authenticator.submitUserSignUp(
         email: email,
         password: password,
-        username: username,
+        username: potentialUsername,
         name: fullName
       )
       emailAuthState = .pendingEmailVerification
@@ -170,7 +169,6 @@ struct EmailSignupFormView: View {
                   await viewModel.signUp(
                     email: email,
                     password: password,
-                    username: username,
                     fullName: name,
                     authenticator: authenticator
                   )

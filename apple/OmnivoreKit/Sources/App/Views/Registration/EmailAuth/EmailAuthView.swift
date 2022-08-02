@@ -14,22 +14,11 @@ enum EmailAuthState {
 
 @MainActor final class EmailAuthViewModel: ObservableObject {
   @Published var loginError: LoginError?
-  @Published var emailAuthState = EmailAuthState.loading
+  @Published var emailAuthState = EmailAuthState.signIn
   @Published var potentialUsernameStatus = PotentialUsernameStatus.noUsername
   @Published var potentialUsername = ""
 
   var subscriptions = Set<AnyCancellable>()
-
-  func loadAuthState() {
-    // check tokens here to determine pending/active/no user
-    if PublicValet.hasPendingEmailVerificationToken {
-      // TODO: make network request to check status
-      // if it's now active then log in the user\
-      emailAuthState = .pendingEmailVerification
-    } else {
-      emailAuthState = .signIn
-    }
-  }
 }
 
 struct EmailAuthView: View {
@@ -69,9 +58,6 @@ struct EmailAuthView: View {
             }
           }
       }
-    }
-    .task {
-      viewModel.loadAuthState()
     }
   }
 }

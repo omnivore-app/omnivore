@@ -10,15 +10,10 @@ public enum PublicValet {
   public static var authToken: String? {
     ValetKey.authToken.value()
   }
-
-  public static var hasPendingEmailVerificationToken: Bool {
-    ValetKey.authTokenWithPendingEmail.exists
-  }
 }
 
 enum ValetKey: String {
   case authToken = "app.omnivore.valet.auth-token"
-  case authTokenWithPendingEmail = "app.omnivore.valet.auth-token-with-pending-email"
   case authCookieString = "app.omnivore.valet.auth-cookie-raw-string"
   case appEnvironmentString = "app.omnivore.valet.app-environment"
 }
