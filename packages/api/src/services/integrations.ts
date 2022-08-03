@@ -1,11 +1,13 @@
 import { IntegrationType } from '../generated/graphql'
-import { env, homePageURL } from '../env'
+import { env } from '../env'
 import axios from 'axios'
 import { wait } from '../utils/helpers'
 import { Page } from '../elastic/types'
-import { getHighlightLocation } from './highlights'
+import { getHighlightLocation, getHighlightUrl } from './highlights'
+import { Integration } from '../entity/integration'
+import { getRepository } from '../entity/utils'
 
-export interface ReadwiseHighlight {
+interface ReadwiseHighlight {
   // The highlight text, (technically the only field required in a highlight object)
   text: string
   // The title of the page the highlight is on
@@ -61,9 +63,6 @@ const validateReadwiseToken = async (token: string): Promise<boolean> => {
   }
 }
 
-const highlightUrl = (slug: string, highlightId: string): string =>
-  `${homePageURL()}/me/${slug}#${highlightId}`
-
 const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
   if (!page.highlights) return []
   return page.highlights.map((highlight) => {
@@ -72,7 +71,7 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
       text: highlight.quote,
       title: page.title,
       author: page.author,
-      highlight_url: highlightUrl(page.slug, highlight.id),
+      highlight_url: getHighlightUrl(page.slug, highlight.id),
       highlighted_at: highlight.createdAt.toISOString(),
       category: 'articles',
       image_url: page.image,
@@ -86,16 +85,28 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
 }
 
 export const syncWithIntegration = async (
-  token: string,
-  type: IntegrationType,
+  integration: Integration,
   pages: Page[]
 ): Promise<boolean> => {
-  switch (type) {
+  let result = false
+  switch (integration.type) {
     case IntegrationType.Readwise:
-      return syncWithReadwise(token, pages.flatMap(pageToReadwiseHighlight))
+      result = await syncWithReadwise(
+        integration.token,
+        pages.flatMap(pageToReadwiseHighlight)
+      )
+      break
     default:
       return false
   }
+  // update integration updatedAt if successful
+  if (result) {
+    console.log('updating integration updatedAt')
+    await getRepository(Integration).update(integration.id, {
+      updatedAt: new Date(),
+    })
+  }
+  return result
 }
 
 export const syncWithReadwise = async (
