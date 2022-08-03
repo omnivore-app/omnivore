@@ -5,17 +5,15 @@ import { styled } from '../tokens/stitches.config'
 import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar'
 import 'react-pro-sidebar/dist/css/styles.css'
 
-
 const calculateTodayMenuItem = () => {
   const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
-
+  //  console.log(timeZoneHourDiff.toLocaleString('en-US', {
+  //     signDisplay: 'always',
+  //   }))
   const hrefStr = `/home?q=in%3Ainbox+saved%3A${
     new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
-  }Z${timeZoneHourDiff.toLocaleString('en-US', {
-    signDisplay: 'always',
-  })}Z%2B..*`
+  }Z%${timeZoneHourDiff}B2..*`
 
-  console.log(hrefStr)
   return hrefStr
 }
 export const Menubar = () => {
@@ -23,7 +21,8 @@ export const Menubar = () => {
     <ProSidebar
       style={{
         display: 'inline-block',
-        background: '$grayBgActive !important',
+        background: '$grayBgActive',
+        height: '100%',
       }}
     >
       <Menu iconShape="square" popperArrow={true}>
