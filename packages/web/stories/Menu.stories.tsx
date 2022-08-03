@@ -6,17 +6,6 @@ import { Menubar } from '../components/templates/Menu'
 export default {
   title: 'Components/Menu',
   component: Menubar,
-  argTypes: {
-    item: {
-      description: 'Menu Item',
-    },
-    action: {
-      description: 'Action that fires on click.',
-    },
-    url: {
-      description: 'going to a specific link',
-    },
-  },
 } as ComponentMeta<typeof Menubar>
 
 const Template: ComponentStory<typeof Menubar> = () => (
@@ -24,6 +13,4 @@ const Template: ComponentStory<typeof Menubar> = () => (
 )
 
 export const MenuStory = Template.bind({})
-MenuStory.args = {
-  items: ['Home', ],
-}
+

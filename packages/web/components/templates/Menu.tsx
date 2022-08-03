@@ -1,12 +1,23 @@
 import Link from 'next/link'
-import React, { ReactNode } from 'react'
-
-import { ProSidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
-import 'react-pro-sidebar/dist/css/styles.css'
+import React from 'react'
 import { styled } from '../tokens/stitches.config'
-//import { useRouter } from 'next/router'
-//const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
 
+import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar'
+import 'react-pro-sidebar/dist/css/styles.css'
+
+
+const calculateTodayMenuItem = () => {
+  const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
+
+  const hrefStr = `/home?q=in%3Ainbox+saved%3A${
+    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
+  }Z${timeZoneHourDiff.toLocaleString('en-US', {
+    signDisplay: 'always',
+  })}Z%2B..*`
+
+  console.log(hrefStr)
+  return hrefStr
+}
 export const Menubar = () => {
   return (
     <ProSidebar
@@ -22,10 +33,7 @@ export const Menubar = () => {
           </Link>
         </MenuItem>
         <MenuItem>
-          <Link
-            passHref
-            href={'/today'}
-          >
+          <Link passHref href={calculateTodayMenuItem()}>
             Today
           </Link>
         </MenuItem>
