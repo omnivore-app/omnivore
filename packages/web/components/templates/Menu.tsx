@@ -9,7 +9,9 @@ import 'react-pro-sidebar/dist/css/styles.css'
 
 const MenuStyle = styled(ProSidebar, {
     display: 'inline-block',
-    //override background to match the design?
+  '&:first-child': {
+    background: '$grayBgActive',
+  },
 })
 
 // Functions------------------------------
@@ -49,6 +51,7 @@ export const Menubar = () => {
           <Link passHref href={'/home?q=type%3Ahighlights'}>
             Highlights
           </Link>
+        </MenuItem>
         <MenuItem>
           <Link passHref href={'/home?q=in%3Ainbox+label%3ANewsletter'}>
             Newsletters
