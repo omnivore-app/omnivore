@@ -183,6 +183,7 @@ export enum ArticleSavingRequestErrorCode {
 export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess;
 
 export enum ArticleSavingRequestStatus {
+  Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED'
@@ -1264,6 +1265,7 @@ export type Query = {
   sharedArticle: SharedArticleResult;
   subscriptions: SubscriptionsResult;
   typeaheadSearch: TypeaheadSearchResult;
+  updatesSince: UpdatesSinceResult;
   user: UserResult;
   users: UsersResult;
   validateUsername: Scalars['Boolean'];
@@ -1338,6 +1340,13 @@ export type QuerySubscriptionsArgs = {
 export type QueryTypeaheadSearchArgs = {
   first?: InputMaybe<Scalars['Int']>;
   query: Scalars['String'];
+};
+
+
+export type QueryUpdatesSinceArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  since: Scalars['Date'];
 };
 
 
@@ -1892,6 +1901,14 @@ export type SubscriptionsSuccess = {
   subscriptions: Array<Subscription>;
 };
 
+export type SyncUpdatedItemEdge = {
+  __typename?: 'SyncUpdatedItemEdge';
+  cursor: Scalars['String'];
+  itemID: Scalars['ID'];
+  node?: Maybe<SearchItem>;
+  updateReason: UpdateReason;
+};
+
 export type TypeaheadSearchError = {
   __typename?: 'TypeaheadSearchError';
   errorCodes: Array<TypeaheadSearchErrorCode>;
@@ -2059,6 +2076,12 @@ export type UpdatePageSuccess = {
   updatedPage: Article;
 };
 
+export enum UpdateReason {
+  Created = 'CREATED',
+  Deleted = 'DELETED',
+  Updated = 'UPDATED'
+}
+
 export type UpdateReminderError = {
   __typename?: 'UpdateReminderError';
   errorCodes: Array<UpdateReminderErrorCode>;
@@ -2156,6 +2179,23 @@ export type UpdateUserResult = UpdateUserError | UpdateUserSuccess;
 export type UpdateUserSuccess = {
   __typename?: 'UpdateUserSuccess';
   user: User;
+};
+
+export type UpdatesSinceError = {
+  __typename?: 'UpdatesSinceError';
+  errorCodes: Array<UpdatesSinceErrorCode>;
+};
+
+export enum UpdatesSinceErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdatesSinceResult = UpdatesSinceError | UpdatesSinceSuccess;
+
+export type UpdatesSinceSuccess = {
+  __typename?: 'UpdatesSinceSuccess';
+  edges: Array<SyncUpdatedItemEdge>;
+  pageInfo: PageInfo;
 };
 
 export type UploadFileRequestError = {
@@ -2653,6 +2693,7 @@ export type ResolversTypes = {
   SubscriptionsErrorCode: SubscriptionsErrorCode;
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
+  SyncUpdatedItemEdge: ResolverTypeWrapper<SyncUpdatedItemEdge>;
   TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
   TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
   TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
@@ -2687,6 +2728,7 @@ export type ResolversTypes = {
   UpdatePageInput: UpdatePageInput;
   UpdatePageResult: ResolversTypes['UpdatePageError'] | ResolversTypes['UpdatePageSuccess'];
   UpdatePageSuccess: ResolverTypeWrapper<UpdatePageSuccess>;
+  UpdateReason: UpdateReason;
   UpdateReminderError: ResolverTypeWrapper<UpdateReminderError>;
   UpdateReminderErrorCode: UpdateReminderErrorCode;
   UpdateReminderInput: UpdateReminderInput;
@@ -2707,6 +2749,10 @@ export type ResolversTypes = {
   UpdateUserProfileSuccess: ResolverTypeWrapper<UpdateUserProfileSuccess>;
   UpdateUserResult: ResolversTypes['UpdateUserError'] | ResolversTypes['UpdateUserSuccess'];
   UpdateUserSuccess: ResolverTypeWrapper<UpdateUserSuccess>;
+  UpdatesSinceError: ResolverTypeWrapper<UpdatesSinceError>;
+  UpdatesSinceErrorCode: UpdatesSinceErrorCode;
+  UpdatesSinceResult: ResolversTypes['UpdatesSinceError'] | ResolversTypes['UpdatesSinceSuccess'];
+  UpdatesSinceSuccess: ResolverTypeWrapper<UpdatesSinceSuccess>;
   UploadFileRequestError: ResolverTypeWrapper<UploadFileRequestError>;
   UploadFileRequestErrorCode: UploadFileRequestErrorCode;
   UploadFileRequestInput: UploadFileRequestInput;
@@ -2950,6 +2996,7 @@ export type ResolversParentTypes = {
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
+  SyncUpdatedItemEdge: SyncUpdatedItemEdge;
   TypeaheadSearchError: TypeaheadSearchError;
   TypeaheadSearchItem: TypeaheadSearchItem;
   TypeaheadSearchResult: ResolversParentTypes['TypeaheadSearchError'] | ResolversParentTypes['TypeaheadSearchSuccess'];
@@ -2993,6 +3040,9 @@ export type ResolversParentTypes = {
   UpdateUserProfileSuccess: UpdateUserProfileSuccess;
   UpdateUserResult: ResolversParentTypes['UpdateUserError'] | ResolversParentTypes['UpdateUserSuccess'];
   UpdateUserSuccess: UpdateUserSuccess;
+  UpdatesSinceError: UpdatesSinceError;
+  UpdatesSinceResult: ResolversParentTypes['UpdatesSinceError'] | ResolversParentTypes['UpdatesSinceSuccess'];
+  UpdatesSinceSuccess: UpdatesSinceSuccess;
   UploadFileRequestError: UploadFileRequestError;
   UploadFileRequestInput: UploadFileRequestInput;
   UploadFileRequestResult: ResolversParentTypes['UploadFileRequestError'] | ResolversParentTypes['UploadFileRequestSuccess'];
@@ -3774,6 +3824,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
   typeaheadSearch?: Resolver<ResolversTypes['TypeaheadSearchResult'], ParentType, ContextType, RequireFields<QueryTypeaheadSearchArgs, 'query'>>;
+  updatesSince?: Resolver<ResolversTypes['UpdatesSinceResult'], ParentType, ContextType, RequireFields<QueryUpdatesSinceArgs, 'since'>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
@@ -4116,6 +4167,14 @@ export type SubscriptionsSuccessResolvers<ContextType = ResolverContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SyncUpdatedItemEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SyncUpdatedItemEdge'] = ResolversParentTypes['SyncUpdatedItemEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  itemID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['SearchItem']>, ParentType, ContextType>;
+  updateReason?: Resolver<ResolversTypes['UpdateReason'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TypeaheadSearchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchError'] = ResolversParentTypes['TypeaheadSearchError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['TypeaheadSearchErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4276,6 +4335,21 @@ export type UpdateUserResultResolvers<ContextType = ResolverContext, ParentType 
 
 export type UpdateUserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserSuccess'] = ResolversParentTypes['UpdateUserSuccess']> = {
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdatesSinceErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceError'] = ResolversParentTypes['UpdatesSinceError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdatesSinceErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdatesSinceResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceResult'] = ResolversParentTypes['UpdatesSinceResult']> = {
+  __resolveType: TypeResolveFn<'UpdatesSinceError' | 'UpdatesSinceSuccess', ParentType, ContextType>;
+};
+
+export type UpdatesSinceSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceSuccess'] = ResolversParentTypes['UpdatesSinceSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['SyncUpdatedItemEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4571,6 +4645,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
+  SyncUpdatedItemEdge?: SyncUpdatedItemEdgeResolvers<ContextType>;
   TypeaheadSearchError?: TypeaheadSearchErrorResolvers<ContextType>;
   TypeaheadSearchItem?: TypeaheadSearchItemResolvers<ContextType>;
   TypeaheadSearchResult?: TypeaheadSearchResultResolvers<ContextType>;
@@ -4605,6 +4680,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateUserProfileSuccess?: UpdateUserProfileSuccessResolvers<ContextType>;
   UpdateUserResult?: UpdateUserResultResolvers<ContextType>;
   UpdateUserSuccess?: UpdateUserSuccessResolvers<ContextType>;
+  UpdatesSinceError?: UpdatesSinceErrorResolvers<ContextType>;
+  UpdatesSinceResult?: UpdatesSinceResultResolvers<ContextType>;
+  UpdatesSinceSuccess?: UpdatesSinceSuccessResolvers<ContextType>;
   UploadFileRequestError?: UploadFileRequestErrorResolvers<ContextType>;
   UploadFileRequestResult?: UploadFileRequestResultResolvers<ContextType>;
   UploadFileRequestSuccess?: UploadFileRequestSuccessResolvers<ContextType>;

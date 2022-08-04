@@ -10,7 +10,7 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { UploadFileStatus } from '../../src/generated/graphql'
+import { UpdateReason, UploadFileStatus } from '../../src/generated/graphql'
 import {
   ArticleSavingRequestStatus,
   Highlight,
@@ -649,7 +649,7 @@ describe('Article API', () => {
     let query = ''
     let articleId = ''
     let bookmark = true
-    let pageId = ''
+    let pageId: string
 
     before(async () => {
       const page: Page = {
@@ -667,16 +667,11 @@ describe('Article API', () => {
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
       }
-      const newPageId = await createPage(page, ctx)
-      if (newPageId) {
-        pageId = newPageId
-      }
+      pageId = (await createPage(page, ctx))!
     })
 
     after(async () => {
-      if (pageId) {
-        await deletePage(pageId, ctx)
-      }
+      await deletePage(pageId, ctx)
     })
 
     beforeEach(() => {
@@ -684,7 +679,7 @@ describe('Article API', () => {
     })
 
     context('when we set a bookmark on an article', () => {
-      before(async () => {
+      before(() => {
         articleId = pageId
         bookmark = true
       })
@@ -698,15 +693,15 @@ describe('Article API', () => {
     })
 
     context('when we unset a bookmark on an article', () => {
-      before(async () => {
+      before(() => {
         articleId = pageId
         bookmark = false
       })
 
       it('should delete an article', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const pageId = await getPageById(articleId)
-        expect(pageId).to.undefined
+        const page = await getPageById(articleId)
+        expect(page?.state).to.eql(ArticleSavingRequestStatus.Deleted)
       })
     })
   })
@@ -975,6 +970,106 @@ describe('Article API', () => {
       expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
       expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
       expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
+    })
+  })
+
+  describe('UpdatesSince API', () => {
+    const updatesSinceQuery = (since: string) => `
+      query {
+        updatesSince(
+          since: "${since}") {
+          ... on UpdatesSinceSuccess {
+            edges {
+              cursor
+              node {
+                id
+                createdAt
+                updatedAt
+              }
+              itemID
+              updateReason
+            }
+            pageInfo {
+              hasNextPage
+              hasPreviousPage
+              startCursor
+              endCursor
+              totalCount
+            }
+          }
+          ... on UpdatesSinceError {
+            errorCodes
+          }
+        }
+      }
+    `
+    let since: string
+    let pages: Page[] = []
+    let deletedPages: Page[] = []
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        const page: Page = {
+          id: '',
+          hash: '',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'test page',
+          content: '',
+          slug: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgressPercent: 0,
+          readingProgressAnchorIndex: 0,
+          url: '',
+          savedAt: new Date(),
+          state: ArticleSavingRequestStatus.Succeeded,
+        }
+        page.id = (await createPage(page, ctx))!
+        pages.push(page)
+      }
+
+      // set the since to be the timestamp before deletion
+      since = pages[4].createdAt.toISOString()
+
+      // Delete some pages
+      for (let i = 0; i < 3; i++) {
+        await updatePage(
+          pages[i].id,
+          { state: ArticleSavingRequestStatus.Deleted },
+          ctx
+        )
+        deletedPages.push(pages[i])
+      }
+    })
+
+    after(async () => {
+      // Delete all pages
+      for (let i = 0; i < pages.length; i++) {
+        await deletePage(pages[i].id, ctx)
+      }
+    })
+
+    it('returns pages deleted after since', async () => {
+      const res = await graphqlRequest(
+        updatesSinceQuery(since),
+        authToken
+      ).expect(200)
+
+      expect(res.body.data.updatesSince.edges.length).to.eql(3)
+      expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
+        deletedPages[0].id
+      )
+      expect(res.body.data.updatesSince.edges[1].itemID).to.eq(
+        deletedPages[1].id
+      )
+      expect(res.body.data.updatesSince.edges[2].itemID).to.eq(
+        deletedPages[2].id
+      )
+      expect(res.body.data.updatesSince.edges[2].updateReason).to.eq(
+        UpdateReason.Deleted
+      )
     })
   })
 })

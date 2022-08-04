@@ -70,11 +70,7 @@ describe('elastic api', () => {
       ],
       state: ArticleSavingRequestStatus.Succeeded,
     }
-    const pageId = await createPage(page, ctx)
-    if (!pageId) {
-      expect.fail('Failed to create page')
-    }
-    page.id = pageId
+    page.id = (await createPage(page, ctx))!
   })
 
   after(async () => {
@@ -83,12 +79,10 @@ describe('elastic api', () => {
   })
 
   describe('createPage', () => {
-    let newPageId: string | undefined
+    let newPageId: string
 
     after(async () => {
-      if (newPageId) {
-        await deletePage(newPageId, ctx)
-      }
+      await deletePage(newPageId, ctx)
     })
 
     it('creates a page', async () => {
@@ -108,9 +102,7 @@ describe('elastic api', () => {
         url: 'https://blog.omnivore.app/testUrl',
         state: ArticleSavingRequestStatus.Succeeded,
       }
-
-      newPageId = await createPage(newPageData, ctx)
-
+      newPageId = (await createPage(newPageData, ctx))!
       expect(newPageId).to.be.a('string')
     })
   })
@@ -344,9 +336,11 @@ describe('elastic api', () => {
   })
 
   describe('searchAsYouType', () => {
+    let pageId: string
+
     before(async () => {
       // create a testing page
-      await createPage(
+      pageId = (await createPage(
         {
           content: '',
           createdAt: new Date(),
@@ -363,12 +357,12 @@ describe('elastic api', () => {
           userId,
         },
         ctx
-      )
+      ))!
     })
 
     after(async () => {
       // delete the testing page
-      await deletePagesByParam({ userId }, ctx)
+      await deletePage(pageId, ctx)
     })
 
     it('searches pages', async () => {
