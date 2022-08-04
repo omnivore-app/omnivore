@@ -31,7 +31,7 @@ extension Authenticator {
       switch loginError {
       case .unauthorized, .unknown:
         return await createPendingUser(idToken: idToken)
-      case .network:
+      case .network, .pendingEmailVerification:
         return .loginError(error: .network)
       }
     }

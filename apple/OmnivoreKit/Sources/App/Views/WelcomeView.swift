@@ -17,6 +17,7 @@ struct WelcomeView: View {
   @State private var showTermsLinks = false
   @State private var showTermsModal = false
   @State private var showPrivacyModal = false
+  @State private var showEmailLoginModal = false
   @State private var showAboutPage = false
   @State private var selectedEnvironment = AppEnvironment.initialAppEnvironment
   @State private var containerSize: CGSize = .zero
@@ -138,11 +139,7 @@ struct WelcomeView: View {
   var authProviderButtonStack: some View {
     let useHorizontalLayout = containerSize.width > 500
 
-    let buttonGroup = Group {
-      AppleSignInButton {
-        viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
-      }
-
+    let googleButton = Group {
       if AppKeys.sharedInstance?.iosClientGoogleId != nil {
         GoogleAuthButton {
           Task {
@@ -152,12 +149,38 @@ struct WelcomeView: View {
       }
     }
 
+    let appleButton = AppleSignInButton {
+      viewModel.handleAppleSignInCompletion(result: $0, authenticator: authenticator)
+    }
+
+    let emailButton = Button(
+      action: { showEmailLoginModal = true },
+      label: {
+        Text("Continue with Email")
+          .foregroundColor(.appGrayTextContrast)
+          .underline()
+      }
+    )
+    .padding(.vertical)
+
     return
       VStack(alignment: .center, spacing: 16) {
         if useHorizontalLayout {
-          HStack { buttonGroup }
+          VStack(alignment: .leading, spacing: 0) {
+            HStack {
+              appleButton
+              googleButton
+            }
+            emailButton
+          }
         } else {
-          buttonGroup
+          VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 16) {
+              appleButton
+              googleButton
+            }
+            emailButton
+          }
         }
 
         if let loginError = viewModel.loginError {
@@ -206,6 +229,9 @@ struct WelcomeView: View {
           Spacer()
         }
         .padding()
+        .sheet(isPresented: $showEmailLoginModal) {
+          EmailAuthView()
+        }
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
         }

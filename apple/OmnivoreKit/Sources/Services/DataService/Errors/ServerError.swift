@@ -10,11 +10,15 @@ public enum ServerError: String, Error {
   case unauthenticated
   case timeout
   case unknown
+  case pendingEmailVerification
 }
 
 extension ServerError {
   init(serverResponse: ServerResponse) {
     switch serverResponse.httpUrlResponse?.statusCode {
+    case 418?:
+      self = .pendingEmailVerification
+      return
     case 401?, 403?:
       self = .unauthenticated
       return
