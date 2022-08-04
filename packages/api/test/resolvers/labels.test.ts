@@ -12,14 +12,12 @@ import { User } from '../../src/entity/user'
 import { Highlight, Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
 import { deletePage, getPageById } from '../../src/elastic/pages'
-import { addLabelInPage } from '../../src/elastic/labels'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
   addHighlightToPage,
   getHighlightById,
 } from '../../src/elastic/highlights'
 import { refreshIndex } from '../../src/elastic'
-import { after } from 'mocha'
 
 describe('Labels API', () => {
   const username = 'fakeUser'
@@ -44,7 +42,6 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deletePage(page.id, ctx)
     await deleteTestUser(username)
   })
 
