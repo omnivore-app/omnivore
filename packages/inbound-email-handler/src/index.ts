@@ -76,7 +76,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const forwardedTo = headers['x-forwarded-to']?.toString().split(',')[0]
       // x-forwarded-for is a space separated list of email address
       // the first one is the forwarding email sender and the last one is the recipient
-      // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app
+      // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app'
       const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
 
       // if an email is forwarded to the inbox, the to is the forwarding email recipient
