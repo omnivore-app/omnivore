@@ -664,6 +664,7 @@ type Label {
   description: String
   id: ID!
   name: String!
+  position: Int
 }
 
 type LabelsError {
@@ -768,6 +769,27 @@ type MergeHighlightSuccess {
   overlapHighlightIdList: [String!]!
 }
 
+type MoveLabelError {
+  errorCodes: [MoveLabelErrorCode!]!
+}
+
+enum MoveLabelErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input MoveLabelInput {
+  afterLabelId: ID
+  labelId: ID!
+}
+
+union MoveLabelResult = MoveLabelError | MoveLabelSuccess
+
+type MoveLabelSuccess {
+  label: Label!
+}
+
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
@@ -791,6 +813,7 @@ type Mutation {
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
   logOut: LogOutResult!
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
+  moveLabel(input: MoveLabelInput!): MoveLabelResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!

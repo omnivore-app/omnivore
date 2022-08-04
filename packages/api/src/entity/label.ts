@@ -28,4 +28,7 @@ export class Label {
 
   @CreateDateColumn()
   createdAt!: Date
+
+  @Column('integer', { default: 0 })
+  position!: number
 }

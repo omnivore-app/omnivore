@@ -9,8 +9,12 @@ import {
   LabelsError,
   LabelsErrorCode,
   LabelsSuccess,
+  MoveLabelError,
+  MoveLabelErrorCode,
+  MoveLabelSuccess,
   MutationCreateLabelArgs,
   MutationDeleteLabelArgs,
+  MutationMoveLabelArgs,
   MutationSetLabelsArgs,
   MutationSetLabelsForHighlightArgs,
   MutationUpdateLabelArgs,
@@ -25,7 +29,7 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { User } from '../../entity/user'
 import { Label } from '../../entity/label'
-import { ILike } from 'typeorm'
+import { Between, ILike } from 'typeorm'
 import { getRepository, setClaims } from '../../entity/utils'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { AppDataSource } from '../../server'
@@ -57,7 +61,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         relations: ['labels'],
         order: {
           labels: {
-            createdAt: 'DESC',
+            position: 'ASC',
           },
         },
       })
@@ -400,6 +404,120 @@ export const setLabelsForHighlightResolver = authorized<
     log.error(error)
     return {
       errorCodes: [SetLabelsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const moveLabelResolver = authorized<
+  MoveLabelSuccess,
+  MoveLabelError,
+  MutationMoveLabelArgs
+>(async (_, { input }, { claims: { uid }, log, pubsub }) => {
+  log.info('moveLabelResolver')
+
+  const { labelId, afterLabelId } = input
+
+  try {
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [MoveLabelErrorCode.Unauthorized],
+      }
+    }
+
+    const label = await getRepository(Label).findOne({
+      where: { id: labelId },
+      relations: ['user'],
+    })
+    if (!label) {
+      return {
+        errorCodes: [MoveLabelErrorCode.NotFound],
+      }
+    }
+    if (label.user.id !== uid) {
+      return {
+        errorCodes: [MoveLabelErrorCode.Unauthorized],
+      }
+    }
+
+    if (label.id === afterLabelId) {
+      // nothing to do
+      return { label }
+    }
+
+    const oldPosition = label.position
+    // if afterLabelId is not provided, move to the top
+    let newPosition = 1
+    if (afterLabelId) {
+      const afterLabel = await getRepository(Label).findOne({
+        where: { id: afterLabelId },
+        relations: ['user'],
+      })
+      if (!afterLabel) {
+        return {
+          errorCodes: [MoveLabelErrorCode.NotFound],
+        }
+      }
+      if (afterLabel.user.id !== uid) {
+        return {
+          errorCodes: [MoveLabelErrorCode.Unauthorized],
+        }
+      }
+      newPosition = afterLabel.position
+    }
+    const moveUp = newPosition < oldPosition
+
+    // move label to the new position
+    const updated = await AppDataSource.transaction(async (t) => {
+      await setClaims(t, uid)
+
+      // update the position of the other labels
+      const updated = await t.getRepository(Label).update(
+        {
+          user: { id: uid },
+          position: Between(
+            Math.min(newPosition, oldPosition),
+            Math.max(newPosition, oldPosition)
+          ),
+        },
+        {
+          position: () => `position + ${moveUp ? 1 : -1}`,
+        }
+      )
+      if (!updated.affected) {
+        return null
+      }
+
+      // update the position of the label
+      return t.getRepository(Label).save({
+        ...label,
+        position: newPosition,
+      })
+    })
+
+    if (!updated) {
+      return {
+        errorCodes: [MoveLabelErrorCode.BadRequest],
+      }
+    }
+
+    analytics.track({
+      userId: uid,
+      event: 'label_moved',
+      properties: {
+        labelId,
+        afterLabelId,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return {
+      label: updated,
+    }
+  } catch (error) {
+    log.error('error moving label', error)
+    return {
+      errorCodes: [MoveLabelErrorCode.BadRequest],
     }
   }
 })
