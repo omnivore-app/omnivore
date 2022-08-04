@@ -76,7 +76,6 @@ struct WebReaderContainerView: View {
             guard let htmlContent = item.htmlContent else { return }
             let synthesizer = AVSpeechSynthesizer()
             synthesizer.speak(AVSpeechUtterance(string: htmlContent))
-            AVSpeechUtterance(ss,)
           },
           label: {
             Image(systemName: "play")
