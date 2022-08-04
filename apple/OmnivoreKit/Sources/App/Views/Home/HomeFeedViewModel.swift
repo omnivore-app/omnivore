@@ -6,6 +6,8 @@ import Utils
 import Views
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
+  let dateFormatter = DateFormatter.formatterISO8601
+
   var currentDetailViewModel: LinkItemDetailViewModel?
 
   private var fetchedResultsController: NSFetchedResultsController<LinkedItem>?
@@ -26,7 +28,11 @@ import Views
   @Published var appliedFilter = LinkedItemFilter.inbox.rawValue
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
-  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue)
+//  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) // TODO: missing value here?
+  // TODO: delete this value when needed (logout, clear core data, new app version
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = Date(
+    timeIntervalSinceReferenceDate: 0
+  ).toString()
 
   var cursor: String?
 
@@ -50,6 +56,11 @@ import Views
     items.insert(item, at: 0)
   }
 
+  func loadUpdatedItems(since _: Date, updatedCursor _: String?) {
+    isLoading = true
+    showLoadingBar = true
+  }
+
   func loadItems(dataService: DataService, isRefresh: Bool) async {
     let thisSearchIdx = searchIdx
     searchIdx += 1
@@ -60,6 +71,14 @@ import Views
     // Cache the viewer
     if dataService.currentViewer == nil {
       Task { _ = try? await dataService.fetchViewer() }
+    }
+
+    // Sync items if necessary
+    let lastSyncDate = dateFormatter.date(from: lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
+
+    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+    if syncResult != nil {
+      lastItemSyncTime = Date().toString()
     }
 
     let queryResult = try? await dataService.loadLinkedItems(

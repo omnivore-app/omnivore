@@ -12,6 +12,7 @@ struct InternalLinkedItemUpdatesQueryResult {
   let items: [InternalLinkedItem]
   let deletedItemIDs: [String]
   let cursor: String?
+  let hasMoreItems: Bool
 }
 
 private struct SyncItemEdge {
@@ -23,13 +24,14 @@ private struct SyncItemEdge {
 extension DataService {
   // swiftlint:disable:next function_body_length
   func linkedItemUpdates(
+    since: Date,
     limit: Int,
-    cursor: String?,
-    since: Date?
+    cursor: String?
   ) async throws -> InternalLinkedItemUpdatesQueryResult {
     struct QuerySuccessResult {
       let edges: [SyncItemEdge]
       let cursor: String?
+      let hasMoreItems: Bool
     }
     enum QueryResult {
       case success(result: QuerySuccessResult)
@@ -50,6 +52,9 @@ extension DataService {
               edges: try $0.edges(selection: syncItemEdgeSelection.list),
               cursor: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.endCursor()
+              }),
+              hasMoreItems: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.hasNextPage()
               })
             )
           )
@@ -61,7 +66,7 @@ extension DataService {
       try $0.updatesSince(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
-        since: DateTime(from: since ?? Date(timeIntervalSinceReferenceDate: 0)),
+        since: DateTime(from: since),
         selection: selection
       )
     }
@@ -90,7 +95,8 @@ extension DataService {
             returning: InternalLinkedItemUpdatesQueryResult(
               items: items,
               deletedItemIDs: deletedItemIDs,
-              cursor: result.cursor
+              cursor: result.cursor,
+              hasMoreItems: result.hasMoreItems
             )
           )
         case let .error(error):
