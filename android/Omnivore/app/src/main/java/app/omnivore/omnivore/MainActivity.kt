@@ -1,14 +1,16 @@
 package app.omnivore.omnivore
 
+import android.content.ContentValues.TAG
+import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -16,8 +18,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,37 +52,17 @@ fun LoginView() {
       .background(MaterialTheme.colors.background)
       .fillMaxSize()
   ) {
-    OutlinedTextField(
-      value = email,
-      placeholder = { Text(text = "user@email.com") },
-      label = { Text(text = "email") },
-      onValueChange = onEmailChange,
+    LoginFields(
+      email,
+      password,
+      onEmailChange = { email = it },
+      onPasswordChange = { password = it },
+      onLoginClick = { Log.v(TAG, "$email / $password") }
     )
-
-    OutlinedTextField(
-      value = password,
-      placeholder = { Text(text = "password") },
-      label = { Text(text = "password") },
-      onValueChange = onPasswordChange,
-    )
-
-    Button(onClick = {
-      if (email.isBlank() == false && password.isBlank() == false) {
-        onLoginClick(email)
-        focusManager.clearFocus()
-      } else {
-        Toast.makeText(
-          context,
-          "Please enter email and password",
-          Toast.LENGTH_SHORT
-        ).show()
-      }
-    }) {
-      Text("Login")
-    }
   }
 }
 
+//Log.v(TAG, "${numerator / denominator}")
 @Composable
 fun LoginFields(
   email: String,
@@ -85,6 +71,7 @@ fun LoginFields(
   onPasswordChange: (String) -> Unit,
   onLoginClick: (String) -> Unit
 ) {
+  val context = LocalContext.current
   val focusManager = LocalFocusManager.current
 
   Column(
@@ -116,7 +103,7 @@ fun LoginFields(
     )
 
     Button(onClick = {
-      if (email.isBlank() == false && password.isBlank() == false) {
+      if (email.isNotBlank() && password.isNotBlank()) {
         onLoginClick(email)
         focusManager.clearFocus()
       } else {
@@ -132,6 +119,11 @@ fun LoginFields(
   }
 }
 
+//@Preview(
+//  uiMode = Configuration.UI_MODE_NIGHT_YES,
+//  showBackground = true,
+//  name = "Dark Mode"
+//)
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
