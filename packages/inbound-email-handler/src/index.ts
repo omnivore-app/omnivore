@@ -42,41 +42,50 @@ export const getNewsletterHandler = (
 
 export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    const parts = multipart.parse(req.body, 'xYzZY')
-    const parsed: Record<string, string> = {}
-
-    let pdfAttachment: Buffer | undefined
-    let pdfAttachmentName: string | undefined
-
-    for (const part of parts) {
-      const { name, data, type, filename } = part
-      if (name && data) {
-        parsed[name] = data.toString()
-      } else if (type === 'application/pdf' && data) {
-        pdfAttachment = data
-        pdfAttachmentName = filename
-      } else {
-        console.log('no data or name for ', part)
-      }
-    }
-
-    const headers = parseHeaders(parsed.headers)
-    console.log('parsed: ', parsed)
-    console.log('headers: ', headers)
-
     try {
-      const from = parsed.from
-      const subject = parsed.subject
-      const html = parsed.html
-      const text = parsed.text
+      const parts = multipart.parse(req.body, 'xYzZY')
+      const parsed: Record<string, string> = {}
 
-      const forwardedAddress = headers['x-forwarded-to']?.toString()
-      const recipientAddress = forwardedAddress || parsed.to
+      let pdfAttachment: Buffer | undefined
+      let pdfAttachmentName: string | undefined
+
+      for (const part of parts) {
+        const { name, data, type, filename } = part
+        if (name && data) {
+          parsed[name] = data.toString()
+        } else if (type === 'application/pdf' && data) {
+          pdfAttachment = data
+          pdfAttachmentName = filename
+        } else {
+          console.log('no data or name for ', part)
+        }
+      }
+
+      const headers = parseHeaders(parsed.headers)
+      console.log('parsed: ', parsed)
+      console.log('headers: ', headers)
+
+      // original sender email address
+      const from = headers['from'].toString()
+      const subject = headers['subject']?.toString()
+      const html = parsed['html']
+      const text = parsed['text']
+
+      // headers added when forwarding email by some rules in Gmail
+      // e.g. 'X-Forwarded-To: recipient@omnivore.app'
+      const forwardedTo = headers['x-forwarded-to']?.toString().split(',')[0]
+      // x-forwarded-for is a space separated list of email address
+      // the first one is the forwarding email sender and the last one is the recipient
+      // e.g. 'X-Forwarded-For: sender@omnivore.app recipient@omnivore.app'
+      const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
+
+      // if an email is forwarded to the inbox, the to is the forwarding email recipient
+      const to = forwardedTo || headers['to'].toString()
       const postHeader = headers['list-post']?.toString()
       const unSubHeader = headers['list-unsubscribe']?.toString()
 
       try {
-        // check if it is a forwarding confirmation email or newsletter
+        // check if it is a confirmation email or forwarding newsletter
         const newsletterHandler = getNewsletterHandler(
           postHeader,
           from,
@@ -84,9 +93,9 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         )
 
         if (newsletterHandler) {
-          console.log('handleNewsletter', from, recipientAddress)
+          console.log('handleNewsletter', from, to)
           await newsletterHandler.handleNewsletter(
-            recipientAddress,
+            to,
             html,
             postHeader,
             subject,
@@ -96,18 +105,18 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           return res.send('ok')
         }
 
-        console.log('non-newsletter email from:', from, recipientAddress)
+        console.log('non-newsletter email from', from, 'to', to)
 
         if (isConfirmationEmail(from)) {
           console.log('handleConfirmation', from)
-          await handleConfirmation(recipientAddress, subject)
+          await handleConfirmation(to, subject)
           return res.send('ok')
         }
 
         if (pdfAttachment) {
-          console.log('handle PDF attachment', from, recipientAddress)
+          console.log('handle PDF attachment', from, to)
           await handlePdfAttachment(
-            recipientAddress,
+            to,
             pdfAttachmentName,
             pdfAttachment,
             subject
@@ -120,31 +129,28 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {
             from,
-            to: recipientAddress,
+            to,
             subject,
             html,
             text,
             unsubMailTo: unsubscribe.mailTo,
             unsubHttpUrl: unsubscribe.httpUrl,
+            forwardedFrom,
           },
         })
 
         res.send('ok')
       } catch (error) {
-        console.log(
-          'error handling emails, will forward.',
-          from,
-          recipientAddress,
-          subject
-        )
+        console.log('error handling emails, will forward.', from, to, subject)
         // queue error emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
           json: {
             from,
-            to: recipientAddress,
+            to,
             subject,
             html,
             text,
+            forwardedFrom,
           },
         })
       }

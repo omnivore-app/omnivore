@@ -26,6 +26,8 @@ interface ForwardEmailMessage {
   html: string
   unsubMailTo?: string
   unsubHttpUrl?: string
+  text?: string
+  forwardedFrom?: string
 }
 
 const logger = buildLogger('app.dispatch')
@@ -97,7 +99,12 @@ export function emailsServiceRouter() {
         return
       }
 
-      if (await isProbablyArticle(parsedFrom.address, data.subject)) {
+      if (
+        await isProbablyArticle(
+          data.forwardedFrom || parsedFrom.address,
+          data.subject
+        )
+      ) {
         logger.info('handling as article', data)
         await saveEmail(ctx, {
           title: getTitleFromEmailSubject(data.subject),
@@ -123,6 +130,7 @@ export function emailsServiceRouter() {
         to: user.email,
         subject: `Fwd: ${data.subject}`,
         html: data.html,
+        text: data.text,
         replyTo: data.from,
       })
 
