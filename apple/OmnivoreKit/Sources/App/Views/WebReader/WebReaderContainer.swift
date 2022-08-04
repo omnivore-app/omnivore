@@ -1,6 +1,8 @@
+import AVFoundation
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 import WebKit
 
@@ -68,6 +70,22 @@ struct WebReaderContainerView: View {
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
       #endif
+      if FeatureFlag.enableTextToSpeechButton {
+        Button(
+          action: {
+            guard let htmlContent = item.htmlContent else { return }
+            let synthesizer = AVSpeechSynthesizer()
+            synthesizer.speak(AVSpeechUtterance(string: htmlContent))
+            AVSpeechUtterance(ss,)
+          },
+          label: {
+            Image(systemName: "play")
+              .font(.appTitleTwo)
+          }
+        )
+        .padding(.horizontal)
+        .scaleEffect(navBarVisibilityRatio)
+      }
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {
