@@ -66,8 +66,8 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('headers: ', headers)
 
       // original sender email address
-      const from = headers['from'].toString()
-      const subject = headers['subject']?.toString()
+      const from = parsed['from']
+      const subject = parsed['subject']
       const html = parsed['html']
       const text = parsed['text']
 
@@ -80,7 +80,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       const forwardedFrom = headers['x-forwarded-for']?.toString().split(' ')[0]
 
       // if an email is forwarded to the inbox, the to is the forwarding email recipient
-      const to = forwardedTo || headers['to'].toString()
+      const to = forwardedTo || parsed['to']
       const postHeader = headers['list-post']?.toString()
       const unSubHeader = headers['list-unsubscribe']?.toString()
 
