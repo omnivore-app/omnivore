@@ -99,11 +99,11 @@ export const syncWithIntegration = async (
     default:
       return false
   }
-  // update integration updatedAt if successful
+  // update integration syncedAt if successful
   if (result) {
-    console.log('updating integration updatedAt')
+    console.log('updating integration syncedAt')
     await getRepository(Integration).update(integration.id, {
-      updatedAt: new Date(),
+      syncedAt: new Date(),
     })
   }
   return result
