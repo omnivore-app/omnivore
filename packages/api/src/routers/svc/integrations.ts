@@ -9,10 +9,11 @@ import { buildLogger } from '../../utils/logger'
 import { syncWithIntegration } from '../../services/integrations'
 import { getPageById, getPageByParam, searchPages } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
+import { DateFilter } from '../../utils/search'
 
 interface Message {
-  type: EntityType
-  data: any
+  type?: EntityType
+  data?: any
   userId: string
 }
 
@@ -103,7 +104,15 @@ export function integrationsServiceRouter() {
           hasNextPage;
           after += size, hasNextPage = count > after
         ) {
-          ;[pages, count] = (await searchPages({ from: after, size }, userId))!
+          const syncedAt = integration.syncedAt
+          // only sync pages that were updated after syncedAt
+          const dateFilters: DateFilter[] = []
+          syncedAt &&
+            dateFilters.push({ field: 'updatedAt', startDate: syncedAt })
+          ;[pages, count] = (await searchPages(
+            { from: after, size, dateFilters },
+            userId
+          ))!
           const pageIds = pages.map((p) => p.id)
 
           logger.info('syncing pages', pageIds)
