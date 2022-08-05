@@ -15,6 +15,7 @@ CREATE TABLE omnivore.integrations (
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
     synced_at timestamptz,
+    task_name text,
     UNIQUE (user_id, "type")
 );
 

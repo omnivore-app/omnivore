@@ -39,4 +39,7 @@ export class Integration {
 
   @Column('timestamp', { nullable: true })
   syncedAt?: Date | null
+
+  @Column('text', { nullable: true })
+  taskName?: string | null
 }
