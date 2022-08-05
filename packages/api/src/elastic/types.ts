@@ -246,7 +246,15 @@ export interface SearchItem {
   highlights?: Highlight[]
 }
 
-const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
+const keys = [
+  '_id',
+  'url',
+  'slug',
+  'userId',
+  'uploadFileId',
+  'state',
+  'id',
+] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
 
