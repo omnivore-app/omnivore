@@ -14,6 +14,7 @@ CREATE TABLE omnivore.integrations (
     "enabled" boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    synced_at timestamptz,
     UNIQUE (user_id, "type")
 );
 

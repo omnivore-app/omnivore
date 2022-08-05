@@ -36,4 +36,7 @@ export class Integration {
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt!: Date
+
+  @Column('timestamp', { nullable: true })
+  syncedAt?: Date | null
 }
