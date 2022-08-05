@@ -65,7 +65,7 @@ struct InternalLinkedItem {
     if let existingLabels = linkedItem.labels {
       linkedItem.removeFromLabels(existingLabels)
     }
-    
+
     for label in labels {
       linkedItem.addToLabels(label.asManagedObject(inContext: context))
     }
