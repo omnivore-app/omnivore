@@ -1,63 +1,135 @@
 import Link from 'next/link'
-import React from 'react'
-import { styled } from '../tokens/stitches.config'
+import React, { useEffect, useState } from 'react'
+
+import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
+import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 
 import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar'
 import 'react-pro-sidebar/dist/css/styles.css'
 
-// Styles--------------------------------
+import { TagSimple } from 'phosphor-react'
 
-const MenuStyle = styled(ProSidebar, {
-    display: 'inline-block',
-  '&:first-child': {
-    background: '$grayBgActive',
-  },
-})
+// styles
+const proSideBarStyles = {
+  display: 'inline-block',
+}
 
-// Functions------------------------------
+// Types
+type MenuItems = {
+  label: string
+  query: string
+  icon: string | JSX.Element | null
 
+  href: string
+}
+
+// Functions
 const calculateTodayMenuItem = () => {
   const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
+  const hrefStr = `?q=in%3Ainbox+saved%3A${
+    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
+  }Z%${timeZoneHourDiff}B2..*`
   //  console.log(timeZoneHourDiff.toLocaleString('en-US', {
   //     signDisplay: 'always',
   //   }))
-  const hrefStr = `/home?q=in%3Ainbox+saved%3A${
-    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
-  }Z%${timeZoneHourDiff}B2..*`
-
   return hrefStr
 }
 
+const createDynamicMenuItems = (
+  labels: Array<any>,
+  subscriptions: Array<any>
+) => {
+  const labelsList: Array<MenuItems> = []
+  const subscriptionsList: Array<MenuItems> = []
+  // Create labels list
+  if (labels) {
+    labels.map((l) =>
+      labelsList.push({
+        label: l.name,
+        query: `label:"${l.name}"`,
+        icon: <TagSimple size={24} />,
+        href: `?q=label:"${l.name}"`,
+      })
+    )
+  }
+  // create subscriptions list
+  if (subscriptions) {
+    subscriptions.map((s) =>
+      subscriptionsList.push({
+        label: s.name,
+        query: `subscription:"${s.subscription}"`,
+        icon: 'subscription',
+        href: `?q=subscription:"${s.subscription}"`,
+      })
+    )
+  }
+  return [...labelsList, ...subscriptionsList]
+}
+
+// Component
 export const Menubar = () => {
+  const { labels } = useGetLabelsQuery()
+  const { subscriptions } = useGetSubscriptionsQuery()
+
+  const [menuList, setMenuList] = useState<Array<MenuItems>>([])
+
+  useEffect(() => {
+    setMenuList([
+      {
+        label: 'Home',
+        query: 'in:inbox',
+        icon: null,
+        href: '/home',
+      },
+      {
+        label: 'Today',
+        query: 'in:inbox -label:Newsletter',
+        icon: null,
+        href: calculateTodayMenuItem(),
+      },
+      {
+        label: 'Read Later',
+        query: 'in:inbox -label:Newsletter',
+        icon: null,
+        href: `?q=in inbox+-label Newsletter`,
+      },
+      {
+        label: 'HighLights',
+        query: 'type:highlights',
+        icon: null,
+        href: `?q=type highlights`,
+      },
+      {
+        label: 'Newsletters',
+        query: 'in:inbox label:Newsletter',
+        icon: null,
+        href: `?q=in inbox+label Newsletter`,
+      },
+      ...createDynamicMenuItems(labels, subscriptions),
+    ])
+  }, [])
+  //   const menuItems = useMemo(() => {
+  //     if (labels || subscriptions) {
+  //       setMenuList( [...menuList, ...createDynamicMenuItems(labels, subscriptions)])
+  //     }
+  //   }, [labels, subscriptions, menuList])
+
+  console.log('menuList', menuList)
+
   return (
-    <MenuStyle>
-      <Menu iconShape="square" popperArrow={true}>
-        <MenuItem>
-          <Link passHref href={'/home'}>
-            Home
-          </Link>
-        </MenuItem>
-        <MenuItem>
-          <Link passHref href={calculateTodayMenuItem()}>
-            Today
-          </Link>
-        </MenuItem>
-        <MenuItem>
-          <Link passHref href={'home?q=in%3Ainbox+-label%3ANewsletter'}>
-            Read Later
-          </Link>
-        </MenuItem>
-        <MenuItem>
-          <Link passHref href={'/home?q=type%3Ahighlights'}>
-            Highlights
-          </Link>
-        </MenuItem>
-        <MenuItem>
-          <Link passHref href={'/home?q=in%3Ainbox+label%3ANewsletter'}>
-            Newsletters
-          </Link>
-        </MenuItem>
+    <ProSidebar style={proSideBarStyles} breakPoint={'sm'}>
+      <Menu>
+        {menuList.length > 0 &&
+          menuList.map((item) => {
+            return (
+              <MenuItem key={item.label} icon={item.icon}>
+                <Link passHref href={item.href}>
+                  {item.label}
+                </Link>
+              </MenuItem>
+            )
+          })}
       </Menu>
-    </MenuStyle>
+    </ProSidebar>
   )
 }
