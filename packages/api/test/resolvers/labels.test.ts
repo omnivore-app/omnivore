@@ -246,7 +246,7 @@ describe('Labels API', () => {
         before(async () => {
           toDeleteLabel = await createTestLabel(user, 'page label', '#ffffff')
           labelId = toDeleteLabel.id
-          page = await createTestElasticPage(user, [toDeleteLabel])
+          page = await createTestElasticPage(user.id, [toDeleteLabel])
         })
 
         after(async () => {
@@ -267,7 +267,7 @@ describe('Labels API', () => {
         let page: Page
 
         before(async () => {
-          page = await createTestElasticPage(user)
+          page = await createTestElasticPage(user.id)
           toDeleteLabel = await createTestLabel(
             user,
             'highlight label',
@@ -340,7 +340,7 @@ describe('Labels API', () => {
       const label1 = await createTestLabel(user, 'label_1', '#ffffff')
       const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
       labels = [label1, label2]
-      page = await createTestElasticPage(user)
+      page = await createTestElasticPage(user.id)
     })
 
     after(async () => {
@@ -497,7 +497,7 @@ describe('Labels API', () => {
         let page: Page
 
         before(async () => {
-          page = await createTestElasticPage(user, [toUpdateLabel])
+          page = await createTestElasticPage(user.id, [toUpdateLabel])
         })
 
         after(async () => {
@@ -542,7 +542,7 @@ describe('Labels API', () => {
       const label1 = await createTestLabel(user, 'label_1', '#ffffff')
       const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
       labels = [label1, label2]
-      page = await createTestElasticPage(user)
+      page = await createTestElasticPage(user.id)
     })
 
     after(async () => {

@@ -7,7 +7,7 @@ import { getRepository } from '../../entity/utils'
 import { Integration, IntegrationType } from '../../entity/integration'
 import { buildLogger } from '../../utils/logger'
 import { syncWithIntegration } from '../../services/integrations'
-import { getPageById, getPageByParam, searchPages } from '../../elastic/pages'
+import { getPageById, searchPages } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { DateFilter } from '../../utils/search'
 
@@ -63,19 +63,19 @@ export function integrationsServiceRouter() {
       const action = req.params.action.toUpperCase()
       if (action === 'SYNC_UPDATED') {
         // get updated page by id
-        const id = data.id
-        let page: Page | undefined
+        let id = ''
         switch (type) {
           case EntityType.PAGE:
-            page = await getPageById(id)
+            id = data.id
             break
           case EntityType.HIGHLIGHT:
-            page = await getPageByParam({ 'highlights.id': id })
+            id = data.articleId
             break
           case EntityType.LABEL:
-            page = await getPageByParam({ 'labels.id': id })
+            id = data.pageId
             break
         }
+        const page = await getPageById(id)
         if (!page) {
           logger.info('No page found for id', id)
           res.status(200).send('No page found')
