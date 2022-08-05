@@ -11,6 +11,8 @@ import { Integration } from '../../entity/integration'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { validateToken } from '../../services/integrations'
+import { deleteTask, enqueueSyncWithIntegration } from '../../utils/createTask'
+import { AppDataSource } from '../../server'
 
 export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
@@ -73,7 +75,26 @@ export const setIntegrationResolver = authorized<
       }
     }
 
-    const integration = await getRepository(Integration).save(integrationToSave)
+    const integration = await AppDataSource.transaction(async (t) => {
+      const integration = await t
+        .getRepository(Integration)
+        .save(integrationToSave)
+      if (integration.enabled) {
+        // create a task to sync all the pages
+        const taskName = await enqueueSyncWithIntegration(
+          user.id,
+          integration.type
+        )
+        log.info('enqueued task', taskName)
+        await t
+          .getRepository(Integration)
+          .update({ id: integration.id }, { taskName })
+      } else if (integration.taskName) {
+        await deleteTask(integration.taskName)
+        log.info('task deleted', integration.taskName)
+      }
+      return integration
+    })
 
     analytics.track({
       userId: uid,
