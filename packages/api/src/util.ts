@@ -62,6 +62,7 @@ interface BackendEnv {
     contentFetchUrl: string
     contentFetchGCFUrl: string
     reminderTaskHanderUrl: string
+    integrationTaskHandlerUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -136,6 +137,7 @@ const nullableEnvVars = [
   'SENDGRID_RESET_PASSWORD_TEMPLATE_ID',
   'SENDGRID_INSTALLATION_TEMPLATE_ID',
   'READWISE_API_URL',
+  'INTEGRATION_TASK_HANDLER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -218,6 +220,7 @@ export function getEnv(): BackendEnv {
     contentFetchUrl: parse('CONTENT_FETCH_URL'),
     contentFetchGCFUrl: parse('CONTENT_FETCH_GCF_URL'),
     reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
+    integrationTaskHandlerUrl: parse('INTEGRATION_TASK_HANDLER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
