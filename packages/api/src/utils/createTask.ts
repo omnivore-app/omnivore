@@ -8,6 +8,7 @@ import { CreateTaskError } from './errors'
 import { buildLogger } from './logger'
 import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
+import { IntegrationType } from '../entity/integration'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
@@ -271,6 +272,39 @@ export const enqueueReminder = async (
     payload,
     scheduleTime,
     taskHandlerUrl: env.queue.reminderTaskHanderUrl,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueSyncWithIntegration = async (
+  userId: string,
+  integrationType: IntegrationType
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    userId,
+  }
+
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    return nanoid()
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl: `${
+      env.queue.integrationTaskHandlerUrl
+    }/${integrationType.toLowerCase()}/sync_all`,
+    priority: 'low',
   })
 
   if (!createdTasks || !createdTasks[0].name) {
