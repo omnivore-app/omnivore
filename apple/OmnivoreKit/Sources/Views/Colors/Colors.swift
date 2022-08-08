@@ -8,11 +8,13 @@ public extension Color {
   static var appGrayBorder: Color { Color("_grayBorder", bundle: .module) }
   static var appGraySolid: Color { Color("_graySolid", bundle: .module) }
   static var appGrayText: Color { Color("_grayText", bundle: .module) }
+  static var appCtaYellow: Color { Color("_ctaYellow", bundle: .module) }
   static var appGrayTextContrast: Color { Color("_grayTextContrast", bundle: .module) }
 
   // Catalog Colors
   static var appYellow48: Color { Color("_yellow48", bundle: .module) }
   static var appYellow96: Color { Color("_yellow96", bundle: .module) }
+
   static var appButtonBackground: Color { Color("_buttonBackground", bundle: .module) }
   static var appTextDefault: Color { Color("_utilityTextDefault", bundle: .module) }
   static var appPrimaryBackground: Color { Color("_appPrimaryBackground", bundle: .module) }
