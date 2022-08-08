@@ -29,6 +29,7 @@ struct EmailLoginFormView: View {
     case email, password
   }
 
+  @EnvironmentObject var dataService: DataService
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @Environment(\.openURL) var openURL
   @EnvironmentObject var authenticator: Authenticator
@@ -108,7 +109,12 @@ struct EmailLoginFormView: View {
               HStack {
                 Button(
                   action: {
-                    openURL(URL(string: "https://omnivore.app/auth/forgot-password")!)
+                    let url: URL = {
+                      var urlComponents = URLComponents()
+                      urlComponents.path = "/auth/forgot-password"
+                      return urlComponents.url(relativeTo: dataService.appEnvironment.webAppBaseURL)!
+                    }()
+                    openURL(url)
                   },
                   label: {
                     Text("Forgot your password?")
