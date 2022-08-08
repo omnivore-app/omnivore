@@ -34,7 +34,7 @@ interface ReadwiseHighlight {
   highlight_url?: string
 }
 
-const READWISE_API_URL = 'https://readwise.io/api/v2'
+export const READWISE_API_URL = 'https://readwise.io/api/v2'
 
 export const validateToken = async (
   token: string,

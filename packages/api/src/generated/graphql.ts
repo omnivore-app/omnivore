@@ -1728,7 +1728,7 @@ export enum SetIntegrationErrorCode {
 }
 
 export type SetIntegrationInput = {
-  enabled?: InputMaybe<Scalars['Boolean']>;
+  enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
   token: Scalars['String'];
   type: IntegrationType;

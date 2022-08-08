@@ -1252,7 +1252,7 @@ enum SetIntegrationErrorCode {
 }
 
 input SetIntegrationInput {
-  enabled: Boolean
+  enabled: Boolean!
   id: ID
   token: String!
   type: IntegrationType!

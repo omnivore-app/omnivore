@@ -129,6 +129,9 @@ export function integrationsServiceRouter() {
             return
           }
         }
+        await getRepository(Integration).update(integration.id, {
+          taskName: null,
+        })
       } else {
         logger.info('unknown action', action)
         res.status(200).send('Unknown action')

@@ -1847,7 +1847,7 @@ const schema = gql`
     id: ID
     type: IntegrationType!
     token: String!
-    enabled: Boolean
+    enabled: Boolean!
   }
 
   # Mutations

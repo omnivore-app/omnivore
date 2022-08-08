@@ -12,7 +12,6 @@ import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { validateToken } from '../../services/integrations'
 import { deleteTask, enqueueSyncWithIntegration } from '../../utils/createTask'
-import { AppDataSource } from '../../server'
 
 export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
@@ -29,13 +28,9 @@ export const setIntegrationResolver = authorized<
       }
     }
 
-    const integrationToSave: Partial<Integration> = {
+    let integrationToSave: Partial<Integration> = {
       user,
-      token: input.token,
-      type: input.type,
-      enabled: input.enabled === null ? true : input.enabled,
     }
-
     if (input.id) {
       // Update
       const existingIntegration = await getRepository(Integration).findOne({
@@ -53,7 +48,17 @@ export const setIntegrationResolver = authorized<
         }
       }
 
-      integrationToSave.id = input.id
+      if (existingIntegration.enabled === input.enabled) {
+        return {
+          integration: existingIntegration,
+        }
+      }
+      integrationToSave = {
+        ...integrationToSave,
+        id: existingIntegration.id,
+        taskName: existingIntegration.taskName,
+        enabled: input.enabled,
+      }
     } else {
       // Create
       const existingIntegration = await getRepository(Integration).findOneBy({
@@ -73,34 +78,32 @@ export const setIntegrationResolver = authorized<
           errorCodes: [SetIntegrationErrorCode.InvalidToken],
         }
       }
+      integrationToSave = {
+        ...integrationToSave,
+        token: input.token,
+        type: input.type,
+        enabled: true,
+      }
     }
 
-    const integration = await AppDataSource.transaction(async (t) => {
-      const integration = await t
-        .getRepository(Integration)
-        .save(integrationToSave)
-      if (integration.enabled) {
-        // create a task to sync all the pages
-        const taskName = await enqueueSyncWithIntegration(
-          user.id,
-          integration.type
-        )
-        log.info('enqueued task', taskName)
-        await t
-          .getRepository(Integration)
-          .update({ id: integration.id }, { taskName })
-      } else if (integration.taskName) {
-        await deleteTask(integration.taskName)
-        log.info('task deleted', integration.taskName)
-      }
-      return integration
-    })
+    if (!integrationToSave.id || integrationToSave.enabled) {
+      // create a task to sync all the pages if new integration or enable integration
+      const taskName = await enqueueSyncWithIntegration(user.id, input.type)
+      log.info('enqueued task', taskName)
+      integrationToSave.taskName = taskName
+    } else if (integrationToSave.taskName) {
+      // delete the task if disable integration and task exists
+      await deleteTask(integrationToSave.taskName)
+      integrationToSave.taskName = null
+      log.info('task deleted', integrationToSave.taskName)
+    }
+    const integration = await getRepository(Integration).save(integrationToSave)
 
     analytics.track({
       userId: uid,
       event: 'integration_set',
       properties: {
-        id: integration.id,
+        id: integrationToSave.id,
         env: env.server.apiEnv,
       },
     })
