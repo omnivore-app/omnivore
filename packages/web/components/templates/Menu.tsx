@@ -5,13 +5,12 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 
 import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar'
-import 'react-pro-sidebar/dist/css/styles.css'
-
 import { TagSimple } from 'phosphor-react'
 
 // styles
 const proSideBarStyles = {
   display: 'inline-block',
+  marginTop:'120px',
 }
 
 // Types
@@ -19,7 +18,6 @@ type MenuItems = {
   label: string
   query: string
   icon: string | JSX.Element | null
-
   href: string
 }
 
@@ -83,38 +81,36 @@ export const Menubar = () => {
       },
       {
         label: 'Today',
-        query: 'in:inbox -label:Newsletter',
+        query: 'in:inbox-label:Newsletter',
         icon: null,
         href: calculateTodayMenuItem(),
       },
       {
         label: 'Read Later',
-        query: 'in:inbox -label:Newsletter',
+        query: 'in:inbox-label:Newsletter',
         icon: null,
-        href: `?q=in inbox+-label Newsletter`,
+        href: `?q=in:inbox+-label:Newsletter`,
       },
       {
         label: 'HighLights',
         query: 'type:highlights',
         icon: null,
-        href: `?q=type highlights`,
+        href: `?q=type:highlights`,
       },
       {
         label: 'Newsletters',
         query: 'in:inbox label:Newsletter',
         icon: null,
-        href: `?q=in inbox+label Newsletter`,
+        href: `?q=in:inbox+label:Newsletter`,
       },
       ...createDynamicMenuItems(labels, subscriptions),
     ])
-  }, [])
+  }, [labels, subscriptions])
   //   const menuItems = useMemo(() => {
   //     if (labels || subscriptions) {
   //       setMenuList( [...menuList, ...createDynamicMenuItems(labels, subscriptions)])
   //     }
   //   }, [labels, subscriptions, menuList])
-
-  console.log('menuList', menuList)
 
   return (
     <ProSidebar style={proSideBarStyles} breakPoint={'sm'}>

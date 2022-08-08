@@ -53,19 +53,20 @@ import {
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
-const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
+// TODO: remove Commented out code after PR approval (l56-l70 & 730 - 777)
+// const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
 
-const SAVED_SEARCHES: Record<string, string> = {
-  Inbox: `in:inbox`,
-  'Read Later': `in:inbox -label:Newsletter`,
-  Highlights: `type:highlights`,
-  Today: `in:inbox saved:${
-    new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
-  }Z${timeZoneHourDiff.toLocaleString('en-US', {
-    signDisplay: 'always',
-  })}..*`,
-  Newsletters: `in:inbox label:Newsletter`,
-}
+// const SAVED_SEARCHES: Record<string, string> = {
+//   Inbox: `in:inbox`,
+//   'Read Later': `in:inbox -label:Newsletter`,
+//   Highlights: `type:highlights`,
+//   Today: `in:inbox saved:${
+//     new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
+//   }Z${timeZoneHourDiff.toLocaleString('en-US', {
+//     signDisplay: 'always',
+//   })}..*`,
+//   Newsletters: `in:inbox label:Newsletter`,
+// }
 
 const fetchSearchResults = async (query: string, cb: any) => {
   if (!query.startsWith('#')) return
@@ -96,17 +97,14 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [shareTarget, setShareTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [snoozeTarget, setSnoozeTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [snoozeTarget, setSnoozeTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
-  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<LibraryItem | undefined>(undefined)
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -670,7 +668,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       >
         <Toaster />
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
-        <HStack alignment="center" distribution="start" css={{ width: '100%' }}>
+        <HStack
+          alignment="center"
+          distribution="start"
+          css={{
+            width: '95%',
+            position: 'absolute',
+            top: '35px',
+            left: '20px',
+          }}
+        >
           <StyledText
             style="subHeadline"
             css={{
@@ -720,53 +727,55 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           searchTerm={props.searchTerm}
           applySearchQuery={props.applySearchQuery}
         />
-        {viewerData?.me && (
-          <Box
-            css={{
-              display: 'flex',
-              width: '100%',
-              height: '44px',
-              marginTop: '16px',
-              gap: '8px',
-              flexDirection: 'row',
-              overflowY: 'scroll',
-              scrollbarWidth: 'none',
-              '&::-webkit-scrollbar': {
-                display: 'none',
-              },
-            }}
-          >
-            {Object.keys(SAVED_SEARCHES).map((key) => {
-              const isInboxTerm = (term: string) => {
-                return !term || term === 'in:inbox'
-              }
+        { //viewerData?.me && (
+          // <Box
+          //   css={{
+          //     display: 'flex',
+          //     width: '100%',
+          //     height: '44px',
+          //     marginTop: '16px',
+          //     gap: '8px',
+          //     flexDirection: 'row',
+          //     overflowY: 'scroll',
+          //     scrollbarWidth: 'none',
+          //     '&::-webkit-scrollbar': {
+          //       display: 'none',
+          //     },
+          //   }}
+          // >
+          //   {Object.keys(SAVED_SEARCHES).map((key) => {
+          //     const isInboxTerm = (term: string) => {
+          //       return !term || term === 'in:inbox'
+          //     }
 
-              const searchQuery = SAVED_SEARCHES[key]
-              const style =
-                searchQuery === props.searchTerm ||
-                (!props.searchTerm && isInboxTerm(searchQuery))
-                  ? 'ctaDarkYellow'
-                  : 'ctaLightGray'
-              return (
-                <Button
-                  key={key}
-                  style={style}
-                  onClick={() => {
-                    props.applySearchQuery(searchQuery)
-                  }}
-                  css={{
-                    p: '10px 12px',
-                    height: '37.5px',
-                    borderRadius: '6px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {key}
-                </Button>
-              )
-            })}
-          </Box>
-        )}
+          //     const searchQuery = SAVED_SEARCHES[key]
+          //     const style =
+          //       searchQuery === props.searchTerm ||
+          //       (!props.searchTerm && isInboxTerm(searchQuery))
+          //         ? 'ctaDarkYellow'
+          //         : 'ctaLightGray'
+          //     return (
+          //       <Button
+          //         key={key}
+          //         style={style}
+          //         onClick={() => {
+          //           props.applySearchQuery(searchQuery)
+          //         }}
+          //         css={{
+          //           p: '10px 12px',
+          //           height: '37.5px',
+          //           borderRadius: '6px',
+          //           whiteSpace: 'nowrap',
+          //         }}
+          //       >
+          //         {key}
+          //       </Button>
+          //     )
+          //   })}
+          // </Box>
+          //)
+        }
+
         {!props.isValidating && props.items.length == 0 ? (
           <EmptyLibrary
             onAddLinkClicked={() => {
