@@ -37,6 +37,12 @@ struct ManageAccountView: View {
           },
           label: { Text("Delete Account") }
         )
+        Button(
+          action: {
+            dataService.resetCoreData()
+          },
+          label: { Text("Reset Data Cache") }
+        )
         .alert(isPresented: $showDeleteAccountConfirmation) {
           Alert(
             title: Text("Are you sure you want to delete your account? This action can't be undone."),
