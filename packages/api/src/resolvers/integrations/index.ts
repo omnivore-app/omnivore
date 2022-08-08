@@ -1,8 +1,12 @@
 import { authorized } from '../../utils/helpers'
 import {
+  DeleteIntegrationError,
+  DeleteIntegrationErrorCode,
+  DeleteIntegrationSuccess,
   IntegrationsError,
   IntegrationsErrorCode,
   IntegrationsSuccess,
+  MutationDeleteIntegrationArgs,
   MutationSetIntegrationArgs,
   SetIntegrationError,
   SetIntegrationErrorCode,
@@ -127,6 +131,8 @@ export const integrationsResolver = authorized<
   IntegrationsSuccess,
   IntegrationsError
 >(async (_, __, { claims: { uid }, log }) => {
+  log.info('integrationsResolver')
+
   try {
     const user = await getRepository(User).findOneBy({ id: uid })
     if (!user) {
@@ -146,6 +152,70 @@ export const integrationsResolver = authorized<
 
     return {
       errorCodes: [IntegrationsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const deleteIntegrationResolver = authorized<
+  DeleteIntegrationSuccess,
+  DeleteIntegrationError,
+  MutationDeleteIntegrationArgs
+>(async (_, { id }, { claims: { uid }, log }) => {
+  log.info('deleteIntegrationResolver')
+
+  try {
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [DeleteIntegrationErrorCode.Unauthorized],
+      }
+    }
+
+    const integration = await getRepository(Integration).findOne({
+      where: { id },
+      relations: ['user'],
+    })
+
+    if (!integration) {
+      return {
+        errorCodes: [DeleteIntegrationErrorCode.NotFound],
+      }
+    }
+
+    if (integration.user.id !== uid) {
+      return {
+        errorCodes: [DeleteIntegrationErrorCode.Unauthorized],
+      }
+    }
+
+    if (integration.taskName) {
+      // delete the task if task exists
+      await deleteTask(integration.taskName)
+      log.info('task deleted', integration.taskName)
+    }
+
+    const deletedIntegration = await getRepository(Integration).remove(
+      integration
+    )
+    deletedIntegration.id = id
+
+    analytics.track({
+      userId: uid,
+      event: 'integration_delete',
+      properties: {
+        integrationId: deletedIntegration.id,
+        env: env.server.apiEnv,
+      },
+    })
+
+    return {
+      integration: deletedIntegration,
+    }
+  } catch (error) {
+    log.error(error)
+
+    return {
+      errorCodes: [DeleteIntegrationErrorCode.BadRequest],
     }
   }
 })

@@ -32,6 +32,7 @@ import {
   createReminderResolver,
   deleteAccountResolver,
   deleteHighlightResolver,
+  deleteIntegrationResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
@@ -168,6 +169,7 @@ export const functionResolvers = {
     setLabelsForHighlight: setLabelsForHighlightResolver,
     moveLabel: moveLabelResolver,
     setIntegration: setIntegrationResolver,
+    deleteIntegration: deleteIntegrationResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -598,4 +600,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('MoveLabel'),
   ...resultResolveTypeResolver('SetIntegration'),
   ...resultResolveTypeResolver('Integrations'),
+  ...resultResolveTypeResolver('DeleteIntegration'),
 }

@@ -345,4 +345,50 @@ describe('Integrations resolvers', () => {
       )
     })
   })
+
+  describe('deleteIntegration API', () => {
+    const query = (id: string) => `
+      mutation {
+        deleteIntegration(id: "${id}") {
+          ... on DeleteIntegrationSuccess {
+            integration {
+              id
+            }
+          }
+          ... on DeleteIntegrationError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    context('when integration exists', () => {
+      let existingIntegration: Integration
+
+      beforeEach(async () => {
+        existingIntegration = await getRepository(Integration).save({
+          user: loginUser,
+          type: DataIntegrationType.Readwise,
+          token: 'fakeToken',
+          taskName: 'some task name',
+        })
+      })
+
+      it('deletes the integration and cloud task', async () => {
+        const res = await graphqlRequest(
+          query(existingIntegration.id),
+          authToken
+        )
+        const integration = await getRepository(Integration).findOneBy({
+          id: existingIntegration.id,
+        })
+
+        expect(res.body.data.deleteIntegration.integration).to.be.an('object')
+        expect(res.body.data.deleteIntegration.integration.id).to.eql(
+          existingIntegration.id
+        )
+        expect(integration).to.be.null
+      })
+    })
+  })
 })
