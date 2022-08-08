@@ -55,11 +55,6 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadUpdatedItems(since _: Date, updatedCursor _: String?) {
-    isLoading = true
-    showLoadingBar = true
-  }
-
   func loadItems(dataService: DataService, isRefresh: Bool) async {
     let syncStartTime = Date()
     let thisSearchIdx = searchIdx
@@ -71,6 +66,14 @@ import Views
     // Cache the viewer
     if dataService.currentViewer == nil {
       Task { _ = try? await dataService.fetchViewer() }
+    }
+
+    // Fetch labels if none are available locally
+    let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
+    fetchRequest.fetchLimit = 1
+
+    if (try? dataService.viewContext.count(for: fetchRequest)) == 0 {
+      _ = try? await dataService.labels()
     }
 
     // Sync items if necessary
