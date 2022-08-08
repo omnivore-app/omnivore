@@ -176,7 +176,7 @@ struct EmailSignupFormView: View {
               },
               label: { Text("Submit") }
             )
-            .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
+            .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
 
             if let loginError = viewModel.loginError {
               LoginErrorMessageView(loginError: loginError)
