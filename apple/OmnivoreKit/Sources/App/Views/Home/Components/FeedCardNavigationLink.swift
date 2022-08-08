@@ -12,10 +12,8 @@ struct FeedCardNavigationLink: View {
 
   var body: some View {
     let destination = LinkItemDetailView(
-      viewModel: LinkItemDetailViewModel(
-        linkedItemObjectID: item.objectID,
-        dataService: dataService
-      )
+      linkedItemObjectID: item.objectID,
+      isPDF: item.isPDF
     )
     #if os(iOS)
       let modifiedDestination = destination
@@ -66,10 +64,8 @@ struct GridCardNavigationLink: View {
 
   var body: some View {
     let destination = LinkItemDetailView(
-      viewModel: LinkItemDetailViewModel(
-        linkedItemObjectID: item.objectID,
-        dataService: dataService
-      )
+      linkedItemObjectID: item.objectID,
+      isPDF: item.isPDF
     )
     #if os(iOS)
       let modifiedDestination = destination

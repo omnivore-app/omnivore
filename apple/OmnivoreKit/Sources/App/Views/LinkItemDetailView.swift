@@ -6,17 +6,20 @@ import Utils
 import Views
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
-  let pdfItem: PDFItem?
-  let item: LinkedItem?
+  @Published var pdfItem: PDFItem?
+  @Published var item: LinkedItem?
 
-  init(linkedItemObjectID: NSManagedObjectID, dataService: DataService) {
-    if let linkedItem = dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem {
-      self.pdfItem = PDFItem.make(item: linkedItem)
-      self.item = linkedItem
-    } else {
-      self.pdfItem = nil
-      self.item = nil
+  func loadItem(linkedItemObjectID: NSManagedObjectID, dataService: DataService) async {
+    let item = await dataService.viewContext.perform {
+      dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem
     }
+
+    if let item = item {
+      pdfItem = PDFItem.make(item: item)
+      self.item = item
+    }
+
+    trackReadEvent()
   }
 
   func handleArchiveAction(dataService: DataService) {
@@ -41,7 +44,7 @@ import Views
     )
   }
 
-  func trackReadEvent() {
+  private func trackReadEvent() {
     guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
     guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
     guard let originalArticleURL = item?.unwrappedPageURLString ?? pdfItem?.originalArticleURL else { return }
@@ -70,14 +73,18 @@ struct LinkItemDetailView: View {
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
   static let navBarHeight = 50.0
-  @ObservedObject private var viewModel: LinkItemDetailViewModel
+  let linkedItemObjectID: NSManagedObjectID
+  let isPDF: Bool
+
+  @StateObject private var viewModel = LinkItemDetailViewModel()
   @State private var showFontSizePopover = false
   @State private var showTitleEdit = false
   @State private var navBarVisibilityRatio = 1.0
   @State private var showDeleteConfirmation = false
 
-  init(viewModel: LinkItemDetailViewModel) {
-    self.viewModel = viewModel
+  init(linkedItemObjectID: NSManagedObjectID, isPDF: Bool) {
+    self.linkedItemObjectID = linkedItemObjectID
+    self.isPDF = isPDF
   }
 
   var toggleReadStatusToolbarItem: some View {
@@ -106,25 +113,24 @@ struct LinkItemDetailView: View {
   @State var hideNavBar = false
 
   var body: some View {
-    if viewModel.pdfItem != nil {
-      fixedNavBarReader
-      #if os(iOS)
-        .navigationBarHidden(hideNavBar)
-      #endif
-      .task {
-        hideNavBar = true
-        viewModel.trackReadEvent()
-      }
-    } else if let item = viewModel.item {
-      WebReaderContainerView(item: item)
-      #if os(iOS)
-        .navigationBarHidden(hideNavBar)
-      #endif
-      .task {
-        hideNavBar = true
-        viewModel.trackReadEvent()
+    ZStack {
+      if isPDF {
+        fixedNavBarReader
+          .task {
+            await viewModel.loadItem(linkedItemObjectID: linkedItemObjectID, dataService: dataService)
+            hideNavBar = true
+          }
+      } else if let item = viewModel.item {
+        WebReaderContainerView(item: item)
       }
     }
+    .task {
+      await viewModel.loadItem(linkedItemObjectID: linkedItemObjectID, dataService: dataService)
+      hideNavBar = true
+    }
+    #if os(iOS)
+      .navigationBarHidden(hideNavBar)
+    #endif
   }
 
   var navBar: some View {
