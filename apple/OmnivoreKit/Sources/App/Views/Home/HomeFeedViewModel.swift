@@ -29,7 +29,6 @@ import Views
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
 //  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) // TODO: missing value here?
-  // TODO: delete this value when needed (logout, clear core data, new app version
   @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(
     timeIntervalSinceReferenceDate: 0
   ))

@@ -96,6 +96,11 @@ public final class DataService: ObservableObject {
   }
 
   func resetCoreData() {
+    UserDefaults.standard.set(
+      DateFormatter.formatterISO8601.string(from: Date(timeIntervalSinceReferenceDate: 0)),
+      forKey: UserDefaultKey.lastItemSyncTime.rawValue
+    )
+
     clearCoreData()
 
     persistentContainer = PersistentContainer.make()
