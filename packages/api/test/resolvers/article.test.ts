@@ -10,7 +10,7 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { UploadFileStatus } from '../../src/generated/graphql'
+import { UpdateReason, UploadFileStatus } from '../../src/generated/graphql'
 import {
   ArticleSavingRequestStatus,
   Highlight,
@@ -24,10 +24,12 @@ import { getRepository } from '../../src/entity/utils'
 import {
   createPage,
   deletePage,
+  deletePagesByParam,
   getPageById,
   updatePage,
 } from '../../src/elastic/pages'
 import { addHighlightToPage } from '../../src/elastic/highlights'
+import { refreshIndex } from '../../src/elastic'
 
 chai.use(chaiString)
 
@@ -401,7 +403,7 @@ describe('Article API', () => {
         document = '<p>test</p>'
         title = 'new title'
 
-        await createPage(
+        pageId = (await createPage(
           {
             content: document,
             createdAt: new Date(),
@@ -419,7 +421,11 @@ describe('Article API', () => {
             archivedAt: new Date(),
           },
           ctx
-        )
+        ))!
+      })
+
+      after(async () => {
+        await deletePage(pageId, ctx)
       })
 
       it('should unarchive the article', async () => {
@@ -438,7 +444,8 @@ describe('Article API', () => {
     let pageId: string
 
     before(async () => {
-      const page = {
+      const page: Page = {
+        state: ArticleSavingRequestStatus.Succeeded,
         id: '',
         hash: 'test hash',
         userId: user.id,
@@ -460,11 +467,11 @@ describe('Article API', () => {
             patch: 'test patch',
             quote: 'test quote',
             updatedAt: new Date(),
+            userId: user.id,
           },
         ],
-      } as Page
-      const id = await createPage(page, ctx)
-      id && (pageId = id)
+      }
+      pageId = (await createPage(page, ctx))!
     })
 
     after(async () => {
@@ -538,6 +545,10 @@ describe('Article API', () => {
     })
 
     context('when we save a new page', () => {
+      after(async () => {
+        await deletePagesByParam({ url }, ctx)
+      })
+
       it('should return a slugged url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.savePage.url).to.startsWith(
@@ -547,45 +558,48 @@ describe('Article API', () => {
     })
 
     context('when we save a page that is already archived', () => {
-      it('it should return that page in the GetArticles Query', async () => {
+      before(() => {
         url = 'https://example.com/new-url'
+      })
+
+      after(async () => {
+        await deletePagesByParam({ url }, ctx)
+      })
+
+      it('it should return that page in the GetArticles Query', async () => {
         await graphqlRequest(
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
+        await refreshIndex()
 
-        let allLinks
         // Save a link, then archive it
-        // set a slight delay to make sure the page is updated
-        setTimeout(async () => {
-          let allLinks = await graphqlRequest(
-            articlesQuery(''),
-            authToken
-          ).expect(200)
-          const justSavedId = allLinks.body.data.articles.edges[0].node.id
-          await archiveLink(authToken, justSavedId)
-        }, 100)
+        // refresh the index to make sure the page is updated
+        let allLinks = await graphqlRequest(
+          articlesQuery(''),
+          authToken
+        ).expect(200)
+        const justSavedId = allLinks.body.data.articles.edges[0].node.id
+        await archiveLink(authToken, justSavedId)
+        await refreshIndex()
 
         // test the negative case, ensuring the archive link wasn't returned
-        setTimeout(async () => {
-          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
-            200
-          )
-          expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
-        }, 100)
+        allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+          200
+        )
+        expect(allLinks.body.data.articles.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
         await graphqlRequest(
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
+        await refreshIndex()
 
-        setTimeout(async () => {
-          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
-            200
-          )
-          expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
-        }, 100)
+        allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+          200
+        )
+        expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
       })
     })
   })
@@ -599,48 +613,15 @@ describe('Article API', () => {
     })
 
     context('when we save a new url', () => {
+      after(async () => {
+        await deletePagesByParam({ url }, ctx)
+      })
+
       it('should return a slugged url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveUrl.url).to.startsWith(
           'http://localhost:3000/fakeUser/links/'
         )
-      })
-    })
-
-    context('when we save a url that is already archived', () => {
-      it('it should return that page in the GetArticles Query', async () => {
-        url = 'https://example.com/new-url'
-        await graphqlRequest(saveUrlQuery(url), authToken).expect(200)
-
-        let allLinks
-        // Save a link, then archive it
-        // set a slight delay to make sure the page is updated
-        setTimeout(async () => {
-          let allLinks = await graphqlRequest(
-            articlesQuery(''),
-            authToken
-          ).expect(200)
-          const justSavedId = allLinks.body.data.articles.edges[0].node.id
-          await archiveLink(authToken, justSavedId)
-        }, 100)
-
-        // test the negative case, ensuring the archive link wasn't returned
-        setTimeout(async () => {
-          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
-            200
-          )
-          expect(allLinks.body.data.articles.edges[0].node.url).to.not.eq(url)
-        }, 100)
-
-        // Now save the link again, and ensure it is returned
-        await graphqlRequest(saveUrlQuery(url), authToken).expect(200)
-
-        setTimeout(async () => {
-          allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
-            200
-          )
-          expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
-        }, 100)
       })
     })
   })
@@ -649,7 +630,7 @@ describe('Article API', () => {
     let query = ''
     let articleId = ''
     let bookmark = true
-    let pageId = ''
+    let pageId: string
 
     before(async () => {
       const page: Page = {
@@ -667,16 +648,11 @@ describe('Article API', () => {
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
       }
-      const newPageId = await createPage(page, ctx)
-      if (newPageId) {
-        pageId = newPageId
-      }
+      pageId = (await createPage(page, ctx))!
     })
 
     after(async () => {
-      if (pageId) {
-        await deletePage(pageId, ctx)
-      }
+      await deletePage(pageId, ctx)
     })
 
     beforeEach(() => {
@@ -684,7 +660,7 @@ describe('Article API', () => {
     })
 
     context('when we set a bookmark on an article', () => {
-      before(async () => {
+      before(() => {
         articleId = pageId
         bookmark = true
       })
@@ -698,15 +674,15 @@ describe('Article API', () => {
     })
 
     context('when we unset a bookmark on an article', () => {
-      before(async () => {
+      before(() => {
         articleId = pageId
         bookmark = false
       })
 
       it('should delete an article', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const pageId = await getPageById(articleId)
-        expect(pageId).to.undefined
+        const page = await getPageById(articleId)
+        expect(page?.state).to.eql(ArticleSavingRequestStatus.Deleted)
       })
     })
   })
@@ -718,13 +694,11 @@ describe('Article API', () => {
     let pageId = ''
 
     before(async () => {
-      pageId = (await createTestElasticPage(user)).id
+      pageId = (await createTestElasticPage(user)).id!
     })
 
     after(async () => {
-      if (pageId) {
-        await deletePage(pageId, ctx)
-      }
+      await deletePage(pageId, ctx)
     })
 
     beforeEach(() => {
@@ -754,24 +728,23 @@ describe('Article API', () => {
           firstRes.body.data.saveArticleReadingProgress.updatedArticle
             .readingProgressPercent
         ).to.eq(75)
+        await refreshIndex()
 
         // Now try to set to a lower value (50), value should not be updated
-        // have a slight delay to ensure the reading progress is updated
-        setTimeout(async () => {
-          const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
-          const secondRes = await graphqlRequest(secondQuery, authToken).expect(
-            200
-          )
-          expect(
-            secondRes.body.data.saveArticleReadingProgress.updatedArticle
-              .readingProgressPercent
-          ).to.eq(75)
-        }, 100)
+        // refresh index to ensure the reading progress is updated
+        const secondQuery = saveArticleReadingProgressQuery(articleId, 50)
+        const secondRes = await graphqlRequest(secondQuery, authToken).expect(
+          200
+        )
+        expect(
+          secondRes.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(75)
       })
     })
   })
 
-  describe('SaveFile', () => {
+  xdescribe('SaveFile', () => {
     let query = ''
     let url = ''
     let uploadFileId = ''
@@ -786,7 +759,7 @@ describe('Article API', () => {
         uploadFileId = generateFakeUuid()
       })
 
-      xit('should return Unauthorized error', async () => {
+      it('should return Unauthorized error', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveFile.errorCodes).to.eql(['UNAUTHORIZED'])
       })
@@ -805,7 +778,7 @@ describe('Article API', () => {
         uploadFileId = uploadFile.id
       })
 
-      xit('should return the new url', async () => {
+      it('should return the new url', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.saveFile.url).to.startsWith(
           'http://localhost:3000/fakeUser/links'
@@ -841,11 +814,7 @@ describe('Article API', () => {
           savedAt: new Date(),
           state: ArticleSavingRequestStatus.Succeeded,
         }
-        const pageId = await createPage(page, ctx)
-        if (!pageId) {
-          expect.fail('Failed to create page')
-        }
-        page.id = pageId
+        page.id = (await createPage(page, ctx))!
         pages.push(page)
 
         // Create some test highlights
@@ -858,13 +827,17 @@ describe('Article API', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         }
-        await addHighlightToPage(pageId, highlight, ctx)
+        await addHighlightToPage(page.id, highlight, ctx)
         highlights.push(highlight)
       }
     })
 
     beforeEach(async () => {
       query = searchQuery(keyword)
+    })
+
+    after(async () => {
+      await deletePagesByParam({ userId: user.id }, ctx)
     })
 
     context('when type:highlights is not in the query', () => {
@@ -953,17 +926,17 @@ describe('Article API', () => {
           savedAt: new Date(),
           state: ArticleSavingRequestStatus.Succeeded,
         }
-        const pageId = await createPage(page, ctx)
-        if (!pageId) {
-          expect.fail('Failed to create page')
-        }
-        page.id = pageId
+        page.id = (await createPage(page, ctx))!
         pages.push(page)
       }
     })
 
     beforeEach(async () => {
       query = typeaheadSearchQuery(keyword)
+    })
+
+    after(async () => {
+      await deletePagesByParam({ userId: user.id }, ctx)
     })
 
     it('should return pages with typeahead prefix', async () => {
@@ -975,6 +948,104 @@ describe('Article API', () => {
       expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
       expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
       expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
+    })
+  })
+
+  describe('UpdatesSince API', () => {
+    const updatesSinceQuery = (since: string) => `
+      query {
+        updatesSince(
+          since: "${since}") {
+          ... on UpdatesSinceSuccess {
+            edges {
+              cursor
+              node {
+                id
+                createdAt
+                updatedAt
+              }
+              itemID
+              updateReason
+            }
+            pageInfo {
+              hasNextPage
+              hasPreviousPage
+              startCursor
+              endCursor
+              totalCount
+            }
+          }
+          ... on UpdatesSinceError {
+            errorCodes
+          }
+        }
+      }
+    `
+    let since: string
+    let pages: Page[] = []
+    let deletedPages: Page[] = []
+
+    before(async () => {
+      // Create some test pages
+      for (let i = 0; i < 5; i++) {
+        const page: Page = {
+          id: '',
+          hash: '',
+          userId: user.id,
+          pageType: PageType.Article,
+          title: 'test page',
+          content: '',
+          slug: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          readingProgressPercent: 0,
+          readingProgressAnchorIndex: 0,
+          url: '',
+          savedAt: new Date(),
+          state: ArticleSavingRequestStatus.Succeeded,
+        }
+        page.id = (await createPage(page, ctx))!
+        pages.push(page)
+      }
+
+      // set the since to be the timestamp before deletion
+      since = pages[4].createdAt.toISOString()
+
+      // Delete some pages
+      for (let i = 0; i < 3; i++) {
+        await updatePage(
+          pages[i].id,
+          { state: ArticleSavingRequestStatus.Deleted },
+          ctx
+        )
+        deletedPages.push(pages[i])
+      }
+    })
+
+    after(async () => {
+      // Delete all pages
+      await deletePagesByParam({ userId: user.id }, ctx)
+    })
+
+    it('returns pages deleted after since', async () => {
+      const res = await graphqlRequest(
+        updatesSinceQuery(since),
+        authToken
+      ).expect(200)
+
+      expect(res.body.data.updatesSince.edges.length).to.eql(3)
+      expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
+        deletedPages[0].id
+      )
+      expect(res.body.data.updatesSince.edges[1].itemID).to.eq(
+        deletedPages[1].id
+      )
+      expect(res.body.data.updatesSince.edges[2].itemID).to.eq(
+        deletedPages[2].id
+      )
+      expect(res.body.data.updatesSince.edges[2].updateReason).to.eq(
+        UpdateReason.Deleted
+      )
     })
   })
 })

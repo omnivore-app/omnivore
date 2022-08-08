@@ -25,6 +25,8 @@ private extension LoginError {
       return LocalText.networkError
     case .unknown:
       return LocalText.genericError
+    case .pendingEmailVerification:
+      return "Please check your email for a verification message."
     }
   }
 }

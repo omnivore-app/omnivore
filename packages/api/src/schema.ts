@@ -1000,6 +1000,7 @@ const schema = gql`
     PROCESSING
     SUCCEEDED
     FAILED
+    DELETED
   }
 
   type ArticleSavingRequest {
@@ -1329,6 +1330,7 @@ const schema = gql`
     color: String!
     description: String
     createdAt: Date
+    position: Int
   }
 
   type LabelsSuccess {
@@ -1761,6 +1763,55 @@ const schema = gql`
     siteName: String
   }
 
+  union UpdatesSinceResult = UpdatesSinceSuccess | UpdatesSinceError
+
+  type UpdatesSinceSuccess {
+    edges: [SyncUpdatedItemEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type SyncUpdatedItemEdge {
+    cursor: String!
+    updateReason: UpdateReason!
+    itemID: ID!
+    node: SearchItem # for created or updated items, null for deletions */
+  }
+
+  enum UpdateReason {
+    CREATED
+    UPDATED
+    DELETED
+  }
+
+  type UpdatesSinceError {
+    errorCodes: [UpdatesSinceErrorCode!]!
+  }
+
+  enum UpdatesSinceErrorCode {
+    UNAUTHORIZED
+  }
+
+  input MoveLabelInput {
+    labelId: ID!
+    afterLabelId: ID # null to move to the top
+  }
+
+  union MoveLabelResult = MoveLabelSuccess | MoveLabelError
+
+  type MoveLabelSuccess {
+    label: Label!
+  }
+
+  type MoveLabelError {
+    errorCodes: [MoveLabelErrorCode!]!
+  }
+
+  enum MoveLabelErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1829,6 +1880,7 @@ const schema = gql`
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
     setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
+    moveLabel(input: MoveLabelInput!): MoveLabelResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -1873,6 +1925,7 @@ const schema = gql`
     webhook(id: ID!): WebhookResult!
     apiKeys: ApiKeysResult!
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
+    updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
   }
 `
 

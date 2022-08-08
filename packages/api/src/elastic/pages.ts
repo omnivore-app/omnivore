@@ -2,6 +2,7 @@ import {
   ArticleSavingRequestStatus,
   Page,
   PageContext,
+  PageSearchArgs,
   PageType,
   ParamSet,
   SearchBody,
@@ -17,7 +18,6 @@ import {
   ReadFilter,
   SortBy,
   SortOrder,
-  SortParams,
 } from '../utils/search'
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
@@ -224,12 +224,16 @@ export const updatePage = async (
 
     if (body.result !== 'updated') return false
 
+    if (page.state === ArticleSavingRequestStatus.Deleted) {
+      await ctx.pubsub.entityDeleted(EntityType.PAGE, id, ctx.uid)
+      return true
+    }
+
     await ctx.pubsub.entityUpdated<Partial<Page>>(
       EntityType.PAGE,
       { ...page, id },
       ctx.uid
     )
-
     return true
   } catch (e) {
     if (
@@ -255,11 +259,7 @@ export const deletePage = async (
       refresh: ctx.refresh,
     })
 
-    if (body.deleted === 0) return false
-
-    await ctx.pubsub.entityDeleted(EntityType.PAGE, id, ctx.uid)
-
-    return true
+    return body.deleted !== 0
   } catch (e) {
     if (
       e instanceof ResponseError &&
@@ -337,21 +337,7 @@ export const getPageById = async (id: string): Promise<Page | undefined> => {
 }
 
 export const searchPages = async (
-  args: {
-    from?: number
-    size?: number
-    sort?: SortParams
-    query?: string
-    inFilter?: InFilter
-    readFilter?: ReadFilter
-    typeFilter?: PageType
-    labelFilters: LabelFilter[]
-    hasFilters: HasFilter[]
-    dateFilters: DateFilter[]
-    termFilters?: FieldFilter[]
-    matchFilters?: FieldFilter[]
-    includePending?: boolean | null
-  },
+  args: PageSearchArgs,
   userId: string
 ): Promise<[Page[], number] | undefined> => {
   try {
@@ -373,10 +359,10 @@ export const searchPages = async (
     const sortOrder = sort?.order || SortOrder.DESCENDING
     // default sort by saved_at
     const sortField = sort?.by || SortBy.SAVED
-    const includeLabels = labelFilters.filter(
+    const includeLabels = labelFilters?.filter(
       (filter) => filter.type === LabelFilterType.INCLUDE
     )
-    const excludeLabels = labelFilters.filter(
+    const excludeLabels = labelFilters?.filter(
       (filter) => filter.type === LabelFilterType.EXCLUDE
     )
 
@@ -421,16 +407,16 @@ export const searchPages = async (
     if (readFilter !== ReadFilter.ALL) {
       appendReadFilter(body, readFilter)
     }
-    if (hasFilters.length > 0) {
+    if (hasFilters && hasFilters.length > 0) {
       appendHasFilters(body, hasFilters)
     }
-    if (includeLabels.length > 0) {
+    if (includeLabels && includeLabels.length > 0) {
       appendIncludeLabelFilter(body, includeLabels)
     }
-    if (excludeLabels.length > 0) {
+    if (excludeLabels && excludeLabels.length > 0) {
       appendExcludeLabelFilter(body, excludeLabels)
     }
-    if (dateFilters.length > 0) {
+    if (dateFilters && dateFilters.length > 0) {
       appendDateFilters(body, dateFilters)
     }
     if (termFilters) {
@@ -444,6 +430,14 @@ export const searchPages = async (
       body.query.bool.must_not.push({
         term: {
           state: ArticleSavingRequestStatus.Processing,
+        },
+      })
+    }
+
+    if (!args.includeDeleted) {
+      body.query.bool.must_not.push({
+        term: {
+          state: ArticleSavingRequestStatus.Deleted,
         },
       })
     }
@@ -533,6 +527,7 @@ export const deletePagesByParam = async <K extends keyof ParamSet>(
     const { body } = await client.deleteByQuery({
       index: INDEX_ALIAS,
       body: params,
+      conflicts: 'proceed',
     })
 
     if (body.deleted > 0) {
@@ -564,6 +559,11 @@ export const searchAsYouType = async (
               {
                 term: {
                   userId,
+                },
+              },
+              {
+                term: {
+                  state: ArticleSavingRequestStatus.Succeeded,
                 },
               },
               {

@@ -1,0 +1,221 @@
+import Combine
+import Models
+import Services
+import SwiftUI
+import Utils
+import Views
+
+extension EmailAuthViewModel {
+  func signUp(
+    email: String,
+    password: String,
+    fullName: String,
+    authenticator: Authenticator
+  ) async {
+    do {
+      try await authenticator.submitUserSignUp(
+        email: email,
+        password: password,
+        username: potentialUsername,
+        name: fullName
+      )
+      emailAuthState = .pendingEmailVerification(email: email, password: password)
+    } catch {
+      loginError = error as? LoginError
+    }
+  }
+
+  func validateUsername(username: String, dataService: DataService) {
+    if let status = PotentialUsernameStatus.validationError(username: username.lowercased()) {
+      potentialUsernameStatus = status
+      return
+    }
+
+    Task {
+      do {
+        try await dataService.validateUsernamePublisher(username: username)
+        potentialUsernameStatus = .available
+      } catch {
+        let usernameError = (error as? UsernameAvailabilityError) ?? .unknown
+        switch usernameError {
+        case .tooShort:
+          potentialUsernameStatus = .tooShort
+        case .tooLong:
+          potentialUsernameStatus = .tooLong
+        case .invalidPattern:
+          potentialUsernameStatus = .invalidPattern
+        case .nameUnavailable:
+          potentialUsernameStatus = .unavailable
+        case .internalServer, .unknown:
+          loginError = .unknown
+        case .network:
+          loginError = .network
+        }
+      }
+    }
+  }
+
+  func configureUsernameValidation(dataService: DataService) {
+    $potentialUsername
+      .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+      .sink(receiveValue: { [weak self] username in
+        self?.validateUsername(username: username, dataService: dataService)
+      })
+      .store(in: &subscriptions)
+  }
+}
+
+struct EmailSignupFormView: View {
+  enum FocusedField {
+    case email, password, fullName, username
+  }
+
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  @EnvironmentObject var authenticator: Authenticator
+  @EnvironmentObject var dataService: DataService
+  @ObservedObject var viewModel: EmailAuthViewModel
+
+  @FocusState private var focusedField: FocusedField?
+  @State private var email = ""
+  @State private var password = ""
+  @State private var name = ""
+  @State private var username = ""
+
+  var body: some View {
+    VStack(spacing: 0) {
+      VStack(spacing: 28) {
+        ScrollView(showsIndicators: false) {
+          if horizontalSizeClass == .regular {
+            Spacer(minLength: 150)
+          }
+          VStack {
+            // Email
+            VStack(alignment: .leading, spacing: 6) {
+              Text("Email")
+                .font(.appFootnote)
+                .foregroundColor(.appGrayText)
+              TextField("", text: $email)
+                .focused($focusedField, equals: .email)
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .submitLabel(.next)
+            }
+            .padding(.bottom, 8)
+
+            // Password
+            VStack(alignment: .leading, spacing: 6) {
+              Text("Password")
+                .font(.appFootnote)
+                .foregroundColor(.appGrayText)
+              SecureField("", text: $password)
+                .focused($focusedField, equals: .password)
+                .textContentType(.newPassword)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .submitLabel(.next)
+            }
+            .padding(.bottom, 8)
+
+            // Full Name
+            VStack(alignment: .leading, spacing: 6) {
+              Text("Full Name")
+                .font(.appFootnote)
+                .foregroundColor(.appGrayText)
+              TextField("", text: $name)
+                .focused($focusedField, equals: .fullName)
+                .textContentType(.name)
+                .keyboardType(.alphabet)
+                .disableAutocorrection(true)
+                .submitLabel(.next)
+            }
+            .padding(.bottom, 8)
+
+            // Username
+            VStack(alignment: .leading, spacing: 6) {
+              HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                  Text("Username")
+                    .font(.appFootnote)
+                    .foregroundColor(.appGrayText)
+                  TextField("", text: $viewModel.potentialUsername)
+                    .focused($focusedField, equals: .username)
+                    .textInputAutocapitalization(.never)
+                    .textContentType(.username)
+                    .disableAutocorrection(true)
+                    .keyboardType(.alphabet)
+                    .submitLabel(.done)
+                }
+
+                if viewModel.potentialUsernameStatus == .available {
+                  Image(systemName: "checkmark.circle.fill")
+                    .font(.appBody)
+                    .foregroundColor(.green)
+                }
+              }
+              if let message = viewModel.potentialUsernameStatus.message {
+                Text(message)
+                  .font(.appCaption)
+                  .foregroundColor(.red)
+              }
+            }
+            .padding(.bottom, 16)
+            .animation(.default, value: 0.35)
+
+            Button(
+              action: {
+                Task {
+                  await viewModel.signUp(
+                    email: email,
+                    password: password,
+                    fullName: name,
+                    authenticator: authenticator
+                  )
+                }
+              },
+              label: { Text("Submit") }
+            )
+            .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
+
+            if let loginError = viewModel.loginError {
+              LoginErrorMessageView(loginError: loginError)
+            }
+
+            HStack {
+              Button(
+                action: { viewModel.emailAuthState = .signIn },
+                label: {
+                  Text("Already have an account?")
+                    .foregroundColor(.appGrayTextContrast)
+                    .underline()
+                }
+              )
+              .padding(.vertical)
+              Spacer()
+            }
+          }
+          .textFieldStyle(StandardTextFieldStyle())
+          .onSubmit {
+            if focusedField == .email {
+              focusedField = .password
+            } else if focusedField == .password {
+              focusedField = .fullName
+            } else if focusedField == .fullName {
+              focusedField = .username
+            } else {
+              focusedField = nil
+            }
+          }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        Spacer()
+      }
+    }
+    .navigationTitle(focusedField == nil ? "Sign Up" : "")
+    .task {
+      viewModel.configureUsernameValidation(dataService: dataService)
+    }
+  }
+}

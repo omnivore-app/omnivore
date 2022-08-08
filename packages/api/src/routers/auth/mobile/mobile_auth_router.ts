@@ -2,8 +2,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { createMobileSignInResponse } from './sign_in'
-import { createMobileSignUpResponse } from './sign_up'
+import {
+  createMobileSignInResponse,
+  createMobileEmailSignInResponse,
+} from './sign_in'
+import {
+  createMobileSignUpResponse,
+  createMobileEmailSignUpResponse,
+} from './sign_up'
 import { createMobileAccountCreationResponse } from './account_creation'
 
 export function mobileAuthRouter() {
@@ -12,6 +18,23 @@ export function mobileAuthRouter() {
   router.post('/sign-in', async (req, res) => {
     const { token, provider } = req.body
     const payload = await createMobileSignInResponse(token, provider)
+    res.status(payload.statusCode).json(payload.json)
+  })
+
+  router.post('/email-sign-in', async (req, res) => {
+    const { email, password } = req.body
+    const payload = await createMobileEmailSignInResponse(email, password)
+    res.status(payload.statusCode).json(payload.json)
+  })
+
+  router.post('/email-sign-up', async (req, res) => {
+    const { email, password, username, name } = req.body
+    const payload = await createMobileEmailSignUpResponse(
+      email,
+      password,
+      username,
+      name
+    )
     res.status(payload.statusCode).json(payload.json)
   })
 

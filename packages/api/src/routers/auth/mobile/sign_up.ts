@@ -9,6 +9,8 @@ import {
 } from '../auth_types'
 import { createPendingUserToken, suggestedUsername } from '../jwt_helpers'
 import UserModel from '../../../datalayer/user'
+import { hashPassword } from '../../../utils/auth'
+import { createUser } from '../../../services/create_user'
 
 export async function createMobileSignUpResponse(
   token?: string,
@@ -37,6 +39,38 @@ export async function createMobileSignUpResponse(
     throw new Error(`Missing or unsupported provider ${provider}`)
   } catch (e) {
     console.log('createMobileSignUpResponse error', e)
+    return signUpFailedPayload
+  }
+}
+
+export async function createMobileEmailSignUpResponse(
+  email?: string,
+  password?: string,
+  username?: string,
+  name?: string
+): Promise<JsonResponsePayload> {
+  try {
+    if (!email || !password || !username || !name) {
+      throw new Error('Missing username, password, name, or username')
+    }
+
+    const hashedPassword = await hashPassword(password)
+
+    await createUser({
+      email,
+      provider: 'EMAIL',
+      sourceUserId: email,
+      name,
+      username: username.toLowerCase(),
+      password: hashedPassword,
+      pendingConfirmation: true,
+    })
+
+    return {
+      statusCode: 200,
+      json: {},
+    }
+  } catch (e) {
     return signUpFailedPayload
   }
 }

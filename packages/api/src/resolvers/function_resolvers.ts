@@ -52,6 +52,7 @@ import {
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
+  moveLabelResolver,
   newsletterEmailsResolver,
   reminderResolver,
   reportItemResolver,
@@ -82,6 +83,7 @@ import {
   updatePageResolver,
   updateReminderResolver,
   updateSharedCommentResolver,
+  updatesSinceResolver,
   updateUserProfileResolver,
   updateUserResolver,
   uploadFileRequestResolver,
@@ -162,6 +164,7 @@ export const functionResolvers = {
     deleteWebhook: deleteWebhookResolver,
     revokeApiKey: revokeApiKeyResolver,
     setLabelsForHighlight: setLabelsForHighlightResolver,
+    moveLabel: moveLabelResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -186,6 +189,7 @@ export const functionResolvers = {
     webhook: webhookResolver,
     apiKeys: apiKeysResolver,
     typeaheadSearch: typeaheadSearchResolver,
+    updatesSince: updatesSinceResolver,
   },
   User: {
     async sharedArticles(
@@ -586,4 +590,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('RevokeApiKey'),
   ...resultResolveTypeResolver('DeleteAccount'),
   ...resultResolveTypeResolver('TypeaheadSearch'),
+  ...resultResolveTypeResolver('UpdatesSince'),
+  ...resultResolveTypeResolver('MoveLabel'),
 }

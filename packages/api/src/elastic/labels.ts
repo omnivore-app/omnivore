@@ -18,7 +18,7 @@ export const addLabelInPage = async (
                     ctx._source.labels = [params.label];
                     ctx._source.updatedAt = params.updatedAt
                   } else if (!ctx._source.labels.any(label -> label.name == params.label.name)) {
-                    ctx._source.labels.add(params.label) ;
+                    ctx._source.labels.add(params.label);
                     ctx._source.updatedAt = params.updatedAt
                   } else { ctx.op = 'none' }`,
           lang: 'painless',

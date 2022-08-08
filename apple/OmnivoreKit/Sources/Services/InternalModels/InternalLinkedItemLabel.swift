@@ -110,7 +110,21 @@ extension Sequence where Element == InternalLinkedItemLabel {
     var result: [NSManagedObjectID]?
 
     context.performAndWait {
+      // Get currently stored label ids so we can later delete the old ones
+      let labelsFetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
+      let existingLabels = (try? labelsFetchRequest.execute()) ?? []
+
+      let validLabelIDs = map(\.id)
+      let invalidLinkedItemLabels = existingLabels.filter { !validLabelIDs.contains($0.unwrappedID) }
+
+      // Delete all existing labels that aren't part of the newly updated list
+      // received from the server
+      for linkedItem in invalidLinkedItemLabels {
+        context.delete(linkedItem)
+      }
+
       let labels = map { $0.asManagedObject(inContext: context) }
+
       do {
         try context.save()
         logger.debug("labels saved succesfully")

@@ -18,6 +18,18 @@ struct SignInParams: Encodable {
   let provider: AuthProvider
 }
 
+struct EmailSignInParams: Encodable {
+  let email: String
+  let password: String
+}
+
+struct EmailSignUpParams: Encodable {
+  let email: String
+  let password: String
+  let username: String
+  let name: String
+}
+
 enum AuthProvider: String, Encodable {
   case apple = "APPLE"
   case google = "GOOGLE"
@@ -28,6 +40,12 @@ struct AuthPayload: Decodable {
   let authToken: String
 }
 
+struct EmailAuthPayload: Decodable {
+  let authCookieString: String?
+  let authToken: String?
+  let pendingEmailVerification: Bool?
+}
+
 struct CreateAccountParams: Encodable {
   let pendingUserToken: String
   let userProfile: UserProfile
@@ -36,6 +54,10 @@ struct CreateAccountParams: Encodable {
 struct PendingUserAuthPayload: Decodable {
   let pendingUserToken: String
   let pendingUserProfile: UserProfile
+}
+
+struct PendingEmailVerificationAuthPayload: Decodable {
+  let pendingEmailVerificationToken: String
 }
 
 extension AuthPayload {
@@ -53,6 +75,8 @@ extension LoginError {
       return .unauthorized
     case .unknown:
       return .unknown
+    case .pendingEmailVerification:
+      return .pendingEmailVerification
     }
   }
 }
