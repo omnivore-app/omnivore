@@ -43,8 +43,24 @@ import Views
       try? fetchRequest.execute()
     }
 
-    labels = fetchedLabels ?? []
-    unselectedLabels = fetchedLabels ?? []
+    if fetchedLabels?.count == 0 {
+      await fetchLabelsFromNetwork(dataService: dataService)
+    } else {
+      labels = fetchedLabels ?? []
+      unselectedLabels = fetchedLabels ?? []
+    }
+  }
+
+  func fetchLabelsFromNetwork(dataService: DataService) async {
+    let labelIDs = try? await dataService.labels()
+    guard let labelIDs = labelIDs else { return }
+
+    let fetchedLabels = await dataService.viewContext.perform {
+      labelIDs.compactMap { dataService.viewContext.object(with: $0) as? LinkedItemLabel }
+    }
+
+    labels = fetchedLabels
+    unselectedLabels = fetchedLabels
   }
 
   func createLabel(dataService: DataService, name: String, color: Color, description: String?) {

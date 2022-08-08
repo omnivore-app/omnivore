@@ -154,4 +154,12 @@ public extension LinkedItem {
       }
     }
   }
+
+  static func deleteItems(ids: [String], context: NSManagedObjectContext) {
+    for itemID in ids {
+      if let linkedItem = lookup(byID: itemID, inContext: context) {
+        linkedItem.remove(inContext: context)
+      }
+    }
+  }
 }

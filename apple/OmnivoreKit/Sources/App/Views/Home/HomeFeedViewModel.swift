@@ -6,6 +6,8 @@ import Utils
 import Views
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
+  let dateFormatter = DateFormatter.formatterISO8601
+
   var currentDetailViewModel: LinkItemDetailViewModel?
 
   private var fetchedResultsController: NSFetchedResultsController<LinkedItem>?
@@ -23,10 +25,13 @@ import Views
   @Published var selectedLinkItem: NSManagedObjectID?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
-  @Published var appliedFilter = LinkedItemFilter.inbox.rawValue
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
-  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue)
+  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
+
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
+    from: Date(timeIntervalSinceReferenceDate: 0)
+  )
 
   var cursor: String?
 
@@ -51,6 +56,7 @@ import Views
   }
 
   func loadItems(dataService: DataService, isRefresh: Bool) async {
+    let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
 
@@ -60,6 +66,21 @@ import Views
     // Cache the viewer
     if dataService.currentViewer == nil {
       Task { _ = try? await dataService.fetchViewer() }
+    }
+
+    // Fetch labels if none are available locally
+    let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
+    fetchRequest.fetchLimit = 1
+
+    if (try? dataService.viewContext.count(for: fetchRequest)) == 0 {
+      _ = try? await dataService.labels()
+    }
+
+    // Sync items if necessary
+    let lastSyncDate = dateFormatter.date(from: lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
+    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+    if syncResult != nil {
+      lastItemSyncTime = dateFormatter.string(from: syncStartTime)
     }
 
     let queryResult = try? await dataService.loadLinkedItems(

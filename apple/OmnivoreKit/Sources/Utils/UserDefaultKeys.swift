@@ -12,4 +12,5 @@ public enum UserDefaultKey: String {
   case lastSelectedLinkedItemFilter
   case lastUsedAppVersion
   case lastUsedAppBuildNumber
+  case lastItemSyncTime
 }
