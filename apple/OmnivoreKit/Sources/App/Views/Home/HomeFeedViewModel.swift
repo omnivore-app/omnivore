@@ -25,13 +25,13 @@ import Views
   @Published var selectedLinkItem: NSManagedObjectID?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
-  @Published var appliedFilter = LinkedItemFilter.inbox.rawValue
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
-//  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) // TODO: missing value here?
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(
-    timeIntervalSinceReferenceDate: 0
-  ))
+  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
+
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
+    from: Date(timeIntervalSinceReferenceDate: 0)
+  )
 
   var cursor: String?
 
