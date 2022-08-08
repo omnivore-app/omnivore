@@ -49,6 +49,7 @@ import {
   getUserResolver,
   googleLoginResolver,
   googleSignupResolver,
+  integrationsResolver,
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
@@ -66,6 +67,7 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFollowResolver,
+  setIntegrationResolver,
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
@@ -97,7 +99,6 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
-import { setIntegrationResolver } from './integrations'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -192,6 +193,7 @@ export const functionResolvers = {
     apiKeys: apiKeysResolver,
     typeaheadSearch: typeaheadSearchResolver,
     updatesSince: updatesSinceResolver,
+    integrations: integrationsResolver,
   },
   User: {
     async sharedArticles(
@@ -595,4 +597,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdatesSince'),
   ...resultResolveTypeResolver('MoveLabel'),
   ...resultResolveTypeResolver('SetIntegration'),
+  ...resultResolveTypeResolver('Integrations'),
 }

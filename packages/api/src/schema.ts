@@ -1850,6 +1850,39 @@ const schema = gql`
     enabled: Boolean!
   }
 
+  union IntegrationsResult = IntegrationsSuccess | IntegrationsError
+
+  type IntegrationsSuccess {
+    integrations: [Integration!]!
+  }
+
+  type IntegrationsError {
+    errorCodes: [IntegrationsErrorCode!]!
+  }
+
+  enum IntegrationsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union DeleteIntegrationResult =
+      DeleteIntegrationSuccess
+    | DeleteIntegrationError
+
+  type DeleteIntegrationSuccess {
+    integration: Integration!
+  }
+
+  type DeleteIntegrationError {
+    errorCodes: [DeleteIntegrationErrorCode!]!
+  }
+
+  enum DeleteIntegrationErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1920,6 +1953,7 @@ const schema = gql`
     setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
     moveLabel(input: MoveLabelInput!): MoveLabelResult!
     setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
+    deleteIntegration(id: ID!): DeleteIntegrationResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -1965,6 +1999,7 @@ const schema = gql`
     apiKeys: ApiKeysResult!
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
     updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
+    integrations: IntegrationsResult!
   }
 `
 

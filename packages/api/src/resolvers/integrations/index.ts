@@ -1,5 +1,8 @@
 import { authorized } from '../../utils/helpers'
 import {
+  IntegrationsError,
+  IntegrationsErrorCode,
+  IntegrationsSuccess,
   MutationSetIntegrationArgs,
   SetIntegrationError,
   SetIntegrationErrorCode,
@@ -116,6 +119,33 @@ export const setIntegrationResolver = authorized<
 
     return {
       errorCodes: [SetIntegrationErrorCode.BadRequest],
+    }
+  }
+})
+
+export const integrationsResolver = authorized<
+  IntegrationsSuccess,
+  IntegrationsError
+>(async (_, __, { claims: { uid }, log }) => {
+  try {
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [IntegrationsErrorCode.Unauthorized],
+      }
+    }
+    const integrations = await getRepository(Integration).findBy({
+      user: { id: uid },
+    })
+
+    return {
+      integrations,
+    }
+  } catch (error) {
+    log.error(error)
+
+    return {
+      errorCodes: [IntegrationsErrorCode.BadRequest],
     }
   }
 })

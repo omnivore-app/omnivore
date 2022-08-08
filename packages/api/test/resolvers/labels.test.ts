@@ -58,9 +58,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
     })
 
     beforeEach(() => {
@@ -345,9 +343,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
       await deletePage(page.id, ctx)
     })
 
@@ -547,9 +543,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
       await deletePage(page.id, ctx)
     })
 
@@ -677,9 +671,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
     })
 
     context('when label exists', () => {

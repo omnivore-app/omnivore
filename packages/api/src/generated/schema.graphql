@@ -420,6 +420,22 @@ type DeleteHighlightSuccess {
   highlight: Highlight!
 }
 
+type DeleteIntegrationError {
+  errorCodes: [DeleteIntegrationErrorCode!]!
+}
+
+enum DeleteIntegrationErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteIntegrationResult = DeleteIntegrationError | DeleteIntegrationSuccess
+
+type DeleteIntegrationSuccess {
+  integration: Integration!
+}
+
 type DeleteLabelError {
   errorCodes: [DeleteLabelErrorCode!]!
 }
@@ -671,6 +687,21 @@ enum IntegrationType {
   READWISE
 }
 
+type IntegrationsError {
+  errorCodes: [IntegrationsErrorCode!]!
+}
+
+enum IntegrationsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union IntegrationsResult = IntegrationsError | IntegrationsSuccess
+
+type IntegrationsSuccess {
+  integrations: [Integration!]!
+}
+
 type Label {
   color: String!
   createdAt: Date
@@ -816,6 +847,7 @@ type Mutation {
   deleteAccount(userID: ID!): DeleteAccountResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
+  deleteIntegration(id: ID!): DeleteIntegrationResult!
   deleteLabel(id: ID!): DeleteLabelResult!
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
@@ -947,6 +979,7 @@ type Query {
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
   hello: String
+  integrations: IntegrationsResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!

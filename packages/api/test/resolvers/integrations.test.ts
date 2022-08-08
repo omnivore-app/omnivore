@@ -64,10 +64,11 @@ describe('Integrations resolvers', () => {
     let token: string
     let integrationType: IntegrationType
     let enabled: boolean
+    let scope: nock.Scope
 
     // mock Readwise Auth API
     before(() => {
-      nock(READWISE_API_URL, {
+      scope = nock(READWISE_API_URL, {
         reqheaders: { Authorization: `Token ${validToken}` },
       })
         .get('/auth')
@@ -76,7 +77,7 @@ describe('Integrations resolvers', () => {
     })
 
     after(() => {
-      nock.cleanAll()
+      scope.persist(false)
     })
 
     context('when id is not in the request', () => {
@@ -298,6 +299,50 @@ describe('Integrations resolvers', () => {
           })
         })
       })
+    })
+  })
+
+  describe('integrations API', () => {
+    const query = `
+      query {
+        integrations {
+          ... on IntegrationsSuccess {
+            integrations {
+              id
+              type
+              enabled
+            }
+          }
+        }
+      }
+    `
+
+    let existingIntegration: Integration
+
+    before(async () => {
+      existingIntegration = await getRepository(Integration).save({
+        user: loginUser,
+        type: DataIntegrationType.Readwise,
+        token: 'fakeToken',
+      })
+    })
+
+    after(async () => {
+      await getRepository(Integration).delete(existingIntegration.id)
+    })
+
+    it('returns all integrations', async () => {
+      const res = await graphqlRequest(query, authToken)
+      expect(res.body.data.integrations.integrations).to.have.length(1)
+      expect(res.body.data.integrations.integrations[0].id).to.equal(
+        existingIntegration.id
+      )
+      expect(res.body.data.integrations.integrations[0].type).to.equal(
+        existingIntegration.type
+      )
+      expect(res.body.data.integrations.integrations[0].enabled).to.equal(
+        existingIntegration.enabled
+      )
     })
   })
 })
