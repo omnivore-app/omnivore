@@ -288,9 +288,17 @@ export const enqueueSyncWithIntegration = async (
   userId: string,
   integrationType: IntegrationType
 ): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
+  // use pubsub data format to send the userId to the task handler
   const payload = {
-    userId,
+    message: {
+      data: Buffer.from(
+        JSON.stringify({
+          userId,
+        })
+      ).toString('base64'),
+      publishTime: new Date().toISOString(),
+    },
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -303,7 +311,7 @@ export const enqueueSyncWithIntegration = async (
     payload,
     taskHandlerUrl: `${
       env.queue.integrationTaskHandlerUrl
-    }/${integrationType.toLowerCase()}/sync_all`,
+    }/${integrationType.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
     priority: 'low',
   })
 

@@ -5,7 +5,6 @@ import { wait } from '../utils/helpers'
 import { Page } from '../elastic/types'
 import { getHighlightLocation, getHighlightUrl } from './highlights'
 import { Integration } from '../entity/integration'
-import { getRepository } from '../entity/utils'
 
 interface ReadwiseHighlight {
   // The highlight text, (technically the only field required in a highlight object)
@@ -72,7 +71,7 @@ const pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
       title: page.title,
       author: page.author,
       highlight_url: getHighlightUrl(page.slug, highlight.id),
-      highlighted_at: highlight.createdAt.toISOString(),
+      highlighted_at: new Date(highlight.createdAt).toISOString(),
       category: 'articles',
       image_url: page.image,
       location,
@@ -98,13 +97,6 @@ export const syncWithIntegration = async (
       break
     default:
       return false
-  }
-  // update integration syncedAt if successful
-  if (result) {
-    console.log('updating integration syncedAt')
-    await getRepository(Integration).update(integration.id, {
-      syncedAt: new Date(),
-    })
   }
   return result
 }
@@ -138,7 +130,7 @@ export const syncWithReadwise = async (
       console.log('Readwise API rate limit exceeded, retrying...')
       // wait for Retry-After seconds in the header if rate limited
       // max retry count is 3
-      const retryAfter = error.response?.headers['Retry-After'] || '10' // default to 10 seconds
+      const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
       await wait(parseInt(retryAfter, 10) * 1000)
       return syncWithReadwise(token, highlights, retryCount + 1)
     }

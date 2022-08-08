@@ -111,7 +111,7 @@ interface PubSubRequestMessage {
   publishTime: string
 }
 
-interface PubSubRequestBody {
+export interface PubSubRequestBody {
   message: PubSubRequestMessage
 }
 
