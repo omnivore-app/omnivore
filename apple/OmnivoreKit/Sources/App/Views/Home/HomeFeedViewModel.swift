@@ -30,9 +30,9 @@ import Views
 
 //  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) // TODO: missing value here?
   // TODO: delete this value when needed (logout, clear core data, new app version
-  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = Date(
+  @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(from: Date(
     timeIntervalSinceReferenceDate: 0
-  ).toString()
+  ))
 
   var cursor: String?
 
@@ -62,6 +62,7 @@ import Views
   }
 
   func loadItems(dataService: DataService, isRefresh: Bool) async {
+    let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
 
@@ -75,10 +76,9 @@ import Views
 
     // Sync items if necessary
     let lastSyncDate = dateFormatter.date(from: lastItemSyncTime) ?? Date(timeIntervalSinceReferenceDate: 0)
-
     let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
     if syncResult != nil {
-      lastItemSyncTime = Date().toString()
+      lastItemSyncTime = dateFormatter.string(from: syncStartTime)
     }
 
     let queryResult = try? await dataService.loadLinkedItems(
