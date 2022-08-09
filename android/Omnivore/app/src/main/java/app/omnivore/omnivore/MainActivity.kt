@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,11 +32,14 @@ import androidx.compose.runtime.setValue
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    val viewModel: LoginViewModel by viewModels()
+
     setContent {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-          LoginView()
+          LoginView(viewModel)
         }
       }
     }
@@ -43,7 +47,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginView() {
+fun LoginView(viewModel: LoginViewModel = LoginViewModel()) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -59,7 +63,7 @@ fun LoginView() {
       password,
       onEmailChange = { email = it },
       onPasswordChange = { password = it },
-      onLoginClick = { Log.v(TAG, "$email / $password") }
+      onLoginClick = { viewModel.login(email, password) }
     )
   }
 }
@@ -71,7 +75,7 @@ fun LoginFields(
   password: String,
   onEmailChange: (String) -> Unit,
   onPasswordChange: (String) -> Unit,
-  onLoginClick: (String) -> Unit
+  onLoginClick: () -> Unit
 ) {
   val context = LocalContext.current
   val focusManager = LocalFocusManager.current
@@ -106,7 +110,7 @@ fun LoginFields(
 
     Button(onClick = {
       if (email.isNotBlank() && password.isNotBlank()) {
-        onLoginClick(email)
+        onLoginClick()
         focusManager.clearFocus()
       } else {
         Toast.makeText(
