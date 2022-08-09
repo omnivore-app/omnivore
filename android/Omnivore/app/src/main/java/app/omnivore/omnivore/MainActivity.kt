@@ -25,6 +25,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,7 +116,7 @@ fun LoginFields(
         ).show()
       }
     }) {
-      Text("Login")
+      Text(text = "Login")
     }
   }
 }
