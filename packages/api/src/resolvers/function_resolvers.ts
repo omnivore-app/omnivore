@@ -32,6 +32,7 @@ import {
   createReminderResolver,
   deleteAccountResolver,
   deleteHighlightResolver,
+  deleteIntegrationResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
   deleteReminderResolver,
@@ -49,6 +50,7 @@ import {
   getUserResolver,
   googleLoginResolver,
   googleSignupResolver,
+  integrationsResolver,
   labelsResolver,
   logOutResolver,
   mergeHighlightResolver,
@@ -66,6 +68,7 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFollowResolver,
+  setIntegrationResolver,
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
@@ -165,6 +168,8 @@ export const functionResolvers = {
     revokeApiKey: revokeApiKeyResolver,
     setLabelsForHighlight: setLabelsForHighlightResolver,
     moveLabel: moveLabelResolver,
+    setIntegration: setIntegrationResolver,
+    deleteIntegration: deleteIntegrationResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -190,6 +195,7 @@ export const functionResolvers = {
     apiKeys: apiKeysResolver,
     typeaheadSearch: typeaheadSearchResolver,
     updatesSince: updatesSinceResolver,
+    integrations: integrationsResolver,
   },
   User: {
     async sharedArticles(
@@ -592,4 +598,7 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('TypeaheadSearch'),
   ...resultResolveTypeResolver('UpdatesSince'),
   ...resultResolveTypeResolver('MoveLabel'),
+  ...resultResolveTypeResolver('SetIntegration'),
+  ...resultResolveTypeResolver('Integrations'),
+  ...resultResolveTypeResolver('DeleteIntegration'),
 }

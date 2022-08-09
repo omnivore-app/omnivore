@@ -274,7 +274,7 @@ export const deletePage = async (
 }
 
 export const getPageByParam = async <K extends keyof ParamSet>(
-  param: Record<K, Page[K]>,
+  param: Record<K, ParamSet[K]>,
   includeOriginalHtml = false
 ): Promise<Page | undefined> => {
   try {
@@ -506,7 +506,7 @@ export const countByCreatedAt = async (
 }
 
 export const deletePagesByParam = async <K extends keyof ParamSet>(
-  param: Record<K, Page[K]>,
+  param: Record<K, ParamSet[K]>,
   ctx: PageContext
 ): Promise<boolean> => {
   try {

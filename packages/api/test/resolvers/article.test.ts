@@ -694,7 +694,7 @@ describe('Article API', () => {
     let pageId = ''
 
     before(async () => {
-      pageId = (await createTestElasticPage(user)).id!
+      pageId = (await createTestElasticPage(user.id)).id!
     })
 
     after(async () => {
