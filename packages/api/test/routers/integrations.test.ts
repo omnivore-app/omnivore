@@ -285,7 +285,7 @@ describe('Integrations routers', () => {
           })
 
           context('when action is sync_all', () => {
-            before(() => {
+            before(async () => {
               action = 'sync_all'
               data = {
                 message: {
@@ -306,6 +306,10 @@ describe('Integrations routers', () => {
               })
                 .post('/highlights', highlightsData)
                 .reply(200)
+              await getRepository(Integration).update(integration.id, {
+                syncedAt: null,
+                taskName: 'some task name',
+              })
             })
 
             it('returns 200 with OK', async () => {

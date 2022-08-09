@@ -127,10 +127,9 @@ export function integrationsServiceRouter() {
             return
           }
         }
-        // update integration syncedAt if successful
+        // delete task name if completed
         await getRepository(Integration).update(integration.id, {
           taskName: null,
-          syncedAt: new Date(),
         })
       } else {
         logger.info('unknown action', { action })

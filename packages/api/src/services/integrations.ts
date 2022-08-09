@@ -5,6 +5,7 @@ import { wait } from '../utils/helpers'
 import { Page } from '../elastic/types'
 import { getHighlightLocation, getHighlightUrl } from './highlights'
 import { Integration } from '../entity/integration'
+import { getRepository } from '../entity/utils'
 
 interface ReadwiseHighlight {
   // The highlight text, (technically the only field required in a highlight object)
@@ -97,6 +98,13 @@ export const syncWithIntegration = async (
       break
     default:
       return false
+  }
+  // update integration syncedAt if successful
+  if (result) {
+    console.log('updating integration syncedAt')
+    await getRepository(Integration).update(integration.id, {
+      syncedAt: new Date(),
+    })
   }
   return result
 }
