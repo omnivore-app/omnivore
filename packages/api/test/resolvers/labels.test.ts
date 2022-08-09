@@ -20,15 +20,13 @@ import {
 import { refreshIndex } from '../../src/elastic'
 
 describe('Labels API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
   let ctx: PageContext
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -42,7 +40,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.name)
   })
 
   describe('GET labels', () => {
@@ -575,7 +573,7 @@ describe('Labels API', () => {
 
     context('when labels exists', () => {
       before(async () => {
-        highlightId = 'highlight-id'
+        highlightId = generateFakeUuid()
         const highlight: Highlight = {
           createdAt: new Date(),
           id: highlightId,
@@ -599,7 +597,7 @@ describe('Labels API', () => {
 
     context('when labels not exist', () => {
       before(async () => {
-        highlightId = 'highlight-id-2'
+        highlightId = generateFakeUuid()
         const highlight: Highlight = {
           createdAt: new Date(),
           id: highlightId,
