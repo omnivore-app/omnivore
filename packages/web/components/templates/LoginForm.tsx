@@ -106,6 +106,11 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
           />
         </Box>
       )}
+        <Link href="/auth/email-login" passHref>
+          <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray', pt: '12px' }}>
+            Continue with Email
+          </StyledTextSpan>
+        </Link>
       </VStack>
       <TermAndConditionsFooter />
     </VStack>
