@@ -42,7 +42,8 @@ const runMigrations = async () => {
 }
 
 export const createTestConnection = async (): Promise<void> => {
-  await runMigrations()
+  // need to manually run migrations before creating the connection
+  // await runMigrations()
 
   AppDataSource.setOptions({
     type: 'postgres',
