@@ -64,7 +64,6 @@ fun LoginView(viewModel: LoginViewModel = LoginViewModel()) {
   }
 }
 
-//Log.v(TAG, "${numerator / denominator}")
 @Composable
 fun LoginFields(
   email: String,

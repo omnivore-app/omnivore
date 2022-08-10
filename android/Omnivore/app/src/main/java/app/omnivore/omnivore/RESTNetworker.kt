@@ -26,10 +26,8 @@ interface EmailLoginSubmit {
 }
 
 object RetrofitHelper {
-  private const val baseUrl = "https://api-demo.omnivore.app"
-
   fun getInstance(): Retrofit {
-    return Retrofit.Builder().baseUrl(baseUrl)
+    return Retrofit.Builder().baseUrl(Constants.serverProdURL)
       .addConverterFactory(GsonConverterFactory.create())
       .build()
   }
