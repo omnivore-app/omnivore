@@ -420,6 +420,22 @@ type DeleteHighlightSuccess {
   highlight: Highlight!
 }
 
+type DeleteIntegrationError {
+  errorCodes: [DeleteIntegrationErrorCode!]!
+}
+
+enum DeleteIntegrationErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union DeleteIntegrationResult = DeleteIntegrationError | DeleteIntegrationSuccess
+
+type DeleteIntegrationSuccess {
+  integration: Integration!
+}
+
 type DeleteLabelError {
   errorCodes: [DeleteLabelErrorCode!]!
 }
@@ -658,6 +674,34 @@ type HighlightStats {
   highlightCount: Int!
 }
 
+type Integration {
+  createdAt: Date!
+  enabled: Boolean!
+  id: ID!
+  token: String!
+  type: IntegrationType!
+  updatedAt: Date!
+}
+
+enum IntegrationType {
+  READWISE
+}
+
+type IntegrationsError {
+  errorCodes: [IntegrationsErrorCode!]!
+}
+
+enum IntegrationsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union IntegrationsResult = IntegrationsError | IntegrationsSuccess
+
+type IntegrationsSuccess {
+  integrations: [Integration!]!
+}
+
 type Label {
   color: String!
   createdAt: Date
@@ -803,6 +847,7 @@ type Mutation {
   deleteAccount(userID: ID!): DeleteAccountResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
+  deleteIntegration(id: ID!): DeleteIntegrationResult!
   deleteLabel(id: ID!): DeleteLabelResult!
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteReaction(id: ID!): DeleteReactionResult!
@@ -823,6 +868,7 @@ type Mutation {
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
+  setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
   setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
   setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
@@ -933,6 +979,7 @@ type Query {
   getFollowing(userId: ID): GetFollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
   hello: String
+  integrations: IntegrationsResult!
   labels: LabelsResult!
   me: User
   newsletterEmails: NewsletterEmailsResult!
@@ -1223,6 +1270,31 @@ union SetFollowResult = SetFollowError | SetFollowSuccess
 
 type SetFollowSuccess {
   updatedUser: User!
+}
+
+type SetIntegrationError {
+  errorCodes: [SetIntegrationErrorCode!]!
+}
+
+enum SetIntegrationErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  INVALID_TOKEN
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SetIntegrationInput {
+  enabled: Boolean!
+  id: ID
+  token: String!
+  type: IntegrationType!
+}
+
+union SetIntegrationResult = SetIntegrationError | SetIntegrationSuccess
+
+type SetIntegrationSuccess {
+  integration: Integration!
 }
 
 type SetLabelsError {

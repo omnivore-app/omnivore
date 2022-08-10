@@ -24,7 +24,7 @@ describe('Report API', () => {
     authToken = res.body.authToken
 
     // create a page
-    page = await createTestElasticPage(user)
+    page = await createTestElasticPage(user.id)
   })
 
   after(async () => {

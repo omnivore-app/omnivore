@@ -61,6 +61,11 @@ struct InternalLinkedItem {
     linkedItem.contentReader = contentReader
     linkedItem.originalHtml = originalHtml
 
+    // Remove existing labels in case a label had been deleted
+    if let existingLabels = linkedItem.labels {
+      linkedItem.removeFromLabels(existingLabels)
+    }
+
     for label in labels {
       linkedItem.addToLabels(label.asManagedObject(inContext: context))
     }

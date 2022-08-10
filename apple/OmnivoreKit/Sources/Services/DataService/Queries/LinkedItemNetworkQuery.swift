@@ -8,7 +8,104 @@ struct InternalLinkedItemQueryResult {
   let cursor: String?
 }
 
+struct InternalLinkedItemUpdatesQueryResult {
+  let items: [InternalLinkedItem]
+  let deletedItemIDs: [String]
+  let cursor: String?
+  let hasMoreItems: Bool
+}
+
+private struct SyncItemEdge {
+  let itemID: String
+  let isDeletedItem: Bool
+  let item: InternalLinkedItem?
+}
+
 extension DataService {
+  // swiftlint:disable:next function_body_length
+  func linkedItemUpdates(
+    since: Date,
+    limit: Int,
+    cursor: String?
+  ) async throws -> InternalLinkedItemUpdatesQueryResult {
+    struct QuerySuccessResult {
+      let edges: [SyncItemEdge]
+      let cursor: String?
+      let hasMoreItems: Bool
+    }
+    enum QueryResult {
+      case success(result: QuerySuccessResult)
+      case error(error: String)
+    }
+
+    let path = appEnvironment.graphqlPath
+    let headers = networker.defaultHeaders
+
+    let selection = Selection<QueryResult, Unions.UpdatesSinceResult> {
+      try $0.on(
+        updatesSinceError: .init {
+          QueryResult.error(error: try $0.errorCodes().description)
+        },
+        updatesSinceSuccess: .init {
+          QueryResult.success(
+            result: QuerySuccessResult(
+              edges: try $0.edges(selection: syncItemEdgeSelection.list),
+              cursor: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.endCursor()
+              }),
+              hasMoreItems: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.hasNextPage()
+              })
+            )
+          )
+        }
+      )
+    }
+
+    let query = Selection.Query {
+      try $0.updatesSince(
+        after: OptionalArgument(cursor),
+        first: OptionalArgument(limit),
+        since: DateTime(from: since),
+        selection: selection
+      )
+    }
+
+    return try await withCheckedThrowingContinuation { continuation in
+      send(query, to: path, headers: headers) { queryResult in
+        guard let payload = try? queryResult.get() else {
+          continuation.resume(throwing: ContentFetchError.network)
+          return
+        }
+
+        switch payload.data {
+        case let .success(result: result):
+          var items = [InternalLinkedItem]()
+          var deletedItemIDs = [String]()
+
+          for edge in result.edges {
+            if edge.isDeletedItem {
+              deletedItemIDs.append(edge.itemID)
+            } else if let item = edge.item {
+              items.append(item)
+            }
+          }
+
+          continuation.resume(
+            returning: InternalLinkedItemUpdatesQueryResult(
+              items: items,
+              deletedItemIDs: deletedItemIDs,
+              cursor: result.cursor,
+              hasMoreItems: result.hasMoreItems
+            )
+          )
+        case let .error(error):
+          continuation.resume(throwing: ContentFetchError.unknown(description: error.description))
+        }
+      }
+    }
+  }
+
   /// Performs GraphQL request to fetch `InternalLinkedItem`s and a cursor value
   /// - Parameters:
   ///   - limit: max number of items to return
@@ -149,6 +246,14 @@ private let libraryArticleSelection = Selection.Article {
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+  )
+}
+
+private let syncItemEdgeSelection = Selection.SyncUpdatedItemEdge {
+  SyncItemEdge(
+    itemID: try $0.itemId(),
+    isDeletedItem: try $0.updateReason() == .deleted,
+    item: try $0.node(selection: searchItemSelection.nullable)
   )
 }
 

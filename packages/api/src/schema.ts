@@ -1812,6 +1812,77 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union SetIntegrationResult = SetIntegrationSuccess | SetIntegrationError
+
+  type SetIntegrationSuccess {
+    integration: Integration!
+  }
+
+  type Integration {
+    id: ID!
+    type: IntegrationType!
+    token: String!
+    enabled: Boolean!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  enum IntegrationType {
+    READWISE
+  }
+
+  type SetIntegrationError {
+    errorCodes: [SetIntegrationErrorCode!]!
+  }
+
+  enum SetIntegrationErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+    INVALID_TOKEN
+    ALREADY_EXISTS
+  }
+
+  input SetIntegrationInput {
+    id: ID
+    type: IntegrationType!
+    token: String!
+    enabled: Boolean!
+  }
+
+  union IntegrationsResult = IntegrationsSuccess | IntegrationsError
+
+  type IntegrationsSuccess {
+    integrations: [Integration!]!
+  }
+
+  type IntegrationsError {
+    errorCodes: [IntegrationsErrorCode!]!
+  }
+
+  enum IntegrationsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  union DeleteIntegrationResult =
+      DeleteIntegrationSuccess
+    | DeleteIntegrationError
+
+  type DeleteIntegrationSuccess {
+    integration: Integration!
+  }
+
+  type DeleteIntegrationError {
+    errorCodes: [DeleteIntegrationErrorCode!]!
+  }
+
+  enum DeleteIntegrationErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -1881,6 +1952,8 @@ const schema = gql`
     revokeApiKey(id: ID!): RevokeApiKeyResult!
     setLabelsForHighlight(input: SetLabelsForHighlightInput!): SetLabelsResult!
     moveLabel(input: MoveLabelInput!): MoveLabelResult!
+    setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
+    deleteIntegration(id: ID!): DeleteIntegrationResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -1926,6 +1999,7 @@ const schema = gql`
     apiKeys: ApiKeysResult!
     typeaheadSearch(query: String!, first: Int): TypeaheadSearchResult!
     updatesSince(after: String, first: Int, since: Date!): UpdatesSinceResult!
+    integrations: IntegrationsResult!
   }
 `
 

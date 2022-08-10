@@ -44,6 +44,7 @@ import { initElasticsearch } from './elastic'
 import { uploadServiceRouter } from './routers/svc/upload'
 import rateLimit from 'express-rate-limit'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
+import { integrationsServiceRouter } from './routers/svc/integrations'
 
 const PORT = process.env.PORT || 4000
 
@@ -115,6 +116,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/emails', emailsServiceRouter())
   app.use('/svc/pubsub/upload', uploadServiceRouter())
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
+  app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
 

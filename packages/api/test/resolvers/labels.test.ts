@@ -20,15 +20,13 @@ import {
 import { refreshIndex } from '../../src/elastic'
 
 describe('Labels API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
   let ctx: PageContext
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -42,7 +40,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.name)
   })
 
   describe('GET labels', () => {
@@ -58,9 +56,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
     })
 
     beforeEach(() => {
@@ -246,7 +242,7 @@ describe('Labels API', () => {
         before(async () => {
           toDeleteLabel = await createTestLabel(user, 'page label', '#ffffff')
           labelId = toDeleteLabel.id
-          page = await createTestElasticPage(user, [toDeleteLabel])
+          page = await createTestElasticPage(user.id, [toDeleteLabel])
         })
 
         after(async () => {
@@ -267,7 +263,7 @@ describe('Labels API', () => {
         let page: Page
 
         before(async () => {
-          page = await createTestElasticPage(user)
+          page = await createTestElasticPage(user.id)
           toDeleteLabel = await createTestLabel(
             user,
             'highlight label',
@@ -340,14 +336,12 @@ describe('Labels API', () => {
       const label1 = await createTestLabel(user, 'label_1', '#ffffff')
       const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
       labels = [label1, label2]
-      page = await createTestElasticPage(user)
+      page = await createTestElasticPage(user.id)
     })
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
       await deletePage(page.id, ctx)
     })
 
@@ -497,7 +491,7 @@ describe('Labels API', () => {
         let page: Page
 
         before(async () => {
-          page = await createTestElasticPage(user, [toUpdateLabel])
+          page = await createTestElasticPage(user.id, [toUpdateLabel])
         })
 
         after(async () => {
@@ -542,14 +536,12 @@ describe('Labels API', () => {
       const label1 = await createTestLabel(user, 'label_1', '#ffffff')
       const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
       labels = [label1, label2]
-      page = await createTestElasticPage(user)
+      page = await createTestElasticPage(user.id)
     })
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
       await deletePage(page.id, ctx)
     })
 
@@ -581,7 +573,7 @@ describe('Labels API', () => {
 
     context('when labels exists', () => {
       before(async () => {
-        highlightId = 'highlight-id'
+        highlightId = generateFakeUuid()
         const highlight: Highlight = {
           createdAt: new Date(),
           id: highlightId,
@@ -605,7 +597,7 @@ describe('Labels API', () => {
 
     context('when labels not exist', () => {
       before(async () => {
-        highlightId = 'highlight-id-2'
+        highlightId = generateFakeUuid()
         const highlight: Highlight = {
           createdAt: new Date(),
           id: highlightId,
@@ -677,9 +669,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      for (const label of labels) {
-        await getRepository(Label).delete(label.id)
-      }
+      await getRepository(Label).delete(labels.map((l) => l.id))
     })
 
     context('when label exists', () => {

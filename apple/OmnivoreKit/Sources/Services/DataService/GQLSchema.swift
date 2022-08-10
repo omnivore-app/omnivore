@@ -9729,6 +9729,7 @@ extension Objects {
     let sharedArticle: [String: Unions.SharedArticleResult]
     let subscriptions: [String: Unions.SubscriptionsResult]
     let typeaheadSearch: [String: Unions.TypeaheadSearchResult]
+    let updatesSince: [String: Unions.UpdatesSinceResult]
     let user: [String: Unions.UserResult]
     let users: [String: Unions.UsersResult]
     let validateUsername: [String: Bool]
@@ -9825,6 +9826,10 @@ extension Objects.Query: Decodable {
         if let value = try container.decode(Unions.TypeaheadSearchResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "updatesSince":
+        if let value = try container.decode(Unions.UpdatesSinceResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "user":
         if let value = try container.decode(Unions.UserResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -9873,6 +9878,7 @@ extension Objects.Query: Decodable {
     sharedArticle = map["sharedArticle"]
     subscriptions = map["subscriptions"]
     typeaheadSearch = map["typeaheadSearch"]
+    updatesSince = map["updatesSince"]
     user = map["user"]
     users = map["users"]
     validateUsername = map["validateUsername"]
@@ -10209,6 +10215,25 @@ extension Fields where TypeLock == Objects.Query {
     switch response {
     case let .decoding(data):
       if let data = data.typeaheadSearch[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func updatesSince<Type>(after: OptionalArgument<String> = .absent(), first: OptionalArgument<Int> = .absent(), since: DateTime, selection: Selection<Type, Unions.UpdatesSinceResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "updatesSince",
+      arguments: [Argument(name: "after", type: "String", value: after), Argument(name: "first", type: "Int", value: first), Argument(name: "since", type: "Date!", value: since)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.updatesSince[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -14367,6 +14392,141 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+  struct SyncUpdatedItemEdge {
+    let __typename: TypeName = .syncUpdatedItemEdge
+    let cursor: [String: String]
+    let itemId: [String: String]
+    let node: [String: Objects.SearchItem]
+    let updateReason: [String: Enums.UpdateReason]
+
+    enum TypeName: String, Codable {
+      case syncUpdatedItemEdge = "SyncUpdatedItemEdge"
+    }
+  }
+}
+
+extension Objects.SyncUpdatedItemEdge: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "cursor":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "itemId":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "node":
+        if let value = try container.decode(Objects.SearchItem?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "updateReason":
+        if let value = try container.decode(Enums.UpdateReason?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    cursor = map["cursor"]
+    itemId = map["itemId"]
+    node = map["node"]
+    updateReason = map["updateReason"]
+  }
+}
+
+extension Fields where TypeLock == Objects.SyncUpdatedItemEdge {
+  func cursor() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "cursor",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.cursor[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func itemId() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "itemID",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.itemId[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func node<Type>(selection: Selection<Type, Objects.SearchItem?>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "node",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return try selection.decode(data: data.node[field.alias!])
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func updateReason() throws -> Enums.UpdateReason {
+    let field = GraphQLField.leaf(
+      name: "updateReason",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.updateReason[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Enums.UpdateReason.allCases.first!
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias SyncUpdatedItemEdge<T> = Selection<T, Objects.SyncUpdatedItemEdge>
+}
+
+extension Objects {
   struct TypeaheadSearchError {
     let __typename: TypeName = .typeaheadSearchError
     let errorCodes: [String: [Enums.TypeaheadSearchErrorCode]]
@@ -15961,6 +16121,162 @@ extension Fields where TypeLock == Objects.UpdateUserSuccess {
 
 extension Selection where TypeLock == Never, Type == Never {
   typealias UpdateUserSuccess<T> = Selection<T, Objects.UpdateUserSuccess>
+}
+
+extension Objects {
+  struct UpdatesSinceError {
+    let __typename: TypeName = .updatesSinceError
+    let errorCodes: [String: [Enums.UpdatesSinceErrorCode]]
+
+    enum TypeName: String, Codable {
+      case updatesSinceError = "UpdatesSinceError"
+    }
+  }
+}
+
+extension Objects.UpdatesSinceError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.UpdatesSinceErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.UpdatesSinceError {
+  func errorCodes() throws -> [Enums.UpdatesSinceErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias UpdatesSinceError<T> = Selection<T, Objects.UpdatesSinceError>
+}
+
+extension Objects {
+  struct UpdatesSinceSuccess {
+    let __typename: TypeName = .updatesSinceSuccess
+    let edges: [String: [Objects.SyncUpdatedItemEdge]]
+    let pageInfo: [String: Objects.PageInfo]
+
+    enum TypeName: String, Codable {
+      case updatesSinceSuccess = "UpdatesSinceSuccess"
+    }
+  }
+}
+
+extension Objects.UpdatesSinceSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "edges":
+        if let value = try container.decode([Objects.SyncUpdatedItemEdge]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "pageInfo":
+        if let value = try container.decode(Objects.PageInfo?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    edges = map["edges"]
+    pageInfo = map["pageInfo"]
+  }
+}
+
+extension Fields where TypeLock == Objects.UpdatesSinceSuccess {
+  func edges<Type>(selection: Selection<Type, [Objects.SyncUpdatedItemEdge]>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "edges",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.edges[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func pageInfo<Type>(selection: Selection<Type, Objects.PageInfo>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "pageInfo",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.pageInfo[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias UpdatesSinceSuccess<T> = Selection<T, Objects.UpdatesSinceSuccess>
 }
 
 extension Objects {
@@ -22024,6 +22340,86 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct UpdatesSinceResult {
+    let __typename: TypeName
+    let edges: [String: [Objects.SyncUpdatedItemEdge]]
+    let errorCodes: [String: [Enums.UpdatesSinceErrorCode]]
+    let pageInfo: [String: Objects.PageInfo]
+
+    enum TypeName: String, Codable {
+      case updatesSinceError = "UpdatesSinceError"
+      case updatesSinceSuccess = "UpdatesSinceSuccess"
+    }
+  }
+}
+
+extension Unions.UpdatesSinceResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "edges":
+        if let value = try container.decode([Objects.SyncUpdatedItemEdge]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "errorCodes":
+        if let value = try container.decode([Enums.UpdatesSinceErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "pageInfo":
+        if let value = try container.decode(Objects.PageInfo?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    edges = map["edges"]
+    errorCodes = map["errorCodes"]
+    pageInfo = map["pageInfo"]
+  }
+}
+
+extension Fields where TypeLock == Unions.UpdatesSinceResult {
+  func on<Type>(updatesSinceError: Selection<Type, Objects.UpdatesSinceError>, updatesSinceSuccess: Selection<Type, Objects.UpdatesSinceSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "UpdatesSinceError", selection: updatesSinceError.selection), GraphQLField.fragment(type: "UpdatesSinceSuccess", selection: updatesSinceSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .updatesSinceError:
+        let data = Objects.UpdatesSinceError(errorCodes: data.errorCodes)
+        return try updatesSinceError.decode(data: data)
+      case .updatesSinceSuccess:
+        let data = Objects.UpdatesSinceSuccess(edges: data.edges, pageInfo: data.pageInfo)
+        return try updatesSinceSuccess.decode(data: data)
+      }
+    case .mocking:
+      return updatesSinceError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias UpdatesSinceResult<T> = Selection<T, Unions.UpdatesSinceResult>
+}
+
+extension Unions {
   struct UploadFileRequestResult {
     let __typename: TypeName
     let createdPageId: [String: String]
@@ -22466,6 +22862,8 @@ extension Enums {
 extension Enums {
   /// ArticleSavingRequestStatus
   enum ArticleSavingRequestStatus: String, CaseIterable, Codable {
+    case deleted = "DELETED"
+
     case failed = "FAILED"
 
     case processing = "PROCESSING"
@@ -23138,6 +23536,17 @@ extension Enums {
 }
 
 extension Enums {
+  /// UpdateReason
+  enum UpdateReason: String, CaseIterable, Codable {
+    case created = "CREATED"
+
+    case deleted = "DELETED"
+
+    case updated = "UPDATED"
+  }
+}
+
+extension Enums {
   /// UpdateReminderErrorCode
   enum UpdateReminderErrorCode: String, CaseIterable, Codable {
     case badRequest = "BAD_REQUEST"
@@ -23182,6 +23591,13 @@ extension Enums {
     case unauthorized = "UNAUTHORIZED"
 
     case usernameExists = "USERNAME_EXISTS"
+  }
+}
+
+extension Enums {
+  /// UpdatesSinceErrorCode
+  enum UpdatesSinceErrorCode: String, CaseIterable, Codable {
+    case unauthorized = "UNAUTHORIZED"
   }
 }
 

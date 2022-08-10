@@ -254,3 +254,9 @@ export const validateUuid = (str: string): boolean => {
 export const isString = (check: any): check is string => {
   return typeof check === 'string' || check instanceof String
 }
+
+export const wait = (ms: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
