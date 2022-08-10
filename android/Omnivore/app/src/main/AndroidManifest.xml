@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Omnivore"
         tools:targetApi="31">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -26,4 +27,5 @@
         </activity>
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
