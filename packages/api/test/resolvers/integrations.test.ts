@@ -30,7 +30,7 @@ describe('Integrations resolvers', () => {
   })
 
   after(async () => {
-    await deleteTestUser(loginUser.name)
+    await deleteTestUser(loginUser.id)
   })
 
   describe('setIntegration API', () => {
@@ -199,7 +199,7 @@ describe('Integrations resolvers', () => {
           })
 
           after(async () => {
-            await deleteTestUser(otherUser.name)
+            await deleteTestUser(otherUser.id)
             await getRepository(Integration).delete({
               id: existingIntegration.id,
             })

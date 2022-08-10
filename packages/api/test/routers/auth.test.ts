@@ -55,7 +55,8 @@ describe('auth router', () => {
       })
 
       afterEach(async () => {
-        await deleteTestUser(username)
+        const user = await getRepository(User).findOne({ where: { name } })
+        await deleteTestUser(user!.id)
       })
 
       context('when confirmation email sent', () => {
@@ -112,15 +113,17 @@ describe('auth router', () => {
     })
 
     context('when user exists', () => {
+      let user: User
+
       before(async () => {
         username = 'Some_username'
-        const user = await createTestUser(username)
+        user = await createTestUser(username)
         email = user.email
         password = 'Some password'
       })
 
       after(async () => {
-        await deleteTestUser(username)
+        await deleteTestUser(user.id)
       })
 
       it('redirects to sign up page with error code USER_EXISTS', async () => {
@@ -170,7 +173,7 @@ describe('auth router', () => {
     })
 
     after(async () => {
-      await deleteTestUser(user.name)
+      await deleteTestUser(user.id)
     })
 
     context('when email and password are valid', () => {
@@ -289,7 +292,7 @@ describe('auth router', () => {
 
     after(async () => {
       sinon.restore()
-      await deleteTestUser(user.name)
+      await deleteTestUser(user.id)
     })
 
     context('when token is valid', () => {
@@ -377,7 +380,7 @@ describe('auth router', () => {
         })
 
         after(async () => {
-          await deleteTestUser(user.name)
+          await deleteTestUser(user.id)
         })
 
         context('when email is verified', () => {
@@ -485,7 +488,7 @@ describe('auth router', () => {
     })
 
     after(async () => {
-      await deleteTestUser(user.name)
+      await deleteTestUser(user.id)
     })
 
     context('when token is valid', () => {

@@ -13,7 +13,6 @@ import * as sendNotification from '../../src/utils/sendNotification'
 import * as sendEmail from '../../src/utils/sendEmail'
 
 describe('Emails Router', () => {
-  const username = 'fakeUser'
   const newsletterEmail = 'fakeUser@omnivore.app'
 
   let user: User
@@ -21,7 +20,7 @@ describe('Emails Router', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
 
     await createTestNewsletterEmail(user, newsletterEmail)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!
@@ -29,7 +28,7 @@ describe('Emails Router', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
     sinon.restore()
   })
 

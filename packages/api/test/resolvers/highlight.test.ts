@@ -102,7 +102,6 @@ const mergeHighlightQuery = (
 }
 
 describe('Highlights API', () => {
-  const username = 'fakeUser'
   let authToken: string
   let user: User
   let pageId: string
@@ -110,7 +109,7 @@ describe('Highlights API', () => {
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -121,7 +120,7 @@ describe('Highlights API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
     if (pageId) {
       await deletePage(pageId, ctx)
     }

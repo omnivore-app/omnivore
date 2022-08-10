@@ -49,14 +49,13 @@ const createArticleSavingRequestMutation = (url: string) => `
 `
 
 describe('ArticleSavingRequest API', () => {
-  const username = 'fakeUser'
   let authToken: string
   let user: User
   let ctx: PageContext
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -72,7 +71,7 @@ describe('ArticleSavingRequest API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('createArticleSavingRequest', () => {

@@ -6,13 +6,19 @@ import { SaveContext, saveEmail } from '../../src/services/save_email'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
 import nock from 'nock'
+import { User } from '../../src/entity/user'
 
 describe('saveEmail', () => {
-  const username = 'fakeUser'
   const fakeContent = 'fake content'
+  let user: User
+
+  before(async () => {
+    // create test user
+    user = await createTestUser('fakeUser')
+  })
 
   after(async () => {
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   it('doesnt fail if saved twice', async () => {
@@ -21,7 +27,6 @@ describe('saveEmail', () => {
     const url = 'https://blog.omnivore.app/fake-url'
     const title = 'fake title'
     const author = 'fake author'
-    const user = await createTestUser(username)
     const ctx: SaveContext = {
       pubsub: createPubSubClient(),
       uid: user.id,

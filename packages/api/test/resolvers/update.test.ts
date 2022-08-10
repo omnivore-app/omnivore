@@ -6,15 +6,13 @@ import { User } from '../../src/entity/user'
 import { Page } from '../../src/elastic/types'
 
 describe('Update API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
   let page: Page
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -25,7 +23,7 @@ describe('Update API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('update page', () => {

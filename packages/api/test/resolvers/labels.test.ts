@@ -40,7 +40,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.name)
+    await deleteTestUser(user.id)
   })
 
   describe('GET labels', () => {

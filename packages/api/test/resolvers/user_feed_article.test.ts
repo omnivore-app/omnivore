@@ -12,10 +12,11 @@ import { Link } from '../../src/entity/link'
 import { Highlight } from '../../src/entity/highlight'
 import 'mocha'
 import { getRepository } from '../../src/entity/utils'
+import { User } from '../../src/entity/user'
 
 describe('User feed article API', () => {
   const existingUsername = 'fakeUser'
-
+  let user: User
   let authToken: string
   let page: Page
   let link: Link
@@ -23,7 +24,7 @@ describe('User feed article API', () => {
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(existingUsername)
+    user = await createTestUser(existingUsername)
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -44,7 +45,7 @@ describe('User feed article API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(existingUsername)
+    await deleteTestUser(user.id)
   })
 
   describe('get shared article', () => {

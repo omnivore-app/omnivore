@@ -85,7 +85,7 @@ describe('Integrations routers', () => {
         })
 
         after(async () => {
-          await deleteTestUser(user.name)
+          await deleteTestUser(user.id)
         })
 
         context('when integration not found', () => {

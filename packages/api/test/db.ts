@@ -9,7 +9,7 @@ import { UserDeviceToken } from '../src/entity/user_device_tokens'
 import { Label } from '../src/entity/label'
 import { Subscription } from '../src/entity/subscription'
 import { AppDataSource } from '../src/server'
-import { getRepository } from '../src/entity/utils'
+import { getRepository, setClaims } from '../src/entity/utils'
 import { createUser } from '../src/services/create_user'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { SubscriptionStatus } from '../src/generated/graphql'
@@ -61,12 +61,11 @@ export const createTestConnection = async (): Promise<void> => {
   await AppDataSource.initialize()
 }
 
-export const deleteTestUser = async (name: string) => {
-  await AppDataSource.createQueryBuilder()
-    .delete()
-    .from(User)
-    .where({ email: `${name}@omnivore.app` })
-    .execute()
+export const deleteTestUser = async (userId: string) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(User).delete({ id: userId })
+  })
 }
 
 export const createTestUser = async (

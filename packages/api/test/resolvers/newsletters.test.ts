@@ -6,19 +6,19 @@ import {
 } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import { User } from '../../src/entity/user'
 import { expect } from 'chai'
 import { DeleteNewsletterEmailErrorCode } from '../../src/generated/graphql'
 import 'mocha'
 
 describe('Newsletters API', () => {
-  const username = 'fakeUser'
-
+  let user: User
   let authToken: string
   let newsletterEmails: NewsletterEmail[]
 
   before(async () => {
     // create test user and login
-    const user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -39,7 +39,7 @@ describe('Newsletters API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('Get newsletter emails', () => {

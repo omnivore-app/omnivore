@@ -46,14 +46,13 @@ const uploadFileRequest = async (
 }
 
 describe('uploadFileRequest API', () => {
-  const username = 'fakeUser'
   let authToken: string
   let user: User
   let ctx: PageContext
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
@@ -68,7 +67,7 @@ describe('uploadFileRequest API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(username)
+    await deleteTestUser(user.id)
   })
 
   describe('UploadFileRequest', () => {
