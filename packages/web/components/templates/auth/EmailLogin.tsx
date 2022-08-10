@@ -101,7 +101,7 @@ export function EmailLogin(): JSX.Element {
           <Button type="submit" style={'ctaDarkYellow'}>Login</Button>
         </HStack>
         <StyledText
-          style="caption"
+          style="action"
           css={{
             m: '0px',
             pt: '16px',
@@ -112,11 +112,11 @@ export function EmailLogin(): JSX.Element {
         >
           Don&apos;t have an account? {' '}
           <Link href="/auth/email-signup" passHref>
-            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Sign up</StyledTextSpan>
+            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>Sign up</StyledTextSpan>
           </Link>
         </StyledText>
         <StyledText
-          style="caption"
+          style="action"
           css={{
             mt: '0px',
             pt: '4px',
@@ -127,7 +127,7 @@ export function EmailLogin(): JSX.Element {
         >
           Forgot your password? {' '}
           <Link href="/auth/forgot-password" passHref>
-            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Click here</StyledTextSpan>
+            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>Click here</StyledTextSpan>
           </Link>
         </StyledText>
       </VStack>

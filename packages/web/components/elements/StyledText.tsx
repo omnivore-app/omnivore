@@ -100,6 +100,18 @@ const textVariants = {
       lineHeight: '1.5',
       cursor: 'pointer',
     },
+    action: {
+      fontSize: '16px',
+      fontWeight: '500',
+      lineHeight: '1.5',
+    },
+    actionLink: {
+      fontSize: '16px',
+      fontWeight: '500',
+      lineHeight: '1.5',
+      textDecoration: 'underline',
+      cursor: 'pointer',
+    },
     highlightTitleAndAuthor: {
       fontSize: '18px',
       fontStyle: 'italic',

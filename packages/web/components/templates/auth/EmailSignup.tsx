@@ -165,7 +165,7 @@ export function EmailSignup(): JSX.Element {
         </HStack>
 
         <StyledText
-          style="caption"
+          style="action"
           css={{
             pt: '16px',
             color: '$omnivoreLightGray',
@@ -174,7 +174,7 @@ export function EmailSignup(): JSX.Element {
         >
           Already have an account? {' '}
           <Link href="/auth/email-login" passHref>
-            <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>Login instead</StyledTextSpan>
+            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>Login instead</StyledTextSpan>
           </Link>
         </StyledText>
         <TermAndConditionsFooter />
