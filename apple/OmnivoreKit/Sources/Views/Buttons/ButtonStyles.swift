@@ -13,12 +13,17 @@ public struct SolidCapsuleButtonStyle: ButtonStyle {
 
   public func makeBody(configuration: Configuration) -> some View {
     configuration.label
-      .font(.appBody)
+      .font(.appHeadline)
       .foregroundColor(textColor)
-      .padding(10)
+      .padding(12)
       .frame(width: width)
-      .background(Capsule().foregroundColor(backgroundColor))
+      .background(backgroundColor)
       .opacity(configuration.isPressed ? 0.7 : 1.0)
+      .cornerRadius(8)
+      .overlay(
+        RoundedRectangle(cornerRadius: 8)
+          .stroke(backgroundColor, lineWidth: 1)
+      )
   }
 }
 

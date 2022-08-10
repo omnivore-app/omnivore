@@ -11,8 +11,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { Highlight, Page, PageContext } from '../../src/elastic/types'
 import { getRepository } from '../../src/entity/utils'
-import { deletePagesByParam, getPageById } from '../../src/elastic/pages'
-import { addLabelInPage } from '../../src/elastic/labels'
+import { deletePage, getPageById } from '../../src/elastic/pages'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {
   addHighlightToPage,
@@ -21,42 +20,17 @@ import {
 import { refreshIndex } from '../../src/elastic'
 
 describe('Labels API', () => {
-  const username = 'fakeUser'
-
   let user: User
   let authToken: string
-  let page: Page
-  let labels: Label[]
   let ctx: PageContext
 
   before(async () => {
     // create test user and login
-    user = await createTestUser(username)
+    user = await createTestUser('fakeUser')
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
-
     authToken = res.body.authToken
-
-    //  create testing labels
-    const label1 = await createTestLabel(user, 'label_1', '#ffffff')
-    const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
-    labels = [label1, label2]
-
-    // create a page with label
-    const existingLabelOfLink = await createTestLabel(
-      user,
-      'different_label',
-      '#dddddd'
-    )
-    page = await createTestElasticPage(user, [
-      {
-        id: existingLabelOfLink.id,
-        name: existingLabelOfLink.name,
-        color: existingLabelOfLink.color,
-      },
-    ])
-
     ctx = {
       pubsub: createPubSubClient(),
       refresh: true,
@@ -66,12 +40,24 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deletePagesByParam({ userId: user.id }, ctx)
-    await deleteTestUser(username)
+    await deleteTestUser(user.name)
   })
 
   describe('GET labels', () => {
+    let labels: Label[]
     let query: string
+
+    before(async () => {
+      //  create testing labels
+      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
+      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+      labels = [label1, label2]
+    })
+
+    after(async () => {
+      // clean up
+      await getRepository(Label).delete(labels.map((l) => l.id))
+    })
 
     beforeEach(() => {
       query = `
@@ -101,7 +87,7 @@ describe('Labels API', () => {
         user: { id: user.id },
       })
       expect(res.body.data.labels.labels).to.eql(
-        labels.reverse().map((label) => ({
+        labels.map((label) => ({
           id: label.id,
           name: label.name,
           color: label.color,
@@ -158,6 +144,11 @@ describe('Labels API', () => {
         name = 'label3'
       })
 
+      after(async () => {
+        // clean up
+        await getRepository(Label).delete({ name })
+      })
+
       it('should create label', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         const label = await getRepository(Label).findOneBy({
@@ -168,8 +159,15 @@ describe('Labels API', () => {
     })
 
     context('when name exists', () => {
-      before(() => {
-        name = labels[0].name
+      let existingLabel: Label
+
+      before(async () => {
+        existingLabel = await createTestLabel(user, 'label3', '#ffffff')
+        name = existingLabel.name
+      })
+
+      after(async () => {
+        await getRepository(Label).delete(existingLabel.id)
       })
 
       it('should return error code LABEL_ALREADY_EXISTS', async () => {
@@ -239,10 +237,16 @@ describe('Labels API', () => {
       })
 
       context('when a page has this label', () => {
+        let page: Page
+
         before(async () => {
           toDeleteLabel = await createTestLabel(user, 'page label', '#ffffff')
           labelId = toDeleteLabel.id
-          await addLabelInPage(page.id, toDeleteLabel, ctx)
+          page = await createTestElasticPage(user.id, [toDeleteLabel])
+        })
+
+        after(async () => {
+          await deletePage(page.id, ctx)
         })
 
         it('should update page', async () => {
@@ -256,8 +260,10 @@ describe('Labels API', () => {
 
       context('when a highlight has this label', () => {
         const highlightId = generateFakeUuid()
+        let page: Page
 
         before(async () => {
+          page = await createTestElasticPage(user.id)
           toDeleteLabel = await createTestLabel(
             user,
             'highlight label',
@@ -275,6 +281,10 @@ describe('Labels API', () => {
             updatedAt: new Date(),
           }
           await addHighlightToPage(page.id, highlight, ctx)
+        })
+
+        after(async () => {
+          await deletePage(page.id, ctx)
         })
 
         it('should update highlight', async () => {
@@ -318,6 +328,22 @@ describe('Labels API', () => {
     let query: string
     let pageId: string
     let labelIds: string[] = []
+    let labels: Label[]
+    let page: Page
+
+    before(async () => {
+      //  create testing labels
+      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
+      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+      labels = [label1, label2]
+      page = await createTestElasticPage(user.id)
+    })
+
+    after(async () => {
+      // clean up
+      await getRepository(Label).delete(labels.map((l) => l.id))
+      await deletePage(page.id, ctx)
+    })
 
     beforeEach(() => {
       query = `
@@ -438,6 +464,10 @@ describe('Labels API', () => {
         color = '#aabbcc'
       })
 
+      after(async () => {
+        await getRepository(Label).delete(toUpdateLabel.id)
+      })
+
       it('should return the updated label', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.updateLabel.label).to.eql({
@@ -458,8 +488,14 @@ describe('Labels API', () => {
       })
 
       context('when a page has the label', () => {
+        let page: Page
+
         before(async () => {
-          await addLabelInPage(page.id, toUpdateLabel, ctx)
+          page = await createTestElasticPage(user.id, [toUpdateLabel])
+        })
+
+        after(async () => {
+          await deletePage(page.id, ctx)
         })
 
         it('should update the page with the label', async () => {
@@ -492,6 +528,22 @@ describe('Labels API', () => {
     let query: string
     let highlightId: string
     let labelIds: string[] = []
+    let labels: Label[]
+    let page: Page
+
+    before(async () => {
+      //  create testing labels
+      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
+      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+      labels = [label1, label2]
+      page = await createTestElasticPage(user.id)
+    })
+
+    after(async () => {
+      // clean up
+      await getRepository(Label).delete(labels.map((l) => l.id))
+      await deletePage(page.id, ctx)
+    })
 
     beforeEach(() => {
       query = `
@@ -521,7 +573,7 @@ describe('Labels API', () => {
 
     context('when labels exists', () => {
       before(async () => {
-        highlightId = 'highlight-id'
+        highlightId = generateFakeUuid()
         const highlight: Highlight = {
           createdAt: new Date(),
           id: highlightId,
@@ -545,7 +597,7 @@ describe('Labels API', () => {
 
     context('when labels not exist', () => {
       before(async () => {
-        highlightId = 'highlight-id-2'
+        highlightId = generateFakeUuid()
         const highlight: Highlight = {
           createdAt: new Date(),
           id: highlightId,
@@ -578,6 +630,128 @@ describe('Labels API', () => {
         expect(res.body.data.setLabelsForHighlight.errorCodes).to.eql([
           'NOT_FOUND',
         ])
+      })
+    })
+  })
+
+  describe('Move label', () => {
+    const query = (labelId: string, afterLabelId: string): string => `
+        mutation {
+          moveLabel(
+            input: {
+              labelId: "${labelId}",
+              afterLabelId: "${afterLabelId}"
+            }
+          ) {
+            ... on MoveLabelSuccess {
+              label {
+                id
+                position
+              }
+            }
+            ... on MoveLabelError {
+              errorCodes
+            }
+          }
+        }
+      `
+    let labelId: string
+    let afterLabelId: string
+    let labels: Label[] = []
+
+    before(async () => {
+      //  create testing labels
+      for (let i = 0; i < 5; i++) {
+        const label = await createTestLabel(user, `label_${i}`, '#ffffff')
+        labels.push(label)
+      }
+    })
+
+    after(async () => {
+      // clean up
+      await getRepository(Label).delete(labels.map((l) => l.id))
+    })
+
+    context('when label exists', () => {
+      before(async () => {
+        labelId = labels[1].id
+        afterLabelId = labels[4].id
+      })
+
+      after(async () => {
+        await graphqlRequest(query(labelId, labels[0].id), authToken).expect(
+          200
+        )
+      })
+
+      it('moves label after the pointed label', async () => {
+        const res = await graphqlRequest(
+          query(labelId, afterLabelId),
+          authToken
+        ).expect(200)
+        expect(res.body.data.moveLabel.label.position).to.eql(
+          labels[4].position
+        )
+        const reorderedLabels = await getRepository(Label).find({
+          where: {
+            user: { id: user.id },
+          },
+          order: { position: 'ASC' },
+        })
+        expect(reorderedLabels.map((l) => l.id)).to.eql([
+          labels[0].id,
+          labels[2].id,
+          labels[3].id,
+          labels[4].id,
+          labels[1].id,
+        ])
+      })
+    })
+
+    context('when afterLabelId is null', () => {
+      before(() => {
+        labelId = labels[4].id
+      })
+
+      after(async () => {
+        await graphqlRequest(query(labelId, labels[3].id), authToken).expect(
+          200
+        )
+      })
+
+      it('moves the label to the top', async () => {
+        const res = await graphqlRequest(query(labelId, ''), authToken).expect(
+          200
+        )
+        expect(res.body.data.moveLabel.label.position).to.eql(1)
+      })
+    })
+
+    context('when label not exist', () => {
+      before(() => {
+        labelId = generateFakeUuid()
+      })
+
+      it('returns error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(query(labelId, ''), authToken).expect(
+          200
+        )
+        expect(res.body.data.moveLabel.errorCodes).to.eql(['NOT_FOUND'])
+      })
+    })
+
+    context('when after label not exist', () => {
+      before(() => {
+        labelId = labels[4].id
+        afterLabelId = generateFakeUuid()
+      })
+
+      it('returns error code NOT_FOUND', async () => {
+        const res = await graphqlRequest(
+          query(labelId, afterLabelId),
+          authToken
+        ).expect(200)
+        expect(res.body.data.moveLabel.errorCodes).to.eql(['NOT_FOUND'])
       })
     })
   })

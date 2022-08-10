@@ -224,7 +224,7 @@ struct CreateProfileView: View {
   }
 }
 
-private extension PotentialUsernameStatus {
+extension PotentialUsernameStatus {
   var message: String? {
     switch self {
     case .tooShort:

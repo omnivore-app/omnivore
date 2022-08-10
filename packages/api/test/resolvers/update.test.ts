@@ -1,9 +1,5 @@
 import { createTestUser, deleteTestUser } from '../db'
-import {
-  createTestElasticPage,
-  graphqlRequest,
-  request,
-} from '../util'
+import { createTestElasticPage, graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
@@ -24,7 +20,7 @@ describe('Update API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-    page = await createTestElasticPage(user)
+    page = await createTestElasticPage(user.id)
   })
 
   after(async () => {
@@ -34,8 +30,8 @@ describe('Update API', () => {
 
   describe('update page', () => {
     let query: string
-    let title = "New Title"
-    let description = "New Description"
+    let title = 'New Title'
+    let description = 'New Description'
 
     beforeEach(() => {
       query = `
@@ -59,14 +55,14 @@ describe('Update API', () => {
           }
         }
       `
-      })
-
-      it('should update page', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        const updatedPage = res?.body.data.updatePage.updatedPage
-        expect(updatedPage?.title).to.eql(title)
-        expect(updatedPage?.description).to.eql(description)
-      })
     })
+
+    it('should update page', async () => {
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      const updatedPage = res?.body.data.updatePage.updatedPage
+      expect(updatedPage?.title).to.eql(title)
+      expect(updatedPage?.description).to.eql(description)
+    })
+  })
 })

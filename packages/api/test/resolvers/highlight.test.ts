@@ -104,7 +104,7 @@ describe('Highlights API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-    pageId = (await createTestElasticPage(user)).id
+    pageId = (await createTestElasticPage(user.id)).id
     ctx = { pubsub: createPubSubClient(), uid: user.id }
   })
 

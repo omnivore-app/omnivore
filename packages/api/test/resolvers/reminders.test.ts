@@ -38,7 +38,7 @@ describe('Reminders API', () => {
     authToken = res.body.authToken
 
     // create page, link and reminders test data
-    page = await createTestElasticPage(user)
+    page = await createTestElasticPage(user.id)
     reminder = await createTestReminder(user, page.id)
   })
 

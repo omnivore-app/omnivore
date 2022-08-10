@@ -112,7 +112,7 @@ export const savePage = async (
         existingPage.id,
         {
           savedAt: new Date(),
-          archivedAt: undefined,
+          archivedAt: null,
         },
         ctx
       ))

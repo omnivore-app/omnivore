@@ -599,8 +599,11 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   })
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
+  const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
+  useState(false)
   const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
   const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
+  const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -636,6 +639,15 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     props.actionHandler('delete', linkToRemove)
     setLinkToRemove(undefined)
     setShowRemoveLinkConfirmation(false)
+  }
+
+  const unsubscribe = () => {
+    if (!linkToUnsubscribe) {
+      return
+    }
+    props.actionHandler('unsubscribe', linkToUnsubscribe)
+    setLinkToUnsubscribe(undefined)
+    setShowUnsubscribeConfirmation(false)
   }
 
   return (
@@ -786,6 +798,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                       } else if (action === 'editTitle') {
                         props.setShowEditTitleModal(true)
                         setLinkToEdit(linkedItem)
+                      } else if (action == 'unsubscribe') {
+                        setShowUnsubscribeConfirmation(true)
+                        setLinkToUnsubscribe(linkedItem)
                       } else {
                         props.actionHandler(action, linkedItem)
                       }
@@ -889,6 +904,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           message={'Are you sure you want to remove this link?'}
           onAccept={removeItem}
           onOpenChange={() => setShowRemoveLinkConfirmation(false)}
+        />
+      )}
+      {showUnsubscribeConfirmation && (
+        <ConfirmationModal
+          message={'Are you sure you want to unsubscribe?'}
+          onAccept={unsubscribe}
+          onOpenChange={() => setShowUnsubscribeConfirmation(false)}
         />
       )}
       {props.labelsTarget?.node.id && (

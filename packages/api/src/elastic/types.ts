@@ -1,6 +1,15 @@
 // Define the type of the body for the Search request
 import { PickTuple } from '../util'
 import { PubsubClient } from '../datalayer/pubsub'
+import {
+  DateFilter,
+  FieldFilter,
+  HasFilter,
+  InFilter,
+  LabelFilter,
+  ReadFilter,
+  SortParams,
+} from '../utils/search'
 
 export interface SearchBody {
   query: {
@@ -146,6 +155,7 @@ export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
 }
 
 export interface Label {
@@ -236,7 +246,15 @@ export interface SearchItem {
   highlights?: Highlight[]
 }
 
-const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
+const keys = [
+  '_id',
+  'url',
+  'slug',
+  'userId',
+  'uploadFileId',
+  'state',
+  'id',
+] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
 
@@ -244,4 +262,21 @@ export interface PageContext {
   pubsub: PubsubClient
   refresh?: boolean
   uid: string
+}
+
+export interface PageSearchArgs {
+  from?: number
+  size?: number
+  sort?: SortParams
+  query?: string
+  inFilter?: InFilter
+  readFilter?: ReadFilter
+  typeFilter?: PageType
+  labelFilters?: LabelFilter[]
+  hasFilters?: HasFilter[]
+  dateFilters?: DateFilter[]
+  termFilters?: FieldFilter[]
+  matchFilters?: FieldFilter[]
+  includePending?: boolean | null
+  includeDeleted?: boolean
 }

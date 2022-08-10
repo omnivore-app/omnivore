@@ -26,7 +26,7 @@
   },
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
-  "background_color": "#ffffff",
+  "background_color": "#3D3D3D",
   "theme_color": "#FFDE8C",
   "screenshots": [{
     "src": "/static/media/about/library-mobile.png",

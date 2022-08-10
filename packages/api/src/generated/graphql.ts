@@ -183,6 +183,7 @@ export enum ArticleSavingRequestErrorCode {
 export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess;
 
 export enum ArticleSavingRequestStatus {
+  Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',
   Succeeded = 'SUCCEEDED'
@@ -478,6 +479,24 @@ export type DeleteHighlightSuccess = {
   highlight: Highlight;
 };
 
+export type DeleteIntegrationError = {
+  __typename?: 'DeleteIntegrationError';
+  errorCodes: Array<DeleteIntegrationErrorCode>;
+};
+
+export enum DeleteIntegrationErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteIntegrationResult = DeleteIntegrationError | DeleteIntegrationSuccess;
+
+export type DeleteIntegrationSuccess = {
+  __typename?: 'DeleteIntegrationSuccess';
+  integration: Integration;
+};
+
 export type DeleteLabelError = {
   __typename?: 'DeleteLabelError';
   errorCodes: Array<DeleteLabelErrorCode>;
@@ -744,6 +763,37 @@ export type HighlightStats = {
   highlightCount: Scalars['Int'];
 };
 
+export type Integration = {
+  __typename?: 'Integration';
+  createdAt: Scalars['Date'];
+  enabled: Scalars['Boolean'];
+  id: Scalars['ID'];
+  token: Scalars['String'];
+  type: IntegrationType;
+  updatedAt: Scalars['Date'];
+};
+
+export enum IntegrationType {
+  Readwise = 'READWISE'
+}
+
+export type IntegrationsError = {
+  __typename?: 'IntegrationsError';
+  errorCodes: Array<IntegrationsErrorCode>;
+};
+
+export enum IntegrationsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type IntegrationsResult = IntegrationsError | IntegrationsSuccess;
+
+export type IntegrationsSuccess = {
+  __typename?: 'IntegrationsSuccess';
+  integrations: Array<Integration>;
+};
+
 export type Label = {
   __typename?: 'Label';
   color: Scalars['String'];
@@ -751,6 +801,7 @@ export type Label = {
   description?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
+  position?: Maybe<Scalars['Int']>;
 };
 
 export type LabelsError = {
@@ -865,6 +916,29 @@ export type MergeHighlightSuccess = {
   overlapHighlightIdList: Array<Scalars['String']>;
 };
 
+export type MoveLabelError = {
+  __typename?: 'MoveLabelError';
+  errorCodes: Array<MoveLabelErrorCode>;
+};
+
+export enum MoveLabelErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type MoveLabelInput = {
+  afterLabelId?: InputMaybe<Scalars['ID']>;
+  labelId: Scalars['ID'];
+};
+
+export type MoveLabelResult = MoveLabelError | MoveLabelSuccess;
+
+export type MoveLabelSuccess = {
+  __typename?: 'MoveLabelSuccess';
+  label: Label;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPopularRead: AddPopularReadResult;
@@ -879,6 +953,7 @@ export type Mutation = {
   deleteAccount: DeleteAccountResult;
   deleteHighlight: DeleteHighlightResult;
   deleteHighlightReply: DeleteHighlightReplyResult;
+  deleteIntegration: DeleteIntegrationResult;
   deleteLabel: DeleteLabelResult;
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteReaction: DeleteReactionResult;
@@ -889,6 +964,7 @@ export type Mutation = {
   googleSignup: GoogleSignupResult;
   logOut: LogOutResult;
   mergeHighlight: MergeHighlightResult;
+  moveLabel: MoveLabelResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -898,6 +974,7 @@ export type Mutation = {
   setBookmarkArticle: SetBookmarkArticleResult;
   setDeviceToken: SetDeviceTokenResult;
   setFollow: SetFollowResult;
+  setIntegration: SetIntegrationResult;
   setLabels: SetLabelsResult;
   setLabelsForHighlight: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
@@ -975,6 +1052,11 @@ export type MutationDeleteHighlightReplyArgs = {
 };
 
 
+export type MutationDeleteIntegrationArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type MutationDeleteLabelArgs = {
   id: Scalars['ID'];
 };
@@ -1020,6 +1102,11 @@ export type MutationMergeHighlightArgs = {
 };
 
 
+export type MutationMoveLabelArgs = {
+  input: MoveLabelInput;
+};
+
+
 export type MutationReportItemArgs = {
   input: ReportItemInput;
 };
@@ -1062,6 +1149,11 @@ export type MutationSetDeviceTokenArgs = {
 
 export type MutationSetFollowArgs = {
   input: SetFollowInput;
+};
+
+
+export type MutationSetIntegrationArgs = {
+  input: SetIntegrationInput;
 };
 
 
@@ -1255,6 +1347,7 @@ export type Query = {
   getFollowing: GetFollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
   hello?: Maybe<Scalars['String']>;
+  integrations: IntegrationsResult;
   labels: LabelsResult;
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
@@ -1264,6 +1357,7 @@ export type Query = {
   sharedArticle: SharedArticleResult;
   subscriptions: SubscriptionsResult;
   typeaheadSearch: TypeaheadSearchResult;
+  updatesSince: UpdatesSinceResult;
   user: UserResult;
   users: UsersResult;
   validateUsername: Scalars['Boolean'];
@@ -1338,6 +1432,13 @@ export type QuerySubscriptionsArgs = {
 export type QueryTypeaheadSearchArgs = {
   first?: InputMaybe<Scalars['Int']>;
   query: Scalars['String'];
+};
+
+
+export type QueryUpdatesSinceArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  since: Scalars['Date'];
 };
 
 
@@ -1655,6 +1756,33 @@ export type SetFollowSuccess = {
   updatedUser: User;
 };
 
+export type SetIntegrationError = {
+  __typename?: 'SetIntegrationError';
+  errorCodes: Array<SetIntegrationErrorCode>;
+};
+
+export enum SetIntegrationErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  InvalidToken = 'INVALID_TOKEN',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SetIntegrationInput = {
+  enabled: Scalars['Boolean'];
+  id?: InputMaybe<Scalars['ID']>;
+  token: Scalars['String'];
+  type: IntegrationType;
+};
+
+export type SetIntegrationResult = SetIntegrationError | SetIntegrationSuccess;
+
+export type SetIntegrationSuccess = {
+  __typename?: 'SetIntegrationSuccess';
+  integration: Integration;
+};
+
 export type SetLabelsError = {
   __typename?: 'SetLabelsError';
   errorCodes: Array<SetLabelsErrorCode>;
@@ -1892,6 +2020,14 @@ export type SubscriptionsSuccess = {
   subscriptions: Array<Subscription>;
 };
 
+export type SyncUpdatedItemEdge = {
+  __typename?: 'SyncUpdatedItemEdge';
+  cursor: Scalars['String'];
+  itemID: Scalars['ID'];
+  node?: Maybe<SearchItem>;
+  updateReason: UpdateReason;
+};
+
 export type TypeaheadSearchError = {
   __typename?: 'TypeaheadSearchError';
   errorCodes: Array<TypeaheadSearchErrorCode>;
@@ -2059,6 +2195,12 @@ export type UpdatePageSuccess = {
   updatedPage: Article;
 };
 
+export enum UpdateReason {
+  Created = 'CREATED',
+  Deleted = 'DELETED',
+  Updated = 'UPDATED'
+}
+
 export type UpdateReminderError = {
   __typename?: 'UpdateReminderError';
   errorCodes: Array<UpdateReminderErrorCode>;
@@ -2156,6 +2298,23 @@ export type UpdateUserResult = UpdateUserError | UpdateUserSuccess;
 export type UpdateUserSuccess = {
   __typename?: 'UpdateUserSuccess';
   user: User;
+};
+
+export type UpdatesSinceError = {
+  __typename?: 'UpdatesSinceError';
+  errorCodes: Array<UpdatesSinceErrorCode>;
+};
+
+export enum UpdatesSinceErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdatesSinceResult = UpdatesSinceError | UpdatesSinceSuccess;
+
+export type UpdatesSinceSuccess = {
+  __typename?: 'UpdatesSinceSuccess';
+  edges: Array<SyncUpdatedItemEdge>;
+  pageInfo: PageInfo;
 };
 
 export type UploadFileRequestError = {
@@ -2467,6 +2626,10 @@ export type ResolversTypes = {
   DeleteHighlightReplySuccess: ResolverTypeWrapper<DeleteHighlightReplySuccess>;
   DeleteHighlightResult: ResolversTypes['DeleteHighlightError'] | ResolversTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: ResolverTypeWrapper<DeleteHighlightSuccess>;
+  DeleteIntegrationError: ResolverTypeWrapper<DeleteIntegrationError>;
+  DeleteIntegrationErrorCode: DeleteIntegrationErrorCode;
+  DeleteIntegrationResult: ResolversTypes['DeleteIntegrationError'] | ResolversTypes['DeleteIntegrationSuccess'];
+  DeleteIntegrationSuccess: ResolverTypeWrapper<DeleteIntegrationSuccess>;
   DeleteLabelError: ResolverTypeWrapper<DeleteLabelError>;
   DeleteLabelErrorCode: DeleteLabelErrorCode;
   DeleteLabelResult: ResolversTypes['DeleteLabelError'] | ResolversTypes['DeleteLabelSuccess'];
@@ -2522,6 +2685,12 @@ export type ResolversTypes = {
   HighlightStats: ResolverTypeWrapper<HighlightStats>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Integration: ResolverTypeWrapper<Integration>;
+  IntegrationType: IntegrationType;
+  IntegrationsError: ResolverTypeWrapper<IntegrationsError>;
+  IntegrationsErrorCode: IntegrationsErrorCode;
+  IntegrationsResult: ResolversTypes['IntegrationsError'] | ResolversTypes['IntegrationsSuccess'];
+  IntegrationsSuccess: ResolverTypeWrapper<IntegrationsSuccess>;
   Label: ResolverTypeWrapper<Label>;
   LabelsError: ResolverTypeWrapper<LabelsError>;
   LabelsErrorCode: LabelsErrorCode;
@@ -2542,6 +2711,11 @@ export type ResolversTypes = {
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversTypes['MergeHighlightError'] | ResolversTypes['MergeHighlightSuccess'];
   MergeHighlightSuccess: ResolverTypeWrapper<MergeHighlightSuccess>;
+  MoveLabelError: ResolverTypeWrapper<MoveLabelError>;
+  MoveLabelErrorCode: MoveLabelErrorCode;
+  MoveLabelInput: MoveLabelInput;
+  MoveLabelResult: ResolversTypes['MoveLabelError'] | ResolversTypes['MoveLabelSuccess'];
+  MoveLabelSuccess: ResolverTypeWrapper<MoveLabelSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
@@ -2607,6 +2781,11 @@ export type ResolversTypes = {
   SetFollowInput: SetFollowInput;
   SetFollowResult: ResolversTypes['SetFollowError'] | ResolversTypes['SetFollowSuccess'];
   SetFollowSuccess: ResolverTypeWrapper<SetFollowSuccess>;
+  SetIntegrationError: ResolverTypeWrapper<SetIntegrationError>;
+  SetIntegrationErrorCode: SetIntegrationErrorCode;
+  SetIntegrationInput: SetIntegrationInput;
+  SetIntegrationResult: ResolversTypes['SetIntegrationError'] | ResolversTypes['SetIntegrationSuccess'];
+  SetIntegrationSuccess: ResolverTypeWrapper<SetIntegrationSuccess>;
   SetLabelsError: ResolverTypeWrapper<SetLabelsError>;
   SetLabelsErrorCode: SetLabelsErrorCode;
   SetLabelsForHighlightInput: SetLabelsForHighlightInput;
@@ -2653,6 +2832,7 @@ export type ResolversTypes = {
   SubscriptionsErrorCode: SubscriptionsErrorCode;
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
+  SyncUpdatedItemEdge: ResolverTypeWrapper<SyncUpdatedItemEdge>;
   TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
   TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
   TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
@@ -2687,6 +2867,7 @@ export type ResolversTypes = {
   UpdatePageInput: UpdatePageInput;
   UpdatePageResult: ResolversTypes['UpdatePageError'] | ResolversTypes['UpdatePageSuccess'];
   UpdatePageSuccess: ResolverTypeWrapper<UpdatePageSuccess>;
+  UpdateReason: UpdateReason;
   UpdateReminderError: ResolverTypeWrapper<UpdateReminderError>;
   UpdateReminderErrorCode: UpdateReminderErrorCode;
   UpdateReminderInput: UpdateReminderInput;
@@ -2707,6 +2888,10 @@ export type ResolversTypes = {
   UpdateUserProfileSuccess: ResolverTypeWrapper<UpdateUserProfileSuccess>;
   UpdateUserResult: ResolversTypes['UpdateUserError'] | ResolversTypes['UpdateUserSuccess'];
   UpdateUserSuccess: ResolverTypeWrapper<UpdateUserSuccess>;
+  UpdatesSinceError: ResolverTypeWrapper<UpdatesSinceError>;
+  UpdatesSinceErrorCode: UpdatesSinceErrorCode;
+  UpdatesSinceResult: ResolversTypes['UpdatesSinceError'] | ResolversTypes['UpdatesSinceSuccess'];
+  UpdatesSinceSuccess: ResolverTypeWrapper<UpdatesSinceSuccess>;
   UploadFileRequestError: ResolverTypeWrapper<UploadFileRequestError>;
   UploadFileRequestErrorCode: UploadFileRequestErrorCode;
   UploadFileRequestInput: UploadFileRequestInput;
@@ -2803,6 +2988,9 @@ export type ResolversParentTypes = {
   DeleteHighlightReplySuccess: DeleteHighlightReplySuccess;
   DeleteHighlightResult: ResolversParentTypes['DeleteHighlightError'] | ResolversParentTypes['DeleteHighlightSuccess'];
   DeleteHighlightSuccess: DeleteHighlightSuccess;
+  DeleteIntegrationError: DeleteIntegrationError;
+  DeleteIntegrationResult: ResolversParentTypes['DeleteIntegrationError'] | ResolversParentTypes['DeleteIntegrationSuccess'];
+  DeleteIntegrationSuccess: DeleteIntegrationSuccess;
   DeleteLabelError: DeleteLabelError;
   DeleteLabelResult: ResolversParentTypes['DeleteLabelError'] | ResolversParentTypes['DeleteLabelSuccess'];
   DeleteLabelSuccess: DeleteLabelSuccess;
@@ -2848,6 +3036,10 @@ export type ResolversParentTypes = {
   HighlightStats: HighlightStats;
   ID: Scalars['ID'];
   Int: Scalars['Int'];
+  Integration: Integration;
+  IntegrationsError: IntegrationsError;
+  IntegrationsResult: ResolversParentTypes['IntegrationsError'] | ResolversParentTypes['IntegrationsSuccess'];
+  IntegrationsSuccess: IntegrationsSuccess;
   Label: Label;
   LabelsError: LabelsError;
   LabelsResult: ResolversParentTypes['LabelsError'] | ResolversParentTypes['LabelsSuccess'];
@@ -2864,6 +3056,10 @@ export type ResolversParentTypes = {
   MergeHighlightInput: MergeHighlightInput;
   MergeHighlightResult: ResolversParentTypes['MergeHighlightError'] | ResolversParentTypes['MergeHighlightSuccess'];
   MergeHighlightSuccess: MergeHighlightSuccess;
+  MoveLabelError: MoveLabelError;
+  MoveLabelInput: MoveLabelInput;
+  MoveLabelResult: ResolversParentTypes['MoveLabelError'] | ResolversParentTypes['MoveLabelSuccess'];
+  MoveLabelSuccess: MoveLabelSuccess;
   Mutation: {};
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
@@ -2916,6 +3112,10 @@ export type ResolversParentTypes = {
   SetFollowInput: SetFollowInput;
   SetFollowResult: ResolversParentTypes['SetFollowError'] | ResolversParentTypes['SetFollowSuccess'];
   SetFollowSuccess: SetFollowSuccess;
+  SetIntegrationError: SetIntegrationError;
+  SetIntegrationInput: SetIntegrationInput;
+  SetIntegrationResult: ResolversParentTypes['SetIntegrationError'] | ResolversParentTypes['SetIntegrationSuccess'];
+  SetIntegrationSuccess: SetIntegrationSuccess;
   SetLabelsError: SetLabelsError;
   SetLabelsForHighlightInput: SetLabelsForHighlightInput;
   SetLabelsInput: SetLabelsInput;
@@ -2950,6 +3150,7 @@ export type ResolversParentTypes = {
   SubscriptionsError: SubscriptionsError;
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
+  SyncUpdatedItemEdge: SyncUpdatedItemEdge;
   TypeaheadSearchError: TypeaheadSearchError;
   TypeaheadSearchItem: TypeaheadSearchItem;
   TypeaheadSearchResult: ResolversParentTypes['TypeaheadSearchError'] | ResolversParentTypes['TypeaheadSearchSuccess'];
@@ -2993,6 +3194,9 @@ export type ResolversParentTypes = {
   UpdateUserProfileSuccess: UpdateUserProfileSuccess;
   UpdateUserResult: ResolversParentTypes['UpdateUserError'] | ResolversParentTypes['UpdateUserSuccess'];
   UpdateUserSuccess: UpdateUserSuccess;
+  UpdatesSinceError: UpdatesSinceError;
+  UpdatesSinceResult: ResolversParentTypes['UpdatesSinceError'] | ResolversParentTypes['UpdatesSinceSuccess'];
+  UpdatesSinceSuccess: UpdatesSinceSuccess;
   UploadFileRequestError: UploadFileRequestError;
   UploadFileRequestInput: UploadFileRequestInput;
   UploadFileRequestResult: ResolversParentTypes['UploadFileRequestError'] | ResolversParentTypes['UploadFileRequestSuccess'];
@@ -3340,6 +3544,20 @@ export type DeleteHighlightSuccessResolvers<ContextType = ResolverContext, Paren
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeleteIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteIntegrationError'] = ResolversParentTypes['DeleteIntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteIntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteIntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteIntegrationResult'] = ResolversParentTypes['DeleteIntegrationResult']> = {
+  __resolveType: TypeResolveFn<'DeleteIntegrationError' | 'DeleteIntegrationSuccess', ParentType, ContextType>;
+};
+
+export type DeleteIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteIntegrationSuccess'] = ResolversParentTypes['DeleteIntegrationSuccess']> = {
+  integration?: Resolver<ResolversTypes['Integration'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteLabelErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteLabelError'] = ResolversParentTypes['DeleteLabelError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteLabelErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -3555,12 +3773,37 @@ export type HighlightStatsResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type IntegrationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Integration'] = ResolversParentTypes['Integration']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['IntegrationType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type IntegrationsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationsError'] = ResolversParentTypes['IntegrationsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['IntegrationsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type IntegrationsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationsResult'] = ResolversParentTypes['IntegrationsResult']> = {
+  __resolveType: TypeResolveFn<'IntegrationsError' | 'IntegrationsSuccess', ParentType, ContextType>;
+};
+
+export type IntegrationsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationsSuccess'] = ResolversParentTypes['IntegrationsSuccess']> = {
+  integrations?: Resolver<Array<ResolversTypes['Integration']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type LabelResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = {
   color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -3645,6 +3888,20 @@ export type MergeHighlightSuccessResolvers<ContextType = ResolverContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MoveLabelErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveLabelError'] = ResolversParentTypes['MoveLabelError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['MoveLabelErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MoveLabelResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveLabelResult'] = ResolversParentTypes['MoveLabelResult']> = {
+  __resolveType: TypeResolveFn<'MoveLabelError' | 'MoveLabelSuccess', ParentType, ContextType>;
+};
+
+export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveLabelSuccess'] = ResolversParentTypes['MoveLabelSuccess']> = {
+  label?: Resolver<ResolversTypes['Label'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
@@ -3658,6 +3915,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
+  deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
@@ -3668,6 +3926,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
   logOut?: Resolver<ResolversTypes['LogOutResult'], ParentType, ContextType>;
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
+  moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -3677,6 +3936,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
   setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
+  setIntegration?: Resolver<ResolversTypes['SetIntegrationResult'], ParentType, ContextType, RequireFields<MutationSetIntegrationArgs, 'input'>>;
   setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
   setLabelsForHighlight?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsForHighlightArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
@@ -3765,6 +4025,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
@@ -3774,6 +4035,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
   typeaheadSearch?: Resolver<ResolversTypes['TypeaheadSearchResult'], ParentType, ContextType, RequireFields<QueryTypeaheadSearchArgs, 'query'>>;
+  updatesSince?: Resolver<ResolversTypes['UpdatesSinceResult'], ParentType, ContextType, RequireFields<QueryUpdatesSinceArgs, 'since'>>;
   user?: Resolver<ResolversTypes['UserResult'], ParentType, ContextType, Partial<QueryUserArgs>>;
   users?: Resolver<ResolversTypes['UsersResult'], ParentType, ContextType>;
   validateUsername?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidateUsernameArgs, 'username'>>;
@@ -3982,6 +4244,20 @@ export type SetFollowSuccessResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SetIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetIntegrationError'] = ResolversParentTypes['SetIntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SetIntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SetIntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetIntegrationResult'] = ResolversParentTypes['SetIntegrationResult']> = {
+  __resolveType: TypeResolveFn<'SetIntegrationError' | 'SetIntegrationSuccess', ParentType, ContextType>;
+};
+
+export type SetIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetIntegrationSuccess'] = ResolversParentTypes['SetIntegrationSuccess']> = {
+  integration?: Resolver<ResolversTypes['Integration'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SetLabelsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetLabelsError'] = ResolversParentTypes['SetLabelsError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SetLabelsErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4113,6 +4389,14 @@ export type SubscriptionsResultResolvers<ContextType = ResolverContext, ParentTy
 
 export type SubscriptionsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SubscriptionsSuccess'] = ResolversParentTypes['SubscriptionsSuccess']> = {
   subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SyncUpdatedItemEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SyncUpdatedItemEdge'] = ResolversParentTypes['SyncUpdatedItemEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  itemID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['SearchItem']>, ParentType, ContextType>;
+  updateReason?: Resolver<ResolversTypes['UpdateReason'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4276,6 +4560,21 @@ export type UpdateUserResultResolvers<ContextType = ResolverContext, ParentType 
 
 export type UpdateUserSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateUserSuccess'] = ResolversParentTypes['UpdateUserSuccess']> = {
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdatesSinceErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceError'] = ResolversParentTypes['UpdatesSinceError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdatesSinceErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdatesSinceResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceResult'] = ResolversParentTypes['UpdatesSinceResult']> = {
+  __resolveType: TypeResolveFn<'UpdatesSinceError' | 'UpdatesSinceSuccess', ParentType, ContextType>;
+};
+
+export type UpdatesSinceSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatesSinceSuccess'] = ResolversParentTypes['UpdatesSinceSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['SyncUpdatedItemEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4449,6 +4748,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteHighlightReplySuccess?: DeleteHighlightReplySuccessResolvers<ContextType>;
   DeleteHighlightResult?: DeleteHighlightResultResolvers<ContextType>;
   DeleteHighlightSuccess?: DeleteHighlightSuccessResolvers<ContextType>;
+  DeleteIntegrationError?: DeleteIntegrationErrorResolvers<ContextType>;
+  DeleteIntegrationResult?: DeleteIntegrationResultResolvers<ContextType>;
+  DeleteIntegrationSuccess?: DeleteIntegrationSuccessResolvers<ContextType>;
   DeleteLabelError?: DeleteLabelErrorResolvers<ContextType>;
   DeleteLabelResult?: DeleteLabelResultResolvers<ContextType>;
   DeleteLabelSuccess?: DeleteLabelSuccessResolvers<ContextType>;
@@ -4488,6 +4790,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   Highlight?: HighlightResolvers<ContextType>;
   HighlightReply?: HighlightReplyResolvers<ContextType>;
   HighlightStats?: HighlightStatsResolvers<ContextType>;
+  Integration?: IntegrationResolvers<ContextType>;
+  IntegrationsError?: IntegrationsErrorResolvers<ContextType>;
+  IntegrationsResult?: IntegrationsResultResolvers<ContextType>;
+  IntegrationsSuccess?: IntegrationsSuccessResolvers<ContextType>;
   Label?: LabelResolvers<ContextType>;
   LabelsError?: LabelsErrorResolvers<ContextType>;
   LabelsResult?: LabelsResultResolvers<ContextType>;
@@ -4503,6 +4809,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   MergeHighlightError?: MergeHighlightErrorResolvers<ContextType>;
   MergeHighlightResult?: MergeHighlightResultResolvers<ContextType>;
   MergeHighlightSuccess?: MergeHighlightSuccessResolvers<ContextType>;
+  MoveLabelError?: MoveLabelErrorResolvers<ContextType>;
+  MoveLabelResult?: MoveLabelResultResolvers<ContextType>;
+  MoveLabelSuccess?: MoveLabelSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   NewsletterEmail?: NewsletterEmailResolvers<ContextType>;
   NewsletterEmailsError?: NewsletterEmailsErrorResolvers<ContextType>;
@@ -4545,6 +4854,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SetFollowError?: SetFollowErrorResolvers<ContextType>;
   SetFollowResult?: SetFollowResultResolvers<ContextType>;
   SetFollowSuccess?: SetFollowSuccessResolvers<ContextType>;
+  SetIntegrationError?: SetIntegrationErrorResolvers<ContextType>;
+  SetIntegrationResult?: SetIntegrationResultResolvers<ContextType>;
+  SetIntegrationSuccess?: SetIntegrationSuccessResolvers<ContextType>;
   SetLabelsError?: SetLabelsErrorResolvers<ContextType>;
   SetLabelsResult?: SetLabelsResultResolvers<ContextType>;
   SetLabelsSuccess?: SetLabelsSuccessResolvers<ContextType>;
@@ -4571,6 +4883,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsError?: SubscriptionsErrorResolvers<ContextType>;
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
+  SyncUpdatedItemEdge?: SyncUpdatedItemEdgeResolvers<ContextType>;
   TypeaheadSearchError?: TypeaheadSearchErrorResolvers<ContextType>;
   TypeaheadSearchItem?: TypeaheadSearchItemResolvers<ContextType>;
   TypeaheadSearchResult?: TypeaheadSearchResultResolvers<ContextType>;
@@ -4605,6 +4918,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateUserProfileSuccess?: UpdateUserProfileSuccessResolvers<ContextType>;
   UpdateUserResult?: UpdateUserResultResolvers<ContextType>;
   UpdateUserSuccess?: UpdateUserSuccessResolvers<ContextType>;
+  UpdatesSinceError?: UpdatesSinceErrorResolvers<ContextType>;
+  UpdatesSinceResult?: UpdatesSinceResultResolvers<ContextType>;
+  UpdatesSinceSuccess?: UpdatesSinceSuccessResolvers<ContextType>;
   UploadFileRequestError?: UploadFileRequestErrorResolvers<ContextType>;
   UploadFileRequestResult?: UploadFileRequestResultResolvers<ContextType>;
   UploadFileRequestSuccess?: UploadFileRequestSuccessResolvers<ContextType>;
