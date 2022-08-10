@@ -1,20 +1,20 @@
 /* Menu Override styles */
 
-.pro-sidebar>.pro-sidebar-inner {
-    background-color: var(--colors-grayBase);
-    color: var(--colors-utilityTextDefault);
+.pro-sidebar > .pro-sidebar-inner, .pro-sidebar .pro-menu a {
+  background-color: var(--colors-grayBase);
+  color: var(--colors-utilityTextDefault);
 }
 
-.pro-sidebar .pro-menu a {
-    color: var(--colors-utilityTextDefault);
+.pro-sidebar .pro-menu a:hover {
+  color: var(--colors-utilityTextDefault);
 }
 
-.pro-sidebar .pro-menu .pro-menu-item>.pro-inner-item {
-    padding: 3px 20px 3px 20px;
+.pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item {
+  padding: 3px 20px 3px 20px;
 }
 
-.pro-sidebar .pro-menu .pro-menu-item>.pro-inner-item>.pro-icon-wrapper {
-    width: 20px;
-    min-width: 0;
-    height: 25px;
+.pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
+  width: 20px;
+  min-width: 0;
+  height: 25px;
 }
