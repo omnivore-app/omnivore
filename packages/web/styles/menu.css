@@ -1,14 +1,20 @@
 /* Menu Override styles */
 
-.pro-sidebar > .pro-sidebar-inner {
+.pro-sidebar>.pro-sidebar-inner {
     background-color: var(--colors-grayBase);
-    color: #000;
-  }
-
-  .pro-sidebar .pro-menu a {
-    color: #000;
+    color: var(--colors-utilityTextDefault);
 }
 
-.pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item {
-    padding: 5px 30px 5px 20px;
+.pro-sidebar .pro-menu a {
+    color: var(--colors-utilityTextDefault);
+}
+
+.pro-sidebar .pro-menu .pro-menu-item>.pro-inner-item {
+    padding: 3px 20px 3px 20px;
+}
+
+.pro-sidebar .pro-menu .pro-menu-item>.pro-inner-item>.pro-icon-wrapper {
+    width: 20px;
+    min-width: 0;
+    height: 25px;
 }

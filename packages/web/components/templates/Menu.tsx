@@ -27,9 +27,6 @@ const calculateTodayMenuItem = () => {
   const hrefStr = `?q=in%3Ainbox+saved%3A${
     new Date(new Date().getTime() - 24 * 3600000).toISOString().split('T')[0]
   }Z%${timeZoneHourDiff}B2..*`
-  //  console.log(timeZoneHourDiff.toLocaleString('en-US', {
-  //     signDisplay: 'always',
-  //   }))
   return hrefStr
 }
 
@@ -106,12 +103,6 @@ export const Menubar = () => {
       ...createDynamicMenuItems(labels, subscriptions),
     ])
   }, [labels, subscriptions])
-  //   const menuItems = useMemo(() => {
-  //     if (labels || subscriptions) {
-  //       setMenuList( [...menuList, ...createDynamicMenuItems(labels, subscriptions)])
-  //     }
-  //   }, [labels, subscriptions, menuList])
-
   return (
     <ProSidebar style={proSideBarStyles} breakPoint={'sm'}>
       <Menu>
