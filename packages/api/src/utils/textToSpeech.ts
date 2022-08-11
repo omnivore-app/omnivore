@@ -1,16 +1,10 @@
 import * as AWS from 'aws-sdk'
 import { buildLogger } from './logger'
 import { SynthesizeSpeechInput } from 'aws-sdk/clients/polly'
-import {
-  generateUploadFilePathName,
-  generateUploadSignedUrl,
-  getFilePublicUrl,
-  uploadToSignedUrl,
-} from './uploads'
+import { getFilePublicUrl, uploadToBucket } from './uploads'
 
 export interface TextToSpeechInput {
   id: string
-  title: string
   text: string
   voice?: string
   textType?: 'text' | 'ssml'
@@ -74,16 +68,18 @@ export const createAudioWithSpeechMarks = async (
   try {
     const audio = await createAudio(input)
     // upload audio to google cloud storage
-    logger.info('generating upload url...')
-    const filePathName = generateUploadFilePathName(input.id, input.title)
-    const contentType = 'audio/mpeg'
-    const uploadUrl = await generateUploadSignedUrl(filePathName, contentType)
+    const filePath = `speech/${input.id}.mp3`
 
-    logger.info('start uploading...', { uploadUrl })
-    await uploadToSignedUrl(uploadUrl, audio, contentType)
+    logger.info('start uploading...', { filePath })
+    await uploadToBucket(filePath, audio, {
+      contentType: 'audio/mpeg',
+      public: true,
+    })
 
     // get public url for audio file
-    const publicUrl = getFilePublicUrl(filePathName)
+    const publicUrl = getFilePublicUrl(filePath)
+    logger.info('upload complete', { publicUrl })
+
     const speechMarks = await createSpeechMarks(input)
     return {
       audioUrl: publicUrl,

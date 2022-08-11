@@ -3,60 +3,52 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
-import { generateUploadSignedUrl, uploadToSignedUrl } from '../../utils/uploads'
+import { uploadToBucket } from '../../utils/uploads'
 import { v4 as uuidv4 } from 'uuid'
 import { env } from '../../env'
 import { DateTime } from 'luxon'
+import { buildLogger } from '../../utils/logger'
+
+const logger = buildLogger('app.dispatch')
 
 export function uploadServiceRouter() {
   const router = express.Router()
 
   router.post('/:folder', async (req, res) => {
-    console.log('upload data to folder', req.params.folder)
+    logger.info('upload data to folder', req.params.folder)
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {
-      res.status(400).send('Bad Request')
-      return
+      return res.status(400).send('Bad Request')
     }
 
     if (expired) {
-      console.log('discarding expired message')
-      res.status(200).send('Expired')
-      return
+      logger.info('discarding expired message')
+      return res.status(200).send('Expired')
     }
 
     try {
       const data: { userId: string; type: string } = JSON.parse(msgStr)
       if (!data.userId || !data.type) {
-        console.log('No userId or type found in message')
-        res.status(400).send('Bad Request')
-        return
+        logger.info('No userId or type found in message')
+        return res.status(400).send('Bad Request')
       }
 
-      const contentType = 'application/json'
-      const bucketName = env.fileUpload.gcsUploadPrivateBucket
+      const filePath = `${req.params.folder}/${data.type}/${
+        data.userId
+      }/${DateTime.now().toFormat('yyyy-LL-dd')}/${uuidv4()}.json`
 
-      console.log('generate upload url')
-
-      const uploadUrl = await generateUploadSignedUrl(
-        `${req.params.folder}/${data.type}/${
-          data.userId
-        }/${DateTime.now().toFormat('yyyy-LL-dd')}/${uuidv4()}.json`,
-        contentType,
-        bucketName
-      )
-
-      console.log('start uploading', uploadUrl)
-
-      await uploadToSignedUrl(
-        uploadUrl,
+      logger.info('uploading data to', filePath)
+      await uploadToBucket(
+        filePath,
         Buffer.from(msgStr, 'utf8'),
-        contentType
+        { contentType: 'application/json' },
+        env.fileUpload.gcsUploadPrivateBucket
       )
+
       res.status(200).send('OK')
     } catch (err) {
-      console.log('upload page data failed', err)
+      logger.error('upload page data failed', err)
       res.status(500).send(err)
     }
   })
