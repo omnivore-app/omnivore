@@ -61,7 +61,7 @@ export const createSpeechMarks = async (
   }
   try {
     const data = await client.synthesizeSpeech(params).promise()
-    return data.AudioStream as string
+    return (data.AudioStream as Buffer).toString()
   } catch (error) {
     logger.error('Unable to create speech marks', { error })
     throw error
@@ -90,7 +90,7 @@ export const createAudioWithSpeechMarks = async (
       speechMarks,
     }
   } catch (error) {
-    logger.error('Unable to create audio with speech marks', { error })
+    logger.error('Unable to create audio with speech marks', error)
     throw error
   }
 }
