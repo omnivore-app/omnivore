@@ -5,18 +5,18 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 
 import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar'
-import { TagSimple } from 'phosphor-react'
+import { Tag, TagSimple } from 'phosphor-react'
 
 // styles
 const proSideBarStyles = {
   display: 'inline-block',
-  marginTop:'120px',
 }
 
 // Types
 type MenuItems = {
   label: string
   query: string
+  active?: boolean
   icon: string | JSX.Element | null
   href: string
 }
@@ -42,7 +42,7 @@ const createDynamicMenuItems = (
       labelsList.push({
         label: l.name,
         query: `label:"${l.name}"`,
-        icon: <TagSimple size={24} />,
+        icon: <Tag size={18} weight="light" />,
         href: `?q=label:"${l.name}"`,
       })
     )
@@ -75,6 +75,7 @@ export const Menubar = () => {
         query: 'in:inbox',
         icon: null,
         href: '/home',
+        active: true,
       },
       {
         label: 'Today',
@@ -109,7 +110,7 @@ export const Menubar = () => {
         {menuList.length > 0 &&
           menuList.map((item) => {
             return (
-              <MenuItem key={item.label} icon={item.icon}>
+              <MenuItem key={item.label} icon={item.icon} active={item.active ?? false}>
                 <Link passHref href={item.href}>
                   {item.label}
                 </Link>
