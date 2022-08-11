@@ -1,7 +1,7 @@
 /* Menu Override styles */
 
 .pro-sidebar > .pro-sidebar-inner, .pro-sidebar .pro-menu a {
-  background-color: var(--colors-grayBase);
+  background-color: var(--colors-libraryBackground);
   color: var(--colors-utilityTextDefault);
 }
 
@@ -10,8 +10,13 @@
 }
 
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item {
-  padding: 3px 20px 3px 20px;
+  padding: 8px 20px 3px 20px;
 }
+
+/* .pro-sidebar .pro-menu .active > .pro-inner-item {
+  background-color: #F8F8F8;
+  border-radius: 8px;
+} */
 
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
   width: 20px;
