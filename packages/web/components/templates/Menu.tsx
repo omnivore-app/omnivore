@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 
-import { ProSidebar, Menu, MenuItem } from 'react-pro-sidebar'
-import { Tag, TagSimple } from 'phosphor-react'
+import { ProSidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
+import { Tag } from 'phosphor-react'
 
 // styles
 const proSideBarStyles = {
@@ -37,7 +37,7 @@ const createDynamicMenuItems = (
   const labelsList: Array<MenuItems> = []
   const subscriptionsList: Array<MenuItems> = []
   // Create labels list
-  if (labels) {
+  if (labels.length) {
     labels.map((l) =>
       labelsList.push({
         label: l.name,
@@ -48,7 +48,7 @@ const createDynamicMenuItems = (
     )
   }
   // create subscriptions list
-  if (subscriptions) {
+  if (subscriptions.length) {
     subscriptions.map((s) =>
       subscriptionsList.push({
         label: s.name,
@@ -58,7 +58,7 @@ const createDynamicMenuItems = (
       })
     )
   }
-  return [...labelsList, ...subscriptionsList]
+  return [{ labels: [...labelsList], subscriptions: [...subscriptionsList] }]
 }
 
 // Component
@@ -67,8 +67,14 @@ export const Menubar = () => {
   const { subscriptions } = useGetSubscriptionsQuery()
 
   const [menuList, setMenuList] = useState<Array<MenuItems>>([])
+  const [dynamicMenuItems, setDynamicMenuItems] = useState<Array<any>>([
+    { labels: Array<MenuItems>(), subscriptions: Array<MenuItems>() },
+  ])
 
   useEffect(() => {
+    if (labels || subscriptions) {
+      setDynamicMenuItems(createDynamicMenuItems(labels, subscriptions))
+    }
     setMenuList([
       {
         label: 'Home',
@@ -101,20 +107,62 @@ export const Menubar = () => {
         icon: null,
         href: `?q=in:inbox+label:Newsletter`,
       },
-      ...createDynamicMenuItems(labels, subscriptions),
     ])
-  }, [labels, subscriptions])
+  },[labels, subscriptions])
+
   return (
     <ProSidebar style={proSideBarStyles} breakPoint={'sm'}>
       <Menu>
         {menuList.length > 0 &&
           menuList.map((item) => {
             return (
-              <MenuItem key={item.label} icon={item.icon} active={item.active ?? false}>
+              <MenuItem
+                key={item.label}
+                icon={item.icon}
+                active={item.active ?? false}
+              >
                 <Link passHref href={item.href}>
                   {item.label}
                 </Link>
               </MenuItem>
+            )
+          })}
+        {dynamicMenuItems.length > 0 &&
+          dynamicMenuItems[0].labelsList.map((item: MenuItems) => {
+            return (
+              <SubMenu
+                key={dynamicMenuItems[0].labelsList}
+                title={dynamicMenuItems[0].labelsList}
+              >
+                <MenuItem
+                  key={item.label}
+                  icon={item.icon}
+                  active={item.active ?? false}
+                >
+                  <Link passHref href={item.href}>
+                    {item.label}
+                  </Link>
+                </MenuItem>
+              </SubMenu>
+            )
+          })}
+        {dynamicMenuItems.length > 0 &&
+          dynamicMenuItems[0].subscriptionsList.map((item: MenuItems) => {
+            return (
+              <SubMenu
+                key={dynamicMenuItems[0].subscriptionList}
+                title={dynamicMenuItems[0].subscriptionList}
+              >
+                <MenuItem
+                  key={item.label}
+                  icon={item.icon}
+                  active={item.active ?? false}
+                >
+                  <Link passHref href={item.href}>
+                    {item.label}
+                  </Link>
+                </MenuItem>
+              </SubMenu>
             )
           })}
       </Menu>
