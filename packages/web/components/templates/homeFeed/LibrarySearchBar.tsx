@@ -49,14 +49,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
   )
 
   return (
-    <VStack
-      css={{
-        width: '95%',
-        position: 'absolute',
-        top: '105px',
-        left: '20px',
-      }}
-    >
+    <VStack css={{ width: '100%' }}>
       <HStack
         alignment="center"
         distribution="start"
