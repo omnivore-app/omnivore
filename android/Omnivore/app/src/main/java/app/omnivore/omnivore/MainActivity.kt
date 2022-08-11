@@ -24,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -43,7 +45,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginView(viewModel: LoginViewModel = LoginViewModel()) {
+fun LoginView(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -125,10 +127,10 @@ fun LoginFields(
 //  showBackground = true,
 //  name = "Dark Mode"
 //)
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-  OmnivoreTheme {
-    LoginView()
-  }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//  OmnivoreTheme {
+//    LoginView()
+//  }
+//}
