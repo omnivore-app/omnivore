@@ -20,7 +20,7 @@ export const Button = styled('button', {
       },
       ctaDarkYellow: {
         border: 0,
-        fontSize: '16px',
+        fontSize: '14px',
         fontWeight: 500,
         fontStyle: 'normal',
         fontFamily: 'Inter',
@@ -28,7 +28,7 @@ export const Button = styled('button', {
         cursor: 'pointer',
         color: '$omnivoreGray',
         bg: '$omnivoreCtaYellow',
-        p: '10px 12px',
+        p: '10px 13px',
       },
       ctaOutlineYellow: {
         boxSizing: 'border-box',
