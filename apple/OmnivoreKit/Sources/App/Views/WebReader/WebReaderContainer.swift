@@ -55,6 +55,27 @@ struct WebReaderContainerView: View {
     }
   }
 
+  static var player: AVAudioPlayer?
+
+  func playSound() {
+    guard let url = Bundle.main.url(forResource: "speech-sample", withExtension: "mp3") else { return }
+
+    do {
+      print("starting to play audio")
+      try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
+      try AVAudioSession.sharedInstance().setActive(true)
+
+      let player = try AVAudioPlayer(contentsOf: url)
+//
+//      player.enableRate = true
+//      player.rate = 1.5
+      player.play()
+
+    } catch {
+      print("error playing audio", error.localizedDescription)
+    }
+  }
+
   var navBar: some View {
     HStack(alignment: .center) {
       #if os(iOS)
@@ -73,9 +94,11 @@ struct WebReaderContainerView: View {
       if FeatureFlag.enableTextToSpeechButton {
         Button(
           action: {
-            guard let htmlContent = item.htmlContent else { return }
-            let synthesizer = AVSpeechSynthesizer()
-            synthesizer.speak(AVSpeechUtterance(string: htmlContent))
+//            guard let htmlContent = item.htmlContent else { return }
+//            let synthesizer = AVSpeechSynthesizer()
+//            synthesizer.speak(AVSpeechUtterance(string: htmlContent))
+//            synthesizer.sp
+            playSound()
           },
           label: {
             Image(systemName: "play")
