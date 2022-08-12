@@ -21,6 +21,11 @@ type MenuItems = {
   href: string
 }
 
+type DynamicMenuItems = {
+  labels?: MenuItems[]
+  subscriptions?: MenuItems[]
+}
+
 // Functions
 const calculateTodayMenuItem = () => {
   const timeZoneHourDiff = -new Date().getTimezoneOffset() / 60
@@ -58,7 +63,7 @@ const createDynamicMenuItems = (
       })
     )
   }
-  return [{ labels: [...labelsList], subscriptions: [...subscriptionsList] }]
+  return { labels: [...labelsList], subscriptions: [...subscriptionsList] }
 }
 
 // Component
@@ -67,9 +72,7 @@ export const Menubar = () => {
   const { subscriptions } = useGetSubscriptionsQuery()
 
   const [menuList, setMenuList] = useState<Array<MenuItems>>([])
-  const [dynamicMenuItems, setDynamicMenuItems] = useState<Array<any>>([
-    { labels: Array<MenuItems>(), subscriptions: Array<MenuItems>() },
-  ])
+  const [dynamicMenuItems, setDynamicMenuItems] = useState<DynamicMenuItems>({})
 
   useEffect(() => {
     if (labels || subscriptions) {
@@ -127,14 +130,13 @@ export const Menubar = () => {
               </MenuItem>
             )
           })}
-        {dynamicMenuItems.length > 0 &&
-          dynamicMenuItems[0].labelsList.map((item: MenuItems) => {
-            return (
-              <SubMenu
-                key={dynamicMenuItems[0].labelsList}
-                title={dynamicMenuItems[0].labelsList}
-              >
-                <MenuItem
+          {dynamicMenuItems.labels &&
+            <SubMenu
+              key="labels-list"
+              title="Labels"
+            >
+              {dynamicMenuItems.labels.map((item: MenuItems) => {
+                return (<MenuItem
                   key={item.label}
                   icon={item.icon}
                   active={item.active ?? false}
@@ -142,29 +144,30 @@ export const Menubar = () => {
                   <Link passHref href={item.href}>
                     {item.label}
                   </Link>
-                </MenuItem>
-              </SubMenu>
-            )
-          })}
-        {dynamicMenuItems.length > 0 &&
-          dynamicMenuItems[0].subscriptionsList.map((item: MenuItems) => {
-            return (
-              <SubMenu
-                key={dynamicMenuItems[0].subscriptionList}
-                title={dynamicMenuItems[0].subscriptionList}
-              >
-                <MenuItem
-                  key={item.label}
-                  icon={item.icon}
-                  active={item.active ?? false}
-                >
-                  <Link passHref href={item.href}>
-                    {item.label}
-                  </Link>
-                </MenuItem>
-              </SubMenu>
-            )
-          })}
+                </MenuItem>)
+              })}
+            </SubMenu>
+          }
+          {dynamicMenuItems.subscriptions &&
+            <SubMenu
+              key="subscriptions-list"
+              title="Subscriptions"
+            >
+              {dynamicMenuItems.subscriptions.map((item: MenuItems) => {
+                return (
+                  <MenuItem
+                    key={item.label}
+                    icon={item.icon}
+                    active={item.active ?? false}
+                  >
+                    <Link passHref href={item.href}>
+                      {item.label}
+                    </Link>
+                  </MenuItem>
+                )
+              })}
+            </SubMenu>
+          }
       </Menu>
     </ProSidebar>
   )
