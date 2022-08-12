@@ -26,7 +26,7 @@ export const createAudio = async (
 ): Promise<Buffer> => {
   const { text, voice, textType, engine } = input
   const params: SynthesizeSpeechInput = {
-    OutputFormat: 'mp3',
+    OutputFormat: 'ogg_vorbis',
     Text: text,
     TextType: textType || 'text',
     VoiceId: voice || 'Joanna',
@@ -51,7 +51,7 @@ export const createSpeechMarks = async (
     TextType: textType || 'text',
     VoiceId: voice || 'Joanna',
     Engine: engine || 'neural',
-    SpeechMarkTypes: ['sentence', 'word'],
+    SpeechMarkTypes: ['sentence'],
   }
   try {
     const data = await client.synthesizeSpeech(params).promise()
@@ -68,11 +68,11 @@ export const createAudioWithSpeechMarks = async (
   try {
     const audio = await createAudio(input)
     // upload audio to google cloud storage
-    const filePath = `speech/${input.id}.mp3`
+    const filePath = `speech/${input.id}.ogg`
 
     logger.info('start uploading...', { filePath })
     await uploadToBucket(filePath, audio, {
-      contentType: 'audio/mpeg',
+      contentType: 'audio/ogg',
       public: true,
     })
 
