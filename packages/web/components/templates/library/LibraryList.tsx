@@ -100,7 +100,7 @@ export function LibraryList(): JSX.Element {
                 item={linkedItem.node}
                 viewer={viewerData.me}
                 handleAction={(action: LinkedItemCardAction) => {
-                  
+                  console.log('card clicked')
                 }}
               />
             )}
