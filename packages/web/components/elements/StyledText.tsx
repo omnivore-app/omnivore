@@ -152,6 +152,15 @@ const textVariants = {
       fontWeight: '500',
       lineHeight: 'unset',
     },
+    libraryHeader: {
+      pt: '0px',
+      m: '0px',
+      fontSize: 24,
+      fontFamily: 'inter',
+      lineHeight: 'unset',
+      fontWeight: 'medium',
+      color: '$textSubtle',
+    },
     error: {
       color: '$error',
       fontSize: '$2',

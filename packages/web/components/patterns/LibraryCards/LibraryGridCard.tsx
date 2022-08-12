@@ -9,21 +9,19 @@ import { LabelChip } from '../../elements/LabelChip'
 import { ProgressBar } from '../../elements/ProgressBar'
 import type { LinkedItemCardProps } from './CardTypes'
 
-export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
+export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   return (
     <VStack
       css={{
-        p: '$2',
-        pr: '8px',
+        p: '12px', 
         height: '100%',
         width: '100%',
         maxWidth: '100%',
-        borderRadius: '6px',
+        borderRadius: '8px',
         cursor: 'pointer',
         wordBreak: 'break-word',
         overflow: 'clip',
-        border: '1px solid $grayBorder',
-        boxShadow: '0px 3px 11px rgba(32, 31, 29, 0.04)',
+        border: '1px solid $border',
         position: 'relative',
       }}
       alignment="start"
@@ -32,26 +30,18 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
         props.handleAction('showDetail')
       }}
     >
-      <Box
-        css={{
-          position: 'absolute',
-          top: '1px',
-          left: '1px',
-          width: 'calc(100% - 2px)',
-          '& > div': {
-            borderRadius: '100vmax 100vmax 0 0',
-          },
-        }}
-      >
-        <ProgressBar
-          fillPercentage={props.item.readingProgressPercent}
-          fillColor={theme.colors.highlight.toString()}
-          backgroundColor="transparent"
-          borderRadius={
-            props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
-          }
+      {props.item.image && (
+        <CoverImage
+          src={props.item.image}
+          alt="Link Preview Image"
+          width="100%"
+          height={160}
+          css={{ borderRadius: '8px' }}
+          onError={(e) => {
+            ;(e.target as HTMLElement).style.display = 'none'
+          }}
         />
-      </Box>
+      )}
       <VStack
         distribution="start"
         alignment="start"
@@ -75,7 +65,7 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
           }}
         >
           <CardTitle title={props.item.title} />
-          <Box
+          {/* <Box
             css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
             onClick={(e) => {
               // This is here to prevent menu click events from bubbling
@@ -95,9 +85,9 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
               }
               actionHandler={props.handleAction}
             />
-          </Box>
+          </Box> */}
         </HStack>
-        <HStack alignment="start" distribution="between">
+        {/* <HStack alignment="start" distribution="between">
           <StyledText style="caption" css={{ my: '0', mt: '-$2' }}>
             {props.item.author && (
               <SpanBox css={{ mr: '8px' }}>
@@ -108,7 +98,7 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
               {props.originText}
             </SpanBox>
           </StyledText>
-        </HStack>
+        </HStack> */}
       </VStack>
       <HStack
         alignment="start"
@@ -142,24 +132,21 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
         >
           {props.item.description}
         </StyledText>
-        {props.item.image && (
-          <CoverImage
-            src={props.item.image}
-            alt="Link Preview Image"
-            width={135}
-            height={90}
-            css={{ ml: '10px', mb: '8px', borderRadius: '3px' }}
-            onError={(e) => {
-              ;(e.target as HTMLElement).style.display = 'none'
-            }}
-          />
-        )}
+
       </HStack>
-      <Box css={{ display: 'block', mt: '8px' }}>
+      <Box css={{ display: 'block', py: '12px' }}>
         {props.item.labels?.map(({ name, color }, index) => (
           <LabelChip key={index} text={name || ''} color={color} />
         ))}
       </Box>
+      <ProgressBar
+          fillPercentage={props.item.readingProgressPercent}
+          fillColor={theme.colors.highlight.toString()}
+          backgroundColor={theme.colors.lightBorder.toString()}
+          borderRadius={
+            props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
+          }
+        />
     </VStack>
   )
 }
@@ -176,12 +163,13 @@ function CardTitle(props: CardTitleProps): JSX.Element {
       css={{
         mt: '0',
         mb: '0',
-        fontWeight: '700',
+        fontSize: '18px',
         textAlign: 'left',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
+        lineHeight: '1.25',
+        // whiteSpace: 'nowrap',
+        // textOverflow: 'ellipsis',
         width: '100%',
-        overflow: 'hidden',
+        // overflow: 'hidden',
       }}
     >
       {props.title}

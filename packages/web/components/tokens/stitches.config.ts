@@ -112,6 +112,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBg: '#FFFFFF',
         grayBgActive: '#e6e6e6',
         grayBorder: '#F0F0F0',
+        lightBorder: '#F0F0F0',
         grayTextContrast: '#3A3939',
         graySolid: '#9C9B9A',
         textDefault: 'rgba(255, 255, 255, 0.8)',
@@ -154,6 +155,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         labelButtonsBg: '#F5F5F4',
         tooltipIcons: '#FDFAEC',
+
+        textSubtle: '#605F5D',
+        libraryActive: '#F8F8F8',
+        libraryBackground: '#FFFFFF',
+        border: '#F0F0F0',
+
 
         //utility
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
@@ -206,6 +213,11 @@ const darkThemeSpec = {
     tooltipIcons: '#5F5E58',
     avatarBg: '#000000',
     avatarFont: 'rgba(255, 255, 255, 0.8)',
+
+    textSubtle: '#AAAAAA',
+    libraryActive: '#3B3938',
+    libraryBackground: '#252525',
+    border: '#323232',
 
     //utility
     utilityTextSubtle: 'rgba(255, 255, 255, 0.65)',
