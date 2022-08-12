@@ -2,6 +2,7 @@ package app.omnivore.omnivore
 
 import android.content.ContentValues
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
