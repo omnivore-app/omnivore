@@ -5,7 +5,7 @@ import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuer
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 
 import { ProSidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar'
-import { Tag } from 'phosphor-react'
+import { Newspaper, Tag } from 'phosphor-react'
 
 // styles
 const proSideBarStyles = {
@@ -58,7 +58,7 @@ const createDynamicMenuItems = (
       subscriptionsList.push({
         label: s.name,
         query: `subscription:"${s.subscription}"`,
-        icon: 'subscription',
+        icon: <Newspaper size={18} weight="light" />,
         href: `?q=subscription:"${s.subscription}"`,
       })
     )
