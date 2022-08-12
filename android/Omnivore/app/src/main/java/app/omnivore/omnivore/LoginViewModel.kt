@@ -34,7 +34,7 @@ class LoginViewModel @Inject constructor(
           DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
         )
       }
-      
+
       datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)?.let {
         Log.d(ContentValues.TAG, it)
       }
