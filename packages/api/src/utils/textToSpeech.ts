@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk'
 import { buildLogger } from './logger'
-import { SynthesizeSpeechInput } from 'aws-sdk/clients/polly'
 import { getFilePublicUrl, uploadToBucket } from './uploads'
+import { SynthesizeSpeechInput } from 'aws-sdk/clients/polly'
 
 export interface TextToSpeechInput {
   id: string
@@ -9,6 +9,7 @@ export interface TextToSpeechInput {
   voice?: string
   textType?: 'text' | 'ssml'
   engine?: 'standard' | 'neural'
+  languageCode?: string
 }
 
 export interface TextToSpeechOutput {
@@ -24,13 +25,14 @@ const client = new AWS.Polly()
 export const createAudio = async (
   input: TextToSpeechInput
 ): Promise<Buffer> => {
-  const { text, voice, textType, engine } = input
+  const { text, voice, textType, engine, languageCode } = input
   const params: SynthesizeSpeechInput = {
     OutputFormat: 'ogg_vorbis',
     Text: text,
     TextType: textType || 'text',
     VoiceId: voice || 'Joanna',
     Engine: engine || 'neural',
+    LanguageCode: languageCode || 'en-US',
   }
   try {
     const data = await client.synthesizeSpeech(params).promise()
@@ -44,14 +46,15 @@ export const createAudio = async (
 export const createSpeechMarks = async (
   input: TextToSpeechInput
 ): Promise<string> => {
-  const { text, voice, textType, engine } = input
+  const { text, voice, textType, engine, languageCode } = input
   const params: SynthesizeSpeechInput = {
     OutputFormat: 'json',
     Text: text,
     TextType: textType || 'text',
     VoiceId: voice || 'Joanna',
     Engine: engine || 'neural',
-    SpeechMarkTypes: ['sentence'],
+    SpeechMarkTypes: ['word'],
+    LanguageCode: languageCode || 'en-US',
   }
   try {
     const data = await client.synthesizeSpeech(params).promise()
