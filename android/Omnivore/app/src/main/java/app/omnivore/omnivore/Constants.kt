@@ -1,7 +1,7 @@
 package app.omnivore.omnivore
 
 object Constants {
-  const val serverProdURL = "https://api-demo.omnivore.app"
+  const val demoProdURL = "https://api-demo.omnivore.app"
   const val dataStoreName = "omnivore-datastore"
 }
 

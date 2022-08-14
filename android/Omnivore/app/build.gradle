@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.apollographql.apollo3' version '3.5.0'
 }
 
 android {
@@ -113,5 +114,10 @@ dependencies {
 //Dagger - Hilt
     implementation 'com.google.dagger:hilt-android:2.42'
     kapt 'com.google.dagger:hilt-compiler:2.42'
+
+    implementation 'com.apollographql.apollo3:apollo-runtime:3.5.0'
 }
 
+apollo {
+    packageName.set 'app.omnivore.omnivore.graphql.generated'
+}

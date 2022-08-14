@@ -30,6 +30,7 @@ class SaveActivity : ComponentActivity() {
         if (intent.type?.startsWith("text/plain") == true) {
           intent.getStringExtra(Intent.EXTRA_TEXT)?.let {
             extractedText = it
+            viewModel.saveURL(it)
           }
         }
 

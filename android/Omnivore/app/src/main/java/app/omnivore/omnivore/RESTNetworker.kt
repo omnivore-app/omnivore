@@ -27,7 +27,7 @@ interface EmailLoginSubmit {
 
 object RetrofitHelper {
   fun getInstance(): Retrofit {
-    return Retrofit.Builder().baseUrl(Constants.serverProdURL)
+    return Retrofit.Builder().baseUrl(Constants.demoProdURL)
       .addConverterFactory(GsonConverterFactory.create())
       .build()
   }
