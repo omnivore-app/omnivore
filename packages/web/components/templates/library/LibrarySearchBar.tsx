@@ -19,7 +19,7 @@ export function LibrarySearchBar(): JSX.Element {
 
   return (
     <>
-      <VStack alignment="start" distribution="start" css={{ pl: '32px', pt: '20px', width: '100%', height: '110px' }}>
+      <VStack alignment="start" distribution="start" css={{ pl: '32px', width: '100%', height: '100%' }}>
         <HStack alignment="start" distribution="start" css={{ width: '100%' }}>
           <form
             style={{ width: '100%' }}
