@@ -35,7 +35,7 @@
     "@sendgrid/mail": "^7.6.0",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^5.26.0",
-    "@sentry/tracing": "^5.26.0",
+    "@sentry/tracing": "^7.9.0",
     "addressparser": "^1.0.1",
     "analytics-node": "^6.0.0",
     "apollo-datasource": "^3.3.1",
