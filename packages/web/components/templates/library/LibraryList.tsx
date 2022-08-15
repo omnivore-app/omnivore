@@ -38,7 +38,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
     return (
       <EmptyLibrary
         onAddLinkClicked={() => {
-          
+          console.log('onAddLinkClicked')
         }}
       />
     )
@@ -49,7 +49,6 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
       <Box
         css={{
           width: '100%',
-
           display: 'grid',
           gridAutoRows: 'auto',
           borderRadius: '8px',
