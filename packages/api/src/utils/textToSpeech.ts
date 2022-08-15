@@ -50,9 +50,10 @@ export const synthesizeTextToSpeech = async (
   // Create the speech synthesizer.
   const synthesizer = new sdk.SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
+  let timeOffset = 0
+  let characterOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
-    logger.debug(`synthesizing ${e.result.audioData.byteLength} bytes`)
     // convert arrayBuffer to stream and write to gcs file
     writeStream.write(Buffer.from(e.result.audioData))
   }
@@ -84,11 +85,12 @@ export const synthesizeTextToSpeech = async (
     logger.info(str)
   }
 
+  // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = function (s, e) {
     speechMarks.push({
       word: e.text,
-      time: e.audioOffset,
-      start: e.textOffset,
+      time: (timeOffset + e.audioOffset) / 10000,
+      start: characterOffset + e.textOffset,
       length: e.wordLength,
     })
   }
@@ -110,16 +112,17 @@ export const synthesizeTextToSpeech = async (
     })
   }
   // slice the text into chunks of 1,000 characters
-  const textChunks = input.text.match(/.{1,1000}/g) || []
+  const textChunks = input.text.match(/(.|[\r\n]){1,1000}/g) || []
   for (const textChunk of textChunks) {
-    console.debug(`synthesizing ${textChunk}`)
-    await speakTextAsyncPromise(textChunk)
+    logger.debug(`synthesizing ${textChunk}`)
+    const result = await speakTextAsyncPromise(textChunk)
+    timeOffset = timeOffset + result.audioDuration
+    characterOffset = characterOffset + textChunk.length
   }
   writeStream.end()
   synthesizer.close()
 
   logger.debug(`audio file: ${audioFile}`)
-  logger.debug(`speechMarks: ${speechMarks}`)
 
   return {
     audioUrl: getFilePublicUrl(audioFile),

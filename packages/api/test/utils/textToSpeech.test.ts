@@ -81,6 +81,7 @@ describe('textToSpeech', () => {
       const output = await synthesizeTextToSpeech(input)
       expect(output.audioUrl).to.be.a('string')
       expect(output.speechMarks).to.be.a('array')
+      console.log(output.speechMarks)
     })
   })
 })
