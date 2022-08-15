@@ -10,7 +10,7 @@ type AvatarProps = {
 
 export function LibraryAvatar(props: AvatarProps): JSX.Element {
   return (
-    <VStack alignment="center" distribution="start" css={{ pl: '8px', pt: '20px', width: '100%', height: '100%' }}>
+    <VStack alignment="center" distribution="start" css={{ pl: '8px', width: '100%', height: '100%' }}>
       <VStack css={{ height: '100%' }}>
         <StyledAvatar
           css={{

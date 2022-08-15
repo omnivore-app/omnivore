@@ -17,7 +17,9 @@ export function LibraryContainer(): JSX.Element {
     <>
       <VStack alignment="start" distribution="start" css={{ width: '100vw', height: '100vh', overflow: 'hidden', bg: '$libraryBackground' }}>
         <HStack alignment="start" distribution="start" css={{ width: '100%' }}>
-          <LibrarySearchBar />
+          <SpanBox css={{ width: '100%', height: '90px' }}>
+            <LibrarySearchBar />
+          </SpanBox>
           <SpanBox css={{ marginLeft: 'auto', width: '130px', height: '100%' }}>
             <LibraryAvatar viewer={viewerData?.me} />
           </SpanBox>
