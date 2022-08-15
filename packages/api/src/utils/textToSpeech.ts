@@ -1,6 +1,14 @@
 import { buildLogger } from './logger'
 import { createGCSFile, getFilePublicUrl } from './uploads'
-import * as sdk from 'microsoft-cognitiveservices-speech-sdk'
+import {
+  CancellationDetails,
+  CancellationReason,
+  ResultReason,
+  SpeechConfig,
+  SpeechSynthesisOutputFormat,
+  SpeechSynthesisResult,
+  SpeechSynthesizer,
+} from 'microsoft-cognitiveservices-speech-sdk'
 import { env } from '../env'
 
 export interface TextToSpeechInput {
@@ -38,17 +46,17 @@ export const synthesizeTextToSpeech = async (
     public: true,
     resumable: true,
   })
-  const speechConfig = sdk.SpeechConfig.fromSubscription(
+  const speechConfig = SpeechConfig.fromSubscription(
     env.azure.speechKey,
     env.azure.speechRegion
   )
   speechConfig.speechSynthesisLanguage = input.languageCode || 'en-US'
   speechConfig.speechSynthesisVoiceName = input.voice || 'en-US-JennyNeural'
   speechConfig.speechSynthesisOutputFormat =
-    sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
+    SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
 
   // Create the speech synthesizer.
-  const synthesizer = new sdk.SpeechSynthesizer(speechConfig)
+  const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
   let characterOffset = 0
@@ -59,34 +67,34 @@ export const synthesizeTextToSpeech = async (
   }
 
   // The event synthesis completed signals that the synthesis is completed.
-  synthesizer.synthesisCompleted = function (s, e) {
+  synthesizer.synthesisCompleted = (s, e) => {
     logger.info(
       '(synthesized)  Reason: ' +
-        sdk.ResultReason[e.result.reason] +
+        ResultReason[e.result.reason] +
         ' Audio length: ' +
         e.result.audioData.byteLength
     )
   }
 
   // The synthesis started event signals that the synthesis is started.
-  synthesizer.synthesisStarted = function (s, e) {
+  synthesizer.synthesisStarted = (s, e) => {
     logger.info('(synthesis started)')
   }
 
   // The event signals that the service has stopped processing speech.
   // This can happen when an error is encountered.
-  synthesizer.SynthesisCanceled = function (s, e) {
-    const cancellationDetails = sdk.CancellationDetails.fromResult(e.result)
+  synthesizer.SynthesisCanceled = (s, e) => {
+    const cancellationDetails = CancellationDetails.fromResult(e.result)
     let str =
-      '(cancel) Reason: ' + sdk.CancellationReason[cancellationDetails.reason]
-    if (cancellationDetails.reason === sdk.CancellationReason.Error) {
+      '(cancel) Reason: ' + CancellationReason[cancellationDetails.reason]
+    if (cancellationDetails.reason === CancellationReason.Error) {
       str += ': ' + e.result.errorDetails
     }
     logger.info(str)
   }
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
-  synthesizer.wordBoundary = function (s, e) {
+  synthesizer.wordBoundary = (s, e) => {
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
@@ -97,7 +105,7 @@ export const synthesizeTextToSpeech = async (
 
   const speakTextAsyncPromise = (
     text: string
-  ): Promise<sdk.SpeechSynthesisResult> => {
+  ): Promise<SpeechSynthesisResult> => {
     return new Promise((resolve, reject) => {
       synthesizer.speakTextAsync(
         text,
@@ -202,12 +210,12 @@ export const synthesizeTextToSpeech = async (
 //   }
 // }
 
-export const htmlToSsml = (
-  html: string,
-  language = 'en-US',
-  voice = 'en-US-JennyNeural',
-  rate = 100,
-  volume = 100
-): string => {
-  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${language}"><voice name="${voice}"><prosody rate="${rate}%" volume="${volume}%">${html}</prosody></voice></speak>`
-}
+// export const htmlToSsml = (
+//   html: string,
+//   language = 'en-US',
+//   voice = 'en-US-JennyNeural',
+//   rate = 100,
+//   volume = 100
+// ): string => {
+//   return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${language}"><voice name="${voice}"><prosody rate="${rate}%" volume="${volume}%">${html}</prosody></voice></speak>`
+// }
