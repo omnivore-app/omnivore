@@ -1,29 +1,30 @@
 /* Menu Override styles */
 
-.pro-sidebar > .pro-sidebar-inner, .pro-sidebar .pro-menu a {
+.pro-sidebar > .pro-sidebar-inner,
+.pro-menu a,
+.pro-menu > ul > .pro-sub-menu > .pro-inner-list-item {
   background-color: var(--colors-libraryBackground);
   color: var(--colors-utilityTextDefault);
 }
 
-.pro-sidebar .pro-menu > ul > .pro-sub-menu > .pro-inner-list-item {
-  color: var(--colors-utilityTextDefault);
-  background-color: var(--colors-libraryBackground);
-}
-
-.pro-sidebar .pro-menu a:hover {
+.pro-menu a:hover {
   color: var(--colors-utilityTextDefault);
 }
 
-.pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item {
+.pro-menu-item > .pro-inner-item {
   padding: 8px 20px 3px 20px;
 }
 
-.pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item:hover  {
-    color: var(--colors-utilityTextDefault);
+.pro-menu .pro-menu-item > .pro-inner-item:hover {
+  color: var(--colors-utilityTextDefault);
 }
 
-.pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
+.pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
   width: 20px;
   min-width: 0;
   height: 25px;
+}
+
+.pro-menu-item > .pro-inner-item > .pro-icon-wrapper .pro-icon {
+  animation-play-state: paused !important;
 }
