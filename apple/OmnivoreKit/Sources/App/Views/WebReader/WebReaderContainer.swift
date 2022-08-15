@@ -56,17 +56,6 @@ struct WebReaderContainerView: View {
     }
   }
 
-  var ttsButtonIcon: String {
-    switch audioSession.state {
-    case .stopped, .paused:
-      return "play"
-    case .playing:
-      return "pause"
-    case .loading:
-      return "hourglass.circle"
-    }
-  }
-
   var navBar: some View {
     HStack(alignment: .center) {
       #if os(iOS)
@@ -86,19 +75,24 @@ struct WebReaderContainerView: View {
         Button(
           action: {
             switch audioSession.state {
-            case .loading:
-              // Do nothing here
-              break
-            case .stopped:
-              audioSession.startAudio()
-            case .paused:
-              audioSession.playAudio()
             case .playing:
-              audioSession.pause()
+              if audioSession.item == self.item {
+                audioSession.pause()
+                return
+              }
+              fallthrough
+            case .paused:
+              if audioSession.item == self.item {
+                audioSession.unpause()
+                return
+              }
+              fallthrough
+            default:
+              audioSession.play(item: self.item)
             }
           },
           label: {
-            Image(systemName: ttsButtonIcon)
+            Image(systemName: audioSession.isPlayingItem(item: item) ? "pause.circle" : "play.circle")
               .font(.appTitleTwo)
           }
         )

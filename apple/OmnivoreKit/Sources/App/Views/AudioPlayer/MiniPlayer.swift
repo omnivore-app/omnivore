@@ -27,17 +27,52 @@ public struct MiniPlayer: View {
         presentingView
         VStack {
           Spacer()
-          if self.audioSession.state != .stopped {
+          if let item = audioSession.item, self.audioSession.state != .stopped {
             HStack {
-              Text("Title of the playing content")
+              Text(item.unwrappedTitle)
                 .font(.appCallout)
-              Spacer()
+                .lineSpacing(1.25)
+                .foregroundColor(.appGrayTextContrast)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+              Button(
+                action: {
+                  switch audioSession.state {
+                  case .playing:
+                    audioSession.pause()
+                  case .paused:
+                    audioSession.unpause()
+                  default:
+                    break
+                  }
+                },
+                label: {
+                  Image(systemName: audioSession.state == .playing ? "pause.circle" : "play.circle")
+                    .font(.appTitleTwo)
+                }
+              )
+              .frame(width: 28, height: 28)
+
+              Button(
+                action: {
+                  audioSession.stop()
+                },
+                label: {
+                  Image(systemName: "xmark")
+                    .font(.appTitleTwo)
+                }
+              )
+              .frame(width: 28, height: 28)
             }
             .padding()
-            .frame(width: geometry.size.width, height: 108)
+            .frame(width: geometry.size.width, height: 88) // this should be 108 once we add GrabberVisible at the bottom
             .animation(.spring(), value: true)
-            .background(Color.systemBackground)
-            .shadow(color: .gray, radius: 2)
+            .tint(.appGrayTextContrast)
+            .background(
+              Color.systemBackground
+                .shadow(color: .gray.opacity(0.33), radius: 8, x: 0, y: 4)
+                .mask(Rectangle().padding(.top, -20))
+            )
           }
         }
       }
