@@ -157,8 +157,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         tooltipIcons: '#FDFAEC',
 
         textSubtle: '#605F5D',
-        libraryActive: '#F8F8F8',
         libraryBackground: '#FFFFFF',
+        libraryActiveMenuItem: '#F8F8F8',
         border: '#F0F0F0',
 
 
@@ -215,8 +215,8 @@ const darkThemeSpec = {
     avatarFont: 'rgba(255, 255, 255, 0.8)',
 
     textSubtle: '#AAAAAA',
-    libraryActive: '#3B3938',
     libraryBackground: '#252525',
+    libraryActiveMenuItem: '#3B3938',
     border: '#323232',
 
     //utility
