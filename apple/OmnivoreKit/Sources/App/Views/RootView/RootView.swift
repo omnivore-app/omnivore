@@ -27,6 +27,7 @@ public struct RootView: View {
     InnerRootView(viewModel: viewModel)
       .environmentObject(viewModel.services.authenticator)
       .environmentObject(viewModel.services.dataService)
+      .environmentObject(viewModel.services.audioSession)
       .environment(\.managedObjectContext, viewModel.services.dataService.viewContext)
       .onChange(of: scenePhase) { phase in
         if phase == .background {
@@ -50,6 +51,7 @@ struct InnerRootView: View {
         .onAppear {
           viewModel.triggerPushNotificationRequestIfNeeded()
         }
+        .miniPlayer()
         .snackBar(isShowing: $viewModel.showSnackbar, message: viewModel.snackbarMessage)
         // Schedule the dismissal every time we present the snackbar.
         .onChange(of: viewModel.showSnackbar) { newValue in

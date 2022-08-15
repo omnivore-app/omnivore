@@ -24,6 +24,7 @@ struct WebReaderContainerView: View {
   @State var annotation = String()
 
   @EnvironmentObject var dataService: DataService
+  @EnvironmentObject var audioSession: AudioSession
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   @StateObject var viewModel = WebReaderViewModel()
 
@@ -55,24 +56,14 @@ struct WebReaderContainerView: View {
     }
   }
 
-  static var player: AVAudioPlayer?
-
-  func playSound() {
-    guard let url = Bundle.main.url(forResource: "speech-sample", withExtension: "mp3") else { return }
-
-    do {
-      print("starting to play audio")
-      try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
-      try AVAudioSession.sharedInstance().setActive(true)
-
-      let player = try AVAudioPlayer(contentsOf: url)
-//
-//      player.enableRate = true
-//      player.rate = 1.5
-      player.play()
-
-    } catch {
-      print("error playing audio", error.localizedDescription)
+  var ttsButtonIcon: String {
+    switch audioSession.state {
+    case .stopped, .paused:
+      return "play"
+    case .playing:
+      return "pause"
+    case .loading:
+      return "hourglass.circle"
     }
   }
 
@@ -94,14 +85,20 @@ struct WebReaderContainerView: View {
       if FeatureFlag.enableTextToSpeechButton {
         Button(
           action: {
-//            guard let htmlContent = item.htmlContent else { return }
-//            let synthesizer = AVSpeechSynthesizer()
-//            synthesizer.speak(AVSpeechUtterance(string: htmlContent))
-//            synthesizer.sp
-            playSound()
+            switch audioSession.state {
+            case .loading:
+              // Do nothing here
+              break
+            case .stopped:
+              audioSession.startAudio()
+            case .paused:
+              audioSession.playAudio()
+            case .playing:
+              audioSession.pause()
+            }
           },
           label: {
-            Image(systemName: "play")
+            Image(systemName: ttsButtonIcon)
               .font(.appTitleTwo)
           }
         )
