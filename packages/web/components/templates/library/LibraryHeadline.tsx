@@ -15,8 +15,12 @@ export function LibraryHeadline(): JSX.Element {
       <StyledText style="libraryHeader">Home</StyledText>
       <HStack alignment="center" distribution="start" css={{ marginLeft: 'auto', gap: '16px' }}>
         <Button style="ctaDarkYellow">Add Link</Button>
-        <LibraryListLayoutIcon color="#D6D6D6" />
-        <LibraryGridLayoutIcon color={theme.colors.omnivoreCtaYellow.toString()} />
+        <Button style="ghost">
+          <LibraryListLayoutIcon color="#D6D6D6" />
+        </Button>
+        <Button style="ghost">
+          <LibraryGridLayoutIcon color={theme.colors.omnivoreCtaYellow.toString()} />
+        </Button>
       </HStack>
     </HStack>
   )
