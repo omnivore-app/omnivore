@@ -17143,9 +17143,9 @@ jws@^4.0.0:
     safe-buffer "^5.0.1"
 
 kbar@^0.1.0-beta.35:
-  version "0.1.0-beta.35"
-  resolved "https://registry.yarnpkg.com/kbar/-/kbar-0.1.0-beta.35.tgz#48f6f021fa65793cdf9f5e8876db666f160eee47"
-  integrity sha512-lXA/AFfmeTBIC0+6wsqHPpU1ULI4MMgzX9cRKkpHh9BVij5t1EAJOFTLzQQBr/4jVzSYNwRogRHHU4oQAlAduQ==
+  version "0.1.0-beta.36"
+  resolved "https://registry.yarnpkg.com/kbar/-/kbar-0.1.0-beta.36.tgz#29f21337979b84ffdceb8a319d80fe89b5461936"
+  integrity sha512-i5tU7VYkMmxHCoyG5qzkNeU3qViKBz2F0fjqvWWSKsgVABCF3BjxzAH570Mhn3Zy92x3NGZae8emkBpEk7MKgw==
   dependencies:
     "@reach/portal" "^0.16.0"
     command-score "^0.1.2"
