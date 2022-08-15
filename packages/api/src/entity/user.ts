@@ -12,6 +12,7 @@ import { NewsletterEmail } from './newsletter_email'
 import { Profile } from './profile'
 import { Label } from './label'
 import { Subscription } from './subscription'
+import { UserPersonalization } from './user_personalization'
 
 @Entity()
 export class User {
@@ -53,4 +54,10 @@ export class User {
 
   @Column({ type: 'enum', enum: StatusType })
   status!: StatusType
+
+  @OneToOne(
+    () => UserPersonalization,
+    (userPersonalization) => userPersonalization.user
+  )
+  userPersonalization!: UserPersonalization
 }

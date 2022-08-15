@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { env } from '../env'
-import { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
+import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 
 /* On GAE/Prod, we shall rely on default app engine service account credentials.
  * Two changes needed: 1) add default service account to our uploads GCS Bucket
@@ -111,4 +111,8 @@ export const uploadToBucket = async (
     .bucket(selectedBucket || bucketName)
     .file(filePath)
     .save(data, options)
+}
+
+export const createGCSFile = (filename: string): File => {
+  return storage.bucket(bucketName).file(filename)
 }

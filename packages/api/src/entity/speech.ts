@@ -28,7 +28,7 @@ export class Speech {
   speechMarks!: string
 
   @Column('text')
-  voiceId!: string
+  voice!: string
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
