@@ -30,15 +30,13 @@ public final class ImageCache {
   private let cache = NSCache<NSString, PlatformImage>()
 
   private init() {
-    // cache.totalCostLimit = 1024 * 1024 * 1024 * 50 // 50 MB
-    print("CREATING IMAGE CACHE: ", self)
+    cache.totalCostLimit = 1024 * 1024 * 1024 * 50 // 50 MB
   }
 
   private func image(_ url: URL) -> PlatformImage? {
     var cachedImage: PlatformImage?
     queue.sync {
       cachedImage = cache.object(forKey: NSString(string: url.absoluteString))
-      print("CACHED IMAGE", cachedImage)
     }
     return cachedImage
   }
@@ -46,10 +44,7 @@ public final class ImageCache {
   private func insertImage(_ image: PlatformImage?, url: URL) {
     guard let image = image else { return }
     queue.async(flags: .barrier) {
-      print("ADDING KEY: ", url, image)
       self.cache.setObject(image, forKey: NSString(string: url.absoluteString), cost: 1)
-      let cachedImage = self.cache.object(forKey: NSString(string: url.absoluteString))
-      print(" ---- JUST ADDED CACHED IMAGE: ", cachedImage, url)
     }
   }
 }
