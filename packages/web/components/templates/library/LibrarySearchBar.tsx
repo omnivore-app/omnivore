@@ -1,26 +1,22 @@
-import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import { useRouter } from 'next/router'
-import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
+import { HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { useState } from 'react'
 import { FormInput } from '../../elements/FormElements'
 import { Button } from '../../elements/Button'
-import { X } from 'phosphor-react'
+import { Sliders, SlidersHorizontal, X } from 'phosphor-react'
 import { theme } from '../../tokens/stitches.config'
+import { SearchCoordinator } from './LibraryContainer'
 
+export type LibrarySearchBarProps = {
+  coordinator: SearchCoordinator
+}
 
-export function LibrarySearchBar(): JSX.Element {
-  useGetUserPreferences()
-
-
-  const router = useRouter()
-  const [searchTerm, setSearchTerm] = useState('')
-  const { viewerData } = useGetViewerQuery()
+export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
+  const [searchTerm, setSearchTerm] = useState('')  
 
   return (
     <>
       <VStack alignment="start" distribution="start" css={{ pl: '32px', width: '100%', height: '100%' }}>
-        <HStack alignment="start" distribution="start" css={{ width: '100%' }}>
+        <HStack alignment="start" distribution="start" css={{ width: '100%', borderBottom: 'solid 1px $grayBorder' }}>
           <form
             style={{ width: '100%' }}
             onSubmit={(event) => {
@@ -33,24 +29,34 @@ export function LibrarySearchBar(): JSX.Element {
               css={{
                 width: '100%',
                 height: '80px',
-                fontFamily: 'Inter',
                 fontSize: '24px',
+                fontFamily: 'Inter',
               }}
               type="text"
+              tabIndex={0}
               value={searchTerm}
               placeholder="Search"
-              // onFocus={(event) => {
-              //   event.target.select()
-              //   setFocused(true)
-              // }}
-              // onBlur={() => {
-              //   setFocused(false)
-              // }}
-              // onChange={(event) => {
-              //   setSearchTerm(event.target.value)
-              // }}
+              onChange={(event) => {
+                setSearchTerm(event.target.value)
+              }}
             />
           </form>
+        {!searchTerm && (
+            <Button
+            style="plainIcon"
+            onClick={(event) => {
+              // Display the advanced search sheet
+            }}
+            css={{
+              display: 'flex',
+              flexDirection: 'row',
+              height: '100%',
+              alignItems: 'center',
+            }}
+          >
+            <Sliders size={24} color={theme.colors.utilityTextDefault.toString()} />
+          </Button>
+        )}
         {searchTerm && (
           <HStack alignment="center" distribution="start" css={{ height: '100%' }}>
             <Button
@@ -90,7 +96,6 @@ export function LibrarySearchBar(): JSX.Element {
           </HStack>
         )}
       </HStack>
-      <SpanBox css={{ width: '100%', height: '1px', bg: '$grayBorder' }} />
       </VStack>
     </>
   )

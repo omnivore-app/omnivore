@@ -1,20 +1,21 @@
 import { Box } from '../../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import { useGetUserPreferences } from '../../../lib/networking/queries/useGetUserPreferences'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LibraryGridCard } from '../../patterns/LibraryCards/LibraryGridCard'
+import { LayoutCoordinator } from './LibraryContainer'
+import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
 
-export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
+export type LibraryListProps = {
+  layoutCoordinator: LayoutCoordinator
+}
 
-
-export function LibraryList(): JSX.Element {
+export function LibraryList(props: LibraryListProps): JSX.Element {
   useGetUserPreferences()
 
-  const [layout, setLayout] = useState<LayoutType>('GRID_LAYOUT')
   const { viewerData } = useGetViewerQuery()
-
 
   const defaultQuery = {
     limit: 50,
@@ -33,40 +34,42 @@ export function LibraryList(): JSX.Element {
     return items
   }, [itemsPages, performActionOnItem])
 
+  if (!isValidating && libraryItems.length == 0) {
+    return (
+      <EmptyLibrary
+        onAddLinkClicked={() => {
+          console.log('onAddLinkClicked')
+        }}
+      />
+    )
+  }
+
   return (
     <Box css={{ overflowY: 'scroll' }}>
-    {/* // {!isValidating && items.length == 0 ? (
-    //   <EmptyLibrary
-    //     onAddLinkClicked={() => {
-          
-    //     }}
-    //   />
-    // ) : ( */}
       <Box
         css={{
-          display: 'grid',
-          gridGap: layout == 'LIST_LAYOUT' ? '0' : '16px',
           width: '100%',
+          display: 'grid',
           gridAutoRows: 'auto',
           borderRadius: '8px',
           marginBottom: '0px',
           paddingRight: '14px',
           paddingTop: '0px',
-          marginTop: layout == 'LIST_LAYOUT' ? '21px' : '0',
-          paddingBottom: layout == 'LIST_LAYOUT' ? '0px' : '21px',
+          marginTop: '0px',
+          paddingBottom: '21px',
           '@smDown': {
             border: 'unset',
-            width: layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-            margin: layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-            borderRadius: layout == 'LIST_LAYOUT' ? 0 : undefined,
+            width: props.layoutCoordinator.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
+            margin: props.layoutCoordinator.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
+            borderRadius: props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 0 : undefined,
           },
           '@lg': {
             gridTemplateColumns:
-            layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
+            props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
           },
           '@xl': {
             gridTemplateColumns:
-              layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
+            props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
           },
         }}
       >
@@ -96,7 +99,7 @@ export function LibraryList(): JSX.Element {
           >
             {viewerData?.me && (
               <LibraryGridCard
-                layout={layout}
+                layout={props.layoutCoordinator.layout}
                 item={linkedItem.node}
                 viewer={viewerData.me}
                 handleAction={(action: LinkedItemCardAction) => {
