@@ -73,6 +73,7 @@ export const Menubar = () => {
 
   const [menuList, setMenuList] = useState<Array<MenuItems>>([])
   const [dynamicMenuItems, setDynamicMenuItems] = useState<DynamicMenuItems>({})
+  const [activeItem, setActiveItem] = useState<string>('Home')
 
   useEffect(() => {
     if (labels || subscriptions) {
@@ -84,7 +85,6 @@ export const Menubar = () => {
         query: 'in:inbox',
         icon: null,
         href: '/home',
-        active: true,
       },
       {
         label: 'Today',
@@ -111,7 +111,7 @@ export const Menubar = () => {
         href: `?q=in:inbox+label:Newsletter`,
       },
     ])
-  },[labels, subscriptions])
+  }, [labels, subscriptions])
 
   return (
     <ProSidebar style={proSideBarStyles} breakPoint={'sm'}>
@@ -122,7 +122,10 @@ export const Menubar = () => {
               <MenuItem
                 key={item.label}
                 icon={item.icon}
-                active={item.active ?? false}
+                active={activeItem === item.label}
+                onClick={() => {
+                  setActiveItem(item.label)
+                }}
               >
                 <Link passHref href={item.href}>
                   {item.label}
@@ -130,44 +133,46 @@ export const Menubar = () => {
               </MenuItem>
             )
           })}
-          {dynamicMenuItems.labels &&
-            <SubMenu
-              key="labels-list"
-              title="Labels"
-            >
-              {dynamicMenuItems.labels.map((item: MenuItems) => {
-                return (<MenuItem
+        {dynamicMenuItems.labels && (
+          <SubMenu key="labels-list" title="Labels">
+            {dynamicMenuItems.labels.map((item: MenuItems) => {
+              return (
+                <MenuItem
                   key={item.label}
                   icon={item.icon}
-                  active={item.active ?? false}
+                  active={activeItem === item.label}
+                  onClick={() => {
+                    setActiveItem(item.label)
+                  }}
                 >
                   <Link passHref href={item.href}>
                     {item.label}
                   </Link>
-                </MenuItem>)
-              })}
-            </SubMenu>
-          }
-          {dynamicMenuItems.subscriptions &&
-            <SubMenu
-              key="subscriptions-list"
-              title="Subscriptions"
-            >
-              {dynamicMenuItems.subscriptions.map((item: MenuItems) => {
-                return (
-                  <MenuItem
-                    key={item.label}
-                    icon={item.icon}
-                    active={item.active ?? false}
-                  >
-                    <Link passHref href={item.href}>
-                      {item.label}
-                    </Link>
-                  </MenuItem>
-                )
-              })}
-            </SubMenu>
-          }
+                </MenuItem>
+              )
+            })}
+          </SubMenu>
+        )}
+        {dynamicMenuItems.subscriptions && (
+          <SubMenu key="subscriptions-list" title="Subscriptions">
+            {dynamicMenuItems.subscriptions.map((item: MenuItems) => {
+              return (
+                <MenuItem
+                  key={item.label}
+                  icon={item.icon}
+                  active={activeItem === item.label}
+                  onClick={() => {
+                    setActiveItem(item.label)
+                  }}
+                >
+                  <Link passHref href={item.href}>
+                    {item.label}
+                  </Link>
+                </MenuItem>
+              )
+            })}
+          </SubMenu>
+        )}
       </Menu>
     </ProSidebar>
   )
