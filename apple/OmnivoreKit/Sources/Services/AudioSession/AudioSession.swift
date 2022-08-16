@@ -41,6 +41,7 @@ public class AudioSession: ObservableObject {
 
   public func stop() {
     player?.stop()
+    clearNowPlayingInfo()
     timer = nil
     player = nil
     item = nil
@@ -112,6 +113,10 @@ public class AudioSession: ObservableObject {
     if let player = player, player.isPlaying {
       print("play time in ms: ", Int(player.currentTime * 1000))
     }
+  }
+
+  func clearNowPlayingInfo() {
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = [:]
   }
 
   func setupRemoteControl() {
