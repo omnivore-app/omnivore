@@ -94,6 +94,7 @@ import {
   updatePage,
 } from '../../elastic/pages'
 import { searchHighlights } from '../../elastic/highlights'
+import { enqueueTextToSpeech } from '../../utils/createTask'
 
 export type PartialArticle = Omit<
   Article,
@@ -371,6 +372,10 @@ export const createArticleResolver = authorized<
         }
         articleToSave.id = newPageId
       }
+
+      // enqueue a task to convert text to speech
+      const taskName = await enqueueTextToSpeech(uid, articleToSave.id)
+      log.info('Text to speech task name', { taskName })
 
       log.info(
         'page created in elastic',
