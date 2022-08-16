@@ -18,7 +18,7 @@ export type SearchCoordinator = {
 
 const useSearchCoordinator = () => {
   const applySearch = useCallback((searchTerm: string) => {
-
+    console.log('applying search')
   }, [])
 
   return {
