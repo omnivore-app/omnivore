@@ -62,6 +62,7 @@
 	<string>Images from your photo library can be chosen by you to send as feedback.</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>audio</string>
 		<string>fetch</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

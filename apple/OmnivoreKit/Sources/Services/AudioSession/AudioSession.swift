@@ -7,6 +7,7 @@
 
 import AVFoundation
 import Foundation
+import MediaPlayer
 
 import Models
 import Utils
@@ -57,10 +58,12 @@ public class AudioSession: ObservableObject {
       self.audioUrl = Bundle.main.url(forResource: "speech-sample", withExtension: "mp3")!
       if let url = self.audioUrl {
         do {
+          try? AVAudioSession.sharedInstance().setCategory(.playback)
           self.player = try AVAudioPlayer(contentsOf: url)
           if self.player?.play() ?? false {
             self.state = .playing
             self.startTimer()
+            self.setupRemoteControl()
           }
         } catch {
           print(error.localizedDescription)
@@ -108,6 +111,43 @@ public class AudioSession: ObservableObject {
   @objc func update(_: Timer) {
     if let player = player, player.isPlaying {
       print("play time in ms: ", Int(player.currentTime * 1000))
+    }
+  }
+
+  func setupRemoteControl() {
+    UIApplication.shared.beginReceivingRemoteControlEvents()
+
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+      //  MPMediaItemArtwork: ""m
+      MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
+      MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
+    ]
+
+    if let imageURL = item?.imageURL, let cachedImage = ImageCache.shared[imageURL] {
+//      #if os(iOS)
+//        status = .loaded(image: Image(uiImage: cachedImage))
+//      #else
+//        status = .loaded(image: Image(nsImage: cachedImage))
+//      #endif
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+        MPMediaItemPropertyArtwork: cachedImage,
+        MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
+        MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
+      ]
+    }
+
+    let commandCenter = MPRemoteCommandCenter.shared()
+
+    commandCenter.playCommand.isEnabled = true
+    commandCenter.playCommand.addTarget { _ -> MPRemoteCommandHandlerStatus in
+      self.unpause()
+      return .success
+    }
+
+    commandCenter.pauseCommand.isEnabled = true
+    commandCenter.pauseCommand.addTarget { _ -> MPRemoteCommandHandlerStatus in
+      self.pause()
+      return .success
     }
   }
 }
