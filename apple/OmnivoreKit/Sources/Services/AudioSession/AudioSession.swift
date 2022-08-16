@@ -130,7 +130,7 @@ public class AudioSession: ObservableObject {
 //        status = .loaded(image: Image(nsImage: cachedImage))
 //      #endif
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-        MPMediaItemPropertyArtwork: cachedImage,
+        //  MPMediaItemPropertyArtwork: cachedImage,
         MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
         MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
       ]
