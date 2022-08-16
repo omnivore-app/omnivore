@@ -3,15 +3,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { CreateArticleErrorCode } from './../generated/graphql'
-import { isSiteBlockedForParse } from './../utils/blocked'
+import { CreateArticleErrorCode } from '../generated/graphql'
+import { isSiteBlockedForParse } from '../utils/blocked'
 import cors from 'cors'
-import { buildLogger } from './../utils/logger'
+import { buildLogger } from '../utils/logger'
 import { corsConfig } from '../utils/corsConfig'
 import { createPageSaveRequest } from '../services/create_page_save_request'
 import { initModels } from '../server'
 import { kx } from '../datalayer/knex_config'
 import { getClaimsByToken } from '../utils/auth'
+import * as jwt from 'jsonwebtoken'
+import { env } from '../env'
+import { Claims } from '../resolvers/types'
+import { getRepository } from '../entity/utils'
+import { Speech } from '../entity/speech'
 
 const logger = buildLogger('app.dispatch')
 
@@ -61,5 +66,40 @@ export function articleRouter() {
       articleSavingRequestId: result.id,
     })
   })
+
+  router.get(
+    '/:id/mp3',
+    cors<express.Request>(corsConfig),
+    async (req, res) => {
+      const id = req.params.id
+      const token = req.cookies?.auth || req.headers?.authorization
+      if (!token || !jwt.verify(token, env.server.jwtSecret)) {
+        return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+      }
+      const { uid } = jwt.decode(token) as Claims
+
+      logger.info('Get article speech in mp3 format', {
+        params: req.params,
+        labels: {
+          userId: uid,
+          source: 'GetArticleSpeechMp3',
+          articleId: id,
+        },
+      })
+
+      const speech = await getRepository(Speech).findOneBy({
+        elasticPageId: id,
+        user: { id: uid },
+      })
+
+      if (!speech) {
+        return res.status(404).send({ errorCode: 'NOT_FOUND' })
+      }
+
+      logger.info('Found speech mp3', { audioUrl: speech.audioUrl })
+      res.redirect(speech.audioUrl)
+    }
+  )
+
   return router
 }
