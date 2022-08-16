@@ -191,6 +191,7 @@ export const Button = styled('button', {
         color: 'transparent',
         border: 'none',
         bg: 'transparent',
+        cursor: 'pointer',
         '&:hover': {
           opacity: 0.8,
         },
