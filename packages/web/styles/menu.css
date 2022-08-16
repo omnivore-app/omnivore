@@ -11,7 +11,13 @@
 .pro-sidebar .pro-menu-item .pro-sub-menu .pro-inner-item,
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-item-content,
 .pro-sidebar .pro-menu a,
-.pro-sidebar .pro-menu a:hover {
+.pro-sidebar .pro-menu a:hover,
+.pro-sidebar
+  .pro-menu
+  .pro-menu-item
+  > .pro-inner-item:hover
+  .pro-icon-wrapper
+  .pro-icon {
   color: var(--colors-utilityTextDefault);
 }
 
@@ -31,6 +37,11 @@
   border-radius: 5px;
 }
 
-.pro-menu-item > .pro-inner-item > .pro-icon-wrapper .pro-icon {
-    animation-play-state: paused !important;
-  }
+.pro-sidebar
+  .pro-menu
+  .pro-menu-item
+  > .pro-inner-item:hover
+  .pro-icon-wrapper
+  .pro-icon {
+  animation-play-state: paused;
+}
