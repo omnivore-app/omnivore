@@ -10,13 +10,12 @@ import {
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
 import { env } from '../env'
+import { parseHTML } from 'linkedom'
 
 export interface TextToSpeechInput {
   id: string
   text: string
   voice?: string
-  textType?: 'text' | 'ssml'
-  engine?: 'standard' | 'neural'
   languageCode?: string
 }
 
@@ -27,15 +26,13 @@ export interface TextToSpeechOutput {
 
 export interface SpeechMark {
   time: number
-  start: number
-  length: number
+  start?: number
+  length?: number
   word: string
+  type: 'word' | 'bookmark'
 }
 
 const logger = buildLogger('app.dispatch')
-
-// // create a new AWS Polly client
-// const client = new AWS.Polly()
 
 export const synthesizeTextToSpeech = async (
   input: TextToSpeechInput
@@ -69,10 +66,9 @@ export const synthesizeTextToSpeech = async (
   // The event synthesis completed signals that the synthesis is completed.
   synthesizer.synthesisCompleted = (s, e) => {
     logger.info(
-      '(synthesized)  Reason: ' +
-        ResultReason[e.result.reason] +
-        ' Audio length: ' +
+      `(synthesized) Reason: ${ResultReason[e.result.reason]} Audio length: ${
         e.result.audioData.byteLength
+      }`
     )
   }
 
@@ -100,6 +96,20 @@ export const synthesizeTextToSpeech = async (
       time: (timeOffset + e.audioOffset) / 10000,
       start: characterOffset + e.textOffset,
       length: e.wordLength,
+      type: 'word',
+    })
+  }
+
+  synthesizer.bookmarkReached = (s, e) => {
+    logger.info(
+      `(Bookmark reached), Audio offset: ${
+        e.audioOffset / 10000
+      }ms, bookmark text: ${e.text}`
+    )
+    speechMarks.push({
+      word: e.text,
+      time: (timeOffset + e.audioOffset) / 10000,
+      type: 'bookmark',
     })
   }
 
@@ -138,84 +148,39 @@ export const synthesizeTextToSpeech = async (
   }
 }
 
-// export const createAudio = async (
-//   input: TextToSpeechInput
-// ): Promise<Buffer> => {
-//   const { text, voice, textType, engine, languageCode } = input
-//   const params: SynthesizeSpeechInput = {
-//     OutputFormat: 'ogg_vorbis',
-//     Text: text,
-//     TextType: textType || 'text',
-//     VoiceId: voice || 'Joanna',
-//     Engine: engine || 'neural',
-//     LanguageCode: languageCode || 'en-US',
-//   }
-//   try {
-//     const data = await client.synthesizeSpeech(params).promise()
-//     return data.AudioStream as Buffer
-//   } catch (error) {
-//     logger.error('Unable to create audio file', { error })
-//     throw error
-//   }
-// }
+export const htmlToSsml = (
+  html: string,
+  language = 'en-US',
+  voice = 'en-US-JennyNeural',
+  rate = 100,
+  volume = 100
+): string => {
+  const document = parseHTML(html).document
+  const paragraphs = document.querySelectorAll('p')
+  // create new ssml document
+  const ssml = parseHTML('').document
+  const speakElement = ssml.createElement('speak')
+  speakElement.setAttribute('version', '1.0')
+  speakElement.setAttribute('xmlns', 'http://www.w3.org/2001/10/synthesis')
+  speakElement.setAttribute('xml:lang', language)
+  const voiceElement = ssml.createElement('voice')
+  voiceElement.setAttribute('name', voice)
+  speakElement.appendChild(voiceElement)
+  const prosodyElement = ssml.createElement('prosody')
+  prosodyElement.setAttribute('rate', `${rate}%`)
+  prosodyElement.setAttribute('volume', volume.toString())
+  voiceElement.appendChild(prosodyElement)
+  // add each paragraph to the ssml document
+  paragraphs.forEach((p) => {
+    const id = p.getAttribute('data-omnivore-anchor-idx')
+    if (id) {
+      const text = p.innerText
+      const bookMark = ssml.createElement('bookmark')
+      bookMark.setAttribute('mark', `data-omnivore-anchor-idx-${id}`)
+      bookMark.innerText = text
+      prosodyElement.appendChild(bookMark)
+    }
+  })
 
-// export const createSpeechMarks = async (
-//   input: TextToSpeechInput
-// ): Promise<string> => {
-//   const { text, voice, textType, engine, languageCode } = input
-//   const params: SynthesizeSpeechInput = {
-//     OutputFormat: 'json',
-//     Text: text,
-//     TextType: textType || 'text',
-//     VoiceId: voice || 'Joanna',
-//     Engine: engine || 'neural',
-//     SpeechMarkTypes: ['word'],
-//     LanguageCode: languageCode || 'en-US',
-//   }
-//   try {
-//     const data = await client.synthesizeSpeech(params).promise()
-//     return (data.AudioStream as Buffer).toString()
-//   } catch (error) {
-//     logger.error('Unable to create speech marks', { error })
-//     throw error
-//   }
-// }
-//
-// export const createAudioWithSpeechMarks = async (
-//   input: TextToSpeechInput
-// ): Promise<TextToSpeechOutput> => {
-//   try {
-//     const audio = await createAudio(input)
-//     // upload audio to google cloud storage
-//     const filePath = `speech/${input.id}.ogg`
-//
-//     logger.info('start uploading...', { filePath })
-//     await uploadToBucket(filePath, audio, {
-//       contentType: 'audio/ogg',
-//       public: true,
-//     })
-//
-//     // get public url for audio file
-//     const publicUrl = getFilePublicUrl(filePath)
-//     logger.info('upload complete', { publicUrl })
-//
-//     const speechMarks = await createSpeechMarks(input)
-//     return {
-//       audioUrl: publicUrl,
-//       speechMarks,
-//     }
-//   } catch (error) {
-//     logger.error('Unable to create audio with speech marks', error)
-//     throw error
-//   }
-// }
-
-// export const htmlToSsml = (
-//   html: string,
-//   language = 'en-US',
-//   voice = 'en-US-JennyNeural',
-//   rate = 100,
-//   volume = 100
-// ): string => {
-//   return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${language}"><voice name="${voice}"><prosody rate="${rate}%" volume="${volume}%">${html}</prosody></voice></speak>`
-// }
+  return speakElement.outerHTML
+}

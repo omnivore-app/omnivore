@@ -327,14 +327,12 @@ export const enqueueSyncWithIntegration = async (
 
 export const enqueueTextToSpeech = async (
   userId: string,
-  pageId: string,
-  text: string
+  pageId: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
     pageId,
-    text,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
