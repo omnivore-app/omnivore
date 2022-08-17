@@ -83,14 +83,11 @@ export function articleRouter() {
       }
       const { uid } = jwt.decode(token) as Claims
 
-      const startTime = Date.now()
       logger.info(`Get article speech in ${outputFormat} format`, {
         params: req.params,
         labels: {
           userId: uid,
-          source: 'GetArticleSpeechMp3',
-          articleId: id,
-          outputFormat,
+          source: `GetArticleSpeech-${outputFormat}`,
         },
       })
 
@@ -112,39 +109,45 @@ export function articleRouter() {
         user: { id: uid },
       })
       if (!userPersonalization) {
-        return res.status(200).send('userPersonalization not found')
+        return res.status(404).send('User Personalization not found')
       }
 
       const page = await getPageById(id)
       if (!page) {
-        return res.status(200).send('Page not found')
+        return res.status(404).send('Page not found')
       }
 
       const text = parseHTML(page.content).document.documentElement.innerText
       if (!text) {
-        return res.status(200).send('Page has no text')
+        return res.status(404).send('Page has no text')
       }
 
-      const speechOutput = await synthesizeTextToSpeech({
-        id,
-        text,
-        languageCode: page.language,
-        voice: userPersonalization.speechVoice,
-      })
+      try {
+        const startTime = Date.now()
+        const speechOutput = await synthesizeTextToSpeech({
+          id,
+          text,
+          languageCode: page.language,
+          voice: userPersonalization.speechVoice,
+        })
+        logger.info('Created speech', {
+          audioUrl: speechOutput.audioUrl,
+          speechMarksUrl: speechOutput.speechMarksUrl,
+          duration: Date.now() - startTime,
+        })
 
-      const speech = await getRepository(Speech).save({
-        elasticPageId: id,
-        audioUrl: speechOutput.audioUrl,
-        speechMarksUrl: speechOutput.speechMarksUrl,
-        user: { id: uid },
-      })
+        const speech = await getRepository(Speech).save({
+          elasticPageId: id,
+          audioUrl: speechOutput.audioUrl,
+          speechMarksUrl: speechOutput.speechMarksUrl,
+          user: { id: uid },
+        })
 
-      logger.info('Created speech', {
-        audioUrl: speech.audioUrl,
-        speechMarksUrl: speech.speechMarksUrl,
-        duration: Date.now() - startTime,
-      })
-      res.redirect(redirectUrl(speech, outputFormat))
+        res.redirect(redirectUrl(speech, outputFormat))
+      } catch (error) {
+        logger.error('Text to speech error', { error })
+        res.status(500).send('Text to speech error')
+      }
     }
   )
 
@@ -155,7 +158,7 @@ const redirectUrl = (speech: Speech, outputFormat: string) => {
   switch (outputFormat) {
     case 'mp3':
       return speech.audioUrl
-    case 'json':
+    case 'speech-marks':
       return speech.speechMarksUrl
     default:
       return speech.audioUrl
