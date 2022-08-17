@@ -25,7 +25,7 @@ export class Speech {
   audioUrl!: string
 
   @Column('text')
-  speechMarks!: string
+  speechMarksUrl!: string
 
   @Column('text')
   voice!: string

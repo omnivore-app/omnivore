@@ -10,7 +10,7 @@ CREATE TABLE omnivore.speech (
     elastic_page_id TEXT NOT NULL,
     voice text,
     audio_url text NOT NULL,
-    speech_marks text NOT NULL,
+    speech_marks_url text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT current_timestamp,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp
 );

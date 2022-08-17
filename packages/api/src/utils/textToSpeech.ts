@@ -1,5 +1,5 @@
 import { buildLogger } from './logger'
-import { createGCSFile, getFilePublicUrl } from './uploads'
+import { createGCSFile, getFilePublicUrl, uploadToBucket } from './uploads'
 import {
   CancellationDetails,
   CancellationReason,
@@ -21,7 +21,7 @@ export interface TextToSpeechInput {
 
 export interface TextToSpeechOutput {
   audioUrl: string
-  speechMarks: SpeechMark[]
+  speechMarksUrl: string
 }
 
 export interface SpeechMark {
@@ -142,9 +142,19 @@ export const synthesizeTextToSpeech = async (
 
   logger.debug(`audio file: ${audioFile}`)
 
+  // upload Speech Marks file to GCS
+  const speechMarksFile = `speech/${input.id}.json`
+  await uploadToBucket(
+    speechMarksFile,
+    Buffer.from(JSON.stringify(speechMarks)),
+    {
+      public: true,
+    }
+  )
+
   return {
     audioUrl: getFilePublicUrl(audioFile),
-    speechMarks,
+    speechMarksUrl: getFilePublicUrl(speechMarksFile),
   }
 }
 

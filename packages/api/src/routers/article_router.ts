@@ -72,10 +72,11 @@ export function articleRouter() {
   })
 
   router.get(
-    '/:id/mp3',
+    '/:id/:outputFormat',
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const id = req.params.id
+      const outputFormat = req.params.outputFormat
       const token = req.cookies?.auth || req.headers?.authorization
       if (!token || !jwt.verify(token, env.server.jwtSecret)) {
         return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
@@ -83,14 +84,26 @@ export function articleRouter() {
       const { uid } = jwt.decode(token) as Claims
 
       const startTime = Date.now()
-      logger.info('Get article speech in mp3 format', {
+      logger.info(`Get article speech in ${outputFormat} format`, {
         params: req.params,
         labels: {
           userId: uid,
           source: 'GetArticleSpeechMp3',
           articleId: id,
+          outputFormat,
         },
       })
+
+      const existingSpeech = await getRepository(Speech).findOneBy({
+        elasticPageId: id,
+      })
+      if (existingSpeech) {
+        logger.info('Found existing speech', {
+          audioUrl: existingSpeech.audioUrl,
+          speechMarksUrl: existingSpeech.speechMarksUrl,
+        })
+        return res.redirect(redirectUrl(existingSpeech, outputFormat))
+      }
 
       logger.debug('Text to speech request', { articleId: id })
       const userPersonalization = await getRepository(
@@ -112,27 +125,39 @@ export function articleRouter() {
         return res.status(200).send('Page has no text')
       }
 
-      const speech = await synthesizeTextToSpeech({
+      const speechOutput = await synthesizeTextToSpeech({
         id,
         text,
         languageCode: page.language,
         voice: userPersonalization.speechVoice,
       })
 
-      await getRepository(Speech).save({
+      const speech = await getRepository(Speech).save({
         elasticPageId: id,
-        audioUrl: speech.audioUrl,
-        speechMarks: JSON.stringify(speech.speechMarks),
+        audioUrl: speechOutput.audioUrl,
+        speechMarksUrl: speechOutput.speechMarksUrl,
         user: { id: uid },
       })
 
-      logger.info('Found speech mp3', {
+      logger.info('Created speech', {
         audioUrl: speech.audioUrl,
+        speechMarksUrl: speech.speechMarksUrl,
         duration: Date.now() - startTime,
       })
-      res.redirect(speech.audioUrl)
+      res.redirect(redirectUrl(speech, outputFormat))
     }
   )
 
   return router
+}
+
+const redirectUrl = (speech: Speech, outputFormat: string) => {
+  switch (outputFormat) {
+    case 'mp3':
+      return speech.audioUrl
+    case 'json':
+      return speech.speechMarksUrl
+    default:
+      return speech.audioUrl
+  }
 }
