@@ -337,7 +337,15 @@ export const enqueueTextToSpeech = async (
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    return nanoid()
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios
+        .post(env.queue.textToSpeechTaskHandlerUrl, payload)
+        .catch((error) => {
+          logger.error(error)
+        })
+    }, 0)
+    return ''
   }
 
   const createdTasks = await createHttpTaskWithToken({

@@ -36,7 +36,7 @@ export function speechServiceRouter() {
       return res.status(200).send('Page not found')
     }
 
-    const text = parseHTML(page.content).document.textContent
+    const text = parseHTML(page.content).document.documentElement.textContent
     if (!text) {
       return res.status(200).send('Page has no text')
     }

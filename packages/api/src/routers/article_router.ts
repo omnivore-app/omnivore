@@ -17,6 +17,10 @@ import { env } from '../env'
 import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { Speech } from '../entity/speech'
+import { getPageById } from '../elastic/pages'
+import { parseHTML } from 'linkedom'
+import { synthesizeTextToSpeech } from '../utils/textToSpeech'
+import { UserPersonalization } from '../entity/user_personalization'
 
 const logger = buildLogger('app.dispatch')
 
@@ -87,14 +91,39 @@ export function articleRouter() {
         },
       })
 
-      const speech = await getRepository(Speech).findOneBy({
-        elasticPageId: id,
+      logger.debug('Text to speech request', { articleId: id })
+      const userPersonalization = await getRepository(
+        UserPersonalization
+      ).findOneBy({
         user: { id: uid },
       })
-
-      if (!speech) {
-        return res.status(404).send({ errorCode: 'NOT_FOUND' })
+      if (!userPersonalization) {
+        return res.status(200).send('userPersonalization not found')
       }
+
+      const page = await getPageById(id)
+      if (!page) {
+        return res.status(200).send('Page not found')
+      }
+
+      const text = parseHTML(page.content).document.documentElement.textContent
+      if (!text) {
+        return res.status(200).send('Page has no text')
+      }
+
+      const speech = await synthesizeTextToSpeech({
+        id,
+        text,
+        languageCode: page.language,
+        voice: userPersonalization.speechVoice,
+      })
+
+      await getRepository(Speech).save({
+        elasticPageId: id,
+        audioUrl: speech.audioUrl,
+        speechMarks: JSON.stringify(speech.speechMarks),
+        user: { id: uid },
+      })
 
       logger.info('Found speech mp3', { audioUrl: speech.audioUrl })
       res.redirect(speech.audioUrl)
