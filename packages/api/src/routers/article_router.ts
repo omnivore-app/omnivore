@@ -82,6 +82,7 @@ export function articleRouter() {
       }
       const { uid } = jwt.decode(token) as Claims
 
+      const startTime = Date.now()
       logger.info('Get article speech in mp3 format', {
         params: req.params,
         labels: {
@@ -125,7 +126,10 @@ export function articleRouter() {
         user: { id: uid },
       })
 
-      logger.info('Found speech mp3', { audioUrl: speech.audioUrl })
+      logger.info('Found speech mp3', {
+        audioUrl: speech.audioUrl,
+        duration: Date.now() - startTime,
+      })
       res.redirect(speech.audioUrl)
     }
   )
