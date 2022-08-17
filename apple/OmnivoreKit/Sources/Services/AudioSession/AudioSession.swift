@@ -6,9 +6,9 @@
 //
 
 import AVFoundation
+import CryptoKit
 import Foundation
 import MediaPlayer
-
 import Models
 import Utils
 
@@ -24,12 +24,16 @@ public class AudioSession: ObservableObject {
   @Published public var state: AudioSessionState = .stopped
   @Published public var item: LinkedItem?
 
-  @Published public var audioUrl: URL?
+  let appEnvironment: AppEnvironment
+  let networker: Networker
 
   var timer: Timer?
   var player: AVAudioPlayer?
 
-  public init() {}
+  public init(appEnvironment: AppEnvironment, networker: Networker) {
+    self.appEnvironment = appEnvironment
+    self.networker = networker
+  }
 
   public func play(item: LinkedItem) {
     // Stop any existing session
@@ -58,21 +62,37 @@ public class AudioSession: ObservableObject {
   public func startAudio() {
     state = .loading
 
-    // Just simulating some loading delay here
-    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
-      self.audioUrl = Bundle.main.url(forResource: "speech-sample", withExtension: "mp3")!
-      self.audioUrl = URL(string: "https://storage.googleapis.com/omnivore-demo-files/speech/df31ee24-cd3d-412f-9a7c-e8a0afe2e4cd.mp3")!
+    let pageId = item!.unwrappedID
 
-      if let url = self.audioUrl {
+    Task {
+      do {
+        try await downloadAudioFile(pageId: pageId)
+      } catch {
+        print("FAILED TO DOWNLOAD AUDIO URL")
+        print(error.localizedDescription)
+      }
+
+      DispatchQueue.main.async {
+        let audioUrl = FileManager.default
+          .urls(for: .documentDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent(pageId + ".mp3")
+
+        if !FileManager.default.fileExists(atPath: audioUrl.path) {
+          self.stop()
+          return
+        }
+
         do {
-          try? AVAudioSession.sharedInstance().setCategory(.playback)
-          self.player = try AVAudioPlayer(contentsOf: url)
+          try AVAudioSession.sharedInstance().setCategory(.playback)
+
+          self.player = try AVAudioPlayer(contentsOf: audioUrl)
           if self.player?.play() ?? false {
             self.state = .playing
             self.startTimer()
             self.setupRemoteControl()
           }
         } catch {
+          print("error playing MP3 file", error)
           print(error.localizedDescription)
           self.state = .stopped
         }
@@ -160,5 +180,57 @@ public class AudioSession: ObservableObject {
       self.pause()
       return .success
     }
+  }
+
+  func downloadAudioFile(pageId: String) async throws -> URL? {
+    let audioUrl = FileManager.default
+      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(pageId + ".mp3")
+
+//    if FileManager.default.fileExists(atPath: audioUrl.path) {
+//      // Prevent re-download
+//      // TODO: We aren't doing this very safely, we should be verifying a checksum
+//      return audioUrl
+//    }
+
+    guard let url = URL(string: "/api/article/\(pageId)/mp3", relativeTo: appEnvironment.serverBaseURL) else {
+      throw BasicError.message(messageText: "Invalid audio URL")
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "GET"
+    request.timeoutInterval = 600
+    for (header, value) in networker.defaultHeaders {
+      request.setValue(value, forHTTPHeaderField: header)
+    }
+
+    let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
+    guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+      throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
+    }
+    print("httpResponse: ", httpResponse)
+
+    guard let data = result?.0 else {
+      throw BasicError.message(messageText: "audioFetch failed. no data received.")
+    }
+
+    let tempPath = FileManager.default
+      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(UUID().uuidString + ".mp3")
+
+    do {
+      let hash = Data(Insecure.MD5.hash(data: data)).base64EncodedString()
+//      if let googleHash = httpResponse.value(forHTTPHeaderField: "x-goog-hash"), googleHash.contains("md5=\(hash)") {
+//        throw BasicError.message(messageText: "Downloaded mp3 file hashes do not match: returned: \(googleHash) v computed: \(hash)")
+//      }
+
+      try data.write(to: tempPath)
+      try FileManager.default.moveItem(at: tempPath, to: audioUrl)
+    } catch {
+      let errorMessage = "audioFetch failed. could not write MP3 data to disk"
+      throw BasicError.message(messageText: errorMessage)
+    }
+
+    return audioUrl
   }
 }
