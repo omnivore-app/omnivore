@@ -61,6 +61,8 @@ public class AudioSession: ObservableObject {
     // Just simulating some loading delay here
     DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
       self.audioUrl = Bundle.main.url(forResource: "speech-sample", withExtension: "mp3")!
+      self.audioUrl = URL(string: "https://storage.googleapis.com/omnivore-demo-files/speech/df31ee24-cd3d-412f-9a7c-e8a0afe2e4cd.mp3")!
+
       if let url = self.audioUrl {
         do {
           try? AVAudioSession.sharedInstance().setCategory(.playback)
