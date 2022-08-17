@@ -49,6 +49,7 @@ public class AudioSession: ObservableObject {
     timer = nil
     player = nil
     item = nil
+    state = .stopped
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
