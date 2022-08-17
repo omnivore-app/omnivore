@@ -56,6 +56,41 @@ struct WebReaderContainerView: View {
     }
   }
 
+  var audioNavbarItem: some View {
+    if audioSession.isLoadingItem(item: item) {
+      return AnyView(ProgressView()
+        .padding(.horizontal)
+        .scaleEffect(navBarVisibilityRatio))
+    } else {
+      return AnyView(Button(
+        action: {
+          switch audioSession.state {
+          case .playing:
+            if audioSession.item == self.item {
+              audioSession.pause()
+              return
+            }
+            fallthrough
+          case .paused:
+            if audioSession.item == self.item {
+              audioSession.unpause()
+              return
+            }
+            fallthrough
+          default:
+            audioSession.play(item: self.item)
+          }
+        },
+        label: {
+          Image(systemName: audioSession.isPlayingItem(item: item) ? "pause.circle" : "play.circle")
+            .font(.appTitleTwo)
+        }
+      )
+      .padding(.horizontal)
+      .scaleEffect(navBarVisibilityRatio))
+    }
+  }
+
   var navBar: some View {
     HStack(alignment: .center) {
       #if os(iOS)
@@ -72,32 +107,7 @@ struct WebReaderContainerView: View {
         Spacer()
       #endif
       if FeatureFlag.enableTextToSpeechButton {
-        Button(
-          action: {
-            switch audioSession.state {
-            case .playing:
-              if audioSession.item == self.item {
-                audioSession.pause()
-                return
-              }
-              fallthrough
-            case .paused:
-              if audioSession.item == self.item {
-                audioSession.unpause()
-                return
-              }
-              fallthrough
-            default:
-              audioSession.play(item: self.item)
-            }
-          },
-          label: {
-            Image(systemName: audioSession.isPlayingItem(item: item) ? "pause.circle" : "play.circle")
-              .font(.appTitleTwo)
-          }
-        )
-        .padding(.horizontal)
-        .scaleEffect(navBarVisibilityRatio)
+        audioNavbarItem
       }
       Button(
         action: { showPreferencesPopover.toggle() },

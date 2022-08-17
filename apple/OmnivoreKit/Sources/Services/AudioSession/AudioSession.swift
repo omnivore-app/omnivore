@@ -47,6 +47,10 @@ public class AudioSession: ObservableObject {
     item = nil
   }
 
+  public func isLoadingItem(item: LinkedItem) -> Bool {
+    state == .loading && self.item == item
+  }
+
   public func isPlayingItem(item: LinkedItem) -> Bool {
     state == .playing && self.item == item
   }
@@ -55,7 +59,7 @@ public class AudioSession: ObservableObject {
     state = .loading
 
     // Just simulating some loading delay here
-    DispatchQueue.main.asyncAfter(deadline: .now()) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
       self.audioUrl = Bundle.main.url(forResource: "speech-sample", withExtension: "mp3")!
       if let url = self.audioUrl {
         do {
