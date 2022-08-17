@@ -132,9 +132,9 @@ export const synthesizeTextToSpeech = async (
   // slice the text into chunks of 5,000 characters
   let currentTextChunk = ''
   const textChunks = input.text.split('\n')
-  for (const textChunk of textChunks) {
-    currentTextChunk += textChunk + '\n'
-    if (currentTextChunk.length < 5000) {
+  for (let i = 0; i < textChunks.length; i++) {
+    currentTextChunk += textChunks[i] + '\n'
+    if (currentTextChunk.length < 5000 && i < textChunks.length - 1) {
       continue
     }
     logger.debug(`synthesizing ${currentTextChunk}`)

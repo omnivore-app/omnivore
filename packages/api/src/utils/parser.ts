@@ -285,13 +285,11 @@ export const parsePreparedContent = async (
 
       // Get the top level element?
       const pageNode = article.dom.firstElementChild as HTMLElement
-      console.log('pageNode: ', pageNode)
       const nodesToVisitStack: [HTMLElement] = [pageNode]
       const visitedNodeList = []
 
       while (nodesToVisitStack.length > 0) {
         const currentNode = nodesToVisitStack.pop()
-        console.log('currentNode: ', currentNode?.nodeType)
         if (
           currentNode?.nodeType !== 1 ||
           // Avoiding dynamic elements from being counted as anchor-allowed elements
@@ -316,7 +314,6 @@ export const parsePreparedContent = async (
         node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
       })
 
-      console.log('article content:', article.dom.outerHTML)
       article.content = article.dom.outerHTML
     }
 
