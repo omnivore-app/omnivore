@@ -219,10 +219,13 @@ public class AudioSession: ObservableObject {
       .appendingPathComponent(UUID().uuidString + ".mp3")
 
     do {
-      let hash = Data(Insecure.MD5.hash(data: data)).base64EncodedString()
-//      if let googleHash = httpResponse.value(forHTTPHeaderField: "x-goog-hash"), googleHash.contains("md5=\(hash)") {
-//        throw BasicError.message(messageText: "Downloaded mp3 file hashes do not match: returned: \(googleHash) v computed: \(hash)")
-//      }
+      if let googleHash = httpResponse.value(forHTTPHeaderField: "x-goog-hash") {
+        let hash = Data(Insecure.MD5.hash(data: data)).base64EncodedString()
+        if !googleHash.contains("md5=\(hash)") {
+          print("Downloaded mp3 file hashes do not match: returned: \(googleHash) v computed: \(hash)")
+          throw BasicError.message(messageText: "Downloaded mp3 file hashes do not match: returned: \(googleHash) v computed: \(hash)")
+        }
+      }
 
       try data.write(to: tempPath)
       try FileManager.default.moveItem(at: tempPath, to: audioUrl)
