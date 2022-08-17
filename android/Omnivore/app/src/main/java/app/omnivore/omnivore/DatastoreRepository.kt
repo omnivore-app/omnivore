@@ -13,10 +13,6 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-  name = Constants.dataStoreName
-)
-
 interface DatastoreRepository {
   val hasAuthTokenFlow: Flow<Boolean>
   suspend fun clear()
@@ -29,6 +25,10 @@ interface DatastoreRepository {
 class OmnivoreDatastore @Inject constructor(
   private val context: Context
 ) : DatastoreRepository {
+  private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = Constants.dataStoreName
+  )
+
   override suspend fun putString(key: String, value: String) {
     val preferencesKey = stringPreferencesKey(key)
     context.dataStore.edit { preferences ->

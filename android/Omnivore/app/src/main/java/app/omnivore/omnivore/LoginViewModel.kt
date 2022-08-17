@@ -15,6 +15,12 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  var isLoading by mutableStateOf(false)
+    private set
+
+  var errorMessage by mutableStateOf<String?>(null)
+    private set
+
   val hasAuthTokenLiveData: LiveData<Boolean> = datastoreRepo
     .hasAuthTokenFlow
     .distinctUntilChanged()
@@ -24,27 +30,30 @@ class LoginViewModel @Inject constructor(
     val emailLogin = RetrofitHelper.getInstance().create(EmailLoginSubmit::class.java)
 
     viewModelScope.launch {
+      isLoading = true
+      errorMessage = null
+
       val result = emailLogin.submitEmailLogin(
         EmailLoginCredentials(email = email, password = password)
       )
 
-      // TODO: bail early if email is pending
-//      if (result.body()?.pendingEmailVerification == true) {
-//        return void
-//      }
+      isLoading = false
+
+      if (result.body()?.pendingEmailVerification == true) {
+        errorMessage = "Email needs verification"
+        return@launch
+      }
 
       if (result.body()?.authToken != null) {
         datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
+      } else {
+        errorMessage = "Something went wrong. Please check your email/password and try again"
       }
 
       if (result.body()?.authCookieString != null) {
         datastoreRepo.putString(
           DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
         )
-      }
-
-      datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)?.let {
-        Log.d(ContentValues.TAG, it)
       }
     }
   }
@@ -53,5 +62,9 @@ class LoginViewModel @Inject constructor(
     viewModelScope.launch {
       datastoreRepo.clear()
     }
+  }
+
+  fun resetErrorMessage() {
+    errorMessage = null
   }
 }

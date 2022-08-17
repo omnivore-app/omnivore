@@ -1,17 +1,19 @@
 package app.omnivore.omnivore
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,10 +23,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.setValue
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -37,15 +41,24 @@ class MainActivity : ComponentActivity() {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-          RootView(viewModel)
+          PrimaryView(viewModel)
         }
       }
+    }
+
+    // animate the view up when keyboard appears
+    WindowCompat.setDecorFitsSystemWindows(window, false)
+    val rootView = findViewById<View>(android.R.id.content).rootView
+    ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
+      val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+      rootView.setPadding(0, 0, 0, imeHeight)
+      insets
     }
   }
 }
 
 @Composable
-fun RootView(viewModel: LoginViewModel) {
+fun PrimaryView(viewModel: LoginViewModel) {
   val hasAuthToken: Boolean by viewModel.hasAuthTokenLiveData.observeAsState(false)
 
   if (hasAuthToken) {
@@ -74,10 +87,14 @@ fun LoggedInView(viewModel: LoginViewModel) {
   }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LoginView(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
+  val focusManager = LocalFocusManager.current
+  val snackBarHostState = remember { SnackbarHostState() }
+  val coroutineScope = rememberCoroutineScope()
 
   Column(
     verticalArrangement = Arrangement.Center,
@@ -85,6 +102,7 @@ fun LoginView(viewModel: LoginViewModel) {
     modifier = Modifier
       .background(MaterialTheme.colors.background)
       .fillMaxSize()
+      .clickable { focusManager.clearFocus() }
   ) {
     LoginFields(
       email,
@@ -93,6 +111,27 @@ fun LoginView(viewModel: LoginViewModel) {
       onPasswordChange = { password = it },
       onLoginClick = { viewModel.login(email, password) }
     )
+
+    // TODO: add a activity indicator (maybe after a delay?)
+    if (viewModel.isLoading) {
+      Text("Loading...")
+    }
+
+    if (viewModel.errorMessage != null) {
+      coroutineScope.launch {
+        val result = snackBarHostState
+          .showSnackbar(
+            viewModel.errorMessage!!,
+            actionLabel = "Dismiss",
+            duration = SnackbarDuration.Indefinite
+          )
+        when (result) {
+          SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
+        }
+      }
+
+      SnackbarHost(hostState = snackBarHostState)
+    }
   }
 }
 
@@ -142,7 +181,7 @@ fun LoginFields(
       } else {
         Toast.makeText(
           context,
-          "Please enter an email and password",
+          "Please enter an email address and password.",
           Toast.LENGTH_SHORT
         ).show()
       }
