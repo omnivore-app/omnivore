@@ -2,9 +2,12 @@ package app.omnivore.omnivore
 
 import android.content.ContentValues
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -12,6 +15,11 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  val hasAuthTokenLiveData: LiveData<Boolean> = datastoreRepo
+    .hasAuthTokenFlow
+    .distinctUntilChanged()
+    .asLiveData()
+
   fun login(email: String, password: String) {
     val emailLogin = RetrofitHelper.getInstance().create(EmailLoginSubmit::class.java)
 

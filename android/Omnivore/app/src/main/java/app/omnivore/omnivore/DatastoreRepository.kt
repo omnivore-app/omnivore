@@ -2,12 +2,15 @@ package app.omnivore.omnivore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.dataStore
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.asLiveData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
@@ -15,6 +18,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 )
 
 interface DatastoreRepository {
+  val hasAuthTokenFlow: Flow<Boolean>
   suspend fun putString(key: String, value: String)
   suspend fun putInt(key: String, value: Int)
   suspend fun getString(key: String): String?
@@ -49,4 +53,11 @@ class OmnivoreDatastore @Inject constructor(
     val preferences = context.dataStore.data.first()
     return preferences[preferencesKey]
   }
+
+  override val hasAuthTokenFlow: Flow<Boolean> = context
+    .dataStore.data.map { preferences ->
+      val key = stringPreferencesKey(DatastoreKeys.omnivoreAuthToken)
+      val token = preferences[key]
+      token != null
+    }
 }

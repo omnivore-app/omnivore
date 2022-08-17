@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,10 +37,34 @@ class MainActivity : ComponentActivity() {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-          LoginView(viewModel)
+          rootView(viewModel)
         }
       }
     }
+  }
+}
+
+@Composable
+fun rootView(viewModel: LoginViewModel) {
+  val hasAuthToken: Boolean by viewModel.hasAuthTokenLiveData.observeAsState(false)
+
+  if (hasAuthToken) {
+    loggedInView()
+  } else {
+    LoginView(viewModel)
+  }
+}
+
+@Composable
+fun loggedInView() {
+  Column(
+    verticalArrangement = Arrangement.Center,
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = Modifier
+      .background(MaterialTheme.colors.background)
+      .fillMaxSize()
+  ) {
+    Text("You have a valid auth token. Nice. Go save something in Chrome!")
   }
 }
 
