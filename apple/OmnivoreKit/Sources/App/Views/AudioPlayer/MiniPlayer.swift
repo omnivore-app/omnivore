@@ -21,6 +21,41 @@ public struct MiniPlayer: View {
     self.presentingView = AnyView(presentingView)
   }
 
+  var playPauseButtonItem: some View {
+    if let item = audioSession.item, audioSession.isLoadingItem(item: item) {
+      return AnyView(ProgressView())
+    } else {
+      return AnyView(Button(
+        action: {
+          switch audioSession.state {
+          case .playing:
+            audioSession.pause()
+          case .paused:
+            audioSession.unpause()
+          default:
+            break
+          }
+        },
+        label: {
+          Image(systemName: audioSession.state == .playing ? "pause.circle" : "play.circle")
+            .font(.appTitleTwo)
+        }
+      ))
+    }
+  }
+
+  var stopButton: some View {
+    Button(
+      action: {
+        audioSession.stop()
+      },
+      label: {
+        Image(systemName: "xmark")
+          .font(.appTitleTwo)
+      }
+    )
+  }
+
   public var body: some View {
     GeometryReader { geometry in
       ZStack(alignment: .center) {
@@ -35,34 +70,12 @@ public struct MiniPlayer: View {
                 .foregroundColor(.appGrayTextContrast)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-              Button(
-                action: {
-                  switch audioSession.state {
-                  case .playing:
-                    audioSession.pause()
-                  case .paused:
-                    audioSession.unpause()
-                  default:
-                    break
-                  }
-                },
-                label: {
-                  Image(systemName: audioSession.state == .playing ? "pause.circle" : "play.circle")
-                    .font(.appTitleTwo)
-                }
-              )
-              .frame(width: 28, height: 28)
 
-              Button(
-                action: {
-                  audioSession.stop()
-                },
-                label: {
-                  Image(systemName: "xmark")
-                    .font(.appTitleTwo)
-                }
-              )
-              .frame(width: 28, height: 28)
+              playPauseButtonItem
+                .frame(width: 28, height: 28)
+
+              stopButton
+                .frame(width: 28, height: 28)
             }
             .padding()
             .frame(width: geometry.size.width, height: 88) // this should be 108 once we add GrabberVisible at the bottom
