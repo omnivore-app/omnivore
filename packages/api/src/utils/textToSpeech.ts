@@ -129,13 +129,19 @@ export const synthesizeTextToSpeech = async (
       )
     })
   }
-  // slice the text into chunks of 1,000 characters
-  const textChunks = input.text.match(/(.|[\r\n]){1,1000}/g) || []
+  // slice the text into chunks of 5,000 characters
+  let currentTextChunk = ''
+  const textChunks = input.text.split('\n')
   for (const textChunk of textChunks) {
-    logger.debug(`synthesizing ${textChunk}`)
-    const result = await speakTextAsyncPromise(textChunk)
+    currentTextChunk += textChunk + '\n'
+    if (currentTextChunk.length < 5000) {
+      continue
+    }
+    logger.debug(`synthesizing ${currentTextChunk}`)
+    const result = await speakTextAsyncPromise(currentTextChunk)
     timeOffset = timeOffset + result.audioDuration
-    characterOffset = characterOffset + textChunk.length
+    characterOffset = characterOffset + currentTextChunk.length
+    currentTextChunk = ''
   }
   writeStream.end()
   synthesizer.close()

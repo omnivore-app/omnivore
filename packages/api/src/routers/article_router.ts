@@ -120,7 +120,7 @@ export function articleRouter() {
         return res.status(200).send('Page not found')
       }
 
-      const text = parseHTML(page.content).document.documentElement.textContent
+      const text = parseHTML(page.content).document.documentElement.innerText
       if (!text) {
         return res.status(200).send('Page has no text')
       }
