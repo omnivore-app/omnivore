@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-          rootView(viewModel)
+          RootView(viewModel)
         }
       }
     }
@@ -45,18 +45,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun rootView(viewModel: LoginViewModel) {
+fun RootView(viewModel: LoginViewModel) {
   val hasAuthToken: Boolean by viewModel.hasAuthTokenLiveData.observeAsState(false)
 
   if (hasAuthToken) {
-    loggedInView()
+    LoggedInView(viewModel)
   } else {
     LoginView(viewModel)
   }
 }
 
 @Composable
-fun loggedInView() {
+fun LoggedInView(viewModel: LoginViewModel) {
   Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -65,6 +65,12 @@ fun loggedInView() {
       .fillMaxSize()
   ) {
     Text("You have a valid auth token. Nice. Go save something in Chrome!")
+
+    Button(onClick = {
+      viewModel.logout()
+    }) {
+      Text(text = "Logout")
+    }
   }
 }
 

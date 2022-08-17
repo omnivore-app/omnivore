@@ -19,6 +19,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 
 interface DatastoreRepository {
   val hasAuthTokenFlow: Flow<Boolean>
+  suspend fun clear()
   suspend fun putString(key: String, value: String)
   suspend fun putInt(key: String, value: Int)
   suspend fun getString(key: String): String?
@@ -52,6 +53,10 @@ class OmnivoreDatastore @Inject constructor(
     val preferencesKey = intPreferencesKey(key)
     val preferences = context.dataStore.data.first()
     return preferences[preferencesKey]
+  }
+
+  override suspend fun clear() {
+    context.dataStore.edit { it.clear() }
   }
 
   override val hasAuthTokenFlow: Flow<Boolean> = context

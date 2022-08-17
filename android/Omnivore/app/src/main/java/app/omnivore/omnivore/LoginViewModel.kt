@@ -48,4 +48,10 @@ class LoginViewModel @Inject constructor(
       }
     }
   }
+
+  fun logout() {
+    viewModelScope.launch {
+      datastoreRepo.clear()
+    }
+  }
 }
