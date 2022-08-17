@@ -51,7 +51,7 @@ export function speechServiceRouter() {
     await getRepository(Speech).save({
       elasticPageId: pageId,
       audioUrl: speech.audioUrl,
-      speechMarks: JSON.stringify(speech.speechMarks),
+      speechMarks: speech.speechMarksUrl,
       user,
     })
 
