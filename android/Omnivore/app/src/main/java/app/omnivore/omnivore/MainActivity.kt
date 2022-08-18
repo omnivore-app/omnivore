@@ -12,7 +12,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+//import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
     setContent {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           PrimaryView(viewModel)
         }
       }
@@ -74,7 +75,7 @@ fun LoggedInView(viewModel: LoginViewModel) {
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
-      .background(MaterialTheme.colors.background)
+      .background(MaterialTheme.colorScheme.background)
       .fillMaxSize()
   ) {
     Text("You have a valid auth token. Nice. Go save something in Chrome!")
@@ -100,7 +101,7 @@ fun LoginView(viewModel: LoginViewModel) {
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
-      .background(MaterialTheme.colors.background)
+      .background(MaterialTheme.colorScheme.background)
       .fillMaxSize()
       .clickable { focusManager.clearFocus() }
   ) {
@@ -135,6 +136,7 @@ fun LoginView(viewModel: LoginViewModel) {
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginFields(
   email: String,

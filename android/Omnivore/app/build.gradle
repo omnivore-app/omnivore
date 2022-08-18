@@ -39,7 +39,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion compose_version
+        kotlinCompilerExtensionVersion = '1.2.0-alpha08'
     }
     packagingOptions {
         resources {
@@ -117,6 +117,9 @@ dependencies {
     kapt 'com.google.dagger:hilt-compiler:2.42'
 
     implementation 'com.apollographql.apollo3:apollo-runtime:3.5.0'
+
+    implementation 'androidx.compose.material3:material3:1.0.0-alpha16'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.0.0-alpha16'
 }
 
 apollo {
