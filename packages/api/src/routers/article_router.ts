@@ -76,6 +76,9 @@ export function articleRouter() {
     async (req, res) => {
       const id = req.params.id
       const outputFormat = req.params.outputFormat
+      if (!id || !['mp3', 'speech-marks'].includes(outputFormat)) {
+        return res.status(400).send('Invalid data')
+      }
       const token = req.cookies?.auth || req.headers?.authorization
       if (!token || !jwt.verify(token, env.server.jwtSecret)) {
         return res.status(401).send({ errorCode: 'UNAUTHORIZED' })

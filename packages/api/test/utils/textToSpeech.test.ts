@@ -15,7 +15,7 @@ describe('textToSpeech', () => {
   }
 
   describe('synthesizeTextToSpeech', () => {
-    it('should create an audio file with speech marks', async () => {
+    xit('should create an audio file with speech marks', async () => {
       const html = load('./test/utils/data/text-to-speech.html')
       const input: TextToSpeechInput = {
         id: generateFakeUuid(),
