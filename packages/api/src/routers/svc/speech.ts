@@ -7,6 +7,7 @@ import { synthesizeTextToSpeech } from '../../utils/textToSpeech'
 import { Speech, SpeechState } from '../../entity/speech'
 import { UserPersonalization } from '../../entity/user_personalization'
 import { buildLogger } from '../../utils/logger'
+import { getClaimsByToken } from '../../utils/auth'
 
 const logger = buildLogger('app.dispatch')
 
@@ -16,6 +17,16 @@ export function speechServiceRouter() {
   router.options('/', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/', async (req, res) => {
+    logger.info('Speech svc request', {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      body: req.body,
+    })
+    const token = req.query.token as string
+    if (!(await getClaimsByToken(token))) {
+      logger.info('Unauthorized request', { token })
+      return res.status(200).send('UNAUTHORIZED')
+    }
+
     const { userId, pageId } = req.body as {
       userId: string
       pageId: string
