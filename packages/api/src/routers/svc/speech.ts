@@ -22,8 +22,13 @@ export function speechServiceRouter() {
       body: req.body,
     })
     const token = req.query.token as string
-    if (!(await getClaimsByToken(token))) {
-      logger.info('Unauthorized request', { token })
+    try {
+      if (!(await getClaimsByToken(token))) {
+        logger.info('Unauthorized request', { token })
+        return res.status(200).send('UNAUTHORIZED')
+      }
+    } catch (error) {
+      logger.error('Unauthorized request', { token, error })
       return res.status(200).send('UNAUTHORIZED')
     }
 
