@@ -18,7 +18,6 @@ import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { Speech } from '../entity/speech'
 import { getPageById } from '../elastic/pages'
-import { parseHTML } from 'linkedom'
 import { synthesizeTextToSpeech } from '../utils/textToSpeech'
 import { UserPersonalization } from '../entity/user_personalization'
 
@@ -117,18 +116,19 @@ export function articleRouter() {
         return res.status(404).send('Page not found')
       }
 
-      const text = parseHTML(page.content).document.documentElement.innerText
-      if (!text) {
-        return res.status(404).send('Page has no text')
-      }
+      // const text = parseHTML(page.content).document.documentElement.innerText
+      // if (!text) {
+      //   return res.status(404).send('Page has no text')
+      // }
 
       try {
         const startTime = Date.now()
         const speechOutput = await synthesizeTextToSpeech({
           id,
-          text,
+          text: page.content,
           languageCode: page.language,
           voice: userPersonalization.speechVoice,
+          textType: 'ssml',
         })
         logger.info('Created speech', {
           audioUrl: speechOutput.audioUrl,

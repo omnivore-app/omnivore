@@ -107,7 +107,7 @@ export const synthesizeTextToSpeech = async (
   }
 
   synthesizer.bookmarkReached = (s, e) => {
-    logger.info(
+    logger.debug(
       `(Bookmark reached), Audio offset: ${
         e.audioOffset / 10000
       }ms, bookmark text: ${e.text}`
@@ -170,20 +170,20 @@ export const synthesizeTextToSpeech = async (
     }
   } else {
     const document = parseHTML(input.text).document
-    const elements = document.querySelectorAll('h1, h2, h3, p, li')
+    const elements = document.querySelectorAll('h1, h2, h3, p, ul, ol')
     // convert html elements to the ssml document
     for (const e of Array.from(elements)) {
       const htmlElement = e as HTMLElement
       if (htmlElement.innerText) {
-        const result = await speakSsmlAsyncPromise(
-          htmlElementToSsml(
-            htmlElement,
-            input.languageCode,
-            input.voice,
-            input.rate,
-            input.volume
-          )
+        const ssml = htmlElementToSsml(
+          e,
+          input.languageCode,
+          input.voice,
+          input.rate,
+          input.volume
         )
+        logger.debug(`synthesizing ${ssml}`)
+        const result = await speakSsmlAsyncPromise(ssml)
         timeOffset = timeOffset + result.audioDuration
         characterOffset = characterOffset + htmlElement.innerText.length
       }
@@ -211,12 +211,32 @@ export const synthesizeTextToSpeech = async (
 }
 
 export const htmlElementToSsml = (
-  htmlElement: HTMLElement,
+  htmlElement: Element,
   language = 'en-US',
   voice = 'en-US-JennyNeural',
   rate = 1,
   volume = 100
 ): string => {
+  const appendBookmarkElement = (parent: Element, element: Element) => {
+    const id = element.getAttribute('data-omnivore-anchor-idx')
+    if (id) {
+      const bookMark = ssml.createElement('bookmark')
+      bookMark.setAttribute('mark', `data-omnivore-anchor-idx-${id}`)
+      parent.appendChild(bookMark)
+    }
+  }
+
+  const replaceEmphasisElement = (element: Element, level: string) => {
+    logger.debug(`replaceEmphasisElement: ${element.innerHTML}`)
+    const parent = ssml.createDocumentFragment() as unknown as Element
+    appendBookmarkElement(parent, element)
+    const emphasisElement = ssml.createElement('emphasis')
+    emphasisElement.setAttribute('level', level)
+    emphasisElement.innerHTML = element.innerHTML.trim()
+    parent.appendChild(emphasisElement)
+    element?.parentNode?.replaceChild(parent, element)
+  }
+
   // create new ssml document
   const ssml = parseHTML('').document
   const speakElement = ssml.createElement('speak')
@@ -231,14 +251,53 @@ export const htmlElementToSsml = (
   prosodyElement.setAttribute('volume', volume.toString())
   voiceElement.appendChild(prosodyElement)
   // add each paragraph to the ssml document
-  const id = htmlElement.getAttribute('data-omnivore-anchor-idx')
-  if (id) {
-    const text = htmlElement.innerText
-    const bookMark = ssml.createElement('bookmark')
-    bookMark.setAttribute('mark', `data-omnivore-anchor-idx-${id}`)
-    prosodyElement.appendChild(bookMark)
-    prosodyElement.appendChild(ssml.createTextNode(text))
-  }
+  appendBookmarkElement(prosodyElement, htmlElement)
+  // add text to the ssml document
+  htmlElement.querySelectorAll('*').forEach((e) => {
+    switch (e.tagName.toLowerCase()) {
+      case 's':
+        replaceEmphasisElement(e, 'reduced')
+        break
+      case 'sub':
+        if (e.getAttribute('alias') === null) {
+          replaceEmphasisElement(e, 'reduced')
+        }
+        break
+      case 'i':
+      case 'em':
+      case 'q':
+      case 'blockquote':
+      case 'cite':
+      case 'del':
+      case 'strike':
+      case 'sup':
+      case 'summary':
+      case 'caption':
+      case 'figcaption':
+        replaceEmphasisElement(e, 'reduced')
+        break
+      case 'b':
+      case 'strong':
+      case 'dt':
+      case 'dfn':
+      case 'u':
+      case 'li':
+      case 'mark':
+      case 'th':
+      case 'title':
+      case 'var':
+        replaceEmphasisElement(e, 'moderate')
+        break
+      default: {
+        const text = (e as HTMLElement).innerText.trim()
+        if (text) {
+          const textElement = ssml.createTextNode(text)
+          e.parentNode?.replaceChild(textElement, e)
+        }
+      }
+    }
+  })
+  prosodyElement.appendChild(htmlElement)
 
   return speakElement.outerHTML
 }

@@ -5,7 +5,6 @@ import { getRepository } from '../../entity/utils'
 import { getPageById } from '../../elastic/pages'
 import { synthesizeTextToSpeech } from '../../utils/textToSpeech'
 import { Speech } from '../../entity/speech'
-import { parseHTML } from 'linkedom'
 import { UserPersonalization } from '../../entity/user_personalization'
 import { buildLogger } from '../../utils/logger'
 
@@ -39,12 +38,10 @@ export function speechServiceRouter() {
     if (!page) {
       return res.status(200).send('Page not found')
     }
-
-    const text = parseHTML(page.content).document.documentElement.innerText
-    if (!text) {
-      return res.status(200).send('Page has no text')
-    }
-
+    // const text = parseHTML(page.content).document.documentElement.innerText
+    // if (!text) {
+    //   return res.status(200).send('Page has no text')
+    // }
     logger.info(`Create article speech`, {
       body: {
         userId,
@@ -59,9 +56,10 @@ export function speechServiceRouter() {
       const startTime = Date.now()
       const speechOutput = await synthesizeTextToSpeech({
         id: pageId,
-        text,
+        text: page.content,
         languageCode: page.language,
         voice: userPersonalization.speechVoice,
+        textType: 'ssml',
       })
       logger.info('Created speech', {
         audioUrl: speechOutput.audioUrl,
