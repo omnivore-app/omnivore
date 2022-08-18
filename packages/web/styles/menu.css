@@ -25,6 +25,10 @@
   padding: 5px 20px;
 }
 
+.pro-sidebar .pro-menu .pro-menu-item.pro-sub-menu {
+ border-top: 1px solid var(--colors-grayBg);
+}
+
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
   width: 20px;
   min-width: 0;
