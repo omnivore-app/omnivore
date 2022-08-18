@@ -158,7 +158,7 @@ const textVariants = {
       fontSize: 24,
       fontFamily: 'inter',
       lineHeight: 'unset',
-      fontWeight: 'medium',
+      fontWeight: 'bold',
       color: '$textSubtle',
     },
     error: {
