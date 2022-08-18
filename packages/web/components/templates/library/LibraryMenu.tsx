@@ -14,6 +14,7 @@ export function LibraryMenu(): JSX.Element {
         minWidth: '286px',
         height: 'calc(100% - 100px)',
         overflowY: 'auto',
+        fontWeight: '600',
       }}
     >
       <Menubar />
