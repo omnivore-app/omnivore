@@ -17,6 +17,9 @@ export interface TextToSpeechInput {
   text: string
   voice?: string
   languageCode?: string
+  textType?: 'text' | 'ssml'
+  rate?: number
+  volume?: number
 }
 
 export interface TextToSpeechOutput {
@@ -47,8 +50,11 @@ export const synthesizeTextToSpeech = async (
     env.azure.speechKey,
     env.azure.speechRegion
   )
-  speechConfig.speechSynthesisLanguage = input.languageCode || 'en-US'
-  speechConfig.speechSynthesisVoiceName = input.voice || 'en-US-JennyNeural'
+  const textType = input.textType || 'text'
+  if (textType === 'text') {
+    speechConfig.speechSynthesisLanguage = input.languageCode || 'en-US'
+    speechConfig.speechSynthesisVoiceName = input.voice || 'en-US-JennyNeural'
+  }
   speechConfig.speechSynthesisOutputFormat =
     SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
 
@@ -129,19 +135,59 @@ export const synthesizeTextToSpeech = async (
       )
     })
   }
-  // slice the text into chunks of 5,000 characters
-  let currentTextChunk = ''
-  const textChunks = input.text.split('\n')
-  for (let i = 0; i < textChunks.length; i++) {
-    currentTextChunk += textChunks[i] + '\n'
-    if (currentTextChunk.length < 5000 && i < textChunks.length - 1) {
-      continue
+
+  const speakSsmlAsyncPromise = (
+    text: string
+  ): Promise<SpeechSynthesisResult> => {
+    return new Promise((resolve, reject) => {
+      synthesizer.speakSsmlAsync(
+        text,
+        (result) => {
+          resolve(result)
+        },
+        (error) => {
+          synthesizer.close()
+          reject(error)
+        }
+      )
+    })
+  }
+
+  if (textType === 'text') {
+    // slice the text into chunks of 5,000 characters
+    let currentTextChunk = ''
+    const textChunks = input.text.split('\n')
+    for (let i = 0; i < textChunks.length; i++) {
+      currentTextChunk += textChunks[i] + '\n'
+      if (currentTextChunk.length < 5000 && i < textChunks.length - 1) {
+        continue
+      }
+      logger.debug(`synthesizing ${currentTextChunk}`)
+      const result = await speakTextAsyncPromise(currentTextChunk)
+      timeOffset = timeOffset + result.audioDuration
+      characterOffset = characterOffset + currentTextChunk.length
+      currentTextChunk = ''
     }
-    logger.debug(`synthesizing ${currentTextChunk}`)
-    const result = await speakTextAsyncPromise(currentTextChunk)
-    timeOffset = timeOffset + result.audioDuration
-    characterOffset = characterOffset + currentTextChunk.length
-    currentTextChunk = ''
+  } else {
+    const document = parseHTML(input.text).document
+    const elements = document.querySelectorAll('h1, h2, h3, p, li')
+    // convert html elements to the ssml document
+    for (const e of Array.from(elements)) {
+      const htmlElement = e as HTMLElement
+      if (htmlElement.innerText) {
+        const result = await speakSsmlAsyncPromise(
+          htmlElementToSsml(
+            htmlElement,
+            input.languageCode,
+            input.voice,
+            input.rate,
+            input.volume
+          )
+        )
+        timeOffset = timeOffset + result.audioDuration
+        characterOffset = characterOffset + htmlElement.innerText.length
+      }
+    }
   }
   writeStream.end()
   synthesizer.close()
@@ -164,15 +210,13 @@ export const synthesizeTextToSpeech = async (
   }
 }
 
-export const htmlToSsml = (
-  html: string,
+export const htmlElementToSsml = (
+  htmlElement: HTMLElement,
   language = 'en-US',
   voice = 'en-US-JennyNeural',
-  rate = 100,
+  rate = 1,
   volume = 100
 ): string => {
-  const document = parseHTML(html).document
-  const paragraphs = document.querySelectorAll('p')
   // create new ssml document
   const ssml = parseHTML('').document
   const speakElement = ssml.createElement('speak')
@@ -183,20 +227,18 @@ export const htmlToSsml = (
   voiceElement.setAttribute('name', voice)
   speakElement.appendChild(voiceElement)
   const prosodyElement = ssml.createElement('prosody')
-  prosodyElement.setAttribute('rate', `${rate}%`)
+  prosodyElement.setAttribute('rate', `${rate}`)
   prosodyElement.setAttribute('volume', volume.toString())
   voiceElement.appendChild(prosodyElement)
   // add each paragraph to the ssml document
-  paragraphs.forEach((p) => {
-    const id = p.getAttribute('data-omnivore-anchor-idx')
-    if (id) {
-      const text = p.innerText
-      const bookMark = ssml.createElement('bookmark')
-      bookMark.setAttribute('mark', `data-omnivore-anchor-idx-${id}`)
-      bookMark.innerText = text
-      prosodyElement.appendChild(bookMark)
-    }
-  })
+  const id = htmlElement.getAttribute('data-omnivore-anchor-idx')
+  if (id) {
+    const text = htmlElement.innerText
+    const bookMark = ssml.createElement('bookmark')
+    bookMark.setAttribute('mark', `data-omnivore-anchor-idx-${id}`)
+    prosodyElement.appendChild(bookMark)
+    prosodyElement.appendChild(ssml.createTextNode(text))
+  }
 
   return speakElement.outerHTML
 }
