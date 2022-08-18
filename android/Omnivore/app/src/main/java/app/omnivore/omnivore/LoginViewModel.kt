@@ -1,9 +1,14 @@
 package app.omnivore.omnivore
 
+import android.content.ContentValues
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -64,5 +69,12 @@ class LoginViewModel @Inject constructor(
 
   fun resetErrorMessage() {
     errorMessage = null
+  }
+
+  fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
+    val googleIdToken = task?.getResult(ApiException::class.java).idToken
+    Log.d(ContentValues.TAG, "Google Result?: $googleIdToken")
+    // TODO: submit id token to backend
+    // If token is missing then set the error message
   }
 }

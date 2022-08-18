@@ -121,6 +121,8 @@ dependencies {
 
     implementation 'androidx.compose.material3:material3:1.0.0-alpha16'
     implementation 'androidx.compose.material3:material3-window-size-class:1.0.0-alpha16'
+
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
 }
 
 apollo {

@@ -1,11 +1,16 @@
 package app.omnivore.omnivore
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +32,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GooglePlayServicesUtil.isGooglePlayServicesAvailable
+import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -41,7 +53,7 @@ class MainActivity : ComponentActivity() {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          PrimaryView(viewModel)
+          WelcomeView(viewModel)
         }
       }
     }
@@ -58,13 +70,33 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PrimaryView(viewModel: LoginViewModel) {
+fun WelcomeView(viewModel: LoginViewModel) {
   val hasAuthToken: Boolean by viewModel.hasAuthTokenLiveData.observeAsState(false)
 
   if (hasAuthToken) {
     LoggedInView(viewModel)
   } else {
     LoginView(viewModel)
+  }
+}
+
+@Composable
+fun LoginView(viewModel: LoginViewModel) {
+  val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
+    .getInstance()
+    .isGooglePlayServicesAvailable(LocalContext.current) == 0
+
+  Column(
+    verticalArrangement = Arrangement.Center,
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = Modifier
+      .background(MaterialTheme.colorScheme.background)
+      .fillMaxSize()
+  ) {
+    if (isGoogleAuthAvailable) {
+      GoogleAuthButton(viewModel)
+    }
+    EmailLoginView(viewModel)
   }
 }
 
@@ -89,7 +121,7 @@ fun LoggedInView(viewModel: LoginViewModel) {
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun LoginView(viewModel: LoginViewModel) {
+fun EmailLoginView(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
   val focusManager = LocalFocusManager.current
