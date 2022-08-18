@@ -16,10 +16,11 @@ import * as jwt from 'jsonwebtoken'
 import { env } from '../env'
 import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
-import { Speech } from '../entity/speech'
+import { Speech, SpeechState } from '../entity/speech'
 import { getPageById } from '../elastic/pages'
 import { synthesizeTextToSpeech } from '../utils/textToSpeech'
 import { UserPersonalization } from '../entity/user_personalization'
+import { generateDownloadSignedUrl } from '../utils/uploads'
 
 const logger = buildLogger('app.dispatch')
 
@@ -96,12 +97,17 @@ export function articleRouter() {
       const existingSpeech = await getRepository(Speech).findOneBy({
         elasticPageId: id,
       })
-      if (existingSpeech) {
-        logger.info('Found existing speech', {
-          audioUrl: existingSpeech.audioUrl,
-          speechMarksUrl: existingSpeech.speechMarksUrl,
+      if (existingSpeech?.state === SpeechState.COMPLETED) {
+        logger.info('Found existing completed speech', {
+          audioUrl: existingSpeech.audioFileName,
+          speechMarksUrl: existingSpeech.speechMarksFileName,
         })
-        return res.redirect(redirectUrl(existingSpeech, outputFormat))
+        return res.redirect(await redirectUrl(existingSpeech, outputFormat))
+      }
+      if (existingSpeech?.state === SpeechState.INITIALIZED) {
+        logger.info('Found existing in progress speech')
+        // retry later
+        return res.status(429).send('Speech is in progress')
       }
 
       logger.debug('Text to speech request', { articleId: id })
@@ -124,6 +130,13 @@ export function articleRouter() {
       //   return res.status(404).send('Page has no text')
       // }
 
+      // initialize state
+      const speech = await getRepository(Speech).save({
+        user: { id: uid },
+        elasticPageId: id,
+        state: SpeechState.INITIALIZED,
+        voice: userPersonalization.speechVoice,
+      })
       try {
         const startTime = Date.now()
         const speechOutput = await synthesizeTextToSpeech({
@@ -134,21 +147,27 @@ export function articleRouter() {
           textType: 'ssml',
         })
         logger.info('Created speech', {
-          audioUrl: speechOutput.audioUrl,
-          speechMarksUrl: speechOutput.speechMarksUrl,
+          audioFileName: speechOutput.audioFileName,
+          speechMarksFileName: speechOutput.speechMarksFileName,
           duration: Date.now() - startTime,
         })
 
-        const speech = await getRepository(Speech).save({
-          elasticPageId: id,
-          audioUrl: speechOutput.audioUrl,
-          speechMarksUrl: speechOutput.speechMarksUrl,
-          user: { id: uid },
+        // update state
+        await getRepository(Speech).update(speech.id, {
+          state: SpeechState.COMPLETED,
+          audioFileName: speech.audioFileName,
+          speechMarksFileName: speech.speechMarksFileName,
         })
+        speech.audioFileName = speechOutput.audioFileName
+        speech.speechMarksFileName = speechOutput.speechMarksFileName
 
-        res.redirect(redirectUrl(speech, outputFormat))
+        res.redirect(await redirectUrl(speech, outputFormat))
       } catch (error) {
         logger.error('Text to speech error', { error })
+        // update state
+        await getRepository(Speech).update(speech.id, {
+          state: SpeechState.FAILED,
+        })
         res.status(500).send('Text to speech error')
       }
     }
@@ -157,13 +176,13 @@ export function articleRouter() {
   return router
 }
 
-const redirectUrl = (speech: Speech, outputFormat: string) => {
+const redirectUrl = async (speech: Speech, outputFormat: string) => {
   switch (outputFormat) {
     case 'mp3':
-      return speech.audioUrl
+      return generateDownloadSignedUrl(speech.audioFileName)
     case 'speech-marks':
-      return speech.speechMarksUrl
+      return generateDownloadSignedUrl(speech.speechMarksFileName)
     default:
-      return speech.audioUrl
+      return generateDownloadSignedUrl(speech.audioFileName)
   }
 }

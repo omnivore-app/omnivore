@@ -1,5 +1,5 @@
 import { buildLogger } from './logger'
-import { createGCSFile, getFilePublicUrl, uploadToBucket } from './uploads'
+import { createGCSFile, uploadToBucket } from './uploads'
 import {
   CancellationDetails,
   CancellationReason,
@@ -23,8 +23,8 @@ export interface TextToSpeechInput {
 }
 
 export interface TextToSpeechOutput {
-  audioUrl: string
-  speechMarksUrl: string
+  audioFileName: string
+  speechMarksFileName: string
 }
 
 export interface SpeechMark {
@@ -40,10 +40,9 @@ const logger = buildLogger('app.dispatch')
 export const synthesizeTextToSpeech = async (
   input: TextToSpeechInput
 ): Promise<TextToSpeechOutput> => {
-  const audioFile = `speech/${input.id}.mp3`
-  const gcsFile = createGCSFile(audioFile)
-  const writeStream = gcsFile.createWriteStream({
-    public: true,
+  const audioFileName = `speech/${input.id}.mp3`
+  const audioFile = createGCSFile(audioFileName)
+  const writeStream = audioFile.createWriteStream({
     resumable: true,
   })
   const speechConfig = SpeechConfig.fromSubscription(
@@ -192,21 +191,18 @@ export const synthesizeTextToSpeech = async (
   writeStream.end()
   synthesizer.close()
 
-  logger.debug(`audio file: ${audioFile}`)
+  logger.debug(`audio file: ${audioFileName}`)
 
   // upload Speech Marks file to GCS
-  const speechMarksFile = `speech/${input.id}.json`
+  const speechMarksFileName = `speech/${input.id}.json`
   await uploadToBucket(
-    speechMarksFile,
-    Buffer.from(JSON.stringify(speechMarks)),
-    {
-      public: true,
-    }
+    speechMarksFileName,
+    Buffer.from(JSON.stringify(speechMarks))
   )
 
   return {
-    audioUrl: getFilePublicUrl(audioFile),
-    speechMarksUrl: getFilePublicUrl(speechMarksFile),
+    audioFileName,
+    speechMarksFileName,
   }
 }
 

@@ -4,14 +4,14 @@
 
 BEGIN;
 
-DROP TYPE IF EXISTS speech_state_type;
-
 ALTER TABLE omnivore.speech
     DROP COLUMN bucket,
     DROP COLUMN audio_file_name,
     DROP COLUMN speech_marks_file_name,
-    DROP COLUMN state speech_state_type,
+    DROP COLUMN state,
     ADD COLUMN audio_url text NOT NULL,
     ADD COLUMN speech_marks_url text NOT NULL;
+
+DROP TYPE IF EXISTS speech_state_type CASCADE;
 
 COMMIT;

@@ -28,16 +28,16 @@ export class Speech {
   @Column('text')
   elasticPageId!: string
 
-  @Column('text')
+  @Column('text', { default: '' })
   audioFileName!: string
 
-  @Column('text')
+  @Column('text', { default: '' })
   speechMarksFileName!: string
 
   @Column('text')
   voice!: string
 
-  @Column('enum', { enum: SpeechState })
+  @Column('enum', { enum: SpeechState, default: SpeechState.INITIALIZED })
   state!: SpeechState
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })

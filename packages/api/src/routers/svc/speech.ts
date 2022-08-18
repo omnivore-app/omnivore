@@ -4,7 +4,7 @@ import { corsConfig } from '../../utils/corsConfig'
 import { getRepository } from '../../entity/utils'
 import { getPageById } from '../../elastic/pages'
 import { synthesizeTextToSpeech } from '../../utils/textToSpeech'
-import { Speech } from '../../entity/speech'
+import { Speech, SpeechState } from '../../entity/speech'
 import { UserPersonalization } from '../../entity/user_personalization'
 import { buildLogger } from '../../utils/logger'
 
@@ -52,6 +52,14 @@ export function speechServiceRouter() {
       },
     })
 
+    // initialize state
+    const speech = await getRepository(Speech).save({
+      user: { id: userId },
+      elasticPageId: pageId,
+      state: SpeechState.INITIALIZED,
+      voice: userPersonalization.speechVoice,
+    })
+
     try {
       const startTime = Date.now()
       const speechOutput = await synthesizeTextToSpeech({
@@ -62,21 +70,25 @@ export function speechServiceRouter() {
         textType: 'ssml',
       })
       logger.info('Created speech', {
-        audioUrl: speechOutput.audioUrl,
-        speechMarksUrl: speechOutput.speechMarksUrl,
+        audioFileName: speechOutput.audioFileName,
+        speechMarksFileName: speechOutput.speechMarksFileName,
         duration: Date.now() - startTime,
       })
 
-      await getRepository(Speech).save({
-        elasticPageId: pageId,
-        audioUrl: speechOutput.audioUrl,
-        speechMarksUrl: speechOutput.speechMarksUrl,
-        user: { id: userId },
+      // update state
+      await getRepository(Speech).update(speech.id, {
+        audioFileName: speechOutput.audioFileName,
+        speechMarksFileName: speechOutput.speechMarksFileName,
+        state: SpeechState.COMPLETED,
       })
 
       res.status(200).send('OK')
     } catch (error) {
       logger.error(`Error creating article speech`, { error })
+      // update state
+      await getRepository(Speech).update(speech.id, {
+        state: SpeechState.FAILED,
+      })
       res.status(500).send('Error creating article speech')
     }
   })
