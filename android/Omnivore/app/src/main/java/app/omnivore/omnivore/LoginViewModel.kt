@@ -1,7 +1,5 @@
 package app.omnivore.omnivore
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

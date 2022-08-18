@@ -32,7 +32,6 @@ abstract class SaveSheetActivity: AppCompatActivity() {
 
         val viewModel: SaveViewModel by viewModels()
         var extractedText: String? = null
-        val authToken = viewModel.getAuthToken()
 
         when (intent?.action) {
             Intent.ACTION_SEND -> {
@@ -64,10 +63,8 @@ abstract class SaveSheetActivity: AppCompatActivity() {
                 sheetBackgroundColor = Color.Transparent,
                 sheetState = modalBottomSheetState,
                 sheetContent = {
-                    BottomSheetUI(coroutineScope, modalBottomSheetState) {
-                        ScreenContent(viewModel, coroutineScope, modalBottomSheetState) {
-                            onFinish(coroutineScope, modalBottomSheetState)
-                        }
+                    BottomSheetUI {
+                        ScreenContent(viewModel, modalBottomSheetState)
                     }
                 }
             ) {}
@@ -94,11 +91,7 @@ abstract class SaveSheetActivity: AppCompatActivity() {
     }
 
     @Composable
-    private fun BottomSheetUI(
-        coroutineScope: CoroutineScope,
-        modalBottomSheetState: ModalBottomSheetState,
-        content: @Composable () -> Unit
-    ) {
+    private fun BottomSheetUI(content: @Composable () -> Unit) {
         Box(
             modifier = Modifier
                 .wrapContentHeight()
@@ -158,9 +151,7 @@ abstract class SaveSheetActivity: AppCompatActivity() {
     @Composable
     fun ScreenContent(
         viewModel: SaveViewModel,
-        coroutineScope: CoroutineScope,
-        modalBottomSheetState: ModalBottomSheetState,
-        onExit: () -> Unit?
+        modalBottomSheetState: ModalBottomSheetState
     ) {
         Box(modifier = Modifier.height(300.dp).background(Color.White)) {
             SaveContent(viewModel, modalBottomSheetState, modifier = Modifier.fillMaxSize())

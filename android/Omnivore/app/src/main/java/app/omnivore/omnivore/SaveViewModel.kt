@@ -26,7 +26,7 @@ class SaveViewModel @Inject constructor(
   var message by mutableStateOf<String?>(null)
     private set
 
-  fun getAuthToken(): String? = runBlocking {
+  private fun getAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
 
