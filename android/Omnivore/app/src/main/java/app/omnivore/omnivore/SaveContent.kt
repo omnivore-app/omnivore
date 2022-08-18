@@ -14,23 +14,19 @@ import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
-fun SaveContent(extractedText: String?, modalBottomSheetState: ModalBottomSheetState, modifier: Modifier) {
+fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomSheetState, modifier: Modifier) {
     val coroutineScope = rememberCoroutineScope()
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
           Column(
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
                 .fillMaxSize()
+                .padding(top = 48.dp, bottom = 32.dp)
           ) {
-              val authToken = "authToken"
-
-              Text(text = extractedText ?: "no text extracted")
-                Spacer(modifier = Modifier.height(16.dp))
-              Text(text = authToken ?: "no auth token")
-
+              Text(text = viewModel.message ?: "Saving")
               Button(onClick = {
                   coroutineScope.launch {
                       modalBottomSheetState.hide()

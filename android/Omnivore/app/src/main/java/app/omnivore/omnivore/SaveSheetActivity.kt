@@ -65,7 +65,7 @@ abstract class SaveSheetActivity: AppCompatActivity() {
                 sheetState = modalBottomSheetState,
                 sheetContent = {
                     BottomSheetUI(coroutineScope, modalBottomSheetState) {
-                        ScreenContent(extractedText, coroutineScope, modalBottomSheetState) {
+                        ScreenContent(viewModel, coroutineScope, modalBottomSheetState) {
                             onFinish(coroutineScope, modalBottomSheetState)
                         }
                     }
@@ -157,13 +157,13 @@ abstract class SaveSheetActivity: AppCompatActivity() {
 
     @Composable
     fun ScreenContent(
-        extractedText: String?,
+        viewModel: SaveViewModel,
         coroutineScope: CoroutineScope,
         modalBottomSheetState: ModalBottomSheetState,
         onExit: () -> Unit?
     ) {
         Box(modifier = Modifier.height(300.dp).background(Color.White)) {
-            SaveContent(extractedText, modalBottomSheetState, modifier = Modifier.fillMaxSize())
+            SaveContent(viewModel, modalBottomSheetState, modifier = Modifier.fillMaxSize())
         }
     }
 
