@@ -63,6 +63,7 @@ interface BackendEnv {
     contentFetchGCFUrl: string
     reminderTaskHanderUrl: string
     integrationTaskHandlerUrl: string
+    textToSpeechTaskHandlerUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -87,6 +88,10 @@ interface BackendEnv {
   }
   readwise: {
     apiUrl: string
+  }
+  azure: {
+    speechKey: string
+    speechRegion: string
   }
 }
 
@@ -138,6 +143,9 @@ const nullableEnvVars = [
   'SENDGRID_INSTALLATION_TEMPLATE_ID',
   'READWISE_API_URL',
   'INTEGRATION_TASK_HANDLER_URL',
+  'TEXT_TO_SPEECH_TASK_HANDLER_URL',
+  'AZURE_SPEECH_KEY',
+  'AZURE_SPEECH_REGION',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -221,6 +229,7 @@ export function getEnv(): BackendEnv {
     contentFetchGCFUrl: parse('CONTENT_FETCH_GCF_URL'),
     reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
     integrationTaskHandlerUrl: parse('INTEGRATION_TASK_HANDLER_URL'),
+    textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
@@ -256,6 +265,11 @@ export function getEnv(): BackendEnv {
     apiUrl: parse('READWISE_API_URL'),
   }
 
+  const azure = {
+    speechKey: parse('AZURE_SPEECH_KEY'),
+    speechRegion: parse('AZURE_SPEECH_REGION'),
+  }
+
   return {
     pg,
     client,
@@ -274,6 +288,7 @@ export function getEnv(): BackendEnv {
     sender,
     sendgrid,
     readwise,
+    azure,
   }
 }
 

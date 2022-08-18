@@ -276,6 +276,45 @@ export const parsePreparedContent = async (
         })
         article.content = article.dom.outerHTML
       }
+
+      const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
+        'omnivore-highlight-id',
+        'data-twitter-tweet-id',
+        'data-instagram-id',
+      ]
+
+      // Get the top level element?
+      const pageNode = article.dom.firstElementChild as HTMLElement
+      const nodesToVisitStack: [HTMLElement] = [pageNode]
+      const visitedNodeList = []
+
+      while (nodesToVisitStack.length > 0) {
+        const currentNode = nodesToVisitStack.pop()
+        if (
+          currentNode?.nodeType !== 1 ||
+          // Avoiding dynamic elements from being counted as anchor-allowed elements
+          ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES.some((attrib) =>
+            currentNode.hasAttribute(attrib)
+          )
+        ) {
+          continue
+        }
+        visitedNodeList.push(currentNode)
+        ;[].slice
+          .call(currentNode.childNodes)
+          .reverse()
+          .forEach(function (node) {
+            nodesToVisitStack.push(node)
+          })
+      }
+
+      visitedNodeList.shift()
+      visitedNodeList.forEach((node, index) => {
+        // start from index 1, index 0 reserved for anchor unknown.
+        node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
+      })
+
+      article.content = article.dom.outerHTML
     }
 
     const newWindow = parseHTML('')
