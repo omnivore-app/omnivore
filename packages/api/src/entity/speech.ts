@@ -9,6 +9,13 @@ import {
 } from 'typeorm'
 import { User } from './user'
 
+export enum SpeechState {
+  INITIALIZED = 'INITIALIZED',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
+}
+
 @Entity({ name: 'speech' })
 export class Speech {
   @PrimaryGeneratedColumn('uuid')
@@ -22,13 +29,16 @@ export class Speech {
   elasticPageId!: string
 
   @Column('text')
-  audioUrl!: string
+  audioFileName!: string
 
   @Column('text')
-  speechMarksUrl!: string
+  speechMarksFileName!: string
 
   @Column('text')
   voice!: string
+
+  @Column('enum', { enum: SpeechState })
+  state!: SpeechState
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
