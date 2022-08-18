@@ -177,15 +177,15 @@ export const synthesizeTextToSpeech = async (
       if (htmlElement.innerText) {
         const ssml = htmlElementToSsml(
           e,
-          input.languageCode,
-          input.voice,
-          input.rate,
-          input.volume
+          input.languageCode || 'en-US',
+          input.voice || 'en-US-JennyNeural',
+          input.rate || 1,
+          input.volume || 100
         )
         logger.debug(`synthesizing ${ssml}`)
         const result = await speakSsmlAsyncPromise(ssml)
         timeOffset = timeOffset + result.audioDuration
-        characterOffset = characterOffset + htmlElement.innerText.length
+        // characterOffset = characterOffset + htmlElement.innerText.length
       }
     }
   }
@@ -227,7 +227,6 @@ export const htmlElementToSsml = (
   }
 
   const replaceEmphasisElement = (element: Element, level: string) => {
-    logger.debug(`replaceEmphasisElement: ${element.innerHTML}`)
     const parent = ssml.createDocumentFragment() as unknown as Element
     appendBookmarkElement(parent, element)
     const emphasisElement = ssml.createElement('emphasis')
@@ -252,7 +251,7 @@ export const htmlElementToSsml = (
   voiceElement.appendChild(prosodyElement)
   // add each paragraph to the ssml document
   appendBookmarkElement(prosodyElement, htmlElement)
-  // add text to the ssml document
+  // replace emphasis elements with ssml
   htmlElement.querySelectorAll('*').forEach((e) => {
     switch (e.tagName.toLowerCase()) {
       case 's':
@@ -290,14 +289,12 @@ export const htmlElementToSsml = (
         break
       default: {
         const text = (e as HTMLElement).innerText.trim()
-        if (text) {
-          const textElement = ssml.createTextNode(text)
-          e.parentNode?.replaceChild(textElement, e)
-        }
+        const textElement = ssml.createTextNode(text)
+        e.parentNode?.replaceChild(textElement, e)
       }
     }
   })
   prosodyElement.appendChild(htmlElement)
 
-  return speakElement.outerHTML
+  return speakElement.outerHTML.replace(/&nbsp;/g, '')
 }
