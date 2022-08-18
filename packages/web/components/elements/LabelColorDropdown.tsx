@@ -16,7 +16,6 @@ import { isDarkTheme } from '../../lib/themeUpdater'
 import { LabelColor } from '../../lib/networking/fragments/labelFragment'
 
 const DropdownMenuContent = styled(DropdownMenuPrimitive.Content, {
-  maxWidth: 190,
   borderRadius: 6,
   backgroundColor: '$grayBg',
   padding: 5,
