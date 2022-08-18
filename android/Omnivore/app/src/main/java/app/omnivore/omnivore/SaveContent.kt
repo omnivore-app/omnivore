@@ -1,19 +1,22 @@
 package app.omnivore.omnivore
 
-import android.view.Surface
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.material.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Composable
-fun SaveContent(extractedText: String?, modifier: Modifier, button: (@Composable () -> Unit)? = null) {
+@OptIn(ExperimentalMaterialApi::class)
+fun SaveContent(extractedText: String?, modalBottomSheetState: ModalBottomSheetState, modifier: Modifier) {
+    val coroutineScope = rememberCoroutineScope()
+
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
           Column(
             verticalArrangement = Arrangement.Center,
@@ -25,17 +28,17 @@ fun SaveContent(extractedText: String?, modifier: Modifier, button: (@Composable
               val authToken = "authToken"
 
               Text(text = extractedText ?: "no text extracted")
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = authToken ?: "no auth token")
+                Spacer(modifier = Modifier.height(16.dp))
+              Text(text = authToken ?: "no auth token")
 
+              Button(onClick = {
+                  coroutineScope.launch {
+                      modalBottomSheetState.hide()
+                  }
+              }) {
+                  Text(text = "Dismiss")
+              }
           }
-        }
-    Column {
-        button?.let {
-            Box(modifier = Modifier.align(CenterHorizontally)) {
-                button()
-            }
-        }
     }
 }
 

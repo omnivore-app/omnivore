@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -120,16 +119,6 @@ abstract class SaveSheetActivity: AppCompatActivity() {
                     .width(80.dp)
                     .clip(RoundedCornerShape(50.dp))
             )
-
-            CloseButton(
-                modifier = Modifier
-                    .align(TopEnd)
-                    .padding(10.dp)
-            ) {
-                coroutineScope.launch {
-                    modalBottomSheetState.hide()
-                }
-            }
         }
     }
 
@@ -175,7 +164,7 @@ abstract class SaveSheetActivity: AppCompatActivity() {
         onExit: () -> Unit?
     ) {
         Box(modifier = Modifier.height(300.dp).background(Color.White)) {
-            SaveContent(extractedText, modifier = Modifier.fillMaxSize())
+            SaveContent(extractedText, modalBottomSheetState, modifier = Modifier.fillMaxSize())
         }
     }
 
