@@ -25,8 +25,8 @@ describe('textToSpeech', () => {
         textType: 'ssml',
       }
       const output = await synthesizeTextToSpeech(input)
-      expect(output.audioUrl).to.be.a('string')
-      expect(output.speechMarksUrl).to.be.a('string')
+      expect(output.audioFileName).to.be.a('string')
+      expect(output.speechMarksFileName).to.be.a('string')
     })
   })
 
