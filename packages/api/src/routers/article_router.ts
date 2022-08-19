@@ -155,8 +155,8 @@ export function articleRouter() {
         // update state
         await getRepository(Speech).update(speech.id, {
           state: SpeechState.COMPLETED,
-          audioFileName: speech.audioFileName,
-          speechMarksFileName: speech.speechMarksFileName,
+          audioFileName: speechOutput.audioFileName,
+          speechMarksFileName: speechOutput.speechMarksFileName,
         })
         speech.audioFileName = speechOutput.audioFileName
         speech.speechMarksFileName = speechOutput.speechMarksFileName

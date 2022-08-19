@@ -27,16 +27,16 @@ public final class ImageCache {
   }
 
   private let queue = DispatchQueue(label: "app.omnivore.image.cache.queue", attributes: .concurrent)
-  private let cache = NSCache<AnyObject, PlatformImage>()
+  private let cache = NSCache<NSString, PlatformImage>()
 
   private init() {
-    cache.totalCostLimit = 1024 * 1024 * 50 // 50 MB
+    cache.totalCostLimit = 1024 * 1024 * 1024 * 50 // 50 MB
   }
 
   private func image(_ url: URL) -> PlatformImage? {
     var cachedImage: PlatformImage?
     queue.sync {
-      cachedImage = cache.object(forKey: url as AnyObject)
+      cachedImage = cache.object(forKey: NSString(string: url.absoluteString))
     }
     return cachedImage
   }
@@ -44,7 +44,7 @@ public final class ImageCache {
   private func insertImage(_ image: PlatformImage?, url: URL) {
     guard let image = image else { return }
     queue.async(flags: .barrier) {
-      self.cache.setObject(image, forKey: url as AnyObject, cost: image.diskSize)
+      self.cache.setObject(image, forKey: NSString(string: url.absoluteString), cost: 1)
     }
   }
 }
