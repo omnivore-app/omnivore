@@ -31,7 +31,11 @@
   height: 25px;
 }
 
-.pro-sidebar .pro-menu .pro-menu-item.active {
+.pro-sidebar .pro-menu .pro-menu-item.active,
+.pro-sidebar .pro-menu a:hover,
+.pro-sidebar
+  .pro-menu
+  .pro-menu-item:hover:not(.pro-sub-menu) {
   background-color: var(--colors-libraryActiveMenuItem);
   width: 90%;
   border-radius: 5px;
