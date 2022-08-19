@@ -12,6 +12,7 @@ export function LibraryMenu(): JSX.Element {
       css={{
         width: '286px',
         minWidth: '286px',
+        pl:'15px',
         height: 'calc(100% - 100px)',
         overflowY: 'auto',
       }}
