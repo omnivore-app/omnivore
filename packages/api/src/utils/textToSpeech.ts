@@ -229,7 +229,11 @@ export const htmlElementToSsml = (
     emphasisElement.setAttribute('level', level)
     emphasisElement.innerHTML = element.innerHTML.trim()
     parent.appendChild(emphasisElement)
-    element?.parentNode?.replaceChild(parent, element)
+    const id = element.getAttribute('data-omnivore-anchor-idx')
+    if (id) {
+      const e = htmlElement.querySelector(`[data-omnivore-anchor-idx="${id}"]`)
+      e?.parentNode?.replaceChild(parent, e)
+    }
   }
 
   // create new ssml document
@@ -251,11 +255,11 @@ export const htmlElementToSsml = (
   htmlElement.querySelectorAll('*').forEach((e) => {
     switch (e.tagName.toLowerCase()) {
       case 's':
-        replaceEmphasisElement(e, 'reduced')
+        replaceEmphasisElement(e, 'moderate')
         break
       case 'sub':
         if (e.getAttribute('alias') === null) {
-          replaceEmphasisElement(e, 'reduced')
+          replaceEmphasisElement(e, 'moderate')
         }
         break
       case 'i':
@@ -269,7 +273,7 @@ export const htmlElementToSsml = (
       case 'summary':
       case 'caption':
       case 'figcaption':
-        replaceEmphasisElement(e, 'reduced')
+        replaceEmphasisElement(e, 'moderate')
         break
       case 'b':
       case 'strong':
@@ -284,13 +288,22 @@ export const htmlElementToSsml = (
         replaceEmphasisElement(e, 'moderate')
         break
       default: {
+        const parent = ssml.createDocumentFragment() as unknown as Element
+        appendBookmarkElement(parent, e)
         const text = (e as HTMLElement).innerText.trim()
         const textElement = ssml.createTextNode(text)
-        e.parentNode?.replaceChild(textElement, e)
+        parent.appendChild(textElement)
+        const id = e.getAttribute('data-omnivore-anchor-idx')
+        if (id) {
+          const element = htmlElement.querySelector(
+            `[data-omnivore-anchor-idx="${id}"]`
+          )
+          element?.parentNode?.replaceChild(parent, element)
+        }
       }
     }
   })
   prosodyElement.appendChild(htmlElement)
 
-  return speakElement.outerHTML.replace(/&nbsp;/g, '')
+  return speakElement.outerHTML.replace(/&nbsp;|\n/g, '')
 }
