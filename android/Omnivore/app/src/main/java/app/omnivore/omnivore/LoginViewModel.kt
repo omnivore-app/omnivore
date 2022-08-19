@@ -76,5 +76,36 @@ class LoginViewModel @Inject constructor(
     Log.d(ContentValues.TAG, "Google Result?: $googleIdToken")
     // TODO: submit id token to backend
     // If token is missing then set the error message
+
+    if (googleIdToken == null) {
+      return
+    }
+
+    val login = RetrofitHelper.getInstance().create(AuthProviderLoginSubmit::class.java)
+
+    viewModelScope.launch {
+      isLoading = true
+      errorMessage = null
+
+      val result = login.submitAuthProviderLogin(
+        SignInParams(token = googleIdToken, provider = "GOOGLE")
+      )
+
+      isLoading = false
+
+      if (result.body()?.authToken != null) {
+        datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
+      } else {
+        errorMessage = "Something went wrong. Please check your email/password and try again"
+      }
+
+      if (result.body()?.authCookieString != null) {
+        datastoreRepo.putString(
+          DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
+        )
+      }
+    }
   }
+
+
 }

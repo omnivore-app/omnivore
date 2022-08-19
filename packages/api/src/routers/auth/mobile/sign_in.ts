@@ -15,12 +15,13 @@ import { StatusType } from '../../../datalayer/user/model'
 import { comparePassword } from '../../../utils/auth'
 
 export async function createMobileSignInResponse(
+  isAndroid: boolean,
   token?: string,
   provider?: AuthProvider
 ): Promise<JsonResponsePayload> {
   try {
     if (token && provider === 'GOOGLE') {
-      const decodedTokenResult = await decodeGoogleToken(token)
+      const decodedTokenResult = await decodeGoogleToken(token, isAndroid)
       return createAuthResponsePayload(provider, decodedTokenResult)
     }
 
