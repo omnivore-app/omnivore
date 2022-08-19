@@ -21,7 +21,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         cursor: 'pointer',
         wordBreak: 'break-word',
         overflow: 'clip',
-        border: '1px solid $border',
+        border: '1px solid $libraryActiveMenuItem',
         position: 'relative',
       }}
       alignment="start"

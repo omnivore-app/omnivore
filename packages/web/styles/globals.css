@@ -296,3 +296,21 @@ button {
   padding: 0px;
   margin: 0px;
 }
+
+.omnivore-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -16px; /* gutter size offset */
+  margin-right: 14px;
+  width: auto;
+}
+.omnivore-masonry-grid_column {
+  padding-left: 16px; /* gutter size */
+  background-clip: padding-box;
+}
+
+.omnivore-masonry-grid_column > div {
+  /* background: grey; */
+  margin-bottom: 16px;
+}
