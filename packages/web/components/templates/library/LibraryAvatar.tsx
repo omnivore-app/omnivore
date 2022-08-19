@@ -16,7 +16,7 @@ export function LibraryAvatar(props: AvatarProps): JSX.Element {
           css={{
             width: '40px',
             height: '40px',
-            borderRadius: '6px',
+            borderRadius: '50%',
           }}
         >
           {props.viewer?.profile.pictureUrl 
@@ -56,7 +56,8 @@ const StyledFallback = styled(Fallback, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: '20px',
-  backgroundColor: '$omnivoreCtaYellow',
-  color: '#595959',
+  fontSize: '16px',
+  fontWeight: '600',
+  color: '$utilityTextDefault',
+  backgroundColor: '$libraryActiveMenuItem',
 })
