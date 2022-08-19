@@ -52,9 +52,10 @@ class MainActivity : ComponentActivity() {
     setContent {
       OmnivoreTheme {
         // A surface container using the 'background' color from the theme
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          WelcomeView(viewModel)
-        }
+        ScreenMain(viewModel = viewModel)
+//        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+//          WelcomeView(viewModel)
+//        }
       }
     }
 
@@ -91,7 +92,6 @@ fun LoginView(viewModel: LoginViewModel) {
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
       .background(MaterialTheme.colorScheme.background)
-      .fillMaxSize()
   ) {
     if (isGoogleAuthAvailable) {
       GoogleAuthButton(viewModel)
@@ -186,7 +186,7 @@ fun LoginFields(
     verticalArrangement = Arrangement.spacedBy(25.dp),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    Text("Please login")
+    Text("Never miss a great read")
 
     OutlinedTextField(
       value = email,

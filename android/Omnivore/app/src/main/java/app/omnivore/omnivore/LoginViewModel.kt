@@ -2,9 +2,11 @@ package app.omnivore.omnivore
 
 import android.content.ContentValues
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -106,6 +108,4 @@ class LoginViewModel @Inject constructor(
       }
     }
   }
-
-
 }

@@ -4,10 +4,12 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -15,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun GoogleAuthButton(viewModel: LoginViewModel) {
   val context = LocalContext.current
@@ -37,12 +40,14 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
       }
     }
 
-  Button(
+  GoogleSignInButton(
+    text = "Continue with Google",
+    loadingText = "Signing in...",
+    isLoading = viewModel.isLoading,
+    icon = painterResource(id = R.drawable.ic_logo_google),
     onClick = {
       val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
       startForResult.launch(googleSignIn.signInIntent)
     }
-  ) {
-    Text(text = "Continue With Google")
-  }
+  )
 }
