@@ -25,8 +25,12 @@
   padding: 5px 20px;
 }
 
-.pro-sidebar .pro-menu .pro-menu-item.pro-sub-menu {
- border-top: 1px solid var(--colors-grayBg);
+.pro-sidebar .pro-menu .pro-menu-item.pro-sub-menu:before {
+  content: '';
+  display: block;
+  width: 90%;
+  border: 0.5px solid var(--colors-grayBg);
+  margin-left: 10px;
 }
 
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
@@ -37,7 +41,7 @@
 
 .pro-sidebar .pro-menu .pro-menu-item.active {
   background-color: var(--colors-libraryActiveMenuItem);
-  width: 90%;
+  width: 95%;
   border-radius: 5px;
 }
 
