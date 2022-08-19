@@ -17,6 +17,7 @@ public final class RootViewModel: ObservableObject {
   @Published public var showPushNotificationPrimer = false
   @Published var snackbarMessage: String?
   @Published var showSnackbar = false
+  @Published var showMiniPlayer = true
 
   public init() {
     registerFonts()
