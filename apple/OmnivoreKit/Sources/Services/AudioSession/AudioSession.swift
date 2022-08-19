@@ -67,37 +67,52 @@ public class AudioSession: ObservableObject {
 
     Task {
       do {
-        try await downloadAudioFile(pageId: pageId)
+        _ = try await downloadAudioFile(pageId: pageId)
+        DispatchQueue.main.async {
+          self.startDownloadedAudioFile(pageId: pageId)
+        }
       } catch {
+        // TODO: maybe we need a failed state?
+        DispatchQueue.main.async {
+          self.state = .stopped
+        }
         print("FAILED TO DOWNLOAD AUDIO URL")
         print(error.localizedDescription)
       }
+    }
+  }
 
-      DispatchQueue.main.async {
-        let audioUrl = FileManager.default
-          .urls(for: .documentDirectory, in: .userDomainMask)[0]
-          .appendingPathComponent(pageId + ".mp3")
+  private func startDownloadedAudioFile(pageId: String) {
+    // Make sure audio file is still correct for the current page
+    guard item?.unwrappedID == pageId else {
+      state = .stopped
+      return
+    }
 
-        if !FileManager.default.fileExists(atPath: audioUrl.path) {
-          self.stop()
-          return
-        }
+    // TODO: Maybe check if app is active so it doesn't end up playing later?
 
-        do {
-          try AVAudioSession.sharedInstance().setCategory(.playback)
+    let audioUrl = FileManager.default
+      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(pageId + ".mp3")
 
-          self.player = try AVAudioPlayer(contentsOf: audioUrl)
-          if self.player?.play() ?? false {
-            self.state = .playing
-            self.startTimer()
-            self.setupRemoteControl()
-          }
-        } catch {
-          print("error playing MP3 file", error)
-          print(error.localizedDescription)
-          self.state = .stopped
-        }
+    if !FileManager.default.fileExists(atPath: audioUrl.path) {
+      stop()
+      return
+    }
+
+    do {
+      try AVAudioSession.sharedInstance().setCategory(.playback)
+
+      player = try AVAudioPlayer(contentsOf: audioUrl)
+      if player?.play() ?? false {
+        state = .playing
+        startTimer()
+        setupRemoteControl()
       }
+    } catch {
+      print("error playing MP3 file", error)
+      print(error.localizedDescription)
+      state = .stopped
     }
   }
 
