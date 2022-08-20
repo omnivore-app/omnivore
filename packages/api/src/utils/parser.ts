@@ -521,7 +521,7 @@ const beehiivNewsletterHref = (dom: Document): string | undefined => {
 }
 
 const convertkitNewsletterHref = (dom: Document): string | undefined => {
-  const readOnline = dom.querySelectorAll('table tr td div a')
+  const readOnline = dom.querySelectorAll('table tr td a')
   let res: string | undefined = undefined
   readOnline.forEach((e) => {
     if (e.textContent === 'View this email in your browser') {
@@ -532,7 +532,7 @@ const convertkitNewsletterHref = (dom: Document): string | undefined => {
 }
 
 const revueNewsletterHref = (dom: Document): string | undefined => {
-  const viewOnline = dom.querySelectorAll('table tr td div a[target="_blank"]')
+  const viewOnline = dom.querySelectorAll('table tr td a[target="_blank"]')
   let res: string | undefined = undefined
   viewOnline.forEach((e) => {
     if (e.textContent === 'View online') {
