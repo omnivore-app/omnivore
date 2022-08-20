@@ -40,8 +40,14 @@ export function mobileAuthRouter() {
   })
 
   router.post('/sign-up', async (req, res) => {
-    const { token, provider, name } = req.body
-    const payload = await createMobileSignUpResponse(token, provider, name)
+    const { token, provider, name, source } = req.body
+    const isAndroid = source === 'ANDROID'
+    const payload = await createMobileSignUpResponse(
+      isAndroid,
+      token,
+      provider,
+      name
+    )
     res.status(payload.statusCode).json(payload.json)
   })
 
