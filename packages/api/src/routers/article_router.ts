@@ -103,18 +103,28 @@ export function articleRouter() {
         order: {
           createdAt: 'DESC',
         },
+        relations: ['user'],
       })
-      if (existingSpeech?.state === SpeechState.COMPLETED) {
-        logger.info('Found existing completed speech', {
-          audioUrl: existingSpeech.audioFileName,
-          speechMarksUrl: existingSpeech.speechMarksFileName,
-        })
-        return res.redirect(await redirectUrl(existingSpeech, outputFormat))
-      }
-      if (existingSpeech?.state === SpeechState.INITIALIZED) {
-        logger.info('Found existing in progress speech')
-        // retry later
-        return res.status(202).send('Speech is in progress')
+      if (existingSpeech) {
+        if (existingSpeech.user.id !== uid) {
+          logger.info('User is not allowed to access speech of the article', {
+            userId: uid,
+            articleId,
+          })
+          return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+        }
+        if (existingSpeech.state === SpeechState.COMPLETED) {
+          logger.info('Found existing completed speech', {
+            audioUrl: existingSpeech.audioFileName,
+            speechMarksUrl: existingSpeech.speechMarksFileName,
+          })
+          return res.redirect(await redirectUrl(existingSpeech, outputFormat))
+        }
+        if (existingSpeech.state === SpeechState.INITIALIZED) {
+          logger.info('Found existing in progress speech')
+          // retry later
+          return res.status(202).send('Speech is in progress')
+        }
       }
 
       logger.info('Text to speech request', { articleId })
