@@ -30,6 +30,7 @@ interface BackendEnv {
   google: {
     auth: {
       iosClientId: string
+      androidClientId: string
       clientId: string
       secret: string
     }
@@ -127,6 +128,7 @@ const nullableEnvVars = [
   'PREVIEW_GENERATION_SERVICE_URL',
   'GCS_UPLOAD_SA_KEY_FILE_PATH',
   'GAUTH_IOS_CLIENT_ID',
+  'GAUTH_ANDROID_CLIENT_ID',
   'GAUTH_CLIENT_ID',
   'GAUTH_SECRET',
   'SEGMENT_WRITE_KEY',
@@ -203,6 +205,7 @@ export function getEnv(): BackendEnv {
   const google = {
     auth: {
       iosClientId: parse('GAUTH_IOS_CLIENT_ID'),
+      androidClientId: parse('GAUTH_ANDROID_CLIENT_ID'),
       clientId: parse('GAUTH_CLIENT_ID'),
       secret: parse('GAUTH_SECRET'),
     },

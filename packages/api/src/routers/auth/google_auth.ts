@@ -57,16 +57,22 @@ export const validateGoogleUser = async (
   }
 }
 
-const googleMobileClient = new OAuth2Client(env.google.auth.iosClientId)
-const googleWebClient = new OAuth2Client(env.google.auth.clientId)
+const iosClientId = env.google.auth.iosClientId
+const webClientId = env.google.auth.clientId
+
+const googleWebClient = new OAuth2Client(webClientId)
+const googleIOSClient = new OAuth2Client(iosClientId)
 
 export async function decodeGoogleToken(
-  idToken: string
+  idToken: string,
+  isAndroid: boolean
 ): Promise<DecodeTokenResult> {
   try {
+    const googleMobileClient = isAndroid ? googleWebClient : googleIOSClient
+
     const loginTicket = await googleMobileClient.verifyIdToken({
       idToken,
-      audience: env.google.auth.iosClientId,
+      audience: isAndroid ? webClientId : iosClientId,
     })
 
     const email = loginTicket.getPayload()?.email
