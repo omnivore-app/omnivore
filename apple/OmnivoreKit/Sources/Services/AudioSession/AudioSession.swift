@@ -24,6 +24,11 @@ public class AudioSession: ObservableObject {
   @Published public var state: AudioSessionState = .stopped
   @Published public var item: LinkedItem?
 
+  @Published public var timeElapsed: TimeInterval = 0
+  @Published public var duration: TimeInterval = 0
+  @Published public var timeElapsedString: String?
+  @Published public var durationString: String?
+
   let appEnvironment: AppEnvironment
   let networker: Networker
 
@@ -50,6 +55,8 @@ public class AudioSession: ObservableObject {
     player = nil
     item = nil
     state = .stopped
+    timeElapsed = 0
+    duration = 1
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
@@ -65,21 +72,21 @@ public class AudioSession: ObservableObject {
 
     let pageId = item!.unwrappedID
 
-    Task {
-      do {
-        _ = try await downloadAudioFile(pageId: pageId)
-        DispatchQueue.main.async {
-          self.startDownloadedAudioFile(pageId: pageId)
-        }
-      } catch {
-        // TODO: maybe we need a failed state?
-        DispatchQueue.main.async {
-          self.state = .stopped
-        }
-        print("FAILED TO DOWNLOAD AUDIO URL")
-        print(error.localizedDescription)
-      }
-    }
+//    Task {
+//      do {
+//        _ = try await downloadAudioFile(pageId: pageId)
+//        DispatchQueue.main.async {
+//          self.startDownloadedAudioFile(pageId: pageId)
+//        }
+//      } catch {
+//        // TODO: maybe we need a failed state?
+    ////        DispatchQueue.main.async {
+    ////          self.state = .stopped
+    ////        }
+//        print("FAILED TO DOWNLOAD AUDIO URL")
+//        print(error.localizedDescription)
+//      }
+//    }
   }
 
   private func startDownloadedAudioFile(pageId: String) {
@@ -154,6 +161,15 @@ public class AudioSession: ObservableObject {
   @objc func update(_: Timer) {
     if let player = player, player.isPlaying {
       print("play time in ms: ", Int(player.currentTime * 1000))
+      timeElapsed = player.currentTime
+      duration = player.duration
+
+      let componentFormatter = DateComponentsFormatter()
+      componentFormatter.unitsStyle = .positional
+      componentFormatter.zeroFormattingBehavior = .dropAll
+
+      timeElapsedString = componentFormatter.string(from: timeElapsed)
+      durationString = componentFormatter.string(from: duration)
     }
   }
 
