@@ -127,7 +127,7 @@ export function articleRouter() {
         }
       }
 
-      logger.info('Text to speech request', { articleId })
+      logger.info('Create Text to speech task', { articleId })
       const page = await getPageById(articleId)
       if (!page) {
         return res.status(404).send('Page not found')
