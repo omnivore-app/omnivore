@@ -45,3 +45,8 @@
   .pro-icon {
   animation-play-state: paused;
 }
+
+.pro-sidebar .pro-menu .pro-menu-item.pro-sub-menu > .pro-inner-item > .pro-arrow-wrapper .pro-arrow {
+  border-width: 0 1px 1px 0;
+  border-color: var(--colors-textSubtle);
+}
