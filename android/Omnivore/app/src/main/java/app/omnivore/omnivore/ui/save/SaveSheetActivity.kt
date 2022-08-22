@@ -1,4 +1,4 @@
-package app.omnivore.omnivore
+package app.omnivore.omnivore.ui.save
 
 import android.content.ContentValues
 import android.content.Intent
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import app.omnivore.omnivore.SaveContent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

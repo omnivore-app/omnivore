@@ -1,7 +1,5 @@
-package app.omnivore.omnivore.screen
+package app.omnivore.omnivore.ui.auth
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.EmailLoginView
-import app.omnivore.omnivore.LoginViewModel
-
 
 @Composable
 fun EmailLoginPage(viewModel: LoginViewModel, navController: NavHostController) {

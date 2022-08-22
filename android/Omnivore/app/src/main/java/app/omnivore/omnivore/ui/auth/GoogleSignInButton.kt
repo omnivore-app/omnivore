@@ -1,4 +1,4 @@
-package app.omnivore.omnivore
+package app.omnivore.omnivore.ui.auth
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable

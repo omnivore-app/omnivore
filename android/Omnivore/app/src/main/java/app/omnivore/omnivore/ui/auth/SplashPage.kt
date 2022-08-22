@@ -1,15 +1,13 @@
-package app.omnivore.omnivore.screen
+package app.omnivore.omnivore.ui.auth
 
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,17 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
-import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import app.omnivore.omnivore.EmailLoginView
-import app.omnivore.omnivore.GoogleAuthButton
-import app.omnivore.omnivore.LoginViewModel
 import app.omnivore.omnivore.Routes
 import com.google.android.gms.common.GoogleApiAvailability
-import kotlinx.coroutines.launch
 
 @Composable
 fun SplashPage(viewModel: LoginViewModel, navController: NavHostController) {
