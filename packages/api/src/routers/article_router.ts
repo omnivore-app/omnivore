@@ -18,9 +18,9 @@ import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { Speech, SpeechState } from '../entity/speech'
 import { getPageById } from '../elastic/pages'
-import { synthesizeTextToSpeech } from '../utils/textToSpeech'
-import { UserPersonalization } from '../entity/user_personalization'
 import { generateDownloadSignedUrl } from '../utils/uploads'
+import { enqueueTextToSpeech } from '../utils/createTask'
+import { UserPersonalization } from '../entity/user_personalization'
 
 const logger = buildLogger('app.dispatch')
 
@@ -72,12 +72,13 @@ export function articleRouter() {
   })
 
   router.get(
-    '/:id/:outputFormat',
+    '/:id/:outputFormat/:voice?',
     cors<express.Request>(corsConfig),
     async (req, res) => {
-      const id = req.params.id
+      const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      if (!id || !['mp3', 'speech-marks'].includes(outputFormat)) {
+      const voice = req.params.voice
+      if (!articleId || !['mp3', 'speech-marks'].includes(outputFormat)) {
         return res.status(400).send('Invalid data')
       }
       const token = req.cookies?.auth || req.headers?.authorization
@@ -94,8 +95,14 @@ export function articleRouter() {
         },
       })
 
-      const existingSpeech = await getRepository(Speech).findOneBy({
-        elasticPageId: id,
+      const existingSpeech = await getRepository(Speech).findOne({
+        where: {
+          elasticPageId: articleId,
+          voice,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
       })
       if (existingSpeech?.state === SpeechState.COMPLETED) {
         logger.info('Found existing completed speech', {
@@ -107,69 +114,30 @@ export function articleRouter() {
       if (existingSpeech?.state === SpeechState.INITIALIZED) {
         logger.info('Found existing in progress speech')
         // retry later
-        return res.status(429).send('Speech is in progress')
+        return res.status(202).send('Speech is in progress')
       }
 
-      logger.debug('Text to speech request', { articleId: id })
+      logger.info('Text to speech request', { articleId })
+      const page = await getPageById(articleId)
+      if (!page) {
+        return res.status(404).send('Page not found')
+      }
       const userPersonalization = await getRepository(
         UserPersonalization
       ).findOneBy({
         user: { id: uid },
       })
-      if (!userPersonalization) {
-        return res.status(404).send('User Personalization not found')
-      }
-
-      const page = await getPageById(id)
-      if (!page) {
-        return res.status(404).send('Page not found')
-      }
-
-      // const text = parseHTML(page.content).document.documentElement.innerText
-      // if (!text) {
-      //   return res.status(404).send('Page has no text')
-      // }
-
       // initialize state
       const speech = await getRepository(Speech).save({
         user: { id: uid },
-        elasticPageId: id,
+        elasticPageId: articleId,
         state: SpeechState.INITIALIZED,
-        voice: userPersonalization.speechVoice,
+        voice: voice || userPersonalization?.speechVoice,
       })
-      try {
-        const startTime = Date.now()
-        const speechOutput = await synthesizeTextToSpeech({
-          id,
-          text: page.content,
-          languageCode: page.language,
-          voice: userPersonalization.speechVoice,
-          textType: 'ssml',
-        })
-        logger.info('Created speech', {
-          audioFileName: speechOutput.audioFileName,
-          speechMarksFileName: speechOutput.speechMarksFileName,
-          duration: Date.now() - startTime,
-        })
-
-        // update state
-        await getRepository(Speech).update(speech.id, {
-          state: SpeechState.COMPLETED,
-          audioFileName: speechOutput.audioFileName,
-          speechMarksFileName: speechOutput.speechMarksFileName,
-        })
-        speech.audioFileName = speechOutput.audioFileName
-        speech.speechMarksFileName = speechOutput.speechMarksFileName
-
-        res.redirect(await redirectUrl(speech, outputFormat))
-      } catch (error) {
-        logger.error('Text to speech error', { error })
-        // update state
-        await getRepository(Speech).update(speech.id, {
-          state: SpeechState.FAILED,
-        })
-        res.status(500).send('Text to speech error')
-      }
+      // enqueue a task to convert text to speech
+      const taskName = await enqueueTextToSpeech(uid, speech.id)
+      logger.info('Start Text to speech task', { taskName })
+      res.status(202).send('Text to speech task started')
     }
   )
 
