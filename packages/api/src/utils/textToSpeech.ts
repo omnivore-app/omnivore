@@ -213,6 +213,14 @@ export const htmlElementToSsml = (
   rate = 1,
   volume = 100
 ): string => {
+  const replaceElement = (newElement: Element, oldElement: Element) => {
+    const id = oldElement.getAttribute('data-omnivore-anchor-idx')
+    if (id) {
+      const e = htmlElement.querySelector(`[data-omnivore-anchor-idx="${id}"]`)
+      e?.parentNode?.replaceChild(newElement, e)
+    }
+  }
+
   const appendBookmarkElement = (parent: Element, element: Element) => {
     const id = element.getAttribute('data-omnivore-anchor-idx')
     if (id) {
@@ -222,18 +230,23 @@ export const htmlElementToSsml = (
     }
   }
 
-  const replaceEmphasisElement = (element: Element, level: string) => {
+  const replaceWithEmphasis = (element: Element, level: string) => {
     const parent = ssml.createDocumentFragment() as unknown as Element
     appendBookmarkElement(parent, element)
     const emphasisElement = ssml.createElement('emphasis')
     emphasisElement.setAttribute('level', level)
     emphasisElement.innerHTML = element.innerHTML.trim()
     parent.appendChild(emphasisElement)
-    const id = element.getAttribute('data-omnivore-anchor-idx')
-    if (id) {
-      const e = htmlElement.querySelector(`[data-omnivore-anchor-idx="${id}"]`)
-      e?.parentNode?.replaceChild(parent, e)
-    }
+    replaceElement(parent, element)
+  }
+
+  const replaceWithSentence = (element: Element) => {
+    const parent = ssml.createDocumentFragment() as unknown as Element
+    appendBookmarkElement(parent, element)
+    const sentenceElement = ssml.createElement('s')
+    sentenceElement.innerHTML = element.innerHTML.trim()
+    parent.appendChild(sentenceElement)
+    replaceElement(parent, element)
   }
 
   // create new ssml document
@@ -255,11 +268,11 @@ export const htmlElementToSsml = (
   htmlElement.querySelectorAll('*').forEach((e) => {
     switch (e.tagName.toLowerCase()) {
       case 's':
-        replaceEmphasisElement(e, 'moderate')
+        replaceWithEmphasis(e, 'moderate')
         break
       case 'sub':
         if (e.getAttribute('alias') === null) {
-          replaceEmphasisElement(e, 'moderate')
+          replaceWithEmphasis(e, 'moderate')
         }
         break
       case 'i':
@@ -273,19 +286,21 @@ export const htmlElementToSsml = (
       case 'summary':
       case 'caption':
       case 'figcaption':
-        replaceEmphasisElement(e, 'moderate')
+        replaceWithEmphasis(e, 'moderate')
         break
       case 'b':
       case 'strong':
       case 'dt':
       case 'dfn':
       case 'u':
-      case 'li':
       case 'mark':
       case 'th':
       case 'title':
       case 'var':
-        replaceEmphasisElement(e, 'moderate')
+        replaceWithEmphasis(e, 'moderate')
+        break
+      case 'li':
+        replaceWithSentence(e)
         break
       default: {
         const parent = ssml.createDocumentFragment() as unknown as Element
@@ -293,13 +308,7 @@ export const htmlElementToSsml = (
         const text = (e as HTMLElement).innerText.trim()
         const textElement = ssml.createTextNode(text)
         parent.appendChild(textElement)
-        const id = e.getAttribute('data-omnivore-anchor-idx')
-        if (id) {
-          const element = htmlElement.querySelector(
-            `[data-omnivore-anchor-idx="${id}"]`
-          )
-          element?.parentNode?.replaceChild(parent, element)
-        }
+        replaceElement(parent, e)
       }
     }
   })
