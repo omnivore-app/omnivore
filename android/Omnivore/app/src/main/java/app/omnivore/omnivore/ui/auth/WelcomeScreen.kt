@@ -8,13 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.navigation.NavHostController
@@ -23,17 +22,26 @@ import com.google.android.gms.common.GoogleApiAvailability
 
 @Composable
 fun WelcomeScreen(viewModel: LoginViewModel, navController: NavHostController) {
+//    val systemUiController = rememberSystemUiController()
+//    systemUiController.isSystemBarsVisible = false
+
+        Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFBEAA8 )) {
+            WelcomeScreenContent(viewModel = viewModel, navController = navController)
+        }
+}
+
+@Composable
+fun WelcomeScreenContent(viewModel: LoginViewModel, navController: NavHostController) {
     val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
         .getInstance()
         .isGooglePlayServicesAvailable(LocalContext.current) == 0
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             verticalArrangement = Arrangement.Center,
 
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(Color(0xFFFBEAA8 ))
                 .fillMaxSize()
                 .navigationBarsPadding()
         ) {
@@ -46,7 +54,7 @@ fun WelcomeScreen(viewModel: LoginViewModel, navController: NavHostController) {
 
             ContinueWithEmailButton(navController)
         }
-    }
+
 }
 
 @Composable
