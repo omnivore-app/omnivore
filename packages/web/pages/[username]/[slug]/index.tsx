@@ -29,6 +29,8 @@ import { DisplaySettingsModal } from '../../../components/templates/article/Disp
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 import { useRegisterActions } from 'kbar'
+import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
+import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
@@ -61,6 +63,8 @@ export default function Home(): JSX.Element {
   useKeyboardShortcuts(navigationCommands(router))
 
   const actionHandler = useCallback(async(action: string, arg?: unknown) => {
+    console.log('handling action: ', action, article)
+
     switch (action) {
       case 'unarchive':
           if (article) {
@@ -103,6 +107,9 @@ export default function Home(): JSX.Element {
           router.push(`/home`)
         }
         break
+      case 'delete':
+        readerSettings.setShowDeleteConfirmation(true)
+        break
       case 'openOriginalArticle':
         const url = article?.url
         if (url) {
@@ -128,8 +135,12 @@ export default function Home(): JSX.Element {
     const openOriginalArticle = () => {
       actionHandler('openOriginalArticle')
     }
+    const deletePage = () => {
+      actionHandler('delete')
+    }
 
     document.addEventListener('archive', archive)
+    document.addEventListener('delete', deletePage)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
 
     return () => {
@@ -155,6 +166,22 @@ export default function Home(): JSX.Element {
     }
   }, [article, viewerData])
   
+  const deleteCurrentItem = useCallback(async () => {
+    if (article) {
+      removeItemFromCache(cache, mutate, article.id)
+      await deleteLinkMutation(article.id)
+      .then((res) => {
+        if (res) {
+          showSuccessToast('Page deleted', { position: 'bottom-right' })
+        } else {
+          // todo: revalidate or put back in cache?
+          showErrorToast('Error deleting page', { position: 'bottom-right' })
+        }
+      })
+      router.push(`/home`)
+    }
+  }, [article])
+
   useRegisterActions([
     {
       id: 'open',
@@ -179,6 +206,15 @@ export default function Home(): JSX.Element {
       shortcut: ['e'],
       perform: () => {
         document.dispatchEvent(new Event('archive'));
+      }
+    },
+    {
+      id: 'delete',
+      section: 'Article',
+      name: 'Delete current item',
+      shortcut: ['#'],
+      perform: () => {
+        document.dispatchEvent(new Event('delete'));
       }
     },
     {
@@ -317,6 +353,13 @@ export default function Home(): JSX.Element {
           centerX={true}
           articleActionHandler={actionHandler}
           onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
+        />
+      )}
+      {readerSettings.showDeleteConfirmation && (
+        <ConfirmationModal
+          message={'Are you sure you want to delete this page?'}
+          onAccept={deleteCurrentItem}
+          onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
         />
       )}
     </PrimaryLayout>

@@ -6,6 +6,8 @@ import {
 import { VStack, HStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
+import { useConfirmListener } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
+import { useEffect, useRef } from 'react'
 
 type ConfirmationModalProps = {
   message?: string
@@ -25,13 +27,28 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
           <StyledText>{props.message}</StyledText>
           <HStack distribution="center" css={{ pt: '$2' }}>
             <Button
-              style="ctaPill"
+              style="ctaOutlineYellow"
               css={{ mr: '$2' }}
               onClick={() => props.onOpenChange(false)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  props.onOpenChange(false)
+                }
+              }}
             >
               Cancel
             </Button>
-            <Button style="ctaPill" onClick={props.onAccept}>
+            <Button
+              style="ctaDarkYellow"
+              onClick={props.onAccept}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  props.onAccept()
+                }
+              }}
+            >
               {props.acceptButtonLabel ?? 'Confirm'}
             </Button>
           </HStack>

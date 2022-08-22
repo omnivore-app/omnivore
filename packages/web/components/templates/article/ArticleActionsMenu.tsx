@@ -1,5 +1,5 @@
 import { Separator } from "@radix-ui/react-separator"
-import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa, Tray } from "phosphor-react"
+import { ArchiveBox, DotsThree, HighlighterCircle, TagSimple, TextAa, Trash, Tray } from "phosphor-react"
 import { ArticleAttributes } from "../../../lib/networking/queries/useGetArticleQuery"
 import { Button } from "../../elements/Button"
 import { Dropdown } from "../../elements/DropdownElements"
@@ -142,6 +142,23 @@ export function ArticleActionsMenu(props: ArticleActionsMenuProps): JSX.Element 
       </Button>
 
       <MenuSeparator layout={props.layout} />
+
+      <Button
+        style="articleActionIcon"
+        onClick={() => {
+          props.articleActionHandler('delete')
+        }}
+      >
+        <TooltipWrapped
+          tooltipContent="Delete"
+          tooltipSide={props.layout == 'side' ? 'right' : 'bottom'}
+        >
+          <Trash
+            size={24}
+            color={theme.colors.readerFont.toString()}
+          />
+        </TooltipWrapped>
+      </Button>
 
       {!props.article?.isArchived ? (
           <Button
