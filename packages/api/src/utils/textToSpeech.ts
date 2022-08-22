@@ -128,7 +128,6 @@ export const synthesizeTextToSpeech = async (
           resolve(result)
         },
         (error) => {
-          synthesizer.close()
           reject(error)
         }
       )
@@ -145,7 +144,6 @@ export const synthesizeTextToSpeech = async (
           resolve(result)
         },
         (error) => {
-          synthesizer.close()
           reject(error)
         }
       )
@@ -183,6 +181,10 @@ export const synthesizeTextToSpeech = async (
         )
         logger.debug(`synthesizing ${ssml}`)
         const result = await speakSsmlAsyncPromise(ssml)
+        if (result.reason === ResultReason.Canceled) {
+          synthesizer.close()
+          throw new Error(result.errorDetails)
+        }
         timeOffset = timeOffset + result.audioDuration
         // characterOffset = characterOffset + htmlElement.innerText.length
       }

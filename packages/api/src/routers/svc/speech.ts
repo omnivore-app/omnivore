@@ -5,9 +5,9 @@ import { getRepository } from '../../entity/utils'
 import { getPageById } from '../../elastic/pages'
 import { synthesizeTextToSpeech } from '../../utils/textToSpeech'
 import { Speech, SpeechState } from '../../entity/speech'
-import { UserPersonalization } from '../../entity/user_personalization'
 import { buildLogger } from '../../utils/logger'
 import { getClaimsByToken } from '../../utils/auth'
+import { setSpeechFailure } from '../../services/speech'
 
 const logger = buildLogger('app.dispatch')
 
@@ -32,57 +32,44 @@ export function speechServiceRouter() {
       return res.status(200).send('UNAUTHORIZED')
     }
 
-    const { userId, pageId } = req.body as {
+    const { userId, speechId } = req.body as {
       userId: string
-      pageId: string
+      speechId: string
     }
-
-    if (!userId || !pageId) {
+    if (!userId || !speechId) {
       return res.status(200).send('Invalid data')
     }
 
-    const userPersonalization = await getRepository(
-      UserPersonalization
-    ).findOneBy({
-      user: { id: userId },
-    })
-    if (!userPersonalization) {
-      return res.status(200).send('User Personalization not found')
-    }
-
-    const page = await getPageById(pageId)
-    if (!page) {
-      return res.status(200).send('Page not found')
-    }
-    // const text = parseHTML(page.content).document.documentElement.innerText
-    // if (!text) {
-    //   return res.status(200).send('Page has no text')
-    // }
     logger.info(`Create article speech`, {
       body: {
         userId,
-        pageId,
+        speechId,
       },
       labels: {
         source: 'CreateArticleSpeech',
       },
     })
-
-    // initialize state
-    const speech = await getRepository(Speech).save({
+    const speech = await getRepository(Speech).findOneBy({
+      id: speechId,
       user: { id: userId },
-      elasticPageId: pageId,
-      state: SpeechState.INITIALIZED,
-      voice: userPersonalization.speechVoice,
     })
+    if (!speech) {
+      return res.status(200).send('Speech not found')
+    }
+
+    const page = await getPageById(speech.elasticPageId)
+    if (!page) {
+      await setSpeechFailure(speech.id)
+      return res.status(200).send('Page not found')
+    }
 
     try {
       const startTime = Date.now()
       const speechOutput = await synthesizeTextToSpeech({
-        id: pageId,
+        id: speech.id,
         text: page.content,
         languageCode: page.language,
-        voice: userPersonalization.speechVoice,
+        voice: speech.voice,
         textType: 'ssml',
       })
       logger.info('Created speech', {
@@ -91,7 +78,7 @@ export function speechServiceRouter() {
         duration: Date.now() - startTime,
       })
 
-      // update state
+      // set state to completed
       await getRepository(Speech).update(speech.id, {
         audioFileName: speechOutput.audioFileName,
         speechMarksFileName: speechOutput.speechMarksFileName,
@@ -101,10 +88,7 @@ export function speechServiceRouter() {
       res.status(200).send('OK')
     } catch (error) {
       logger.error(`Error creating article speech`, { error })
-      // update state
-      await getRepository(Speech).update(speech.id, {
-        state: SpeechState.FAILED,
-      })
+      await setSpeechFailure(speech.id)
       res.status(500).send('Error creating article speech')
     }
   })
