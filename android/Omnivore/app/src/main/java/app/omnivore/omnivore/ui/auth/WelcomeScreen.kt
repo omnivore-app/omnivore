@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -21,27 +22,30 @@ import app.omnivore.omnivore.Routes
 import com.google.android.gms.common.GoogleApiAvailability
 
 @Composable
-fun SplashPage(viewModel: LoginViewModel, navController: NavHostController) {
+fun WelcomeScreen(viewModel: LoginViewModel, navController: NavHostController) {
     val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
         .getInstance()
         .isGooglePlayServicesAvailable(LocalContext.current) == 0
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .fillMaxSize()
-            .navigationBarsPadding()
-    ) {
-        Text("Never miss a great read")
-        MoreInfoButton()
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(
+            verticalArrangement = Arrangement.Center,
 
-        if (isGoogleAuthAvailable) {
-            GoogleAuthButton(viewModel)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .navigationBarsPadding()
+        ) {
+            Text("Never miss a great read")
+            MoreInfoButton()
+
+            if (isGoogleAuthAvailable) {
+                GoogleAuthButton(viewModel)
+            }
+
+            ContinueWithEmailButton(navController)
         }
-
-        ContinueWithEmailButton(navController)
     }
 }
 
