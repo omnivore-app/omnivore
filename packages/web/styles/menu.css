@@ -25,6 +25,14 @@
   padding: 5px 20px;
 }
 
+.pro-sidebar .pro-menu .pro-menu-item.pro-sub-menu:before {
+  content: '';
+  display: block;
+  width: 90%;
+  border: 0.5px solid var(--colors-grayBg);
+  margin-left: 10px;
+}
+
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
   width: 20px;
   min-width: 0;
@@ -37,7 +45,7 @@
   .pro-menu
   .pro-menu-item:hover:not(.pro-sub-menu) {
   background-color: var(--colors-libraryActiveMenuItem);
-  width: 90%;
+  width: 95%;
   border-radius: 5px;
 }
 
