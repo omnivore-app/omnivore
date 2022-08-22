@@ -21,26 +21,23 @@ export function speechServiceRouter() {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       body: req.body,
     })
+    const token = req.query.token as string
+    try {
+      if (!(await getClaimsByToken(token))) {
+        logger.info('Unauthorized request', { token })
+        return res.status(200).send('UNAUTHORIZED')
+      }
+    } catch (error) {
+      logger.error('Unauthorized request', { token, error })
+      return res.status(200).send('UNAUTHORIZED')
+    }
+
     const { userId, speechId } = req.body as {
       userId: string
       speechId: string
     }
     if (!userId || !speechId) {
-      speechId && (await setSpeechFailure(speechId))
       return res.status(200).send('Invalid data')
-    }
-
-    const token = req.query.token as string
-    try {
-      if (!(await getClaimsByToken(token))) {
-        logger.info('Unauthorized request', { token })
-        await setSpeechFailure(speechId)
-        return res.status(200).send('UNAUTHORIZED')
-      }
-    } catch (error) {
-      logger.error('Unauthorized request', { token, error })
-      await setSpeechFailure(speechId)
-      return res.status(200).send('UNAUTHORIZED')
     }
 
     logger.info(`Create article speech`, {
@@ -54,6 +51,7 @@ export function speechServiceRouter() {
     })
     const speech = await getRepository(Speech).findOneBy({
       id: speechId,
+      user: { id: userId },
     })
     if (!speech) {
       return res.status(200).send('Speech not found')
