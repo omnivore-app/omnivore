@@ -16,8 +16,9 @@ public struct MiniPlayer: View {
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 
-  @State var expanded = true
+  @State var expanded = false
   @State var offset: CGFloat = 0
+  @Namespace private var animation
 
   let minExpandedHeight = UIScreen.main.bounds.height / 3
 
@@ -66,38 +67,46 @@ public struct MiniPlayer: View {
     )
   }
 
-  var playerView: some View {
-    if let item = audioSession.item {
-      return AnyView(playerContent(item)
-//        .padding()
-        .animation(.spring(), value: true)
-        .tint(.appGrayTextContrast))
-    } else {
-      return AnyView(EmptyView())
-    }
-  }
-
   // swiftlint:disable:next function_body_length
   func playerContent(_ item: LinkedItem) -> some View {
     GeometryReader { geom in
       VStack {
         if expanded {
-          Capsule()
-            .fill(.gray)
-            .frame(width: 60, height: 4)
+          ZStack {
+            Button(
+              action: {
+                withAnimation(.interactiveSpring()) {
+                  self.expanded = false
+                }
+              },
+              label: {
+                Image(systemName: "chevron.down")
+                  .font(.appCallout)
+                  .tint(.appGrayText)
+              }
+            )
             .padding(.top, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-          Spacer(minLength: 0)
+            Capsule()
+              .fill(.gray)
+              .frame(width: 60, height: 4)
+              .padding(.top, 8)
+              .transition(.opacity)
+          }
         }
 
-        HStack {
-          if expanded {
-            Spacer()
-          }
+        Spacer(minLength: 0)
 
+        HStack {
           Group {
             if let imageURL = item.imageURL {
-              let dim = expanded ? 2 * (min(geom.size.width, geom.size.height) / 3) : 64
+              let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
+              let scale = (geom.size.height - offset) / geom.size.height
+              let dim2 = maxSize * scale
+              let dim = expanded ? dim2 : 64
+              // print("offset", offset, "maxSize", maxSize)
+
               AsyncLoadingImage(url: imageURL) { imageStatus in
                 if case let AsyncImageStatus.loaded(image) = imageStatus {
                   image
@@ -105,6 +114,7 @@ public struct MiniPlayer: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: dim, height: dim)
                     .cornerRadius(6)
+                    .matchedGeometryEffect(id: "ArticleArt", in: animation)
                 } else if case AsyncImageStatus.loading = imageStatus {
                   Color.appButtonBackground
                     .frame(width: dim, height: dim)
@@ -123,30 +133,27 @@ public struct MiniPlayer: View {
               .foregroundColor(.appGrayTextContrast)
               .fixedSize(horizontal: false, vertical: false)
               .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
+              .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
             playPauseButtonItem
               .frame(width: 28, height: 28)
+              .matchedGeometryEffect(id: "PlayPauseButton", in: animation)
 
             stopButton
               .frame(width: 28, height: 28)
           }
-
-          if expanded {
-            Spacer()
-          }
         }
 
-        if expanded {
-          if expanded {
-            Spacer()
-          }
+        Spacer()
 
+        if expanded {
           Text(item.unwrappedTitle)
             .lineLimit(1)
             .font(expanded ? .appTitle : .appCallout)
             .lineSpacing(1.25)
             .foregroundColor(.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
+            .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
           HStack {
             Spacer()
@@ -224,6 +231,7 @@ public struct MiniPlayer: View {
             playPauseButtonItem
               .frame(width: 64, height: 64)
               .padding(32)
+              .matchedGeometryEffect(id: "PlayPauseButton", in: animation)
 
             Button(
               action: { self.audioSession.skipForward(seconds: 30) },
@@ -238,12 +246,12 @@ public struct MiniPlayer: View {
       .padding(EdgeInsets(top: 0, leading: expanded ? 24 : 6, bottom: 0, trailing: expanded ? 24 : 6))
       .background(
         Color.systemBackground
-          .onTapGesture {
-            withAnimation(.easeIn(duration: 0.08)) { expanded = true }
-          }
-//          .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
-//          .mask(Rectangle().padding(.top, -20))
+          .shadow(color: expanded ? .clear : .gray /* .opacity(0.33) */, radius: 8, x: 0, y: 4)
+          .mask(Rectangle().padding(.top, -20))
       )
+      .onTapGesture {
+        withAnimation(.easeIn(duration: 0.08)) { expanded = true }
+      }
     }
   }
 
@@ -253,14 +261,12 @@ public struct MiniPlayer: View {
       VStack {
         Spacer()
         if let item = self.audioSession.item, isPresented {
-          VStack {
-            Spacer()
-            playerContent(item)
-              .frame(maxHeight: expanded ? .infinity : 88)
-              .offset(y: offset)
-              .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
-          }
-          .padding(0)
+          playerContent(item)
+            .offset(y: offset)
+            .frame(maxHeight: expanded ? .infinity : 88)
+            .tint(.appGrayTextContrast)
+            .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
+            .background(expanded ? .clear : .systemBackground)
         }
       }
     }
@@ -269,10 +275,6 @@ public struct MiniPlayer: View {
   func onDragChanged(value: DragGesture.Value) {
     if value.translation.height > 0, expanded {
       offset = value.translation.height
-    }
-    print("transition: ", value.translation.height)
-    if value.translation.height < 0 {
-      expanded = true
     }
   }
 
