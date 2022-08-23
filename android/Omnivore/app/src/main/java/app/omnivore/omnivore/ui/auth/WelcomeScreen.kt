@@ -55,7 +55,10 @@ fun WelcomeScreenContent(viewModel: LoginViewModel, navController: NavHostContro
                 contentDescription = "Omnivore Icon with Name"
             )
             Spacer(modifier = Modifier.height(50.dp))
-            Text(stringResource(id = R.string.welcome_title))
+            Text(
+                text = stringResource(id = R.string.welcome_title),
+                style = MaterialTheme.typography.headlineLarge
+            )
             MoreInfoButton()
 
             Spacer(modifier = Modifier.height(50.dp))
@@ -96,6 +99,7 @@ fun MoreInfoButton() {
 
     ClickableText(
         text = AnnotatedString("Learn More ->"),
+        style = MaterialTheme.typography.titleLarge,
         onClick = {
             context.startActivity(intent)
         },

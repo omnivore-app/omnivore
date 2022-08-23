@@ -1,28 +1,25 @@
 package app.omnivore.omnivore.ui.theme
 
-import androidx.compose.material.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Typography
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-  body1 = TextStyle(
-    fontFamily = FontFamily.Default,
-    fontWeight = FontWeight.Normal,
-    fontSize = 16.sp
-  )
-  /* Other default text styles to override
-    button = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp
-    ),
-    caption = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
-    )
-    */
-)
+val Typography = Typography()
+
+// ex: https://github.com/android/compose-samples/blob/main/Jetchat/app/src/main/java/com/example/compose/jetchat/theme/Typography.kt
+//val Typography = Typography(
+//displayLarge: TextStyle = TypographyTokens.DisplayLarge,
+//displayMedium: TextStyle = TypographyTokens.DisplayMedium,
+//displaySmall: TextStyle = TypographyTokens.DisplaySmall,
+//headlineLarge: TextStyle = TypographyTokens.HeadlineLarge,
+//headlineMedium: TextStyle = TypographyTokens.HeadlineMedium,
+//headlineSmall: TextStyle = TypographyTokens.HeadlineSmall,
+//titleLarge: TextStyle = TypographyTokens.TitleLarge,
+//titleMedium: TextStyle = TypographyTokens.TitleMedium,
+//titleSmall: TextStyle = TypographyTokens.TitleSmall,
+//bodyLarge: TextStyle = TypographyTokens.BodyLarge,
+//bodyMedium: TextStyle = TypographyTokens.BodyMedium,
+//bodySmall: TextStyle = TypographyTokens.BodySmall,
+//labelLarge: TextStyle = TypographyTokens.LabelLarge,
+//labelMedium: TextStyle = TypographyTokens.LabelMedium,
+//labelSmall: TextStyle = TypographyTokens.LabelSmall
+//)
+
