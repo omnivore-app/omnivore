@@ -72,21 +72,22 @@ public class AudioSession: ObservableObject {
 
     let pageId = item!.unwrappedID
 
-//    Task {
-//      do {
-//        _ = try await downloadAudioFile(pageId: pageId)
-//        DispatchQueue.main.async {
-//          self.startDownloadedAudioFile(pageId: pageId)
-//        }
-//      } catch {
-//        // TODO: maybe we need a failed state?
-    ////        DispatchQueue.main.async {
-    ////          self.state = .stopped
-    ////        }
-//        print("FAILED TO DOWNLOAD AUDIO URL")
-//        print(error.localizedDescription)
-//      }
-//    }
+    Task {
+      do {
+        _ = try await downloadAudioFile(pageId: pageId)
+        DispatchQueue.main.async {
+          self.startDownloadedAudioFile(pageId: pageId)
+        }
+      } catch {
+        // TODO: maybe we need a failed state?
+        DispatchQueue.main.async {
+          self.state = .stopped
+        }
+        print("FAILED TO DOWNLOAD AUDIO URL")
+        print(error)
+        print("FAILED TO DOWNLOAD AUDIO URL")
+      }
+    }
   }
 
   private func startDownloadedAudioFile(pageId: String) {
@@ -260,8 +261,10 @@ public class AudioSession: ObservableObject {
       }
 
       try data.write(to: tempPath)
+      try? FileManager.default.removeItem(at: audioUrl)
       try FileManager.default.moveItem(at: tempPath, to: audioUrl)
     } catch {
+      print("error writing file: ", error)
       let errorMessage = "audioFetch failed. could not write MP3 data to disk"
       throw BasicError.message(messageText: errorMessage)
     }
