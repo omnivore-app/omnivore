@@ -40,6 +40,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
   var timer: Timer?
   var player: AVAudioPlayer?
+  var downloadTask: Task<Void, Error>?
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
@@ -62,6 +63,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     state = .stopped
     timeElapsed = 0
     duration = 1
+    downloadTask?.cancel()
   }
 
   public var scrubState: PlayerScrubState = .reset {
@@ -107,16 +109,17 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     let pageId = item!.unwrappedID
 
-    Task {
+    downloadTask = Task {
       do {
         _ = try await downloadAudioFile(pageId: pageId)
+        if Task.isCancelled { return }
         DispatchQueue.main.async {
           self.startDownloadedAudioFile(pageId: pageId)
         }
       } catch {
-        // TODO: maybe we need a failed state?
+        // TODO: display a failure toast here
         DispatchQueue.main.async {
-          self.state = .stopped
+          self.stop()
         }
         print("FAILED TO DOWNLOAD AUDIO URL")
         print(error)
@@ -325,6 +328,9 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     print("httpResponse: ", httpResponse)
     if let httpResponse = result?.1 as? HTTPURLResponse, httpResponse.statusCode == 202 {
       print("Tell the user the download has been queued")
+      DispatchQueue.main.async {
+        NSNotification.operationSuccess(message: "Your audio is being created.")
+      }
     }
 
     guard let data = result?.0 else {
