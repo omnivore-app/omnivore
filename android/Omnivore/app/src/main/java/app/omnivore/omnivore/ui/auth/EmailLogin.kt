@@ -15,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import app.omnivore.omnivore.R
 import kotlinx.coroutines.launch
 
 //@Composable
@@ -41,52 +43,61 @@ import kotlinx.coroutines.launch
 fun EmailLoginView(viewModel: LoginViewModel, onAuthProviderButtonTap: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-    val snackBarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .fillMaxSize()
-            .clickable { focusManager.clearFocus() }
+    Row(
+        horizontalArrangement = Arrangement.Center
     ) {
-        LoginFields(
-            email,
-            password,
-            onEmailChange = { email = it },
-            onPasswordChange = { password = it },
-            onLoginClick = { viewModel.login(email, password) }
-        )
+        Spacer(modifier = Modifier.weight(1.0F))
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LoginFields(
+                email,
+                password,
+                onEmailChange = { email = it },
+                onPasswordChange = { password = it },
+                onLoginClick = { viewModel.login(email, password) }
+            )
 
-        // TODO: add a activity indicator (maybe after a delay?)
-        if (viewModel.isLoading) {
-            Text("Loading...")
-        }
-
-        if (viewModel.errorMessage != null) {
-            coroutineScope.launch {
-                val result = snackBarHostState
-                    .showSnackbar(
-                        viewModel.errorMessage!!,
-                        actionLabel = "Dismiss",
-                        duration = SnackbarDuration.Indefinite
-                    )
-                when (result) {
-                    SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
-                }
+            // TODO: add a activity indicator (maybe after a delay?)
+            if (viewModel.isLoading) {
+                Text("Loading...")
             }
 
-            SnackbarHost(hostState = snackBarHostState)
+            ClickableText(
+                text = AnnotatedString("Continue with Google/Apple ->"),
+                onClick = { onAuthProviderButtonTap() }
+            )
         }
-
-        ClickableText(
-            text = AnnotatedString("Continue with Google/Apple ->"),
-            onClick = { onAuthProviderButtonTap() }
-        )
+        Spacer(modifier = Modifier.weight(1.0F))
     }
+
+//    Column(
+//        verticalArrangement = Arrangement.Center,
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .clickable { focusManager.clearFocus() }
+//    ) {
+//        LoginFields(
+//            email,
+//            password,
+//            onEmailChange = { email = it },
+//            onPasswordChange = { password = it },
+//            onLoginClick = { viewModel.login(email, password) }
+//        )
+//
+//        // TODO: add a activity indicator (maybe after a delay?)
+//        if (viewModel.isLoading) {
+//            Text("Loading...")
+//        }
+//
+//        ClickableText(
+//            text = AnnotatedString("Continue with Google/Apple ->"),
+//            onClick = { onAuthProviderButtonTap() }
+//        )
+//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,8 +119,6 @@ fun LoginFields(
         verticalArrangement = Arrangement.spacedBy(25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Never miss a great read")
-
         OutlinedTextField(
             value = email,
             placeholder = { Text(text = "user@email.com") },

@@ -1,9 +1,11 @@
 package app.omnivore.omnivore.ui.auth
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.ExperimentalMaterialApi
@@ -14,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -22,17 +25,16 @@ import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
 import com.google.android.gms.common.GoogleApiAvailability
+import kotlinx.coroutines.launch
 
 @Composable
 fun WelcomeScreen(viewModel: LoginViewModel) {
-//    val systemUiController = rememberSystemUiController()
-//    systemUiController.isSystemBarsVisible = false
-
         Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFBEAA8 )) {
             WelcomeScreenContent(viewModel = viewModel)
         }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun WelcomeScreenContent(viewModel: LoginViewModel) {
     var registrationState by rememberSaveable { mutableStateOf(RegistrationState.AuthProviderButtons) }
@@ -41,7 +43,12 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
         registrationState = state
     }
 
-        Column(
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+
+
+    Column(
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
@@ -49,12 +56,22 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
                 .fillMaxSize()
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp)
+                .clickable { focusManager.clearFocus() }
         ) {
             Spacer(modifier = Modifier.height(50.dp))
             Image(
                 painter = painterResource(id = R.drawable.ic_omnivore_name_logo),
                 contentDescription = "Omnivore Icon with Name"
             )
+            Spacer(modifier = Modifier.height(50.dp))
+
+            Text(
+                text = stringResource(id = R.string.welcome_title),
+                style = MaterialTheme.typography.headlineLarge
+            )
+
+            MoreInfoButton()
+
             Spacer(modifier = Modifier.height(50.dp))
 
             when(registrationState) {
@@ -76,6 +93,22 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
             Spacer(modifier = Modifier.weight(1.0F))
         }
+
+    if (viewModel.errorMessage != null) {
+        coroutineScope.launch {
+            val result = snackBarHostState
+                .showSnackbar(
+                    viewModel.errorMessage!!,
+                    actionLabel = "Dismiss",
+                    duration = SnackbarDuration.Indefinite
+                )
+            when (result) {
+                SnackbarResult.ActionPerformed -> viewModel.resetErrorMessage()
+            }
+        }
+
+        SnackbarHost(hostState = snackBarHostState)
+    }
 }
 
 @Composable
@@ -86,14 +119,6 @@ fun AuthProviderView(
     val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
         .getInstance()
         .isGooglePlayServicesAvailable(LocalContext.current) == 0
-
-    Text(
-        text = stringResource(id = R.string.welcome_title),
-        style = MaterialTheme.typography.headlineLarge
-    )
-    MoreInfoButton()
-
-    Spacer(modifier = Modifier.height(50.dp))
 
     Row(
         horizontalArrangement = Arrangement.Center
@@ -135,7 +160,7 @@ fun MoreInfoButton() {
         onClick = {
             context.startActivity(intent)
         },
-    modifier = Modifier.padding(vertical = 6.dp)
+        modifier = Modifier.padding(vertical = 6.dp)
     )
 }
 
