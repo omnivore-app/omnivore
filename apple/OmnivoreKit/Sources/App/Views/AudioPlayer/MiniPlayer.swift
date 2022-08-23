@@ -14,11 +14,9 @@ import Views
 public struct MiniPlayer: View {
   @EnvironmentObject var audioSession: AudioSession
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
+  private let presentingView: AnyView
 
   @State var expanded = false
-
-  var safeArea = UIApplication.shared.windows.first?.safeAreaInsets
-  private let presentingView: AnyView
 
   init<PresentingView>(
     presentingView: PresentingView
@@ -78,150 +76,155 @@ public struct MiniPlayer: View {
 
   // swiftlint:disable:next function_body_length
   func playerContent(_ item: LinkedItem) -> some View {
-    VStack {
-      if expanded {
-        Spacer(minLength: 0)
-      }
-
-      HStack {
+    GeometryReader { geom in
+      VStack {
         if expanded {
-          Spacer()
+          Spacer(minLength: 0)
         }
 
-        Group {
-          if let imageURL = item.imageURL {
-            let dim = expanded ? 2 * (UIScreen.main.bounds.width / 3) : 64
-            AsyncLoadingImage(url: imageURL) { imageStatus in
-              if case let AsyncImageStatus.loaded(image) = imageStatus {
-                image
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
-              } else if case AsyncImageStatus.loading = imageStatus {
-                Color.appButtonBackground
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
-              } else {
-                EmptyView().frame(width: dim, height: dim, alignment: .top)
+        HStack {
+          if expanded {
+            Spacer()
+          }
+
+          Group {
+            if let imageURL = item.imageURL {
+              let dim = expanded ? 2 * (min(geom.size.width, geom.size.height) / 3) : 64
+              AsyncLoadingImage(url: imageURL) { imageStatus in
+                if case let AsyncImageStatus.loaded(image) = imageStatus {
+                  image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                } else if case AsyncImageStatus.loading = imageStatus {
+                  Color.appButtonBackground
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                } else {
+                  EmptyView().frame(width: dim, height: dim, alignment: .top)
+                }
               }
             }
           }
-        }
 
-        if !expanded {
-          Text(item.unwrappedTitle)
-            .font(expanded ? .appTitle : .appCallout)
-            .lineSpacing(1.25)
-            .foregroundColor(.appGrayTextContrast)
-            .fixedSize(horizontal: false, vertical: false)
-            .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
+          if !expanded {
+            Text(item.unwrappedTitle)
+              .font(expanded ? .appTitle : .appCallout)
+              .lineSpacing(1.25)
+              .foregroundColor(.appGrayTextContrast)
+              .fixedSize(horizontal: false, vertical: false)
+              .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
 
-          playPauseButtonItem
-            .frame(width: 28, height: 28)
+            playPauseButtonItem
+              .frame(width: 28, height: 28)
 
-          stopButton
-            .frame(width: 28, height: 28)
+            stopButton
+              .frame(width: 28, height: 28)
+          }
+
+          if expanded {
+            Spacer()
+          }
         }
 
         if expanded {
-          Spacer()
-        }
-      }
-
-      if expanded {
-        Text(item.unwrappedTitle)
-          .lineLimit(1)
-          .font(expanded ? .appTitle : .appCallout)
-          .lineSpacing(1.25)
-          .foregroundColor(.appGrayTextContrast)
-          .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
-
-        HStack {
-          Spacer()
-          if let author = item.author {
-            Text(author)
-              .lineLimit(1)
-              .font(.appCallout)
-              .lineSpacing(1.25)
-              .foregroundColor(.appGrayText)
-              .frame(alignment: .trailing)
-          }
-          if item.author != nil, item.siteName != nil {
-            Text(" • ")
-              .font(.appCallout)
-              .lineSpacing(1.25)
-              .foregroundColor(.appGrayText)
-          }
-          if let site = item.siteName {
-            Text(site)
-              .lineLimit(1)
-              .font(.appCallout)
-              .lineSpacing(1.25)
-              .foregroundColor(.appGrayText)
-              .frame(alignment: .leading)
-          }
-          Spacer()
-        }
-
-        Slider(value: $audioSession.timeElapsed,
-               in: 0 ... self.audioSession.duration,
-               onEditingChanged: { scrubStarted in
-                 if scrubStarted {
-                   self.audioSession.scrubState = .scrubStarted
-                 } else {
-                   self.audioSession.scrubState = .scrubEnded(self.audioSession.timeElapsed)
-                 }
-               })
-          .accentColor(.appCtaYellow)
-          .introspectSlider { slider in
-            // Make the thumb a little smaller than the default and give it the CTA color
-            let tintColor = UIColor(Color.appCtaYellow)
-
-            let image = UIImage(systemName: "circle.fill", withConfiguration: UIImage.SymbolConfiguration(scale: .small))?
-              .withTintColor(tintColor)
-              .withRenderingMode(.alwaysOriginal)
-
-            slider.setThumbImage(image, for: .normal)
-            slider.setThumbImage(image, for: .highlighted)
-            slider.setThumbImage(image, for: .disabled)
-            slider.setThumbImage(image, for: .selected)
-            slider.setThumbImage(image, for: .focused)
-
-            slider.minimumTrackTintColor = tintColor
-            slider.value = 10
+          if expanded {
+            Spacer()
           }
 
-        HStack {
-          Text(audioSession.timeElapsedString ?? "0:00")
-            .font(.appCaptionTwo)
-            .foregroundColor(.appGrayText)
-          Spacer()
-          Text(audioSession.durationString ?? "0:00")
-            .font(.appCaptionTwo)
-            .foregroundColor(.appGrayText)
-        }
+          Text(item.unwrappedTitle)
+            .lineLimit(1)
+            .font(expanded ? .appTitle : .appCallout)
+            .lineSpacing(1.25)
+            .foregroundColor(.appGrayTextContrast)
+            .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
 
-        HStack {
-          Button(
-            action: { self.audioSession.skipBackwards(seconds: 30) },
-            label: {
-              Image(systemName: "gobackward.30")
-                .font(.appTitleTwo)
+          HStack {
+            Spacer()
+            if let author = item.author {
+              Text(author)
+                .lineLimit(1)
+                .font(.appCallout)
+                .lineSpacing(1.25)
+                .foregroundColor(.appGrayText)
+                .frame(alignment: .trailing)
             }
-          )
-
-          playPauseButtonItem
-            .frame(width: 64, height: 64)
-            .padding(32)
-
-          Button(
-            action: { self.audioSession.skipForward(seconds: 30) },
-            label: {
-              Image(systemName: "goforward.30")
-                .font(.appTitleTwo)
+            if item.author != nil, item.siteName != nil {
+              Text(" • ")
+                .font(.appCallout)
+                .lineSpacing(1.25)
+                .foregroundColor(.appGrayText)
             }
-          )
+            if let site = item.siteName {
+              Text(site)
+                .lineLimit(1)
+                .font(.appCallout)
+                .lineSpacing(1.25)
+                .foregroundColor(.appGrayText)
+                .frame(alignment: .leading)
+            }
+            Spacer()
+          }
+
+          Slider(value: $audioSession.timeElapsed,
+                 in: 0 ... self.audioSession.duration,
+                 onEditingChanged: { scrubStarted in
+                   if scrubStarted {
+                     self.audioSession.scrubState = .scrubStarted
+                   } else {
+                     self.audioSession.scrubState = .scrubEnded(self.audioSession.timeElapsed)
+                   }
+                 })
+            .accentColor(.appCtaYellow)
+            .introspectSlider { slider in
+              // Make the thumb a little smaller than the default and give it the CTA color
+              // for some reason this doesn't work on my iPad though.
+              let tintColor = UIColor(Color.appCtaYellow)
+
+              let image = UIImage(systemName: "circle.fill",
+                                  withConfiguration: UIImage.SymbolConfiguration(scale: .small))?
+                .withTintColor(tintColor)
+                .withRenderingMode(.alwaysOriginal)
+
+              slider.setThumbImage(image, for: .selected)
+              slider.setThumbImage(image, for: .normal)
+
+              slider.minimumTrackTintColor = tintColor
+              slider.value = 10
+            }
+
+          HStack {
+            Text(audioSession.timeElapsedString ?? "0:00")
+              .font(.appCaptionTwo)
+              .foregroundColor(.appGrayText)
+            Spacer()
+            Text(audioSession.durationString ?? "0:00")
+              .font(.appCaptionTwo)
+              .foregroundColor(.appGrayText)
+          }
+
+          HStack {
+            Button(
+              action: { self.audioSession.skipBackwards(seconds: 30) },
+              label: {
+                Image(systemName: "gobackward.30")
+                  .font(.appTitleTwo)
+              }
+            )
+
+            playPauseButtonItem
+              .frame(width: 64, height: 64)
+              .padding(32)
+
+            Button(
+              action: { self.audioSession.skipForward(seconds: 30) },
+              label: {
+                Image(systemName: "goforward.30")
+                  .font(.appTitleTwo)
+              }
+            )
+          }
         }
       }
     }
@@ -245,32 +248,29 @@ public struct MiniPlayer: View {
   }
 
   public var body: some View {
-    GeometryReader { _ in
-      ZStack(alignment: .center) {
-        presentingView
-        VStack {
-          Spacer()
-          if isPresented {
-            VStack {
-              if expanded {
-                Capsule()
-                  .fill(.gray)
-                  .frame(width: 60, height: 4)
-                // .padding(.top, safeArea?.top ?? 0)
-              }
-              Spacer()
+    ZStack(alignment: .center) {
+      presentingView
+      VStack {
+        Spacer()
+        if isPresented {
+          VStack {
+            if expanded {
+              Capsule()
+                .fill(.gray)
+                .frame(width: 60, height: 4)
+            }
+            Spacer()
 
-              playerView
-            }
-            .frame(maxHeight: expanded ? .infinity : 88)
-            .background(
-              Color.systemBackground
-                .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
-                .mask(Rectangle().padding(.top, -20))
-            )
-            .onTapGesture {
-              withAnimation(.easeIn(duration: 0.08)) { expanded.toggle() }
-            }
+            playerView
+          }
+          .frame(maxHeight: expanded ? .infinity : 88)
+          .background(
+            Color.systemBackground
+              .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
+              .mask(Rectangle().padding(.top, -20))
+          )
+          .onTapGesture {
+            withAnimation(.easeIn(duration: 0.08)) { expanded.toggle() }
           }
         }
       }
