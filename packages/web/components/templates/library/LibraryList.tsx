@@ -7,6 +7,8 @@ import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LibraryGridCard } from '../../patterns/LibraryCards/LibraryGridCard'
 import { LayoutCoordinator } from './LibraryContainer'
 import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
+import Masonry from 'react-masonry-css'
+
 
 export type LibraryListProps = {
   layoutCoordinator: LayoutCoordinator
@@ -46,32 +48,14 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
 
   return (
     <Box css={{ overflowY: 'scroll' }}>
-      <Box
-        css={{
-          width: '100%',
-          display: 'grid',
-          gridAutoRows: 'auto',
-          borderRadius: '8px',
-          marginBottom: '0px',
-          paddingRight: '14px',
-          paddingTop: '0px',
-          marginTop: '0px',
-          paddingBottom: '21px',
-          '@smDown': {
-            border: 'unset',
-            width: props.layoutCoordinator.layout == 'LIST_LAYOUT' ? '100vw' : undefined,
-            margin: props.layoutCoordinator.layout == 'LIST_LAYOUT' ? '16px -16px' : undefined,
-            borderRadius: props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 0 : undefined,
-          },
-          '@lg': {
-            gridTemplateColumns:
-            props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 'none' : '1fr 1fr',
-          },
-          '@xl': {
-            gridTemplateColumns:
-            props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 'none' : 'repeat(3, 1fr)',
-          },
+      <Masonry
+        breakpointCols={props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 1 : {
+          default: 3,
+          1200: 2,
+          992: 1
         }}
+        className="omnivore-masonry-grid"
+        columnClassName="omnivore-masonry-grid_column"
       >
         {libraryItems.map((linkedItem) => (
           <Box
@@ -109,9 +93,9 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
             )}
           </Box>
         ))}
-      </Box>
-        {/* Extra padding at bottom to give space for scrolling */}
-        <Box css={{ width: '100%', height: '200px' }} />
-      </Box>
+      </Masonry>
+      {/* Extra padding at bottom to give space for scrolling */}
+      <Box css={{ width: '100%', height: '200px' }} />
+    </Box>
   )
 }
