@@ -110,6 +110,9 @@ export function HomeFeedContainer(): JSX.Element {
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
+  const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
+  const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
+  const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
 
   const [queryInputs, setQueryInputs] =
     useState<LibraryItemsQueryInput>(defaultQuery)
@@ -342,6 +345,10 @@ export function HomeFeedContainer(): JSX.Element {
     }
   }
 
+  const modalTargetItem = useMemo(() => {
+    return (labelsTarget || snoozeTarget || shareTarget || linkToEdit || linkToRemove || linkToUnsubscribe)
+  }, [labelsTarget, snoozeTarget, shareTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
+
   useKeyboardShortcuts(
     libraryListCommands((action) => {
       const columnCount = (container: HTMLDivElement) => {
@@ -353,7 +360,7 @@ export function HomeFeedContainer(): JSX.Element {
       }
 
       // If any of the modals are open we disable handling keyboard shortcuts
-      if (labelsTarget || snoozeTarget || shareTarget) {
+      if (modalTargetItem) {
         return
       }
 
@@ -577,6 +584,12 @@ export function HomeFeedContainer(): JSX.Element {
       setActiveItem={(item: LibraryItem) => {
         activateCard(item.node.id)
       }}
+      linkToRemove={linkToRemove}
+      setLinkToRemove={setLinkToRemove}
+      linkToEdit={linkToEdit}
+      setLinkToEdit={setLinkToEdit}
+      linkToUnsubscribe={linkToUnsubscribe}
+      setLinkToUnsubscribe={setLinkToUnsubscribe}
     />
   )
 }
@@ -602,6 +615,14 @@ type HomeFeedContentProps = {
   showEditTitleModal: boolean
   setShowEditTitleModal: (show: boolean) => void
   setActiveItem: (item: LibraryItem) => void
+
+  linkToRemove: LibraryItem | undefined
+  setLinkToRemove: (set: LibraryItem | undefined) => void
+  linkToEdit: LibraryItem | undefined
+  setLinkToEdit: (set: LibraryItem | undefined) => void
+  linkToUnsubscribe: LibraryItem | undefined
+  setLinkToUnsubscribe: (set: LibraryItem | undefined) => void
+
   actionHandler: (
     action: LinkedItemCardAction,
     item: LibraryItem | undefined
@@ -618,9 +639,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     useState(false)
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
   useState(false)
-  const [linkToRemove, setLinkToRemove] = useState<LibraryItem>()
-  const [linkToEdit, setLinkToEdit] = useState<LibraryItem>()
-  const [linkToUnsubscribe, setLinkToUnsubscribe] = useState<LibraryItem>()
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -649,21 +667,21 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   })
 
   const removeItem = () => {
-    if (!linkToRemove) {
+    if (!props.linkToRemove) {
       return
     }
 
-    props.actionHandler('delete', linkToRemove)
-    setLinkToRemove(undefined)
+    props.actionHandler('delete', props.linkToRemove)
+    props.setLinkToRemove(undefined)
     setShowRemoveLinkConfirmation(false)
   }
 
   const unsubscribe = () => {
-    if (!linkToUnsubscribe) {
+    if (!props.linkToUnsubscribe) {
       return
     }
-    props.actionHandler('unsubscribe', linkToUnsubscribe)
-    setLinkToUnsubscribe(undefined)
+    props.actionHandler('unsubscribe', props.linkToUnsubscribe)
+    props.setLinkToUnsubscribe(undefined)
     setShowUnsubscribeConfirmation(false)
   }
 
@@ -847,13 +865,13 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
                     handleAction={(action: LinkedItemCardAction) => {
                       if (action === 'delete') {
                         setShowRemoveLinkConfirmation(true)
-                        setLinkToRemove(linkedItem)
+                        props.setLinkToRemove(linkedItem)
                       } else if (action === 'editTitle') {
                         props.setShowEditTitleModal(true)
-                        setLinkToEdit(linkedItem)
+                        props.setLinkToEdit(linkedItem)
                       } else if (action == 'unsubscribe') {
                         setShowUnsubscribeConfirmation(true)
-                        setLinkToUnsubscribe(linkedItem)
+                        props.setLinkToUnsubscribe(linkedItem)
                       } else {
                         props.actionHandler(action, linkedItem)
                       }
@@ -893,7 +911,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             props.actionHandler('update-item', item)
           }
           onOpenChange={() => props.setShowEditTitleModal(false)}
-          item={linkToEdit as LibraryItem}
+          item={props.linkToEdit as LibraryItem}
         />
       )}
       {props.shareTarget && viewerData?.me?.profile.username && (
