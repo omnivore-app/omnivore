@@ -16,7 +16,10 @@ public struct MiniPlayer: View {
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 
-  @State var expanded = false
+  @State var expanded = true
+  @State var offset: CGFloat = 0
+
+  let minExpandedHeight = UIScreen.main.bounds.height / 3
 
   init<PresentingView>(
     presentingView: PresentingView
@@ -66,7 +69,7 @@ public struct MiniPlayer: View {
   var playerView: some View {
     if let item = audioSession.item {
       return AnyView(playerContent(item)
-        .padding()
+//        .padding()
         .animation(.spring(), value: true)
         .tint(.appGrayTextContrast))
     } else {
@@ -79,6 +82,11 @@ public struct MiniPlayer: View {
     GeometryReader { geom in
       VStack {
         if expanded {
+          Capsule()
+            .fill(.gray)
+            .frame(width: 60, height: 4)
+            .padding(.top, 8)
+
           Spacer(minLength: 0)
         }
 
@@ -227,23 +235,15 @@ public struct MiniPlayer: View {
           }
         }
       }
-    }
-  }
-
-  func miniview(_ item: LinkedItem) -> some View {
-    HStack {
-      Text(item.unwrappedTitle)
-        .font(.appCallout)
-        .lineSpacing(1.25)
-        .foregroundColor(.appGrayTextContrast)
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: .infinity, alignment: .leading)
-
-      playPauseButtonItem
-        .frame(width: 28, height: 28)
-
-      stopButton
-        .frame(width: 28, height: 28)
+      .padding(EdgeInsets(top: 0, leading: expanded ? 24 : 6, bottom: 0, trailing: expanded ? 24 : 6))
+      .background(
+        Color.systemBackground
+          .onTapGesture {
+            withAnimation(.easeIn(duration: 0.08)) { expanded = true }
+          }
+//          .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
+//          .mask(Rectangle().padding(.top, -20))
+      )
     }
   }
 
@@ -252,28 +252,36 @@ public struct MiniPlayer: View {
       presentingView
       VStack {
         Spacer()
-        if isPresented {
+        if let item = self.audioSession.item, isPresented {
           VStack {
-            if expanded {
-              Capsule()
-                .fill(.gray)
-                .frame(width: 60, height: 4)
-            }
             Spacer()
-
-            playerView
+            playerContent(item)
+              .frame(maxHeight: expanded ? .infinity : 88)
+              .offset(y: offset)
+              .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
           }
-          .frame(maxHeight: expanded ? .infinity : 88)
-          .background(
-            Color.systemBackground
-              .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
-              .mask(Rectangle().padding(.top, -20))
-          )
-          .onTapGesture {
-            withAnimation(.easeIn(duration: 0.08)) { expanded.toggle() }
-          }
+          .padding(0)
         }
       }
+    }
+  }
+
+  func onDragChanged(value: DragGesture.Value) {
+    if value.translation.height > 0, expanded {
+      offset = value.translation.height
+    }
+    print("transition: ", value.translation.height)
+    if value.translation.height < 0 {
+      expanded = true
+    }
+  }
+
+  func onDragEnded(value: DragGesture.Value) {
+    withAnimation(.interactiveSpring()) {
+      if value.translation.height > minExpandedHeight {
+        expanded = false
+      }
+      offset = 0
     }
   }
 }
