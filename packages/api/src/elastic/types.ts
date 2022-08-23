@@ -215,6 +215,7 @@ export interface Page {
   taskName?: string
   language?: string
   readAt?: Date
+  listenedAt?: Date
 }
 
 export interface SearchItem {

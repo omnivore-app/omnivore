@@ -17,10 +17,11 @@ import { env } from '../env'
 import { Claims } from '../resolvers/types'
 import { getRepository } from '../entity/utils'
 import { Speech, SpeechState } from '../entity/speech'
-import { getPageById } from '../elastic/pages'
+import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
 import { UserPersonalization } from '../entity/user_personalization'
+import { createPubSubClient } from '../datalayer/pubsub'
 
 const logger = buildLogger('app.dispatch')
 
@@ -118,6 +119,13 @@ export function articleRouter() {
             audioUrl: existingSpeech.audioFileName,
             speechMarksUrl: existingSpeech.speechMarksFileName,
           })
+          await updatePage(
+            existingSpeech.elasticPageId,
+            {
+              listenedAt: new Date(),
+            },
+            { uid, pubsub: createPubSubClient() }
+          )
           return res.redirect(await redirectUrl(existingSpeech, outputFormat))
         }
         if (existingSpeech.state === SpeechState.INITIALIZED) {
