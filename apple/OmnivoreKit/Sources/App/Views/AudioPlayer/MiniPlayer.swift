@@ -11,40 +11,13 @@ import Services
 import SwiftUI
 import Views
 
-struct DynamicStack<Content: View>: View {
-  var isExpanded: Bool = false
-  @ViewBuilder var content: () -> Content
-
-  var body: some View {
-    isExpanded ? AnyView(vStack) : AnyView(hStack)
-  }
-}
-
-private extension DynamicStack {
-  var hStack: some View {
-    HStack(
-      alignment: .top,
-      spacing: 0,
-      content: content
-    ).background(.yellow)
-  }
-
-  var vStack: some View {
-    VStack(
-      alignment: .leading,
-      spacing: 0,
-      content: content
-    )
-  }
-}
-
 public struct MiniPlayer: View {
   @EnvironmentObject var audioSession: AudioSession
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
   @State var expanded = false
-  var safeArea = UIApplication.shared.windows.first?.safeAreaInsets
 
+  var safeArea = UIApplication.shared.windows.first?.safeAreaInsets
   private let presentingView: AnyView
 
   init<PresentingView>(
@@ -74,7 +47,7 @@ public struct MiniPlayer: View {
         },
         label: {
           Image(systemName: audioSession.state == .playing ? "pause.circle" : "play.circle")
-            .font(.appTitleTwo)
+            .font(expanded ? .system(size: 64.0, weight: .thin) : .appTitleTwo)
         }
       ))
     }
@@ -192,9 +165,13 @@ public struct MiniPlayer: View {
         }
 
         Slider(value: $audioSession.timeElapsed,
-               in: audioSession.timeElapsed ... audioSession.duration,
-               onEditingChanged: { _ in
-                 // isEditing = editing
+               in: 0 ... self.audioSession.duration,
+               onEditingChanged: { scrubStarted in
+                 if scrubStarted {
+                   self.audioSession.scrubState = .scrubStarted
+                 } else {
+                   self.audioSession.scrubState = .scrubEnded(self.audioSession.timeElapsed)
+                 }
                })
           .accentColor(.appCtaYellow)
           .introspectSlider { slider in
@@ -206,7 +183,13 @@ public struct MiniPlayer: View {
               .withRenderingMode(.alwaysOriginal)
 
             slider.setThumbImage(image, for: .normal)
+            slider.setThumbImage(image, for: .highlighted)
+            slider.setThumbImage(image, for: .disabled)
+            slider.setThumbImage(image, for: .selected)
+            slider.setThumbImage(image, for: .focused)
+
             slider.minimumTrackTintColor = tintColor
+            slider.value = 10
           }
 
         HStack {
@@ -221,24 +204,19 @@ public struct MiniPlayer: View {
 
         HStack {
           Button(
-            action: {},
+            action: { self.audioSession.skipBackwards(seconds: 30) },
             label: {
               Image(systemName: "gobackward.30")
                 .font(.appTitleTwo)
             }
           )
-          Button(
-            action: {},
-            label: {
-              Image(systemName: "play.circle")
-                .font(.system(size: 64.0, weight: .thin))
-            }
-          )
-          .frame(width: 64, height: 64)
-          .padding(32)
+
+          playPauseButtonItem
+            .frame(width: 64, height: 64)
+            .padding(32)
 
           Button(
-            action: {},
+            action: { self.audioSession.skipForward(seconds: 30) },
             label: {
               Image(systemName: "goforward.30")
                 .font(.appTitleTwo)

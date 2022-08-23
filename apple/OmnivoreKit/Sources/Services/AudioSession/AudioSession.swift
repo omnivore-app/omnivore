@@ -19,8 +19,14 @@ public enum AudioSessionState {
   case playing
 }
 
+public enum PlayerScrubState {
+  case reset
+  case scrubStarted
+  case scrubEnded(TimeInterval)
+}
+
 // Our observable object class
-public class AudioSession: ObservableObject {
+public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioSessionState = .stopped
   @Published public var item: LinkedItem?
 
@@ -41,7 +47,6 @@ public class AudioSession: ObservableObject {
   }
 
   public func play(item: LinkedItem) {
-    // Stop any existing session
     stop()
 
     self.item = item
@@ -59,12 +64,41 @@ public class AudioSession: ObservableObject {
     duration = 1
   }
 
+  public var scrubState: PlayerScrubState = .reset {
+    didSet {
+      switch scrubState {
+      case .reset:
+        return
+      case .scrubStarted:
+        return
+      case let .scrubEnded(seekTime):
+        player?.currentTime = seekTime
+      }
+    }
+  }
+
+  public var currentVoice: String {
+    "en-CA-ClaraNeural"
+  }
+
   public func isLoadingItem(item: LinkedItem) -> Bool {
     state == .loading && self.item == item
   }
 
   public func isPlayingItem(item: LinkedItem) -> Bool {
     state == .playing && self.item == item
+  }
+
+  public func skipForward(seconds: Double) {
+    if let current = player?.currentTime {
+      player?.currentTime = min(duration, current + seconds)
+    }
+  }
+
+  public func skipBackwards(seconds: Double) {
+    if let current = player?.currentTime {
+      player?.currentTime = max(0, current - seconds)
+    }
   }
 
   public func startAudio() {
@@ -85,7 +119,6 @@ public class AudioSession: ObservableObject {
         }
         print("FAILED TO DOWNLOAD AUDIO URL")
         print(error)
-        print("FAILED TO DOWNLOAD AUDIO URL")
       }
     }
   }
@@ -112,6 +145,7 @@ public class AudioSession: ObservableObject {
       try AVAudioSession.sharedInstance().setCategory(.playback)
 
       player = try AVAudioPlayer(contentsOf: audioUrl)
+      player?.delegate = self
       if player?.play() ?? false {
         state = .playing
         startTimer()
@@ -119,7 +153,6 @@ public class AudioSession: ObservableObject {
       }
     } catch {
       print("error playing MP3 file", error)
-      print(error.localizedDescription)
       state = .stopped
     }
   }
@@ -158,19 +191,35 @@ public class AudioSession: ObservableObject {
     timer = nil
   }
 
+  func formatTimeInterval(_ time: TimeInterval) -> String? {
+    let componentFormatter = DateComponentsFormatter()
+    componentFormatter.unitsStyle = .positional
+    componentFormatter.allowedUnits = time >= 3600 ? [.second, .minute, .hour] : [.second, .minute]
+    componentFormatter.zeroFormattingBehavior = .pad
+    return componentFormatter.string(from: time)
+  }
+
   // Every second, get the current playing time of the player and refresh the status of the player progressslider
   @objc func update(_: Timer) {
     if let player = player, player.isPlaying {
-      print("play time in ms: ", Int(player.currentTime * 1000))
-      timeElapsed = player.currentTime
       duration = player.duration
+      durationString = formatTimeInterval(duration)
 
-      let componentFormatter = DateComponentsFormatter()
-      componentFormatter.unitsStyle = .positional
-      componentFormatter.zeroFormattingBehavior = .dropAll
-
-      timeElapsedString = componentFormatter.string(from: timeElapsed)
-      durationString = componentFormatter.string(from: duration)
+      switch scrubState {
+      case .reset:
+        timeElapsed = player.currentTime
+        timeElapsedString = formatTimeInterval(timeElapsed)
+        if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+          nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
+          nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
+          MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
+        }
+      case .scrubStarted:
+        break
+      case let .scrubEnded(seekTime):
+        scrubState = .reset
+        timeElapsed = seekTime
+      }
     }
   }
 
@@ -181,24 +230,27 @@ public class AudioSession: ObservableObject {
   func setupRemoteControl() {
     UIApplication.shared.beginReceivingRemoteControlEvents()
 
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-      //  MPMediaItemArtwork: ""m
-      MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
-      MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
-    ]
-
-    if let imageURL = item?.imageURL, let cachedImage = ImageCache.shared[imageURL] {
-//      #if os(iOS)
-//        status = .loaded(image: Image(uiImage: cachedImage))
-//      #else
-//        status = .loaded(image: Image(nsImage: cachedImage))
-//      #endif
+    if let item = item {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-        //  MPMediaItemPropertyArtwork: cachedImage,
-        MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
-        MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
+        MPMediaItemPropertyTitle: NSString(string: item.title!),
+        MPMediaItemPropertyArtist: NSString(string: item.author!),
+        MPMediaItemPropertyPlaybackDuration: NSNumber(value: duration),
+        MPNowPlayingInfoPropertyElapsedPlaybackTime: NSNumber(value: timeElapsed)
       ]
     }
+
+//    if let imageURL = item?.imageURL, let cachedImage = ImageCache.shared[imageURL] {
+    ////      #if os(iOS)
+    ////        status = .loaded(image: Image(uiImage: cachedImage))
+    ////      #else
+    ////        status = .loaded(image: Image(nsImage: cachedImage))
+    ////      #endif
+//      MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+//        //  MPMediaItemPropertyArtwork: cachedImage,
+//        MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
+//        MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
+//      ]
+//    }
 
     let commandCenter = MPRemoteCommandCenter.shared()
 
@@ -213,6 +265,34 @@ public class AudioSession: ObservableObject {
       self.pause()
       return .success
     }
+
+    commandCenter.skipForwardCommand.isEnabled = true
+    commandCenter.skipForwardCommand.preferredIntervals = [30, 60]
+    commandCenter.skipForwardCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+      if let event = event as? MPSkipIntervalCommandEvent {
+        self.skipForward(seconds: event.interval)
+        return .success
+      }
+      return .commandFailed
+    }
+
+    commandCenter.skipBackwardCommand.isEnabled = true
+    commandCenter.skipBackwardCommand.preferredIntervals = [30, 60]
+    commandCenter.skipBackwardCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+      if let event = event as? MPSkipIntervalCommandEvent {
+        self.skipBackwards(seconds: event.interval)
+        return .success
+      }
+      return .commandFailed
+    }
+
+    commandCenter.changePlaybackPositionCommand.isEnabled = true
+    commandCenter.changePlaybackPositionCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
+      if let event = event as? MPChangePlaybackPositionCommandEvent {
+        self.player?.currentTime = event.positionTime
+      }
+      return .commandFailed
+    }
   }
 
   func downloadAudioFile(pageId: String) async throws -> URL? {
@@ -226,7 +306,7 @@ public class AudioSession: ObservableObject {
 //      return audioUrl
 //    }
 
-    guard let url = URL(string: "/api/article/\(pageId)/mp3", relativeTo: appEnvironment.serverBaseURL) else {
+    guard let url = URL(string: "/api/article/\(pageId)/mp3/\(currentVoice)", relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }
 
@@ -242,6 +322,9 @@ public class AudioSession: ObservableObject {
       throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
     }
     print("httpResponse: ", httpResponse)
+    if let httpResponse = result?.1 as? HTTPURLResponse, httpResponse.statusCode == 202 {
+      print("Tell the user the download has been queued")
+    }
 
     guard let data = result?.0 else {
       throw BasicError.message(messageText: "audioFetch failed. no data received.")
@@ -270,5 +353,12 @@ public class AudioSession: ObservableObject {
     }
 
     return audioUrl
+  }
+
+  public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {
+    if player == self.player {
+      pause()
+      player.currentTime = 0
+    }
   }
 }
