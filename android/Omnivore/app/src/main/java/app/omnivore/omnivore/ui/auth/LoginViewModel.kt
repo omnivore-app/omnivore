@@ -15,6 +15,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class RegistrationState {
+  AuthProviderButtons,
+  EmailSignIn
+}
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository

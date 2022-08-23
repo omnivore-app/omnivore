@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,21 +24,22 @@ import app.omnivore.omnivore.Routes
 import com.google.android.gms.common.GoogleApiAvailability
 
 @Composable
-fun WelcomeScreen(viewModel: LoginViewModel, navController: NavHostController) {
+fun WelcomeScreen(viewModel: LoginViewModel) {
 //    val systemUiController = rememberSystemUiController()
 //    systemUiController.isSystemBarsVisible = false
 
         Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFBEAA8 )) {
-            WelcomeScreenContent(viewModel = viewModel, navController = navController)
+            WelcomeScreenContent(viewModel = viewModel)
         }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun WelcomeScreenContent(viewModel: LoginViewModel, navController: NavHostController) {
-    val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
-        .getInstance()
-        .isGooglePlayServicesAvailable(LocalContext.current) == 0
+fun WelcomeScreenContent(viewModel: LoginViewModel) {
+    var registrationState by rememberSaveable { mutableStateOf(RegistrationState.AuthProviderButtons) }
+
+    val onRegistrationStateChange = { state: RegistrationState ->
+        registrationState = state
+    }
 
         Column(
             verticalArrangement = Arrangement.SpaceAround,
@@ -55,41 +56,72 @@ fun WelcomeScreenContent(viewModel: LoginViewModel, navController: NavHostContro
                 contentDescription = "Omnivore Icon with Name"
             )
             Spacer(modifier = Modifier.height(50.dp))
-            Text(
-                text = stringResource(id = R.string.welcome_title),
-                style = MaterialTheme.typography.headlineLarge
-            )
-            MoreInfoButton()
 
-            Spacer(modifier = Modifier.height(50.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Spacer(modifier = Modifier.weight(1.0F))
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (isGoogleAuthAvailable) {
-                        GoogleAuthButton(viewModel)
-                    }
-
-                    LoadingButtonWithIcon(
-                        text = "Continue with Apple",
-                        loadingText = "Signing in...",
-                        icon = painterResource(id = R.drawable.ic_logo_apple),
-                        modifier = Modifier.padding(vertical = 6.dp),
-                        onClick = {}
+            when(registrationState) {
+                RegistrationState.EmailSignIn -> {
+                    EmailLoginView(
+                        viewModel = viewModel,
+                        onAuthProviderButtonTap = {
+                            onRegistrationStateChange(RegistrationState.AuthProviderButtons)
+                        }
                     )
-
-                    ContinueWithEmailButton(navController)
                 }
-                Spacer(modifier = Modifier.weight(1.0F))
+                RegistrationState.AuthProviderButtons -> {
+                    AuthProviderView(
+                        viewModel = viewModel,
+                        onEmailButtonTap = { onRegistrationStateChange(RegistrationState.EmailSignIn) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.weight(1.0F))
         }
+}
+
+@Composable
+fun AuthProviderView(
+    viewModel: LoginViewModel,
+    onEmailButtonTap: () -> Unit
+) {
+    val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
+        .getInstance()
+        .isGooglePlayServicesAvailable(LocalContext.current) == 0
+
+    Text(
+        text = stringResource(id = R.string.welcome_title),
+        style = MaterialTheme.typography.headlineLarge
+    )
+    MoreInfoButton()
+
+    Spacer(modifier = Modifier.height(50.dp))
+
+    Row(
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Spacer(modifier = Modifier.weight(1.0F))
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isGoogleAuthAvailable) {
+                GoogleAuthButton(viewModel)
+            }
+
+            LoadingButtonWithIcon(
+                text = "Continue with Apple",
+                loadingText = "Signing in...",
+                icon = painterResource(id = R.drawable.ic_logo_apple),
+                modifier = Modifier.padding(vertical = 6.dp),
+                onClick = {}
+            )
+
+            ClickableText(
+                text = AnnotatedString("Continue with Email ->"),
+                onClick = { onEmailButtonTap() }
+            )
+        }
+        Spacer(modifier = Modifier.weight(1.0F))
+    }
 }
 
 @Composable
@@ -107,12 +139,3 @@ fun MoreInfoButton() {
     )
 }
 
-@Composable
-fun ContinueWithEmailButton(navController: NavHostController) {
-    ClickableText(
-        text = AnnotatedString("Continue with Email ->"),
-        onClick = {
-            navController.navigate(Routes.EmailLogin.route)
-        }
-    )
-}

@@ -14,7 +14,7 @@ import androidx.navigation.NavHostController
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 
 @Composable
-fun HomeView(viewModel: LoginViewModel, navController: NavHostController) {
+fun HomeView(viewModel: LoginViewModel) {
   Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,

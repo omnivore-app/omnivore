@@ -10,7 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
-import app.omnivore.omnivore.ui.main.ScreenMain
+import app.omnivore.omnivore.ui.root.RootView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       OmnivoreTheme {
-        ScreenMain(viewModel = viewModel)
+        RootView(viewModel = viewModel)
       }
     }
 
