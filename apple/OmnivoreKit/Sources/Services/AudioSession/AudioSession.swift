@@ -103,6 +103,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
   public func startAudio() {
     state = .loading
+    setupNotifications()
 
     let pageId = item!.unwrappedID
 
@@ -359,6 +360,39 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     if player == self.player {
       pause()
       player.currentTime = 0
+    }
+  }
+
+  func setupNotifications() {
+    NotificationCenter.default.removeObserver(self, name: AVAudioSession.interruptionNotification, object: AVAudioSession.sharedInstance())
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(handleInterruption),
+                                           name: AVAudioSession.interruptionNotification,
+                                           object: AVAudioSession.sharedInstance())
+  }
+
+  @objc func handleInterruption(notification: Notification) {
+    guard let userInfo = notification.userInfo,
+          let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+          let type = AVAudioSession.InterruptionType(rawValue: typeValue)
+    else {
+      return
+    }
+
+    // Switch over the interruption type.
+    switch type {
+    case .began:
+      // An interruption began. Update the UI as necessary.
+      pause()
+    case .ended:
+      // An interruption ended. Resume playback, if appropriate.
+
+      guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+      let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+      if options.contains(.shouldResume) {
+        unpause()
+      } else {}
+    default: ()
     }
   }
 }
