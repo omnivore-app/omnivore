@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -73,9 +72,12 @@ fun WelcomeScreenContent(viewModel: LoginViewModel, navController: NavHostContro
                         GoogleAuthButton(viewModel)
                     }
 
-                    AppleSignInButton(painterResource(id = R.drawable.ic_logo_google)) {
-                        // Fill in later...
-                    }
+                    LoadingButtonWithIcon(
+                        text = "Continue with Apple",
+                        loadingText = "Signing in...",
+                        icon = painterResource(id = R.drawable.ic_logo_apple),
+                        onClick = {}
+                    )
 
                     ContinueWithEmailButton(navController)
                 }

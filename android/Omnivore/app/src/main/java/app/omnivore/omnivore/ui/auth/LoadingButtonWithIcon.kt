@@ -3,8 +3,7 @@ package app.omnivore.omnivore.ui.auth
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material.Surface
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,17 +13,16 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 
-@ExperimentalMaterialApi
 @Composable
-fun GoogleSignInButton(
+fun LoadingButtonWithIcon(
     text: String,
-    loadingText: String = "Signing in...",
+    loadingText: String,
     icon: Painter,
     isLoading: Boolean = false,
     shape: Shape = Shapes().medium,
     borderColor: Color = Color.LightGray,
-    backgroundColor: Color = MaterialTheme.colors.surface,
-    progressIndicatorColor: Color = MaterialTheme.colors.primary,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    progressIndicatorColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
     Surface(

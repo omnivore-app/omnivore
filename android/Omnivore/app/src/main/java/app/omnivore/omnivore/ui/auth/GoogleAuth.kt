@@ -39,7 +39,7 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
       }
     }
 
-  GoogleSignInButton(
+  LoadingButtonWithIcon(
     text = "Continue with Google",
     loadingText = "Signing in...",
     isLoading = viewModel.isLoading,
