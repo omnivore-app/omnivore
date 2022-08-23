@@ -76,6 +76,7 @@ fun WelcomeScreenContent(viewModel: LoginViewModel, navController: NavHostContro
                         text = "Continue with Apple",
                         loadingText = "Signing in...",
                         icon = painterResource(id = R.drawable.ic_logo_apple),
+                        modifier = Modifier.padding(vertical = 6.dp),
                         onClick = {}
                     )
 

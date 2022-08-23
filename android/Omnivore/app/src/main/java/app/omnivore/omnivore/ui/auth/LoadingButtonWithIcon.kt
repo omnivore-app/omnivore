@@ -23,10 +23,11 @@ fun LoadingButtonWithIcon(
     borderColor: Color = Color.LightGray,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     progressIndicatorColor: Color = MaterialTheme.colorScheme.primary,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.clickable(
+        modifier = modifier.clickable(
             enabled = !isLoading,
             onClick = onClick
         ),
