@@ -72,7 +72,7 @@ export async function decodeGoogleToken(
 
     const loginTicket = await googleMobileClient.verifyIdToken({
       idToken,
-      audience: isAndroid ? webClientId : iosClientId,
+      audience: isAndroid ? env.google.auth.androidClientId : iosClientId,
     })
 
     const email = loginTicket.getPayload()?.email
