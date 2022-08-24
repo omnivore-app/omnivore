@@ -167,18 +167,25 @@ export const synthesizeTextToSpeech = async (
     }
   } else {
     const document = parseHTML(input.text).document
-    const elements = document.querySelectorAll('h1, h2, h3, p, ul, ol')
+    const elements = document.querySelectorAll(
+      'h1, h2, h3, p, ul, ol, blockquote'
+    )
     // convert html elements to the ssml document
     for (const e of Array.from(elements)) {
       const htmlElement = e as HTMLElement
       if (htmlElement.innerText) {
-        const ssml = htmlElementToSsml(
-          e,
-          input.languageCode || 'en-US',
-          input.voice || 'en-US-JennyNeural',
-          input.rate || 1,
-          input.volume || 100
-        )
+        // use complimentary voice for blockquote, hardcoded for now
+        const voice =
+          htmlElement.tagName.toLowerCase() === 'blockquote'
+            ? 'en-US-AriaNeural'
+            : input.voice
+        const ssml = htmlElementToSsml({
+          htmlElement: e,
+          language: input.languageCode,
+          rate: input.rate,
+          volume: input.volume,
+          voice,
+        })
         logger.debug(`synthesizing ${ssml}`)
         const result = await speakSsmlAsyncPromise(ssml)
         if (result.reason === ResultReason.Canceled) {
@@ -208,13 +215,19 @@ export const synthesizeTextToSpeech = async (
   }
 }
 
-export const htmlElementToSsml = (
-  htmlElement: Element,
+export const htmlElementToSsml = ({
+  htmlElement,
   language = 'en-US',
-  voice = 'en-US-JennyNeural',
+  voice = 'en-US-JennyMultilingualNeural',
   rate = 1,
-  volume = 100
-): string => {
+  volume = 100,
+}: {
+  htmlElement: Element
+  language?: string
+  voice?: string
+  rate?: number
+  volume?: number
+}): string => {
   const replaceElement = (newElement: Element, oldElement: Element) => {
     const id = oldElement.getAttribute('data-omnivore-anchor-idx')
     if (id) {
