@@ -294,6 +294,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     commandCenter.changePlaybackPositionCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
       if let event = event as? MPChangePlaybackPositionCommandEvent {
         self.player?.currentTime = event.positionTime
+        return .success
       }
       return .commandFailed
     }
