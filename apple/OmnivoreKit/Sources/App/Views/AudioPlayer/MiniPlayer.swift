@@ -246,7 +246,7 @@ public struct MiniPlayer: View {
       .padding(EdgeInsets(top: 0, leading: expanded ? 24 : 6, bottom: 0, trailing: expanded ? 24 : 6))
       .background(
         Color.systemBackground
-          .shadow(color: expanded ? .clear : .gray /* .opacity(0.33) */, radius: 8, x: 0, y: 4)
+          .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
           .mask(Rectangle().padding(.top, -20))
       )
       .onTapGesture {
