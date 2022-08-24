@@ -65,7 +65,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           }}
         >
           <CardTitle title={props.item.title} />
-          {/* <Box
+          <Box
             css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
             onClick={(e) => {
               // This is here to prevent menu click events from bubbling
@@ -85,9 +85,9 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               }
               actionHandler={props.handleAction}
             />
-          </Box> */}
+          </Box>
         </HStack>
-        {/* <HStack alignment="start" distribution="between">
+        <HStack alignment="start" distribution="between">
           <StyledText style="caption" css={{ my: '0', mt: '-$2' }}>
             {props.item.author && (
               <SpanBox css={{ mr: '8px' }}>
@@ -98,7 +98,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               {props.originText}
             </SpanBox>
           </StyledText>
-        </HStack> */}
+        </HStack>
       </VStack>
       <HStack
         alignment="start"
