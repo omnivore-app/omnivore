@@ -20,6 +20,7 @@ export interface TextToSpeechInput {
   textType?: 'text' | 'ssml'
   rate?: number
   volume?: number
+  complimentaryVoice?: string
 }
 
 export interface TextToSpeechOutput {
@@ -177,7 +178,7 @@ export const synthesizeTextToSpeech = async (
         // use complimentary voice for blockquote, hardcoded for now
         const voice =
           htmlElement.tagName.toLowerCase() === 'blockquote'
-            ? 'en-US-AriaNeural'
+            ? input.complimentaryVoice || 'en-US-AriaNeural'
             : input.voice
         const ssml = htmlElementToSsml({
           htmlElement: e,
@@ -218,7 +219,7 @@ export const synthesizeTextToSpeech = async (
 export const htmlElementToSsml = ({
   htmlElement,
   language = 'en-US',
-  voice = 'en-US-JennyMultilingualNeural',
+  voice = 'en-US-JennyNeural',
   rate = 1,
   volume = 100,
 }: {

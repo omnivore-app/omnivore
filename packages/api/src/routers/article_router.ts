@@ -150,10 +150,7 @@ export function articleRouter() {
         user: { id: uid },
         elasticPageId: articleId,
         state: SpeechState.INITIALIZED,
-        voice:
-          voice ||
-          userPersonalization?.speechVoice ||
-          'en-US-JennyMultilingualNeural',
+        voice: voice || userPersonalization?.speechVoice || 'en-US-JennyNeural',
       })
       // enqueue a task to convert text to speech
       const taskName = await enqueueTextToSpeech(uid, speech.id)
