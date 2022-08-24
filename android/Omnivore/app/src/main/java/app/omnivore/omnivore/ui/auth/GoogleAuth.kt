@@ -40,8 +40,6 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
       }
     }
 
-
-
   LoadingButtonWithIcon(
     text = "Continue with Google",
     loadingText = "Signing in...",
@@ -49,21 +47,18 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
     icon = painterResource(id = R.drawable.ic_logo_google),
     onClick = {
       val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
-      val silentSignInTask = googleSignIn.silentSignIn()
-      Log.d(ContentValues.TAG, "silent auth success?: ${silentSignInTask.isSuccessful}")
-      val result = silentSignInTask.getResult(ApiException::class.java)
-      Log.d(ContentValues.TAG, "silent id token?: ${result.idToken}")
 
-
-
-      if (silentSignInTask.isSuccessful) {
-        silentSignInTask.addOnCompleteListener(OnCompleteListener<GoogleSignInAccount?> { task ->
-          viewModel.handleGoogleAuthTask(task)
-        })
-      } else {
-//        googleSignIn.signOut() // TODO: Should use this on logout instead
-        startForResult.launch(googleSignIn.signInIntent)
-      }
+      googleSignIn.silentSignIn()
+        .addOnCompleteListener { task ->
+          if (task.isSuccessful) {
+            viewModel.handleGoogleAuthTask(task)
+          } else {
+            startForResult.launch(googleSignIn.signInIntent)
+          }
+        }
+        .addOnFailureListener {
+          startForResult.launch(googleSignIn.signInIntent)
+        }
     }
   )
 }
