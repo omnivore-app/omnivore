@@ -21,6 +21,10 @@ export const shouldSynthesize = async (
   userId: string,
   page: Page
 ): Promise<boolean> => {
+  if (process.env.TEXT_TO_SPEECH_BETA_TEST === 'true') {
+    return true
+  }
+
   const [recentListenedPage, count] = (await searchPages(
     {
       dateFilters: [
