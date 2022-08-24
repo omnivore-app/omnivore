@@ -11,11 +11,15 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -46,7 +50,9 @@ fun EmailLoginView(viewModel: LoginViewModel, onAuthProviderButtonTap: () -> Uni
       }
 
       ClickableText(
-        text = AnnotatedString("Continue with Google/Apple ->"),
+        text = AnnotatedString("Return to Social Login"),
+        style = MaterialTheme.typography.titleMedium
+          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { onAuthProviderButtonTap() }
       )
     }
@@ -76,7 +82,7 @@ fun LoginFields(
     OutlinedTextField(
       value = email,
       placeholder = { Text(text = "user@email.com") },
-      label = { Text(text = "email") },
+      label = { Text(text = "Email") },
       onValueChange = onEmailChange,
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
@@ -84,8 +90,8 @@ fun LoginFields(
 
     OutlinedTextField(
       value = password,
-      placeholder = { Text(text = "password") },
-      label = { Text(text = "password") },
+      placeholder = { Text(text = "Password") },
+      label = { Text(text = "Password") },
       onValueChange = onPasswordChange,
       visualTransformation = PasswordVisualTransformation(),
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -103,8 +109,15 @@ fun LoginFields(
           Toast.LENGTH_SHORT
         ).show()
       }
-    }) {
-      Text(text = "Login")
+    }, colors = ButtonDefaults.buttonColors(
+         contentColor = Color(0xFF3D3D3D),
+         containerColor = Color(0xffffd234)
+       )
+    ) {
+      Text(
+        text = "Login",
+        modifier = Modifier.padding(horizontal = 100.dp)
+      )
     }
   }
 }

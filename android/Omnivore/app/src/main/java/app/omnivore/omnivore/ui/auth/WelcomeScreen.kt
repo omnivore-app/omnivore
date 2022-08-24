@@ -20,6 +20,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
@@ -29,7 +32,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun WelcomeScreen(viewModel: LoginViewModel) {
-  Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFBEAA8 )) {
+  Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFCEBA8)) {
     WelcomeScreenContent(viewModel = viewModel)
   }
 }
@@ -51,7 +54,6 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
     verticalArrangement = Arrangement.SpaceAround,
     horizontalAlignment = Alignment.Start,
     modifier = Modifier
-      .background(Color(0xFFFBEAA8))
       .fillMaxSize()
       .navigationBarsPadding()
       .padding(horizontal = 16.dp)
@@ -77,6 +79,11 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
         Text(
           text = stringResource(id = R.string.welcome_title),
           style = MaterialTheme.typography.headlineLarge
+        )
+
+        Text(
+          text = stringResource(id = R.string.welcome_subtitle),
+          style = MaterialTheme.typography.titleSmall
         )
 
         MoreInfoButton()
@@ -124,7 +131,9 @@ fun AuthProviderView(
   ) {
     Spacer(modifier = Modifier.weight(1.0F))
     Column(
-      verticalArrangement = Arrangement.Center,
+//      verticalArrangement = Arrangement.Center,
+//      horizontalAlignment = Alignment.CenterHorizontally
+              verticalArrangement = Arrangement.spacedBy(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       if (isGoogleAuthAvailable) {
@@ -140,7 +149,9 @@ fun AuthProviderView(
       )
 
       ClickableText(
-        text = AnnotatedString("Continue with Email ->"),
+        text = AnnotatedString("Continue with Email"),
+        style = MaterialTheme.typography.titleMedium
+          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { onEmailButtonTap() }
       )
     }
@@ -154,8 +165,11 @@ fun MoreInfoButton() {
   val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse("https://omnivore.app/about")) }
 
   ClickableText(
-    text = AnnotatedString("Learn More ->"),
-    style = MaterialTheme.typography.titleLarge,
+    text = AnnotatedString(
+      stringResource(id = R.string.learn_more),
+    ),
+    style = MaterialTheme.typography.titleSmall
+      .plus(TextStyle(textDecoration = TextDecoration.Underline)),
     onClick = {
       context.startActivity(intent)
     },
