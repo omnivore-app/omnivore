@@ -21,10 +21,6 @@ const logger = buildLogger('app.dispatch')
 export function speechServiceRouter() {
   const router = express.Router()
 
-  router.options(
-    '/auto-synthesis',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
-  )
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/auto-synthesize', async (req, res) => {
     logger.info('auto-synthesize')
