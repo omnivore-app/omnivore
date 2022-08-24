@@ -7,13 +7,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import app.omnivore.omnivore.*
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 enum class RegistrationState {
   AuthProviderButtons,
@@ -82,8 +85,12 @@ class LoginViewModel @Inject constructor(
   }
 
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
-    val googleIdToken = task?.getResult(ApiException::class.java).idToken
-    Log.d(ContentValues.TAG, "Google Result?: $googleIdToken")
+    val result = task?.getResult(ApiException::class.java)
+    Log.d(ContentValues.TAG, "server auth code?: ${result.serverAuthCode}")
+    Log.d(ContentValues.TAG, "is Expired?: ${result.isExpired}")
+    Log.d(ContentValues.TAG, "granted Scopes?: ${result.grantedScopes}")
+    val googleIdToken = result.idToken
+    Log.d(ContentValues.TAG, "Google id token?: $googleIdToken")
     // TODO: submit id token to backend
     // If token is missing then set the error message
 
