@@ -140,13 +140,14 @@ fun AuthProviderView(
         GoogleAuthButton(viewModel)
       }
 
-      LoadingButtonWithIcon(
-        text = "Continue with Apple",
-        loadingText = "Signing in...",
-        icon = painterResource(id = R.drawable.ic_logo_apple),
-        modifier = Modifier.padding(vertical = 6.dp),
-        onClick = {}
-      )
+      // Disable apple auth for now
+//      LoadingButtonWithIcon(
+//        text = "Continue with Apple",
+//        loadingText = "Signing in...",
+//        icon = painterResource(id = R.drawable.ic_logo_apple),
+//        modifier = Modifier.padding(vertical = 6.dp),
+//        onClick = {}
+//      )
 
       ClickableText(
         text = AnnotatedString("Continue with Email"),

@@ -77,6 +77,10 @@ class LoginViewModel @Inject constructor(
     errorMessage = null
   }
 
+  fun showGoogleErrorMessage() {
+    errorMessage = "Failed to authenticate with Google."
+  }
+
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
     val googleIdToken = task?.getResult(ApiException::class.java).idToken
     Log.d(ContentValues.TAG, "Google Result?: $googleIdToken")

@@ -36,6 +36,8 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
           val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(intent)
           viewModel.handleGoogleAuthTask(task)
         }
+      } else {
+        viewModel.showGoogleErrorMessage()
       }
     }
 
