@@ -3,6 +3,7 @@ import { Speech, SpeechState } from '../entity/speech'
 import { searchPages } from '../elastic/pages'
 import { Page } from '../elastic/types'
 import { SortBy, SortOrder } from '../utils/search'
+import { synthesizeTextToSpeech } from '../utils/textToSpeech'
 
 export const setSpeechFailure = async (id: string) => {
   // update state
@@ -12,11 +13,11 @@ export const setSpeechFailure = async (id: string) => {
 }
 
 /*
- * We should not transcribe the page when:
+ * We should not synthesize the page when:
  ** 1. User has no recent listens the last 30 days
  ** 2. User has a recent listen but the page was saved after the listen
  */
-export const shouldTranscribe = async (
+export const shouldSynthesize = async (
   userId: string,
   page: Page
 ): Promise<boolean> => {
@@ -43,4 +44,34 @@ export const shouldTranscribe = async (
     !!recentListenedPage[0].listenedAt &&
     page.savedAt < recentListenedPage[0].listenedAt
   )
+}
+
+export const synthesize = async (page: Page, speech: Speech): Promise<void> => {
+  try {
+    console.log('synthesizing', speech.id)
+    const startTime = Date.now()
+    const speechOutput = await synthesizeTextToSpeech({
+      id: speech.id,
+      text: page.content,
+      languageCode: page.language,
+      voice: speech.voice,
+      textType: 'ssml',
+    })
+    console.log('Synthesized article', {
+      audioFileName: speechOutput.audioFileName,
+      speechMarksFileName: speechOutput.speechMarksFileName,
+      duration: Date.now() - startTime,
+    })
+
+    // set state to completed
+    await getRepository(Speech).update(speech.id, {
+      audioFileName: speechOutput.audioFileName,
+      speechMarksFileName: speechOutput.speechMarksFileName,
+      state: SpeechState.COMPLETED,
+    })
+  } catch (error) {
+    console.log('Error synthesize article', error)
+    await setSpeechFailure(speech.id)
+    throw error
+  }
 }
