@@ -1,16 +1,15 @@
-package app.omnivore.omnivore
+package app.omnivore.omnivore.ui.auth
 
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import app.omnivore.omnivore.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -40,7 +39,7 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
       }
     }
 
-  GoogleSignInButton(
+  LoadingButtonWithIcon(
     text = "Continue with Google",
     loadingText = "Signing in...",
     isLoading = viewModel.isLoading,
