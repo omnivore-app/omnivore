@@ -8,7 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material.*
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.ui.save.SaveViewModel
 import kotlinx.coroutines.launch
@@ -32,7 +34,12 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
                   coroutineScope.launch {
                       modalBottomSheetState.hide()
                   }
-              }) {
+              },
+                  colors = ButtonDefaults.buttonColors(
+                      contentColor = Color(0xFF3D3D3D),
+                      backgroundColor = Color(0xffffd234)
+                  )
+              ) {
                   Text(text = "Dismiss")
               }
           }
