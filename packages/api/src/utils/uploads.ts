@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { env } from '../env'
-import { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
-import axios from 'axios'
+import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 
 /* On GAE/Prod, we shall rely on default app engine service account credentials.
  * Two changes needed: 1) add default service account to our uploads GCS Bucket
@@ -102,21 +101,18 @@ export const generateUploadFilePathName = (
   return `u/${id}/${fileName}`
 }
 
-export const uploadToSignedUrl = async (
-  uploadUrl: string,
+export const uploadToBucket = async (
+  filePath: string,
   data: Buffer,
-  contentType: string
+  options?: { contentType?: string; public?: boolean },
+  selectedBucket?: string
 ): Promise<void> => {
-  // if (env.dev.isLocal) {
-  //   return
-  // }
+  await storage
+    .bucket(selectedBucket || bucketName)
+    .file(filePath)
+    .save(data, options)
+}
 
-  await axios.put(uploadUrl, data, {
-    headers: {
-      'Content-Type': contentType,
-    },
-    maxBodyLength: 1000000000,
-    maxContentLength: 100000000,
-    timeout: 30000,
-  })
+export const createGCSFile = (filename: string): File => {
+  return storage.bucket(bucketName).file(filename)
 }

@@ -13,13 +13,14 @@ import { hashPassword } from '../../../utils/auth'
 import { createUser } from '../../../services/create_user'
 
 export async function createMobileSignUpResponse(
+  isAndroid: boolean,
   token?: string,
   provider?: AuthProvider,
   name?: string
 ): Promise<JsonResponsePayload> {
   try {
     if (token && provider === 'GOOGLE') {
-      const decodedTokenResult = await decodeGoogleToken(token)
+      const decodedTokenResult = await decodeGoogleToken(token, isAndroid)
       return createSignUpResponsePayload(
         provider,
         decodedTokenResult,

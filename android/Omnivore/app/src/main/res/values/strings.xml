@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Omnivore</string>
+    <string name="gcp_id">590528454690-mpmbvcb4c3ifmnojmrultt37eo8f64at.apps.googleusercontent.com</string>
+    <string name="welcome_title">Never miss a great read</string>
+    <string name="learn_more">Learn More</string>
+    <string name="welcome_subtitle">Save articles and read them later in our distraction-free reader.</string>
 </resources>

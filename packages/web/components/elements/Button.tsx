@@ -20,7 +20,7 @@ export const Button = styled('button', {
       },
       ctaDarkYellow: {
         border: 0,
-        fontSize: '16px',
+        fontSize: '14px',
         fontWeight: 500,
         fontStyle: 'normal',
         fontFamily: 'Inter',
@@ -28,7 +28,10 @@ export const Button = styled('button', {
         cursor: 'pointer',
         color: '$omnivoreGray',
         bg: '$omnivoreCtaYellow',
-        p: '10px 12px',
+        p: '10px 13px',
+        '&:focus': {
+          outline: '5px auto -webkit-focus-ring-color',
+        },
       },
       ctaOutlineYellow: {
         boxSizing: 'border-box',
@@ -36,15 +39,18 @@ export const Button = styled('button', {
         '-webkit-box-sizing': 'border-box',
         borderColor: 'unset',
         border: '1px solid $omnivoreCtaYellow',
-        fontSize: '16px',
+        fontSize: '14px',
         fontWeight: 500,
         fontStyle: 'normal',
         fontFamily: 'Inter',
         borderRadius: '8px',
         cursor: 'pointer',
-        color: '$omnivoreGray',
+        color: '$utilityTextDefault',
         bg: 'transparent',
         p: '9px 12px',
+        '&:focus': {
+          outline: '5px auto -webkit-focus-ring-color',
+        },
       },
       ctaLightGray: {
         border: 0,
@@ -191,6 +197,7 @@ export const Button = styled('button', {
         color: 'transparent',
         border: 'none',
         bg: 'transparent',
+        cursor: 'pointer',
         '&:hover': {
           opacity: 0.8,
         },

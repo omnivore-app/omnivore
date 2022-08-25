@@ -9,9 +9,12 @@ import { buildLogger } from './logger'
 import { nanoid } from 'nanoid'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import { IntegrationType } from '../entity/integration'
+import { promisify } from 'util'
+import * as jwt from 'jsonwebtoken'
 import View = google.cloud.tasks.v2.Task.View
 
 const logger = buildLogger('app.dispatch')
+const signToken = promisify(jwt.sign)
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -313,6 +316,47 @@ export const enqueueSyncWithIntegration = async (
       env.queue.integrationTaskHandlerUrl
     }/${integrationType.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
     priority: 'low',
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueTextToSpeech = async (
+  userId: string,
+  speechId: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    userId,
+    speechId,
+  }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const token = await signToken({ uid: userId }, env.server.jwtSecret, {
+    expiresIn: '1h',
+  })
+  const taskHandlerUrl = `${env.queue.textToSpeechTaskHandlerUrl}?token=${token}`
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    // Calling the handler function directly.
+    setTimeout(() => {
+      axios.post(taskHandlerUrl, payload).catch((error) => {
+        logger.error(error)
+      })
+    }, 0)
+    return ''
+  }
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

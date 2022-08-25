@@ -63,6 +63,7 @@ export enum SortBy {
   SCORE = '_score',
   PUBLISHED = 'publishedAt',
   READ = 'readAt',
+  LISTENED = 'listenedAt',
 }
 
 export enum SortOrder {

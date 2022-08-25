@@ -371,7 +371,6 @@ export const createArticleResolver = authorized<
         }
         articleToSave.id = newPageId
       }
-
       log.info(
         'page created in elastic',
         articleToSave.id,

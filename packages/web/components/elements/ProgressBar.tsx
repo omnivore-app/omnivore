@@ -15,6 +15,7 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
         width: '100%',
         borderRadius: '$1',
         overflow: 'hidden',
+        backgroundColor: props.backgroundColor,
       }}
     >
       <Box

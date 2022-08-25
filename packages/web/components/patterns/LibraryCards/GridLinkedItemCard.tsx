@@ -46,7 +46,7 @@ export function GridLinkedItemCard(props: LinkedItemCardProps): JSX.Element {
         <ProgressBar
           fillPercentage={props.item.readingProgressPercent}
           fillColor={theme.colors.highlight.toString()}
-          backgroundColor={theme.colors.grayTextContrast.toString()}
+          backgroundColor="transparent"
           borderRadius={
             props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
           }

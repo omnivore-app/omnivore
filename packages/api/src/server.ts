@@ -45,6 +45,7 @@ import { uploadServiceRouter } from './routers/svc/upload'
 import rateLimit from 'express-rate-limit'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { integrationsServiceRouter } from './routers/svc/integrations'
+import { speechServiceRouter } from './routers/svc/text_to_speech'
 
 const PORT = process.env.PORT || 4000
 
@@ -119,6 +120,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/pdf-attachments', pdfAttachmentsRouter())
+  app.use('/svc/text-to-speech', speechServiceRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())

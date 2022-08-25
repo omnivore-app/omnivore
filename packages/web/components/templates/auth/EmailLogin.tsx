@@ -85,7 +85,7 @@ export function EmailLogin(): JSX.Element {
             height: '80px',
           }}
         >
-          <Button style={'ctaOutlineYellow'} css={{ borderColor: '$omnivoreLightGray' }} type="button" onClick={async (event) => {
+          <Button style={'ctaOutlineYellow'} css={{ color: '$omnivoreGray', borderColor: '$omnivoreLightGray' }} type="button" onClick={async (event) => {
               window.localStorage.removeItem('authVerified')
               window.localStorage.removeItem('authToken')
               try {

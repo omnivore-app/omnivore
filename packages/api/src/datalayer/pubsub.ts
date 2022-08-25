@@ -3,9 +3,9 @@ import { env } from '../env'
 import { ReportType } from '../generated/graphql'
 import express from 'express'
 
-export const createPubSubClient = (): PubsubClient => {
-  const client = new PubSub()
+const client = new PubSub()
 
+export const createPubSubClient = (): PubsubClient => {
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
     if (env.dev.isLocal) {
       console.log(`Publishing ${topicName}`)

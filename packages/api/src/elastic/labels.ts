@@ -186,7 +186,7 @@ export const updateLabel = async (
                      ctx._source.labels.add(params.label);
                      ctx._source.updatedAt = params.updatedAt
                    }
-                   if (ctx._source.highlights != null) {
+                   if (ctx._source.highlights != null && ctx._source.highlights[0].labels != null) {
                      ctx._source.highlights[0].labels.removeIf(l -> l.id == params.label.id);
                      ctx._source.highlights[0].labels.add(params.label);
                      ctx._source.updatedAt = params.updatedAt
