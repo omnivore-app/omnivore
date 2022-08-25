@@ -1,7 +1,7 @@
 import { getRepository } from '../entity/utils'
 import { Speech, SpeechState } from '../entity/speech'
 import { searchPages } from '../elastic/pages'
-import { Page } from '../elastic/types'
+import { Page, PageType } from '../elastic/types'
 import { SortBy, SortOrder } from '../utils/search'
 import { synthesizeTextToSpeech } from '../utils/textToSpeech'
 
@@ -21,6 +21,11 @@ export const shouldSynthesize = async (
   userId: string,
   page: Page
 ): Promise<boolean> => {
+  if (page.pageType === PageType.File || !page.content) {
+    // we don't synthesize files for now
+    return false
+  }
+
   if (process.env.TEXT_TO_SPEECH_BETA_TEST) {
     return true
   }
@@ -52,7 +57,12 @@ export const shouldSynthesize = async (
 
 export const synthesize = async (page: Page, speech: Speech): Promise<void> => {
   try {
-    console.log('synthesizing', speech.id)
+    if (page.pageType === PageType.File || !page.content) {
+      // we don't synthesize files for now
+      return
+    }
+
+    console.log('Start synthesizing', { pageId: page.id, speechId: speech.id })
     const startTime = Date.now()
     const speechOutput = await synthesizeTextToSpeech({
       id: speech.id,

@@ -36,17 +36,17 @@ export function speechServiceRouter() {
     }
 
     try {
-      const data: { userId: string; type: string; id: string } =
+      const data: { userId: string; type: string; id: string; state: string } =
         JSON.parse(msgStr)
-      const { userId, type, id } = data
+      const { userId, type, id, state } = data
       if (!userId || !type || !id) {
         logger.info('Invalid data')
         return res.status(400).send('Bad Request')
       }
 
-      if (type.toUpperCase() !== 'PAGE') {
-        logger.info('Not a page')
-        return res.status(200).send('Not a page')
+      if (type.toUpperCase() !== 'PAGE' || state !== 'SUCCEEDED') {
+        logger.info('Not a page or not succeeded')
+        return res.status(200).send('Not a page or not succeeded')
       }
 
       const page = await getPageById(id)
@@ -63,6 +63,7 @@ export function speechServiceRouter() {
           user: { id: userId },
           elasticPageId: id,
           state: SpeechState.INITIALIZED,
+          voice: 'en-US-JennyNeural',
         })
         await synthesize(page, speech)
         logger.info('page synthesized')
