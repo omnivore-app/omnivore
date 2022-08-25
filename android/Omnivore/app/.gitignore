@@ -1,1 +1,3 @@
 /build
+keystore.properties
+*.keystore
