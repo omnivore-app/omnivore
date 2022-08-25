@@ -39,8 +39,8 @@ export function speechServiceRouter() {
       const data: { userId: string; type: string; id: string } =
         JSON.parse(msgStr)
       const { userId, type, id } = data
-      if (!userId || !type) {
-        logger.info('No userId or type found in message')
+      if (!userId || !type || !id) {
+        logger.info('Invalid data')
         return res.status(400).send('Bad Request')
       }
 
@@ -49,13 +49,13 @@ export function speechServiceRouter() {
         return res.status(200).send('Not a page')
       }
 
-      // checks if this page needs to be synthesized automatically
       const page = await getPageById(id)
       if (!page) {
         logger.info('No page found', { id })
         return res.status(200).send('No page found')
       }
 
+      // checks if this page needs to be synthesized automatically
       if (await shouldSynthesize(userId, page)) {
         logger.info('page needs to be synthesized')
         // initialize state

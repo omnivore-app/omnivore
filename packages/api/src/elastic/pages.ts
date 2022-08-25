@@ -194,9 +194,10 @@ export const createPage = async (
       refresh: ctx.refresh,
     })
 
+    page.id = body._id as string
     await ctx.pubsub.entityCreated<Page>(EntityType.PAGE, page, ctx.uid)
 
-    return body._id as string
+    return page.id
   } catch (e) {
     console.error('failed to create a page in elastic', JSON.stringify(e))
     return undefined
@@ -317,6 +318,8 @@ export const getPageByParam = async <K extends keyof ParamSet>(
 
 export const getPageById = async (id: string): Promise<Page | undefined> => {
   try {
+    if (!id) return undefined
+
     const { body } = await client.get({
       index: INDEX_ALIAS,
       id,
