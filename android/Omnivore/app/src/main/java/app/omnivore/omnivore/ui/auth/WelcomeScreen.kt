@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,9 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.Routes
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.launch
 
@@ -140,14 +137,7 @@ fun AuthProviderView(
         GoogleAuthButton(viewModel)
       }
 
-      // Disable apple auth for now
-//      LoadingButtonWithIcon(
-//        text = "Continue with Apple",
-//        loadingText = "Signing in...",
-//        icon = painterResource(id = R.drawable.ic_logo_apple),
-//        modifier = Modifier.padding(vertical = 6.dp),
-//        onClick = {}
-//      )
+      // AppleAuthButton(viewModel)
 
       ClickableText(
         text = AnnotatedString("Continue with Email"),
