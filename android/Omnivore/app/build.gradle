@@ -6,6 +6,10 @@ plugins {
     id 'com.apollographql.apollo3' version '3.5.0'
 }
 
+def keystorePropertiesFile = rootProject.file("app/external/keystore.properties");
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdk 33
 
@@ -26,12 +30,14 @@ android {
         release{
             keyAlias 'key0'
             storeFile file('external/omnivore-prod.keystore')
-            storePassword 'omnivore'
+            storePassword keystoreProperties['prodStorePassword']
+            keyPassword keystoreProperties['prodKeyPassword']
         }
         debug{
-            storePassword 'android'
             keyAlias 'androiddebugkey'
             storeFile file('external/omnivore-demo.keystore')
+            storePassword keystoreProperties['demoStorePassword']
+            keyPassword keystoreProperties['demoKeyPassword']
         }
     }
 
