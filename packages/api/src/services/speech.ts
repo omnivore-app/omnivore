@@ -21,7 +21,7 @@ export const shouldSynthesize = async (
   userId: string,
   page: Page
 ): Promise<boolean> => {
-  return false
+  return Promise.resolve(false)
   // if (page.pageType === PageType.File || !page.content) {
   //   // we don't synthesize files for now
   //   return false
