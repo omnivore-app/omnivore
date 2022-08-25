@@ -296,8 +296,8 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     if let item = item {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-        MPMediaItemPropertyTitle: NSString(string: item.title!),
-        MPMediaItemPropertyArtist: NSString(string: item.author!),
+        MPMediaItemPropertyTitle: NSString(string: item.title ?? "Your Omnivore Article"),
+        MPMediaItemPropertyArtist: NSString(string: item.author ?? "Omnivore"),
         MPMediaItemPropertyPlaybackDuration: NSNumber(value: duration),
         MPNowPlayingInfoPropertyElapsedPlaybackTime: NSNumber(value: timeElapsed)
       ]
