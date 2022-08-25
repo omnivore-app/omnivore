@@ -47,7 +47,7 @@ class SaveViewModel @Inject constructor(
       }
 
       val apolloClient = ApolloClient.Builder()
-        .serverUrl("${Constants.demoProdURL}/api/graphql")
+        .serverUrl("${Constants.apiURL}/api/graphql")
         .addHttpHeader("Authorization", value = apiKey)
         .build()
 
