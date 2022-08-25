@@ -128,7 +128,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
   }
 
   public var currentVoice: String {
-    "en-CA-ClaraNeural"
+    "en-US-JennyNeural"
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
