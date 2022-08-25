@@ -43,7 +43,7 @@ interface AuthProviderLoginSubmit {
 
 object RetrofitHelper {
   fun getInstance(): Retrofit {
-    return Retrofit.Builder().baseUrl(Constants.demoProdURL)
+    return Retrofit.Builder().baseUrl(Constants.apiURL)
       .addConverterFactory(GsonConverterFactory.create())
       .build()
   }
