@@ -40,14 +40,14 @@ import Views
   var searchIdx = 0
   var receivedIdx = 0
 
-  func itemAppeared(item: LinkedItem, dataService: DataService) async {
+  func itemAppeared(item: LinkedItem, dataService: DataService, audioSession: AudioSession) async {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      await loadItems(dataService: dataService, isRefresh: false)
+      await loadItems(dataService: dataService, audioSession: audioSession, isRefresh: false)
     }
   }
 
@@ -55,7 +55,7 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, audioSession: AudioSession, isRefresh: Bool) async {
     let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
@@ -123,6 +123,7 @@ import Views
       cursor = queryResult.cursor
       if let username = dataService.currentViewer?.username {
         await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
+        await audioSession.preload(itemIDs: newItems.map(\.unwrappedID))
       }
     } else {
       updateFetchController(dataService: dataService)

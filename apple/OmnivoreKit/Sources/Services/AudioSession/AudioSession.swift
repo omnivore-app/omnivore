@@ -66,6 +66,54 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     downloadTask?.cancel()
   }
 
+  public func preload(itemIDs: [String], retryCount: Int = 0) async {
+    var pendingList = [String]()
+
+    for pageId in itemIDs {
+      let permFile = pathForAudioFile(pageId: pageId)
+      if FileManager.default.fileExists(atPath: permFile.path) {
+        print("audio file already downloaded: ", permFile)
+        continue
+      }
+
+      // Attempt to fetch the file if not downloaded already
+      let result = try? await downloadAudioFile(pageId: pageId)
+      if result == nil {
+        print("audio file had error downloading: ", pageId)
+        pendingList.append(pageId)
+      }
+
+      if let result = result, result.pending {
+        print("audio file is pending download: ", pageId)
+        pendingList.append(pageId)
+      }
+    }
+
+    print("audio files pending download: ", pendingList)
+    if pendingList.isEmpty {
+      return
+    }
+
+    if retryCount > 5 {
+      print("reached max preload depth, stopping preloading")
+      return
+    }
+
+    let retryDelayInNanoSeconds = UInt64(retryCount * 2 * 1_000_000_000)
+    try? await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
+
+    await preload(itemIDs: pendingList, retryCount: retryCount + 1)
+  }
+
+  public var localAudioUrl: URL? {
+    if let pageId = item?.id {
+      return FileManager.default
+        .urls(for: .documentDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent(pageId + ".mp3")
+    }
+    return nil
+  }
+
   public var scrubState: PlayerScrubState = .reset {
     didSet {
       switch scrubState {
@@ -103,6 +151,16 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
   }
 
+  public func fileNameForAudioFile(_ pageId: String) -> String {
+    pageId + "-" + currentVoice + ".mp3"
+  }
+
+  public func pathForAudioFile(pageId: String) -> URL {
+    FileManager.default
+      .urls(for: .documentDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(fileNameForAudioFile(pageId))
+  }
+
   public func startAudio() {
     state = .loading
     setupNotifications()
@@ -110,19 +168,24 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     let pageId = item!.unwrappedID
 
     downloadTask = Task {
-      do {
-        _ = try await downloadAudioFile(pageId: pageId)
-        if Task.isCancelled { return }
+      let result = try? await downloadAudioFile(pageId: pageId)
+      if Task.isCancelled { return }
+
+      if result == nil {
         DispatchQueue.main.async {
-          self.startDownloadedAudioFile(pageId: pageId)
-        }
-      } catch {
-        // TODO: display a failure toast here
-        DispatchQueue.main.async {
+          NSNotification.operationSuccess(message: "Error generating audio.")
           self.stop()
         }
-        print("FAILED TO DOWNLOAD AUDIO URL")
-        print(error)
+      }
+
+      if let result = result, result.pending {
+        DispatchQueue.main.async {
+          NSNotification.operationSuccess(message: "Your audio is being generated.")
+        }
+      }
+
+      DispatchQueue.main.async {
+        self.startDownloadedAudioFile(pageId: pageId)
       }
     }
   }
@@ -136,10 +199,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
     // TODO: Maybe check if app is active so it doesn't end up playing later?
 
-    let audioUrl = FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(pageId + ".mp3")
-
+    let audioUrl = pathForAudioFile(pageId: pageId)
     if !FileManager.default.fileExists(atPath: audioUrl.path) {
       stop()
       return
@@ -294,21 +354,18 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     commandCenter.changePlaybackPositionCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
       if let event = event as? MPChangePlaybackPositionCommandEvent {
         self.player?.currentTime = event.positionTime
+        return .success
       }
       return .commandFailed
     }
   }
 
-  func downloadAudioFile(pageId: String) async throws -> URL? {
-    let audioUrl = FileManager.default
-      .urls(for: .documentDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(pageId + ".mp3")
+  func downloadAudioFile(pageId: String) async throws -> (pending: Bool, url: URL?) {
+    let audioUrl = pathForAudioFile(pageId: pageId)
 
-//    if FileManager.default.fileExists(atPath: audioUrl.path) {
-//      // Prevent re-download
-//      // TODO: We aren't doing this very safely, we should be verifying a checksum
-//      return audioUrl
-//    }
+    if FileManager.default.fileExists(atPath: audioUrl.path) {
+      return (pending: false, url: audioUrl)
+    }
 
     guard let url = URL(string: "/api/article/\(pageId)/mp3/\(currentVoice)", relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
@@ -327,10 +384,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
     print("httpResponse: ", httpResponse)
     if let httpResponse = result?.1 as? HTTPURLResponse, httpResponse.statusCode == 202 {
-      print("Tell the user the download has been queued")
-      DispatchQueue.main.async {
-        NSNotification.operationSuccess(message: "Your audio is being created.")
-      }
+      return (pending: true, nil)
     }
 
     guard let data = result?.0 else {
@@ -359,7 +413,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       throw BasicError.message(messageText: errorMessage)
     }
 
-    return audioUrl
+    return (pending: false, url: audioUrl)
   }
 
   public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {
