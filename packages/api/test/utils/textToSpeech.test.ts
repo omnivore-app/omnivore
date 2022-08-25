@@ -35,7 +35,7 @@ describe('textToSpeech', () => {
       const htmlElement = parseHTML(
         `<p data-omnivore-anchor-idx="1">Marry had a little lamb</p>`
       ).document.documentElement
-      const ssml = htmlElementToSsml(htmlElement)
+      const ssml = htmlElementToSsml({ htmlElement })
       expect(ssml).to.equal(
         `<speak xml:lang="en-US" xmlns="http://www.w3.org/2001/10/synthesis" version="1.0"><voice name="en-US-JennyNeural"><prosody volume="100" rate="1"><bookmark mark="data-omnivore-anchor-idx-1"></bookmark><p data-omnivore-anchor-idx="1">Marry had a little lamb</p></prosody></voice></speak>`
       )
