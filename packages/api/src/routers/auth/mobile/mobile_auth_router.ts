@@ -19,6 +19,7 @@ export function mobileAuthRouter() {
     const { token, provider, source } = req.body
     const isAndroid = source === 'ANDROID'
     const payload = await createMobileSignInResponse(isAndroid, token, provider)
+    console.log('mobile auth payload ', payload, 'for request ', req.body)
     res.status(payload.statusCode).json(payload.json)
   })
 
