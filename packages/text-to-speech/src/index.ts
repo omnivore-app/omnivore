@@ -15,7 +15,8 @@ import {
   SpeechSynthesisResult,
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
-import { PubSub } from '@google-cloud/pubsub'
+import axios from 'axios'
+import * as jwt from 'jsonwebtoken'
 
 interface TextToSpeechInput {
   id: string
@@ -43,8 +44,6 @@ interface SpeechMark {
 }
 
 const storage = new Storage()
-const pubsub = new PubSub()
-const SPEECH_UPDATE_TOPIC = 'speech-update'
 
 const uploadToBucket = async (
   filePath: string,
@@ -59,18 +58,25 @@ const createGCSFile = (bucket: string, filename: string): File => {
   return storage.bucket(bucket).file(filename)
 }
 
-const updateSpeech = (
+const updateSpeech = async (
   speechId: string,
   audioFileName: string,
-  speechMarksFileName: string
-): Promise<string | undefined> => {
-  return pubsub
-    .topic(SPEECH_UPDATE_TOPIC)
-    .publishMessage({ json: { speechId, audioFileName, speechMarksFileName } })
-    .catch((err) => {
-      console.error('error publishing speech update:', err)
-      return undefined
-    })
+  speechMarksFileName: string,
+  token: string
+): Promise<boolean> => {
+  if (!process.env.REST_BACKEND_ENDPOINT) {
+    throw new Error('backend rest api endpoint not exists')
+  }
+  const response = await axios.post(
+    `${process.env.REST_BACKEND_ENDPOINT}/svc/text-to-speech?token=${token}`,
+    {
+      speechId,
+      audioFileName,
+      speechMarksFileName,
+    }
+  )
+
+  return response.status === 200
 }
 
 const synthesizeTextToSpeech = async (
@@ -375,17 +381,29 @@ const htmlElementToSsml = ({
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     console.debug('New text to speech request', req)
+    const token = req.query.token as string
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not exists')
+      return res.status(500).send('JWT_SECRET not exists')
+    }
+    try {
+      jwt.verify(token, process.env.JWT_SECRET)
+    } catch (e) {
+      console.error(e)
+      return res.status(200).send('UNAUTHENTICATED')
+    }
     const input = req.body as TextToSpeechInput
     const { audioFileName, speechMarksFileName } = await synthesizeTextToSpeech(
       input
     )
-    const result = await updateSpeech(
+    const updated = await updateSpeech(
       input.id,
       audioFileName,
-      speechMarksFileName
+      speechMarksFileName,
+      token
     )
 
-    if (!result) {
+    if (!updated) {
       return res.status(500).send('Failed to update speech')
     }
     res.send('OK')
