@@ -303,19 +303,6 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       ]
     }
 
-//    if let imageURL = item?.imageURL, let cachedImage = ImageCache.shared[imageURL] {
-    ////      #if os(iOS)
-    ////        status = .loaded(image: Image(uiImage: cachedImage))
-    ////      #else
-    ////        status = .loaded(image: Image(nsImage: cachedImage))
-    ////      #endif
-//      MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-//        //  MPMediaItemPropertyArtwork: cachedImage,
-//        MPMediaItemPropertyArtist: item?.author ?? "Omnivore",
-//        MPMediaItemPropertyTitle: item?.title ?? "Your Omnivore Article"
-//      ]
-//    }
-
     let commandCenter = MPRemoteCommandCenter.shared()
 
     commandCenter.playCommand.isEnabled = true
