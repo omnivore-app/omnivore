@@ -1,0 +1,33 @@
+{
+  "name": "@omnivore/text-to-speech-handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --source=build/src/ --target=textToSpeechHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
+    "gcloud-deploy": "gcloud functions deploy textToSpeechHandler --gen2 --trigger-http --allow-unauthenticated --region=$npm_config_region --runtime nodejs14 --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
+    "deploy": "yarn build && yarn gcloud-deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "eslint-plugin-prettier": "^4.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/pubsub": "^2.18.4",
+    "@sentry/serverless": "^6.16.1",
+    "axios": "^0.27.2",
+    "jsonwebtoken": "^8.5.1"
+  }
+}
