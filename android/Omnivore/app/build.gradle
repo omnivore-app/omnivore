@@ -6,6 +6,10 @@ plugins {
     id 'com.apollographql.apollo3' version '3.5.0'
 }
 
+def keystorePropertiesFile = rootProject.file("app/external/keystore.properties");
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdk 33
 
@@ -13,8 +17,8 @@ android {
         applicationId "app.omnivore.omnivore"
         minSdk 23
         targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,9 +26,32 @@ android {
         }
     }
 
+    signingConfigs{
+        release{
+            keyAlias 'key0'
+            storeFile file('external/omnivore-prod.keystore')
+            storePassword keystoreProperties['prodStorePassword']
+            keyPassword keystoreProperties['prodKeyPassword']
+        }
+        debug{
+            keyAlias 'androiddebugkey'
+            storeFile file('external/omnivore-demo.keystore')
+            storePassword keystoreProperties['demoStorePassword']
+            keyPassword keystoreProperties['demoKeyPassword']
+        }
+    }
+
     buildTypes {
+        debug{
+            signingConfig signingConfigs.debug
+            buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-demo.omnivore.app\"")
+            buildConfigField("String", "OMNIVORE_GAUTH_SERVER_CLIENT_ID", "\"267918240109-eu2ar09unac3lqqigluknhk7t0021b54.apps.googleusercontent.com\"")
+        }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
+            buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-prod.omnivore.app\"")
+            buildConfigField("String", "OMNIVORE_GAUTH_SERVER_CLIENT_ID", "\"687911924401-lq8j1e97n0sv3khhb8g8n368lk4dqkbp.apps.googleusercontent.com\"")
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -128,6 +155,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3-window-size-class:1.0.0-alpha16'
 
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
 }
 
 apollo {

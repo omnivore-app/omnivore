@@ -148,6 +148,9 @@
       },
       "readAt": {
         "type": "date"
+      },
+      "listenedAt": {
+        "type": "date"
       }
     }
   }

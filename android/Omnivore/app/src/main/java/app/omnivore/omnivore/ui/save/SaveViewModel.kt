@@ -1,4 +1,4 @@
-package app.omnivore.omnivore
+package app.omnivore.omnivore.ui.save
 
 import android.content.ContentValues
 import android.util.Log
@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.Constants
+import app.omnivore.omnivore.DatastoreKeys
+import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
 import com.apollographql.apollo3.ApolloClient
@@ -44,7 +47,7 @@ class SaveViewModel @Inject constructor(
       }
 
       val apolloClient = ApolloClient.Builder()
-        .serverUrl("${Constants.demoProdURL}/api/graphql")
+        .serverUrl("${Constants.apiURL}/api/graphql")
         .addHttpHeader("Authorization", value = apiKey)
         .build()
 

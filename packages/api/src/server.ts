@@ -45,7 +45,7 @@ import { uploadServiceRouter } from './routers/svc/upload'
 import rateLimit from 'express-rate-limit'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { integrationsServiceRouter } from './routers/svc/integrations'
-import { speechServiceRouter } from './routers/svc/speech'
+import { speechServiceRouter } from './routers/svc/text_to_speech'
 
 const PORT = process.env.PORT || 4000
 

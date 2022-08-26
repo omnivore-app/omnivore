@@ -88,6 +88,26 @@ public struct MiniPlayer: View {
             .padding(.top, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
 
+            Button(
+              action: {
+                let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
+                if let vc = UIApplication.shared.windows.first?.rootViewController {
+                  shareActivity.popoverPresentationController?.sourceView = vc.view
+                  // Setup share activity position on screen on bottom center
+                  shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
+                  shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
+                  vc.present(shareActivity, animated: true, completion: nil)
+                }
+              },
+              label: {
+                Image(systemName: "square.and.arrow.up")
+                  .font(.appCallout)
+                  .tint(.appGrayText)
+              }
+            )
+            .padding(.top, 8)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+
             Capsule()
               .fill(.gray)
               .frame(width: 60, height: 4)
@@ -246,7 +266,7 @@ public struct MiniPlayer: View {
       .padding(EdgeInsets(top: 0, leading: expanded ? 24 : 6, bottom: 0, trailing: expanded ? 24 : 6))
       .background(
         Color.systemBackground
-          .shadow(color: expanded ? .clear : .gray /* .opacity(0.33) */, radius: 8, x: 0, y: 4)
+          .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
           .mask(Rectangle().padding(.top, -20))
       )
       .onTapGesture {

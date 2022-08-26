@@ -11,11 +11,13 @@ import Views
 
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
+    @EnvironmentObject var audioSession: AudioSession
+
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, audioSession: audioSession, isRefresh: isRefresh) }
     }
 
     var body: some View {
@@ -339,6 +341,7 @@ import Views
 
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
+    @EnvironmentObject var audioSession: AudioSession
 
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
@@ -361,7 +364,7 @@ import Views
     }
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, audioSession: audioSession, isRefresh: isRefresh) }
     }
 
     var body: some View {
