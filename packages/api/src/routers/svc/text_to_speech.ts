@@ -4,17 +4,14 @@
 import express from 'express'
 import cors from 'cors'
 import { corsConfig } from '../../utils/corsConfig'
-import { getRepository } from '../../entity/utils'
+import { getRepository, setClaims } from '../../entity/utils'
 import { getPageById } from '../../elastic/pages'
 import { Speech, SpeechState } from '../../entity/speech'
 import { buildLogger } from '../../utils/logger'
 import { getClaimsByToken } from '../../utils/auth'
-import {
-  setSpeechFailure,
-  shouldSynthesize,
-  synthesize,
-} from '../../services/speech'
+import { shouldSynthesize, synthesize } from '../../services/speech'
 import { readPushSubscription } from '../../datalayer/pubsub'
+import { AppDataSource } from '../../server'
 
 const logger = buildLogger('app.dispatch')
 
@@ -79,58 +76,46 @@ export function speechServiceRouter() {
   router.options('/', cors<express.Request>({ ...corsConfig, maxAge: 600 }))
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   router.post('/', async (req, res) => {
-    logger.info('Synthesize svc request', {
+    logger.info('Updating speech', {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       body: req.body,
     })
+    let userId: string
     const token = req.query.token as string
     try {
-      if (!(await getClaimsByToken(token))) {
+      const claims = await getClaimsByToken(token)
+      if (!claims) {
         logger.info('Unauthorized request', { token })
-        return res.status(200).send('UNAUTHORIZED')
+        return res.status(401).send('UNAUTHORIZED')
       }
+      userId = claims.uid
     } catch (error) {
       logger.error('Unauthorized request', { token, error })
-      return res.status(200).send('UNAUTHORIZED')
+      return res.status(401).send('UNAUTHORIZED')
     }
 
-    const { userId, speechId } = req.body as {
-      userId: string
-      speechId: string
-    }
-    if (!userId || !speechId) {
-      return res.status(200).send('Invalid data')
+    const { speechId, audioFileName, speechMarksFileName, state } =
+      req.body as {
+        speechId: string
+        audioFileName: string
+        speechMarksFileName: string
+        state: SpeechState
+      }
+    if (!speechId) {
+      return res.status(400).send('Invalid data')
     }
 
-    logger.info(`Create article speech`, {
-      body: {
-        userId,
-        speechId,
-      },
-      labels: {
-        source: 'CreateArticleSpeech',
-      },
+    // set state to completed
+    await AppDataSource.transaction(async (t) => {
+      await setClaims(t, userId)
+      await t.getRepository(Speech).update(speechId, {
+        audioFileName: audioFileName,
+        speechMarksFileName: speechMarksFileName,
+        state,
+      })
     })
-    const speech = await getRepository(Speech).findOneBy({
-      id: speechId,
-      user: { id: userId },
-    })
-    if (!speech) {
-      return res.status(200).send('Speech not found')
-    }
 
-    const page = await getPageById(speech.elasticPageId)
-    if (!page) {
-      await setSpeechFailure(speech.id)
-      return res.status(200).send('Page not found')
-    }
-
-    try {
-      await synthesize(page, speech)
-    } catch (error) {
-      logger.error(`Error synthesizing article`, { error })
-      res.status(500).send('Error synthesizing article')
-    }
+    res.send('OK')
   })
 
   return router

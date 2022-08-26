@@ -330,12 +330,19 @@ export const enqueueSyncWithIntegration = async (
 
 export const enqueueTextToSpeech = async (
   userId: string,
-  speechId: string
+  speechId: string,
+  text: string,
+  textType: 'text' | 'ssml',
+  voice: string,
+  bucket: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
-    userId,
-    speechId,
+    id: speechId,
+    text,
+    voice,
+    bucket,
+    textType,
   }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore

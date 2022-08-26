@@ -153,7 +153,14 @@ export function articleRouter() {
         voice: voice || userPersonalization?.speechVoice || 'en-US-JennyNeural',
       })
       // enqueue a task to convert text to speech
-      const taskName = await enqueueTextToSpeech(uid, speech.id)
+      const taskName = await enqueueTextToSpeech(
+        uid,
+        speech.id,
+        page.content,
+        'ssml',
+        speech.voice,
+        env.fileUpload.gcsUploadBucket
+      )
       logger.info('Start Text to speech task', { taskName })
       res.status(202).send('Text to speech task started')
     }
