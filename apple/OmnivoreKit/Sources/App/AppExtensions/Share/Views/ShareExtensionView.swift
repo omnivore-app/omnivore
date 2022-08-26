@@ -73,19 +73,21 @@ public struct ShareExtensionView: View {
     HStack {
       if let iconURLStr = viewModel.iconURL, let iconURL = URL(string: iconURLStr) {
         if !iconURL.isFileURL {
-          AsyncLoadingImage(url: iconURL) { imageStatus in
-            if case let AsyncImageStatus.loaded(image) = imageStatus {
+          AsyncImage(
+            url: iconURL,
+            content: { image in
               image
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 61, height: 61)
                 .clipped()
-            } else {
+            },
+            placeholder: {
               Color.appButtonBackground
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 61, height: 61)
             }
-          }
+          )
         } else {
           if let localImage = localImage(from: iconURL) {
             localImage

@@ -133,19 +133,19 @@ public struct GridCard: View {
             Spacer()
 
             if let imageURL = item.imageURL {
-              AsyncLoadingImage(url: imageURL) { imageStatus in
-                if case let AsyncImageStatus.loaded(image) = imageStatus {
+              AsyncImage(url: imageURL) { phase in
+                if let image = phase.image {
                   image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
                     .cornerRadius(3)
-                } else if case AsyncImageStatus.loading = imageStatus {
+                } else if phase.error != nil {
+                  EmptyView()
+                } else {
                   Color.appButtonBackground
                     .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
                     .cornerRadius(3)
-                } else {
-                  EmptyView()
                 }
               }
             }
