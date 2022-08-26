@@ -17,6 +17,8 @@ import {
 } from 'microsoft-cognitiveservices-speech-sdk'
 import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
 
 interface TextToSpeechInput {
   id: string
@@ -60,9 +62,10 @@ const createGCSFile = (bucket: string, filename: string): File => {
 
 const updateSpeech = async (
   speechId: string,
-  audioFileName: string,
-  speechMarksFileName: string,
-  token: string
+  token: string,
+  state: 'COMPLETED' | 'FAILED',
+  audioFileName?: string,
+  speechMarksFileName?: string
 ): Promise<boolean> => {
   if (!process.env.REST_BACKEND_ENDPOINT) {
     throw new Error('backend rest api endpoint not exists')
@@ -73,6 +76,7 @@ const updateSpeech = async (
       speechId,
       audioFileName,
       speechMarksFileName,
+      state,
     }
   )
 
@@ -82,7 +86,7 @@ const updateSpeech = async (
 const synthesizeTextToSpeech = async (
   input: TextToSpeechInput
 ): Promise<TextToSpeechOutput> => {
-  if (!process.env.azureSpeechKey || !process.env.azureSpeechRegion) {
+  if (!process.env.AZURE_SPEECH_KEY || !process.env.AZURE_SPEECH_REGION) {
     throw new Error('Azure Speech Key or Region not set')
   }
   const audioFileName = `speech/${input.id}.mp3`
@@ -91,8 +95,8 @@ const synthesizeTextToSpeech = async (
     resumable: true,
   })
   const speechConfig = SpeechConfig.fromSubscription(
-    process.env.azureSpeechKey,
-    process.env.azureSpeechRegion
+    process.env.AZURE_SPEECH_KEY,
+    process.env.AZURE_SPEECH_REGION
   )
   const textType = input.textType || 'text'
   if (textType === 'text') {
@@ -393,19 +397,26 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(200).send('UNAUTHENTICATED')
     }
     const input = req.body as TextToSpeechInput
-    const { audioFileName, speechMarksFileName } = await synthesizeTextToSpeech(
-      input
-    )
-    const updated = await updateSpeech(
-      input.id,
-      audioFileName,
-      speechMarksFileName,
-      token
-    )
+    try {
+      const { audioFileName, speechMarksFileName } =
+        await synthesizeTextToSpeech(input)
+      const updated = await updateSpeech(
+        input.id,
+        token,
+        'COMPLETED',
+        audioFileName,
+        speechMarksFileName
+      )
 
-    if (!updated) {
-      return res.status(500).send('Failed to update speech')
+      if (!updated) {
+        return res.status(500).send('Failed to update speech')
+      }
+    } catch (e) {
+      console.error(e)
+      await updateSpeech(input.id, token, 'FAILED')
+      return res.status(500).send('Failed to synthesize')
     }
+
     res.send('OK')
   }
 )
