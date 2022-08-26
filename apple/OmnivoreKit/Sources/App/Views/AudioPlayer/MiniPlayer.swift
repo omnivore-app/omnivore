@@ -226,7 +226,6 @@ public struct MiniPlayer: View {
               slider.setThumbImage(image, for: .normal)
 
               slider.minimumTrackTintColor = tintColor
-              slider.value = 10
             }
 
           HStack {
