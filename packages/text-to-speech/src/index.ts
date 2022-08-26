@@ -71,7 +71,7 @@ const updateSpeech = async (
     throw new Error('backend rest api endpoint not exists')
   }
   const response = await axios.post(
-    `${process.env.REST_BACKEND_ENDPOINT}/svc/text-to-speech?token=${token}`,
+    `${process.env.REST_BACKEND_ENDPOINT}/text-to-speech?token=${token}`,
     {
       speechId,
       audioFileName,
