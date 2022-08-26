@@ -91,7 +91,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           <StyledText style="caption" css={{ mt: '-5px', fontWeight: '500' }}>
             {props.item.author && (
               <SpanBox css={{ mr: '8px' }}>
-                {removeHTMLTags(props.item.author)} author
+                {removeHTMLTags(props.item.author)}
               </SpanBox>
             )}
             <Box
@@ -107,7 +107,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             <SpanBox
               css={{ color: 'var(--colors-graySolid)' }}
             >
-              {props.originText} origin
+              {props.originText}
             </SpanBox>
           </StyledText>
         </HStack>
