@@ -122,10 +122,7 @@ public struct MiniPlayer: View {
           Group {
             if let imageURL = item.imageURL {
               let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
-              let scale = (geom.size.height - offset) / geom.size.height
-              let dim2 = maxSize * scale
-              let dim = expanded ? dim2 : 64
-              // print("offset", offset, "maxSize", maxSize)
+              let dim = expanded ? maxSize : 64
 
               AsyncLoadingImage(url: imageURL) { imageStatus in
                 if case let AsyncImageStatus.loaded(image) = imageStatus {
