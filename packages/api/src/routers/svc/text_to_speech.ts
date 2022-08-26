@@ -4,13 +4,14 @@
 import express from 'express'
 import cors from 'cors'
 import { corsConfig } from '../../utils/corsConfig'
-import { getRepository } from '../../entity/utils'
+import { getRepository, setClaims } from '../../entity/utils'
 import { getPageById } from '../../elastic/pages'
 import { Speech, SpeechState } from '../../entity/speech'
 import { buildLogger } from '../../utils/logger'
 import { getClaimsByToken } from '../../utils/auth'
 import { shouldSynthesize, synthesize } from '../../services/speech'
 import { readPushSubscription } from '../../datalayer/pubsub'
+import { AppDataSource } from '../../server'
 
 const logger = buildLogger('app.dispatch')
 
@@ -93,20 +94,25 @@ export function speechServiceRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const { speechId, audioFileName, speechMarksFileName } = req.body as {
-      speechId: string
-      audioFileName: string
-      speechMarksFileName: string
-    }
-    if (!speechId || !audioFileName || !speechMarksFileName) {
+    const { speechId, audioFileName, speechMarksFileName, state } =
+      req.body as {
+        speechId: string
+        audioFileName: string
+        speechMarksFileName: string
+        state: SpeechState
+      }
+    if (!speechId) {
       return res.status(400).send('Invalid data')
     }
 
     // set state to completed
-    await getRepository(Speech).update(speechId, {
-      audioFileName: audioFileName,
-      speechMarksFileName: speechMarksFileName,
-      state: SpeechState.COMPLETED,
+    await AppDataSource.transaction(async (t) => {
+      await setClaims(t, userId)
+      await t.getRepository(Speech).update(speechId, {
+        audioFileName: audioFileName,
+        speechMarksFileName: speechMarksFileName,
+        state,
+      })
     })
 
     res.send('OK')
