@@ -3,19 +3,19 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
 import cors from 'cors'
-import { corsConfig } from '../../utils/corsConfig'
-import { getRepository, setClaims } from '../../entity/utils'
-import { getPageById } from '../../elastic/pages'
-import { Speech, SpeechState } from '../../entity/speech'
-import { buildLogger } from '../../utils/logger'
-import { getClaimsByToken } from '../../utils/auth'
-import { shouldSynthesize, synthesize } from '../../services/speech'
-import { readPushSubscription } from '../../datalayer/pubsub'
-import { AppDataSource } from '../../server'
+import { corsConfig } from '../utils/corsConfig'
+import { getRepository, setClaims } from '../entity/utils'
+import { getPageById } from '../elastic/pages'
+import { Speech, SpeechState } from '../entity/speech'
+import { buildLogger } from '../utils/logger'
+import { getClaimsByToken } from '../utils/auth'
+import { shouldSynthesize, synthesize } from '../services/speech'
+import { readPushSubscription } from '../datalayer/pubsub'
+import { AppDataSource } from '../server'
 
 const logger = buildLogger('app.dispatch')
 
-export function speechServiceRouter() {
+export function textToSpeechRouter() {
   const router = express.Router()
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
