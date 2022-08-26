@@ -22,18 +22,11 @@ public struct ProfileCard: View {
   public var body: some View {
     HStack(alignment: .center) {
       Group {
-        if let url = data.imageURL {
-          AsyncLoadingImage(url: url) { imageStatus in
-            if case let AsyncImageStatus.loaded(image) = imageStatus {
-              image.resizable()
-            } else {
-              Image(systemName: "person.crop.circle").resizable()
-            }
-          }
-        } else {
-          Image(systemName: "person.crop.circle")
-            .resizable()
-        }
+        AsyncImage(
+          url: data.imageURL,
+          content: { $0.resizable() },
+          placeholder: { Image(systemName: "person.crop.circle").resizable() }
+        )
       }
       .aspectRatio(contentMode: .fill)
       .frame(width: 70, height: 70, alignment: .center)
