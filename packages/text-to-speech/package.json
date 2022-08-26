@@ -16,7 +16,7 @@
     "build": "tsc",
     "start": "functions-framework --source=build/src/ --target=textToSpeechHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
-    "gcloud-deploy": "gcloud functions deploy textToSpeechHandler --gen2 --trigger-http --allow-unauthenticated --region=$npm_config_region --runtime nodejs14 --env-vars-file=../gcf-shared/env-$npm_config_env.yaml",
+    "gcloud-deploy": "gcloud functions deploy text-to-speech --gen2 --trigger-http --allow-unauthenticated --region=us-west2 --runtime nodejs14",
     "deploy": "yarn build && yarn gcloud-deploy"
   },
   "devDependencies": {
