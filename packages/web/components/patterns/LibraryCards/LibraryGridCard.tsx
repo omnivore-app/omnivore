@@ -94,21 +94,23 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 {removeHTMLTags(props.item.author)}
               </SpanBox>
             )}
-            <Box
-              css={{
-                height: '4px',
-                width: '4px',
-                borderRadius: '50%',
-                display:'inline-block',
-                background: 'var(--colors-graySolid)',
-                margin: '1px'
-              }}
-            ></Box>
-            <SpanBox
-              css={{ color: 'var(--colors-graySolid)' }}
-            >
-              {props.originText}
-            </SpanBox>
+            {props.originText && (
+              <>
+                <Box
+                  css={{
+                    height: '4px',
+                    width: '4px',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    background: 'var(--colors-graySolid)',
+                    margin: '1px',
+                  }}
+                ></Box>
+                <SpanBox css={{ color: 'var(--colors-graySolid)' }}>
+                  {props.originText}
+                </SpanBox>
+              </>
+            )}
           </StyledText>
         </HStack>
       </VStack>
