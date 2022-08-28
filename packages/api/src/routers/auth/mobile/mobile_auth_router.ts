@@ -12,6 +12,8 @@ import {
 } from './sign_up'
 import { createMobileAccountCreationResponse } from './account_creation'
 import { env } from '../../../env'
+import { corsConfig } from '../../../utils/corsConfig'
+import cors from 'cors'
 
 export function mobileAuthRouter() {
   const router = express.Router()
@@ -60,6 +62,12 @@ export function mobileAuthRouter() {
     )
     res.status(payload.statusCode).json(payload.json)
   })
+
+  // Required since this will be called from Android WebView
+  router.options(
+    '/android-apple-redirect',
+    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+  )
 
   router.post('/android-apple-redirect', (req, res) => {
     const { id_token } = req.body
