@@ -70,23 +70,13 @@ fun AppleAuthWebContainerView(onDismiss: (String?) -> Unit) {
 @Composable
 fun AppleAuthWebView(onDismiss: (String?) -> Unit) {
   val url = AppleConstants.authUrl +
-    "?client_id=" +
-    AppleConstants.clientId +
-    "&redirect_uri=" +
-    AppleConstants.redirectURI +
-    "&response_type=code%20id_token&scope=" +
-    AppleConstants.scope +
-    "&response_mode=form_post&state=android:login"
-
-//  clientId="app.omnivore"
-//  scope="name email"
-//  state="web:login"
-//  redirectURI={appleAuthRedirectURI}
-//  responseMode="form_post"
-//  responseType="code id_token"
-//  designProp={{
-//    color: 'black',
-
+    "?client_id=" + AppleConstants.clientId +
+    "&redirect_uri=" + AppleConstants.redirectURI +
+    "&response_type=code%20id_token" +
+    "&scope=" + AppleConstants.scope +
+    "&response_mode=form_post" +
+    "&state=android:login"
+  
   // Adding a WebView inside AndroidView
   // with layout as full screen
   AndroidView(factory = {
@@ -95,7 +85,6 @@ fun AppleAuthWebView(onDismiss: (String?) -> Unit) {
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
       )
-//      webViewClient = WebViewClient()
       webViewClient = object : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
           Log.i("Apple payload one: ", request?.url.toString() ?: "null")
