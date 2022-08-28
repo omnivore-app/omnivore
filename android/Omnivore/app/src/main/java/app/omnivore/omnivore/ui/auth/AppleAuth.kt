@@ -88,9 +88,10 @@ fun AppleAuthWebView(onDismiss: (String?) -> Unit) {
       )
       webViewClient = object : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-          if (request?.url.toString().contains("client/auth")) {
+          if (request?.url.toString().contains("android-apple-token")) {
             val uri = Uri.parse(request!!.url.toString())
-            val token = uri.getQueryParameter("tok")
+            val token = uri.getQueryParameter("token")
+
             onDismiss(token)
           }
           return true
