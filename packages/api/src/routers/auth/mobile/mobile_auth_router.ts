@@ -11,6 +11,7 @@ import {
   createMobileEmailSignUpResponse,
 } from './sign_up'
 import { createMobileAccountCreationResponse } from './account_creation'
+import { env } from '../../../env'
 
 export function mobileAuthRouter() {
   const router = express.Router()
@@ -58,6 +59,13 @@ export function mobileAuthRouter() {
       userProfile
     )
     res.status(payload.statusCode).json(payload.json)
+  })
+
+  router.post('/android-apple-redirect', (req, res) => {
+    const { id_token } = req.body
+    return res.redirect(
+      `${env.client.url}/android-apple-token?token=${id_token as string}`
+    )
   })
 
   return router
