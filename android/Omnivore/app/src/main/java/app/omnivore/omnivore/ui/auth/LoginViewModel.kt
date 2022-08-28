@@ -68,6 +68,12 @@ class LoginViewModel @Inject constructor(
     }
   }
 
+  fun saveAuthToken(authToken: String) {
+    viewModelScope.launch {
+      datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, authToken)
+    }
+  }
+
   fun logout() {
     viewModelScope.launch {
       datastoreRepo.clear()
@@ -84,11 +90,7 @@ class LoginViewModel @Inject constructor(
 
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
     val result = task?.getResult(ApiException::class.java)
-    Log.d(ContentValues.TAG, "server auth code?: ${result.serverAuthCode}")
-    Log.d(ContentValues.TAG, "is Expired?: ${result.isExpired}")
-    Log.d(ContentValues.TAG, "granted Scopes?: ${result.grantedScopes}")
     val googleIdToken = result.idToken
-    Log.d(ContentValues.TAG, "Google id token?: $googleIdToken")
 
     // If token is missing then set the error message
     if (googleIdToken == null) {
