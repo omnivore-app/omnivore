@@ -13,13 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable
-fun HomeView(viewModel: LoginViewModel) {
+fun HomeView(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel) {
   Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -29,7 +28,10 @@ fun HomeView(viewModel: LoginViewModel) {
       .padding(horizontal = 6.dp)
   ) {
     Text("You have a valid auth token. Nice. Go save something in Chrome!")
-    LogoutButton { viewModel.logout() }
+    LogoutButton { loginViewModel.logout() }
+    Button(onClick = { homeViewModel.loggo() } ) {
+      Text("Loggo")
+    }
   }
 }
 

@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
+import app.omnivore.omnivore.ui.home.HomeViewModel
 import app.omnivore.omnivore.ui.root.RootView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,11 +19,12 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val viewModel: LoginViewModel by viewModels()
+    val loginViewModel: LoginViewModel by viewModels()
+    val homeViewModel: HomeViewModel by viewModels()
 
     setContent {
       OmnivoreTheme {
-        RootView(viewModel = viewModel)
+        RootView(loginViewModel, homeViewModel)
       }
     }
 
