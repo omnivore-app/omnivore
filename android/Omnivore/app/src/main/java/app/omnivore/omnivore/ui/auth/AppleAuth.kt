@@ -53,19 +53,9 @@ fun AppleAuthDialog(onDismiss: (String?) -> Unit) {
       shape = RoundedCornerShape(16.dp),
       color = Color.White
     ) {
-      AppleAuthWebContainerView(onDismiss)
+      AppleAuthWebView(onDismiss)
     }
   }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun AppleAuthWebContainerView(onDismiss: (String?) -> Unit) {
-  Scaffold(
-    topBar = { TopAppBar(title = { Text("WebView", color = Color.White) }, backgroundColor = Color(0xff0f9d58)) },
-    content = { AppleAuthWebView(onDismiss) }
-  )
 }
 
 @SuppressLint("SetJavaScriptEnabled")
