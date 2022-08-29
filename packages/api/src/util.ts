@@ -65,6 +65,8 @@ interface BackendEnv {
     reminderTaskHanderUrl: string
     integrationTaskHandlerUrl: string
     textToSpeechTaskHandlerUrl: string
+    textToSpeechName: string
+    textToSpeechLocation: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -233,6 +235,8 @@ export function getEnv(): BackendEnv {
     reminderTaskHanderUrl: parse('REMINDER_TASK_HANDLER_URL'),
     integrationTaskHandlerUrl: parse('INTEGRATION_TASK_HANDLER_URL'),
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
+    textToSpeechName: parse('TEXT_TO_SPEECH_QUEUE_NAME'),
+    textToSpeechLocation: parse('TEXT_TO_SPEECH_QUEUE_LOCATION'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
