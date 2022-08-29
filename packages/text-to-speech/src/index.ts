@@ -218,7 +218,7 @@ const synthesizeTextToSpeech = async (
   } else {
     const ssmlItems = htmlToSsml(input.text, {
       primary: speechConfig.speechSynthesisVoiceName,
-      secondary: 'en-US-GuyNeural'
+      secondary: 'en-US-GuyNeural',
     })
 
     for (const ssmlItem of Array.from(ssmlItems)) {

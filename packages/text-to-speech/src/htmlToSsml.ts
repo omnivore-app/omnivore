@@ -1,9 +1,6 @@
-
-
-
 import { parseHTML } from 'linkedom'
 
-// this code needs to be kept in sync with the 
+// this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
@@ -12,16 +9,10 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'data-instagram-id',
 ]
 
-function ssmlTagsForTopLevelElement(element: Element) {
-  // if (element.nodeName == 'BLOCKQUOTE') {
-  //   return {
-  //     opening: `<voice name="en-US-GuyNeural"><p>`,
-  //     closing: `</p></voice>`
-  //   }
-  // }
+function ssmlTagsForTopLevelElement() {
   return {
     opening: `<p>`,
-    closing: `</p>`
+    closing: `</p>`,
   }
 }
 
@@ -67,13 +58,20 @@ function emit(textItems: string[], text: string) {
   textItems.push(text)
 }
 
-function cleanTextNode(textNode: ChildNode): String {
+function cleanTextNode(textNode: ChildNode): string {
   return (textNode.textContent ?? '').replace(/\s+/g, ' ')
 }
 
-function emitTextNode(textItems: string[], cleanedText: String, textNode: ChildNode) {
-  const ssmlElement = textNode.parentNode?.nodeName === 'B' ? "emphasis" : undefined
-  if (!cleanedText) { return }
+function emitTextNode(
+  textItems: string[],
+  cleanedText: string,
+  textNode: ChildNode
+) {
+  const ssmlElement =
+    textNode.parentNode?.nodeName === 'B' ? 'emphasis' : undefined
+  if (!cleanedText) {
+    return
+  }
 
   if (ssmlElement) {
     emit(textItems, `<${ssmlElement}>`)
@@ -84,12 +82,16 @@ function emitTextNode(textItems: string[], cleanedText: String, textNode: ChildN
   }
 }
 
-function emitElement(textItems: string[], element: Element, isTopLevel: Boolean) {
+function emitElement(
+  textItems: string[],
+  element: Element,
+  isTopLevel: boolean
+) {
   const SKIP_TAGS = ['SCRIPT', 'STYLE', 'IMG', 'FIGURE', 'FIGCAPTION', 'IFRAME']
-  
-  const topLevelTags = ssmlTagsForTopLevelElement(element)
+
+  const topLevelTags = ssmlTagsForTopLevelElement()
   const idx = element.getAttribute('data-omnivore-anchor-idx')
-  var maxVisitedIdx = Number(idx)
+  let maxVisitedIdx = Number(idx)
 
   if (isTopLevel) {
     emit(textItems, topLevelTags.opening)
@@ -100,9 +102,13 @@ function emitElement(textItems: string[], element: Element, isTopLevel: Boolean)
       continue
     }
 
-    if (child.nodeType == 3 /* Node.TEXT_NODE */ && (child.textContent?.length ?? 0) > 0 ) {
+    if (
+      child.nodeType == 3 /* Node.TEXT_NODE */ &&
+      (child.textContent?.length ?? 0) > 0
+    ) {
       const cleanedText = cleanTextNode(child)
-      if (cleanedText.length > 1) { // Make sure its more than just a space
+      if (idx && cleanedText.length > 1) {
+        // Make sure its more than just a space
         emit(textItems, `<bookmark mark="${idx}" />`)
       }
       emitTextNode(textItems, cleanedText, child)
@@ -131,7 +137,8 @@ export type VoiceOptions = {
 }
 
 const startSsml = (element: Element, voices: VoiceOptions): string => {
-  const voice = element.nodeName === 'BLOCKQUOTE' ? voices.secondary : voices.primary
+  const voice =
+    element.nodeName === 'BLOCKQUOTE' ? voices.secondary : voices.primary
   return `
 <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US"><voice name="${voice}"><prosody rate="0%" pitch="0%">
   `
@@ -142,28 +149,27 @@ const endSsml = (): string => {
 }
 
 export const ssmlItemText = (item: SSMLItem): string => {
-  return [
-    item.open,
-    ...item.textItems,
-    item.close
-  ].join('')
+  return [item.open, ...item.textItems, item.close].join('')
 }
 
-export const htmlToSsml = (html: string, voices: { primary: string, secondary: string}): SSMLItem[] => {
+export const htmlToSsml = (
+  html: string,
+  voices: { primary: string; secondary: string }
+): SSMLItem[] => {
   const dom = parseHTML(html)
-  var body = dom.document.querySelector('#readability-page-1')
+  const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
     throw new Error('Unable to parse HTML document')
   }
 
-  var parsedNodes = parseDomTree(body)
+  const parsedNodes = parseDomTree(body)
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
 
   const items: SSMLItem[] = []
-  for (var i = 1; i < parsedNodes.length + 1; i++) {
-    var textItems: string[] = []
+  for (let i = 1; i < parsedNodes.length + 1; i++) {
+    const textItems: string[] = []
     const node = parsedNodes[i - 1]
 
     i = emitElement(textItems, node, true)
