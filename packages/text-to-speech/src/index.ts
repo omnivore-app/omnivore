@@ -19,6 +19,7 @@ import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import { htmlToSsml, ssmlItemText } from './htmlToSsml'
+
 dotenv.config()
 
 interface TextToSpeechInput {
@@ -227,10 +228,11 @@ const synthesizeTextToSpeech = async (
       const ssml = ssmlItemText(ssmlItem)
       console.debug(`synthesizing ${ssml}`)
       const result = await speakSsmlAsyncPromise(ssml)
-      // if (result.reason === ResultReason.Canceled) {
-      //   synthesizer.close()
-      //   throw new Error(result.errorDetails)
-      // }
+      if (result.reason === ResultReason.Canceled) {
+        writeStream.end()
+        synthesizer.close()
+        throw new Error(result.errorDetails)
+      }
       timeOffset = timeOffset + result.audioDuration
       // characterOffset = characterOffset + htmlElement.innerText.length
     }
