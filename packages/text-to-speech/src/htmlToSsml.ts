@@ -1,4 +1,5 @@
 import { parseHTML } from 'linkedom'
+import * as _ from 'underscore'
 
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
@@ -59,7 +60,7 @@ function emit(textItems: string[], text: string) {
 }
 
 function cleanTextNode(textNode: ChildNode): string {
-  return (textNode.textContent ?? '').replace(/\s+/g, ' ')
+  return _.escape(textNode.textContent ?? ''.replace(/\s+/g, ' '))
 }
 
 function emitTextNode(
