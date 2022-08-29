@@ -45,11 +45,7 @@ const createHttpTaskWithToken = async ({
   ]
 > => {
   // Construct the fully qualified queue name.
-  if (priority === 'low') {
-    queue = `${queue}-low`
-    // use GCF url for low priority tasks
-    taskHandlerUrl = env.queue.contentFetchGCFUrl
-  }
+  priority === 'low' && (queue = `${queue}-low`)
 
   const parent = client.queuePath(project, location, queue)
   console.log(`Task creation options: `, {
@@ -240,10 +236,17 @@ export const enqueueParseRequest = async (
     return ''
   }
 
+  // use GCF url for low priority tasks
+  const taskHandlerUrl =
+    priority === 'low'
+      ? env.queue.contentFetchGCFUrl
+      : env.queue.contentFetchUrl
+
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     priority,
+    taskHandlerUrl,
   })
   if (!createdTasks || !createdTasks[0].name) {
     logger.error(`Unable to get the name of the task`, {
@@ -356,9 +359,6 @@ export const enqueueTextToSpeech = async ({
     voice,
     bucket,
     textType,
-  }
-  if (priority === 'low') {
-    queue = `${queue}-low`
   }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
