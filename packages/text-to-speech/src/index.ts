@@ -18,6 +18,7 @@ import {
 import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import { htmlToSsml, ssmlItemText } from './htmlToSsml'
 dotenv.config()
 
 interface TextToSpeechInput {
@@ -215,35 +216,21 @@ const synthesizeTextToSpeech = async (
       currentTextChunk = ''
     }
   } else {
-    const document = parseHTML(input.text).document
-    const elements = document.querySelectorAll(
-      'h1, h2, h3, p, ul, ol, blockquote'
-    )
-    // convert html elements to the ssml document
-    for (const e of Array.from(elements)) {
-      const htmlElement = e as HTMLElement
-      if (htmlElement.innerText) {
-        // use complimentary voice for blockquote, hardcoded for now
-        const voice =
-          htmlElement.tagName.toLowerCase() === 'blockquote'
-            ? input.complimentaryVoice || 'en-US-AriaNeural'
-            : input.voice
-        const ssml = htmlElementToSsml({
-          htmlElement: e,
-          language: input.languageCode,
-          rate: input.rate,
-          volume: input.volume,
-          voice,
-        })
-        console.debug(`synthesizing ${ssml}`)
-        const result = await speakSsmlAsyncPromise(ssml)
-        // if (result.reason === ResultReason.Canceled) {
-        //   synthesizer.close()
-        //   throw new Error(result.errorDetails)
-        // }
-        timeOffset = timeOffset + result.audioDuration
-        // characterOffset = characterOffset + htmlElement.innerText.length
-      }
+    const ssmlItems = htmlToSsml(input.text, {
+      primary: speechConfig.speechSynthesisVoiceName,
+      secondary: 'en-US-GuyNeural'
+    })
+
+    for (const ssmlItem of Array.from(ssmlItems)) {
+      const ssml = ssmlItemText(ssmlItem)
+      console.debug(`synthesizing ${ssml}`)
+      const result = await speakSsmlAsyncPromise(ssml)
+      // if (result.reason === ResultReason.Canceled) {
+      //   synthesizer.close()
+      //   throw new Error(result.errorDetails)
+      // }
+      timeOffset = timeOffset + result.audioDuration
+      // characterOffset = characterOffset + htmlElement.innerText.length
     }
   }
   writeStream.end()
