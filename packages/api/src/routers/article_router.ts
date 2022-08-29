@@ -20,7 +20,6 @@ import { Speech, SpeechState } from '../entity/speech'
 import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
-import { UserPersonalization } from '../entity/user_personalization'
 import { createPubSubClient } from '../datalayer/pubsub'
 
 const logger = buildLogger('app.dispatch')
@@ -78,7 +77,7 @@ export function articleRouter() {
     async (req, res) => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      const voice = req.params.voice
+      const voice = req.params.voice || 'en-US-JennyNeural'
       const priority = req.params.priority
       if (
         !articleId ||
@@ -145,17 +144,12 @@ export function articleRouter() {
       if (!page) {
         return res.status(404).send('Page not found')
       }
-      const userPersonalization = await getRepository(
-        UserPersonalization
-      ).findOneBy({
-        user: { id: uid },
-      })
       // initialize state
       const speech = await getRepository(Speech).save({
         user: { id: uid },
         elasticPageId: articleId,
         state: SpeechState.INITIALIZED,
-        voice: voice || userPersonalization?.speechVoice || 'en-US-JennyNeural',
+        voice,
       })
       // enqueue a task to convert text to speech
       const taskName = await enqueueTextToSpeech({
