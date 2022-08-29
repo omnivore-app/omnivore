@@ -25,6 +25,11 @@ public enum PlayerScrubState {
   case scrubEnded(TimeInterval)
 }
 
+enum DownloadPriority: String {
+  case low = "low"
+  case high = "high"
+}
+
 // Our observable object class
 public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioSessionState = .stopped
@@ -77,7 +82,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       }
 
       // Attempt to fetch the file if not downloaded already
-      let result = try? await downloadAudioFile(pageId: pageId)
+      let result = try? await downloadAudioFile(pageId: pageId, priority: .low)
       if result == nil {
         print("audio file had error downloading: ", pageId)
         pendingList.append(pageId)
@@ -168,7 +173,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     let pageId = item!.unwrappedID
 
     downloadTask = Task {
-      let result = try? await downloadAudioFile(pageId: pageId)
+      let result = try? await downloadAudioFile(pageId: pageId, priority: .high)
       if Task.isCancelled { return }
 
       if result == nil {
@@ -347,14 +352,14 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     }
   }
 
-  func downloadAudioFile(pageId: String) async throws -> (pending: Bool, url: URL?) {
+  func downloadAudioFile(pageId: String, priority: DownloadPriority) async throws -> (pending: Bool, url: URL?) {
     let audioUrl = pathForAudioFile(pageId: pageId)
 
     if FileManager.default.fileExists(atPath: audioUrl.path) {
       return (pending: false, url: audioUrl)
     }
 
-    guard let url = URL(string: "/api/article/\(pageId)/mp3/\(currentVoice)", relativeTo: appEnvironment.serverBaseURL) else {
+    guard let url = URL(string: "/api/article/\(pageId)/mp3/\(priority)/\(currentVoice)", relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }
 
