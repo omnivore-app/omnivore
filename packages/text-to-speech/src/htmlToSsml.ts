@@ -157,6 +157,8 @@ export const ssmlItemText = (item: SSMLItem): string => {
 }
 
 export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
+  console.log('creating ssml with options', options)
+
   const dom = parseHTML(html)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
