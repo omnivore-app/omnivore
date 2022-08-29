@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.auth
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
@@ -36,9 +37,9 @@ fun AppleAuthButton(viewModel: LoginViewModel) {
   )
 
   if (showDialog.value) {
-    AppleAuthDialog(onDismiss = { authToken ->
-      if (authToken != null ) {
-        viewModel.saveAuthToken(authToken)
+    AppleAuthDialog(onDismiss = { token ->
+      if (token != null ) {
+        viewModel.handleAppleToken(token)
       }
       showDialog.value = false
     })

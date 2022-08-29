@@ -68,10 +68,10 @@ class LoginViewModel @Inject constructor(
     }
   }
 
-  fun saveAuthToken(authToken: String) {
-    viewModelScope.launch {
-      datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, authToken)
-    }
+  fun handleAppleToken(authToken: String) {
+    submitAuthProviderPayload(
+      params = SignInParams(token = authToken, provider = "APPLE")
+    )
   }
 
   fun logout() {
@@ -98,15 +98,19 @@ class LoginViewModel @Inject constructor(
       return
     }
 
+    submitAuthProviderPayload(
+      params = SignInParams(token = googleIdToken, provider = "GOOGLE")
+    )
+  }
+
+  private fun submitAuthProviderPayload(params: SignInParams) {
     val login = RetrofitHelper.getInstance().create(AuthProviderLoginSubmit::class.java)
 
     viewModelScope.launch {
       isLoading = true
       errorMessage = null
 
-      val result = login.submitAuthProviderLogin(
-        SignInParams(token = googleIdToken, provider = "GOOGLE")
-      )
+      val result = login.submitAuthProviderLogin(params)
 
       isLoading = false
 
