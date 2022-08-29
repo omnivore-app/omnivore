@@ -227,6 +227,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       }
     } catch {
       print("error playing MP3 file", error)
+      try? FileManager.default.removeItem(atPath: audioUrl.path)
       state = .stopped
     }
   }
