@@ -41,8 +41,7 @@ async function fetchApplePublicKey(kid: string): Promise<string | null> {
 }
 
 export async function decodeAppleToken(
-  token: string,
-  isWeb?: boolean
+  token: string
 ): Promise<DecodeTokenResult> {
   const decodedToken = jwt.decode(token, { complete: true })
   const { kid, alg } = (decodedToken as any).header
@@ -54,8 +53,8 @@ export async function decodeAppleToken(
     }
     const jwtClaims: any = jwt.verify(token, publicKey, { algorithms: [alg] })
     const issVerified = (jwtClaims.iss ?? '') === appleBaseURL
-    const audVerified =
-      (jwtClaims.aud ?? '') === isWeb ? webAudienceName : audienceName
+    const audience = jwtClaims.aud ?? ''
+    const audVerified = audience == webAudienceName || audience === audienceName
     if (issVerified && audVerified && jwtClaims.email) {
       return {
         email: jwtClaims.email,
@@ -106,7 +105,7 @@ export async function handleAppleWebAuth(
 
     return env.client.url
   }
-  const decodedTokenResult = await decodeAppleToken(idToken, true)
+  const decodedTokenResult = await decodeAppleToken(idToken)
   const authFailedRedirect = `${baseURL()}/login?errorCodes=${
     LoginErrorCode.AuthFailed
   }`
