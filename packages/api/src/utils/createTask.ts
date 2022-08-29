@@ -207,13 +207,15 @@ export const deleteTask = async (
  * @param userId - Id of the user authorized
  * @param saveRequestId - Id of the article_saving_request table record
  * @param priority - Priority of the task
+ * @param queue - Queue name
  * @returns Name of the task created
  */
 export const enqueueParseRequest = async (
   url: string,
   userId: string,
   saveRequestId: string,
-  priority: 'low' | 'high' = 'high'
+  priority: 'low' | 'high' = 'high',
+  queue = env.queue.name
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -247,6 +249,7 @@ export const enqueueParseRequest = async (
     payload,
     priority,
     taskHandlerUrl,
+    queue,
   })
   if (!createdTasks || !createdTasks[0].name) {
     logger.error(`Unable to get the name of the task`, {
@@ -339,8 +342,8 @@ export const enqueueTextToSpeech = async ({
   priority,
   textType = 'ssml',
   bucket = env.fileUpload.gcsUploadBucket,
-  queue = env.queue.textToSpeechName,
-  location = env.queue.textToSpeechLocation,
+  queue = 'omnivore-demo-text-to-speech-queue',
+  location = env.gcp.location,
 }: {
   userId: string
   speechId: string
