@@ -300,7 +300,7 @@ public enum WebViewDispatchEvent {
     case let .updateFontSize(size: size):
       return "event.fontSize = '\(size)';"
     case let .updateColorMode(isDark: isDark):
-      return "event.isDarkMode = '\(isDark)';"
+      return "event.isDark = '\(isDark)';"
     case let .updateFontFamily(family: family):
       return "event.fontFamily = '\(family)';"
     case let .saveAnnotation(annotation: annotation):
