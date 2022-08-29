@@ -20,8 +20,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable
 fun HomeView(viewModel: LoginViewModel) {
-  val context = LocalContext.current
-
   Column(
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -31,18 +29,24 @@ fun HomeView(viewModel: LoginViewModel) {
       .padding(horizontal = 6.dp)
   ) {
     Text("You have a valid auth token. Nice. Go save something in Chrome!")
+    LogoutButton { viewModel.logout() }
+  }
+}
 
-    Button(onClick = {
-      // Sign out google users
-      val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .build()
+@Composable
+fun LogoutButton(actionHandler: () -> Unit) {
+  val context = LocalContext.current
 
-      val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
-      googleSignIn.signOut()
+  Button(onClick = {
+    // Sign out google users
+    val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+      .build()
 
-      viewModel.logout()
-    }) {
-      Text(text = "Logout")
-    }
+    val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
+    googleSignIn.signOut()
+
+    actionHandler()
+  }) {
+    Text(text = "Logout")
   }
 }
