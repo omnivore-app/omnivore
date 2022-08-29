@@ -328,14 +328,27 @@ export const enqueueSyncWithIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueTextToSpeech = async (
-  userId: string,
-  speechId: string,
-  text: string,
-  textType: 'text' | 'ssml',
-  voice: string,
-  bucket: string
-): Promise<string> => {
+export const enqueueTextToSpeech = async ({
+  userId,
+  text,
+  speechId,
+  voice,
+  priority,
+  textType = 'ssml',
+  bucket = env.fileUpload.gcsUploadBucket,
+  queue = env.queue.textToSpeechName,
+  location = env.queue.textToSpeechLocation,
+}: {
+  userId: string
+  speechId: string
+  text: string
+  voice: string
+  priority: 'low' | 'high'
+  bucket?: string
+  textType?: 'text' | 'ssml'
+  queue?: string
+  location?: string
+}): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     id: speechId,
@@ -343,6 +356,9 @@ export const enqueueTextToSpeech = async (
     voice,
     bucket,
     textType,
+  }
+  if (priority === 'low') {
+    queue = `${queue}-low`
   }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -364,6 +380,9 @@ export const enqueueTextToSpeech = async (
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     taskHandlerUrl,
+    queue,
+    location,
+    priority,
   })
 
   if (!createdTasks || !createdTasks[0].name) {
