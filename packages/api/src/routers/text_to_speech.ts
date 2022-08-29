@@ -9,9 +9,10 @@ import { getPageById } from '../elastic/pages'
 import { Speech, SpeechState } from '../entity/speech'
 import { buildLogger } from '../utils/logger'
 import { getClaimsByToken } from '../utils/auth'
-import { shouldSynthesize, synthesize } from '../services/speech'
+import { shouldSynthesize } from '../services/speech'
 import { readPushSubscription } from '../datalayer/pubsub'
 import { AppDataSource } from '../server'
+import { enqueueTextToSpeech } from '../utils/createTask'
 
 const logger = buildLogger('app.dispatch')
 
@@ -62,8 +63,16 @@ export function textToSpeechRouter() {
           state: SpeechState.INITIALIZED,
           voice: 'en-US-JennyNeural',
         })
-        await synthesize(page, speech)
-        logger.info('page synthesized')
+        // enqueue a task to convert text to speech
+        const taskName = await enqueueTextToSpeech({
+          userId,
+          speechId: speech.id,
+          text: page.content,
+          voice: speech.voice,
+          priority: 'low',
+        })
+        logger.info('Start Text to speech task', { taskName })
+        return res.status(202).send('Text to speech task started')
       }
 
       res.status(200).send('Page should not synthesize')
