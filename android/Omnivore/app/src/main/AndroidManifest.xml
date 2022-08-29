@@ -29,7 +29,7 @@
         </activity>
 
         <activity
-            android:name=".ui.save.NewFlowActivity"
+            android:name=".ui.save.SaveSheetActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Translucent">
             <intent-filter>
