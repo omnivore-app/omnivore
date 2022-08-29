@@ -131,16 +131,20 @@ export type SSMLItem = {
   textItems: string[]
 }
 
-export type VoiceOptions = {
-  primary: string
-  secondary: string
+export type SSMLOptions = {
+  primaryVoice: string
+  secondaryVoice: string
+  rate: string
+  language: string
 }
 
-const startSsml = (element: Element, voices: VoiceOptions): string => {
+const startSsml = (element: Element, options: SSMLOptions): string => {
   const voice =
-    element.nodeName === 'BLOCKQUOTE' ? voices.secondary : voices.primary
+    element.nodeName === 'BLOCKQUOTE'
+      ? options.secondaryVoice
+      : options.primaryVoice
   return `
-<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US"><voice name="${voice}"><prosody rate="0%" pitch="0%">
+<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}" pitch="default">
   `
 }
 
@@ -152,10 +156,7 @@ export const ssmlItemText = (item: SSMLItem): string => {
   return [item.open, ...item.textItems, item.close].join('')
 }
 
-export const htmlToSsml = (
-  html: string,
-  voices: { primary: string; secondary: string }
-): SSMLItem[] => {
+export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   const dom = parseHTML(html)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
@@ -174,7 +175,7 @@ export const htmlToSsml = (
 
     i = emitElement(textItems, node, true)
     items.push({
-      open: startSsml(node, voices),
+      open: startSsml(node, options),
       close: endSsml(),
       textItems: textItems,
     })
