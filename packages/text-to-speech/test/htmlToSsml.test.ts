@@ -11,7 +11,7 @@ describe('htmlToSsml', () => {
   }
 
   describe('a simple html file', () => {
-    it('should convert Html to SSML', () => {
+    xit('should convert Html to SSML', () => {
       const ssml = htmlToSsml(
         `
       <div id="readability-content">
@@ -27,7 +27,7 @@ describe('htmlToSsml', () => {
     })
   })
   describe('a file with nested elements', () => {
-    it('should collapse spans into the parent paragraph', () => {
+    xit('should collapse spans into the parent paragraph', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">
@@ -56,7 +56,7 @@ describe('htmlToSsml', () => {
         `<p><bookmark mark="5" />this is in the first paragraph<bookmark mark="6" />this is in the second span<bookmark mark="5" />this is also in the first paragraph</p>`.trim()
       )
     })
-    it('should extract child paragraphs to the top level', () => {
+    xit('should extract child paragraphs to the top level', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">
@@ -76,7 +76,7 @@ describe('htmlToSsml', () => {
         `<p><bookmark mark="3" />this is in the first paragraph<bookmark mark="4" />this is in the second paragraph<bookmark mark="3" />this is also in the first paragraph</p>`.trim()
       )
     })
-    it('should hoist paragraphs in spans to the top level', () => {
+    xit('should hoist paragraphs in spans to the top level', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">
@@ -94,7 +94,7 @@ describe('htmlToSsml', () => {
       const text = ssml[0].textItems.join('').trim()
       expect(text).to.equal(`TBD`.trim())
     })
-    it('should hoist lists to the top level', () => {
+    xit('should hoist lists to the top level', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">
@@ -112,7 +112,7 @@ describe('htmlToSsml', () => {
       const text = ssml[0].textItems.join('').trim()
       expect(text).to.equal(`TBD`.trim())
     })
-    it('should hoist headers to the top level', () => {
+    xit('should hoist headers to the top level', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">
@@ -130,7 +130,7 @@ describe('htmlToSsml', () => {
       const text = ssml[0].textItems.join('').trim()
       expect(text).to.equal(`TBD`.trim())
     })
-    it('should hoist blockquotes to the top level', () => {
+    xit('should hoist blockquotes to the top level', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">
@@ -150,7 +150,7 @@ describe('htmlToSsml', () => {
     })
   })
   describe('a file with blockquotes', () => {
-    it('should convert Html to SSML with complimentary voices', () => {
+    xit('should convert Html to SSML with complimentary voices', () => {
       const ssml = htmlToSsml(
         `
         <div id="readability-content">  
