@@ -49,8 +49,9 @@ function parseDomTree(pageNode: Element) {
 
   visitedNodeList.shift()
   visitedNodeList.forEach((node, index) => {
-    // start from index 1, index 0 reserved for anchor unknown.
-    node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
+    // We start at index 2, because the frontend starts one node above us
+    // on the #readability-content element that wraps the entire content.
+    node.setAttribute('data-omnivore-anchor-idx', (index + 2).toString())
   })
   return visitedNodeList
 }
@@ -161,12 +162,14 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   console.log('creating ssml with options', options)
 
   const dom = parseHTML(html)
-  const body = dom.document.querySelector('#readability-page-1')
+  const body = dom.document.querySelector('#readability-content')
   if (!body) {
     throw new Error('Unable to parse HTML document')
   }
 
   const parsedNodes = parseDomTree(body)
+  Array.from(parsedNodes).map((n) => console.log(n.nodeName, n.getAttribute('data-omnivore-anchor-idx'), n.getAttribute('class')))
+
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
