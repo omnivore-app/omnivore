@@ -217,9 +217,9 @@ const synthesizeTextToSpeech = async (
     }
   } else {
     const ssmlItems = htmlToSsml(input.text, {
-      primaryVoice: speechConfig.speechSynthesisVoiceName,
+      primaryVoice: input.voice || 'en-US-JennyNeural',
       secondaryVoice: 'en-US-GuyNeural',
-      language: speechConfig.speechSynthesisLanguage,
+      language: input.languageCode || 'en-US',
       rate: '1',
     })
 

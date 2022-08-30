@@ -1,4 +1,5 @@
 import { parseHTML } from 'linkedom'
+import * as _ from 'underscore'
 
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
@@ -15,6 +16,19 @@ function ssmlTagsForTopLevelElement() {
     closing: `</p>`,
   }
 }
+
+const TOP_LEVEL_TAGS = [
+  'P',
+  'BLOCKQUOTE',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'UL',
+  'OL',
+]
 
 function parseDomTree(pageNode: Element) {
   if (!pageNode || pageNode.childNodes.length == 0) {
@@ -48,8 +62,9 @@ function parseDomTree(pageNode: Element) {
 
   visitedNodeList.shift()
   visitedNodeList.forEach((node, index) => {
-    // start from index 1, index 0 reserved for anchor unknown.
-    node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
+    // We start at index 2, because the frontend starts one node above us
+    // on the #readability-content element that wraps the entire content.
+    node.setAttribute('data-omnivore-anchor-idx', (index + 2).toString())
   })
   return visitedNodeList
 }
@@ -59,7 +74,7 @@ function emit(textItems: string[], text: string) {
 }
 
 function cleanTextNode(textNode: ChildNode): string {
-  return (textNode.textContent ?? '').replace(/\s+/g, ' ')
+  return _.escape(textNode.textContent ?? ''.replace(/\s+/g, ' '))
 }
 
 function emitTextNode(
@@ -152,11 +167,23 @@ const endSsml = (): string => {
   return `</prosody></voice></speak>`
 }
 
+const hasSignificantText = (node: ChildNode): boolean => {
+  let text = ''
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === 3 /* Node.TEXT_NODE */) {
+      text += child.textContent
+    }
+  }
+  return text.trim().length > 0
+}
+
 export const ssmlItemText = (item: SSMLItem): string => {
   return [item.open, ...item.textItems, item.close].join('')
 }
 
 export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
+  console.log('creating ssml with options', options)
+
   const dom = parseHTML(html)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
@@ -164,21 +191,31 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   }
 
   const parsedNodes = parseDomTree(body)
+  Array.from(parsedNodes).map((n) =>
+    console.log(
+      n.nodeName,
+      n.getAttribute('data-omnivore-anchor-idx'),
+      n.getAttribute('class')
+    )
+  )
+
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
 
   const items: SSMLItem[] = []
-  for (let i = 1; i < parsedNodes.length + 1; i++) {
+  for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 1]
+    const node = parsedNodes[i - 2]
 
-    i = emitElement(textItems, node, true)
-    items.push({
-      open: startSsml(node, options),
-      close: endSsml(),
-      textItems: textItems,
-    })
+    if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      i = emitElement(textItems, node, true)
+      items.push({
+        open: startSsml(node, options),
+        close: endSsml(),
+        textItems: textItems,
+      })
+    }
   }
 
   return items

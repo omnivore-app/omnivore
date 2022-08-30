@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^14.11.2",
+    "@types/underscore": "^1.11.4",
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "dotenv": "^16.0.1",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.12",
-    "microsoft-cognitiveservices-speech-sdk": "^1.22.0"
+    "microsoft-cognitiveservices-speech-sdk": "^1.22.0",
+    "underscore": "^1.13.4"
   }
 }
