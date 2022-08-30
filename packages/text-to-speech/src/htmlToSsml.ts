@@ -17,6 +17,19 @@ function ssmlTagsForTopLevelElement() {
   }
 }
 
+const TOP_LEVEL_TAGS = [
+  'P',
+  'BLOCKQUOTE',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'UL',
+  'OL',
+]
+
 function parseDomTree(pageNode: Element) {
   if (!pageNode || pageNode.childNodes.length == 0) {
     console.log(' no child nodes found')
@@ -57,7 +70,7 @@ function parseDomTree(pageNode: Element) {
 }
 
 function emit(textItems: string[], text: string) {
-  textItems.push(text)
+  textItems.push(text.trim())
 }
 
 function cleanTextNode(textNode: ChildNode): string {
@@ -168,23 +181,31 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   }
 
   const parsedNodes = parseDomTree(body)
-  Array.from(parsedNodes).map((n) => console.log(n.nodeName, n.getAttribute('data-omnivore-anchor-idx'), n.getAttribute('class')))
+  Array.from(parsedNodes).map((n) =>
+    console.log(
+      n.nodeName,
+      n.getAttribute('data-omnivore-anchor-idx'),
+      n.getAttribute('class')
+    )
+  )
 
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
 
   const items: SSMLItem[] = []
-  for (let i = 1; i < parsedNodes.length + 1; i++) {
+  for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 1]
+    const node = parsedNodes[i - 2]
 
-    i = emitElement(textItems, node, true)
-    items.push({
-      open: startSsml(node, options),
-      close: endSsml(),
-      textItems: textItems,
-    })
+    if (TOP_LEVEL_TAGS.includes(node.nodeName)) {
+      i = emitElement(textItems, node, true)
+      items.push({
+        open: startSsml(node, options),
+        close: endSsml(),
+        textItems: textItems,
+      })
+    }
   }
 
   return items
