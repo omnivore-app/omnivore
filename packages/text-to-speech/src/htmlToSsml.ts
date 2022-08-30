@@ -204,9 +204,9 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   }
 
   const items: SSMLItem[] = []
-  for (let i = 1; i < parsedNodes.length + 1; i++) {
+  for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 1]
+    const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       i = emitElement(textItems, node, true)
