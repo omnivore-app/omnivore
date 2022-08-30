@@ -16,6 +16,7 @@ public struct MiniPlayer: View {
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 
+  @State private var webReaderItem: LinkedItem?
   @State var expanded = false
   @State var offset: CGFloat = 0
   @Namespace private var animation
@@ -40,9 +41,9 @@ public struct MiniPlayer: View {
         action: {
           switch audioSession.state {
           case .playing:
-            audioSession.pause()
+            _ = audioSession.pause()
           case .paused:
-            audioSession.unpause()
+            _ = audioSession.unpause()
           default:
             break
           }
@@ -91,6 +92,7 @@ public struct MiniPlayer: View {
     Button(
       action: {
         withAnimation(.interactiveSpring()) {
+          self.webReaderItem = nil
           self.expanded = false
         }
       },
@@ -140,6 +142,11 @@ public struct MiniPlayer: View {
             Color.appButtonBackground
               .frame(width: dim, height: dim)
               .cornerRadius(6)
+          }
+          .onTapGesture {
+            if expanded {
+              webReaderItem = item
+            }
           }
 
           if !expanded {
@@ -285,6 +292,12 @@ public struct MiniPlayer: View {
         }
       }
     }
+    .sheet(item: $webReaderItem) {
+      LinkItemDetailView(
+        linkedItemObjectID: $0.objectID,
+        isPDF: $0.isPDF
+      )
+    }
   }
 
   func onDragChanged(value: DragGesture.Value) {
@@ -297,6 +310,7 @@ public struct MiniPlayer: View {
     withAnimation(.interactiveSpring()) {
       if value.translation.height > minExpandedHeight {
         expanded = false
+        webReaderItem = nil
       }
       offset = 0
     }
