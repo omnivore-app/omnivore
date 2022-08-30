@@ -7,6 +7,7 @@ public enum GridCardAction {
   case delete
   case editLabels
   case editTitle
+  case downloadAudio
 }
 
 public struct GridCard: View {
@@ -64,6 +65,10 @@ public struct GridCard: View {
       Button(
         action: { menuActionHandler(.delete) },
         label: { Label("Delete", systemImage: "trash") }
+      )
+      Button(
+        action: { menuActionHandler(.downloadAudio) },
+        label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
       )
     }
   }
