@@ -185,7 +185,7 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   console.log('creating ssml with options', options)
 
   const dom = parseHTML(html)
-  const body = dom.document.querySelector('#readability-content')
+  const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
     throw new Error('Unable to parse HTML document')
   }
@@ -204,9 +204,9 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   }
 
   const items: SSMLItem[] = []
-  for (let i = 2; i < parsedNodes.length + 2; i++) {
+  for (let i = 1; i < parsedNodes.length + 1; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 2]
+    const node = parsedNodes[i - 1]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       i = emitElement(textItems, node, true)
