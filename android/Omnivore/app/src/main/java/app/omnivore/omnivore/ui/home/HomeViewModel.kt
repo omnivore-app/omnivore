@@ -1,10 +1,29 @@
 package app.omnivore.omnivore.ui.home
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
+import android.annotation.SuppressLint
+import android.net.Uri
+import android.view.ViewGroup
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.*
+import app.omnivore.omnivore.AppleConstants
+import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.graphql.generated.SearchQuery
+import app.omnivore.omnivore.ui.auth.AppleAuthDialog
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -12,11 +31,68 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
+
   private fun getAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
 
-  fun loggo() {
-    Log.d("TAG", "logging it!")
+  fun load() {
+    viewModelScope.launch {
+      val authToken = getAuthToken()
+
+      val apolloClient = ApolloClient.Builder()
+        .serverUrl("${Constants.apiURL}/api/graphql")
+        .addHttpHeader("Authorization", value = authToken ?: "")
+        .build()
+
+      val response = apolloClient.query(
+        SearchQuery(
+          first = Optional.presentIfNotNull(20),
+        )
+      ).execute()
+
+      val itemList = response.data?.search?.onSearchSuccess?.edges ?: listOf()
+
+      val newItems = itemList.map {
+        LinkedItem(
+          id = it.node.id,
+          title = it.node.title,
+          createdAt = it.node.createdAt,
+          readAt = it.node.readAt,
+          readingProgress = it.node.readingProgressPercent,
+          readingProgressAnchor = it.node.readingProgressAnchorIndex,
+          imageURLString = it.node.image,
+          descriptionText = it.node.description,
+          slug = it.node.slug
+        )
+      }
+
+      itemsLiveData.value = newItems
+    }
   }
 }
+
+public data class LinkedItem(
+  public val id: String,
+  public val title: String,
+  public val createdAt: Any,
+//  public val savedAt: Any,
+  public val readAt: Any?,
+//  public val updatedAt: Any,
+  public val readingProgress: Double,
+  public val readingProgressAnchor: Int,
+  public val imageURLString: String?,
+//  public val onDeviceImageURLString: String?,
+//  public val documentDirectoryPath: String?,
+//  public val pageURLString: String,
+  public val descriptionText: String?,
+//  public val publisherURLString: String?,
+//  public val siteName: String?,
+//  public val author: String?,
+//  public val publishDate: Any?,
+  public val slug: String,
+//  public val isArchived: Boolean,
+//  public val contentReader: String?,
+//  public val originalHtml: String?,
+)
