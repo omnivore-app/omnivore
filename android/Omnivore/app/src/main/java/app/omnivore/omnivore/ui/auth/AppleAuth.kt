@@ -25,7 +25,7 @@ import java.util.*
 
 @Composable
 fun AppleAuthButton(viewModel: LoginViewModel) {
-  val showDialog =  remember { mutableStateOf(false) }
+  val showDialog = remember { mutableStateOf(false) }
 
   LoadingButtonWithIcon(
     text = "Continue with Apple",

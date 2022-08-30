@@ -1,12 +1,11 @@
 package app.omnivore.omnivore.ui.home
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,6 +19,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +36,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable
 fun HomeView(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel) {
+  val selectedItemSlug = remember { mutableStateOf<String?>(null) }
   val linkedItems: List<LinkedItem> by homeViewModel.itemsLiveData.observeAsState(listOf())
 
   // Fetch items
@@ -58,9 +60,15 @@ fun HomeView(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel) {
 
     items(linkedItems) { item ->
       Text(item.title, modifier = Modifier.clickable {
-        Log.d("log", "clicked title: ${item.title}")
+        selectedItemSlug.value = item.slug
       })
       Spacer(modifier = Modifier.height(16.dp))
+    }
+  }
+
+  if (selectedItemSlug.value != null) {
+    ArticleWebViewDialog(selectedItemSlug.value!!) {
+      selectedItemSlug.value = null
     }
   }
 }
@@ -84,37 +92,27 @@ fun LogoutButton(actionHandler: () -> Unit) {
 }
 
 
-if (showDialog.value) {
-  AppleAuthDialog(onDismiss = { token ->
-    if (token != null ) {
-      viewModel.handleAppleToken(token)
-    }
-    showDialog.value = false
-  })
-}
-
 @Composable
-fun ArticleWebViewDialog(onDismiss: (String?) -> Unit) {
-  Dialog(onDismissRequest = { onDismiss(null) }) {
+fun ArticleWebViewDialog(slug: String, onDismiss: () -> Unit) {
+  Dialog(onDismissRequest = { onDismiss() }) {
     Surface(
       shape = RoundedCornerShape(16.dp),
       color = Color.White
     ) {
-      AppleAuthWebView(onDismiss)
+      ArticleWebView(slug)
     }
   }
 }
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun ArticleWebView(onDismiss: (String?) -> Unit) {
-  val url = AppleConstants.authUrl +
-    "?client_id=" + AppleConstants.clientId +
-    "&redirect_uri=" + AppleConstants.redirectURI +
-    "&response_type=code%20id_token" +
-    "&scope=" + AppleConstants.scope +
-    "&response_mode=form_post" +
-    "&state=android:login"
+fun ArticleWebView(slug: String) {
+  WebView.setWebContentsDebuggingEnabled(true)
+
+  val authCookieString = "auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIwODFkZThlOC01ODU0LTExZWMtODY4ZS03ZjU0ZjhiMzY0NGEiLCJpYXQiOjE2NjE4OTA1NjB9.zDE6SOGgRKKV7QuZUIsxEzb_M7o2pyTwshI_Lc_C8Co; Expires=Wed, 30 Aug 2023 20:16:00 GMT; HttpOnly"
+  // add to local storage
+  val url = "https://demo.omnivore.app/app/me/$slug"
+//  val url = "https://demo.omnivore.app/app/me/algae-bloom-in-san-francisco-bay-lake-merritt-is-killing-fish-th-182e81e01dc"
 
   // Adding a WebView inside AndroidView
   // with layout as full screen
@@ -124,19 +122,22 @@ fun ArticleWebView(onDismiss: (String?) -> Unit) {
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
       )
-      webViewClient = object : WebViewClient() {
-        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-          if (request?.url.toString().contains("android-apple-token")) {
-            val uri = Uri.parse(request!!.url.toString())
-            val token = uri.getQueryParameter("token")
 
-            onDismiss(token)
-          }
-          return true
-        }
+      webViewClient = object : WebViewClient() {
       }
+
       settings.javaScriptEnabled = true
-      loadUrl(url)
+      settings.allowContentAccess = true
+      settings.allowFileAccess = true
+      settings.domStorageEnabled = true
+
+      // need to add an authVerified: true value to local storage
+
+      CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+      CookieManager.getInstance().setAcceptCookie(true)
+      CookieManager.getInstance().setCookie("demo.omnivore.app", authCookieString) {
+        loadUrl(url)
+      }
     }
   }, update = {
     it.loadUrl(url)

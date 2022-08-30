@@ -121,6 +121,8 @@ class LoginViewModel @Inject constructor(
       }
 
       if (result.body()?.authCookieString != null) {
+        Log.d("loggo", result.body()?.authCookieString!!)
+
         datastoreRepo.putString(
           DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
         )
