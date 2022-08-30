@@ -20,7 +20,6 @@ import { Speech, SpeechState } from '../entity/speech'
 import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
-import { UserPersonalization } from '../entity/user_personalization'
 import { createPubSubClient } from '../datalayer/pubsub'
 
 const logger = buildLogger('app.dispatch')
@@ -73,13 +72,18 @@ export function articleRouter() {
   })
 
   router.get(
-    '/:id/:outputFormat/:voice?',
+    '/:id/:outputFormat/:priority/:voice?',
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      const voice = req.params.voice
-      if (!articleId || !['mp3', 'speech-marks'].includes(outputFormat)) {
+      const voice = req.params.voice || 'en-US-JennyNeural'
+      const priority = req.params.priority
+      if (
+        !articleId ||
+        !['mp3', 'speech-marks'].includes(outputFormat) ||
+        !['low', 'high'].includes(priority)
+      ) {
         return res.status(400).send('Invalid data')
       }
       const token = req.cookies?.auth || req.headers?.authorization
@@ -140,20 +144,21 @@ export function articleRouter() {
       if (!page) {
         return res.status(404).send('Page not found')
       }
-      const userPersonalization = await getRepository(
-        UserPersonalization
-      ).findOneBy({
-        user: { id: uid },
-      })
       // initialize state
       const speech = await getRepository(Speech).save({
         user: { id: uid },
         elasticPageId: articleId,
         state: SpeechState.INITIALIZED,
-        voice: voice || userPersonalization?.speechVoice || 'en-US-JennyNeural',
+        voice,
       })
       // enqueue a task to convert text to speech
-      const taskName = await enqueueTextToSpeech(uid, speech.id)
+      const taskName = await enqueueTextToSpeech({
+        userId: uid,
+        speechId: speech.id,
+        text: page.content,
+        voice: speech.voice,
+        priority: priority as 'low' | 'high',
+      })
       logger.info('Start Text to speech task', { taskName })
       res.status(202).send('Text to speech task started')
     }

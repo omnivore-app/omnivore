@@ -38,9 +38,11 @@ class SaveViewModel @Inject constructor(
       isLoading = true
       message = "Saving to Omnivore..."
 
-      val apiKey = getAuthToken()
+      val authToken = getAuthToken()
 
-      if (apiKey == null) {
+      Log.d(ContentValues.TAG, "AuthToken: $authToken")
+
+      if (authToken == null) {
         message = "You are not logged in. Please login before saving."
         isLoading = false
         return@launch
@@ -48,7 +50,7 @@ class SaveViewModel @Inject constructor(
 
       val apolloClient = ApolloClient.Builder()
         .serverUrl("${Constants.apiURL}/api/graphql")
-        .addHttpHeader("Authorization", value = apiKey)
+        .addHttpHeader("Authorization", value = authToken)
         .build()
 
       val response = apolloClient.mutation(
@@ -70,7 +72,7 @@ class SaveViewModel @Inject constructor(
         "There was an error saving your page"
       }
 
-      Log.d(ContentValues.TAG, "Saved URL?: ${success.toString()}")
+      Log.d(ContentValues.TAG, "Saved URL?: $success")
     }
   }
 }

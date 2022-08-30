@@ -45,11 +45,7 @@ const createHttpTaskWithToken = async ({
   ]
 > => {
   // Construct the fully qualified queue name.
-  if (priority === 'low') {
-    queue = `${queue}-low`
-    // use GCF url for low priority tasks
-    taskHandlerUrl = env.queue.contentFetchGCFUrl
-  }
+  priority === 'low' && (queue = `${queue}-low`)
 
   const parent = client.queuePath(project, location, queue)
   console.log(`Task creation options: `, {
@@ -211,13 +207,15 @@ export const deleteTask = async (
  * @param userId - Id of the user authorized
  * @param saveRequestId - Id of the article_saving_request table record
  * @param priority - Priority of the task
+ * @param queue - Queue name
  * @returns Name of the task created
  */
 export const enqueueParseRequest = async (
   url: string,
   userId: string,
   saveRequestId: string,
-  priority: 'low' | 'high' = 'high'
+  priority: 'low' | 'high' = 'high',
+  queue = env.queue.name
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -240,10 +238,18 @@ export const enqueueParseRequest = async (
     return ''
   }
 
+  // use GCF url for low priority tasks
+  const taskHandlerUrl =
+    priority === 'low'
+      ? env.queue.contentFetchGCFUrl
+      : env.queue.contentFetchUrl
+
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     priority,
+    taskHandlerUrl,
+    queue,
   })
   if (!createdTasks || !createdTasks[0].name) {
     logger.error(`Unable to get the name of the task`, {
@@ -328,14 +334,34 @@ export const enqueueSyncWithIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueTextToSpeech = async (
-  userId: string,
+export const enqueueTextToSpeech = async ({
+  userId,
+  text,
+  speechId,
+  voice,
+  priority,
+  textType = 'ssml',
+  bucket = env.fileUpload.gcsUploadBucket,
+  queue = 'omnivore-demo-text-to-speech-queue',
+  location = env.gcp.location,
+}: {
+  userId: string
   speechId: string
-): Promise<string> => {
+  text: string
+  voice: string
+  priority: 'low' | 'high'
+  bucket?: string
+  textType?: 'text' | 'ssml'
+  queue?: string
+  location?: string
+}): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
-    userId,
-    speechId,
+    id: speechId,
+    text,
+    voice,
+    bucket,
+    textType,
   }
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -357,6 +383,9 @@ export const enqueueTextToSpeech = async (
     project: GOOGLE_CLOUD_PROJECT,
     payload,
     taskHandlerUrl,
+    queue,
+    location,
+    priority,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

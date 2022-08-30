@@ -128,16 +128,14 @@ fun AuthProviderView(
   ) {
     Spacer(modifier = Modifier.weight(1.0F))
     Column(
-//      verticalArrangement = Arrangement.Center,
-//      horizontalAlignment = Alignment.CenterHorizontally
-              verticalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       if (isGoogleAuthAvailable) {
         GoogleAuthButton(viewModel)
       }
 
-      // AppleAuthButton(viewModel)
+      AppleAuthButton(viewModel)
 
       ClickableText(
         text = AnnotatedString("Continue with Email"),

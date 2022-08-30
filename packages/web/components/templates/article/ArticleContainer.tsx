@@ -125,12 +125,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     interface UpdateColorModeEvent extends Event {
-      isDark?: boolean
+      isDark?: string
     }
 
     const updateColorMode = (event: UpdateColorModeEvent) => {
-      const isDark = event.isDark ?? false
-      updateThemeLocally(isDark ? ThemeId.Dark : ThemeId.Light)
+      const isDark = event.isDark ?? "false"
+      updateThemeLocally(isDark === "true" ? ThemeId.Dark : ThemeId.Light)
     }
 
     const share = () => {

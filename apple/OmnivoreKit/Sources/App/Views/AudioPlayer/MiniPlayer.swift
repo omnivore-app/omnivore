@@ -67,46 +67,54 @@ public struct MiniPlayer: View {
     )
   }
 
+  var shareButton: some View {
+    Button(
+      action: {
+        let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
+        if let vc = UIApplication.shared.windows.first?.rootViewController {
+          shareActivity.popoverPresentationController?.sourceView = vc.view
+          // Setup share activity position on screen on bottom center
+          shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
+          shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
+          vc.present(shareActivity, animated: true, completion: nil)
+        }
+      },
+      label: {
+        Image(systemName: "square.and.arrow.up")
+          .font(.appCallout)
+          .tint(.appGrayText)
+      }
+    )
+  }
+
+  var closeButton: some View {
+    Button(
+      action: {
+        withAnimation(.interactiveSpring()) {
+          self.expanded = false
+        }
+      },
+      label: {
+        Image(systemName: "chevron.down")
+          .font(.appCallout)
+          .tint(.appGrayText)
+      }
+    )
+  }
+
   // swiftlint:disable:next function_body_length
   func playerContent(_ item: LinkedItem) -> some View {
     GeometryReader { geom in
       VStack {
         if expanded {
           ZStack {
-            Button(
-              action: {
-                withAnimation(.interactiveSpring()) {
-                  self.expanded = false
-                }
-              },
-              label: {
-                Image(systemName: "chevron.down")
-                  .font(.appCallout)
-                  .tint(.appGrayText)
-              }
-            )
-            .padding(.top, 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            closeButton
+              .padding(.top, 8)
+              .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button(
-              action: {
-                let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
-                if let vc = UIApplication.shared.windows.first?.rootViewController {
-                  shareActivity.popoverPresentationController?.sourceView = vc.view
-                  // Setup share activity position on screen on bottom center
-                  shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
-                  shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
-                  vc.present(shareActivity, animated: true, completion: nil)
-                }
-              },
-              label: {
-                Image(systemName: "square.and.arrow.up")
-                  .font(.appCallout)
-                  .tint(.appGrayText)
-              }
-            )
-            .padding(.top, 8)
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            shareButton
+              .padding(.top, 8)
+              .frame(maxWidth: .infinity, alignment: .trailing)
 
             Capsule()
               .fill(.gray)
@@ -119,31 +127,19 @@ public struct MiniPlayer: View {
         Spacer(minLength: 0)
 
         HStack {
-          Group {
-            if let imageURL = item.imageURL {
-              let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
-              let scale = (geom.size.height - offset) / geom.size.height
-              let dim2 = maxSize * scale
-              let dim = expanded ? dim2 : 64
-              // print("offset", offset, "maxSize", maxSize)
+          let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
+          let dim = expanded ? maxSize : 64
 
-              AsyncLoadingImage(url: imageURL) { imageStatus in
-                if case let AsyncImageStatus.loaded(image) = imageStatus {
-                  image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: dim, height: dim)
-                    .cornerRadius(6)
-                    .matchedGeometryEffect(id: "ArticleArt", in: animation)
-                } else if case AsyncImageStatus.loading = imageStatus {
-                  Color.appButtonBackground
-                    .frame(width: dim, height: dim)
-                    .cornerRadius(6)
-                } else {
-                  EmptyView().frame(width: dim, height: dim, alignment: .top)
-                }
-              }
-            }
+          AsyncImage(url: item.imageURL) { image in
+            image
+              .resizable()
+              .aspectRatio(contentMode: .fill)
+              .frame(width: dim, height: dim)
+              .cornerRadius(6)
+          } placeholder: {
+            Color.appButtonBackground
+              .frame(width: dim, height: dim)
+              .cornerRadius(6)
           }
 
           if !expanded {
@@ -226,7 +222,6 @@ public struct MiniPlayer: View {
               slider.setThumbImage(image, for: .normal)
 
               slider.minimumTrackTintColor = tintColor
-              slider.value = 10
             }
 
           HStack {

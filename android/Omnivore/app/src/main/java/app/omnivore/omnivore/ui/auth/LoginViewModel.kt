@@ -68,6 +68,12 @@ class LoginViewModel @Inject constructor(
     }
   }
 
+  fun handleAppleToken(authToken: String) {
+    submitAuthProviderPayload(
+      params = SignInParams(token = authToken, provider = "APPLE")
+    )
+  }
+
   fun logout() {
     viewModelScope.launch {
       datastoreRepo.clear()
@@ -84,11 +90,7 @@ class LoginViewModel @Inject constructor(
 
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
     val result = task?.getResult(ApiException::class.java)
-    Log.d(ContentValues.TAG, "server auth code?: ${result.serverAuthCode}")
-    Log.d(ContentValues.TAG, "is Expired?: ${result.isExpired}")
-    Log.d(ContentValues.TAG, "granted Scopes?: ${result.grantedScopes}")
     val googleIdToken = result.idToken
-    Log.d(ContentValues.TAG, "Google id token?: $googleIdToken")
 
     // If token is missing then set the error message
     if (googleIdToken == null) {
@@ -96,15 +98,19 @@ class LoginViewModel @Inject constructor(
       return
     }
 
+    submitAuthProviderPayload(
+      params = SignInParams(token = googleIdToken, provider = "GOOGLE")
+    )
+  }
+
+  private fun submitAuthProviderPayload(params: SignInParams) {
     val login = RetrofitHelper.getInstance().create(AuthProviderLoginSubmit::class.java)
 
     viewModelScope.launch {
       isLoading = true
       errorMessage = null
 
-      val result = login.submitAuthProviderLogin(
-        SignInParams(token = googleIdToken, provider = "GOOGLE")
-      )
+      val result = login.submitAuthProviderLogin(params)
 
       isLoading = false
 
