@@ -88,9 +88,9 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           </Box>
         </HStack>
         <HStack alignment="start" distribution="between">
-          <StyledText style="caption" css={{ mt: '-5px', fontWeight: '600' }}>
+          <StyledText style="caption" css={{fontWeight: '600', margin: '5px 8px 5px 0' }}>
             {props.item.author && (
-              <SpanBox css={{ mr: '8px' }}>
+              <SpanBox>
                 {removeHTMLTags(props.item.author)}
               </SpanBox>
             )}
