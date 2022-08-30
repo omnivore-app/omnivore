@@ -29,6 +29,36 @@ describe('htmlToSsml', () => {
       )
     })
   })
+  describe('escaping', () => {
+    it('should convert &nbsp; to spaces', async () => {
+      const ssml = htmlToSsml(`
+      <div id="readability-content">
+        <div id="readability-page-1">
+          <p>some&nbsp;&nbsp;space</p>
+        </div>
+      </div>
+      `, TEST_OPTIONS
+      )
+      const text = ssml[0].textItems.join('').trim()
+      expect(text).to.equal(
+        `<p><bookmark mark="3" />some  space</p>`
+      )
+    })
+    it('should remove emojis', async () => {
+      const ssml = htmlToSsml(`
+      <div id="readability-content">
+        <div id="readability-page-1">
+          <p>no emoji here 🙏🙏</p>
+        </div>
+      </div>
+      `, TEST_OPTIONS
+      )
+      const text = ssml[0].textItems.join('').trim()
+      expect(text).to.equal(
+        `<p><bookmark mark="3" />no emoji here </p>`
+      )
+    })
+  })
   describe('a file with nested elements', () => {
     it('should collapse spans into the parent paragraph', async () => {
       const ssml = htmlToSsml(`
@@ -175,6 +205,38 @@ describe('htmlToSsml', () => {
       )
       expect(ssml[2].open.trim()).to.equal(
         `<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US"><voice name="test-primary"><prosody rate="1" pitch="default">`
+      )
+    })
+  })
+  describe('a file with lists', () => {
+    it('should convert a ul to <p> and <s>', async () => {
+      const ssml = htmlToSsml(`
+        <div id="readability-content">
+          <div>
+              <ul><li>first item</li><li>second item</li></ul>
+            </p>
+          </div>
+        </div>
+      `, TEST_OPTIONS
+      )
+      const text = ssml[0].textItems.join('').trim()
+      expect(text).to.equal(
+        `<p><s>first item</s><s>second item</s></p>`.trim()
+      )
+    })
+    it('should convert a ol to <p> and <s>', async () => {
+      const ssml = htmlToSsml(`
+        <div id="readability-content">
+          <div>
+              <ol><li>first item</li><li>second item</li></ol>
+            </p>
+          </div>
+        </div>
+      `, TEST_OPTIONS
+      )
+      const text = ssml[0].textItems.join('').trim()
+      expect(text).to.equal(
+        `<p><s>first item</s><s>second item</s></p>`.trim()
       )
     })
   })
