@@ -30,7 +30,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         props.handleAction('showDetail')
       }}
     >
-      {props.item.image && (
+      {props.item.image && props.layout !== 'LIST_LAYOUT' && (
         <CoverImage
           src={props.item.image}
           alt="Link Preview Image"
@@ -88,7 +88,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           </Box>
         </HStack>
         <HStack alignment="start" distribution="between">
-          <StyledText style="caption" css={{ mt: '-5px', fontWeight: '500' }}>
+          <StyledText style="caption" css={{ mt: '-5px', fontWeight: '600' }}>
             {props.item.author && (
               <SpanBox css={{ mr: '8px' }}>
                 {removeHTMLTags(props.item.author)}
