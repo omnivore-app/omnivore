@@ -70,7 +70,7 @@ function parseDomTree(pageNode: Element) {
 }
 
 function emit(textItems: string[], text: string) {
-  textItems.push(text.trim())
+  textItems.push(text)
 }
 
 function cleanTextNode(textNode: ChildNode): string {
@@ -167,6 +167,16 @@ const endSsml = (): string => {
   return `</prosody></voice></speak>`
 }
 
+const hasSignificantText = (node: ChildNode): boolean => {
+  let text = ''
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === 3 /* Node.TEXT_NODE */) {
+      text += child.textContent
+    }
+  }
+  return text.trim().length > 0
+}
+
 export const ssmlItemText = (item: SSMLItem): string => {
   return [item.open, ...item.textItems, item.close].join('')
 }
@@ -198,7 +208,7 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
     const textItems: string[] = []
     const node = parsedNodes[i - 2]
 
-    if (TOP_LEVEL_TAGS.includes(node.nodeName)) {
+    if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       i = emitElement(textItems, node, true)
       items.push({
         open: startSsml(node, options),
