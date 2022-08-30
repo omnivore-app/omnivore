@@ -55,7 +55,7 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, audioSession: AudioSession, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, audioSession _: AudioSession, isRefresh: Bool) async {
     let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
@@ -123,7 +123,7 @@ import Views
       cursor = queryResult.cursor
       if let username = dataService.currentViewer?.username {
         await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
-        await audioSession.preload(itemIDs: newItems.map(\.unwrappedID))
+        // await audioSession.preload(itemIDs: newItems.map(\.unwrappedID))
       }
     } else {
       updateFetchController(dataService: dataService)
