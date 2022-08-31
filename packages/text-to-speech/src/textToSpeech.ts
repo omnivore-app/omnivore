@@ -56,9 +56,6 @@ export const synthesizeTextToSpeech = async (
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
-    console.debug(
-      `(synthesizing): Audio length: ${e.result.audioData.byteLength}`
-    )
     writeStream.write(Buffer.from(e.result.audioData))
   }
 
