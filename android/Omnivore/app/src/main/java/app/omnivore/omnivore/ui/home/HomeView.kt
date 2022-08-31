@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.*
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -50,19 +51,21 @@ fun HomeView(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel) {
       .fillMaxSize()
       .padding(horizontal = 6.dp)
   ) {
-    item {
-      Text("You have a valid auth token. Nice. Go save something in Chrome!")
-    }
 
     item {
-      LogoutButton { loginViewModel.logout() }
+      Row(
+        horizontalArrangement = Arrangement.End
+      ) {
+        Spacer(modifier = Modifier.weight(1.0F))
+        LogoutButton { loginViewModel.logout() }
+      }
     }
 
     items(linkedItems) { item ->
-      Text(item.title, modifier = Modifier.clickable {
-        selectedItemSlug.value = item.slug
-      })
-      Spacer(modifier = Modifier.height(16.dp))
+      LinkedItemCard(
+        item = item,
+        onClickHandler = { selectedItemSlug.value = item.slug }
+      )
     }
   }
 
@@ -134,8 +137,8 @@ fun ArticleWebView(slug: String) {
       CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
       CookieManager.getInstance().setAcceptCookie(true)
       CookieManager.getInstance().setCookie("https://api-demo.omnivore.app", authCookieString) {
+        loadUrl(url)
       }
-      loadUrl(url)
     }
   }, update = {
     it.loadUrl(url)
