@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.root
 
+import SettingsView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,7 +33,6 @@ fun PrimaryNavigator(loginViewModel: LoginViewModel, homeViewModel: HomeViewMode
   NavHost(navController = navController, startDestination = Routes.Home.route) {
     composable(Routes.Home.route) {
       HomeView(
-        loginViewModel = loginViewModel, // TODO: remove loginViewModel from here
         homeViewModel = homeViewModel,
         navController = navController
       )
@@ -43,6 +43,10 @@ fun PrimaryNavigator(loginViewModel: LoginViewModel, homeViewModel: HomeViewMode
         it.arguments?.getString("slug") ?: "",
         authCookieString = loginViewModel.getAuthCookieString() ?: ""
       )
+    }
+
+    composable(Routes.Settings.route) {
+      SettingsView(loginViewModel = loginViewModel, navController = navController)
     }
   }
 }
