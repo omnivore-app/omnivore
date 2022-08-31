@@ -54,13 +54,13 @@ export const synthesizeTextToSpeech = async (
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
 
-  // synthesizer.synthesizing = function (s, e) {
-  //   // convert arrayBuffer to stream and write to stream
-  //   console.debug(
-  //     `(synthesizing): Audio length: ${e.result.audioData.byteLength}`
-  //   )
-  //   writeStream.write(Buffer.from(e.result.audioData))
-  // }
+  synthesizer.synthesizing = function (s, e) {
+    // convert arrayBuffer to stream and write to stream
+    console.debug(
+      `(synthesizing): Audio length: ${e.result.audioData.byteLength}`
+    )
+    writeStream.write(Buffer.from(e.result.audioData))
+  }
 
   // The event synthesis completed signals that the synthesis is completed.
   synthesizer.synthesisCompleted = (s, e) => {
@@ -118,14 +118,12 @@ export const synthesizeTextToSpeech = async (
   }
 
   const speakSsmlAsyncPromise = (
-    ssml: string,
-    writeStream: NodeJS.WritableStream
+    ssml: string
   ): Promise<SpeechSynthesisResult> => {
     return new Promise((resolve, reject) => {
       synthesizer.speakSsmlAsync(
         ssml,
         (result) => {
-          writeStream.write(Buffer.from(result.audioData))
           resolve(result)
         },
         (error) => {
@@ -147,12 +145,12 @@ export const synthesizeTextToSpeech = async (
       for (const ssmlItem of Array.from(ssmlItems)) {
         const ssml = ssmlItemText(ssmlItem)
         console.debug('start synthesizing', ssml)
-        const result = await speakSsmlAsyncPromise(ssml, writeStream)
+        const result = await speakSsmlAsyncPromise(ssml)
         timeOffset = timeOffset + result.audioDuration
       }
     } else {
       console.debug('start synthesizing', input.text)
-      await speakSsmlAsyncPromise(input.text, writeStream)
+      await speakSsmlAsyncPromise(input.text)
     }
   } catch (error) {
     console.error('synthesis error', error)

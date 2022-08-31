@@ -144,9 +144,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         textType: 'ssml',
         writeStream,
       }
-      await synthesizeTextToSpeech(input)
-      console.info('Synthesize text to speech completed')
-
       res.set({
         'Content-Type': 'audio/mpeg',
         'Transfer-Encoding': 'chunked',
@@ -154,6 +151,8 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       console.info('Text to speech starts streaming')
       writeStream.pipe(res)
+
+      await synthesizeTextToSpeech(input)
     } catch (e) {
       console.error('Text to speech streaming error', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
