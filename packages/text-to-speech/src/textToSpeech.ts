@@ -10,15 +10,15 @@ import {
 import { htmlToSsml, ssmlItemText } from './htmlToSsml'
 
 export interface TextToSpeechInput {
-  id: string
+  id?: string
   text: string
   voice?: string
   languageCode?: string
-  textType?: 'text' | 'ssml'
+  textType?: 'html' | 'ssml'
   rate?: number
   volume?: number
   complimentaryVoice?: string
-  bucket: string
+  bucket?: string
   writeStream: NodeJS.WritableStream
 }
 
@@ -45,7 +45,7 @@ export const synthesizeTextToSpeech = async (
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
   )
-  const textType = input.textType || 'text'
+  const textType = input.textType || 'html'
   speechConfig.speechSynthesisOutputFormat =
     SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
 
@@ -53,12 +53,14 @@ export const synthesizeTextToSpeech = async (
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
-  const characterOffset = 0
 
-  synthesizer.synthesizing = function (s, e) {
-    // convert arrayBuffer to stream and write to gcs file
-    writeStream.write(Buffer.from(e.result.audioData))
-  }
+  // synthesizer.synthesizing = function (s, e) {
+  //   // convert arrayBuffer to stream and write to stream
+  //   console.debug(
+  //     `(synthesizing): Audio length: ${e.result.audioData.byteLength}`
+  //   )
+  //   writeStream.write(Buffer.from(e.result.audioData))
+  // }
 
   // The event synthesis completed signals that the synthesis is completed.
   synthesizer.synthesisCompleted = (s, e) => {
@@ -83,15 +85,20 @@ export const synthesizeTextToSpeech = async (
     if (cancellationDetails.reason === CancellationReason.Error) {
       str += ': ' + e.result.errorDetails
     }
-    console.info(str)
+    console.error(str)
   }
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = (s, e) => {
+    console.debug(
+      `(word boundary) Audio offset: ${e.audioOffset / 10000}ms, text: ${
+        e.text
+      }`
+    )
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
-      start: characterOffset + e.textOffset,
+      start: e.textOffset,
       length: e.wordLength,
       type: 'word',
     })
@@ -99,7 +106,7 @@ export const synthesizeTextToSpeech = async (
 
   synthesizer.bookmarkReached = (s, e) => {
     console.debug(
-      `(Bookmark reached), Audio offset: ${
+      `(bookmark reached) Audio offset: ${
         e.audioOffset / 10000
       }ms, bookmark text: ${e.text}`
     )
@@ -111,12 +118,14 @@ export const synthesizeTextToSpeech = async (
   }
 
   const speakSsmlAsyncPromise = (
-    text: string
+    ssml: string,
+    writeStream: NodeJS.WritableStream
   ): Promise<SpeechSynthesisResult> => {
     return new Promise((resolve, reject) => {
       synthesizer.speakSsmlAsync(
-        text,
+        ssml,
         (result) => {
+          writeStream.write(Buffer.from(result.audioData))
           resolve(result)
         },
         (error) => {
@@ -126,36 +135,34 @@ export const synthesizeTextToSpeech = async (
     })
   }
 
-  if (textType === 'text') {
-    const ssmlItems = htmlToSsml(input.text, {
-      primaryVoice: input.voice || 'en-US-JennyNeural',
-      secondaryVoice: 'en-US-GuyNeural',
-      language: input.languageCode || 'en-US',
-      rate: '1',
-    })
+  try {
+    if (textType === 'html') {
+      const ssmlItems = htmlToSsml(input.text, {
+        primaryVoice: input.voice || 'en-US-JennyNeural',
+        secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
+        language: input.languageCode || 'en-US',
+        rate: '1',
+      })
 
-    for (const ssmlItem of Array.from(ssmlItems)) {
-      const ssml = ssmlItemText(ssmlItem)
-      console.debug(`synthesizing ${ssml}`)
-      const result = await speakSsmlAsyncPromise(ssml)
-      if (result.reason === ResultReason.Canceled) {
-        writeStream.end()
-        synthesizer.close()
-        throw new Error(result.errorDetails)
+      for (const ssmlItem of Array.from(ssmlItems)) {
+        const ssml = ssmlItemText(ssmlItem)
+        console.debug('start synthesizing', ssml)
+        const result = await speakSsmlAsyncPromise(ssml, writeStream)
+        timeOffset = timeOffset + result.audioDuration
       }
-      timeOffset = timeOffset + result.audioDuration
-      // characterOffset = characterOffset + htmlElement.innerText.length
+    } else {
+      console.debug('start synthesizing', input.text)
+      await speakSsmlAsyncPromise(input.text, writeStream)
     }
-  } else {
-    const result = await speakSsmlAsyncPromise(input.text)
-    if (result.reason === ResultReason.Canceled) {
-      writeStream.end()
-      synthesizer.close()
-      throw new Error(result.errorDetails)
-    }
+  } catch (error) {
+    console.error('synthesis error', error)
+    throw error
+  } finally {
+    console.debug('closing synthesizer')
+    writeStream.end()
+    synthesizer.close()
+    console.debug('synthesizer closed')
   }
-  writeStream.end()
-  synthesizer.close()
 
   return {
     speechMarks,
