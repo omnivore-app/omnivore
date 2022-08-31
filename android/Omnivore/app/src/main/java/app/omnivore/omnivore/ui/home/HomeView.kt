@@ -1,22 +1,17 @@
 package app.omnivore.omnivore.ui.home
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.net.Uri
-import android.util.Log
 import android.view.ViewGroup
 import android.webkit.*
-import android.widget.Space
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -29,14 +24,46 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
-import app.omnivore.omnivore.AppleConstants
-import app.omnivore.omnivore.ui.auth.AppleAuthDialog
+import androidx.navigation.NavHostController
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeView(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel) {
+fun HomeView(
+  loginViewModel: LoginViewModel,
+  homeViewModel: HomeViewModel,
+  navController: NavHostController
+) {
+  Scaffold(
+    topBar = {
+      TopAppBar(
+        title = { Text("Home") },
+        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+        actions = {
+          IconButton(onClick = { }) {
+            Icon(
+              imageVector = Icons.Default.Menu,
+              contentDescription = null
+            )
+          }
+        }
+      )
+    }
+  ) {
+    HomeViewContent(loginViewModel, homeViewModel, navController)
+  }
+}
+
+@Composable
+fun HomeViewContent(
+  loginViewModel: LoginViewModel,
+  homeViewModel: HomeViewModel,
+  navController: NavHostController
+) {
   val selectedItemSlug = remember { mutableStateOf<String?>(null) }
   val linkedItems: List<LinkedItem> by homeViewModel.itemsLiveData.observeAsState(listOf())
 
@@ -113,9 +140,7 @@ fun ArticleWebView(slug: String) {
   WebView.setWebContentsDebuggingEnabled(true)
 
   val authCookieString = "auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIwODFkZThlOC01ODU0LTExZWMtODY4ZS03ZjU0ZjhiMzY0NGEiLCJpYXQiOjE2NjE4OTA1NjB9.zDE6SOGgRKKV7QuZUIsxEzb_M7o2pyTwshI_Lc_C8Co; Expires=Wed, 30 Aug 2023 20:16:00 GMT; HttpOnly; secure;"
-  // add to local storage
   val url = "https://demo.omnivore.app/app/me/$slug"
-//  val url = "https://demo.omnivore.app/app/me/algae-bloom-in-san-francisco-bay-lake-merritt-is-killing-fish-th-182e81e01dc"
 
   // Adding a WebView inside AndroidView
   // with layout as full screen
