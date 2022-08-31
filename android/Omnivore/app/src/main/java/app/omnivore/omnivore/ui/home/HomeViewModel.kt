@@ -31,6 +31,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  var cursor: String? = null
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
 
   private fun getAuthToken(): String? = runBlocking {
@@ -48,10 +49,12 @@ class HomeViewModel @Inject constructor(
 
       val response = apolloClient.query(
         SearchQuery(
-          first = Optional.presentIfNotNull(20),
+          after = Optional.presentIfNotNull(cursor),
+          first = Optional.presentIfNotNull(15),
         )
       ).execute()
 
+      cursor = response.data?.search?.onSearchSuccess?.pageInfo?.endCursor
       val itemList = response.data?.search?.onSearchSuccess?.edges ?: listOf()
 
       val newItems = itemList.map {
@@ -68,7 +71,7 @@ class HomeViewModel @Inject constructor(
         )
       }
 
-      itemsLiveData.value = newItems
+      itemsLiveData.value = (itemsLiveData.value ?: listOf()).plus(newItems)
     }
   }
 }
