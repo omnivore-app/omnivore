@@ -109,7 +109,7 @@ fun ArticleWebViewDialog(slug: String, onDismiss: () -> Unit) {
 fun ArticleWebView(slug: String) {
   WebView.setWebContentsDebuggingEnabled(true)
 
-  val authCookieString = "auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIwODFkZThlOC01ODU0LTExZWMtODY4ZS03ZjU0ZjhiMzY0NGEiLCJpYXQiOjE2NjE4OTA1NjB9.zDE6SOGgRKKV7QuZUIsxEzb_M7o2pyTwshI_Lc_C8Co; Expires=Wed, 30 Aug 2023 20:16:00 GMT; HttpOnly"
+  val authCookieString = "auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIwODFkZThlOC01ODU0LTExZWMtODY4ZS03ZjU0ZjhiMzY0NGEiLCJpYXQiOjE2NjE4OTA1NjB9.zDE6SOGgRKKV7QuZUIsxEzb_M7o2pyTwshI_Lc_C8Co; Expires=Wed, 30 Aug 2023 20:16:00 GMT; HttpOnly; secure;"
   // add to local storage
   val url = "https://demo.omnivore.app/app/me/$slug"
 //  val url = "https://demo.omnivore.app/app/me/algae-bloom-in-san-francisco-bay-lake-merritt-is-killing-fish-th-182e81e01dc"
@@ -123,21 +123,19 @@ fun ArticleWebView(slug: String) {
         ViewGroup.LayoutParams.MATCH_PARENT
       )
 
-      webViewClient = object : WebViewClient() {
-      }
-
       settings.javaScriptEnabled = true
       settings.allowContentAccess = true
       settings.allowFileAccess = true
       settings.domStorageEnabled = true
 
-      // need to add an authVerified: true value to local storage
+      webViewClient = object : WebViewClient() {
+      }
 
       CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
       CookieManager.getInstance().setAcceptCookie(true)
-      CookieManager.getInstance().setCookie("demo.omnivore.app", authCookieString) {
-        loadUrl(url)
+      CookieManager.getInstance().setCookie("https://api-demo.omnivore.app", authCookieString) {
       }
+      loadUrl(url)
     }
   }, update = {
     it.loadUrl(url)
