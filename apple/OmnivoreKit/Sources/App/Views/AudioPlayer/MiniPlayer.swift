@@ -16,7 +16,6 @@ public struct MiniPlayer: View {
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 
-  @State private var webReaderItem: LinkedItem?
   @State var expanded = false
   @State var offset: CGFloat = 0
   @Namespace private var animation
@@ -92,7 +91,6 @@ public struct MiniPlayer: View {
     Button(
       action: {
         withAnimation(.interactiveSpring()) {
-          self.webReaderItem = nil
           self.expanded = false
         }
       },
@@ -145,7 +143,8 @@ public struct MiniPlayer: View {
           }
           .onTapGesture {
             if expanded {
-              webReaderItem = item
+              expanded = false
+              NSNotification.pushReaderItem(objectID: item.objectID)
             }
           }
 
@@ -292,12 +291,6 @@ public struct MiniPlayer: View {
         }
       }
     }
-    .sheet(item: $webReaderItem) {
-      LinkItemDetailView(
-        linkedItemObjectID: $0.objectID,
-        isPDF: $0.isPDF
-      )
-    }
   }
 
   func onDragChanged(value: DragGesture.Value) {
@@ -310,7 +303,6 @@ public struct MiniPlayer: View {
     withAnimation(.interactiveSpring()) {
       if value.translation.height > minExpandedHeight {
         expanded = false
-        webReaderItem = nil
       }
       offset = 0
     }
