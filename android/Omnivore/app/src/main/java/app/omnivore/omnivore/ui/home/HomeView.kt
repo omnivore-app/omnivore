@@ -1,8 +1,6 @@
 package app.omnivore.omnivore.ui.home
 
 import android.annotation.SuppressLint
-import android.view.ViewGroup
-import android.webkit.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +15,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 
@@ -85,37 +82,4 @@ fun HomeViewContent(
       )
     }
   }
-}
-
-@SuppressLint("SetJavaScriptEnabled")
-@Composable
-fun ArticleWebView(slug: String, authCookieString: String) {
-  WebView.setWebContentsDebuggingEnabled(true)
-
-  val url = "https://demo.omnivore.app/app/me/$slug"
-
-  AndroidView(factory = {
-    WebView(it).apply {
-      layoutParams = ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT
-      )
-
-      settings.javaScriptEnabled = true
-      settings.allowContentAccess = true
-      settings.allowFileAccess = true
-      settings.domStorageEnabled = true
-
-      webViewClient = object : WebViewClient() {
-      }
-
-      CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
-      CookieManager.getInstance().setAcceptCookie(true)
-      CookieManager.getInstance().setCookie("https://api-demo.omnivore.app", authCookieString) {
-        loadUrl(url)
-      }
-    }
-  }, update = {
-    it.loadUrl(url)
-  })
 }
