@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
+import app.omnivore.omnivore.ui.home.ArticleWebView
 import app.omnivore.omnivore.ui.home.HomeView
 import app.omnivore.omnivore.ui.home.HomeViewModel
 
@@ -35,8 +36,9 @@ fun PrimaryNavigator(loginViewModel: LoginViewModel, homeViewModel: HomeViewMode
         navController = navController
       )
     }
-//    composable(Routes.EmailLogin.route) {
-//      EmailLoginPage(viewModel = viewModel, navController = navController)
-//    }
+
+    composable("WebReader/{slug}") {
+      ArticleWebView(it.arguments?.getString("slug") ?: "")
+    }
   }
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -64,7 +65,6 @@ fun HomeViewContent(
   homeViewModel: HomeViewModel,
   navController: NavHostController
 ) {
-  val selectedItemSlug = remember { mutableStateOf<String?>(null) }
   val linkedItems: List<LinkedItem> by homeViewModel.itemsLiveData.observeAsState(listOf())
 
   // Fetch items
@@ -91,14 +91,10 @@ fun HomeViewContent(
     items(linkedItems) { item ->
       LinkedItemCard(
         item = item,
-        onClickHandler = { selectedItemSlug.value = item.slug }
+        onClickHandler = {
+          navController.navigate("WebReader/${item.slug}")
+        }
       )
-    }
-  }
-
-  if (selectedItemSlug.value != null) {
-    ArticleWebViewDialog(selectedItemSlug.value!!) {
-      selectedItemSlug.value = null
     }
   }
 }
@@ -118,19 +114,6 @@ fun LogoutButton(actionHandler: () -> Unit) {
     actionHandler()
   }) {
     Text(text = "Logout")
-  }
-}
-
-
-@Composable
-fun ArticleWebViewDialog(slug: String, onDismiss: () -> Unit) {
-  Dialog(onDismissRequest = { onDismiss() }) {
-    Surface(
-      shape = RoundedCornerShape(16.dp),
-      color = Color.White
-    ) {
-      ArticleWebView(slug)
-    }
   }
 }
 
