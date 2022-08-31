@@ -141,7 +141,7 @@ public struct MiniPlayer: View {
               .frame(width: dim, height: dim)
               .cornerRadius(6)
           }
-          .onTapGesture {
+          .onTapGesture(count: 2) {
             if expanded {
               expanded = false
               NSNotification.pushReaderItem(objectID: item.objectID)
