@@ -119,14 +119,12 @@ fun LogoutButton(actionHandler: () -> Unit) {
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun ArticleWebView(slug: String) {
+fun ArticleWebView(slug: String, authCookieString: String) {
   WebView.setWebContentsDebuggingEnabled(true)
 
-  val authCookieString = "auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIwODFkZThlOC01ODU0LTExZWMtODY4ZS03ZjU0ZjhiMzY0NGEiLCJpYXQiOjE2NjE4OTA1NjB9.zDE6SOGgRKKV7QuZUIsxEzb_M7o2pyTwshI_Lc_C8Co; Expires=Wed, 30 Aug 2023 20:16:00 GMT; HttpOnly; secure;"
+//  val authCookieString = "auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIwODFkZThlOC01ODU0LTExZWMtODY4ZS03ZjU0ZjhiMzY0NGEiLCJpYXQiOjE2NjE4OTA1NjB9.zDE6SOGgRKKV7QuZUIsxEzb_M7o2pyTwshI_Lc_C8Co; Expires=Wed, 30 Aug 2023 20:16:00 GMT; HttpOnly; secure;"
   val url = "https://demo.omnivore.app/app/me/$slug"
 
-  // Adding a WebView inside AndroidView
-  // with layout as full screen
   AndroidView(factory = {
     WebView(it).apply {
       layoutParams = ViewGroup.LayoutParams(

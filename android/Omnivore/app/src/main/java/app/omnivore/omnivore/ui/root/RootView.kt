@@ -3,6 +3,7 @@ package app.omnivore.omnivore.ui.root
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -38,7 +39,10 @@ fun PrimaryNavigator(loginViewModel: LoginViewModel, homeViewModel: HomeViewMode
     }
 
     composable("WebReader/{slug}") {
-      ArticleWebView(it.arguments?.getString("slug") ?: "")
+      ArticleWebView(
+        it.arguments?.getString("slug") ?: "",
+        authCookieString = loginViewModel.getAuthCookieString() ?: ""
+      )
     }
   }
 }
