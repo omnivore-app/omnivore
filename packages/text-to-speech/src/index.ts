@@ -58,7 +58,7 @@ const updateSpeech = async (
 
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    console.debug('New text to speech request', req)
+    console.info('Text to speech request received')
     const token = req.query.token as string
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
@@ -82,11 +82,15 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       const writeStream = audioFile.createWriteStream({
         resumable: true,
       })
+      const startTime = Date.now()
       const { speechMarks } = await synthesizeTextToSpeech({
         ...input,
         textType: 'html',
         writeStream,
       })
+      console.info(
+        `Synthesize text to speech completed in ${Date.now() - startTime} ms`
+      )
       // upload Speech Marks file to GCS
       const speechMarksFileName = `speech/${id}.json`
       await uploadToBucket(
@@ -103,15 +107,17 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       )
 
       if (!updated) {
+        console.error('Failed to update speech')
         return res.status(500).send({ errorCodes: 'DB_ERROR' })
       }
+
+      console.info('Text to speech cloud function completed')
+      res.send('OK')
     } catch (e) {
       console.error('Text to speech cloud function error', e)
       await updateSpeech(id, token, 'FAILED')
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
     }
-
-    res.send('OK')
   }
 )
 
@@ -139,11 +145,14 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         writeStream,
       }
       await synthesizeTextToSpeech(input)
+      console.info('Synthesize text to speech completed')
 
       res.set({
         'Content-Type': 'audio/mpeg',
         'Transfer-Encoding': 'chunked',
       })
+
+      console.info('Text to speech starts streaming')
       writeStream.pipe(res)
     } catch (e) {
       console.error('Text to speech streaming error', e)
