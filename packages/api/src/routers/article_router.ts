@@ -21,6 +21,7 @@ import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
 import { createPubSubClient } from '../datalayer/pubsub'
+import { htmlToSsml } from '@omnivore/text-to-speech-handler'
 
 const logger = buildLogger('app.dispatch')
 
@@ -81,7 +82,7 @@ export function articleRouter() {
       const priority = req.params.priority
       if (
         !articleId ||
-        !['mp3', 'speech-marks'].includes(outputFormat) ||
+        !['mp3', 'speech-marks', 'ssml'].includes(outputFormat) ||
         !['low', 'high'].includes(priority)
       ) {
         return res.status(400).send('Invalid data')
@@ -91,7 +92,6 @@ export function articleRouter() {
         return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
       }
       const { uid } = jwt.decode(token) as Claims
-
       logger.info(`Get article speech in ${outputFormat} format`, {
         params: req.params,
         labels: {
@@ -99,6 +99,21 @@ export function articleRouter() {
           source: `GetArticleSpeech-${outputFormat}`,
         },
       })
+
+      if (outputFormat === 'ssml') {
+        const page = await getPageById(articleId)
+        if (!page) {
+          return res.status(404).send('Page not found')
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        const ssmlItems = htmlToSsml(page.content, {
+          primaryVoice: voice,
+          secondaryVoice: 'en-US-GuyNeural',
+          rate: '1',
+          language: page.language || 'en-US',
+        })
+        return res.send({ ssmlItems })
+      }
 
       const existingSpeech = await getRepository(Speech).findOne({
         where: {
