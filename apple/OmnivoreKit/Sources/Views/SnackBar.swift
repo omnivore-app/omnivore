@@ -27,7 +27,7 @@ public struct Snackbar: View {
             HStack {
               self.text
                 .font(.appCallout)
-                .foregroundColor(self.colorScheme == .light ? .appGrayText : .appTextDefault)
+                .foregroundColor(self.colorScheme == .light ? .white : .appTextDefault)
               Spacer()
             }
             .padding()
