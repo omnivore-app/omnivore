@@ -229,10 +229,10 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate, Ca
       try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
 
       let token = ValetKey.authToken.value()!
-      let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/?token=\(token)&q=1")!
-      print("LOADING URL: ", url)
+      let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/audio.mp3?token=\(token)&q=1")!
+      print("LOADING URL: ", url.absoluteURL)
 
-      //      let url = URL(string: "https://storage.googleapis.com/omnivore-demo-files/speech/062bfcc2-8d59-4880-8a67-fe6ee739c510.mp3")!
+      //   let url = URL(string: "https://storage.googleapis.com/omnivore-demo-files/speech/062bfcc2-8d59-4880-8a67-fe6ee739c510.mp3")!
 //      let url = URL(string: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")!
       let playerItem = CachingPlayerItem(url: url)
       playerItem.delegate = self
@@ -240,6 +240,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate, Ca
       player = AVPlayer(playerItem: playerItem)
       print("created player: ", player, player?.error)
       player?.automaticallyWaitsToMinimizeStalling = false
+
       player?.play()
       print("starting playing: ", player, player?.error)
 
@@ -507,6 +508,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate, Ca
   /// we are ready to play.
   @objc func playerItemReadyToPlay(_: CachingPlayerItem) {
     print("playerItemReadyToPlay")
+    player?.play()
   }
 
   /// Is called when the data being downloaded did not arrive in time to

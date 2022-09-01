@@ -176,7 +176,7 @@ open class CachingPlayerItem: AVPlayerItem {
 
   /// Override/append custom file extension to URL path.
   /// This is required for the player to work correctly with the intended file type.
-  init(url: URL, customFileExtension _: String?) {
+  init(url: URL, customFileExtension: String?) {
     guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
           let scheme = components.scheme,
           var urlWithCustomScheme = url.withScheme(cachingPlayerItemScheme)
