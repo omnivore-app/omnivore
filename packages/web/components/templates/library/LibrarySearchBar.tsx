@@ -10,8 +10,10 @@ export type LibrarySearchBarProps = {
   coordinator: SearchCoordinator
 }
 
+
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
-  const [searchTerm, setSearchTerm] = useState('')  
+  const [searchTerm, setSearchTerm] = useState('') 
+  const [recentSearches, setRecentSearches] = useState(Array<any>([]))
 
   return (
     <>
@@ -62,10 +64,10 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
             <Button
               style="plainIcon"
               onClick={(event) => {
-                // event.preventDefault()
-                // setSearchTerm('')
-                // props.applySearchQuery('')
-                // inputRef.current?.blur()
+                event.preventDefault()
+                setSearchTerm('')
+                //props.applySearchQuery('')
+               // inputRef.current?.blur()
               }}
               css={{
                 display: 'flex',
@@ -85,8 +87,9 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
             <Button
             style="ctaDarkYellow"
             onClick={(event) => {
-              // event.preventDefault()
-              // setSearchTerm('')
+              event.preventDefault()
+              console.log(searchTerm)
+              setSearchTerm(searchTerm)
               // props.applySearchQuery('')
               // inputRef.current?.blur()
             }}
