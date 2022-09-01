@@ -10,10 +10,15 @@ export type LibrarySearchBarProps = {
   coordinator: SearchCoordinator
 }
 
+// export type searchHistoryProps = {
+//   searchQuery: string,
+//   index: number
+// }
+
 
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('') 
-  const [recentSearches, setRecentSearches] = useState(Array<any>([]))
+  //const [recentSearches, setRecentSearches] = useState(Array<searchHistoryProps>())
 
   return (
     <>
@@ -88,8 +93,10 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
             style="ctaDarkYellow"
             onClick={(event) => {
               event.preventDefault()
-              console.log(searchTerm)
-              setSearchTerm(searchTerm)
+              //recentSearches.push({searchQuery: searchTerm, index: recentSearches.length })
+              localStorage.setItem(searchTerm,searchTerm)
+              //setRecentSearches(recentSearches)
+
               // props.applySearchQuery('')
               // inputRef.current?.blur()
             }}
