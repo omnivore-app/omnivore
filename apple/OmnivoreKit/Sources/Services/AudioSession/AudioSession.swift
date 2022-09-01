@@ -36,7 +36,7 @@ enum DownloadPriority: String {
 }
 
 // Our observable object class
-public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
+public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate, CachingPlayerItemDelegate {
   @Published public var state: AudioSessionState = .stopped
   @Published public var item: LinkedItem?
 
@@ -49,7 +49,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
   let networker: Networker
 
   var timer: Timer?
-  var player: AVAudioPlayer?
+  var player: AVPlayer?
   var downloadTask: Task<Void, Error>?
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
@@ -65,7 +65,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
   }
 
   public func stop() {
-    player?.stop()
+    // player?.stop()
     clearNowPlayingInfo()
     timer = nil
     player = nil
@@ -134,9 +134,14 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       case .scrubStarted:
         return
       case let .scrubEnded(seekTime):
-        player?.currentTime = seekTime
+        seek(to: seekTime)
+//        player?.currentTime = seekTime
       }
     }
+  }
+
+  public func seek(to _: TimeInterval) {
+    // seek
   }
 
   public var currentVoice: String {
@@ -151,16 +156,19 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     state == .playing && self.item == item
   }
 
-  public func skipForward(seconds: Double) {
-    if let current = player?.currentTime {
-      player?.currentTime = min(duration, current + seconds)
-    }
+  public func skipForward(seconds _: Double) {
+//    if let current = player?.currentTime {
+//      seek(to: current + seconds)
+    ////      player?.currentTime = min(duration, current + seconds)
+//    }
   }
 
-  public func skipBackwards(seconds: Double) {
-    if let current = player?.currentTime {
-      player?.currentTime = max(0, current - seconds)
-    }
+  public func skipBackwards(seconds _: Double) {
+//    if let current = player?.currentTime {
+//      seek(to: current + seconds)
+//
+    ////      player?.currentTime = max(0, current - seconds)
+//    }
   }
 
   public func fileNameForAudioFile(_ pageId: String) -> String {
@@ -180,21 +188,21 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     let pageId = item!.unwrappedID
 
     downloadTask = Task {
-      let result = try? await downloadAudioFile(pageId: pageId, type: .mp3, priority: .high)
-      if Task.isCancelled { return }
-
-      if result == nil {
-        DispatchQueue.main.async {
-          NSNotification.operationSuccess(message: "Error generating audio.")
-          self.stop()
-        }
-      }
-
-      if let result = result, result.pending {
-        DispatchQueue.main.async {
-          NSNotification.operationSuccess(message: "Your audio is being generated.")
-        }
-      }
+//      let result = try? await downloadAudioFile(pageId: pageId, type: .mp3, priority: .high)
+//      if Task.isCancelled { return }
+//
+//      if result == nil {
+//        DispatchQueue.main.async {
+//          NSNotification.operationSuccess(message: "Error generating audio.")
+//          self.stop()
+//        }
+//      }
+//
+//      if let result = result, result.pending {
+//        DispatchQueue.main.async {
+//          NSNotification.operationSuccess(message: "Your audio is being generated.")
+//        }
+//      }
 
       DispatchQueue.main.async {
         self.startDownloadedAudioFile(pageId: pageId)
@@ -208,28 +216,44 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       state = .stopped
       return
     }
-
-    // TODO: Maybe check if app is active so it doesn't end up playing later?
-
-    let audioUrl = pathForAudioFile(pageId: pageId)
-    if !FileManager.default.fileExists(atPath: audioUrl.path) {
-      stop()
-      return
-    }
+//
+//    // TODO: Maybe check if app is active so it doesn't end up playing later?
+//
+//    let audioUrl = pathForAudioFile(pageId: pageId)
+//    if !FileManager.default.fileExists(atPath: audioUrl.path) {
+//      stop()
+//      return
+//    }
 
     do {
-      try AVAudioSession.sharedInstance().setCategory(.playback)
+      try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
 
-      player = try AVAudioPlayer(contentsOf: audioUrl)
-      player?.delegate = self
-      if player?.play() ?? false {
-        state = .playing
-        startTimer()
-        setupRemoteControl()
-      }
+      let token = ValetKey.authToken.value()!
+      let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/?token=\(token)&q=1")!
+      print("LOADING URL: ", url)
+
+      //      let url = URL(string: "https://storage.googleapis.com/omnivore-demo-files/speech/062bfcc2-8d59-4880-8a67-fe6ee739c510.mp3")!
+//      let url = URL(string: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")!
+      let playerItem = CachingPlayerItem(url: url)
+      playerItem.delegate = self
+
+      player = AVPlayer(playerItem: playerItem)
+      print("created player: ", player, player?.error)
+      player?.automaticallyWaitsToMinimizeStalling = false
+      player?.play()
+      print("starting playing: ", player, player?.error)
+
+//
+//      player = try AVAudioPlayer(contentsOf: audioUrl)
+//      player?.delegate = self
+//      if player?.play() ?? false {
+      state = .playing
+      startTimer()
+      //      setupRemoteControl()
+      //   }
     } catch {
       print("error playing MP3 file", error)
-      try? FileManager.default.removeItem(atPath: audioUrl.path)
+      // try? FileManager.default.removeItem(atPath: audioUrl.path)
       state = .stopped
     }
   }
@@ -259,7 +283,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
   func startTimer() {
     if timer == nil {
       // Update every 100ms
-      timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(update(_:)), userInfo: nil, repeats: true)
+      timer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(update(_:)), userInfo: nil, repeats: true)
       timer?.fire()
     }
   }
@@ -278,26 +302,37 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
   // Every second, get the current playing time of the player and refresh the status of the player progressslider
   @objc func update(_: Timer) {
-    if let player = player, player.isPlaying {
-      duration = player.duration
-      durationString = formatTimeInterval(duration)
-
-      switch scrubState {
-      case .reset:
-        timeElapsed = player.currentTime
-        timeElapsedString = formatTimeInterval(timeElapsed)
-        if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
-          nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
-          nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
-          MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
-        }
-      case .scrubStarted:
-        break
-      case let .scrubEnded(seekTime):
-        scrubState = .reset
-        timeElapsed = seekTime
-      }
+    if let player = player {
+      print("current error: ", player.error)
+      print("current state", player.rate)
+      print("current position", player.currentTime())
+      print("timeControlStatus", player.timeControlStatus.rawValue)
+      print("waiting Reason: ", player.reasonForWaitingToPlay?.rawValue)
+      print("currentItem.duration: ", player.currentItem?.duration)
+      print("status:", player.currentItem?.status.rawValue)
+      print("error:", player.currentItem?.error)
+      print("error log:", player.currentItem?.errorLog())
     }
+//    if let player = player, player.isPlaying {
+//      duration = player.duration
+//      durationString = formatTimeInterval(duration)
+//
+//      switch scrubState {
+//      case .reset:
+//        timeElapsed = player.currentTime
+//        timeElapsedString = formatTimeInterval(timeElapsed)
+//        if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+//          nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
+//          nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
+//          MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
+//        }
+//      case .scrubStarted:
+//        break
+//      case let .scrubEnded(seekTime):
+//        scrubState = .reset
+//        timeElapsed = seekTime
+//      }
+//    }
   }
 
   func clearNowPlayingInfo() {
@@ -353,7 +388,8 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     commandCenter.changePlaybackPositionCommand.isEnabled = true
     commandCenter.changePlaybackPositionCommand.addTarget { event -> MPRemoteCommandHandlerStatus in
       if let event = event as? MPChangePlaybackPositionCommandEvent {
-        self.player?.currentTime = event.positionTime
+        self.seek(to: event.positionTime)
+//        self.player?.currentTime = event.positionTime
         return .success
       }
       return .commandFailed
@@ -455,5 +491,32 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       } else {}
     default: ()
     }
+  }
+
+  /// Is called when the media file is fully downloaded.
+  @objc func playerItem(_: CachingPlayerItem, didFinishDownloadingData data: Data) {
+    print("didFinishDownloadingData: ", data.underestimatedCount)
+  }
+
+  /// Is called every time a new portion of data is received.
+  @objc func playerItem(_: CachingPlayerItem, didDownloadBytesSoFar bytesDownloaded: Int, outOf _: Int) {
+    print("didDownloadBytesSoFar: ", bytesDownloaded)
+  }
+
+  /// Is called after initial prebuffering is finished, means
+  /// we are ready to play.
+  @objc func playerItemReadyToPlay(_: CachingPlayerItem) {
+    print("playerItemReadyToPlay")
+  }
+
+  /// Is called when the data being downloaded did not arrive in time to
+  /// continue playback.
+  @objc func playerItemPlaybackStalled(_: CachingPlayerItem) {
+    print("playerItemPlaybackStalled")
+  }
+
+  /// Is called on downloading error.
+  @objc func playerItem(_: CachingPlayerItem, downloadingFailedWith error: Error) {
+    print("downloadingFailedWith errpr", error)
   }
 }
