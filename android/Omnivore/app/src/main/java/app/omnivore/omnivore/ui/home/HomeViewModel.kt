@@ -66,6 +66,7 @@ class HomeViewModel @Inject constructor(
           readingProgress = it.node.readingProgressPercent,
           readingProgressAnchor = it.node.readingProgressAnchorIndex,
           imageURLString = it.node.image,
+          pageURLString = it.node.url,
           descriptionText = it.node.description,
           slug = it.node.slug
         )
@@ -88,7 +89,7 @@ public data class LinkedItem(
   public val imageURLString: String?,
 //  public val onDeviceImageURLString: String?,
 //  public val documentDirectoryPath: String?,
-//  public val pageURLString: String,
+  public val pageURLString: String,
   public val descriptionText: String?,
 //  public val publisherURLString: String?,
 //  public val siteName: String?,

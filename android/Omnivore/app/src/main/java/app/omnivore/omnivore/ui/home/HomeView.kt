@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.net.URLEncoder
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +78,9 @@ fun HomeViewContent(
       LinkedItemCard(
         item = item,
         onClickHandler = {
-          navController.navigate("WebReader/${item.slug}")
+          val encodedURLString = URLEncoder.encode(item.pageURLString, "utf-8")
+          navController.navigate("PDFViewer/$encodedURLString")
+//          navController.navigate("WebReader/${item.slug}")
         }
       )
     }
@@ -112,3 +115,4 @@ fun InfiniteListHandler(
       }
   }
 }
+
