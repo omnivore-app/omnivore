@@ -81,12 +81,12 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       const audioFile = createGCSFile(bucket, audioFileName)
       const writeStream = audioFile.createWriteStream({
         resumable: true,
-      })
+      }) as NodeJS.WriteStream
       const startTime = Date.now()
       const { speechMarks } = await synthesizeTextToSpeech({
         ...input,
         textType: 'html',
-        writeStream,
+        audioStream: writeStream,
       })
       console.info(
         `Synthesize text to speech completed in ${Date.now() - startTime} ms`
@@ -124,25 +124,28 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
 export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     console.debug('Text to speech steaming request', req)
-    const token = req.query.token as string
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
-      return res.status(500).send('JWT_SECRET not exists')
+      return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
+    }
+    const token = (req.query.token || req.headers.authorization) as string
+    if (!token) {
+      return res.status(200).send({ errorCode: 'UNAUTHORIZED' })
     }
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (e) {
       console.error(e)
-      return res.status(200).send('UNAUTHENTICATED')
+      return res.status(200).send({ errorCode: 'UNAUTHORIZED' })
     }
 
     try {
       const ssml = fs.readFileSync('./data/ssml.xml', 'utf8')
-      const writeStream = new PassThrough()
+      const audioStream = new PassThrough()
       const input: TextToSpeechInput = {
         text: ssml,
         textType: 'ssml',
-        writeStream,
+        audioStream,
       }
       res.set({
         'Content-Type': 'audio/mpeg',
@@ -150,7 +153,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       })
 
       console.info('Text to speech starts streaming')
-      writeStream.pipe(res)
+      audioStream.pipe(res)
 
       await synthesizeTextToSpeech(input)
     } catch (e) {

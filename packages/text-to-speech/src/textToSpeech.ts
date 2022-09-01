@@ -19,7 +19,7 @@ export interface TextToSpeechInput {
   volume?: number
   complimentaryVoice?: string
   bucket?: string
-  writeStream: NodeJS.WritableStream
+  audioStream: NodeJS.ReadWriteStream
 }
 
 export interface TextToSpeechOutput {
@@ -40,7 +40,7 @@ export const synthesizeTextToSpeech = async (
   if (!process.env.AZURE_SPEECH_KEY || !process.env.AZURE_SPEECH_REGION) {
     throw new Error('Azure Speech Key or Region not set')
   }
-  const writeStream = input.writeStream
+  const writeStream = input.audioStream
   const speechConfig = SpeechConfig.fromSubscription(
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
