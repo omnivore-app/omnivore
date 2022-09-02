@@ -27,19 +27,14 @@ fun RootView(
   homeViewModel: HomeViewModel
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
-  // Remember a SystemUiController
   val systemUiController = rememberSystemUiController()
   val useDarkIcons = !isSystemInDarkTheme()
 
   DisposableEffect(systemUiController, useDarkIcons) {
-    // Update all of the system bar colors to be transparent, and use
-    // dark icons if we're in light theme
     systemUiController.setSystemBarsColor(
       color = Color.Black,
       darkIcons = false
     )
-
-    // setStatusBarColor() and setNavigationBarColor() also exist
 
     onDispose {}
   }

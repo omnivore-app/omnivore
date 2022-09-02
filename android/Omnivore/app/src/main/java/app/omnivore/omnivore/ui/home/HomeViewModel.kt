@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import androidx.lifecycle.*
 import app.omnivore.omnivore.AppleConstants
 import app.omnivore.omnivore.Constants
@@ -67,6 +68,8 @@ class HomeViewModel @Inject constructor(
           readingProgressAnchor = it.node.readingProgressAnchorIndex,
           imageURLString = it.node.image,
           descriptionText = it.node.description,
+          publisherURLString = it.node.originalArticleUrl,
+          author = it.node.author,
           slug = it.node.slug
         )
       }
@@ -90,12 +93,16 @@ public data class LinkedItem(
 //  public val documentDirectoryPath: String?,
 //  public val pageURLString: String,
   public val descriptionText: String?,
-//  public val publisherURLString: String?,
+  public val publisherURLString: String?,
 //  public val siteName: String?,
-//  public val author: String?,
+  public val author: String?,
 //  public val publishDate: Any?,
   public val slug: String,
 //  public val isArchived: Boolean,
 //  public val contentReader: String?,
 //  public val originalHtml: String?,
-)
+) {
+  fun publisherDisplayName(): String? {
+    return publisherURLString?.toUri()?.host
+  }
+}
