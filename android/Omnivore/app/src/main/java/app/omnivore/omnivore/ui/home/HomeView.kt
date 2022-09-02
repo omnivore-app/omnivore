@@ -25,7 +25,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun HomeView(
   homeViewModel: HomeViewModel,
-  navController: NavHostController
+  navController: NavHostController,
+  modifier: Modifier
 ) {
   Scaffold(
     topBar = {
@@ -41,7 +42,8 @@ fun HomeView(
           }
         }
       )
-    }
+    },
+    modifier = modifier
   ) { paddingValues ->
     HomeViewContent(
       homeViewModel,

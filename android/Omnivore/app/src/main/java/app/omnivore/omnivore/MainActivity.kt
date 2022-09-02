@@ -5,6 +5,8 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.Modifier
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -24,7 +26,12 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       OmnivoreTheme {
-        RootView(loginViewModel, homeViewModel)
+        RootView(
+          loginViewModel,
+          homeViewModel,
+          modifier = Modifier
+            .systemBarsPadding()
+        )
       }
     }
 
