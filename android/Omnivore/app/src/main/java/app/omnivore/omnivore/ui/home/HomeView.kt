@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
@@ -25,36 +26,34 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun HomeView(
   homeViewModel: HomeViewModel,
-  navController: NavHostController,
-  modifier: Modifier
+  navController: NavHostController
 ) {
-  Scaffold(
-    topBar = {
-      TopAppBar(
-        title = { Text("Home") },
-        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-        actions = {
-          IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
-            Icon(
-              imageVector = Icons.Default.Menu,
-              contentDescription = null
-            )
+    Scaffold(
+      topBar = {
+        TopAppBar(
+          title = { Text("Home") },
+          backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+          actions = {
+            IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
+              Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = null
+              )
+            }
           }
-        }
-      )
-    },
-    modifier = modifier
-  ) { paddingValues ->
-    HomeViewContent(
-      homeViewModel,
-      navController,
-      modifier = Modifier
-        .padding(
-          top = paddingValues.calculateTopPadding(),
-          bottom = paddingValues.calculateBottomPadding()
         )
-    )
-  }
+      }
+    ) { paddingValues ->
+      HomeViewContent(
+        homeViewModel,
+        navController,
+        modifier = Modifier
+          .padding(
+            top = paddingValues.calculateTopPadding(),
+            bottom = paddingValues.calculateBottomPadding()
+          )
+      )
+    }
 }
 
 @Composable
