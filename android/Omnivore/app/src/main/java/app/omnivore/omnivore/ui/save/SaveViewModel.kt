@@ -40,8 +40,6 @@ class SaveViewModel @Inject constructor(
 
       val authToken = getAuthToken()
 
-      Log.d(ContentValues.TAG, "AuthToken: $authToken")
-
       if (authToken == null) {
         message = "You are not logged in. Please login before saving."
         isLoading = false

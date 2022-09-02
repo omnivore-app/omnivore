@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 
@@ -35,6 +36,10 @@ class LoginViewModel @Inject constructor(
     .hasAuthTokenFlow
     .distinctUntilChanged()
     .asLiveData()
+
+  fun getAuthCookieString(): String? = runBlocking {
+    datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
+  }
 
   fun login(email: String, password: String) {
     val emailLogin = RetrofitHelper.getInstance().create(EmailLoginSubmit::class.java)
