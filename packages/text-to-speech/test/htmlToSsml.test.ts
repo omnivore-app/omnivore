@@ -1,8 +1,8 @@
 import 'mocha'
 import { expect } from 'chai'
-import { htmlToSsml } from '../src/htmlToSsml'
+import { htmlToSsmlItems } from '../src/htmlToSsml'
 
-describe('htmlToSsml', () => {
+describe('htmlToSsmlItems', () => {
   const TEST_OPTIONS = {
     primaryVoice: 'test-primary',
     secondaryVoice: 'test-secondary',
@@ -12,7 +12,7 @@ describe('htmlToSsml', () => {
 
   describe('a simple html file', () => {
     xit('should convert Html to SSML', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
       <div id="readability-content">
         <div id="readability-page-1">
@@ -28,7 +28,7 @@ describe('htmlToSsml', () => {
   })
   describe('a file with nested elements', () => {
     xit('should collapse spans into the parent paragraph', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">
           <div class="page" id="readability-page-1">
@@ -57,7 +57,7 @@ describe('htmlToSsml', () => {
       )
     })
     xit('should extract child paragraphs to the top level', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">
           <div>
@@ -77,7 +77,7 @@ describe('htmlToSsml', () => {
       )
     })
     xit('should hoist paragraphs in spans to the top level', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">
           <div>
@@ -95,7 +95,7 @@ describe('htmlToSsml', () => {
       expect(text).to.equal(`TBD`.trim())
     })
     xit('should hoist lists to the top level', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">
           <div>
@@ -113,7 +113,7 @@ describe('htmlToSsml', () => {
       expect(text).to.equal(`TBD`.trim())
     })
     xit('should hoist headers to the top level', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">
           <div>
@@ -131,7 +131,7 @@ describe('htmlToSsml', () => {
       expect(text).to.equal(`TBD`.trim())
     })
     xit('should hoist blockquotes to the top level', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">
           <div>
@@ -151,7 +151,7 @@ describe('htmlToSsml', () => {
   })
   describe('a file with blockquotes', () => {
     xit('should convert Html to SSML with complimentary voices', () => {
-      const ssml = htmlToSsml(
+      const ssml = htmlToSsmlItems(
         `
         <div id="readability-content">  
           <div class="page" id="readability-page-1">
@@ -193,7 +193,7 @@ describe('htmlToSsml', () => {
   //         continue
   //       }
   //       const html = fs.readFileSync(readablePath, { encoding: 'utf-8' })
-  //       const ssmlItems = htmlToSsml(html, TEST_OPTIONS)
+  //       const ssmlItems = htmlToSsmlItems(html, TEST_OPTIONS)
   //       console.log('SSML ITEMS', ssmlItems)
   //     }
   //   })

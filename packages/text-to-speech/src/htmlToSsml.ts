@@ -179,7 +179,10 @@ export const ssmlItemText = (item: SSMLItem): string => {
   return [item.open, ...item.textItems, item.close].join('')
 }
 
-export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
+export const htmlToSsmlItems = (
+  html: string,
+  options: SSMLOptions
+): SSMLItem[] => {
   console.log('creating ssml with options', options)
 
   const dom = parseHTML(html)
@@ -217,4 +220,8 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   }
 
   return items
+}
+
+export const htmlToSsml = (html: string, options: SSMLOptions): string[] => {
+  return htmlToSsmlItems(html, options).map(ssmlItemText)
 }
