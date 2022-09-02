@@ -7,7 +7,7 @@ import {
   SpeechSynthesisResult,
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
-import { htmlToSsml, ssmlItemText } from './htmlToSsml'
+import { htmlToSsml, SSMLItem, ssmlItemText } from './htmlToSsml'
 
 export interface TextToSpeechInput {
   id?: string
@@ -20,6 +20,7 @@ export interface TextToSpeechInput {
   complimentaryVoice?: string
   bucket?: string
   audioStream: NodeJS.ReadWriteStream
+  ssmlItems?: SSMLItem[]
 }
 
 export interface TextToSpeechOutput {
@@ -131,23 +132,24 @@ export const synthesizeTextToSpeech = async (
   }
 
   try {
-    if (textType === 'html') {
-      const ssmlItems = htmlToSsml(input.text, {
-        primaryVoice: input.voice || 'en-US-JennyNeural',
-        secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
-        language: input.languageCode || 'en-US',
-        rate: '1',
-      })
+    const ssmlItems =
+      input.textType === 'ssml'
+        ? input.ssmlItems
+        : htmlToSsml(input.text, {
+            primaryVoice: input.voice || 'en-US-JennyNeural',
+            secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
+            language: input.languageCode || 'en-US',
+            rate: '1',
+          })
+    if (!ssmlItems || ssmlItems.length === 0) {
+      throw new Error('No SSML items found')
+    }
 
-      for (const ssmlItem of Array.from(ssmlItems)) {
-        const ssml = ssmlItemText(ssmlItem)
-        console.debug('start synthesizing', ssml)
-        const result = await speakSsmlAsyncPromise(ssml)
-        timeOffset = timeOffset + result.audioDuration
-      }
-    } else {
-      console.debug('start synthesizing', input.text)
-      await speakSsmlAsyncPromise(input.text)
+    for (const ssmlItem of Array.from(ssmlItems)) {
+      const ssml = ssmlItemText(ssmlItem)
+      console.debug('start synthesizing', ssml)
+      const result = await speakSsmlAsyncPromise(ssml)
+      timeOffset = timeOffset + result.audioDuration
     }
   } catch (error) {
     console.error('synthesis error', error)

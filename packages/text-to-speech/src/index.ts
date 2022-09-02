@@ -10,7 +10,7 @@ import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-d
 import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
 import { PassThrough } from 'stream'
-import * as fs from 'fs'
+import { SSMLItem } from './htmlToSsml'
 
 dotenv.config()
 Sentry.GCPFunction.init({
@@ -140,12 +140,14 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     try {
-      const ssml = fs.readFileSync('./data/ssml.xml', 'utf8')
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const ssmlItems = req.body.ssmlItems as SSMLItem[]
       const audioStream = new PassThrough()
       const input: TextToSpeechInput = {
-        text: ssml,
+        text: '',
         textType: 'ssml',
         audioStream,
+        ssmlItems,
       }
       res.set({
         'Content-Type': 'audio/mpeg',
