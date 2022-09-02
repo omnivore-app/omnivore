@@ -61,14 +61,16 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
         }
       }
 
-      Image(
-        painter = rememberAsyncImagePainter(item.imageURLString),
-        contentDescription = "Image associated with linked item",
-        modifier = Modifier
-          .padding(top = 6.dp)
-          .clip(RoundedCornerShape(6.dp))
-          .size(80.dp)
-      )
+      if (item.imageURLString != null) {
+        Image(
+          painter = rememberAsyncImagePainter(item.imageURLString),
+          contentDescription = "Image associated with linked item",
+          modifier = Modifier
+            .padding(top = 6.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .size(80.dp)
+        )
+      }
     }
 
     Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
