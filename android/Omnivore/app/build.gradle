@@ -151,7 +151,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
 
-    implementation("io.coil-kt:coil-compose:2.2.0")
+    implementation "io.coil-kt:coil-compose:2.2.0"
+
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
 }
 
 apollo {

@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.home
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
@@ -14,10 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.*
-import app.omnivore.omnivore.AppleConstants
-import app.omnivore.omnivore.Constants
-import app.omnivore.omnivore.DatastoreKeys
-import app.omnivore.omnivore.DatastoreRepository
+import androidx.work.*
+import app.omnivore.omnivore.*
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.ui.auth.AppleAuthDialog
 import com.apollographql.apollo3.ApolloClient

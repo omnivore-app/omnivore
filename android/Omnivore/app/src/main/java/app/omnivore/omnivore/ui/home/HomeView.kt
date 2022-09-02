@@ -78,6 +78,7 @@ fun HomeViewContent(
       LinkedItemCard(
         item = item,
         onClickHandler = {
+          // TODO: check if item is a pdf
           val encodedURLString = URLEncoder.encode(item.pageURLString, "utf-8")
           navController.navigate("PDFViewer/$encodedURLString")
 //          navController.navigate("WebReader/${item.slug}")

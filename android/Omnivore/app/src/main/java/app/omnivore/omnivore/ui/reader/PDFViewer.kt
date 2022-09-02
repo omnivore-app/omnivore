@@ -12,8 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toFile
+import androidx.core.net.toUri
+import app.omnivore.omnivore.File
+import app.omnivore.omnivore.ui.components.FileDownloader
+import app.omnivore.omnivore.ui.reader.PDFViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.imageLoader
 import coil.memory.MemoryCache
@@ -23,11 +28,64 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.*
 import kotlin.math.sqrt
 
 @Composable
-fun PdfLoader(uri: Uri) {
-  // TODO: download file locally
+fun PdfLoader(uri: String, viewModel: PDFViewModel = PDFViewModel()) {
+  val lifecycleOwner = LocalLifecycleOwner.current
+  val context = LocalContext.current
+
+  val localFileUriString = remember { mutableStateOf<String?>(null) }
+
+  val data = remember {
+    mutableStateOf(
+      File(
+        id = UUID.randomUUID().toString(),
+        name = "Pdf File",
+        type = "PDF",
+        url = uri,
+        downloadedUri = null
+      )
+    )
+  }
+
+  if (localFileUriString.value != null) {
+    PdfViewer(uri = localFileUriString.value!!.toUri())
+  } else {
+    FileDownloader(
+      file = data.value,
+      startDownload = {
+        viewModel.downloadFile(
+          file = data.value,
+          success = {
+            data.value = data.value.copy().apply {
+              isDownloading = false
+              downloadedUri = it
+            }
+          },
+          failed = {
+            data.value = data.value.copy().apply {
+              isDownloading = false
+              downloadedUri = null
+            }
+          },
+          running = {
+            data.value = data.value.copy().apply {
+              isDownloading = true
+            }
+          },
+          context = context,
+          lifecycleOwner = lifecycleOwner
+        )
+      },
+      openFile = {
+        if (it.downloadedUri != null) {
+          localFileUriString.value = it.downloadedUri!!
+        }
+      }
+    )
+  }
 }
 
 @Composable
@@ -98,7 +156,10 @@ fun PdfViewer(
               job.cancel()
             }
           }
-          Box(modifier = Modifier.background(Color.White).aspectRatio(1f / sqrt(2f)).fillMaxWidth())
+          Box(modifier = Modifier
+            .background(Color.White)
+            .aspectRatio(1f / sqrt(2f))
+            .fillMaxWidth())
         } else {
           val request = ImageRequest.Builder(context)
             .size(width, height)
@@ -107,7 +168,10 @@ fun PdfViewer(
             .build()
 
           Image(
-            modifier = Modifier.background(Color.White).aspectRatio(1f / sqrt(2f)).fillMaxWidth(),
+            modifier = Modifier
+              .background(Color.White)
+              .aspectRatio(1f / sqrt(2f))
+              .fillMaxWidth(),
             contentScale = ContentScale.Fit,
             painter = rememberAsyncImagePainter(request),
             contentDescription = "Page ${index + 1} of $pageCount"
