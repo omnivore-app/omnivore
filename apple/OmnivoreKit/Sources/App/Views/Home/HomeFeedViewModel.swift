@@ -34,6 +34,10 @@ import Views
     from: Date(timeIntervalSinceReferenceDate: 0)
   )
 
+  func handleReaderItemNotification(objectID: NSManagedObjectID) {
+    selectedLinkItem = objectID
+  }
+
   var cursor: String?
 
   // These are used to make sure we handle search result

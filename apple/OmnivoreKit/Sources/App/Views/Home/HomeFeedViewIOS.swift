@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -111,6 +112,11 @@ import Views
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
         viewModel.selectedLinkItem = linkedItem.objectID
+      }
+      .onReceive(NSNotification.pushReaderItemPublisher) { notification in
+        if let objectID = notification.userInfo?["objectID"] as? NSManagedObjectID {
+          viewModel.handleReaderItemNotification(objectID: objectID)
+        }
       }
       .onOpenURL { url in
         withoutAnimation {
