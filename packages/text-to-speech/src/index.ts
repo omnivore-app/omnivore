@@ -10,7 +10,7 @@ import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-d
 import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
 import { PassThrough } from 'stream'
-import { SSMLItem } from './htmlToSsml'
+import { htmlToSsml, SSMLItem } from './htmlToSsml'
 
 dotenv.config()
 Sentry.GCPFunction.init({
@@ -164,3 +164,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
   }
 )
+
+module.exports = {
+  htmlToSsml,
+  textToSpeechStreamingHandler,
+  textToSpeechHandler,
+}

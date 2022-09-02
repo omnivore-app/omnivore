@@ -46,7 +46,6 @@ export const synthesizeTextToSpeech = async (
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
   )
-  const textType = input.textType || 'html'
   speechConfig.speechSynthesisOutputFormat =
     SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
 
