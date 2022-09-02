@@ -141,12 +141,6 @@ public struct MiniPlayer: View {
               .frame(width: dim, height: dim)
               .cornerRadius(6)
           }
-          .onTapGesture(count: 2) {
-            if expanded {
-              expanded = false
-              NSNotification.pushReaderItem(objectID: item.objectID)
-            }
-          }
 
           if !expanded {
             Text(item.unwrappedTitle)
@@ -176,6 +170,12 @@ public struct MiniPlayer: View {
             .foregroundColor(.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
             .matchedGeometryEffect(id: "ArticleTitle", in: animation)
+            .onTapGesture {
+              NSNotification.pushReaderItem(objectID: item.objectID)
+              withAnimation(.easeIn(duration: 0.1)) {
+                expanded = false
+              }
+            }
 
           HStack {
             Spacer()
