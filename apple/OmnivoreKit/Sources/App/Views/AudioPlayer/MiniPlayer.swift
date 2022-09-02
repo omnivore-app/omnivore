@@ -18,6 +18,7 @@ public struct MiniPlayer: View {
 
   @State var expanded = false
   @State var offset: CGFloat = 0
+  @State var showVoiceSheet = false
   @Namespace private var animation
 
   let minExpandedHeight = UIScreen.main.bounds.height / 3
@@ -284,7 +285,7 @@ public struct MiniPlayer: View {
 
             Menu {
               Button("View Article", action: { viewArticle() })
-              Button("Change Voice", action: {})
+              Button("Change Voice", action: { showVoiceSheet = true })
             } label: {
               VStack {
                 Image(systemName: "ellipsis")
@@ -305,6 +306,8 @@ public struct MiniPlayer: View {
       )
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
+      }.sheet(isPresented: $showVoiceSheet) {
+        changeVoiceView
       }
     }
   }
@@ -323,6 +326,29 @@ public struct MiniPlayer: View {
             .background(expanded ? .clear : .systemBackground)
         }
       }
+    }
+  }
+
+  var changeVoiceView: some View {
+    NavigationView {
+      VStack {
+        List {
+          ForEach(["Jenny", "Guy"], id: \.self) { name in
+            Button(action: {}) {
+              Text(name)
+            }
+            .buttonStyle(PlainButtonStyle())
+          }
+        }
+        .padding(.top, 32)
+        .listStyle(.plain)
+        Spacer()
+      }
+      .navigationBarTitle("Change Voice")
+      .navigationBarTitleDisplayMode(.inline)
+      .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
+        Image(systemName: "chevron.backward")
+      })
     }
   }
 
