@@ -234,7 +234,11 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate, Ca
 
       //   let url = URL(string: "https://storage.googleapis.com/omnivore-demo-files/speech/062bfcc2-8d59-4880-8a67-fe6ee739c510.mp3")!
 //      let url = URL(string: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")!
-      let playerItem = CachingPlayerItem(url: url)
+      let urlRequest = URLRequest(url: url)
+//      urlRequest.httpMethod = "POST"
+//      urlRequest.httpBody
+
+      let playerItem = CachingPlayerItem(urlRequest: urlRequest)
       playerItem.delegate = self
 
       player = AVPlayer(playerItem: playerItem)

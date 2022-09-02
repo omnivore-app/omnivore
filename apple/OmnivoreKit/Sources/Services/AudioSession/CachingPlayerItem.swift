@@ -1,4 +1,4 @@
-// From: https://github.com/neekeetab/CachingPlayerItem
+// Orginally based on: https://github.com/neekeetab/CachingPlayerItem
 
 import AVFoundation
 import Foundation
@@ -47,7 +47,7 @@ open class CachingPlayerItem: AVPlayerItem {
       } else if session == nil {
         // If we're playing from a url, we need to download the file.
         // We start loading the file on first request only.
-        guard let initialUrl = owner?.url else {
+        guard let initialUrl = owner?.urlRequest else {
           fatalError("internal inconsistency")
         }
 
@@ -59,11 +59,11 @@ open class CachingPlayerItem: AVPlayerItem {
       return true
     }
 
-    func startDataRequest(with url: URL) {
+    func startDataRequest(with urlRequest: URLRequest) {
       let configuration = URLSessionConfiguration.default
       configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
       session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-      session?.dataTask(with: url).resume()
+      session?.dataTask(with: urlRequest).resume()
     }
 
     func resourceLoader(_: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
@@ -155,7 +155,7 @@ open class CachingPlayerItem: AVPlayerItem {
   }
 
   fileprivate let resourceLoaderDelegate = ResourceLoaderDelegate()
-  fileprivate let url: URL
+  fileprivate let urlRequest: URLRequest
   fileprivate let initialScheme: String?
   fileprivate var customFileExtension: String?
 
@@ -163,28 +163,28 @@ open class CachingPlayerItem: AVPlayerItem {
 
   open func download() {
     if resourceLoaderDelegate.session == nil {
-      resourceLoaderDelegate.startDataRequest(with: url)
+      resourceLoaderDelegate.startDataRequest(with: urlRequest)
     }
   }
 
   private let cachingPlayerItemScheme = "cachingPlayerItemScheme"
 
   /// Is used for playing remote files.
-  convenience init(url: URL) {
-    self.init(url: url, customFileExtension: nil)
+  convenience init(urlRequest: URLRequest) {
+    self.init(urlRequest: urlRequest, customFileExtension: nil)
   }
 
   /// Override/append custom file extension to URL path.
   /// This is required for the player to work correctly with the intended file type.
-  init(url: URL, customFileExtension: String?) {
-    guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+  init(urlRequest: URLRequest, customFileExtension: String?) {
+    guard let url = urlRequest.url, let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
           let scheme = components.scheme,
           var urlWithCustomScheme = url.withScheme(cachingPlayerItemScheme)
     else {
       fatalError("Urls without a scheme are not supported")
     }
 
-    self.url = url
+    self.urlRequest = urlRequest
     self.initialScheme = scheme
 
     if let ext = customFileExtension {
@@ -211,7 +211,7 @@ open class CachingPlayerItem: AVPlayerItem {
       fatalError("internal inconsistency")
     }
 
-    self.url = fakeUrl
+    self.urlRequest = URLRequest(url: fakeUrl)
     self.initialScheme = nil
 
     resourceLoaderDelegate.mediaData = data
