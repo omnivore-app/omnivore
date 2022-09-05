@@ -21,6 +21,7 @@ export interface TextToSpeechInput {
   bucket?: string
   audioStream: NodeJS.ReadWriteStream
   ssmlItems?: string[]
+  speechMarksStream: NodeJS.ReadWriteStream
 }
 
 export interface TextToSpeechOutput {
@@ -42,7 +43,8 @@ export const synthesizeTextToSpeech = async (
     throw new Error('Azure Speech Key or Region not set')
   }
   const textType = input.textType || 'html'
-  const writeStream = input.audioStream
+  const audioStream = input.audioStream
+  const speechMarksStream = input.speechMarksStream
   const speechConfig = SpeechConfig.fromSubscription(
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
@@ -57,7 +59,7 @@ export const synthesizeTextToSpeech = async (
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
-    writeStream.write(Buffer.from(e.result.audioData))
+    audioStream.write(Buffer.from(e.result.audioData))
   }
 
   // The event synthesis completed signals that the synthesis is completed.
@@ -93,13 +95,17 @@ export const synthesizeTextToSpeech = async (
         e.text
       }`
     )
-    speechMarks.push({
-      word: e.text,
-      time: (timeOffset + e.audioOffset) / 10000,
-      start: e.textOffset,
-      length: e.wordLength,
-      type: 'word',
-    })
+    speechMarksStream.write(
+      Buffer.from(
+        JSON.stringify({
+          word: e.text,
+          time: (timeOffset + e.audioOffset) / 10000,
+          start: e.textOffset,
+          length: e.wordLength,
+          type: 'word',
+        })
+      )
+    )
   }
 
   synthesizer.bookmarkReached = (s, e) => {
@@ -108,11 +114,15 @@ export const synthesizeTextToSpeech = async (
         e.audioOffset / 10000
       }ms, bookmark text: ${e.text}`
     )
-    speechMarks.push({
-      word: e.text,
-      time: (timeOffset + e.audioOffset) / 10000,
-      type: 'bookmark',
-    })
+    speechMarksStream.write(
+      Buffer.from(
+        JSON.stringify({
+          word: e.text,
+          time: (timeOffset + e.audioOffset) / 10000,
+          type: 'bookmark',
+        })
+      )
+    )
   }
 
   const speakSsmlAsyncPromise = (
@@ -154,7 +164,8 @@ export const synthesizeTextToSpeech = async (
     throw error
   } finally {
     console.debug('closing synthesizer')
-    writeStream.end()
+    audioStream.end()
+    speechMarksStream.end()
     synthesizer.close()
     console.debug('synthesizer closed')
   }

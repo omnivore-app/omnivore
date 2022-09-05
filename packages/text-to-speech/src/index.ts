@@ -79,24 +79,23 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
     try {
       const audioFileName = `speech/${id}.mp3`
       const audioFile = createGCSFile(bucket, audioFileName)
-      const writeStream = audioFile.createWriteStream({
+      const audioStream = audioFile.createWriteStream({
+        resumable: true,
+      }) as NodeJS.WriteStream
+      const speechMarksFileName = `speech/${id}.json`
+      const speechMarksFile = createGCSFile(bucket, speechMarksFileName)
+      const speechMarksStream = speechMarksFile.createWriteStream({
         resumable: true,
       }) as NodeJS.WriteStream
       const startTime = Date.now()
-      const { speechMarks } = await synthesizeTextToSpeech({
+      await synthesizeTextToSpeech({
         ...input,
         textType: 'html',
-        audioStream: writeStream,
+        audioStream,
+        speechMarksStream,
       })
       console.info(
         `Synthesize text to speech completed in ${Date.now() - startTime} ms`
-      )
-      // upload Speech Marks file to GCS
-      const speechMarksFileName = `speech/${id}.json`
-      await uploadToBucket(
-        speechMarksFileName,
-        Buffer.from(JSON.stringify(speechMarks)),
-        bucket
       )
       const updated = await updateSpeech(
         id,
@@ -146,11 +145,13 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(200).send({ errorCode: 'INVALID_DATA' })
       }
       const audioStream = new PassThrough()
+      const speechMarksStream = new PassThrough()
       const input: TextToSpeechInput = {
         text: '',
         textType: 'ssml',
         audioStream,
         ssmlItems,
+        speechMarksStream,
       }
       res.set({
         'Content-Type': 'audio/mpeg',
