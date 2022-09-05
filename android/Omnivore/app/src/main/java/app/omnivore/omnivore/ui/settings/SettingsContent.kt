@@ -23,7 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 @Composable
 fun SettingsView(
   loginViewModel: LoginViewModel,
-  navController: NavHostController
+  navController: NavHostController,
 ) {
   Scaffold(
     topBar = {

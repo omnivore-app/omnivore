@@ -50,7 +50,6 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
     horizontalAlignment = Alignment.Start,
     modifier = Modifier
       .fillMaxSize()
-      .navigationBarsPadding()
       .padding(horizontal = 16.dp)
       .clickable { focusManager.clearFocus() }
   ) {
