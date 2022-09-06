@@ -159,7 +159,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const utteranceInput = req.body as UtteranceInput
       if (!utteranceInput.text) {
         return res.status(400).send({ errorCode: 'INVALID_DATA' })
@@ -169,21 +168,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         textType: 'utterance',
       }
       const { audioStream, speechMarks } = await synthesizeTextToSpeech(input)
-      // const readStream = new Readable()
-      // readStream.push(JSON.stringify({ audioData, speechMarks }))
-      //
-      // res.set({
-      //   'Content-Type': 'application/json',
-      //   'Transfer-Encoding': 'chunked',
-      // })
-      // console.info('Text to speech starts streaming')
-      // pipeline(readStream, res, (err) => {
-      //   if (err) {
-      //     console.error('Text to speech streaming error', err)
-      //     res.status(500).send({ errorCode: 'STREAMING_ERROR' })
-      //   }
-      // })
-      res.send({ audioData: audioStream.read(), speechMarks })
+      res.send({
+        audioData: audioStream.read().toString('hex'),
+        speechMarks,
+      })
     } catch (e) {
       console.error('Text to speech streaming error', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
