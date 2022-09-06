@@ -49,11 +49,14 @@ fun SearchBar(
         Text(
           text = "Cancel",
           modifier = Modifier
-            .clickable { showSearchField = false }
+            .clickable {
+              onSearchTextChanged("")
+              showSearchField = false
+            }
             .padding(horizontal = 6.dp)
         )
       } else {
-        FilledIconButton(onClick = { showSearchField = true }) {
+        IconButton(onClick = { showSearchField = true }) {
           Icon(
             imageVector = Icons.Filled.Search,
             contentDescription = null
