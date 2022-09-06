@@ -156,7 +156,7 @@ export type SSMLItem = {
 export type SSMLOptions = {
   primaryVoice: string
   secondaryVoice: string
-  rate: string
+  rate: number
   language: string
 }
 
