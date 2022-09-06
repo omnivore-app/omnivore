@@ -1,9 +1,7 @@
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,8 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
-import app.omnivore.omnivore.ui.home.HomeViewContent
-import app.omnivore.omnivore.ui.home.HomeViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
@@ -27,9 +23,8 @@ fun SettingsView(
 ) {
   Scaffold(
     topBar = {
-      TopAppBar(
+      SmallTopAppBar(
         title = { Text("Settings") },
-        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         actions = {
           IconButton(onClick = { navController.navigate(Routes.Home.route) }) {
             Icon(

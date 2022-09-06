@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -20,19 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
   searchText: String,
   onSearchTextChanged: (String) -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
-  var showSearchField by remember { mutableStateOf(false) }
-  TopAppBar(
+  var showSearchField by remember { mutableStateOf(searchText != "") }
+
+  SmallTopAppBar(
     title = {
       if (showSearchField) {
         SearchField(searchText, onSearchTextChanged)
@@ -40,16 +41,16 @@ fun SearchBar(
         Text("Home")
       }
     },
-    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
     actions = {
       if (showSearchField) {
         Text(
           text = "Cancel",
           modifier = Modifier
             .clickable { showSearchField = false }
+            .padding(horizontal = 6.dp)
         )
       } else {
-        IconButton(onClick = { showSearchField = true }) {
+        FilledIconButton(onClick = { showSearchField = true }) {
           Icon(
             imageVector = Icons.Filled.Search,
             contentDescription = null

@@ -76,8 +76,6 @@ class HomeViewModel @Inject constructor(
         )
       }
 
-      Log.d("loggo", newItems.toString())
-
       if (searchTextLiveData.value != "") {
         val previousItems = if (clearPreviousSearch) listOf() else searchedItems
         searchedItems = previousItems.plus(newItems)
