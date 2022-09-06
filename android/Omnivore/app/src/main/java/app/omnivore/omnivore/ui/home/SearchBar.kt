@@ -41,6 +41,9 @@ fun SearchBar(
         Text("Home")
       }
     },
+    colors = TopAppBarDefaults.smallTopAppBarColors(
+      containerColor = MaterialTheme.colorScheme.surfaceVariant
+    ),
     actions = {
       if (showSearchField) {
         Text(
