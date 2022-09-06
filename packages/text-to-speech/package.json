@@ -14,7 +14,8 @@
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
-    "start": "functions-framework --source=build/src/ --target=textToSpeechHandler",
+    "start": "functions-framework --target=textToSpeechHandler",
+    "start_streaming": "functions-framework --target=textToSpeechStreamingHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
     "gcloud-deploy": "gcloud functions deploy text-to-speech --gen2 --entry-point=textToSpeechHandler --trigger-http --allow-unauthenticated --region=us-west2 --runtime nodejs14",
     "deploy": "yarn build && yarn gcloud-deploy"

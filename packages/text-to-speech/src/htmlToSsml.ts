@@ -91,7 +91,7 @@ function emitTextNode(
   if (ssmlElement) {
     emit(textItems, `<${ssmlElement}>`)
   }
-  emit(textItems, `${cleanedText}`)
+  emit(textItems, `${cleanedText.replace(/\s+/g, ' ')}`)
   if (ssmlElement) {
     emit(textItems, `</${ssmlElement}>`)
   }
@@ -123,7 +123,7 @@ function emitElement(
     ) {
       const cleanedText = cleanTextNode(child)
       if (idx && cleanedText.length > 1) {
-        // Make sure its more than just a space
+        // Make sure it's more than just a space
         emit(textItems, `<bookmark mark="${idx}" />`)
       }
       emitTextNode(textItems, cleanedText, child)
@@ -158,9 +158,7 @@ const startSsml = (element: Element, options: SSMLOptions): string => {
     element.nodeName === 'BLOCKQUOTE'
       ? options.secondaryVoice
       : options.primaryVoice
-  return `
-<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}" pitch="default">
-  `
+  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}">`
 }
 
 const endSsml = (): string => {
@@ -181,7 +179,10 @@ export const ssmlItemText = (item: SSMLItem): string => {
   return [item.open, ...item.textItems, item.close].join('')
 }
 
-export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
+export const htmlToSsmlItems = (
+  html: string,
+  options: SSMLOptions
+): SSMLItem[] => {
   console.log('creating ssml with options', options)
 
   const dom = parseHTML(html)
@@ -219,4 +220,8 @@ export const htmlToSsml = (html: string, options: SSMLOptions): SSMLItem[] => {
   }
 
   return items
+}
+
+export const htmlToSsml = (html: string, options: SSMLOptions): string[] => {
+  return htmlToSsmlItems(html, options).map(ssmlItemText)
 }
