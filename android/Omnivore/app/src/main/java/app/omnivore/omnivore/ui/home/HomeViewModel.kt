@@ -1,26 +1,12 @@
 package app.omnivore.omnivore.ui.home
 
-import android.annotation.SuppressLint
-import android.net.Uri
-import android.view.ViewGroup
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.*
-import app.omnivore.omnivore.AppleConstants
 import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.SearchQuery
-import app.omnivore.omnivore.ui.auth.AppleAuthDialog
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,14 +18,29 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
-  var cursor: String? = null
+  private var cursor: String? = null
+  private var items: List<LinkedItem> = listOf()
+  private var searchedItems: List<LinkedItem> = listOf()
+
+  // Live Data
+  val searchTextLiveData = MutableLiveData<String>("")
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
 
   private fun getAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
 
-  fun load() {
+  fun updateSearchText(text: String) {
+    searchTextLiveData.value = text
+
+    if (text == "") {
+      itemsLiveData.value = items
+    } else {
+      load(clearPreviousSearch = true)
+    }
+  }
+
+  fun load(clearPreviousSearch: Boolean = false) {
     viewModelScope.launch {
       val authToken = getAuthToken()
 
@@ -52,6 +53,7 @@ class HomeViewModel @Inject constructor(
         SearchQuery(
           after = Optional.presentIfNotNull(cursor),
           first = Optional.presentIfNotNull(15),
+          query = Optional.presentIfNotNull(searchQuery())
         )
       ).execute()
 
@@ -74,8 +76,27 @@ class HomeViewModel @Inject constructor(
         )
       }
 
-      itemsLiveData.value = (itemsLiveData.value ?: listOf()).plus(newItems)
+      Log.d("loggo", newItems.toString())
+
+      if (searchTextLiveData.value != "") {
+        val previousItems = if (clearPreviousSearch) listOf() else searchedItems
+        searchedItems = previousItems.plus(newItems)
+        itemsLiveData.value = searchedItems
+      } else {
+        items = items.plus(newItems)
+        itemsLiveData.value = items
+      }
     }
+  }
+
+  private fun searchQuery(): String {
+      var query = "in:inbox sort:saved"
+
+      if (searchTextLiveData.value != "") {
+        query.plus(" ${searchTextLiveData.value}")
+      }
+
+      return query
   }
 }
 

@@ -31,7 +31,7 @@ fun LinkedItemCard(item: LinkedItem, onClickHandler: () -> Unit) {
         .clickable(onClick = onClickHandler)
     ) {
       Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = Modifier
           .weight(1f, fill = false)
           .padding(end = 8.dp)

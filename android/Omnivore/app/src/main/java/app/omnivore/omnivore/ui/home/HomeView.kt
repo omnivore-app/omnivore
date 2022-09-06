@@ -28,32 +28,27 @@ fun HomeView(
   homeViewModel: HomeViewModel,
   navController: NavHostController
 ) {
-    Scaffold(
-      topBar = {
-        TopAppBar(
-          title = { Text("Home") },
-          backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-          actions = {
-            IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
-              Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = null
-              )
-            }
-          }
-        )
-      }
-    ) { paddingValues ->
-      HomeViewContent(
-        homeViewModel,
-        navController,
-        modifier = Modifier
-          .padding(
-            top = paddingValues.calculateTopPadding(),
-            bottom = paddingValues.calculateBottomPadding()
-          )
+  val searchText: String by homeViewModel.searchTextLiveData.observeAsState("")
+
+  Scaffold(
+    topBar = {
+      SearchBar(
+        searchText = searchText,
+        onSearchTextChanged = { homeViewModel.updateSearchText(it) },
+        onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
       )
     }
+  ) { paddingValues ->
+    HomeViewContent(
+      homeViewModel,
+      navController,
+      modifier = Modifier
+        .padding(
+          top = paddingValues.calculateTopPadding(),
+          bottom = paddingValues.calculateBottomPadding()
+        )
+    )
+  }
 }
 
 @Composable
