@@ -147,7 +147,7 @@ export const synthesizeTextToSpeech = async (
         primaryVoice: input.voice || 'en-US-JennyNeural',
         secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
         language: input.languageCode || 'en-US',
-        rate: '1',
+        rate: '1.333',
       })
       for (const ssmlItem of ssmlItems) {
         const ssml = ssmlItemText(ssmlItem)
