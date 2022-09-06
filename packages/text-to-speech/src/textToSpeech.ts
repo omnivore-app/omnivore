@@ -18,7 +18,6 @@ export interface TextToSpeechInput {
   rate?: number
   complimentaryVoice?: string
   audioStream?: NodeJS.ReadWriteStream
-  speechMarksStream?: NodeJS.ReadWriteStream
 }
 
 export interface TextToSpeechOutput {
@@ -42,7 +41,6 @@ export const synthesizeTextToSpeech = async (
   }
   const textType = input.textType || 'html'
   const audioStream = input.audioStream || new PassThrough()
-  const speechMarksStream = input.speechMarksStream || new PassThrough()
   const speechConfig = SpeechConfig.fromSubscription(
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
@@ -93,15 +91,13 @@ export const synthesizeTextToSpeech = async (
         e.text
       }`
     )
-    const speechMark: SpeechMark = {
+    speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
       start: e.textOffset,
       length: e.wordLength,
       type: 'word',
-    }
-    speechMarks.push(speechMark)
-    speechMarksStream.write(Buffer.from(JSON.stringify(speechMark)))
+    })
   }
 
   synthesizer.bookmarkReached = (s, e) => {
@@ -110,13 +106,11 @@ export const synthesizeTextToSpeech = async (
         e.audioOffset / 10000
       }ms, bookmark text: ${e.text}`
     )
-    const speechMark: SpeechMark = {
+    speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
       type: 'bookmark',
-    }
-    speechMarks.push(speechMark)
-    speechMarksStream.write(Buffer.from(JSON.stringify(speechMark)))
+    })
   }
 
   const speakSsmlAsyncPromise = (
@@ -150,6 +144,7 @@ export const synthesizeTextToSpeech = async (
         timeOffset = timeOffset + result.audioDuration
       }
     } else {
+      // assemble ssml
       const ssml = `${startSsml(null, ssmlOptions)}${input.text}${endSsml()}`
       await speakSsmlAsyncPromise(ssml)
     }
@@ -159,7 +154,6 @@ export const synthesizeTextToSpeech = async (
   } finally {
     console.debug('closing synthesizer')
     audioStream.end()
-    speechMarksStream.end()
     synthesizer.close()
     console.debug('synthesizer closed')
   }

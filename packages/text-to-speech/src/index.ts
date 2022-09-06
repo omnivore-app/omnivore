@@ -90,6 +90,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error(e)
       return res.status(200).send('UNAUTHENTICATED')
     }
+    // validate input
     const input = req.body as HTMLInput
     const id = input.id
     const bucket = input.bucket
@@ -97,26 +98,30 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(200).send('Invalid data')
     }
     try {
+      // audio file to be saved in GCS
       const audioFileName = `speech/${id}.mp3`
       const audioFile = createGCSFile(bucket, audioFileName)
       const audioStream = audioFile.createWriteStream({
         resumable: true,
       }) as NodeJS.WriteStream
-      const speechMarksFileName = `speech/${id}.json`
-      const speechMarksFile = createGCSFile(bucket, speechMarksFileName)
-      const speechMarksStream = speechMarksFile.createWriteStream({
-        resumable: true,
-      }) as NodeJS.WriteStream
+      // synthesize text to speech
       const startTime = Date.now()
-      await synthesizeTextToSpeech({
+      const { speechMarks } = await synthesizeTextToSpeech({
         ...input,
         textType: 'html',
         audioStream,
-        speechMarksStream,
       })
       console.info(
         `Synthesize text to speech completed in ${Date.now() - startTime} ms`
       )
+      // speech marks file to be saved in GCS
+      const speechMarksFileName = `speech/${id}.json`
+      await uploadToBucket(
+        speechMarksFileName,
+        Buffer.from(JSON.stringify(speechMarks)),
+        bucket
+      )
+      // update speech state
       const updated = await updateSpeech(
         id,
         token,
@@ -124,12 +129,10 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
         audioFileName,
         speechMarksFileName
       )
-
       if (!updated) {
         console.error('Failed to update speech')
         return res.status(500).send({ errorCodes: 'DB_ERROR' })
       }
-
       console.info('Text to speech cloud function completed')
       res.send('OK')
     } catch (e) {
