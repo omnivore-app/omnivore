@@ -216,6 +216,7 @@ export interface Page {
   language?: string
   readAt?: Date
   listenedAt?: Date
+  wordCount?: number
 }
 
 export interface SearchItem {
