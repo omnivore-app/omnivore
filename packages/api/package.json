@@ -86,7 +86,8 @@
     "urlsafe-base64": "^1.0.0",
     "uuid": "^8.3.1",
     "voca": "^1.4.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "word-counting": "^1.1.4"
   },
   "devDependencies": {
     "@babel/register": "^7.14.5",

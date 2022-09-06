@@ -152,7 +152,7 @@
       "listenedAt": {
         "type": "date"
       },
-      "wordCount": {
+      "wordsCount": {
         "type": "integer"
       }
     }

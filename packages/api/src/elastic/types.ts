@@ -216,7 +216,7 @@ export interface Page {
   language?: string
   readAt?: Date
   listenedAt?: Date
-  wordCount?: number
+  wordsCount?: number
 }
 
 export interface SearchItem {
@@ -246,6 +246,7 @@ export interface SearchItem {
   updatedAt?: Date
   labels?: Label[]
   highlights?: Highlight[]
+  wordsCount?: number
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
