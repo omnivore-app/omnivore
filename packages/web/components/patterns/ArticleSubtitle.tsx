@@ -54,7 +54,7 @@ export function authoredByText(author: string): string {
   return `by ${removeHTMLTags(author)}`
 }
 
-function removeHTMLTags(str: string | null | undefined): string {
+export function removeHTMLTags(str: string | null | undefined): string {
   if (typeof str === 'string') {
     return str.replace(/(<([^>]+)>)/gi, '')
   } else {

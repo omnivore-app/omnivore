@@ -26,12 +26,17 @@ import Views
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
   @Published var appliedSort = LinkedItemSort.newest.rawValue
+  @AppStorage(UserDefaultKey.audioInfoAlertShown.rawValue) var showAudioInfoAlert = false
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
   @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
     from: Date(timeIntervalSinceReferenceDate: 0)
   )
+
+  func handleReaderItemNotification(objectID: NSManagedObjectID) {
+    selectedLinkItem = objectID
+  }
 
   var cursor: String?
 
@@ -55,7 +60,7 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, audioSession _: AudioSession, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, audioSession: AudioSession, isRefresh: Bool) async {
     let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
@@ -123,7 +128,13 @@ import Views
       cursor = queryResult.cursor
       if let username = dataService.currentViewer?.username {
         await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
-        // await audioSession.preload(itemIDs: newItems.map(\.unwrappedID))
+        // Only preload the first item in the list. We are doing this during the beta
+        // because it will kick off the user's future items being automatically transcribed.
+        // This happens because when an article is saved, we check if the user has a recent
+        // listen. If they do, we will automatically transcribe their message.
+        if let first = newItems.first?.id {
+          _ = await audioSession.preload(itemIDs: [first])
+        }
       }
     } else {
       updateFetchController(dataService: dataService)
@@ -131,6 +142,19 @@ import Views
 
     isLoading = false
     showLoadingBar = false
+  }
+
+  func dismissAudioInfoAlert() {
+    UserDefaults.standard.set(true, forKey: UserDefaultKey.audioInfoAlertShown.rawValue)
+    showAudioInfoAlert = false
+  }
+
+  func downloadAudio(audioSession: AudioSession, item: LinkedItem) {
+    Snackbar.show(message: "Downloading Offline Audio")
+    Task {
+      let downloaded = await audioSession.preload(itemIDs: [item.unwrappedID])
+      Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
+    }
   }
 
   private var fetchRequest: NSFetchRequest<Models.LinkedItem> {

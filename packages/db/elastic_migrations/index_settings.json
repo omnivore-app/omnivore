@@ -151,6 +151,9 @@
       },
       "listenedAt": {
         "type": "date"
+      },
+      "wordsCount": {
+        "type": "integer"
       }
     }
   }

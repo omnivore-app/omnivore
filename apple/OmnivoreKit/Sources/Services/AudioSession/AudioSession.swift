@@ -76,7 +76,7 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
     downloadTask?.cancel()
   }
 
-  public func preload(itemIDs: [String], retryCount: Int = 0) async {
+  public func preload(itemIDs: [String], retryCount: Int = 0) async -> Bool {
     var pendingList = [String]()
 
     for pageId in itemIDs {
@@ -96,23 +96,25 @@ public class AudioSession: NSObject, ObservableObject, AVAudioPlayerDelegate {
       if let result = result, result.pending {
         print("audio file is pending download: ", pageId)
         pendingList.append(pageId)
+      } else {
+        print("audio file is downloaded: ", pageId)
       }
     }
 
     print("audio files pending download: ", pendingList)
     if pendingList.isEmpty {
-      return
+      return true
     }
 
     if retryCount > 5 {
       print("reached max preload depth, stopping preloading")
-      return
+      return false
     }
 
     let retryDelayInNanoSeconds = UInt64(retryCount * 2 * 1_000_000_000)
     try? await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
 
-    await preload(itemIDs: pendingList, retryCount: retryCount + 1)
+    return await preload(itemIDs: pendingList, retryCount: retryCount + 1)
   }
 
   public var localAudioUrl: URL? {

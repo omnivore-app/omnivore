@@ -13,4 +13,5 @@ public enum UserDefaultKey: String {
   case lastUsedAppVersion
   case lastUsedAppBuildNumber
   case lastItemSyncTime
+  case audioInfoAlertShown
 }

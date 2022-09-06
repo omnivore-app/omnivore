@@ -18,6 +18,7 @@ public struct MiniPlayer: View {
 
   @State var expanded = false
   @State var offset: CGFloat = 0
+  @State var showVoiceSheet = false
   @Namespace private var animation
 
   let minExpandedHeight = UIScreen.main.bounds.height / 3
@@ -40,9 +41,9 @@ public struct MiniPlayer: View {
         action: {
           switch audioSession.state {
           case .playing:
-            audioSession.pause()
+            _ = audioSession.pause()
           case .paused:
-            audioSession.unpause()
+            _ = audioSession.unpause()
           default:
             break
           }
@@ -102,6 +103,15 @@ public struct MiniPlayer: View {
     )
   }
 
+  func viewArticle() {
+    if let item = audioSession.item {
+      NSNotification.pushReaderItem(objectID: item.objectID)
+      withAnimation(.easeIn(duration: 0.1)) {
+        expanded = false
+      }
+    }
+  }
+
   // swiftlint:disable:next function_body_length
   func playerContent(_ item: LinkedItem) -> some View {
     GeometryReader { geom in
@@ -153,7 +163,6 @@ public struct MiniPlayer: View {
 
             playPauseButtonItem
               .frame(width: 28, height: 28)
-              .matchedGeometryEffect(id: "PlayPauseButton", in: animation)
 
             stopButton
               .frame(width: 28, height: 28)
@@ -170,6 +179,9 @@ public struct MiniPlayer: View {
             .foregroundColor(.appGrayTextContrast)
             .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
             .matchedGeometryEffect(id: "ArticleTitle", in: animation)
+            .onTapGesture {
+              viewArticle()
+            }
 
           HStack {
             Spacer()
@@ -235,6 +247,22 @@ public struct MiniPlayer: View {
           }
 
           HStack {
+            Menu {
+              Button("1.0×", action: {})
+              Button("1.2×", action: {})
+              Button("1.5×", action: {})
+              Button("1.7×", action: {})
+              Button("2.0×", action: {})
+            } label: {
+              VStack {
+                Text("1.0×")
+                  .font(.appCallout)
+                  .lineLimit(0)
+              }
+              .contentShape(Rectangle())
+            }
+            .padding(8)
+
             Button(
               action: { self.audioSession.skipBackwards(seconds: 30) },
               label: {
@@ -246,7 +274,6 @@ public struct MiniPlayer: View {
             playPauseButtonItem
               .frame(width: 64, height: 64)
               .padding(32)
-              .matchedGeometryEffect(id: "PlayPauseButton", in: animation)
 
             Button(
               action: { self.audioSession.skipForward(seconds: 30) },
@@ -255,6 +282,19 @@ public struct MiniPlayer: View {
                   .font(.appTitleTwo)
               }
             )
+
+            Menu {
+              Button("View Article", action: { viewArticle() })
+              Button("Change Voice", action: { showVoiceSheet = true })
+            } label: {
+              VStack {
+                Image(systemName: "ellipsis")
+                  .font(.appCallout)
+                  .frame(width: 20, height: 20)
+              }
+              .contentShape(Rectangle())
+            }
+            .padding(8)
           }
         }
       }
@@ -266,6 +306,8 @@ public struct MiniPlayer: View {
       )
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
+      }.sheet(isPresented: $showVoiceSheet) {
+        changeVoiceView
       }
     }
   }
@@ -284,6 +326,29 @@ public struct MiniPlayer: View {
             .background(expanded ? .clear : .systemBackground)
         }
       }
+    }
+  }
+
+  var changeVoiceView: some View {
+    NavigationView {
+      VStack {
+        List {
+          ForEach(["Jenny", "Guy"], id: \.self) { name in
+            Button(action: {}) {
+              Text(name)
+            }
+            .buttonStyle(PlainButtonStyle())
+          }
+        }
+        .padding(.top, 32)
+        .listStyle(.plain)
+        Spacer()
+      }
+      .navigationBarTitle("Change Voice")
+      .navigationBarTitleDisplayMode(.inline)
+      .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
+        Image(systemName: "chevron.backward")
+      })
     }
   }
 
