@@ -170,9 +170,12 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         ...utteranceInput,
         textType: 'utterance',
       }
-      const { audioStream, speechMarks } = await synthesizeTextToSpeech(input)
+      const { audioData, speechMarks } = await synthesizeTextToSpeech(input)
+      if (!audioData) {
+        return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
+      }
       res.send({
-        audioData: audioStream.read().toString('hex'),
+        audioData: audioData.toString('hex'),
         speechMarks,
       })
     } catch (e) {

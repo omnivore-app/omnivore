@@ -21,7 +21,7 @@ export interface TextToSpeechInput {
 }
 
 export interface TextToSpeechOutput {
-  audioStream: NodeJS.ReadWriteStream
+  audioData?: Buffer
   speechMarks: SpeechMark[]
 }
 
@@ -146,7 +146,11 @@ export const synthesizeTextToSpeech = async (
     } else {
       // assemble ssml
       const ssml = `${startSsml(null, ssmlOptions)}${input.text}${endSsml()}`
-      await speakSsmlAsyncPromise(ssml)
+      const result = await speakSsmlAsyncPromise(ssml)
+      return {
+        audioData: Buffer.from(result.audioData),
+        speechMarks,
+      }
     }
   } catch (error) {
     console.error('synthesis error', error)
@@ -159,7 +163,6 @@ export const synthesizeTextToSpeech = async (
   }
 
   return {
-    audioStream,
     speechMarks,
   }
 }
