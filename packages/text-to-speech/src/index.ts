@@ -11,6 +11,7 @@ import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
 import { PassThrough } from 'stream'
 import { htmlToSsml } from './htmlToSsml'
+import * as fs from 'fs'
 
 dotenv.config()
 Sentry.GCPFunction.init({
@@ -140,17 +141,19 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const ssmlItems = req.body.ssmlItems as string[]
-      if (!ssmlItems || ssmlItems.length === 0) {
-        return res.status(200).send({ errorCode: 'INVALID_DATA' })
-      }
+      // const ssmlItems = req.body.ssmlItems as string[]
+      // if (!ssmlItems || ssmlItems.length === 0) {
+      //   return res.status(200).send({ errorCode: 'INVALID_DATA' })
+      // }
+      // hardcoded for now
+      const ssml = fs.readFileSync('./data/ssml.xml', 'utf8')
       const audioStream = new PassThrough()
       const speechMarksStream = new PassThrough()
       const input: TextToSpeechInput = {
         text: '',
         textType: 'ssml',
         audioStream,
-        ssmlItems,
+        ssmlItems: [ssml],
         speechMarksStream,
       }
       res.set({
