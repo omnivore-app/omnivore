@@ -9,9 +9,28 @@ import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
-import { PassThrough } from 'stream'
 import { htmlToSsml } from './htmlToSsml'
-import * as fs from 'fs'
+
+interface SSMLInput {
+  text: string
+}
+
+interface UtteranceInput {
+  voice?: string
+  rate?: number
+  language?: string
+  text: string
+}
+
+interface HTMLInput {
+  id: string
+  text: string
+  voice?: string
+  language?: string
+  rate?: number
+  complimentaryVoice?: string
+  bucket: string
+}
 
 dotenv.config()
 Sentry.GCPFunction.init({
@@ -71,7 +90,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error(e)
       return res.status(200).send('UNAUTHENTICATED')
     }
-    const input = req.body as TextToSpeechInput
+    const input = req.body as HTMLInput
     const id = input.id
     const bucket = input.bucket
     if (!id || !bucket) {
@@ -130,41 +149,41 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
     const token = (req.query.token || req.headers.authorization) as string
     if (!token) {
-      return res.status(200).send({ errorCode: 'UNAUTHORIZED' })
+      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
     }
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (e) {
       console.error(e)
-      return res.status(200).send({ errorCode: 'UNAUTHORIZED' })
+      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
     }
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      // const ssmlItems = req.body.ssmlItems as string[]
-      // if (!ssmlItems || ssmlItems.length === 0) {
-      //   return res.status(200).send({ errorCode: 'INVALID_DATA' })
-      // }
-      // hardcoded for now
-      const ssml = fs.readFileSync('./data/ssml.xml', 'utf8')
-      const audioStream = new PassThrough()
-      const speechMarksStream = new PassThrough()
-      const input: TextToSpeechInput = {
-        text: '',
-        textType: 'ssml',
-        audioStream,
-        ssmlItems: [ssml],
-        speechMarksStream,
+      const utteranceInput = req.body as UtteranceInput
+      if (!utteranceInput.text) {
+        return res.status(400).send({ errorCode: 'INVALID_DATA' })
       }
-      res.set({
-        'Content-Type': 'audio/mpeg',
-        'Transfer-Encoding': 'chunked',
-      })
-
-      console.info('Text to speech starts streaming')
-      audioStream.pipe(res)
-
-      await synthesizeTextToSpeech(input)
+      const input: TextToSpeechInput = {
+        ...utteranceInput,
+        textType: 'utterance',
+      }
+      const { audioStream, speechMarks } = await synthesizeTextToSpeech(input)
+      // const readStream = new Readable()
+      // readStream.push(JSON.stringify({ audioData, speechMarks }))
+      //
+      // res.set({
+      //   'Content-Type': 'application/json',
+      //   'Transfer-Encoding': 'chunked',
+      // })
+      // console.info('Text to speech starts streaming')
+      // pipeline(readStream, res, (err) => {
+      //   if (err) {
+      //     console.error('Text to speech streaming error', err)
+      //     res.status(500).send({ errorCode: 'STREAMING_ERROR' })
+      //   }
+      // })
+      res.send({ audioData: audioStream.read(), speechMarks })
     } catch (e) {
       console.error('Text to speech streaming error', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })

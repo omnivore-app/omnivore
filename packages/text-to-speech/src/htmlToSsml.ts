@@ -4,6 +4,13 @@ import * as _ from 'underscore'
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
 
+export interface Utterance {
+  wordOffset: number
+  voice?: string
+  words: string[]
+  text: string
+}
+
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',
   'data-twitter-tweet-id',
@@ -153,15 +160,18 @@ export type SSMLOptions = {
   language: string
 }
 
-const startSsml = (element: Element, options: SSMLOptions): string => {
+export const startSsml = (
+  element: Element | null,
+  options: SSMLOptions
+): string => {
   const voice =
-    element.nodeName === 'BLOCKQUOTE'
+    element?.nodeName === 'BLOCKQUOTE'
       ? options.secondaryVoice
       : options.primaryVoice
   return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}">`
 }
 
-const endSsml = (): string => {
+export const endSsml = (): string => {
   return `</prosody></voice></speak>`
 }
 

@@ -7,24 +7,22 @@ import {
   SpeechSynthesisResult,
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
-import { htmlToSsmlItems, ssmlItemText } from './htmlToSsml'
+import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
+import { PassThrough } from 'stream'
 
 export interface TextToSpeechInput {
-  id?: string
   text: string
   voice?: string
-  languageCode?: string
-  textType?: 'html' | 'ssml'
+  language?: string
+  textType?: 'html' | 'ssml' | 'utterance'
   rate?: number
-  volume?: number
   complimentaryVoice?: string
-  bucket?: string
-  audioStream: NodeJS.ReadWriteStream
-  ssmlItems?: string[]
-  speechMarksStream: NodeJS.ReadWriteStream
+  audioStream?: NodeJS.ReadWriteStream
+  speechMarksStream?: NodeJS.ReadWriteStream
 }
 
 export interface TextToSpeechOutput {
+  audioStream: NodeJS.ReadWriteStream
   speechMarks: SpeechMark[]
 }
 
@@ -43,8 +41,8 @@ export const synthesizeTextToSpeech = async (
     throw new Error('Azure Speech Key or Region not set')
   }
   const textType = input.textType || 'html'
-  const audioStream = input.audioStream
-  const speechMarksStream = input.speechMarksStream
+  const audioStream = input.audioStream || new PassThrough()
+  const speechMarksStream = input.speechMarksStream || new PassThrough()
   const speechConfig = SpeechConfig.fromSubscription(
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
@@ -95,17 +93,15 @@ export const synthesizeTextToSpeech = async (
         e.text
       }`
     )
-    speechMarksStream.write(
-      Buffer.from(
-        JSON.stringify({
-          word: e.text,
-          time: (timeOffset + e.audioOffset) / 10000,
-          start: e.textOffset,
-          length: e.wordLength,
-          type: 'word',
-        })
-      )
-    )
+    const speechMark: SpeechMark = {
+      word: e.text,
+      time: (timeOffset + e.audioOffset) / 10000,
+      start: e.textOffset,
+      length: e.wordLength,
+      type: 'word',
+    }
+    speechMarks.push(speechMark)
+    speechMarksStream.write(Buffer.from(JSON.stringify(speechMark)))
   }
 
   synthesizer.bookmarkReached = (s, e) => {
@@ -114,15 +110,13 @@ export const synthesizeTextToSpeech = async (
         e.audioOffset / 10000
       }ms, bookmark text: ${e.text}`
     )
-    speechMarksStream.write(
-      Buffer.from(
-        JSON.stringify({
-          word: e.text,
-          time: (timeOffset + e.audioOffset) / 10000,
-          type: 'bookmark',
-        })
-      )
-    )
+    const speechMark: SpeechMark = {
+      word: e.text,
+      time: (timeOffset + e.audioOffset) / 10000,
+      type: 'bookmark',
+    }
+    speechMarks.push(speechMark)
+    speechMarksStream.write(Buffer.from(JSON.stringify(speechMark)))
   }
 
   const speakSsmlAsyncPromise = (
@@ -142,22 +136,22 @@ export const synthesizeTextToSpeech = async (
   }
 
   try {
+    const ssmlOptions = {
+      primaryVoice: input.voice || 'en-US-JennyNeural',
+      secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
+      language: input.language || 'en-US',
+      rate: '1.333',
+    }
     if (textType === 'html') {
-      const ssmlItems = htmlToSsmlItems(input.text, {
-        primaryVoice: input.voice || 'en-US-JennyNeural',
-        secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
-        language: input.languageCode || 'en-US',
-        rate: '1.333',
-      })
+      const ssmlItems = htmlToSsmlItems(input.text, ssmlOptions)
       for (const ssmlItem of ssmlItems) {
         const ssml = ssmlItemText(ssmlItem)
         const result = await speakSsmlAsyncPromise(ssml)
         timeOffset = timeOffset + result.audioDuration
       }
     } else {
-      for (const ssmlItem of input.ssmlItems || []) {
-        await speakSsmlAsyncPromise(ssmlItem)
-      }
+      const ssml = `${startSsml(null, ssmlOptions)}${input.text}${endSsml()}`
+      await speakSsmlAsyncPromise(ssml)
     }
   } catch (error) {
     console.error('synthesis error', error)
@@ -171,6 +165,7 @@ export const synthesizeTextToSpeech = async (
   }
 
   return {
+    audioStream,
     speechMarks,
   }
 }
