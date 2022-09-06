@@ -94,6 +94,7 @@ import {
   updatePage,
 } from '../../elastic/pages'
 import { searchHighlights } from '../../elastic/highlights'
+import wordsCounter from 'word-counting'
 
 export type PartialArticle = Omit<
   Article,
@@ -257,6 +258,9 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
+      const wordsCount = wordsCounter(parsedContent?.content || '', {
+        isHtml: true,
+      }).wordsCount
       const articleToSave: Page = {
         id: pageId || '',
         userId: uid,
@@ -289,6 +293,7 @@ export const createArticleResolver = authorized<
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
         language: parsedContent?.language,
+        wordsCount,
       }
 
       let archive = false
