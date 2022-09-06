@@ -8,7 +8,6 @@ import {
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
 import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
-import { PassThrough } from 'stream'
 
 export interface TextToSpeechInput {
   text: string
@@ -40,7 +39,7 @@ export const synthesizeTextToSpeech = async (
     throw new Error('Azure Speech Key or Region not set')
   }
   const textType = input.textType || 'html'
-  const audioStream = input.audioStream || new PassThrough()
+  const audioStream = input.audioStream
   const speechConfig = SpeechConfig.fromSubscription(
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
@@ -55,7 +54,7 @@ export const synthesizeTextToSpeech = async (
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
-    audioStream.write(Buffer.from(e.result.audioData))
+    audioStream?.write(Buffer.from(e.result.audioData))
   }
 
   // The event synthesis completed signals that the synthesis is completed.
@@ -157,7 +156,7 @@ export const synthesizeTextToSpeech = async (
     throw error
   } finally {
     console.debug('closing synthesizer')
-    audioStream.end()
+    audioStream?.end()
     synthesizer.close()
     console.debug('synthesizer closed')
   }
