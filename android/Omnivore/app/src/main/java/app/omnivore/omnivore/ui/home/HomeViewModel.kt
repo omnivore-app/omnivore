@@ -48,6 +48,10 @@ class HomeViewModel @Inject constructor(
   }
 
   fun load(clearPreviousSearch: Boolean = false) {
+    if (clearPreviousSearch) {
+      cursor = null
+    }
+
     viewModelScope.launch {
       val thisSearchIdx = searchIdx
       searchIdx += 1
@@ -66,20 +70,20 @@ class HomeViewModel @Inject constructor(
         )
       ).execute()
 
+
       // Search results aren't guaranteed to return in order so this
       // will discard old results that are returned while a user is typing.
       // For example if a user types 'Canucks', often the search results
       // for 'C' are returned after 'Canucks' because it takes the backend
       // much longer to compute.
       if (thisSearchIdx in 1..receivedIdx) {
-        Log.d("loggo", "early return from load function")
         return@launch
       }
 
       cursor = response.data?.search?.onSearchSuccess?.pageInfo?.endCursor
       receivedIdx = thisSearchIdx
       val itemList = response.data?.search?.onSearchSuccess?.edges ?: listOf()
-
+      
       val newItems = itemList.map {
         LinkedItem(
           id = it.node.id,
@@ -111,7 +115,7 @@ class HomeViewModel @Inject constructor(
       var query = "in:inbox sort:saved"
 
       if (searchTextLiveData.value != "") {
-        query.plus(" ${searchTextLiveData.value}")
+        query = query.plus(" ${searchTextLiveData.value}")
       }
 
       return query
