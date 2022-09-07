@@ -8,6 +8,7 @@ import {
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
 import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
+import * as _ from 'underscore'
 
 export interface TextToSpeechInput {
   text: string
@@ -150,7 +151,7 @@ export const synthesizeTextToSpeech = async (
     // for utterance
     const start = startSsml(ssmlOptions)
     wordOffset = -start.length
-    const ssml = `${start}${input.text}${endSsml()}`
+    const ssml = `${start}${_.escape(input.text)}${endSsml()}`
     const result = await speakSsmlAsyncPromise(ssml)
     return {
       audioData: Buffer.from(result.audioData),
