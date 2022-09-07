@@ -66,6 +66,7 @@ const TOP_LEVEL_TAGS = [
   'H6',
   'UL',
   'OL',
+  'CODE',
 ]
 
 function parseDomTree(pageNode: Element) {
