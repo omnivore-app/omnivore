@@ -300,7 +300,7 @@ export const htmlToSpeechFile = (
         wordOffset,
         node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
       )
-      utterances.push(utterance)
+      utterance.wordCount > 0 && utterances.push(utterance)
       wordOffset += utterance.wordCount
     }
   }
