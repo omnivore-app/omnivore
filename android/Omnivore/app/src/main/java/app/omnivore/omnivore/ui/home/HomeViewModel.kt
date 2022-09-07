@@ -2,7 +2,9 @@ package app.omnivore.omnivore.ui.home
 
 import android.util.Log
 import androidx.core.net.toUri
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
@@ -21,6 +23,11 @@ class HomeViewModel @Inject constructor(
   private var cursor: String? = null
   private var items: List<LinkedItem> = listOf()
   private var searchedItems: List<LinkedItem> = listOf()
+
+  // These are used to make sure we handle search result
+  // responses in the right order
+  private var searchIdx = 0
+  private var receivedIdx = 0
 
   // Live Data
   val searchTextLiveData = MutableLiveData<String>("")
@@ -42,6 +49,8 @@ class HomeViewModel @Inject constructor(
 
   fun load(clearPreviousSearch: Boolean = false) {
     viewModelScope.launch {
+      val thisSearchIdx = searchIdx
+      searchIdx += 1
       val authToken = getAuthToken()
 
       val apolloClient = ApolloClient.Builder()
@@ -57,7 +66,18 @@ class HomeViewModel @Inject constructor(
         )
       ).execute()
 
+      // Search results aren't guaranteed to return in order so this
+      // will discard old results that are returned while a user is typing.
+      // For example if a user types 'Canucks', often the search results
+      // for 'C' are returned after 'Canucks' because it takes the backend
+      // much longer to compute.
+      if (thisSearchIdx in 1..receivedIdx) {
+        Log.d("loggo", "early return from load function")
+        return@launch
+      }
+
       cursor = response.data?.search?.onSearchSuccess?.pageInfo?.endCursor
+      receivedIdx = thisSearchIdx
       val itemList = response.data?.search?.onSearchSuccess?.edges ?: listOf()
 
       val newItems = itemList.map {
