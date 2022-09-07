@@ -15,7 +15,7 @@ export interface TextToSpeechInput {
   language?: string
   textType?: 'html' | 'utterance'
   rate?: number
-  complimentaryVoice?: string
+  secondaryVoice?: string
   audioStream?: NodeJS.ReadWriteStream
 }
 
@@ -131,10 +131,10 @@ export const synthesizeTextToSpeech = async (
 
   try {
     const ssmlOptions = {
-      primaryVoice: input.voice || 'en-US-JennyNeural',
-      secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
-      language: input.language || 'en-US',
-      rate: input.rate || 1.25,
+      primaryVoice: input.voice,
+      secondaryVoice: input.secondaryVoice,
+      language: input.language,
+      rate: input.rate,
     }
     if (textType === 'html') {
       const ssmlItems = htmlToSsmlItems(input.text, ssmlOptions)
