@@ -1,12 +1,21 @@
 declare module '@omnivore/text-to-speech-handler' {
-  function htmlToSsml(html: string, options: SSMLOptions): string[]
+  export function htmlToSsmlItems(
+    html: string,
+    options: SSMLOptions
+  ): SSMLItem[]
 
-  interface SSMLOptions {
+  export interface SSMLOptions {
     primaryVoice: string
     secondaryVoice: string
     rate: string
     language: string
   }
 
-  export { htmlToSsml }
+  export interface SSMLItem {
+    open: string
+    close: string
+    textItems: string[]
+    idx: number
+    voice?: string
+  }
 }
