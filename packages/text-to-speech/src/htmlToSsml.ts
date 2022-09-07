@@ -1,8 +1,46 @@
 import { parseHTML } from 'linkedom'
 import * as _ from 'underscore'
+import { WordPunctTokenizer } from 'natural'
+import { htmlToText } from 'html-to-text'
 
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
+
+export interface Utterance {
+  idx: number
+  text: string
+  wordOffset: number
+  wordCount: number
+  voice?: string
+}
+
+export interface SpeechFile {
+  wordCount: number
+  averageWPM: number
+  language: string
+  defaultVoice: string
+  utterances: Utterance[]
+}
+
+export type SSMLItem = {
+  open: string
+  close: string
+  textItems: string[]
+  idx: number
+  voice?: string
+}
+
+export type SSMLOptions = {
+  primaryVoice?: string
+  secondaryVoice?: string
+  rate?: number
+  language?: string
+}
+
+const WORDS_PER_MINUTE = 200
+const DEFAULT_LANGUAGE = 'en-US'
+const DEFAULT_VOICE = 'en-US-JennyNeural'
+const DEFAULT_RATE = 1.25
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',
@@ -140,30 +178,16 @@ function emitElement(
   return Number(maxVisitedIdx)
 }
 
-export type SSMLItem = {
-  open: string
-  close: string
-  textItems: string[]
-  idx: number
-  voice?: string
-}
-
-export type SSMLOptions = {
-  primaryVoice: string
-  secondaryVoice: string
-  rate: number
-  language: string
-}
-
-export const startSsml = (
-  element: Element | null,
-  options: SSMLOptions
-): string => {
+export const startSsml = (options: SSMLOptions, element?: Element): string => {
   const voice =
     element?.nodeName === 'BLOCKQUOTE'
       ? options.secondaryVoice
       : options.primaryVoice
-  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}">`
+  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${
+    options.language || DEFAULT_LANGUAGE
+  }"><voice name="${voice || DEFAULT_VOICE}"><prosody rate="${
+    options.rate || DEFAULT_RATE
+  }">`
 }
 
 export const endSsml = (): string => {
@@ -210,7 +234,7 @@ export const htmlToSsmlItems = (
       const idx = i
       i = emitElement(textItems, node, true)
       items.push({
-        open: startSsml(node, options),
+        open: startSsml(options, node),
         close: endSsml(),
         textItems: textItems,
         idx,
@@ -221,4 +245,70 @@ export const htmlToSsmlItems = (
   }
 
   return items
+}
+
+const htmlToUtterance = (
+  tokenizer: WordPunctTokenizer,
+  idx: number,
+  htmlItems: string[],
+  wordOffset: number,
+  voice?: string
+): Utterance => {
+  const text = htmlToText(htmlItems.join(''), { wordwrap: false })
+  const wordCount = tokenizer.tokenize(text).length
+  return {
+    idx,
+    text,
+    wordOffset,
+    wordCount,
+    voice,
+  }
+}
+
+export const htmlToSpeechFile = (
+  html: string,
+  options: SSMLOptions
+): SpeechFile => {
+  console.debug('creating speech file with options', options)
+
+  const dom = parseHTML(html)
+  const body = dom.document.querySelector('#readability-page-1')
+  if (!body) {
+    throw new Error('Unable to parse HTML document')
+  }
+
+  const parsedNodes = parseDomTree(body)
+  if (parsedNodes.length < 1) {
+    throw new Error('No HTML nodes found')
+  }
+
+  const tokenizer = new WordPunctTokenizer()
+  const utterances: Utterance[] = []
+  let wordOffset = 0
+  for (let i = 2; i < parsedNodes.length + 2; i++) {
+    const textItems: string[] = []
+    const node = parsedNodes[i - 2]
+
+    if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      const idx = i
+      i = emitElement(textItems, node, true)
+      const utterance = htmlToUtterance(
+        tokenizer,
+        idx,
+        textItems,
+        wordOffset,
+        node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
+      )
+      utterances.push(utterance)
+      wordOffset += utterance.wordCount
+    }
+  }
+
+  return {
+    wordCount: wordOffset,
+    averageWPM: WORDS_PER_MINUTE,
+    language: options.language || DEFAULT_LANGUAGE,
+    defaultVoice: options.primaryVoice || DEFAULT_VOICE,
+    utterances,
+  }
 }
