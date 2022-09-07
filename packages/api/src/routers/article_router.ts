@@ -28,14 +28,14 @@ import { htmlToText } from 'html-to-text'
 
 interface Utterance {
   wordOffset: number
-  wordsCount: number
+  wordCount: number
   voice?: string
   text: string
   idx: number
 }
 
 interface SSMLOutput {
-  wordsCount: number
+  wordCount: number
   averageWPM: number
   language: string
   defaultVoice: string
@@ -131,9 +131,9 @@ export function articleRouter() {
           rate: '1',
           language: page.language || 'en-US',
         })
-        const [utterances, wordsCount] = ssmlItemsToUtterances(ssmlItems)
+        const [utterances, wordCount] = ssmlItemsToUtterances(ssmlItems)
         const ssmlOutput: SSMLOutput = {
-          wordsCount,
+          wordCount,
           averageWPM: WORDS_PER_MINUTE,
           language: page.language || 'en-US',
           defaultVoice: voice,
@@ -226,15 +226,15 @@ const ssmlItemsToUtterances = (items: SSMLItem[]): [Utterance[], number] => {
   return [
     items.map((item) => {
       const text = htmlToText(item.textItems.join(''), { wordwrap: false })
-      const wordsCount = tokenizer.tokenize(text).length
+      const wordCount = tokenizer.tokenize(text).length
       const utterance: Utterance = {
         wordOffset,
-        wordsCount,
+        wordCount,
         text,
         voice: item.voice,
         idx: item.idx,
       }
-      wordOffset += wordsCount
+      wordOffset += wordCount
       return utterance
     }),
     wordOffset,
