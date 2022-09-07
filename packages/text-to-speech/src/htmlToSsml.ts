@@ -4,13 +4,6 @@ import * as _ from 'underscore'
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
 
-export interface Utterance {
-  wordOffset: number
-  voice?: string
-  words: string[]
-  text: string
-}
-
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',
   'data-twitter-tweet-id',
@@ -151,6 +144,8 @@ export type SSMLItem = {
   open: string
   close: string
   textItems: string[]
+  idx: number
+  voice?: string
 }
 
 export type SSMLOptions = {
@@ -202,14 +197,6 @@ export const htmlToSsmlItems = (
   }
 
   const parsedNodes = parseDomTree(body)
-  Array.from(parsedNodes).map((n) =>
-    console.log(
-      n.nodeName,
-      n.getAttribute('data-omnivore-anchor-idx'),
-      n.getAttribute('class')
-    )
-  )
-
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
@@ -220,18 +207,18 @@ export const htmlToSsmlItems = (
     const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      const idx = i
       i = emitElement(textItems, node, true)
       items.push({
         open: startSsml(node, options),
         close: endSsml(),
         textItems: textItems,
+        idx,
+        voice:
+          node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
       })
     }
   }
 
   return items
-}
-
-export const htmlToSsml = (html: string, options: SSMLOptions): string[] => {
-  return htmlToSsmlItems(html, options).map(ssmlItemText)
 }
