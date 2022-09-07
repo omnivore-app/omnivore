@@ -29,7 +29,7 @@ interface SpeechInput {
   secondaryVoice?: string
   priority?: 'low' | 'high'
 }
-const outputFormats = ['mp3', 'speech-marks', 'speech-file']
+const outputFormats = ['mp3', 'speech-marks', 'speech']
 const logger = buildLogger('app.dispatch')
 
 export function articleRouter() {
