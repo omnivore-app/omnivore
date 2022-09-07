@@ -9,9 +9,29 @@ import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
-import { PassThrough } from 'stream'
-import { htmlToSsml } from './htmlToSsml'
-import * as fs from 'fs'
+import { htmlToSsmlItems } from './htmlToSsml'
+
+interface SSMLInput {
+  text: string
+}
+
+interface UtteranceInput {
+  voice?: string
+  rate?: number
+  language?: string
+  text: string
+  idx: string
+}
+
+interface HTMLInput {
+  id: string
+  text: string
+  voice?: string
+  language?: string
+  rate?: number
+  complimentaryVoice?: string
+  bucket: string
+}
 
 dotenv.config()
 Sentry.GCPFunction.init({
@@ -71,33 +91,38 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error(e)
       return res.status(200).send('UNAUTHENTICATED')
     }
-    const input = req.body as TextToSpeechInput
+    // validate input
+    const input = req.body as HTMLInput
     const id = input.id
     const bucket = input.bucket
     if (!id || !bucket) {
       return res.status(200).send('Invalid data')
     }
     try {
+      // audio file to be saved in GCS
       const audioFileName = `speech/${id}.mp3`
       const audioFile = createGCSFile(bucket, audioFileName)
       const audioStream = audioFile.createWriteStream({
         resumable: true,
       }) as NodeJS.WriteStream
-      const speechMarksFileName = `speech/${id}.json`
-      const speechMarksFile = createGCSFile(bucket, speechMarksFileName)
-      const speechMarksStream = speechMarksFile.createWriteStream({
-        resumable: true,
-      }) as NodeJS.WriteStream
+      // synthesize text to speech
       const startTime = Date.now()
-      await synthesizeTextToSpeech({
+      const { speechMarks } = await synthesizeTextToSpeech({
         ...input,
         textType: 'html',
         audioStream,
-        speechMarksStream,
       })
       console.info(
         `Synthesize text to speech completed in ${Date.now() - startTime} ms`
       )
+      // speech marks file to be saved in GCS
+      const speechMarksFileName = `speech/${id}.json`
+      await uploadToBucket(
+        speechMarksFileName,
+        Buffer.from(JSON.stringify(speechMarks)),
+        bucket
+      )
+      // update speech state
       const updated = await updateSpeech(
         id,
         token,
@@ -105,12 +130,10 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
         audioFileName,
         speechMarksFileName
       )
-
       if (!updated) {
         console.error('Failed to update speech')
         return res.status(500).send({ errorCodes: 'DB_ERROR' })
       }
-
       console.info('Text to speech cloud function completed')
       res.send('OK')
     } catch (e) {
@@ -130,41 +153,33 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
     const token = (req.query.token || req.headers.authorization) as string
     if (!token) {
-      return res.status(200).send({ errorCode: 'UNAUTHORIZED' })
+      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
     }
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (e) {
       console.error(e)
-      return res.status(200).send({ errorCode: 'UNAUTHORIZED' })
+      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      // const ssmlItems = req.body.ssmlItems as string[]
-      // if (!ssmlItems || ssmlItems.length === 0) {
-      //   return res.status(200).send({ errorCode: 'INVALID_DATA' })
-      // }
-      // hardcoded for now
-      const ssml = fs.readFileSync('./data/ssml.xml', 'utf8')
-      const audioStream = new PassThrough()
-      const speechMarksStream = new PassThrough()
-      const input: TextToSpeechInput = {
-        text: '',
-        textType: 'ssml',
-        audioStream,
-        ssmlItems: [ssml],
-        speechMarksStream,
+      const utteranceInput = req.body as UtteranceInput
+      if (!utteranceInput.text) {
+        return res.status(400).send({ errorCode: 'INVALID_DATA' })
       }
-      res.set({
-        'Content-Type': 'audio/mpeg',
-        'Transfer-Encoding': 'chunked',
+      const input: TextToSpeechInput = {
+        ...utteranceInput,
+        textType: 'utterance',
+      }
+      const { audioData, speechMarks } = await synthesizeTextToSpeech(input)
+      if (!audioData) {
+        return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
+      }
+      res.send({
+        audioData: audioData.toString('hex'),
+        speechMarks,
+        idx: utteranceInput.idx,
       })
-
-      console.info('Text to speech starts streaming')
-      audioStream.pipe(res)
-
-      await synthesizeTextToSpeech(input)
     } catch (e) {
       console.error('Text to speech streaming error', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
@@ -173,7 +188,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 )
 
 module.exports = {
-  htmlToSsml,
+  htmlToSsmlItems,
   textToSpeechStreamingHandler,
   textToSpeechHandler,
 }

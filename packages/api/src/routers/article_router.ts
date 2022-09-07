@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import express from 'express'
 import { CreateArticleErrorCode } from '../generated/graphql'
 import { isSiteBlockedForParse } from '../utils/blocked'
@@ -21,9 +22,28 @@ import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
 import { createPubSubClient } from '../datalayer/pubsub'
-import { htmlToSsml } from '@omnivore/text-to-speech-handler'
+import { htmlToSsmlItems, SSMLItem } from '@omnivore/text-to-speech-handler'
+import { WordPunctTokenizer } from 'natural'
+import { htmlToText } from 'html-to-text'
+
+interface Utterance {
+  wordOffset: number
+  wordCount: number
+  voice?: string
+  text: string
+  idx: number
+}
+
+interface SSMLOutput {
+  wordCount: number
+  averageWPM: number
+  language: string
+  defaultVoice: string
+  utterances: Utterance[]
+}
 
 const logger = buildLogger('app.dispatch')
+const WORDS_PER_MINUTE = 200
 
 export function articleRouter() {
   const router = express.Router()
@@ -105,14 +125,21 @@ export function articleRouter() {
         if (!page) {
           return res.status(404).send('Page not found')
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        const ssmlItems = htmlToSsml(page.content, {
+        const ssmlItems = htmlToSsmlItems(page.content, {
           primaryVoice: voice,
           secondaryVoice: 'en-US-GuyNeural',
           rate: '1',
           language: page.language || 'en-US',
         })
-        return res.send({ ssmlItems })
+        const [utterances, wordCount] = ssmlItemsToUtterances(ssmlItems)
+        const ssmlOutput: SSMLOutput = {
+          wordCount,
+          averageWPM: WORDS_PER_MINUTE,
+          language: page.language || 'en-US',
+          defaultVoice: voice,
+          utterances,
+        }
+        return res.send(ssmlOutput)
       }
 
       const existingSpeech = await getRepository(Speech).findOne({
@@ -191,4 +218,25 @@ const redirectUrl = async (speech: Speech, outputFormat: string) => {
     default:
       return generateDownloadSignedUrl(speech.audioFileName)
   }
+}
+
+const ssmlItemsToUtterances = (items: SSMLItem[]): [Utterance[], number] => {
+  const tokenizer = new WordPunctTokenizer()
+  let wordOffset = 0
+  return [
+    items.map((item) => {
+      const text = htmlToText(item.textItems.join(''), { wordwrap: false })
+      const wordCount = tokenizer.tokenize(text).length
+      const utterance: Utterance = {
+        wordOffset,
+        wordCount,
+        text,
+        voice: item.voice,
+        idx: item.idx,
+      }
+      wordOffset += wordCount
+      return utterance
+    }),
+    wordOffset,
+  ]
 }

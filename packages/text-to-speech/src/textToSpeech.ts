@@ -7,24 +7,20 @@ import {
   SpeechSynthesisResult,
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
-import { htmlToSsmlItems, ssmlItemText } from './htmlToSsml'
+import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
 
 export interface TextToSpeechInput {
-  id?: string
   text: string
   voice?: string
-  languageCode?: string
-  textType?: 'html' | 'ssml'
+  language?: string
+  textType?: 'html' | 'ssml' | 'utterance'
   rate?: number
-  volume?: number
   complimentaryVoice?: string
-  bucket?: string
-  audioStream: NodeJS.ReadWriteStream
-  ssmlItems?: string[]
-  speechMarksStream: NodeJS.ReadWriteStream
+  audioStream?: NodeJS.ReadWriteStream
 }
 
 export interface TextToSpeechOutput {
+  audioData?: Buffer
   speechMarks: SpeechMark[]
 }
 
@@ -44,7 +40,6 @@ export const synthesizeTextToSpeech = async (
   }
   const textType = input.textType || 'html'
   const audioStream = input.audioStream
-  const speechMarksStream = input.speechMarksStream
   const speechConfig = SpeechConfig.fromSubscription(
     process.env.AZURE_SPEECH_KEY,
     process.env.AZURE_SPEECH_REGION
@@ -59,7 +54,7 @@ export const synthesizeTextToSpeech = async (
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
-    audioStream.write(Buffer.from(e.result.audioData))
+    audioStream?.write(Buffer.from(e.result.audioData))
   }
 
   // The event synthesis completed signals that the synthesis is completed.
@@ -95,17 +90,13 @@ export const synthesizeTextToSpeech = async (
         e.text
       }`
     )
-    speechMarksStream.write(
-      Buffer.from(
-        JSON.stringify({
-          word: e.text,
-          time: (timeOffset + e.audioOffset) / 10000,
-          start: e.textOffset,
-          length: e.wordLength,
-          type: 'word',
-        })
-      )
-    )
+    speechMarks.push({
+      word: e.text,
+      time: (timeOffset + e.audioOffset) / 10000,
+      start: e.textOffset,
+      length: e.wordLength,
+      type: 'word',
+    })
   }
 
   synthesizer.bookmarkReached = (s, e) => {
@@ -114,15 +105,11 @@ export const synthesizeTextToSpeech = async (
         e.audioOffset / 10000
       }ms, bookmark text: ${e.text}`
     )
-    speechMarksStream.write(
-      Buffer.from(
-        JSON.stringify({
-          word: e.text,
-          time: (timeOffset + e.audioOffset) / 10000,
-          type: 'bookmark',
-        })
-      )
-    )
+    speechMarks.push({
+      word: e.text,
+      time: (timeOffset + e.audioOffset) / 10000,
+      type: 'bookmark',
+    })
   }
 
   const speakSsmlAsyncPromise = (
@@ -142,21 +129,26 @@ export const synthesizeTextToSpeech = async (
   }
 
   try {
+    const ssmlOptions = {
+      primaryVoice: input.voice || 'en-US-JennyNeural',
+      secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
+      language: input.language || 'en-US',
+      rate: input.rate || 1.25,
+    }
     if (textType === 'html') {
-      const ssmlItems = htmlToSsmlItems(input.text, {
-        primaryVoice: input.voice || 'en-US-JennyNeural',
-        secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
-        language: input.languageCode || 'en-US',
-        rate: '1',
-      })
+      const ssmlItems = htmlToSsmlItems(input.text, ssmlOptions)
       for (const ssmlItem of ssmlItems) {
         const ssml = ssmlItemText(ssmlItem)
         const result = await speakSsmlAsyncPromise(ssml)
         timeOffset = timeOffset + result.audioDuration
       }
     } else {
-      for (const ssmlItem of input.ssmlItems || []) {
-        await speakSsmlAsyncPromise(ssmlItem)
+      // assemble ssml
+      const ssml = `${startSsml(null, ssmlOptions)}${input.text}${endSsml()}`
+      const result = await speakSsmlAsyncPromise(ssml)
+      return {
+        audioData: Buffer.from(result.audioData),
+        speechMarks,
       }
     }
   } catch (error) {
@@ -164,8 +156,7 @@ export const synthesizeTextToSpeech = async (
     throw error
   } finally {
     console.debug('closing synthesizer')
-    audioStream.end()
-    speechMarksStream.end()
+    audioStream?.end()
     synthesizer.close()
     console.debug('synthesizer closed')
   }

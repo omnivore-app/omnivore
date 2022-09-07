@@ -7703,6 +7703,11 @@
   resolved "https://registry.yarnpkg.com/@types/html-minifier-terser/-/html-minifier-terser-6.1.0.tgz#4fc33a00c1d0c16987b1a20cf92d20614c55ac35"
   integrity sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==
 
+"@types/html-to-text@^8.1.1":
+  version "8.1.1"
+  resolved "https://registry.yarnpkg.com/@types/html-to-text/-/html-to-text-8.1.1.tgz#0c5573207c14f618f24da5a2910c510285573094"
+  integrity sha512-QFcqfc7TiVbvIX8Fc2kWUxakruI1Ay6uitaGCYHzI5M0WHQROV5D2XeSaVrK0FmvssivXum4yERVnJsiuH61Ww==
+
 "@types/http-proxy@^1.17.8":
   version "1.17.8"
   resolved "https://registry.yarnpkg.com/@types/http-proxy/-/http-proxy-1.17.8.tgz#968c66903e7e42b483608030ee85800f22d03f55"
@@ -7879,6 +7884,13 @@
   integrity sha512-UXitWSmXCwhDmAKe7D3hNQtQaHeHt5L8LO1CB8GF8jlYVzOv5cBWDNqiJ+oPEWrWei3i3dkZtHY/bUtd0R/uOQ==
   dependencies:
     nanoid "*"
+
+"@types/natural@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@types/natural/-/natural-5.1.1.tgz#d4b5c9bf9356d861cf8468949d2fbca30dd1cdcc"
+  integrity sha512-BqppT8eHJvc0pN81XE7Rx5P8Osg1TSnOx3iwzLWImIO+6DwNUfpKR20tvg713O2eqHoxLcqrBaL10foo1mw/Xw==
+  dependencies:
+    "@types/node" "*"
 
 "@types/node-fetch@^2.5.7":
   version "2.6.1"
@@ -8776,6 +8788,11 @@ addressparser@^1.0.1:
   resolved "https://registry.yarnpkg.com/addressparser/-/addressparser-1.0.1.tgz#47afbe1a2a9262191db6838e4fd1d39b40821746"
   integrity sha512-aQX7AISOMM7HFE0iZ3+YnD07oIeJqWGVnJ+ZIKaBZAk03ftmVYVqsGas/rbXKR21n4D/hKCSHypvcyOkds/xzg==
 
+afinn-165@^1.0.2:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/afinn-165/-/afinn-165-1.0.4.tgz#3abf6b8922dd5db84d84e0abd155924381dd73a4"
+  integrity sha512-7+Wlx3BImrK0HiG6y3lU4xX7SpBPSSu8T9iguPMlaueRFxjbYwAQrp9lqZUuFikqKbd/en8lVREILvP2J80uJA==
+
 agent-base@5:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-5.1.1.tgz#e8fb3f242959db44d63be665db7a8e739537a32c"
@@ -9163,6 +9180,13 @@ app-root-path@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/app-root-path/-/app-root-path-3.0.0.tgz#210b6f43873227e18a4b810a032283311555d5ad"
   integrity sha512-qMcx+Gy2UZynHjOHOIXPNvpf+9cjvk3cWrBBK7zg4gH9+clobJRb9NGzcT7mQTcV/6Gm/1WelUtqxVXnNlrwcw==
+
+apparatus@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/apparatus/-/apparatus-0.0.10.tgz#81ea756772ada77863db54ceee8202c109bdca3e"
+  integrity sha512-KLy/ugo33KZA7nugtQ7O0E1c8kQ52N3IvD/XgIh4w/Nr28ypfkwDfA67F1ev4N1m5D+BOk1+b2dEJDfpj/VvZg==
+  dependencies:
+    sylvester ">= 0.0.8"
 
 append-transform@^2.0.0:
   version "2.0.0"
@@ -15224,7 +15248,7 @@ html-tags@^3.1.0:
   resolved "https://registry.yarnpkg.com/html-tags/-/html-tags-3.2.0.tgz#dbb3518d20b726524e4dd43de397eb0a95726961"
   integrity sha512-vy7ClnArOZwCnqZgvv+ddgHgJiAFXe3Ge9ML5/mBctVJoUoYPCdxVucOywjDARn6CVoh3dRSFdPHy2sX80L0Wg==
 
-html-to-text@^8.1.0:
+html-to-text@^8.1.0, html-to-text@^8.2.1:
   version "8.2.1"
   resolved "https://registry.yarnpkg.com/html-to-text/-/html-to-text-8.2.1.tgz#4a75b8a1b646149bd71c50527adb568990bf459b"
   integrity sha512-aN/3JvAk8qFsWVeE9InWAWueLXrbkoVZy0TkzaGhoRBC2gCFEeRLDDJN3/ijIGHohy6H+SZzUQWN/hcYtaPK8w==
@@ -18918,6 +18942,18 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
+natural@^5.2.3:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/natural/-/natural-5.2.3.tgz#bfd9b9710139313edf6ec3172435e48998884535"
+  integrity sha512-fsGGpbU15YBc2oQCEsi0t7ZeF3VmKyxDhgWucQTPk4zaDFzeZtquRbZt4xlznN2ZUlH88215HcThMYaDHFM48Q==
+  dependencies:
+    afinn-165 "^1.0.2"
+    apparatus "^0.0.10"
+    safe-stable-stringify "^2.2.0"
+    sylvester "^0.0.12"
+    underscore "^1.9.1"
+    wordnet-db "^3.1.11"
+
 nearley@^2.20.1:
   version "2.20.1"
   resolved "https://registry.yarnpkg.com/nearley/-/nearley-2.20.1.tgz#246cd33eff0d012faf197ff6774d7ac78acdd474"
@@ -22271,7 +22307,7 @@ safe-regex@^1.1.0:
   dependencies:
     ret "~0.1.10"
 
-safe-stable-stringify@^2.3.1:
+safe-stable-stringify@^2.2.0, safe-stable-stringify@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/safe-stable-stringify/-/safe-stable-stringify-2.3.1.tgz#ab67cbe1fe7d40603ca641c5e765cb942d04fc73"
   integrity sha512-kYBSfT+troD9cDA85VDnHZ1rpHC50O0g1e6WlGHVCz/g+JS+9WKLj+XwFYyR8UbrZN8ll9HUpDAAddY58MGisg==
@@ -23532,6 +23568,16 @@ swr@^1.0.1:
   resolved "https://registry.yarnpkg.com/swr/-/swr-1.3.0.tgz#c6531866a35b4db37b38b72c45a63171faf9f4e8"
   integrity sha512-dkghQrOl2ORX9HYrMDtPa7LTVHJjCTeZoB1dqTbnnEDlSvN8JEKpYIYurDfvbQFUUS8Cg8PceFVZNkW0KNNYPw==
 
+"sylvester@>= 0.0.8":
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/sylvester/-/sylvester-0.0.21.tgz#2987b1ce2bd2f38b0dce2a34388884bfa4400ea7"
+  integrity sha512-yUT0ukFkFEt4nb+NY+n2ag51aS/u9UHXoZw+A4jgD77/jzZsBoSDHuqysrVCBC4CYR4TYvUJq54ONpXgDBH8tA==
+
+sylvester@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/sylvester/-/sylvester-0.0.12.tgz#5a884415cd2d002c57e7a3aac99462a75ce9fdb4"
+  integrity sha512-SzRP5LQ6Ts2G5NyAa/jg16s8e3R7rfdFjizy1zeoecYWw+nGL+YA1xZvW/+iJmidBGSdLkuvdwTYEyJEb+EiUw==
+
 symbol-observable@^1.0.4, symbol-observable@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
@@ -24386,7 +24432,7 @@ undefsafe@^2.0.5:
   resolved "https://registry.yarnpkg.com/undefsafe/-/undefsafe-2.0.5.tgz#38733b9327bdcd226db889fb723a6efd162e6e2c"
   integrity sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==
 
-underscore@^1.13.4:
+underscore@^1.13.4, underscore@^1.9.1:
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.4.tgz#7886b46bbdf07f768e0052f1828e1dcab40c0dee"
   integrity sha512-BQFnUDuAQ4Yf/cYY5LNrK9NCJFKriaRbD9uR1fTeXnBeoa97W0i41qkZfGO9pSo8I5KzjAcSY2XYtdf0oKd7KQ==
@@ -25445,6 +25491,11 @@ word-wrap@^1.2.3, word-wrap@~1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
   integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+
+wordnet-db@^3.1.11:
+  version "3.1.14"
+  resolved "https://registry.yarnpkg.com/wordnet-db/-/wordnet-db-3.1.14.tgz#7ba1ec2cb5730393f0856efcc738a60085426199"
+  integrity sha512-zVyFsvE+mq9MCmwXUWHIcpfbrHHClZWZiVOzKSxNJruIcFn2RbY55zkhiAMMxM8zCVSmtNiViq8FsAZSFpMYag==
 
 wordwrap@^1.0.0:
   version "1.0.0"

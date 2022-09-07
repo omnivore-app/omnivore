@@ -7,7 +7,7 @@ describe('htmlToSsmlItems', () => {
     primaryVoice: 'test-primary',
     secondaryVoice: 'test-secondary',
     language: 'en-US',
-    rate: '1',
+    rate: 1,
   }
 
   describe('a simple html file', () => {

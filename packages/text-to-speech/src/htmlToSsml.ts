@@ -144,24 +144,29 @@ export type SSMLItem = {
   open: string
   close: string
   textItems: string[]
+  idx: number
+  voice?: string
 }
 
 export type SSMLOptions = {
   primaryVoice: string
   secondaryVoice: string
-  rate: string
+  rate: number
   language: string
 }
 
-const startSsml = (element: Element, options: SSMLOptions): string => {
+export const startSsml = (
+  element: Element | null,
+  options: SSMLOptions
+): string => {
   const voice =
-    element.nodeName === 'BLOCKQUOTE'
+    element?.nodeName === 'BLOCKQUOTE'
       ? options.secondaryVoice
       : options.primaryVoice
   return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}">`
 }
 
-const endSsml = (): string => {
+export const endSsml = (): string => {
   return `</prosody></voice></speak>`
 }
 
@@ -192,14 +197,6 @@ export const htmlToSsmlItems = (
   }
 
   const parsedNodes = parseDomTree(body)
-  Array.from(parsedNodes).map((n) =>
-    console.log(
-      n.nodeName,
-      n.getAttribute('data-omnivore-anchor-idx'),
-      n.getAttribute('class')
-    )
-  )
-
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
@@ -210,18 +207,18 @@ export const htmlToSsmlItems = (
     const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      const idx = i
       i = emitElement(textItems, node, true)
       items.push({
         open: startSsml(node, options),
         close: endSsml(),
         textItems: textItems,
+        idx,
+        voice:
+          node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
       })
     }
   }
 
   return items
-}
-
-export const htmlToSsml = (html: string, options: SSMLOptions): string[] => {
-  return htmlToSsmlItems(html, options).map(ssmlItemText)
 }
