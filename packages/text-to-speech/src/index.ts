@@ -160,9 +160,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     try {
       const utteranceInput = req.body as UtteranceInput
-      if (!utteranceInput.text) {
-        return res.status(400).send({ errorCode: 'INVALID_DATA' })
-      }
       const input: TextToSpeechInput = {
         ...utteranceInput,
         textType: 'utterance',
