@@ -14,7 +14,7 @@ export interface TextToSpeechInput {
   voice?: string
   language?: string
   textType?: 'html' | 'utterance'
-  rate?: number
+  rate?: string
   secondaryVoice?: string
   audioStream?: NodeJS.ReadWriteStream
 }

@@ -32,13 +32,13 @@ export type SSMLItem = {
 export type SSMLOptions = {
   primaryVoice?: string
   secondaryVoice?: string
-  rate?: number
+  rate?: string
   language?: string
 }
 
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
-const DEFAULT_RATE = 1.25
+const DEFAULT_RATE = '1.0'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',

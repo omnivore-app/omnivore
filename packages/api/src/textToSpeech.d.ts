@@ -7,7 +7,7 @@ declare module '@omnivore/text-to-speech-handler' {
   export interface SSMLOptions {
     primaryVoice?: string
     secondaryVoice?: string
-    rate?: number
+    rate?: string
     language?: string
   }
 

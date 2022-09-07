@@ -13,7 +13,7 @@ import { htmlToSpeechFile } from './htmlToSsml'
 
 interface UtteranceInput {
   voice?: string
-  rate?: number
+  rate?: string
   language?: string
   text: string
   idx: string
@@ -24,7 +24,7 @@ interface HTMLInput {
   text: string
   voice?: string
   language?: string
-  rate?: number
+  rate?: string
   complimentaryVoice?: string
   bucket: string
 }
