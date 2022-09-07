@@ -13,9 +13,9 @@ export interface TextToSpeechInput {
   text: string
   voice?: string
   language?: string
-  textType?: 'html' | 'ssml' | 'utterance'
+  textType?: 'html' | 'utterance'
   rate?: number
-  complimentaryVoice?: string
+  secondaryVoice?: string
   audioStream?: NodeJS.ReadWriteStream
 }
 
@@ -51,6 +51,7 @@ export const synthesizeTextToSpeech = async (
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
+  let wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -93,7 +94,7 @@ export const synthesizeTextToSpeech = async (
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
-      start: e.textOffset,
+      start: wordOffset + e.textOffset,
       length: e.wordLength,
       type: 'word',
     })
@@ -130,10 +131,10 @@ export const synthesizeTextToSpeech = async (
 
   try {
     const ssmlOptions = {
-      primaryVoice: input.voice || 'en-US-JennyNeural',
-      secondaryVoice: input.complimentaryVoice || 'en-US-GuyNeural',
-      language: input.language || 'en-US',
-      rate: input.rate || 1.25,
+      primaryVoice: input.voice,
+      secondaryVoice: input.secondaryVoice,
+      language: input.language,
+      rate: input.rate,
     }
     if (textType === 'html') {
       const ssmlItems = htmlToSsmlItems(input.text, ssmlOptions)
@@ -142,14 +143,18 @@ export const synthesizeTextToSpeech = async (
         const result = await speakSsmlAsyncPromise(ssml)
         timeOffset = timeOffset + result.audioDuration
       }
-    } else {
-      // assemble ssml
-      const ssml = `${startSsml(null, ssmlOptions)}${input.text}${endSsml()}`
-      const result = await speakSsmlAsyncPromise(ssml)
       return {
-        audioData: Buffer.from(result.audioData),
         speechMarks,
       }
+    }
+    // for utterance
+    const start = startSsml(ssmlOptions)
+    wordOffset = -start.length
+    const ssml = `${start}${input.text}${endSsml()}`
+    const result = await speakSsmlAsyncPromise(ssml)
+    return {
+      audioData: Buffer.from(result.audioData),
+      speechMarks,
     }
   } catch (error) {
     console.error('synthesis error', error)
@@ -159,9 +164,5 @@ export const synthesizeTextToSpeech = async (
     audioStream?.end()
     synthesizer.close()
     console.debug('synthesizer closed')
-  }
-
-  return {
-    speechMarks,
   }
 }

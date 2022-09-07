@@ -9,11 +9,7 @@ import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
-import { htmlToSsmlItems } from './htmlToSsml'
-
-interface SSMLInput {
-  text: string
-}
+import { htmlToSpeechFile } from './htmlToSsml'
 
 interface UtteranceInput {
   voice?: string
@@ -176,9 +172,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
       }
       res.send({
+        idx: utteranceInput.idx,
         audioData: audioData.toString('hex'),
         speechMarks,
-        idx: utteranceInput.idx,
       })
     } catch (e) {
       console.error('Text to speech streaming error', e)
@@ -188,7 +184,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 )
 
 module.exports = {
-  htmlToSsmlItems,
+  htmlToSpeechFile,
   textToSpeechStreamingHandler,
   textToSpeechHandler,
 }

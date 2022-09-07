@@ -22,28 +22,15 @@ import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
 import { createPubSubClient } from '../datalayer/pubsub'
-import { htmlToSsmlItems, SSMLItem } from '@omnivore/text-to-speech-handler'
-import { WordPunctTokenizer } from 'natural'
-import { htmlToText } from 'html-to-text'
+import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 
-interface Utterance {
-  wordOffset: number
-  wordCount: number
+interface SpeechInput {
   voice?: string
-  text: string
-  idx: number
+  secondaryVoice?: string
+  priority?: 'low' | 'high'
 }
-
-interface SSMLOutput {
-  wordCount: number
-  averageWPM: number
-  language: string
-  defaultVoice: string
-  utterances: Utterance[]
-}
-
+const outputFormats = ['mp3', 'speech-marks', 'speech-file']
 const logger = buildLogger('app.dispatch')
-const WORDS_PER_MINUTE = 200
 
 export function articleRouter() {
   const router = express.Router()
@@ -93,18 +80,13 @@ export function articleRouter() {
   })
 
   router.get(
-    '/:id/:outputFormat/:priority/:voice?',
+    '/:id/:outputFormat',
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      const voice = req.params.voice || 'en-US-JennyNeural'
-      const priority = req.params.priority
-      if (
-        !articleId ||
-        !['mp3', 'speech-marks', 'ssml'].includes(outputFormat) ||
-        !['low', 'high'].includes(priority)
-      ) {
+      const { voice, priority, secondaryVoice } = req.query as SpeechInput
+      if (!articleId || outputFormats.indexOf(outputFormat) === -1) {
         return res.status(400).send('Invalid data')
       }
       const token = req.cookies?.auth || req.headers?.authorization
@@ -120,26 +102,17 @@ export function articleRouter() {
         },
       })
 
-      if (outputFormat === 'ssml') {
+      if (outputFormat === 'speech-file') {
         const page = await getPageById(articleId)
         if (!page) {
           return res.status(404).send('Page not found')
         }
-        const ssmlItems = htmlToSsmlItems(page.content, {
+        const speechFile = htmlToSpeechFile(page.content, {
           primaryVoice: voice,
-          secondaryVoice: 'en-US-GuyNeural',
-          rate: '1',
-          language: page.language || 'en-US',
+          secondaryVoice: secondaryVoice,
+          language: page.language,
         })
-        const [utterances, wordCount] = ssmlItemsToUtterances(ssmlItems)
-        const ssmlOutput: SSMLOutput = {
-          wordCount,
-          averageWPM: WORDS_PER_MINUTE,
-          language: page.language || 'en-US',
-          defaultVoice: voice,
-          utterances,
-        }
-        return res.send(ssmlOutput)
+        return res.send(speechFile)
       }
 
       const existingSpeech = await getRepository(Speech).findOne({
@@ -199,7 +172,7 @@ export function articleRouter() {
         speechId: speech.id,
         text: page.content,
         voice: speech.voice,
-        priority: priority as 'low' | 'high',
+        priority: priority || 'high',
       })
       logger.info('Start Text to speech task', { taskName })
       res.status(202).send('Text to speech task started')
@@ -218,25 +191,4 @@ const redirectUrl = async (speech: Speech, outputFormat: string) => {
     default:
       return generateDownloadSignedUrl(speech.audioFileName)
   }
-}
-
-const ssmlItemsToUtterances = (items: SSMLItem[]): [Utterance[], number] => {
-  const tokenizer = new WordPunctTokenizer()
-  let wordOffset = 0
-  return [
-    items.map((item) => {
-      const text = htmlToText(item.textItems.join(''), { wordwrap: false })
-      const wordCount = tokenizer.tokenize(text).length
-      const utterance: Utterance = {
-        wordOffset,
-        wordCount,
-        text,
-        voice: item.voice,
-        idx: item.idx,
-      }
-      wordOffset += wordCount
-      return utterance
-    }),
-    wordOffset,
-  ]
 }
