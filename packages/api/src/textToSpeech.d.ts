@@ -21,7 +21,6 @@ declare module '@omnivore/text-to-speech-handler' {
 
   export interface SpeechFile {
     wordCount: number
-    averageWPM: number
     language: string
     defaultVoice: string
     utterances: Utterance[]

@@ -16,7 +16,6 @@ export interface Utterance {
 
 export interface SpeechFile {
   wordCount: number
-  averageWPM: number
   language: string
   defaultVoice: string
   utterances: Utterance[]
@@ -37,7 +36,6 @@ export type SSMLOptions = {
   language?: string
 }
 
-const WORDS_PER_MINUTE = 200
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
 const DEFAULT_RATE = 1.25
@@ -307,7 +305,6 @@ export const htmlToSpeechFile = (
 
   return {
     wordCount: wordOffset,
-    averageWPM: WORDS_PER_MINUTE,
     language: options.language || DEFAULT_LANGUAGE,
     defaultVoice: options.primaryVoice || DEFAULT_VOICE,
     utterances,
