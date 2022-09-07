@@ -24,6 +24,12 @@ import { enqueueTextToSpeech } from '../utils/createTask'
 import { createPubSubClient } from '../datalayer/pubsub'
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 
+interface SpeechInput {
+  voice?: string
+  secondaryVoice?: string
+  priority?: 'low' | 'high'
+}
+const outputFormats = ['mp3', 'speech-marks', 'speech-file']
 const logger = buildLogger('app.dispatch')
 
 export function articleRouter() {
@@ -74,18 +80,13 @@ export function articleRouter() {
   })
 
   router.get(
-    '/:id/:outputFormat/:priority?/:voice?/:secondaryVoice?',
+    '/:id/:outputFormat',
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      const voice = req.params.voice
-      const priority = req.params.priority || 'high'
-      if (
-        !articleId ||
-        !['mp3', 'speech-marks', 'speech-file'].includes(outputFormat) ||
-        !['low', 'high'].includes(priority)
-      ) {
+      const { voice, priority, secondaryVoice } = req.query as SpeechInput
+      if (!articleId || outputFormats.indexOf(outputFormat) === -1) {
         return res.status(400).send('Invalid data')
       }
       const token = req.cookies?.auth || req.headers?.authorization
@@ -108,7 +109,7 @@ export function articleRouter() {
         }
         const speechFile = htmlToSpeechFile(page.content, {
           primaryVoice: voice,
-          secondaryVoice: req.params.secondaryVoice,
+          secondaryVoice: secondaryVoice,
           language: page.language,
         })
         return res.send(speechFile)
@@ -171,7 +172,7 @@ export function articleRouter() {
         speechId: speech.id,
         text: page.content,
         voice: speech.voice,
-        priority: priority as 'low' | 'high',
+        priority: priority || 'high',
       })
       logger.info('Start Text to speech task', { taskName })
       res.status(202).send('Text to speech task started')
