@@ -32,33 +32,14 @@ const Item = styled('li', {
 
 export type LibrarySearchBarProps = {
   coordinator: SearchCoordinator
-  options?: OptionType[]
-  onChange?: (selectedItem: string) => void // this is for later
 }
-
-type OptionType = {
-  value?: string
-}
-
-// export type searchHistoryProps = {
-//   searchQuery: string,
-//   index: number
-// }
 
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('')
   const [recentSearches, setRecentSearches] = useState(Array<[]>())
 
-  // const [searchState, setSearchState] = useState({
-  //   searchQuery: '',
-  //   hits: [],
-  //   highlightedIndex: 0,
-  // })
-  const [optionsList, setOptionsList] = useState(Array<[]>())
-
   useEffect(() => {
     setRecentSearches(Object.values(localStorage))
-    setOptionsList(Object.values(localStorage))
     //localStorage.clear()
   }, [])
 
@@ -104,7 +85,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
               >
                 <FormInput
                   css={{
-                    width: '100%',
+                    width: '80%',
                     height: '80px',
                     fontSize: '24px',
                     fontFamily: 'Inter',
@@ -118,96 +99,96 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                   }}
                   {...getInputProps()}
                 />
-              </form>
 
-              <List {...getMenuProps()}>
-                {isOpen &&
-                  optionsList
-                    .filter((item) => !inputValue || item.includes(inputValue))
-                    .map((item, index) => (
-                      <Item
-                        {...getItemProps({
-                          style: {
-                            backgroundColor:
-                              index === highlightedIndex
-                                ? 'var(--colors-grayBg)'
-                                : 'transparent',
-                          },
-                          item,
-                          index,
-                        })}
-                        key={item}
-                      >
-                        {item}
-                      </Item>
-                    ))}
-              </List>
-
-              {/* {searchTerm && ( */}
-              <HStack
-                alignment="center"
-                distribution="start"
-                css={{ height: '100%' }}
-              >
-                <Button
-                  style="plainIcon"
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setSearchTerm('')
-                    //props.applySearchQuery('')
-                    // inputRef.current?.blur()
-                  }}
+                {/* {searchTerm && ( */}
+                <HStack
+                  alignment="center"
+                  distribution="start"
                   css={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    mr: '16px',
                     height: '100%',
+                    display: 'flex',
+                    justifyContent: 'right',
                     alignItems: 'center',
+                    margin: '-57px 0 10px',
                   }}
                 >
-                  <X
-                    width={24}
-                    height={24}
-                    color={theme.colors.grayTextContrast.toString()}
-                  />
-                </Button>
+                  <Button
+                    style="plainIcon"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      setSearchTerm('')
+                      clearSelection
+                      //props.applySearchQuery('')
+                      // inputRef.current?.blur()
+                    }}
+                    css={{
+                      mr: '15px',
+                    }}
+                  >
+                    <X
+                      width={24}
+                      height={24}
+                      color={theme.colors.grayTextContrast.toString()}
+                    />
+                  </Button>
 
-                <Button
-                  style="ctaDarkYellow"
-                  onClick={(event) => {
-                    event.preventDefault()
-                    //recentSearches.push({searchQuery: searchTerm, index: recentSearches.length })
-                    localStorage.setItem(searchTerm, searchTerm)
-                    //setRecentSearches(recentSearches)
-                    setSearchTerm(searchTerm)
+                  <Button
+                    style="ctaDarkYellow"
+                    css={{
+                      mr: '15px',
+                    }}
+                    onClick={(event) => {
+                      event.preventDefault()
+                      localStorage.setItem(searchTerm, searchTerm)
+                      setSearchTerm(searchTerm)
 
-                    // props.applySearchQuery('')
-                    // inputRef.current?.blur()
-                  }}
-                >
-                  Search
-                </Button>
-              </HStack>
-              {/* )} */}
-              {/* {!searchTerm && ( */}
-              <Button
-                style="plainIcon"
-                onClick={(event) => {
-                  // Display the advanced search sheet
-                }}
-                css={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  height: '100%',
-                  alignItems: 'center',
-                }}
-              >
-                <Sliders
-                  size={24}
-                  color={theme.colors.utilityTextDefault.toString()}
-                />
-              </Button>
-              {/* )} */}
+                      // props.applySearchQuery('')
+                      // inputRef.current?.blur()
+                    }}
+                  >
+                    Search
+                  </Button>
+                  {/* )} */}
+                  {/* {!searchTerm && ( */}
+                  <Button
+                    style="plainIcon"
+                    onClick={(event) => {
+                      // Display the advanced search sheet
+                    }}
+                  >
+                    <Sliders
+                      size={24}
+                      color={theme.colors.utilityTextDefault.toString()}
+                    />
+                  </Button>
+                  {/* )} */}
+                </HStack>
+
+                <List {...getMenuProps()}>
+                  {isOpen &&
+                    recentSearches
+                      .filter(
+                        (item) => !inputValue || item.includes(inputValue)
+                      )
+                      .map((item, index) => (
+                        <Item
+                          {...getItemProps({
+                            style: {
+                              backgroundColor:
+                                index === highlightedIndex
+                                  ? 'var(--colors-grayBg)'
+                                  : 'transparent',
+                            },
+                            item,
+                            index,
+                          })}
+                          key={item}
+                        >
+                          {item}
+                        </Item>
+                      ))}
+                </List>
+              </form>
             </HStack>
           </VStack>
         )}
