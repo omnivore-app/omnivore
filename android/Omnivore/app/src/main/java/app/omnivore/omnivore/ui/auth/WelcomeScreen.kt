@@ -80,6 +80,9 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
         AuthProviderView(viewModel = viewModel)
       }
+      RegistrationState.PendingUser -> {
+        CreateUserProfileView(viewModel = viewModel)
+      }
     }
 
     Spacer(modifier = Modifier.weight(1.0F))

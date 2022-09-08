@@ -17,7 +17,8 @@ import javax.inject.Inject
 
 enum class RegistrationState {
   SocialLogin,
-  EmailSignIn
+  EmailSignIn,
+  PendingUser
 }
 
 @HiltViewModel
@@ -35,7 +36,7 @@ class LoginViewModel @Inject constructor(
     .distinctUntilChanged()
     .asLiveData()
 
-  val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
+  val registrationStateLiveData = MutableLiveData(RegistrationState.PendingUser) // TODO: set back to social login
 
   fun getAuthCookieString(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
@@ -47,6 +48,13 @@ class LoginViewModel @Inject constructor(
 
   fun showEmailSignIn() {
     registrationStateLiveData.value = RegistrationState.EmailSignIn
+  }
+
+  fun cancelNewUserSignUp() {
+    viewModelScope.launch {
+      datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)
+    }
+    showSocialLogin()
   }
 
   fun login(email: String, password: String) {
@@ -163,9 +171,15 @@ class LoginViewModel @Inject constructor(
     isLoading = false
 
     if (result.body()?.pendingUserToken != null) {
-      // store in datastore
+      datastoreRepo.putString(
+        DatastoreKeys.omnivorePendingUserToken, result.body()?.pendingUserToken!!
+      )
+      registrationStateLiveData.value = RegistrationState.PendingUser
     } else {
       errorMessage = "Something went wrong. Please check your credentials and try again"
     }
   }
 }
+
+
+// TODO: set registrationState to pending if user has pending token
