@@ -34,7 +34,7 @@ struct Utterance: Decodable {
 struct SpeechDocument: Decodable {
   public let pageId: String
 
-  public let averageWPM: Double = 150
+  public let averageWPM: Double = 195
   public let wordCount: Double
 
   public let language: String
@@ -42,12 +42,8 @@ struct SpeechDocument: Decodable {
 
   public let utterances: [Utterance]
 
-  public func approxDuration(forSpeed speed: Double) -> Double {
-    wordCount / averageWPM * speed / 60.0
-  }
-
   public func estimatedDuration(utterance: Utterance, speed: Double) -> Double {
-    utterance.wordCount / averageWPM * speed / 60.0
+    utterance.wordCount / averageWPM * speed * 60.0
   }
 
   var audioDirectory: URL {
