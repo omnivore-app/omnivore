@@ -16,7 +16,6 @@ export interface Utterance {
 
 export interface SpeechFile {
   wordCount: number
-  averageWPM: number
   language: string
   defaultVoice: string
   utterances: Utterance[]
@@ -33,14 +32,13 @@ export type SSMLItem = {
 export type SSMLOptions = {
   primaryVoice?: string
   secondaryVoice?: string
-  rate?: number
+  rate?: string
   language?: string
 }
 
-const WORDS_PER_MINUTE = 200
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
-const DEFAULT_RATE = 1.25
+const DEFAULT_RATE = '1.0'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',
@@ -300,14 +298,13 @@ export const htmlToSpeechFile = (
         wordOffset,
         node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
       )
-      utterances.push(utterance)
+      utterance.wordCount > 0 && utterances.push(utterance)
       wordOffset += utterance.wordCount
     }
   }
 
   return {
     wordCount: wordOffset,
-    averageWPM: WORDS_PER_MINUTE,
     language: options.language || DEFAULT_LANGUAGE,
     defaultVoice: options.primaryVoice || DEFAULT_VOICE,
     utterances,

@@ -29,7 +29,7 @@ interface SpeechInput {
   secondaryVoice?: string
   priority?: 'low' | 'high'
 }
-const outputFormats = ['mp3', 'speech-marks', 'speech-file']
+const outputFormats = ['mp3', 'speech-marks', 'speech']
 const logger = buildLogger('app.dispatch')
 
 export function articleRouter() {
@@ -102,7 +102,7 @@ export function articleRouter() {
         },
       })
 
-      if (outputFormat === 'speech-file') {
+      if (outputFormat === 'speech') {
         const page = await getPageById(articleId)
         if (!page) {
           return res.status(404).send('Page not found')
@@ -112,7 +112,7 @@ export function articleRouter() {
           secondaryVoice: secondaryVoice,
           language: page.language,
         })
-        return res.send(speechFile)
+        return res.send({ ...speechFile, pageId: articleId })
       }
 
       const existingSpeech = await getRepository(Speech).findOne({

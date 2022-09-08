@@ -13,7 +13,7 @@ import { htmlToSpeechFile } from './htmlToSsml'
 
 interface UtteranceInput {
   voice?: string
-  rate?: number
+  rate?: string
   language?: string
   text: string
   idx: string
@@ -24,7 +24,7 @@ interface HTMLInput {
   text: string
   voice?: string
   language?: string
-  rate?: number
+  rate?: string
   complimentaryVoice?: string
   bucket: string
 }
@@ -160,9 +160,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     try {
       const utteranceInput = req.body as UtteranceInput
-      if (!utteranceInput.text) {
-        return res.status(400).send({ errorCode: 'INVALID_DATA' })
-      }
       const input: TextToSpeechInput = {
         ...utteranceInput,
         textType: 'utterance',
