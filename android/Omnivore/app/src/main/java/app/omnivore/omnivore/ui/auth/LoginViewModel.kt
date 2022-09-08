@@ -3,10 +3,7 @@ package app.omnivore.omnivore.ui.auth
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -19,7 +16,7 @@ import javax.inject.Inject
 
 
 enum class RegistrationState {
-  AuthProviderButtons,
+  SocialLogin,
   EmailSignIn
 }
 
@@ -38,8 +35,18 @@ class LoginViewModel @Inject constructor(
     .distinctUntilChanged()
     .asLiveData()
 
+  val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
+
   fun getAuthCookieString(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
+  }
+
+  fun showSocialLogin() {
+    registrationStateLiveData.value = RegistrationState.SocialLogin
+  }
+
+  fun showEmailSignIn() {
+    registrationStateLiveData.value = RegistrationState.EmailSignIn
   }
 
   fun login(email: String, password: String) {

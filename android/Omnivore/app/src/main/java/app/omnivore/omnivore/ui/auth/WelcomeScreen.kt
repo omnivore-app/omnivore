@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,11 +36,9 @@ fun WelcomeScreen(viewModel: LoginViewModel) {
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun WelcomeScreenContent(viewModel: LoginViewModel) {
-  var registrationState by rememberSaveable { mutableStateOf(RegistrationState.AuthProviderButtons) }
-
-  val onRegistrationStateChange = { state: RegistrationState ->
-    registrationState = state
-  }
+  val registrationState: RegistrationState by viewModel
+    .registrationStateLiveData
+    .observeAsState(RegistrationState.SocialLogin)
 
   val snackBarHostState = remember { SnackbarHostState() }
   val coroutineScope = rememberCoroutineScope()
@@ -62,14 +61,9 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
     when(registrationState) {
       RegistrationState.EmailSignIn -> {
-        EmailLoginView(
-          viewModel = viewModel,
-          onAuthProviderButtonTap = {
-            onRegistrationStateChange(RegistrationState.AuthProviderButtons)
-          }
-        )
+        EmailLoginView(viewModel = viewModel)
       }
-      RegistrationState.AuthProviderButtons -> {
+      RegistrationState.SocialLogin -> {
         Text(
           text = stringResource(id = R.string.welcome_title),
           style = MaterialTheme.typography.headlineLarge
@@ -84,10 +78,7 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
         Spacer(modifier = Modifier.height(50.dp))
 
-        AuthProviderView(
-          viewModel = viewModel,
-          onEmailButtonTap = { onRegistrationStateChange(RegistrationState.EmailSignIn) }
-        )
+        AuthProviderView(viewModel = viewModel)
       }
     }
 
@@ -112,10 +103,7 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 }
 
 @Composable
-fun AuthProviderView(
-  viewModel: LoginViewModel,
-  onEmailButtonTap: () -> Unit
-) {
+fun AuthProviderView(viewModel: LoginViewModel) {
   val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
     .getInstance()
     .isGooglePlayServicesAvailable(LocalContext.current) == 0
@@ -138,7 +126,7 @@ fun AuthProviderView(
         text = AnnotatedString("Continue with Email"),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { onEmailButtonTap() }
+        onClick = { viewModel.showEmailSignIn() }
       )
     }
     Spacer(modifier = Modifier.weight(1.0F))

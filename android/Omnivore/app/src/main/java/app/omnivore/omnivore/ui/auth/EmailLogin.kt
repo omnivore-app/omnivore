@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun EmailLoginView(viewModel: LoginViewModel, onAuthProviderButtonTap: () -> Unit) {
+fun EmailLoginView(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -53,7 +53,7 @@ fun EmailLoginView(viewModel: LoginViewModel, onAuthProviderButtonTap: () -> Uni
         text = AnnotatedString("Return to Social Login"),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { onAuthProviderButtonTap() }
+        onClick = { viewModel.showSocialLogin() }
       )
     }
     Spacer(modifier = Modifier.weight(1.0F))
