@@ -64,7 +64,14 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
 
   return (
     <>
-      <Downshift>
+      <Downshift
+        onChange={(selection) =>
+          console.log(
+            selection ? `You selected ${selection.value}` : 'Selection Cleared'
+          )
+        }
+        itemToString={(item) => (item ? item.value : '')}
+      >
         {({
           getInputProps,
           getRootProps,
@@ -72,6 +79,8 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
           getItemProps,
           isOpen,
           highlightedIndex,
+          inputValue,
+          clearSelection,
         }) => (
           <VStack
             alignment="start"
@@ -113,24 +122,25 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
 
               <List {...getMenuProps()}>
                 {isOpen &&
-                  optionsList.map((item, index) => (
-                    <Item
-                      {...getItemProps({
-                        style: {
-                          backgroundColor:
-                            index === highlightedIndex
-                              ? 'var(--colors-grayBg)'
-                              : 'transparent',
-                        },
-                        
-                        item,
-                        index,
-                      })}
-                      key={item}
-                    >
-                      {item}
-                    </Item>
-                  ))}
+                  optionsList
+                    .filter((item) => !inputValue || item.includes(inputValue))
+                    .map((item, index) => (
+                      <Item
+                        {...getItemProps({
+                          style: {
+                            backgroundColor:
+                              index === highlightedIndex
+                                ? 'var(--colors-grayBg)'
+                                : 'transparent',
+                          },
+                          item,
+                          index,
+                        })}
+                        key={item}
+                      >
+                        {item}
+                      </Item>
+                    ))}
               </List>
 
               {/* {searchTerm && ( */}
