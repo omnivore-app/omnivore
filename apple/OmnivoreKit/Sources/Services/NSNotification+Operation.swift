@@ -8,6 +8,7 @@ public extension NSNotification {
   static let OperationSuccess = Notification.Name("OperationSuccess")
   static let OperationFailure = Notification.Name("OperationFailure")
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
+  static let SpeakingReaderItem = Notification.Name("SpeakingReaderItem")
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: PushJSONArticle)
@@ -27,6 +28,10 @@ public extension NSNotification {
 
   static var readerSettingsChangedPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: ReaderSettingsChanged)
+  }
+
+  static var speakingReaderItemPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: SpeakingReaderItem)
   }
 
   internal var operationMessage: String? {

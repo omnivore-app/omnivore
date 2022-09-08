@@ -20,6 +20,12 @@ public final class OmnivoreWebView: WKWebView {
     #if os(iOS)
       initNativeIOSMenus()
     #endif
+
+    NotificationCenter.default.addObserver(forName: NSNotification.Name("SpeakingReaderItem"), object: nil, queue: OperationQueue.main, using: { notification in
+      if let pageID = notification.userInfo?["pageID"] as? String, let anchorIdx = notification.userInfo?["anchorIdx"] as? String {
+        self.dispatchEvent(.speakingSection(anchorIdx: anchorIdx))
+      }
+    })
   }
 
   @available(*, unavailable)
@@ -68,9 +74,8 @@ public final class OmnivoreWebView: WKWebView {
   }
 
   public func dispatchEvent(_ event: WebViewDispatchEvent) {
-    evaluateJavaScript(event.script) { obj, err in
-      if let err = err { print(err) }
-      if let obj = obj { print(obj) }
+    evaluateJavaScript(event.script) { _, err in
+      if let err = err { print("evaluateJavaScript error", err) }
     }
   }
 
@@ -253,6 +258,7 @@ public enum WebViewDispatchEvent {
   case remove
   case copyHighlight
   case dismissHighlight
+  case speakingSection(anchorIdx: String)
 
   var script: String {
     "var event = new Event('\(eventName)');\(scriptPropertyLine)document.dispatchEvent(event);"
@@ -286,6 +292,8 @@ public enum WebViewDispatchEvent {
       return "copyHighlight"
     case .dismissHighlight:
       return "dismissHighlight"
+    case .speakingSection:
+      return "speakingSection"
     }
   }
 
@@ -305,6 +313,8 @@ public enum WebViewDispatchEvent {
       return "event.fontFamily = '\(family)';"
     case let .saveAnnotation(annotation: annotation):
       return "event.annotation = '\(annotation)';"
+    case let .speakingSection(anchorIdx: anchorIdx):
+      return "event.anchorIdx = '\(anchorIdx)';"
     case .annotate, .highlight, .share, .remove, .copyHighlight, .dismissHighlight:
       return ""
     }

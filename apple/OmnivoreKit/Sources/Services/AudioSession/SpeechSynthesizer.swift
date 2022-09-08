@@ -11,31 +11,34 @@ import Foundation
 import Models
 import Utils
 
-struct Utterance {
-  public let text: String
-  public let voice: String? = nil
-  public let wordCount: Double = 10
+struct UtteranceRequest: Codable {
+  let text: String
+  let voice: String
+  let language: String
+  let rate: Double
+}
 
-  func toSSML(document: SpeechDocument) -> String {
-    """
-        {
-            "text": "\(text)",
-            "voice": "\(voice ?? document.defaultVoice)",
-            "language": "\(document.language)",
-            "rate": 1.1
-        }
-    """
+struct Utterance: Decodable {
+  public let idx: Int
+  public let text: String
+  public let voice: String?
+  public let wordOffset: Double
+  public let wordCount: Double
+
+  func toSSML(document: SpeechDocument) throws -> Data? {
+    let request = UtteranceRequest(text: text, voice: voice ?? document.defaultVoice, language: document.language, rate: 1.1)
+    return try JSONEncoder().encode(request)
   }
 }
 
-struct SpeechDocument {
+struct SpeechDocument: Decodable {
   public let pageId: String
 
-  public let averageWPM = 150.0
+  public let averageWPM: Double = 150
   public let wordCount: Double
 
-  public let language = "en-US"
-  public let defaultVoice = "en-US-JennyNeural"
+  public let language: String
+  public let defaultVoice: String
 
   public let utterances: [Utterance]
 
@@ -55,7 +58,8 @@ struct SpeechDocument {
 }
 
 struct SpeechItem {
-  let idx: Int
+  let htmlIdx: Int
+  let audioIdx: Int
   let audioURL: URL
 }
 
@@ -123,7 +127,7 @@ struct SpeechSynthesisFetcher: AsyncSequence {
                                               utterance: utterance)
 
       if let fetchedURL = fetched {
-        let item = SpeechItem(idx: currentIdx, audioURL: fetchedURL)
+        let item = SpeechItem(htmlIdx: utterance.idx, audioIdx: currentIdx, audioURL: fetchedURL)
         currentIdx += 1
         return item
       }
@@ -178,17 +182,19 @@ func fetchUtterance(networker: Networker,
   let audioPath = document.audioDirectory.appendingPathComponent("audio-\(segmentStr).mp3")
   let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/")!
 
-  if FileManager.default.fileExists(atPath: audioPath.path) {
-    print("audio file already downloaded: ", audioPath.path)
-    return audioPath
-  }
+//  if FileManager.default.fileExists(atPath: audioPath.path) {
+//    print("audio file already downloaded: ", audioPath.path)
+//    return audioPath
+//  }
 
   var request = URLRequest(url: url)
   request.httpMethod = "POST"
   request.timeoutInterval = 600
 
-  let ssml = utterance.toSSML(document: document)
-  request.httpBody = ssml.data(using: .utf8)
+  if let ssml = try utterance.toSSML(document: document) {
+    request.httpBody = ssml
+    print("FETCHING: ", String(decoding: ssml, as: UTF8.self))
+  }
 
   for (header, value) in networker.defaultHeaders {
     request.setValue(value, forHTTPHeaderField: header)
