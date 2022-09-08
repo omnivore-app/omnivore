@@ -35,7 +35,7 @@ export type LibrarySearchBarProps = {
 }
 
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
-  const [searchTerm, setSearchTerm] = useState('')
+  //const [searchTerm, setSearchTerm] = useState('')
   const [recentSearches, setRecentSearches] = useState(Array<[]>())
 
   useEffect(() => {
@@ -48,10 +48,10 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
       <Downshift
         onChange={(selection) =>
           console.log(
-            selection ? `You selected ${selection.value}` : 'Selection Cleared'
+            selection ? `You selected ${selection}` : 'Selection Cleared'
           )
         }
-        itemToString={(item) => (item ? item.value : '')}
+        itemToString={(item) => (item ? item : '')}
       >
         {({
           getInputProps,
@@ -78,6 +78,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                 style={{ width: '100%' }}
                 onSubmit={(event) => {
                   event.preventDefault()
+                  //localStorage.setItem(inputValue, inputValue)
                   // props.applySearchQuery(searchTerm || '')
                   // inputRef.current?.blur()
                 }}
@@ -92,10 +93,12 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                   }}
                   type="text"
                   tabIndex={0}
-                  value={searchTerm}
+                  value={inputValue}
                   placeholder="Search"
                   onChange={(event) => {
-                    setSearchTerm(event.target.value)
+                    event.preventDefault()
+                    //setSearchTerm(inputValue)
+                    
                   }}
                   {...getInputProps()}
                 />
@@ -116,7 +119,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                     style="plainIcon"
                     onClick={(event) => {
                       event.preventDefault()
-                      setSearchTerm('')
+                      //setSearchTerm('')
                       clearSelection
                       //props.applySearchQuery('')
                       // inputRef.current?.blur()
@@ -134,13 +137,16 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
 
                   <Button
                     style="ctaDarkYellow"
+                    type="submit"
                     css={{
                       mr: '15px',
                     }}
                     onClick={(event) => {
                       event.preventDefault()
-                      localStorage.setItem(searchTerm, searchTerm)
-                      setSearchTerm(searchTerm)
+                      if(inputValue !== null) {
+                        localStorage.setItem(inputValue, inputValue)
+                      }
+                      //setSearchTerm(searchTerm)
 
                       // props.applySearchQuery('')
                       // inputRef.current?.blur()
