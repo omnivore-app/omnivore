@@ -7,7 +7,7 @@ import { htmlToText } from 'html-to-text'
 // frontend code in: useReadingProgressAnchor
 
 export interface Utterance {
-  idx: number
+  idx: string
   text: string
   wordOffset: number
   wordCount: number
@@ -248,7 +248,7 @@ export const htmlToSsmlItems = (
 
 const htmlToUtterance = (
   tokenizer: WordPunctTokenizer,
-  idx: number,
+  idx: string,
   htmlItems: string[],
   wordOffset: number,
   voice?: string
@@ -289,7 +289,7 @@ export const htmlToSpeechFile = (
     const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
-      const idx = i
+      const idx = i.toString()
       i = emitElement(textItems, node, true)
       const utterance = htmlToUtterance(
         tokenizer,
