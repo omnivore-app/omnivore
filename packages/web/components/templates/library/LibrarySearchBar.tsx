@@ -11,9 +11,9 @@ import { SearchCoordinator } from './LibraryContainer'
 // Styles
 
 const List = styled('ul', {
-  width: '93%',
+  width: '95%',
   top: '65px',
-  left: '0',
+  left: '-32px',
   color: 'var(--colors-utilityTextDefault)',
   backgroundColor: 'var(--colors-grayBase)',
   position: 'absolute',
@@ -25,7 +25,9 @@ const List = styled('ul', {
 
 const Item = styled('li', {
   listStyleType: 'none',
-  p: '5px 5px 5px 35px',
+  p: '8px 8px 8px 35px',
+  borderRadius: '5px',
+  textOverflow: 'ellipsis',
 })
 
 export type LibrarySearchBarProps = {
@@ -57,6 +59,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
   useEffect(() => {
     setRecentSearches(Object.values(localStorage))
     setOptionsList(Object.values(localStorage))
+    //localStorage.clear()
   }, [])
 
   return (
