@@ -49,7 +49,7 @@ import Views
   var searchIdx = 0
   var receivedIdx = 0
 
-  func itemAppeared(item: LinkedItem, dataService: DataService, audioSession: AudioSession) async {
+  func itemAppeared(item: LinkedItem, dataService: DataService, audioSession: AudioController) async {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
@@ -64,7 +64,7 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, audioSession: AudioSession, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, audioSession: AudioController, isRefresh: Bool) async {
     let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
@@ -153,7 +153,7 @@ import Views
     showAudioInfoAlert = false
   }
 
-  func downloadAudio(audioSession: AudioSession, item: LinkedItem) {
+  func downloadAudio(audioSession: AudioController, item: LinkedItem) {
     Snackbar.show(message: "Downloading Offline Audio")
     Task {
       let downloaded = await audioSession.preload(itemIDs: [item.unwrappedID])

@@ -12,13 +12,13 @@ public final class Services {
 
   public let authenticator: Authenticator
   public let dataService: DataService
-  public let audioSession: AudioSession
+  public let audioSession: AudioController
 
   public init(appEnvironment: AppEnvironment = PublicValet.storedAppEnvironment ?? .initialAppEnvironment) {
     let networker = Networker(appEnvironment: appEnvironment)
     self.authenticator = Authenticator(networker: networker)
     self.dataService = DataService(appEnvironment: appEnvironment, networker: networker)
-    self.audioSession = AudioSession(appEnvironment: appEnvironment, networker: networker)
+    self.audioSession = AudioController(appEnvironment: appEnvironment, networker: networker)
   }
 }
 

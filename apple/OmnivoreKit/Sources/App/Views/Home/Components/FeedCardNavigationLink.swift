@@ -5,7 +5,7 @@ import Views
 
 struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var audioSession: AudioSession
+  @EnvironmentObject var audioSession: AudioController
 
   let item: LinkedItem
 
@@ -34,7 +34,7 @@ struct FeedCardNavigationLink: View {
 
 struct GridCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var audioSession: AudioSession
+  @EnvironmentObject var audioSession: AudioController
 
   @State private var scale = 1.0
 

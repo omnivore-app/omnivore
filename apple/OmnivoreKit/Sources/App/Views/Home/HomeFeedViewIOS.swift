@@ -12,7 +12,7 @@ import Views
 
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioSession: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -259,7 +259,7 @@ import Views
 
   struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioSession: AudioController
 
     @Binding var prefersListLayout: Bool
 
@@ -391,7 +391,7 @@ import Views
 
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioSession: AudioController
 
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false

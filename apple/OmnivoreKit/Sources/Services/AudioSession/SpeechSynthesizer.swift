@@ -19,7 +19,7 @@ struct UtteranceRequest: Codable {
 }
 
 struct Utterance: Decodable {
-  public let idx: Int
+  public let idx: String
   public let text: String
   public let voice: String?
   public let wordOffset: Double
@@ -54,7 +54,7 @@ struct SpeechDocument: Decodable {
 }
 
 struct SpeechItem {
-  let htmlIdx: Int
+  let htmlIdx: String
   let audioIdx: Int
   let audioURL: URL
 }
@@ -178,10 +178,10 @@ func fetchUtterance(networker: Networker,
   let audioPath = document.audioDirectory.appendingPathComponent("audio-\(segmentStr).mp3")
   let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/")!
 
-//  if FileManager.default.fileExists(atPath: audioPath.path) {
-//    print("audio file already downloaded: ", audioPath.path)
-//    return audioPath
-//  }
+  if FileManager.default.fileExists(atPath: audioPath.path) {
+    print("audio file already downloaded: ", audioPath.path)
+    return audioPath
+  }
 
   var request = URLRequest(url: url)
   request.httpMethod = "POST"

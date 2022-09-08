@@ -12,7 +12,7 @@ import SwiftUI
 import Views
 
 public struct MiniPlayer: View {
-  @EnvironmentObject var audioSession: AudioSession
+  @EnvironmentObject var audioSession: AudioController
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 

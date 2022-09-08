@@ -24,7 +24,7 @@ struct WebReaderContainerView: View {
   @State var annotation = String()
 
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var audioSession: AudioSession
+  @EnvironmentObject var audioSession: AudioController
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   @StateObject var viewModel = WebReaderViewModel()
 
