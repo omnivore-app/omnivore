@@ -12,7 +12,7 @@ declare module '@omnivore/text-to-speech-handler' {
   }
 
   interface Utterance {
-    idx: number
+    idx: string
     wordOffset: number
     wordCount: number
     voice?: string
