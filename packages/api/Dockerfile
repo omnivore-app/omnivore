@@ -22,6 +22,7 @@ ADD /packages/api ./packages/api
 ADD /packages/text-to-speech ./packages/text-to-speech
 
 RUN yarn
+RUN yarn workspace @omnivore/text-to-speech-handler build
 RUN yarn workspace @omnivore/api build
 
 # After building, fetch the production dependencies

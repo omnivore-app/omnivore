@@ -1,8 +1,44 @@
 import { parseHTML } from 'linkedom'
 import * as _ from 'underscore'
+import { WordPunctTokenizer } from 'natural'
+import { htmlToText } from 'html-to-text'
 
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
+
+export interface Utterance {
+  idx: string
+  text: string
+  wordOffset: number
+  wordCount: number
+  voice?: string
+}
+
+export interface SpeechFile {
+  wordCount: number
+  language: string
+  defaultVoice: string
+  utterances: Utterance[]
+}
+
+export type SSMLItem = {
+  open: string
+  close: string
+  textItems: string[]
+  idx: number
+  voice?: string
+}
+
+export type SSMLOptions = {
+  primaryVoice?: string
+  secondaryVoice?: string
+  rate?: string
+  language?: string
+}
+
+const DEFAULT_LANGUAGE = 'en-US'
+const DEFAULT_VOICE = 'en-US-JennyNeural'
+const DEFAULT_RATE = '1.0'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'omnivore-highlight-id',
@@ -28,6 +64,7 @@ const TOP_LEVEL_TAGS = [
   'H6',
   'UL',
   'OL',
+  'CODE',
 ]
 
 function parseDomTree(pageNode: Element) {
@@ -140,28 +177,19 @@ function emitElement(
   return Number(maxVisitedIdx)
 }
 
-export type SSMLItem = {
-  open: string
-  close: string
-  textItems: string[]
-}
-
-export type SSMLOptions = {
-  primaryVoice: string
-  secondaryVoice: string
-  rate: string
-  language: string
-}
-
-const startSsml = (element: Element, options: SSMLOptions): string => {
+export const startSsml = (options: SSMLOptions, element?: Element): string => {
   const voice =
-    element.nodeName === 'BLOCKQUOTE'
+    element?.nodeName === 'BLOCKQUOTE'
       ? options.secondaryVoice
       : options.primaryVoice
-  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${options.language}"><voice name="${voice}"><prosody rate="${options.rate}">`
+  return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${
+    options.language || DEFAULT_LANGUAGE
+  }"><voice name="${voice || DEFAULT_VOICE}"><prosody rate="${
+    options.rate || DEFAULT_RATE
+  }">`
 }
 
-const endSsml = (): string => {
+export const endSsml = (): string => {
   return `</prosody></voice></speak>`
 }
 
@@ -192,14 +220,6 @@ export const htmlToSsmlItems = (
   }
 
   const parsedNodes = parseDomTree(body)
-  Array.from(parsedNodes).map((n) =>
-    console.log(
-      n.nodeName,
-      n.getAttribute('data-omnivore-anchor-idx'),
-      n.getAttribute('class')
-    )
-  )
-
   if (parsedNodes.length < 1) {
     throw new Error('No HTML nodes found')
   }
@@ -210,11 +230,15 @@ export const htmlToSsmlItems = (
     const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      const idx = i
       i = emitElement(textItems, node, true)
       items.push({
-        open: startSsml(node, options),
+        open: startSsml(options, node),
         close: endSsml(),
         textItems: textItems,
+        idx,
+        voice:
+          node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
       })
     }
   }
@@ -222,6 +246,69 @@ export const htmlToSsmlItems = (
   return items
 }
 
-export const htmlToSsml = (html: string, options: SSMLOptions): string[] => {
-  return htmlToSsmlItems(html, options).map(ssmlItemText)
+const htmlToUtterance = (
+  tokenizer: WordPunctTokenizer,
+  idx: string,
+  htmlItems: string[],
+  wordOffset: number,
+  voice?: string
+): Utterance => {
+  const text = htmlItems.join('')
+  const plainText = htmlToText(text, { wordwrap: false })
+  const wordCount = tokenizer.tokenize(plainText).length
+  return {
+    idx,
+    text,
+    wordOffset,
+    wordCount,
+    voice,
+  }
+}
+
+export const htmlToSpeechFile = (
+  html: string,
+  options: SSMLOptions
+): SpeechFile => {
+  console.debug('creating speech file with options', options)
+
+  const dom = parseHTML(html)
+  const body = dom.document.querySelector('#readability-page-1')
+  if (!body) {
+    throw new Error('Unable to parse HTML document')
+  }
+
+  const parsedNodes = parseDomTree(body)
+  if (parsedNodes.length < 1) {
+    throw new Error('No HTML nodes found')
+  }
+
+  const tokenizer = new WordPunctTokenizer()
+  const utterances: Utterance[] = []
+  let wordOffset = 0
+  for (let i = 2; i < parsedNodes.length + 2; i++) {
+    const textItems: string[] = []
+    const node = parsedNodes[i - 2]
+
+    if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      // use paragraph as anchor
+      const idx = i.toString()
+      i = emitElement(textItems, node, true)
+      const utterance = htmlToUtterance(
+        tokenizer,
+        idx,
+        textItems,
+        wordOffset,
+        node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
+      )
+      utterance.wordCount > 0 && utterances.push(utterance)
+      wordOffset += utterance.wordCount
+    }
+  }
+
+  return {
+    wordCount: wordOffset,
+    language: options.language || DEFAULT_LANGUAGE,
+    defaultVoice: options.primaryVoice || DEFAULT_VOICE,
+    utterances,
+  }
 }

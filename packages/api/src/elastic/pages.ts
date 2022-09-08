@@ -22,7 +22,7 @@ import {
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
-import wordsCounter from 'word-counting'
+import { wordsCount } from '../utils/helpers'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -191,7 +191,7 @@ export const createPage = async (
         ...page,
         updatedAt: new Date(),
         savedAt: new Date(),
-        wordsCount: wordsCounter(page.content, { isHtml: true }).wordsCount,
+        wordsCount: wordsCount(page.content),
       },
       refresh: ctx.refresh,
     })

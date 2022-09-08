@@ -60,6 +60,7 @@ import {
   titleForFilePath,
   userDataToUser,
   validatedDate,
+  wordsCount,
 } from '../../utils/helpers'
 import {
   ParsedContentPuppeteer,
@@ -289,6 +290,7 @@ export const createArticleResolver = authorized<
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
         language: parsedContent?.language,
+        wordsCount: wordsCount(parsedContent?.textContent || ''),
       }
 
       let archive = false
