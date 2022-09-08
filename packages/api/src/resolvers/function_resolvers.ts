@@ -475,6 +475,9 @@ export const functionResolvers = {
         ctx.models
       )
     },
+    image(article: { image?: string }): string | undefined {
+      return article.image && createImageProxyUrl(article.image, 88, 88)
+    },
   },
   ArticleSavingRequest: {
     async article(request: { userId: string; articleId: string }, __: unknown) {
