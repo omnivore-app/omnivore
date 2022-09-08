@@ -253,8 +253,9 @@ const htmlToUtterance = (
   wordOffset: number,
   voice?: string
 ): Utterance => {
-  const text = htmlToText(htmlItems.join(''), { wordwrap: false })
-  const wordCount = tokenizer.tokenize(text).length
+  const text = htmlItems.join('')
+  const plainText = htmlToText(text, { wordwrap: false })
+  const wordCount = tokenizer.tokenize(plainText).length
   return {
     idx,
     text,
@@ -289,11 +290,10 @@ export const htmlToSpeechFile = (
     const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
-      const idx = i.toString()
       i = emitElement(textItems, node, true)
       const utterance = htmlToUtterance(
         tokenizer,
-        idx,
+        i.toString(),
         textItems,
         wordOffset,
         node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
