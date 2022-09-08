@@ -290,10 +290,12 @@ export const htmlToSpeechFile = (
     const node = parsedNodes[i - 2]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
+      // use paragraph as anchor
+      const idx = i.toString()
       i = emitElement(textItems, node, true)
       const utterance = htmlToUtterance(
         tokenizer,
-        i.toString(),
+        idx,
         textItems,
         wordOffset,
         node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
