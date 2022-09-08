@@ -51,7 +51,7 @@ export const synthesizeTextToSpeech = async (
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
-  const wordOffset = 0
+  let wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -149,6 +149,7 @@ export const synthesizeTextToSpeech = async (
     }
     // for utterance, just assemble the ssml and pass it through
     const start = startSsml(ssmlOptions)
+    wordOffset = -start.length
     const ssml = `${start}${input.text}${endSsml()}`
     const result = await speakSsmlAsyncPromise(ssml)
     return {
