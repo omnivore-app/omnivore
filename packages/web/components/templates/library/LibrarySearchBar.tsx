@@ -35,7 +35,6 @@ export type LibrarySearchBarProps = {
 }
 
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
-  //const [searchTerm, setSearchTerm] = useState('')
   const [recentSearches, setRecentSearches] = useState(Array<[]>())
 
   useEffect(() => {
@@ -78,7 +77,6 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                 style={{ width: '100%' }}
                 onSubmit={(event) => {
                   event.preventDefault()
-                  //localStorage.setItem(inputValue, inputValue)
                   // props.applySearchQuery(searchTerm || '')
                   // inputRef.current?.blur()
                 }}
@@ -97,8 +95,6 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                   placeholder="Search"
                   onChange={(event) => {
                     event.preventDefault()
-                    //setSearchTerm(inputValue)
-                    
                   }}
                   {...getInputProps()}
                 />
@@ -119,7 +115,6 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                     style="plainIcon"
                     onClick={(event) => {
                       event.preventDefault()
-                      //setSearchTerm('')
                       clearSelection
                       //props.applySearchQuery('')
                       // inputRef.current?.blur()
@@ -143,11 +138,9 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                     }}
                     onClick={(event) => {
                       event.preventDefault()
-                      if(inputValue !== null) {
+                      if (inputValue !== null) {
                         localStorage.setItem(inputValue, inputValue)
                       }
-                      //setSearchTerm(searchTerm)
-
                       // props.applySearchQuery('')
                       // inputRef.current?.blur()
                     }}
