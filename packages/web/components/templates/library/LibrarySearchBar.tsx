@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sliders, X } from 'phosphor-react'
 import Downshift from 'downshift'
 
@@ -45,13 +45,19 @@ type OptionType = {
 
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('')
-  const [recentSearches, setRecentSearches] = useState([
-    'apple',
-    'pear',
-    'orange',
-    'grape',
-    'banana',
-  ])
+  const [recentSearches, setRecentSearches] = useState(Array<[]>())
+
+  // const [searchState, setSearchState] = useState({
+  //   searchQuery: '',
+  //   hits: [],
+  //   highlightedIndex: 0,
+  // })
+  const [optionsList, setOptionsList] = useState(Array<[]>())
+
+  useEffect(() => {
+    setRecentSearches(Object.values(localStorage))
+    setOptionsList(Object.values(localStorage))
+  }, [])
 
   return (
     <>
@@ -61,7 +67,6 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
           getRootProps,
           getMenuProps,
           getItemProps,
-          getToggleButtonProps,
           isOpen,
           highlightedIndex,
         }) => (
@@ -105,89 +110,91 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
 
               <List {...getMenuProps()}>
                 {isOpen &&
-                  recentSearches?.map((item, index) => (
+                  optionsList.map((item, index) => (
                     <Item
-                      key={item}
                       {...getItemProps({
-                        item,
-                        index,
                         style: {
                           backgroundColor:
                             index === highlightedIndex
-                              ? 'lightgray'
-                              : undefined,
+                              ? 'var(--colors-grayBg)'
+                              : 'transparent',
                         },
+                        
+                        item,
+                        index,
                       })}
+                      key={item}
                     >
                       {item}
                     </Item>
                   ))}
               </List>
 
-              {searchTerm && (
-                <HStack
-                  alignment="center"
-                  distribution="start"
-                  css={{ height: '100%' }}
-                >
-                  <Button
-                    style="plainIcon"
-                    onClick={(event) => {
-                      event.preventDefault()
-                      setSearchTerm('')
-                      //props.applySearchQuery('')
-                      // inputRef.current?.blur()
-                    }}
-                    css={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      mr: '16px',
-                      height: '100%',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <X
-                      width={24}
-                      height={24}
-                      color={theme.colors.grayTextContrast.toString()}
-                    />
-                  </Button>
-
-                  <Button
-                    style="ctaDarkYellow"
-                    onClick={(event) => {
-                      event.preventDefault()
-                      //recentSearches.push({searchQuery: searchTerm, index: recentSearches.length })
-                      localStorage.setItem(searchTerm, searchTerm)
-                      //setRecentSearches(recentSearches)
-
-                      // props.applySearchQuery('')
-                      // inputRef.current?.blur()
-                    }}
-                  >
-                    Search
-                  </Button>
-                </HStack>
-              )}
-              {!searchTerm && (
+              {/* {searchTerm && ( */}
+              <HStack
+                alignment="center"
+                distribution="start"
+                css={{ height: '100%' }}
+              >
                 <Button
                   style="plainIcon"
                   onClick={(event) => {
-                    // Display the advanced search sheet
+                    event.preventDefault()
+                    setSearchTerm('')
+                    //props.applySearchQuery('')
+                    // inputRef.current?.blur()
                   }}
                   css={{
                     display: 'flex',
                     flexDirection: 'row',
+                    mr: '16px',
                     height: '100%',
                     alignItems: 'center',
                   }}
                 >
-                  <Sliders
-                    size={24}
-                    color={theme.colors.utilityTextDefault.toString()}
+                  <X
+                    width={24}
+                    height={24}
+                    color={theme.colors.grayTextContrast.toString()}
                   />
                 </Button>
-              )}
+
+                <Button
+                  style="ctaDarkYellow"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    //recentSearches.push({searchQuery: searchTerm, index: recentSearches.length })
+                    localStorage.setItem(searchTerm, searchTerm)
+                    //setRecentSearches(recentSearches)
+                    setSearchTerm(searchTerm)
+
+                    // props.applySearchQuery('')
+                    // inputRef.current?.blur()
+                  }}
+                >
+                  Search
+                </Button>
+              </HStack>
+              {/* )} */}
+              {/* {!searchTerm && ( */}
+              <Button
+                style="plainIcon"
+                onClick={(event) => {
+                  // Display the advanced search sheet
+                }}
+                css={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  height: '100%',
+                  alignItems: 'center',
+                }}
+              >
+                <Sliders
+                  size={24}
+                  color={theme.colors.utilityTextDefault.toString()}
+                />
+              </Button>
+              {/* )} */}
             </HStack>
           </VStack>
         )}
