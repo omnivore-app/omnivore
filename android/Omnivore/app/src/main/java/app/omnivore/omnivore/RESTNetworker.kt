@@ -12,6 +12,10 @@ data class AuthPayload(
   val authToken: String
 )
 
+data class PendingUserAuthPayload(
+  val pendingUserToken: String,
+)
+
 data class SignInParams(
   val token: String,
   val provider: String, // APPLE or GOOGLE
@@ -39,6 +43,12 @@ interface AuthProviderLoginSubmit {
   @Headers("Content-Type: application/json")
   @POST("/api/mobile-auth/sign-in")
   suspend fun submitAuthProviderLogin(@Body params: SignInParams): Response<AuthPayload>
+}
+
+interface PendingUserSubmit {
+  @Headers("Content-Type: application/json")
+  @POST("/api/mobile-auth/sign-up")
+  suspend fun submitPendingUser(@Body params: SignInParams): Response<PendingUserAuthPayload>
 }
 
 object RetrofitHelper {

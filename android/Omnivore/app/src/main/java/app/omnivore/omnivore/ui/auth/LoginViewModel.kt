@@ -1,11 +1,12 @@
 package app.omnivore.omnivore.ui.auth
 
-import android.content.ContentValues
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -121,15 +122,43 @@ class LoginViewModel @Inject constructor(
 
       if (result.body()?.authToken != null) {
         datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
-      } else {
-        errorMessage = "Something went wrong. Please check your credentials and try again"
-      }
 
-      if (result.body()?.authCookieString != null) {
-        datastoreRepo.putString(
-          DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
-        )
+        if (result.body()?.authCookieString != null) {
+          datastoreRepo.putString(
+            DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
+          )
+        }
+      } else {
+        when (result.code()) {
+          401, 403 -> {
+            // This is a new user so they should go through the new user flow
+            submitAuthProviderPayloadForPendingToken(params = params)
+          }
+          418 -> {
+            // Show pending email state
+            errorMessage = "Something went wrong. Please check your credentials and try again"
+          }
+          else -> {
+            errorMessage = "Something went wrong. Please check your credentials and try again"
+          }
+        }
       }
+    }
+  }
+
+  private suspend fun submitAuthProviderPayloadForPendingToken(params: SignInParams) {
+    isLoading = true
+    errorMessage = null
+
+    val request = RetrofitHelper.getInstance().create(PendingUserSubmit::class.java)
+    val result = request.submitPendingUser(params)
+
+    isLoading = false
+
+    if (result.body()?.pendingUserToken != null) {
+      // store in datastore
+    } else {
+      errorMessage = "Something went wrong. Please check your credentials and try again"
     }
   }
 }
