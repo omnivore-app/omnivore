@@ -36,7 +36,7 @@ class LoginViewModel @Inject constructor(
     .distinctUntilChanged()
     .asLiveData()
 
-  val registrationStateLiveData = MutableLiveData(RegistrationState.PendingUser) // TODO: set back to social login
+  val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
 
   fun getAuthCookieString(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
@@ -180,6 +180,3 @@ class LoginViewModel @Inject constructor(
     }
   }
 }
-
-
-// TODO: set registrationState to pending if user has pending token
