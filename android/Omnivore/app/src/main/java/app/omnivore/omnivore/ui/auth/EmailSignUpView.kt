@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,6 +20,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
@@ -26,6 +29,8 @@ import androidx.compose.ui.unit.dp
 fun EmailSignUpView(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
+  var name by rememberSaveable { mutableStateOf("") }
+  var username by rememberSaveable { mutableStateOf("") }
 
   Row(
     horizontalArrangement = Arrangement.Center
@@ -36,11 +41,27 @@ fun EmailSignUpView(viewModel: LoginViewModel) {
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       EmailSignUpFields(
-        email,
-        password,
+        email = email,
+        password = password,
+        name = name,
+        username = username,
+        usernameValidationErrorMessage = viewModel.usernameValidationErrorMessage,
+        showUsernameAsAvailable = viewModel.hasValidUsername,
         onEmailChange = { email = it },
         onPasswordChange = { password = it },
-        onLoginClick = { viewModel.login(email, password) }
+        onNameChange = { name = it },
+        onUsernameChange = {
+          username = it
+          viewModel.validateUsername(it)
+        },
+        onSubmit = {
+          viewModel.submitEmailSignUp(
+            email = email,
+            password = password,
+            username = username,
+            name = name
+          )
+        }
       )
 
       // TODO: add a activity indicator (maybe after a delay?)
@@ -71,9 +92,15 @@ fun EmailSignUpView(viewModel: LoginViewModel) {
 fun EmailSignUpFields(
   email: String,
   password: String,
+  name: String,
+  username: String,
+  usernameValidationErrorMessage: String?,
+  showUsernameAsAvailable: Boolean,
   onEmailChange: (String) -> Unit,
   onPasswordChange: (String) -> Unit,
-  onLoginClick: () -> Unit
+  onNameChange: (String) -> Unit,
+  onUsernameChange: (String) -> Unit,
+  onSubmit: () -> Unit,
 ) {
   val context = LocalContext.current
   val focusManager = LocalFocusManager.current
@@ -104,14 +131,54 @@ fun EmailSignUpFields(
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 
+    OutlinedTextField(
+      value = name,
+      placeholder = { Text(text = "Name") },
+      label = { Text(text = "Name") },
+      onValueChange = onNameChange,
+      keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+      keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+    )
+
+    Column(
+      verticalArrangement = Arrangement.spacedBy(5.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      OutlinedTextField(
+        value = username,
+        placeholder = { Text(text = "Username") },
+        label = { Text(text = "Username") },
+        onValueChange = onUsernameChange,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+        trailingIcon = {
+          if (showUsernameAsAvailable) {
+            Icon(
+              imageVector = Icons.Filled.CheckCircle,
+              contentDescription = null
+            )
+          }
+        }
+      )
+
+      if (usernameValidationErrorMessage != null) {
+        Text(
+          text = usernameValidationErrorMessage!!,
+          style = MaterialTheme.typography.bodyLarge,
+          color = MaterialTheme.colorScheme.error,
+          textAlign = TextAlign.Center
+        )
+      }
+    }
+
     Button(onClick = {
-      if (email.isNotBlank() && password.isNotBlank()) {
-        onLoginClick()
+      if (email.isNotBlank() && password.isNotBlank() && username.isNotBlank() && name.isNotBlank()) {
+        onSubmit()
         focusManager.clearFocus()
       } else {
         Toast.makeText(
           context,
-          "Please enter an email address and password.",
+          "Please complete all fields.",
           Toast.LENGTH_SHORT
         ).show()
       }
@@ -121,7 +188,7 @@ fun EmailSignUpFields(
     )
     ) {
       Text(
-        text = "Login",
+        text = "Sign Up",
         modifier = Modifier.padding(horizontal = 100.dp)
       )
     }

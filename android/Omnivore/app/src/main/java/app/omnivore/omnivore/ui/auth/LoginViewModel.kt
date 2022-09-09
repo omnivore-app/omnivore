@@ -155,6 +155,15 @@ class LoginViewModel @Inject constructor(
     }
   }
 
+  fun submitEmailSignUp(
+    email: String,
+    password: String,
+    username: String,
+    name: String,
+  ) {
+    // TODO: make network call
+  }
+
   private fun getPendingAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivorePendingUserToken)
   }
