@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 enum class RegistrationState {
@@ -89,7 +90,15 @@ class LoginViewModel @Inject constructor(
         return@launch
       }
 
-      // TODO: check email regex
+      val isValidPattern = Pattern.compile("^[a-z0-9][a-z0-9_]+[a-z0-9]$")
+        .matcher(potentialUsername)
+        .matches()
+
+      if (!isValidPattern) {
+        usernameValidationErrorMessage = "Username can contain only letters and numbers"
+        hasValidUsername = false
+        return@launch
+      }
 
       val apolloClient = ApolloClient.Builder()
         .serverUrl("${Constants.apiURL}/api/graphql")

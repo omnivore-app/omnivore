@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,9 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
+import org.intellij.lang.annotations.JdkConstants
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -76,7 +81,7 @@ fun UserProfileFields(
   name: String,
   username: String,
   usernameValidationErrorMessage: String?,
-  showUsernameAsAvailable: Boolean, // TODO: use this to add green checkmark
+  showUsernameAsAvailable: Boolean,
   onNameChange: (String) -> Unit,
   onUsernameChange: (String) -> Unit,
   onSubmit: () -> Unit
@@ -110,7 +115,15 @@ fun UserProfileFields(
         label = { Text(text = "Username") },
         onValueChange = onUsernameChange,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+        trailingIcon = {
+          if (showUsernameAsAvailable) {
+            Icon(
+              imageVector = Icons.Filled.CheckCircle,
+              contentDescription = null
+            )
+          }
+        }
       )
 
       if (usernameValidationErrorMessage != null) {
@@ -118,6 +131,7 @@ fun UserProfileFields(
           text = usernameValidationErrorMessage!!,
           style = MaterialTheme.typography.bodyLarge,
           color = MaterialTheme.colorScheme.error,
+          textAlign = TextAlign.Center
         )
       }
     }
@@ -130,7 +144,7 @@ fun UserProfileFields(
         } else {
           Toast.makeText(
             context,
-            "Please enter a valid username and password.",
+            "Please enter a valid name and username.",
             Toast.LENGTH_SHORT
           ).show()
         }
