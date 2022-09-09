@@ -242,12 +242,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
     }
   }
 
-  public var currentVoice: String {
-    get {
-      UserDefaults.standard.string(forKey: Keys.textToSpeechVoice) ?? "en-US-JennyNeural"
-    }
-    set {
-      UserDefaults.standard.set(newValue, forKey: Keys.textToSpeechVoice)
+  @AppStorage(UserDefaultKey.textToSpeechCurrentVoice.rawValue) public var currentVoice = "en-US-JennyNeural" {
+    didSet {
       voiceList = generateVoiceList()
     }
   }

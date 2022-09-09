@@ -15,4 +15,5 @@ public enum UserDefaultKey: String {
   case lastItemSyncTime
   case audioInfoAlertShown
   case textToSpeechPlaybackRate
+  case textToSpeechCurrentVoice
 }
