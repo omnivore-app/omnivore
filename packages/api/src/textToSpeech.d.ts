@@ -1,8 +1,11 @@
 declare module '@omnivore/text-to-speech-handler' {
-  export function htmlToSpeechFile(
-    html: string,
+  export function htmlToSpeechFile(htmlInput: HtmlInput): SpeechFile
+
+  export interface HtmlInput {
+    title?: string
+    content: string
     options: SSMLOptions
-  ): SpeechFile
+  }
 
   export interface SSMLOptions {
     primaryVoice?: string

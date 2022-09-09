@@ -6,6 +6,12 @@ import { htmlToText } from 'html-to-text'
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
 
+export interface HtmlInput {
+  title?: string
+  content: string
+  options: SSMLOptions
+}
+
 export interface Utterance {
   idx: string
   text: string
@@ -246,15 +252,23 @@ export const htmlToSsmlItems = (
   return items
 }
 
-const htmlToUtterance = (
-  tokenizer: WordPunctTokenizer,
-  idx: string,
-  htmlItems: string[],
-  wordOffset: number,
+const textToUtterance = ({
+  tokenizer,
+  idx,
+  textItems,
+  wordOffset,
+  voice,
+  isHtml = true,
+}: {
+  tokenizer: WordPunctTokenizer
+  idx: string
+  textItems: string[]
+  wordOffset: number
   voice?: string
-): Utterance => {
-  const text = htmlItems.join('')
-  const plainText = htmlToText(text, { wordwrap: false })
+  isHtml?: boolean
+}): Utterance => {
+  const text = textItems.join('')
+  const plainText = isHtml ? htmlToText(text, { wordwrap: false }) : text
   const wordCount = tokenizer.tokenize(plainText).length
   return {
     idx,
@@ -265,13 +279,11 @@ const htmlToUtterance = (
   }
 }
 
-export const htmlToSpeechFile = (
-  html: string,
-  options: SSMLOptions
-): SpeechFile => {
+export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
+  const { title, content, options } = htmlInput
   console.debug('creating speech file with options', options)
 
-  const dom = parseHTML(html)
+  const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
     throw new Error('Unable to parse HTML document')
@@ -285,6 +297,19 @@ export const htmlToSpeechFile = (
   const tokenizer = new WordPunctTokenizer()
   const utterances: Utterance[] = []
   let wordOffset = 0
+  if (title) {
+    // first utterances is the title
+    const titleUtterance = textToUtterance({
+      tokenizer,
+      idx: '',
+      textItems: [title],
+      wordOffset,
+      isHtml: false,
+    })
+    utterances.push(titleUtterance)
+    wordOffset += titleUtterance.wordCount
+  }
+
   for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
     const node = parsedNodes[i - 2]
@@ -293,13 +318,14 @@ export const htmlToSpeechFile = (
       // use paragraph as anchor
       const idx = i.toString()
       i = emitElement(textItems, node, true)
-      const utterance = htmlToUtterance(
+      const utterance = textToUtterance({
         tokenizer,
         idx,
         textItems,
         wordOffset,
-        node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
-      )
+        voice:
+          node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
+      })
       utterance.wordCount > 0 && utterances.push(utterance)
       wordOffset += utterance.wordCount
     }
