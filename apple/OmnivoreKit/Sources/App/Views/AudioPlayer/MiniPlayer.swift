@@ -119,7 +119,7 @@ public struct MiniPlayer: View {
         if expanded {
           ZStack {
             closeButton
-              .padding(.top, 8)
+              .padding(.top, 24)
               .frame(maxWidth: .infinity, alignment: .leading)
 
 //            shareButton
@@ -316,7 +316,7 @@ public struct MiniPlayer: View {
     ZStack(alignment: .center) {
       presentingView
       VStack {
-        Spacer()
+        Spacer(minLength: 0)
         if let item = self.audioSession.item, isPresented {
           playerContent(item)
             .offset(y: offset)
