@@ -1,6 +1,24 @@
 import 'mocha'
 import { expect } from 'chai'
-import { htmlToSsmlItems } from '../src/htmlToSsml'
+import { htmlToSsmlItems, stripEmojis } from '../src/htmlToSsml'
+
+describe('stripEmojis', () => {
+  it('strips emojis from text and removes the extra space', () => {
+    const text = '🥛The Big Short guy is back with a new prediction'
+
+    expect(stripEmojis(text)).to.equal(
+      'The Big Short guy is back with a new prediction'
+    )
+  })
+
+  it('strips emojis from html and removes the extra space', () => {
+    const text = `<h2 data-omnivore-anchor-idx="37">🧠Brain food</h2>`
+
+    expect(stripEmojis(text)).to.equal(
+      `<h2 data-omnivore-anchor-idx="37">Brain food</h2>`
+    )
+  })
+})
 
 describe('htmlToSsmlItems', () => {
   const TEST_OPTIONS = {

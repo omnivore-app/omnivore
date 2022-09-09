@@ -117,7 +117,7 @@ function emit(textItems: string[], text: string) {
 }
 
 function cleanTextNode(textNode: ChildNode): string {
-  return _.escape(textNode.textContent ?? ''.replace(/\s+/g, ' '))
+  return stripEmojis(_.escape(textNode.textContent ?? ''.replace(/\s+/g, ' ')))
 }
 
 function emitTextNode(
@@ -252,9 +252,10 @@ export const htmlToSsmlItems = (
   return items
 }
 
-const stripEmojis = (text: string): string => {
-  const emojiRegex = /[\u{1F600}-\u{1F64F}]/gu
-  return text.replace(emojiRegex, '').replace(/\s+/g, ' ').trim()
+export const stripEmojis = (text: string): string => {
+  const emojiRegex =
+    /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/gu
+  return text.replace(emojiRegex, '').replace(/\s+/g, ' ')
 }
 
 const textToUtterance = ({
@@ -272,7 +273,7 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = stripEmojis(textItems.join(''))
+  const text = textItems.join('')
   const plainText = isHtml ? htmlToText(text, { wordwrap: false }) : text
   const wordCount = tokenizer.tokenize(plainText).length
   return {
