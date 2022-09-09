@@ -496,7 +496,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
 //      return (pending: false, url: audioUrl)
 //    }
 
-    let path = "/api/article/\(pageId)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)priority=\(priority)"
+    let path = "/api/article/\(pageId)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)"
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }
