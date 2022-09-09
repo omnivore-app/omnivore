@@ -63,6 +63,9 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
       RegistrationState.EmailSignIn -> {
         EmailLoginView(viewModel = viewModel)
       }
+      RegistrationState.EmailSignUp -> {
+        EmailSignUpView(viewModel = viewModel)
+      }
       RegistrationState.SocialLogin -> {
         Text(
           text = stringResource(id = R.string.welcome_title),

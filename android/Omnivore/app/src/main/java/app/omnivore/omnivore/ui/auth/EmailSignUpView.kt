@@ -12,7 +12,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
@@ -24,7 +23,7 @@ import androidx.compose.ui.unit.dp
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun EmailLoginView(viewModel: LoginViewModel) {
+fun EmailSignUpView(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -36,7 +35,7 @@ fun EmailLoginView(viewModel: LoginViewModel) {
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      LoginFields(
+      EmailSignUpFields(
         email,
         password,
         onEmailChange = { email = it },
@@ -57,10 +56,10 @@ fun EmailLoginView(viewModel: LoginViewModel) {
       )
 
       ClickableText(
-        text = AnnotatedString("Don't have an account?"),
+        text = AnnotatedString("Already have an account?"),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { viewModel.showEmailSignUp() }
+        onClick = { viewModel.showEmailSignIn() }
       )
     }
     Spacer(modifier = Modifier.weight(1.0F))
@@ -69,7 +68,7 @@ fun EmailLoginView(viewModel: LoginViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginFields(
+fun EmailSignUpFields(
   email: String,
   password: String,
   onEmailChange: (String) -> Unit,
@@ -117,9 +116,9 @@ fun LoginFields(
         ).show()
       }
     }, colors = ButtonDefaults.buttonColors(
-         contentColor = Color(0xFF3D3D3D),
-         containerColor = Color(0xffffd234)
-       )
+      contentColor = Color(0xFF3D3D3D),
+      containerColor = Color(0xffffd234)
+    )
     ) {
       Text(
         text = "Login",

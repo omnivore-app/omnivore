@@ -24,6 +24,7 @@ import javax.inject.Inject
 enum class RegistrationState {
   SocialLogin,
   EmailSignIn,
+  EmailSignUp,
   PendingUser
 }
 
@@ -62,6 +63,10 @@ class LoginViewModel @Inject constructor(
 
   fun showEmailSignIn() {
     registrationStateLiveData.value = RegistrationState.EmailSignIn
+  }
+
+  fun showEmailSignUp() {
+    registrationStateLiveData.value = RegistrationState.EmailSignUp
   }
 
   fun cancelNewUserSignUp() {
