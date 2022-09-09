@@ -117,7 +117,7 @@ function emit(textItems: string[], text: string) {
 }
 
 function cleanTextNode(textNode: ChildNode): string {
-  return _.escape(textNode.textContent ?? ''.replace(/\s+/g, ' '))
+  return stripEmojis(_.escape(textNode.textContent ?? ''.replace(/\s+/g, ' ')))
 }
 
 function emitTextNode(
@@ -250,6 +250,12 @@ export const htmlToSsmlItems = (
   }
 
   return items
+}
+
+export const stripEmojis = (text: string): string => {
+  const emojiRegex =
+    /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/gu
+  return text.replace(emojiRegex, '').replace(/\s+/g, ' ')
 }
 
 const textToUtterance = ({
