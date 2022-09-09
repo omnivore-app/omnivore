@@ -334,26 +334,28 @@ public struct MiniPlayer: View {
       VStack {
         List {
           ForEach(audioSession.voiceList ?? [], id: \.key.self) { voice in
-            HStack {
-              Button(action: {
-                audioSession.currentVoice = voice.key
-              }) {
+            Button(action: {
+              audioSession.currentVoice = voice.key
+            }) {
+              HStack {
                 Text(voice.name)
-              }
-              .buttonStyle(PlainButtonStyle())
-              .frame(maxWidth: .infinity)
 
-              if voice.selected {
-                Image(systemName: "checkmark")
+                Spacer()
+
+                if voice.selected {
+                  Image(systemName: "checkmark")
+                }
               }
+              .contentShape(Rectangle())
             }
+            .buttonStyle(PlainButtonStyle())
           }
         }
         .padding(.top, 32)
         .listStyle(.plain)
         Spacer()
       }
-      .navigationBarTitle("Change Voice")
+      .navigationBarTitle("Voice")
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
         Image(systemName: "chevron.backward")
