@@ -11,7 +11,7 @@ interface Unsubscribe {
 const pubsub = new PubSub()
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
-const CONFIRMATION_EMAIL = 'forwarding-noreply@google.com'
+const CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
 // check unicode parentheses too
 const CONFIRMATION_CODE_PATTERN = /^[(（]#\d+[)）]/u
 const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
@@ -132,7 +132,7 @@ export const getConfirmationCode = (subject: string): string | undefined => {
 
 export const isConfirmationEmail = (from: string, subject: string): boolean => {
   return (
-    parseAddress(from) === CONFIRMATION_EMAIL &&
+    parseAddress(from) === CONFIRMATION_EMAIL_SENDER_ADDRESS &&
     CONFIRMATION_CODE_PATTERN.test(subject)
   )
 }
