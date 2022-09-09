@@ -26,11 +26,6 @@ public enum PlayerScrubState {
   case scrubEnded(TimeInterval)
 }
 
-enum DownloadType: String {
-  case mp3
-  case speechMarks
-}
-
 enum DownloadPriority: String {
   case low
   case high
@@ -141,46 +136,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  public func preload(itemIDs _: [String], retryCount _: Int = 0) async -> Bool {
-//    var pendingList = [String]()
-//
-//    for pageId in itemIDs {
-//      let permFile = pathForAudioFile(pageId: pageId)
-//      if FileManager.default.fileExists(atPath: permFile.path) {
-//        print("audio file already downloaded: ", permFile)
-//        continue
-//      }
-//
-//      // Attempt to fetch the file if not downloaded already
-//      let result = try? await downloadAudioFile(pageId: pageId, type: .mp3, priority: .low)
-//      if result == nil {
-//        print("audio file had error downloading: ", pageId)
-//        pendingList.append(pageId)
-//      }
-//
-//      if let result = result, result.pending {
-//        print("audio file is pending download: ", pageId)
-//        pendingList.append(pageId)
-//      } else {
-//        print("audio file is downloaded: ", pageId)
-//      }
-//    }
-//
-//    print("audio files pending download: ", pendingList)
-//    if pendingList.isEmpty {
-//      return true
-//    }
-//
-//    if retryCount > 5 {
-//      print("reached max preload depth, stopping preloading")
-//      return false
-//    }
-//
-//    let retryDelayInNanoSeconds = UInt64(retryCount * 2 * 1_000_000_000)
-//    try? await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
-//
-//    return await preload(itemIDs: pendingList, retryCount: retryCount + 1)
-    true
+  public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
+    for pageId in itemIDs {
+      print("preloading speech file: ", pageId)
+      _ = try? await downloadSpeechFile(pageId: pageId, priority: .low)
+    }
+    return true
   }
 
   public var scrubState: PlayerScrubState = .reset {
@@ -281,21 +242,27 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     pageId + "-" + currentVoice + ".mp3"
   }
 
-  public func pathForAudioFile(pageId: String) -> URL {
+  public func pathForAudioDirectory(pageId: String) -> URL {
     FileManager.default
       .urls(for: .documentDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(fileNameForAudioFile(pageId))
+      .appendingPathComponent("audio-\(pageId)/")
+  }
+
+  public func pathForSpeechFile(pageId: String) -> URL {
+    pathForAudioDirectory(pageId: pageId)
+      .appendingPathComponent("speech-\(currentVoice).json")
   }
 
   public func startAudio() {
     state = .loading
     setupNotifications()
 
-    let pageId = item!.unwrappedID
-    Task {
-      self.document = try? await downloadAudioFile(pageId: pageId, type: .mp3, priority: .high)
-      DispatchQueue.main.async {
-        self.startStreamingAudio(pageId: pageId)
+    if let pageId = item?.id {
+      Task {
+        self.document = try? await downloadSpeechFile(pageId: pageId, priority: .high)
+        DispatchQueue.main.async {
+          self.startStreamingAudio(pageId: pageId)
+        }
       }
     }
   }
@@ -311,8 +278,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
 
     player = AVQueuePlayer(items: [])
-    let synthesizer = SpeechSynthesizer(networker: networker, document: document!)
-    synthesizer.prepare()
+    let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document!)
     durations = synthesizer.estimatedDurations(forSpeed: 1.0)
     self.synthesizer = synthesizer
 
@@ -492,12 +458,19 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  func downloadAudioFile(pageId: String, type _: DownloadType, priority: DownloadPriority) async throws -> SpeechDocument {
-//    let audioUrl = pathForAudioFile(pageId: pageId)
-//
-//    if FileManager.default.fileExists(atPath: audioUrl.path) {
-//      return (pending: false, url: audioUrl)
-//    }
+  func downloadSpeechFile(pageId: String, priority: DownloadPriority) async throws -> SpeechDocument {
+    let decoder = JSONDecoder()
+    let speechFileUrl = pathForSpeechFile(pageId: pageId)
+
+    if FileManager.default.fileExists(atPath: speechFileUrl.path) {
+      print("SPEECH FILE ALREADY EXISTS: ", speechFileUrl.path)
+      let data = try Data(contentsOf: speechFileUrl)
+      document = try decoder.decode(SpeechDocument.self, from: data)
+      // If we can't load it from disk we make the API call
+      if let document = document {
+        return document
+      }
+    }
 
     let path = "/api/article/\(pageId)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)"
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
@@ -525,28 +498,15 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     let document = try! JSONDecoder().decode(SpeechDocument.self, from: data)
 
+    // Cache the file
+    do {
+      try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
+      try data.write(to: speechFileUrl)
+    } catch {
+      print("error writing file", error)
+    }
+
     return document
-    ////    let tempPath = FileManager.default
-    ////      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-    ////      .appendingPathComponent(UUID().uuidString + ".mp3")
-//
-//    do {
-    ////      if let googleHash = httpResponse.value(forHTTPHeaderField: "x-goog-hash") {
-    ////        let hash = Data(Insecure.MD5.hash(data: data)).base64EncodedString()
-    ////        if !googleHash.contains("md5=\(hash)") {
-    ////          print("Downloaded mp3 file hashes do not match: returned: \(googleHash) v computed: \(hash)")
-    ////          throw BasicError.message(messageText: "Downloaded mp3 file hashes do not match: returned: \(googleHash) v computed: \(hash)")
-    ////        }
-    ////      }
-    ////
-    ////      try data.write(to: tempPath)
-    ////      try? FileManager.default.removeItem(at: audioUrl)
-    ////      try FileManager.default.moveItem(at: tempPath, to: audioUrl)
-//    } catch {
-//      print("error writing file: ", error)
-//      let errorMessage = "audioFetch failed. could not write MP3 data to disk"
-//      throw BasicError.message(messageText: errorMessage)
-//    }
   }
 
   public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {

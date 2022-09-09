@@ -62,16 +62,13 @@ struct SpeechItem {
 struct SpeechSynthesizer {
   typealias Element = SpeechItem
   let document: SpeechDocument
+  let appEnvironment: AppEnvironment
   let networker: Networker
 
-  init(networker: Networker, document: SpeechDocument) {
+  init(appEnvironment: AppEnvironment, networker: Networker, document: SpeechDocument) {
+    self.appEnvironment = appEnvironment
     self.networker = networker
     self.document = document
-  }
-
-  func prepare() {
-    // We will fail later on if this doesn't happen, so just use try? here
-    try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
   }
 
   func estimatedDurations(forSpeed speed: Double) -> [Double] {
@@ -117,7 +114,8 @@ struct SpeechSynthesisFetcher: AsyncSequence {
       }
 
       let utterance = synthesizer.document.utterances[currentIdx]
-      let fetched = try? await fetchUtterance(networker: synthesizer.networker,
+      let fetched = try? await fetchUtterance(appEnvironment: synthesizer.appEnvironment,
+                                              networker: synthesizer.networker,
                                               document: synthesizer.document,
                                               segmentIdx: currentIdx,
                                               utterance: utterance)
@@ -158,33 +156,33 @@ extension Data {
     self.init(capacity: string.utf8.count / 2)
 
     var iter = string.utf8.makeIterator()
-    while let c1 = iter.next() {
+    while let char1 = iter.next() {
       guard
-        let val1 = decodeNibble(nibble: c1),
-        let c2 = iter.next(),
-        let val2 = decodeNibble(nibble: c2)
+        let val1 = decodeNibble(nibble: char1),
+        let char2 = iter.next(),
+        let val2 = decodeNibble(nibble: char2)
       else { return nil }
       append(val1 << 4 + val2)
     }
   }
 }
 
-func fetchUtterance(networker: Networker,
+func fetchUtterance(appEnvironment: AppEnvironment,
+                    networker: Networker,
                     document: SpeechDocument,
                     segmentIdx: Int,
                     utterance: Utterance) async throws -> URL
 {
   let voiceStr = utterance.voice ?? document.defaultVoice
   let segmentStr = String(format: "%04d", arguments: [segmentIdx])
-  let audioPath = document.audioDirectory.appendingPathComponent("audio-\(voiceStr)-\(segmentStr).mp3")
-  let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/")!
+  let audioPath = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
 
   if FileManager.default.fileExists(atPath: audioPath.path) {
     print("audio file already downloaded: ", audioPath.path)
     return audioPath
   }
 
-  var request = URLRequest(url: url)
+  var request = URLRequest(url: appEnvironment.ttsBaseURL)
   request.httpMethod = "POST"
   request.timeoutInterval = 600
 
