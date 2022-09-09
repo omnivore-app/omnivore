@@ -369,14 +369,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
     }
 
     if let item = self.item, let speechItem = player?.currentItem as? SpeechPlayerItem {
-      NotificationCenter.default.post(
-        name: NSNotification.SpeakingReaderItem,
-        object: nil,
-        userInfo: [
-          "pageID": item.unwrappedID,
-          "anchorIdx": String(speechItem.speechItem.htmlIdx)
-        ]
-      )
+//      NotificationCenter.default.post(
+//        name: NSNotification.SpeakingReaderItem,
+//        object: nil,
+//        userInfo: [
+//          "pageID": item.unwrappedID,
+//          "anchorIdx": String(speechItem.speechItem.htmlIdx)
+//        ]
+//      )
     }
   }
 
