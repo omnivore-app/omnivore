@@ -12,7 +12,7 @@ import SwiftUI
 import Views
 
 public struct MiniPlayer: View {
-  @EnvironmentObject var audioSession: AudioController
+  @EnvironmentObject var audioController: AudioController
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 
@@ -30,26 +30,26 @@ public struct MiniPlayer: View {
   }
 
   var isPresented: Bool {
-    audioSession.item != nil && audioSession.state != .stopped
+    audioController.item != nil && audioController.state != .stopped
   }
 
   var playPauseButtonItem: some View {
-    if let item = audioSession.item, audioSession.isLoadingItem(item: item) {
+    if let item = audioController.item, audioController.isLoadingItem(item: item) {
       return AnyView(ProgressView())
     } else {
       return AnyView(Button(
         action: {
-          switch audioSession.state {
+          switch audioController.state {
           case .playing:
-            _ = audioSession.pause()
+            _ = audioController.pause()
           case .paused:
-            _ = audioSession.unpause()
+            _ = audioController.unpause()
           default:
             break
           }
         },
         label: {
-          Image(systemName: audioSession.state == .playing ? "pause.circle" : "play.circle")
+          Image(systemName: audioController.state == .playing ? "pause.circle" : "play.circle")
             .font(expanded ? .system(size: 64.0, weight: .thin) : .appTitleTwo)
         }
       ))
@@ -59,7 +59,7 @@ public struct MiniPlayer: View {
   var stopButton: some View {
     Button(
       action: {
-        audioSession.stop()
+        audioController.stop()
       },
       label: {
         Image(systemName: "xmark")
@@ -104,7 +104,7 @@ public struct MiniPlayer: View {
   }
 
   func viewArticle() {
-    if let item = audioSession.item {
+    if let item = audioController.item {
       NSNotification.pushReaderItem(objectID: item.objectID)
       withAnimation(.easeIn(duration: 0.1)) {
         expanded = false
@@ -210,13 +210,13 @@ public struct MiniPlayer: View {
             Spacer()
           }
 
-          Slider(value: $audioSession.timeElapsed,
-                 in: 0 ... self.audioSession.duration,
+          Slider(value: $audioController.timeElapsed,
+                 in: 0 ... self.audioController.duration,
                  onEditingChanged: { scrubStarted in
                    if scrubStarted {
-                     self.audioSession.scrubState = .scrubStarted
+                     self.audioController.scrubState = .scrubStarted
                    } else {
-                     self.audioSession.scrubState = .scrubEnded(self.audioSession.timeElapsed)
+                     self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
                    }
                  })
             .accentColor(.appCtaYellow)
@@ -237,11 +237,11 @@ public struct MiniPlayer: View {
             }
 
           HStack {
-            Text(audioSession.timeElapsedString ?? "0:00")
+            Text(audioController.timeElapsedString ?? "0:00")
               .font(.appCaptionTwo)
               .foregroundColor(.appGrayText)
             Spacer()
-            Text(audioSession.durationString ?? "0:00")
+            Text(audioController.durationString ?? "0:00")
               .font(.appCaptionTwo)
               .foregroundColor(.appGrayText)
           }
@@ -264,7 +264,7 @@ public struct MiniPlayer: View {
             .padding(8)
 
             Button(
-              action: { self.audioSession.skipBackwards(seconds: 30) },
+              action: { self.audioController.skipBackwards(seconds: 30) },
               label: {
                 Image(systemName: "gobackward.30")
                   .font(.appTitleTwo)
@@ -276,7 +276,7 @@ public struct MiniPlayer: View {
               .padding(32)
 
             Button(
-              action: { self.audioSession.skipForward(seconds: 30) },
+              action: { self.audioController.skipForward(seconds: 30) },
               label: {
                 Image(systemName: "goforward.30")
                   .font(.appTitleTwo)
@@ -317,7 +317,7 @@ public struct MiniPlayer: View {
       presentingView
       VStack {
         Spacer(minLength: 0)
-        if let item = self.audioSession.item, isPresented {
+        if let item = self.audioController.item, isPresented {
           playerContent(item)
             .offset(y: offset)
             .frame(maxHeight: expanded ? .infinity : 88)
@@ -333,9 +333,9 @@ public struct MiniPlayer: View {
     NavigationView {
       VStack {
         List {
-          ForEach(audioSession.voiceList ?? [], id: \.key.self) { voice in
+          ForEach(audioController.voiceList ?? [], id: \.key.self) { voice in
             Button(action: {
-              audioSession.currentVoice = voice.key
+              audioController.currentVoice = voice.key
             }) {
               HStack {
                 Text(voice.name)

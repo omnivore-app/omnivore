@@ -5,7 +5,7 @@ import Views
 
 struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var audioSession: AudioController
+  @EnvironmentObject var audioController: AudioController
 
   let item: LinkedItem
 
@@ -24,7 +24,7 @@ struct FeedCardNavigationLink: View {
         .opacity(0)
         .buttonStyle(PlainButtonStyle())
         .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioSession: audioSession) }
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioController: AudioController) }
         }
         FeedCard(item: item)
       }
@@ -34,7 +34,7 @@ struct FeedCardNavigationLink: View {
 
 struct GridCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var audioSession: AudioController
+  @EnvironmentObject var audioSession: AudioSession
 
   @State private var scale = 1.0
 
@@ -63,7 +63,7 @@ struct GridCardNavigationLink: View {
         withAnimation { tapAction() }
       })
         .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioSession: audioSession) }
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioController: AudioController) }
         }
     }
     .aspectRatio(1.8, contentMode: .fill)
