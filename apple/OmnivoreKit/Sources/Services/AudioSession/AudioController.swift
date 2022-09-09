@@ -35,6 +35,24 @@ enum DownloadPriority: String {
   case high
 }
 
+struct VoicePair {
+  let firstKey: String
+  let secondKey: String
+
+  let firstName: String
+  let secondName: String
+}
+
+let VOICES = [
+  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny (USA)", secondName: "Brandon (USA)"),
+  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora (USA)", secondName: "Christopher (USA)"),
+  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth (USA)", secondName: "Eric (USA)"),
+  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara (Canada)", secondName: "Liam (Canada)"),
+  VoicePair(firstKey: "en-UK-LibbyNeural", secondKey: "en-UK-EthanNeural", firstName: "Libby (UK)", secondName: "Ethan (UK)"),
+  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha (Australia)", secondName: "William (Australia)"),
+  VoicePair(firstKey: "en-ID-NeerjaNeural", secondKey: "en-ID-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)")
+]
+
 class SpeechPlayerItem: AVPlayerItem {
   let session: AudioController
   let speechItem: SpeechItem
@@ -64,6 +82,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
   @Published public var duration: TimeInterval = 0
   @Published public var timeElapsedString: String?
   @Published public var durationString: String?
+  @Published public var voiceList: [(name: String, key: String, selected: Bool)]?
 
   let appEnvironment: AppEnvironment
   let networker: Networker
@@ -79,6 +98,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
+
+    super.init()
+    self.voiceList = generateVoiceList()
   }
 
   public func play(item: LinkedItem) {
@@ -107,6 +129,15 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
     timeElapsed = 0
     duration = 1
     durations = nil
+  }
+
+  public func generateVoiceList() -> [(name: String, key: String, selected: Bool)] {
+    VOICES.flatMap { voicePair in
+      [
+        (name: voicePair.firstName, key: voicePair.firstKey, selected: voicePair.firstKey == currentVoice),
+        (name: voicePair.secondName, key: voicePair.secondKey, selected: voicePair.secondKey == currentVoice)
+      ]
+    }
   }
 
   public func preload(itemIDs _: [String], retryCount _: Int = 0) async -> Bool {
@@ -166,7 +197,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
 
   func updateDuration(forItem item: SpeechItem, newDuration: TimeInterval) {
     if let durations = self.durations, item.audioIdx < durations.count {
-      print("UPDATE DURATION: ", newDuration, "OLD", self.durations?[item.audioIdx])
       self.durations?[item.audioIdx] = newDuration
     }
   }
@@ -206,7 +236,26 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
   }
 
   public var currentVoice: String {
-    "en-US-JennyNeural"
+    get {
+      UserDefaults.standard.string(forKey: Keys.textToSpeechVoice) ?? "en-US-JennyNeural"
+    }
+    set {
+      UserDefaults.standard.set(newValue, forKey: Keys.textToSpeechVoice)
+      voiceList = generateVoiceList()
+    }
+  }
+
+  public var secondaryVoice: String {
+    let pair = VOICES.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
+    if let pair = pair {
+      if pair.firstKey == currentVoice {
+        return pair.secondKey
+      }
+      if pair.secondKey == currentVoice {
+        return pair.firstKey
+      }
+    }
+    return "en-US-EricNeural"
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
@@ -440,14 +489,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
     }
   }
 
-  func downloadAudioFile(pageId: String, type _: DownloadType, priority _: DownloadPriority) async throws -> SpeechDocument {
+  func downloadAudioFile(pageId: String, type _: DownloadType, priority: DownloadPriority) async throws -> SpeechDocument {
 //    let audioUrl = pathForAudioFile(pageId: pageId)
 //
 //    if FileManager.default.fileExists(atPath: audioUrl.path) {
 //      return (pending: false, url: audioUrl)
 //    }
 
-    let path = "/api/article/\(pageId)/speech"
+    let path = "/api/article/\(pageId)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)priority=\(priority)"
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }

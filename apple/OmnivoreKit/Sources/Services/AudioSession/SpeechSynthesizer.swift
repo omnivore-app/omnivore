@@ -174,8 +174,9 @@ func fetchUtterance(networker: Networker,
                     segmentIdx: Int,
                     utterance: Utterance) async throws -> URL
 {
+  let voiceStr = utterance.voice ?? document.defaultVoice
   let segmentStr = String(format: "%04d", arguments: [segmentIdx])
-  let audioPath = document.audioDirectory.appendingPathComponent("audio-\(segmentStr).mp3")
+  let audioPath = document.audioDirectory.appendingPathComponent("audio-\(voiceStr)-\(segmentStr).mp3")
   let url = URL(string: "https://text-to-speech-streaming-bryle2uxwq-wl.a.run.app/")!
 
   if FileManager.default.fileExists(atPath: audioPath.path) {

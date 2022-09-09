@@ -333,11 +333,20 @@ public struct MiniPlayer: View {
     NavigationView {
       VStack {
         List {
-          ForEach(["Jenny", "Guy"], id: \.self) { name in
-            Button(action: {}) {
-              Text(name)
+          ForEach(audioSession.voiceList ?? [], id: \.key.self) { voice in
+            HStack {
+              Button(action: {
+                audioSession.currentVoice = voice.key
+              }) {
+                Text(voice.name)
+              }
+              .buttonStyle(PlainButtonStyle())
+              .frame(maxWidth: .infinity)
+
+              if voice.selected {
+                Image(systemName: "checkmark")
+              }
             }
-            .buttonStyle(PlainButtonStyle())
           }
         }
         .padding(.top, 32)
