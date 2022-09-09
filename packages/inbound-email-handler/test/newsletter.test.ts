@@ -19,7 +19,7 @@ describe('Confirmation email test', () => {
 
     it('returns true when email is from Gmail Team', () => {
       from = 'Gmail Team <forwarding-noreply@google.com>'
-      subject = `(#123456789) Gmail Forwarding Confirmation - Receive Mail from sam@omnivore.com`
+      subject = `(#123456789) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
 
       expect(isConfirmationEmail(from, subject)).to.be.true
     })
@@ -27,7 +27,7 @@ describe('Confirmation email test', () => {
     it('returns true when email is from Japan Gmail Team', () => {
       from = 'SWG チーム <forwarding-noreply@google.com>'
       subject =
-        '（#745359589）SWG の転送の確認 - miyanohara@nbi.academy からメールを受信'
+        '（#123456789）SWG の転送の確認 - test@omnivore.app からメールを受信'
 
       expect(isConfirmationEmail(from, subject)).to.be.true
     })
@@ -38,15 +38,15 @@ describe('Confirmation email test', () => {
     let subject: string
 
     it('returns the confirmation code from the email', () => {
-      code = '593781109'
-      subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from sam@omnivore.com`
+      code = '123456789'
+      subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })
 
     it('returns the confirmation code from the Google Japan email', () => {
-      code = '745359589'
-      subject = `（#${code}）SWG の転送の確認 - miyanohara@nbi.academy からメールを受信`
+      code = '123456789'
+      subject = `（#${code}）SWG の転送の確認 - test@omnivore.app からメールを受信`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })
