@@ -107,7 +107,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
         console.log('non-newsletter email from', from, 'to', to)
 
-        if (isConfirmationEmail(from)) {
+        if (isConfirmationEmail(from, subject)) {
           console.log('handleConfirmation', from)
           await handleConfirmation(to, subject)
           return res.send('ok')
