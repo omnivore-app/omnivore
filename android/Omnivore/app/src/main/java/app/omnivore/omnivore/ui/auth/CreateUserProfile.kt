@@ -51,7 +51,7 @@ fun CreateUserProfileView(viewModel: LoginViewModel) {
           username = it
           viewModel.validateUsername(it)
         },
-        onSubmit = {  } // TODO: add viewModel function
+        onSubmit = { viewModel.submitProfile(username = username, name = name) }
       )
 
       // TODO: add a activity indicator (maybe after a delay?)

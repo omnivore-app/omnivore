@@ -33,6 +33,16 @@ data class EmailLoginCredentials(
   val password: String
 )
 
+data class CreateAccountParams(
+  val pendingUserToken: String,
+  val userProfile: UserProfile
+)
+
+data class UserProfile(
+  val username: String,
+  val name: String
+)
+
 interface EmailLoginSubmit {
   @Headers("Content-Type: application/json")
   @POST("/api/mobile-auth/email-sign-in")
@@ -49,6 +59,12 @@ interface PendingUserSubmit {
   @Headers("Content-Type: application/json")
   @POST("/api/mobile-auth/sign-up")
   suspend fun submitPendingUser(@Body params: SignInParams): Response<PendingUserAuthPayload>
+}
+
+interface CreateAccountSubmit {
+  @Headers("Content-Type: application/json")
+  @POST("/api/mobile-auth/create-account")
+  suspend fun submitCreateAccount(@Body params: CreateAccountParams): Response<AuthPayload>
 }
 
 object RetrofitHelper {

@@ -49,7 +49,7 @@ class LoginViewModel @Inject constructor(
     .distinctUntilChanged()
     .asLiveData()
 
-  val registrationStateLiveData = MutableLiveData(RegistrationState.PendingUser) // TODO: switch back to Social
+  val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
 
   fun getAuthCookieString(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
@@ -126,6 +126,43 @@ class LoginViewModel @Inject constructor(
         errorMessage = "Email needs verification"
         return@launch
       }
+
+      if (result.body()?.authToken != null) {
+        datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
+      } else {
+        errorMessage = "Something went wrong. Please check your email/password and try again"
+      }
+
+      if (result.body()?.authCookieString != null) {
+        datastoreRepo.putString(
+          DatastoreKeys.omnivoreAuthCookieString, result.body()?.authCookieString!!
+        )
+      }
+    }
+  }
+
+  private fun getPendingAuthToken(): String? = runBlocking {
+    datastoreRepo.getString(DatastoreKeys.omnivorePendingUserToken)
+  }
+
+  fun submitProfile(username: String, name: String) {
+    viewModelScope.launch {
+      val request = RetrofitHelper.getInstance().create(CreateAccountSubmit::class.java)
+
+      isLoading = true
+      errorMessage = null
+
+      val pendingUserToken = getPendingAuthToken() ?: ""
+
+      val userProfile = UserProfile(name = name, username = username)
+      val params = CreateAccountParams(
+        pendingUserToken = pendingUserToken,
+        userProfile = userProfile
+      )
+
+      val result = request.submitCreateAccount(params)
+
+      isLoading = false
 
       if (result.body()?.authToken != null) {
         datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
