@@ -75,7 +75,7 @@ class SpeechPlayerItem: AVPlayerItem {
 }
 
 // swiftlint:disable all
-public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate, CachingPlayerItemDelegate {
+public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioControllerState = .stopped
   @Published public var item: LinkedItem?
 
