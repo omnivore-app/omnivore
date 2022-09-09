@@ -44,8 +44,13 @@ fun CreateUserProfileView(viewModel: LoginViewModel) {
       UserProfileFields(
         name = name,
         username = username,
+        usernameValidationErrorMessage = viewModel.usernameValidationErrorMessage,
+        showUsernameAsAvailable = viewModel.hasValidUsername,
         onNameChange = { name = it },
-        onUsernameChange = { username = it },
+        onUsernameChange = {
+          username = it
+          viewModel.validateUsername(it)
+        },
         onSubmit = {  } // TODO: add viewModel function
       )
 
@@ -70,6 +75,8 @@ fun CreateUserProfileView(viewModel: LoginViewModel) {
 fun UserProfileFields(
   name: String,
   username: String,
+  usernameValidationErrorMessage: String?,
+  showUsernameAsAvailable: Boolean, // TODO: use this to add green checkmark
   onNameChange: (String) -> Unit,
   onUsernameChange: (String) -> Unit,
   onSubmit: () -> Unit
@@ -85,15 +92,6 @@ fun UserProfileFields(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     OutlinedTextField(
-      value = username,
-      placeholder = { Text(text = "Username") },
-      label = { Text(text = "Username") },
-      onValueChange = onUsernameChange,
-      keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-      keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-    )
-
-    OutlinedTextField(
       value = name,
       placeholder = { Text(text = "Name") },
       label = { Text(text = "Name") },
@@ -102,21 +100,44 @@ fun UserProfileFields(
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 
-    Button(onClick = {
-      if (name.isNotBlank() && username.isNotBlank()) {
-        onSubmit()
-        focusManager.clearFocus()
-      } else {
-        Toast.makeText(
-          context,
-          "Please enter a valid username and password.",
-          Toast.LENGTH_SHORT
-        ).show()
+    Column(
+      verticalArrangement = Arrangement.spacedBy(5.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      OutlinedTextField(
+        value = username,
+        placeholder = { Text(text = "Username") },
+        label = { Text(text = "Username") },
+        onValueChange = onUsernameChange,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
+      )
+
+      if (usernameValidationErrorMessage != null) {
+        Text(
+          text = usernameValidationErrorMessage!!,
+          style = MaterialTheme.typography.bodyLarge,
+          color = MaterialTheme.colorScheme.error,
+        )
       }
-    }, colors = ButtonDefaults.buttonColors(
-      contentColor = Color(0xFF3D3D3D),
-      containerColor = Color(0xffffd234)
-    )
+    }
+
+    Button(
+      onClick = {
+        if (name.isNotBlank() && username.isNotBlank()) {
+          onSubmit()
+          focusManager.clearFocus()
+        } else {
+          Toast.makeText(
+            context,
+            "Please enter a valid username and password.",
+            Toast.LENGTH_SHORT
+          ).show()
+        }
+      }, colors = ButtonDefaults.buttonColors(
+        contentColor = Color(0xFF3D3D3D),
+        containerColor = Color(0xffffd234)
+      )
     ) {
       Text(
         text = "Submit",

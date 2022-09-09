@@ -5,15 +5,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
 import app.omnivore.omnivore.*
+import app.omnivore.omnivore.graphql.generated.SearchQuery
+import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-
 
 enum class RegistrationState {
   SocialLogin,
@@ -25,10 +30,18 @@ enum class RegistrationState {
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ): ViewModel() {
+  private var validateUsernameJob: Job? = null
+
   var isLoading by mutableStateOf(false)
     private set
 
   var errorMessage by mutableStateOf<String?>(null)
+    private set
+
+  var hasValidUsername by mutableStateOf<Boolean>(false)
+    private set
+
+  var usernameValidationErrorMessage by mutableStateOf<String?>(null)
     private set
 
   val hasAuthTokenLiveData: LiveData<Boolean> = datastoreRepo
@@ -36,7 +49,7 @@ class LoginViewModel @Inject constructor(
     .distinctUntilChanged()
     .asLiveData()
 
-  val registrationStateLiveData = MutableLiveData(RegistrationState.SocialLogin)
+  val registrationStateLiveData = MutableLiveData(RegistrationState.PendingUser) // TODO: switch back to Social
 
   fun getAuthCookieString(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
@@ -55,6 +68,45 @@ class LoginViewModel @Inject constructor(
       datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)
     }
     showSocialLogin()
+  }
+
+  fun validateUsername(potentialUsername: String) {
+    validateUsernameJob?.cancel()
+
+    validateUsernameJob = viewModelScope.launch {
+      delay(500)
+
+      // Check the username requirements first
+      if (potentialUsername.isEmpty()) {
+        usernameValidationErrorMessage = null
+        hasValidUsername = false
+        return@launch
+      }
+
+      if (potentialUsername.length < 4 || potentialUsername.length > 15) {
+        usernameValidationErrorMessage = "Username must be between 4 and 15 characters long."
+        hasValidUsername = false
+        return@launch
+      }
+
+      // TODO: check email regex
+
+      val apolloClient = ApolloClient.Builder()
+        .serverUrl("${Constants.apiURL}/api/graphql")
+        .build()
+
+      val response = apolloClient.query(
+        ValidateUsernameQuery(username = potentialUsername)
+      ).execute()
+
+      if (response.data?.validateUsername == true) {
+        usernameValidationErrorMessage = null
+        hasValidUsername = true
+      } else {
+        hasValidUsername = false
+        usernameValidationErrorMessage = "This username is not available."
+      }
+    }
   }
 
   fun login(email: String, password: String) {
