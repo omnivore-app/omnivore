@@ -252,6 +252,11 @@ export const htmlToSsmlItems = (
   return items
 }
 
+const stripEmojis = (text: string): string => {
+  const emojiRegex = /[\u{1F600}-\u{1F64F}]/gu
+  return text.replace(emojiRegex, '').replace(/\s+/g, ' ').trim()
+}
+
 const textToUtterance = ({
   tokenizer,
   idx,
@@ -267,7 +272,7 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = textItems.join('')
+  const text = stripEmojis(textItems.join(''))
   const plainText = isHtml ? htmlToText(text, { wordwrap: false }) : text
   const wordCount = tokenizer.tokenize(plainText).length
   return {
