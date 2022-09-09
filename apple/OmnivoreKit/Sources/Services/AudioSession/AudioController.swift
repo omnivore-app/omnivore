@@ -10,6 +10,7 @@ import CryptoKit
 import Foundation
 import MediaPlayer
 import Models
+import SwiftUI
 import Utils
 
 public enum AudioControllerState {
@@ -232,6 +233,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate,
       // within this index, but this is probably accurate enough for now.
       player?.removeAllItems()
       synthesizeFrom(start: foundIdx, playWhenReady: state == .playing)
+    }
+  }
+
+  @AppStorage(UserDefaultKey.textToSpeechPlaybackRate.rawValue) public var playbackRate = 1.0 {
+    didSet {
+      print("setting textToSpeechPlaybackRate: ", playbackRate)
     }
   }
 

@@ -248,14 +248,14 @@ public struct MiniPlayer: View {
 
           HStack {
             Menu {
-              Button("1.0×", action: {})
-              Button("1.2×", action: {})
-              Button("1.5×", action: {})
-              Button("1.7×", action: {})
-              Button("2.0×", action: {})
+              playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
+              playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
+              playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
+              playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
+              playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
             } label: {
               VStack {
-                Text("1.0×")
+                Text(String(format: "%.1f×", audioController.playbackRate))
                   .font(.appCallout)
                   .lineLimit(0)
               }
@@ -310,6 +310,22 @@ public struct MiniPlayer: View {
         changeVoiceView
       }
     }
+  }
+
+  func playbackRateButton(rate: Double, title: String, selected: Bool) -> some View {
+    Button(action: {
+      audioController.playbackRate = rate
+    }) {
+      HStack {
+        Text(title)
+        Spacer()
+        if selected {
+          Image(systemName: "checkmark")
+        }
+      }
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(PlainButtonStyle())
   }
 
   public var body: some View {
