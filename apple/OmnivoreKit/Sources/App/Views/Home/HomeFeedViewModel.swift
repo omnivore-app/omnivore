@@ -29,8 +29,6 @@ import Views
   @Published var selectedItem: LinkedItem?
   @Published var linkIsActive = false
 
-  @AppStorage(UserDefaultKey.audioInfoAlertShown.rawValue) var showAudioInfoAlert = false
-
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
   @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
@@ -146,11 +144,6 @@ import Views
 
     isLoading = false
     showLoadingBar = false
-  }
-
-  func dismissAudioInfoAlert() {
-    UserDefaults.standard.set(true, forKey: UserDefaultKey.audioInfoAlertShown.rawValue)
-    showAudioInfoAlert = false
   }
 
   func downloadAudio(audioController: AudioController, item: LinkedItem) {
