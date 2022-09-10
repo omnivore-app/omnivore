@@ -3,9 +3,11 @@ package app.omnivore.omnivore.ui.auth
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
@@ -108,7 +110,7 @@ fun EmailSignUpFields(
   Column(
     modifier = Modifier
       .fillMaxWidth()
-      .height(300.dp),
+      .verticalScroll(rememberScrollState()),
     verticalArrangement = Arrangement.spacedBy(25.dp),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
