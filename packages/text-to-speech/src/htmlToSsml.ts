@@ -273,7 +273,7 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = textItems.join('')
+  const text = stripEmojis(textItems.join(''))
   let textWithWordOffset = text
   if (isHtml) {
     try {
