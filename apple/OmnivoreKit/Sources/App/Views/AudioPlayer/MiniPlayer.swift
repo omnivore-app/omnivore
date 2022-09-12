@@ -249,6 +249,7 @@ public struct MiniPlayer: View {
           HStack {
             Menu {
               playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
+              playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
               playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
               playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
               playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
