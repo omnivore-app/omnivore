@@ -33,6 +33,19 @@ public struct MiniPlayer: View {
     audioController.item != nil && audioController.state != .stopped
   }
 
+  var playPauseButtonImage: String {
+    switch audioController.state {
+    case .playing:
+      return "pause.circle"
+    case .paused:
+      return "play.circle"
+    case .reachedEnd:
+      return "gobackward"
+    default:
+      return ""
+    }
+  }
+
   var playPauseButtonItem: some View {
     if let item = audioController.item, audioController.isLoadingItem(item: item) {
       return AnyView(ProgressView())
@@ -44,12 +57,15 @@ public struct MiniPlayer: View {
             _ = audioController.pause()
           case .paused:
             _ = audioController.unpause()
+          case .reachedEnd:
+            audioController.seek(to: 0.0)
+            audioController.unpause()
           default:
             break
           }
         },
         label: {
-          Image(systemName: audioController.state == .playing ? "pause.circle" : "play.circle")
+          Image(systemName: playPauseButtonImage)
             .font(expanded ? .system(size: 64.0, weight: .thin) : .appTitleTwo)
         }
       ))

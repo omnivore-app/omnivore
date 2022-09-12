@@ -18,6 +18,7 @@ public enum AudioControllerState {
   case paused
   case loading
   case playing
+  case reachedEnd
 }
 
 public enum PlayerScrubState {
@@ -53,12 +54,14 @@ let VOICES = [
 class SpeechPlayerItem: AVPlayerItem {
   let session: AudioController
   let speechItem: SpeechItem
+  let completed: () -> Void
 
   var observer: Any?
 
-  init(session: AudioController, speechItem: SpeechItem, url: URL) {
+  init(session: AudioController, speechItem: SpeechItem, url: URL, completed: @escaping () -> Void) {
     self.session = session
     self.speechItem = speechItem
+    self.completed = completed
 
     let asset = AVAsset(url: url)
     super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
@@ -66,6 +69,10 @@ class SpeechPlayerItem: AVPlayerItem {
 
     self.observer = observe(\.status, options: [.new]) { item, _ in
       item.session.updateDuration(forItem: item.speechItem, newDuration: CMTimeGetSeconds(item.duration))
+    }
+
+    NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self, queue: OperationQueue.main) { _ in
+      self.completed()
     }
   }
 }
@@ -265,7 +272,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
-    (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown) && self.item == item
+    if state == .reachedEnd {
+      return false
+    }
+    return self.item == item && (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
   }
 
   public func isPlayingItem(item: LinkedItem) -> Bool {
@@ -332,7 +342,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if let synthesizer = synthesizer {
         for await speechItem in synthesizer.fetch(from: start) {
           DispatchQueue.main.async {
-            let item = SpeechPlayerItem(session: self, speechItem: speechItem, url: speechItem.audioURL)
+            let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
+            let item = SpeechPlayerItem(session: self, speechItem: speechItem, url: speechItem.audioURL) {
+              // Pause player when we complete the final item.
+              if isLast {
+                self.player?.pause()
+                self.state = .reachedEnd
+              }
+            }
             self.player?.insert(item, after: nil)
 
             if playWhenReady, self.player?.items().count == 1 {
@@ -400,7 +417,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if player.items().count == 1, let currentTime = player.currentItem?.currentTime(), let duration = player.currentItem?.duration {
         if currentTime >= duration {
           pause()
-          seek(to: 0)
+          state = .reachedEnd
         }
       }
 
