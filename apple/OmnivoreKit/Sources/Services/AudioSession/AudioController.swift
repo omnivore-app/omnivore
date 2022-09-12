@@ -44,9 +44,9 @@ let VOICES = [
   VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora (USA)", secondName: "Christopher (USA)"),
   VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth (USA)", secondName: "Eric (USA)"),
   VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara (Canada)", secondName: "Liam (Canada)"),
-  VoicePair(firstKey: "en-UK-LibbyNeural", secondKey: "en-UK-EthanNeural", firstName: "Libby (UK)", secondName: "Ethan (UK)"),
+  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby (UK)", secondName: "Ethan (UK)"),
   VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha (Australia)", secondName: "William (Australia)"),
-  VoicePair(firstKey: "en-ID-NeerjaNeural", secondKey: "en-ID-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)"),
+  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)"),
   VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna (Singapore)", secondName: "Wayne (Singapore)")
 ]
 
@@ -223,7 +223,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   private func downloadAndPlayFrom(_ currentIdx: Int, _ currentOffset: Double) {
+    let desiredState = state
+
+    pause()
     playbackTask?.cancel()
+    document = nil
+    synthesizer = nil
 
     if let pageId = item?.id {
       Task {
@@ -232,6 +237,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
           let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: self.document!)
           self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
           self.synthesizer = synthesizer
+
+          self.state = desiredState
           self.synthesizeFrom(start: currentIdx, playWhenReady: self.state == .playing, atOffset: currentOffset)
         }
       }
@@ -258,7 +265,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
-    (state == .loading || player?.currentItem?.status == .unknown) && self.item == item
+    (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown) && self.item == item
   }
 
   public func isPlayingItem(item: LinkedItem) -> Bool {

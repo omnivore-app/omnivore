@@ -353,6 +353,7 @@ public struct MiniPlayer: View {
           ForEach(audioController.voiceList ?? [], id: \.key.self) { voice in
             Button(action: {
               audioController.currentVoice = voice.key
+              self.showVoiceSheet = false
             }) {
               HStack {
                 Text(voice.name)
