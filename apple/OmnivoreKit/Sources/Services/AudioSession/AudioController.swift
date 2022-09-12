@@ -200,7 +200,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   @AppStorage(UserDefaultKey.textToSpeechPlaybackRate.rawValue) public var playbackRate = 1.0 {
     didSet {
-      print("setting textToSpeechPlaybackRate: ", playbackRate)
+      updateDurations(oldPlayback: oldValue, newPlayback: playbackRate)
+      unpause()
+      fireTimer()
     }
   }
 
@@ -221,6 +223,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
     return "en-US-EricNeural"
+  }
+
+  private func updateDurations(oldPlayback: Double, newPlayback: Double) {
+    if let oldDurations = durations {
+      durations = oldDurations.map { $0 * oldPlayback / newPlayback }
+    }
   }
 
   public func isLoadingItem(item: LinkedItem) -> Bool {
