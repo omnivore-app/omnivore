@@ -531,7 +531,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument {
+  func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
     let decoder = JSONDecoder()
     let speechFileUrl = pathForSpeechFile(itemID: itemID)
 
@@ -569,14 +569,16 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     let str = String(decoding: data, as: UTF8.self)
     print("result speech file: ", str)
 
-    let document = try! JSONDecoder().decode(SpeechDocument.self, from: data)
+    let document = try? JSONDecoder().decode(SpeechDocument.self, from: data)
 
-    // Cache the file
-    do {
-      try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
-      try data.write(to: speechFileUrl)
-    } catch {
-      print("error writing file", error)
+    // Cache the file - if it exists
+    if let document = document {
+      do {
+        try? FileManager.default.createDirectory(at: document.audioDirectory, withIntermediateDirectories: true)
+        try data.write(to: speechFileUrl)
+      } catch {
+        print("error writing file", error)
+      }
     }
 
     return document
