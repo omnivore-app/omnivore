@@ -69,6 +69,10 @@ class LoginViewModel @Inject constructor(
     registrationStateLiveData.value = RegistrationState.EmailSignUp
   }
 
+  fun showForgotPasswordView() {
+    // TODO: show webview
+  }
+
   fun cancelNewUserSignUp() {
     viewModelScope.launch {
       datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)

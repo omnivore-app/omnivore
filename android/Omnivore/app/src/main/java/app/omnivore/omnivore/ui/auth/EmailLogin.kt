@@ -1,6 +1,10 @@
 package app.omnivore.omnivore.ui.auth
 
 import android.annotation.SuppressLint
+import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
@@ -21,6 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -49,19 +54,30 @@ fun EmailLoginView(viewModel: LoginViewModel) {
         Text("Loading...")
       }
 
-      ClickableText(
-        text = AnnotatedString("Return to Social Login"),
-        style = MaterialTheme.typography.titleMedium
-          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { viewModel.showSocialLogin() }
-      )
+      Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+      ) {
+        ClickableText(
+          text = AnnotatedString("Return to Social Login"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showSocialLogin() }
+        )
 
-      ClickableText(
-        text = AnnotatedString("Don't have an account?"),
-        style = MaterialTheme.typography.titleMedium
-          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { viewModel.showEmailSignUp() }
-      )
+        ClickableText(
+          text = AnnotatedString("Don't have an account?"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showEmailSignUp() }
+        )
+
+        ClickableText(
+          text = AnnotatedString("Forgot your password?"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showForgotPasswordView() }
+        )
+      }
     }
     Spacer(modifier = Modifier.weight(1.0F))
   }

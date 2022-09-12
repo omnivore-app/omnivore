@@ -71,19 +71,23 @@ fun EmailSignUpView(viewModel: LoginViewModel) {
         Text("Loading...")
       }
 
-      ClickableText(
-        text = AnnotatedString("Return to Social Login"),
-        style = MaterialTheme.typography.titleMedium
-          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { viewModel.showSocialLogin() }
-      )
+      Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+      ) {
+        ClickableText(
+          text = AnnotatedString("Return to Social Login"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showSocialLogin() }
+        )
 
-      ClickableText(
-        text = AnnotatedString("Already have an account?"),
-        style = MaterialTheme.typography.titleMedium
-          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { viewModel.showEmailSignIn() }
-      )
+        ClickableText(
+          text = AnnotatedString("Already have an account?"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showEmailSignIn() }
+        )
+      }
     }
     Spacer(modifier = Modifier.weight(1.0F))
   }
