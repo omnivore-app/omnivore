@@ -15,7 +15,7 @@ struct UtteranceRequest: Codable {
   let text: String
   let voice: String
   let language: String
-  let rate: Double
+  let rate: String
 }
 
 struct Utterance: Decodable {
@@ -26,7 +26,7 @@ struct Utterance: Decodable {
   public let wordCount: Double
 
   func toSSML(document: SpeechDocument) throws -> Data? {
-    let request = UtteranceRequest(text: text, voice: voice ?? document.defaultVoice, language: document.language, rate: 1.1)
+    let request = UtteranceRequest(text: text, voice: voice ?? document.defaultVoice, language: document.language, rate: "1.1")
     return try JSONEncoder().encode(request)
   }
 }
