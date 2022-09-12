@@ -30,7 +30,7 @@ public struct MiniPlayer: View {
   }
 
   var isPresented: Bool {
-    audioController.item != nil && audioController.state != .stopped
+    audioController.itemAudioProperties != nil && audioController.state != .stopped
   }
 
   var playPauseButtonImage: String {
@@ -47,16 +47,16 @@ public struct MiniPlayer: View {
   }
 
   var playPauseButtonItem: some View {
-    if let item = audioController.item, audioController.isLoadingItem(item: item) {
+    if let itemID = audioController.itemAudioProperties?.itemID, audioController.isLoadingItem(itemID: itemID) {
       return AnyView(ProgressView())
     } else {
       return AnyView(Button(
         action: {
           switch audioController.state {
           case .playing:
-            _ = audioController.pause()
+            audioController.pause()
           case .paused:
-            _ = audioController.unpause()
+            audioController.unpause()
           case .reachedEnd:
             audioController.seek(to: 0.0)
             audioController.unpause()
@@ -120,8 +120,8 @@ public struct MiniPlayer: View {
   }
 
   func viewArticle() {
-    if let item = audioController.item {
-      NSNotification.pushReaderItem(objectID: item.objectID)
+    if let objectID = audioController.itemAudioProperties?.objectID {
+      NSNotification.pushReaderItem(objectID: objectID)
       withAnimation(.easeIn(duration: 0.1)) {
         expanded = false
       }
@@ -129,7 +129,7 @@ public struct MiniPlayer: View {
   }
 
   // swiftlint:disable:next function_body_length
-  func playerContent(_ item: LinkedItem) -> some View {
+  func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
       VStack {
         if expanded {
@@ -156,7 +156,7 @@ public struct MiniPlayer: View {
           let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
           let dim = expanded ? maxSize : 64
 
-          AsyncImage(url: item.imageURL) { image in
+          AsyncImage(url: itemAudioProperties.imageURL) { image in
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
@@ -169,7 +169,7 @@ public struct MiniPlayer: View {
           }
 
           if !expanded {
-            Text(item.unwrappedTitle)
+            Text(itemAudioProperties.title)
               .font(expanded ? .appTitle : .appCallout)
               .lineSpacing(1.25)
               .foregroundColor(.appGrayTextContrast)
@@ -188,7 +188,7 @@ public struct MiniPlayer: View {
         Spacer()
 
         if expanded {
-          Text(item.unwrappedTitle)
+          Text(itemAudioProperties.title)
             .lineLimit(1)
             .font(expanded ? .appTitle : .appCallout)
             .lineSpacing(1.25)
@@ -201,7 +201,7 @@ public struct MiniPlayer: View {
 
           HStack {
             Spacer()
-            if let author = item.author {
+            if let author = itemAudioProperties.author {
               Text(author)
                 .lineLimit(1)
                 .font(.appCallout)
@@ -209,14 +209,14 @@ public struct MiniPlayer: View {
                 .foregroundColor(.appGrayText)
                 .frame(alignment: .trailing)
             }
-            if item.author != nil, item.siteName != nil {
+            if itemAudioProperties.author != nil, itemAudioProperties.siteName != nil {
               Text(" • ")
                 .font(.appCallout)
                 .lineSpacing(1.25)
                 .foregroundColor(.appGrayText)
             }
-            if let site = item.siteName {
-              Text(site)
+            if let siteName = itemAudioProperties.siteName {
+              Text(siteName)
                 .lineLimit(1)
                 .font(.appCallout)
                 .lineSpacing(1.25)
@@ -350,8 +350,8 @@ public struct MiniPlayer: View {
       presentingView
       VStack {
         Spacer(minLength: 0)
-        if let item = self.audioController.item, isPresented {
-          playerContent(item)
+        if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
+          playerContent(itemAudioProperties)
             .offset(y: offset)
             .frame(maxHeight: expanded ? .infinity : 88)
             .tint(.appGrayTextContrast)

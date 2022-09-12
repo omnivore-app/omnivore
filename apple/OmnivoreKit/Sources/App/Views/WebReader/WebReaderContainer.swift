@@ -57,7 +57,7 @@ struct WebReaderContainerView: View {
   }
 
   var audioNavbarItem: some View {
-    if audioController.isLoadingItem(item: item) {
+    if audioController.isLoadingItem(itemID: item.unwrappedID) {
       return AnyView(ProgressView()
         .padding(.horizontal)
         .scaleEffect(navBarVisibilityRatio))
@@ -66,23 +66,23 @@ struct WebReaderContainerView: View {
         action: {
           switch audioController.state {
           case .playing:
-            if audioController.item == self.item {
+            if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
               audioController.pause()
               return
             }
             fallthrough
           case .paused:
-            if audioController.item == self.item {
+            if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
               audioController.unpause()
               return
             }
             fallthrough
           default:
-            audioController.play(item: self.item)
+            audioController.play(itemAudioProperties: item.audioProperties)
           }
         },
         label: {
-          Image(systemName: audioController.isPlayingItem(item: item) ? "pause.circle" : "play.circle")
+          Image(systemName: audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle")
             .font(.appTitleTwo)
         }
       )

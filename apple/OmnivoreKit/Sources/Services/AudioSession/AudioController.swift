@@ -80,7 +80,7 @@ class SpeechPlayerItem: AVPlayerItem {
 // swiftlint:disable all
 public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioControllerState = .stopped
-  @Published public var item: LinkedItem?
+  @Published public var itemAudioProperties: LinkedItemAudioProperties?
 
   @Published public var timeElapsed: TimeInterval = 0
   @Published public var duration: TimeInterval = 0
@@ -107,10 +107,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     self.voiceList = generateVoiceList()
   }
 
-  public func play(item: LinkedItem) {
+  public func play(itemAudioProperties: LinkedItemAudioProperties) {
     stop()
 
-    self.item = item
+    self.itemAudioProperties = itemAudioProperties
     startAudio()
   }
 
@@ -128,7 +128,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player = nil
     synthesizer = nil
 
-    item = nil
+    itemAudioProperties = nil
     state = .stopped
     timeElapsed = 0
     duration = 1
@@ -145,9 +145,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
-    for pageId in itemIDs {
-      print("preloading speech file: ", pageId)
-      _ = try? await downloadSpeechFile(pageId: pageId, priority: .low)
+    for itemID in itemIDs {
+      print("preloading speech file: ", itemID)
+      _ = try? await downloadSpeechFile(itemID: itemID, priority: .low)
     }
     return true
   }
@@ -246,9 +246,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     document = nil
     synthesizer = nil
 
-    if let pageId = item?.id {
+    if let itemID = itemAudioProperties?.itemID {
       Task {
-        self.document = try? await downloadSpeechFile(pageId: pageId, priority: .high)
+        self.document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
         DispatchQueue.main.async {
           let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: self.document!)
           self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
@@ -280,15 +280,17 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  public func isLoadingItem(item: LinkedItem) -> Bool {
+  public func isLoadingItem(itemID: String) -> Bool {
     if state == .reachedEnd {
       return false
     }
-    return self.item == item && (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
+    return
+      itemAudioProperties?.itemID == itemID &&
+      (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
   }
 
-  public func isPlayingItem(item: LinkedItem) -> Bool {
-    state == .playing && self.item == item
+  public func isPlayingItem(itemID: String) -> Bool {
+    state == .playing && itemAudioProperties?.itemID == itemID
   }
 
   public func skipForward(seconds: Double) {
@@ -299,18 +301,18 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     seek(to: timeElapsed - seconds)
   }
 
-  public func fileNameForAudioFile(_ pageId: String) -> String {
-    pageId + "-" + currentVoice + ".mp3"
+  public func fileNameForAudioFile(_ itemID: String) -> String {
+    itemID + "-" + currentVoice + ".mp3"
   }
 
-  public func pathForAudioDirectory(pageId: String) -> URL {
+  public func pathForAudioDirectory(itemID: String) -> URL {
     FileManager.default
       .urls(for: .documentDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent("audio-\(pageId)/")
+      .appendingPathComponent("audio-\(itemID)/")
   }
 
-  public func pathForSpeechFile(pageId: String) -> URL {
-    pathForAudioDirectory(pageId: pageId)
+  public func pathForSpeechFile(itemID: String) -> URL {
+    pathForAudioDirectory(itemID: itemID)
       .appendingPathComponent("speech-\(currentVoice).json")
   }
 
@@ -318,18 +320,18 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     state = .loading
     setupNotifications()
 
-    if let pageId = item?.id {
+    if let itemID = itemAudioProperties?.itemID {
       Task {
-        self.document = try? await downloadSpeechFile(pageId: pageId, priority: .high)
+        self.document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
         DispatchQueue.main.async {
-          self.startStreamingAudio(pageId: pageId)
+          self.startStreamingAudio(itemID: itemID)
         }
       }
     }
   }
 
   // swiftlint:disable all
-  private func startStreamingAudio(pageId _: String) {
+  private func startStreamingAudio(itemID _: String) {
     do {
       try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
     } catch {
@@ -457,7 +459,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
 
-    if let item = self.item, let speechItem = player?.currentItem as? SpeechPlayerItem {
+//    if let item = self.item, let speechItem = player?.currentItem as? SpeechPlayerItem {
 //      NotificationCenter.default.post(
 //        name: NSNotification.SpeakingReaderItem,
 //        object: nil,
@@ -466,7 +468,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 //          "anchorIdx": String(speechItem.speechItem.htmlIdx)
 //        ]
 //      )
-    }
+//    }
   }
 
   func clearNowPlayingInfo() {
@@ -476,10 +478,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   func setupRemoteControl() {
     UIApplication.shared.beginReceivingRemoteControlEvents()
 
-    if let item = item {
+    if let itemAudioProperties = itemAudioProperties {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [
-        MPMediaItemPropertyTitle: NSString(string: item.title ?? "Your Omnivore Article"),
-        MPMediaItemPropertyArtist: NSString(string: item.author ?? "Omnivore"),
+        MPMediaItemPropertyTitle: NSString(string: itemAudioProperties.title),
+        MPMediaItemPropertyArtist: NSString(string: itemAudioProperties.author ?? "Omnivore"),
         MPMediaItemPropertyPlaybackDuration: NSNumber(value: duration),
         MPNowPlayingInfoPropertyElapsedPlaybackTime: NSNumber(value: timeElapsed)
       ]
@@ -529,9 +531,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  func downloadSpeechFile(pageId: String, priority: DownloadPriority) async throws -> SpeechDocument {
+  func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument {
     let decoder = JSONDecoder()
-    let speechFileUrl = pathForSpeechFile(pageId: pageId)
+    let speechFileUrl = pathForSpeechFile(itemID: itemID)
 
     if FileManager.default.fileExists(atPath: speechFileUrl.path) {
       print("SPEECH FILE ALREADY EXISTS: ", speechFileUrl.path)
@@ -543,7 +545,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
 
-    let path = "/api/article/\(pageId)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)"
+    let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)"
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }
