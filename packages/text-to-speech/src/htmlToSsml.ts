@@ -273,9 +273,19 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = textItems.join('')
-  const plainText = isHtml ? htmlToText(text, { wordwrap: false }) : text
-  const wordCount = tokenizer.tokenize(plainText).length
+  const text = stripEmojis(textItems.join(''))
+  let textWithWordOffset = text
+  if (isHtml) {
+    try {
+      textWithWordOffset = htmlToText(text, { wordwrap: false })
+    } catch (err) {
+      console.error('Unable to convert HTML to text', { text, err })
+      textWithWordOffset =
+        parseHTML(text).document.documentElement.textContent ?? text
+      console.debug('Converted HTML to text', { textWithWordOffset })
+    }
+  }
+  const wordCount = tokenizer.tokenize(textWithWordOffset).length
   return {
     idx,
     text,
