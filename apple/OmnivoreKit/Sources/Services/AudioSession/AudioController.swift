@@ -209,6 +209,32 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @AppStorage(UserDefaultKey.textToSpeechCurrentVoice.rawValue) public var currentVoice = "en-US-JennyNeural" {
     didSet {
       voiceList = generateVoiceList()
+
+      var currentIdx = 0
+      var currentOffset = 0.0
+      if let player = self.player, let item = self.player?.currentItem as? SpeechPlayerItem {
+        currentIdx = item.speechItem.audioIdx
+        currentOffset = CMTimeGetSeconds(player.currentTime())
+      }
+      player?.removeAllItems()
+
+      downloadAndPlayFrom(currentIdx, currentOffset)
+    }
+  }
+
+  private func downloadAndPlayFrom(_ currentIdx: Int, _ currentOffset: Double) {
+    playbackTask?.cancel()
+
+    if let pageId = item?.id {
+      Task {
+        self.document = try? await downloadSpeechFile(pageId: pageId, priority: .high)
+        DispatchQueue.main.async {
+          let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: self.document!)
+          self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
+          self.synthesizer = synthesizer
+          self.synthesizeFrom(start: currentIdx, playWhenReady: self.state == .playing, atOffset: currentOffset)
+        }
+      }
     }
   }
 
