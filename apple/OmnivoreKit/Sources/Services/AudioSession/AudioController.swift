@@ -160,7 +160,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   func updateDuration(forItem item: SpeechItem, newDuration: TimeInterval) {
     if let durations = self.durations, item.audioIdx < durations.count {
-      self.durations?[item.audioIdx] = newDuration
+      self.durations?[item.audioIdx] = (newDuration / playbackRate)
     }
   }
 
@@ -280,7 +280,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     player = AVQueuePlayer(items: [])
     let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document!)
-    durations = synthesizer.estimatedDurations(forSpeed: 1.0)
+    durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
     self.synthesizer = synthesizer
 
     synthesizeFrom(start: 0, playWhenReady: true)
@@ -297,8 +297,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
             // TODO: in here we need to supply an offset into the playeritem when seeking
             if playWhenReady, self.player?.items().count == 1 {
               self.startTimer()
-              self.player?.play()
-              self.state = .playing
+              self.unpause()
               self.setupRemoteControl()
               self.fireTimer()
             }
@@ -317,7 +316,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   public func unpause() {
     if let player = player {
-      player.play()
+      player.rate = Float(playbackRate)
       state = .playing
     }
   }
