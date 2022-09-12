@@ -171,9 +171,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  public func seek(to position: TimeInterval) {
-    // First find the item that this interval is within
+  public func seek(to: TimeInterval) {
+    let position = max(0, to)
 
+    // First find the item that this interval is within
     // Not the most effecient, but these lists should be less than 500 items
     var sum = 0.0
     var foundIdx: Int?
@@ -202,6 +203,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       // within this index, but this is probably accurate enough for now.
       player?.removeAllItems()
       synthesizeFrom(start: foundIdx, playWhenReady: state == .playing, atOffset: remainder)
+      return
+    } else {
+      // There was no foundIdx, so we are probably trying to seek past the end, so
+      // just seek to the last possible duration.
+      if let durations = self.durations, let last = durations.last {
+        player?.removeAllItems()
+        synthesizeFrom(start: durations.count - 1, playWhenReady: state == .playing, atOffset: last)
+      }
     }
   }
 
@@ -401,7 +410,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   func startTimer() {
     if timer == nil {
       // Update every 100ms
-      timer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
+      timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
       timer?.fire()
     }
   }
