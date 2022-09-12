@@ -194,7 +194,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       // Move the playback to the found index, we should also seek a bit
       // within this index, but this is probably accurate enough for now.
       player?.removeAllItems()
-      synthesizeFrom(start: foundIdx, playWhenReady: state == .playing)
+      synthesizeFrom(start: foundIdx, playWhenReady: state == .playing, atOffset: remainder)
     }
   }
 
@@ -294,7 +294,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     synthesizeFrom(start: 0, playWhenReady: true)
   }
 
-  func synthesizeFrom(start: Int, playWhenReady: Bool) {
+  func synthesizeFrom(start: Int, playWhenReady: Bool, atOffset: Double = 0.0) {
     playbackTask = Task {
       if let synthesizer = synthesizer {
         for await speechItem in synthesizer.fetch(from: start) {
@@ -302,12 +302,16 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
             let item = SpeechPlayerItem(session: self, speechItem: speechItem, url: speechItem.audioURL)
             self.player?.insert(item, after: nil)
 
-            // TODO: in here we need to supply an offset into the playeritem when seeking
             if playWhenReady, self.player?.items().count == 1 {
+              if atOffset > 0.0 {
+                item.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
+                  print("success seeking to time: ", success)
+                  self.fireTimer()
+                }
+              }
               self.startTimer()
               self.unpause()
               self.setupRemoteControl()
-              self.fireTimer()
             }
           }
         }
@@ -373,10 +377,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
 
-    if let player = player, player.rate != 0 {
+    if let player = player {
       switch scrubState {
       case .reset:
-        if let playerItem = self.player?.currentItem as? SpeechPlayerItem {
+        if let playerItem = player.currentItem as? SpeechPlayerItem {
           let itemElapsed = playerItem.status == .readyToPlay ? CMTimeGetSeconds(playerItem.currentTime()) : 0
           timeElapsed = durationBefore(playerIndex: playerItem.speechItem.audioIdx) + itemElapsed
           timeElapsedString = formatTimeInterval(timeElapsed)
