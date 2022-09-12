@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Clock, Sliders, X } from 'phosphor-react'
 import Downshift from 'downshift'
 
-import { HStack, VStack } from './../../elements/LayoutPrimitives'
+import { HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { FormInput } from '../../elements/FormElements'
 import { Button } from '../../elements/Button'
 import { styled, theme } from '../../tokens/stitches.config'
@@ -11,6 +11,7 @@ import { SearchCoordinator } from './LibraryContainer'
 // Styles
 
 const List = styled('ul', {
+  width: '91%',
   top: '65px',
   left: '-32px',
   color: 'var(--colors-utilityTextDefault)',
@@ -24,13 +25,16 @@ const List = styled('ul', {
 
 const Item = styled('li', {
   listStyleType: 'none',
-  p: '8px 8px 8px 35px',
+  p: '8px',
   borderRadius: '5px',
   textOverflow: 'ellipsis',
-  borderBottom: '1px solid $grayBorder',
+
   display: 'flex',
   justifyContent: 'flex-start',
   alignItems: 'center',
+  '& svg': {
+    marginRight: '10px',
+  },
 })
 
 export type LibrarySearchBarProps = {
@@ -173,30 +177,36 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                         (item) => !inputValue || item.includes(inputValue)
                       )
                       .map((item, index) => (
-                        <>
-                        
-                          <Item
-                            {...getItemProps({
-                              style: {
-                                backgroundColor:
-                                  index === highlightedIndex
-                                    ? 'var(--colors-grayBg)'
-                                    : 'transparent',
-                              },
-                              item,
-                              index,
-                            })}
-                            key={item}
-                          >
+                        <SpanBox
+                          {...getItemProps({
+                            item,
+                            index,
+                          })}
+                          key={item}
+                          css={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            borderBottom: '1px solid $grayBorder',
+                            '& svg': {
+                              margin: '10px',
+                            },
+                            backgroundColor:
+                              index === highlightedIndex
+                                ? 'var(--colors-grayBg)'
+                                : 'transparent',
+                          }}
+                        >
+                          <Item>
                             <Clock size={20} />
                             {item}
                           </Item>
                           <X
-                              width={20}
-                              height={20}
-                              color={theme.colors.grayTextContrast.toString()}
-                            />
-                        </>
+                            width={20}
+                            height={20}
+                            color={theme.colors.grayTextContrast.toString()}
+                          />
+                        </SpanBox>
                       ))}
                 </List>
               </form>
