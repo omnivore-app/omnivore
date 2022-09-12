@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Sliders, X } from 'phosphor-react'
+import { Clock, Sliders, X } from 'phosphor-react'
 import Downshift from 'downshift'
 
 import { HStack, VStack } from './../../elements/LayoutPrimitives'
@@ -11,7 +11,6 @@ import { SearchCoordinator } from './LibraryContainer'
 // Styles
 
 const List = styled('ul', {
-  width: '95%',
   top: '65px',
   left: '-32px',
   color: 'var(--colors-utilityTextDefault)',
@@ -28,6 +27,10 @@ const Item = styled('li', {
   p: '8px 8px 8px 35px',
   borderRadius: '5px',
   textOverflow: 'ellipsis',
+  borderBottom: '1px solid $grayBorder',
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
 })
 
 export type LibrarySearchBarProps = {
@@ -84,7 +87,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
               >
                 <FormInput
                   css={{
-                    width: '80%',
+                    width: '77%',
                     height: '80px',
                     fontSize: '24px',
                     fontFamily: 'Inter',
@@ -170,21 +173,30 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                         (item) => !inputValue || item.includes(inputValue)
                       )
                       .map((item, index) => (
-                        <Item
-                          {...getItemProps({
-                            style: {
-                              backgroundColor:
-                                index === highlightedIndex
-                                  ? 'var(--colors-grayBg)'
-                                  : 'transparent',
-                            },
-                            item,
-                            index,
-                          })}
-                          key={item}
-                        >
-                          {item}
-                        </Item>
+                        <>
+                        
+                          <Item
+                            {...getItemProps({
+                              style: {
+                                backgroundColor:
+                                  index === highlightedIndex
+                                    ? 'var(--colors-grayBg)'
+                                    : 'transparent',
+                              },
+                              item,
+                              index,
+                            })}
+                            key={item}
+                          >
+                            <Clock size={20} />
+                            {item}
+                          </Item>
+                          <X
+                              width={20}
+                              height={20}
+                              color={theme.colors.grayTextContrast.toString()}
+                            />
+                        </>
                       ))}
                 </List>
               </form>
