@@ -46,7 +46,8 @@ let VOICES = [
   VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara (Canada)", secondName: "Liam (Canada)"),
   VoicePair(firstKey: "en-UK-LibbyNeural", secondKey: "en-UK-EthanNeural", firstName: "Libby (UK)", secondName: "Ethan (UK)"),
   VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha (Australia)", secondName: "William (Australia)"),
-  VoicePair(firstKey: "en-ID-NeerjaNeural", secondKey: "en-ID-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)")
+  VoicePair(firstKey: "en-ID-NeerjaNeural", secondKey: "en-ID-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)"),
+  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna (Singapore)", secondName: "Wayne (Singapore)")
 ]
 
 class SpeechPlayerItem: AVPlayerItem {
@@ -133,7 +134,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         (name: voicePair.firstName, key: voicePair.firstKey, selected: voicePair.firstKey == currentVoice),
         (name: voicePair.secondName, key: voicePair.secondKey, selected: voicePair.secondKey == currentVoice)
       ]
-    }
+    }.sorted { $0.name.lowercased() < $1.name.lowercased() }
   }
 
   public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
