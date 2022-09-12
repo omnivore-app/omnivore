@@ -88,6 +88,7 @@ import Utils
           }
           .onShouldShowMenuItemsForSelectedText(perform: { pageView, menuItems, selectedText in
             let copy = menuItems.first(where: { $0.identifier == "Copy" })
+            let define = menuItems.first(where: { $0.identifier == "Define" })
             let highlight = MenuItem(title: "Highlight", block: {
               _ = coordinator.highlightSelection(
                 pageView: pageView,
@@ -101,7 +102,8 @@ import Utils
 //              shareLink = ShareLink(id: UUID(), url: shareURL)
 //            }
 //          })
-            return [copy, highlight /* , share */ ].compactMap { $0 }
+            define?.title = "Lookup"
+            return [copy, highlight, define].compactMap { $0 }
           })
           .onShouldShowMenuItemsForSelectedAnnotations(perform: { _, menuItems, annotations in
             var result = [MenuItem]()
