@@ -476,7 +476,7 @@ export const functionResolvers = {
       )
     },
     image(article: { image?: string }): string | undefined {
-      return article.image && createImageProxyUrl(article.image, 88, 88)
+      return article.image && createImageProxyUrl(article.image, 260, 260)
     },
   },
   ArticleSavingRequest: {
