@@ -258,6 +258,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     if let itemID = itemAudioProperties?.itemID {
       Task {
         self.document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+
         DispatchQueue.main.async {
           let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: self.document!)
           self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
@@ -484,6 +485,26 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     MPNowPlayingInfoCenter.default().nowPlayingInfo = [:]
   }
 
+  func downloadAndSetArtwork() async {
+    if let pageId = itemAudioProperties?.itemID, let imageURL = itemAudioProperties?.imageURL {
+      if let result = try? await URLSession.shared.data(from: imageURL) {
+        if let downloadedImage = UIImage(data: result.0) {
+          let artwork = MPMediaItemArtwork(boundsSize: downloadedImage.size, requestHandler: { _ -> UIImage in
+            downloadedImage
+          })
+          DispatchQueue.main.async {
+            if pageId == self.itemAudioProperties?.itemID {
+              if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+                nowPlaying[MPMediaItemPropertyArtwork] = artwork
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   func setupRemoteControl() {
     UIApplication.shared.beginReceivingRemoteControlEvents()
 
@@ -537,6 +558,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         return .success
       }
       return .commandFailed
+    }
+
+    Task {
+      await downloadAndSetArtwork()
     }
   }
 
