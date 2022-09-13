@@ -12,13 +12,13 @@ import Views
 
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioController: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioSession: audioSession, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
     }
 
     var body: some View {
@@ -230,7 +230,7 @@ import Views
 
   struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioController: AudioController
 
     @Binding var prefersListLayout: Bool
 
@@ -293,7 +293,7 @@ import Views
                   }
                 }
                 Button(
-                  action: { viewModel.downloadAudio(audioSession: audioSession, item: item) },
+                  action: { viewModel.downloadAudio(audioController: audioController, item: item) },
                   label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
                 )
               }
@@ -362,7 +362,7 @@ import Views
 
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioController: AudioController
 
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
@@ -382,12 +382,12 @@ import Views
       case .editTitle:
         viewModel.itemUnderTitleEdit = item
       case .downloadAudio:
-        viewModel.downloadAudio(audioSession: audioSession, item: item)
+        viewModel.downloadAudio(audioController: audioController, item: item)
       }
     }
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioSession: audioSession, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
     }
 
     var body: some View {

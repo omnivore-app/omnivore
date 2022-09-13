@@ -149,7 +149,7 @@ import Views
   func downloadAudio(audioController: AudioController, item: LinkedItem) {
     Snackbar.show(message: "Downloading Offline Audio")
     Task {
-      let downloaded = await audioController.preload(itemIDs: [item.unwrappedID])
+      let downloaded = await audioController.downloadForOffline(itemID: item.unwrappedID)
       Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
     }
   }

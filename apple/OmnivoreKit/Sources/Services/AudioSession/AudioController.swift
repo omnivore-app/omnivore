@@ -152,6 +152,15 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     return true
   }
 
+  public func downloadForOffline(itemID: String) async -> Bool {
+    if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
+      let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
+      for await _ in synthesizer.fetch(from: 0) {}
+      return true
+    }
+    return false
+  }
+
   public var scrubState: PlayerScrubState = .reset {
     didSet {
       switch scrubState {
