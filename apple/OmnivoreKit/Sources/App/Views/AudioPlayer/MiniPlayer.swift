@@ -348,15 +348,20 @@ public struct MiniPlayer: View {
   public var body: some View {
     ZStack(alignment: .center) {
       presentingView
-      VStack {
-        Spacer(minLength: 0)
-        if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
-          playerContent(itemAudioProperties)
-            .offset(y: offset)
-            .frame(maxHeight: expanded ? .infinity : 88)
-            .tint(.appGrayTextContrast)
-            .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
-            .background(expanded ? .clear : .systemBackground)
+      if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
+        ZStack(alignment: .bottom) {
+          Color.systemBackground.edgesIgnoringSafeArea(.bottom)
+            .frame(height: 88, alignment: .bottom)
+
+          VStack {
+            Spacer(minLength: 0)
+            playerContent(itemAudioProperties)
+              .offset(y: offset)
+              .frame(maxHeight: expanded ? .infinity : 88)
+              .tint(.appGrayTextContrast)
+              .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
+              .background(expanded ? .clear : .systemBackground)
+          }
         }
       }
     }
