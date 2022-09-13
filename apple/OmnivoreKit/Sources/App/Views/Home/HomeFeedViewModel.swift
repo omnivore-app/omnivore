@@ -36,8 +36,26 @@ import Views
   )
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
-    selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
-    linkIsActive = true
+    // Pop the current selected item if needed
+    if selectedItem != nil, selectedItem?.objectID != objectID {
+      // Temporarily disable animation to avoid excessive animations
+      UIView.setAnimationsEnabled(false)
+
+      linkIsActive = false
+      selectedItem = nil
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        self.selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
+        self.linkIsActive = true
+      }
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
+        UIView.setAnimationsEnabled(true)
+      }
+    } else {
+      selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
+      linkIsActive = true
+    }
   }
 
   var cursor: String?
