@@ -26,9 +26,7 @@ struct FeedCardNavigationLink: View {
         .onAppear {
           Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioSession: audioSession) }
         }
-        FeedCard(item: item) {
-          // TODO: remove closure
-        }
+        FeedCard(item: item)
       }
     }
   }
