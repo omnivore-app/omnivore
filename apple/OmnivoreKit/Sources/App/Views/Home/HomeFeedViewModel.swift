@@ -22,10 +22,13 @@ import Views
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
-  @Published var selectedLinkItem: NSManagedObjectID?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
   @Published var appliedSort = LinkedItemSort.newest.rawValue
+
+  @Published var selectedItem: LinkedItem?
+  @Published var linkIsActive = false
+
   @AppStorage(UserDefaultKey.audioInfoAlertShown.rawValue) var showAudioInfoAlert = false
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
@@ -34,8 +37,8 @@ import Views
     from: Date(timeIntervalSinceReferenceDate: 0)
   )
 
-  func handleReaderItemNotification(objectID: NSManagedObjectID) {
-    selectedLinkItem = objectID
+  func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
+    selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
   }
 
   var cursor: String?

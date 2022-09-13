@@ -12,32 +12,23 @@ struct FeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    let destination = LinkItemDetailView(
-      linkedItemObjectID: item.objectID,
-      isPDF: item.isPDF
-    )
-    #if os(iOS)
-      let modifiedDestination = destination
-        .navigationTitle("")
-    #else
-      let modifiedDestination = destination
-    #endif
-
-    return ZStack {
-      NavigationLink(
-        destination: modifiedDestination,
-        tag: item.objectID,
-        selection: $viewModel.selectedLinkItem
-      ) {
-        EmptyView()
-      }
-      .opacity(0)
-      .buttonStyle(PlainButtonStyle())
-      .onAppear {
-        Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioSession: audioSession) }
-      }
-      FeedCard(item: item) {
-        viewModel.selectedLinkItem = item.objectID
+    ZStack {
+      Button(
+        action: {
+          viewModel.selectedItem = item
+          viewModel.linkIsActive = true
+        }) {
+        NavigationLink(destination: EmptyView()) {
+          EmptyView()
+        }
+        .opacity(0)
+        .buttonStyle(PlainButtonStyle())
+        .onAppear {
+          Task { await viewModel.itemAppeared(item: item, dataService: dataService, audioSession: audioSession) }
+        }
+        FeedCard(item: item) {
+          // TODO: remove closure
+        }
       }
     }
   }
@@ -60,28 +51,14 @@ struct GridCardNavigationLink: View {
     scale = 0.95
     DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(150)) {
       scale = 1.0
-      viewModel.selectedLinkItem = item.objectID
+      viewModel.selectedItem = item
+      viewModel.linkIsActive = true
     }
   }
 
   var body: some View {
-    let destination = LinkItemDetailView(
-      linkedItemObjectID: item.objectID,
-      isPDF: item.isPDF
-    )
-    #if os(iOS)
-      let modifiedDestination = destination
-        .navigationTitle("")
-    #else
-      let modifiedDestination = destination
-    #endif
-
-    return ZStack {
-      NavigationLink(
-        destination: modifiedDestination,
-        tag: item.objectID,
-        selection: $viewModel.selectedLinkItem
-      ) {
+    ZStack {
+      NavigationLink(destination: EmptyView()) {
         EmptyView()
       }
       GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler, tapAction: {
