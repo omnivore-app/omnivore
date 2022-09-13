@@ -112,6 +112,7 @@ import Views
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
         viewModel.selectedItem = linkedItem
+        viewModel.linkIsActive = true
       }
       .onReceive(NSNotification.pushReaderItemPublisher) { notification in
         if let objectID = notification.userInfo?["objectID"] as? NSManagedObjectID {

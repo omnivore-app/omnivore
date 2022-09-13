@@ -39,6 +39,7 @@ import Views
 
   func handleReaderItemNotification(objectID: NSManagedObjectID, dataService: DataService) {
     selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
+    linkIsActive = true
   }
 
   var cursor: String?
