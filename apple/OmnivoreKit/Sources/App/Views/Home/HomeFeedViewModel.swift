@@ -29,8 +29,6 @@ import Views
   @Published var selectedItem: LinkedItem?
   @Published var linkIsActive = false
 
-  @AppStorage(UserDefaultKey.audioInfoAlertShown.rawValue) var showAudioInfoAlert = false
-
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 
   @AppStorage(UserDefaultKey.lastItemSyncTime.rawValue) var lastItemSyncTime = DateFormatter.formatterISO8601.string(
@@ -49,14 +47,14 @@ import Views
   var searchIdx = 0
   var receivedIdx = 0
 
-  func itemAppeared(item: LinkedItem, dataService: DataService, audioSession: AudioSession) async {
+  func itemAppeared(item: LinkedItem, dataService: DataService, audioController: AudioController) async {
     if isLoading { return }
     let itemIndex = items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
 
     // Check if user has scrolled to the last five items in the list
     if let itemIndex = itemIndex, itemIndex > thresholdIndex, items.count < thresholdIndex + 10 {
-      await loadItems(dataService: dataService, audioSession: audioSession, isRefresh: false)
+      await loadItems(dataService: dataService, audioController: audioController, isRefresh: false)
     }
   }
 
@@ -64,7 +62,7 @@ import Views
     items.insert(item, at: 0)
   }
 
-  func loadItems(dataService: DataService, audioSession: AudioSession, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, audioController: AudioController, isRefresh: Bool) async {
     let syncStartTime = Date()
     let thisSearchIdx = searchIdx
     searchIdx += 1
@@ -137,7 +135,7 @@ import Views
         // This happens because when an article is saved, we check if the user has a recent
         // listen. If they do, we will automatically transcribe their message.
         if let first = newItems.first?.id {
-          _ = await audioSession.preload(itemIDs: [first])
+          _ = await audioController.preload(itemIDs: [first])
         }
       }
     } else {
@@ -148,15 +146,10 @@ import Views
     showLoadingBar = false
   }
 
-  func dismissAudioInfoAlert() {
-    UserDefaults.standard.set(true, forKey: UserDefaultKey.audioInfoAlertShown.rawValue)
-    showAudioInfoAlert = false
-  }
-
-  func downloadAudio(audioSession: AudioSession, item: LinkedItem) {
+  func downloadAudio(audioController: AudioController, item: LinkedItem) {
     Snackbar.show(message: "Downloading Offline Audio")
     Task {
-      let downloaded = await audioSession.preload(itemIDs: [item.unwrappedID])
+      let downloaded = await audioController.downloadForOffline(itemID: item.unwrappedID)
       Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
     }
   }

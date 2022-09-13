@@ -12,13 +12,13 @@ import Views
 
   struct HomeFeedContainerView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioController: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioSession: audioSession, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
     }
 
     var body: some View {
@@ -144,35 +144,6 @@ import Views
           }
         }
       }
-      .sheet(isPresented: $viewModel.showAudioInfoAlert) {
-        VStack {
-          Text("Welcome to the Omnivore text to speech beta.")
-            .font(.appTitle)
-
-          Spacer()
-
-          Text(
-            """
-            This build introduces offline text to speech files. Normally these files will\
-            be downloaded in the background and made available offline.
-
-            During the beta these files can be manually downloaded by long pressing on an item and\
-            choosing Download Audio, or by tapping the play button. When you first tap the\
-            play button, the audio will be generated and downloaded. This can take some time.
-
-            Future versions will do this in the background.
-            """)
-          Text("")
-
-          Spacer()
-
-          Button(
-            action: { viewModel.dismissAudioInfoAlert() },
-            label: { Text("Dismiss").frame(maxWidth: .infinity) }
-          )
-          .buttonStyle(RoundedRectButtonStyle())
-        }.padding(24)
-      }
       .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)
@@ -259,7 +230,7 @@ import Views
 
   struct HomeFeedListView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioController: AudioController
 
     @Binding var prefersListLayout: Bool
 
@@ -322,7 +293,7 @@ import Views
                   }
                 }
                 Button(
-                  action: { viewModel.downloadAudio(audioSession: audioSession, item: item) },
+                  action: { viewModel.downloadAudio(audioController: audioController, item: item) },
                   label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
                 )
               }
@@ -391,7 +362,7 @@ import Views
 
   struct HomeFeedGridView: View {
     @EnvironmentObject var dataService: DataService
-    @EnvironmentObject var audioSession: AudioSession
+    @EnvironmentObject var audioController: AudioController
 
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
@@ -411,12 +382,12 @@ import Views
       case .editTitle:
         viewModel.itemUnderTitleEdit = item
       case .downloadAudio:
-        viewModel.downloadAudio(audioSession: audioSession, item: item)
+        viewModel.downloadAudio(audioController: audioController, item: item)
       }
     }
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, audioSession: audioSession, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, audioController: audioController, isRefresh: isRefresh) }
     }
 
     var body: some View {

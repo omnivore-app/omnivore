@@ -6,6 +6,11 @@
   color-scheme: light dark;
 }
 
+.speakingSection {
+  color: var(--colors-highlightText);
+  background-color: rgba(255, 210, 52, 0.2);
+}
+
 .highlight {
   color: var(--colors-highlightText);
   background-color: var(--colors-highlightBackground);
