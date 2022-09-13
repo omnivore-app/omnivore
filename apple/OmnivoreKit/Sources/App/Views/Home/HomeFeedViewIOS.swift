@@ -111,11 +111,12 @@ import Views
         guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
-        viewModel.selectedLinkItem = linkedItem.objectID
+        viewModel.selectedItem = linkedItem
+        viewModel.linkIsActive = true
       }
       .onReceive(NSNotification.pushReaderItemPublisher) { notification in
         if let objectID = notification.userInfo?["objectID"] as? NSManagedObjectID {
-          viewModel.handleReaderItemNotification(objectID: objectID)
+          viewModel.handleReaderItemNotification(objectID: objectID, dataService: dataService)
         }
       }
       .onOpenURL { url in
@@ -268,115 +269,123 @@ import Views
     @ObservedObject var viewModel: HomeFeedViewModel
 
     var body: some View {
-      List {
-        Section {
-          ForEach(viewModel.items) { item in
-            FeedCardNavigationLink(
-              item: item,
-              viewModel: viewModel
-            )
-            .contextMenu {
-              Button(
-                action: { viewModel.itemUnderTitleEdit = item },
-                label: { Label("Edit Title/Description", systemImage: "textbox") }
+      ZStack {
+        NavigationLink(
+          destination: LinkDestination(selectedItem: viewModel.selectedItem),
+          isActive: $viewModel.linkIsActive
+        ) {
+          EmptyView()
+        }
+        List {
+          Section {
+            ForEach(viewModel.items) { item in
+              FeedCardNavigationLink(
+                item: item,
+                viewModel: viewModel
               )
-              Button(
-                action: { viewModel.itemUnderLabelEdit = item },
-                label: { Label("Edit Labels", systemImage: "tag") }
-              )
-              Button(action: {
-                withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(
-                    dataService: dataService,
-                    objectID: item.objectID,
-                    archived: !item.isArchived
-                  )
-                }
-              }, label: {
-                Label(
-                  item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+              .contextMenu {
+                Button(
+                  action: { viewModel.itemUnderTitleEdit = item },
+                  label: { Label("Edit Title/Description", systemImage: "textbox") }
                 )
-              })
-              Button(
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: { Label("Delete", systemImage: "trash") }
-              )
-              if FeatureFlag.enableSnooze {
-                Button {
-                  viewModel.itemToSnoozeID = item.id
-                  viewModel.snoozePresented = true
-                } label: {
-                  Label { Text("Snooze") } icon: { Image.moon }
-                }
-              }
-              Button(
-                action: { viewModel.downloadAudio(audioSession: audioSession, item: item) },
-                label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-              )
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-              if !item.isArchived {
-                Button {
+                Button(
+                  action: { viewModel.itemUnderLabelEdit = item },
+                  label: { Label("Edit Labels", systemImage: "tag") }
+                )
+                Button(action: {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
+                    viewModel.setLinkArchived(
+                      dataService: dataService,
+                      objectID: item.objectID,
+                      archived: !item.isArchived
+                    )
                   }
-                } label: {
-                  Label("Archive", systemImage: "archivebox")
-                }.tint(.green)
-              } else {
-                Button {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
-                  }
-                } label: {
-                  Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                }.tint(.indigo)
-              }
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-              Button(
-                role: .destructive,
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: {
-                  Image(systemName: "trash")
-                }
-              )
-            }.alert("Are you sure?", isPresented: $confirmationShown) {
-              Button("Remove Link", role: .destructive) {
-                if let itemToRemove = itemToRemove {
-                  withAnimation {
-                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                }, label: {
+                  Label(
+                    item.isArchived ? "Unarchive" : "Archive",
+                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                  )
+                })
+                Button(
+                  action: {
+                    itemToRemove = item
+                    confirmationShown = true
+                  },
+                  label: { Label("Delete", systemImage: "trash") }
+                )
+                if FeatureFlag.enableSnooze {
+                  Button {
+                    viewModel.itemToSnoozeID = item.id
+                    viewModel.snoozePresented = true
+                  } label: {
+                    Label { Text("Snooze") } icon: { Image.moon }
                   }
                 }
-                self.itemToRemove = nil
+                Button(
+                  action: { viewModel.downloadAudio(audioSession: audioSession, item: item) },
+                  label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
+                )
               }
-              Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-            }
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-              if FeatureFlag.enableSnooze {
-                Button {
-                  viewModel.itemToSnoozeID = item.id
-                  viewModel.snoozePresented = true
-                } label: {
-                  Label { Text("Snooze") } icon: { Image.moon }
-                }.tint(.appYellow48)
+              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                if !item.isArchived {
+                  Button {
+                    withAnimation(.linear(duration: 0.4)) {
+                      viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
+                    }
+                  } label: {
+                    Label("Archive", systemImage: "archivebox")
+                  }.tint(.green)
+                } else {
+                  Button {
+                    withAnimation(.linear(duration: 0.4)) {
+                      viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
+                    }
+                  } label: {
+                    Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
+                  }.tint(.indigo)
+                }
+              }
+              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(
+                  role: .destructive,
+                  action: {
+                    itemToRemove = item
+                    confirmationShown = true
+                  },
+                  label: {
+                    Image(systemName: "trash")
+                  }
+                )
+              }.alert("Are you sure?", isPresented: $confirmationShown) {
+                Button("Remove Link", role: .destructive) {
+                  if let itemToRemove = itemToRemove {
+                    withAnimation {
+                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                    }
+                  }
+                  self.itemToRemove = nil
+                }
+                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+              }
+              .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                if FeatureFlag.enableSnooze {
+                  Button {
+                    viewModel.itemToSnoozeID = item.id
+                    viewModel.snoozePresented = true
+                  } label: {
+                    Label { Text("Snooze") } icon: { Image.moon }
+                  }.tint(.appYellow48)
+                }
               }
             }
           }
-        }
 
-        if viewModel.isLoading {
-          LoadingSection()
+          if viewModel.isLoading {
+            LoadingSection()
+          }
         }
+        .listStyle(PlainListStyle())
       }
-      .listStyle(PlainListStyle())
     }
   }
 
@@ -411,47 +420,56 @@ import Views
     }
 
     var body: some View {
-      ScrollView {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], spacing: 16) {
-          ForEach(viewModel.items) { item in
-            GridCardNavigationLink(
-              item: item,
-              actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-              isContextMenuOpen: $isContextMenuOpen,
-              viewModel: viewModel
-            )
-            .alert("Are you sure?", isPresented: $confirmationShown) {
-              Button("Remove Link", role: .destructive) {
-                if let itemToRemove = itemToRemove {
-                  withAnimation {
-                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                  }
-                }
-                self.itemToRemove = nil
-              }
-              Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-            }
+      ZStack {
+        ScrollView {
+          NavigationLink(
+            destination: LinkDestination(selectedItem: viewModel.selectedItem),
+            isActive: $viewModel.linkIsActive
+          ) {
+            EmptyView()
           }
-        }
-        .padding()
-        .background(
-          GeometryReader {
-            Color(.systemGroupedBackground).preference(
-              key: ScrollViewOffsetPreferenceKey.self,
-              value: $0.frame(in: .global).origin.y
-            )
-          }
-        )
-        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
-          DispatchQueue.main.async {
-            if !viewModel.isLoading, offset > 240 {
-              loadItems(isRefresh: true)
-            }
-          }
-        }
 
-        if viewModel.items.isEmpty, viewModel.isLoading {
-          LoadingSection()
+          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], spacing: 16) {
+            ForEach(viewModel.items) { item in
+              GridCardNavigationLink(
+                item: item,
+                actionHandler: { contextMenuActionHandler(item: item, action: $0) },
+                isContextMenuOpen: $isContextMenuOpen,
+                viewModel: viewModel
+              )
+              .alert("Are you sure?", isPresented: $confirmationShown) {
+                Button("Remove Link", role: .destructive) {
+                  if let itemToRemove = itemToRemove {
+                    withAnimation {
+                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                    }
+                  }
+                  self.itemToRemove = nil
+                }
+                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+              }
+            }
+          }
+          .padding()
+          .background(
+            GeometryReader {
+              Color(.systemGroupedBackground).preference(
+                key: ScrollViewOffsetPreferenceKey.self,
+                value: $0.frame(in: .global).origin.y
+              )
+            }
+          )
+          .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { offset in
+            DispatchQueue.main.async {
+              if !viewModel.isLoading, offset > 240 {
+                loadItems(isRefresh: true)
+              }
+            }
+          }
+
+          if viewModel.items.isEmpty, viewModel.isLoading {
+            LoadingSection()
+          }
         }
       }
     }
@@ -480,3 +498,27 @@ struct ScrollViewOffsetPreferenceKey: PreferenceKey {
     }
   }
 #endif
+
+struct LinkDestination: View {
+  let selectedItem: LinkedItem?
+
+  var body: some View {
+    Group {
+      if let selectedItem = selectedItem {
+        let destination = LinkItemDetailView(
+          linkedItemObjectID: selectedItem.objectID,
+          isPDF: selectedItem.isPDF
+        )
+        #if os(iOS)
+          let modifiedDestination = destination
+            .navigationTitle("")
+        #else
+          let modifiedDestination = destination
+        #endif
+        modifiedDestination
+      } else {
+        EmptyView()
+      }
+    }
+  }
+}
