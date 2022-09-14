@@ -877,7 +877,7 @@ Readability.prototype = {
 
     // Do these last as the previous stuff may have removed junk
     // that will affect these
-    this._cleanConditionally(articleContent, "table");
+    !this._keepTables && this._cleanConditionally(articleContent, "table");
     this._cleanConditionally(articleContent, "ul");
     this._cleanConditionally(articleContent, "div");
 
