@@ -38,7 +38,7 @@ export default function Login(): JSX.Element {
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
       />
-      <PageMetaData title="Welcome to Omnivore" path="/login" ogImage='/static/images/og-homepage.jpg' />
+      <PageMetaData title="Welcome to Omnivore" path="/login" ogImage='/static/images/og-homepage.png' />
       <LoginLayout {...loginFormProps} />
       <div data-testid="login-page-tag" />
     </>
