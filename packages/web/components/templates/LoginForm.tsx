@@ -18,9 +18,9 @@ export type LoginFormProps = {
 export function LoginForm(props: LoginFormProps): JSX.Element {
   const StyledTextHeadline = styled('h1', {
     fontStyle: 'normal',
-    fontWeight: '400',
-    fontSize: '50px',
-    lineHeight: '100%',
+    fontWeight: '700',
+    fontSize: '45px',
+    lineHeight: '53px',
     color: '$omnivoreGray',
     m: '0px',
   })
@@ -38,7 +38,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
       }}
     >
       <StyledTextHeadline>
-        Never miss a great read.
+        A read it later app for serious readers.
       </StyledTextHeadline>
       <StyledText css={{ fontStyle: 'normal',
         fontWeight: '400',
