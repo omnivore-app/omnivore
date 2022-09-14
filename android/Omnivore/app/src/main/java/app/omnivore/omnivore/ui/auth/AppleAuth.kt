@@ -20,6 +20,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.AppleConstants
 import app.omnivore.omnivore.R
+import java.net.URLEncoder
 import java.util.*
 
 @Composable
@@ -62,7 +63,7 @@ fun AppleAuthDialog(onDismiss: (String?) -> Unit) {
 fun AppleAuthWebView(onDismiss: (String?) -> Unit) {
   val url = AppleConstants.authUrl +
     "?client_id=" + AppleConstants.clientId +
-    "&redirect_uri=" + AppleConstants.redirectURI +
+    "&redirect_uri=" + URLEncoder.encode(AppleConstants.redirectURI, "utf8") +
     "&response_type=code%20id_token" +
     "&scope=" + AppleConstants.scope +
     "&response_mode=form_post" +
