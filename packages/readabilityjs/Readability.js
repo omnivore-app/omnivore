@@ -918,8 +918,8 @@ Readability.prototype = {
       }
     });
 
-    // replace tables of article content with divs for newsletters
-    this._keepTables && this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]), "div");
+    // replace tables whose role is not presentation with divs for newsletters
+    this._keepTables && this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]).filter(t => t.getAttribute("role") !== "presentation"), "div");
 
     // Final clean up of nodes that might pass readability conditions but still contain redundant text
     // For example, this article (https://www.sciencedirect.com/science/article/abs/pii/S0047248498902196)
