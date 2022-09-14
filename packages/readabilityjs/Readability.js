@@ -831,6 +831,9 @@ Readability.prototype = {
    * @return void
    **/
   _prepArticle: async function (articleContent) {
+    // replace tables whose role is not presentation with divs for newsletters
+    this._keepTables && this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]).filter(t => t.getAttribute("role") !== "presentation"), "div");
+
     await this._createPlaceholders(articleContent);
     this._cleanStyles(articleContent);
     // Check for data tables before we continue, to avoid removing items in
@@ -874,7 +877,7 @@ Readability.prototype = {
 
     // Do these last as the previous stuff may have removed junk
     // that will affect these
-    !this._keepTables && this._cleanConditionally(articleContent, "table");
+    this._cleanConditionally(articleContent, "table");
     this._cleanConditionally(articleContent, "ul");
     this._cleanConditionally(articleContent, "div");
 
@@ -917,9 +920,6 @@ Readability.prototype = {
         }
       }
     });
-
-    // replace tables whose role is not presentation with divs for newsletters
-    this._keepTables && this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]).filter(t => t.getAttribute("role") !== "presentation"), "div");
 
     // Final clean up of nodes that might pass readability conditions but still contain redundant text
     // For example, this article (https://www.sciencedirect.com/science/article/abs/pii/S0047248498902196)
