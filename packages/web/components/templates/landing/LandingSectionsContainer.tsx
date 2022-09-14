@@ -131,17 +131,6 @@ export function LandingSectionsContainer({
   const iconColor = 'rgb(255, 210, 52)'
   return (
     <VStack alignment='center' distribution='start' css={containerStyles}>
-      <VStack distribution='center'>
-        <Box css={titleStyles}>
-          This is Omnivore
-        </Box>
-        <SpanBox css={underlineIconStyles}>
-          <CurvedUnderlineIcon />
-        </SpanBox>
-      </VStack>
-      <Box css={subTitleText}>
-        Collect and share the best of the web
-      </Box>
       {!hideFirst && (
         <LandingSection
           titleText='Simply reader-friendly'
