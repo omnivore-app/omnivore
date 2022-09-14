@@ -234,6 +234,17 @@ struct WebReaderContainerView: View {
             showNavBarActionID = UUID()
           }
         }
+        .simultaneousGesture(
+          DragGesture(minimumDistance: 2)
+            .onEnded { gesture in
+              if gesture.translation.width > 100 {
+                NSNotification.pushNavigationItem(direction: -1)
+              }
+              if gesture.translation.width < -100 {
+                NSNotification.pushNavigationItem(direction: 1)
+              }
+            }
+        )
         #if os(iOS)
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)

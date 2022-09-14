@@ -5,6 +5,8 @@ import Models
 public extension NSNotification {
   static let PushJSONArticle = Notification.Name("PushJSONArticle")
   static let PushReaderItem = Notification.Name("PushReaderItem")
+  static let PushNavigation = Notification.Name("PushNavigation")
+
   static let OperationSuccess = Notification.Name("OperationSuccess")
   static let OperationFailure = Notification.Name("OperationFailure")
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
@@ -34,6 +36,10 @@ public extension NSNotification {
     NotificationCenter.default.publisher(for: SpeakingReaderItem)
   }
 
+  static var pushNextItemPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: PushNavigation)
+  }
+
   internal var operationMessage: String? {
     if let message = userInfo?["message"] as? String {
       return message
@@ -54,6 +60,14 @@ public extension NSNotification {
       name: NSNotification.PushReaderItem,
       object: nil,
       userInfo: ["objectID": objectID]
+    )
+  }
+
+  static func pushNavigationItem(direction: Int) {
+    NotificationCenter.default.post(
+      name: NSNotification.PushNavigation,
+      object: nil,
+      userInfo: ["direction": direction]
     )
   }
 

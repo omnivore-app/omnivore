@@ -58,6 +58,39 @@ import Views
     }
   }
 
+  func handleReaderItemNavigationNotification(dataService _: DataService, direction: Int) {
+    // Pop the current selected item if needed
+    if selectedItem != nil {
+      // Temporarily disable animation to avoid excessive animations
+      UIView.setAnimationsEnabled(false)
+
+      let toItem = getOffsetFeedItem(direction: direction)
+      linkIsActive = false
+      selectedItem = nil
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        self.selectedItem = toItem
+        self.linkIsActive = true
+      }
+
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
+        UIView.setAnimationsEnabled(true)
+      }
+    } else {
+      selectedItem = getOffsetFeedItem(direction: direction)
+      linkIsActive = true
+    }
+  }
+
+  func getOffsetFeedItem(direction: Int) -> LinkedItem? {
+    if let selectedItem = selectedItem, let currentIdx = items.firstIndex(of: selectedItem) {
+      let newIdx = (currentIdx + direction) % items.count
+      let res = items[newIdx]
+      return res
+    }
+    return nil
+  }
+
   var cursor: String?
 
   // These are used to make sure we handle search result

@@ -119,6 +119,11 @@ import Views
           viewModel.handleReaderItemNotification(objectID: objectID, dataService: dataService)
         }
       }
+      .onReceive(NSNotification.pushNextItemPublisher) { notification in
+        if let direction = notification.userInfo?["direction"] as? Int {
+          viewModel.handleReaderItemNavigationNotification(dataService: dataService, direction: direction)
+        }
+      }
       .onOpenURL { url in
         withoutAnimation {
           viewModel.linkRequest = nil
