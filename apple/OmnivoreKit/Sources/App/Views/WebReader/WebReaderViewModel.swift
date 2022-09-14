@@ -12,14 +12,14 @@ struct SafariWebLink: Identifiable {
   @Published var articleContent: ArticleContent?
   @Published var errorMessage: String?
 
-  func loadContent(dataService: DataService, itemID: String, retryCount: Int = 0) async {
+  func loadContent(dataService: DataService, username: String, itemID: String, retryCount: Int = 0) async {
     errorMessage = nil
 
     do {
-      articleContent = try await dataService.loadArticleContentWithRetries(itemID: itemID)
+      articleContent = try await dataService.loadArticleContentWithRetries(itemID: itemID, username: username)
     } catch {
       if retryCount == 0 {
-        return await loadContent(dataService: dataService, itemID: itemID, retryCount: 1)
+        return await loadContent(dataService: dataService, username: username, itemID: itemID, retryCount: 1)
       }
       if let fetchError = error as? ContentFetchError {
         switch fetchError {
