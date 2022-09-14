@@ -14,17 +14,39 @@ import { MorningBrewHandler } from '../src/morning-brew-handler'
 
 describe('Confirmation email test', () => {
   describe('#isConfirmationEmail()', () => {
-    it('returns true when email is from Gmail Team', () => {
-      const from = 'Gmail Team <forwarding-noreply@google.com>'
+    let from: string
+    let subject: string
 
-      expect(isConfirmationEmail(from)).to.be.true
+    it('returns true when email is from Gmail Team', () => {
+      from = 'Gmail Team <forwarding-noreply@google.com>'
+      subject = `(#123456789) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
+
+      expect(isConfirmationEmail(from, subject)).to.be.true
+    })
+
+    it('returns true when email is from Japan Gmail Team', () => {
+      from = 'SWG チーム <forwarding-noreply@google.com>'
+      subject =
+        '（#123456789）SWG の転送の確認 - test@omnivore.app からメールを受信'
+
+      expect(isConfirmationEmail(from, subject)).to.be.true
     })
   })
 
   describe('#getConfirmationCode()', () => {
+    let code: string
+    let subject: string
+
     it('returns the confirmation code from the email', () => {
-      const code = '593781109'
-      const subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from sam@omnivore.com`
+      code = '123456789'
+      subject = `(#${code}) Gmail Forwarding Confirmation - Receive Mail from test@omnivore.app`
+
+      expect(getConfirmationCode(subject)).to.equal(code)
+    })
+
+    it('returns the confirmation code from the Google Japan email', () => {
+      code = '123456789'
+      subject = `（#${code}）SWG の転送の確認 - test@omnivore.app からメールを受信`
 
       expect(getConfirmationCode(subject)).to.equal(code)
     })

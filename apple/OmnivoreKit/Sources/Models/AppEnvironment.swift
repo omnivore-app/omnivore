@@ -25,13 +25,12 @@ private let devBaseURL = "https://api-dev.omnivore.app"
 private let demoBaseURL = "https://api-demo.omnivore.app"
 private let prodBaseURL = "https://api-prod.omnivore.app"
 
+private let demoTtsURL = "https://tts-demo.omnivore.app"
+private let prodTtsURL = "https://tts-prod.omnivore.app"
+
 private let devWebURL = "https://web-dev.omnivore.app"
 private let demoWebURL = "https://demo.omnivore.app"
 private let prodWebURL = "https://omnivore.app"
-
-private let devHighlightsServerURL = "https://highlights-dev.omnivore.app"
-private let demoHighlightsServerURL = "https://highlights-demo.omnivore.app"
-private let prodHighlightsServerURL = "https://highlights.omnivore.app"
 
 public extension AppEnvironment {
   var graphqlPath: String {
@@ -61,6 +60,19 @@ public extension AppEnvironment {
       return URL(string: prodWebURL)!
     case .test, .local:
       return URL(string: "http://localhost:3000")!
+    }
+  }
+
+  var ttsBaseURL: URL {
+    switch self {
+    case .dev:
+      return URL(string: "notimplemented")!
+    case .demo:
+      return URL(string: demoTtsURL)!
+    case .prod:
+      return URL(string: prodTtsURL)!
+    case .test, .local:
+      return URL(string: "http://localhost:4000")!
     }
   }
 }

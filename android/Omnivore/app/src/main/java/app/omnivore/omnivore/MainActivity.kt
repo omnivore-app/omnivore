@@ -5,11 +5,17 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
+import app.omnivore.omnivore.ui.home.HomeViewModel
 import app.omnivore.omnivore.ui.root.RootView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,11 +24,18 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val viewModel: LoginViewModel by viewModels()
+    val loginViewModel: LoginViewModel by viewModels()
+    val homeViewModel: HomeViewModel by viewModels()
 
     setContent {
       OmnivoreTheme {
-        RootView(viewModel = viewModel)
+        Box(
+          modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Black)
+        ) {
+          RootView(loginViewModel, homeViewModel)
+        }
       }
     }
 

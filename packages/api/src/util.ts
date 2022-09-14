@@ -94,6 +94,9 @@ interface BackendEnv {
     speechKey: string
     speechRegion: string
   }
+  gcp: {
+    location: string
+  }
 }
 
 /***
@@ -148,6 +151,7 @@ const nullableEnvVars = [
   'TEXT_TO_SPEECH_TASK_HANDLER_URL',
   'AZURE_SPEECH_KEY',
   'AZURE_SPEECH_REGION',
+  'GCP_LOCATION',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -273,6 +277,10 @@ export function getEnv(): BackendEnv {
     speechRegion: parse('AZURE_SPEECH_REGION'),
   }
 
+  const gcp = {
+    location: parse('GCP_LOCATION'),
+  }
+
   return {
     pg,
     client,
@@ -292,6 +300,7 @@ export function getEnv(): BackendEnv {
     sendgrid,
     readwise,
     azure,
+    gcp,
   }
 }
 

@@ -1,5 +1,5 @@
-mutation SaveUrl ($input: SaveUrlInput!) {
-  saveUrl(input:$input){
+mutation SaveUrl($input: SaveUrlInput!) {
+  saveUrl(input: $input) {
     ... on SaveSuccess {
       url
     }

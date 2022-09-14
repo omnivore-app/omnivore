@@ -116,13 +116,13 @@ export function LandingFooter(): JSX.Element {
               <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=90x37&amp;releaseDate=1628121600&h=2bbc629b0455dbea136257c9f518e4b3" alt="Download on the App Store" style={{  }} />
             </a>
           </Box>
-          {/* <Box style={imageStyles}>
-            <Link passHref href="#">
+          <Box style={imageStyles}>
+            <Link passHref href="https://play.google.com/store/apps/details?id=app.omnivore.omnivore">
               <a>
-                <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
+                <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={120} height={40} layout='intrinsic'/>
               </a>
             </Link>
-          </Box> */}
+          </Box>
         </Box>
         <Box css={contactStyles}>
           Contact

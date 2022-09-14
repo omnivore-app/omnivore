@@ -3,12 +3,10 @@ import SwiftUI
 import Utils
 
 public struct FeedCard: View {
-  let tapHandler: () -> Void
   @ObservedObject var item: LinkedItem
 
-  public init(item: LinkedItem, tapHandler: @escaping () -> Void) {
+  public init(item: LinkedItem) {
     self.item = item
-    self.tapHandler = tapHandler
   }
 
   public var body: some View {
@@ -47,19 +45,19 @@ public struct FeedCard: View {
 
         Group {
           if let imageURL = item.imageURL {
-            AsyncLoadingImage(url: imageURL) { imageStatus in
-              if case let AsyncImageStatus.loaded(image) = imageStatus {
+            AsyncImage(url: imageURL) { phase in
+              if let image = phase.image {
                 image
                   .resizable()
                   .aspectRatio(contentMode: .fill)
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
-              } else if case AsyncImageStatus.loading = imageStatus {
+              } else if phase.error != nil {
+                EmptyView().frame(width: 80, height: 80, alignment: .top)
+              } else {
                 Color.appButtonBackground
                   .frame(width: 80, height: 80)
                   .cornerRadius(6)
-              } else {
-                EmptyView().frame(width: 80, height: 80, alignment: .top)
               }
             }
           }
@@ -77,9 +75,6 @@ public struct FeedCard: View {
           }
         }
         .padding(.top, 8)
-        .onTapGesture {
-          tapHandler()
-        }
       }
     }
     .padding(.top, 10)

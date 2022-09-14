@@ -24,7 +24,7 @@ struct WebReaderContainerView: View {
   @State var annotation = String()
 
   @EnvironmentObject var dataService: DataService
-  @EnvironmentObject var audioSession: AudioSession
+  @EnvironmentObject var audioController: AudioController
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   @StateObject var viewModel = WebReaderViewModel()
 
@@ -57,32 +57,32 @@ struct WebReaderContainerView: View {
   }
 
   var audioNavbarItem: some View {
-    if audioSession.isLoadingItem(item: item) {
+    if audioController.isLoadingItem(itemID: item.unwrappedID) {
       return AnyView(ProgressView()
         .padding(.horizontal)
         .scaleEffect(navBarVisibilityRatio))
     } else {
       return AnyView(Button(
         action: {
-          switch audioSession.state {
+          switch audioController.state {
           case .playing:
-            if audioSession.item == self.item {
-              audioSession.pause()
+            if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+              audioController.pause()
               return
             }
             fallthrough
           case .paused:
-            if audioSession.item == self.item {
-              audioSession.unpause()
+            if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+              audioController.unpause()
               return
             }
             fallthrough
           default:
-            audioSession.play(item: self.item)
+            audioController.play(itemAudioProperties: item.audioProperties)
           }
         },
         label: {
-          Image(systemName: audioSession.isPlayingItem(item: item) ? "pause.circle" : "play.circle")
+          Image(systemName: audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle")
             .font(.appTitleTwo)
         }
       )

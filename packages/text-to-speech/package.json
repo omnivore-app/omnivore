@@ -1,0 +1,43 @@
+{
+  "name": "@omnivore/text-to-speech-handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --target=textToSpeechHandler",
+    "start_streaming": "functions-framework --target=textToSpeechStreamingHandler",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
+    "gcloud-deploy": "gcloud functions deploy text-to-speech --gen2 --entry-point=textToSpeechHandler --trigger-http --allow-unauthenticated --region=us-west2 --runtime nodejs14",
+    "deploy": "yarn build && yarn gcloud-deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "@types/underscore": "^1.11.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "@types/html-to-text": "^8.1.1",
+    "@types/natural": "^5.1.1"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/storage": "^6.4.1",
+    "@sentry/serverless": "^6.16.1",
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "linkedom": "^0.14.12",
+    "microsoft-cognitiveservices-speech-sdk": "^1.22.0",
+    "underscore": "^1.13.4",
+    "natural": "^5.2.3",
+    "html-to-text": "^8.2.1"
+  }
+}

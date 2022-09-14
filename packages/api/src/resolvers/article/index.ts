@@ -60,6 +60,7 @@ import {
   titleForFilePath,
   userDataToUser,
   validatedDate,
+  wordsCount,
 } from '../../utils/helpers'
 import {
   ParsedContentPuppeteer,
@@ -289,6 +290,7 @@ export const createArticleResolver = authorized<
         readingProgressAnchorIndex: 0,
         state: ArticleSavingRequestStatus.Succeeded,
         language: parsedContent?.language,
+        wordsCount: wordsCount(parsedContent?.textContent || ''),
       }
 
       let archive = false
@@ -517,7 +519,7 @@ export const getArticlesResolver = authorized<
     return {
       node: {
         ...a,
-        image: a.image && createImageProxyUrl(a.image, 88, 88),
+        image: a.image && createImageProxyUrl(a.image, 260, 260),
         isArchived: !!a.archivedAt,
       },
       cursor: endCursor,
@@ -889,7 +891,7 @@ export const searchResolver = authorized<
     return {
       node: {
         ...r,
-        image: r.image && createImageProxyUrl(r.image, 88, 88),
+        image: r.image && createImageProxyUrl(r.image, 260, 260),
         isArchived: !!r.archivedAt,
         contentReader:
           r.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
@@ -989,7 +991,7 @@ export const updatesSinceResolver = authorized<
           ? null
           : ({
               ...p,
-              image: p.image && createImageProxyUrl(p.image, 88, 88),
+              image: p.image && createImageProxyUrl(p.image, 260, 260),
               isArchived: !!p.archivedAt,
               contentReader:
                 p.pageType === PageType.File

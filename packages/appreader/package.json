@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "build-and-update": "yarn build && cp build/bundle.js ../../apple/OmnivoreKit/Sources/Views/Resources/bundle.js"
   },
   "dependencies": {
     "@omnivore/web": "1.0.0"

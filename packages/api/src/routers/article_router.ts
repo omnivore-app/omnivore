@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import express from 'express'
 import { CreateArticleErrorCode } from '../generated/graphql'
 import { isSiteBlockedForParse } from '../utils/blocked'
@@ -20,9 +21,15 @@ import { Speech, SpeechState } from '../entity/speech'
 import { getPageById, updatePage } from '../elastic/pages'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 import { enqueueTextToSpeech } from '../utils/createTask'
-import { UserPersonalization } from '../entity/user_personalization'
 import { createPubSubClient } from '../datalayer/pubsub'
+import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 
+interface SpeechInput {
+  voice?: string
+  secondaryVoice?: string
+  priority?: 'low' | 'high'
+}
+const outputFormats = ['mp3', 'speech-marks', 'speech']
 const logger = buildLogger('app.dispatch')
 
 export function articleRouter() {
@@ -73,13 +80,13 @@ export function articleRouter() {
   })
 
   router.get(
-    '/:id/:outputFormat/:voice?',
+    '/:id/:outputFormat',
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      const voice = req.params.voice
-      if (!articleId || !['mp3', 'speech-marks'].includes(outputFormat)) {
+      const { voice, priority, secondaryVoice } = req.query as SpeechInput
+      if (!articleId || outputFormats.indexOf(outputFormat) === -1) {
         return res.status(400).send('Invalid data')
       }
       const token = req.cookies?.auth || req.headers?.authorization
@@ -87,7 +94,6 @@ export function articleRouter() {
         return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
       }
       const { uid } = jwt.decode(token) as Claims
-
       logger.info(`Get article speech in ${outputFormat} format`, {
         params: req.params,
         labels: {
@@ -95,6 +101,23 @@ export function articleRouter() {
           source: `GetArticleSpeech-${outputFormat}`,
         },
       })
+
+      if (outputFormat === 'speech') {
+        const page = await getPageById(articleId)
+        if (!page) {
+          return res.status(404).send('Page not found')
+        }
+        const speechFile = htmlToSpeechFile({
+          title: page.title,
+          content: page.content,
+          options: {
+            primaryVoice: voice,
+            secondaryVoice: secondaryVoice,
+            language: page.language,
+          },
+        })
+        return res.send({ ...speechFile, pageId: articleId })
+      }
 
       const existingSpeech = await getRepository(Speech).findOne({
         where: {
@@ -140,20 +163,21 @@ export function articleRouter() {
       if (!page) {
         return res.status(404).send('Page not found')
       }
-      const userPersonalization = await getRepository(
-        UserPersonalization
-      ).findOneBy({
-        user: { id: uid },
-      })
       // initialize state
       const speech = await getRepository(Speech).save({
         user: { id: uid },
         elasticPageId: articleId,
         state: SpeechState.INITIALIZED,
-        voice: voice || userPersonalization?.speechVoice || 'en-US-JennyNeural',
+        voice,
       })
       // enqueue a task to convert text to speech
-      const taskName = await enqueueTextToSpeech(uid, speech.id)
+      const taskName = await enqueueTextToSpeech({
+        userId: uid,
+        speechId: speech.id,
+        text: page.content,
+        voice: speech.voice,
+        priority: priority || 'high',
+      })
       logger.info('Start Text to speech task', { taskName })
       res.status(202).send('Text to speech task started')
     }

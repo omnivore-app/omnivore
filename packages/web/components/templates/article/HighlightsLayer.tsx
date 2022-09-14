@@ -46,6 +46,10 @@ interface AnnotationEvent extends Event {
   annotation?: string
 }
 
+interface SpeakingSectionEvent extends Event {
+  anchorIdx?: string
+}
+
 export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const [highlights, setHighlights] = useState(props.highlights)
   const [highlightModalAction, setHighlightModalAction] =
@@ -387,6 +391,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
     }
 
+    const speakingSection = async (event: SpeakingSectionEvent) => {
+      const item = document.querySelector(`[data-omnivore-anchor-idx="${event.anchorIdx}"]`)
+      const otherItems = document.querySelectorAll('.speakingSection')
+      otherItems.forEach((other) => {
+        if (other != item) {
+          other?.classList.remove('speakingSection')
+        }
+      })
+      item?.classList.add('speakingSection')
+      // item?.scrollIntoView()
+    }
+
     const saveAnnotation = async (event: AnnotationEvent) => {
       if (focusedHighlight) {
         const annotation = event.annotation ?? ''
@@ -417,6 +433,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     document.addEventListener('copyHighlight', copy)
     document.addEventListener('dismissHighlight', dismissHighlight)
     document.addEventListener('saveAnnotation', saveAnnotation)
+    document.addEventListener('speakingSection', speakingSection)
+
 
     return () => {
       document.removeEventListener('annotate', annotate)
@@ -426,6 +444,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       document.removeEventListener('copyHighlight', copy)
       document.removeEventListener('dismissHighlight', dismissHighlight)
       document.removeEventListener('saveAnnotation', saveAnnotation)
+      document.removeEventListener('speakingSection', speakingSection)
+
     }
   })
 

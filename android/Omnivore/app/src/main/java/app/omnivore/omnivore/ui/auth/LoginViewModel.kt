@@ -13,7 +13,9 @@ import com.google.android.gms.tasks.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
+
 
 enum class RegistrationState {
   AuthProviderButtons,
@@ -34,6 +36,10 @@ class LoginViewModel @Inject constructor(
     .hasAuthTokenFlow
     .distinctUntilChanged()
     .asLiveData()
+
+  fun getAuthCookieString(): String? = runBlocking {
+    datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
+  }
 
   fun login(email: String, password: String) {
     val emailLogin = RetrofitHelper.getInstance().create(EmailLoginSubmit::class.java)
@@ -67,6 +73,12 @@ class LoginViewModel @Inject constructor(
     }
   }
 
+  fun handleAppleToken(authToken: String) {
+    submitAuthProviderPayload(
+      params = SignInParams(token = authToken, provider = "APPLE")
+    )
+  }
+
   fun logout() {
     viewModelScope.launch {
       datastoreRepo.clear()
@@ -82,31 +94,35 @@ class LoginViewModel @Inject constructor(
   }
 
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
-    val googleIdToken = task?.getResult(ApiException::class.java).idToken
-    Log.d(ContentValues.TAG, "Google Result?: $googleIdToken")
-    // TODO: submit id token to backend
-    // If token is missing then set the error message
+    val result = task?.getResult(ApiException::class.java)
+    val googleIdToken = result.idToken
 
+    // If token is missing then set the error message
     if (googleIdToken == null) {
+      errorMessage = "No authentication token found."
       return
     }
 
+    submitAuthProviderPayload(
+      params = SignInParams(token = googleIdToken, provider = "GOOGLE")
+    )
+  }
+
+  private fun submitAuthProviderPayload(params: SignInParams) {
     val login = RetrofitHelper.getInstance().create(AuthProviderLoginSubmit::class.java)
 
     viewModelScope.launch {
       isLoading = true
       errorMessage = null
 
-      val result = login.submitAuthProviderLogin(
-        SignInParams(token = googleIdToken, provider = "GOOGLE")
-      )
+      val result = login.submitAuthProviderLogin(params)
 
       isLoading = false
 
       if (result.body()?.authToken != null) {
         datastoreRepo.putString(DatastoreKeys.omnivoreAuthToken, result.body()?.authToken!!)
       } else {
-        errorMessage = "Something went wrong. Please check your email/password and try again"
+        errorMessage = "Something went wrong. Please check your credentials and try again"
       }
 
       if (result.body()?.authCookieString != null) {

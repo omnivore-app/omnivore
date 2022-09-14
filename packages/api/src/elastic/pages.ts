@@ -22,6 +22,7 @@ import {
 import { client, INDEX_ALIAS } from './index'
 import { EntityType } from '../datalayer/pubsub'
 import { ResponseError } from '@elastic/elasticsearch/lib/errors'
+import { wordsCount } from '../utils/helpers'
 
 const appendQuery = (body: SearchBody, query: string): void => {
   body.query.bool.should.push({
@@ -190,6 +191,7 @@ export const createPage = async (
         ...page,
         updatedAt: new Date(),
         savedAt: new Date(),
+        wordsCount: wordsCount(page.content),
       },
       refresh: ctx.refresh,
     })

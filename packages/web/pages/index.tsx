@@ -21,7 +21,7 @@ export default function Home(): JSX.Element {
 
   return (
     <>
-      <PageMetaData title='Omnivore' path='/' ogImage='/static/images/og-homepage.jpg' />
+      <PageMetaData title='Omnivore' path='/' ogImage='/static/images/og-homepage.png' />
       <LoadingView />
     </>
   )

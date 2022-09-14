@@ -110,7 +110,7 @@ const getBrowserPromise = (async () => {
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH ,
     headless: !!process.env.LAUNCH_HEADLESS,
-    timeout: 0,
+    timeout: 120000, // 2 minutes
   });
 })();
 

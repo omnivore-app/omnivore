@@ -16,6 +16,7 @@ import { ArticleSavingRequestStatus, Page } from '../elastic/types'
 import { updatePage } from '../elastic/pages'
 import path from 'path'
 import normalizeUrl from 'normalize-url'
+import wordsCounter from 'word-counting'
 
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -259,4 +260,12 @@ export const wait = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
   })
+}
+
+export const wordsCount = (text: string, isHtml = true): number => {
+  try {
+    return wordsCounter(text, { isHtml }).wordsCount
+  } catch {
+    return 0
+  }
 }

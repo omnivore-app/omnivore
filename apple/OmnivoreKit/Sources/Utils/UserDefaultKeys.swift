@@ -13,4 +13,6 @@ public enum UserDefaultKey: String {
   case lastUsedAppVersion
   case lastUsedAppBuildNumber
   case lastItemSyncTime
+  case textToSpeechPlaybackRate
+  case textToSpeechCurrentVoice
 }

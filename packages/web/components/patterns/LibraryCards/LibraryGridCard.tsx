@@ -1,7 +1,7 @@
 import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { CoverImage } from '../../elements/CoverImage'
 import { StyledText } from '../../elements/StyledText'
-import { authoredByText } from '../ArticleSubtitle'
+import { removeHTMLTags } from '../ArticleSubtitle'
 import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
 import { theme } from '../../tokens/stitches.config'
 import { CardMenu } from '../CardMenu'
@@ -13,7 +13,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   return (
     <VStack
       css={{
-        p: '12px', 
+        p: '12px',
         height: '100%',
         width: '100%',
         maxWidth: '100%',
@@ -30,7 +30,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         props.handleAction('showDetail')
       }}
     >
-      {props.item.image && (
+      {props.item.image && props.layout !== 'LIST_LAYOUT' && (
         <CoverImage
           src={props.item.image}
           alt="Link Preview Image"
@@ -65,7 +65,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           }}
         >
           <CardTitle title={props.item.title} />
-          {/* <Box
+          <Box
             css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
             onClick={(e) => {
               // This is here to prevent menu click events from bubbling
@@ -85,20 +85,34 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               }
               actionHandler={props.handleAction}
             />
-          </Box> */}
+          </Box>
         </HStack>
-        {/* <HStack alignment="start" distribution="between">
-          <StyledText style="caption" css={{ my: '0', mt: '-$2' }}>
+        <HStack alignment="start" distribution="between">
+          <StyledText style="caption" css={{fontWeight: '600', margin: '5px 8px 5px 0' }}>
             {props.item.author && (
-              <SpanBox css={{ mr: '8px' }}>
-                {authoredByText(props.item.author)}
+              <SpanBox>
+                {removeHTMLTags(props.item.author)}
               </SpanBox>
             )}
-            <SpanBox css={{ textDecorationLine: 'underline' }}>
-              {props.originText}
-            </SpanBox>
+            {props.originText && (
+              <>
+                <Box
+                  css={{
+                    height: '4px',
+                    width: '4px',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    background: 'var(--colors-graySolid)',
+                    margin: '1px',
+                  }}
+                ></Box>
+                <SpanBox css={{ color: 'var(--colors-graySolid)' }}>
+                  {props.originText}
+                </SpanBox>
+              </>
+            )}
           </StyledText>
-        </HStack> */}
+        </HStack>
       </VStack>
       <HStack
         alignment="start"
@@ -132,7 +146,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         >
           {props.item.description}
         </StyledText>
-
       </HStack>
       <Box css={{ display: 'block', py: '12px' }}>
         {props.item.labels?.map(({ name, color }, index) => (
@@ -140,13 +153,13 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         ))}
       </Box>
       <ProgressBar
-          fillPercentage={props.item.readingProgressPercent}
-          fillColor={theme.colors.highlight.toString()}
-          backgroundColor={theme.colors.lightBorder.toString()}
-          borderRadius={
-            props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
-          }
-        />
+        fillPercentage={props.item.readingProgressPercent}
+        fillColor={theme.colors.highlight.toString()}
+        backgroundColor={theme.colors.lightBorder.toString()}
+        borderRadius={
+          props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
+        }
+      />
     </VStack>
   )
 }
