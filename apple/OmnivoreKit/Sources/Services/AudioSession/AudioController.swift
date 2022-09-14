@@ -40,6 +40,7 @@ struct VoicePair {
   let secondName: String
 }
 
+// swiftlint:disable all
 let VOICES = [
   VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny (USA)", secondName: "Brandon (USA)"),
   VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora (USA)", secondName: "Christopher (USA)"),
@@ -77,7 +78,6 @@ class SpeechPlayerItem: AVPlayerItem {
   }
 }
 
-// swiftlint:disable all
 public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioControllerState = .stopped
   @Published public var itemAudioProperties: LinkedItemAudioProperties?
@@ -257,15 +257,20 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     if let itemID = itemAudioProperties?.itemID {
       Task {
-        self.document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+        let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
 
         DispatchQueue.main.async {
-          let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: self.document!)
-          self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
-          self.synthesizer = synthesizer
+          if let document = document {
+            let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: document)
+            self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
+            self.synthesizer = synthesizer
 
-          self.state = desiredState
-          self.synthesizeFrom(start: currentIdx, playWhenReady: self.state == .playing, atOffset: currentOffset)
+            self.state = desiredState
+            self.synthesizeFrom(start: currentIdx, playWhenReady: self.state == .playing, atOffset: currentOffset)
+          } else {
+            print("error loading audio")
+            // TODO: post error to SnackBar?
+          }
         }
       }
     }
@@ -332,16 +337,21 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     if let itemID = itemAudioProperties?.itemID {
       Task {
-        self.document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+        let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
         DispatchQueue.main.async {
-          self.startStreamingAudio(itemID: itemID)
+          if let document = document {
+            self.startStreamingAudio(itemID: itemID, document: document)
+          } else {
+            print("unable to load speech document")
+            // TODO: Post error to SnackBar
+          }
         }
       }
     }
   }
 
   // swiftlint:disable all
-  private func startStreamingAudio(itemID _: String) {
+  private func startStreamingAudio(itemID _: String, document: SpeechDocument) {
     do {
       try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
     } catch {
@@ -351,7 +361,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
 
     player = AVQueuePlayer(items: [])
-    let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document!)
+    let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
     durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
     self.synthesizer = synthesizer
 
