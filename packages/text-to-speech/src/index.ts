@@ -75,7 +75,7 @@ const updateSpeech = async (
 
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    console.info('Text to speech request received')
+    console.info('Text to speech request body:', req.body)
     const token = req.query.token as string
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
@@ -142,7 +142,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
 
 export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
-    console.debug('Text to speech steaming request', req)
+    console.log('Text to speech steaming request body:', req.body)
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET not exists')
       return res.status(500).send({ errorCodes: 'JWT_SECRET_NOT_EXISTS' })
