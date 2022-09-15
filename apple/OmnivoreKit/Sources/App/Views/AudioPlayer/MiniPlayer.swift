@@ -402,15 +402,24 @@ public struct MiniPlayer: View {
     }
   }
 
+  var scrubbing: Bool {
+    switch audioController.scrubState {
+    case .scrubStarted:
+      return true
+    default:
+      return false
+    }
+  }
+
   func onDragChanged(value: DragGesture.Value) {
-    if value.translation.height > 0, expanded {
+    if value.translation.height > 0, expanded, !scrubbing {
       offset = value.translation.height
     }
   }
 
   func onDragEnded(value: DragGesture.Value) {
     withAnimation(.interactiveSpring()) {
-      if value.translation.height > minExpandedHeight {
+      if value.translation.height > minExpandedHeight, !scrubbing {
         expanded = false
       }
       offset = 0
