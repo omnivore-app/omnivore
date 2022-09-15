@@ -107,10 +107,14 @@ export function articleRouter() {
         if (!page) {
           return res.status(404).send('Page not found')
         }
-        const speechFile = htmlToSpeechFile(page.content, {
-          primaryVoice: voice,
-          secondaryVoice: secondaryVoice,
-          language: page.language,
+        const speechFile = htmlToSpeechFile({
+          title: page.title,
+          content: page.content,
+          options: {
+            primaryVoice: voice,
+            secondaryVoice: secondaryVoice,
+            language: page.language,
+          },
         })
         return res.send({ ...speechFile, pageId: articleId })
       }

@@ -8,13 +8,14 @@ import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import app.omnivore.omnivore.BuildConfig
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun ArticleWebView(slug: String, authCookieString: String) {
   WebView.setWebContentsDebuggingEnabled(true)
 
-  val url = "https://demo.omnivore.app/app/me/$slug"
+  val url = BuildConfig.OMNIVORE_WEB_URL + "/app/me/$slug"
 
   AndroidView(factory = {
     WebView(it).apply {
@@ -33,7 +34,8 @@ fun ArticleWebView(slug: String, authCookieString: String) {
 
       CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
       CookieManager.getInstance().setAcceptCookie(true)
-      CookieManager.getInstance().setCookie("https://api-demo.omnivore.app", authCookieString) {
+      CookieManager.getInstance().setCookie(BuildConfig.OMNIVORE_API_URL, authCookieString)
+      CookieManager.getInstance().setCookie(BuildConfig.OMNIVORE_WEB_URL, authCookieString) {
         loadUrl(url)
       }
     }

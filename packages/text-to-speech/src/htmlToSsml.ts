@@ -6,6 +6,12 @@ import { htmlToText } from 'html-to-text'
 // this code needs to be kept in sync with the
 // frontend code in: useReadingProgressAnchor
 
+export interface HtmlInput {
+  title?: string
+  content: string
+  options: SSMLOptions
+}
+
 export interface Utterance {
   idx: string
   text: string
@@ -69,7 +75,7 @@ const TOP_LEVEL_TAGS = [
 
 function parseDomTree(pageNode: Element) {
   if (!pageNode || pageNode.childNodes.length == 0) {
-    console.log(' no child nodes found')
+    console.log('no child nodes found')
     return []
   }
 
@@ -111,7 +117,7 @@ function emit(textItems: string[], text: string) {
 }
 
 function cleanTextNode(textNode: ChildNode): string {
-  return _.escape(textNode.textContent ?? ''.replace(/\s+/g, ' '))
+  return stripEmojis(_.escape(textNode.textContent ?? ''.replace(/\s+/g, ' ')))
 }
 
 function emitTextNode(
@@ -246,16 +252,45 @@ export const htmlToSsmlItems = (
   return items
 }
 
-const htmlToUtterance = (
-  tokenizer: WordPunctTokenizer,
-  idx: string,
-  htmlItems: string[],
-  wordOffset: number,
+export const stripEmojis = (text: string): string => {
+  const emojiRegex =
+    /(?![*#0-9]+)[\p{Emoji}\p{Emoji_Modifier}\p{Emoji_Component}\p{Emoji_Modifier_Base}\p{Emoji_Presentation}]/gu
+  return text.replace(emojiRegex, '').replace(/\s+/g, ' ')
+}
+
+const textToUtterance = ({
+  tokenizer,
+  idx,
+  textItems,
+  wordOffset,
+  voice,
+  isHtml = true,
+}: {
+  tokenizer: WordPunctTokenizer
+  idx: string
+  textItems: string[]
+  wordOffset: number
   voice?: string
-): Utterance => {
-  const text = htmlItems.join('')
-  const plainText = htmlToText(text, { wordwrap: false })
-  const wordCount = tokenizer.tokenize(plainText).length
+  isHtml?: boolean
+}): Utterance => {
+  const text = stripEmojis(textItems.join(''))
+  let textWithWordOffset = text
+  if (isHtml) {
+    try {
+      textWithWordOffset = htmlToText(text, { wordwrap: false })
+    } catch (err) {
+      console.error(
+        'Unable to convert HTML to text, html:',
+        text,
+        ', error:',
+        err
+      )
+      textWithWordOffset =
+        parseHTML(text).document.documentElement.textContent ?? text
+      console.info('Converted HTML to text:', textWithWordOffset)
+    }
+  }
+  const wordCount = tokenizer.tokenize(textWithWordOffset).length
   return {
     idx,
     text,
@@ -265,13 +300,11 @@ const htmlToUtterance = (
   }
 }
 
-export const htmlToSpeechFile = (
-  html: string,
-  options: SSMLOptions
-): SpeechFile => {
-  console.debug('creating speech file with options', options)
+export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
+  const { title, content, options } = htmlInput
+  console.log('creating speech file with options:', options)
 
-  const dom = parseHTML(html)
+  const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
     throw new Error('Unable to parse HTML document')
@@ -285,6 +318,19 @@ export const htmlToSpeechFile = (
   const tokenizer = new WordPunctTokenizer()
   const utterances: Utterance[] = []
   let wordOffset = 0
+  if (title) {
+    // first utterances is the title
+    const titleUtterance = textToUtterance({
+      tokenizer,
+      idx: '',
+      textItems: [title],
+      wordOffset,
+      isHtml: false,
+    })
+    utterances.push(titleUtterance)
+    wordOffset += titleUtterance.wordCount
+  }
+
   for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
     const node = parsedNodes[i - 2]
@@ -293,13 +339,14 @@ export const htmlToSpeechFile = (
       // use paragraph as anchor
       const idx = i.toString()
       i = emitElement(textItems, node, true)
-      const utterance = htmlToUtterance(
+      const utterance = textToUtterance({
         tokenizer,
         idx,
         textItems,
         wordOffset,
-        node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined
-      )
+        voice:
+          node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
+      })
       utterance.wordCount > 0 && utterances.push(utterance)
       wordOffset += utterance.wordCount
     }

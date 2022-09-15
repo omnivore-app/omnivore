@@ -11,10 +11,9 @@ interface Unsubscribe {
 const pubsub = new PubSub()
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
-const EMAIL_FORWARDING_SENDER_ADDRESSES = [
-  'Gmail Team <forwarding-noreply@google.com>',
-]
-const CONFIRMATION_CODE_PATTERN = /^\(#\d+\)/
+const CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
+// check unicode parentheses too
+const CONFIRMATION_CODE_PATTERN = /^[(（]#\d+[)）]/u
 const UNSUBSCRIBE_HTTP_URL_PATTERN = /<(https?:\/\/[^>]*)>/
 const UNSUBSCRIBE_MAIL_TO_PATTERN = /<mailto:([^>]*)>/
 
@@ -26,6 +25,14 @@ export const parseUnsubscribe = (unSubHeader: string): Unsubscribe => {
     mailTo: decoded.match(UNSUBSCRIBE_MAIL_TO_PATTERN)?.[1],
     httpUrl: decoded.match(UNSUBSCRIBE_HTTP_URL_PATTERN)?.[1],
   }
+}
+
+const parseAddress = (address: string): string => {
+  const parsed = addressparser(address)
+  if (parsed.length > 0) {
+    return parsed[0].address
+  }
+  return ''
 }
 
 export class NewsletterHandler {
@@ -123,8 +130,11 @@ export const getConfirmationCode = (subject: string): string | undefined => {
   return undefined
 }
 
-export const isConfirmationEmail = (from: string): boolean => {
-  return EMAIL_FORWARDING_SENDER_ADDRESSES.includes(from)
+export const isConfirmationEmail = (from: string, subject: string): boolean => {
+  return (
+    parseAddress(from) === CONFIRMATION_EMAIL_SENDER_ADDRESS &&
+    CONFIRMATION_CODE_PATTERN.test(subject)
+  )
 }
 
 const publishMessage = async (

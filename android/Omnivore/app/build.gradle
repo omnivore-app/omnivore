@@ -17,8 +17,8 @@ android {
         applicationId "app.omnivore.omnivore"
         minSdk 23
         targetSdk 32
-        versionCode 3
-        versionName "0.0.3"
+        versionCode 4
+        versionName "0.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -45,12 +45,14 @@ android {
         debug{
             signingConfig signingConfigs.debug
             buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-demo.omnivore.app\"")
+            buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://demo.omnivore.app\"")
             buildConfigField("String", "OMNIVORE_GAUTH_SERVER_CLIENT_ID", "\"267918240109-eu2ar09unac3lqqigluknhk7t0021b54.apps.googleusercontent.com\"")
         }
         release {
             minifyEnabled false
             signingConfig signingConfigs.release
             buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-prod.omnivore.app\"")
+            buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://omnivore.app\"")
             buildConfigField("String", "OMNIVORE_GAUTH_SERVER_CLIENT_ID", "\"687911924401-lq8j1e97n0sv3khhb8g8n368lk4dqkbp.apps.googleusercontent.com\"")
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

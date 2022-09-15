@@ -925,10 +925,12 @@ Readability.prototype = {
     // For example, this article (https://www.sciencedirect.com/science/article/abs/pii/S0047248498902196)
     // has a "View full text" anchor at the bottom of the page
     this._removeNodes(this._getAllNodesWithTag(articleContent, ["a"]), function (anchor) {
-      const possibleRedundantText = /view full|skip to content/ig;
+      const possibleRedundantText = /view full|skip to content|Open in browser/ig;
       const innerText = this._getInnerText(anchor);
-
-      return possibleRedundantText.test(innerText) && innerText.length <= 30;
+      // also removes anchors class names that contain 'tw-text-substack-secondary' as they are used for Substack subscription
+      const possibleRedundantClassName = 'tw-text-substack-secondary'
+      const className = anchor.className;
+      return (possibleRedundantText.test(innerText) && innerText.length <= 30) || className.includes(possibleRedundantClassName);
     });
   },
 

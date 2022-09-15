@@ -12,6 +12,15 @@ public struct LinkedItemQueryResult {
   }
 }
 
+public struct LinkedItemAudioProperties {
+  public let itemID: String
+  public let objectID: NSManagedObjectID
+  public let title: String
+  public let author: String?
+  public let siteName: String?
+  public let imageURL: URL?
+}
+
 // Internal model used for parsing a push notification object only
 public struct JSONArticle: Decodable {
   public let id: String
@@ -82,6 +91,17 @@ public extension LinkedItem {
     }
     guard let JSON = (try? JSONSerialization.data(withJSONObject: labels, options: .prettyPrinted)) else { return "[]" }
     return String(data: JSON, encoding: .utf8) ?? "[]"
+  }
+
+  var audioProperties: LinkedItemAudioProperties {
+    LinkedItemAudioProperties(
+      itemID: unwrappedID,
+      objectID: objectID,
+      title: unwrappedTitle,
+      author: author,
+      siteName: siteName,
+      imageURL: imageURL
+    )
   }
 
   static func lookup(byID itemID: String, inContext context: NSManagedObjectContext) -> LinkedItem? {

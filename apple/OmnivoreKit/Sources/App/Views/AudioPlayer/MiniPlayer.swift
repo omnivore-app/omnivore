@@ -12,7 +12,7 @@ import SwiftUI
 import Views
 
 public struct MiniPlayer: View {
-  @EnvironmentObject var audioSession: AudioSession
+  @EnvironmentObject var audioController: AudioController
   @Environment(\.colorScheme) private var colorScheme: ColorScheme
   private let presentingView: AnyView
 
@@ -30,26 +30,42 @@ public struct MiniPlayer: View {
   }
 
   var isPresented: Bool {
-    audioSession.item != nil && audioSession.state != .stopped
+    audioController.itemAudioProperties != nil && audioController.state != .stopped
+  }
+
+  var playPauseButtonImage: String {
+    switch audioController.state {
+    case .playing:
+      return "pause.circle"
+    case .paused:
+      return "play.circle"
+    case .reachedEnd:
+      return "gobackward"
+    default:
+      return ""
+    }
   }
 
   var playPauseButtonItem: some View {
-    if let item = audioSession.item, audioSession.isLoadingItem(item: item) {
+    if let itemID = audioController.itemAudioProperties?.itemID, audioController.isLoadingItem(itemID: itemID) {
       return AnyView(ProgressView())
     } else {
       return AnyView(Button(
         action: {
-          switch audioSession.state {
+          switch audioController.state {
           case .playing:
-            _ = audioSession.pause()
+            audioController.pause()
           case .paused:
-            _ = audioSession.unpause()
+            audioController.unpause()
+          case .reachedEnd:
+            audioController.seek(to: 0.0)
+            audioController.unpause()
           default:
             break
           }
         },
         label: {
-          Image(systemName: audioSession.state == .playing ? "pause.circle" : "play.circle")
+          Image(systemName: playPauseButtonImage)
             .font(expanded ? .system(size: 64.0, weight: .thin) : .appTitleTwo)
         }
       ))
@@ -59,7 +75,7 @@ public struct MiniPlayer: View {
   var stopButton: some View {
     Button(
       action: {
-        audioSession.stop()
+        audioController.stop()
       },
       label: {
         Image(systemName: "xmark")
@@ -68,25 +84,25 @@ public struct MiniPlayer: View {
     )
   }
 
-  var shareButton: some View {
-    Button(
-      action: {
-        let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
-        if let vc = UIApplication.shared.windows.first?.rootViewController {
-          shareActivity.popoverPresentationController?.sourceView = vc.view
-          // Setup share activity position on screen on bottom center
-          shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
-          shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
-          vc.present(shareActivity, animated: true, completion: nil)
-        }
-      },
-      label: {
-        Image(systemName: "square.and.arrow.up")
-          .font(.appCallout)
-          .tint(.appGrayText)
-      }
-    )
-  }
+//  var shareButton: some View {
+//    Button(
+//      action: {
+//        let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
+//        if let vc = UIApplication.shared.windows.first?.rootViewController {
+//          shareActivity.popoverPresentationController?.sourceView = vc.view
+//          // Setup share activity position on screen on bottom center
+//          shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
+//          shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
+//          vc.present(shareActivity, animated: true, completion: nil)
+//        }
+//      },
+//      label: {
+//        Image(systemName: "square.and.arrow.up")
+//          .font(.appCallout)
+//          .tint(.appGrayText)
+//      }
+//    )
+//  }
 
   var closeButton: some View {
     Button(
@@ -104,8 +120,8 @@ public struct MiniPlayer: View {
   }
 
   func viewArticle() {
-    if let item = audioSession.item {
-      NSNotification.pushReaderItem(objectID: item.objectID)
+    if let objectID = audioController.itemAudioProperties?.objectID {
+      NSNotification.pushReaderItem(objectID: objectID)
       withAnimation(.easeIn(duration: 0.1)) {
         expanded = false
       }
@@ -113,18 +129,18 @@ public struct MiniPlayer: View {
   }
 
   // swiftlint:disable:next function_body_length
-  func playerContent(_ item: LinkedItem) -> some View {
+  func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
       VStack {
         if expanded {
           ZStack {
             closeButton
-              .padding(.top, 8)
+              .padding(.top, 24)
               .frame(maxWidth: .infinity, alignment: .leading)
 
-            shareButton
-              .padding(.top, 8)
-              .frame(maxWidth: .infinity, alignment: .trailing)
+//            shareButton
+//              .padding(.top, 8)
+//              .frame(maxWidth: .infinity, alignment: .trailing)
 
             Capsule()
               .fill(.gray)
@@ -140,7 +156,7 @@ public struct MiniPlayer: View {
           let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
           let dim = expanded ? maxSize : 64
 
-          AsyncImage(url: item.imageURL) { image in
+          AsyncImage(url: itemAudioProperties.imageURL) { image in
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
@@ -153,7 +169,7 @@ public struct MiniPlayer: View {
           }
 
           if !expanded {
-            Text(item.unwrappedTitle)
+            Text(itemAudioProperties.title)
               .font(expanded ? .appTitle : .appCallout)
               .lineSpacing(1.25)
               .foregroundColor(.appGrayTextContrast)
@@ -172,7 +188,7 @@ public struct MiniPlayer: View {
         Spacer()
 
         if expanded {
-          Text(item.unwrappedTitle)
+          Text(itemAudioProperties.title)
             .lineLimit(1)
             .font(expanded ? .appTitle : .appCallout)
             .lineSpacing(1.25)
@@ -185,7 +201,7 @@ public struct MiniPlayer: View {
 
           HStack {
             Spacer()
-            if let author = item.author {
+            if let author = itemAudioProperties.author {
               Text(author)
                 .lineLimit(1)
                 .font(.appCallout)
@@ -193,14 +209,14 @@ public struct MiniPlayer: View {
                 .foregroundColor(.appGrayText)
                 .frame(alignment: .trailing)
             }
-            if item.author != nil, item.siteName != nil {
+            if itemAudioProperties.author != nil, itemAudioProperties.siteName != nil {
               Text(" • ")
                 .font(.appCallout)
                 .lineSpacing(1.25)
                 .foregroundColor(.appGrayText)
             }
-            if let site = item.siteName {
-              Text(site)
+            if let siteName = itemAudioProperties.siteName {
+              Text(siteName)
                 .lineLimit(1)
                 .font(.appCallout)
                 .lineSpacing(1.25)
@@ -210,13 +226,13 @@ public struct MiniPlayer: View {
             Spacer()
           }
 
-          Slider(value: $audioSession.timeElapsed,
-                 in: 0 ... self.audioSession.duration,
+          Slider(value: $audioController.timeElapsed,
+                 in: 0 ... self.audioController.duration,
                  onEditingChanged: { scrubStarted in
                    if scrubStarted {
-                     self.audioSession.scrubState = .scrubStarted
+                     self.audioController.scrubState = .scrubStarted
                    } else {
-                     self.audioSession.scrubState = .scrubEnded(self.audioSession.timeElapsed)
+                     self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
                    }
                  })
             .accentColor(.appCtaYellow)
@@ -237,25 +253,26 @@ public struct MiniPlayer: View {
             }
 
           HStack {
-            Text(audioSession.timeElapsedString ?? "0:00")
+            Text(audioController.timeElapsedString ?? "0:00")
               .font(.appCaptionTwo)
               .foregroundColor(.appGrayText)
             Spacer()
-            Text(audioSession.durationString ?? "0:00")
+            Text(audioController.durationString ?? "0:00")
               .font(.appCaptionTwo)
               .foregroundColor(.appGrayText)
           }
 
           HStack {
             Menu {
-              Button("1.0×", action: {})
-              Button("1.2×", action: {})
-              Button("1.5×", action: {})
-              Button("1.7×", action: {})
-              Button("2.0×", action: {})
+              playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
+              playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
+              playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
+              playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
+              playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
+              playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
             } label: {
               VStack {
-                Text("1.0×")
+                Text(String(format: "%.1f×", audioController.playbackRate))
                   .font(.appCallout)
                   .lineLimit(0)
               }
@@ -264,7 +281,7 @@ public struct MiniPlayer: View {
             .padding(8)
 
             Button(
-              action: { self.audioSession.skipBackwards(seconds: 30) },
+              action: { self.audioController.skipBackwards(seconds: 30) },
               label: {
                 Image(systemName: "gobackward.30")
                   .font(.appTitleTwo)
@@ -276,7 +293,7 @@ public struct MiniPlayer: View {
               .padding(32)
 
             Button(
-              action: { self.audioSession.skipForward(seconds: 30) },
+              action: { self.audioController.skipForward(seconds: 30) },
               label: {
                 Image(systemName: "goforward.30")
                   .font(.appTitleTwo)
@@ -312,18 +329,39 @@ public struct MiniPlayer: View {
     }
   }
 
+  func playbackRateButton(rate: Double, title: String, selected: Bool) -> some View {
+    Button(action: {
+      audioController.playbackRate = rate
+    }) {
+      HStack {
+        Text(title)
+        Spacer()
+        if selected {
+          Image(systemName: "checkmark")
+        }
+      }
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(PlainButtonStyle())
+  }
+
   public var body: some View {
     ZStack(alignment: .center) {
       presentingView
-      VStack {
-        Spacer()
-        if let item = self.audioSession.item, isPresented {
-          playerContent(item)
-            .offset(y: offset)
-            .frame(maxHeight: expanded ? .infinity : 88)
-            .tint(.appGrayTextContrast)
-            .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
-            .background(expanded ? .clear : .systemBackground)
+      if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
+        ZStack(alignment: .bottom) {
+          Color.systemBackground.edgesIgnoringSafeArea(.bottom)
+            .frame(height: 88, alignment: .bottom)
+
+          VStack {
+            Spacer(minLength: 0)
+            playerContent(itemAudioProperties)
+              .offset(y: offset)
+              .frame(maxHeight: expanded ? .infinity : 88)
+              .tint(.appGrayTextContrast)
+              .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
+              .background(expanded ? .clear : .systemBackground)
+          }
         }
       }
     }
@@ -333,9 +371,21 @@ public struct MiniPlayer: View {
     NavigationView {
       VStack {
         List {
-          ForEach(["Jenny", "Guy"], id: \.self) { name in
-            Button(action: {}) {
-              Text(name)
+          ForEach(audioController.voiceList ?? [], id: \.key.self) { voice in
+            Button(action: {
+              audioController.currentVoice = voice.key
+              self.showVoiceSheet = false
+            }) {
+              HStack {
+                Text(voice.name)
+
+                Spacer()
+
+                if voice.selected {
+                  Image(systemName: "checkmark")
+                }
+              }
+              .contentShape(Rectangle())
             }
             .buttonStyle(PlainButtonStyle())
           }
@@ -344,7 +394,7 @@ public struct MiniPlayer: View {
         .listStyle(.plain)
         Spacer()
       }
-      .navigationBarTitle("Change Voice")
+      .navigationBarTitle("Voice")
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
         Image(systemName: "chevron.backward")

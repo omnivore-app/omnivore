@@ -33,11 +33,7 @@ struct WelcomeView: View {
 
   var headlineText: some View {
     Group {
-      if horizontalSizeClass == .compact {
-        Text("Everything you read. Safe, organized, and easy to share.")
-      } else {
-        Text("Everything you read. Safe,\norganized, and easy to share.")
-      }
+      Text("Never miss a great read.")
     }
     .font(.appLargeTitle)
   }

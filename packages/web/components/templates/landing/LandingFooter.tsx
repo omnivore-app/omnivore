@@ -117,9 +117,9 @@ export function LandingFooter(): JSX.Element {
             </a>
           </Box>
           {/* <Box style={imageStyles}>
-            <Link passHref href="#">
+            <Link passHref href="https://play.google.com/store/apps/details?id=app.omnivore.omnivore">
               <a>
-                <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={190} height={60} layout='intrinsic'/>
+                <Image src='/static/media/googlePlayBadge.png' alt='app-store' width={120} height={40} layout='intrinsic'/>
               </a>
             </Link>
           </Box> */}

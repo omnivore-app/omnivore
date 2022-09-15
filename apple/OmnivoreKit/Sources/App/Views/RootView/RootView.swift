@@ -27,7 +27,7 @@ public struct RootView: View {
     InnerRootView(viewModel: viewModel)
       .environmentObject(viewModel.services.authenticator)
       .environmentObject(viewModel.services.dataService)
-      .environmentObject(viewModel.services.audioSession)
+      .environmentObject(viewModel.services.audioController)
       .environment(\.managedObjectContext, viewModel.services.dataService.viewContext)
       .onChange(of: scenePhase) { phase in
         if phase == .background {
