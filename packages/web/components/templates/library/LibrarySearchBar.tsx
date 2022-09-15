@@ -47,16 +47,19 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
   useEffect(() => {
     setRecentSearches(Object.values(localStorage))
     //localStorage.clear()
+    if (recentSearches.length > 0) {
+      console.log('recentSearches recentSearches', recentSearches)
+    }
   }, [])
 
   return (
     <>
       <Downshift
-        onChange={(selection) =>
-          console.log(
-            selection ? `You selected ${selection}` : 'Selection Cleared'
-          )
-        }
+        // onChange={(selection) =>
+        //   console.log(
+        //     selection ? `You selected ${selection}` : 'Selection Cleared'
+        //   )
+        // }
         itemToString={(item) => (item ? item : '')}
       >
         {({
@@ -147,6 +150,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                       event.preventDefault()
                       if (inputValue !== null) {
                         localStorage.setItem(inputValue, inputValue)
+                        setRecentSearches(Object.values(localStorage))
                       }
                       // props.applySearchQuery('')
                       // inputRef.current?.blur()
@@ -170,7 +174,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                   {/* )} */}
                 </HStack>
 
-                <List {...getMenuProps()}>
+                <List>
                   {isOpen &&
                     recentSearches
                       .filter(
@@ -178,10 +182,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                       )
                       .map((item, index) => (
                         <SpanBox
-                          {...getItemProps({
-                            item,
-                            index,
-                          })}
+                          {...getMenuProps()}
                           key={item}
                           css={{
                             display: 'flex',
@@ -198,11 +199,22 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                           }}
                         >
                           <Clock size={20} />
-                          <Item>{item}</Item>
+                          <Item
+                            {...getItemProps({
+                              item,
+                              index,
+                            })}
+                          >
+                            {item}
+                          </Item>
                           <X
                             width={20}
                             height={20}
                             color={theme.colors.grayTextContrast.toString()}
+                            onClick={() => {
+                              localStorage.removeItem(`${item}`)
+                              setRecentSearches(Object.values(localStorage))
+                            }}
                           />
                         </SpanBox>
                       ))}
