@@ -27,10 +27,10 @@ const Item = styled('li', {
   listStyleType: 'none',
   p: '8px',
   borderRadius: '5px',
-  textOverflow: 'ellipsis',
-
   display: 'flex',
   justifyContent: 'flex-start',
+  width: '95%',
+  overflow: 'auto',
   alignItems: 'center',
   '& svg': {
     marginRight: '10px',
@@ -197,10 +197,8 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                                 : 'transparent',
                           }}
                         >
-                          <Item>
-                            <Clock size={20} />
-                            {item}
-                          </Item>
+                          <Clock size={20} />
+                          <Item>{item}</Item>
                           <X
                             width={20}
                             height={20}
