@@ -468,9 +468,13 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       case .scrubStarted:
         break
       case let .scrubEnded(seekTime):
-        scrubState = .reset
         timeElapsed = seekTime
         timeElapsedString = formatTimeInterval(timeElapsed)
+        if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+          nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
+          nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
+          MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
+        }
       }
     }
 
