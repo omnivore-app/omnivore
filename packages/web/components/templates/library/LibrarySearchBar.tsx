@@ -143,7 +143,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                     }}
                     onClick={(event) => {
                       event.preventDefault()
-                      if (inputValue !== null) {
+                      if (inputValue && inputValue.length > 0) {
                         localStorage.setItem(inputValue, inputValue)
                         setRecentSearches(Object.values(localStorage))
                       }
