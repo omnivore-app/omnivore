@@ -337,4 +337,27 @@ on smaller screens we display the note icon
   }
 }
 
+.article-inner-css .morning-brew-markets {
+  max-width: 100% !important;
+}
 
+.article-inner-css .morning-brew-markets tbody{
+  width: 100%;
+  display: table;
+}
+
+.article-inner-css .morning-brew-markets td:nth-child(1) {
+  width: 20%;
+}
+
+.article-inner-css .morning-brew-markets td:nth-child(2) {
+  width: 34%;
+}
+
+.article-inner-css .morning-brew-markets td:nth-child(3) {
+  width: 34%;
+}
+
+.article-inner-css .morning-brew-markets td:nth-child(4) {
+  width: 12%;
+}
