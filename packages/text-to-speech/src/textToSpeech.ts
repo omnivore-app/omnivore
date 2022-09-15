@@ -81,7 +81,7 @@ export const synthesizeTextToSpeech = async (
     if (cancellationDetails.reason === CancellationReason.Error) {
       str += ': ' + e.result.errorDetails
     }
-    console.error('synthesis error:', str)
+    console.log(str)
   }
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
@@ -142,6 +142,9 @@ export const synthesizeTextToSpeech = async (
     wordOffset = -start.length
     const ssml = `${start}${input.text}${endSsml()}`
     const result = await speakSsmlAsyncPromise(ssml)
+    if (result.reason === ResultReason.Canceled) {
+      throw new Error(result.errorDetails)
+    }
     return {
       audioData: Buffer.from(result.audioData),
       speechMarks,
