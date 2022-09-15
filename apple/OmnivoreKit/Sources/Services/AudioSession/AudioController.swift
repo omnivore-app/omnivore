@@ -204,12 +204,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
         if playerItem.speechItem.audioIdx == foundIdx {
           playerItem.seek(to: CMTimeMakeWithSeconds(remainder, preferredTimescale: 600), completionHandler: nil)
+          fireTimer()
           return
         }
       }
 
-      // Move the playback to the found index, we should also seek a bit
-      // within this index, but this is probably accurate enough for now.
+      // Move the playback to the found index, we also seek by the remainder amount
+      // before moving we pause the player so playback doesnt jump to a previous spot
+      player?.pause()
       player?.removeAllItems()
       synthesizeFrom(start: foundIdx, playWhenReady: state == .playing, atOffset: remainder)
     } else {
