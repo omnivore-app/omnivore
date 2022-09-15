@@ -44,6 +44,7 @@ export type SSMLOptions = {
 
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
+const DEFAULT_SECONDARY_VOICE = 'en-US-GuyNeural'
 const DEFAULT_RATE = '1.0'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
@@ -186,13 +187,11 @@ function emitElement(
 export const startSsml = (options: SSMLOptions, element?: Element): string => {
   const voice =
     element?.nodeName === 'BLOCKQUOTE'
-      ? options.secondaryVoice
-      : options.primaryVoice
+      ? options.secondaryVoice ?? DEFAULT_SECONDARY_VOICE
+      : options.primaryVoice ?? DEFAULT_VOICE
   return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${
     options.language || DEFAULT_LANGUAGE
-  }"><voice name="${voice || DEFAULT_VOICE}"><prosody rate="${
-    options.rate || DEFAULT_RATE
-  }">`
+  }"><voice name="${voice}"><prosody rate="${options.rate || DEFAULT_RATE}">`
 }
 
 export const endSsml = (): string => {
