@@ -153,7 +153,6 @@ export const synthesizeTextToSpeech = async (
     console.error('synthesis error:', error)
     throw error
   } finally {
-    console.log('closing synthesizer')
     audioStream?.end()
     synthesizer.close()
     console.log('synthesizer closed')

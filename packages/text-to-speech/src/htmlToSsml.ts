@@ -302,7 +302,7 @@ const textToUtterance = ({
 
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
-  console.log('creating speech file with options', options)
+  console.log('creating speech file with options:', options)
 
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
