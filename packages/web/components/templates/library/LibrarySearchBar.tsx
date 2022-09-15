@@ -12,7 +12,7 @@ import { SearchCoordinator } from './LibraryContainer'
 
 const List = styled('ul', {
   width: '91%',
-  height: '400px',
+  maxHeight: '400px',
   overflow:'auto',
   top: '65px',
   left: '-32px',
