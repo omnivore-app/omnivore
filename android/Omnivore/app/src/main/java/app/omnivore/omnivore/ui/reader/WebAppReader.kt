@@ -34,6 +34,7 @@ fun ArticleWebView(slug: String, authCookieString: String) {
 
       CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
       CookieManager.getInstance().setAcceptCookie(true)
+      CookieManager.getInstance().setCookie(BuildConfig.OMNIVORE_API_URL, authCookieString)
       CookieManager.getInstance().setCookie(BuildConfig.OMNIVORE_WEB_URL, authCookieString) {
         loadUrl(url)
       }
