@@ -81,16 +81,11 @@ export const synthesizeTextToSpeech = async (
     if (cancellationDetails.reason === CancellationReason.Error) {
       str += ': ' + e.result.errorDetails
     }
-    console.error(str)
+    console.log(str)
   }
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = (s, e) => {
-    console.debug(
-      `(word boundary) Audio offset: ${e.audioOffset / 10000}ms, text: ${
-        e.text
-      }`
-    )
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
@@ -101,11 +96,6 @@ export const synthesizeTextToSpeech = async (
   }
 
   synthesizer.bookmarkReached = (s, e) => {
-    console.debug(
-      `(bookmark reached) Audio offset: ${
-        e.audioOffset / 10000
-      }ms, bookmark text: ${e.text}`
-    )
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
@@ -152,17 +142,19 @@ export const synthesizeTextToSpeech = async (
     wordOffset = -start.length
     const ssml = `${start}${input.text}${endSsml()}`
     const result = await speakSsmlAsyncPromise(ssml)
+    if (result.reason === ResultReason.Canceled) {
+      throw new Error(result.errorDetails)
+    }
     return {
       audioData: Buffer.from(result.audioData),
       speechMarks,
     }
   } catch (error) {
-    console.error('synthesis error', error)
+    console.error('synthesis error:', error)
     throw error
   } finally {
-    console.debug('closing synthesizer')
     audioStream?.end()
     synthesizer.close()
-    console.debug('synthesizer closed')
+    console.log('synthesizer closed')
   }
 }
