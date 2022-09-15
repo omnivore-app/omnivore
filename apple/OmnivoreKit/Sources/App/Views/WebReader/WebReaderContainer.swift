@@ -262,7 +262,15 @@ struct WebReaderContainerView: View {
             }
           }
           .task {
-            await viewModel.loadContent(dataService: dataService, itemID: item.unwrappedID)
+            if let username = dataService.currentViewer?.username {
+              await viewModel.loadContent(
+                dataService: dataService,
+                username: username,
+                itemID: item.unwrappedID
+              )
+            } else {
+              viewModel.errorMessage = "You are not logged in."
+            }
           }
       }
       #if os(iOS)

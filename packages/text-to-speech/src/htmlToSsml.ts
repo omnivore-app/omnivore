@@ -75,7 +75,7 @@ const TOP_LEVEL_TAGS = [
 
 function parseDomTree(pageNode: Element) {
   if (!pageNode || pageNode.childNodes.length == 0) {
-    console.log(' no child nodes found')
+    console.log('no child nodes found')
     return []
   }
 
@@ -279,10 +279,15 @@ const textToUtterance = ({
     try {
       textWithWordOffset = htmlToText(text, { wordwrap: false })
     } catch (err) {
-      console.error('Unable to convert HTML to text', { text, err })
+      console.error(
+        'Unable to convert HTML to text, html:',
+        text,
+        ', error:',
+        err
+      )
       textWithWordOffset =
         parseHTML(text).document.documentElement.textContent ?? text
-      console.debug('Converted HTML to text', { textWithWordOffset })
+      console.info('Converted HTML to text:', textWithWordOffset)
     }
   }
   const wordCount = tokenizer.tokenize(textWithWordOffset).length
@@ -297,7 +302,7 @@ const textToUtterance = ({
 
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
-  console.debug('creating speech file with options', options)
+  console.log('creating speech file with options:', options)
 
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')

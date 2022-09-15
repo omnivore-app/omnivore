@@ -13,15 +13,11 @@ public extension DataService {
 
   func loadArticleContentWithRetries(
     itemID: String,
-    username: String? = nil,
+    username: String,
     requestCount: Int = 1
   ) async throws -> ArticleContent {
     guard requestCount < 7 else {
       throw ContentFetchError.badData
-    }
-
-    guard let username = username ?? currentViewer?.username else {
-      throw ContentFetchError.unauthorized
     }
 
     let fetchedContent = try await loadArticleContent(username: username, itemID: itemID, useCache: true)
