@@ -86,11 +86,6 @@ export const synthesizeTextToSpeech = async (
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = (s, e) => {
-    console.debug(
-      `(word boundary) Audio offset: ${e.audioOffset / 10000}ms, text: ${
-        e.text
-      }`
-    )
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
@@ -101,11 +96,6 @@ export const synthesizeTextToSpeech = async (
   }
 
   synthesizer.bookmarkReached = (s, e) => {
-    console.debug(
-      `(bookmark reached) Audio offset: ${
-        e.audioOffset / 10000
-      }ms, bookmark text: ${e.text}`
-    )
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
