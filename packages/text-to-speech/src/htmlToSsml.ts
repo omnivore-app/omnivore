@@ -279,7 +279,12 @@ const textToUtterance = ({
     try {
       textWithWordOffset = htmlToText(text, { wordwrap: false })
     } catch (err) {
-      console.error('Unable to convert HTML to text', { text, err })
+      console.error(
+        'Unable to convert HTML to text, html:',
+        text,
+        ', error:',
+        err
+      )
       textWithWordOffset =
         parseHTML(text).document.documentElement.textContent ?? text
       console.info('Converted HTML to text:', textWithWordOffset)

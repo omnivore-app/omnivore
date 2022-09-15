@@ -81,7 +81,7 @@ export const synthesizeTextToSpeech = async (
     if (cancellationDetails.reason === CancellationReason.Error) {
       str += ': ' + e.result.errorDetails
     }
-    console.error(str)
+    console.error('synthesis error:', str)
   }
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
@@ -157,7 +157,7 @@ export const synthesizeTextToSpeech = async (
       speechMarks,
     }
   } catch (error) {
-    console.error('synthesis error', error)
+    console.error('synthesis error:', error)
     throw error
   } finally {
     console.log('closing synthesizer')

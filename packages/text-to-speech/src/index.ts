@@ -84,7 +84,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (e) {
-      console.error(e)
+      console.error('Authentication error:', e)
       return res.status(200).send('UNAUTHENTICATED')
     }
     // validate input
@@ -92,7 +92,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
     const id = input.id
     const bucket = input.bucket
     if (!id || !bucket) {
-      return res.status(200).send('Invalid data')
+      return res.status(200).send('INVALID_INPUT')
     }
     try {
       // audio file to be saved in GCS
@@ -133,7 +133,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.info('Text to speech cloud function completed')
       res.send('OK')
     } catch (e) {
-      console.error('Text to speech cloud function error', e)
+      console.error('Text to speech cloud function error:', e)
       await updateSpeech(id, token, 'FAILED')
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
     }
@@ -149,13 +149,13 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
     const token = (req.query.token || req.headers.authorization) as string
     if (!token) {
-      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+      return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
     }
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (e) {
-      console.error(e)
-      return res.status(401).send({ errorCode: 'UNAUTHORIZED' })
+      console.error('Authentication error:', e)
+      return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
     }
 
     try {
@@ -174,7 +174,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         speechMarks,
       })
     } catch (e) {
-      console.error('Text to speech streaming error', e)
+      console.error('Text to speech streaming error:', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
     }
   }
