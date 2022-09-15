@@ -74,7 +74,7 @@ public struct FeedCard: View {
             Spacer()
           }
         }
-        .padding(.top, 8)
+        .padding(.top, 0)
       }
     }
     .padding(.top, 0)
