@@ -204,6 +204,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
         if playerItem.speechItem.audioIdx == foundIdx {
           playerItem.seek(to: CMTimeMakeWithSeconds(remainder, preferredTimescale: 600), completionHandler: nil)
+          scrubState = .reset
           fireTimer()
           return
         }
@@ -222,6 +223,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         synthesizeFrom(start: durations.count - 1, playWhenReady: state == .playing, atOffset: last)
       }
     }
+
+    scrubState = .reset
     fireTimer()
   }
 
