@@ -27,16 +27,9 @@ const List = styled('ul', {
 
 const Item = styled('li', {
   listStyleType: 'none',
-  p: '8px',
+  m: '8px',
   borderRadius: '5px',
-  display: 'flex',
-  justifyContent: 'flex-start',
-  width: '95%',
-  overflow: 'auto',
-  alignItems: 'center',
-  '& svg': {
-    marginRight: '10px',
-  },
+  width: '100%',
 })
 
 export type LibrarySearchBarProps = {
@@ -187,8 +180,8 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                           {...getMenuProps()}
                           key={item}
                           css={{
+                            paddingLeft: '15px',
                             display: 'flex',
-                            justifyContent: 'space-between',
                             alignItems: 'center',
                             borderBottom: '1px solid $grayBorder',
                             '& svg': {
