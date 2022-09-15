@@ -77,7 +77,7 @@ public struct FeedCard: View {
         .padding(.top, 8)
       }
     }
-    .padding(.top, 10)
+    .padding(.top, 0)
     .padding(.bottom, 8)
     .frame(
       minWidth: nil,
