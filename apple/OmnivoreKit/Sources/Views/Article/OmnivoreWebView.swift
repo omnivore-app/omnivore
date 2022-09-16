@@ -8,11 +8,18 @@ public enum WebViewAction: String, CaseIterable {
   case readingProgressUpdate
 }
 
+enum ContextMenu {
+  case defaultMenu
+  case highlightMenu
+}
+
 public final class OmnivoreWebView: WKWebView {
   #if os(iOS)
     private var panGestureRecognizer: UIPanGestureRecognizer?
     private var tapGestureRecognizer: UITapGestureRecognizer?
   #endif
+
+  private var currentMenu: ContextMenu = .defaultMenu
 
   override init(frame: CGRect, configuration: WKWebViewConfiguration) {
     super.init(frame: frame, configuration: configuration)
@@ -20,6 +27,10 @@ public final class OmnivoreWebView: WKWebView {
     #if os(iOS)
       initNativeIOSMenus()
     #endif
+
+    if #available(iOS 16.0, *) {
+      self.isFindInteractionEnabled = true
+    }
 
     NotificationCenter.default.addObserver(forName: NSNotification.Name("SpeakingReaderItem"), object: nil, queue: OperationQueue.main, using: { notification in
       if let pageID = notification.userInfo?["pageID"] as? String, let anchorIdx = notification.userInfo?["anchorIdx"] as? String {
@@ -132,19 +143,33 @@ public final class OmnivoreWebView: WKWebView {
     }
 
     private func setDefaultMenu() {
-      let annotate = UIMenuItem(title: "Annotate", action: #selector(annotateSelection))
-      let highlight = UIMenuItem(title: "Highlight", action: #selector(highlightSelection))
-      //     let share = UIMenuItem(title: "Share", action: #selector(shareSelection))
+      currentMenu = .defaultMenu
 
-      UIMenuController.shared.menuItems = [highlight, /* share, */ annotate]
+      if #available(iOS 16.0, *) {
+        // on iOS16 we use menuBuilder to create these items
+      } else {
+        let annotate = UIMenuItem(title: "Annotate", action: #selector(annotateSelection))
+        let highlight = UIMenuItem(title: "Highlight", action: #selector(highlightSelection))
+        //     let share = UIMenuItem(title: "Share", action: #selector(shareSelection))
+
+        UIMenuController.shared.menuItems = [highlight, /* share, */ annotate]
+      }
     }
 
     private func setHighlightMenu() {
-      let annotate = UIMenuItem(title: "Annotate", action: #selector(annotateSelection))
-      let remove = UIMenuItem(title: "Remove", action: #selector(removeSelection))
-      //     let share = UIMenuItem(title: "Share", action: #selector(shareSelection))
+      currentMenu = .highlightMenu
 
-      UIMenuController.shared.menuItems = [remove, /* share, */ annotate]
+      if #available(iOS 16.0, *) {
+        // on iOS16 we use menuBuilder to create these items
+      } else {
+        // on iOS16 we use menuBuilder to create these items
+        currentMenu = .defaultMenu
+        let annotate = UIMenuItem(title: "Annotate", action: #selector(annotateSelection))
+        let remove = UIMenuItem(title: "Remove", action: #selector(removeSelection))
+        //     let share = UIMenuItem(title: "Share", action: #selector(shareSelection))
+
+        UIMenuController.shared.menuItems = [remove, /* share, */ annotate]
+      }
     }
 
     override public var canBecomeFirstResponder: Bool {
@@ -168,6 +193,8 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
       case Selector(("_lookup:")): return true
+      case Selector(("_define:")): return true
+      case Selector(("_findSelected:")): return true
       default: return false
       }
     }
@@ -200,6 +227,21 @@ public final class OmnivoreWebView: WKWebView {
       super.copy(sender)
       dispatchEvent(.copyHighlight)
       hideMenu()
+    }
+
+    override public func buildMenu(with builder: UIMenuBuilder) {
+      if #available(iOS 16.0, *) {
+        let annotate = UICommand(title: "Note", action: #selector(annotateSelection))
+        let highlight = UICommand(title: "Highlight", action: #selector(highlightSelection))
+        let remove = UICommand(title: "Remove", action: #selector(removeSelection))
+
+        let omnivore = UIMenu(title: "",
+                              options: .displayInline,
+                              children: currentMenu == .defaultMenu ? [highlight, annotate] : [annotate, remove])
+        builder.insertSibling(omnivore, beforeMenu: .lookup)
+      }
+
+      super.buildMenu(with: builder)
     }
 
     private func hideMenu() {

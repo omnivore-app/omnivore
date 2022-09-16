@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.home
 
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

@@ -16,6 +16,7 @@ interface DatastoreRepository {
   suspend fun putInt(key: String, value: Int)
   suspend fun getString(key: String): String?
   suspend fun getInt(key: String): Int?
+  suspend fun clearValue(key: String)
 }
 
 class OmnivoreDatastore @Inject constructor(
@@ -53,6 +54,11 @@ class OmnivoreDatastore @Inject constructor(
 
   override suspend fun clear() {
     context.dataStore.edit { it.clear() }
+  }
+
+  override suspend fun clearValue(key: String) {
+    val preferencesKey = stringPreferencesKey(key)
+    context.dataStore.edit { it.remove(preferencesKey) }
   }
 
   override val hasAuthTokenFlow: Flow<Boolean> = context

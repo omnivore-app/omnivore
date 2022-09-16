@@ -72,7 +72,11 @@ export const saveEmail = async (
     state: ArticleSavingRequestStatus.Succeeded,
   }
 
-  const page = await getPageByParam({ userId: ctx.uid, url: articleToSave.url })
+  const page = await getPageByParam({
+    userId: ctx.uid,
+    url: articleToSave.url,
+    state: ArticleSavingRequestStatus.Succeeded,
+  })
   if (page) {
     const result = await updatePage(page.id, { archivedAt: null }, ctx)
     console.log('updated page from email', result)
