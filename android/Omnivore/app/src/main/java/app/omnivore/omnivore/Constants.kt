@@ -9,6 +9,7 @@ object Constants {
 object DatastoreKeys {
   const val omnivoreAuthToken =  "omnivoreAuthToken"
   const val omnivoreAuthCookieString =  "omnivoreAuthCookieString"
+  const val omnivorePendingUserToken =  "omnivorePendingUserToken"
 }
 
 object AppleConstants {
