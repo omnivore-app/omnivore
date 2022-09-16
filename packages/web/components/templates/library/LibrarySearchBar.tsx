@@ -120,7 +120,8 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                     style="plainIcon"
                     onClick={(event) => {
                       event.preventDefault()
-                      clearSelection
+                      clearSelection()
+                     
                       //props.applySearchQuery('')
                       // inputRef.current?.blur()
                     }}
