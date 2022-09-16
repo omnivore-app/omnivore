@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -26,10 +27,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import app.omnivore.omnivore.BuildConfig
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun EmailLoginView(viewModel: LoginViewModel) {
+  val uriHandler = LocalUriHandler.current
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -75,7 +78,10 @@ fun EmailLoginView(viewModel: LoginViewModel) {
           text = AnnotatedString("Forgot your password?"),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-          onClick = { viewModel.showForgotPasswordView() }
+          onClick = {
+            val uri = "${BuildConfig.OMNIVORE_WEB_URL}/auth/forgot-password"
+            uriHandler.openUri(uri)
+          }
         )
       }
     }
