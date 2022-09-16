@@ -226,7 +226,7 @@ Readability.prototype = {
 
   // These are the classes that readability sets itself.
   CLASSES_TO_PRESERVE: [
-    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder",
+    "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets"
   ],
 
   // Classes of placeholder elements that can be empty but shouldn't be removed
@@ -831,6 +831,10 @@ Readability.prototype = {
    * @return void
    **/
   _prepArticle: async function (articleContent) {
+    if (this._keepTables) {
+      // replace tables which is not a preserve class with divs for newsletters
+      this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]).filter(t => !this._classesToPreserve.includes(t.className)), "div");
+    }
     await this._createPlaceholders(articleContent);
     this._cleanStyles(articleContent);
     // Check for data tables before we continue, to avoid removing items in
@@ -874,7 +878,7 @@ Readability.prototype = {
 
     // Do these last as the previous stuff may have removed junk
     // that will affect these
-    !this._keepTables && this._cleanConditionally(articleContent, "table");
+    this._cleanConditionally(articleContent, "table");
     this._cleanConditionally(articleContent, "ul");
     this._cleanConditionally(articleContent, "div");
 
@@ -917,9 +921,6 @@ Readability.prototype = {
         }
       }
     });
-
-    // replace tables of article content with divs for newsletters
-    this._keepTables && this._replaceNodeTags(this._getAllNodesWithTag(articleContent, ["table"]), "div");
 
     // Final clean up of nodes that might pass readability conditions but still contain redundant text
     // For example, this article (https://www.sciencedirect.com/science/article/abs/pii/S0047248498902196)

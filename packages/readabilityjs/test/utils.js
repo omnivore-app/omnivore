@@ -14,14 +14,23 @@ var testPageRoot = path.join(__dirname, "test-pages");
 
 exports.getTestPages = function(isOmnivore = null) {
   const root = isOmnivore ? `${testPageRoot}/omnivore` : testPageRoot;
-  return fs.readdirSync(root).filter(dir => dir !== 'omnivore').map(function(dir) {
-    return {
+  const testPages = [];
+  const testPageDirs = fs.readdirSync(root).filter(dir => dir !== 'omnivore');
+  testPageDirs.forEach(function(dir) {
+    if (dir === 'newsletters') {
+      // newsletters are a special case, they are in a subdirectory
+      testPageDirs.push(fs.readdirSync(path.join(root, dir)).map(subdir => path.join(dir, subdir)));
+      return;
+    }
+
+    testPages.push({
       dir: dir,
       source: readFile(path.join(root, dir, "source.html")),
       expectedContent: readFile(path.join(root, dir, "expected.html")),
       expectedMetadata: readJSON(path.join(root, dir, "expected-metadata.json")),
-    };
+    });
   });
+  return testPages;
 };
 
 exports.prettyPrint = function(html) {

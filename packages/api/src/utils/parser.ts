@@ -20,6 +20,7 @@ import { User } from '../entity/user'
 import { ILike } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import addressparser from 'addressparser'
+import { MorningBrewHandler } from './morning-brew-handler'
 
 const logger = buildLogger('utils.parse')
 
@@ -57,6 +58,7 @@ const HANDLERS = [
   new AxiosHandler(),
   new BloombergHandler(),
   new GolangHandler(),
+  new MorningBrewHandler(),
 ]
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
