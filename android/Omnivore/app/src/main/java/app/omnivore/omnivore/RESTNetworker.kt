@@ -22,6 +22,13 @@ data class SignInParams(
   val source: String = "ANDROID"
 )
 
+data class EmailSignUpParams(
+  val email: String,
+  val password: String,
+  val username: String,
+  val name: String
+)
+
 data class EmailAuthPayload(
   val authCookieString: String?,
   val authToken: String?,
@@ -65,6 +72,12 @@ interface CreateAccountSubmit {
   @Headers("Content-Type: application/json")
   @POST("/api/mobile-auth/create-account")
   suspend fun submitCreateAccount(@Body params: CreateAccountParams): Response<AuthPayload>
+}
+
+interface CreateEmailAccountSubmit {
+  @Headers("Content-Type: application/json")
+  @POST("/api/mobile-auth/email-sign-up")
+  suspend fun submitCreateEmailAccount(@Body params: EmailSignUpParams): Response<Unit>
 }
 
 object RetrofitHelper {

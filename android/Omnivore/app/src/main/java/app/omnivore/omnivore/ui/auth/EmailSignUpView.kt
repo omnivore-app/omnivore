@@ -26,9 +26,56 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun EmailSignUpView(viewModel: LoginViewModel) {
+  if (viewModel.pendingEmailUserCreds != null) {
+    val email = viewModel.pendingEmailUserCreds?.email ?: ""
+    val password = viewModel.pendingEmailUserCreds?.password ?: ""
+
+    val verificationMessage = "We've sent a verification email to ${email}. Please verify your email and then tap the button below."
+
+    Row(
+      horizontalArrangement = Arrangement.Center
+    ) {
+      Spacer(modifier = Modifier.weight(1.0F))
+      Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+      ) {
+        Text(
+          text = verificationMessage,
+          style = MaterialTheme.typography.titleMedium
+        )
+
+        Button(onClick = {
+          viewModel.login(email, password)
+        }, colors = ButtonDefaults.buttonColors(
+          contentColor = Color(0xFF3D3D3D),
+          containerColor = Color(0xffffd234)
+        )
+        ) {
+          Text(
+            text = "Check Status",
+            modifier = Modifier.padding(horizontal = 100.dp)
+          )
+        }
+
+        ClickableText(
+          text = AnnotatedString("Use a different email?"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showEmailSignUp() }
+        )
+      }
+    }
+  } else {
+    EmailSignUpForm(viewModel = viewModel)
+  }
+}
+
+@SuppressLint("CoroutineCreationDuringComposition")
+@Composable
+fun EmailSignUpForm(viewModel: LoginViewModel) {
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
   var name by rememberSaveable { mutableStateOf("") }

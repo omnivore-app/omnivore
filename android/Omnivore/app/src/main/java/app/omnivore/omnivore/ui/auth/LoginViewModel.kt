@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
@@ -28,6 +29,11 @@ enum class RegistrationState {
   PendingUser
 }
 
+data class PendingEmailUserCreds(
+  val email: String,
+  val password: String
+)
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository
@@ -46,6 +52,9 @@ class LoginViewModel @Inject constructor(
   var usernameValidationErrorMessage by mutableStateOf<String?>(null)
     private set
 
+  var pendingEmailUserCreds by mutableStateOf<PendingEmailUserCreds?>(null)
+    private set
+
   val hasAuthTokenLiveData: LiveData<Boolean> = datastoreRepo
     .hasAuthTokenFlow
     .distinctUntilChanged()
@@ -58,22 +67,36 @@ class LoginViewModel @Inject constructor(
   }
 
   fun showSocialLogin() {
+    resetState()
     registrationStateLiveData.value = RegistrationState.SocialLogin
   }
 
   fun showEmailSignIn() {
+    resetState()
     registrationStateLiveData.value = RegistrationState.EmailSignIn
   }
 
-  fun showEmailSignUp() {
+  fun showEmailSignUp(pendingCreds: PendingEmailUserCreds? = null) {
+    resetState()
+    pendingEmailUserCreds = pendingCreds
     registrationStateLiveData.value = RegistrationState.EmailSignUp
   }
 
   fun cancelNewUserSignUp() {
+    resetState()
     viewModelScope.launch {
       datastoreRepo.clearValue(DatastoreKeys.omnivorePendingUserToken)
     }
     showSocialLogin()
+  }
+
+  private fun resetState() {
+    validateUsernameJob = null
+    isLoading = false
+    errorMessage = null
+    hasValidUsername = false
+    usernameValidationErrorMessage = null
+    pendingEmailUserCreds = null
   }
 
   fun validateUsername(potentialUsername: String) {
@@ -137,7 +160,7 @@ class LoginViewModel @Inject constructor(
       isLoading = false
 
       if (result.body()?.pendingEmailVerification == true) {
-        errorMessage = "Email needs verification"
+        showEmailSignUp(pendingCreds = PendingEmailUserCreds(email = email, password = password))
         return@launch
       }
 
@@ -161,7 +184,29 @@ class LoginViewModel @Inject constructor(
     username: String,
     name: String,
   ) {
-    // TODO: make network call
+    viewModelScope.launch {
+      val request = RetrofitHelper.getInstance().create(CreateEmailAccountSubmit::class.java)
+
+      isLoading = true
+      errorMessage = null
+
+      val params = EmailSignUpParams(
+        email = email,
+        password = password,
+        name = name,
+        username = username
+      )
+
+      val result = request.submitCreateEmailAccount(params)
+
+      isLoading = false
+
+      if (result.errorBody() != null) {
+        errorMessage = "Something went wrong. Please check your  and try again"
+      } else {
+        pendingEmailUserCreds = PendingEmailUserCreds(email, password)
+      }
+    }
   }
 
   private fun getPendingAuthToken(): String? = runBlocking {
