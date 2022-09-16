@@ -18,6 +18,7 @@ public struct FeedCard: View {
             .lineSpacing(1.25)
             .foregroundColor(.appGrayTextContrast)
             .fixedSize(horizontal: false, vertical: true)
+            .padding(EdgeInsets(top: 0, leading: 0, bottom: 2, trailing: 0))
 
           if let author = item.author {
             Text("By \(author)")
