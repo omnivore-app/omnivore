@@ -10,6 +10,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://customers.pspdfkit.com/maven")
+        }
     }
 }
 rootProject.name = "Omnivore"
