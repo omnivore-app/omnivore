@@ -154,8 +154,6 @@ export default function PdfArticleContainer(
         }),
       })
 
-      console.log('toolbars: ', instance.toolbarItems, instance.currentAnnotationPreset, instance.annotationPresets)
-
       instance.addEventListener('annotations.willChange', (event) => {
         const annotation = event.annotations.get(0)
         if (event.reason !== PSPDFKit.AnnotationsWillChangeReason.DELETE_END) {
@@ -285,7 +283,8 @@ export default function PdfArticleContainer(
             const annotation = new PSPDFKit.Annotations.HighlightAnnotation({
               pageIndex: highlightAnnotation.pageIndex,
               rects: rects,
-              opacity: 0.4,
+              opacity: 0.45,
+              color: new PSPDFKit.Color({ r: 255, g: 210, b: 52 }),
               boundingBox: PSPDFKit.Geometry.Rect.union(rects),
               customData: {
                 omnivoreHighlight: {
