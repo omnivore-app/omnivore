@@ -29,8 +29,9 @@ class HomeViewModel @Inject constructor(
   private var receivedIdx = 0
 
   // Live Data
-  val searchTextLiveData = MutableLiveData<String>("")
+  val searchTextLiveData = MutableLiveData("")
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
+  val selectedPDFItem = MutableLiveData<LinkedItem?>(null)
 
   private fun getAuthToken(): String? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
@@ -92,10 +93,12 @@ class HomeViewModel @Inject constructor(
           readingProgress = it.node.readingProgressPercent,
           readingProgressAnchor = it.node.readingProgressAnchorIndex,
           imageURLString = it.node.image,
+          pageURLString = it.node.url,
           descriptionText = it.node.description,
           publisherURLString = it.node.originalArticleUrl,
           author = it.node.author,
-          slug = it.node.slug
+          slug = it.node.slug,
+          contentReader = it.node.contentReader.toString()
         )
       }
 
@@ -133,7 +136,7 @@ public data class LinkedItem(
   public val imageURLString: String?,
 //  public val onDeviceImageURLString: String?,
 //  public val documentDirectoryPath: String?,
-//  public val pageURLString: String,
+  public val pageURLString: String,
   public val descriptionText: String?,
   public val publisherURLString: String?,
 //  public val siteName: String?,
@@ -141,10 +144,15 @@ public data class LinkedItem(
 //  public val publishDate: Any?,
   public val slug: String,
 //  public val isArchived: Boolean,
-//  public val contentReader: String?,
+  public val contentReader: String?,
 //  public val originalHtml: String?,
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
+  }
+
+  fun isPDF(): Boolean {
+    val hasPDFSuffix = pageURLString.endsWith("pdf")
+    return contentReader == "PDF" || hasPDFSuffix
   }
 }

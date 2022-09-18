@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.home
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,10 +12,19 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.ui.reader.PDFDocumentView
+import com.pspdfkit.configuration.activity.PdfActivityConfiguration
+import com.pspdfkit.configuration.activity.UserInterfaceViewMode
+import com.pspdfkit.jetpack.compose.ExperimentalPSPDFKitApi
+import com.pspdfkit.jetpack.compose.rememberDocumentState
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,26 +33,31 @@ fun HomeView(
   homeViewModel: HomeViewModel,
   navController: NavHostController
 ) {
+  val selectedPDFItem: LinkedItem? by homeViewModel.selectedPDFItem.observeAsState(null)
   val searchText: String by homeViewModel.searchTextLiveData.observeAsState("")
 
-  Scaffold(
-    topBar = {
-      SearchBar(
-        searchText = searchText,
-        onSearchTextChanged = { homeViewModel.updateSearchText(it) },
-        onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
+  if (selectedPDFItem != null) {
+    PDFDocumentView(urlString = selectedPDFItem!!.pageURLString)
+  } else {
+    Scaffold(
+      topBar = {
+        SearchBar(
+          searchText = searchText,
+          onSearchTextChanged = { homeViewModel.updateSearchText(it) },
+          onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
+        )
+      }
+    ) { paddingValues ->
+      HomeViewContent(
+        homeViewModel,
+        navController,
+        modifier = Modifier
+          .padding(
+            top = paddingValues.calculateTopPadding(),
+            bottom = paddingValues.calculateBottomPadding()
+          )
       )
     }
-  ) { paddingValues ->
-    HomeViewContent(
-      homeViewModel,
-      navController,
-      modifier = Modifier
-        .padding(
-          top = paddingValues.calculateTopPadding(),
-          bottom = paddingValues.calculateBottomPadding()
-        )
-    )
   }
 }
 
@@ -68,8 +83,13 @@ fun HomeViewContent(
       LinkedItemCard(
         item = item,
         onClickHandler = {
-          navController.navigate("WebReader/${item.slug}")
+          if (item.isPDF()) {
+            homeViewModel.selectedPDFItem.value = item
+          } else {
+            navController.navigate("WebReader/${item.slug}")
+          }
         }
+
       )
     }
   }
