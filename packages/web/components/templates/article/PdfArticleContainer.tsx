@@ -131,9 +131,17 @@ export default function PdfArticleContainer(
         return [copy, remove]
       }
 
+      const annotationPresets = PSPDFKit.defaultAnnotationPresets;
+      annotationPresets.highlight = {
+        opacity: 0.45,
+        color: new PSPDFKit.Color({ r: 255, g: 210, b: 52 }),
+        blendMode: PSPDFKit.BlendMode.multiply,
+      };
+
       instance = await PSPDFKit.load({
         container: container || '.pdf-container',
         toolbarItems,
+        annotationPresets,
         document: props.article.url,
         theme: isDarkTheme() ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT,
         baseUrl: `${window.location.protocol}//${window.location.host}/`,
@@ -275,6 +283,8 @@ export default function PdfArticleContainer(
             const annotation = new PSPDFKit.Annotations.HighlightAnnotation({
               pageIndex: highlightAnnotation.pageIndex,
               rects: rects,
+              opacity: 0.45,
+              color: new PSPDFKit.Color({ r: 255, g: 210, b: 52 }),
               boundingBox: PSPDFKit.Geometry.Rect.union(rects),
               customData: {
                 omnivoreHighlight: {

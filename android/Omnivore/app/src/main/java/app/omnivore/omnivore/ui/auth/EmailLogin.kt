@@ -1,6 +1,10 @@
 package app.omnivore.omnivore.ui.auth
 
 import android.annotation.SuppressLint
+import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
@@ -15,16 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import app.omnivore.omnivore.BuildConfig
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun EmailLoginView(viewModel: LoginViewModel, onAuthProviderButtonTap: () -> Unit) {
+fun EmailLoginView(viewModel: LoginViewModel) {
+  val uriHandler = LocalUriHandler.current
   var email by rememberSaveable { mutableStateOf("") }
   var password by rememberSaveable { mutableStateOf("") }
 
@@ -49,12 +57,33 @@ fun EmailLoginView(viewModel: LoginViewModel, onAuthProviderButtonTap: () -> Uni
         Text("Loading...")
       }
 
-      ClickableText(
-        text = AnnotatedString("Return to Social Login"),
-        style = MaterialTheme.typography.titleMedium
-          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-        onClick = { onAuthProviderButtonTap() }
-      )
+      Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+      ) {
+        ClickableText(
+          text = AnnotatedString("Return to Social Login"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showSocialLogin() }
+        )
+
+        ClickableText(
+          text = AnnotatedString("Don't have an account?"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = { viewModel.showEmailSignUp() }
+        )
+
+        ClickableText(
+          text = AnnotatedString("Forgot your password?"),
+          style = MaterialTheme.typography.titleMedium
+            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+          onClick = {
+            val uri = "${BuildConfig.OMNIVORE_WEB_URL}/auth/forgot-password"
+            uriHandler.openUri(uri)
+          }
+        )
+      }
     }
     Spacer(modifier = Modifier.weight(1.0F))
   }

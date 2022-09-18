@@ -30,6 +30,11 @@ const enableJavascriptForUrl = (url) => {
 };
 
 function generateTestcase(slug) {
+  const options = {};
+  if (slug.startsWith("newsletters/")) {
+    // keep the newsletter content in tables
+    options.keepTables = true;
+  }
   var destRoot = path.join(testcaseRoot, slug);
 
   fs.mkdir(destRoot, function (err) {
@@ -42,12 +47,12 @@ function generateTestcase(slug) {
               console.error("Source existed but couldn't be read?");
               process.exit(1);
             }
-            onResponseReceived(null, data, destRoot);
+            onResponseReceived(null, data, destRoot, options);
           });
         } else {
           fs.writeFile(path.join(destRoot, 'url.txt'), argURL, () => null);
           fetchSource(argURL, function (fetchErr, data) {
-            onResponseReceived(fetchErr, data, destRoot);
+            onResponseReceived(fetchErr, data, destRoot, options);
           });
         }
       });
@@ -55,7 +60,7 @@ function generateTestcase(slug) {
     }
     fs.writeFile(path.join(destRoot, 'url.txt'), argURL, () => null);
     fetchSource(argURL, function (fetchErr, data) {
-      onResponseReceived(fetchErr, data, destRoot);
+      onResponseReceived(fetchErr, data, destRoot, options);
     });
   });
 }
@@ -198,7 +203,7 @@ function sanitizeSource(html, callbackFn) {
   }, callbackFn);
 }
 
-function onResponseReceived(error, source, destRoot) {
+function onResponseReceived(error, source, destRoot, options) {
   if (error) {
     console.error("Couldn't tidy source html!");
     console.error(error);
@@ -217,11 +222,11 @@ function onResponseReceived(error, source, destRoot) {
     if (debug) {
       console.log("Running readability stuff");
     }
-    await runReadability(source, path.join(destRoot, "expected.html"), path.join(destRoot, "expected-metadata.json"));
+    await runReadability(source, path.join(destRoot, "expected.html"), path.join(destRoot, "expected-metadata.json"), options);
   });
 }
 
-async function runReadability(source, destPath, metadataDestPath) {
+async function runReadability(source, destPath, metadataDestPath, options) {
   var uri = "http://fakehost/test/page.html";
   var myReader, result, readerable;
   try {
@@ -230,7 +235,7 @@ async function runReadability(source, destPath, metadataDestPath) {
     readerable = isProbablyReaderable(dom);
     // We pass `caption` as a class to check that passing in extra classes works,
     // given that it appears in some of the test documents.
-    myReader = new Readability(dom, { classesToPreserve: ["caption"], url: uri });
+    myReader = new Readability(dom, { classesToPreserve: ["caption"], url: uri, ...options });
     result = await myReader.parse();
   } catch (ex) {
     console.error(ex);

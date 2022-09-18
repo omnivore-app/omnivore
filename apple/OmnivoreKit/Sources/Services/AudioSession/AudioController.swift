@@ -204,15 +204,17 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
         if playerItem.speechItem.audioIdx == foundIdx {
           playerItem.seek(to: CMTimeMakeWithSeconds(remainder, preferredTimescale: 600), completionHandler: nil)
+          scrubState = .reset
+          fireTimer()
           return
         }
       }
 
-      // Move the playback to the found index, we should also seek a bit
-      // within this index, but this is probably accurate enough for now.
+      // Move the playback to the found index, we also seek by the remainder amount
+      // before moving we pause the player so playback doesnt jump to a previous spot
+      player?.pause()
       player?.removeAllItems()
       synthesizeFrom(start: foundIdx, playWhenReady: state == .playing, atOffset: remainder)
-      return
     } else {
       // There was no foundIdx, so we are probably trying to seek past the end, so
       // just seek to the last possible duration.
@@ -221,6 +223,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         synthesizeFrom(start: durations.count - 1, playWhenReady: state == .playing, atOffset: last)
       }
     }
+
+    scrubState = .reset
+    fireTimer()
   }
 
   @AppStorage(UserDefaultKey.textToSpeechPlaybackRate.rawValue) public var playbackRate = 1.0 {
@@ -299,8 +304,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     if state == .reachedEnd {
       return false
     }
-    return
-      itemAudioProperties?.itemID == itemID &&
+    return itemAudioProperties?.itemID == itemID &&
       (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
   }
 
@@ -431,7 +435,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   func startTimer() {
     if timer == nil {
-      // Update every 100ms
       timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
       timer?.fire()
     }
@@ -443,13 +446,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if player.error != nil || player.currentItem?.error != nil {
         print("ERROR IN PLAYBACK")
         stop()
-      }
-
-      if player.items().count == 1, let currentTime = player.currentItem?.currentTime(), let duration = player.currentItem?.duration {
-        if currentTime >= duration {
-          pause()
-          state = .reachedEnd
-        }
       }
 
       if let durations = durations {
@@ -465,17 +461,23 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
           let itemElapsed = playerItem.status == .readyToPlay ? CMTimeGetSeconds(playerItem.currentTime()) : 0
           timeElapsed = durationBefore(playerIndex: playerItem.speechItem.audioIdx) + itemElapsed
           timeElapsedString = formatTimeInterval(timeElapsed)
+
+          if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+            nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
+            nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
+          }
         }
+      case .scrubStarted:
+        break
+      case let .scrubEnded(seekTime):
+        timeElapsed = seekTime
+        timeElapsedString = formatTimeInterval(timeElapsed)
         if var nowPlaying = MPNowPlayingInfoCenter.default().nowPlayingInfo {
           nowPlaying[MPMediaItemPropertyPlaybackDuration] = NSNumber(value: duration)
           nowPlaying[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(value: timeElapsed)
           MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlaying
         }
-      case .scrubStarted:
-        break
-      case let .scrubEnded(seekTime):
-        scrubState = .reset
-        timeElapsed = seekTime
       }
     }
 

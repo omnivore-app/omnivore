@@ -187,7 +187,6 @@ func fetchUtterance(appEnvironment: AppEnvironment,
 
   if let ssml = try utterance.toSSML(document: document) {
     request.httpBody = ssml
-    print("FETCHING: ", String(decoding: ssml, as: UTF8.self))
   }
 
   for (header, value) in networker.defaultHeaders {
@@ -219,7 +218,6 @@ func fetchUtterance(appEnvironment: AppEnvironment,
     try audioData.write(to: tempPath)
     try? FileManager.default.removeItem(at: audioPath)
     try FileManager.default.moveItem(at: tempPath, to: audioPath)
-    print("wrote", audioData.count, "bytes to", audioPath)
   } catch {
     let errorMessage = "audioFetch failed. could not write MP3 data to disk"
     throw BasicError.message(messageText: errorMessage)
