@@ -275,6 +275,7 @@ export default function PdfArticleContainer(
             const annotation = new PSPDFKit.Annotations.HighlightAnnotation({
               pageIndex: highlightAnnotation.pageIndex,
               rects: rects,
+              opacity: 0.2,
               boundingBox: PSPDFKit.Geometry.Rect.union(rects),
               customData: {
                 omnivoreHighlight: {
