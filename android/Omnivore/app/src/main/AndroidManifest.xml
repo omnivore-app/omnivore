@@ -39,10 +39,5 @@
                 <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="com.pspdfkit.ui.PdfActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="adjustNothing" />
     </application>
 </manifest>
