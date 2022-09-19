@@ -30,6 +30,6 @@ public data class LinkedItem(
   }
 
   fun labelsJSONString(): String {
-    return ""
+    return "[]"
   }
 }

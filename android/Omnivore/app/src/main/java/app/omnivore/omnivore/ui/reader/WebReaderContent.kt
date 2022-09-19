@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.util.Log
 import app.omnivore.omnivore.models.LinkedItem
 
 enum class WebFont(val displayText: String, val rawValue: String) {
@@ -42,11 +43,11 @@ data class WebReaderContent(
 ) {
   fun styledContent(): String {
     // TODO: Kotlinize these three values (pasted from Swift)
-    val savedAt = "new Date((item.unwrappedSavedAt.timeIntervalSince1970 * 1000)).toISOString()"
-    val createdAt = "new Date((item.unwrappedCreatedAt.timeIntervalSince1970 * 1000)).toISOString()"
-    val publishedAt = if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
+    val savedAt = "new Date(1662571290735.0).toISOString()"
+    val createdAt = "new Date().toISOString()"
+    val publishedAt = "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
 
-    return """
+    val rrrr = """
           <!DOCTYPE html>
           <html>
             <head>
@@ -59,7 +60,7 @@ data class WebReaderContent(
             <body>
               <div id="root" />
               <div>HIIIIII</div>
-              <div id='_omnivore-htmlContent' style="display: none;">
+              <div id='_omnivore-htmlContent'>
                 ${articleContent.htmlContent}
               </div>
               <script type="text/javascript">
@@ -74,9 +75,9 @@ data class WebReaderContent(
                   id: "${item.id}",
                   linkId: "${item.id}",
                   slug: "${item.slug}",
-                  createdAt: $createdAt,
-                  savedAt: $savedAt,
-                  publishedAt: $publishedAt,
+                  createdAt: new Date(1662571290735.0).toISOString(),
+                  savedAt: new Date(1662571290981.0).toISOString(),
+                  publishedAt: new Date(1662454816000.0).toISOString(),
                   url: `${item.pageURLString}`,
                   title: `${articleContent.title.replace("`", "\\`")}`,
                   content: document.getElementById('_omnivore-htmlContent').innerHTML,
@@ -84,8 +85,8 @@ data class WebReaderContent(
                   contentReader: "WEB",
                   readingProgressPercent: ${item.readingProgress},
                   readingProgressAnchorIndex: ${item.readingProgressAnchor},
-                  labels: ${item.labelsJSONString()},
-                  highlights: ${articleContent.highlightsJSONString},
+                  labels: "[]",
+                  highlights: "[]",
                 }
 
                 window.fontSize = $textFontSize
@@ -102,5 +103,9 @@ data class WebReaderContent(
             </body>
           </html>
     """.trimIndent()
+
+    Log.d("Loggo", rrrr)
+
+    return rrrr
   }
 }
