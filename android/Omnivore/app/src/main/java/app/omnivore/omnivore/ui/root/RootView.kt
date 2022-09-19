@@ -20,6 +20,7 @@ import app.omnivore.omnivore.ui.home.HomeView
 import app.omnivore.omnivore.ui.home.HomeViewModel
 import app.omnivore.omnivore.ui.reader.ArticleWebView
 import app.omnivore.omnivore.ui.reader.WebReader
+import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainer
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
@@ -78,7 +79,7 @@ fun PrimaryNavigator(
     }
 
     composable("WebReader/{slug}") {
-      WebReader(
+      WebReaderLoadingContainer(
         it.arguments?.getString("slug") ?: "",
         authCookieString = loginViewModel.getAuthCookieString() ?: ""
       )
