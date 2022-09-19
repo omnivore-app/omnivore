@@ -90,6 +90,12 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
         gap: '10px',
         width: '100%',
         height: '80px',
+        'input:focus': {
+          outline: '5px auto -webkit-focus-ring-color',
+        },
+        'button:focus': {
+          outline: '5px auto -webkit-focus-ring-color',
+        },
       }}
     >
       <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
