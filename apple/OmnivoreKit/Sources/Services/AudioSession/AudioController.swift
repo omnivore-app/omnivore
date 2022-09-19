@@ -52,21 +52,30 @@ let VOICES = [
   VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna (Singapore)", secondName: "Wayne (Singapore)")
 ]
 
+// Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
 class SpeechPlayerItem: AVPlayerItem {
+  let resourceLoaderDelegate = ResourceLoaderDelegate()
   let session: AudioController
   let speechItem: SpeechItem
   let completed: () -> Void
 
   var observer: Any?
 
-  init(session: AudioController, speechItem: SpeechItem, url: URL, completed: @escaping () -> Void) {
-    self.session = session
+  init(session: AudioController, speechItem: SpeechItem, completed: @escaping () -> Void) {
     self.speechItem = speechItem
+    self.session = session
     self.completed = completed
 
-    let asset = AVAsset(url: url)
+    guard let fakeUrl = URL(string: "app.omnivore.speech://\(speechItem.localAudioURL.path).mp3") else {
+      fatalError("internal inconsistency")
+    }
+
+    let asset = AVURLAsset(url: fakeUrl)
+    asset.resourceLoader.setDelegate(resourceLoaderDelegate, queue: DispatchQueue.main)
+
     super.init(asset: asset, automaticallyLoadedAssetKeys: nil)
-    session.updateDuration(forItem: speechItem, newDuration: CMTimeGetSeconds(asset.duration))
+
+    resourceLoaderDelegate.owner = self
 
     self.observer = observe(\.status, options: [.new]) { item, _ in
       item.session.updateDuration(forItem: item.speechItem, newDuration: CMTimeGetSeconds(item.duration))
@@ -74,6 +83,116 @@ class SpeechPlayerItem: AVPlayerItem {
 
     NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self, queue: OperationQueue.main) { _ in
       self.completed()
+    }
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
+    removeObserver(self, forKeyPath: "status")
+    resourceLoaderDelegate.session?.invalidateAndCancel()
+  }
+
+  open func download() {
+    if resourceLoaderDelegate.session == nil {
+      resourceLoaderDelegate.startDataRequest(with: speechItem.urlRequest)
+    }
+  }
+
+  @objc func playbackStalledHandler() {
+    print("playback stalled...")
+  }
+
+  class ResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate {
+    var session: URLSession?
+    var mediaData: Data?
+    var pendingRequests = Set<AVAssetResourceLoadingRequest>()
+    weak var owner: SpeechPlayerItem?
+
+    func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+      if session == nil {
+        guard let initialUrl = owner?.speechItem.urlRequest else {
+          fatalError("internal inconsistency")
+        }
+
+        startDataRequest(with: initialUrl)
+      }
+
+      pendingRequests.insert(loadingRequest)
+      processPendingRequests()
+      return true
+    }
+
+    func startDataRequest(with _: URLRequest) {
+      let configuration = URLSessionConfiguration.default
+      configuration.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+      session = URLSession(configuration: configuration)
+
+      Task {
+        guard let speechItem = self.owner?.speechItem else {
+          // This probably can't happen, but if it does, just returning should
+          // let AVPlayer try again.
+          print("No speech item found: ", self.owner)
+          return
+        }
+
+        // TODO: how do we want to propogate this and handle it in the player
+        // The exception is just from some old code and does nothing.
+        let audioData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
+        DispatchQueue.main.async {
+          self.mediaData = audioData
+          self.processPendingRequests()
+        }
+      }
+    }
+
+    func resourceLoader(_: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
+      pendingRequests.remove(loadingRequest)
+    }
+
+    func processPendingRequests() {
+      let requestsFulfilled = Set<AVAssetResourceLoadingRequest>(pendingRequests.compactMap {
+        self.fillInContentInformationRequest($0.contentInformationRequest)
+        if self.haveEnoughDataToFulfillRequest($0.dataRequest!) {
+          $0.finishLoading()
+          return $0
+        }
+        return nil
+      })
+
+      // remove fulfilled requests from pending requests
+      _ = requestsFulfilled.map { self.pendingRequests.remove($0) }
+    }
+
+    func fillInContentInformationRequest(_ contentInformationRequest: AVAssetResourceLoadingContentInformationRequest?) {
+      contentInformationRequest?.contentType = UTType.mp3.identifier
+
+      if let mediaData = mediaData {
+        contentInformationRequest?.isByteRangeAccessSupported = true
+        contentInformationRequest?.contentLength = Int64(mediaData.count)
+      }
+    }
+
+    func haveEnoughDataToFulfillRequest(_ dataRequest: AVAssetResourceLoadingDataRequest) -> Bool {
+      let requestedOffset = Int(dataRequest.requestedOffset)
+      let requestedLength = dataRequest.requestedLength
+      let currentOffset = Int(dataRequest.currentOffset)
+
+      guard let songDataUnwrapped = mediaData,
+            songDataUnwrapped.count > currentOffset
+      else {
+        // Don't have any data at all for this request.
+        return false
+      }
+
+      let bytesToRespond = min(songDataUnwrapped.count - currentOffset, requestedLength)
+      let dataToRespond = songDataUnwrapped.subdata(in: Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond)))
+      dataRequest.respond(with: dataToRespond)
+
+      return songDataUnwrapped.count >= requestedLength + requestedOffset
+    }
+
+    deinit {
+      session?.invalidateAndCancel()
     }
   }
 }
@@ -147,15 +266,30 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
     for itemID in itemIDs {
       print("preloading speech file: ", itemID)
-      _ = try? await downloadSpeechFile(itemID: itemID, priority: .low)
+      if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
+        let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
+        do {
+          try await synthesizer.preload()
+          return true
+        } catch {
+          print("error preloading audio file", error)
+        }
+      }
     }
-    return true
+    return false
   }
 
   public func downloadForOffline(itemID: String) async -> Bool {
     if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
       let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
-      for await _ in synthesizer.fetch(from: 0) {}
+      for item in synthesizer.createPlayerItems(from: 0) {
+        do {
+          _ = try await SpeechSynthesizer.download(speechItem: item)
+        } catch {
+          print("error downloading audio segment: ", error)
+          return false
+        }
+      }
       return true
     }
     return false
@@ -373,35 +507,58 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   func synthesizeFrom(start: Int, playWhenReady: Bool, atOffset: Double = 0.0) {
-    playbackTask = Task {
-      if let synthesizer = synthesizer {
-        for await speechItem in synthesizer.fetch(from: start) {
-          DispatchQueue.main.async {
-            let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
-            let item = SpeechPlayerItem(session: self, speechItem: speechItem, url: speechItem.audioURL) {
-              // Pause player when we complete the final item.
-              if isLast {
-                self.player?.pause()
-                self.state = .reachedEnd
-              }
-            }
-            self.player?.insert(item, after: nil)
-
-            if playWhenReady, self.player?.items().count == 1 {
-              if atOffset > 0.0 {
-                item.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
-                  print("success seeking to time: ", success)
-                  self.fireTimer()
-                }
-              }
-              self.startTimer()
-              self.unpause()
-              self.setupRemoteControl()
+    if let synthesizer = self.synthesizer, let items = self.synthesizer?.createPlayerItems(from: start) {
+      for speechItem in items {
+        let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
+        let playerItem = SpeechPlayerItem(session: self, speechItem: speechItem) {
+          if isLast {
+            self.player?.pause()
+            self.state = .reachedEnd
+          }
+        }
+        player?.insert(playerItem, after: nil)
+        if playWhenReady, player?.items().count == 1 {
+          if atOffset > 0.0 {
+            playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
+              print("success seeking to time: ", success)
+              self.fireTimer()
             }
           }
+          startTimer()
+          unpause()
+          setupRemoteControl()
         }
       }
     }
+//    playbackTask = Task {
+//      if let synthesizer = synthesizer {
+//        for await speechItem in synthesizer.fetch(from: start) {
+//          DispatchQueue.main.async {
+//            let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
+//            let item = SpeechPlayerItem(session: self, speechItem: speechItem, url: speechItem.localAudioURL) {
+//              // Pause player when we complete the final item.
+//              if isLast {
+//                self.player?.pause()
+//                self.state = .reachedEnd
+//              }
+//            }
+//            self.player?.insert(item, after: nil)
+//
+//            if playWhenReady, self.player?.items().count == 1 {
+//              if atOffset > 0.0 {
+//                item.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
+//                  print("success seeking to time: ", success)
+//                  self.fireTimer()
+//                }
+//              }
+//              self.startTimer()
+//              self.unpause()
+//              self.setupRemoteControl()
+//            }
+//          }
+//        }
+//      }
+//    }
   }
 
   public func pause() {
@@ -444,7 +601,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @objc func fireTimer() {
     if let player = player {
       if player.error != nil || player.currentItem?.error != nil {
-        print("ERROR IN PLAYBACK")
         stop()
       }
 
