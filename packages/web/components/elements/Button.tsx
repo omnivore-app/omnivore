@@ -29,9 +29,6 @@ export const Button = styled('button', {
         color: '$omnivoreGray',
         bg: '$omnivoreCtaYellow',
         p: '10px 13px',
-        '&:focus': {
-          outline: '5px auto -webkit-focus-ring-color',
-        },
       },
       ctaOutlineYellow: {
         boxSizing: 'border-box',
@@ -48,9 +45,6 @@ export const Button = styled('button', {
         color: '$utilityTextDefault',
         bg: 'transparent',
         p: '9px 12px',
-        '&:focus': {
-          outline: '5px auto -webkit-focus-ring-color',
-        },
       },
       ctaLightGray: {
         border: 0,
