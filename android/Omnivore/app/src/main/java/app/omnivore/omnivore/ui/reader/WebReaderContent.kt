@@ -1,6 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
-import app.omnivore.omnivore.ui.home.LinkedItem
+import app.omnivore.omnivore.models.LinkedItem
 
 enum class WebFont(val displayText: String, val rawValue: String) {
   INTER("Inter", "Inter"),
