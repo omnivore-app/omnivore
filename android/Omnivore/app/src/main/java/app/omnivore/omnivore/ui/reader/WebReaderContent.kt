@@ -85,8 +85,8 @@ data class WebReaderContent(
                   contentReader: "WEB",
                   readingProgressPercent: ${item.readingProgress},
                   readingProgressAnchorIndex: ${item.readingProgressAnchor},
-                  labels: "[]",
-                  highlights: "[]",
+                  labels: [],
+                  highlights: [],
                 }
 
                 window.fontSize = $textFontSize
@@ -102,7 +102,7 @@ data class WebReaderContent(
               <script src="mathjax.js" id="MathJax-script"></script>
             </body>
           </html>
-    """.trimIndent()
+    """
 
     Log.d("Loggo", rrrr)
 
