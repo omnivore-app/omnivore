@@ -116,8 +116,12 @@ function emit(textItems: string[], text: string) {
   textItems.push(text)
 }
 
+const cleanText = (text: string): string => {
+  return stripEmojis(_.escape(text.replace(/\s+/g, ' ')))
+}
+
 function cleanTextNode(textNode: ChildNode): string {
-  return stripEmojis(_.escape(textNode.textContent ?? ''.replace(/\s+/g, ' ')))
+  return cleanText(textNode.textContent ?? '')
 }
 
 function emitTextNode(
@@ -273,7 +277,7 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = stripEmojis(textItems.join(''))
+  const text = textItems.join('')
   let textWithWordOffset = text
   if (isHtml) {
     try {
@@ -323,7 +327,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     const titleUtterance = textToUtterance({
       tokenizer,
       idx: '',
-      textItems: [title],
+      textItems: [cleanText(title)], // title could have HTML entity names like & or emoji
       wordOffset,
       isHtml: false,
     })
