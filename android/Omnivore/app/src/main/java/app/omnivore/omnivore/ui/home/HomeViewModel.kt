@@ -92,10 +92,12 @@ class HomeViewModel @Inject constructor(
           readingProgress = it.node.readingProgressPercent,
           readingProgressAnchor = it.node.readingProgressAnchorIndex,
           imageURLString = it.node.image,
+          pageURLString = it.node.url,
           descriptionText = it.node.description,
           publisherURLString = it.node.originalArticleUrl,
           author = it.node.author,
-          slug = it.node.slug
+          slug = it.node.slug,
+          publishDate = it.node.publishedAt
         )
       }
 
@@ -133,12 +135,12 @@ public data class LinkedItem(
   public val imageURLString: String?,
 //  public val onDeviceImageURLString: String?,
 //  public val documentDirectoryPath: String?,
-//  public val pageURLString: String,
+  public val pageURLString: String,
   public val descriptionText: String?,
   public val publisherURLString: String?,
 //  public val siteName: String?,
   public val author: String?,
-//  public val publishDate: Any?,
+  public val publishDate: Any?,
   public val slug: String,
 //  public val isArchived: Boolean,
 //  public val contentReader: String?,
@@ -146,5 +148,9 @@ public data class LinkedItem(
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
+  }
+
+  fun labelsJSONString(): String {
+    return ""
   }
 }
