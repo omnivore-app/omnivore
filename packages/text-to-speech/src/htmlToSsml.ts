@@ -307,16 +307,30 @@ const textToUtterance = ({
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
   console.log('creating speech file with options:', options)
+  const language = options.language || DEFAULT_LANGUAGE
+  const defaultVoice = options.primaryVoice || DEFAULT_VOICE
 
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
-    throw new Error('Unable to parse HTML document')
+    console.log('No HTML body found:', content)
+    return {
+      wordCount: 0,
+      language,
+      defaultVoice,
+      utterances: [],
+    }
   }
 
   const parsedNodes = parseDomTree(body)
   if (parsedNodes.length < 1) {
-    throw new Error('No HTML nodes found')
+    console.log('No HTML nodes found:', body)
+    return {
+      wordCount: 0,
+      language,
+      defaultVoice,
+      utterances: [],
+    }
   }
 
   const tokenizer = new WordPunctTokenizer()
@@ -358,8 +372,8 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
 
   return {
     wordCount: wordOffset,
-    language: options.language || DEFAULT_LANGUAGE,
-    defaultVoice: options.primaryVoice || DEFAULT_VOICE,
+    language,
+    defaultVoice,
     utterances,
   }
 }
