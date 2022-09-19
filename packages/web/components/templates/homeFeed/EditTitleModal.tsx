@@ -134,7 +134,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
               <HStack distribution="end" css={{ mt: '12px', width: '100%' }}>
                 <Button
                   onClick={() => props.onOpenChange(false)}
-                  style="ctaGray"
+                  style="ctaOutlineYellow"
                   css={{ mr: '16px' }}
                 >
                   Cancel
