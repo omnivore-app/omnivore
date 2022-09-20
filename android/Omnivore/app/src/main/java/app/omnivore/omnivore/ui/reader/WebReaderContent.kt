@@ -59,7 +59,6 @@ data class WebReaderContent(
             </head>
             <body>
               <div id="root" />
-              <div>HIIIIII</div>
               <div id='_omnivore-htmlContent'>
                 ${articleContent.htmlContent}
               </div>
