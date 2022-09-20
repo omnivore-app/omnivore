@@ -9,7 +9,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.models.LinkedItem
 
 @Composable
-fun WebReaderLoadingContainer(slug: String, authCookieString: String) {
+fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
   // TODO: create a viewmodel where we can fetch item and articleContent
   val item = LinkedItem(
     id = "1",

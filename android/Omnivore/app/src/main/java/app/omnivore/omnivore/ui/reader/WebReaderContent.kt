@@ -47,7 +47,7 @@ data class WebReaderContent(
     val createdAt = "new Date().toISOString()"
     val publishedAt = "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
 
-    val rrrr = """
+    val content = """
           <!DOCTYPE html>
           <html>
             <head>
@@ -104,8 +104,8 @@ data class WebReaderContent(
           </html>
     """
 
-    Log.d("Loggo", rrrr)
+    Log.d("Loggo", content)
 
-    return rrrr
+    return content
   }
 }
