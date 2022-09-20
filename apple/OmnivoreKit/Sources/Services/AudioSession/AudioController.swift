@@ -216,8 +216,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   var synthesizer: SpeechSynthesizer?
   var durations: [Double]?
 
-  var playbackTask: Task<Void, Error>?
-
   public init(appEnvironment: AppEnvironment, networker: Networker) {
     self.appEnvironment = appEnvironment
     self.networker = networker
@@ -237,7 +235,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player?.pause()
     timer?.invalidate()
 
-    playbackTask?.cancel()
     clearNowPlayingInfo()
 
     player?.replaceCurrentItem(with: nil)
@@ -390,7 +387,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     let desiredState = state
 
     pause()
-    playbackTask?.cancel()
     document = nil
     synthesizer = nil
 
@@ -530,35 +526,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         }
       }
     }
-//    playbackTask = Task {
-//      if let synthesizer = synthesizer {
-//        for await speechItem in synthesizer.fetch(from: start) {
-//          DispatchQueue.main.async {
-//            let isLast = speechItem.audioIdx == synthesizer.document.utterances.count - 1
-//            let item = SpeechPlayerItem(session: self, speechItem: speechItem, url: speechItem.localAudioURL) {
-//              // Pause player when we complete the final item.
-//              if isLast {
-//                self.player?.pause()
-//                self.state = .reachedEnd
-//              }
-//            }
-//            self.player?.insert(item, after: nil)
-//
-//            if playWhenReady, self.player?.items().count == 1 {
-//              if atOffset > 0.0 {
-//                item.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
-//                  print("success seeking to time: ", success)
-//                  self.fireTimer()
-//                }
-//              }
-//              self.startTimer()
-//              self.unpause()
-//              self.setupRemoteControl()
-//            }
-//          }
-//        }
-//      }
-//    }
   }
 
   public func pause() {
