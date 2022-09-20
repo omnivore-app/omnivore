@@ -2,28 +2,26 @@ package app.omnivore.omnivore.models
 
 import androidx.core.net.toUri
 
-public data class LinkedItem(
-  public val id: String,
-  public val title: String,
-  public val createdAt: Any,
-//  public val savedAt: Any,
-  public val readAt: Any?,
-//  public val updatedAt: Any,
-  public val readingProgress: Double,
-  public val readingProgressAnchor: Int,
-  public val imageURLString: String?,
-//  public val onDeviceImageURLString: String?,
-//  public val documentDirectoryPath: String?,
-  public val pageURLString: String,
-  public val descriptionText: String?,
-  public val publisherURLString: String?,
-//  public val siteName: String?,
-  public val author: String?,
-  public val publishDate: Any?,
-  public val slug: String,
-//  public val isArchived: Boolean,
-//  public val contentReader: String?,
-//  public val originalHtml: String?,
+data class LinkedItem(
+  val id: String,
+  val title: String,
+  val createdAt: Any,
+  val savedAt: Any,
+  val readAt: Any?,
+  val updatedAt: Any?,
+  val readingProgress: Double,
+  val readingProgressAnchor: Int,
+  val imageURLString: String?,
+  val pageURLString: String,
+  val descriptionText: String?,
+  val publisherURLString: String?,
+  val siteName: String?,
+  val author: String?,
+  val publishDate: Any?,
+  val slug: String,
+  val isArchived: Boolean,
+  val contentReader: String?,
+  val content: String?
 ) {
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host

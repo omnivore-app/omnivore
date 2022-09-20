@@ -15,7 +15,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
 
   if (webReaderParams == null) {
-    webReaderViewModel.loadItem()
+    webReaderViewModel.loadItem(slug = slug)
   }
 
   if (webReaderParams != null) {

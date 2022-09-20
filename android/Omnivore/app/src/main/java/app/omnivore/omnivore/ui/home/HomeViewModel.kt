@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.home
 
-import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -89,16 +88,22 @@ class HomeViewModel @Inject constructor(
           id = it.node.id,
           title = it.node.title,
           createdAt = it.node.createdAt,
+          savedAt = it.node.savedAt,
           readAt = it.node.readAt,
+          updatedAt = it.node.updatedAt,
           readingProgress = it.node.readingProgressPercent,
           readingProgressAnchor = it.node.readingProgressAnchorIndex,
           imageURLString = it.node.image,
           pageURLString = it.node.url,
           descriptionText = it.node.description,
           publisherURLString = it.node.originalArticleUrl,
+          siteName = it.node.siteName,
           author = it.node.author,
+          publishDate = it.node.publishedAt,
           slug = it.node.slug,
-          publishDate = it.node.publishedAt
+          isArchived = it.node.isArchived,
+          contentReader = it.node.contentReader.rawValue,
+          content = null
         )
       }
 
