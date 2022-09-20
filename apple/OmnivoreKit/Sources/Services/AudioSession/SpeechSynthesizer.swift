@@ -79,8 +79,10 @@ struct SpeechSynthesizer {
   }
 
   func preload() async throws {
-    if let item = speechItemForIdx(idx: 0) {
-      _ = try await Self.download(speechItem: item)
+    if document.utterances.count > 0 {
+      if let item = speechItemForIdx(idx: 0) {
+        _ = try await Self.download(speechItem: item)
+      }
     }
   }
 

@@ -78,17 +78,20 @@ class SpeechPlayerItem: AVPlayerItem {
     resourceLoaderDelegate.owner = self
 
     self.observer = observe(\.status, options: [.new]) { item, _ in
-      item.session.updateDuration(forItem: item.speechItem, newDuration: CMTimeGetSeconds(item.duration))
+      if item.status == .readyToPlay {
+        let duration = CMTimeGetSeconds(item.duration)
+        item.session.updateDuration(forItem: item.speechItem, newDuration: duration)
+      }
     }
 
-    NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self, queue: OperationQueue.main) { _ in
+    NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self, queue: OperationQueue.main) { [weak self] _ in
+      guard let self = self else { return }
       self.completed()
     }
   }
 
   deinit {
-    NotificationCenter.default.removeObserver(self)
-    removeObserver(self, forKeyPath: "status")
+    observer = nil
     resourceLoaderDelegate.session?.invalidateAndCancel()
   }
 
@@ -136,7 +139,6 @@ class SpeechPlayerItem: AVPlayerItem {
         }
 
         // TODO: how do we want to propogate this and handle it in the player
-        // The exception is just from some old code and does nothing.
         let audioData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
         DispatchQueue.main.async {
           self.mediaData = audioData
@@ -281,7 +283,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
       for item in synthesizer.createPlayerItems(from: 0) {
         do {
-          _ = try await SpeechSynthesizer.download(speechItem: item)
+          _ = try await SpeechSynthesizer.download(speechItem: item, redownloadCached: true)
         } catch {
           print("error downloading audio segment: ", error)
           return false
@@ -524,6 +526,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
           unpause()
           setupRemoteControl()
         }
+      }
+      if items.count < 1 {
+        state = .reachedEnd
       }
     }
   }
