@@ -84,6 +84,8 @@ fun PrimaryNavigator(
     }
 
     composable("WebReader/{slug}") {
+      webReaderViewModel.reset() // clear previously loaded item
+
       WebReaderLoadingContainer(
         it.arguments?.getString("slug") ?: "",
         webReaderViewModel = webReaderViewModel
