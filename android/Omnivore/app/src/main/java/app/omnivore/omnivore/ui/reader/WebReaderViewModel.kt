@@ -7,6 +7,7 @@ import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.GetArticleQuery
+import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.models.LinkedItemLabel
 import com.apollographql.apollo3.ApolloClient
@@ -58,6 +59,21 @@ class WebReaderViewModel @Inject constructor(
         )
       }
 
+      val highlights = article.highlights.map {
+        Highlight(
+          id = it.highlightFields.id,
+          shortId = it.highlightFields.shortId,
+          quote = it.highlightFields.quote,
+          prefix = it.highlightFields.prefix,
+          suffix = it.highlightFields.suffix,
+          patch = it.highlightFields.patch,
+          annotation = it.highlightFields.annotation,
+          createdAt = null,
+          updatedAt = it.highlightFields.updatedAt,
+          createdByMe = it.highlightFields.createdByMe,
+        )
+      }
+
       // TODO: handle errors
 
       val linkedItem = LinkedItem(
@@ -85,7 +101,7 @@ class WebReaderViewModel @Inject constructor(
       val articleContent = ArticleContent(
         title = article.articleFields.title,
         htmlContent = article.articleFields.content ?: "",
-        highlightsJSONString = "[]",
+        highlightsJSONString = Gson().toJson(highlights),
         contentStatus = "SUCCEEDED",
         objectID = "",
         labelsJSONString = Gson().toJson(linkedItemLabels)
@@ -99,5 +115,3 @@ class WebReaderViewModel @Inject constructor(
     webReaderParamsLiveData.value = null
   }
 }
-
-// TODO: add labels and highlights values
