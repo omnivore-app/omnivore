@@ -21,11 +21,11 @@
     "deploy": "yarn build && yarn gcloud-deploy"
   },
   "devDependencies": {
+    "@types/html-to-text": "^8.1.1",
+    "@types/natural": "^5.1.1",
     "@types/node": "^14.11.2",
     "@types/underscore": "^1.11.4",
-    "eslint-plugin-prettier": "^4.0.0",
-    "@types/html-to-text": "^8.1.1",
-    "@types/natural": "^5.1.1"
+    "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
@@ -33,11 +33,12 @@
     "@sentry/serverless": "^6.16.1",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
+    "html-to-text": "^8.2.1",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.12",
     "microsoft-cognitiveservices-speech-sdk": "^1.22.0",
-    "underscore": "^1.13.4",
     "natural": "^5.2.3",
-    "html-to-text": "^8.2.1"
+    "redis": "^4.3.1",
+    "underscore": "^1.13.4"
   }
 }
