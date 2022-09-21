@@ -26,7 +26,10 @@ struct Utterance: Decodable {
   public let wordCount: Double
 
   func toSSML(document: SpeechDocument) throws -> Data? {
-    let request = UtteranceRequest(text: text, voice: voice ?? document.defaultVoice, language: document.language, rate: "1.1")
+    let request = UtteranceRequest(text: text,
+                                   voice: voice ?? document.defaultVoice,
+                                   language: document.language,
+                                   rate: "1.1")
     return try JSONEncoder().encode(request)
   }
 }
@@ -55,7 +58,8 @@ struct SpeechDocument: Decodable {
 struct SpeechItem {
   let htmlIdx: String
   let audioIdx: Int
-  let audioURL: URL
+  let urlRequest: URLRequest
+  let localAudioURL: URL
 }
 
 struct SpeechSynthesizer {
@@ -74,58 +78,105 @@ struct SpeechSynthesizer {
     document.utterances.map { document.estimatedDuration(utterance: $0, speed: speed) }
   }
 
-  func fetch(from: Int) -> SpeechSynthesisFetcher {
-    SpeechSynthesisFetcher(synthesizer: self, start: from)
-  }
-}
-
-struct SpeechSynthesisFetcher: AsyncSequence {
-  typealias Element = SpeechItem
-  let start: Int
-  let synthesizer: SpeechSynthesizer
-
-  init(synthesizer: SpeechSynthesizer, start: Int) {
-    self.start = start
-    self.synthesizer = synthesizer
+  func preload() async throws {
+    if document.utterances.count > 0 {
+      if let item = speechItemForIdx(idx: 0) {
+        _ = try await Self.download(speechItem: item)
+      }
+    }
   }
 
-  func makeAsyncIterator() -> SpeechSynthesizerIterator {
-    SpeechSynthesizerIterator(synthesizer: synthesizer, start: start)
-  }
+  func speechItemForIdx(idx: Int) -> SpeechItem? {
+    let utterance = document.utterances[idx]
+    let voiceStr = utterance.voice ?? document.defaultVoice
+    let segmentStr = String(format: "%04d", arguments: [idx])
+    let localAudioURL = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
 
-  struct SpeechSynthesizerIterator: AsyncIteratorProtocol {
-    let synthesizer: SpeechSynthesizer
-
-    init(synthesizer: SpeechSynthesizer, start: Int) {
-      self.synthesizer = synthesizer
-      self.currentIdx = start
+    if let request = urlRequestFor(utterance: utterance) {
+      let item = SpeechItem(htmlIdx: utterance.idx, audioIdx: idx, urlRequest: request, localAudioURL: localAudioURL)
+      return item
     }
 
-    var currentIdx: Int
+    return nil
+  }
 
-    mutating func next() async -> SpeechItem? {
-      if Task.isCancelled {
-        return nil
+  func createPlayerItems(from: Int) -> [SpeechItem] {
+    var result: [SpeechItem] = []
+
+    for idx in from ..< document.utterances.count {
+      let utterance = document.utterances[idx]
+      let voiceStr = utterance.voice ?? document.defaultVoice
+      let segmentStr = String(format: "%04d", arguments: [idx])
+      let localAudioURL = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
+
+      if let request = urlRequestFor(utterance: utterance) {
+        let item = SpeechItem(htmlIdx: utterance.idx, audioIdx: idx, urlRequest: request, localAudioURL: localAudioURL)
+        result.append(item)
+      } else {
+        // TODO: How do we want to handle completely skipped paragraphs?
+      }
+    }
+
+    return result
+  }
+
+  func urlRequestFor(utterance: Utterance) -> URLRequest? {
+    var request = URLRequest(url: appEnvironment.ttsBaseURL)
+    request.httpMethod = "POST"
+    request.timeoutInterval = 600
+
+    if let ssml = try? utterance.toSSML(document: document) {
+      request.httpBody = ssml
+    }
+
+    for (header, value) in networker.defaultHeaders {
+      request.setValue(value, forHTTPHeaderField: header)
+    }
+
+    return request
+  }
+
+  static func download(speechItem: SpeechItem,
+                       redownloadCached: Bool = false,
+                       session: URLSession? = URLSession.shared) async throws -> Data?
+  {
+    if !redownloadCached, FileManager.default.fileExists(atPath: speechItem.localAudioURL.path) {
+      if let localData = try? Data(contentsOf: speechItem.localAudioURL) {
+        return localData
+      }
+    }
+
+    let request = speechItem.urlRequest
+    let result: (Data, URLResponse)? = try? await (session ?? URLSession.shared).data(for: request)
+    guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+      print("error: ", result?.1 as Any)
+      throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
+    }
+
+    guard let data = result?.0 else {
+      throw BasicError.message(messageText: "audioFetch failed. no data received.")
+    }
+
+    let tempPath = FileManager.default
+      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(UUID().uuidString + ".mp3")
+
+    do {
+      let decoder = JSONDecoder()
+      let jsonData = try decoder.decode(SynthesizeResult.self, from: data)
+      let audioData = Data(fromHexEncodedString: jsonData.audioData)!
+      if audioData.count < 1 {
+        throw BasicError.message(messageText: "Audio data is empty")
       }
 
-      if currentIdx >= synthesizer.document.utterances.count {
-        return nil
-      }
+      try audioData.write(to: tempPath)
+      try? FileManager.default.removeItem(at: speechItem.localAudioURL)
+      try FileManager.default.moveItem(at: tempPath, to: speechItem.localAudioURL)
 
-      let utterance = synthesizer.document.utterances[currentIdx]
-      let fetched = try? await fetchUtterance(appEnvironment: synthesizer.appEnvironment,
-                                              networker: synthesizer.networker,
-                                              document: synthesizer.document,
-                                              segmentIdx: currentIdx,
-                                              utterance: utterance)
-
-      if let fetchedURL = fetched {
-        let item = SpeechItem(htmlIdx: utterance.idx, audioIdx: currentIdx, audioURL: fetchedURL)
-        currentIdx += 1
-        return item
-      }
-
-      return nil
+      return audioData
+    } catch {
+      let errorMessage = "audioFetch failed. could not write MP3 data to disk"
+      throw BasicError.message(messageText: errorMessage)
     }
   }
 }
@@ -164,64 +215,4 @@ extension Data {
       append(val1 << 4 + val2)
     }
   }
-}
-
-func fetchUtterance(appEnvironment: AppEnvironment,
-                    networker: Networker,
-                    document: SpeechDocument,
-                    segmentIdx: Int,
-                    utterance: Utterance) async throws -> URL
-{
-  let voiceStr = utterance.voice ?? document.defaultVoice
-  let segmentStr = String(format: "%04d", arguments: [segmentIdx])
-  let audioPath = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
-
-  if FileManager.default.fileExists(atPath: audioPath.path) {
-    print("audio file already downloaded: ", audioPath.path)
-    return audioPath
-  }
-
-  var request = URLRequest(url: appEnvironment.ttsBaseURL)
-  request.httpMethod = "POST"
-  request.timeoutInterval = 600
-
-  if let ssml = try utterance.toSSML(document: document) {
-    request.httpBody = ssml
-  }
-
-  for (header, value) in networker.defaultHeaders {
-    request.setValue(value, forHTTPHeaderField: header)
-  }
-
-  let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
-  guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
-    print("error: ", result?.1 as Any)
-    throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
-  }
-
-  guard let data = result?.0 else {
-    throw BasicError.message(messageText: "audioFetch failed. no data received.")
-  }
-
-  let tempPath = FileManager.default
-    .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-    .appendingPathComponent(UUID().uuidString + ".mp3")
-
-  do {
-    let decoder = JSONDecoder()
-    let jsonData = try decoder.decode(SynthesizeResult.self, from: data)
-    let audioData = Data(fromHexEncodedString: jsonData.audioData)!
-    if audioData.count < 1 {
-      throw BasicError.message(messageText: "Audio data is empty")
-    }
-
-    try audioData.write(to: tempPath)
-    try? FileManager.default.removeItem(at: audioPath)
-    try FileManager.default.moveItem(at: tempPath, to: audioPath)
-  } catch {
-    let errorMessage = "audioFetch failed. could not write MP3 data to disk"
-    throw BasicError.message(messageText: errorMessage)
-  }
-
-  return audioPath
 }
