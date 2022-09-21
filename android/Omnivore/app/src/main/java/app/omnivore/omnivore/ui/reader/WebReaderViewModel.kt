@@ -8,7 +8,9 @@ import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.graphql.generated.GetArticleQuery
 import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.models.LinkedItemLabel
 import com.apollographql.apollo3.ApolloClient
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -44,6 +46,18 @@ class WebReaderViewModel @Inject constructor(
 
       val article = response.data?.article?.onArticleSuccess?.article ?: return@launch
 
+      val labels = article.labels ?: listOf()
+
+      val linkedItemLabels = labels.map {
+        LinkedItemLabel(
+          id = it.labelFields.id,
+          name = it.labelFields.name,
+          color = it.labelFields.color,
+          createdAt = it.labelFields.createdAt,
+          labelDescription = it.labelFields.description
+        )
+      }
+
       // TODO: handle errors
 
       val linkedItem = LinkedItem(
@@ -73,7 +87,8 @@ class WebReaderViewModel @Inject constructor(
         htmlContent = article.articleFields.content ?: "",
         highlightsJSONString = "[]",
         contentStatus = "SUCCEEDED",
-        objectID = ""
+        objectID = "",
+        labelsJSONString = Gson().toJson(linkedItemLabels)
       )
 
       webReaderParamsLiveData.value = WebReaderParams(linkedItem, articleContent)

@@ -26,8 +26,4 @@ data class LinkedItem(
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
   }
-
-  fun labelsJSONString(): String {
-    return "[]"
-  }
 }

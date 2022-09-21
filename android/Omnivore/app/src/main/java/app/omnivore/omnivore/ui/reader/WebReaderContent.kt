@@ -29,6 +29,7 @@ data class ArticleContent(
   val highlightsJSONString: String,
   val contentStatus: String, // ArticleContentStatus,
   val objectID: String?, // whatever the Room Equivalent of objectID is
+  val labelsJSONString: String
 )
 
 data class WebReaderContent(
@@ -84,8 +85,8 @@ data class WebReaderContent(
                   contentReader: "WEB",
                   readingProgressPercent: ${item.readingProgress},
                   readingProgressAnchorIndex: ${item.readingProgressAnchor},
-                  labels: [],
-                  highlights: [],
+                  labels: ${articleContent.labelsJSONString},
+                  highlights: ${articleContent.highlightsJSONString},
                 }
 
                 window.fontSize = $textFontSize
