@@ -68,7 +68,7 @@ class WebReaderViewModel @Inject constructor(
           suffix = it.highlightFields.suffix,
           patch = it.highlightFields.patch,
           annotation = it.highlightFields.annotation,
-          createdAt = null,
+          createdAt = null, // TODO: update gql query to get this
           updatedAt = it.highlightFields.updatedAt,
           createdByMe = it.highlightFields.createdByMe,
         )
