@@ -16,6 +16,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.home.HomeViewModel
+import app.omnivore.omnivore.ui.reader.WebReaderViewModel
 import app.omnivore.omnivore.ui.root.RootView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
 
     val loginViewModel: LoginViewModel by viewModels()
     val homeViewModel: HomeViewModel by viewModels()
+    val webReaderViewModel: WebReaderViewModel by viewModels()
 
     setContent {
       OmnivoreTheme {
@@ -34,7 +36,7 @@ class MainActivity : ComponentActivity() {
             .fillMaxSize()
             .background(color = Color.Black)
         ) {
-          RootView(loginViewModel, homeViewModel)
+          RootView(loginViewModel, homeViewModel, webReaderViewModel)
         }
       }
     }
