@@ -351,13 +351,13 @@ on smaller screens we display the note icon
 }
 
 .article-inner-css .morning-brew-markets td:nth-child(2) {
-  width: 34%;
+  width: 30%;
 }
 
 .article-inner-css .morning-brew-markets td:nth-child(3) {
-  width: 34%;
+  width: 30%;
 }
 
 .article-inner-css .morning-brew-markets td:nth-child(4) {
-  width: 12%;
+  width: 20%;
 }
