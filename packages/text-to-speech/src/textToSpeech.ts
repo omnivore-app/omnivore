@@ -7,13 +7,13 @@ import {
   SpeechSynthesisResult,
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
-import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
+import { htmlToSsmlItems, ssmlItemText } from './htmlToSsml'
 
 export interface TextToSpeechInput {
   text: string
   voice?: string
   language?: string
-  textType?: 'html' | 'utterance'
+  textType?: 'html' | 'ssml'
   rate?: string
   secondaryVoice?: string
   audioStream?: NodeJS.ReadWriteStream
@@ -51,7 +51,7 @@ export const synthesizeTextToSpeech = async (
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
-  let wordOffset = 0
+  const wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -137,11 +137,7 @@ export const synthesizeTextToSpeech = async (
         speechMarks,
       }
     }
-    // for utterance, just assemble the ssml and pass it through
-    const start = startSsml(ssmlOptions)
-    wordOffset = -start.length
-    const ssml = `${start}${input.text}${endSsml()}`
-    const result = await speakSsmlAsyncPromise(ssml)
+    const result = await speakSsmlAsyncPromise(input.text)
     if (result.reason === ResultReason.Canceled) {
       throw new Error(result.errorDetails)
     }
