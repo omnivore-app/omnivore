@@ -241,7 +241,7 @@ export default function EmailsPage(): JSX.Element {
                   display: 'flex',
                 },
               }}>
-                <SpanBox>Add Email</SpanBox>
+                <SpanBox>Create a new email address</SpanBox>
               </SpanBox>
               <SpanBox css={{
                 p: '0',
