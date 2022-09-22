@@ -181,7 +181,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
       // hash ssml to get the cache key
       const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
-      const redisClient = await createRedisClient()
+      const redisClient = await createRedisClient(
+        process.env.REDIS_URL,
+        process.env.REDIS_CERT
+      )
       // find audio data in cache
       const cacheResult = await redisClient.get(cacheKey)
       if (cacheResult) {
@@ -207,12 +210,12 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
       }
       const audioDataString = audioData.toString('hex')
-      // save audio data to cache for 1 hour
+      // save audio data to cache for 24 hours for mainly the newsletters
       await redisClient.set(
         cacheKey,
         JSON.stringify({ audioDataString, speechMarks }),
         {
-          EX: 3600, // in seconds
+          EX: 3600 * 24, // in seconds
           NX: true,
         }
       )
