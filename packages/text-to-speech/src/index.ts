@@ -169,6 +169,12 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
     }
 
+    // create redis client
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+
     try {
       const utteranceInput = req.body as UtteranceInput
       const ssmlOptions = {
@@ -181,10 +187,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
       // hash ssml to get the cache key
       const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
-      const redisClient = await createRedisClient(
-        process.env.REDIS_URL,
-        process.env.REDIS_CERT
-      )
       // find audio data in cache
       const cacheResult = await redisClient.get(cacheKey)
       if (cacheResult) {
@@ -221,9 +223,6 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       )
       console.log('Cache saved')
 
-      await redisClient.quit()
-      console.log('Redis Client Disconnected')
-
       res.send({
         idx: utteranceInput.idx,
         audioData: audioDataString,
@@ -232,6 +231,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     } catch (e) {
       console.error('Text to speech streaming error:', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
+    } finally {
+      await redisClient.quit()
+      console.log('Redis Client Disconnected')
     }
   }
 )
