@@ -6,7 +6,7 @@ export const createRedisClient = async (url?: string, cert?: string) => {
     socket: {
       tls: url?.startsWith('rediss://'), // rediss:// is the protocol for TLS
       cert: cert?.replace(/\\n/g, '\n'), // replace \n with new line
-      rejectUnauthorized: false,
+      rejectUnauthorized: false, // for self-signed certs
     },
   })
 
