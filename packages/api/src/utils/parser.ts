@@ -262,7 +262,6 @@ export const parsePreparedContent = async (
       const codeBlocks = article.dom.querySelectorAll('code')
       if (codeBlocks.length > 0) {
         codeBlocks.forEach((e) => {
-          console.log(e.textContent)
           if (e.textContent) {
             const att = hljs.highlightAuto(e.textContent)
             const code = dom.createElement('code')

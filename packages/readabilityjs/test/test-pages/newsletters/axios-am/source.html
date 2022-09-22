@@ -1,0 +1,439 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+        <meta property="og:title" content="Axios Finish Line" />
+        <meta property="og:image" content="https://static.axios.com/img-email/socialcard_axiosam3.jpg" />
+        <meta property="og:description" content="Start and end your work day with the stories that matter from Axios by Mike Allen, the world’s most-wired reporter. Then finish the night with what matters -- and lasts -- in life with insights from Mike, Jim VandeHei and Erica Pandey." />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Axios Finish Line" />
+        <meta name="twitter:description" content="Start and end your work day with the stories that matter from Axios by Mike Allen, the world’s most-wired reporter. Then finish the night with what matters -- and lasts -- in life with insights from Mike, Jim VandeHei and Erica Pandey." />
+        <meta property="twitter:image" content="https://static.axios.com/img-email/socialcard_axiosam3.jpg" />
+        <meta name="format-detection" content="telephone=no">
+        <meta name="format-detection" content="date=no">
+        <meta name="format-detection" content="address=no">
+        <meta name="format-detection" content="email=no">
+        <style type="text/css">
+            a[x-apple-data-detectors] {
+                color: inherit !important;
+                text-decoration: none !important;
+                font-size: inherit !important;
+                font-family: inherit !important;
+                font-weight: inherit !important;
+                line-height: inherit !important;
+                border-bottom: none !important;
+            }
+            @font-face {
+                font-family: 'atizatext';
+                src: url('https://static.axios.com/fonts/atizatext-regular-webfont.eot');
+                src: url('https://static.axios.com/fonts/atizatext-regular-webfont.eot?#iefix') format('embedded-opentype'),
+                url('https://static.axios.com/fonts/atizatext-regular-webfont.woff2') format('woff2'),
+                url('https://static.axios.com/fonts/atizatext-regular-webfont.woff') format('woff'),
+                url('https://static.axios.com/fonts/atizatext-regular-webfont.ttf') format('truetype'),
+                url('https://static.axios.com/fonts/atizatext-regular-webfont.svg#atizatext') format('svg');
+                font-weight: 300;
+                font-style: normal;
+            }
+            @font-face {
+                font-family: 'atizabold';
+                src: url('https://static.axios.com/fonts/atizatext-bold-webfont.eot');
+                src: url('https://static.axios.com/fonts/atizatext-bold-webfont.eot?#iefix') format('embedded-opentype'),
+                url('https://static.axios.com/fonts/atizatext-bold-webfont.woff2') format('woff2'),
+                url('https://static.axios.com/fonts/atizatext-bold-webfont.woff') format('woff'),
+                url('https://static.axios.com/fonts/atizatext-bold-webfont.ttf') format('truetype'),
+                url('https://static.axios.com/fonts/atizatext-bold-webfont.svg#atizatext') format('svg');
+                font-weight: 300;
+                font-style: normal;
+            }
+            @font-face {
+                font-family: 'gordita';
+                src: url('https://static.axios.com/fonts/gorditaregular-webfont.eot');
+                src: url('https://static.axios.com/fonts/gorditaregular-webfont.eot?#iefix') format('embedded-opentype'),
+                url('https://static.axios.com/fonts/gorditaregular-webfont.woff2') format('woff2'),
+                url('https://static.axios.com/fonts/gorditaregular-webfont.woff') format('woff'),
+                url('https://static.axios.com/fonts/gorditaregular-webfont.ttf') format('truetype'),
+                url('https://static.axios.com/fonts/gorditaregular-webfont.svg#gorditaregular') format('svg');
+                font-weight: 300;
+                font-style: normal;
+            }
+            @font-face {
+                font-family: 'gorditamedium';
+                src: url('https://static.axios.com/fonts/gorditamedium-webfont.eot');
+                src: url('https://static.axios.com/fonts/gorditamedium-webfont.eot?#iefix') format('embedded-opentype'),
+                url('https://static.axios.com/fonts/gorditamedium-webfont.woff2') format('woff2'),
+                url('https://static.axios.com/fonts/gorditamedium-webfont.woff') format('woff'),
+                url('https://static.axios.com/fonts/gorditamedium-webfont.ttf') format('truetype'),
+                url('https://static.axios.com/fonts/gorditamedium-webfont.svg#gorditamedium') format('svg');
+                font-weight: 500;
+                font-style: normal;
+            }
+            @font-face {
+                font-family: 'gorditabold';
+                src: url('https://static.axios.com/fonts/gorditabold-webfont.eot');
+                src: url('https://static.axios.com/fonts/gorditabold-webfont.eot?#iefix') format('embedded-opentype'),
+                url('https://static.axios.com/fonts/gorditabold-webfont.woff2') format('woff2'),
+                url('https://static.axios.com/fonts/gorditabold-webfont.woff') format('woff'),
+                url('https://static.axios.com/fonts/gorditabold-webfont.ttf') format('truetype'),
+                url('https://static.axios.com/fonts/gorditabold-webfont.svg#gorditabold') format('svg');
+                font-weight: 500;
+                font-style: normal;
+            }
+        </style>
+        <style type="text/css">
+            p {
+                margin-top: 0px;
+                margin-bottom: 1em;
+            }
+            p strong {
+                font-family: Georgia, serif;
+                font-weight: 700;
+            }
+            .main-header,
+            .bodytext {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            .post-text a {
+                border-bottom: 1px solid #008dc8;
+                text-decoration: none;
+            }
+            .post-text a:hover {
+                color: #008dc8;
+            }
+            .post-text ul li {
+                margin-bottom: 10px;
+            }
+            a {
+                color: #222222;
+            }
+            .hq-cta a {
+                border-bottom: 1px solid #008dc8;
+                text-decoration: none;
+            }
+            .hq-cta a:hover {
+                color: #008dc8;
+            }
+            .gmailfix {
+                display:none;
+                display:none!important;
+            }
+            @media (max-width: 600px) {
+                .hed {
+                    font-size: 26px !important;
+                    -webkit-text-size-adjust: 100%;
+                }
+                .main-header {
+                    font-size: 34px !important;
+                }
+                .post-text {
+                    font-size: 17px !important;
+                    -webkit-text-size-adjust: none !important;
+                }
+                .hq-cta{
+                    padding: 16px !important;
+                }
+                .hq-cta img{
+                    width:64px !important;
+                }
+                .hq-cta-text-header{
+                    display:block;
+                    font-size: 14px !important;
+                    line-height:17.5px !important;
+                    -webkit-text-size-adjust: 100%;
+                }
+                .hq-cta-text-body{
+                    display:block;
+                    margin-top:8px !important;
+                    line-height:13.75px !important;
+                    font-size: 11px !important;
+                    -webkit-text-size-adjust: 100%;
+                }
+            }
+        </style>
+        <link href="https://fonts.googleapis.com/css?family=PT+Mono&display=swap" rel="stylesheet">
+        <!--[if mso]>
+        <style type="text/css">
+            .bodytext, .main-header  {font-family: Arial, Helvetica, Helvetica, sans-serif !important;}
+            .post-text {font-family: Georgia, Palatino Linotype, serif !important;}
+            .ol-adpad {padding-bottom: 10px !important;}
+            a {color: #222222; text-decoration:underline !important;}
+        </style>
+        <![endif]-->
+        <!--[if gte mso 7]><xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml><![endif]-->
+    </head>
+    <body style="background-color: #f5f5f5; margin: 0 auto; padding: 0; text-align: center;">
+        <div style="display:none;font-size:1px;color:#222222;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+            Crowding out other crises | Tuesday, September 20, 2022
+        </div>
+        <table cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6f6;text-align: center">
+            <tr>
+                <td style="max-width: 600px;">
+                    <!--[if mso]>
+                    <table style="width:600px;"><tr><td>
+                    <![endif]-->
+                    <table style="max-width: 600px; margin: 0 auto; text-align: left; width: 100%;" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td height="25" style="height: 25px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 35px;"><a href="#" title="AXIOS"><img src="https://static.axios.com/img-email/axios-retina.png" border="0" style="margin-bottom: -1px;" alt="Axios Logo" width="83" /></a>&nbsp;&nbsp;<span class="bodytext" style="font-family: 'gordita', sans-serif; font-size: 25px; color: #4a4a4a;">Alerts</span><a href="https://link.axios.com/click/29107110.531083/aHR0cDovL3d3dy5heGlvcy5jb20_dXRtX3NvdXJjZT1uZXdzbGV0dGVyJnV0bV9tZWRpdW09ZW1haWwmdXRtX2NhbXBhaWduPXRob3VnaHQtYnViYmxlLWFtcG0mc3RyZWFtPXRvcA/624d3447776363102d0b2208B1993966b"><img src="https://link.axios.com/img/624d3447776363102d0b2208hbv6u.bdsb/39c4b23e.gif" alt="" border="0" /></a></td>
+                        </tr>
+                    </table>
+                    <table style="max-width: 600px; width: 100%; margin: 0 auto; text-align: left; background: #fff;" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td height="20" style="height: 20px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;">
+                                <table cellspacing="0" cellpadding="0" width="100%">
+                                    <tr>
+                                        <td style="padding-right: 3.5%;" align="right">
+                                            <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuYXhpb3MuY29tL25ld3NsZXR0ZXJzL2F4aW9zLXRob3VnaHQtYnViYmxlLWJiNzVmODBlLTYyY2QtNGY5OS05ZGFiLWZkZTcyMzcwYTI5Ni5odG1sP3V0bV9zb3VyY2U9bmV3c2xldHRlciZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9jYW1wYWlnbj10aG91Z2h0LWJ1YmJsZS1hbXBtJnN0cmVhbT10b3A/624d3447776363102d0b2208B7d40361f" target="_blank" class="bodytext" style="color: #222222; font-size: 13px; font-family: 'gordita', Arial, Helvetica, sans-serif;text-decoration:underline;">View in browser</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="30" style="height: 30px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; line-height: 1.3;">
+                                <span class="bodytext" style="font-size: 11px; letter-spacing:1.4px; color: #222222; font-family: 'gorditamedium', Arial, Helvetica, sans-serif; text-transform: uppercase;">Presented By Pfizer</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="16" style="height: 16px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; line-height: 1;">
+                                <span class="main-header" style="font-size: 44px; font-family: 'gorditamedium', Arial, Helvetica, sans-serif; color: #008dc8; letter-spacing: -1px; line-height: 1;">Axios AM Thought Bubble</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; line-height: 1.5; padding-bottom:35px;padding-top:10px;">
+        <span class="bodytext"  style="font-size: 13px; color: #222222; font-family: 'gorditamedium', Arial, Helvetica, sans-serif; ">By
+        Mike Allen
+        <span style="margin: 0 6px;">&middot;</span>
+        Sep 20, 2022
+        </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="post-text" style="font-size: 17px; font-family: Georgia, serif; line-height: 1.75; color: #222222; letter-spacing: -0.1px; padding: 0 3.5%;">
+                                <p><strong>Good morning</strong>. Here's Axios world reporter Dave Lawler with what you need to know about today's opening of the UN General Assembly gathering in New York.</p><ul><li><em>Smart Brevity™ count: 414 words ... a 2-minute read.</em></li></ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="10" style="height: 10px; font-size: 0; border-bottom: 10px solid #f5f5f5;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td height="10" style="height: 10px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 20px 3.5%; line-height: 1.5;">
+        <span class="bodytext hed " style="font-size: 27px; font-family: 'gorditamedium', Arial, Helvetica, sans-serif; color: #222222; letter-spacing: -0.1px; line-height: 1.5;">
+        1 big thing: Ukraine dominates UN General Assembly
+        </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="https://images.axios.com/bHNds2L6EO6Mtv62a5agdJxfd0c=/0x0:1920x1080/1920x1080/2022/09/20/1663677802854.jpg" width="600" style="width:100%" id="item00" alt="Illustration of country name placards at the UN with microphones, with Ukraine's microphone bigger than all others. ">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="10" style="height: 10px; font-size: 0;"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0 3.5%; line-height: 1.3;">
+        <span class="bodytext" style="font-size: 13px; color: #848484;">
+        <p>Illustration: Aïda Amer/Axios</p>
+        </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="15" style="height: 15px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="post-text" style="padding: 0 3.5%; line-height: 1.75; font-size: 17px; font-family: Georgia, serif; line-height: 1.75; color: #222222; letter-spacing: -0.1px;">
+                                <p><strong>NEW YORK — </strong>The war in Ukraine is set to dominate this week's UN General Assembly meeting, overshadowing other global dilemmas like food security, climate change and other political and humanitarian crises around the world.</p><p><strong>Why it matters:</strong> The Biden administration is intent on keeping up the pressure on Moscow, but some developing countries and aid groups have expressed concern that diplomatic skirmishes over the war will undermine a key opportunity to address other crises that deserve attention.</p><p><strong>What they're saying: </strong>Stéphane Dujarric, spokesperson for Secretary-General António Guterres, said the war "does take up a lot of the space" and can make it harder to build momentum and consensus on other issues.</p><ul><li>Ecuadorian President Guillermo Lasso <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuYXhpb3MuY29tLzIwMjIvMDkvMjAvZ3VpbGxlcm1vLWxhc3NvLWludGVydmlldy11cy1jaGluYS1yZWxhdGlvbnM_dXRtX3NvdXJjZT1uZXdzbGV0dGVyJnV0bV9tZWRpdW09ZW1haWwmdXRtX2NhbXBhaWduPXRob3VnaHQtYnViYmxlLWFtcG0mc3RyZWFtPXRvcA/624d3447776363102d0b2208Bf0481178" target="_blank">told Axios in an interview</a> that the focus on Ukraine is understandable — as long as the big powers recognize that the knock-on effects of soaring food and fuel prices are hitting smaller, poorer countries hardest.</li><li>However, Linda Thomas-Greenfield, U.S. ambassador to the UN, argued ahead of the summit that those concerns were misplaced, as the war "will not be the only thing that we're dealing with." The U.S. and African and European Unions will co-host a summit on food security, for example.</li></ul><p><strong>Driving the news:</strong> Kicking off the six-day procession of speeches just now, Guterres called attention to the array of crises unfolding "far from the spotlight" — from Ethiopia, to Haiti, to Myanmar and beyond.</p><ul><li>He also acknowledged that rather than taking collective action, the international community — and the UN itself — had been "paralyzed" by "geopolitical divides." </li><li>That paralysis will be on display Thursday, when Secretary of State Tony Blinken, Russian Foreign Minister Sergey Lavrov and their counterparts are expected to discuss Ukraine at the UN Security Council. Russia is outnumbered on the council, but wields a veto.</li></ul><p><strong>The big picture: </strong>The UN General Assembly is back at full force for the first time in three years.</p><ul><li>The past two annual gatherings were derailed by COVID-19, but the pandemic has slipped down the agenda and most delegates are wandering UN HQ maskless. </li></ul><p><strong>What to watch: </strong>President Biden forfeited the prime U.S. speaking slot this morning (always second after Brazil) to travel back from Queen Elizabeth II's funeral, and will instead speak on Wednesday.</p><ul><li>China and Russia won't address the forum until Saturday, because both Xi Jinping and Vladimir Putin are staying home, and ministerial-level officials get the later speaking slots.</li><li>Ukrainian President Volodymyr Zelensky, however, is slated to address the forum remotely on Wednesday.</li></ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 20px 3.5% 25px 3.5%;">
+                                <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuZmFjZWJvb2suY29tL3NoYXJlci5waHA_dT1odHRwczovL3d3dy5heGlvcy5jb20vbmV3c2xldHRlcnMvYXhpb3MtdGhvdWdodC1idWJibGUtYmI3NWY4MGUtNjJjZC00Zjk5LTlkYWItZmRlNzIzNzBhMjk2Lmh0bWw_Y2h1bmslM0QwJTI2dXRtX3Rlcm0lM0RmYnNvY2lhbHNoYXJlJTIzc3RvcnkwJnV0bV9zb3VyY2U9bmV3c2xldHRlciZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9jYW1wYWlnbj10aG91Z2h0LWJ1YmJsZS1hbXBtJnN0cmVhbT10b3A/624d3447776363102d0b2208B72ea463b" style="display: inline-block;"><img width="32" height="32" style="border: none" target="_blank" src="https://static.axios.com/img-email/social/facebook@2x.png" alt="Share on Facebook"></a>
+                                <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly90d2l0dGVyLmNvbS9pbnRlbnQvdHdlZXQ_dGV4dD0xJTIwYmlnJTIwdGhpbmc6JTIwVWtyYWluZSUyMGRvbWluYXRlcyUyMFVOJTIwR2VuZXJhbCUyMEFzc2VtYmx5Jmhhc2h0YWdzPWF4aW9zYW10aG91Z2h0YnViYmxlJnVybD1odHRwczovL3d3dy5heGlvcy5jb20vbmV3c2xldHRlcnMvYXhpb3MtdGhvdWdodC1idWJibGUtYmI3NWY4MGUtNjJjZC00Zjk5LTlkYWItZmRlNzIzNzBhMjk2Lmh0bWw_Y2h1bmslM0QwJTI2dXRtX3Rlcm0lM0R0d3NvY2lhbHNoYXJlJTIzc3RvcnkwJnV0bV9zb3VyY2U9bmV3c2xldHRlciZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9jYW1wYWlnbj10aG91Z2h0LWJ1YmJsZS1hbXBtJnN0cmVhbT10b3A/624d3447776363102d0b2208Bfe1c2959" style="display: inline-block; margin-left: 7px"><img width="32" height="32" style="border: none" target="_blank" src="https://static.axios.com/img-email/social/twitter@2x.png" alt="Tweet this Story"></a>
+                                <a href="https://link.axios.com/click/29107110.531083/aHR0cDovL3d3dy5saW5rZWRpbi5jb20vc2hhcmVBcnRpY2xlP21pbmk9dHJ1ZSZ1cmw9aHR0cHM6Ly93d3cuYXhpb3MuY29tL25ld3NsZXR0ZXJzL2F4aW9zLXRob3VnaHQtYnViYmxlLWJiNzVmODBlLTYyY2QtNGY5OS05ZGFiLWZkZTcyMzcwYTI5Ni5odG1sP2NodW5rJTNEMCUyNTI2dXRtX3Rlcm0lMjUzRGxpc29jaWFsc2hhcmUlMjUyM3N0b3J5MCZ1dG1fc291cmNlPW5ld3NsZXR0ZXImdXRtX21lZGl1bT1lbWFpbCZ1dG1fY2FtcGFpZ249dGhvdWdodC1idWJibGUtYW1wbSZzdHJlYW09dG9w/624d3447776363102d0b2208Bb342c543" style="display: inline-block; margin-left: 7px"><img width="32" height="32" style="border: none" target="_blank" src="https://static.axios.com/img-email/social/linkedin@2x.png" alt="Post to LinkedIn"></a>
+                                <a href="mailto:?subject=From Axios: 1 big thing: Ukraine dominates UN General Assembly&body=hongbo-jcdrcby5e%40inbox-demo.omnivore.app%20has%20shared%20an%20Axios%20story%20with%20you%3A%0A%0A1 big thing: Ukraine dominates UN General Assembly%0Ahttps%3A%2F%2Fwww.axios.com%2Fnewsletters%2Faxios-thought-bubble-bb75f80e-62cd-4f99-9dab-fde72370a296.html%3Fchunk%3D0%26utm_term%3Demshare#story0" style="display: inline-block; margin-left: 7px"><img width="32" height="32" style="border: none" target="_blank" src="https://static.axios.com/img-email/social/email@2x.png" alt="Email this Story"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="10" style="height: 10px; font-size: 0; border-bottom: 10px solid #f5f5f5;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td height="20" style="height: 10px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="ol-adpad" style="padding: 20px 3.5% 0 3.5%;">
+                                <p class="bodytext" style="-webkit-text-size-adjust: 100%; margin-bottom: 0 !important; font-size: 11px !important; letter-spacing: 1.4px; color: #008dc8; text-transform: uppercase; font-weight:700;">
+                                    A message from Pfizer
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 20px 3.5%; line-height: 1.5;">
+                                <span class="bodytext hed" style="font-size: 26px; font-family: 'gorditamedium', Arial, Helvetica, sans-serif; color: #222222; letter-spacing: -0.1px; line-height: 1.5;">An Accord for a Healthier World</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="10" style="height: 10px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="https://tpc.googlesyndication.com/pageadimg/imgad?id=CICAgOCEk4jcNBABGAEoATIIOBBtC45s_bI" alt="" width="600" style="width:100%" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="15" style="height: 15px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="post-text" style="padding: 0 3.5%; line-height: 1.75;  font-size: 17px; font-family: Georgia, serif; line-height: 1.75; color: #222222; letter-spacing: -0.1px;">
+                                <p>People living in lower income countries are disproportionately impacted by disease, causing lasting social and economic consequences.</p>
+                                <p>Through an Accord for a Healthier World, we’re working to close the health equity gap.</p>
+                                <p>We believe <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cucGZpemVyLmNvbS9hY2NvcmQ_Y2lkPWJuX2NvcnBfcmVwdXRfYXhpb3MtNDI0OHlfMDkyMiZheGlvc19hZGxpbms9MSZ1dG1fc291cmNlPW5ld3NsZXR0ZXImdXRtX21lZGl1bT1lbWFpbCZ1dG1fY2FtcGFpZ249dGhvdWdodC1idWJibGUtYW1wbSZzdHJlYW09dG9w/624d3447776363102d0b2208B7fd12ebf" target="_blank">better health is possible for everyone, everywhere.</a></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="10" style="height: 10px; font-size: 0; border-bottom: 10px solid #f5f5f5;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td
+                              class="hq-cta"
+                              style="
+        padding: 24px 4% 24px 4%;
+        margin: 0;
+        line-height: 1.75;
+        font-size: 16px;
+        color: #222222;
+        letter-spacing: -0.1px;
+        font-family: Arial, sans-serif;
+        "
+                            >
+                                <table
+                                  width="100%"
+                                  style="margin: 0 auto; width: 100%"
+                                  cellspacing="0"
+                                  cellpadding="0"
+                                >
+                                    <tr>
+                                        <td style="font-size: 0">
+                                            <img
+                                              src=https://static.axios.com/img-email/axioshq-new-image-footer.gif
+                                              style="width: 100%; max-width: 87px; min-width: 64px"
+                                              border="0"
+                                              alt=HQ
+                                              width="87"
+                                            />
+                                        </td>
+                                        <td>
+                                            <table
+                                              width="100%"
+                                              style="max-width: 600px; margin: 0 auto; width: 100%"
+                                              cellspacing="0"
+                                              cellpadding="0"
+                                            >
+                                                <tr>
+                                                    <td style="padding-left: 20px; font-family: 'NB International Pro', 'Helvetica', 'Helvetica Neue'" class="hq-cta-text">
+                                                        <div style="font-size: 17px; color: #333335" class"hq-cta-text-header">Are you a fan of this email format?</div><div style="padding-top: 12px; font-size: 14px; color: #737376; line-height: 1.4" class="hq-cta-text-body">
+                                                        It's called Smart Brevity®. Over 300 orgs use it — in a tool called <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuYXhpb3NocS5jb20vc2lnbnVwP3V0bV9zb3VyY2U9YXhpb3MtbmV3c2xldHRlciZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9jYW1wYWlnbj1heGlvc2hxLW5sLWZvb3RlciZzdHJlYW09dG9w/624d3447776363102d0b2208B876bd7d6">Axios HQ</a> — to drive productivity with clearer workplace communications.</div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- End email content -->
+                    <!-- Start footer -->
+                    <table style="max-width:600px; margin: 0 auto; width: 100%;" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td height="20" style="height: 20px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 0 5%; line-height: 1.75;">
+        <span class="bodytext" style="font-size: 12px; line-height: 1.75; color: #222222;">
+        <p>Axios thanks our partners for supporting our newsletters. If you’re interested in advertising, learn more <a href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuYXhpb3MuY29tL2FkdmVydGlzZS8_dXRtX3NvdXJjZT1uZXdzbGV0dGVyJnV0bV9tZWRpdW09ZW1haWwmdXRtX2NhbXBhaWduPXRob3VnaHQtYnViYmxlLWFtcG0mc3RyZWFtPXRvcA/624d3447776363102d0b2208B06c15577" style="color: #222222;">here</a>.
+        <br> Sponsorship has no influence on editorial content.</p>
+        </span>
+                                <span class="bodytext" style="font-size: 12px; line-height: 1.75; color: #222222;">
+        Axios, 3100 Clarendon B&zwnj;lvd, Arlington VA 22201
+        </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="20" style="height: 20px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 0 5%; line-height: 1.2;">
+        <span class="bodytext" style="font-size: 12px; line-height: 1.2; color: #222222;">
+        You received this email because you signed up for newsletters from Axios.<br>
+        <a href="https://link.axios.com/oc/624d3447776363102d0b2208hbv6u.bdsb/bfdde539" style="color: #222222;">Change your preferences or unsubscribe here.</a>
+        </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="20" style="height: 20px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 0 5%; line-height: 1.2;">
+        <span class="bodytext" style="font-size: 12px; line-height: 1.2; color: #222222;">
+        Was this email forwarded to you?<br>
+        <a href="https://link.axios.com/click/29107110.531083/aHR0cDovL2xpbmsuYXhpb3MuY29tL2pvaW4vNWZ4L3NpZ251cC1hbGw_dXRtX3NvdXJjZT1mb3J3YXJkZWRfZW1haWwmdXRtX21lZGl1bT1lbWFpbCZ1dG1fY2FtcGFpZ249dGhvdWdodC1idWJibGUtYW1wbSZzdHJlYW09dG9w/624d3447776363102d0b2208Bbb028aae" style="color: #222222;">Sign up now</a> to get Axios in your inbox.
+        </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="20" style="height: 20px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td height="30" align="center">
+                                <p class="bodytext" style="font-size: 12px; line-height: 1.75; color: #222222;">Follow Axios on social media:</p>
+                                <a target="_blank" href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuZmFjZWJvb2suY29tL2F4aW9zbmV3cy8_dXRtX3NvdXJjZT1uZXdzbGV0dGVyJnV0bV9tZWRpdW09ZW1haWwmdXRtX2NhbXBhaWduPXRob3VnaHQtYnViYmxlLWFtcG0mc3RyZWFtPXRvcA/624d3447776363102d0b2208Beada5dfb"><img src="https://static.axios.com/img-email/facebook@2x.png" height="16" alt="Axios on Facebook" style="border: 0; padding-right: 28px;" /></a>
+                                <a target="_blank" href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cudHdpdHRlci5jb20vYXhpb3MvP3V0bV9zb3VyY2U9bmV3c2xldHRlciZ1dG1fbWVkaXVtPWVtYWlsJnV0bV9jYW1wYWlnbj10aG91Z2h0LWJ1YmJsZS1hbXBtJnN0cmVhbT10b3A/624d3447776363102d0b2208B3521bd9a"><img src="https://static.axios.com/img-email/twitter@2x.png" height="16" alt="Axios on Twitter" style="border: 0; padding-right: 20px;" /></a>
+                                <a target="_blank" href="https://link.axios.com/click/29107110.531083/aHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9heGlvcy8_dXRtX3NvdXJjZT1uZXdzbGV0dGVyJnV0bV9tZWRpdW09ZW1haWwmdXRtX2NhbXBhaWduPXRob3VnaHQtYnViYmxlLWFtcG0mc3RyZWFtPXRvcA/624d3447776363102d0b2208Bcd0c3da7"><img src="https://static.axios.com/img-email/instagram@2x.png" height="16" alt="Axios on Instagram" style="border: 0" /></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td height="20" style="height: 20px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                        <!--<tr>
+                        <td align="center" style="padding: 0 5%; line-height: 1.75;">
+                        <span class="bodytext"  style="font-size: 12px; line-height: 1.75px; color: #222222;">
+                        View in browser at <a href="https://link.axios.com/view/624d3447776363102d0b2208hbv6u.bdsb/95d21d5c" target="_blank" style="color: #222222; letter-spacing: 1px;">https://link.axios.com/view/624d3447776363102d0b2208hbv6u.bdsb/95d21d5c</a>
+                        </span>
+                        </td>
+                        </tr>-->
+                        <tr>
+                            <td height="70" style="height: 70px; font-size: 0;">&nbsp;</td>
+                        </tr>
+                    </table>
+                    <!-- End footer -->
+                    <!--[if mso]>
+                    </td></tr></table>
+                    <![endif]-->
+                </td>
+            </tr>
+        </table>
+        <div class="gmailfix" style="white-space:nowrap; font:15px courier; line-height:0;">
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+        </div>
+    </body>
+</html>
