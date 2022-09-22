@@ -231,9 +231,16 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     self.itemAudioProperties = itemAudioProperties
     startAudio()
+
+    EventTracker.track(
+      .audioSessionStart(linkID: itemAudioProperties.itemID)
+    )
   }
 
   public func stop() {
+    let stoppedId = itemAudioProperties?.itemID
+    let stoppedTimeElapsed = timeElapsed
+
     player?.pause()
     timer?.invalidate()
 
@@ -251,6 +258,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     timeElapsed = 0
     duration = 1
     durations = nil
+
+    if let stoppedId = stoppedId {
+      EventTracker.track(
+        .audioSessionEnd(linkID: stoppedId, timeElapsed: stoppedTimeElapsed ?? 0.0)
+      )
+    }
   }
 
   public func generateVoiceList() -> [(name: String, key: String, selected: Bool)] {
