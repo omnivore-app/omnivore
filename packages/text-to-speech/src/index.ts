@@ -181,7 +181,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
       // hash ssml to get the cache key
       const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
-      const redisClient = await createRedisClient()
+      const redisClient = await createRedisClient(
+        process.env.REDIS_URL,
+        process.env.REDIS_CERT
+      )
       // find audio data in cache
       const cacheResult = await redisClient.get(cacheKey)
       if (cacheResult) {
