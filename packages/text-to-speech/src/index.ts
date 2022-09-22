@@ -210,12 +210,12 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
       }
       const audioDataString = audioData.toString('hex')
-      // save audio data to cache for 1 hour
+      // save audio data to cache for 12 hours
       await redisClient.set(
         cacheKey,
         JSON.stringify({ audioDataString, speechMarks }),
         {
-          EX: 3600, // in seconds
+          EX: 3600 * 12, // in seconds
           NX: true,
         }
       )
