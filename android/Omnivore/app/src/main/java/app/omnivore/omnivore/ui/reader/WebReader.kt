@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.reader
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Rect
 import android.util.Log
 import android.view.*
 import android.webkit.WebView
@@ -71,11 +72,10 @@ fun WebReader(params: WebReaderParams) {
 }
 
 class OmnivoreWebView(context: Context) : WebView(context) {
-  private val actionModeCallback = object : ActionMode.Callback {
+  private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-      val inflater: MenuInflater = mode.menuInflater
-      inflater.inflate(R.menu.text_selection_menu, menu)
+      mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
       return true
     }
 
@@ -94,7 +94,8 @@ class OmnivoreWebView(context: Context) : WebView(context) {
           true
         }
         R.id.highlight -> {
-          Log.d("Loggo", "Highlight action selected")
+          val script = "var event = new Event('highlight');document.dispatchEvent(event);"
+          evaluateJavascript(script, null)
           mode.finish()
           true
         }
@@ -109,12 +110,15 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     override fun onDestroyActionMode(mode: ActionMode) {
 //      actionMode = null
     }
+
+    override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
+      outRect?.set(left, top, right, bottom)
+    }
   }
 
   private var currentActionModeCallback: ActionMode.Callback? = actionModeCallback
 
   override fun startActionMode(callback: ActionMode.Callback?): ActionMode {
-    Log.d("Loggo", "startActionModeCalled")
     return super.startActionMode(currentActionModeCallback)
   }
 
@@ -122,12 +126,10 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     originalView: View?,
     callback: ActionMode.Callback?
   ): ActionMode {
-    Log.d("Loggo", "startActionModeForChild")
     return super.startActionModeForChild(originalView, currentActionModeCallback)
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
-    Log.d("Loggo", "startActionMode:callback:type")
     return super.startActionMode(currentActionModeCallback, type)
   }
 }
