@@ -4,8 +4,8 @@ export const createRedisClient = async (url?: string, cert?: string) => {
   const redisClient = createClient({
     url,
     socket: {
-      tls: url?.startsWith('rediss://'),
-      cert: cert?.replace(/\\n/g, '\n'),
+      tls: url?.startsWith('rediss://'), // rediss:// is the protocol for TLS
+      cert: cert?.replace(/\\n/g, '\n'), // replace \n with new line
       rejectUnauthorized: false,
     },
   })
