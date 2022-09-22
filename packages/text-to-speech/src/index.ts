@@ -221,6 +221,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       )
       console.log('Cache saved')
 
+      await redisClient.quit()
+      console.log('Redis Client Disconnected')
+
       res.send({
         idx: utteranceInput.idx,
         audioData: audioDataString,
