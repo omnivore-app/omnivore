@@ -32,25 +32,65 @@ enum DownloadPriority: String {
   case high
 }
 
-struct VoicePair {
+public struct VoiceLanguage {
+  public let key: String
+  public let name: String
+  public let defaultVoice: String
+  public let categories: [VoiceCategory]
+}
+
+public enum VoiceCategory: String, CaseIterable {
+  case enUS = "English (US)"
+  case enAU = "English (Australia)"
+  case enCA = "English (Canada)"
+  case enIE = "English (Ireland)"
+  case enIN = "English (India)"
+  case enSG = "English (Singapore)"
+  case enUK = "English (UK)"
+  case jaJP = "Japanese (Japan)"
+  case zhCN = "Chinese (China Mainland)"
+}
+
+public struct VoicePair {
   let firstKey: String
   let secondKey: String
 
   let firstName: String
   let secondName: String
+
+  let category: VoiceCategory
 }
 
-// swiftlint:disable all
-let VOICES = [
-  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny (USA)", secondName: "Brandon (USA)"),
-  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora (USA)", secondName: "Christopher (USA)"),
-  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth (USA)", secondName: "Eric (USA)"),
-  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara (Canada)", secondName: "Liam (Canada)"),
-  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby (UK)", secondName: "Ethan (UK)"),
-  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha (Australia)", secondName: "William (Australia)"),
-  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)"),
-  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna (Singapore)", secondName: "Wayne (Singapore)")
+private let ENGLISH = VoiceLanguage(key: "en", name: "English", defaultVoice: "en-US-ChristopherNeural", categories: [.enUS, .enAU, .enCA, .enIE, .enIN, .enSG, .enUK])
+
+public let VOICELANGUAGES = [
+  ENGLISH,
+  VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
+  VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN])
 ]
+
+// swiftlint:disable all
+public let VOICES = [
+  // en
+  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", category: .enUS),
+  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", category: .enUS),
+  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", category: .enUS),
+  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara", secondName: "Liam", category: .enCA),
+  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby", secondName: "Ethan", category: .enUK),
+  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha", secondName: "William", category: .enAU),
+  VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", category: .enIE),
+  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", category: .enIN),
+  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", category: .enSG),
+
+  // ja
+  VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", category: .jaJP),
+
+  // zh
+  VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", category: .zhCN),
+  VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", category: .zhCN)
+]
+
+let VOICE_REGIONS = ["English "]
 
 // Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
 class SpeechPlayerItem: AVPlayerItem {
@@ -112,6 +152,10 @@ class SpeechPlayerItem: AVPlayerItem {
     weak var owner: SpeechPlayerItem?
 
     func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+      if owner == nil {
+        return true
+      }
+
       if session == nil {
         guard let initialUrl = owner?.speechItem.urlRequest else {
           fatalError("internal inconsistency")
@@ -207,7 +251,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @Published public var duration: TimeInterval = 0
   @Published public var timeElapsedString: String?
   @Published public var durationString: String?
-  @Published public var voiceList: [(name: String, key: String, selected: Bool)]?
+  @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
 
   let appEnvironment: AppEnvironment
   let networker: Networker
@@ -266,11 +310,11 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  public func generateVoiceList() -> [(name: String, key: String, selected: Bool)] {
+  public func generateVoiceList() -> [(name: String, key: String, category: VoiceCategory, selected: Bool)] {
     VOICES.flatMap { voicePair in
       [
-        (name: voicePair.firstName, key: voicePair.firstKey, selected: voicePair.firstKey == currentVoice),
-        (name: voicePair.secondName, key: voicePair.secondKey, selected: voicePair.secondKey == currentVoice)
+        (name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
+        (name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
       ]
     }.sorted { $0.name.lowercased() < $1.name.lowercased() }
   }
@@ -374,6 +418,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     fireTimer()
   }
 
+  @AppStorage(UserDefaultKey.textToSpeechDefaultLanguage.rawValue) public var defaultLanguage = "en" {
+    didSet {
+      currentLanguage = defaultLanguage
+    }
+  }
+
   @AppStorage(UserDefaultKey.textToSpeechPlaybackRate.rawValue) public var playbackRate = 1.0 {
     didSet {
       updateDurations(oldPlayback: oldValue, newPlayback: playbackRate)
@@ -382,8 +432,44 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  @AppStorage(UserDefaultKey.textToSpeechCurrentVoice.rawValue) public var currentVoice = "en-US-ChristopherNeural" {
-    didSet {
+  public var currentVoiceLanguage: VoiceLanguage {
+    VOICELANGUAGES.first(where: { $0.key == currentLanguage }) ?? ENGLISH
+  }
+
+  private var _currentLanguage: String?
+  public var currentLanguage: String {
+    get {
+      if let currentLanguage = _currentLanguage {
+        return currentLanguage
+      }
+      if let itemLang = itemAudioProperties?.language, let lang = VOICELANGUAGES.first(where: { $0.name == itemLang || $0.key == itemLang }) {
+        return lang.key
+      }
+      return defaultLanguage
+    }
+    set {
+      _currentLanguage = newValue
+
+      let newVoice = getPreferredVoice(forLanguage: newValue)
+      currentVoice = newVoice
+    }
+  }
+
+  private var _currentVoice: String?
+  public var currentVoice: String {
+    get {
+      if let currentVoice = _currentVoice {
+        return currentVoice
+      }
+
+      if let currentVoice = UserDefaults.standard.string(forKey: "\(currentLanguage)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") {
+        return currentVoice
+      }
+
+      return currentVoiceLanguage.defaultVoice
+    }
+    set {
+      _currentVoice = newValue
       voiceList = generateVoiceList()
 
       var currentIdx = 0
@@ -396,6 +482,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
       downloadAndPlayFrom(currentIdx, currentOffset)
     }
+  }
+
+  public func getPreferredVoice(forLanguage language: String) -> String {
+    UserDefaults.standard.string(forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") ?? currentVoiceLanguage.defaultVoice
+  }
+
+  public func setPreferredVoice(_ voice: String, forLanguage language: String) {
+    UserDefaults.standard.set(voice, forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)")
   }
 
   private func downloadAndPlayFrom(_ currentIdx: Int, _ currentOffset: Double) {
@@ -721,6 +815,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
     let decoder = JSONDecoder()
     let speechFileUrl = pathForSpeechFile(itemID: itemID)
+    print("looking up speeh file: ", speechFileUrl)
 
     if FileManager.default.fileExists(atPath: speechFileUrl.path) {
       let data = try Data(contentsOf: speechFileUrl)

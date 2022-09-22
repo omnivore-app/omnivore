@@ -19,6 +19,7 @@ public struct LinkedItemAudioProperties {
   public let author: String?
   public let siteName: String?
   public let imageURL: URL?
+  public let language: String?
 }
 
 // Internal model used for parsing a push notification object only
@@ -36,6 +37,7 @@ public struct JSONArticle: Decodable {
   public let contentReader: String
   public let url: String
   public let isArchived: Bool
+  public let language: String?
 }
 
 public extension LinkedItem {
@@ -100,7 +102,8 @@ public extension LinkedItem {
       title: unwrappedTitle,
       author: author,
       siteName: siteName,
-      imageURL: imageURL
+      imageURL: imageURL,
+      language: language
     )
   }
 

@@ -100,6 +100,12 @@ struct ProfileView: View {
       }
 
       Section {
+        NavigationLink(destination: TextToSpeechView()) {
+          Text("Text to Speech")
+        }
+      }
+
+      Section {
         NavigationLink(
           destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
         ) {

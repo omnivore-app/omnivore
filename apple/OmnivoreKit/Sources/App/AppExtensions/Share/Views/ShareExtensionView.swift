@@ -171,7 +171,7 @@ public struct ShareExtensionView: View {
             extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
           },
           label: {
-            Text("Dismiss")
+            Text("Read Later")
               .frame(maxWidth: .infinity)
           }
         )
