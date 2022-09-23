@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.util.Log
 import android.view.*
+import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.material3.Text
@@ -13,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import org.json.JSONObject
+
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
@@ -63,6 +66,7 @@ fun WebReader(params: WebReaderParams) {
       webViewClient = object : WebViewClient() {
       }
 
+      addJavascriptInterface(WebMessageHandler(), "WebMessageHandler")
       loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
 
     }
@@ -131,5 +135,16 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
     return super.startActionMode(currentActionModeCallback, type)
+  }
+}
+
+
+class WebMessageHandler {
+  @JavascriptInterface
+  fun handleMessage(jsonString: String) {
+    val message = JSONObject(jsonString)
+    Log.d("Loggo", "Handling message: $message")
+    val actionID = message["actionID"]
+    Log.d("Loggo", "Received message with ID: $actionID and jsonValue: $message")
   }
 }

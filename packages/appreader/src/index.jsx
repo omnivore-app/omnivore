@@ -7,13 +7,19 @@ import '@omnivore/web/styles/globals.css'
 import '@omnivore/web/styles/articleInnerStyling.css'
 
 const mutation = async (name, input) => {
-  const result =
-    await window?.webkit?.messageHandlers.articleAction?.postMessage({
-      actionID: name,
-      ...input,
-    })
-  console.log('action result', result, result.result)
-  return result.result
+  const message = { actionID: name, ...input }
+
+  if (window.webkit) {
+    // Send iOS a message
+    const result =
+      await window?.webkit?.messageHandlers.articleAction?.postMessage(message)
+    console.log('action result', result, result.result)
+    return result.result
+  } else {
+    // Send android a message
+    console.log('sending android a message', message)
+    WebMessageHandler.handleMessage(JSON.stringify(message))
+  }
 }
 
 const App = () => {
