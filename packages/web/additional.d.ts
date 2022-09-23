@@ -1,5 +1,9 @@
 export {}
 
+declare type AndroidWebKitMessageHandler = {
+  handleMessage: (string) => void
+}
+
 declare global {
   interface Window {
     webkit?: Webkit
@@ -9,6 +13,7 @@ declare global {
     Intercom: Function
     intercomSettings: IntercomSettings
     analytics?: Analytics
+    AndroidWebKitMessageHandler?: AndroidWebKitMessageHandler
   }
 }
 

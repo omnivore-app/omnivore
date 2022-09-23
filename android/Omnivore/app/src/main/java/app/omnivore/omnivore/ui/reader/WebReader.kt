@@ -66,7 +66,7 @@ fun WebReader(params: WebReaderParams) {
       webViewClient = object : WebViewClient() {
       }
 
-      addJavascriptInterface(WebMessageHandler(), "WebMessageHandler")
+      addJavascriptInterface(AndroidWebKitMessageHandler(), "AndroidWebKitMessageHandler")
       loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
 
     }
@@ -139,7 +139,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 }
 
 
-class WebMessageHandler {
+class AndroidWebKitMessageHandler {
   @JavascriptInterface
   fun handleMessage(jsonString: String) {
     val message = JSONObject(jsonString)

@@ -18,7 +18,7 @@ const mutation = async (name, input) => {
   } else {
     // Send android a message
     console.log('sending android a message', message)
-    WebMessageHandler.handleMessage(JSON.stringify(message))
+    AndroidWebKitMessageHandler.handleMessage(JSON.stringify(message))
   }
 }
 
