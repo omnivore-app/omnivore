@@ -100,6 +100,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
         R.id.highlight -> {
           val script = "var event = new Event('highlight');document.dispatchEvent(event);"
           evaluateJavascript(script, null)
+          clearFocus()
           mode.finish()
           true
         }
@@ -142,9 +143,11 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 class AndroidWebKitMessageHandler {
   @JavascriptInterface
   fun handleMessage(jsonString: String) {
+    // TODO: safely parse actionID and data from message
+    // Maybe add a second function for calls that include actionID?
     val message = JSONObject(jsonString)
     Log.d("Loggo", "Handling message: $message")
-    val actionID = message["actionID"]
-    Log.d("Loggo", "Received message with ID: $actionID and jsonValue: $message")
+//    val actionID = message["actionID"]
+//    Log.d("Loggo", "Received message with ID: $actionID and jsonValue: $message")
   }
 }
