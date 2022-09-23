@@ -312,7 +312,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     if let stoppedId = stoppedId {
       EventTracker.track(
-        .audioSessionEnd(linkID: stoppedId, timeElapsed: stoppedTimeElapsed ?? 0.0)
+        .audioSessionEnd(linkID: stoppedId, timeElapsed: stoppedTimeElapsed)
       )
     }
   }
@@ -327,8 +327,11 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
+    if !preloadEnabled {
+      return true
+    }
+
     for itemID in itemIDs {
-      print("preloading speech file: ", itemID)
       if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
         let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
         do {
@@ -450,6 +453,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
+  @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = true
+
   public var currentVoiceLanguage: VoiceLanguage {
     VOICELANGUAGES.first(where: { $0.key == currentLanguage }) ?? ENGLISH
   }
@@ -554,6 +559,20 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
     return "en-US-CoraNeural"
+  }
+
+  public func playVoiceSample(voice: String) {
+    do {
+      if let url = Bundle.main.url(forResource: "tts-voice-sample-\(voice)", withExtension: "mp3") {
+        let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+        player.play()
+      } else {
+        NSNotification.operationFailed(message: "Error playing voice sample.")
+      }
+    } catch {
+      print("ERROR", error)
+      NSNotification.operationFailed(message: "Error playing voice sample.")
+    }
   }
 
   private func updateDurations(oldPlayback: Double, newPlayback: Double) {
@@ -846,7 +865,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
     let decoder = JSONDecoder()
     let speechFileUrl = pathForSpeechFile(itemID: itemID)
-    print("looking up speeh file: ", speechFileUrl)
 
     if FileManager.default.fileExists(atPath: speechFileUrl.path) {
       let data = try Data(contentsOf: speechFileUrl)
@@ -858,7 +876,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
 
     let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)\(isoLangForCurrentVoice())"
-    print("fetching audio for path", path)
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }

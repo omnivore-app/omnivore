@@ -82,13 +82,20 @@ struct WebReaderContainerView: View {
           }
         },
         label: {
-          Image(systemName: audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle")
+          Image(systemName: textToSpeechButtonImage)
             .font(.appTitleTwo)
         }
       )
       .padding(.horizontal)
       .scaleEffect(navBarVisibilityRatio))
     }
+  }
+
+  var textToSpeechButtonImage: String {
+    if audioController.state == .stopped {
+      return "headphones"
+    }
+    return audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
   }
 
   var navBar: some View {

@@ -19,7 +19,6 @@ struct TextToSpeechLanguageView: View {
         .listStyle(InsetListStyle())
       #endif
     }
-    .navigationTitle("Default Language")
   }
 
   private var innerBody: some View {

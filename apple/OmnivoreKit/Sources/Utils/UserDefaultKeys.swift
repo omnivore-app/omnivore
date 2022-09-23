@@ -16,4 +16,5 @@ public enum UserDefaultKey: String {
   case textToSpeechPlaybackRate
   case textToSpeechPreferredVoice
   case textToSpeechDefaultLanguage
+  case textToSpeechPreloadEnabled
 }
