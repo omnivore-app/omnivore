@@ -33,10 +33,9 @@ struct TextToSpeechView: View {
           Section("Audio Settings") {
             Toggle("Enable audio prefetch", isOn: $viewModel.enableAudioPrefetch)
           }
-// Currently the backend doesn't allow overriding the language
-//          NavigationLink(destination: TextToSpeechLanguageView()) {
-//            Text("Default Language")
-//          }
+          NavigationLink(destination: TextToSpeechLanguageView()) {
+            Text("Default Language")
+          }
           innerBody
         }
       #elseif os(macOS)

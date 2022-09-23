@@ -304,6 +304,7 @@ public struct MiniPlayer: View {
             Menu {
               Button("View Article", action: { viewArticle() })
               Button("Change Voice", action: { showVoiceSheet = true })
+              Button("Change Language", action: { showLanguageSheet = true })
             } label: {
               VStack {
                 Image(systemName: "ellipsis")
@@ -334,7 +335,14 @@ public struct MiniPlayer: View {
             })
         }
       }.sheet(isPresented: $showLanguageSheet) {
-        TextToSpeechLanguageView()
+        NavigationView {
+          TextToSpeechLanguageView()
+            .navigationBarTitle("Language")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
+              Image(systemName: "chevron.backward")
+            })
+        }
       }
     }
   }

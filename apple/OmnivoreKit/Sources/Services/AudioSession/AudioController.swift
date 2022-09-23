@@ -58,10 +58,14 @@ public struct VoicePair {
   let firstName: String
   let secondName: String
 
+  let language: String
   let category: VoiceCategory
 }
 
-private let ENGLISH = VoiceLanguage(key: "en", name: "English", defaultVoice: "en-US-ChristopherNeural", categories: [.enUS, .enAU, .enCA, .enIE, .enIN, .enSG, .enUK])
+private let ENGLISH = VoiceLanguage(key: "en",
+                                    name: "English",
+                                    defaultVoice: "en-US-ChristopherNeural",
+                                    categories: [.enUS, .enAU, .enCA, .enIE, .enIN, .enSG, .enUK])
 
 public let VOICELANGUAGES = [
   ENGLISH,
@@ -72,22 +76,22 @@ public let VOICELANGUAGES = [
 // swiftlint:disable all
 public let VOICES = [
   // en
-  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", category: .enUS),
-  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", category: .enUS),
-  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", category: .enUS),
-  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara", secondName: "Liam", category: .enCA),
-  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby", secondName: "Ethan", category: .enUK),
-  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha", secondName: "William", category: .enAU),
-  VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", category: .enIE),
-  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", category: .enIN),
-  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", category: .enSG),
+  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", language: "en-US", category: .enUS),
+  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", language: "en-US", category: .enUS),
+  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", language: "en-US", category: .enUS),
+  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara", secondName: "Liam", language: "en-CA", category: .enCA),
+  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby", secondName: "Ethan", language: "en-GB", category: .enUK),
+  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha", secondName: "William", language: "en-AU", category: .enAU),
+  VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", language: "en-IE", category: .enIE),
+  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", language: "en-IN", category: .enIN),
+  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", language: "en-SG", category: .enSG),
 
   // ja
-  VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", category: .jaJP),
+  VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", language: "ja-JP", category: .jaJP),
 
   // zh
-  VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", category: .zhCN),
-  VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", category: .zhCN)
+  VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", language: "zh-CN", category: .zhCN),
+  VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", language: "zh-CN", category: .zhCN)
 ]
 
 let VOICE_REGIONS = ["English "]
@@ -185,6 +189,9 @@ class SpeechPlayerItem: AVPlayerItem {
         // TODO: how do we want to propogate this and handle it in the player
         let audioData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
         DispatchQueue.main.async {
+          if audioData == nil {
+            self.session = nil
+          }
           self.mediaData = audioData
           self.processPendingRequests()
         }
@@ -371,7 +378,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func seek(to: TimeInterval) {
+    var hasOffset = false
     let position = max(0, to)
+
+    // If we are in reachedEnd state, and seek back, we need to move to
+    // paused state
+    if to < duration, state == .reachedEnd {
+      state = .paused
+    }
 
     // First find the item that this interval is within
     // Not the most effecient, but these lists should be less than 500 items
@@ -389,6 +403,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       // Now figure out how far into this segment we need to seek to
       let before = durationBefore(playerIndex: foundIdx)
       let remainder = position - before
+
+      if remainder > 0 {
+        hasOffset = true
+      }
 
       // if the foundIdx happens to be the current item, we just set the position
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
@@ -482,6 +500,11 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
       downloadAndPlayFrom(currentIdx, currentOffset)
     }
+  }
+
+  public var currentVoicePair: VoicePair? {
+    let voice = currentVoice
+    return VOICES.first(where: { $0.firstKey == voice || $0.secondKey == voice })
   }
 
   public func getPreferredVoice(forLanguage language: String) -> String {
@@ -622,13 +645,13 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
           }
         }
         player?.insert(playerItem, after: nil)
-        if playWhenReady, player?.items().count == 1 {
-          if atOffset > 0.0 {
-            playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
-              print("success seeking to time: ", success)
-              self.fireTimer()
-            }
+        if player?.items().count == 1, atOffset > 0.0 {
+          playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
+            print("success seeking to time: ", success)
+            self.fireTimer()
           }
+        }
+        if playWhenReady, player?.items().count == 1 {
           startTimer()
           unpause()
           setupRemoteControl()
@@ -812,6 +835,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
+  func isoLangForCurrentVoice() -> String {
+    // currentVoicePair should not ever be nil but if it is we return an empty string
+    if let isoLang = currentVoicePair?.language {
+      return "&language=\(isoLang)"
+    }
+    return ""
+  }
+
   func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
     let decoder = JSONDecoder()
     let speechFileUrl = pathForSpeechFile(itemID: itemID)
@@ -826,7 +857,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
 
-    let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)"
+    let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)\(isoLangForCurrentVoice())"
+    print("fetching audio for path", path)
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }
