@@ -31,7 +31,7 @@ public struct RoundedRectButtonStyle: ButtonStyle {
   let backgroundColor: Color
   let textColor: Color
 
-  public init(color: Color = .appButtonBackground, textColor: Color = .appGrayText) {
+  public init(color: Color = .appButtonBackground, textColor: Color = .appGrayTextContrast) {
     self.backgroundColor = color
     self.textColor = textColor
   }

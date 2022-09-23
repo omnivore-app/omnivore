@@ -110,7 +110,7 @@ public struct ShareExtensionView: View {
       VStack(alignment: .leading) {
         Text(viewModel.title ?? "")
           .lineLimit(1)
-          .foregroundColor(.appGrayText)
+          .foregroundColor(.appGrayTextContrast)
           .font(Font.system(size: 15, weight: .semibold))
         Text(viewModel.url ?? "")
           .lineLimit(1)
@@ -137,7 +137,7 @@ public struct ShareExtensionView: View {
   public var body: some View {
     VStack(alignment: .leading) {
       Text(titleText)
-        .foregroundColor(.appGrayText)
+        .foregroundColor(.appGrayTextContrast)
         .font(Font.system(size: 17, weight: .semibold))
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, 23)
