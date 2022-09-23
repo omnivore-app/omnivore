@@ -157,16 +157,35 @@ public struct MiniPlayer: View {
           let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
           let dim = expanded ? maxSize : 64
 
-          AsyncImage(url: itemAudioProperties.imageURL) { image in
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-              .frame(width: dim, height: dim)
-              .cornerRadius(6)
-          } placeholder: {
-            Color.appButtonBackground
-              .frame(width: dim, height: dim)
-              .cornerRadius(6)
+          if let imageURL = itemAudioProperties.imageURL {
+            AsyncImage(url: imageURL) { phase in
+              if let image = phase.image {
+                image
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+                  .frame(width: dim, height: dim)
+                  .cornerRadius(6)
+              } else if phase.error != nil {
+                Color.appButtonBackground
+                  .frame(width: dim, height: dim)
+                  .cornerRadius(6)
+              } else {
+                Color.appButtonBackground
+                  .frame(width: dim, height: dim)
+                  .cornerRadius(6)
+              }
+            }
+          } else {
+            ZStack(alignment: .center) {
+              Color.appButtonBackground
+                .frame(width: dim, height: dim)
+                .cornerRadius(6)
+
+              Image(systemName: "headphones")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: dim / 2, height: dim / 2)
+            }
           }
 
           if !expanded {
