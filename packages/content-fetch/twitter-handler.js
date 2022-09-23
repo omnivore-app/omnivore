@@ -6,6 +6,7 @@
 require('dotenv').config();
 const axios = require('axios');
 const { DateTime } = require('luxon');
+const _ = require('underscore');
 
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
 const TWITTER_URL_MATCH = /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
@@ -116,7 +117,8 @@ exports.twitterHandler = {
     const tweetData = (await getTweetById(tweetId)).data;
     const authorId = tweetData.data.author_id;
     const author = tweetData.includes.users.filter(u => u.id = authorId)[0];
-    const title = titleForAuthor(author)
+    // escape html entities in title
+    const title = _.escape(titleForAuthor(author))
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
 
     let text = tweetData.data.text;
@@ -157,7 +159,7 @@ exports.twitterHandler = {
       <meta property="og:image" content="${authorImage}" />
       <meta property="og:image:secure_url" content="${authorImage}" />
       <meta property="og:title" content="${title}" />
-      <meta property="og:description" content="${tweetData.data.text}" />
+      <meta property="og:description" content="${_.escape(tweetData.data.text)}" />
     </head>
     <body>
       ${front}

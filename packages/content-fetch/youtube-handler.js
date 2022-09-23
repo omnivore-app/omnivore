@@ -37,6 +37,7 @@ exports.youtubeHandler = {
 
     const oembedUrl = `https://www.youtube.com/oembed?format=json&url=` + encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)
     const oembed = (await axios.get(oembedUrl.toString())).data;
+    // escape html entities in title
     const title = _.escape(oembed.title);
     const ratio = oembed.width / oembed.height;
     const thumbnail = oembed.thumbnail_url;
