@@ -309,7 +309,6 @@ on smaller screens we display the note icon
   direction: ltr;
   unicode-bidi: embed;
   color: var(--font-color);
-  max-width: -moz-fit-content;
   margin: 0;
   overflow-x: auto;
   word-wrap: normal;
