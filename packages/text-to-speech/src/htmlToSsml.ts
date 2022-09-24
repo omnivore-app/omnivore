@@ -44,6 +44,7 @@ export type SSMLOptions = {
 
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
+const DEFAULT_SECONDARY_VOICE = 'en-US-GuyNeural'
 const DEFAULT_RATE = '1.0'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
@@ -116,8 +117,12 @@ function emit(textItems: string[], text: string) {
   textItems.push(text)
 }
 
+const cleanText = (text: string): string => {
+  return stripEmojis(_.escape(text.replace(/\s+/g, ' ')))
+}
+
 function cleanTextNode(textNode: ChildNode): string {
-  return stripEmojis(_.escape(textNode.textContent ?? ''.replace(/\s+/g, ' ')))
+  return cleanText(textNode.textContent ?? '')
 }
 
 function emitTextNode(
@@ -186,13 +191,11 @@ function emitElement(
 export const startSsml = (options: SSMLOptions, element?: Element): string => {
   const voice =
     element?.nodeName === 'BLOCKQUOTE'
-      ? options.secondaryVoice
-      : options.primaryVoice
+      ? options.secondaryVoice ?? DEFAULT_SECONDARY_VOICE
+      : options.primaryVoice ?? DEFAULT_VOICE
   return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${
     options.language || DEFAULT_LANGUAGE
-  }"><voice name="${voice || DEFAULT_VOICE}"><prosody rate="${
-    options.rate || DEFAULT_RATE
-  }">`
+  }"><voice name="${voice}"><prosody rate="${options.rate || DEFAULT_RATE}">`
 }
 
 export const endSsml = (): string => {
@@ -273,7 +276,7 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = stripEmojis(textItems.join(''))
+  const text = textItems.join('')
   let textWithWordOffset = text
   if (isHtml) {
     try {
@@ -303,16 +306,30 @@ const textToUtterance = ({
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
   console.log('creating speech file with options:', options)
+  const language = options.language || DEFAULT_LANGUAGE
+  const defaultVoice = options.primaryVoice || DEFAULT_VOICE
 
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
-    throw new Error('Unable to parse HTML document')
+    console.log('No HTML body found:', content)
+    return {
+      wordCount: 0,
+      language,
+      defaultVoice,
+      utterances: [],
+    }
   }
 
   const parsedNodes = parseDomTree(body)
   if (parsedNodes.length < 1) {
-    throw new Error('No HTML nodes found')
+    console.log('No HTML nodes found:', body)
+    return {
+      wordCount: 0,
+      language,
+      defaultVoice,
+      utterances: [],
+    }
   }
 
   const tokenizer = new WordPunctTokenizer()
@@ -323,7 +340,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     const titleUtterance = textToUtterance({
       tokenizer,
       idx: '',
-      textItems: [title],
+      textItems: [cleanText(title)], // title could have HTML entity names like & or emoji
       wordOffset,
       isHtml: false,
     })
@@ -354,8 +371,8 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
 
   return {
     wordCount: wordOffset,
-    language: options.language || DEFAULT_LANGUAGE,
-    defaultVoice: options.primaryVoice || DEFAULT_VOICE,
+    language,
+    defaultVoice,
     utterances,
   }
 }

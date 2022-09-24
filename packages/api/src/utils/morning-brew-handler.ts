@@ -10,27 +10,19 @@ export class MorningBrewHandler {
 
   prehandle = (url: URL, dom: Document): Promise<Document> => {
     // retain the width of the cells in the table of market info
-    dom
-      .querySelectorAll('.markets-arrow-cell')
-      .forEach((c) => c.setAttribute('width', '20%'))
-    dom
-      .querySelectorAll('.markets-ticker-cell')
-      .forEach((c) => c.setAttribute('width', '34%'))
-    dom
-      .querySelectorAll('.markets-value-cell')
-      .forEach((c) => c.setAttribute('width', '34%'))
-    dom.querySelectorAll('.markets-bubble-cell').forEach((c) => {
-      const table = c.querySelector('.markets-bubble')
+    dom.querySelectorAll('.markets-arrow-cell').forEach((td) => {
+      const table = td.closest('table')
       if (table) {
-        // replace the nested table with the text
-        const e = table.querySelector('.markets-table-text')
-        e && table.parentNode?.replaceChild(e, table)
+        const bubbleTable = table.querySelector('.markets-bubble')
+        if (bubbleTable) {
+          // replace the nested table with the text
+          const e = bubbleTable.querySelector('.markets-table-text')
+          e && bubbleTable.parentNode?.replaceChild(e, bubbleTable)
+        }
+        // set custom class for the table
+        table.className = 'morning-brew-markets'
       }
-      c.setAttribute('width', '12%')
     })
-    dom
-      .querySelectorAll('table [role="presentation"]')
-      .forEach((table) => (table.className = 'morning-brew-markets'))
 
     return Promise.resolve(dom)
   }

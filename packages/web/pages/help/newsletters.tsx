@@ -16,7 +16,7 @@ const AddEmailButton = () => {
     }}
   >
     <Plus size={18} style={{ marginRight: '6.5px' }} />
-    <SpanBox>Add Email</SpanBox>
+    <SpanBox>Create a new email address</SpanBox>
   </Button>)
 }
 

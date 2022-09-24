@@ -7,9 +7,15 @@ import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import { synthesizeTextToSpeech, TextToSpeechInput } from './textToSpeech'
+import {
+  SpeechMark,
+  synthesizeTextToSpeech,
+  TextToSpeechInput,
+} from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
-import { htmlToSpeechFile } from './htmlToSsml'
+import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
+import crypto from 'crypto'
+import { createRedisClient } from './redis'
 
 interface UtteranceInput {
   voice?: string
@@ -27,6 +33,11 @@ interface HTMLInput {
   rate?: string
   complimentaryVoice?: string
   bucket: string
+}
+
+interface CacheResult {
+  audioDataString: string
+  speechMarks: SpeechMark[]
 }
 
 dotenv.config()
@@ -158,24 +169,71 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
     }
 
+    // create redis client
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+
     try {
       const utteranceInput = req.body as UtteranceInput
+      const ssmlOptions = {
+        primaryVoice: utteranceInput.voice,
+        secondaryVoice: utteranceInput.voice,
+        language: utteranceInput.language,
+        rate: utteranceInput.rate,
+      }
+      // for utterance, assemble the ssml and pass it through
+      const ssml = `${startSsml(ssmlOptions)}${utteranceInput.text}${endSsml()}`
+      // hash ssml to get the cache key
+      const cacheKey = crypto.createHash('md5').update(ssml).digest('hex')
+      // find audio data in cache
+      const cacheResult = await redisClient.get(cacheKey)
+      if (cacheResult) {
+        console.log('Cache hit')
+        const { audioDataString, speechMarks }: CacheResult =
+          JSON.parse(cacheResult)
+        res.send({
+          idx: utteranceInput.idx,
+          audioData: audioDataString,
+          speechMarks,
+        })
+        return
+      }
+      console.log('Cache miss')
+      // synthesize text to speech if cache miss
       const input: TextToSpeechInput = {
         ...utteranceInput,
-        textType: 'utterance',
+        textType: 'ssml',
+        text: ssml,
       }
       const { audioData, speechMarks } = await synthesizeTextToSpeech(input)
       if (!audioData) {
         return res.status(500).send({ errorCode: 'SYNTHESIZER_ERROR' })
       }
+      const audioDataString = audioData.toString('hex')
+      // save audio data to cache for 24 hours for mainly the newsletters
+      await redisClient.set(
+        cacheKey,
+        JSON.stringify({ audioDataString, speechMarks }),
+        {
+          EX: 3600 * 24, // in seconds
+          NX: true,
+        }
+      )
+      console.log('Cache saved')
+
       res.send({
         idx: utteranceInput.idx,
-        audioData: audioData.toString('hex'),
+        audioData: audioDataString,
         speechMarks,
       })
     } catch (e) {
       console.error('Text to speech streaming error:', e)
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
+    } finally {
+      await redisClient.quit()
+      console.log('Redis Client Disconnected')
     }
   }
 )

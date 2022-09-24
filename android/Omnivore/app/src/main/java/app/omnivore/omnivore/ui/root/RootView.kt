@@ -19,12 +19,16 @@ import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.home.HomeView
 import app.omnivore.omnivore.ui.home.HomeViewModel
 import app.omnivore.omnivore.ui.reader.ArticleWebView
+import app.omnivore.omnivore.ui.reader.WebReader
+import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainer
+import app.omnivore.omnivore.ui.reader.WebReaderViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun RootView(
   loginViewModel: LoginViewModel,
-  homeViewModel: HomeViewModel
+  homeViewModel: HomeViewModel,
+  webReaderViewModel: WebReaderViewModel
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
   val systemUiController = rememberSystemUiController()
@@ -46,7 +50,8 @@ fun RootView(
     if (hasAuthToken) {
       PrimaryNavigator(
         loginViewModel = loginViewModel,
-        homeViewModel = homeViewModel
+        homeViewModel = homeViewModel,
+        webReaderViewModel = webReaderViewModel
       )
     } else {
       WelcomeScreen(viewModel = loginViewModel)
@@ -57,7 +62,8 @@ fun RootView(
 @Composable
 fun PrimaryNavigator(
   loginViewModel: LoginViewModel,
-  homeViewModel: HomeViewModel
+  homeViewModel: HomeViewModel,
+  webReaderViewModel: WebReaderViewModel
 ) {
   val navController = rememberNavController()
 
@@ -69,10 +75,20 @@ fun PrimaryNavigator(
       )
     }
 
-    composable("WebReader/{slug}") {
+    // TODO: delete this route and views
+    composable("WebAppReader/{slug}") {
       ArticleWebView(
         it.arguments?.getString("slug") ?: "",
         authCookieString = loginViewModel.getAuthCookieString() ?: ""
+      )
+    }
+
+    composable("WebReader/{slug}") {
+      webReaderViewModel.reset() // clear previously loaded item
+
+      WebReaderLoadingContainer(
+        it.arguments?.getString("slug") ?: "",
+        webReaderViewModel = webReaderViewModel
       )
     }
 

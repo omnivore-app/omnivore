@@ -1,0 +1,64 @@
+query GetArticle($slug: String!) {
+  article(username: "me", slug: $slug) {
+    ... on ArticleSuccess {
+      article {
+        ...ArticleFields
+        content
+        highlights(input: { includeFriends: false }) {
+          ...HighlightFields
+        }
+        labels {
+          ...LabelFields
+        }
+      }
+    }
+    ... on ArticleError {
+      errorCodes
+    }
+  }
+}
+
+fragment ArticleFields on Article {
+  id
+  title
+  url
+  author
+  image
+  savedAt
+  createdAt
+  publishedAt
+  contentReader
+  originalArticleUrl
+  readingProgressPercent
+  readingProgressAnchorIndex
+  slug
+  isArchived
+  description
+  linkId
+  siteName
+  state
+  readAt
+  updatedAt
+  content
+}
+
+fragment HighlightFields on Highlight {
+  id
+  shortId
+  quote
+  prefix
+  suffix
+  patch
+  annotation
+  createdByMe
+  updatedAt
+  sharedAt
+}
+
+fragment LabelFields on Label {
+  id
+  name
+  color
+  description
+  createdAt
+}

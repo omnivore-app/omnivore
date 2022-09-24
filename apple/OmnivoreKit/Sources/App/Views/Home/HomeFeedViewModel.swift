@@ -152,7 +152,7 @@ import Views
         // because it will kick off the user's future items being automatically transcribed.
         // This happens because when an article is saved, we check if the user has a recent
         // listen. If they do, we will automatically transcribe their message.
-        if let first = newItems.first?.id {
+        if let first = newItems.filter({ !$0.isPDF }).first?.id {
           _ = await audioController.preload(itemIDs: [first])
         }
       }
