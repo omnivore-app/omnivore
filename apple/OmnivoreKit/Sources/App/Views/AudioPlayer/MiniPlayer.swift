@@ -223,27 +223,13 @@ public struct MiniPlayer: View {
 
           HStack {
             Spacer()
-            if let author = itemAudioProperties.author {
-              Text(author)
+            if let byline = itemAudioProperties.byline {
+              Text(byline)
                 .lineLimit(1)
                 .font(.appCallout)
                 .lineSpacing(1.25)
                 .foregroundColor(.appGrayText)
                 .frame(alignment: .trailing)
-            }
-            if itemAudioProperties.author != nil, itemAudioProperties.siteName != nil {
-              Text(" • ")
-                .font(.appCallout)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-            }
-            if let siteName = itemAudioProperties.siteName {
-              Text(siteName)
-                .lineLimit(1)
-                .font(.appCallout)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-                .frame(alignment: .leading)
             }
             Spacer()
           }

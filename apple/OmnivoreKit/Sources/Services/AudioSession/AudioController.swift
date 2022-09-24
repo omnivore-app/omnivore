@@ -800,7 +800,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     if let itemAudioProperties = itemAudioProperties {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [
         MPMediaItemPropertyTitle: NSString(string: itemAudioProperties.title),
-        MPMediaItemPropertyArtist: NSString(string: itemAudioProperties.author ?? "Omnivore"),
+        MPMediaItemPropertyArtist: NSString(string: itemAudioProperties.byline ?? "Omnivore"),
         MPMediaItemPropertyPlaybackDuration: NSNumber(value: duration),
         MPNowPlayingInfoPropertyElapsedPlaybackTime: NSNumber(value: timeElapsed)
       ]
