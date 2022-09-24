@@ -91,7 +91,7 @@ struct WebReaderContainerView: View {
   }
 
   var textToSpeechButtonImage: some View {
-    if audioController.state == .stopped {
+    if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
       return Image(systemName: "headphones").font(Font.system(size: 19))
     }
     let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
