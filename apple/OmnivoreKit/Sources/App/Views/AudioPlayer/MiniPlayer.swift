@@ -129,6 +129,19 @@ public struct MiniPlayer: View {
     }
   }
 
+  func defaultArtwork(forDimensions dim: Double) -> some View {
+    ZStack(alignment: .center) {
+      Color.appButtonBackground
+        .frame(width: dim, height: dim)
+        .cornerRadius(6)
+
+      Image(systemName: "headphones")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: dim / 2, height: dim / 2)
+    }
+  }
+
   // swiftlint:disable:next function_body_length
   func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
@@ -166,9 +179,7 @@ public struct MiniPlayer: View {
                   .frame(width: dim, height: dim)
                   .cornerRadius(6)
               } else if phase.error != nil {
-                Color.appButtonBackground
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
+                defaultArtwork(forDimensions: dim)
               } else {
                 Color.appButtonBackground
                   .frame(width: dim, height: dim)
@@ -176,16 +187,7 @@ public struct MiniPlayer: View {
               }
             }
           } else {
-            ZStack(alignment: .center) {
-              Color.appButtonBackground
-                .frame(width: dim, height: dim)
-                .cornerRadius(6)
-
-              Image(systemName: "headphones")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: dim / 2, height: dim / 2)
-            }
+            defaultArtwork(forDimensions: dim)
           }
 
           if !expanded {
