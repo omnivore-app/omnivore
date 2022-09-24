@@ -28,6 +28,7 @@ interface SpeechInput {
   voice?: string
   secondaryVoice?: string
   priority?: 'low' | 'high'
+  language?: string
 }
 const outputFormats = ['mp3', 'speech-marks', 'speech']
 const logger = buildLogger('app.dispatch')
@@ -85,7 +86,8 @@ export function articleRouter() {
     async (req, res) => {
       const articleId = req.params.id
       const outputFormat = req.params.outputFormat
-      const { voice, priority, secondaryVoice } = req.query as SpeechInput
+      const { voice, priority, secondaryVoice, language } =
+        req.query as SpeechInput
       if (!articleId || outputFormats.indexOf(outputFormat) === -1) {
         return res.status(400).send('Invalid data')
       }
@@ -117,7 +119,7 @@ export function articleRouter() {
             options: {
               primaryVoice: voice,
               secondaryVoice: secondaryVoice,
-              language: page.language,
+              language: language || page.language,
             },
           })
           return res.send({ ...speechFile, pageId: articleId })
