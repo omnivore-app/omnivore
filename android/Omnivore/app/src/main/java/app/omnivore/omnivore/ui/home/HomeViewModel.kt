@@ -3,18 +3,16 @@ package app.omnivore.omnivore.ui.home
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.*
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.search
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-  private val datastoreRepo: DatastoreRepository
+  private val networker: Networker
 ): ViewModel() {
   private var cursor: String? = null
   private var items: List<LinkedItem> = listOf()
@@ -28,10 +26,6 @@ class HomeViewModel @Inject constructor(
   // Live Data
   val searchTextLiveData = MutableLiveData<String>("")
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
-
-  private fun getAuthToken(): String? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
-  }
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
@@ -51,12 +45,9 @@ class HomeViewModel @Inject constructor(
     viewModelScope.launch {
       val thisSearchIdx = searchIdx
       searchIdx += 1
-      val authToken = getAuthToken()
 
       // Execute the search
-      val searchResult = Networker.search(
-        cursor = cursor, query = searchQuery(), authToken = authToken
-      )
+      val searchResult = networker.search(cursor = cursor, query = searchQuery())
 
       // Search results aren't guaranteed to return in order so this
       // will discard old results that are returned while a user is typing.

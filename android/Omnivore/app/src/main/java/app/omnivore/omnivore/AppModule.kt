@@ -1,6 +1,7 @@
 package app.omnivore.omnivore
 
 import android.content.Context
+import app.omnivore.omnivore.networking.Networker
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,4 +19,10 @@ object AppModule {
     @ApplicationContext app: Context
   ): DatastoreRepository = OmnivoreDatastore(app)
 
+  @Singleton
+  @Provides
+  fun provideNetworker(
+    @ApplicationContext app: Context,
+    datastore: DatastoreRepository
+  ): Networker = Networker(datastore)
 }

@@ -12,10 +12,9 @@ data class SearchQueryResponse(
 suspend fun Networker.search(
   cursor: String? = null,
   limit: Int = 15,
-  query: String,
-  authToken: String?
+  query: String
 ): SearchQueryResponse {
-  val result = apolloClient(authToken ?: "").query(
+  val result = authenticatedApolloClient().query(
     SearchQuery(
       after = Optional.presentIfNotNull(cursor),
       first = Optional.presentIfNotNull(limit),
