@@ -358,7 +358,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           }
 
           window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
-            'share',
+            'shareHighlight',
             JSON.stringify({
               highlightID: focusedHighlight?.id,
             })

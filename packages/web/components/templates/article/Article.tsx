@@ -79,16 +79,12 @@ export function Article(props: ArticleProps): JSX.Element {
   }, [props.articleId, readingProgress])
 
   // Post message to webkit so apple app embeds get progress updates
+  // TODO: verify if ios still needs this code...seeems to be duplicated
   useEffect(() => {
     if (typeof window?.webkit != 'undefined') {
       window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
         progress: readingProgress,
       })
-    } else if (typeof window?.AndroidWebKitMessenger != 'undefined') {
-      window.AndroidWebKitMessenger.handleIdentifiableMessage(
-        'readingProgressUpdate',
-        JSON.stringify({ progress: readingProgress })
-      )
     }
   }, [readingProgress])
 

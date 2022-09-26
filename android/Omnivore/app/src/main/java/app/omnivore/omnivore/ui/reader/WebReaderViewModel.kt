@@ -114,18 +114,33 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun handleIncomingWebMessage(actionID: String, json: JSONObject) {
-    Log.d("Loggo", "receive action ID: $actionID, with json values: $json")
-
-    //    createHighlightMutation: (input) =>
-//    mutation('createHighlight', input),
-//    deleteHighlightMutation: (highlightId) =>
-//    mutation('deleteHighlight', { highlightId }),
-//    mergeHighlightMutation: (input) =>
-//    mutation('mergeHighlight', input),
-//    updateHighlightMutation: (input) =>
-//    mutation('updateHighlight', input),
-//    articleReadingProgressMutation: (input) =>
-//    mutation('articleReadingProgress', input),
+    when (actionID) {
+      "createHighlight" -> {
+        Log.d("Loggo", "receive create highlight action: $json")
+      }
+      "deleteHighlight" -> {
+        // { highlightId }
+        Log.d("Loggo", "receive delete highlight action: $json")
+      }
+      "updateHighlight" -> {
+        Log.d("Loggo", "receive update highlight action: $json")
+      }
+      "articleReadingProgress" -> {
+        Log.d("Loggo", "received article reading progress action: $json")
+      }
+      "annotate" -> {
+        Log.d("Loggo", "received annotate action: $json")
+      }
+      "existingHighlightTap" -> {
+        Log.d("Loggo", "receive create highlight action: $json")
+      }
+      "shareHighlight" -> {
+        // unimplemented
+      }
+      else -> {
+        Log.d("Loggo", "receive unrecognized action of $actionID with json: $json")
+      }
+    }
   }
 
   fun reset() {
