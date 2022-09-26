@@ -21,8 +21,5 @@ object AppModule {
 
   @Singleton
   @Provides
-  fun provideNetworker(
-    @ApplicationContext app: Context,
-    datastore: DatastoreRepository
-  ): Networker = Networker(datastore)
+  fun provideNetworker(datastore: DatastoreRepository) = Networker(datastore)
 }
