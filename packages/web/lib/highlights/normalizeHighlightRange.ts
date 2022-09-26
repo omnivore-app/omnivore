@@ -23,7 +23,7 @@ function disableWordSnap(str: String): boolean {
 }
 
 const isWhitespace = (c?: string): boolean => {
-  return !!c && /\u2014|\u2013|\s/.test(c)
+  return !!c && /\u2014|\u2013|,|\s/.test(c)
 }
 
 function findNextWord(
