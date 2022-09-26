@@ -32,80 +32,6 @@ enum DownloadPriority: String {
   case high
 }
 
-public struct VoiceLanguage {
-  public let key: String
-  public let name: String
-  public let defaultVoice: String
-  public let categories: [VoiceCategory]
-}
-
-public enum VoiceCategory: String, CaseIterable {
-  case enUS = "English (US)"
-  case enAU = "English (Australia)"
-  case enCA = "English (Canada)"
-  case enIE = "English (Ireland)"
-  case enIN = "English (India)"
-  case enSG = "English (Singapore)"
-  case enUK = "English (UK)"
-  case deDE = "German (Germany)"
-  case esES = "Spanish (Spain)"
-  case jaJP = "Japanese (Japan)"
-  case zhCN = "Chinese (China Mainland)"
-}
-
-public struct VoicePair {
-  let firstKey: String
-  let secondKey: String
-
-  let firstName: String
-  let secondName: String
-
-  let language: String
-  let category: VoiceCategory
-}
-
-private let ENGLISH = VoiceLanguage(key: "en",
-                                    name: "English",
-                                    defaultVoice: "en-US-ChristopherNeural",
-                                    categories: [.enUS, .enAU, .enCA, .enIE, .enIN, .enSG, .enUK])
-
-public let VOICELANGUAGES = [
-  ENGLISH,
-  VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN]),
-  VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
-  VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
-  VoiceLanguage(key: "de", name: "German", defaultVoice: "de-CH-JanNeural", categories: [.deDE]),
-  VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES])
-]
-
-// swiftlint:disable all
-public let VOICES = [
-  // en
-  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", language: "en-US", category: .enUS),
-  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", language: "en-US", category: .enUS),
-  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", language: "en-US", category: .enUS),
-  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara", secondName: "Liam", language: "en-CA", category: .enCA),
-  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby", secondName: "Ethan", language: "en-GB", category: .enUK),
-  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha", secondName: "William", language: "en-AU", category: .enAU),
-  VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", language: "en-IE", category: .enIE),
-  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", language: "en-IN", category: .enIN),
-  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", language: "en-SG", category: .enSG),
-
-  VoicePair(firstKey: "es-ES-AlvaroNeural", secondKey: "es-ES-ElviraNeural", firstName: "Alvaro", secondName: "Elvira", language: "es-ES", category: .esES),
-  VoicePair(firstKey: "de-CH-LeniNeural", secondKey: "de-DE-KatjaNeural", firstName: "Leni", secondName: "Katja", language: "de-DE", category: .deDE),
-  VoicePair(firstKey: "de-DE-AmalaNeural", secondKey: "de-DE-BerndNeural", firstName: "Amala", secondName: "Bernd", language: "de-DE", category: .deDE),
-  VoicePair(firstKey: "de-DE-ChristophNeural", secondKey: "de-DE-LouisaNeural", firstName: "Christoph", secondName: "Louisa", language: "de-DE", category: .deDE),
-
-  // ja
-  VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", language: "ja-JP", category: .jaJP),
-
-  // zh
-  VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", language: "zh-CN", category: .zhCN),
-  VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", language: "zh-CN", category: .zhCN)
-]
-
-let VOICE_REGIONS = ["English "]
-
 // Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
 class SpeechPlayerItem: AVPlayerItem {
   let resourceLoaderDelegate = ResourceLoaderDelegate()
@@ -260,6 +186,7 @@ class SpeechPlayerItem: AVPlayerItem {
   }
 }
 
+// swiftlint:disable all
 public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioControllerState = .stopped
   @Published public var itemAudioProperties: LinkedItemAudioProperties?
@@ -328,7 +255,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func generateVoiceList() -> [(name: String, key: String, category: VoiceCategory, selected: Bool)] {
-    VOICES.flatMap { voicePair in
+    Voices.Pairs.flatMap { voicePair in
       [
         (name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
         (name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
@@ -466,7 +393,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = true
 
   public var currentVoiceLanguage: VoiceLanguage {
-    VOICELANGUAGES.first(where: { $0.key == currentLanguage }) ?? ENGLISH
+    Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
   }
 
   private var _currentLanguage: String?
@@ -475,7 +402,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       if let currentLanguage = _currentLanguage {
         return currentLanguage
       }
-      if let itemLang = itemAudioProperties?.language, let lang = VOICELANGUAGES.first(where: { $0.name == itemLang || $0.key == itemLang }) {
+      if let itemLang = itemAudioProperties?.language, let lang = Voices.Languages.first(where: { $0.name == itemLang || $0.key == itemLang }) {
         return lang.key
       }
       return defaultLanguage
@@ -519,7 +446,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   public var currentVoicePair: VoicePair? {
     let voice = currentVoice
-    return VOICES.first(where: { $0.firstKey == voice || $0.secondKey == voice })
+    return Voices.Pairs.first(where: { $0.firstKey == voice || $0.secondKey == voice })
   }
 
   public func getPreferredVoice(forLanguage language: String) -> String {
@@ -559,7 +486,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public var secondaryVoice: String {
-    let pair = VOICES.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
+    let pair = Voices.Pairs.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
     if let pair = pair {
       if pair.firstKey == currentVoice {
         return pair.secondKey
@@ -591,12 +518,18 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
+  public var isLoading: Bool {
+    if state == .reachedEnd {
+      return false
+    }
+    return (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
+  }
+
   public func isLoadingItem(itemID: String) -> Bool {
     if state == .reachedEnd {
       return false
     }
-    return itemAudioProperties?.itemID == itemID &&
-      (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
+    return itemAudioProperties?.itemID == itemID && isLoading
   }
 
   public func isPlayingItem(itemID: String) -> Bool {

@@ -22,7 +22,7 @@ struct TextToSpeechLanguageView: View {
   }
 
   private var innerBody: some View {
-    ForEach(VOICELANGUAGES, id: \.key.self) { language in
+    ForEach(Voices.Languages, id: \.key.self) { language in
       Button(action: {
         audioController.defaultLanguage = language.key
       }) {
@@ -32,7 +32,11 @@ struct TextToSpeechLanguageView: View {
           Spacer()
 
           if audioController.defaultLanguage == language.key {
-            Image(systemName: "checkmark")
+            if audioController.isLoading {
+              ProgressView()
+            } else {
+              Image(systemName: "checkmark")
+            }
           }
         }
         .contentShape(Rectangle())
