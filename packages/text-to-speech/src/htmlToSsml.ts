@@ -55,8 +55,7 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 
 function ssmlTagsForTopLevelElement() {
   return {
-    opening: `<p>`,
-    closing: `</p>`,
+    opening: `<break />`,
   }
 }
 
@@ -69,8 +68,7 @@ const TOP_LEVEL_TAGS = [
   'H4',
   'H5',
   'H6',
-  'UL',
-  'OL',
+  'LI',
   'CODE',
 ]
 
@@ -106,9 +104,9 @@ function parseDomTree(pageNode: Element) {
 
   visitedNodeList.shift()
   visitedNodeList.forEach((node, index) => {
-    // We start at index 2, because the frontend starts one node above us
-    // on the #readability-content element that wraps the entire content.
-    node.setAttribute('data-omnivore-anchor-idx', (index + 2).toString())
+    // We start at index 3, because the frontend starts two nodes above us
+    // on the #readability-page-1 element that wraps the entire content.
+    node.setAttribute('data-omnivore-anchor-idx', (index + 3).toString())
   })
   return visitedNodeList
 }
@@ -179,10 +177,6 @@ function emitElement(
     if (child.nodeType == 1 /* Node.ELEMENT_NODE */) {
       maxVisitedIdx = emitElement(textItems, child as HTMLElement, false)
     }
-  }
-
-  if (isTopLevel) {
-    emit(textItems, topLevelTags.closing)
   }
 
   return Number(maxVisitedIdx)
@@ -312,7 +306,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
-    console.log('No HTML body found:', content)
+    console.log('No HTML body found')
     return {
       wordCount: 0,
       language,
@@ -323,7 +317,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
 
   const parsedNodes = parseDomTree(body)
   if (parsedNodes.length < 1) {
-    console.log('No HTML nodes found:', body)
+    console.log('No HTML nodes found')
     return {
       wordCount: 0,
       language,
@@ -348,6 +342,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     wordOffset += titleUtterance.wordCount
   }
 
+  // start at 2 to skip the #readability-content and #readability-page-1 elements
   for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
     const node = parsedNodes[i - 2]
