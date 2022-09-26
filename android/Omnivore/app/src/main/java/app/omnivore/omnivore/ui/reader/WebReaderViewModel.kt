@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import javax.inject.Inject
 
 data class WebReaderParams(
@@ -109,6 +111,21 @@ class WebReaderViewModel @Inject constructor(
 
       webReaderParamsLiveData.value = WebReaderParams(linkedItem, articleContent)
     }
+  }
+
+  fun handleIncomingWebMessage(actionID: String, json: JSONObject) {
+    Log.d("Loggo", "receive action ID: $actionID, with json values: $json")
+
+    //    createHighlightMutation: (input) =>
+//    mutation('createHighlight', input),
+//    deleteHighlightMutation: (highlightId) =>
+//    mutation('deleteHighlight', { highlightId }),
+//    mergeHighlightMutation: (input) =>
+//    mutation('mergeHighlight', input),
+//    updateHighlightMutation: (input) =>
+//    mutation('updateHighlight', input),
+//    articleReadingProgressMutation: (input) =>
+//    mutation('articleReadingProgress', input),
   }
 
   fun reset() {

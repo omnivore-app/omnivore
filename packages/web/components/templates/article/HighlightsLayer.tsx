@@ -162,12 +162,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           actionID: 'annotate',
           annotation: inputs.highlight?.annotation ?? '',
         })
-      } else if (typeof window?.AndroidWebKitMessageHandler != 'undefined') {
-        window.AndroidWebKitMessageHandler.handleMessage(
-          JSON.stringify({
-            actionID: 'annotate',
-            annotation: inputs.highlight?.annotation ?? '',
-          })
+      } else if (typeof window?.AndroidWebKitMessenger != 'undefined') {
+        window.AndroidWebKitMessenger.handleIdentifiableMessage(
+          'annotate',
+          JSON.stringify({ annotation: inputs.highlight?.annotation ?? '' })
         )
       } else {
         inputs.createHighlightForNote = async (note?: string) => {
@@ -290,14 +288,17 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           // highlight, so the app can display a native menu
           const rect = (target as Element).getBoundingClientRect()
           const message = {
-            actionID: 'showMenu',
             rectX: rect.x,
             rectY: rect.y,
             rectWidth: rect.width,
             rectHeight: rect.height,
           }
-          window?.webkit?.messageHandlers.viewerAction?.postMessage(message)
-          window?.AndroidWebKitMessageHandler?.handleMessage(
+          window?.webkit?.messageHandlers.viewerAction?.postMessage({
+            actionID: 'showMenu',
+            ...message,
+          })
+          window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
+            'existingHighlightTap',
             JSON.stringify(message)
           )
           setFocusedHighlight(highlight)
@@ -349,19 +350,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           }
           break
         case 'share':
-          const message = {
-            actionID: 'share',
-            highlightID: focusedHighlight?.id,
-          }
-
           if (props.isAppleAppEmbed) {
-            window?.webkit?.messageHandlers.highlightAction?.postMessage(
-              message
-            )
+            window?.webkit?.messageHandlers.highlightAction?.postMessage({
+              actionID: 'share',
+              highlightID: focusedHighlight?.id,
+            })
           }
 
-          window?.AndroidWebKitMessageHandler?.handleMessage(
-            JSON.stringify(message)
+          window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
+            'share',
+            JSON.stringify({
+              highlightID: focusedHighlight?.id,
+            })
           )
 
           if (focusedHighlight) {

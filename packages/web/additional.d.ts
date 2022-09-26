@@ -1,7 +1,8 @@
 export {}
 
-declare type AndroidWebKitMessageHandler = {
-  handleMessage: (string) => void
+declare type AndroidWebKitMessenger = {
+  // 1st argument is an actionID value, 2nd is jsonString
+  handleIdentifiableMessage: (string, string) => void
 }
 
 declare global {
@@ -13,7 +14,7 @@ declare global {
     Intercom: Function
     intercomSettings: IntercomSettings
     analytics?: Analytics
-    AndroidWebKitMessageHandler?: AndroidWebKitMessageHandler
+    AndroidWebKitMessenger?: AndroidWebKitMessenger
   }
 }
 

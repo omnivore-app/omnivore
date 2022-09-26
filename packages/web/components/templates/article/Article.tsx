@@ -84,8 +84,9 @@ export function Article(props: ArticleProps): JSX.Element {
       window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
         progress: readingProgress,
       })
-    } else if (typeof window?.AndroidWebKitMessageHandler != 'undefined') {
-      window.AndroidWebKitMessageHandler.handleMessage(
+    } else if (typeof window?.AndroidWebKitMessenger != 'undefined') {
+      window.AndroidWebKitMessenger.handleIdentifiableMessage(
+        'readingProgressUpdate',
         JSON.stringify({ progress: readingProgress })
       )
     }

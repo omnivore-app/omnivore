@@ -26,7 +26,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
   }
 
   if (webReaderParams != null) {
-    WebReader(webReaderParams!!)
+    WebReader(webReaderParams!!, webReaderViewModel)
   } else {
     // TODO: add a proper loading view
     Text("Loading...")
@@ -35,7 +35,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebReader(params: WebReaderParams) {
+fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
   WebView.setWebContentsDebuggingEnabled(true)
 
   val webReaderContent = WebReaderContent(
@@ -66,7 +66,11 @@ fun WebReader(params: WebReaderParams) {
       webViewClient = object : WebViewClient() {
       }
 
-      addJavascriptInterface(AndroidWebKitMessageHandler(), "AndroidWebKitMessageHandler")
+      val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
+        webReaderViewModel.handleIncomingWebMessage(actionID, json)
+      }
+
+      addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
       loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
 
     }
@@ -139,15 +143,9 @@ class OmnivoreWebView(context: Context) : WebView(context) {
   }
 }
 
-
-class AndroidWebKitMessageHandler {
+class AndroidWebKitMessenger(val messageHandler: (String, JSONObject) -> Unit) {
   @JavascriptInterface
-  fun handleMessage(jsonString: String) {
-    // TODO: safely parse actionID and data from message
-    // Maybe add a second function for calls that include actionID?
-    val message = JSONObject(jsonString)
-    Log.d("Loggo", "Handling message: $message")
-//    val actionID = message["actionID"]
-//    Log.d("Loggo", "Received message with ID: $actionID and jsonValue: $message")
+  fun handleIdentifiableMessage(actionID: String, jsonString: String) {
+    messageHandler(actionID, JSONObject(jsonString))
   }
 }
