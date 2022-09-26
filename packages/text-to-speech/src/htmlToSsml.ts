@@ -228,9 +228,9 @@ export const htmlToSsmlItems = (
   }
 
   const items: SSMLItem[] = []
-  for (let i = 2; i < parsedNodes.length + 2; i++) {
+  for (let i = 3; i < parsedNodes.length + 3; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 2]
+    const node = parsedNodes[i - 3]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       const idx = i
@@ -342,10 +342,10 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     wordOffset += titleUtterance.wordCount
   }
 
-  // start at 2 to skip the #readability-content and #readability-page-1 elements
-  for (let i = 2; i < parsedNodes.length + 2; i++) {
+  // start at 3 to skip the #readability-content and #readability-page-1 elements
+  for (let i = 3; i < parsedNodes.length + 3; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 2]
+    const node = parsedNodes[i - 3]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       // use paragraph as anchor
