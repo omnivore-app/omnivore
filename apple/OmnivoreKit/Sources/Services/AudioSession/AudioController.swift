@@ -32,25 +32,79 @@ enum DownloadPriority: String {
   case high
 }
 
-struct VoicePair {
+public struct VoiceLanguage {
+  public let key: String
+  public let name: String
+  public let defaultVoice: String
+  public let categories: [VoiceCategory]
+}
+
+public enum VoiceCategory: String, CaseIterable {
+  case enUS = "English (US)"
+  case enAU = "English (Australia)"
+  case enCA = "English (Canada)"
+  case enIE = "English (Ireland)"
+  case enIN = "English (India)"
+  case enSG = "English (Singapore)"
+  case enUK = "English (UK)"
+  case deDE = "German (Germany)"
+  case esES = "Spanish (Spain)"
+  case jaJP = "Japanese (Japan)"
+  case zhCN = "Chinese (China Mainland)"
+}
+
+public struct VoicePair {
   let firstKey: String
   let secondKey: String
 
   let firstName: String
   let secondName: String
+
+  let language: String
+  let category: VoiceCategory
 }
 
-// swiftlint:disable all
-let VOICES = [
-  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny (USA)", secondName: "Brandon (USA)"),
-  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora (USA)", secondName: "Christopher (USA)"),
-  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth (USA)", secondName: "Eric (USA)"),
-  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara (Canada)", secondName: "Liam (Canada)"),
-  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby (UK)", secondName: "Ethan (UK)"),
-  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha (Australia)", secondName: "William (Australia)"),
-  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja (India)", secondName: "Prabhat (India)"),
-  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna (Singapore)", secondName: "Wayne (Singapore)")
+private let ENGLISH = VoiceLanguage(key: "en",
+                                    name: "English",
+                                    defaultVoice: "en-US-ChristopherNeural",
+                                    categories: [.enUS, .enAU, .enCA, .enIE, .enIN, .enSG, .enUK])
+
+public let VOICELANGUAGES = [
+  ENGLISH,
+  VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN]),
+  VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
+  VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
+  VoiceLanguage(key: "de", name: "German", defaultVoice: "de-CH-JanNeural", categories: [.deDE]),
+  VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES])
 ]
+
+// swiftlint:disable all
+public let VOICES = [
+  // en
+  VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", language: "en-US", category: .enUS),
+  VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", language: "en-US", category: .enUS),
+  VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", language: "en-US", category: .enUS),
+  VoicePair(firstKey: "en-CA-ClaraNeural", secondKey: "en-CA-LiamNeural", firstName: "Clara", secondName: "Liam", language: "en-CA", category: .enCA),
+  VoicePair(firstKey: "en-GB-LibbyNeural", secondKey: "en-GB-EthanNeural", firstName: "Libby", secondName: "Ethan", language: "en-GB", category: .enUK),
+  VoicePair(firstKey: "en-AU-NatashaNeural", secondKey: "en-AU-WilliamNeural", firstName: "Natasha", secondName: "William", language: "en-AU", category: .enAU),
+  VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", language: "en-IE", category: .enIE),
+  VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", language: "en-IN", category: .enIN),
+  VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", language: "en-SG", category: .enSG),
+
+  VoicePair(firstKey: "es-ES-AlvaroNeural", secondKey: "es-ES-ElviraNeural", firstName: "Alvaro", secondName: "Elvira", language: "es-ES", category: .esES),
+  VoicePair(firstKey: "de-CH-LeniNeural", secondKey: "de-DE-KatjaNeural", firstName: "Leni", secondName: "Katja", language: "de-DE", category: .deDE),
+  VoicePair(firstKey: "de-DE-AmalaNeural", secondKey: "de-DE-BerndNeural", firstName: "Amala", secondName: "Bernd", language: "de-DE", category: .deDE),
+  VoicePair(firstKey: "de-DE-ChristophNeural", secondKey: "de-DE-LouisaNeural", firstName: "Christoph", secondName: "Louisa", language: "de-DE", category: .deDE),
+
+  // ja
+  VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", language: "ja-JP", category: .jaJP),
+
+  // zh
+  VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", language: "zh-CN", category: .zhCN),
+  VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", language: "zh-CN", category: .zhCN)
+]
+
+let VOICE_REGIONS = ["English "]
 
 // Somewhat based on: https://github.com/neekeetab/CachingPlayerItem/blob/master/CachingPlayerItem.swift
 class SpeechPlayerItem: AVPlayerItem {
@@ -112,6 +166,10 @@ class SpeechPlayerItem: AVPlayerItem {
     weak var owner: SpeechPlayerItem?
 
     func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+      if owner == nil {
+        return true
+      }
+
       if session == nil {
         guard let initialUrl = owner?.speechItem.urlRequest else {
           fatalError("internal inconsistency")
@@ -141,6 +199,9 @@ class SpeechPlayerItem: AVPlayerItem {
         // TODO: how do we want to propogate this and handle it in the player
         let audioData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
         DispatchQueue.main.async {
+          if audioData == nil {
+            self.session = nil
+          }
           self.mediaData = audioData
           self.processPendingRequests()
         }
@@ -207,7 +268,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @Published public var duration: TimeInterval = 0
   @Published public var timeElapsedString: String?
   @Published public var durationString: String?
-  @Published public var voiceList: [(name: String, key: String, selected: Bool)]?
+  @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
 
   let appEnvironment: AppEnvironment
   let networker: Networker
@@ -261,23 +322,26 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     if let stoppedId = stoppedId {
       EventTracker.track(
-        .audioSessionEnd(linkID: stoppedId, timeElapsed: stoppedTimeElapsed ?? 0.0)
+        .audioSessionEnd(linkID: stoppedId, timeElapsed: stoppedTimeElapsed)
       )
     }
   }
 
-  public func generateVoiceList() -> [(name: String, key: String, selected: Bool)] {
+  public func generateVoiceList() -> [(name: String, key: String, category: VoiceCategory, selected: Bool)] {
     VOICES.flatMap { voicePair in
       [
-        (name: voicePair.firstName, key: voicePair.firstKey, selected: voicePair.firstKey == currentVoice),
-        (name: voicePair.secondName, key: voicePair.secondKey, selected: voicePair.secondKey == currentVoice)
+        (name: voicePair.firstName, key: voicePair.firstKey, category: voicePair.category, selected: voicePair.firstKey == currentVoice),
+        (name: voicePair.secondName, key: voicePair.secondKey, category: voicePair.category, selected: voicePair.secondKey == currentVoice)
       ]
     }.sorted { $0.name.lowercased() < $1.name.lowercased() }
   }
 
   public func preload(itemIDs: [String], retryCount _: Int = 0) async -> Bool {
+    if !preloadEnabled {
+      return true
+    }
+
     for itemID in itemIDs {
-      print("preloading speech file: ", itemID)
       if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
         let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
         do {
@@ -327,7 +391,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func seek(to: TimeInterval) {
+    var hasOffset = false
     let position = max(0, to)
+
+    // If we are in reachedEnd state, and seek back, we need to move to
+    // paused state
+    if to < duration, state == .reachedEnd {
+      state = .paused
+    }
 
     // First find the item that this interval is within
     // Not the most effecient, but these lists should be less than 500 items
@@ -345,6 +416,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       // Now figure out how far into this segment we need to seek to
       let before = durationBefore(playerIndex: foundIdx)
       let remainder = position - before
+
+      if remainder > 0 {
+        hasOffset = true
+      }
 
       // if the foundIdx happens to be the current item, we just set the position
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
@@ -374,6 +449,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     fireTimer()
   }
 
+  @AppStorage(UserDefaultKey.textToSpeechDefaultLanguage.rawValue) public var defaultLanguage = "en" {
+    didSet {
+      currentLanguage = defaultLanguage
+    }
+  }
+
   @AppStorage(UserDefaultKey.textToSpeechPlaybackRate.rawValue) public var playbackRate = 1.0 {
     didSet {
       updateDurations(oldPlayback: oldValue, newPlayback: playbackRate)
@@ -382,8 +463,46 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  @AppStorage(UserDefaultKey.textToSpeechCurrentVoice.rawValue) public var currentVoice = "en-US-ChristopherNeural" {
-    didSet {
+  @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = true
+
+  public var currentVoiceLanguage: VoiceLanguage {
+    VOICELANGUAGES.first(where: { $0.key == currentLanguage }) ?? ENGLISH
+  }
+
+  private var _currentLanguage: String?
+  public var currentLanguage: String {
+    get {
+      if let currentLanguage = _currentLanguage {
+        return currentLanguage
+      }
+      if let itemLang = itemAudioProperties?.language, let lang = VOICELANGUAGES.first(where: { $0.name == itemLang || $0.key == itemLang }) {
+        return lang.key
+      }
+      return defaultLanguage
+    }
+    set {
+      _currentLanguage = newValue
+
+      let newVoice = getPreferredVoice(forLanguage: newValue)
+      currentVoice = newVoice
+    }
+  }
+
+  private var _currentVoice: String?
+  public var currentVoice: String {
+    get {
+      if let currentVoice = _currentVoice {
+        return currentVoice
+      }
+
+      if let currentVoice = UserDefaults.standard.string(forKey: "\(currentLanguage)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") {
+        return currentVoice
+      }
+
+      return currentVoiceLanguage.defaultVoice
+    }
+    set {
+      _currentVoice = newValue
       voiceList = generateVoiceList()
 
       var currentIdx = 0
@@ -396,6 +515,19 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
       downloadAndPlayFrom(currentIdx, currentOffset)
     }
+  }
+
+  public var currentVoicePair: VoicePair? {
+    let voice = currentVoice
+    return VOICES.first(where: { $0.firstKey == voice || $0.secondKey == voice })
+  }
+
+  public func getPreferredVoice(forLanguage language: String) -> String {
+    UserDefaults.standard.string(forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") ?? currentVoiceLanguage.defaultVoice
+  }
+
+  public func setPreferredVoice(_ voice: String, forLanguage language: String) {
+    UserDefaults.standard.set(voice, forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)")
   }
 
   private func downloadAndPlayFrom(_ currentIdx: Int, _ currentOffset: Double) {
@@ -437,6 +569,20 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
     return "en-US-CoraNeural"
+  }
+
+  public func playVoiceSample(voice: String) {
+    do {
+      if let url = Bundle.main.url(forResource: "tts-voice-sample-\(voice)", withExtension: "mp3") {
+        let player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+        player.play()
+      } else {
+        NSNotification.operationFailed(message: "Error playing voice sample.")
+      }
+    } catch {
+      print("ERROR", error)
+      NSNotification.operationFailed(message: "Error playing voice sample.")
+    }
   }
 
   private func updateDurations(oldPlayback: Double, newPlayback: Double) {
@@ -528,13 +674,13 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
           }
         }
         player?.insert(playerItem, after: nil)
-        if playWhenReady, player?.items().count == 1 {
-          if atOffset > 0.0 {
-            playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
-              print("success seeking to time: ", success)
-              self.fireTimer()
-            }
+        if player?.items().count == 1, atOffset > 0.0 {
+          playerItem.seek(to: CMTimeMakeWithSeconds(atOffset, preferredTimescale: 600)) { success in
+            print("success seeking to time: ", success)
+            self.fireTimer()
           }
+        }
+        if playWhenReady, player?.items().count == 1 {
           startTimer()
           unpause()
           setupRemoteControl()
@@ -664,7 +810,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     if let itemAudioProperties = itemAudioProperties {
       MPNowPlayingInfoCenter.default().nowPlayingInfo = [
         MPMediaItemPropertyTitle: NSString(string: itemAudioProperties.title),
-        MPMediaItemPropertyArtist: NSString(string: itemAudioProperties.author ?? "Omnivore"),
+        MPMediaItemPropertyArtist: NSString(string: itemAudioProperties.byline ?? "Omnivore"),
         MPMediaItemPropertyPlaybackDuration: NSNumber(value: duration),
         MPNowPlayingInfoPropertyElapsedPlaybackTime: NSNumber(value: timeElapsed)
       ]
@@ -718,6 +864,14 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
+  func isoLangForCurrentVoice() -> String {
+    // currentVoicePair should not ever be nil but if it is we return an empty string
+    if let isoLang = currentVoicePair?.language {
+      return "&language=\(isoLang)"
+    }
+    return ""
+  }
+
   func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
     let decoder = JSONDecoder()
     let speechFileUrl = pathForSpeechFile(itemID: itemID)
@@ -731,7 +885,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
 
-    let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)"
+    let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)\(isoLangForCurrentVoice())"
     guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }

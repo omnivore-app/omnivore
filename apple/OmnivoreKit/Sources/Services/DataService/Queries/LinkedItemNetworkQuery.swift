@@ -245,6 +245,7 @@ private let libraryArticleSelection = Selection.Article {
     isArchived: try $0.isArchived(),
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
+    language: try $0.language(),
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
 }
@@ -281,6 +282,7 @@ private let searchItemSelection = Selection.SearchItem {
     isArchived: try $0.isArchived(),
     contentReader: try $0.contentReader().rawValue,
     originalHtml: nil,
+    language: try $0.language(),
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
 }

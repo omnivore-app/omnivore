@@ -19,6 +19,7 @@ public struct MiniPlayer: View {
   @State var expanded = false
   @State var offset: CGFloat = 0
   @State var showVoiceSheet = false
+  @State var showLanguageSheet = false
   @Namespace private var animation
 
   let minExpandedHeight = UIScreen.main.bounds.height / 3
@@ -128,6 +129,19 @@ public struct MiniPlayer: View {
     }
   }
 
+  func defaultArtwork(forDimensions dim: Double) -> some View {
+    ZStack(alignment: .center) {
+      Color.appButtonBackground
+        .frame(width: dim, height: dim)
+        .cornerRadius(6)
+
+      Image(systemName: "headphones")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: dim / 2, height: dim / 2)
+    }
+  }
+
   // swiftlint:disable:next function_body_length
   func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
@@ -156,16 +170,24 @@ public struct MiniPlayer: View {
           let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
           let dim = expanded ? maxSize : 64
 
-          AsyncImage(url: itemAudioProperties.imageURL) { image in
-            image
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-              .frame(width: dim, height: dim)
-              .cornerRadius(6)
-          } placeholder: {
-            Color.appButtonBackground
-              .frame(width: dim, height: dim)
-              .cornerRadius(6)
+          if let imageURL = itemAudioProperties.imageURL {
+            AsyncImage(url: imageURL) { phase in
+              if let image = phase.image {
+                image
+                  .resizable()
+                  .aspectRatio(contentMode: .fill)
+                  .frame(width: dim, height: dim)
+                  .cornerRadius(6)
+              } else if phase.error != nil {
+                defaultArtwork(forDimensions: dim)
+              } else {
+                Color.appButtonBackground
+                  .frame(width: dim, height: dim)
+                  .cornerRadius(6)
+              }
+            }
+          } else {
+            defaultArtwork(forDimensions: dim)
           }
 
           if !expanded {
@@ -201,27 +223,13 @@ public struct MiniPlayer: View {
 
           HStack {
             Spacer()
-            if let author = itemAudioProperties.author {
-              Text(author)
+            if let byline = itemAudioProperties.byline {
+              Text(byline)
                 .lineLimit(1)
                 .font(.appCallout)
                 .lineSpacing(1.25)
                 .foregroundColor(.appGrayText)
                 .frame(alignment: .trailing)
-            }
-            if itemAudioProperties.author != nil, itemAudioProperties.siteName != nil {
-              Text(" • ")
-                .font(.appCallout)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-            }
-            if let siteName = itemAudioProperties.siteName {
-              Text(siteName)
-                .lineLimit(1)
-                .font(.appCallout)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-                .frame(alignment: .leading)
             }
             Spacer()
           }
@@ -324,7 +332,23 @@ public struct MiniPlayer: View {
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
       }.sheet(isPresented: $showVoiceSheet) {
-        changeVoiceView
+        NavigationView {
+          TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage)
+            .navigationBarTitle("Voice")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
+              Image(systemName: "chevron.backward")
+            })
+        }
+      }.sheet(isPresented: $showLanguageSheet) {
+        NavigationView {
+          TextToSpeechLanguageView()
+            .navigationBarTitle("Language")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
+              Image(systemName: "chevron.backward")
+            })
+        }
       }
     }
   }

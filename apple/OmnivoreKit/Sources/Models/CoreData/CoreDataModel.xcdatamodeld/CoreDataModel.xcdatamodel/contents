@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="21G115" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Highlight" representedClassName="Highlight" syncable="YES" codeGenerationType="class">
         <attribute name="annotation" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -30,6 +30,7 @@
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
         <attribute name="isArchived" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="language" optional="YES" attributeType="String"/>
         <attribute name="localPDF" optional="YES" attributeType="String"/>
         <attribute name="onDeviceImageURLString" optional="YES" attributeType="String"/>
         <attribute name="originalHtml" optional="YES" attributeType="String"/>
@@ -91,11 +92,4 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <elements>
-        <element name="Highlight" positionX="27" positionY="225" width="128" height="224"/>
-        <element name="LinkedItem" positionX="-18" positionY="63" width="128" height="464"/>
-        <element name="LinkedItemLabel" positionX="-36" positionY="18" width="128" height="134"/>
-        <element name="NewsletterEmail" positionX="0" positionY="180" width="128" height="74"/>
-        <element name="Viewer" positionX="45" positionY="234" width="128" height="89"/>
-    </elements>
 </model>
