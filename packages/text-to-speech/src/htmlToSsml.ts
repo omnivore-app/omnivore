@@ -347,6 +347,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     wordOffset += titleUtterance.wordCount
   }
 
+  // start at 2 to skip the #readability-content and #readability-page-1 elements
   for (let i = 2; i < parsedNodes.length + 2; i++) {
     const textItems: string[] = []
     const node = parsedNodes[i - 2]

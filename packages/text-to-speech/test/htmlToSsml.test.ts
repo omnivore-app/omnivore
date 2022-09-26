@@ -225,7 +225,7 @@ describe('htmlToSpeechFile', () => {
 })
 
 describe('convert HTML to Speech file', () => {
-  it('should convert HTML to many utterances', () => {
+  it('converts each <li> to an utterance', () => {
     const html = fs.readFileSync(
       path.resolve(__dirname, './fixtures/large.html'),
       { encoding: 'utf-8' }
