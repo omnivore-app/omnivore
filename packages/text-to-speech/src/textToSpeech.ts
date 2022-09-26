@@ -138,7 +138,7 @@ export const synthesizeTextToSpeech = async (
       }
     }
     // for ssml
-    const audioData: Buffer = Buffer.from([])
+    let audioData: Buffer = Buffer.from([])
     // split ssml into chunks of 200 characters to stream faster
     const ssmlChunks = input.text.match(/.{1,200}/g)
     // TODO: not split on words and bookmarks
@@ -151,7 +151,7 @@ export const synthesizeTextToSpeech = async (
         }
         timeOffset = timeOffset + result.audioDuration
         wordOffset = wordOffset + ssmlChunk.length
-        Buffer.concat([audioData, Buffer.from(result.audioData)])
+        audioData = Buffer.concat([audioData, Buffer.from(result.audioData)])
       }
     }
 

@@ -55,8 +55,7 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 
 function ssmlTagsForTopLevelElement() {
   return {
-    opening: `<p>`,
-    closing: `</p>`,
+    opening: `<break />`,
   }
 }
 
@@ -178,10 +177,6 @@ function emitElement(
     if (child.nodeType == 1 /* Node.ELEMENT_NODE */) {
       maxVisitedIdx = emitElement(textItems, child as HTMLElement, false)
     }
-  }
-
-  if (isTopLevel) {
-    emit(textItems, topLevelTags.closing)
   }
 
   return Number(maxVisitedIdx)
