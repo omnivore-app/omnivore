@@ -83,7 +83,7 @@ const MainContainer = styled(Box, {
 
 const CustomLabelWrapper = styled(Box, {
   fontSize: 13,
-  padding: '$2',
+  padding: 24,
   borderRadius: 3,
   cursor: 'default',
   color: '$grayText',
