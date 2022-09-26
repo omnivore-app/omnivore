@@ -105,9 +105,9 @@ function parseDomTree(pageNode: Element) {
 
   visitedNodeList.shift()
   visitedNodeList.forEach((node, index) => {
-    // We start at index 2, because the frontend starts one node above us
-    // on the #readability-content element that wraps the entire content.
-    node.setAttribute('data-omnivore-anchor-idx', (index + 2).toString())
+    // We start at index 3, because the frontend starts two nodes above us
+    // on the #readability-page-1 element that wraps the entire content.
+    node.setAttribute('data-omnivore-anchor-idx', (index + 3).toString())
   })
   return visitedNodeList
 }
