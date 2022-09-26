@@ -140,12 +140,14 @@ export const synthesizeTextToSpeech = async (
     // for ssml
     let audioData: Buffer = Buffer.from([])
     // split ssml into chunks of 2000 characters to stream faster
-    // both within limit & without breaking on words and bookmarks
+    // both within limit & without breaking on words and bookmarks <bookmark mark="1"/>
     const ssmlChunks = input.text.match(/.{1,2000}(?= |$)(?! mark=)/g)
     if (ssmlChunks) {
       for (const ssmlChunk of ssmlChunks) {
-        console.log('ssmlChunk', ssmlChunk)
-        const ssml = `${startSsml(ssmlOptions)}${ssmlChunk}${endSsml()}`
+        const startSsmlChunk = startSsml(ssmlOptions)
+        const ssml = `${startSsmlChunk}${ssmlChunk}${endSsml()}`
+        // set the text offset to be the end of SSML start tag
+        wordOffset -= startSsmlChunk.length
         const result = await speakSsmlAsyncPromise(ssml)
         if (result.reason === ResultReason.Canceled) {
           throw new Error(result.errorDetails)
