@@ -6,18 +6,30 @@ import { removeHTMLTags } from '../ArticleSubtitle'
 import { theme } from '../../tokens/stitches.config'
 // import { CardMenu } from '../CardMenu'
 import { LabelChip } from '../../elements/LabelChip'
-import { ProgressBar } from '../../elements/ProgressBar'
+// import { ProgressBar } from '../../elements/ProgressBar'
 import type { LinkedItemCardProps } from './CardTypes'
+import { ProgressBarVertical } from '../../elements/ProgressBarVertical'
+
+//Styles
+const ellipsisText = {
+  overflow: 'hidden',
+  display: '-webkit-box',
+  WebkitLineClamp: 1,
+  WebkitBoxOrient: 'vertical',
+  pl: '10px',
+  margin: 'auto 0',
+}
 
 export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
   return (
-    <VStack
+    <>
+      {/* <VStack
       css={{
         // p: '12px',
-        height: '100%',
-        width: '100%',
-        maxWidth: '100%',
-        borderRadius: '8px',
+        // height: '100%',
+        // width: '100%',
+        // maxWidth: '100%',
+        borderRadius: '5px',
         cursor: 'pointer',
         wordBreak: 'break-word',
         overflow: 'clip',
@@ -29,7 +41,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       onClick={() => {
         props.handleAction('showDetail')
       }}
-    >
+    > */}
       {/* {props.item.image && props.layout !== 'LIST_LAYOUT' && (
         <CoverImage
           src={props.item.image}
@@ -46,49 +58,71 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         distribution="start"
         alignment="start"
         css={{
-          px: '0px',
+          // px: '0px',
           width: '100%',
-          pl: '$1',
+          // pl: '$1',
         }}
       >
+        {/* <ProgressBar
+        fillPercentage={props.item.readingProgressPercent}
+        fillColor={theme.colors.highlight.toString()}
+        backgroundColor={theme.colors.lightBorder.toString()}
+        borderRadius={
+          props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
+        }
+      /> */}
         <HStack
           alignment="start"
           distribution="between"
           css={{
             width: '100%',
             display: 'grid',
-            gridTemplateColumns: '1fr 2fr 150px',
+            gridTemplateColumns: '0.01fr 1fr 2fr 150px',
             gridTemplateRows: '1fr',
+            borderBottom: '1px solid $graySolid',
+            height: '45px',
           }}
         >
+          <ProgressBarVertical
+            fillPercentage={props.item.readingProgressPercent}
+            fillColor={theme.colors.highlight.toString()}
+            backgroundColor={theme.colors.lightBorder.toString()}
+            borderRadius={
+              props.item.readingProgressPercent === 100
+                ? '0'
+                : '0px 8px 8px 0px'
+            }
+            height={'45px'}
+          />
           <CardTitle title={props.item.title} />
           <StyledText
             css={{
+              ...ellipsisText,
               color: '$grayTextContrast',
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 1,
-              WebkitBoxOrient: 'vertical',
-              p: '0 10px 0 0',
+              // overflow: 'hidden',
+              // display: '-webkit-box',
+              // WebkitLineClamp: 1,
+              // WebkitBoxOrient: 'vertical',
             }}
             data-testid="listDesc"
           >
             {/* <Box css={{ display: 'block', py: '12px' }}> */}
-              {props.item.labels?.map(({ name, color }, index) => (
-                <LabelChip key={index} text={name || ''} color={color} />
-              ))}
+            {props.item.labels?.map(({ name, color }, index) => (
+              <LabelChip key={index} text={name || ''} color={color} />
+            ))}
             {/* </Box> */}
             {props.item.description}
           </StyledText>
 
           <StyledText
             style="caption"
-            css={{ fontWeight: '600', margin: '5px 8px 5px 0' }}
+            css={{ ...ellipsisText, fontWeight: '400' }}
           >
             {props.item.author && (
               <SpanBox>{removeHTMLTags(props.item.author)}</SpanBox>
             )}
           </StyledText>
+
           {/* <Box
             css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
             onClick={(e) => {
@@ -111,6 +145,14 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             />
           </Box> */}
         </HStack>
+        {/* <ProgressBar
+        fillPercentage={props.item.readingProgressPercent}
+        fillColor={theme.colors.highlight.toString()}
+        backgroundColor={theme.colors.lightBorder.toString()}
+        borderRadius={
+          props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
+        }
+      /> */}
         {/* <HStack alignment="start" distribution="between">
           <StyledText style="caption" css={{fontWeight: '600', margin: '5px 8px 5px 0' }}>
             {props.item.author && (
@@ -138,32 +180,26 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           </StyledText>
         </HStack> */}
       </VStack>
-      <HStack
+      {/* <HStack
         alignment="start"
         distribution="between"
         css={{
           width: '100%',
-          pt: '$2',
-          px: '$1',
+          // pt: '$2',
+          // px: '$1',
           pr: '12px',
           // mt: '7px',
           flexGrow: '1',
         }}
-      ></HStack>
+      ></HStack> */}
       {/* <Box css={{ display: 'block', py: '12px' }}>
         {props.item.labels?.map(({ name, color }, index) => (
           <LabelChip key={index} text={name || ''} color={color} />
         ))}
       </Box> */}
-      <ProgressBar
-        fillPercentage={props.item.readingProgressPercent}
-        fillColor={theme.colors.highlight.toString()}
-        backgroundColor={theme.colors.lightBorder.toString()}
-        borderRadius={
-          props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
-        }
-      />
-    </VStack>
+
+      {/* </VStack> */}
+    </>
   )
 }
 
@@ -177,14 +213,16 @@ function CardTitle(props: CardTitleProps): JSX.Element {
       style="listTitle"
       data-testid="listTitle"
       css={{
+        ...ellipsisText,
         fontSize: '18px',
         textAlign: 'left',
         // lineHeight: '1.25',
-        overflow: 'hidden',
-        display: '-webkit-box',
-        WebkitLineClamp: 1,
-        WebkitBoxOrient: 'vertical',
-        p: '0 15px 0 0',
+        //overflow: 'hidden',
+        // display: '-webkit-box',
+        // WebkitLineClamp: 1,
+        // WebkitBoxOrient: 'vertical',
+        // // p: '0 15px 0 0',
+        // margin: 'auto',
       }}
     >
       {props.title}
