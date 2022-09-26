@@ -3,14 +3,8 @@ package app.omnivore.omnivore.ui.home
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.Constants
-import app.omnivore.omnivore.DatastoreKeys
-import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.Networker
-import app.omnivore.omnivore.graphql.generated.SearchQuery
+import app.omnivore.omnivore.*
 import app.omnivore.omnivore.models.LinkedItem
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -57,6 +51,7 @@ class HomeViewModel @Inject constructor(
       searchIdx += 1
       val authToken = getAuthToken()
 
+      // Execute the search
       val searchResult = Networker.search(
         cursor = cursor, query = searchQuery(), authToken = authToken
       )
@@ -70,40 +65,15 @@ class HomeViewModel @Inject constructor(
         return@launch
       }
 
-      cursor = searchResult.data?.search?.onSearchSuccess?.pageInfo?.endCursor
       receivedIdx = thisSearchIdx
-      val itemList = searchResult.data?.search?.onSearchSuccess?.edges ?: listOf()
-      
-      val newItems = itemList.map {
-        LinkedItem(
-          id = it.node.id,
-          title = it.node.title,
-          createdAt = it.node.createdAt,
-          savedAt = it.node.savedAt,
-          readAt = it.node.readAt,
-          updatedAt = it.node.updatedAt,
-          readingProgress = it.node.readingProgressPercent,
-          readingProgressAnchor = it.node.readingProgressAnchorIndex,
-          imageURLString = it.node.image,
-          pageURLString = it.node.url,
-          descriptionText = it.node.description,
-          publisherURLString = it.node.originalArticleUrl,
-          siteName = it.node.siteName,
-          author = it.node.author,
-          publishDate = it.node.publishedAt,
-          slug = it.node.slug,
-          isArchived = it.node.isArchived,
-          contentReader = it.node.contentReader.rawValue,
-          content = null
-        )
-      }
+      cursor = searchResult.cursor
 
       if (searchTextLiveData.value != "") {
         val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-        searchedItems = previousItems.plus(newItems)
+        searchedItems = previousItems.plus(searchResult.items)
         itemsLiveData.value = searchedItems
       } else {
-        items = items.plus(newItems)
+        items = items.plus(searchResult.items)
         itemsLiveData.value = items
       }
     }
@@ -119,4 +89,3 @@ class HomeViewModel @Inject constructor(
       return query
   }
 }
-
