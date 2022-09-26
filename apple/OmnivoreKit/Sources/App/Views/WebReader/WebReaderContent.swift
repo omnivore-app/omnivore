@@ -51,7 +51,6 @@ struct WebReaderContent {
       </head>
       <body>
         <div id="root" />
-    <div>HIIIIII</div>
         <div id='_omnivore-htmlContent' style="display: none;">
           \(articleContent.htmlContent)
         </div>

@@ -44,6 +44,7 @@ export type SSMLOptions = {
 
 const DEFAULT_LANGUAGE = 'en-US'
 const DEFAULT_VOICE = 'en-US-JennyNeural'
+const DEFAULT_SECONDARY_VOICE = 'en-US-GuyNeural'
 const DEFAULT_RATE = '1.0'
 
 const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
@@ -54,8 +55,7 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 
 function ssmlTagsForTopLevelElement() {
   return {
-    opening: `<p>`,
-    closing: `</p>`,
+    opening: `<break />`,
   }
 }
 
@@ -68,8 +68,7 @@ const TOP_LEVEL_TAGS = [
   'H4',
   'H5',
   'H6',
-  'UL',
-  'OL',
+  'LI',
   'CODE',
 ]
 
@@ -105,9 +104,9 @@ function parseDomTree(pageNode: Element) {
 
   visitedNodeList.shift()
   visitedNodeList.forEach((node, index) => {
-    // We start at index 2, because the frontend starts one node above us
-    // on the #readability-content element that wraps the entire content.
-    node.setAttribute('data-omnivore-anchor-idx', (index + 2).toString())
+    // We start at index 3, because the frontend starts two nodes above us
+    // on the #readability-page-1 element that wraps the entire content.
+    node.setAttribute('data-omnivore-anchor-idx', (index + 3).toString())
   })
   return visitedNodeList
 }
@@ -116,8 +115,12 @@ function emit(textItems: string[], text: string) {
   textItems.push(text)
 }
 
+const cleanText = (text: string): string => {
+  return stripEmojis(_.escape(text.replace(/\s+/g, ' ')))
+}
+
 function cleanTextNode(textNode: ChildNode): string {
-  return stripEmojis(_.escape(textNode.textContent ?? ''.replace(/\s+/g, ' ')))
+  return cleanText(textNode.textContent ?? '')
 }
 
 function emitTextNode(
@@ -176,23 +179,17 @@ function emitElement(
     }
   }
 
-  if (isTopLevel) {
-    emit(textItems, topLevelTags.closing)
-  }
-
   return Number(maxVisitedIdx)
 }
 
 export const startSsml = (options: SSMLOptions, element?: Element): string => {
   const voice =
     element?.nodeName === 'BLOCKQUOTE'
-      ? options.secondaryVoice
-      : options.primaryVoice
+      ? options.secondaryVoice ?? DEFAULT_SECONDARY_VOICE
+      : options.primaryVoice ?? DEFAULT_VOICE
   return `<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="${
     options.language || DEFAULT_LANGUAGE
-  }"><voice name="${voice || DEFAULT_VOICE}"><prosody rate="${
-    options.rate || DEFAULT_RATE
-  }">`
+  }"><voice name="${voice}"><prosody rate="${options.rate || DEFAULT_RATE}">`
 }
 
 export const endSsml = (): string => {
@@ -231,9 +228,9 @@ export const htmlToSsmlItems = (
   }
 
   const items: SSMLItem[] = []
-  for (let i = 2; i < parsedNodes.length + 2; i++) {
+  for (let i = 3; i < parsedNodes.length + 3; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 2]
+    const node = parsedNodes[i - 3]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       const idx = i
@@ -273,7 +270,7 @@ const textToUtterance = ({
   voice?: string
   isHtml?: boolean
 }): Utterance => {
-  const text = stripEmojis(textItems.join(''))
+  const text = textItems.join('')
   let textWithWordOffset = text
   if (isHtml) {
     try {
@@ -303,16 +300,30 @@ const textToUtterance = ({
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
   console.log('creating speech file with options:', options)
+  const language = options.language || DEFAULT_LANGUAGE
+  const defaultVoice = options.primaryVoice || DEFAULT_VOICE
 
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
-    throw new Error('Unable to parse HTML document')
+    console.log('No HTML body found')
+    return {
+      wordCount: 0,
+      language,
+      defaultVoice,
+      utterances: [],
+    }
   }
 
   const parsedNodes = parseDomTree(body)
   if (parsedNodes.length < 1) {
-    throw new Error('No HTML nodes found')
+    console.log('No HTML nodes found')
+    return {
+      wordCount: 0,
+      language,
+      defaultVoice,
+      utterances: [],
+    }
   }
 
   const tokenizer = new WordPunctTokenizer()
@@ -323,7 +334,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     const titleUtterance = textToUtterance({
       tokenizer,
       idx: '',
-      textItems: [title],
+      textItems: [cleanText(title)], // title could have HTML entity names like & or emoji
       wordOffset,
       isHtml: false,
     })
@@ -331,9 +342,10 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
     wordOffset += titleUtterance.wordCount
   }
 
-  for (let i = 2; i < parsedNodes.length + 2; i++) {
+  // start at 3 to skip the #readability-content and #readability-page-1 elements
+  for (let i = 3; i < parsedNodes.length + 3; i++) {
     const textItems: string[] = []
-    const node = parsedNodes[i - 2]
+    const node = parsedNodes[i - 3]
 
     if (TOP_LEVEL_TAGS.includes(node.nodeName) || hasSignificantText(node)) {
       // use paragraph as anchor
@@ -354,8 +366,8 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
 
   return {
     wordCount: wordOffset,
-    language: options.language || DEFAULT_LANGUAGE,
-    defaultVoice: options.primaryVoice || DEFAULT_VOICE,
+    language,
+    defaultVoice,
     utterances,
   }
 }
