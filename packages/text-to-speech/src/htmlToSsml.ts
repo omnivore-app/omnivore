@@ -69,8 +69,7 @@ const TOP_LEVEL_TAGS = [
   'H4',
   'H5',
   'H6',
-  'UL',
-  'OL',
+  'LI',
   'CODE',
 ]
 
@@ -312,7 +311,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const dom = parseHTML(content)
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
-    console.log('No HTML body found:', content)
+    console.log('No HTML body found')
     return {
       wordCount: 0,
       language,
@@ -323,7 +322,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
 
   const parsedNodes = parseDomTree(body)
   if (parsedNodes.length < 1) {
-    console.log('No HTML nodes found:', body)
+    console.log('No HTML nodes found')
     return {
       wordCount: 0,
       language,

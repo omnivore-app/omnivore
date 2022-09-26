@@ -1,6 +1,19 @@
 import 'mocha'
 import { expect } from 'chai'
-import { htmlToSsmlItems, stripEmojis } from '../src/htmlToSsml'
+import {
+  htmlToSpeechFile,
+  htmlToSsmlItems,
+  stripEmojis,
+} from '../src/htmlToSsml'
+import * as fs from 'fs'
+import path from 'path'
+
+const TEST_OPTIONS = {
+  primaryVoice: 'test-primary',
+  secondaryVoice: 'test-secondary',
+  language: 'en-US',
+  rate: '1.0',
+}
 
 describe('stripEmojis', () => {
   it('strips emojis from text and removes the extra space', () => {
@@ -20,14 +33,7 @@ describe('stripEmojis', () => {
   })
 })
 
-describe('htmlToSsmlItems', () => {
-  const TEST_OPTIONS = {
-    primaryVoice: 'test-primary',
-    secondaryVoice: 'test-secondary',
-    language: 'en-US',
-    rate: '1.0',
-  }
-
+describe('htmlToSpeechFile', () => {
   describe('a simple html file', () => {
     xit('should convert Html to SSML', () => {
       const ssml = htmlToSsmlItems(
@@ -216,4 +222,19 @@ describe('htmlToSsmlItems', () => {
   //     }
   //   })
   // })
+})
+
+describe('convert HTML to Speech file', () => {
+  it('should convert HTML to many utterances', () => {
+    const html = fs.readFileSync(
+      path.resolve(__dirname, './fixtures/large.html'),
+      { encoding: 'utf-8' }
+    )
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      title: 'test',
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(12)
+  })
 })
