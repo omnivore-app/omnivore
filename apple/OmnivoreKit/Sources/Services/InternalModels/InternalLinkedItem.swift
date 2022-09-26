@@ -25,6 +25,7 @@ struct InternalLinkedItem {
   let isArchived: Bool
   let contentReader: String?
   let originalHtml: String?
+  let language: String?
   var labels: [InternalLinkedItemLabel]
 
   var isPDF: Bool {
@@ -60,6 +61,7 @@ struct InternalLinkedItem {
     linkedItem.isArchived = isArchived
     linkedItem.contentReader = contentReader
     linkedItem.originalHtml = originalHtml
+    linkedItem.language = language
 
     // Remove existing labels in case a label had been deleted
     if let existingLabels = linkedItem.labels {
@@ -130,6 +132,7 @@ extension JSONArticle {
       isArchived: isArchived,
       contentReader: contentReader,
       originalHtml: nil,
+      language: language,
       labels: []
     )
 

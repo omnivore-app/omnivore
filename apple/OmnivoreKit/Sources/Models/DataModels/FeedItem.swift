@@ -16,9 +16,9 @@ public struct LinkedItemAudioProperties {
   public let itemID: String
   public let objectID: NSManagedObjectID
   public let title: String
-  public let author: String?
-  public let siteName: String?
+  public let byline: String?
   public let imageURL: URL?
+  public let language: String?
 }
 
 // Internal model used for parsing a push notification object only
@@ -36,6 +36,7 @@ public struct JSONArticle: Decodable {
   public let contentReader: String
   public let url: String
   public let isArchived: Bool
+  public let language: String?
 }
 
 public extension LinkedItem {
@@ -93,14 +94,29 @@ public extension LinkedItem {
     return String(data: JSON, encoding: .utf8) ?? "[]"
   }
 
+  var formattedByline: String {
+    var byline = ""
+
+    if let author = author {
+      byline += author
+    }
+    if author != nil, publisherDisplayName != nil {
+      byline += " • "
+    }
+    if let publisherDisplayName = publisherDisplayName {
+      byline += publisherDisplayName
+    }
+    return byline
+  }
+
   var audioProperties: LinkedItemAudioProperties {
     LinkedItemAudioProperties(
       itemID: unwrappedID,
       objectID: objectID,
       title: unwrappedTitle,
-      author: author,
-      siteName: siteName,
-      imageURL: imageURL
+      byline: formattedByline,
+      imageURL: imageURL,
+      language: language
     )
   }
 

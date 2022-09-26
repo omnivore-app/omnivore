@@ -9,8 +9,12 @@ import Views
   @Published var item: LinkedItem?
   @Published var errorMessage: String?
 
-  func loadItem(dataService: DataService, requestID: String) async {
-    guard let objectID = try? await dataService.loadItemContentUsingRequestID(requestID: requestID) else { return }
+  func loadItem(dataService: DataService, username: String, requestID: String) async {
+    guard let objectID = try? await dataService.loadItemContentUsingRequestID(username: username,
+                                                                              requestID: requestID)
+    else {
+      return
+    }
     item = dataService.viewContext.object(with: objectID) as? LinkedItem
   }
 
@@ -60,7 +64,13 @@ public struct WebReaderLoadingContainer: View {
       Text(errorMessage)
     } else {
       ProgressView()
-        .task { await viewModel.loadItem(dataService: dataService, requestID: requestID) }
+        .task {
+          if let username = dataService.currentViewer?.username {
+            await viewModel.loadItem(dataService: dataService, username: username, requestID: requestID)
+          } else {
+            viewModel.errorMessage = "You are not logged in."
+          }
+        }
     }
   }
 }
