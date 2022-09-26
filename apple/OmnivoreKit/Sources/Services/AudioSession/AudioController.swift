@@ -525,6 +525,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     return (state == .loading || player?.currentItem == nil || player?.currentItem?.status == .unknown)
   }
 
+  public var isPlaying: Bool {
+    state == .playing
+  }
+
   public func isLoadingItem(itemID: String) -> Bool {
     if state == .reachedEnd {
       return false
@@ -533,7 +537,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   }
 
   public func isPlayingItem(itemID: String) -> Bool {
-    state == .playing && itemAudioProperties?.itemID == itemID
+    itemAudioProperties?.itemID == itemID && isPlaying
   }
 
   public func skipForward(seconds: Double) {

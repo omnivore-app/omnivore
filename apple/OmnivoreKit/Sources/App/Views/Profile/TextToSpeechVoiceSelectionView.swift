@@ -54,7 +54,7 @@ struct TextToSpeechVoiceSelectionView: View {
                 Spacer()
 
                 if voice.selected {
-                  if audioController.isLoading {
+                  if audioController.isPlaying, audioController.isLoading {
                     ProgressView()
                   } else {
                     Image(systemName: "checkmark")

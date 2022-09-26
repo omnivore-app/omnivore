@@ -32,7 +32,7 @@ struct TextToSpeechLanguageView: View {
           Spacer()
 
           if audioController.defaultLanguage == language.key {
-            if audioController.isLoading {
+            if audioController.isPlaying, audioController.isLoading {
               ProgressView()
             } else {
               Image(systemName: "checkmark")
