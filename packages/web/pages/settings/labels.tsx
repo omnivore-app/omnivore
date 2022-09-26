@@ -876,7 +876,7 @@ function DesktopEditCard(props: any) {
           css={{ marginLeft: 'auto', width: '100%' }}
         >
           <Button
-            style="plainIcon"
+            style="ctaOutlineYellow"
             css={{ mr: '12px' }}
             onClick={() => {
               resetState()

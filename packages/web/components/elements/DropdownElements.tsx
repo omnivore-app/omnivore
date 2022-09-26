@@ -62,10 +62,7 @@ export const DropdownContent = styled(Content, {
     '--arrow-top': -13,
   },
   '&[data-align="start"]': {
-    '--arrow-before-left': '9px',
-    '--arrow-before-right': 'auto',
-    '--arrow-after-left': '10px',
-    '--arrow-after-right': 'auto',
+    '--arrow-visibility': 'collapse',
   },
   '&[data-align="center"]': {
     '--arrow-before-left': 'auto',
