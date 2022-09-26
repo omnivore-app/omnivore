@@ -63,7 +63,13 @@ public extension LinkedItem {
   }
 
   var publisherDisplayName: String? {
-    siteName ?? URL(string: publisherURLString ?? pageURLString ?? "")?.host
+    if let siteName = siteName {
+      return siteName
+    }
+    if let host = URL(string: publisherURLString ?? pageURLString ?? "")?.host, host != "storage.googleapis.com" {
+      return host
+    }
+    return nil
   }
 
   var imageURL: URL? {
