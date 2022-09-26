@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.Networker
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.LinkedItem
 import com.apollographql.apollo3.ApolloClient
@@ -56,19 +57,9 @@ class HomeViewModel @Inject constructor(
       searchIdx += 1
       val authToken = getAuthToken()
 
-      val apolloClient = ApolloClient.Builder()
-        .serverUrl("${Constants.apiURL}/api/graphql")
-        .addHttpHeader("Authorization", value = authToken ?: "")
-        .build()
-
-      val response = apolloClient.query(
-        SearchQuery(
-          after = Optional.presentIfNotNull(cursor),
-          first = Optional.presentIfNotNull(15),
-          query = Optional.presentIfNotNull(searchQuery())
-        )
-      ).execute()
-
+      val searchResult = Networker.search(
+        cursor = cursor, query = searchQuery(), authToken = authToken
+      )
 
       // Search results aren't guaranteed to return in order so this
       // will discard old results that are returned while a user is typing.
@@ -79,9 +70,9 @@ class HomeViewModel @Inject constructor(
         return@launch
       }
 
-      cursor = response.data?.search?.onSearchSuccess?.pageInfo?.endCursor
+      cursor = searchResult.data?.search?.onSearchSuccess?.pageInfo?.endCursor
       receivedIdx = thisSearchIdx
-      val itemList = response.data?.search?.onSearchSuccess?.edges ?: listOf()
+      val itemList = searchResult.data?.search?.onSearchSuccess?.edges ?: listOf()
       
       val newItems = itemList.map {
         LinkedItem(
