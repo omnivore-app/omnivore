@@ -1,17 +1,13 @@
-package app.omnivore.omnivore
+package app.omnivore.omnivore.networking
 
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.LinkedItem
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 
-object Networker {
-  fun apolloClient(authToken: String) = ApolloClient.Builder()
-    .serverUrl("${Constants.apiURL}/api/graphql")
-    .addHttpHeader("Authorization", value = authToken)
-    .build()
-}
+data class SearchQueryResponse(
+  val cursor: String?,
+  val items: List<LinkedItem>
+)
 
 suspend fun Networker.search(
   cursor: String? = null,
@@ -56,8 +52,3 @@ suspend fun Networker.search(
 
   return SearchQueryResponse(cursor, items)
 }
-
-data class SearchQueryResponse(
-  val cursor: String?,
-  val items: List<LinkedItem>
-)
