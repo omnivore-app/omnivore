@@ -47,6 +47,8 @@ public enum VoiceCategory: String, CaseIterable {
   case enIN = "English (India)"
   case enSG = "English (Singapore)"
   case enUK = "English (UK)"
+  case deDE = "German (Germany)"
+  case esES = "Spanish (Spain)"
   case jaJP = "Japanese (Japan)"
   case zhCN = "Chinese (China Mainland)"
 }
@@ -69,8 +71,11 @@ private let ENGLISH = VoiceLanguage(key: "en",
 
 public let VOICELANGUAGES = [
   ENGLISH,
+  VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN]),
   VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
-  VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN])
+  VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
+  VoiceLanguage(key: "de", name: "German", defaultVoice: "de-CH-JanNeural", categories: [.deDE]),
+  VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES])
 ]
 
 // swiftlint:disable all
@@ -85,6 +90,11 @@ public let VOICES = [
   VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", language: "en-IE", category: .enIE),
   VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", language: "en-IN", category: .enIN),
   VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", language: "en-SG", category: .enSG),
+
+  VoicePair(firstKey: "es-ES-AlvaroNeural", secondKey: "es-ES-ElviraNeural", firstName: "Alvaro", secondName: "Elvira", language: "es-ES", category: .esES),
+  VoicePair(firstKey: "de-CH-LeniNeural", secondKey: "de-DE-KatjaNeural", firstName: "Leni", secondName: "Katja", language: "de-DE", category: .deDE),
+  VoicePair(firstKey: "de-DE-AmalaNeural", secondKey: "de-DE-BerndNeural", firstName: "Amala", secondName: "Bernd", language: "de-DE", category: .deDE),
+  VoicePair(firstKey: "de-DE-ChristophNeural", secondKey: "de-DE-LouisaNeural", firstName: "Christoph", secondName: "Louisa", language: "de-DE", category: .deDE),
 
   // ja
   VoicePair(firstKey: "ja-JP-NanamiNeural", secondKey: "ja-JP-KeitaNeural", firstName: "Nanami", secondName: "Keita", language: "ja-JP", category: .jaJP),

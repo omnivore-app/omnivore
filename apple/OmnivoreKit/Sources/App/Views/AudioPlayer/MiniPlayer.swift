@@ -311,7 +311,6 @@ public struct MiniPlayer: View {
             Menu {
               Button("View Article", action: { viewArticle() })
               Button("Change Voice", action: { showVoiceSheet = true })
-              Button("Change Language", action: { showLanguageSheet = true })
             } label: {
               VStack {
                 Image(systemName: "ellipsis")
