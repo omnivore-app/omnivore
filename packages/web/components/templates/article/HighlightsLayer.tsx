@@ -349,11 +349,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           }
           break
         case 'share':
+          const message = {
+            actionID: 'share',
+            highlightID: focusedHighlight?.id,
+          }
+
           if (props.isAppleAppEmbed) {
-            const message = {
-              actionID: 'share',
-              highlightID: focusedHighlight?.id,
-            }
             window?.webkit?.messageHandlers.highlightAction?.postMessage(
               message
             )
