@@ -22,6 +22,7 @@ interface NewsletterMessage {
   unsubMailTo?: string
   unsubHttpUrl?: string
   newsletterEmail?: NewsletterEmail
+  icon?: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -71,14 +72,15 @@ export const saveNewsletterEmail = async (
   }
 
   // creates or updates subscription
-  const subscription = await saveSubscription(
-    newsletterEmail.user.id,
-    data.author,
-    newsletterEmail.address,
-    data.unsubMailTo,
-    data.unsubHttpUrl
-  )
-  console.log('subscription', subscription)
+  const subscription = await saveSubscription({
+    userId: newsletterEmail.user.id,
+    name: data.author,
+    newsletterEmail: newsletterEmail.address,
+    unsubscribeMailTo: data.unsubMailTo,
+    unsubscribeHttpUrl: data.unsubHttpUrl,
+    icon: data.icon,
+  })
+  console.log('subscription saved', subscription)
 
   // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {

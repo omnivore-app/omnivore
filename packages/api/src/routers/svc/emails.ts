@@ -28,6 +28,7 @@ interface ForwardEmailMessage {
   unsubHttpUrl?: string
   text?: string
   forwardedFrom?: string
+  icon?: string
 }
 
 const logger = buildLogger('app.dispatch')
@@ -92,6 +93,7 @@ export function emailsServiceRouter() {
             unsubMailTo: data.unsubMailTo,
             unsubHttpUrl: data.unsubHttpUrl,
             newsletterEmail,
+            icon: data.icon,
           },
           ctx
         )
