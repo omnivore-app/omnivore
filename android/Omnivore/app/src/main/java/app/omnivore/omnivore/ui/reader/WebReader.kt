@@ -28,7 +28,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
   if (webReaderParams != null) {
     WebReader(webReaderParams!!, webReaderViewModel)
   } else {
-    // TODO: add a proper loading view
+    // TODO: add a proper loading viewhandleIncomingWebMessage
     Text("Loading...")
   }
 }
@@ -143,9 +143,9 @@ class OmnivoreWebView(context: Context) : WebView(context) {
   }
 }
 
-class AndroidWebKitMessenger(val messageHandler: (String, JSONObject) -> Unit) {
+class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
   @JavascriptInterface
   fun handleIdentifiableMessage(actionID: String, jsonString: String) {
-    messageHandler(actionID, JSONObject(jsonString))
+    messageHandler(actionID, jsonString)
   }
 }

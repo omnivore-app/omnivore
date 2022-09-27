@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.networking.createHighlight
 import app.omnivore.omnivore.networking.linkedItem
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,32 +46,34 @@ class WebReaderViewModel @Inject constructor(
     }
   }
 
-  fun handleIncomingWebMessage(actionID: String, json: JSONObject) {
+  fun handleIncomingWebMessage(actionID: String, jsonString: String) {
     when (actionID) {
       "createHighlight" -> {
-        Log.d("Loggo", "receive create highlight action: $json")
+        viewModelScope.launch {
+          networker.createHighlight(jsonString)
+        }
       }
       "deleteHighlight" -> {
         // { highlightId }
-        Log.d("Loggo", "receive delete highlight action: $json")
+        Log.d("Loggo", "receive delete highlight action: $jsonString")
       }
       "updateHighlight" -> {
-        Log.d("Loggo", "receive update highlight action: $json")
+        Log.d("Loggo", "receive update highlight action: $jsonString")
       }
       "articleReadingProgress" -> {
-        Log.d("Loggo", "received article reading progress action: $json")
+        Log.d("Loggo", "received article reading progress action: $jsonString")
       }
       "annotate" -> {
-        Log.d("Loggo", "received annotate action: $json")
+        Log.d("Loggo", "received annotate action: $jsonString")
       }
       "existingHighlightTap" -> {
-        Log.d("Loggo", "receive existing highlight tap action: $json")
+        Log.d("Loggo", "receive existing highlight tap action: $jsonString")
       }
       "shareHighlight" -> {
         // unimplemented
       }
       else -> {
-        Log.d("Loggo", "receive unrecognized action of $actionID with json: $json")
+        Log.d("Loggo", "receive unrecognized action of $actionID with json: $jsonString")
       }
     }
   }
