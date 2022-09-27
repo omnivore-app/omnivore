@@ -53,6 +53,7 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
         highlightedIndex,
         inputValue,
         clearSelection,
+        openMenu,
       }) => (
         <VStack
           alignment="start"
@@ -85,6 +86,12 @@ export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
                 tabIndex={0}
                 value={inputValue}
                 placeholder="Search"
+                onFocus={(event: any) => {
+                  event.preventDefault()
+                  openMenu()
+                  //props.applySearchQuery('')
+                  // inputRef.current?.blur()
+                }}
                 onChange={(event: any) => {
                   event.preventDefault()
                 }}
