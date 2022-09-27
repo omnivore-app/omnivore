@@ -1,4 +1,10 @@
-import { useEffect, useRef, useCallback, useState, MutableRefObject } from 'react'
+import {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  MutableRefObject,
+} from 'react'
 import { makeHighlightStartEndOffset } from '../../../lib/highlights/highlightGenerator'
 import type { HighlightLocation } from '../../../lib/highlights/highlightGenerator'
 import { useSelection } from '../../../lib/highlights/useSelection'
@@ -30,7 +36,6 @@ type HighlightsLayerProps = {
   scrollToHighlight: MutableRefObject<string | null>
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
-
 }
 
 type HighlightModalAction = 'none' | 'addComment' | 'share'
@@ -88,7 +93,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     // that now that all the content has been injected into the
     // page.
     if (props.scrollToHighlight.current) {
-      const anchorElement = document.querySelector(`[omnivore-highlight-id="${props.scrollToHighlight.current}"]`)
+      const anchorElement = document.querySelector(
+        `[omnivore-highlight-id="${props.scrollToHighlight.current}"]`
+      )
       if (anchorElement) {
         anchorElement.scrollIntoView({ behavior: 'auto' })
       }
@@ -100,7 +107,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       const highlightId = id || focusedHighlight?.id
       if (!highlightId) return
 
-      const didDeleteHighlight = await props.articleMutations.deleteHighlightMutation(highlightId)
+      const didDeleteHighlight =
+        await props.articleMutations.deleteHighlightMutation(highlightId)
 
       if (didDeleteHighlight) {
         removeHighlights(
@@ -154,6 +162,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           actionID: 'annotate',
           annotation: inputs.highlight?.annotation ?? '',
         })
+      } else if (typeof window?.AndroidWebKitMessenger != 'undefined') {
+        window.AndroidWebKitMessenger.handleIdentifiableMessage(
+          'annotate',
+          JSON.stringify({ annotation: inputs.highlight?.annotation ?? '' })
+        )
       } else {
         inputs.createHighlightForNote = async (note?: string) => {
           if (!inputs.selectionData) {
@@ -171,13 +184,16 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     selection: SelectionAttributes,
     note?: string
   ): Promise<Highlight | undefined> => {
-    const result = await createHighlight({
-      selection: selection,
-      articleId: props.articleId,
-      existingHighlights: highlights,
-      highlightStartEndOffsets: highlightLocations,
-      annotation: note,
-    }, props.articleMutations)
+    const result = await createHighlight(
+      {
+        selection: selection,
+        articleId: props.articleId,
+        existingHighlights: highlights,
+        highlightStartEndOffsets: highlightLocations,
+        annotation: note,
+      },
+      props.articleMutations
+    )
 
     if (!result.highlights || result.highlights.length == 0) {
       // TODO: show an error message
@@ -235,16 +251,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   )
 
   const scrollToHighlight = (id: string) => {
-    const foundElement = document.querySelector(`[omnivore-highlight-id="${id}"]`)
-    if(foundElement){
-         foundElement.scrollIntoView({
-            block: 'center',
-            behavior: 'smooth'
-          })
-          window.location.hash = `#${id}`
-          props.setShowHighlightsModal(false)
-        }
-      }
+    const foundElement = document.querySelector(
+      `[omnivore-highlight-id="${id}"]`
+    )
+    if (foundElement) {
+      foundElement.scrollIntoView({
+        block: 'center',
+        behavior: 'smooth',
+      })
+      window.location.hash = `#${id}`
+      props.setShowHighlightsModal(false)
+    }
+  }
 
   // Detect mouseclick on a highlight -- call `setFocusedHighlight` when highlight detected
   const handleClickHighlight = useCallback(
@@ -269,13 +287,20 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           // In the native app we post a message with the rect of the
           // highlight, so the app can display a native menu
           const rect = (target as Element).getBoundingClientRect()
-          window?.webkit?.messageHandlers.viewerAction?.postMessage({
-            actionID: 'showMenu',
+          const message = {
             rectX: rect.x,
             rectY: rect.y,
             rectWidth: rect.width,
             rectHeight: rect.height,
+          }
+          window?.webkit?.messageHandlers.viewerAction?.postMessage({
+            actionID: 'showMenu',
+            ...message,
           })
+          window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
+            'existingHighlightTap',
+            JSON.stringify(message)
+          )
           setFocusedHighlight(highlight)
         }
       } else if ((target as Element).hasAttribute(highlightNoteIdAttribute)) {
@@ -326,12 +351,18 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           break
         case 'share':
           if (props.isAppleAppEmbed) {
-            // send action to native app (naive app doesn't handle this yet so it's a no-op)
             window?.webkit?.messageHandlers.highlightAction?.postMessage({
               actionID: 'share',
               highlightID: focusedHighlight?.id,
             })
           }
+
+          window?.AndroidWebKitMessenger?.handleIdentifiableMessage(
+            'shareHighlight',
+            JSON.stringify({
+              highlightID: focusedHighlight?.id,
+            })
+          )
 
           if (focusedHighlight) {
             if (canShareNative) {
@@ -392,7 +423,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
 
     const speakingSection = async (event: SpeakingSectionEvent) => {
-      const item = document.querySelector(`[data-omnivore-anchor-idx="${event.anchorIdx}"]`)
+      const item = document.querySelector(
+        `[data-omnivore-anchor-idx="${event.anchorIdx}"]`
+      )
       const otherItems = document.querySelectorAll('.speakingSection')
       otherItems.forEach((other) => {
         if (other != item) {
@@ -435,7 +468,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     document.addEventListener('saveAnnotation', saveAnnotation)
     document.addEventListener('speakingSection', speakingSection)
 
-
     return () => {
       document.removeEventListener('annotate', annotate)
       document.removeEventListener('highlight', highlight)
@@ -445,7 +477,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       document.removeEventListener('dismissHighlight', dismissHighlight)
       document.removeEventListener('saveAnnotation', saveAnnotation)
       document.removeEventListener('speakingSection', speakingSection)
-
     }
   })
 
