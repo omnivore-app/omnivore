@@ -55,7 +55,7 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 
 function ssmlTagsForTopLevelElement() {
   return {
-    opening: `<break time="500ms"/>`,
+    opening: `<break time="250ms"/>`,
   }
 }
 
