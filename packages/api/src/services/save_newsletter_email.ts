@@ -22,6 +22,7 @@ interface NewsletterMessage {
   unsubMailTo?: string
   unsubHttpUrl?: string
   newsletterEmail?: NewsletterEmail
+  icon?: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -33,7 +34,6 @@ export const saveNewsletterEmail = async (
   // get user from newsletter email
   const newsletterEmail =
     data.newsletterEmail || (await getNewsletterEmail(data.email))
-
   if (!newsletterEmail) {
     console.log('newsletter email not found', data.email)
     return false
@@ -54,7 +54,6 @@ export const saveNewsletterEmail = async (
     pubsub: createPubSubClient(),
     uid: newsletterEmail.user.id,
   }
-
   const input: SaveEmailInput = {
     url: data.url,
     originalContent: data.content,
@@ -63,7 +62,6 @@ export const saveNewsletterEmail = async (
     unsubMailTo: data.unsubMailTo,
     unsubHttpUrl: data.unsubHttpUrl,
   }
-
   const page = await saveEmail(saveCtx, input)
   if (!page) {
     console.log('newsletter not created:', input)
@@ -77,7 +75,7 @@ export const saveNewsletterEmail = async (
     newsletterEmail: newsletterEmail.address,
     unsubscribeMailTo: data.unsubMailTo,
     unsubscribeHttpUrl: data.unsubHttpUrl,
-    icon: page.image,
+    icon: page.siteIcon,
   })
   console.log('subscription saved', subscription)
 
