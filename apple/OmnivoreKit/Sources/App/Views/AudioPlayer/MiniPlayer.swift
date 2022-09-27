@@ -210,28 +210,15 @@ public struct MiniPlayer: View {
         Spacer()
 
         if expanded {
-          Text(itemAudioProperties.title)
-            .lineLimit(1)
-            .font(expanded ? .appTitle : .appCallout)
-            .lineSpacing(1.25)
+          Marquee(text: itemAudioProperties.title, font: UIFont(name: "Inter-Regular", size: 22)!)
             .foregroundColor(.appGrayTextContrast)
-            .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
-            .matchedGeometryEffect(id: "ArticleTitle", in: animation)
             .onTapGesture {
               viewArticle()
             }
 
-          HStack {
-            Spacer()
-            if let byline = itemAudioProperties.byline {
-              Text(byline)
-                .lineLimit(1)
-                .font(.appCallout)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-                .frame(alignment: .trailing)
-            }
-            Spacer()
+          if let byline = itemAudioProperties.byline {
+            Marquee(text: byline, font: UIFont(name: "Inter-Regular", size: 16)!)
+              .foregroundColor(.appGrayText)
           }
 
           Slider(value: $audioController.timeElapsed,
