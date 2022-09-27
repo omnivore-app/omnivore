@@ -22,7 +22,6 @@ interface NewsletterMessage {
   unsubMailTo?: string
   unsubHttpUrl?: string
   newsletterEmail?: NewsletterEmail
-  icon?: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -78,7 +77,7 @@ export const saveNewsletterEmail = async (
     newsletterEmail: newsletterEmail.address,
     unsubscribeMailTo: data.unsubMailTo,
     unsubscribeHttpUrl: data.unsubHttpUrl,
-    icon: data.icon,
+    icon: page.image,
   })
   console.log('subscription saved', subscription)
 
