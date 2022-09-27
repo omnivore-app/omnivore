@@ -304,7 +304,7 @@ public struct MiniPlayer: View {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
       }.sheet(isPresented: $showVoiceSheet) {
         NavigationView {
-          TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage)
+          TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage, showLanguageChanger: true)
             .navigationBarTitle("Voice")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
