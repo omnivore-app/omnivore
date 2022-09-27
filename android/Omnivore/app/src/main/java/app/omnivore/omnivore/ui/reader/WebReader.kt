@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
 import org.json.JSONObject
@@ -37,6 +39,8 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
+  val javascriptToExecute = remember { mutableStateOf<String?>(null) }
+
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
 
   WebView.setWebContentsDebuggingEnabled(true)
@@ -81,25 +85,23 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
           "text/html; charset=utf-8",
           "utf-8",
           null
-        );
-
+        )
       }
     }, update = {
-      it.loadDataWithBaseURL(
-        "file:///android_asset/",
-        styledContent,
-        "text/html; charset=utf-8",
-        "utf-8",
-        null
-      );
+      if (javascriptToExecute.value != null) {
+        it.evaluateJavascript(javascriptToExecute.value!!, null)
+      }
     })
 
     if (annotation != null) {
       AnnotationEditView(
         initialAnnotation = annotation!!,
-        onSave = { Log.d("Loggo", "Saving annotation: $it") },
+        onSave = {
+          val script = "var event = new Event('saveAnnotation');event.annotation = '$it';document.dispatchEvent(event);"
+          javascriptToExecute.value = script
+          webReaderViewModel.cancelAnnotationEdit()
+        },
         onCancel = {
-          Log.d("Loggo", "Cancelling annotation")
           webReaderViewModel.cancelAnnotationEdit()
         }
       )
