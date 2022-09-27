@@ -33,14 +33,14 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
           display: 'grid',
           gridTemplateColumns: '0.01fr 1fr 2fr 150px',
           gridTemplateRows: '1fr',
-          borderBottom: '1px solid $graySolid',
+          borderBottom: '1px solid $graySeparator',
           height: '45px',
         }}
       >
         <ProgressBarVertical
           fillPercentage={props.item.readingProgressPercent}
           fillColor={theme.colors.highlight.toString()}
-          backgroundColor={theme.colors.lightBorder.toString()}
+          backgroundColor={theme.colors.grayProgressBackground.toString()}
           borderRadius={
             props.item.readingProgressPercent === 100 ? '0' : '0px 8px 8px 0px'
           }
@@ -86,7 +86,8 @@ function CardTitle(props: CardTitleProps): JSX.Element {
       data-testid="listTitle"
       css={{
         ...ellipsisText,
-        fontSize: '18px',
+        fontSize: '14px',
+        fontWeight: '600',
         textAlign: 'left',
       }}
     >

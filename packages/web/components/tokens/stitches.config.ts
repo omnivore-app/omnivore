@@ -125,6 +125,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayLine: 'hsl(0 0% 88.7%)',
         grayBorderHover: 'hsl(0 0% 78.0%)',
         grayText: '#3B3938',
+        graySeparator: '#DADADA',
+        grayProgressBackground: '#FFFFFF',
 
         // Semantic Colors
         highlightBackground: 'rgba(255, 210, 52, 0.65)',
@@ -196,6 +198,8 @@ const darkThemeSpec = {
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
     grayText: '#CDCDCD',
+    graySeparator: '#323232',
+    grayProgressBackground: '#616161',
 
     // Semantic Colors
     highlightBackground: '#867740',
