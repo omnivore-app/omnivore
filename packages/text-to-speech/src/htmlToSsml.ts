@@ -55,7 +55,7 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
 
 function ssmlTagsForTopLevelElement() {
   return {
-    opening: `<break />`,
+    opening: `<break time="250ms"/>`,
   }
 }
 
@@ -170,7 +170,7 @@ function emitElement(
       const cleanedText = cleanTextNode(child)
       if (idx && cleanedText.length > 1) {
         // Make sure it's more than just a space
-        emit(textItems, `<bookmark mark="${idx}" />`)
+        emit(textItems, `<bookmark mark="${idx}"/>`)
       }
       emitTextNode(textItems, cleanedText, child)
     }
