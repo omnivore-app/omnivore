@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.networking.CreateHighlightParams
 import app.omnivore.omnivore.networking.Networker
 import app.omnivore.omnivore.networking.createHighlight
 import app.omnivore.omnivore.networking.linkedItem
@@ -20,12 +21,17 @@ data class WebReaderParams(
   val articleContent: ArticleContent
 )
 
+data class AnnotationWebViewMessage(
+  val annotation: String?
+)
+
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val networker: Networker
 ): ViewModel() {
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
+  val annotationLiveData = MutableLiveData<String?>(null)
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
@@ -50,7 +56,8 @@ class WebReaderViewModel @Inject constructor(
     when (actionID) {
       "createHighlight" -> {
         viewModelScope.launch {
-          networker.createHighlight(jsonString)
+          val isHighlightSynced = networker.createHighlight(jsonString)
+          Log.d("Network", "isHighlightSynced = $isHighlightSynced")
         }
       }
       "deleteHighlight" -> {
@@ -64,7 +71,12 @@ class WebReaderViewModel @Inject constructor(
         Log.d("Loggo", "received article reading progress action: $jsonString")
       }
       "annotate" -> {
-        Log.d("Loggo", "received annotate action: $jsonString")
+        viewModelScope.launch {
+          val annotation = Gson()
+            .fromJson(jsonString, AnnotationWebViewMessage::class.java)
+            .annotation ?: ""
+          annotationLiveData.value = annotation
+        }
       }
       "existingHighlightTap" -> {
         Log.d("Loggo", "receive existing highlight tap action: $jsonString")
@@ -80,5 +92,10 @@ class WebReaderViewModel @Inject constructor(
 
   fun reset() {
     webReaderParamsLiveData.value = null
+    annotationLiveData.value = null
+  }
+
+  fun cancelAnnotationEdit() {
+    annotationLiveData.value = null
   }
 }

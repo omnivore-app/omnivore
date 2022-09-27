@@ -8,6 +8,7 @@ import android.view.*
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +29,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
   if (webReaderParams != null) {
     WebReader(webReaderParams!!, webReaderViewModel)
   } else {
-    // TODO: add a proper loading viewhandleIncomingWebMessage
+    // TODO: add a proper loading view
     Text("Loading...")
   }
 }
@@ -36,6 +37,8 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
+  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
+
   WebView.setWebContentsDebuggingEnabled(true)
 
   val webReaderContent = WebReaderContent(
@@ -51,32 +54,57 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
 
   val styledContent = webReaderContent.styledContent()
 
-  AndroidView(factory = {
-    OmnivoreWebView(it).apply {
-      layoutParams = ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT
+  Box {
+    AndroidView(factory = {
+      OmnivoreWebView(it).apply {
+        layoutParams = ViewGroup.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT,
+          ViewGroup.LayoutParams.MATCH_PARENT
+        )
+
+        settings.javaScriptEnabled = true
+        settings.allowContentAccess = true
+        settings.allowFileAccess = true
+        settings.domStorageEnabled = true
+
+        webViewClient = object : WebViewClient() {
+        }
+
+        val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
+          webReaderViewModel.handleIncomingWebMessage(actionID, json)
+        }
+
+        addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
+        loadDataWithBaseURL(
+          "file:///android_asset/",
+          styledContent,
+          "text/html; charset=utf-8",
+          "utf-8",
+          null
+        );
+
+      }
+    }, update = {
+      it.loadDataWithBaseURL(
+        "file:///android_asset/",
+        styledContent,
+        "text/html; charset=utf-8",
+        "utf-8",
+        null
+      );
+    })
+
+    if (annotation != null) {
+      AnnotationEditView(
+        initialAnnotation = annotation!!,
+        onSave = { Log.d("Loggo", "Saving annotation: $it") },
+        onCancel = {
+          Log.d("Loggo", "Cancelling annotation")
+          webReaderViewModel.cancelAnnotationEdit()
+        }
       )
-
-      settings.javaScriptEnabled = true
-      settings.allowContentAccess = true
-      settings.allowFileAccess = true
-      settings.domStorageEnabled = true
-
-      webViewClient = object : WebViewClient() {
-      }
-
-      val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
-        webReaderViewModel.handleIncomingWebMessage(actionID, json)
-      }
-
-      addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
-      loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
-
     }
-  }, update = {
-    it.loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
-  })
+  }
 }
 
 class OmnivoreWebView(context: Context) : WebView(context) {
@@ -97,7 +125,9 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
       return when (item.itemId) {
         R.id.annotate -> {
-          Log.d("Loggo", "Annotate action selected")
+          val script = "var event = new Event('annotate');document.dispatchEvent(event);"
+          evaluateJavascript(script, null) // Maybe this one isn't needed?
+          // TODO: open note modal
           mode.finish()
           true
         }

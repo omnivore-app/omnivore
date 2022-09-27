@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.networking
 
+import android.util.Log
 import app.omnivore.omnivore.graphql.generated.CreateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import com.apollographql.apollo3.api.Optional
@@ -23,10 +24,13 @@ data class CreateHighlightParams(
   )
 }
 
-suspend fun Networker.createHighlight(jsonString: String) {
+suspend fun Networker.createHighlight(jsonString: String): Boolean {
   val input = Gson().fromJson(jsonString, CreateHighlightParams::class.java).asCreateHighlightInput()
 
-  authenticatedApolloClient().mutation(
-    CreateHighlightMutation(input)
-  ).execute()
+  Log.d("Loggo", "created highlight input: $input")
+
+  val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
+
+  val highlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
+  return highlight != null
 }
