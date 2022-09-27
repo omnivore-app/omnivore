@@ -192,11 +192,11 @@ public struct MiniPlayer: View {
 
           if !expanded {
             Text(itemAudioProperties.title)
-              .font(expanded ? .appTitle : .appCallout)
+              .font(.appCallout)
               .lineSpacing(1.25)
               .foregroundColor(.appGrayTextContrast)
               .fixedSize(horizontal: false, vertical: false)
-              .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
+              .frame(maxWidth: .infinity, alignment: .leading)
               .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
             playPauseButtonItem
@@ -221,31 +221,15 @@ public struct MiniPlayer: View {
               .foregroundColor(.appGrayText)
           }
 
-          Slider(value: $audioController.timeElapsed,
-                 in: 0 ... self.audioController.duration,
-                 onEditingChanged: { scrubStarted in
-                   if scrubStarted {
-                     self.audioController.scrubState = .scrubStarted
-                   } else {
-                     self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
-                   }
-                 })
-            .accentColor(.appCtaYellow)
-            .introspectSlider { slider in
-              // Make the thumb a little smaller than the default and give it the CTA color
-              // for some reason this doesn't work on my iPad though.
-              let tintColor = UIColor(Color.appCtaYellow)
-
-              let image = UIImage(systemName: "circle.fill",
-                                  withConfiguration: UIImage.SymbolConfiguration(scale: .small))?
-                .withTintColor(tintColor)
-                .withRenderingMode(.alwaysOriginal)
-
-              slider.setThumbImage(image, for: .selected)
-              slider.setThumbImage(image, for: .normal)
-
-              slider.minimumTrackTintColor = tintColor
-            }
+          ScrubberView(value: $audioController.timeElapsed,
+                       minValue: 0, maxValue: self.audioController.duration,
+                       onEditingChanged: { scrubStarted in
+                         if scrubStarted {
+                           self.audioController.scrubState = .scrubStarted
+                         } else {
+                           self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
+                         }
+                       })
 
           HStack {
             Text(audioController.timeElapsedString ?? "0:00")
