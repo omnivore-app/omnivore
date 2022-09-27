@@ -1485,6 +1485,7 @@ type SubscribeSuccess {
 type Subscription {
   createdAt: Date!
   description: String
+  icon: String
   id: ID!
   name: String!
   newsletterEmail: String!

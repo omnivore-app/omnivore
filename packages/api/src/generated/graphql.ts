@@ -1987,6 +1987,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   newsletterEmail: Scalars['String'];
@@ -4368,6 +4369,7 @@ export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType 
 export type SubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
+  icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
   newsletterEmail?: SubscriptionResolver<ResolversTypes['String'], "newsletterEmail", ParentType, ContextType>;

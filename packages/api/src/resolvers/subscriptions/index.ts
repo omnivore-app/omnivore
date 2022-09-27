@@ -23,6 +23,7 @@ import { User } from '../../entity/user'
 import { Subscription } from '../../entity/subscription'
 import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
 import { ILike } from 'typeorm'
+import { createImageProxyUrl } from '../../utils/imageproxy'
 
 export const subscriptionsResolver = authorized<
   SubscriptionsSuccess,
@@ -57,7 +58,10 @@ export const subscriptionsResolver = authorized<
     })
 
     return {
-      subscriptions,
+      subscriptions: subscriptions.map((s) => ({
+        ...s,
+        icon: s.icon && createImageProxyUrl(s.icon, 260, 260),
+      })),
     }
   } catch (error) {
     log.error(error)
