@@ -10,6 +10,7 @@ apple_extension_gen:
 droid:
 	studio android/Omnivore
 
-apple_webview_gen:
+webview_gen:
 	yarn workspace @omnivore/appreader build
 	cp packages/appreader/build/bundle.js apple/OmnivoreKit/Sources/Views/Resources/bundle.js
+	cp packages/appreader/build/bundle.js android/Omnivore/app/src/main/assets/bundle.js

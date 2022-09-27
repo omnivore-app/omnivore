@@ -3,21 +3,16 @@ package app.omnivore.omnivore.ui.home
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.Constants
-import app.omnivore.omnivore.DatastoreKeys
-import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.LinkedItem
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Optional
+import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.networking.search
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-  private val datastoreRepo: DatastoreRepository
+  private val networker: Networker
 ): ViewModel() {
   private var cursor: String? = null
   private var items: List<LinkedItem> = listOf()
@@ -31,10 +26,6 @@ class HomeViewModel @Inject constructor(
   // Live Data
   val searchTextLiveData = MutableLiveData<String>("")
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
-
-  private fun getAuthToken(): String? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
-  }
 
   fun updateSearchText(text: String) {
     searchTextLiveData.value = text
@@ -54,21 +45,9 @@ class HomeViewModel @Inject constructor(
     viewModelScope.launch {
       val thisSearchIdx = searchIdx
       searchIdx += 1
-      val authToken = getAuthToken()
 
-      val apolloClient = ApolloClient.Builder()
-        .serverUrl("${Constants.apiURL}/api/graphql")
-        .addHttpHeader("Authorization", value = authToken ?: "")
-        .build()
-
-      val response = apolloClient.query(
-        SearchQuery(
-          after = Optional.presentIfNotNull(cursor),
-          first = Optional.presentIfNotNull(15),
-          query = Optional.presentIfNotNull(searchQuery())
-        )
-      ).execute()
-
+      // Execute the search
+      val searchResult = networker.search(cursor = cursor, query = searchQuery())
 
       // Search results aren't guaranteed to return in order so this
       // will discard old results that are returned while a user is typing.
@@ -79,40 +58,15 @@ class HomeViewModel @Inject constructor(
         return@launch
       }
 
-      cursor = response.data?.search?.onSearchSuccess?.pageInfo?.endCursor
       receivedIdx = thisSearchIdx
-      val itemList = response.data?.search?.onSearchSuccess?.edges ?: listOf()
-      
-      val newItems = itemList.map {
-        LinkedItem(
-          id = it.node.id,
-          title = it.node.title,
-          createdAt = it.node.createdAt,
-          savedAt = it.node.savedAt,
-          readAt = it.node.readAt,
-          updatedAt = it.node.updatedAt,
-          readingProgress = it.node.readingProgressPercent,
-          readingProgressAnchor = it.node.readingProgressAnchorIndex,
-          imageURLString = it.node.image,
-          pageURLString = it.node.url,
-          descriptionText = it.node.description,
-          publisherURLString = it.node.originalArticleUrl,
-          siteName = it.node.siteName,
-          author = it.node.author,
-          publishDate = it.node.publishedAt,
-          slug = it.node.slug,
-          isArchived = it.node.isArchived,
-          contentReader = it.node.contentReader.rawValue,
-          content = null
-        )
-      }
+      cursor = searchResult.cursor
 
       if (searchTextLiveData.value != "") {
         val previousItems = if (clearPreviousSearch) listOf() else searchedItems
-        searchedItems = previousItems.plus(newItems)
+        searchedItems = previousItems.plus(searchResult.items)
         itemsLiveData.value = searchedItems
       } else {
-        items = items.plus(newItems)
+        items = items.plus(searchResult.items)
         itemsLiveData.value = items
       }
     }
@@ -128,4 +82,3 @@ class HomeViewModel @Inject constructor(
       return query
   }
 }
-

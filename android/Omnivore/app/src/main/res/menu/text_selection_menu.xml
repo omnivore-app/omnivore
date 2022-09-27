@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/highlight"
+        android:title="@string/highlight_menu_action"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/annotate"
+        android:title="@string/annotate_menu_action"
+        app:showAsAction="always">
+    </item>
+</menu>

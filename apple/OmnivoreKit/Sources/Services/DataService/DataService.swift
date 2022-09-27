@@ -188,7 +188,7 @@ public final class DataService: ObservableObject {
 
       do {
         try self.backgroundContext.save()
-        logger.debug("ArticleContent saved succesfully")
+        logger.debug("local ArticleContent saved succesfully")
         objectID = linkedItem.objectID
       } catch {
         self.backgroundContext.rollback()
