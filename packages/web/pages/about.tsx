@@ -31,7 +31,7 @@ export default function LandingPage(): JSX.Element {
       <LandingHeader />
       <VStack css={{ background: '#FEFCF5', color: '#3D3D3D' }}>
         <VStack css={mobileContainerStyles}>
-          <Box css={headingStyles}>A read it later app for serious readers.</Box>
+          <Box css={headingStyles}>A read-it-later app for serious readers.</Box>
           <Box css={subHeadingStyles}>
             Omnivore is a privacy focused, open-source read-it-later app.
             Use it to save interesting articles and read distraction free.
