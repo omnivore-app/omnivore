@@ -79,6 +79,7 @@ export function Article(props: ArticleProps): JSX.Element {
   }, [props.articleId, readingProgress])
 
   // Post message to webkit so apple app embeds get progress updates
+  // TODO: verify if ios still needs this code...seeems to be duplicated
   useEffect(() => {
     if (typeof window?.webkit != 'undefined') {
       window.webkit.messageHandlers.readingProgressUpdate?.postMessage({
@@ -87,18 +88,15 @@ export function Article(props: ArticleProps): JSX.Element {
     }
   }, [readingProgress])
 
-  useScrollWatcher(
-    (changeset: ScrollOffsetChangeset) => {
-      if (window && window.document.scrollingElement) {
-        const newReadingProgress =
-          window.scrollY / window.document.scrollingElement.scrollHeight
-        const adjustedReadingProgress =
-          newReadingProgress > 0.92 ? 1 : newReadingProgress
-        debouncedSetReadingProgress(adjustedReadingProgress * 100)
-      }
-    },
-    1000
-  )
+  useScrollWatcher((changeset: ScrollOffsetChangeset) => {
+    if (window && window.document.scrollingElement) {
+      const newReadingProgress =
+        window.scrollY / window.document.scrollingElement.scrollHeight
+      const adjustedReadingProgress =
+        newReadingProgress > 0.92 ? 1 : newReadingProgress
+      debouncedSetReadingProgress(adjustedReadingProgress * 100)
+    }
+  }, 1000)
 
   const layoutImages = useCallback(
     (image: HTMLImageElement, container: HTMLDivElement | null) => {
@@ -127,46 +125,46 @@ export function Article(props: ArticleProps): JSX.Element {
     if (typeof window === 'undefined') {
       return
     }
-      if (!shouldScrollToInitialPosition) {
-        return
-      }
+    if (!shouldScrollToInitialPosition) {
+      return
+    }
 
-      setShouldScrollToInitialPosition(false)
+    setShouldScrollToInitialPosition(false)
 
-      // If we are scrolling to a highlight, dont scroll to read position
-      if (props.highlightHref.current) {
-        return
-      }
+    // If we are scrolling to a highlight, dont scroll to read position
+    if (props.highlightHref.current) {
+      return
+    }
 
-      if (props.initialReadingProgress && props.initialReadingProgress >= 98) {
-        return
-      }
+    if (props.initialReadingProgress && props.initialReadingProgress >= 98) {
+      return
+    }
 
-      const anchorElement = props.highlightHref.current
-        ? document.querySelector(
-            `[omnivore-highlight-id="${props.highlightHref.current}"]`
-          )
-        : document.querySelector(
-            `[data-omnivore-anchor-idx='${props.initialAnchorIndex.toString()}']`
-          )
+    const anchorElement = props.highlightHref.current
+      ? document.querySelector(
+          `[omnivore-highlight-id="${props.highlightHref.current}"]`
+        )
+      : document.querySelector(
+          `[data-omnivore-anchor-idx='${props.initialAnchorIndex.toString()}']`
+        )
 
-      if (anchorElement) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const calculateOffset = (obj: any): number => {
-          let offset = 0
-          if (obj.offsetParent) {
-            do {
-              offset += obj.offsetTop
-            } while ((obj = obj.offsetParent))
-            return offset
-          }
-
-          return 0
+    if (anchorElement) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const calculateOffset = (obj: any): number => {
+        let offset = 0
+        if (obj.offsetParent) {
+          do {
+            offset += obj.offsetTop
+          } while ((obj = obj.offsetParent))
+          return offset
         }
 
-        const calculatedOffset = calculateOffset(anchorElement)
-        window.document.documentElement.scroll(0, calculatedOffset - 100)
+        return 0
       }
+
+      const calculatedOffset = calculateOffset(anchorElement)
+      window.document.documentElement.scroll(0, calculatedOffset - 100)
+    }
   }, [
     props.initialAnchorIndex,
     props.initialReadingProgress,

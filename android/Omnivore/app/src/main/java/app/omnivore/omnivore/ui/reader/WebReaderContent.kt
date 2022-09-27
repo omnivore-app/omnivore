@@ -104,8 +104,6 @@ data class WebReaderContent(
           </html>
     """
 
-    Log.d("Loggo", content)
-
     return content
   }
 }
