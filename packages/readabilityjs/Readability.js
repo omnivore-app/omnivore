@@ -171,7 +171,7 @@ Readability.prototype = {
     // Readability-readerable.js. Please keep both copies in sync.
     articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
     articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*/i,
-    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs/i,
+    unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|margins-h/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
       return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity`, 'i')
@@ -1171,7 +1171,9 @@ Readability.prototype = {
             (this.REGEXPS.unlikelyCandidates.test(matchString) ||
               // Checking for the "data-testid" attribute as well for the NYTimes articles
               // Example article: https://www.nytimes.com/2021/03/31/world/americas/brazil-coronavirus-bolsonaro.html
-              this.REGEXPS.unlikelyCandidates.test(node.dataset && node.dataset.testid)) &&
+              this.REGEXPS.unlikelyCandidates.test(node.dataset && node.dataset.testid) ||
+              this.REGEXPS.unlikelyCandidates.test(node.getAttribute('aria-labelledby'))
+            ) &&
             !this.REGEXPS.okMaybeItsACandidate.test(matchString) &&
             !/tweet(-\w+)?/i.test(matchString) &&
             !/instagram/i.test(matchString) &&
@@ -1187,7 +1189,7 @@ Readability.prototype = {
             !(this._getAllNodesWithTag(node, ["article"]).length === 1) &&
             node.tagName !== "BODY" &&
             node.tagName !== "A") {
-            this.log("Removing unlikely candidate - " + matchString);
+            this.log.log("Removing unlikely candidate - " + matchString);
             node = this._removeAndGetNext(node);
             continue;
           }
