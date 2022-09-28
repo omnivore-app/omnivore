@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { VStack, Box, SpanBox } from '../../elements/LayoutPrimitives'
 import { CurvedUnderlineIcon } from '../../elements/images/CurvedUnderlineIcon'
 import { Button } from '../../elements/Button'
-import { MagnifyingGlass, Palette, MegaphoneSimple, Binoculars, ArrowRight } from 'phosphor-react'
+import { MagnifyingGlass, Palette, EnvelopeSimple, FloppyDisk, ArrowRight } from 'phosphor-react'
 import { LandingSection } from './LandingSection'
 
 const buttonStyles = {
@@ -199,7 +199,7 @@ export function LandingSectionsContainer({
               sizes="auto 50vw, auto 50vw"
             />
           }
-          icon={<MegaphoneSimple size={32} color={iconColor} weight='duotone' />}
+          icon={<EnvelopeSimple size={32} color={iconColor} weight='duotone' />}
         />
       )}
       {!hideFourth && (
@@ -224,7 +224,7 @@ export function LandingSectionsContainer({
               sizes="auto 50vw, auto 50vw"
             />
           }
-          icon={<Binoculars size={32} color={iconColor} weight='duotone' />}
+          icon={<FloppyDisk size={32} color={iconColor} weight='duotone' />}
           containerStyles={reversedSectionStyles}
         />
       )}
