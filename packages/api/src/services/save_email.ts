@@ -70,6 +70,7 @@ export const saveEmail = async (
     readingProgressPercent: 0,
     subscription: input.author,
     state: ArticleSavingRequestStatus.Succeeded,
+    siteIcon: parseResult.parsedContent?.siteIcon,
   }
 
   const page = await getPageByParam({

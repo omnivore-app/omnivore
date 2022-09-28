@@ -247,6 +247,8 @@ export interface SearchItem {
   labels?: Label[]
   highlights?: Highlight[]
   wordsCount?: number
+  siteName?: string
+  siteIcon?: string
 }
 
 const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const

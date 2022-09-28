@@ -1644,6 +1644,7 @@ export type SearchItem = {
   readingProgressPercent: Scalars['Float'];
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
+  siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   state?: Maybe<ArticleSavingRequestStatus>;
@@ -1987,6 +1988,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   newsletterEmail: Scalars['String'];
@@ -4159,6 +4161,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
@@ -4368,6 +4371,7 @@ export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType 
 export type SubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
+  icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
   newsletterEmail?: SubscriptionResolver<ResolversTypes['String'], "newsletterEmail", ParentType, ContextType>;

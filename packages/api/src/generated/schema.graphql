@@ -1170,6 +1170,7 @@ type SearchItem {
   readingProgressPercent: Float!
   savedAt: Date!
   shortId: String
+  siteIcon: String
   siteName: String
   slug: String!
   state: ArticleSavingRequestStatus
@@ -1485,6 +1486,7 @@ type SubscribeSuccess {
 type Subscription {
   createdAt: Date!
   description: String
+  icon: String
   id: ID!
   name: String!
   newsletterEmail: String!
