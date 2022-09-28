@@ -157,9 +157,9 @@ declare module '@omnivore/readability' {
       /** Article description, or short excerpt from the content */
       excerpt: string
       /** Article site name */
-      siteName: string
+      siteName?: string
       /** Article site icon */
-      siteIcon: string
+      siteIcon?: string
       /** Article preview image */
       previewImage?: string
       /** Article published date */
