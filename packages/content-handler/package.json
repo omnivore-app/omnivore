@@ -1,7 +1,7 @@
 {
-  "name": "@omnivore/newsletter-handler",
+  "name": "@omnivore/content-handler",
   "version": "1.0.0",
-  "description": "A standalone version of newsletter handler to parse and format each newsletter",
+  "description": "A standalone version of content handler to parse and format each type of content",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [

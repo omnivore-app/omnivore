@@ -6,5 +6,5 @@
     "outDir": "build",
     "lib": ["dom"]
   },
-  "include": ["src", "test"]
+  "include": ["src"]
 }
