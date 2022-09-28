@@ -79,6 +79,7 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
         }
 
         addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
+
         loadDataWithBaseURL(
           "file:///android_asset/",
           styledContent,
@@ -128,8 +129,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
       return when (item.itemId) {
         R.id.annotate -> {
           val script = "var event = new Event('annotate');document.dispatchEvent(event);"
-          evaluateJavascript(script, null) // Maybe this one isn't needed?
-          // TODO: open note modal
+          evaluateJavascript(script, null)
           mode.finish()
           true
         }
