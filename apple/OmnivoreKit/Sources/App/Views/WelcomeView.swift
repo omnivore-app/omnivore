@@ -33,7 +33,7 @@ struct WelcomeView: View {
 
   var headlineText: some View {
     Group {
-      Text("Never miss a great read.")
+      Text("Read-it-later for serious readers.")
     }
     .font(.appLargeTitle)
   }
@@ -153,6 +153,7 @@ struct WelcomeView: View {
       action: { showEmailLoginModal = true },
       label: {
         Text("Continue with Email")
+          .font(.appHeadline)
           .foregroundColor(.appGrayTextContrast)
           .underline()
       }
