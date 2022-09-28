@@ -78,9 +78,6 @@ class WebReaderViewModel @Inject constructor(
           annotationLiveData.value = annotation
         }
       }
-      "existingHighlightTap" -> {
-        Log.d("Loggo", "receive existing highlight tap action: $jsonString")
-      }
       "shareHighlight" -> {
         // unimplemented
       }

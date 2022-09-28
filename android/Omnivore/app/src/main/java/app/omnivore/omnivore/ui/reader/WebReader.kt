@@ -17,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.networking.ReadingProgressParams
+import com.google.gson.Gson
 import org.json.JSONObject
 
 
@@ -76,7 +78,17 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
         }
 
         val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
-          webReaderViewModel.handleIncomingWebMessage(actionID, json)
+          when (actionID) {
+            "existingHighlightTap" -> {
+              isExistingHighlightSelected = true
+              actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
+              Log.d("Loggo", "receive existing highlight tap action: $actionTapCoordinates")
+              startActionMode(null)
+            }
+            else -> {
+              webReaderViewModel.handleIncomingWebMessage(actionID, json)
+            }
+          }
         }
 
         addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
@@ -112,10 +124,18 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
 }
 
 class OmnivoreWebView(context: Context) : WebView(context) {
+  var isExistingHighlightSelected = false
+  var actionTapCoordinates: ActionTapCoordinates? = null
+
   private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-      mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
+      if (isExistingHighlightSelected) {
+        mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
+        isExistingHighlightSelected = false
+      } else {
+        mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
+      }
       return true
     }
 
@@ -158,21 +178,19 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     }
   }
 
-  private var currentActionModeCallback: ActionMode.Callback? = actionModeCallback
-
   override fun startActionMode(callback: ActionMode.Callback?): ActionMode {
-    return super.startActionMode(currentActionModeCallback)
+    return super.startActionMode(actionModeCallback)
   }
 
   override fun startActionModeForChild(
     originalView: View?,
     callback: ActionMode.Callback?
   ): ActionMode {
-    return super.startActionModeForChild(originalView, currentActionModeCallback)
+    return super.startActionModeForChild(originalView, actionModeCallback)
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
-    return super.startActionMode(currentActionModeCallback, type)
+    return super.startActionMode(actionModeCallback, type)
   }
 }
 
@@ -182,3 +200,10 @@ class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
     messageHandler(actionID, jsonString)
   }
 }
+
+data class ActionTapCoordinates(
+  val rectX: Double,
+  val rectY: Double,
+  val rectWidth: Double,
+  val rectHeight: Double,
+)
