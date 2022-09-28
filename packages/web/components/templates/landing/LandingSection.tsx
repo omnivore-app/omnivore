@@ -3,7 +3,7 @@ import { CSS, styled } from '@stitches/react'
 
 type LandingSectionProps = {
   titleText: string,
-  descriptionText: string,
+  descriptionText: React.ReactElement,
   icon: React.ReactElement,
   image: React.ReactElement,
   containerStyles?: CSS,
@@ -16,7 +16,7 @@ const MainContainer = styled(HStack, {
 const titleTextStyles = {
   fontWeight: '700',
   color: '#3D3D3D',
-  lineHeight: '53px',
+  lineHeight: 1.5,
   '@mdDown': {
     fontSize: 24,
   },

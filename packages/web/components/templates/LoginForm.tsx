@@ -38,7 +38,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
       }}
     >
       <StyledTextHeadline>
-        A read-it-later app for serious readers.
+        Read-it-later for serious readers.
       </StyledTextHeadline>
       <StyledText css={{ fontStyle: 'normal',
         fontWeight: '400',
