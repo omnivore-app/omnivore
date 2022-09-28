@@ -23,7 +23,6 @@
 var parseSrcset = require('parse-srcset');
 var htmlEntities = require('html-entities')
 const axios = require("axios");
-const { parseHTML } = require("linkedom");
 
 /** Checks whether an element is a wrapper for tweet */
 const hasTweetInChildren = element => {
@@ -1791,24 +1790,6 @@ Readability.prototype = {
     return {};
   },
 
-  _getFaviconFromDoc: function (doc) {
-    const favicon = doc.querySelector(
-      "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
-    );
-    return favicon?.getAttribute('href');
-  },
-
-  _getFaviconFromURL: async function (url) {
-    try {
-      const response = await axios.get(url);
-      const doc = parseHTML(response.data).document;
-      return this._getFaviconFromDoc(doc);
-    } catch (e) {
-      console.log('error parsing favicon url', e);
-      return undefined;
-    }
-  },
-
   /**
    * Attempts to get excerpt and byline metadata for the article.
    *
@@ -1817,7 +1798,7 @@ Readability.prototype = {
    *
    * @return Object with optional "excerpt" and "byline" properties
    */
-  _getArticleMetadata: async function (jsonld) {
+  _getArticleMetadata: function (jsonld) {
     var metadata = {};
     var values = {};
     var metaElements = this._doc.getElementsByTagName("meta");
@@ -1926,12 +1907,10 @@ Readability.prototype = {
       values["og:site_name"] || null;
 
     // get website icon
-    metadata.siteIcon = this._getFaviconFromDoc(this._doc);
-    if (!metadata.siteIcon && this._keepTables) {
-      // If we're keeping tables, we are likely to parsing a newsletter, so
-      // we should try to get the site icon from the URL
-      metadata.siteIcon = await this._getFaviconFromURL(this._baseURI);
-    }
+    const iconLink = this._doc.querySelector(
+      "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
+    );
+    metadata.siteIcon = iconLink?.href;
 
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
@@ -2926,7 +2905,7 @@ Readability.prototype = {
 
     this._prepDocument();
 
-    var metadata = await this._getArticleMetadata(jsonLd);
+    var metadata = this._getArticleMetadata(jsonLd);
     this._articleTitle = metadata.title;
 
     var articleContent = await this._grabArticle();
