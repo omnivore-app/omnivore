@@ -12,6 +12,8 @@ import { Page } from '../elastic/types'
 import { addLabelToPage } from './labels'
 import { saveSubscription } from './subscriptions'
 import { NewsletterEmail } from '../entity/newsletter_email'
+import { fetchFavicon } from '../utils/parser'
+import { updatePage } from '../elastic/pages'
 
 interface NewsletterMessage {
   email: string
@@ -22,7 +24,6 @@ interface NewsletterMessage {
   unsubMailTo?: string
   unsubHttpUrl?: string
   newsletterEmail?: NewsletterEmail
-  icon?: string
 }
 
 // Returns true if the link was created successfully. Can still fail to
@@ -66,6 +67,15 @@ export const saveNewsletterEmail = async (
   if (!page) {
     console.log('newsletter not created:', input)
     return false
+  }
+
+  if (!page.siteIcon) {
+    // fetch favicon if not already set
+    const favicon = await fetchFavicon(page.url)
+    if (favicon) {
+      page.siteIcon = favicon
+      await updatePage(page.id, { siteIcon: favicon }, saveCtx)
+    }
   }
 
   // creates or updates subscription

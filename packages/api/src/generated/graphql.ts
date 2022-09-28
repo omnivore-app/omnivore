@@ -1644,6 +1644,7 @@ export type SearchItem = {
   readingProgressPercent: Scalars['Float'];
   savedAt: Scalars['Date'];
   shortId?: Maybe<Scalars['String']>;
+  siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   state?: Maybe<ArticleSavingRequestStatus>;
@@ -4160,6 +4161,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;

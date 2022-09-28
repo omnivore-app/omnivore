@@ -621,3 +621,18 @@ export const parseEmailAddress = (from: string): addressparser.EmailAddress => {
   }
   return { name: '', address: from }
 }
+
+export const fetchFavicon = async (
+  url: string
+): Promise<string | undefined> => {
+  try {
+    // get the correct url if it's a redirect
+    const response = await axios.head(url)
+    const realUrl = response.request.res.responseUrl
+    const domain = new URL(realUrl).hostname
+    return `https://api.faviconkit.com/${domain}/32`
+  } catch (e) {
+    console.log('Error fetching favicon', e)
+    return undefined
+  }
+}

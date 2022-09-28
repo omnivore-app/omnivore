@@ -1170,6 +1170,7 @@ type SearchItem {
   readingProgressPercent: Float!
   savedAt: Date!
   shortId: String
+  siteIcon: String
   siteName: String
   slug: String!
   state: ArticleSavingRequestStatus

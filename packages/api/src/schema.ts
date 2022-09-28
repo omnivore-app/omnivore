@@ -1495,6 +1495,7 @@ const schema = gql`
     readAt: Date
     savedAt: Date!
     highlights: [Highlight!]
+    siteIcon: String
   }
 
   type SearchItemEdge {

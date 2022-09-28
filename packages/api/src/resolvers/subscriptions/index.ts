@@ -60,7 +60,7 @@ export const subscriptionsResolver = authorized<
     return {
       subscriptions: subscriptions.map((s) => ({
         ...s,
-        icon: s.icon && createImageProxyUrl(s.icon, 260, 260),
+        icon: s.icon && createImageProxyUrl(s.icon, 32, 32),
       })),
     }
   } catch (error) {
