@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "types": "build/src/htmlToSsml.d.ts",
   "files": [
     "build/src"
   ],
