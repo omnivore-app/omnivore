@@ -28,7 +28,6 @@ interface ForwardEmailMessage {
   unsubHttpUrl?: string
   text?: string
   forwardedFrom?: string
-  icon?: string
 }
 
 const logger = buildLogger('app.dispatch')
