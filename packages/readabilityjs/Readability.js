@@ -1189,7 +1189,7 @@ Readability.prototype = {
             !(this._getAllNodesWithTag(node, ["article"]).length === 1) &&
             node.tagName !== "BODY" &&
             node.tagName !== "A") {
-            this.log.log("Removing unlikely candidate - " + matchString);
+            this.log("Removing unlikely candidate - " + matchString);
             node = this._removeAndGetNext(node);
             continue;
           }
