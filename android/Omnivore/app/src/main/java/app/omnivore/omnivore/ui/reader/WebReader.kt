@@ -39,6 +39,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
+  // TODO: maybe handle cases where js can be queued up?
   val javascriptToExecute = remember { mutableStateOf<String?>(null) }
 
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)

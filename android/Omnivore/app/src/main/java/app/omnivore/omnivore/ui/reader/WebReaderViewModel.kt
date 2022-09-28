@@ -6,10 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.models.LinkedItem
-import app.omnivore.omnivore.networking.CreateHighlightParams
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.createHighlight
-import app.omnivore.omnivore.networking.linkedItem
+import app.omnivore.omnivore.networking.*
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -68,7 +65,10 @@ class WebReaderViewModel @Inject constructor(
         Log.d("Loggo", "receive update highlight action: $jsonString")
       }
       "articleReadingProgress" -> {
-        Log.d("Loggo", "received article reading progress action: $jsonString")
+        viewModelScope.launch {
+          val isReadingProgressSynced = networker.updateReadingProgress(jsonString)
+          Log.d("Network", "isReadingProgressSynced = $isReadingProgressSynced")
+        }
       }
       "annotate" -> {
         viewModelScope.launch {
