@@ -13,7 +13,7 @@ import {
   TextToSpeechInput,
 } from './textToSpeech'
 import { File, Storage } from '@google-cloud/storage'
-import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
+import { endSsml, startSsml } from './htmlToSsml'
 import crypto from 'crypto'
 import { createRedisClient } from './redis'
 
@@ -236,9 +236,3 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
   }
 )
-
-module.exports = {
-  htmlToSpeechFile,
-  textToSpeechStreamingHandler,
-  textToSpeechHandler,
-}
