@@ -1,0 +1,20 @@
+{
+  "name": "@omnivore/newsletter-handler",
+  "version": "1.0.0",
+  "description": "A standalone version of newsletter handler to parse and format each newsletter",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "eslint-plugin-prettier": "^4.0.0"
+  }
+}

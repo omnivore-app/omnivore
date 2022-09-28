@@ -1,0 +1,10 @@
+{
+  "extends": "@tsconfig/node14/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "declaration": true,
+    "outDir": "build",
+    "lib": ["dom"]
+  },
+  "include": ["src", "test"]
+}
