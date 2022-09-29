@@ -83,7 +83,7 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
               isExistingHighlightSelected = true
               actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
               Log.d("Loggo", "receive existing highlight tap action: $actionTapCoordinates")
-              startActionMode(null)
+              startActionMode(null, ActionMode.TYPE_PRIMARY)
             }
             else -> {
               webReaderViewModel.handleIncomingWebMessage(actionID, json)
@@ -161,6 +161,13 @@ class OmnivoreWebView(context: Context) : WebView(context) {
           mode.finish()
           true
         }
+        R.id.delete -> {
+          val script = "var event = new Event('remove');document.dispatchEvent(event);"
+          evaluateJavascript(script, null)
+          clearFocus()
+          mode.finish()
+          true
+        }
         else -> {
           Log.d("Loggo", "${item.itemId} selected")
           false
@@ -170,10 +177,13 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 
     // Called when the user exits the action mode
     override fun onDestroyActionMode(mode: ActionMode) {
-//      actionMode = null
+      Log.d("Loggo", "destroying menu: $mode")
+      isExistingHighlightSelected = false
+      actionTapCoordinates = null
     }
 
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
+      Log.d("Loggo", "outRect: $outRect, View: $view")
       outRect?.set(left, top, right, bottom)
     }
   }
@@ -190,6 +200,7 @@ class OmnivoreWebView(context: Context) : WebView(context) {
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
+    Log.d("Loggo", "startActionMode:type called")
     return super.startActionMode(actionModeCallback, type)
   }
 }
