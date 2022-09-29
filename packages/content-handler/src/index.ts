@@ -84,7 +84,7 @@ export const preHandleContent = async (
   return undefined
 }
 
-export const handlerNewsletter = (
+export const handleNewsletter = (
   input: NewsletterInput
 ): NewsletterResult | undefined => {
   for (const handler of contentHandlers) {
@@ -98,5 +98,5 @@ export const handlerNewsletter = (
 
 module.exports = {
   preHandleContent,
-  handlerNewsletter,
+  handleNewsletter,
 }
