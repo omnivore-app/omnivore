@@ -22,7 +22,7 @@ suspend fun Networker.search(
     )
   ).execute()
 
-  val cursor = result.data?.search?.onSearchSuccess?.pageInfo?.endCursor
+  val newCursor = result.data?.search?.onSearchSuccess?.pageInfo?.endCursor
   val itemList = result.data?.search?.onSearchSuccess?.edges ?: listOf()
 
   val items = itemList.map {
@@ -49,5 +49,5 @@ suspend fun Networker.search(
     )
   }
 
-  return SearchQueryResponse(cursor, items)
+  return SearchQueryResponse(newCursor, items)
 }
