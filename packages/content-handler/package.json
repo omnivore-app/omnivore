@@ -16,5 +16,11 @@
   },
   "devDependencies": {
     "eslint-plugin-prettier": "^4.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "linkedom": "^0.14.16",
+    "luxon": "^3.0.4",
+    "underscore": "^1.13.6"
   }
 }

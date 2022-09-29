@@ -17,18 +17,26 @@ interface NewsletterMessage {
   unsubHttpUrl?: string
 }
 
+export interface PreHandleResult {
+  url?: string
+  title?: string
+  content?: string
+  contentType?: string
+  dom?: Document
+}
+
 export class ContentHandler {
   protected senderRegex = /NEWSLETTER_SENDER_REGEX/
   protected urlRegex = /NEWSLETTER_URL_REGEX/
   protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
   protected name = ''
 
-  shouldPrehandle(url: URL, dom: Document): boolean {
+  shouldPreHandle(url: string, dom: Document): boolean {
     return false
   }
 
-  prehandle(url: URL, document: Document): Promise<Document> {
-    return Promise.resolve(document)
+  preHandle(url: string, document: Document): Promise<PreHandleResult> {
+    return Promise.resolve({ url, dom: document })
   }
 
   isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
@@ -67,14 +75,14 @@ export class ContentHandler {
     }
   }
 
-  async handleNewsletter(
+  handleNewsletter(
     email: string,
     html: string,
     postHeader: string,
     title: string,
     from: string,
     unSubHeader: string
-  ): Promise<NewsletterMessage> {
+  ): NewsletterMessage {
     console.log('handleNewsletter', email, postHeader, title, from)
 
     if (!email || !html || !title || !from) {

@@ -17652,6 +17652,17 @@ linkedom@^0.14.12:
     htmlparser2 "^8.0.1"
     uhyphen "^0.1.0"
 
+linkedom@^0.14.16:
+  version "0.14.16"
+  resolved "https://registry.yarnpkg.com/linkedom/-/linkedom-0.14.16.tgz#124eb006fad1dfe7ed8f96ec8ae74ab0fb0fd88e"
+  integrity sha512-a4QWl4W93P15/x+4d9k8K+C81nOzQeGOs3D37uG0TFqKZYGLEyZwXweSFrypK8yvUx5U2cuZKkdDIOjaouv3ag==
+  dependencies:
+    css-select "^5.1.0"
+    cssom "^0.5.0"
+    html-escaper "^3.0.3"
+    htmlparser2 "^8.0.1"
+    uhyphen "^0.1.0"
+
 linkedom@^0.14.9:
   version "0.14.9"
   resolved "https://registry.yarnpkg.com/linkedom/-/linkedom-0.14.9.tgz#34c6f15eddc809406f42d8ee48cd30b0222eccb0"
@@ -18150,6 +18161,11 @@ luxon@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-2.3.1.tgz#f276b1b53fd9a740a60e666a541a7f6dbed4155a"
   integrity sha512-I8vnjOmhXsMSlNMZlMkSOvgrxKJl0uOsEzdGgGNZuZPaS9KlefpE9KV95QFftlJSC+1UyCC9/I69R02cz/zcCA==
+
+luxon@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.0.4.tgz#d179e4e9f05e092241e7044f64aaa54796b03929"
+  integrity sha512-aV48rGUwP/Vydn8HT+5cdr26YYQiUZ42NM6ToMoaGKwYfWbfLeRkEu1wXWMHBZT6+KyLfcbbtVcoQFCbbPjKlw==
 
 lz-string@^1.4.4:
   version "1.4.4"
@@ -24492,6 +24508,11 @@ underscore@^1.13.4, underscore@^1.9.1:
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.4.tgz#7886b46bbdf07f768e0052f1828e1dcab40c0dee"
   integrity sha512-BQFnUDuAQ4Yf/cYY5LNrK9NCJFKriaRbD9uR1fTeXnBeoa97W0i41qkZfGO9pSo8I5KzjAcSY2XYtdf0oKd7KQ==
+
+underscore@^1.13.6:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.6.tgz#04786a1f589dc6c09f761fc5f45b89e935136441"
+  integrity sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==
 
 undici@^4.9.3:
   version "4.14.1"
