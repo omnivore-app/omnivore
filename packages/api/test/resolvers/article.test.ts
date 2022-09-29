@@ -1009,7 +1009,7 @@ describe('Article API', () => {
       }
 
       // set the since to be the timestamp before deletion
-      since = pages[4].createdAt.toISOString()
+      since = pages[4].updatedAt!.toISOString()
 
       // Delete some pages
       for (let i = 0; i < 3; i++) {
