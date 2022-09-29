@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from './index'
+import { ContentHandler, PreHandleResult } from './content-handler'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
@@ -52,7 +52,12 @@ const formatTimestamp = (timestamp: string) => {
   )
 }
 
-class TwitterHandler extends ContentHandler {
+export class TwitterHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Twitter'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     return !!TWITTER_BEARER_TOKEN && TWITTER_URL_MATCH.test(url.toString())
   }

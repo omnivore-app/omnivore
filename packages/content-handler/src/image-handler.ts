@@ -1,6 +1,11 @@
-import { ContentHandler, PreHandleResult } from './index'
+import { ContentHandler, PreHandleResult } from './content-handler'
 
-class ImageHandler extends ContentHandler {
+export class ImageHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Image'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     const IMAGE_URL_PATTERN = /(https?:\/\/.*\.(?:jpg|jpeg|png|webp))/i
     return IMAGE_URL_PATTERN.test(url.toString())

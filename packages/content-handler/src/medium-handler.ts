@@ -1,6 +1,11 @@
-import { ContentHandler, PreHandleResult } from './index'
+import { ContentHandler, PreHandleResult } from './content-handler'
 
-class MediumHandler extends ContentHandler {
+export class MediumHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Medium'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     const u = new URL(url)
     return u.hostname.endsWith('medium.com')

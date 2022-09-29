@@ -1,8 +1,13 @@
-import { ContentHandler, PreHandleResult } from './index'
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
+import { ContentHandler, PreHandleResult } from './content-handler'
 
 export class AppleNewsHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Apple News'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     const u = new URL(url)
     return u.hostname === 'apple.news'

@@ -1,8 +1,13 @@
-import { ContentHandler, PreHandleResult } from './index'
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
+import { ContentHandler, PreHandleResult } from './content-handler'
 
-class BloombergHandler extends ContentHandler {
+export class BloombergHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Bloomberg'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     const BLOOMBERG_URL_MATCH =
       /https?:\/\/(www\.)?bloomberg.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/

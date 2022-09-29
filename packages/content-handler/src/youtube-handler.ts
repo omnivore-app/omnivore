@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from './index'
+import { ContentHandler, PreHandleResult } from './content-handler'
 import axios from 'axios'
 import _ from 'underscore'
 
@@ -18,7 +18,12 @@ export const getYoutubeVideoId = (url: string) => {
   return videoId
 }
 
-class YoutubeHandler extends ContentHandler {
+export class YoutubeHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Youtube'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     return YOUTUBE_URL_MATCH.test(url.toString())
   }

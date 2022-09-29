@@ -1,8 +1,13 @@
-import { ContentHandler, PreHandleResult } from './index'
+import { ContentHandler, PreHandleResult } from './content-handler'
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
 
-class DerstandardHandler extends ContentHandler {
+export class DerstandardHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'Derstandard'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     const u = new URL(url)
     return u.hostname === 'www.derstandard.at'

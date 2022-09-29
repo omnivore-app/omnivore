@@ -1,6 +1,11 @@
-import { ContentHandler, PreHandleResult } from './index'
+import { ContentHandler, PreHandleResult } from './content-handler'
 
-class PdfHandler extends ContentHandler {
+export class PdfHandler extends ContentHandler {
+  constructor() {
+    super()
+    this.name = 'PDF'
+  }
+
   shouldPreHandle(url: string, dom?: Document): boolean {
     const u = new URL(url)
     const path = u.pathname.replace(u.search, '')
