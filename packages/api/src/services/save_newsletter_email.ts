@@ -12,6 +12,8 @@ import { Page } from '../elastic/types'
 import { addLabelToPage } from './labels'
 import { saveSubscription } from './subscriptions'
 import { NewsletterEmail } from '../entity/newsletter_email'
+import { fetchFavicon } from '../utils/parser'
+import { updatePage } from '../elastic/pages'
 
 interface NewsletterMessage {
   email: string
@@ -33,7 +35,6 @@ export const saveNewsletterEmail = async (
   // get user from newsletter email
   const newsletterEmail =
     data.newsletterEmail || (await getNewsletterEmail(data.email))
-
   if (!newsletterEmail) {
     console.log('newsletter email not found', data.email)
     return false
@@ -54,7 +55,6 @@ export const saveNewsletterEmail = async (
     pubsub: createPubSubClient(),
     uid: newsletterEmail.user.id,
   }
-
   const input: SaveEmailInput = {
     url: data.url,
     originalContent: data.content,
@@ -63,22 +63,31 @@ export const saveNewsletterEmail = async (
     unsubMailTo: data.unsubMailTo,
     unsubHttpUrl: data.unsubHttpUrl,
   }
-
   const page = await saveEmail(saveCtx, input)
   if (!page) {
     console.log('newsletter not created:', input)
     return false
   }
 
+  if (!page.siteIcon) {
+    // fetch favicon if not already set
+    const favicon = await fetchFavicon(page.url)
+    if (favicon) {
+      page.siteIcon = favicon
+      await updatePage(page.id, { siteIcon: favicon }, saveCtx)
+    }
+  }
+
   // creates or updates subscription
-  const subscription = await saveSubscription(
-    newsletterEmail.user.id,
-    data.author,
-    newsletterEmail.address,
-    data.unsubMailTo,
-    data.unsubHttpUrl
-  )
-  console.log('subscription', subscription)
+  const subscription = await saveSubscription({
+    userId: newsletterEmail.user.id,
+    name: data.author,
+    newsletterEmail: newsletterEmail.address,
+    unsubscribeMailTo: data.unsubMailTo,
+    unsubscribeHttpUrl: data.unsubHttpUrl,
+    icon: page.siteIcon,
+  })
+  console.log('subscription saved', subscription)
 
   // adds newsletters label to page
   const result = await addLabelToPage(saveCtx, page.id, {

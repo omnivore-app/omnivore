@@ -899,6 +899,7 @@ export const searchResolver = authorized<
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
         pageType: r.pageType || PageType.Highlights,
+        siteIcon: r.siteIcon && createImageProxyUrl(r.siteIcon, 32, 32),
       } as SearchItem,
       cursor: endCursor,
     }

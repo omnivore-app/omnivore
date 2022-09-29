@@ -6,8 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.models.LinkedItem
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.linkedItem
+import app.omnivore.omnivore.networking.*
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,12 +18,17 @@ data class WebReaderParams(
   val articleContent: ArticleContent
 )
 
+data class AnnotationWebViewMessage(
+  val annotation: String?
+)
+
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val networker: Networker
 ): ViewModel() {
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
+  val annotationLiveData = MutableLiveData<String?>(null)
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
@@ -45,37 +49,50 @@ class WebReaderViewModel @Inject constructor(
     }
   }
 
-  fun handleIncomingWebMessage(actionID: String, json: JSONObject) {
+  fun handleIncomingWebMessage(actionID: String, jsonString: String) {
     when (actionID) {
       "createHighlight" -> {
-        Log.d("Loggo", "receive create highlight action: $json")
+        viewModelScope.launch {
+          val isHighlightSynced = networker.createHighlight(jsonString)
+          Log.d("Network", "isHighlightSynced = $isHighlightSynced")
+        }
       }
       "deleteHighlight" -> {
         // { highlightId }
-        Log.d("Loggo", "receive delete highlight action: $json")
+        Log.d("Loggo", "receive delete highlight action: $jsonString")
       }
       "updateHighlight" -> {
-        Log.d("Loggo", "receive update highlight action: $json")
+        Log.d("Loggo", "receive update highlight action: $jsonString")
       }
       "articleReadingProgress" -> {
-        Log.d("Loggo", "received article reading progress action: $json")
+        viewModelScope.launch {
+          val isReadingProgressSynced = networker.updateReadingProgress(jsonString)
+          Log.d("Network", "isReadingProgressSynced = $isReadingProgressSynced")
+        }
       }
       "annotate" -> {
-        Log.d("Loggo", "received annotate action: $json")
-      }
-      "existingHighlightTap" -> {
-        Log.d("Loggo", "receive existing highlight tap action: $json")
+        viewModelScope.launch {
+          val annotation = Gson()
+            .fromJson(jsonString, AnnotationWebViewMessage::class.java)
+            .annotation ?: ""
+          annotationLiveData.value = annotation
+        }
       }
       "shareHighlight" -> {
         // unimplemented
       }
       else -> {
-        Log.d("Loggo", "receive unrecognized action of $actionID with json: $json")
+        Log.d("Loggo", "receive unrecognized action of $actionID with json: $jsonString")
       }
     }
   }
 
   fun reset() {
     webReaderParamsLiveData.value = null
+    annotationLiveData.value = null
+  }
+
+  fun cancelAnnotationEdit() {
+    annotationLiveData.value = null
   }
 }

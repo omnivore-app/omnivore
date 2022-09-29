@@ -4,10 +4,17 @@ import { LandingHeader } from '../components/templates/landing/LandingHeader'
 import { LandingFooter } from '../components/templates/landing/LandingFooter'
 
 const mobileContainerStyles = {
-  maxWidth: 430,
   alignSelf: 'center',
   marginTop: 80,
-  padding: '10px',
+  maxWidth: 960,
+
+  px: '2vw',
+  '@md': {
+    px: '6vw',
+  },
+  '@xl': {
+    px: '120px',
+  }
 }
 
 const headingStyles = {
@@ -16,12 +23,12 @@ const headingStyles = {
   fontSize: 45,
   lineHeight: '53px',
   padding: '10px',
+  paddingBottom: '0px',
 }
 
 
 const subHeadingStyles = {
   color: 'rgb(125, 125, 125)',
-  mb: 32,
   padding: '10px',
 }
 
@@ -31,12 +38,16 @@ export default function LandingPage(): JSX.Element {
       <LandingHeader />
       <VStack css={{ background: '#FEFCF5', color: '#3D3D3D' }}>
         <VStack css={mobileContainerStyles}>
-          <Box css={headingStyles}>A read-it-later app for serious readers.</Box>
+          <Box css={headingStyles}>Omnivore is the read-it-later app for serious readers.</Box>
           <Box css={subHeadingStyles}>
-            Omnivore is a privacy focused, open-source read-it-later app.
-            Use it to save interesting articles and read distraction free.
-            Add notes and highlights.
-            Organise your reading queue the way you want and sync it across all your devices.
+          Distraction free. Privacy focused. Open source.
+          </Box>
+          
+          <Box css={subHeadingStyles}>
+            Save interesting articles, newsletter subscriptions, and documents and
+          read them later — focused and distraction free. Add notes and highlights.
+          Organize your reading list the way you want and sync it across all your
+          devices.
           </Box>
           <Box css={{ mb: 40, padding: '10px' }}>
             <GetStartedButton />

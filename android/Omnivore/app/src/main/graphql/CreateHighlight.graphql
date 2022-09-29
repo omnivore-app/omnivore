@@ -1,0 +1,13 @@
+mutation CreateHighlight($input: CreateHighlightInput!) {
+  createHighlight(input: $input) {
+    ... on CreateHighlightSuccess {
+      highlight {
+        ...HighlightFields
+      }
+    }
+
+    ... on CreateHighlightError {
+      errorCodes
+    }
+  }
+}

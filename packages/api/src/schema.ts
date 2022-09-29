@@ -1495,6 +1495,7 @@ const schema = gql`
     readAt: Date
     savedAt: Date!
     highlights: [Highlight!]
+    siteIcon: String
   }
 
   type SearchItemEdge {
@@ -1530,6 +1531,7 @@ const schema = gql`
     status: SubscriptionStatus!
     unsubscribeMailTo: String
     unsubscribeHttpUrl: String
+    icon: String
     createdAt: Date!
     updatedAt: Date!
   }

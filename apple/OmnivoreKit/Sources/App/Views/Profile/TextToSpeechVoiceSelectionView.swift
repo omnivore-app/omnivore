@@ -6,18 +6,22 @@ import Views
 struct TextToSpeechVoiceSelectionView: View {
   @EnvironmentObject var audioController: AudioController
   let language: VoiceLanguage
+  let showLanguageChanger: Bool
 
-  init(forLanguage: VoiceLanguage) {
+  init(forLanguage: VoiceLanguage, showLanguageChanger: Bool) {
     self.language = forLanguage
+    self.showLanguageChanger = showLanguageChanger
   }
 
   var body: some View {
     Group {
       #if os(iOS)
         Form {
-          Section("Language") {
-            NavigationLink(destination: TextToSpeechLanguageView().navigationTitle("Language")) {
-              Text(audioController.currentVoiceLanguage.name)
+          if showLanguageChanger {
+            Section("Language") {
+              NavigationLink(destination: TextToSpeechLanguageView().navigationTitle("Language")) {
+                Text(audioController.currentVoiceLanguage.name)
+              }
             }
           }
           innerBody

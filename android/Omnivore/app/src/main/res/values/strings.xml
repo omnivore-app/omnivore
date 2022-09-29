@@ -5,4 +5,5 @@
     <string name="welcome_subtitle">Save articles and read them later in our distraction-free reader.</string>
     <string name="highlight_menu_action">Highlight</string>
     <string name="annotate_menu_action">Annotate</string>
+    <string name="delete_highlight_menu_title">Delete</string>
 </resources>
