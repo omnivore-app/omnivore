@@ -25,7 +25,11 @@ const getTweetById = async (id: string) => {
   const BASE_ENDPOINT = 'https://api.twitter.com/2/tweets/'
   const apiUrl = new URL(BASE_ENDPOINT + id + '?' + getTweetFields())
 
-  return await axios.get(apiUrl.toString(), {
+  if (!TWITTER_BEARER_TOKEN) {
+    throw new Error('No Twitter bearer token found')
+  }
+
+  return axios.get(apiUrl.toString(), {
     headers: {
       Authorization: `Bearer ${TWITTER_BEARER_TOKEN}`,
       redirect: 'follow',
@@ -33,7 +37,7 @@ const getTweetById = async (id: string) => {
   })
 }
 
-const titleForAuthor = (author: any) => {
+const titleForAuthor = (author: { name: string }) => {
   return `${author.name} on Twitter`
 }
 
@@ -53,20 +57,6 @@ class TwitterHandler extends ContentHandler {
     return !!TWITTER_BEARER_TOKEN && TWITTER_URL_MATCH.test(url.toString())
   }
 
-  // version of the handler that uses the oembed API
-  // This isn't great as it doesn't work well with our
-  // readability API. But could potentially give a more consistent
-  // look to the tweets
-  // prehandle: async (url, env) => {
-  //   const oeTweet = await embeddedTweet(url)
-  //   const dom = new JSDOM(oeTweet.data.html);
-  //   const bq = dom.window.document.querySelector('blockquote')
-  //   console.log('blockquote:', bq);
-
-  //   const title = titleForTweet(oeTweet)
-  //   return { title, content: '<div>' + bq.innerHTML + '</div>', url: oeTweet.data.url };
-  // }
-
   async preHandle(url: string, _document: Document): Promise<PreHandleResult> {
     console.log('prehandling twitter url', url)
 
@@ -74,18 +64,48 @@ class TwitterHandler extends ContentHandler {
     if (!tweetId) {
       throw new Error('could not find tweet id in url')
     }
-    const tweetData = (await getTweetById(tweetId)).data
+    const tweetData = (await getTweetById(tweetId)).data as {
+      data: {
+        author_id: string
+        text: string
+        entities: {
+          urls: [
+            {
+              url: string
+              expanded_url: string
+              display_url: string
+            }
+          ]
+        }
+        created_at: string
+      }
+      includes: {
+        users: [
+          {
+            id: string
+            name: string
+            profile_image_url: string
+            username: string
+          }
+        ]
+        media: [
+          {
+            preview_image_url: string
+            type: string
+            url: string
+          }
+        ]
+      }
+    }
     const authorId = tweetData.data.author_id
-    const author = tweetData.includes.users.filter(
-      (u: any) => (u.id = authorId)
-    )[0]
+    const author = tweetData.includes.users.filter((u) => (u.id = authorId))[0]
     // escape html entities in title
     const title = _.escape(titleForAuthor(author))
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
 
     let text = tweetData.data.text
     if (tweetData.data.entities && tweetData.data.entities.urls) {
-      for (let urlObj of tweetData.data.entities.urls) {
+      for (const urlObj of tweetData.data.entities.urls) {
         text = text.replace(
           urlObj.url,
           `<a href="${urlObj.expanded_url}">${urlObj.display_url}</a>`
@@ -98,10 +118,10 @@ class TwitterHandler extends ContentHandler {
       <p>${text}</p>
     `
 
-    var includesHtml = ''
+    let includesHtml = ''
     if (tweetData.includes.media) {
       includesHtml = tweetData.includes.media
-        .map((m: any) => {
+        .map((m) => {
           const linkUrl = m.type == 'photo' ? m.url : url
           const previewUrl = m.type == 'photo' ? m.url : m.preview_image_url
           const mediaOpen = `<a class="media-link" href=${linkUrl}>

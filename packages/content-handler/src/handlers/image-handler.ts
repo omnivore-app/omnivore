@@ -7,7 +7,7 @@ class ImageHandler extends ContentHandler {
   }
 
   async preHandle(url: string, _document: Document): Promise<PreHandleResult> {
-    const title = url.toString().split('/').pop()
+    const title = url.toString().split('/').pop() || 'Image'
     const content = `
       <html>
         <head>
@@ -22,6 +22,6 @@ class ImageHandler extends ContentHandler {
         </body>
       </html>`
 
-    return { title, content }
+    return Promise.resolve({ title, content })
   }
 }

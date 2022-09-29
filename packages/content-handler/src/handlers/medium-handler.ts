@@ -12,7 +12,7 @@ class MediumHandler extends ContentHandler {
     try {
       const res = new URL(url)
       res.searchParams.delete('source')
-      return { url: res.toString() }
+      return Promise.resolve({ url: res.toString() })
     } catch (error) {
       console.error('error prehandling medium url', error)
       throw error

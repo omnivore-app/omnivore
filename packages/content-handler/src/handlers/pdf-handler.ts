@@ -8,6 +8,6 @@ class PdfHandler extends ContentHandler {
   }
 
   async preHandle(_url: string, _document: Document): Promise<PreHandleResult> {
-    return { contentType: 'application/pdf' }
+    return Promise.resolve({ contentType: 'application/pdf' })
   }
 }

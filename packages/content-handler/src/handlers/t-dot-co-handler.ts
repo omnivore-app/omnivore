@@ -8,7 +8,7 @@ class TDotCoHandler extends ContentHandler {
   }
 
   async resolve(url: string) {
-    return await axios
+    return axios
       .get(url, { maxRedirects: 0, validateStatus: null })
       .then((res) => {
         return new URL(res.headers.location).href

@@ -15,7 +15,7 @@ class DerstandardHandler extends ContentHandler {
         cookie: `DSGVO_ZUSAGE_V1=true; consentUUID=2bacb9c1-1e80-4be0-9f7b-ee987cf4e7b0_6`,
       },
     })
-    const content = response.data
+    const content = response.data as string
 
     const dom = parseHTML(content).document
     const titleElement = dom.querySelector('.article-title')

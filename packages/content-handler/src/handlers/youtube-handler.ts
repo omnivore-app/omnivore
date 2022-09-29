@@ -1,8 +1,6 @@
-import { PreHandleResult } from '../index'
+import { ContentHandler, PreHandleResult } from '../index'
 import axios from 'axios'
 import _ from 'underscore'
-
-const { ContentHandler } = require('../index')
 
 const YOUTUBE_URL_MATCH =
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
@@ -34,7 +32,14 @@ class YoutubeHandler extends ContentHandler {
     const oembedUrl =
       `https://www.youtube.com/oembed?format=json&url=` +
       encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)
-    const oembed = (await axios.get(oembedUrl.toString())).data
+    const oembed = (await axios.get(oembedUrl.toString())).data as {
+      title: string
+      width: number
+      height: number
+      thumbnail_url: string
+      author_name: string
+      author_url: string
+    }
     // escape html entities in title
     const title = _.escape(oembed.title)
     const ratio = oembed.width / oembed.height

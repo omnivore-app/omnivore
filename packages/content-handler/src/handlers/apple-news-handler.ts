@@ -14,7 +14,7 @@ export class AppleNewsHandler extends ContentHandler {
     const response = await axios.get(url, {
       headers: { 'User-Agent': MOBILE_USER_AGENT },
     })
-    const data = response.data
+    const data = response.data as string
     const dom = parseHTML(data).document
     // make sure it's a valid URL by wrapping in new URL
     const href = dom

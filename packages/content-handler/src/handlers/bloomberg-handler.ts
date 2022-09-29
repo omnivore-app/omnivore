@@ -5,7 +5,7 @@ import { parseHTML } from 'linkedom'
 class BloombergHandler extends ContentHandler {
   shouldPreHandle(url: string, _dom: Document): boolean {
     const BLOOMBERG_URL_MATCH =
-      /https?:\/\/(www\.)?bloomberg.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+      /https?:\/\/(www\.)?bloomberg.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/
     return BLOOMBERG_URL_MATCH.test(url.toString())
   }
 

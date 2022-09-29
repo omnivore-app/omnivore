@@ -24,7 +24,7 @@ class ScrapingBeeHandler extends ContentHandler {
         },
       })
       const dom = parseHTML(response.data).document
-      return { title: dom.title, content: response.data, url: url }
+      return { title: dom.title, content: response.data as string, url: url }
     } catch (error) {
       console.error('error prehandling url w/scrapingbee', error)
       throw error
