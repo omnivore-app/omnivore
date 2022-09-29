@@ -225,6 +225,7 @@ async function fetchContent(req, res) {
     return res.sendStatus(400);
   }
 
+  // pre handle url with custom handlers
   let title, content, contentType;
   try {
     const result = await preHandleContent(url);
