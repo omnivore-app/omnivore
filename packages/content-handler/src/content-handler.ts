@@ -7,7 +7,16 @@ interface Unsubscribe {
   httpUrl?: string
 }
 
-interface NewsletterMessage {
+export interface NewsletterInput {
+  postHeader: string
+  from: string
+  unSubHeader: string
+  email: string
+  html: string
+  title: string
+}
+
+export interface NewsletterResult {
   email: string
   content: string
   url: string
@@ -55,9 +64,7 @@ export abstract class ContentHandler {
   }
 
   isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
-    // Axios newsletter is from <xx@axios.com>
-    const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!postHeader || !!unSubHeader)
+    return false
   }
 
   parseNewsletterUrl(_postHeader: string, html: string): string | undefined {
@@ -90,14 +97,14 @@ export abstract class ContentHandler {
     }
   }
 
-  handleNewsletter(
-    email: string,
-    html: string,
-    postHeader: string,
-    title: string,
-    from: string,
-    unSubHeader: string
-  ): NewsletterMessage {
+  handleNewsletter({
+    email,
+    html,
+    postHeader,
+    title,
+    from,
+    unSubHeader,
+  }: NewsletterInput): NewsletterResult {
     console.log('handleNewsletter', email, postHeader, title, from)
 
     if (!email || !html || !title || !from) {

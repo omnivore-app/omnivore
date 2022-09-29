@@ -8,7 +8,16 @@ import { ScrapingBeeHandler } from './scrapingBee-handler'
 import { TDotCoHandler } from './t-dot-co-handler'
 import { TwitterHandler } from './twitter-handler'
 import { YoutubeHandler } from './youtube-handler'
-import { ContentHandler, PreHandleResult } from './content-handler'
+import {
+  ContentHandler,
+  NewsletterInput,
+  NewsletterResult,
+  PreHandleResult,
+} from './content-handler'
+import { SubstackHandler } from './substack-handler'
+import { AxiosHandler } from './axios-handler'
+import { GolangHandler } from './golang-handler'
+import { MorningBrewHandler } from './morning-brew-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -37,6 +46,10 @@ const contentHandlers: ContentHandler[] = [
   new TDotCoHandler(),
   new TwitterHandler(),
   new YoutubeHandler(),
+  new SubstackHandler(),
+  new AxiosHandler(),
+  new GolangHandler(),
+  new MorningBrewHandler(),
 ]
 
 export const preHandleContent = async (
@@ -71,6 +84,19 @@ export const preHandleContent = async (
   return undefined
 }
 
+export const handlerNewsletter = (
+  input: NewsletterInput
+): NewsletterResult | undefined => {
+  for (const handler of contentHandlers) {
+    if (handler.isNewsletter(input.postHeader, input.from, input.unSubHeader)) {
+      return handler.handleNewsletter(input)
+    }
+  }
+
+  return undefined
+}
+
 module.exports = {
   preHandleContent,
+  handlerNewsletter,
 }
