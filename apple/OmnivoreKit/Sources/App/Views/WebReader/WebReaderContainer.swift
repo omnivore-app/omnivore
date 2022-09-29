@@ -185,9 +185,16 @@ struct WebReaderContainerView: View {
     .alert("Are you sure?", isPresented: $showDeleteConfirmation) {
       Button("Remove Link", role: .destructive) {
         Snackbar.show(message: "Link removed")
-        dataService.removeLink(objectID: item.objectID)
+
         #if os(iOS)
+          let itemID = item.unwrappedID
+          dataService.viewContext.performAndWait {
+            item.remove(inContext: dataService.viewContext)
+          }
+          dataService.syncLinkDeletion(itemID: itemID, objectID: nil)
           presentationMode.wrappedValue.dismiss()
+        #else
+          dataService.removeLink(objectID: item.objectID)
         #endif
       }
       Button("Cancel", role: .cancel, action: {})
