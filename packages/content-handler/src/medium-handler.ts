@@ -1,12 +1,12 @@
-import { ContentHandler, PreHandleResult } from '../index'
+import { ContentHandler, PreHandleResult } from './index'
 
 class MediumHandler extends ContentHandler {
-  shouldPreHandle(url: string, _dom: Document): boolean {
+  shouldPreHandle(url: string, dom?: Document): boolean {
     const u = new URL(url)
     return u.hostname.endsWith('medium.com')
   }
 
-  async preHandle(url: string, _document: Document): Promise<PreHandleResult> {
+  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
     console.log('prehandling medium url', url)
 
     try {

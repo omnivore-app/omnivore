@@ -1,16 +1,16 @@
-import { ContentHandler, PreHandleResult } from '../index'
+import { ContentHandler, PreHandleResult } from './index'
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
 
 class ScrapingBeeHandler extends ContentHandler {
-  shouldPreHandle(url: string, _dom: Document): boolean {
+  shouldPreHandle(url: string, dom?: Document): boolean {
     const u = new URL(url)
     const hostnames = ['nytimes.com', 'news.google.com']
 
     return hostnames.some((h) => u.hostname.endsWith(h))
   }
 
-  async preHandle(url: string, _document: Document): Promise<PreHandleResult> {
+  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
     console.log('prehandling url with scrapingbee', url)
 
     try {

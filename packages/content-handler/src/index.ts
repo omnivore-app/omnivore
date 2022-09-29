@@ -31,11 +31,11 @@ export class ContentHandler {
   protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
   protected name = ''
 
-  shouldPreHandle(url: string, dom: Document): boolean {
+  shouldPreHandle(url: string, dom?: Document): boolean {
     return false
   }
 
-  preHandle(url: string, document: Document): Promise<PreHandleResult> {
+  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
     return Promise.resolve({ url, dom: document })
   }
 

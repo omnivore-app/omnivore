@@ -1,11 +1,11 @@
-import { ContentHandler, PreHandleResult } from '../index'
+import { ContentHandler, PreHandleResult } from './index'
 import axios from 'axios'
 import _ from 'underscore'
 
 const YOUTUBE_URL_MATCH =
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/
 
-function getYoutubeVideoId(url: string) {
+export const getYoutubeVideoId = (url: string) => {
   const u = new URL(url)
   const videoId = u.searchParams.get('v')
   if (!videoId) {
@@ -19,11 +19,11 @@ function getYoutubeVideoId(url: string) {
 }
 
 class YoutubeHandler extends ContentHandler {
-  shouldPreHandle(url: string, _dom: Document): boolean {
+  shouldPreHandle(url: string, dom?: Document): boolean {
     return YOUTUBE_URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string, _document: Document): Promise<PreHandleResult> {
+  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
     const videoId = getYoutubeVideoId(url)
     if (!videoId) {
       return {}

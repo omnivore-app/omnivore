@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from '../index'
+import { ContentHandler, PreHandleResult } from './index'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
@@ -53,11 +53,11 @@ const formatTimestamp = (timestamp: string) => {
 }
 
 class TwitterHandler extends ContentHandler {
-  shouldPreHandle(url: string, _dom: Document): boolean {
+  shouldPreHandle(url: string, dom?: Document): boolean {
     return !!TWITTER_BEARER_TOKEN && TWITTER_URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string, _document: Document): Promise<PreHandleResult> {
+  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
     console.log('prehandling twitter url', url)
 
     const tweetId = tweetIdFromStatusUrl(url)

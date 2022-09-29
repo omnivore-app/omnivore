@@ -1,4 +1,4 @@
-import { ContentHandler } from '../index'
+import { ContentHandler } from './index'
 import axios from 'axios'
 
 class TDotCoHandler extends ContentHandler {
