@@ -37,14 +37,15 @@ class PDFReaderActivity: AppCompatActivity() {
 
 @Composable
 fun PDFReaderLoadingContainer(slug: String, pdfReaderViewModel: PDFReaderViewModel) {
+  val context = LocalContext.current
   val pdfReaderParams: PDFReaderParams? by pdfReaderViewModel.pdfReaderParamsLiveData.observeAsState(null)
 
   if (pdfReaderParams == null) {
-    pdfReaderViewModel.loadItem(slug = slug)
+    pdfReaderViewModel.loadItem(slug = slug, context)
   }
 
   if (pdfReaderParams != null) {
-    PDFDocumentView(urlString = pdfReaderParams!!.item.pageURLString)
+    PDFDocumentView(documentUri = pdfReaderParams!!.localFileUri)
   } else {
     // TODO: add a proper loading view
     Text("Loading...")
@@ -53,7 +54,7 @@ fun PDFReaderLoadingContainer(slug: String, pdfReaderViewModel: PDFReaderViewMod
 
 @OptIn(ExperimentalPSPDFKitApi::class)
 @Composable
-fun PDFDocumentView(urlString: String) {
+fun PDFDocumentView(documentUri: Uri) {
   val context = LocalContext.current
 
   val pdfActivityConfiguration = remember {
@@ -64,8 +65,7 @@ fun PDFDocumentView(urlString: String) {
   }
 
   val pdfDocumentState = rememberDocumentState(
-    documentUri = Uri.parse("file:///android_asset/test.pdf"),
-//  documentUri = Uri.parse(urlString),
+    documentUri = documentUri,
     configuration = pdfActivityConfiguration
   )
 
