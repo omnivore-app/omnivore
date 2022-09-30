@@ -5,20 +5,30 @@ import SwiftGraphQL
 
 public extension DataService {
   func deleteHighlight(highlightID: String) {
-    if let highlight = Highlight.lookup(byID: highlightID, inContext: backgroundContext) {
+    if let highlight = Highlight.lookup(byID: highlightID, inContext: viewContext) {
       deleteHighlight(objectID: highlight.objectID)
     }
   }
 
   private func deleteHighlight(objectID: NSManagedObjectID) {
     // Update CoreData
-    backgroundContext.perform { [weak self] in
-      guard let self = self else { return }
-      guard let highlight = self.backgroundContext.object(with: objectID) as? Highlight else { return }
-      highlight.remove(inContext: self.backgroundContext)
+    viewContext.performAndWait {
+      guard let highlight = viewContext.object(with: objectID) as? Highlight else { return }
+      highlight.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
 
-      // Send update to server
-      self.syncHighlightDeletion(highlightID: highlight.unwrappedID, objectID: objectID)
+      do {
+        try viewContext.save()
+        logger.debug("Highlight succesfully marked for deletion")
+      } catch {
+        viewContext.rollback()
+        logger.debug("Failed to mark Highlight for deletion: \(error.localizedDescription)")
+      }
+    }
+
+    // Send update to server
+    backgroundContext.perform { [weak self] in
+      guard let highlight = self?.backgroundContext.object(with: objectID) as? Highlight else { return }
+      self?.syncHighlightDeletion(highlightID: highlight.unwrappedID, objectID: objectID)
     }
   }
 
