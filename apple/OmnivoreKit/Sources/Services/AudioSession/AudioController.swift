@@ -390,7 +390,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
-  @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = true
+  @AppStorage(UserDefaultKey.textToSpeechPreloadEnabled.rawValue) public var preloadEnabled = false
 
   public var currentVoiceLanguage: VoiceLanguage {
     Voices.Languages.first(where: { $0.key == currentLanguage }) ?? Voices.English
