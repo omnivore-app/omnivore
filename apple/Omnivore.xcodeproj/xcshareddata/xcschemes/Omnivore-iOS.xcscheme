@@ -20,6 +20,20 @@
                ReferencedContainer = "container:Omnivore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "42E2BFB028E458E0007F29B2"
+               BuildableName = "AppStoreScreenshots.xctest"
+               BlueprintName = "AppStoreScreenshots"
+               ReferencedContainer = "container:Omnivore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -51,6 +65,17 @@
                BlueprintIdentifier = "042F48D826DFD10E00BF98FC"
                BuildableName = "UITests-iOS.xctest"
                BlueprintName = "UITests-iOS"
+               ReferencedContainer = "container:Omnivore.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "42E2BFB028E458E0007F29B2"
+               BuildableName = "AppStoreScreenshots.xctest"
+               BlueprintName = "AppStoreScreenshots"
                ReferencedContainer = "container:Omnivore.xcodeproj">
             </BuildableReference>
          </TestableReference>
