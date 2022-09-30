@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'mocha'
-import { getYoutubeVideoId } from '../src/content/youtube-handler'
+import { getYoutubeVideoId } from '../src/websites/youtube-handler'
 
 describe('getYoutubeVideoId', () => {
   it('should parse video id out of a URL', async () => {

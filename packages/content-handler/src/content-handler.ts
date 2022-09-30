@@ -1,6 +1,8 @@
 import addressparser from 'addressparser'
 import rfc2047 from 'rfc2047'
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuid } from 'uuid'
+import { parseHTML } from 'linkedom'
+import axios from 'axios'
 
 interface Unsubscribe {
   mailTo?: string
@@ -34,16 +36,17 @@ export interface PreHandleResult {
   dom?: Document
 }
 
+export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+export const generateUniqueUrl = () => FAKE_URL_PREFIX + uuid()
+
 export abstract class ContentHandler {
   protected senderRegex: RegExp
   protected urlRegex: RegExp
-  protected defaultUrl: string
-  public name: string
+  name: string
 
   protected constructor() {
     this.senderRegex = new RegExp(/NEWSLETTER_SENDER_REGEX/)
     this.urlRegex = new RegExp(/NEWSLETTER_URL_REGEX/)
-    this.defaultUrl = 'NEWSLETTER_DEFAULT_URL'
     this.name = 'Handler name'
   }
 
@@ -63,17 +66,57 @@ export abstract class ContentHandler {
     return Promise.resolve({ url, dom })
   }
 
-  isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
-    return false
+  async isNewsletter(input: {
+    postHeader: string
+    from: string
+    unSubHeader: string
+    html?: string
+  }): Promise<boolean> {
+    const re = new RegExp(this.senderRegex)
+    return Promise.resolve(
+      re.test(input.from) && (!!input.postHeader || !!input.unSubHeader)
+    )
   }
 
-  parseNewsletterUrl(_postHeader: string, html: string): string | undefined {
+  findNewsletterHeaderHref(dom: Document): string | undefined {
+    return undefined
+  }
+
+  // Given an HTML blob tries to find a URL to use for
+  // a canonical URL.
+  async findNewsletterUrl(html: string): Promise<string | undefined> {
+    const dom = parseHTML(html).document
+
+    // Check if this is a substack newsletter
+    const href = this.findNewsletterHeaderHref(dom)
+    if (href) {
+      // Try to make a HEAD request, so we get the redirected URL, since these
+      // will usually be behind tracking url redirects
+      try {
+        const response = await axios.head(href, { timeout: 5000 })
+        return Promise.resolve(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          response.request.res.responseUrl as string | undefined
+        )
+      } catch (e) {
+        console.log('error making HEAD request', e)
+        return Promise.resolve(href)
+      }
+    }
+
+    return Promise.resolve(undefined)
+  }
+
+  async parseNewsletterUrl(
+    _postHeader: string,
+    html: string
+  ): Promise<string | undefined> {
     // get newsletter url from html
     const matches = html.match(this.urlRegex)
     if (matches) {
-      return matches[1]
+      return Promise.resolve(matches[1])
     }
-    return undefined
+    return Promise.resolve(undefined)
   }
 
   parseAuthor(from: string): string {
@@ -97,14 +140,14 @@ export abstract class ContentHandler {
     }
   }
 
-  handleNewsletter({
+  async handleNewsletter({
     email,
     html,
     postHeader,
     title,
     from,
     unSubHeader,
-  }: NewsletterInput): NewsletterResult {
+  }: NewsletterInput): Promise<NewsletterResult> {
     console.log('handleNewsletter', email, postHeader, title, from)
 
     if (!email || !html || !title || !from) {
@@ -115,8 +158,7 @@ export abstract class ContentHandler {
     // fallback to default url if newsletter url does not exist
     // assign a random uuid to the default url to avoid duplicate url
     const url =
-      this.parseNewsletterUrl(postHeader, html) ||
-      `${this.defaultUrl}?source=newsletters&id=${uuidv4()}`
+      (await this.parseNewsletterUrl(postHeader, html)) || generateUniqueUrl()
     const author = this.parseAuthor(from)
     const unsubscribe = this.parseUnsubscribe(unSubHeader)
 

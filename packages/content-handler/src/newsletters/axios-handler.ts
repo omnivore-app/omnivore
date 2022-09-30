@@ -5,7 +5,6 @@ export class AxiosHandler extends ContentHandler {
     super()
     this.senderRegex = /<.+@axios.com>/
     this.urlRegex = /View in browser at <a.*>(.*)<\/a>/
-    this.defaultUrl = 'https://axios.com'
     this.name = 'axios'
   }
 
@@ -43,11 +42,5 @@ export class AxiosHandler extends ContentHandler {
     })
 
     return Promise.resolve({ dom })
-  }
-
-  isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
-    // Axios newsletter is from <xx@axios.com>
-    const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!postHeader || !!unSubHeader)
   }
 }

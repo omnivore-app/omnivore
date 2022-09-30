@@ -1,4 +1,4 @@
-import { AppleNewsHandler } from '../src/content/apple-news-handler'
+import { AppleNewsHandler } from '../src/websites/apple-news-handler'
 
 describe('open a simple web page', () => {
   it('should return a response', async () => {

@@ -5,7 +5,6 @@ export class BloombergNewsletterHandler extends ContentHandler {
     super()
     this.senderRegex = /<.+@mail.bloomberg.*.com>/
     this.urlRegex = /<a class="view-in-browser__url" href=["']([^"']*)["']/
-    this.defaultUrl = 'https://www.bloomberg.com'
     this.name = 'bloomberg'
   }
 
@@ -34,11 +33,5 @@ export class BloombergNewsletterHandler extends ContentHandler {
     body?.querySelector('.footer')?.remove()
 
     return Promise.resolve({ dom })
-  }
-
-  isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
-    // Axios newsletter is from <xx@axios.com>
-    const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!postHeader || !!unSubHeader)
   }
 }

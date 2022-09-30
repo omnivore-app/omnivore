@@ -78,7 +78,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       try {
         // check if it is a confirmation email or forwarding newsletter
-        const newsletterMessage = handleNewsletter({
+        const newsletterMessage = await handleNewsletter({
           from,
           html,
           postHeader,
