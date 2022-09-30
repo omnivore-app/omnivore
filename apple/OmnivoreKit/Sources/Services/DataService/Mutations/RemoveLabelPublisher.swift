@@ -5,14 +5,21 @@ import SwiftGraphQL
 extension DataService {
   public func removeLabel(labelID: String, name: String) {
     // Update CoreData
-    backgroundContext.perform { [weak self] in
-      guard let self = self else { return }
-      guard let label = LinkedItemLabel.lookup(byID: labelID, inContext: self.backgroundContext) else { return }
-      label.remove(inContext: self.backgroundContext)
+    viewContext.performAndWait {
+      guard let label = LinkedItemLabel.lookup(byID: labelID, inContext: self.viewContext) else { return }
+      label.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
 
-      // Send update to server
-      self.syncLabelDeletion(labelID: labelID, labelName: name)
+      do {
+        try viewContext.save()
+        logger.debug("Label succesfully marked for deletion")
+      } catch {
+        viewContext.rollback()
+        logger.debug("Failed to mark Label for deletion: \(error.localizedDescription)")
+      }
     }
+
+    // Send update to server
+    syncLabelDeletion(labelID: labelID, labelName: name)
   }
 
   func syncLabelDeletion(labelID: String, labelName _: String) {

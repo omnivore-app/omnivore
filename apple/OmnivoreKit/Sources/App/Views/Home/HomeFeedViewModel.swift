@@ -233,7 +233,7 @@ import Views
 
   func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
     Snackbar.show(message: "Link removed")
-    dataService.removeLink(objectID: objectID, useViewContext: true)
+    dataService.removeLink(objectID: objectID)
   }
 
   func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
