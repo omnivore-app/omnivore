@@ -18,10 +18,7 @@ import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.home.HomeView
 import app.omnivore.omnivore.ui.home.HomeViewModel
-import app.omnivore.omnivore.ui.reader.ArticleWebView
-import app.omnivore.omnivore.ui.reader.WebReader
-import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainer
-import app.omnivore.omnivore.ui.reader.WebReaderViewModel
+import app.omnivore.omnivore.ui.reader.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
