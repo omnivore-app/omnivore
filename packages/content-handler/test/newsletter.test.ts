@@ -156,7 +156,7 @@ describe('Newsletter email test', () => {
       expect(url).to.startWith(
         'https://newsletter.slowchinese.net/p/companies-that-eat-people-217'
       )
-    })
+    }).timeout(10000)
     it('gets the URL from the header if it is a beehiiv newsletter', async () => {
       nock('https://u23463625.ct.sendgrid.net')
         .head(
