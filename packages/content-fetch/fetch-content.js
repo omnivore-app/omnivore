@@ -9,16 +9,10 @@ const puppeteer = require('puppeteer-core');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const { parseHTML } = require('linkedom');
+const { preHandleContent } = require('@omnivore/content-handler');
+
 const signToken = promisify(jwt.sign);
-const { appleNewsHandler } = require('./apple-news-handler');
-const { twitterHandler } = require('./twitter-handler');
-const { youtubeHandler } = require('./youtube-handler');
-const { tDotCoHandler } = require('./t-dot-co-handler');
-const { pdfHandler } = require('./pdf-handler');
-const { mediumHandler } = require('./medium-handler');
-const { derstandardHandler } = require('./derstandard-handler');
-const { imageHandler } = require('./image-handler');
-const { scrapingBeeHandler } = require('./scrapingBee-handler')
 
 const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
@@ -28,8 +22,6 @@ const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
-
-const { parseHTML } = require('linkedom');
 
 // Add stealth plugin to hide puppeteer usage
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -207,19 +199,6 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
   );
 };
 
-const handlers = {
-  'pdf': pdfHandler,
-  'apple-news': appleNewsHandler,
-  'twitter': twitterHandler,
-  'youtube': youtubeHandler,
-  't-dot-co': tDotCoHandler,
-  'medium': mediumHandler,
-  'derstandard': derstandardHandler,
-  'image': imageHandler,
-  'scrapingBee': scrapingBeeHandler,
-};
-
-
 async function fetchContent(req, res) {
   functionStartTime = Date.now();
 
@@ -246,61 +225,19 @@ async function fetchContent(req, res) {
     return res.sendStatus(400);
   }
 
-  // if (!userId || !articleSavingRequestId) {
-  //   Object.assign(logRecord, { invalidParams: true, body: req.body, query: req.query });
-  //   console.log(`Invalid parameters`, logRecord);
-  //   return res.sendStatus(400);
-  // }
-
-  // Before we run the regular handlers we check to see if we need tp
-  // pre-resolve the URL. TODO: This should probably happen recursively,
-  // so URLs can be pre-resolved, handled, pre-resolved, handled, etc.
-  for (const [key, handler] of Object.entries(handlers)) {
-    if (handler.shouldResolve && handler.shouldResolve(url)) {
-      try {
-        url = await handler.resolve(url);
-        validateUrlString(url);
-      } catch (err) {
-        console.log('error resolving url with handler', key, err);
-      }
-      break;
+  // pre handle url with custom handlers
+  let title, content, contentType;
+  try {
+    const result = await preHandleContent(url);
+    if (result && result.url) {
+      url = result.url
+      validateUrlString(url);
     }
-  }
-
-  // Before we fetch the page we check the handlers, to see if they want
-  // to perform a prefetch action that can modify our requests.
-  // enumerate the handlers and see if any of them want to handle the request
-  const handler = Object.keys(handlers).find(key => {
-    try {
-      return handlers[key].shouldPrehandle(url)
-    } catch (e) {
-      console.log('error with handler: ', key, e);
-    }
-    return false;
-  });
-
-  var title = undefined;
-  var content = undefined;
-  var contentType = undefined;
-
-  if (handler) {
-    try {
-      // The only handler we have now can modify the URL, but in the
-      // future maybe we let it modify content. In that case
-      // we might exit the request early.
-      console.log('pre-handling url with handler: ', handler);
-
-      const result = await handlers[handler].prehandle(url);
-      if (result && result.url) {
-        url = result.url
-        validateUrlString(url);
-      }
-      if (result && result.title) { title = result.title }
-      if (result && result.content) { content = result.content }
-      if (result && result.contentType) { contentType = result.contentType }
-    } catch (e) {
-      console.log('error with handler: ', handler, e);
-    }
+    if (result && result.title) { title = result.title }
+    if (result && result.content) { content = result.content }
+    if (result && result.contentType) { contentType = result.contentType }
+  } catch (e) {
+    console.log('error with handler: ', e);
   }
 
   let context, page, finalUrl;

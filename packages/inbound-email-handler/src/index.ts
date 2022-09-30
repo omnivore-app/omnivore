@@ -9,35 +9,27 @@ import * as multipart from 'parse-multipart-data'
 import {
   handleConfirmation,
   isConfirmationEmail,
-  NewsletterHandler,
   parseUnsubscribe,
 } from './newsletter'
 import { PubSub } from '@google-cloud/pubsub'
 import { handlePdfAttachment } from './pdf'
-import { SubstackHandler } from './substack-handler'
-import { AxiosHandler } from './axios-handler'
-import { BloombergHandler } from './bloomberg-handler'
-import { GolangHandler } from './golang-handler'
-import { MorningBrewHandler } from './morning-brew-handler'
+import { handleNewsletter } from '@omnivore/content-handler'
 
+const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
-const NEWSLETTER_HANDLERS = [
-  new SubstackHandler(),
-  new AxiosHandler(),
-  new BloombergHandler(),
-  new GolangHandler(),
-  new MorningBrewHandler(),
-]
 
-export const getNewsletterHandler = (
-  postHeader: string,
-  from: string,
-  unSubHeader: string
-): NewsletterHandler | undefined => {
-  return NEWSLETTER_HANDLERS.find((h) => {
-    return h.isNewsletter(postHeader, from, unSubHeader)
-  })
+export const publishMessage = async (
+  topic: string,
+  message: any
+): Promise<string | undefined> => {
+  return pubsub
+    .topic(topic)
+    .publishMessage({ json: message })
+    .catch((err) => {
+      console.log('error publishing message:', err)
+      return undefined
+    })
 }
 
 export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -86,23 +78,20 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       try {
         // check if it is a confirmation email or forwarding newsletter
-        const newsletterHandler = getNewsletterHandler(
-          postHeader,
+        const newsletterMessage = await handleNewsletter({
           from,
-          unSubHeader
-        )
-
-        if (newsletterHandler) {
-          console.log('handleNewsletter', from, to)
-          await newsletterHandler.handleNewsletter(
-            to,
-            html,
-            postHeader,
-            subject,
-            from,
-            unSubHeader
+          html,
+          postHeader,
+          unSubHeader,
+          email: to,
+          title: subject,
+        })
+        if (newsletterMessage) {
+          await publishMessage(
+            NEWSLETTER_EMAIL_RECEIVED_TOPIC,
+            newsletterMessage
           )
-          return res.send('ok')
+          return res.status(200).send('newsletter received')
         }
 
         console.log('non-newsletter email from', from, 'to', to)

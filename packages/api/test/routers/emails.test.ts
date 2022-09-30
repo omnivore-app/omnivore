@@ -52,35 +52,8 @@ describe('Emails Router', () => {
       sinon.restore()
     })
 
-    context('when email is a newsletter', () => {
-      before(() => {
-        sinon.replace(parser, 'isProbablyNewsletter', sinon.fake.resolves(true))
-      })
-
-      it('saves the email as a newsletter', async () => {
-        const data = {
-          message: {
-            data: Buffer.from(
-              JSON.stringify({ from, to, subject, html })
-            ).toString('base64'),
-            publishTime: new Date().toISOString(),
-          },
-        }
-        const res = await request
-          .post(`/svc/pubsub/emails/forward?token=${token}`)
-          .send(data)
-          .expect(200)
-        expect(res.text).to.eql('Newsletter')
-      })
-    })
-
     context('when email is an article', () => {
       before(() => {
-        sinon.replace(
-          parser,
-          'isProbablyNewsletter',
-          sinon.fake.resolves(false)
-        )
         sinon.replace(parser, 'isProbablyArticle', sinon.fake.resolves(true))
       })
 
@@ -103,11 +76,6 @@ describe('Emails Router', () => {
 
     context('when email is a regular email', () => {
       before(() => {
-        sinon.replace(
-          parser,
-          'isProbablyNewsletter',
-          sinon.fake.resolves(false)
-        )
         sinon.replace(parser, 'isProbablyArticle', sinon.fake.resolves(false))
       })
 

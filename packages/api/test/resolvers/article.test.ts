@@ -10,7 +10,11 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { UpdateReason, UploadFileStatus } from '../../src/generated/graphql'
+import {
+  SyncUpdatedItemEdge,
+  UpdateReason,
+  UploadFileStatus,
+} from '../../src/generated/graphql'
 import {
   ArticleSavingRequestStatus,
   Highlight,
@@ -1033,7 +1037,11 @@ describe('Article API', () => {
         authToken
       ).expect(200)
 
-      expect(res.body.data.updatesSince.edges.length).to.eql(3)
+      expect(
+        res.body.data.updatesSince.edges.filter(
+          (e: SyncUpdatedItemEdge) => e.updateReason === UpdateReason.Deleted
+        ).length
+      ).to.eql(3)
       expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
         deletedPages[0].id
       )
