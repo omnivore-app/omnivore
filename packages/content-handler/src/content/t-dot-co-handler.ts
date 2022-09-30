@@ -1,4 +1,4 @@
-import { ContentHandler } from './content-handler'
+import { ContentHandler } from '../content-handler'
 import axios from 'axios'
 
 export class TDotCoHandler extends ContentHandler {

@@ -1,13 +1,10 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
-import { ContentHandler, PreHandleResult } from './content-handler'
+import { ContentHandler, PreHandleResult } from '../content-handler'
 
 export class BloombergHandler extends ContentHandler {
   constructor() {
     super()
-    this.senderRegex = /<.+@mail.bloomberg.*.com>/
-    this.urlRegex = /<a class="view-in-browser__url" href=["']([^"']*)["']/
-    this.defaultUrl = 'https://www.bloomberg.com'
     this.name = 'Bloomberg'
   }
 
@@ -40,11 +37,5 @@ export class BloombergHandler extends ContentHandler {
       console.error('error prehandling bloomberg url', error)
       throw error
     }
-  }
-
-  isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
-    // Axios newsletter is from <xx@axios.com>
-    const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!postHeader || !!unSubHeader)
   }
 }

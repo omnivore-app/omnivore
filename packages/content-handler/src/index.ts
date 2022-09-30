@@ -1,23 +1,25 @@
-import { AppleNewsHandler } from './apple-news-handler'
-import { BloombergHandler } from './bloomberg-handler'
-import { DerstandardHandler } from './derstandard-handler'
-import { ImageHandler } from './image-handler'
-import { MediumHandler } from './medium-handler'
-import { PdfHandler } from './pdf-handler'
-import { ScrapingBeeHandler } from './scrapingBee-handler'
-import { TDotCoHandler } from './t-dot-co-handler'
-import { TwitterHandler } from './twitter-handler'
-import { YoutubeHandler } from './youtube-handler'
+import { AppleNewsHandler } from './content/apple-news-handler'
+import { BloombergHandler } from './content/bloomberg-handler'
+import { DerstandardHandler } from './content/derstandard-handler'
+import { ImageHandler } from './content/image-handler'
+import { MediumHandler } from './content/medium-handler'
+import { PdfHandler } from './content/pdf-handler'
+import { ScrapingBeeHandler } from './content/scrapingBee-handler'
+import { TDotCoHandler } from './content/t-dot-co-handler'
+import { TwitterHandler } from './content/twitter-handler'
+import { YoutubeHandler } from './content/youtube-handler'
 import {
   ContentHandler,
   NewsletterInput,
   NewsletterResult,
   PreHandleResult,
 } from './content-handler'
-import { SubstackHandler } from './substack-handler'
-import { AxiosHandler } from './axios-handler'
-import { GolangHandler } from './golang-handler'
-import { MorningBrewHandler } from './morning-brew-handler'
+import { SubstackHandler } from './newsletters/substack-handler'
+import { AxiosHandler } from './newsletters/axios-handler'
+import { GolangHandler } from './newsletters/golang-handler'
+import { MorningBrewHandler } from './newsletters/morning-brew-handler'
+import { BloombergNewsletterHandler } from './newsletters/bloomberg-newsletter-handler'
+import { WikipediaHandler } from './content/wikipedia-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -46,9 +48,14 @@ const contentHandlers: ContentHandler[] = [
   new TDotCoHandler(),
   new TwitterHandler(),
   new YoutubeHandler(),
-  new SubstackHandler(),
+  new WikipediaHandler(),
+]
+
+const newsletterHandlers: ContentHandler[] = [
   new AxiosHandler(),
+  new BloombergNewsletterHandler(),
   new GolangHandler(),
+  new SubstackHandler(),
   new MorningBrewHandler(),
 ]
 
@@ -87,7 +94,7 @@ export const preHandleContent = async (
 export const handleNewsletter = (
   input: NewsletterInput
 ): NewsletterResult | undefined => {
-  for (const handler of contentHandlers) {
+  for (const handler of newsletterHandlers) {
     if (handler.isNewsletter(input.postHeader, input.from, input.unSubHeader)) {
       return handler.handleNewsletter(input)
     }

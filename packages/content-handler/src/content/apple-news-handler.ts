@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
-import { ContentHandler, PreHandleResult } from './content-handler'
+import { ContentHandler, PreHandleResult } from '../content-handler'
 
 export class AppleNewsHandler extends ContentHandler {
   constructor() {

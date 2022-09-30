@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from './content-handler'
+import { ContentHandler, PreHandleResult } from '../content-handler'
 
 export class MediumHandler extends ContentHandler {
   constructor() {

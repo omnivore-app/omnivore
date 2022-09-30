@@ -59,8 +59,8 @@ export abstract class ContentHandler {
     return false
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
-    return Promise.resolve({ url, dom: document })
+  async preHandle(url: string, dom?: Document): Promise<PreHandleResult> {
+    return Promise.resolve({ url, dom })
   }
 
   isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {

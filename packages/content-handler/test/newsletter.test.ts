@@ -1,9 +1,9 @@
 import { expect } from 'chai'
-import { SubstackHandler } from '../src/substack-handler'
-import { AxiosHandler } from '../src/axios-handler'
-import { BloombergHandler } from '../src/bloomberg-handler'
-import { GolangHandler } from '../src/golang-handler'
-import { MorningBrewHandler } from '../src/morning-brew-handler'
+import { SubstackHandler } from '../src/newsletters/substack-handler'
+import { AxiosHandler } from '../src/newsletters/axios-handler'
+import { BloombergNewsletterHandler } from '../src/newsletters/bloomberg-newsletter-handler'
+import { GolangHandler } from '../src/newsletters/golang-handler'
+import { MorningBrewHandler } from '../src/newsletters/morning-brew-handler'
 
 describe('Newsletter email test', () => {
   describe('#getNewsletterUrl()', () => {
@@ -30,7 +30,9 @@ describe('Newsletter email test', () => {
         </a>
       `
 
-      expect(new BloombergHandler().parseNewsletterUrl('', html)).to.equal(url)
+      expect(
+        new BloombergNewsletterHandler().parseNewsletterUrl('', html)
+      ).to.equal(url)
     })
 
     it('returns url when email is from Golang Weekly', () => {
