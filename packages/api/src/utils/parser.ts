@@ -483,7 +483,7 @@ export const fetchFavicon = async (
 ): Promise<string | undefined> => {
   try {
     // get the correct url if it's a redirect
-    const response = await axios.get(url, { timeout: 5000 })
+    const response = await axios.head(url, { timeout: 5000 })
     const realUrl = response.request.res.responseUrl
     const domain = new URL(realUrl).hostname
     return `https://api.faviconkit.com/${domain}/32`
