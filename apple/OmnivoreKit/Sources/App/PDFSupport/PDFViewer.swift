@@ -39,6 +39,7 @@ import Utils
           .useParentNavigationBar(true)
           .updateConfiguration { builder in
             builder.textSelectionShouldSnapToWord = true
+            builder.shouldAskForAnnotationUsername = false
           }
           .updateControllerConfiguration { controller in
             // Store config state so we only run this update closure once
