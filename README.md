@@ -17,7 +17,7 @@ We built Omnivore because we love reading and we want it to be more social. Join
 - Automatically saves your place in long articles
 - Add articles via email (with substack support!)
 - PDF support
-- [Web app](https://omnivore.app/) written in node and typescript
+- [Web app](https://omnivore.app/) written in Node.js and TypeScript
 - [Native iOS app](https://omnivore.app/install/ios)
 - Progressive web app for Android users
 - Browser extensions for [Chrome](https://omnivore.app/install/chrome), [Safari](https://omnivore.app/install/safari), [Firefox](https://omnivore.app/install/firefox), and [Edge](https://omnivore.app/install/edge)
@@ -46,7 +46,7 @@ Omnivore takes advantage of some great open source software:
 * [Stitches](https://stitches.dev/) - We use Stitches on the frontend to style our components.
 * [Mozilla Readability](https://github.com/mozilla/readability) - We use Mozilla's Readability library to make pages easier to read.
 * [Swift GraphQL](https://www.swift-graphql.com/) - We generate our GraphQL queries on iOS using Swift GraphQL.
-* [Radix](https://www.radix-ui.com/) - We use Raxix UI's components on our frontend.
+* [Radix](https://www.radix-ui.com/) - We use Radix UI's components on our frontend.
 * And many more awesome libraries, just checkout our package files to see what we are using.
 
 ## Importing Libraries
@@ -62,7 +62,7 @@ The easiest way to get started with local development is to use `docker-compose 
 
 Omnivore is written in TypeScript and JavaScript.
 
-* [Node](https://nodejs.org/) -- currently we are using nodejs v14.18
+* [Node](https://nodejs.org/) -- currently we are using Node.js v14.18
 * [Chromium](https://www.chromium.org/chromium-projects/) -- see below for installation info
 
 ###  Running the web and API services
