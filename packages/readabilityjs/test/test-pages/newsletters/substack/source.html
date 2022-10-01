@@ -1,0 +1,3156 @@
+<html>
+  <head>
+    <title>Tic's Weekly Thoughts</title>
+    <style>
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        .typography .markup table.image-wrapper img,
+        .typography.editor .markup table.image-wrapper img,
+        .typography .markup table.kindle-wrapper img,
+        .typography.editor .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography .markup iframe.spotify-wrap,
+        .typography.editor .markup iframe.spotify-wrap,
+        .typography .markup a.spotify-wrap,
+        .typography.editor .markup a.spotify-wrap {
+          width: auto !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography .markup div.youtube-wrap div.youtube-screen,
+        .typography.editor .markup div.youtube-wrap div.youtube-screen,
+        .typography .markup div.vimeo-wrap div.youtube-screen,
+        .typography.editor .markup div.vimeo-wrap div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe,
+        .typography.editor
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 28px 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 28px 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        .typography.editor
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media print {
+        .typography .markup .button-wrapper,
+        .typography.editor .markup .button-wrapper {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .typography .markup .apple-podcast-container,
+        .typography.editor .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container {
+          height: 38px;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.comment {
+          height: 38px;
+          line-height: 38px;
+          padding-right: 10px;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container .separator {
+          display: block;
+          margin: 0;
+          height: 8px;
+          border-left: none;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .share-button-container a.share.first img {
+          padding-left: 0;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        .share-button-container a.mobile {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 1000px) {
+        .congrats-box {
+          flex-direction: column;
+        }
+        .congrats-box .congrats-box-right {
+          margin-left: 38px;
+          margin-top: 16px;
+        }
+      }
+
+      @media screen and (max-width: 500px) {
+        .congrats-box {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post {
+          padding: 15px 0 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post
+          .post-header
+          .meta-author-wrap.alternative-meta
+          .meta-right-column
+          table.post-meta {
+          margin-top: 6px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-contributor-footer .post-contributor-bio-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-table-row {
+          display: flex;
+          flex-direction: row;
+        }
+        .post-contributor-footer .post-contributor-bio-userhead-cell,
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-cell {
+          flex-grow: 1;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-body-table-row {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell,
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          display: block;
+        }
+        .post-contributor-footer .post-contributor-bio-copy-cell {
+          margin: 0 0 16px 0;
+        }
+        .post-contributor-footer .post-contributor-bio-controls-cell {
+          width: auto;
+        }
+        .post-contributor-footer .post-contributor-bio-controls {
+          margin: auto;
+        }
+        .post-contributor-footer
+          .post-contributor-bio-controls
+          .button.primary {
+          width: 100%;
+        }
+        .post-contributor-footer .post-contributor-bio-text {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (min-width: 768px) {
+        .post-silhouette {
+          padding: 15px 0;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-silhouette .post-silhouette-title {
+          margin-top: 10.44225025px;
+          height: 120px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-silhouette .post-silhouette-meta {
+          width: 75%;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-silhouette .post-silhouette-meta.with-byline-image {
+          margin: 20px 0;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .use-theme-bg table.post-meta.alternative-meta tr td.post-meta-item,
+        table.post-meta.alternative-meta tr td.post-meta-item {
+          padding-right: 16px;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        .use-theme-bg table.post-meta.alternative-meta tr td.post-meta-item,
+        table.post-meta.alternative-meta tr td.post-meta-item {
+          font-size: 14px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .use-theme-bg
+          table.post-meta.alternative-meta
+          tr
+          td.post-meta-item.guest-author-publication,
+        table.post-meta.alternative-meta
+          tr
+          td.post-meta-item.guest-author-publication {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        table.post-meta tr td.post-meta-item .post-meta-button {
+          height: 36px !important;
+        }
+        table.post-meta
+          tr
+          td.post-meta-item
+          .post-meta-button
+          .meta-button-label {
+          display: none;
+        }
+        table.post-meta tr td.post-meta-item .post-meta-button > svg {
+          margin-right: 0;
+        }
+      }
+
+      @media screen and (max-width: 370px) {
+        table.post-meta tr td.post-meta-item {
+          font-size: 12px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-preview > .post-preview-image {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .post-preview-silhouette .post-preview-silhouette-image {
+          display: none;
+        }
+      }
+
+      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        body .markup table.image-wrapper img,
+        body .markup table.kindle-wrapper img {
+          max-width: 550px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body .markup iframe.spotify-wrap,
+        body .markup a.spotify-wrap {
+          width: auto !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body .markup div.youtube-wrap div.youtube-screen,
+        body .markup div.vimeo-wrap div.youtube-screen {
+          display: none !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body
+          .markup
+          div.embedded-publication-wrap
+          .embedded-publication.show-subscribe {
+          padding: 28px 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe,
+        body
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe {
+          padding: 28px 24px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body
+          .markup
+          div.subscription-widget-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button,
+        body
+          .markup
+          div.captioned-button-wrap
+          .subscription-widget.show-subscribe
+          .subscription-widget-subscribe
+          .button {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media print {
+        body .markup .button-wrapper {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body .markup .apple-podcast-container {
+          width: unset;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        body .header a.logo {
+          width: 42px;
+          height: 42px;
+          border-radius: 6px;
+        }
+      }
+
+      @media screen and (max-width: 420px) {
+        body
+          .subscription-receipt
+          table:first-of-type
+          .subscription-amount
+          .subscription-discount {
+          width: 72px !important;
+        }
+      }
+
+      @media screen and (min-width: 481px) {
+        body .share-button-container {
+          height: auto;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        body .share-button-container .separator {
+          display: block !important;
+          margin: 0 !important;
+          height: 8px !important;
+          border-left: none !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        body .footer {
+          outline: 8px solid #f8f8f8 !important;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .digest .item .post-meta-item.audience {
+          display: none;
+        }
+      }
+
+      @media screen and (min-width: 500px) {
+        .digest-publication .logo img {
+          width: 42px;
+          height: 42px;
+          border-radius: 6px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .comments-page .container .comment-list .collapsed-reply {
+          margin-left: 18px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .comment > .comment-list {
+          padding-left: 25px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .finish-magic-login-modal .modal-content .container {
+          padding: 24px 0;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .user-profile-modal {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .subscribe-widget form.form .sideBySideWrap button.rightButton {
+          padding: 10px 12px;
+          min-width: 110px;
+        }
+      }
+
+      @media screen and (min-width: 541px) {
+        .pub-icon:hover .logo-hover,
+        .feed-item-icon:hover .logo-hover {
+          display: block;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor {
+          padding: 0;
+        }
+      }
+
+      @media screen and (max-width: 768px) {
+        .file-embed-wrapper-editor:active {
+          padding: 0;
+        }
+      }
+
+      @media only screen and (max-width: 630px) {
+        .file-embed-button.wide,
+        .file-embed-error-button.wide {
+          display: none;
+        }
+      }
+
+      @media only screen and (min-width: 630px) {
+        .file-embed-button.narrow,
+        .file-embed-error-button.narrow {
+          display: none;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper-fancy .audio-player .audio-player-progress {
+          border-left-width: 16px;
+          border-right-width: 16px;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-progress
+          .audio-player-progress-bar
+          .audio-player-progress-bar-popup {
+          top: -54px;
+        }
+      }
+
+      @media (max-width: 259px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 30%;
+          width: 30%;
+        }
+        .audio-player-wrapper-fancy .audio-player {
+          width: 100%;
+        }
+      }
+
+      @media (min-width: 400px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 60%;
+          width: 60%;
+        }
+      }
+
+      @media (min-width: 600px) {
+        .audio-player-wrapper-fancy
+          .audio-player
+          .audio-player-hero-image-container {
+          padding-top: 70%;
+          width: 70%;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .video-player-wrapper .video-player-button {
+          padding-top: 22.8%;
+        }
+      }
+
+      @media screen and (max-width: 540px) {
+        .video-player-wrapper .video-player-button.no-text {
+          padding-top: 18%;
+        }
+      }
+    </style>
+  </head>
+  <body class="email-body" style="font-kerning: auto">
+    <img
+      src="https://mailgun.substack.com/api/v1/email/open?token=eyJtIjoiPDIwMjIwMTI5MTcyMjEwLjIuZWUxNzZmOTAwOWMyZmMzMi5tdm5nYjZwNkBtZzIuc3Vic3RhY2suY29tPiIsInUiOjcyNTc3NzIxLCJyIjoic3kud3VoYkBnbWFpbC5jb20iLCJkIjoibWcyLnN1YnN0YWNrLmNvbSIsInAiOjQ3OTAyNzQ1LCJzIjo1MzE0NjEsImMiOiJwb3N0IiwiZiI6dHJ1ZSwiaWF0IjoxNjQzNDc2OTM5LCJpc3MiOiJwdWItMCIsInN1YiI6ImVvIn0.soFj8MudFpRhHTpsSetbfNf8vExB9EC4TxH0oOxUY1M"
+      alt=""
+      width="1"
+      height="1"
+      border="0"
+      style="
+        height: 1px !important;
+        width: 1px !important;
+        border-width: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      "
+    />
+    <div
+      style="
+        display: none;
+        font-size: 1px;
+        color: #333333;
+        line-height: 1px;
+        max-height: 0px;
+        max-width: 0px;
+        opacity: 0;
+        overflow: hidden;
+      "
+      class="preview"
+    >
+      Parts
+      Unknown...&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;&#160;&#8204;
+    </div>
+    <table
+      role="presentation"
+      width="100%"
+      border="0"
+      cellspacing="0"
+      cellpadding="0"
+      class="email-body-container"
+    >
+      <tr>
+        <td></td>
+        <td width="550" class="content"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td align="left" width="550" class="content">
+          <div
+            style="
+              font-size: 16px;
+              line-height: 26px;
+              margin: 0 auto;
+              max-width: 550px;
+              overflow-wrap: break-word;
+              width: 100%;
+            "
+          >
+            <div
+              dir="auto"
+              class="post typography"
+              style="font-size: 16px; line-height: 26px; padding: 9px 0"
+            >
+              <div
+                class="post-header"
+                style="font-size: 16px; line-height: 26px"
+              >
+                <h1
+                  class="post-title short published"
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 40px;
+                    font-weight: bold;
+                    line-height: 130%;
+                    margin: 0.378em 0 0 0;
+                  "
+                >
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxVkk2PozAMhn9NuRWRhJLmkMPOdLrL7MBMtx-a7gVB4kJaCIiEduHXbzo9jWTZku3XlvxY5BbKth951xrr3V1mxw64hpupwVrovcFAnynJKV5QSjHyJA8lWi6WnjLZqQdoclVz2w_gdUNRK5Fb1eq7YkFQGCGv4hJhQaBggYxYTgWjIqCRwEguTyyHoHgszgepQAvgcIV-bDV4Na-s7cyM_JjhtTOrhG2F7XOpdOmboTA2FxdftI0rdo8GM78BXOpxbqt2KCvr1GvbXkDPyArGVyTwYfzE9SU-tyQ570k6iTHZ3pT4ySa5Zt3f5zhKV2KRrGKSrvYmbupKulyyOwbJtCHp-TK9u_78M53cDCV-HdTbbj8luw1OtrGJdYqOKo5i_XQVZGNFc6iO5E9X4FCdNr743VyFfqs-XvP1P5jPRdptovHl_elj-TKKJCmfu6Z-295Mf_QUxwHGAcIMUYxR4GMfANHoxIKACXwSBPvNVZdF1EWzMGhK_O0mXs_N6N-GqnDF8k7pK-sgZS42g1Z2zEDnRQ3ywc8-3uCLaFaCht69h8xyy1EUkpBGjLDFkjxwOcAhZQGm4cJza2XrVJp_Q_QfomLN7g"
+                    style="color: #1a1a1a; text-decoration: none"
+                    >Tic's Weekly Thoughts
+                  </a>
+                </h1>
+                <h3
+                  class="subtitle"
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #767676;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 20px;
+                    font-weight: normal;
+                    line-height: 1.16em;
+                    margin: 4px 0 0;
+                    margin-top: 8px;
+                  "
+                >
+                  Parts Unknown...
+                </h3>
+                <table
+                  class="meta-author-wrap with-photo"
+                  style="margin: 1em 0"
+                >
+                  <tr class="meta-author-wrap-row">
+                    <td>
+                      <div
+                        class="user-head"
+                        style="font-size: 16px; line-height: 26px"
+                      >
+                        <a
+                          href="https://email.mg2.substack.com/c/eJxNkMtuwyAQRb8m7GLxxixYdNPfsHiMHVQbLMCJ_PclcReVGBhAo6tzvG2w5HKaPdeG3tvUzh1MglddoTUo6KhQphiMokIpRQkKhgcyihHFOs0FYLNxNa0cgPbDrdHbFnN6TwhGuCToYRyTiirvPHbakZFLB3pUHgQRUjHBr2B7hAjJg4EnlDMnQKt5tLbXG_u60e--6uFqs_5n8Hnr173kOa7QO0GYYJixe4v-3nKvYkNMC4qGYkoxoZooSgke6ABAlJw1xtrT2TM6bM-0OLnLG8fbQof_IaiYeg6v4-H65_IG_bx2zqmf25FiOydI1q0QLgXtMvmRMi2QoHTDYbLNEMkZV1IzLUZ2EXdHXGlMFReox4bcp5LpDB3hj-AXk-WLHA"
+                          ><div
+                            class="profile-img-wrap"
+                            style="
+                              font-size: 16px;
+                              line-height: 26px;
+                              position: relative;
+                            "
+                          >
+                            <img
+                              src="https://cdn.substack.com/image/fetch/w_90,h_90,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fd65d985d-b0d1-4d27-98a3-525d8fb5c3f5_1136x852.webp"
+                              height="45"
+                              width="45"
+                              alt=""
+                              style="
+                                border: none !important;
+                                border-radius: 50%;
+                                cursor: pointer;
+                                display: block;
+                                height: 45px;
+                                max-width: 550px;
+                                vertical-align: middle;
+                                width: 45px;
+                              "
+                            /></div
+                        ></a>
+                      </div>
+                    </td>
+                    <td class="meta-author-contents">
+                      <div
+                        class="meta-right-column"
+                        style="
+                          font-size: 16px;
+                          line-height: 1em;
+                          margin-left: 12px;
+                        "
+                      >
+                        <div
+                          class="meta-author"
+                          style="
+                            color: #767676;
+                            font-family: -apple-system, BlinkMacSystemFont,
+                              'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                              'Apple Color Emoji', 'Segoe UI Emoji',
+                              'Segoe UI Symbol';
+                            font-size: 14px;
+                            line-height: 17px;
+                          "
+                        >
+                          <a
+                            href="https://email.mg2.substack.com/c/eJxNkMtuwyAQRb8m7GLxxixYdNPfsHiMHVQbLMCJ_PclcReVGBhAo6tzvG2w5HKaPdeG3tvUzh1MglddoTUo6KhQphiMokIpRQkKhgcyihHFOs0FYLNxNa0cgPbDrdHbFnN6TwhGuCToYRyTiirvPHbakZFLB3pUHgQRUjHBr2B7hAjJg4EnlDMnQKt5tLbXG_u60e--6uFqs_5n8Hnr173kOa7QO0GYYJixe4v-3nKvYkNMC4qGYkoxoZooSgke6ABAlJw1xtrT2TM6bM-0OLnLG8fbQof_IaiYeg6v4-H65_IG_bx2zqmf25FiOydI1q0QLgXtMvmRMi2QoHTDYbLNEMkZV1IzLUZ2EXdHXGlMFReox4bcp5LpDB3hj-AXk-WLHA"
+                            style="color: #1a1a1a; text-decoration: none"
+                            >Tic Toc Trading</a
+                          >
+                        </div>
+                        <table
+                          cellpadding="0"
+                          cellspacing="0"
+                          class="post-meta custom"
+                          style="margin: 4px 0 0 0"
+                        >
+                          <tr>
+                            <td
+                              title="2022-01-29T17:22:16.940Z"
+                              class="post-meta-item post-date"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                line-height: 100%;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 0;
+                                padding-top: 0;
+                                position: relative;
+                                text-decoration: none;
+                                vertical-align: middle;
+                                white-space: nowrap;
+                              "
+                            >
+                              <time datetime="2022-01-29T17:22:16.940Z"
+                                >Jan 29</time
+                              >
+                            </td>
+                            <td
+                              class="post-meta-item icon"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                line-height: 100%;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 0;
+                                padding-top: 0;
+                                position: relative;
+                                text-decoration: none;
+                                text-indent: 3px;
+                                vertical-align: middle;
+                                white-space: nowrap;
+                              "
+                            >
+                              <a
+                                class=""
+                                href="https://email.mg2.substack.com/c/eJxVUk2PmzAQ_TXhFgQ2GHzg0N1sWraB3TQf2vSCwJ6AEzAIm6Tw62s27WEly7LevJnnmTcs11C2_Rh1rdLWfGV67CCScFc1aA29NSjoM8GjAPlBECDX4pHH3dAPLaGycw_Q5KKOdD-A1Q1FLViuRSvnDB-7HnGtKvLdokCUIBwShwY-J3nBEQPqUy8k4PCHcD5wAZJBBDfox1aCVUeV1p1a4G8LtDZHC6ZbpvucC1naaiiUztnVZm1jgt2DoJZ3gGs9LnXVDmWllYENoQFpnnit2yvIBV7B-OoydBw_UH2NLy1OLgecTmxMdnfBvtOJr2n3-zkm6Yr5ySrG6eqg4qauuMGS_clJpi1OL9fpzfDzj3QyNQT7cRSb_WFK9luU7GIVy9Q9iZjE8unG8Faz5lid8K-uQJ44b232s7kxuaneX_P1H1guWdptyfjy9vQevowsScrnrqk3u7vqTwtEBt1kqh16Bub3_1v_hzfAxdDMXc1eWCJCDkKOi6gbIOQ6NrIB3ICcqeNQhs4MI7u5ybIgHVl4TlOiL7O0-kiN9n2oChMs54qfqDE3mwc5SKHHDGRe1MAfvuvH-nyqZyVI6M1a8SzXkUs87AWEYuqH-GGzWQwvoA4KPN8ysrw1WTL6Yu1f58rhcw"
+                                style="
+                                  color: #767676;
+                                  display: block;
+                                  text-decoration: none;
+                                "
+                                ><img
+                                  src="https://cdn.substack.com/image/fetch/w_28,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FCommentIconRounded%3Fv%3D3%26height%3D28%26fill%3D%2523757575%26stroke%3D%2523757575%26strokeWidth%3D2"
+                                  width="14"
+                                  height="14"
+                                  style="
+                                    border: none !important;
+                                    display: inline-block;
+                                    float: left;
+                                    height: 14px;
+                                    max-width: 14px;
+                                    vertical-align: top;
+                                    width: auto;
+                                  "
+                                  alt="Comment"
+                                  class="comment-icon post-meta-icon"
+                              /></a>
+                            </td>
+                            <td
+                              class="post-meta-item icon"
+                              style="
+                                color: #767676;
+                                font-family: -apple-system, BlinkMacSystemFont,
+                                  'Segoe UI', Roboto, Helvetica, Arial,
+                                  sans-serif, 'Apple Color Emoji',
+                                  'Segoe UI Emoji', 'Segoe UI Symbol';
+                                font-size: 14px;
+                                font-weight: 400;
+                                height: 14px;
+                                line-height: 100%;
+                                margin-right: 0;
+                                padding: 0px 12px 0px 0;
+                                padding-bottom: 0;
+                                padding-right: 0;
+                                padding-top: 0;
+                                position: relative;
+                                text-decoration: none;
+                                text-indent: 3px;
+                                vertical-align: middle;
+                                white-space: nowrap;
+                              "
+                            >
+                              <span
+                                ><a
+                                  href="https://email.mg2.substack.com/c/eJxVUl2PmzAQ_DXhLQhsPh946F0uLdfAXZoPXfqCjL0BJ9ggbJKSX1-TXKWeZFny7IxXOzuUaKjafky6Vmlrugo9dpBIuKoGtIbeGhT0BWdJiPwwDJFrscRjbuRHFlfFsQcQhDeJ7gewuqFsOCWat3JS-Nj1AteqkxAiHJDY8yIHsciLIgxxFEWhw47Mdxh-NCYD4yApJHCBfmwlWE1Sa92pGf42Q0tzNKe6pbonjMvKVkOpNKFnm7bCFLsHQc2vAOdmnOu6HapaG_Vy0KJQ7dBTmOHFP9kMBRMugPFBGPw-xydIW6lB6oldkx4MSug01X-Abs8wvWF8dSnajx-oOaenFmenHc5vdMw2V06_xze2jLvfz2mQL6ifLVKcL3YqFU3NDJZtD052W-P8dL69GT75yG_mD05_7Plqu7tl2zXKNqlKZe4eeBqk8ulC8VpTsa8P-FdXIo8f1zb9KS5Urur3V7L8A_M5zbt1ML68Pb1HLyPNsuq5E81qc1X9weIJchByXBS7IUKuYyMbwA2DY-w4MUVHipEtLrIqgy6YeY6o0BefrT5Ro30d6tIUq8mxO2oWbzwTYpBcjwVIUjbAHpnQj2jd3S0qkNCbyLGC6MQNPOyFQYxjP_qMgAmNF8YOCj3fMm1Za1Qy-bL2v5f_6sk"
+                                  style="
+                                    color: #767676;
+                                    display: block;
+                                    text-decoration: none;
+                                  "
+                                  ><img
+                                    src="https://cdn.substack.com/image/fetch/w_32,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FRecommendIconRounded%3Fv%3D2%26height%3D32%26fill%3D%2523757575%26stroke%3Dnone%26strokeWidth%3D2"
+                                    width="16"
+                                    height="16"
+                                    style="
+                                      border: none !important;
+                                      display: inline-block;
+                                      float: left;
+                                      height: 16px;
+                                      max-width: 550px;
+                                      vertical-align: top;
+                                      width: 16px;
+                                    "
+                                    alt="Share"
+                                    class="recommend-icon post-meta-icon" /></a
+                              ></span>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div
+              dir="auto"
+              class="post typography"
+              style="font-size: 16px; line-height: 26px; padding: 9px 0"
+            >
+              <div
+                dir="auto"
+                class="body markup"
+                style="
+                  font-size: 16px;
+                  line-height: 26px;
+                  margin-bottom: 12px;
+                  text-align: initial;
+                  width: 100%;
+                  word-break: break-word;
+                "
+              >
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                    margin-top: 0;
+                  "
+                >
+                  Traders-
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  I was bullish this week at 4200/4300 with the view the market
+                  may balance between 4200 and 4500 for quite some time and I
+                  was quite right in this assumption as the market made multiple
+                  attempts to take out 4200 and failed each time.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  This week&#8217;s installment of the Weekly Plan I will try to
+                  figure out if this assumption still stands, various factors
+                  that support this assumptions as well as the factors which may
+                  be indicating that there may be more sell off coming ahead.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  <em
+                    ><strong
+                      >Note this is a preview post from my substack where I do a
+                      longer form analysis about 5 times a week. Click the link
+                      below to become a part of my emails to get a copy whenever
+                      they are published. I will never-ever spam you. That is a
+                      promise.</strong
+                    ></em
+                  >
+                </p>
+                <div
+                  class="subscribe-widget is-signed-up"
+                  style="
+                    direction: ltr;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em;
+                  "
+                >
+                  <p
+                    class="button-wrapper"
+                    style="
+                      color: #1a1a1a;
+                      font-size: 16px;
+                      line-height: 26px;
+                      margin: 0 0 1em 0;
+                      text-align: center;
+                    "
+                  >
+                    <a
+                      href="https://email.mg2.substack.com/c/eJxVUtuOmzAQ_Rp4K8IXLn7gYZtLN2lD2qbdTZ6QsQdiAiYLZin5-prNaqWVrJE8Z0Zz5pwR3EDZdlNybXvjziEz0xUSDWNfgzHQuUMPXaZkEuEgiiKMXJlQieIgdlWfFR1Aw1WdmG4A9zrktRLcqFbPHQFBNETuOaE5jVFIClHEPsJCBpwxwWlRMPBpQeA-mA9SgRaQwCt0U6vBrZOzMdfeIQ8OXttnlDCtMB2XSpdeP-S94eLiibax4PwVncrBIWvTXkA7ZAnTFgn8NB1xfdlULdlVf0l6E9PuMCr-vPZt7l9a_bqlS4H3f3bBj8W2hscHta9WOF2exrQqg93t0m-a2nZtwo3-ik7KR7vbyk-rlbL1N_m8UXu1rfi3p4pjhuRiyzx4WdY_DTmc0u9Z_HgpWCyr8ffLMaCmiYLpeNincRcuqgOJHRwOpskakGpoZs6znu_Jvh06YRdafiz3ZVSyBPOOi1Yb0MYW0Ij5OKKBqxLsY2xlZijCGPke9gBQFBbM95nAhSDYa151mYfX0KF-U-JPQrpd0k_eOJxzC5YzlbesddYOa5pBKzNloHleg7ybbu6380Y7K0FDZ29KZtwkKKSERiEjLIjJ3WN7FR9M7VjZ2i6dfPL1Px6O3qY"
+                      class="button primary subscribe-btn"
+                      style="
+                        background-color: #67bdfc;
+                        border: none;
+                        border-radius: 3px;
+                        box-sizing: border-box;
+                        color: #ffffff !important;
+                        cursor: pointer;
+                        display: inline-block;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 16px;
+                        font-weight: normal;
+                        height: auto;
+                        line-height: 20px;
+                        margin: 0;
+                        opacity: 1;
+                        outline: none;
+                        padding: 12px 20px;
+                        text-align: center;
+                        text-decoration: none !important;
+                        white-space: nowrap;
+                      "
+                      ><span style="color: #ffffff; text-decoration: none"
+                        >Subscribe now</span
+                      ></a
+                    >
+                  </p>
+                </div>
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="814"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJxVUsuu3CAM_ZrJLhHPAAsWV5X6GxEPJ0NvAimQmaZfXzJZVUK2sXV8LB87U2FJ-dR7KrW7zFTPHXSEd1mhVsjdUSBPwWtBuBCC4M5r5rHksgtlmjPAZsKqaz6g2w-7BmdqSPFCcIrZiLunnqmkjhDFORtHRjmRnlrwXmHqJUfoJjaHDxAdaHhBPlOEbtXPWvfyoF8P8rM95-NQDluqcd-DS1tLhc0s0PwM1T0v39rU9CA_ft8B_VpS8u0_r9Oe05KhlPCCli8VYG-Im4Lwi4RfNM3Yw31Dq-ceELfWSdZbY2jPqIBecSx74y0lFoRQkg2FDmYzf1M073LP1Xrcy_iEnyHLJ5yRlDBK0bvR2J5Z0_oZjnovR2vxqJQ0bpKY_eFUDb92WLqgCSIEYaKwIASjgQwAWIyzQkg5MjtKhu0VFzvu44OhbSH_7ajLupzD-3jaVlwurT7ZNt3U_HbEUM8JorEr-FvFeh_DR9dpgQi5HYmfTNW4icfEqKjikt6iNZmZUIgIxrtG61NDRV2Dq8nVbHyIyz9-Ssbd"
+                              rel=""
+                              style="
+                                border: none;
+                                display: block;
+                                height: auto;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/f088e687-c6ab-4bae-9a50-d86bb16998ac_814x539.jpeg","fullscreen":null,"height":539,"width":814,"resizeWidth":null,"bytes":85316,"alt":null,"title":null,"type":"image/jpeg","href":null}'
+                                alt=""
+                                width="550"
+                                height="364.18918918918916"
+                                class="wide-image"
+                                src="https://cdn.substack.com/image/fetch/w_1628,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Ff088e687-c6ab-4bae-9a50-d86bb16998ac_814x539.jpeg"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 550px;
+                                  vertical-align: middle;
+                                  width: 100%;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <figcaption
+                      class="image-caption"
+                      style="
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 300;
+                        line-height: 1.4em;
+                        text-align: center;
+                      "
+                    >
+                      NFP on Friday
+                    </figcaption>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  <em
+                    ><strong
+                      ><a
+                        href="https://email.mg2.substack.com/c/eJwlkUuOhCAQhk_T7DSAKLJgMZu5huFRKhkFA0V3vP3Q3QmBv6pSD75yBmFL-dZXKkje14L3BTrCqxyACJnUAnkJXks-Sik5I14Lz-ZxJqEsawY4TTg05grkqvYIzmBI8Z0xDkxMjOyaKzs25eeJWTHNCuZWiynhB7d6PthvY1N9gOhAwxPynSKQQ--IV3kMPw_-2w7u8AL46106m-XqgTVDU4xSSZVqauzKntxfiNtxd2uN8e6cyZhSLJ2xqWK35fRq4S7E9fhM2q1gciFBc8o5ZVwxyTmjPe8BmJxWRalyfHUD789n3Ox0TQ9Bz433pdqCxn3mIVmXu3_V3bbg9kby8TYiS3vPGgPeC0RjD_BfWPhl_sG3bBAht134xaBmkxiEnNSgxnn4smk0hVSUSzGS1tanlhU1BofJYTa-_egfQiybOg"
+                        rel=""
+                        style="color: #1a1a1a; text-decoration: underline"
+                        >Image above is from "The Week"</a
+                      ></strong
+                    ></em
+                  >
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Without much ado, let us dive into the chart of S&amp;P500
+                  Emini (Chart A). This is the 5 auctions of this past week,
+                  each graphically representing the frustrations of sellers as
+                  they tried to break the lows. Each one of these levels and my
+                  context was shared in 5 Daily newsletters this past week.
+                  Posts are sent every day around 4 PM, after market close.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  From a 10000 feet view, this chart below shows me while the
+                  lows were fought bitterly for and won by the bulls, the bulls
+                  are not necessarily out of the danger here yet. Read on to
+                  find out why I think so.
+                </p>
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="1456"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJxVUt3OpCAMfZrxTsOv4AUXXzbZ1zAVqkM-BT_AmXWffnG82oS0pU3PaXpqoeAS02n2mEtzmbGcO5qA77xiKZiaI2MavTOKSaUUo40zwlEtdePzOCfEDfxqSjqw2Y9p9RaKj-HqkJyKnjZPIwGZpbN2oKhTiAMQpZydAejAHYObGA7nMVg0-MJ0xoDNap6l7PnBvx7sd33WhS4fUy5gvzsbt5ryGyxY_YzFPi9fYUp8sF8_d8C_lhhd_c_ruKe4JMzZv7Dmc0Hca8dNweRFIi-aaqbDfmOtpxaJnCarRTsB8FZwhe0gqW7BTZxNqNSgRZd5Bxv8jQHe-Z6rYtzL-ISfIfONzHuiUPTtTHvSCq3nFgbB2sritJMAjruRVtg_vdbdHpbGG0YYI5QNVDFGScc6RKr6eSBksGy2nHXbKyxTv_cPQbaF_bejJpl8du_jOdXicmn1ydbpxuq3I_hyjhhgWtHdKpb7GD66jgsGTPVI3AjF0F5wofqBD1LzW7Qqs1ADYUrIptK6WLuCKd6WaEsC58PyD1B3yCE"
+                              rel=""
+                              style="
+                                border: none;
+                                display: block;
+                                height: auto;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/b3607e46-f160-488f-a942-5bbd8d5aad3d_1779x688.png","fullscreen":null,"height":563,"width":1456,"resizeWidth":null,"bytes":96602,"alt":null,"title":null,"type":"image/png","href":null}'
+                                alt=""
+                                width="550"
+                                height="212.6717032967033"
+                                class="wide-image"
+                                src="https://cdn.substack.com/image/fetch/w_2912,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fb3607e46-f160-488f-a942-5bbd8d5aad3d_1779x688.png"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 550px;
+                                  vertical-align: middle;
+                                  width: 100%;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <figcaption
+                      class="image-caption"
+                      style="
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 300;
+                        line-height: 1.4em;
+                        text-align: center;
+                      "
+                    >
+                      <strong>Chart A</strong> Emini Daily Profiles, 5 Days
+                    </figcaption>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  More than half of the Nasdaq stocks have been cut in half in
+                  market cap. Majority, as many as 75-80% are now trading below
+                  their 200 DMA . These stats are not exactly the cheerleaders
+                  of strong bull markets, if any thing they showcase the carnage
+                  that has been done and portends possibly more.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  See below chart B for the 5 Day Auction in erstwhile momentum
+                  sweetheart $ARKK. Cathie and her ETF has fallen from graces
+                  and is now in the dumps. I was bear on this at 125 and is now
+                  cut in half, last traded lows around 65 bucks.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Can it rise from here? This profile chart certainly seems to
+                  indicate that to me. But not without a fight, and a little
+                  help from the FED.
+                </p>
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="1240"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJxVUkuu5CAMPE1nlyj8AixYPI0014j4mDR6CeQB6Z7M6Yd0ViMh29hyleWy1RWWlE-1p1K7y8z13EFFeJcVaoXcHQXyHJzimHHOMeqcog4JJrpQZp8BNh1WVfMB3X6YNVhdQ4pXByOITqh7Ko0F1qOUmjLwznk_ISSFQ9hrZpwTN7E-XIBoQcEL8pkidKt61rqXB_l64N_tWReHcphStf0ebNpaKmx6geY9VPu8fIOp6YF__dwB-VpScu3v13nPaclQSnhBy5cKsLeOmwKzi4RdNM2Yw35Dq-ceRmaMFbQ3WpOeEg69ZEj02hmCDXAuBR0KGfSm_6ao3-Weq2Hcy_iEnyHLJ0QjIsQ3AGhYPZ0k6gUluvdGMCCeGSnsjDAd_3Ashz0uXVB4xHhEWCKOMRoHPAAgPnk5jtJibwketldczLRPDzpuC_5vR11W5Rzex9O04nJp9cm26ebmtyOGes4QtVnB3SrW-xg-us4LRMjtSNysq0ITJZRPkkgmyC1ak5lyOWJOWddoXWpdUdVga7I1axfi8g_19McA"
+                              rel=""
+                              style="
+                                border: none;
+                                display: block;
+                                height: auto;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/10133f18-e437-4691-843a-fb85e3f5b98c_1240x729.png","fullscreen":null,"height":729,"width":1240,"resizeWidth":null,"bytes":66371,"alt":null,"title":null,"type":"image/png","href":null}'
+                                alt=""
+                                width="550"
+                                height="323.3467741935484"
+                                class="wide-image"
+                                src="https://cdn.substack.com/image/fetch/w_2480,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F10133f18-e437-4691-843a-fb85e3f5b98c_1240x729.png"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 550px;
+                                  vertical-align: middle;
+                                  width: 100%;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <figcaption
+                      class="image-caption"
+                      style="
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 300;
+                        line-height: 1.4em;
+                        text-align: center;
+                      "
+                    >
+                      <strong>Chart B</strong> ARKK Daily Auction
+                    </figcaption>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Fundamentals and earnings aside, S&amp;P500 is impacted by
+                  nothing more than geopolitics and FED liquidity or lack
+                  thereof. 10 year yields are a very good indicator of FED
+                  tightening or easing. And I use TLT quite a bit as a gauge of
+                  this.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  TLT has been stubborn to trade below that vaunted 140 all this
+                  week, rallying on Friday, and taking the equities with it.
+                  This chart C certainly suggests there may be more juice to
+                  this.
+                </p>
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="1090"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJxVUsuu4yAM_ZpmlwgMhLBgcTXS_EbEw0nRbSAXSDudrx_SrEYC29iyj_GxMxXXlN96T6V2p5jre0cd8VUeWCvm7iiY5-C1BCGlBNp5zT2dxNSFMi8ZcTPhoWs-sNsP-wjO1JDimSEY5SPt7hqoAwnMgZ-MV4I6pazi3AkBCyIRF7A5fMDoUOMT8ztF7B76XutebuzrBr_bcT4O5bClGvc9uLQ1V9jMik0vWN391K1MTTf49XMZ7GtNybf38pj3nNaMpYQnNn-piHvLuCBAnCDihGnCHu4bWzz3rTtr3cR7awzrOZPYtw9MvfGWgUUp1cSHwgazmb8pmle5-mo1rmF8zE-T5WMuwD1QGHu_KNpz5Ug_LRx6QgQZJy7a9TMlivyRIxn2uHZBAwEgFBSVAJQMMCBSOS6KEOVgcQyG7RlXO-7jjZNthf9m1GVd3sPruNsWXE-uPt7W3dz0dsRQ3zNGYx_oLxbrtQwfXucVI-a2JH42VdORMy5HxZSY2EVao5lLRUBy0TVYn1pW1DW4mlzNxoe4_gM0OsXV"
+                              rel=""
+                              style="
+                                border: none;
+                                display: block;
+                                height: auto;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/f24d2126-df91-49c0-8f42-00506845684d_1090x760.png","fullscreen":null,"height":760,"width":1090,"resizeWidth":null,"bytes":49185,"alt":null,"title":null,"type":"image/png","href":null}'
+                                alt=""
+                                width="550"
+                                height="383.48623853211006"
+                                class="wide-image"
+                                src="https://cdn.substack.com/image/fetch/w_2180,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Ff24d2126-df91-49c0-8f42-00506845684d_1090x760.png"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 550px;
+                                  vertical-align: middle;
+                                  width: 100%;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <figcaption
+                      class="image-caption"
+                      style="
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 300;
+                        line-height: 1.4em;
+                        text-align: center;
+                      "
+                    >
+                      Chart C TLT Auctions
+                    </figcaption>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Last but not the least, here is the actual ten year bond
+                  yields.. Still elevated but down from the highs. I have a
+                  theory about where these end up for most of the year, read on
+                  more to find out.
+                </p>
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="949"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJxVUkuu5CAMPE2zS8Q3hAWLp5HmGhEfJ41eAnlAuidz-iGd1UjINrbKZbnsTIUl5VPvqVR0mameO-gI77JCrZDRUSBPwWtJhZSSEuQ192QUIwplmjPAZsKqaz4A7YddgzM1pHghBCN8IOipCZ4J9iMGS4QjAoyTZFADt1J6Try8ic3hA0QHGl6QzxQBrfpZ614e7OtBf7fnfOzLYUs17rt3aWupsJkFmp-huuflW5uaHvTXzx2wryUl3_7zOu05LRlKCS9o-VIB9oa4Kai4SMRF04w93De0eu4AC2vdyDtrDOs4k9ApQcbOeMuoBSnVyPvCerOZvymad7nnaj3uZXzCz5DlE_KBsdnPtpPMjR3n3nSjlLZTxoytHfV4NpPi6g-Tqt_jgoKmmFJMqCKSUoJ72gMQOcwKY-Xo7Bjtt1dc7LAPD463hf63IpR1Ofv38bStuFxSfbJtuKn57YihnhNEY1fwt4j1voWPrNMCEXK7ET-ZqsnAGZeDYkqM7NasqcylwlRygRqtTw0VdQ2uJlez8SEu_wDNRccv"
+                              rel=""
+                              style="
+                                border: none;
+                                display: block;
+                                height: auto;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/4633fdfb-73c8-44da-877b-9aa8be72d0fa_949x379.png","fullscreen":null,"height":379,"width":949,"resizeWidth":null,"bytes":49998,"alt":null,"title":null,"type":"image/png","href":null}'
+                                alt=""
+                                width="550"
+                                height="219.6522655426765"
+                                class="wide-image"
+                                src="https://cdn.substack.com/image/fetch/w_1898,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F4633fdfb-73c8-44da-877b-9aa8be72d0fa_949x379.png"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 550px;
+                                  vertical-align: middle;
+                                  width: 100%;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <figcaption
+                      class="image-caption"
+                      style="
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 300;
+                        line-height: 1.4em;
+                        text-align: center;
+                      "
+                    >
+                      Chart D 10 year yields cool off the highs
+                    </figcaption>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Friday was a very good day for the equities. Capping off a
+                  tumultuous week. It reinforced my opinion that prices below
+                  4200 will be harder to achieve per my trade plans from last
+                  week. I turned out to be right and we closed right above the
+                  200 DMA at 4425. Here is the link to my trade plan from last
+                  week, in case you have not read it yet:
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxVkU2K5DAMhU8T7yrE_8nCi4GhrxEcW5WYSuxgy13k9uPqzKZBSPAk8cQnZxHWlC9zpoLkk2a8TjAR3mUHRMikFshz8EYzqbVmlHgjPB3lSEKZnxngsGE3mCuQsy57cBZDip8NyalQlGxmkUp6obTwavQjWMGdk5OfFquVHBZ_G9vqA0QHBr4hXykC2c2GeJaO_-nYVwsMDpPDbH2Ia1_qUtC6V-_S0ZrnPVAeb4DXfj1wS3XdsDwo4x3_yh3_W19pkh1TFY_Z2eO0YY1N_rj_Vw_woR5Ne8NCgmEDYwNlE9WM0aFnPQDV6jkNw-TY03HWH99xXdSpOjEcK_t1E8mmXP27bktrrh9KP2qDNLd61BjwmiHaZQd_88P7DT9E5xUi5PYeP1s0VAkutJr4JEd-42qAhZ4GpoUkzdanthXNL0T_ACOkogA"
+                    rel=""
+                    style="color: #1a1a1a; text-decoration: underline"
+                    >PAST WEEKLY PLAN</a
+                  >
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Looking ahead, I am cautiously bullish into dips. At this
+                  point in time, I do not see evidence that suggests there will
+                  be earth shattering moves either on the downside or to the
+                  upside.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  My current thinking is that we could balance here between
+                  4200-4500 for few more days before a break higher into
+                  4600-4700. Remember my thinking is not informed by any charts
+                  or technical analysis but it is heavily influenced by the
+                  order flow. These are the actual orders that hit the tape
+                  every day. Order flow can and does change at any time due to
+                  macro factors or sudden events. Therefore my opinion can
+                  change at any time as a result. However, if we assume the
+                  current factors stay in homeostasis, then I have no reason to
+                  suspect 4200-4500 thesis is not intact this coming week.
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  <strong
+                    >These are the main factors which I think support bullish
+                    action:</strong
+                  >
+                </h1>
+                <ol style="margin-top: 0">
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Seasonality:</strong> this is the tax season.
+                      There is a natural tailwind for stocks due to various type
+                      of tax events, whether that is 401, IRA contributions or
+                      rebalancing.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0 0 1em 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Money Velocity:</strong> while CPI has run
+                      rampant, the money supply has been in the dumps. This
+                      suggests the inflation problem is more demand driven than
+                      systemic. Think of money velocity as how many times the
+                      same dollar bill changes hands. When the same dollar bill
+                      goes from person to person or business to business,
+                      several times, it creates more money velocity and IMO
+                      those type of movement create persistent inflation
+                      problems like we had in the 1980s.
+                    </p>
+                    <div
+                      class="captioned-image-container-static"
+                      style="
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin-bottom: 0;
+                        text-align: center;
+                      "
+                    >
+                      <figure
+                        style="
+                          display: inline-block;
+                          margin: 0 auto;
+                          width: 100%;
+                        "
+                      >
+                        <table
+                          class="image-wrapper"
+                          width="100%"
+                          border="0"
+                          cellspacing="0"
+                          cellpadding="0"
+                          style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                        >
+                          <tbody>
+                            <tr>
+                              <td style="text-align: center"></td>
+                              <td
+                                align="left"
+                                class="content"
+                                width="1456"
+                                style="text-align: center"
+                              >
+                                <a
+                                  class="image-link"
+                                  target="_blank"
+                                  href="https://email.mg2.substack.com/c/eJxVUsuu4yAM_ZpmlwgMhLBgcTXS_EbEw0nRbSAXSDudrx_SrEZCtrF1fCwfO1NxTfmt91Rqd5q5vnfUEV_lgbVi7o6CeQ5eSxBSSqCd19zTSUxdKPOSETcTHrrmA7v9sI_gTA0pngjBKB9pd9dKkgW8AeMmydCqhaGgajLUcmpBLhexOXzA6FDjE_M7Rewe-l7rXm7s6wa_23M-DuWwpRr3Pbi0tVTYzIrNL1jd_fStTU03-PVzBexrTcm3__KY95zWjKWEJ7Z8qYh7Q1wUIE4ScdI0Yw_3ja2eeyTCWjfx3hrDes4k9krQqTfeMrAopZr4UNhgNvM3RfMq11ytx7WMT_gZsnxC4i1fvDI9gHQ9F5b2E_Cpt0QIRDMqOY4zMEL-TJwMe1y7oIEAEAqKSgBKBhgQqRwXRYhysDgGw_aMqx338cbJtsJ_O-qyLu_hddxtK66nVp9sm25ufjtiqO8Zo7EP9JeK9TqGj67zihFzOxI_m6rpyBmXo2JKTOwSrcnMpSIguegarU8NFXUNriZXs_Ehrv8AlejG8A"
+                                  rel=""
+                                  style="
+                                    border: none;
+                                    display: block;
+                                    height: auto;
+                                    margin: 0;
+                                    padding: 0;
+                                    text-decoration: none;
+                                    width: auto;
+                                  "
+                                  ><img
+                                    data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/0db4fd9a-227c-45b1-8248-b055eea69766_2300x840.png","fullscreen":null,"height":532,"width":1456,"resizeWidth":null,"bytes":192318,"alt":null,"title":null,"type":"image/png","href":null}'
+                                    alt=""
+                                    width="550"
+                                    height="200.96153846153845"
+                                    class="wide-image"
+                                    src="https://cdn.substack.com/image/fetch/w_2912,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F0db4fd9a-227c-45b1-8248-b055eea69766_2300x840.png"
+                                    style="
+                                      -ms-interpolation-mode: bicubic;
+                                      border: none !important;
+                                      display: block;
+                                      height: auto;
+                                      margin: 0 auto;
+                                      margin-bottom: 0;
+                                      max-width: 550px;
+                                      vertical-align: middle;
+                                      width: 100%;
+                                    "
+                                /></a>
+                              </td>
+                              <td style="text-align: center"></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <figcaption
+                          class="image-caption"
+                          style="
+                            color: #767676;
+                            font-family: sans-serif;
+                            font-size: 14px;
+                            font-weight: 300;
+                            line-height: 1.4em;
+                            margin-bottom: 0;
+                            padding-bottom: 0;
+                            text-align: center;
+                          "
+                        >
+                          M2 Velocity
+                        </figcaption>
+                      </figure>
+                    </div>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Current inflation situation</strong> is due in
+                      most part to destruction of supply channels. Demand is
+                      there but for how long is any one&#8217;s guess. I see as
+                      more and more coronavirus restrictions are taken off, the
+                      supply may overwhelm the system, driving down the prices.
+                      That may be next month, that may be months from now.
+                      However looking at mid terms and political scene, I think
+                      that is closer than you think.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Valuations:</strong> Valuations of some of the
+                      bellwether stocks like GOOGL, have already been cut down
+                      quite a bit! It is trading at a forward p/e of 19 and I
+                      thought at 2500 it was ridiculous! So there is that&#8230;
+                      yes more sell may come but once GOOGL starts trading at
+                      2300-2500 you oughta think, &#8220;man this is
+                      silly!&#8221;
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Ten year yields</strong> have come off the highs.
+                      I think they will find a balance between 1.7-2 % and that
+                      will not be too extreme for the equities.
+                    </p>
+                  </li>
+                </ol>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  <strong
+                    >Then there are factors which are potentially
+                    bearish:</strong
+                  >
+                </h1>
+                <ol style="margin-top: 0">
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>FED FED FED:</strong> despite the uncertainty
+                      around inflation, Powell was adamant about pulling
+                      liquidity out of the system . FED is the ultimate LP
+                      (liquidity provider) . No liquidity = no stock market.
+                      Less liquidity = lesser stock market. I think the way a
+                      lot of funds read him is he wants lower stock prices.
+                      Lower stock prices are deflationary by nature . So even
+                      though the inflation may cool down, if enough people
+                      believe Powell wants lower stock market that becomes a
+                      self fulfilling prophecy.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Technical damage:</strong> S&amp;P500 is within an
+                      inch of 200 DMA. It may take lot more than one or two
+                      closed above 4410 for calm to return.
+                    </p>
+                  </li>
+                </ol>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  <strong>Key events next week:</strong>
+                </h1>
+                <ul style="margin-top: 0">
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                      mso-special-format: bullet;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      Monday: Chicago PMI and FED Speak.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                      mso-special-format: bullet;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      Tuesday: JOLTS and ISM
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                      mso-special-format: bullet;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      Wednesday: ADP pre NFP
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                      mso-special-format: bullet;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      Friday: Non FARM Payroll Report (NFP) AND Wage Inflation
+                      numbers.
+                    </p>
+                  </li>
+                </ul>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  The theme of these events for me will be to see if we are
+                  beginning to see the inflation numbers come down or are they
+                  still surprising to the upside. Same for wage inflation
+                  numbers. With regards to actual job growth, I think we are now
+                  in a phase of market where good news is bad for stocks and bad
+                  news is good for stocks. So any miss in the NFP number may be
+                  perceived to be good for stocks .
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Expectation is 166 K jobs added.
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  With this context and background, here is how I am technically
+                  preparing for next week&#8217;s trading:
+                </h1>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  I suspect Friday&#8217;s late rally was driven by short
+                  squeeze. If so, we may find sellers here at 4430-4454. Key
+                  level for me for the week ahead is 4360.
+                </p>
+                <ol style="margin-top: 0">
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      On Monday if we open or offer below 4360, I think more
+                      softness may develop, testing the lows at 4288/4300. I
+                      will validate this with the Tic TOP indicator and TRIN.
+                      See this link if you have not yet viewed Tic TOP script:
+                      <a
+                        href="https://email.mg2.substack.com/c/eJxVkctu7CAMQL8m7BLxSMKwYHGlq_5GxMOToCYQgekof1_S6aYSD-kYY-vYGYQ15UufqSC5jwWvE3SEV9kBETKpBfISvJZ8klJyRrwePXtMDxLK8swAhwm7xlyBnNXuwRkMKd4Zk2DjzMimHZMjCKsmqxS31lHlrWHgJDXPxyTcu7CpPkB0oOEL8pUikF1viGfpxL-Of7SFwWFymI0PcR1KtQWN-xxcOlrwbHtLrz708f6gv59Bb1YTYsEeN2gEou_ER-7E__qZ1NTxueKxOHOcJqyx4buRX3qAD_Vo7AWWBM0p55RxxSTnjA58AGByfipKleNPJ_hwfMXVzufcjfRY-Z_2SNblGl51sy243sJ-aPO1tPuoMeC1QDR2B_9Wie-J_MhdVoiQ26T8YlCzeRSjnJVQ00O8zTXXo1SUy3EiraxPLSvqP7a-AVK0pq8"
+                        rel=""
+                        style="color: #1a1a1a; text-decoration: underline"
+                        >Trend Trading using Tic TOP Indicator
+                      </a>
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      Break of 4288 will become a bearish event for me and may
+                      target recent swing lows at 4210.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      In an unlikely event of an open or bids above 4411 on
+                      Monday AM, I will be bullish for a test of 4450-4456.
+                      Validated with Tic TOP indicator.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      Any openings or prints between 4360-4411 may be balance
+                      trades for me, in anticipation of the jobs report on
+                      Friday.
+                    </p>
+                  </li>
+                </ol>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Remember levels are static . Context and order flow is
+                  dynamic. Always validated with other things like TRIN, TICK,
+                  Tic TOP, etc
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  Earnings next week:
+                </h1>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  There are tremendous earnings next week with GOOG, AMZN, FB,
+                  XOM being a few of them..
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Keeping in line with my prior analysis of the general market
+                  conditions, these stocks while attractive, may find some
+                  selling action as well.
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  AMZN
+                </h1>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Amazon specifically, last traded a high of 2900. This stock
+                  BTW which I shared at 2700 before a 200 point zipper, if this
+                  drops into 2500-2621 on earnings induced swoon may be a buy
+                  for me.
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  HD
+                </h1>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Home Depot which was my TOP stock in 2021 has been a victim of
+                  recent sell as well. I did not notice earlier it had fallen to
+                  the 350 lows recently and if it revisits those lows, I want to
+                  be in. Last traded 366.
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  XOM
+                </h1>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  This stock shared by me at 60 has been on a tear and could be
+                  headed a bit higher after earnings as it makes a climactic
+                  high. Last traded 75, in my opinion this may test 82-84 if
+                  68/69 held.
+                </p>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  FB
+                </h1>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  FaceBook has run into some execution issues especially with
+                  their desperate foray into Meta and Crypto NFT space. I do not
+                  know if this is temporary glitch or systemic issue with
+                  leadership/execution. However, I am on alert to see if this
+                  stock falls below 274/280 on earnings (last traded 301). If it
+                  does , I do want to dip my toes in it and see if it holds.
+                </p>
+                <div
+                  class="captioned-image-container-static"
+                  style="
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin-bottom: 16px;
+                    text-align: center;
+                  "
+                >
+                  <figure
+                    style="display: inline-block; margin: 0 auto; width: 100%"
+                  >
+                    <table
+                      class="image-wrapper"
+                      width="100%"
+                      border="0"
+                      cellspacing="0"
+                      cellpadding="0"
+                      style="margin: 8px auto; mso-padding-alt: 1em 0 1.6em"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="text-align: center"></td>
+                          <td
+                            align="left"
+                            class="content"
+                            width="727"
+                            style="text-align: center"
+                          >
+                            <a
+                              class="image-link"
+                              target="_blank"
+                              href="https://email.mg2.substack.com/c/eJxVUkuu5CAMPE1nl4g_YcHiaaS5RsTHSaOXQB6Q7smcfkhnNRKyC4NdlsvOVFhSPvWeSu0uM9VzBx3hXVaoFXJ3FMhT8FoSLqUkuPOaeTzysQtlmjPAZsKqaz6g2w-7BmdqSPHK4BQzgbunRtw4RRQZhWXeU9SAF9IzMIKTEfOb2Bw-QHSg4QX5TBG6VT9r3cuDfj3I73acj0M5bKnGfQ8ubS0UNrNA8zNU97x8K1PTg_z6uQH9WlLy7T6v057TkqGU8IIWLxVgbxk3BeEXCb9omrGH-4b2nntA3Fo3st4aQ3tGJfSK47E33lJiQUo1sqHQwWzmb4rmXe6-Wo17GB_4abJ8oDKjpEJAb8BCzwzwXmEpe3DGw4wFd9JNksg_HMthj0sXNEGEIEzaN0IwGsgAgKWYFULKkdlRMmyvuFixiwdD20L-G1GXdTmH9_G07XG5pPpEW3NT89sRQz0niMau4G8R670LH1mnBSLktiN-MlVjwSiTQlHFR3pr1lRmUiEiGe8arU8tK-oaXE2uZuNDXP4BXYrHCw"
+                              rel=""
+                              style="
+                                border: none;
+                                display: block;
+                                height: auto;
+                                margin: 0;
+                                padding: 0;
+                                text-decoration: none;
+                                width: auto;
+                              "
+                              ><img
+                                data-attrs='{"src":"https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/9a87366e-aebe-4ae5-9177-ecadef165c7c_727x517.png","fullscreen":null,"height":517,"width":727,"resizeWidth":null,"bytes":35692,"alt":null,"title":null,"type":"image/png","href":null}'
+                                alt=""
+                                width="550"
+                                height="391.1279229711142"
+                                class="wide-image"
+                                src="https://cdn.substack.com/image/fetch/w_1454,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F9a87366e-aebe-4ae5-9177-ecadef165c7c_727x517.png"
+                                style="
+                                  -ms-interpolation-mode: bicubic;
+                                  border: none !important;
+                                  display: block;
+                                  height: auto;
+                                  margin: 0 auto;
+                                  margin-bottom: 0;
+                                  max-width: 550px;
+                                  vertical-align: middle;
+                                  width: 100%;
+                                "
+                            /></a>
+                          </td>
+                          <td style="text-align: center"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <figcaption
+                      class="image-caption"
+                      style="
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 300;
+                        line-height: 1.4em;
+                        text-align: center;
+                      "
+                    >
+                      Chart E FB Monthly Auction
+                    </figcaption>
+                  </figure>
+                </div>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Subscribers get my earnings analysis before and after key
+                  events. Stay tuned as more actionable ideas develop for me.
+                </p>
+                <div
+                  class="subscribe-widget is-signed-up"
+                  style="
+                    direction: ltr;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em;
+                  "
+                >
+                  <p
+                    class="button-wrapper"
+                    style="
+                      color: #1a1a1a;
+                      font-size: 16px;
+                      line-height: 26px;
+                      margin: 0 0 1em 0;
+                      text-align: center;
+                    "
+                  >
+                    <a
+                      href="https://email.mg2.substack.com/c/eJxVUtuOmzAQ_Rp4K8IXLn7gYZtLN2lD2qbdTZ6QsQdiAiYLZin5-prNaqWVrJE8Z0Zz5pwR3EDZdlNybXvjziEz0xUSDWNfgzHQuUMPXaZkEuEgiiKMXJlQieIgdlWfFR1Aw1WdmG4A9zrktRLcqFbPHQFBNETuOaE5jVFIClHEPsJCBpwxwWlRMPBpQeA-mA9SgRaQwCt0U6vBrZOzMdfeIQ8OXttnlDCtMB2XSpdeP-S94eLiibax4PwVncrBIWvTXkA7ZAnTFgn8NB1xfdlULdlVf0l6E9PuMCr-vPZt7l9a_bqlS4H3f3bBj8W2hscHta9WOF2exrQqg93t0m-a2nZtwo3-ik7KR7vbyk-rlbL1N_m8UXu1rfi3p4pjhuRiyzx4WdY_DTmc0u9Z_HgpWCyr8ffLMaCmiYLpeNincRcuqgOJHRwOpskakGpoZs6znu_Jvh06YRdafiz3ZVSyBPOOi1Yb0MYW0Ij5OKKBqxLsY2xlZijCGPke9gBQFBbM95nAhSDYa151mYfX0KF-U-JPQrpd0k_eOJxzC5YzlbesddYOa5pBKzNloHleg7ybbu6380Y7K0FDZ29KZtwkKKSERiEjLIjJ3WN7FR9M7VjZ2i6dfPL1Px6O3qY"
+                      class="button primary subscribe-btn"
+                      style="
+                        background-color: #67bdfc;
+                        border: none;
+                        border-radius: 3px;
+                        box-sizing: border-box;
+                        color: #ffffff !important;
+                        cursor: pointer;
+                        display: inline-block;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 16px;
+                        font-weight: normal;
+                        height: auto;
+                        line-height: 20px;
+                        margin: 0;
+                        opacity: 1;
+                        outline: none;
+                        padding: 12px 20px;
+                        text-align: center;
+                        text-decoration: none !important;
+                        white-space: nowrap;
+                      "
+                      ><span style="color: #ffffff; text-decoration: none"
+                        >Subscribe now</span
+                      ></a
+                    >
+                  </p>
+                </div>
+                <h1
+                  style="
+                    -moz-osx-font-smoothing: antialiased;
+                    -webkit-font-smoothing: antialiased;
+                    color: #1a1a1a;
+                    font-family: 'SF Compact Display', -apple-system,
+                      BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+                      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+                      'Segoe UI Symbol';
+                    font-size: 2em;
+                    font-weight: bold;
+                    line-height: 1.16em;
+                    margin: 1em 0 0.625em 0;
+                  "
+                >
+                  To Summarize:
+                </h1>
+                <ol style="margin-top: 0">
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      I was bullish on S&amp;P500 at the lows last week and was
+                      proven to be right as the market staged an impressive 200
+                      point rally off the lows.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      While longer term bullish for a test of 4700, I do not
+                      think the market is out of the woods yet as may chop
+                      around due to technical and lack of clarity on a few
+                      important data prints.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      That clarity may come this week with flailing inflation
+                      and falling NFP numbers. Market paradigm may shift to
+                      &#8220;<em><strong>Bad news is good news</strong></em
+                      >&#8221;. Do not get shafted when the paradigm shifts.
+                      Markets are forward looking, they do not make next moves
+                      on yesterdays news.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Investor Tic</strong> is liking the sale being
+                      offered on Big Tech names like GOOG, TSLA, AMZN, FB, HD
+                      and will buy more if they fall more. Investor Tic time
+                      frame is very long (10 years +) with the money he does not
+                      need neither today nor a year from now.
+                    </p>
+                  </li>
+                  <li
+                    style="
+                      margin-bottom: 3.75px;
+                      margin-left: 7.5px;
+                      margin-right: 0;
+                      margin-top: 3.75px;
+                    "
+                  >
+                    <p
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0 0 1em 0;
+                        margin-bottom: 0;
+                      "
+                    >
+                      <strong>Trader Tic</strong> expects more volatility. He
+                      thinks one more dip before we really firm up on shifting
+                      paradigm. But must validate with Tic provided tools like
+                      TICK, TRIN, and TIC TOP indicators. Trader Tic shares his
+                      levels and thoughts BEFORE market opens, every day.
+                      Subscribe to get Trader Tic&#8217;s thoughts.
+                    </p>
+                    <p
+                      class="button-wrapper"
+                      data-attrs='{"url":"https://tictoctrading.substack.com/subscribe?token=eyJ1c2VyX2lkIjo3MjU3NzcyMSwiaWF0IjoxNjQzNDc2OTM5LCJleHAiOjE2NDYwNjg5MzksImlzcyI6InB1Yi01MzE0NjEiLCJzdWIiOiJjaGVja291dCJ9.eqDlPt3SYNK_8Hkf98djwRqX54tm75yXSON8r6CjS38","text":"Subscribe now","action":null,"class":null}'
+                      style="
+                        color: #1a1a1a;
+                        font-size: 16px;
+                        line-height: 26px;
+                        margin: 0 0 1em 0;
+                        margin-bottom: 7.5px;
+                        text-align: center;
+                      "
+                    >
+                      <a
+                        class="button primary"
+                        href="https://email.mg2.substack.com/c/eJxVkk1zmzAQhn-NOTJIAoQOOqT-aOzWuK3bxD4xQlqwMAhHiDj411eOT5nZ0c5-vLOjfVYKB3VvJ37pBxfcn8JNF-AGrkMLzoENxgFsoRWnOKGUYhQoHiuUJVmgh6KyAJ3QLXd2hOAylq2Wwune3BUJQXGKghPHDCpJMSasooyWAskkYTGVILIyLbF6DBaj0mAkcHgHO_UGgpafnLsMM_I0wytvTkvXS2eF0qYOh7EcnJDnUPadL95DaXUJM7Jy_RnMjCxg2iCJX6YDbs_rpifb5h_Jb3La7q9avK4in_vIm9-3fCHx7u82-TnftPD8pHfNEueL4zVv6mR7Ow_rrvWqdbo239BRR2h7W0Z5s9S-_6Ze13qnN434_tIIzJCab1gIb4v2lyP7Y_6jyJ7PFctUc_3zdkhi19FkOux3eWbTebMnfo0cRxhHyGv9jlAU4hAA0bRiUcQkriTBYfdu6jK9pLM46mr85euB5cMUXsdT6Yv1HcZn1rMovO9Go91UgBFlC-qByT1of4IrajBg_RWoQjiO0pjENGWEJRl5UPEcY8oiTOMk8GNV71WGfyHxHyqFw7g"
+                        rel=""
+                        style="
+                          background-color: #67bdfc;
+                          border: none;
+                          border-radius: 3px;
+                          box-sizing: border-box;
+                          color: #ffffff !important;
+                          cursor: pointer;
+                          display: inline-block;
+                          font-family: -apple-system, BlinkMacSystemFont,
+                            'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                            'Apple Color Emoji', 'Segoe UI Emoji',
+                            'Segoe UI Symbol';
+                          font-size: 16px;
+                          font-weight: normal;
+                          height: auto;
+                          line-height: 20px;
+                          margin: 0;
+                          opacity: 1;
+                          outline: none;
+                          padding: 12px 20px;
+                          text-align: center;
+                          text-decoration: none !important;
+                          white-space: nowrap;
+                        "
+                        ><span style="color: #ffffff; text-decoration: none"
+                          >Subscribe now</span
+                        ></a
+                      >
+                    </p>
+                  </li>
+                </ol>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  Have an awesome week ahead. Feel free to share this preview of
+                  the newsletter to help any one else who may need it.
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                  "
+                >
+                  ~ Tic
+                </p>
+                <div style="font-size: 16px; line-height: 26px">
+                  <hr
+                    style="
+                      background: #e0ecf6;
+                      border: none;
+                      height: 1px;
+                      margin: 24px 0;
+                      padding: 0;
+                    "
+                  />
+                </div>
+                <p
+                  class="button-wrapper"
+                  data-attrs='{"url":"https://tictoctrading.substack.com/p/tics-weekly-thoughts?utm_source=substack&utm_medium=email&utm_content=share&action=share&token=eyJ1c2VyX2lkIjo3MjU3NzcyMSwicG9zdF9pZCI6NDc5MDI3NDUsImlhdCI6MTY0MzQ3NjkzOSwiaXNzIjoicHViLTUzMTQ2MSIsInN1YiI6InBvc3QtcmVhY3Rpb24ifQ.cKmvcnLhPJaFxe--cNpQ6yEOBP8EycMMgCpmlLSwsrY","text":"Share","action":null,"class":null}'
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                    text-align: center;
+                  "
+                >
+                  <a
+                    class="button primary"
+                    href="https://email.mg2.substack.com/c/eJxVUl2PmzAQ_DXhLQhsPh946F0uLdfAXZoPXfqCjL0BJ9ggbJKSX1-TXKWeZFny7IxXOzuUaKjafky6Vmlrugo9dpBIuKoGtIbeGhT0BWdJiPwwDJFrscRjbuRHFlfFsQcQhDeJ7gewuqFsOCWat3JS-Nj1AteqkxAiHJDY8yIHsciLIgxxFEWhw47Mdxh-NCYD4yApJHCBfmwlWE1Sa92pGf42Q0tzNKe6pbonjMvKVkOpNKFnm7bCFLsHQc2vAOdmnOu6HapaG_Vy0KJQ7dBTmOHFP9kMBRMugPFBGPw-xydIW6lB6oldkx4MSug01X-Abs8wvWF8dSnajx-oOaenFmenHc5vdMw2V06_xze2jLvfz2mQL6ifLVKcL3YqFU3NDJZtD052W-P8dL69GT75yG_mD05_7Plqu7tl2zXKNqlKZe4eeBqk8ulC8VpTsa8P-FdXIo8f1zb9KS5Urur3V7L8A_M5zbt1ML68Pb1HLyPNsuq5E81qc1X9weIJchByXBS7IUKuYyMbwA2DY-w4MUVHipEtLrIqgy6YeY6o0BefrT5Ro30d6tIUq8mxO2oWbzwTYpBcjwVIUjbAHpnQj2jd3S0qkNCbyLGC6MQNPOyFQYxjP_qMgAmNF8YOCj3fMm1Za1Qy-bL2v5f_6sk"
+                    rel=""
+                    style="
+                      background-color: #67bdfc;
+                      border: none;
+                      border-radius: 3px;
+                      box-sizing: border-box;
+                      color: #ffffff !important;
+                      cursor: pointer;
+                      display: inline-block;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                        Roboto, Helvetica, Arial, sans-serif,
+                        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+                      font-size: 16px;
+                      font-weight: normal;
+                      height: auto;
+                      line-height: 20px;
+                      margin: 0;
+                      opacity: 1;
+                      outline: none;
+                      padding: 12px 20px;
+                      text-align: center;
+                      text-decoration: none !important;
+                      white-space: nowrap;
+                    "
+                    ><span style="color: #ffffff; text-decoration: none"
+                      >Share</span
+                    ></a
+                  >
+                </p>
+                <p
+                  class="button-wrapper"
+                  data-attrs='{"url":"https://tictoctrading.substack.com/?utm_source=substack&amp;utm_medium=email&amp;utm_content=share&amp;action=share","text":"Share Tic Toc Newsletter","action":null,"class":null}'
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                    text-align: center;
+                  "
+                >
+                  <a
+                    class="button primary"
+                    href="https://email.mg2.substack.com/c/eJxVkcGOhCAQRL9GjkZARQ8cNtnMbxiEVskKGGhm4t8vjjuHTQiHV92pSrVWCGuIpzxCQnJ9E54HSA-vtAMiRJITxMkaKVgnhGCUGNkaOnQDsWlaIoBTdpcYM5Ajz7vVCm3w10bHadtTskk9c8Z1B0aozsDSjmoQI-WL1pwu3dzfxiobC16DhCfEM3ggu9wQj1Txr4o9ykOrMWiMyli_1inPCZX-qXVwl84fGd2UQo4aKv79kSvWX9yBsdkV_s77B3XwCB6v6U1FKFTpK_0HECtZw1hD2UgFY7SpWQ1ARb-MTTNqtmjOavf069wffdU2bmX_YpEo01m_8jYXcb2M37T0VKydy97iOYFX8w7mrhDvS7xDTit4iOVCZlIoad_yVvQjH7uB342VjlsxNky0HSm2JpQtL_-19Aug5KR0"
+                    rel=""
+                    style="
+                      background-color: #67bdfc;
+                      border: none;
+                      border-radius: 3px;
+                      box-sizing: border-box;
+                      color: #ffffff !important;
+                      cursor: pointer;
+                      display: inline-block;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                        Roboto, Helvetica, Arial, sans-serif,
+                        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+                      font-size: 16px;
+                      font-weight: normal;
+                      height: auto;
+                      line-height: 20px;
+                      margin: 0;
+                      opacity: 1;
+                      outline: none;
+                      padding: 12px 20px;
+                      text-align: center;
+                      text-decoration: none !important;
+                      white-space: nowrap;
+                    "
+                    ><span style="color: #ffffff; text-decoration: none"
+                      >Share Tic Toc Newsletter</span
+                    ></a
+                  >
+                </p>
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                    margin-bottom: 0;
+                  "
+                >
+                  <strong
+                    >Disclaimer: This newsletter is not trading or investment
+                    advice, but for general informational purposes only. This
+                    newsletter represents my personal opinions which I am
+                    sharing publicly as my personal blog. Futures, stocks, bonds
+                    trading of any kind involves a lot of risk. No guarantee of
+                    any profit whatsoever is made. In fact, you may lose
+                    everything you have. So be very careful. I guarantee no
+                    profit whatsoever, You assume the entire cost and risk of
+                    any trading or investing activities you choose to undertake.
+                    You are solely responsible for making your own investment
+                    decisions. Owners/authors of this newsletter, its
+                    representatives, its principals, its moderators and its
+                    members, are NOT registered as securities broker-dealers or
+                    investment advisors either with the U.S. Securities and
+                    Exchange Commission, CFTC or with any other
+                    securities/regulatory authority. Consult with a registered
+                    investment advisor, broker-dealer, and/or financial advisor.
+                    Reading and using this newsletter or any of my publications,
+                    you are agreeing to these terms. Any screenshots used here
+                    are the courtesy of Ninja Trader, Think or Swim and/or
+                    Jigsaw. I am just an end user, they own all copyrights to
+                    their products.</strong
+                  >
+                </p>
+              </div>
+            </div>
+            <table
+              cellpadding="0"
+              cellspacing="0"
+              class="post-meta big centered custom"
+              style="margin: 0 auto"
+            >
+              <tr>
+                <td
+                  class="post-meta-item icon"
+                  style="
+                    color: #767676;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 14px;
+                    height: 18px;
+                    line-height: 18px;
+                    padding: 0px 12px 0px 0;
+                    padding-right: 16px;
+                    position: relative;
+                    text-decoration: none;
+                    text-indent: 3px;
+                    vertical-align: middle;
+                    white-space: nowrap;
+                  "
+                >
+                  <a
+                    href="https://email.mg2.substack.com/c/eJxVUk2PmzAQ_TXhFgQ2GHzg0N1sWraB3TQf2vSCwJ6AEzAIm6Tw62s27WEly7LevJnnmTcs11C2_Rh1rdLWfGV67CCScFc1aA29NSjoM8GjAPlBECDX4pHH3dAPLaGycw_Q5KKOdD-A1Q1FLViuRSvnDB-7HnGtKvLdokCUIBwShwY-J3nBEQPqUy8k4PCHcD5wAZJBBDfox1aCVUeV1p1a4G8LtDZHC6ZbpvucC1naaiiUztnVZm1jgt2DoJZ3gGs9LnXVDmWllYENoQFpnnit2yvIBV7B-OoydBw_UH2NLy1OLgecTmxMdnfBvtOJr2n3-zkm6Yr5ySrG6eqg4qauuMGS_clJpi1OL9fpzfDzj3QyNQT7cRSb_WFK9luU7GIVy9Q9iZjE8unG8Faz5lid8K-uQJ44b232s7kxuaneX_P1H1guWdptyfjy9vQevowsScrnrqk3u7vqTwtEBt1kqh16Bub3_1v_hzfAxdDMXc1eWCJCDkKOi6gbIOQ6NrIB3ICcqeNQhs4MI7u5ybIgHVl4TlOiL7O0-kiN9n2oChMs54qfqDE3mwc5SKHHDGRe1MAfvuvH-nyqZyVI6M1a8SzXkUs87AWEYuqH-GGzWQwvoA4KPN8ysrw1WTL6Yu1f58rhcw"
+                    class="post-meta-button button"
+                    style="
+                      background-color: transparent;
+                      border: 1px solid #e0ecf6;
+                      border-radius: 3px;
+                      box-sizing: border-box;
+                      color: #767676;
+                      cursor: pointer;
+                      display: block;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                        Roboto, Helvetica, Arial, sans-serif,
+                        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+                      font-size: 16px;
+                      font-weight: normal;
+                      height: auto;
+                      line-height: 15px;
+                      margin: 0;
+                      opacity: 1;
+                      outline: none;
+                      padding: 10px 16px;
+                      text-align: center;
+                      text-decoration: none;
+                      white-space: nowrap;
+                    "
+                    ><img
+                      src="https://cdn.substack.com/image/fetch/w_28,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FCommentIconRounded%3Fv%3D3%26height%3D28%26fill%3D%2523757575%26stroke%3D%2523757575%26strokeWidth%3D2"
+                      width="14"
+                      height="14"
+                      style="
+                        border: none !important;
+                        display: inline-block;
+                        float: left;
+                        height: 14px;
+                        margin-right: 4px;
+                        max-width: 14px;
+                        vertical-align: top;
+                        width: auto;
+                      "
+                      alt="Comment"
+                      class="comment-icon post-meta-icon"
+                    /><span class="meta-button-label">Comment</span></a
+                  >
+                </td>
+                <td
+                  class="post-meta-item icon"
+                  style="
+                    color: #767676;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                      Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                      'Segoe UI Emoji', 'Segoe UI Symbol';
+                    font-size: 14px;
+                    height: 18px;
+                    line-height: 18px;
+                    margin-right: 0;
+                    padding: 0px 12px 0px 0;
+                    padding-right: 0;
+                    position: relative;
+                    text-decoration: none;
+                    text-indent: 3px;
+                    vertical-align: middle;
+                    white-space: nowrap;
+                  "
+                >
+                  <span
+                    ><a
+                      href="https://email.mg2.substack.com/c/eJxVUl2PmzAQ_DXhLQhsPh946F0uLdfAXZoPXfqCjL0BJ9ggbJKSX1-TXKWeZFny7IxXOzuUaKjafky6Vmlrugo9dpBIuKoGtIbeGhT0BWdJiPwwDJFrscRjbuRHFlfFsQcQhDeJ7gewuqFsOCWat3JS-Nj1AteqkxAiHJDY8yIHsciLIgxxFEWhw47Mdxh-NCYD4yApJHCBfmwlWE1Sa92pGf42Q0tzNKe6pbonjMvKVkOpNKFnm7bCFLsHQc2vAOdmnOu6HapaG_Vy0KJQ7dBTmOHFP9kMBRMugPFBGPw-xydIW6lB6oldkx4MSug01X-Abs8wvWF8dSnajx-oOaenFmenHc5vdMw2V06_xze2jLvfz2mQL6ifLVKcL3YqFU3NDJZtD052W-P8dL69GT75yG_mD05_7Plqu7tl2zXKNqlKZe4eeBqk8ulC8VpTsa8P-FdXIo8f1zb9KS5Urur3V7L8A_M5zbt1ML68Pb1HLyPNsuq5E81qc1X9weIJchByXBS7IUKuYyMbwA2DY-w4MUVHipEtLrIqgy6YeY6o0BefrT5Ro30d6tIUq8mxO2oWbzwTYpBcjwVIUjbAHpnQj2jd3S0qkNCbyLGC6MQNPOyFQYxjP_qMgAmNF8YOCj3fMm1Za1Qy-bL2v5f_6sk"
+                      class="button post-meta-button"
+                      style="
+                        background-color: transparent;
+                        border: 1px solid #e0ecf6;
+                        border-radius: 3px;
+                        box-sizing: border-box;
+                        color: #767676;
+                        cursor: pointer;
+                        display: block;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 16px;
+                        font-weight: normal;
+                        height: auto;
+                        line-height: 15px;
+                        margin: 0;
+                        opacity: 1;
+                        outline: none;
+                        padding: 10px 16px;
+                        text-align: center;
+                        text-decoration: none;
+                        white-space: nowrap;
+                      "
+                      ><img
+                        src="https://cdn.substack.com/image/fetch/w_32,c_scale,f_png,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Ficon%2FRecommendIconRounded%3Fv%3D2%26height%3D32%26fill%3D%2523757575%26stroke%3Dnone%26strokeWidth%3D2"
+                        width="16"
+                        height="16"
+                        style="
+                          border: none !important;
+                          display: inline-block;
+                          float: left;
+                          height: 16px;
+                          margin-right: 4px;
+                          max-width: 550px;
+                          vertical-align: top;
+                          width: 16px;
+                        "
+                        alt="Share"
+                        class="recommend-icon post-meta-icon"
+                      /><span class="meta-button-label">Share</span></a
+                    ></span
+                  >
+                </td>
+              </tr>
+            </table>
+            <div
+              class="container-border"
+              style="
+                border-top: 1px solid #e0ecf6;
+                box-sizing: border-box;
+                font-size: 16px;
+                line-height: 26px;
+                margin: 32px 0 0;
+                width: 100%;
+              "
+            ></div>
+            <div
+              class="postscript"
+              style="font-size: 16px; line-height: 26px; margin: 24px 0 40px"
+            >
+              <div
+                dir="auto"
+                class="body markup"
+                style="
+                  font-size: 16px;
+                  line-height: 26px;
+                  margin-bottom: 12px;
+                  text-align: initial;
+                  width: 100%;
+                  word-break: break-word;
+                "
+              >
+                <p
+                  style="
+                    color: #1a1a1a;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em 0;
+                    margin-top: 0;
+                  "
+                >
+                  <em>This is the Free once-a-week post from&nbsp;</em
+                  ><a
+                    href="https://email.mg2.substack.com/c/eJxVkM2KhDAQhJ9mcpT8mZhDDnvZ15D8tE5YjZK0M_j2G8fTQFMN3RTFV8EhzFs57b5VJJeMeO5gM7zrAohQyFGhjClazXutNWckWhnZ0A8k1XEqAKtLi8VyANkPv6TgMG35cvSCScXI004QqYtUNGXeKTYIoygTGqITQVN_B7sjJsgBLLygnFsGstgn4l4f4ufBf9tgCrgFLC6mPHf18BVd-OvCtpJkOeWcMm6Y5pzRjncATKvJUGoCn4Lg3frKs1e7eki6zvzbX2w9u_fx9O05X0SfawMa216PnPAcITu_QLxZ8a7sQz_OkKG0KuPo0DIlhdTKCNMP4kZrZUhtKNeyJy02bs2V7RfOP0IPhZg"
+                    rel=""
+                    style="color: #1a1a1a; text-decoration: underline"
+                    >Orderflow</a
+                  ><em
+                    >. Feel free to share it. For up-to 5 posts a week,&nbsp;<a
+                      href="https://email.mg2.substack.com/c/eJxVkk1zmzAQhn-NOTJIAoQOOqT-aOzWuK3bxD4xQlqwMAhHiDj411eOT5nZ0c5-vLOjfVYKB3VvJ37pBxfcn8JNF-AGrkMLzoENxgFsoRWnOKGUYhQoHiuUJVmgh6KyAJ3QLXd2hOAylq2Wwune3BUJQXGKghPHDCpJMSasooyWAskkYTGVILIyLbF6DBaj0mAkcHgHO_UGgpafnLsMM_I0wytvTkvXS2eF0qYOh7EcnJDnUPadL95DaXUJM7Jy_RnMjCxg2iCJX6YDbs_rpifb5h_Jb3La7q9avK4in_vIm9-3fCHx7u82-TnftPD8pHfNEueL4zVv6mR7Ow_rrvWqdbo239BRR2h7W0Z5s9S-_6Ze13qnN434_tIIzJCab1gIb4v2lyP7Y_6jyJ7PFctUc_3zdkhi19FkOux3eWbTebMnfo0cRxhHyGv9jlAU4hAA0bRiUcQkriTBYfdu6jK9pLM46mr85euB5cMUXsdT6Yv1HcZn1rMovO9Go91UgBFlC-qByT1of4IrajBg_RWoQjiO0pjENGWEJRl5UPEcY8oiTOMk8GNV71WGfyHxHyqFw7g"
+                      rel=""
+                      style="color: #1a1a1a; text-decoration: underline"
+                      >become a paying subscriber</a
+                    >. This is my personal opinion about current market affairs
+                    and is not financial advice.
+                  </em>
+                </p>
+                <div
+                  class="subscribe-widget is-signed-up"
+                  style="
+                    direction: ltr;
+                    font-size: 16px;
+                    line-height: 26px;
+                    margin: 0 0 1em;
+                    margin-bottom: 0;
+                  "
+                >
+                  <p
+                    class="button-wrapper"
+                    style="
+                      color: #1a1a1a;
+                      font-size: 16px;
+                      line-height: 26px;
+                      margin: 0 0 1em 0;
+                      text-align: center;
+                    "
+                  >
+                    <a
+                      href="https://email.mg2.substack.com/c/eJxVUtuOmzAQ_Rp4K8IXLn7gYZtLN2lD2qbdTZ6QsQdiAiYLZin5-prNaqWVrJE8Z0Zz5pwR3EDZdlNybXvjziEz0xUSDWNfgzHQuUMPXaZkEuEgiiKMXJlQieIgdlWfFR1Aw1WdmG4A9zrktRLcqFbPHQFBNETuOaE5jVFIClHEPsJCBpwxwWlRMPBpQeA-mA9SgRaQwCt0U6vBrZOzMdfeIQ8OXttnlDCtMB2XSpdeP-S94eLiibax4PwVncrBIWvTXkA7ZAnTFgn8NB1xfdlULdlVf0l6E9PuMCr-vPZt7l9a_bqlS4H3f3bBj8W2hscHta9WOF2exrQqg93t0m-a2nZtwo3-ik7KR7vbyk-rlbL1N_m8UXu1rfi3p4pjhuRiyzx4WdY_DTmc0u9Z_HgpWCyr8ffLMaCmiYLpeNincRcuqgOJHRwOpskakGpoZs6znu_Jvh06YRdafiz3ZVSyBPOOi1Yb0MYW0Ij5OKKBqxLsY2xlZijCGPke9gBQFBbM95nAhSDYa151mYfX0KF-U-JPQrpd0k_eOJxzC5YzlbesddYOa5pBKzNloHleg7ybbu6380Y7K0FDZ29KZtwkKKSERiEjLIjJ3WN7FR9M7VjZ2i6dfPL1Px6O3qY"
+                      class="button primary subscribe-btn"
+                      style="
+                        background-color: #67bdfc;
+                        border: none;
+                        border-radius: 3px;
+                        box-sizing: border-box;
+                        color: #ffffff !important;
+                        cursor: pointer;
+                        display: inline-block;
+                        font-family: -apple-system, BlinkMacSystemFont,
+                          'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+                          'Apple Color Emoji', 'Segoe UI Emoji',
+                          'Segoe UI Symbol';
+                        font-size: 16px;
+                        font-weight: normal;
+                        height: auto;
+                        line-height: 20px;
+                        margin: 0;
+                        opacity: 1;
+                        outline: none;
+                        padding: 12px 20px;
+                        text-align: center;
+                        text-decoration: none !important;
+                        white-space: nowrap;
+                      "
+                      ><span style="color: #ffffff; text-decoration: none"
+                        >Subscribe now</span
+                      ></a
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="footer"
+              style="
+                background: #f8f8f8 !important;
+                color: #bcbcbc;
+                font-size: 16px;
+                line-height: 26px;
+                margin-top: 24px;
+                padding: 32px;
+                text-align: center;
+              "
+            >
+              <p
+                class="small"
+                style="
+                  color: #bcbcbc;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                    'Segoe UI Emoji', 'Segoe UI Symbol';
+                  font-size: 13px;
+                  line-height: 26px;
+                  margin: 0 0 1em 0;
+                  margin-bottom: 0;
+                  padding-bottom: 30px;
+                "
+              >
+                &#169; 2022 <span>Tic Toc Trading</span>
+                <a
+                  href="https://email.mg2.substack.com/c/eJxVksly4jAQhp8GH11avOCDDpkBEqdiz0BYAheXLLWNwNtYcij76SPCXFKlklTd6v5V_9eCGyjbfmRdq41z3zIzdsAauOkKjIHeGTT0mZIsJH4YhgQ7knkSz_25o3RW9AA1VxUz_QBON-SVEtyotrlX-BR7AXbODJAgknIhClQAFxJBkc9JKHOKch5S-hDmg1TQCGDwCf3YNuBU7GxMp2f0aUZWdhklTCtMz6VqSlcPuTZcXF3R1jbJxV3XXqTSPK8g-_7YjK5Me4VmRhcwvmJB9uMHqa7xpaXJZUfTSYzJ-02J52iSq6g7_Y6DdCH8ZBHTdLHTcV2dpY0l2yNKpjVNL9fpj33PP9LJ9lDiZa_etrsp2a5J8h7ruEnxUcVBXG86QVYqf94XpwM-88NNFWv3ab4sr_8qs5mWx5c08UO-xMs59zb1qdgcLvHfV12vfsX95e3oKEYQIQiTCIeEYOQSFwCHQREhFAlSCErc-rMp86ALZh6qS_LDEadnenRvwzm3yfJuxXfUIsrsWQ-NMmMGzd0p-aBnHkPwbVtWQgO9HQ6ZccNw4FEvDCIa-fP_sCxeL4wQCT3fsbKytVUN-wHoC99RzT4"
+                  style="color: #bcbcbc; text-decoration: underline"
+                  ><span style="color: #bcbcbc; text-decoration: underline"
+                    >Unsubscribe</span
+                  ></a
+                ><br />548 Market Street PMB 72296, San Francisco, CA 94104
+              </p>
+              <p
+                class="small powered-by-substack"
+                style="
+                  color: #bcbcbc;
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+                    'Segoe UI Emoji', 'Segoe UI Symbol';
+                  font-size: 13px;
+                  line-height: 26px;
+                  margin: 0 0 1em 0;
+                  margin-bottom: 0;
+                  padding-bottom: 0;
+                "
+              >
+                <a
+                  href="https://email.mg2.substack.com/c/eJxNkc1qxSAQRp8mLoMaE5OFi0LpawR_JrnSqEHHlrx9zb0tFMTFGYbv82g1wp7ypc5UkNzXitcJKsJ3OQARMqkF8uqdknyUUnJGnBKOzeNMfFm3DBC0PxTmCuSs5vBWo0_x3hgHJiZGHso4YFzMm5zYzK0e6Ka3eaRmG40V4MwrWFfnIVpQ8AX5ShHIoR6IZ-mGt45_tFOqKajtZ29TuMnwUTGsJdVsoRve_8Ydn24ewPkaGn82_IU2RYSIjW4p3c_zilPOKeMLk5wz2vMegMlpWyhdLN_swPvwFXcznVMnaNh5_78Gyapc_Xd9mDbc76AnbSZaVAg1erxWiNoc4F6S8OX6WWrdIUJuf-BWjYpNYhByWoZlnIeXk2ZRyIVyKUbSYl1qW1Ght5gsZu183H8ANzmZvA"
+                  style="color: #bcbcbc; text-decoration: none"
+                  ><img
+                    alt="Publish on Substack"
+                    src="https://cdn.substack.com/image/fetch/w_340,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack.com%2Fimg%2Fpublish-on-substack.png"
+                    width="170"
+                    height="32"
+                    style="
+                      border: none !important;
+                      margin-top: 3px;
+                      max-width: 550px;
+                      vertical-align: middle;
+                    "
+                /></a>
+              </p>
+            </div>
+          </div>
+        </td>
+        <td></td>
+      </tr>
+    </table>
+    <img
+      width="1px"
+      height="1px"
+      alt=""
+      src="https://email.mg2.substack.com/o/eJwlkEuOxCAMRE8zLCMwBMKCs0R8nAyaBCI-3crth-6sSipbVc_2tuGey22uXBvB08Zj3TFhGX5YbTNMCi6U1FzPCyfBiMCWeSGxrlvB775ppSO5ujuity3mtMZgZs6EZOTXzJo754VmitkhEjl3wLdgg1jQWUo-xavtIWLyaPCF5c4JH3sECaUpKDGTaIACUAYjCoDRCSZEpuSmKdUeNs9hOl9pd_KSP4KeO0y1u9qs_5t8Pkkx9Z7e_deN4f7h_roDex169hTbvWKy7sDwXNSen_SK5QOiYFZKAXvI2n2hSfiuB7aGhYyqkEdqMi36ln0rNsS0_wNCZHZu"
+    />
+  </body>
+</html>

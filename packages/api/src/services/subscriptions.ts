@@ -6,6 +6,15 @@ import axios from 'axios'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { createNewsletterEmail } from './newsletters'
 
+interface SaveSubscriptionInput {
+  userId: string
+  name: string
+  newsletterEmail: string
+  unsubscribeMailTo?: string
+  unsubscribeHttpUrl?: string
+  icon?: string
+}
+
 const sendUnsubscribeEmail = async (
   unsubscribeMailTo: string,
   newsletterEmail: string
@@ -30,13 +39,14 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<void> => {
   }
 }
 
-export const saveSubscription = async (
-  userId: string,
-  name: string,
-  newsletterEmail: string,
-  unsubscribeMailTo?: string,
-  unsubscribeHttpUrl?: string
-): Promise<Subscription> => {
+export const saveSubscription = async ({
+  userId,
+  name,
+  newsletterEmail,
+  unsubscribeMailTo,
+  unsubscribeHttpUrl,
+  icon,
+}: SaveSubscriptionInput): Promise<Subscription> => {
   const subscription = await getRepository(Subscription).findOneBy({
     name,
     user: { id: userId },
@@ -46,6 +56,7 @@ export const saveSubscription = async (
     // if subscription already exists, updates updatedAt
     subscription.status = SubscriptionStatus.Active
     subscription.newsletterEmail = newsletterEmail
+    icon && (subscription.icon = icon)
     unsubscribeMailTo && (subscription.unsubscribeMailTo = unsubscribeMailTo)
     unsubscribeHttpUrl && (subscription.unsubscribeHttpUrl = unsubscribeHttpUrl)
     return getRepository(Subscription).save(subscription)
@@ -59,6 +70,7 @@ export const saveSubscription = async (
     status: SubscriptionStatus.Active,
     unsubscribeHttpUrl,
     unsubscribeMailTo,
+    icon,
   })
 }
 

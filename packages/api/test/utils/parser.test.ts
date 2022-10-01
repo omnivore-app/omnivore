@@ -4,11 +4,8 @@ import { expect } from 'chai'
 import 'chai/register-should'
 import fs from 'fs'
 import {
-  findNewsletterUrl,
-  generateUniqueUrl,
   getTitleFromEmailSubject,
   isProbablyArticle,
-  isProbablyNewsletter,
   parseEmailAddress,
   parsePageMetadata,
   parsePreparedContent,
@@ -23,69 +20,6 @@ chai.use(chaiAsPromised)
 const load = (path: string): string => {
   return fs.readFileSync(path, 'utf8')
 }
-
-describe('isProbablyNewsletter', () => {
-  it('returns true for substack newsletter', async () => {
-    const html = load('./test/utils/data/substack-forwarded-newsletter.html')
-    await expect(isProbablyNewsletter(html)).to.eventually.be.true
-  })
-  it('returns true for private forwarded substack newsletter', async () => {
-    const html = load(
-      './test/utils/data/substack-private-forwarded-newsletter.html'
-    )
-    await expect(isProbablyNewsletter(html)).to.eventually.be.true
-  })
-  it('returns false for substack welcome email', async () => {
-    const html = load('./test/utils/data/substack-forwarded-welcome-email.html')
-    await expect(isProbablyNewsletter(html)).to.eventually.be.false
-  })
-  it('returns true for beehiiv.com newsletter', async () => {
-    const html = load('./test/utils/data/beehiiv-newsletter.html')
-    await expect(isProbablyNewsletter(html)).to.eventually.be.true
-  })
-})
-
-describe('findNewsletterUrl', async () => {
-  it('gets the URL from the header if it is a substack newsletter', async () => {
-    nock('https://email.mg2.substack.com')
-      .head(
-        '/c/eJxNkk2TojAQhn-N3KTyQfg4cGDGchdnYcsZx9K5UCE0EMVAkTiKv36iHnarupNUd7rfVJ4W3EDTj1M89No496Uw0wCxgovuwBgYnbOGsZBVjDHzKPWYU8VehUMWOlIX9Qhw4rKLzXgGZziXnRTcyF7dK0iIGMVOG_OS1aTmKPRDilgVhTQUPCQIcE0x-MFTmJ8rCUpA3KtuenR2urg1ZtAzmszI0tq_Z7m66y-ilQo0uAqMTQ7WRX8auJKg56blZg7WB-iHDuYEBzO6NP0R1IwuYFphQbbTjnTH9NBfs80nym4Zyj8uUvyKbtUyGr5eUz9fNDQ7JCxfJDo9dW1lY9lmj_JNivPbGmf2Pt_lN9tDit9b-WeTetni85Z9pDpVOd7L1E_Vy7egayNO23ZP34eSeLJeux1b0rer_xaZ7ykS78nuSjMY-nL98rparNZNcv07JCjN06_EkTFBxBqOUMACErnELUNMSxTUjLDQZwzcqa4bRjCfeejUEFefS224OLr2S5wxPtij7lVrs80d2CNseRV2P52VNFMBipcdVE-U5jkRD7hFAwpGOylVwU2Mfc9qBh7DoR89yVnWXhgQFHnIsbpVb6tU_B-hH_2yzWY'
-      )
-      .reply(302, undefined, {
-        Location:
-          'https://newsletter.slowchinese.net/p/companies-that-eat-people-217',
-      })
-      .get('/p/companies-that-eat-people-217')
-      .reply(200, '')
-    const html = load('./test/utils/data/substack-forwarded-newsletter.html')
-    const url = await findNewsletterUrl(html)
-    // Not sure if the redirects from substack expire, this test could eventually fail
-    expect(url).to.startWith(
-      'https://newsletter.slowchinese.net/p/companies-that-eat-people-217'
-    )
-  })
-  it('gets the URL from the header if it is a beehiiv newsletter', async () => {
-    nock('https://u23463625.ct.sendgrid.net')
-      .head(
-        '/ss/c/AX1lEgEQaxtvFxLaVo0GBo_geajNrlI1TGeIcmMViR3pL3fEDZnbbkoeKcaY62QZk0KPFudUiUXc_uMLerV4nA/3k5/3TFZmreTR0qKSCgowABnVg/h30/zzLik7UXd1H_n4oyd5W8Xu639AYQQB2UXz-CsssSnno'
-      )
-      .reply(302, undefined, {
-        Location: 'https://www.milkroad.com/p/talked-guy-spent-30m-beeple',
-      })
-      .get('/p/talked-guy-spent-30m-beeple')
-      .reply(200, '')
-    const html = load('./test/utils/data/beehiiv-newsletter.html')
-    const url = await findNewsletterUrl(html)
-    expect(url).to.startWith(
-      'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
-    )
-  })
-  it('returns undefined if it is not a newsletter', async () => {
-    const html = load('./test/utils/data/substack-forwarded-welcome-email.html')
-    const url = await findNewsletterUrl(html)
-    expect(url).to.be.undefined
-  })
-})
 
 describe('parseMetadata', async () => {
   it('gets author, title, image, description', async () => {
@@ -161,15 +95,6 @@ describe('isProbablyArticle', () => {
   it('returns true when subject has omnivore: prefix', async () => {
     const subject = 'omnivore: test subject'
     expect(await isProbablyArticle('test-email', subject)).to.be.true
-  })
-})
-
-describe('generateUniqueUrl', () => {
-  it('generates a unique URL', () => {
-    const url1 = generateUniqueUrl()
-    const url2 = generateUniqueUrl()
-
-    expect(url1).to.not.eql(url2)
   })
 })
 

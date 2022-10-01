@@ -30,7 +30,7 @@ struct TextToSpeechView: View {
   private var innerBody: some View {
     Section("Voices") {
       ForEach(Voices.Languages, id: \.key) { language in
-        NavigationLink(destination: TextToSpeechVoiceSelectionView(forLanguage: language)) {
+        NavigationLink(destination: TextToSpeechVoiceSelectionView(forLanguage: language, showLanguageChanger: false)) {
           Text(language.name)
         }
       }

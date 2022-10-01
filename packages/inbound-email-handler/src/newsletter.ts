@@ -1,15 +1,12 @@
-import { PubSub } from '@google-cloud/pubsub'
-import { v4 as uuidv4 } from 'uuid'
 import addressparser from 'addressparser'
 import rfc2047 from 'rfc2047'
+import { publishMessage } from './index'
 
 interface Unsubscribe {
   mailTo?: string
   httpUrl?: string
 }
 
-const pubsub = new PubSub()
-const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const EMAIL_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
 const CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
 // check unicode parentheses too
@@ -33,73 +30,6 @@ const parseAddress = (address: string): string => {
     return parsed[0].address
   }
   return ''
-}
-
-export class NewsletterHandler {
-  protected senderRegex = /NEWSLETTER_SENDER_REGEX/
-  protected urlRegex = /NEWSLETTER_URL_REGEX/
-  protected defaultUrl = 'NEWSLETTER_DEFAULT_URL'
-
-  isNewsletter(postHeader: string, from: string, unSubHeader: string): boolean {
-    // Axios newsletter is from <xx@axios.com>
-    const re = new RegExp(this.senderRegex)
-    return re.test(from) && (!!postHeader || !!unSubHeader)
-  }
-
-  parseNewsletterUrl(_postHeader: string, html: string): string | undefined {
-    // get newsletter url from html
-    const matches = html.match(this.urlRegex)
-    if (matches) {
-      return matches[1]
-    }
-    return undefined
-  }
-
-  parseAuthor(from: string): string {
-    // get author name from email
-    // e.g. 'Jackson Harper from Omnivore App <jacksonh@substack.com>'
-    // or 'Mike Allen <mike@axios.com>'
-    const parsed = addressparser(from)
-    if (parsed.length > 0) {
-      return parsed[0].name
-    }
-    return from
-  }
-
-  async handleNewsletter(
-    email: string,
-    html: string,
-    postHeader: string,
-    title: string,
-    from: string,
-    unSubHeader: string
-  ): Promise<string | undefined> {
-    console.log('handleNewsletter', email, postHeader, title, from)
-
-    if (!email || !html || !title || !from) {
-      console.log('invalid newsletter email')
-      throw new Error('invalid newsletter email')
-    }
-
-    // fallback to default url if newsletter url does not exist
-    // assign a random uuid to the default url to avoid duplicate url
-    const url =
-      this.parseNewsletterUrl(postHeader, html) ||
-      `${this.defaultUrl}?source=newsletters&id=${uuidv4()}`
-    const author = this.parseAuthor(from)
-    const unsubscribe = parseUnsubscribe(unSubHeader)
-    const message = {
-      email,
-      content: html,
-      url,
-      title,
-      author,
-      unsubMailTo: unsubscribe.mailTo || '',
-      unsubHttpUrl: unsubscribe.httpUrl || '',
-    }
-
-    return publishMessage(NEWSLETTER_EMAIL_RECEIVED_TOPIC, message)
-  }
 }
 
 export const handleConfirmation = async (email: string, subject: string) => {
@@ -135,17 +65,4 @@ export const isConfirmationEmail = (from: string, subject: string): boolean => {
     parseAddress(from) === CONFIRMATION_EMAIL_SENDER_ADDRESS &&
     CONFIRMATION_CODE_PATTERN.test(subject)
   )
-}
-
-const publishMessage = async (
-  topic: string,
-  message: Record<string, string>
-): Promise<string | undefined> => {
-  return pubsub
-    .topic(topic)
-    .publishMessage({ json: message })
-    .catch((err) => {
-      console.log('error publishing message:', err)
-      return undefined
-    })
 }

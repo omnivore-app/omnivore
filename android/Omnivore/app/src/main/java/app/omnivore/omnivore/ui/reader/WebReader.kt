@@ -8,12 +8,17 @@ import android.view.*
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.networking.ReadingProgressParams
+import com.google.gson.Gson
 import org.json.JSONObject
 
 
@@ -36,6 +41,11 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
+  // TODO: maybe handle cases where js can be queued up?
+  val javascriptToExecute = remember { mutableStateOf<String?>(null) }
+
+  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
+
   WebView.setWebContentsDebuggingEnabled(true)
 
   val webReaderContent = WebReaderContent(
@@ -51,39 +61,81 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
 
   val styledContent = webReaderContent.styledContent()
 
-  AndroidView(factory = {
-    OmnivoreWebView(it).apply {
-      layoutParams = ViewGroup.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT
+  Box {
+    AndroidView(factory = {
+      OmnivoreWebView(it).apply {
+        layoutParams = ViewGroup.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT,
+          ViewGroup.LayoutParams.MATCH_PARENT
+        )
+
+        settings.javaScriptEnabled = true
+        settings.allowContentAccess = true
+        settings.allowFileAccess = true
+        settings.domStorageEnabled = true
+
+        webViewClient = object : WebViewClient() {
+        }
+
+        val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
+          when (actionID) {
+            "existingHighlightTap" -> {
+              isExistingHighlightSelected = true
+              actionTapCoordinates = Gson().fromJson(json, ActionTapCoordinates::class.java)
+              Log.d("Loggo", "receive existing highlight tap action: $actionTapCoordinates")
+              startActionMode(null, ActionMode.TYPE_PRIMARY)
+            }
+            else -> {
+              webReaderViewModel.handleIncomingWebMessage(actionID, json)
+            }
+          }
+        }
+
+        addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
+
+        loadDataWithBaseURL(
+          "file:///android_asset/",
+          styledContent,
+          "text/html; charset=utf-8",
+          "utf-8",
+          null
+        )
+      }
+    }, update = {
+      if (javascriptToExecute.value != null) {
+        it.evaluateJavascript(javascriptToExecute.value!!, null)
+      }
+    })
+
+    if (annotation != null) {
+      AnnotationEditView(
+        initialAnnotation = annotation!!,
+        onSave = {
+          val script = "var event = new Event('saveAnnotation');event.annotation = '$it';document.dispatchEvent(event);"
+          javascriptToExecute.value = script
+          webReaderViewModel.cancelAnnotationEdit()
+        },
+        onCancel = {
+          webReaderViewModel.cancelAnnotationEdit()
+        }
       )
-
-      settings.javaScriptEnabled = true
-      settings.allowContentAccess = true
-      settings.allowFileAccess = true
-      settings.domStorageEnabled = true
-
-      webViewClient = object : WebViewClient() {
-      }
-
-      val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
-        webReaderViewModel.handleIncomingWebMessage(actionID, json)
-      }
-
-      addJavascriptInterface(javascriptInterface, "AndroidWebKitMessenger")
-      loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
-
     }
-  }, update = {
-    it.loadDataWithBaseURL("file:///android_asset/", styledContent, "text/html; charset=utf-8", "utf-8", null);
-  })
+  }
 }
 
 class OmnivoreWebView(context: Context) : WebView(context) {
+  var isExistingHighlightSelected = false
+  var actionTapCoordinates: ActionTapCoordinates? = null
+
   private val actionModeCallback = object : ActionMode.Callback2() {
     // Called when the action mode is created; startActionMode() was called
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-      mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
+      if (isExistingHighlightSelected) {
+        mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
+        isExistingHighlightSelected = false
+      } else {
+        mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
+      }
       return true
     }
 
@@ -97,12 +149,20 @@ class OmnivoreWebView(context: Context) : WebView(context) {
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
       return when (item.itemId) {
         R.id.annotate -> {
-          Log.d("Loggo", "Annotate action selected")
+          val script = "var event = new Event('annotate');document.dispatchEvent(event);"
+          evaluateJavascript(script, null)
           mode.finish()
           true
         }
         R.id.highlight -> {
           val script = "var event = new Event('highlight');document.dispatchEvent(event);"
+          evaluateJavascript(script, null)
+          clearFocus()
+          mode.finish()
+          true
+        }
+        R.id.delete -> {
+          val script = "var event = new Event('remove');document.dispatchEvent(event);"
           evaluateJavascript(script, null)
           clearFocus()
           mode.finish()
@@ -117,35 +177,44 @@ class OmnivoreWebView(context: Context) : WebView(context) {
 
     // Called when the user exits the action mode
     override fun onDestroyActionMode(mode: ActionMode) {
-//      actionMode = null
+      Log.d("Loggo", "destroying menu: $mode")
+      isExistingHighlightSelected = false
+      actionTapCoordinates = null
     }
 
     override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
+      Log.d("Loggo", "outRect: $outRect, View: $view")
       outRect?.set(left, top, right, bottom)
     }
   }
 
-  private var currentActionModeCallback: ActionMode.Callback? = actionModeCallback
-
   override fun startActionMode(callback: ActionMode.Callback?): ActionMode {
-    return super.startActionMode(currentActionModeCallback)
+    return super.startActionMode(actionModeCallback)
   }
 
   override fun startActionModeForChild(
     originalView: View?,
     callback: ActionMode.Callback?
   ): ActionMode {
-    return super.startActionModeForChild(originalView, currentActionModeCallback)
+    return super.startActionModeForChild(originalView, actionModeCallback)
   }
 
   override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode {
-    return super.startActionMode(currentActionModeCallback, type)
+    Log.d("Loggo", "startActionMode:type called")
+    return super.startActionMode(actionModeCallback, type)
   }
 }
 
-class AndroidWebKitMessenger(val messageHandler: (String, JSONObject) -> Unit) {
+class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
   @JavascriptInterface
   fun handleIdentifiableMessage(actionID: String, jsonString: String) {
-    messageHandler(actionID, JSONObject(jsonString))
+    messageHandler(actionID, jsonString)
   }
 }
+
+data class ActionTapCoordinates(
+  val rectX: Double,
+  val rectY: Double,
+  val rectWidth: Double,
+  val rectHeight: Double,
+)

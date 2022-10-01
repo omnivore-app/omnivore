@@ -43,6 +43,9 @@ export class Subscription {
   @Column('text', { nullable: true })
   unsubscribeHttpUrl?: string
 
+  @Column('text', { nullable: true })
+  icon?: string
+
   @CreateDateColumn()
   createdAt!: Date
 

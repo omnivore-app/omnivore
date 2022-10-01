@@ -192,11 +192,11 @@ public struct MiniPlayer: View {
 
           if !expanded {
             Text(itemAudioProperties.title)
-              .font(expanded ? .appTitle : .appCallout)
+              .font(.appCallout)
               .lineSpacing(1.25)
               .foregroundColor(.appGrayTextContrast)
               .fixedSize(horizontal: false, vertical: false)
-              .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
+              .frame(maxWidth: .infinity, alignment: .leading)
               .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
             playPauseButtonItem
@@ -210,55 +210,26 @@ public struct MiniPlayer: View {
         Spacer()
 
         if expanded {
-          Text(itemAudioProperties.title)
-            .lineLimit(1)
-            .font(expanded ? .appTitle : .appCallout)
-            .lineSpacing(1.25)
+          Marquee(text: itemAudioProperties.title, font: UIFont(name: "Inter-Regular", size: 22)!)
             .foregroundColor(.appGrayTextContrast)
-            .frame(maxWidth: .infinity, alignment: expanded ? .center : .leading)
-            .matchedGeometryEffect(id: "ArticleTitle", in: animation)
             .onTapGesture {
               viewArticle()
             }
 
-          HStack {
-            Spacer()
-            if let byline = itemAudioProperties.byline {
-              Text(byline)
-                .lineLimit(1)
-                .font(.appCallout)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
-                .frame(alignment: .trailing)
-            }
-            Spacer()
+          if let byline = itemAudioProperties.byline {
+            Marquee(text: byline, font: UIFont(name: "Inter-Regular", size: 16)!)
+              .foregroundColor(.appGrayText)
           }
 
-          Slider(value: $audioController.timeElapsed,
-                 in: 0 ... self.audioController.duration,
-                 onEditingChanged: { scrubStarted in
-                   if scrubStarted {
-                     self.audioController.scrubState = .scrubStarted
-                   } else {
-                     self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
-                   }
-                 })
-            .accentColor(.appCtaYellow)
-            .introspectSlider { slider in
-              // Make the thumb a little smaller than the default and give it the CTA color
-              // for some reason this doesn't work on my iPad though.
-              let tintColor = UIColor(Color.appCtaYellow)
-
-              let image = UIImage(systemName: "circle.fill",
-                                  withConfiguration: UIImage.SymbolConfiguration(scale: .small))?
-                .withTintColor(tintColor)
-                .withRenderingMode(.alwaysOriginal)
-
-              slider.setThumbImage(image, for: .selected)
-              slider.setThumbImage(image, for: .normal)
-
-              slider.minimumTrackTintColor = tintColor
-            }
+          ScrubberView(value: $audioController.timeElapsed,
+                       minValue: 0, maxValue: self.audioController.duration,
+                       onEditingChanged: { scrubStarted in
+                         if scrubStarted {
+                           self.audioController.scrubState = .scrubStarted
+                         } else {
+                           self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
+                         }
+                       })
 
           HStack {
             Text(audioController.timeElapsedString ?? "0:00")
@@ -333,7 +304,7 @@ public struct MiniPlayer: View {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
       }.sheet(isPresented: $showVoiceSheet) {
         NavigationView {
-          TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage)
+          TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage, showLanguageChanger: true)
             .navigationBarTitle("Voice")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
