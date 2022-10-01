@@ -1,5 +1,7 @@
 /* Menu Override styles */
-
+.pro-sidebar {
+  z-index: 1;
+}
 .pro-sidebar > .pro-sidebar-inner,
 .pro-menu,
 .pro-menu > ul > .pro-sub-menu > .pro-inner-list-item,
