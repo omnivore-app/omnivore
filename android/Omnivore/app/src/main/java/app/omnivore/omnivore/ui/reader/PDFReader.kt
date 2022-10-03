@@ -2,75 +2,50 @@ package app.omnivore.omnivore.ui.reader
 
 import android.net.Uri
 import android.os.Bundle
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import com.pspdfkit.configuration.activity.PdfActivityConfiguration
-import com.pspdfkit.configuration.activity.UserInterfaceViewMode
-import com.pspdfkit.jetpack.compose.DocumentView
-import com.pspdfkit.jetpack.compose.ExperimentalPSPDFKitApi
-import com.pspdfkit.jetpack.compose.rememberDocumentState
+import androidx.lifecycle.Observer
+import app.omnivore.omnivore.R
+import com.pspdfkit.configuration.PdfConfiguration
+import com.pspdfkit.configuration.page.PageScrollDirection
+import com.pspdfkit.ui.PdfFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PDFReaderActivity: AppCompatActivity() {
-  override fun onCreate(savedInstanceState: Bundle?) {
-    val viewModel: PDFReaderViewModel by viewModels()
+  private lateinit var fragment: PdfFragment
+  val viewModel: PDFReaderViewModel by viewModels()
 
+  override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    setContentView(R.layout.pdf_reader_fragment)
 
     val slug = intent.getStringExtra("LINKED_ITEM_SLUG") ?: ""
+    viewModel.loadItem(slug, this)
 
-    setContent {
-      PDFReaderLoadingContainer(slug = slug, pdfReaderViewModel = viewModel)
+    // Create the observer which updates the UI.
+    val pdfParamsObserver = Observer<PDFReaderParams?> { params ->
+      if (params != null) {
+        val configuration = PdfConfiguration.Builder()
+          .scrollDirection(PageScrollDirection.HORIZONTAL)
+          .build()
+
+        // First, try to restore a previously created fragment.
+        // If no fragment exists, create a new one.
+        fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as PdfFragment?
+          ?: createFragment(params.localFileUri, configuration)
+      }
     }
-  }
-}
 
-@Composable
-fun PDFReaderLoadingContainer(slug: String, pdfReaderViewModel: PDFReaderViewModel) {
-  val context = LocalContext.current
-  val pdfReaderParams: PDFReaderParams? by pdfReaderViewModel.pdfReaderParamsLiveData.observeAsState(null)
-
-  if (pdfReaderParams == null) {
-    pdfReaderViewModel.loadItem(slug = slug, context)
+    // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+    viewModel.pdfReaderParamsLiveData.observe(this, pdfParamsObserver)
   }
 
-  if (pdfReaderParams != null) {
-    PDFDocumentView(documentUri = pdfReaderParams!!.localFileUri)
-  } else {
-    // TODO: add a proper loading view
-    Text("Loading...")
+  private fun createFragment(documentUri: Uri, configuration: PdfConfiguration): PdfFragment {
+    val fragment = PdfFragment.newInstance(documentUri, configuration)
+    supportFragmentManager.beginTransaction()
+      .replace(R.id.fragmentContainer, fragment)
+      .commit()
+    return fragment
   }
-}
-
-@OptIn(ExperimentalPSPDFKitApi::class)
-@Composable
-fun PDFDocumentView(documentUri: Uri) {
-  val context = LocalContext.current
-
-  val pdfActivityConfiguration = remember {
-    PdfActivityConfiguration
-      .Builder(context)
-      .setUserInterfaceViewMode(UserInterfaceViewMode.USER_INTERFACE_VIEW_MODE_HIDDEN)
-      .build()
-  }
-
-  val pdfDocumentState = rememberDocumentState(
-    documentUri = documentUri,
-    configuration = pdfActivityConfiguration
-  )
-
-  DocumentView(
-    documentState = pdfDocumentState,
-    modifier = Modifier.fillMaxSize()
-  )
 }
