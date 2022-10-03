@@ -6,6 +6,7 @@
   "dependencies": {
     "@google-cloud/logging-winston": "^5.1.1",
     "@google-cloud/storage": "^5.18.1",
+    "@omnivore/content-handler": "file:./../content-handler",
     "@sentry/serverless": "^6.13.3",
     "axios": "^0.27.2",
     "chrome-aws-lambda": "^10.1.0",

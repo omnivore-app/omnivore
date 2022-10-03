@@ -23,12 +23,18 @@ WORKDIR /app
 ENV CHROMIUM_PATH /usr/bin/chromium-browser
 ENV LAUNCH_HEADLESS=true
 
-COPY . /app/
-WORKDIR app
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
+COPY .prettierrc .
+COPY .eslintrc .
+
+COPY /packages/content-fetch ./packages/content-fetch
+COPY /packages/content-handler ./packages/content-handler
 
 RUN yarn install --pure-lockfile
 
 EXPOSE 8080
 
-ENTRYPOINT ["yarn", "start"]
+CMD ["yarn", "workspace", "@omnivore/content-fetch", "start"]
 

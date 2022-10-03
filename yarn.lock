@@ -4312,6 +4312,17 @@
   dependencies:
     "@octokit/openapi-types" "^9.5.0"
 
+"@omnivore/content-handler@file:./packages/content-handler":
+  version "1.0.0"
+  dependencies:
+    addressparser "^1.0.1"
+    axios "^0.27.2"
+    linkedom "^0.14.16"
+    luxon "^3.0.4"
+    rfc2047 "^4.0.1"
+    underscore "^1.13.6"
+    uuid "^9.0.0"
+
 "@opentelemetry/api-metrics@0.27.0":
   version "0.27.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/api-metrics/-/api-metrics-0.27.0.tgz#d8eca344ed1155f3ea8a8133ade827b4bb90efbf"

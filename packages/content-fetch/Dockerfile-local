@@ -34,6 +34,7 @@ COPY .prettierrc .
 COPY .eslintrc .
 
 COPY /packages/content-fetch ./packages/content-fetch
+COPY /packages/content-handler ./packages/content-handler
 
 RUN yarn install --pure-lockfile
 
