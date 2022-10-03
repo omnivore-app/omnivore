@@ -36,7 +36,7 @@ export type LibrarySearchBarProps = {
 }
 
 export function LibrarySearchBar(props: LibrarySearchBarProps): JSX.Element {
-  const [recentSearches, setRecentSearches] = useState(Array<[]>())
+  const [recentSearches, setRecentSearches] = useState(Array<unknown[]>())
 
   useEffect(() => {
     setRecentSearches(Object.values(localStorage))
