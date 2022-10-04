@@ -298,21 +298,40 @@ const textToUtterances = ({
     text = parseHTML(text).document.documentElement.textContent ?? text
     console.info('Converted HTML to text:', text)
   }
-  // split text into chunks of 256 characters to stream faster without breaking on words
-  const textChunks = text.match(/.{1,256}(?= |$)/g)
-  if (textChunks) {
-    for (const chunk of textChunks) {
-      const wordCount = tokenizer.tokenize(chunk).length
-      utterances.push({
-        idx,
-        text: chunk,
-        wordOffset,
-        wordCount,
-        voice,
-      })
-      wordOffset += wordCount
+  // if we hit 256, look back for first ending sentence within 80 chars
+  const MAX_CHARS = 256
+  const MAX_LOOKBACK = 80
+  while (text.length > MAX_CHARS) {
+    let lookback = MAX_LOOKBACK
+    let end = MAX_CHARS - lookback
+    while (lookback > 0) {
+      if (text[end] === '.' || text[end] === '!' || text[end] === '?') {
+        break
+      }
+      end++
+      lookback--
     }
+    const utterance = text.substring(0, end + 1)
+    const wordCount = tokenizer.tokenize(utterance).length
+    utterances.push({
+      idx,
+      text: utterance,
+      wordOffset,
+      wordCount,
+      voice,
+    })
+    text = text.substring(end + 1)
+    wordOffset += wordCount
   }
+
+  const wordCount = tokenizer.tokenize(text).length
+  utterances.push({
+    idx,
+    text,
+    wordOffset,
+    wordCount,
+    voice,
+  })
   return utterances
 }
 
