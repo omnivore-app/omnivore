@@ -63,7 +63,7 @@ import Views
           LinkedItemTitleEditView(item: item)
         }
         .sheet(item: $viewModel.itemForHighlightsView) { item in
-          Text("Highlights view for: \(item.unwrappedTitle)") // TODO: implement view
+          HighlightsListView(item: item)
         }
         .toolbar {
           ToolbarItem(placement: .barTrailing) {

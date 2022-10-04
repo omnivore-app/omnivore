@@ -12,6 +12,7 @@ struct WebReaderContainerView: View {
   @State private var showPreferencesPopover = false
   @State private var showLabelsModal = false
   @State private var showTitleEdit = false
+  @State private var showHighlightsView = false
   @State var showHighlightAnnotationModal = false
   @State var safariWebLink: SafariWebLink?
   @State private var navBarVisibilityRatio = 1.0
@@ -132,6 +133,10 @@ struct WebReaderContainerView: View {
         content: {
           Group {
             Button(
+              action: { showHighlightsView = true },
+              label: { Label("View Highlights", systemImage: "highlighter") }
+            )
+            Button(
               action: { showTitleEdit = true },
               label: { Label("Edit Title/Description", systemImage: "textbox") }
             )
@@ -197,6 +202,9 @@ struct WebReaderContainerView: View {
     }
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemTitleEditView(item: item)
+    }
+    .sheet(isPresented: $showHighlightsView) {
+      HighlightsListView(item: item)
     }
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())
