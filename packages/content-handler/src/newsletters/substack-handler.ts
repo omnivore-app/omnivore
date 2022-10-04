@@ -40,7 +40,7 @@ export class SubstackHandler extends ContentHandler {
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
     // Substack header links
-    const postLink = dom.querySelector('h1 a ')
+    const postLink = dom.querySelector('h1 a')
     if (postLink) {
       return postLink.getAttribute('href') || undefined
     }

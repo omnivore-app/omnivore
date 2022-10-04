@@ -169,14 +169,14 @@ describe('Newsletter email test', () => {
       expect(url).to.startWith(
         'https://newsletter.slowchinese.net/p/companies-that-eat-people-217'
       )
-    })
+    }).timeout(10000)
     it('gets the URL from the header if it is a beehiiv newsletter', async () => {
       const html = load('./test/data/beehiiv-newsletter.html')
       const url = await new BeehiivHandler().findNewsletterUrl(html)
       expect(url).to.startWith(
         'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
       )
-    })
+    }).timeout(10000)
     it('returns undefined if it is not a newsletter', async () => {
       const html = load('./test/data/substack-forwarded-welcome-email.html')
       const url = await new SubstackHandler().findNewsletterUrl(html)
