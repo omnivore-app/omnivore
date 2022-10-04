@@ -36,6 +36,7 @@ import Views
                 viewModel: viewModel
               )
               .contextMenu {
+                // TODO: add highlights view button
                 Button(
                   action: { viewModel.itemUnderTitleEdit = item },
                   label: { Label("Edit Title/Description", systemImage: "textbox") }
@@ -137,6 +138,7 @@ import Views
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
         LinkedItemTitleEditView(item: item)
       }
+      // TODO: add highlights view sheet
       .task {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: true)

@@ -62,6 +62,9 @@ import Views
         .sheet(item: $viewModel.itemUnderTitleEdit) { item in
           LinkedItemTitleEditView(item: item)
         }
+        .sheet(item: $viewModel.itemForHighlightsView) { item in
+          Text("Highlights view for: \(item.unwrappedTitle)") // TODO: implement view
+        }
         .toolbar {
           ToolbarItem(placement: .barTrailing) {
             Button("", action: {})
@@ -256,6 +259,10 @@ import Views
               )
               .contextMenu {
                 Button(
+                  action: { viewModel.itemForHighlightsView = item },
+                  label: { Label("View Highlights", systemImage: "highlighter") }
+                )
+                Button(
                   action: { viewModel.itemUnderTitleEdit = item },
                   label: { Label("Edit Title/Description", systemImage: "textbox") }
                 )
@@ -372,6 +379,8 @@ import Views
 
     func contextMenuActionHandler(item: LinkedItem, action: GridCardAction) {
       switch action {
+      case .viewHighlights:
+        viewModel.itemForHighlightsView = item
       case .toggleArchiveStatus:
         viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
       case .delete:
