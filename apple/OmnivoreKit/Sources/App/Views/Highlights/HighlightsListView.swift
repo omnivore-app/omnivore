@@ -14,11 +14,12 @@ struct HighlightsListView: View {
     List {
       Section {
         ForEach(viewModel.highlights, id: \.self) { highlight in
-          Text(highlight.quote ?? "no quote")
+          HighlightsListCard(highlight: highlight)
         }
       }
     }
     .navigationTitle("Highlights")
+    .listStyle(PlainListStyle())
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
