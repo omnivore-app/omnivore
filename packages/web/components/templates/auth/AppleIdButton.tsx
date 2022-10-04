@@ -32,7 +32,7 @@ export const AppleIdButton = (props: AppleLoginProps) => {
     url.searchParams.append('response_type', responseType)
     url.searchParams.append('response_mode', responseMode)
     url.searchParams.append('client_id', clientId)
-    url.searchParams.append('redirect_uri', encodeURIComponent(redirectURI))
+    url.searchParams.append('redirect_uri', redirectURI)
     url.searchParams.append('state', state)
     url.searchParams.append('nonce', nonce)
     url.searchParams.append('scope', responseMode === "query" ? "" : scope)
