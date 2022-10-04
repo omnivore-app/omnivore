@@ -67,7 +67,7 @@ public struct MiniPlayer: View {
         },
         label: {
           Image(systemName: playPauseButtonImage)
-            .font(expanded ? .system(size: 64.0, weight: .thin) : .appTitleTwo)
+            .font(expanded ? .system(size: 56.0, weight: .thin) : .appTitleTwo)
         }
       ))
     }
@@ -145,16 +145,16 @@ public struct MiniPlayer: View {
   // swiftlint:disable:next function_body_length
   func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
-      VStack {
+      VStack(spacing: 0) {
         if expanded {
           ZStack {
             closeButton
               .padding(.top, 24)
               .frame(maxWidth: .infinity, alignment: .leading)
 
-//            shareButton
-//              .padding(.top, 8)
-//              .frame(maxWidth: .infinity, alignment: .trailing)
+            //            shareButton
+            //              .padding(.top, 8)
+            //              .frame(maxWidth: .infinity, alignment: .trailing)
 
             Capsule()
               .fill(.gray)
@@ -162,64 +162,115 @@ public struct MiniPlayer: View {
               .padding(.top, 8)
               .transition(.opacity)
           }
-        }
+        } else {
+          HStack(alignment: .center) {
+            let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
+            let dim = 64.0 // expanded ? maxSize : 64
 
-        Spacer(minLength: 0)
+            if let imageURL = itemAudioProperties.imageURL {
+              AsyncImage(url: imageURL) { phase in
+                if let image = phase.image {
+                  image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                } else if phase.error != nil {
+                  defaultArtwork(forDimensions: dim)
+                } else {
+                  Color.appButtonBackground
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                }
+              }
+            } else {
+              defaultArtwork(forDimensions: dim)
+            }
 
-        HStack {
-          let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
-          let dim = expanded ? maxSize : 64
+            // if !expanded {
+            VStack {
+              Text(itemAudioProperties.title)
+                .font(.appCallout)
+                .foregroundColor(.appGrayTextContrast)
+                .fixedSize(horizontal: false, vertical: false)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
-          if let imageURL = itemAudioProperties.imageURL {
-            AsyncImage(url: imageURL) { phase in
-              if let image = phase.image {
-                image
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
-              } else if phase.error != nil {
-                defaultArtwork(forDimensions: dim)
-              } else {
-                Color.appButtonBackground
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
+              if let byline = itemAudioProperties.byline {
+                Text(byline)
+                  .font(.appCaption)
+                  .lineSpacing(1.25)
+                  .foregroundColor(.appGrayText)
+                  .fixedSize(horizontal: false, vertical: false)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                //    .matchedGeometryEffect(id: "ArticleTitle", in: animation)
               }
             }
-          } else {
-            defaultArtwork(forDimensions: dim)
-          }
-
-          if !expanded {
-            Text(itemAudioProperties.title)
-              .font(.appCallout)
-              .lineSpacing(1.25)
-              .foregroundColor(.appGrayTextContrast)
-              .fixedSize(horizontal: false, vertical: false)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
             playPauseButtonItem
               .frame(width: 28, height: 28)
 
             stopButton
               .frame(width: 28, height: 28)
-          }
+          }.frame(maxHeight: .infinity)
         }
 
-        Spacer()
+        //      Spacer(minLength: 0)
 
         if expanded {
-          Marquee(text: itemAudioProperties.title, font: UIFont(name: "Inter-Regular", size: 22)!)
-            .foregroundColor(.appGrayTextContrast)
-            .onTapGesture {
-              viewArticle()
-            }
+//          Marquee(text: itemAudioProperties.title, font: UIFont(name: "Inter-Regular", size: 22)!)
+//            .foregroundColor(.appGrayTextContrast)
+//            .onTapGesture {
+//              viewArticle()
+//            }
+//
+//          if let byline = itemAudioProperties.byline {
+//            Marquee(text: byline, font: UIFont(name: "Inter-Regular", size: 16)!)
+//              .foregroundColor(.appGrayText)
+//          }
 
-          if let byline = itemAudioProperties.byline {
-            Marquee(text: byline, font: UIFont(name: "Inter-Regular", size: 16)!)
-              .foregroundColor(.appGrayText)
+          Group {
+            Text(audioController.readText)
+              .font(.textToSpeechRead.leading(.loose))
+              .foregroundColor(Color.appGrayTextContrast)
+              +
+              Text(audioController.unreadText)
+              .font(.textToSpeechRead.leading(.loose))
+              .foregroundColor(Color.appGrayText)
           }
+          .padding(24)
+
+//        ScrollView {
+//            ScrollViewReader { _ in
+//              ForEach(Array(self.audioController.readText.enumerated()), id: \.1.self) { index, text in
+//                Text(text)
+//                  .font(.textToSpeechRead)
+//                  .lineSpacing(2.5)
+//                  .padding()
+//                  .id(index)
+//              }
+//
+//              ForEach(Array(self.audioController.unreadText.enumerated()), id: \.1.self) { index, text in
+//                Text(text)
+//                  .font(.textToSpeechUnread)
+//                  .opacity(0.55)
+//                  .lineSpacing(2.5)
+//                  .padding()
+//                  .id(index)
+//
+//              }.onChange(of: self.audioController.currentAudioIndex) { _ in
+//                //                withAnimation(.spring()) {
+//                //                  proxy.scrollTo(value, anchor: .top)
+//                //                }
+//              }
+//            }
+//
+          ////            Text("This is where the main content would go") +
+          ////              Text("its multiple lines of text.") +
+          ////              Text("It would probably need to scroll as our text segments are pretty big")
+//          }
+
+          Spacer()
 
           ScrubberView(value: $audioController.timeElapsed,
                        minValue: 0, maxValue: self.audioController.duration,
@@ -241,7 +292,7 @@ public struct MiniPlayer: View {
               .foregroundColor(.appGrayText)
           }
 
-          HStack {
+          HStack(alignment: .center, spacing: 36) {
             Menu {
               playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
               playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
@@ -268,8 +319,7 @@ public struct MiniPlayer: View {
             )
 
             playPauseButtonItem
-              .frame(width: 64, height: 64)
-              .padding(32)
+              .frame(width: 56, height: 56)
 
             Button(
               action: { self.audioController.skipForward(seconds: 30) },
@@ -291,10 +341,10 @@ public struct MiniPlayer: View {
               .contentShape(Rectangle())
             }
             .padding(8)
-          }
+          }.padding(.bottom, 16)
         }
       }
-      .padding(EdgeInsets(top: 0, leading: expanded ? 24 : 6, bottom: 0, trailing: expanded ? 24 : 6))
+      .padding(EdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6))
       .background(
         Color.systemBackground
           .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)

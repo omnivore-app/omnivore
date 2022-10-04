@@ -60,7 +60,18 @@ struct SpeechItem {
   let audioIdx: Int
   let urlRequest: URLRequest
   let localAudioURL: URL
+  let localSpeechURL: URL
+  let text: String
 }
+
+struct SpeechMark: Decodable, Encodable {
+  let word: String?
+  let time: Double?
+  let start: Int?
+  let length: Int?
+}
+
+struct SpeechData {}
 
 struct SpeechSynthesizer {
   typealias Element = SpeechItem
@@ -91,9 +102,15 @@ struct SpeechSynthesizer {
     let voiceStr = utterance.voice ?? document.defaultVoice
     let segmentStr = String(format: "%04d", arguments: [idx])
     let localAudioURL = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
+    let localSpeechURL = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).speechMarks")
 
     if let request = urlRequestFor(utterance: utterance) {
-      let item = SpeechItem(htmlIdx: utterance.idx, audioIdx: idx, urlRequest: request, localAudioURL: localAudioURL)
+      let item = SpeechItem(htmlIdx: utterance.idx,
+                            audioIdx: idx,
+                            urlRequest: request,
+                            localAudioURL: localAudioURL,
+                            localSpeechURL: localSpeechURL,
+                            text: utterance.text)
       return item
     }
 
@@ -108,9 +125,15 @@ struct SpeechSynthesizer {
       let voiceStr = utterance.voice ?? document.defaultVoice
       let segmentStr = String(format: "%04d", arguments: [idx])
       let localAudioURL = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
+      let localSpeechURL = document.audioDirectory.appendingPathComponent("\(segmentStr)-\(voiceStr).mp3")
 
       if let request = urlRequestFor(utterance: utterance) {
-        let item = SpeechItem(htmlIdx: utterance.idx, audioIdx: idx, urlRequest: request, localAudioURL: localAudioURL)
+        let item = SpeechItem(htmlIdx: utterance.idx,
+                              audioIdx: idx,
+                              urlRequest: request,
+                              localAudioURL: localAudioURL,
+                              localSpeechURL: localSpeechURL,
+                              text: utterance.text)
         result.append(item)
       } else {
         // TODO: How do we want to handle completely skipped paragraphs?
@@ -138,11 +161,17 @@ struct SpeechSynthesizer {
 
   static func download(speechItem: SpeechItem,
                        redownloadCached: Bool = false,
-                       session: URLSession? = URLSession.shared) async throws -> Data?
+                       session: URLSession? = URLSession.shared) async throws -> SynthesizeData?
   {
+    let decoder = JSONDecoder()
+
     if !redownloadCached, FileManager.default.fileExists(atPath: speechItem.localAudioURL.path) {
-      if let localData = try? Data(contentsOf: speechItem.localAudioURL) {
-        return localData
+      if let speechMarksData = try? Data(contentsOf: speechItem.localSpeechURL),
+         let speechMarks = try? decoder.decode([SpeechMark].self, from: speechMarksData),
+         let localData = try? Data(contentsOf: speechItem.localAudioURL)
+      {
+        print("CACHED DATA LENGTH: ", localData.count)
+        //   return SynthesizeData(audioData: localData, speechMarks: speechMarks)
       }
     }
 
@@ -161,20 +190,36 @@ struct SpeechSynthesizer {
       .urls(for: .cachesDirectory, in: .userDomainMask)[0]
       .appendingPathComponent(UUID().uuidString + ".mp3")
 
+    let tempSMPath = FileManager.default
+      .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent(UUID().uuidString + ".speechMarks")
+
     do {
-      let decoder = JSONDecoder()
-      let jsonData = try decoder.decode(SynthesizeResult.self, from: data)
+      print("SPEECH DATA: ", String(decoding: data, as: UTF8.self))
+
+      let jsonData = try decoder.decode(SynthesizeResult.self, from: data) as SynthesizeResult
       let audioData = Data(fromHexEncodedString: jsonData.audioData)!
       if audioData.count < 1 {
         throw BasicError.message(messageText: "Audio data is empty")
       }
 
+      print("AUDIO DATA LENGTH: ", audioData.count)
+
       try audioData.write(to: tempPath)
       try? FileManager.default.removeItem(at: speechItem.localAudioURL)
       try FileManager.default.moveItem(at: tempPath, to: speechItem.localAudioURL)
 
-      return audioData
+      let encoder = JSONEncoder()
+      let speechMarksData = try encoder.encode(jsonData.speechMarks)
+      try speechMarksData.write(to: tempSMPath)
+      try? FileManager.default.removeItem(at: speechItem.localSpeechURL)
+      try FileManager.default.moveItem(at: tempSMPath, to: speechItem.localSpeechURL)
+
+      print("DOWNLOADED SPEECH MARKS: ", jsonData.speechMarks)
+
+      return SynthesizeData(audioData: audioData, speechMarks: jsonData.speechMarks)
     } catch {
+      print("ERROR WRITING DATA", error)
       let errorMessage = "audioFetch failed. could not write MP3 data to disk"
       throw BasicError.message(messageText: errorMessage)
     }
@@ -183,7 +228,12 @@ struct SpeechSynthesizer {
 
 struct SynthesizeResult: Decodable {
   let audioData: String
-//  let speechMarks: Any?
+  let speechMarks: [SpeechMark]
+}
+
+struct SynthesizeData: Decodable {
+  let audioData: Data
+  let speechMarks: [SpeechMark]
 }
 
 extension Data {
