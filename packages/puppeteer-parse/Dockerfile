@@ -85,6 +85,7 @@ WORKDIR /app
 
 ENV CHROMIUM_PATH /usr/bin/chromium-browser
 ENV LAUNCH_HEADLESS=true
+ENV PORT 9090
 
 COPY package.json .
 COPY yarn.lock .
