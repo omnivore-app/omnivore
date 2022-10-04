@@ -9,6 +9,7 @@ COPY tsconfig.json .
 COPY .prettierrc .
 COPY .eslintrc .
 
+COPY /packages/inbound-email-handler/package.json ./packages/inbound-email-handler/package.json
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 
 RUN yarn install --pure-lockfile
@@ -16,6 +17,7 @@ RUN yarn install --pure-lockfile
 ADD /packages/inbound-email-handler ./packages/inbound-email-handler
 ADD /packages/content-handler ./packages/content-handler
 RUN yarn workspace @omnivore/content-handler build
+RUN yarn workspace @omnivore/inbound-email-handler build
 
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/inbound-email-handler/node_modules

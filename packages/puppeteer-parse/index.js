@@ -118,43 +118,43 @@ const userAgentForUrl = (url) => {
 
 // launch Puppeteer
 const getBrowserPromise = (async () => {
-  return puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath,
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
-  });
   // return puppeteer.launch({
-  //   args: [
-  //     '--allow-running-insecure-content',
-  //     '--autoplay-policy=user-gesture-required',
-  //     '--disable-component-update',
-  //     '--disable-domain-reliability',
-  //     '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-  //     '--disable-print-preview',
-  //     '--disable-setuid-sandbox',
-  //     '--disable-site-isolation-trials',
-  //     '--disable-speech-api',
-  //     '--disable-web-security',
-  //     '--disk-cache-size=33554432',
-  //     '--enable-features=SharedArrayBuffer',
-  //     '--hide-scrollbars',
-  //     '--ignore-gpu-blocklist',
-  //     '--in-process-gpu',
-  //     '--mute-audio',
-  //     '--no-default-browser-check',
-  //     '--no-pings',
-  //     '--no-sandbox',
-  //     '--no-zygote',
-  //     '--use-gl=swiftshader',
-  //     '--window-size=1920,1080',
-  //   ].filter((item) => !!item),
-  //   defaultViewport: { height: 1080, width: 1920 },
+  //   args: chromium.args,
+  //   defaultViewport: chromium.defaultViewport,
   //   executablePath: process.env.CHROMIUM_PATH,
-  //   headless: !!process.env.LAUNCH_HEADLESS,
-  //   timeout: 0,
+  //   headless: chromium.headless,
+  //   ignoreHTTPSErrors: true,
   // });
+  return puppeteer.launch({
+    args: [
+      '--allow-running-insecure-content',
+      '--autoplay-policy=user-gesture-required',
+      '--disable-component-update',
+      '--disable-domain-reliability',
+      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+      '--disable-print-preview',
+      '--disable-setuid-sandbox',
+      '--disable-site-isolation-trials',
+      '--disable-speech-api',
+      '--disable-web-security',
+      '--disk-cache-size=33554432',
+      '--enable-features=SharedArrayBuffer',
+      '--hide-scrollbars',
+      '--ignore-gpu-blocklist',
+      '--in-process-gpu',
+      '--mute-audio',
+      '--no-default-browser-check',
+      '--no-pings',
+      '--no-sandbox',
+      '--no-zygote',
+      '--use-gl=swiftshader',
+      '--window-size=1920,1080',
+    ].filter((item) => !!item),
+    defaultViewport: { height: 1080, width: 1920 },
+    executablePath: process.env.CHROMIUM_PATH,
+    headless: !!process.env.LAUNCH_HEADLESS,
+    timeout: 120000, // 2 minutes
+  });
 })();
 
 let logRecord, functionStartTime;

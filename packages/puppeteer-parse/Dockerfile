@@ -92,6 +92,7 @@ COPY tsconfig.json .
 COPY .prettierrc .
 COPY .eslintrc .
 
+COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 
 RUN yarn install --pure-lockfile

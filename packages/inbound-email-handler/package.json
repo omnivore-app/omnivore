@@ -24,6 +24,7 @@
     "@types/json-bigint": "^1.0.1",
     "@types/node": "^14.11.2",
     "@types/rfc2047": "^2.0.1",
+    "chai": "^4.3.6",
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
