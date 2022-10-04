@@ -28,7 +28,7 @@ export const AppleIdButton = (props: AppleLoginProps) => {
       e.preventDefault();
     }
 
-    let url = new URL(`https://appleid.apple.com/auth/authorize`)
+    const url = new URL(`https://appleid.apple.com/auth/authorize`)
     url.searchParams.append('response_type', responseType)
     url.searchParams.append('response_mode', responseMode)
     url.searchParams.append('client_id', clientId)
