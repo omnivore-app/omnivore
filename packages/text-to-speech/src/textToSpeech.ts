@@ -1,8 +1,10 @@
 import {
   CancellationDetails,
   CancellationReason,
+  PropertyId,
   ResultReason,
   SpeechConfig,
+  SpeechSynthesisBoundaryType,
   SpeechSynthesisOutputFormat,
   SpeechSynthesisResult,
   SpeechSynthesizer,
@@ -30,7 +32,7 @@ export interface SpeechMark {
   start?: number
   length?: number
   word: string
-  type: 'word' | 'bookmark'
+  type: 'word' | 'bookmark' | 'punctuation' | 'sentence'
 }
 
 export const synthesizeTextToSpeech = async (
@@ -47,6 +49,11 @@ export const synthesizeTextToSpeech = async (
   )
   speechConfig.speechSynthesisOutputFormat =
     SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
+  // Required for sentence-level WordBoundary events
+  speechConfig.setProperty(
+    PropertyId.SpeechServiceResponse_RequestSentenceBoundary,
+    'true'
+  )
 
   // Create the speech synthesizer.
   const synthesizer = new SpeechSynthesizer(speechConfig)
@@ -87,13 +94,14 @@ export const synthesizeTextToSpeech = async (
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = (s, e) => {
-    speechMarks.push({
-      word: e.text,
-      time: (timeOffset + e.audioOffset) / 10000,
-      start: wordOffset + e.textOffset,
-      length: e.wordLength,
-      type: 'word',
-    })
+    e.boundaryType === SpeechSynthesisBoundaryType.Sentence &&
+      speechMarks.push({
+        word: e.text,
+        time: (timeOffset + e.audioOffset) / 10000,
+        start: wordOffset + e.textOffset,
+        length: e.wordLength,
+        type: 'sentence',
+      })
   }
 
   synthesizer.bookmarkReached = (s, e) => {
