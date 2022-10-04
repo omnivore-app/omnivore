@@ -235,6 +235,6 @@ describe('convert HTML to Speech file', () => {
       title: 'Wang Yi at the UN; Fu Zhenghua sentenced; Nvidia China sales',
       options: TEST_OPTIONS,
     })
-    expect(speechFile.utterances).to.have.lengthOf(12)
+    expect(speechFile.utterances).to.have.lengthOf(21)
   })
 })
