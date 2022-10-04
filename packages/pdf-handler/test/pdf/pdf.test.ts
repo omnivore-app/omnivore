@@ -1,7 +1,6 @@
 import 'mocha'
 import * as chai from 'chai'
 import { expect } from 'chai'
-import 'chai/register-should'
 import chaiString from 'chai-string'
 import {
   getDocument,

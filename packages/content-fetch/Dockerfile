@@ -23,12 +23,26 @@ WORKDIR /app
 ENV CHROMIUM_PATH /usr/bin/chromium-browser
 ENV LAUNCH_HEADLESS=true
 
-COPY . /app/
-WORKDIR app
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
+COPY .prettierrc .
+COPY .eslintrc .
+
+COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 
 RUN yarn install --pure-lockfile
 
+ADD /packages/content-fetch ./packages/content-fetch
+ADD /packages/content-handler ./packages/content-handler
+RUN yarn workspace @omnivore/content-handler build
+
+# After building, fetch the production dependencies
+RUN rm -rf /app/packages/content-fetch/node_modules
+RUN rm -rf /app/node_modules
+RUN yarn install --pure-lockfile --production
+
 EXPOSE 8080
 
-ENTRYPOINT ["yarn", "start"]
+CMD ["yarn", "workspace", "@omnivore/content-fetch", "start"]
 
