@@ -198,6 +198,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @Published public var currentAudioIndex: Int = 0
   @Published public var readText: String = ""
   @Published public var unreadText: String = ""
+  @Published public var numberOfSpeechItems: Int = 0
 
   @Published public var itemAudioProperties: LinkedItemAudioProperties?
 
@@ -254,6 +255,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player?.removeAllItems()
 
     document = nil
+    numberOfSpeechItems = 0
+
     timer = nil
     player = nil
     observer = nil
@@ -476,7 +479,13 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   public var textItems: [String]? {
     if let document = self.document {
-      return document.utterances.map(\.text)
+      return document.utterances.map { utterance in
+        if let regex = try? NSRegularExpression(pattern: "<[^>]*>", options: .caseInsensitive) {
+          let modString = regex.stringByReplacingMatches(in: utterance.text, options: [], range: NSRange(location: 0, length: utterance.text.count), withTemplate: "")
+          return modString
+        }
+        return ""
+      }
     }
     return nil
   }
@@ -503,7 +512,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
       let idx = item.speechItem.audioIdx
       let currentItem = textItems[idx]
-      let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: currentItemOffset)
+      let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: max(currentItemOffset, currentItem.count))
       let lastItem = String(currentItem[..<currentReadIndex])
       let lastItemAfter = String(currentItem[currentReadIndex...])
 
@@ -662,7 +671,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     if let itemID = itemAudioProperties?.itemID {
       Task {
         let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+
         DispatchQueue.main.async {
+          self.numberOfSpeechItems = document?.utterances.count ?? 0
           if let document = document {
             self.startStreamingAudio(itemID: itemID, document: document)
           } else {
