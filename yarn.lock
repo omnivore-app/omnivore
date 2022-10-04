@@ -2390,7 +2390,7 @@
     google-gax "^2.24.1"
     protobufjs "^6.8.6"
 
-"@google-cloud/functions-framework@3.1.2", "@google-cloud/functions-framework@^3.0.0":
+"@google-cloud/functions-framework@3.1.2", "@google-cloud/functions-framework@^3.1.2":
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/@google-cloud/functions-framework/-/functions-framework-3.1.2.tgz#2cd92ce4307bf7f32555d028dca22e398473b410"
   integrity sha512-pYvEH65/Rqh1JNPdcBmorcV7Xoom2/iOSmbtYza8msro7Inl+qOYxbyMiQfySD2gwAyn38WyWPRqsDRcf/BFLg==
@@ -4313,17 +4313,6 @@
     "@octokit/openapi-types" "^9.5.0"
 
 "@omnivore/content-handler@file:./packages/content-handler":
-  version "1.0.0"
-  dependencies:
-    addressparser "^1.0.1"
-    axios "^0.27.2"
-    linkedom "^0.14.16"
-    luxon "^3.0.4"
-    rfc2047 "^4.0.1"
-    underscore "^1.13.6"
-    uuid "^9.0.0"
-
-"@omnivore/content-handler@file:./packages/inbound-email-handler/content-handler":
   version "1.0.0"
   dependencies:
     addressparser "^1.0.1"

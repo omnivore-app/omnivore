@@ -105,7 +105,7 @@ RUN rm -rf /app/packages/puppeteer-parse/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-EXPOSE 9090
+EXPOSE 8080
 
 # USER pptruser
-ENTRYPOINT ["yarn", "workspace", "@omnivore/puppeteer-parse", "start"]
+ENTRYPOINT ["yarn", "workspace", "@omnivore/puppeteer-parse", "start_preview"]
