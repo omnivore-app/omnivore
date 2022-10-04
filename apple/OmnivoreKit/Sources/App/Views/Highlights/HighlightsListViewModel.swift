@@ -11,3 +11,9 @@ import Views
     highlights = item.highlights.asArray(of: Highlight.self)
   }
 }
+
+extension Highlight {
+  var highlightCardTitle: String {
+    "Highlight"
+  }
+}

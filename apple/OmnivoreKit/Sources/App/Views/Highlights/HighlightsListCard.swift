@@ -19,12 +19,33 @@ struct HighlightsListCard: View {
     }
   }
 
+  var noteSection: some View {
+    Group {
+      HStack {
+        Image(systemName: "note.text")
+
+        Text("Note")
+          .font(.appSubheadline)
+          .foregroundColor(.appGrayTextContrast)
+          .lineLimit(1)
+
+        Spacer()
+      }
+
+      Text(highlight.annotation ?? "")
+    }
+  }
+
+  var addNoteSection: some View {
+    Text("Tap to add a note")
+  }
+
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
         Image(systemName: "highlighter")
 
-        Text(highlight.shortId ?? "no short Id")
+        Text(highlight.highlightCardTitle)
           .font(.appHeadline)
           .foregroundColor(.appGrayTextContrast)
           .lineLimit(1)
@@ -49,7 +70,17 @@ struct HighlightsListCard: View {
           .frame(width: 6)
           .overlay(Color.appYellow48)
 
-        Text(highlight.quote ?? "")
+        VStack(alignment: .leading, spacing: 8) {
+          Text(highlight.quote ?? "")
+
+          Divider()
+
+          if highlight.annotation == nil || highlight.annotation?.isEmpty == true {
+            addNoteSection
+          } else {
+            noteSection
+          }
+        }
       }
       .padding(.bottom, 8)
     }
