@@ -227,7 +227,7 @@ describe('htmlToSpeechFile', () => {
 describe('convert HTML to Speech file', () => {
   it('converts each <li> to an utterance', () => {
     const html = fs.readFileSync(
-      path.resolve(__dirname, './fixtures/large.html'),
+      path.resolve(__dirname, './fixtures/li.html'),
       { encoding: 'utf-8' }
     )
     const speechFile = htmlToSpeechFile({
@@ -236,5 +236,22 @@ describe('convert HTML to Speech file', () => {
       options: TEST_OPTIONS,
     })
     expect(speechFile.utterances).to.have.lengthOf(21)
+  })
+
+  it('converts long utterances to multiple utterances', () => {
+    const html = `<div id="readability-content">
+  <div class="page" id="readability-page-1">
+    <div data-omnivore-anchor-idx="1">
+      All neural voices are multilingual and fluent in their own language and English. For example, if the input text in English is "I'm excited to try text to speech" and you set es-ES-ElviraNeural, the text is spoken in English with a Spanish accent. If the voice doesn't speak the language of the input text, the Speech service won't output synthesized audio. See the full list of supported neural voices.
+    </div>
+  </div>
+</div>
+`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      title: 'How to synthesize speech from text',
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(3)
   })
 })
