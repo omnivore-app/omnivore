@@ -46,8 +46,6 @@ class PDFReaderViewModel @Inject constructor(
 
       val job = DownloadJob.startDownload(request)
 
-      Log.d("anno", "highlights: ${articleQueryResult.highlights}")
-
       job.setProgressListener(object : DownloadJob.ProgressListenerAdapter() {
         override fun onProgress(progress: Progress) {
 //          progressBar.setProgress((100f * progress.bytesReceived / progress.totalBytes).toInt())
@@ -63,7 +61,7 @@ class PDFReaderViewModel @Inject constructor(
             labelsJSONString = Gson().toJson(articleQueryResult.labels)
           )
 
-          pdfReaderParamsLiveData.value = PDFReaderParams(article, articleContent, Uri.fromFile(output))
+          pdfReaderParamsLiveData.postValue(PDFReaderParams(article, articleContent, Uri.fromFile(output)))
         }
 
         override fun onError(exception: Throwable) {
@@ -74,6 +72,6 @@ class PDFReaderViewModel @Inject constructor(
   }
 
   fun reset() {
-    pdfReaderParamsLiveData.value = null
+    pdfReaderParamsLiveData.postValue(null)
   }
 }

@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.graphics.RectF
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -27,9 +28,6 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.pdf_reader_fragment)
 
-    val slug = intent.getStringExtra("LINKED_ITEM_SLUG") ?: ""
-    viewModel.loadItem(slug, this)
-
     // Create the observer which updates the UI.
     val pdfParamsObserver = Observer<PDFReaderParams?> { params ->
       if (params != null) {
@@ -39,6 +37,9 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
 
     // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
     viewModel.pdfReaderParamsLiveData.observe(this, pdfParamsObserver)
+
+    val slug = intent.getStringExtra("LINKED_ITEM_SLUG") ?: ""
+    viewModel.loadItem(slug, this)
   }
 
   private fun load(params: PDFReaderParams) {
@@ -56,24 +57,30 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener {
     }
   }
 
-  @UiThread
   override fun onDocumentLoaded(document: PdfDocument) {
     if (hasLoadedHighlights) return
-
     hasLoadedHighlights = true
 
     val params = viewModel.pdfReaderParamsLiveData.value
 
     params?.let {
       for (highlight in it.articleContent.highlights) {
-        Log.d("anno", "adding highlight: ${highlight.patch}")
+        val highlightAnnotation = fragment
+          .document
+          ?.annotationProvider
+          ?.createAnnotationFromInstantJson(highlight.patch)
 
-        val highlightAnnotation = highlight.asHighlightAnnotation()
-
-        Log.d("anno", "created highlight annotation: $highlightAnnotation")
-
-        fragment.addAnnotationToPage(highlightAnnotation, true)
+        highlightAnnotation?.let {
+          fragment.addAnnotationToPage(highlightAnnotation, true)
+        }
       }
+
+      fragment.scrollTo(
+        RectF(0f, 0f, 0f, 0f),
+        params.item.readingProgressAnchor,
+        0,
+        true
+      )
     }
   }
 
