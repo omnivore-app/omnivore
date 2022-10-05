@@ -8,6 +8,7 @@ import {
   appleAuthRedirectURI,
 } from '../../lib/appConfig'
 import AppleLogin from 'react-apple-login'
+import { AppleIdButton } from './auth/AppleIdButton'
 
 const StyledTextSpan = styled('span', StyledText)
 
@@ -90,19 +91,13 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
             height: '40px',
           }}
         >
-          <AppleLogin
+          <AppleIdButton
             clientId="app.omnivore"
             scope="name email"
             state="web:login"
             redirectURI={appleAuthRedirectURI}
             responseMode="form_post"
             responseType="code id_token"
-            designProp={{
-              color: 'black',
-              width: 261,
-              height: 40,
-              type: 'continue',
-            }}
           />
         </Box>
       )}
