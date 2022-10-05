@@ -313,6 +313,10 @@ const textToUtterances = ({
   // use nlp lib to detect sentences and
   // avoid splitting words and sentences
   sentences.forEach((sentence, i) => {
+    if (i < sentences.length - 1) {
+      // add space to the end of sentence
+      sentence += ' '
+    }
     const nextText = currentText + sentence
     if (nextText.length > MAX_CHARS) {
       if (currentText.length > 0) {
