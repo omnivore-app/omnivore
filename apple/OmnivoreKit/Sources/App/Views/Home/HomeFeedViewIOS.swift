@@ -63,7 +63,7 @@ import Views
           LinkedItemTitleEditView(item: item)
         }
         .sheet(item: $viewModel.itemForHighlightsView) { item in
-          HighlightsListView(item: item)
+          HighlightsListView(itemObjectID: item.objectID)
         }
         .toolbar {
           ToolbarItem(placement: .barTrailing) {

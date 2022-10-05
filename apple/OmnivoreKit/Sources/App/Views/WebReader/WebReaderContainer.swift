@@ -204,7 +204,7 @@ struct WebReaderContainerView: View {
       LinkedItemTitleEditView(item: item)
     }
     .sheet(isPresented: $showHighlightsView) {
-      HighlightsListView(item: item)
+      HighlightsListView(itemObjectID: item.objectID)
     }
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())

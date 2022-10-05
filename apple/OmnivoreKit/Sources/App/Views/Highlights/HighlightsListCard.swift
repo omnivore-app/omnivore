@@ -7,7 +7,8 @@ struct HighlightsListCard: View {
   @State var annotation = String()
   @State var showAnnotationModal = false
 
-  let highlight: Highlight
+  let highlightParams: HighlightListItemParams
+  let onSaveAnnotation: (String) -> Void
 
   var contextMenuView: some View {
     Group {
@@ -35,10 +36,10 @@ struct HighlightsListCard: View {
         Spacer()
       }
 
-      Text(highlight.annotation ?? "")
+      Text(highlightParams.annotation)
     }
     .onTapGesture {
-      annotation = highlight.annotation ?? ""
+      annotation = highlightParams.annotation
       showAnnotationModal = true
     }
   }
@@ -55,7 +56,7 @@ struct HighlightsListCard: View {
       Spacer()
     }
     .onTapGesture {
-      annotation = highlight.annotation ?? ""
+      annotation = highlightParams.annotation
       showAnnotationModal = true
     }
   }
@@ -65,7 +66,7 @@ struct HighlightsListCard: View {
       HStack {
         Image(systemName: "highlighter")
 
-        Text(highlight.highlightCardTitle)
+        Text(highlightParams.title)
           .font(.appHeadline)
           .foregroundColor(.appGrayTextContrast)
           .lineLimit(1)
@@ -91,11 +92,11 @@ struct HighlightsListCard: View {
           .overlay(Color.appYellow48)
 
         VStack(alignment: .leading, spacing: 8) {
-          Text(highlight.quote ?? "")
+          Text(highlightParams.quote)
 
           Divider()
 
-          if highlight.annotation == nil || highlight.annotation?.isEmpty == true {
+          if highlightParams.annotation.isEmpty {
             addNoteSection
           } else {
             noteSection
@@ -108,11 +109,10 @@ struct HighlightsListCard: View {
       HighlightAnnotationSheet(
         annotation: $annotation,
         onSave: {
-          print("new annotation = \(annotation)")
+          onSaveAnnotation(annotation)
           showAnnotationModal = false
         },
         onCancel: {
-          print("cancel annotation")
           showAnnotationModal = false
         }
       )

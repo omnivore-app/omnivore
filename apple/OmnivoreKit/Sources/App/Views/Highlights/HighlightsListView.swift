@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -8,13 +9,19 @@ struct HighlightsListView: View {
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = HighlightsListViewModel()
 
-  let item: LinkedItem
+  let itemObjectID: NSManagedObjectID
 
   var innerBody: some View {
     List {
       Section {
-        ForEach(viewModel.highlights, id: \.self) { highlight in
-          HighlightsListCard(highlight: highlight)
+        ForEach(viewModel.highlightItems) { highlightParams in
+          HighlightsListCard(highlightParams: highlightParams) { newAnnotation in
+            viewModel.updateAnnotation(
+              highlightID: highlightParams.highlightID,
+              annotation: newAnnotation,
+              dataService: dataService
+            )
+          }
         }
       }
     }
@@ -55,7 +62,7 @@ struct HighlightsListView: View {
       #endif
     }
     .task {
-      viewModel.load(item: item)
+      viewModel.load(itemObjectID: itemObjectID, dataService: dataService)
     }
   }
 }
