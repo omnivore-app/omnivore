@@ -59,7 +59,7 @@ export const synthesizeTextToSpeech = async (
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
-  let wordOffset = 0
+  // let wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -98,7 +98,7 @@ export const synthesizeTextToSpeech = async (
       speechMarks.push({
         word: e.text,
         time: (timeOffset + e.audioOffset) / 10000,
-        start: wordOffset + e.textOffset,
+        start: e.textOffset,
         length: e.text.length,
         type: 'sentence',
       })
@@ -151,7 +151,7 @@ export const synthesizeTextToSpeech = async (
     const text = _.escape(input.text)
     const ssml = `${startSsmlTag}${text}${endSsml()}`
     // set the text offset to be the end of SSML start tag
-    wordOffset -= startSsmlTag.length
+    // wordOffset -= startSsmlTag.length
     const result = await speakSsmlAsyncPromise(ssml)
     if (result.reason === ResultReason.Canceled) {
       throw new Error(result.errorDetails)
