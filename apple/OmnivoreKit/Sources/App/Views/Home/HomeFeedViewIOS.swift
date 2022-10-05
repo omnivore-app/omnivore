@@ -11,6 +11,7 @@ import Views
   private let enableGrid = UIDevice.isIPad || FeatureFlag.enableGridCardsOnPhone
 
   struct HomeFeedContainerView: View {
+    @State var hasHighlightMutations = false
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
@@ -63,7 +64,7 @@ import Views
           LinkedItemTitleEditView(item: item)
         }
         .sheet(item: $viewModel.itemForHighlightsView) { item in
-          HighlightsListView(itemObjectID: item.objectID)
+          HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
         .toolbar {
           ToolbarItem(placement: .barTrailing) {

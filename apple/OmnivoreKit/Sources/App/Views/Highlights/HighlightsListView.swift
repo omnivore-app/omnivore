@@ -10,12 +10,16 @@ struct HighlightsListView: View {
   @StateObject var viewModel = HighlightsListViewModel()
 
   let itemObjectID: NSManagedObjectID
+  @Binding var hasHighlightMutations: Bool
 
   var innerBody: some View {
     List {
       Section {
         ForEach(viewModel.highlightItems) { highlightParams in
-          HighlightsListCard(highlightParams: highlightParams) { newAnnotation in
+          HighlightsListCard(
+            highlightParams: highlightParams,
+            hasHighlightMutations: $hasHighlightMutations
+          ) { newAnnotation in
             viewModel.updateAnnotation(
               highlightID: highlightParams.highlightID,
               annotation: newAnnotation,

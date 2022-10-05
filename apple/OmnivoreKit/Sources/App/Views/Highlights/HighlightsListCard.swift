@@ -8,6 +8,7 @@ struct HighlightsListCard: View {
   @State var showAnnotationModal = false
 
   let highlightParams: HighlightListItemParams
+  @Binding var hasHighlightMutations: Bool
   let onSaveAnnotation: (String) -> Void
 
   var contextMenuView: some View {
@@ -111,6 +112,7 @@ struct HighlightsListCard: View {
         onSave: {
           onSaveAnnotation(annotation)
           showAnnotationModal = false
+          hasHighlightMutations = true
         },
         onCancel: {
           showAnnotationModal = false

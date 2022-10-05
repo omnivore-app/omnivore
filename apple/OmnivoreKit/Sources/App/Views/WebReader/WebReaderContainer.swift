@@ -13,6 +13,7 @@ struct WebReaderContainerView: View {
   @State private var showLabelsModal = false
   @State private var showTitleEdit = false
   @State private var showHighlightsView = false
+  @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State var safariWebLink: SafariWebLink?
   @State private var navBarVisibilityRatio = 1.0
@@ -42,6 +43,11 @@ struct WebReaderContainerView: View {
     if message.name == WebViewAction.highlightAction.rawValue {
       handleHighlightAction(message: message)
     }
+  }
+
+  func onHighlightListViewDismissal() {
+    print("has mutations: \(hasPerformedHighlightMutations)")
+    hasPerformedHighlightMutations = false
   }
 
   private func handleHighlightAction(message: WKScriptMessage) {
@@ -203,8 +209,11 @@ struct WebReaderContainerView: View {
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemTitleEditView(item: item)
     }
-    .sheet(isPresented: $showHighlightsView) {
-      HighlightsListView(itemObjectID: item.objectID)
+    .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
+      HighlightsListView(
+        itemObjectID: item.objectID,
+        hasHighlightMutations: $hasPerformedHighlightMutations
+      )
     }
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())
