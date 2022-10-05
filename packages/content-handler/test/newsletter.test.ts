@@ -140,10 +140,8 @@ describe('Newsletter email test', () => {
 
   describe('findNewsletterUrl', async () => {
     context('when email is from Substack', () => {
-      let scope: nock.Scope
-
       before(() => {
-        scope = nock('https://email.mg2.substack.com')
+        nock('https://email.mg2.substack.com')
           .head(
             '/c/eJxNkk2TojAQhn-N3KTyQfg4cGDGchdnYcsZx9K5UCE0EMVAkTiKv36iHnarupNUd7rfVJ4W3EDTj1M89No496Uw0wCxgovuwBgYnbOGsZBVjDHzKPWYU8VehUMWOlIX9Qhw4rKLzXgGZziXnRTcyF7dK0iIGMVOG_OS1aTmKPRDilgVhTQUPCQIcE0x-MFTmJ8rCUpA3KtuenR2urg1ZtAzmszI0tq_Z7m66y-ilQo0uAqMTQ7WRX8auJKg56blZg7WB-iHDuYEBzO6NP0R1IwuYFphQbbTjnTH9NBfs80nym4Zyj8uUvyKbtUyGr5eUz9fNDQ7JCxfJDo9dW1lY9lmj_JNivPbGmf2Pt_lN9tDit9b-WeTetni85Z9pDpVOd7L1E_Vy7egayNO23ZP34eSeLJeux1b0rer_xaZ7ykS78nuSjMY-nL98rparNZNcv07JCjN06_EkTFBxBqOUMACErnELUNMSxTUjLDQZwzcqa4bRjCfeejUEFefS224OLr2S5wxPtij7lVrs80d2CNseRV2P52VNFMBipcdVE-U5jkRD7hFAwpGOylVwU2Mfc9qBh7DoR89yVnWXhgQFHnIsbpVb6tU_B-hH_2yzWY'
           )
@@ -155,7 +153,7 @@ describe('Newsletter email test', () => {
           .reply(200, '')
       })
       after(() => {
-        scope.done()
+        nock.restore()
       })
 
       it('gets the URL from the header', async () => {
@@ -165,14 +163,12 @@ describe('Newsletter email test', () => {
         expect(url).to.startWith(
           'https://newsletter.slowchinese.net/p/companies-that-eat-people-217'
         )
-      })
+      }).timeout(10000)
     })
 
     context('when email is from beehiiv', () => {
-      let scope: nock.Scope
-
       before(() => {
-        scope = nock('https://u23463625.ct.sendgrid.net')
+        nock('https://u23463625.ct.sendgrid.net')
           .head(
             '/ss/c/AX1lEgEQaxtvFxLaVo0GBo_geajNrlI1TGeIcmMViR3pL3fEDZnbbkoeKcaY62QZk0KPFudUiUXc_uMLerV4nA/3k5/3TFZmreTR0qKSCgowABnVg/h30/zzLik7UXd1H_n4oyd5W8Xu639AYQQB2UXz-CsssSnno'
           )
@@ -184,7 +180,7 @@ describe('Newsletter email test', () => {
       })
 
       after(() => {
-        scope.done()
+        nock.restore()
       })
 
       it('gets the URL from the header', async () => {
@@ -193,7 +189,7 @@ describe('Newsletter email test', () => {
         expect(url).to.startWith(
           'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
         )
-      })
+      }).timeout(10000)
     })
 
     it('returns undefined if it is not a newsletter', async () => {
