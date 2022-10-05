@@ -69,7 +69,6 @@ const TOP_LEVEL_TAGS = [
   'H5',
   'H6',
   'LI',
-  'CODE',
 ]
 
 function parseDomTree(pageNode: Element) {
@@ -148,7 +147,15 @@ function emitElement(
   element: Element,
   isTopLevel: boolean
 ) {
-  const SKIP_TAGS = ['SCRIPT', 'STYLE', 'IMG', 'FIGURE', 'FIGCAPTION', 'IFRAME']
+  const SKIP_TAGS = [
+    'SCRIPT',
+    'STYLE',
+    'IMG',
+    'FIGURE',
+    'FIGCAPTION',
+    'IFRAME',
+    'CODE',
+  ]
 
   const topLevelTags = ssmlTagsForTopLevelElement()
   const idx = element.getAttribute('data-omnivore-anchor-idx')
@@ -302,12 +309,13 @@ const textToUtterances = ({
   const sentenceTokenizer = new SentenceTokenizer()
   const sentences = sentenceTokenizer.tokenize(text)
   let currentText = ''
-  // max 256 chars per utterance
+  // split text to max 256 chars per utterance and
+  // use nlp lib to detect sentences and
+  // avoid splitting words and sentences
   sentences.forEach((sentence, i) => {
     const nextText = currentText + sentence
     if (nextText.length > MAX_CHARS) {
       if (currentText.length > 0) {
-        console.debug('Saving current text in the utterance:', currentText)
         const wordCount = tokenizer.tokenize(currentText).length
         utterances.push({
           idx,
@@ -319,7 +327,6 @@ const textToUtterances = ({
         wordOffset += wordCount
         currentText = sentence
       } else {
-        console.debug('Sentence is too long to fit in an utterance:', sentence)
         const wordCount = tokenizer.tokenize(sentence).length
         utterances.push({
           idx,
