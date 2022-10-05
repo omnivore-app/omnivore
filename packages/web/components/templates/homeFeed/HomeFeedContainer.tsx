@@ -651,6 +651,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const [, updateState] = useState({})
 
   const StyledToggleButton = styled('button', {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     p: '0px',
     backgroundColor: 'transparent',
     border: 'none',
