@@ -3,16 +3,26 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-extension DataService {
-  public func removeLink(objectID: NSManagedObjectID) {
+public extension DataService {
+  func removeLink(objectID: NSManagedObjectID) {
     // Update CoreData
-    backgroundContext.perform { [weak self] in
-      guard let self = self else { return }
-      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LinkedItem else { return }
-      linkedItem.remove(inContext: self.backgroundContext)
+    viewContext.performAndWait {
+      guard let linkedItem = viewContext.object(with: objectID) as? LinkedItem else { return }
+      linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
 
-      // Send update to server
-      self.syncLinkDeletion(itemID: linkedItem.unwrappedID, objectID: objectID)
+      do {
+        try viewContext.save()
+        logger.debug("LinkedItem succesfully marked for deletion")
+      } catch {
+        viewContext.rollback()
+        logger.debug("Failed to mark LinkedItem for deletion: \(error.localizedDescription)")
+      }
+    }
+
+    // Send update to server
+    backgroundContext.perform { [weak self] in
+      guard let linkedItem = self?.backgroundContext.object(with: objectID) as? LinkedItem else { return }
+      self?.syncLinkDeletion(itemID: linkedItem.unwrappedID, objectID: objectID)
     }
   }
 

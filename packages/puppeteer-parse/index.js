@@ -15,18 +15,10 @@ const { DateTime } = require('luxon');
 const os = require('os');
 const Sentry = require('@sentry/serverless');
 const { Storage } = require('@google-cloud/storage');
-const { appleNewsHandler } = require('./apple-news-handler');
-const { twitterHandler } = require('./twitter-handler');
-const { youtubeHandler } = require('./youtube-handler');
-const { tDotCoHandler } = require('./t-dot-co-handler');
-const { pdfHandler } = require('./pdf-handler');
-const { mediumHandler } = require('./medium-handler');
-const { derstandardHandler } = require('./derstandard-handler');
-const { imageHandler } = require('./image-handler');
-const { scrappingBeeHandler } = require('./scrapingBee-handler');
 
 const chromium = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
+const { preHandleContent } = require("@omnivore/content-handler");
 
 // Add stealth plugin to hide puppeteer usage
 // const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -126,43 +118,43 @@ const userAgentForUrl = (url) => {
 
 // launch Puppeteer
 const getBrowserPromise = (async () => {
-  return puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath,
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
-  });
   // return puppeteer.launch({
-  //   args: [
-  //     '--allow-running-insecure-content',
-  //     '--autoplay-policy=user-gesture-required',
-  //     '--disable-component-update',
-  //     '--disable-domain-reliability',
-  //     '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-  //     '--disable-print-preview',
-  //     '--disable-setuid-sandbox',
-  //     '--disable-site-isolation-trials',
-  //     '--disable-speech-api',
-  //     '--disable-web-security',
-  //     '--disk-cache-size=33554432',
-  //     '--enable-features=SharedArrayBuffer',
-  //     '--hide-scrollbars',
-  //     '--ignore-gpu-blocklist',
-  //     '--in-process-gpu',
-  //     '--mute-audio',
-  //     '--no-default-browser-check',
-  //     '--no-pings',
-  //     '--no-sandbox',
-  //     '--no-zygote',
-  //     '--use-gl=swiftshader',
-  //     '--window-size=1920,1080',
-  //   ].filter((item) => !!item),
-  //   defaultViewport: { height: 1080, width: 1920 },
+  //   args: chromium.args,
+  //   defaultViewport: chromium.defaultViewport,
   //   executablePath: process.env.CHROMIUM_PATH,
-  //   headless: !!process.env.LAUNCH_HEADLESS,
-  //   timeout: 0,
+  //   headless: chromium.headless,
+  //   ignoreHTTPSErrors: true,
   // });
+  return puppeteer.launch({
+    args: [
+      '--allow-running-insecure-content',
+      '--autoplay-policy=user-gesture-required',
+      '--disable-component-update',
+      '--disable-domain-reliability',
+      '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+      '--disable-print-preview',
+      '--disable-setuid-sandbox',
+      '--disable-site-isolation-trials',
+      '--disable-speech-api',
+      '--disable-web-security',
+      '--disk-cache-size=33554432',
+      '--enable-features=SharedArrayBuffer',
+      '--hide-scrollbars',
+      '--ignore-gpu-blocklist',
+      '--in-process-gpu',
+      '--mute-audio',
+      '--no-default-browser-check',
+      '--no-pings',
+      '--no-sandbox',
+      '--no-zygote',
+      '--use-gl=swiftshader',
+      '--window-size=1920,1080',
+    ].filter((item) => !!item),
+    defaultViewport: { height: 1080, width: 1920 },
+    executablePath: process.env.CHROMIUM_PATH,
+    headless: !!process.env.LAUNCH_HEADLESS,
+    timeout: 120000, // 2 minutes
+  });
 })();
 
 let logRecord, functionStartTime;
@@ -257,18 +249,6 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
   );
 };
 
-const handlers = {
-  'pdf': pdfHandler,
-  'apple-news': appleNewsHandler,
-  'twitter': twitterHandler,
-  'youtube': youtubeHandler,
-  't-dot-co': tDotCoHandler,
-  'medium': mediumHandler,
-  'derstandard': derstandardHandler,
-  'image': imageHandler,
-  'scrappingBee': scrappingBeeHandler,
-};
-
 /**
  * Cloud Function entry point, HTTP trigger.
  * Loads the requested URL via Puppeteer, captures page content and sends it to backend
@@ -309,61 +289,19 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(async (req, res) => {
     return res.sendStatus(400);
   }
 
-  // if (!userId || !articleSavingRequestId) {
-  //   Object.assign(logRecord, { invalidParams: true, body: req.body, query: req.query });
-  //   logger.error(`Invalid parameters`, logRecord);
-  //   return res.sendStatus(400);
-  // }
-
-  // Before we run the regular handlers we check to see if we need tp
-  // pre-resolve the URL. TODO: This should probably happen recursively,
-  // so URLs can be pre-resolved, handled, pre-resolved, handled, etc.
-  for (const [key, handler] of Object.entries(handlers)) {
-    if (handler.shouldResolve && handler.shouldResolve(url)) {
-      try {
-        url = await handler.resolve(url);
-        validateUrlString(url);
-      } catch (err) {
-        console.log('error resolving url with handler', key, err);
-      }
-      break;
+  // pre handle url with custom handlers
+  let title, content, contentType;
+  try {
+    const result = await preHandleContent(url);
+    if (result && result.url) {
+      url = result.url
+      validateUrlString(url);
     }
-  }
-
-  // Before we fetch the page we check the handlers, to see if they want
-  // to perform a prefetch action that can modify our requests.
-  // enumerate the handlers and see if any of them want to handle the request
-  const handler = Object.keys(handlers).find(key => {
-    try {
-      return handlers[key].shouldPrehandle(url)
-    } catch (e) {
-      console.log('error with handler: ', key, e);
-    }
-    return false;
-  });
-
-  var title = undefined;
-  var content = undefined;
-  var contentType = undefined;
-
-  if (handler) {
-    try {
-      // The only handler we have now can modify the URL, but in the
-      // future maybe we let it modify content. In that case
-      // we might exit the request early.
-      console.log('pre-handling url with handler: ', handler);
-
-      const result = await handlers[handler].prehandle(url);
-      if (result && result.url) { 
-        url = result.url
-        validateUrlString(url);
-      }
-      if (result && result.title) { title = result.title }
-      if (result && result.content) { content = result.content }
-      if (result && result.contentType) { contentType = result.contentType }
-    } catch (e) {
-      console.log('error with handler: ', handler, e);
-    }
+    if (result && result.title) { title = result.title }
+    if (result && result.content) { content = result.content }
+    if (result && result.contentType) { contentType = result.contentType }
+  } catch (e) {
+    console.log('error with handler: ', e);
   }
 
   var context, page, finalUrl;

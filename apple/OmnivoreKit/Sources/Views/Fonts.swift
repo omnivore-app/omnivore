@@ -6,7 +6,7 @@ import SwiftUI
 public extension Font {
   /// 34pt, Inter-Regular
   static var appLargeTitle: Font {
-    .customFont(InterFont.regular.rawValue, size: 34, relativeTo: .largeTitle)
+    .customFont(InterFont.bold.rawValue, size: 34, relativeTo: .largeTitle)
   }
 
   /// 28pt, Inter-Regular

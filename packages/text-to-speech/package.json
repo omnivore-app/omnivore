@@ -25,7 +25,9 @@
     "@types/natural": "^5.1.1",
     "@types/node": "^14.11.2",
     "@types/underscore": "^1.11.4",
-    "eslint-plugin-prettier": "^4.0.0"
+    "chai": "^4.3.6",
+    "eslint-plugin-prettier": "^4.0.0",
+    "mocha": "^10.0.0"
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",

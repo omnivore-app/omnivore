@@ -1,13 +1,16 @@
 import {
   CancellationDetails,
   CancellationReason,
+  PropertyId,
   ResultReason,
   SpeechConfig,
+  SpeechSynthesisBoundaryType,
   SpeechSynthesisOutputFormat,
   SpeechSynthesisResult,
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
 import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
+import * as _ from 'underscore'
 
 export interface TextToSpeechInput {
   text: string
@@ -29,7 +32,7 @@ export interface SpeechMark {
   start?: number
   length?: number
   word: string
-  type: 'word' | 'bookmark'
+  type: 'word' | 'bookmark' | 'punctuation' | 'sentence'
 }
 
 export const synthesizeTextToSpeech = async (
@@ -46,12 +49,17 @@ export const synthesizeTextToSpeech = async (
   )
   speechConfig.speechSynthesisOutputFormat =
     SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
+  // Required for sentence-level WordBoundary events
+  speechConfig.setProperty(
+    PropertyId.SpeechServiceResponse_RequestSentenceBoundary,
+    'true'
+  )
 
   // Create the speech synthesizer.
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
-  let wordOffset = 0
+  // let wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -86,13 +94,14 @@ export const synthesizeTextToSpeech = async (
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = (s, e) => {
-    speechMarks.push({
-      word: e.text,
-      time: (timeOffset + e.audioOffset) / 10000,
-      start: wordOffset + e.textOffset,
-      length: e.wordLength,
-      type: 'word',
-    })
+    e.boundaryType === SpeechSynthesisBoundaryType.Sentence &&
+      speechMarks.push({
+        word: e.text,
+        time: (timeOffset + e.audioOffset) / 10000,
+        start: e.textOffset,
+        length: e.text.length,
+        type: 'sentence',
+      })
   }
 
   synthesizer.bookmarkReached = (s, e) => {
@@ -138,28 +147,18 @@ export const synthesizeTextToSpeech = async (
       }
     }
     // for ssml
-    let audioData: Buffer = Buffer.from([])
-    // split ssml into chunks of 2000 characters to stream faster
-    // both within limit & without breaking on words and bookmarks <bookmark mark="1"/>
-    const ssmlChunks = input.text.match(/.{1,2000}(?= |$)(?! mark=)/g)
-    if (ssmlChunks) {
-      for (const ssmlChunk of ssmlChunks) {
-        const startSsmlChunk = startSsml(ssmlOptions)
-        const ssml = `${startSsmlChunk}${ssmlChunk}${endSsml()}`
-        // set the text offset to be the end of SSML start tag
-        wordOffset -= startSsmlChunk.length
-        const result = await speakSsmlAsyncPromise(ssml)
-        if (result.reason === ResultReason.Canceled) {
-          throw new Error(result.errorDetails)
-        }
-        timeOffset = timeOffset + result.audioDuration
-        wordOffset = wordOffset + ssmlChunk.length
-        audioData = Buffer.concat([audioData, Buffer.from(result.audioData)])
-      }
+    const startSsmlTag = startSsml(ssmlOptions)
+    const text = _.escape(input.text)
+    const ssml = `${startSsmlTag}${text}${endSsml()}`
+    // set the text offset to be the end of SSML start tag
+    // wordOffset -= startSsmlTag.length
+    const result = await speakSsmlAsyncPromise(ssml)
+    if (result.reason === ResultReason.Canceled) {
+      throw new Error(result.errorDetails)
     }
 
     return {
-      audioData,
+      audioData: Buffer.from(result.audioData),
       speechMarks,
     }
   } catch (error) {

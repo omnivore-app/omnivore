@@ -227,7 +227,7 @@ describe('htmlToSpeechFile', () => {
 describe('convert HTML to Speech file', () => {
   it('converts each <li> to an utterance', () => {
     const html = fs.readFileSync(
-      path.resolve(__dirname, './fixtures/large.html'),
+      path.resolve(__dirname, './fixtures/li.html'),
       { encoding: 'utf-8' }
     )
     const speechFile = htmlToSpeechFile({
@@ -235,6 +235,40 @@ describe('convert HTML to Speech file', () => {
       title: 'Wang Yi at the UN; Fu Zhenghua sentenced; Nvidia China sales',
       options: TEST_OPTIONS,
     })
-    expect(speechFile.utterances).to.have.lengthOf(12)
+    expect(speechFile.utterances).to.have.lengthOf(19)
+  })
+
+  it('converts long utterances to multiple utterances', () => {
+    const html = `<div id="readability-content">
+  <div class="page" id="readability-page-1">
+    <div data-omnivore-anchor-idx="1">
+      All neural voices are multilingual and fluent in their own language and English. For example, if the input text in English is "I'm excited to try text to speech" and you set es-ES-ElviraNeural, the text is spoken in English with a Spanish accent. If the voice doesn't speak the language of the input text, the Speech service won't output synthesized audio. See the full list of supported neural voices.
+    </div>
+  </div>
+</div>
+`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      title: 'How to synthesize speech from text',
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(3)
+  })
+
+  it('does not break long sentences', () => {
+    const html = `<div id="readability-content">
+  <div class="page" id="readability-page-1">
+    <div data-omnivore-anchor-idx="1">
+      This meeting did not offer any significant economic boosts, among other things it reviewed reports of the inspection teams sent to several provinces to check on implementation of economic stabilization measures, promised more administrative reforms, and cut toll fees for freight trucks by 10% and government-designated cargo port charges by 20% in Q4.
+    </div>
+  </div>
+</div>
+`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      title: 'Test long sentence',
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(2)
   })
 })

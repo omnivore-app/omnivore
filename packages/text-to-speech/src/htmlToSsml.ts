@@ -255,7 +255,7 @@ export const stripEmojis = (text: string): string => {
   return text.replace(emojiRegex, '').replace(/\s+/g, ' ')
 }
 
-const textToUtterance = ({
+const textToUtterances = ({
   tokenizer,
   idx,
   textItems,
@@ -269,32 +269,68 @@ const textToUtterance = ({
   wordOffset: number
   voice?: string
   isHtml?: boolean
-}): Utterance => {
-  const text = textItems.join('')
-  let textWithWordOffset = text
-  if (isHtml) {
-    try {
-      textWithWordOffset = htmlToText(text, { wordwrap: false })
-    } catch (err) {
-      console.error(
-        'Unable to convert HTML to text, html:',
+}): Utterance[] => {
+  let text = textItems.join('')
+  if (!isHtml) {
+    // for title
+    return [
+      {
+        idx,
         text,
-        ', error:',
-        err
-      )
-      textWithWordOffset =
-        parseHTML(text).document.documentElement.textContent ?? text
-      console.info('Converted HTML to text:', textWithWordOffset)
+        wordOffset,
+        wordCount: tokenizer.tokenize(text).length,
+        voice,
+      },
+    ]
+  }
+
+  const utterances: Utterance[] = []
+  try {
+    text = htmlToText(text, { wordwrap: false })
+  } catch (err) {
+    console.error(
+      'Unable to convert HTML to text, html:',
+      text,
+      ', error:',
+      err
+    )
+    text = parseHTML(text).document.documentElement.textContent ?? text
+    console.info('Converted HTML to text:', text)
+  }
+  // if we hit 256, look back for first ending sentence within 80 chars
+  const MAX_CHARS = 256
+  const MAX_LOOKBACK = 80
+  while (text.length > MAX_CHARS) {
+    let end = MAX_CHARS - MAX_LOOKBACK - 1
+    while (end < text.length && !text[end].match(/[.!?]/)) {
+      end++
     }
+
+    const utterance = text.substring(0, end + 1)
+    const wordCount = tokenizer.tokenize(utterance).length
+    utterances.push({
+      idx,
+      text: utterance,
+      wordOffset,
+      wordCount,
+      voice,
+    })
+    text = text.substring(end + 1)
+    wordOffset += wordCount
   }
-  const wordCount = tokenizer.tokenize(textWithWordOffset).length
-  return {
-    idx,
-    text,
-    wordOffset,
-    wordCount,
-    voice,
+
+  if (text.length > 0) {
+    const wordCount = tokenizer.tokenize(text).length
+    utterances.push({
+      idx,
+      text,
+      wordOffset,
+      wordCount,
+      voice,
+    })
   }
+
+  return utterances
 }
 
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
@@ -331,13 +367,13 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   let wordOffset = 0
   if (title) {
     // first utterances is the title
-    const titleUtterance = textToUtterance({
+    const titleUtterance = textToUtterances({
       tokenizer,
       idx: '',
       textItems: [cleanText(title)], // title could have HTML entity names like & or emoji
       wordOffset,
       isHtml: false,
-    })
+    })[0]
     utterances.push(titleUtterance)
     wordOffset += titleUtterance.wordCount
   }
@@ -351,7 +387,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
       // use paragraph as anchor
       const idx = i.toString()
       i = emitElement(textItems, node, true)
-      const utterance = textToUtterance({
+      const newUtterances = textToUtterances({
         tokenizer,
         idx,
         textItems,
@@ -359,8 +395,9 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
         voice:
           node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
       })
-      utterance.wordCount > 0 && utterances.push(utterance)
-      wordOffset += utterance.wordCount
+      const wordCount = newUtterances.reduce((acc, u) => acc + u.wordCount, 0)
+      wordCount > 0 && utterances.push(...newUtterances)
+      wordOffset += wordCount
     }
   }
 

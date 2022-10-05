@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="IE=edge" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://thevaluable.dev/images/2021/inheritance/inheritance_evil.jpg" />
+        <meta name="twitter:title" content="Is Inheritance That Evil?" />
+        <meta name="twitter:description" content="Why inheritance is considered as a pillar of OOP when so many developers criticize it? We'll see where inheritance comes from and what problems it solves." />
+        <meta name="twitter:site" content="@Cneude_Matthieu" />
+        <meta property="og:title" content="Is Inheritance That Evil?" />
+        <meta property="og:site_name" content="The Valuable Dev" />
+        <meta property="og:url" content="https://thevaluable.dev/guide-inheritance-oop/" />
+        <meta property="og:description" content="Why inheritance is considered as a pillar of OOP when so many developers criticize it? We'll see where inheritance comes from and what problems it solves." />
+        <meta property="og:type" content="article" />
+        <meta property="article:published_time" content="2021-03-27T00:00:00Z" />
+        <meta property="article:tag" content="Fundamentals" />
+        <meta property="article:tag" content="Architecture" />
+        <title>
+            Is Inheritance That Evil?
+        </title>
+        <meta name="description" content="Why inheritance is considered as a pillar of OOP when so many developers criticize it? We'll see where inheritance comes from and what problems it solves." />
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="shortcut icon" href="https://thevaluable.dev/images/favicon.png" />
+        <link rel="apple-touch-icon" href="https://thevaluable.dev/images/apple-touch-icon.png" />
+        <link rel="stylesheet" class="light-theme" href="https://thevaluable.dev/css/screen.min.28253bebc4bd8235e9421f37e98ab431305706c5fb158e2e096d38fc9e1c599f.css" integrity="sha256-KCU768S9gjXpQh836Yq0MTBXBsX7FY4uCW04/J4cWZ8=" />
+        <link rel="stylesheet" class="light-theme" href="https://thevaluable.dev/css/footer.min.cb248a13bec4075736e2832c8386e9b967caafd6d7d01f1edf768d62354c4398.css" integrity="sha256-yySKE77EB1c24oMsg4bpuWfKr9bX0B8e33aNYjVMQ5g=" media="screen" onload="this.media='screen';" />
+        <link href="https://thevaluable.dev/index.xml" rel="alternate" type="application/rss+xml" title="The Valuable Dev" />
+        <meta name="generator" content="Hugo 0.74.1" />
+        <link rel="canonical" href="https://thevaluable.dev/guide-inheritance-oop/" />
+        <script async="async" src="//www.google-analytics.com/analytics.js"></script>
+        <script type="application/ld+json">
+        <![CDATA[
+        {"@context":"https://schema.org","@type":"Article","image":"https:\/\/thevaluable.dev\/images\/2021\/inheritance\/inheritance_evil.jpg","publisher":{"@type":"Organization","name":"Matthieu Cneude","logo":{"type":"ImageObject","url":"https:\/\/thevaluable.dev\/images\/author.jpg"}},"author":{"@type":"Person","name":"Matthieu Cneude"},"headline":"Is Inheritance That Evil?","name":"Is Inheritance That Evil?","wordCount":5785,"timeRequired":"PT28M","inLanguage":{"@type":"Language","alternateName":"en"},"url":"https:\/\/thevaluable.dev\/guide-inheritance-oop\/","datePublished":"2021-03-27T00:00Z","dateModified":"2021-07-05T00:00Z","keywords":"Fundamentals, Architecture","description":"Why inheritance is considered as a pillar of OOP when so many developers criticize it? Well see where inheritance comes from and what problems it solves.","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/thevaluable.dev\/guide-inheritance-oop\/"}}
+        ]]>
+        </script>
+        <script>
+        <![CDATA[
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-46898153-4','auto');ga('set','anonymizeIp',true);ga('send','pageview');
+        ]]>
+        </script>
+        <script src="https://remark42.thevaluable.dev/web/embed.js" defer="defer"></script>
+    </head>
+    <body class="nav-closed">
+        <div class="nav">
+            <h3 class="nav-title nav-main-title">
+                Menu
+            </h3><a href="#" class="nav-close"></a>
+            <ul>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/">Home</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/post/">All Articles</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/page/newsletter/">Let's Connect</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/page/books/">Books</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/page/support/">Support</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/page/about">About</a>
+                </li>
+                <hr class="separation" />
+                <h3 class="nav-title nav-sub">
+                    Categories
+                </h3>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/complexity">Complexity</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/fundamentals">Fundamentals</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/mouseless">Mouseless</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/vim">Vim</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/soft-skills">Soft Skills</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/learning">Learning</a>
+                </li>
+                <li class="nav-opened" role="presentation">
+                    <a href="https://thevaluable.dev/tags/side-project">Side Projects</a>
+                </li>
+            </ul><a class="subscribe-button" href="https://thevaluable.dev/index.xml">&#160;&#160;RSS</a>
+        </div>
+        <div class="site-wrapper">
+            <aside class="table-of-content tob-closed">
+                <a href="#" class="tob-close"><span class="hidden">Close</span></a>
+                <nav id="TableOfContents">
+                    <ul>
+                        <li>
+                            <a href="#whats-inheritance">What’s Inheritance?</a>
+                            <ul>
+                                <li>
+                                    <a href="#defining-inheritance">Defining Inheritance</a>
+                                </li>
+                                <li>
+                                    <a href="#inheritance-for-code-reuse">Inheritance for Code Reuse</a>
+                                </li>
+                                <li>
+                                    <a href="#inheritance-for-specialization">Inheritance for Specialization</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#a-brief-history-of-inheritance">A Brief History of Inheritance</a>
+                        </li>
+                        <li>
+                            <a href="#how-powerful-is-single-inheritance">How Powerful Is Single Inheritance?</a>
+                            <ul>
+                                <li>
+                                    <a href="#adding-behavior-in-a-subclass">Adding Behavior In a Subclass</a>
+                                </li>
+                                <li>
+                                    <a href="#overriding-behavior-in-a-subclass">Overriding Behavior in a Subclass</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#the-liskov-substitution-principle">The Liskov Substitution Principle</a>
+                        </li>
+                        <li>
+                            <a href="#composition-vs-single-inheritance">Composition vs Single Inheritance</a>
+                            <ul>
+                                <li class="">
+                                    <a href="#composition-delegation-or-aggregation">Composition, Delegation, or Aggregation?</a>
+                                </li>
+                                <li>
+                                    <a href="#is-composition-better-than-inheritance">Is Composition Better Than Inheritance?</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#single-and-multiple-inheritance-dumbed-down">Single and Multiple Inheritance Dumbed Down</a>
+                        </li>
+                        <li class="active">
+                            <a href="#concrete-use-of-inheritance">Concrete Use of Inheritance</a>
+                            <ul>
+                                <li>
+                                    <a href="#inheritance-and-domain-objects">Inheritance and Domain Objects</a>
+                                </li>
+                                <li>
+                                    <a href="#inheritance-and-mechanics">Inheritance and Mechanics</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#modern-languages-and-inheritance">Modern Languages and Inheritance</a>
+                        </li>
+                        <li>
+                            <a href="#inheritance-is-not-evil">Inheritance Is Not Evil</a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+            <header class="main-header post-head no-cover">
+                <a class="blog-title" href="https://thevaluable.dev/">The Valuable Dev</a>
+                <ul class="header-menu">
+                    <li>
+                        <a href="https://thevaluable.dev/page/newsletter"><span class="text">Let's Connect</span></a>
+                    </li>
+                    <li>
+                        <a href="https://thevaluable.dev/page/books"><span class="text">Books</span></a>
+                    </li>
+                    <li>
+                        <a href="https://thevaluable.dev/page/support"><span class="text">Support</span></a>
+                    </li>
+                    <li>
+                        <a href="https://thevaluable.dev/page/about"><span class="text">About</span></a>
+                    </li>
+                </ul>
+                <nav class="page-nav clearfix">
+                    <a class="menu-button" href="#">☰&#160;&#160;Menu</a> <a id="light-button" class="light-button icon-button" href="#"></a><a class="tob-button icon-button" href="#"></a><a class="toggle-search icon-button" title="search"></a>
+                </nav>
+            </header>
+            <aside role="search">
+                <a href="#" class="close toggle-search"></a>
+                <div class="search-wrapper">
+                    <form class="search" method="get">
+                        <input type="search" placeholder="search..." />
+                    </form>
+                </div>
+                <div class="search-results list"></div>
+            </aside>
+            <main class="content" role="main">
+                <article class="post post">
+                    <header class="post-header">
+                        <section class="post-meta">
+                            <div class="li-date">
+                                <time class="post-date" datetime="2021-03-27T00:00:00Z">27 Mar 2021</time> <span class="time-update">, updated</span> <time class="post-date time-update" datetime="2021-07-05T00:00:00Z">5 Jul 2021</time> <a class="la la-twitter" style="font-size:1.4em" href="https://twitter.com/share?text=Is%20Inheritance%20That%20Evil%3f%C2%A0-%C2%A0The%20Valuable%20Dev&amp;url=https%3a%2f%2fthevaluable.dev%2fguide-inheritance-oop%2f" onclick="window.open(this.href,'twitter-share','width=550,height=235');return false;"><span class="hidden">Twitter</span></a>
+                            </div><span class="post-tag small"><a href="https://thevaluable.dev/tags/fundamentals/">#Fundamentals</a></span> <span class="post-tag small"><a href="https://thevaluable.dev/tags/architecture/">#Architecture</a></span>
+                        </section>
+                        <h1 class="post-title">
+                            Is Inheritance That Evil?
+                        </h1>
+                    </header>
+                    <section class="post-content">
+                        <picture><source srcset="https://thevaluable.dev/images/2021/inheritance/inheritance_evil.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/inheritance_evil.jpg" alt="Is inheritance that evil?" /></picture>
+                        <p>
+                            “You used inheritance in your code! Are you crazy? It’s forbidden! It’s clearly written in the Laws and Mantras of Good Software Practice Everyone Must Follow™ hanged in the toilets!”
+                        </p>
+                        <p>
+                            Your thoughts about the nice Youtube video full of cute dogs you saw yesterday stop abruptly. Anxious, you look on your right: Dave, your colleague developer, is yelling at Davina, your desk neighbor. All three of you are working for the fantastic company MegaCorpMoneyMaker, the famous e-commerce which can sell ice to penguins.
+                        </p>
+                        <p>
+                            “That’s true, Dave, you’re right. I used inheritance”, begins Davina. “No need to scream. You could have written it during the code review.”
+                        </p>
+                        <p>
+                            Dave, disarmed by her calm and her honesty, replies: “I… that’s true but… well… I wanted to make an example! We should ban the Demon of Inheritance from the surface of Earth. It will destroy our codebase, our companies, our jobs, and our lives.” He’s now addressing the whole open-space. “Inheritance is evil! It has always been, and it will always be. Composition will save us all!”.
+                        </p>
+                        <p>
+                            Inheritance is considered as a “pillar of OOP” in many articles, books, and other resources on software development. But, at the same time, many developers, like Dave, will recommend not using it in every possible context. Why is that?
+                        </p>
+                        <p>
+                            We’ll try to answer this question throughout this article. In particular, we’ll see:
+                        </p>
+                        <ul>
+                            <li>The properties of this concept we call inheritance.
+                            </li>
+                            <li>A brief history of inheritance to understand where it comes from.
+                            </li>
+                            <li>How powerful single inheritance can be.
+                            </li>
+                            <li>Composition versus single inheritance.
+                            </li>
+                            <li>The legacy of inheritance.
+                            </li>
+                            <li>Concrete use of inheritance.
+                            </li>
+                            <li>How modern languages (Rust and Golang) implement inheritance.
+                            </li>
+                        </ul>
+                        <p>
+                            The few examples of this article are written in PHP. Don’t worry if you don’t know it, it’s very easy to understand (when you don’t do complicated stuff with it). I don’t follow the Perfect Formatting the PHP Grandmasters follow, so don’t feel sad about that.
+                        </p>
+                        <p>
+                            Dave and Davina are ready. Secure yourself and let’s go!
+                        </p>
+                        <h2 id="whats-inheritance">
+                            What’s Inheritance?
+                        </h2>
+                        <p>
+                            After Dave finishes his speech, Davina begins to explain her point of view.
+                        </p>
+                        <p>
+                            “I don’t think inheritance is bad in every situation.”
+                        </p>
+                        <p>
+                            She pauses, considering. “First, To be sure we understand each other, let’s decompose the concept of inheritance. We might discover some misconceptions and learn from each other.”
+                        </p>
+                        <p>
+                            “Misconceptions…” repeat Dave, doubtful. “It’s perfectly clear for me, but go ahead. Let’s see if you understand it”.
+                        </p>
+                        <h3 id="defining-inheritance">
+                            Defining Inheritance
+                        </h3>
+                        <p>
+                            Davina remembers an interesting definition of inheritance encapsulating some core ideas:
+                        </p>
+                        <blockquote>
+                            <p>
+                                A class may inherit - use by default - the fields and methods of its superclass. Inheritance is transitive, so a class may inherit from another class which inherits from another class, and so on, up to a base class (typically Object, possibly implicit/absent). Subclasses may override some methods and/or fields to alter the default behavior.
+                            </p>
+                            <footer>
+                                <strong>Steven Lowe</strong> <cite><a href="https://www.thoughtworks.com/insights/blog/composition-vs-inheritance-how-choose" class="source" title="https://www.thoughtworks.com/insights/blog/composition-vs-inheritance-how-choose" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            Let’s decompose this definition:
+                        </p>
+                        <ul>
+                            <li>
+                                <em>superclass</em>: a class which has at least one subclass.
+                            </li>
+                            <li>
+                                <em>subclass</em>: a class which is a descendant of at least one superclass.
+                                <ul>
+                                    <li>It can <em>add</em> new methods or properties, or <em>use</em> methods or properties of the superclass.
+                                    </li>
+                                    <li>It can modify (or <em>override</em>) some methods or properties of the superclass.
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <em>base class</em> : a superclass which is not a subclass.
+                            </li>
+                        </ul>
+                        <p>
+                            In many common programming languages, inheritance has also these two properties you can use together:
+                        </p>
+                        <ul>
+                            <li>
+                                <em>Multilevel inheritance</em>: a subclass can be a superclass of other subclass(es).
+                            </li>
+                            <li>
+                                <em>Hierarchical inheritance</em>: a superclass can have more than one subclass.
+                            </li>
+                        </ul>
+                        <p>
+                            Finally, inheritance systems can have one of the following properties but not both:
+                        </p>
+                        <ul>
+                            <li>
+                                <em>Single inheritance</em>: a subclass can only have one superclass.
+                            </li>
+                            <li>
+                                <em>Multiple inheritance</em>: a subclass can have more than one superclass.
+                            </li>
+                        </ul>
+                        <p>
+                            At that point, both Davina and Dave agree to speak mostly about single inheritance. Most programming languages won’t allow you to use multiple inheritance anyway. More on that later.
+                        </p>
+                        <p>
+                            Since inheritance is a <em>hierarchy</em> of superclasses and subclasses, it’s easier to show them than to describe them. Davina draws with the precision of a beaver and the eye of an eagle the following:
+                        </p>
+                        <p>
+                            <a href="https://thevaluable.dev/images/2021/inheritance/basics.png"><picture><source srcset="https://thevaluable.dev/images/2021/inheritance/basics.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/basics.png" alt="Single, multiple, hierarchical, and multilevel inheritance" /></picture></a>
+                        </p>
+                        <h3 id="inheritance-for-code-reuse">
+                            Inheritance for Code Reuse
+                        </h3>
+                        <p>
+                            “What can we already see with what we have here?” asks Davina.
+                        </p>
+                        <p>
+                            You answer this one: “We can see that a given subclass inherit all the properties and behaviors of <em>all of its superclasses</em>. It means that the leaves of our tree (the superclasses without subclasses) concentrate all the behaviors of all their parents”.
+                        </p>
+                        <p>
+                            Imagine if humanity could conceive children with all the knowledge of each of their ancestors. How smart would they be? Well, maybe not as much as you think. The processing power of our brain is limited, that’s why we have difficulty to put in our head all the details of a complex codebase. As a result, it’s likely that our children would be lost in an ocean of knowledge.
+                        </p>
+                        <p>
+                            Similarly, the more levels of hierarchy you have in your inheritance tree, the more <a href="https://thevaluable.dev/kiss-principle-explained/" target="_blank" rel="noopener">complex</a> the class inheriting from all this knowledge will be. We will have difficulties to think and <em>reason</em> about them if we need to maintain or modify them.
+                        </p>
+                        <h3 id="inheritance-for-specialization">
+                            Inheritance for Specialization
+                        </h3>
+                        <p>
+                            For now, we only talked about inheritance as a way to inherit the implementation of superclasses in subclasses. That’s not all: many programming languages allow you to <em>substitute</em> a superclass by one of its subclass thanks to <strong>polymorphism</strong>. The subclasses can be seen as <em>specialization</em> of their superclasses.
+                        </p>
+                        <p>
+                            This is a very important piece of the inheritance puzzle we’re lying here. Let’s take this exciting example:
+                        </p>
+                        <div class="highlight">
+                            <pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span> <span class="k">declare</span><span class="p">(</span><span class="nx">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="k">class</span> <span class="nc">Parser</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">printf</span><span class="p">(</span><span class="s2">"I'm counting lines of %s pretty hard!"</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">JSONParser</span> <span class="k">extends</span> <span class="nx">Parser</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">parse</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">printf</span><span class="p">(</span><span class="s2">"I'm parsing some JSON file %s pretty hard!"</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Shipment</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="nx">Parser</span> <span class="nv">$parser</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="nx">Parser</span> <span class="nv">$parser</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span> <span class="o">=</span> <span class="nv">$parser</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$shipment</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Shipment</span><span class="p">(</span><span class="k">new</span> <span class="nx">JSONParser</span><span class="p">());</span>
+<span class="nv">$shipment</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">(</span><span class="s2">"/my/superb/shipment.json"</span><span class="p">);</span>
+</code></pre>
+                        </div>
+                        <p>
+                            What’s happening here?
+                        </p>
+                        <ol>
+                            <li>We feed to the object <code>Shipment</code> a new <code>JSONParser</code>.
+                            </li>
+                            <li>Even if <code>Shipment</code> expect an object of <a href="https://thevaluable.dev/type-system-explained/">type</a> <code>Parser</code>, you can give <code>JSONParser</code> instead because it’s a subclass of <code>Parser</code>. That’s good old polymorphism here!
+                            </li>
+                            <li>If you run this code, the surprising output “I’m counting lines of /my/superb/shipment.json pretty hard!” is displayed before your amazed eyes. I know, it feels like Christmas.
+                            </li>
+                        </ol>
+                        <p>
+                            Dave, who begins to get bored, shoot: “I know what’s next. You’ll speak about the superclass <code>Animal</code> and its subclasses, <code>Dog</code> and <code>Platypus</code>. I’m not stupid! I’m a Senior Web Developer for 18.3 years now! The CTO told me that I was a Ninja of the Crown this morning and…”.
+                        </p>
+                        <p>
+                            With a gracious and meaningful movement of her left hand, Davina stop Dave in his enthusiastic show-off. Her eyes light up and her calm but determined voice begins to fill the entire open space. You’re still following the conversation, as well as other colleagues who began, curious, to gather around your desks. The tension begins to rise.
+                        </p>
+                        <p>
+                            “Not at all”, begins Davina. “OOP was never meant to represent objects or living creatures surrounding our daily life, like a <a href="https://www.atlantic.net/vps-hosting/how-to-object-oriented-programming-constructors-inheritance/" target="_blank" rel="noopener">dog</a>, a <a href="https://www.educative.io/blog/java-inheritance-tutorial" target="_blank" rel="noopener">car</a>, or a <a href="https://stackify.com/oop-concept-inheritance/" target="_blank" rel="noopener">coffee machine</a>. It was invented to solve specific problems linked to software development. In particular, it was designed because we can’t <em>reason</em> about complex systems with our limited brainpower. Inheritance is part of this process of problem solving, and we should analyse it in this context.”
+                        </p>
+                        <p>
+                            She continues. “How many times did you create a <code>Cat</code> class, or a <code>Dog</code> class? You didn’t, not even once. You implemented abstract concepts, like a login or a parser, which have nothing to do with these “real-life” examples. Even if some of your classes are loosely related to real life objects, like a <code>Shipment</code> class, you shouldn’t even use inheritance for those, as we’ll see later.”
+                        </p>
+                        <blockquote>
+                            <p>
+                                … you should be wary of attaching too much importance to the notion that object-oriented systems are directly deduced from the “real world”.
+                            </p>
+                            <footer>
+                                <strong>Bertrand Meyer</strong> <cite><a href="https://www.goodreads.com/book/show/946106.Object_Oriented_Software_Construction" class="source" title="https://www.goodreads.com/book/show/946106.Object_Oriented_Software_Construction" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <blockquote>
+                            <p>
+                                … we don’t advocate underlining nouns and simplistically modeling things in the real world. […] Their correspondence to real-world things may be tenuous, at best.
+                            </p>
+                            <footer>
+                                <strong>Rebecca Wirfs-Brock</strong> <cite><a href="https://www.goodreads.com/book/show/179204.Object_Design" class="source" title="https://www.goodreads.com/book/show/179204.Object_Design" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            The open space is now silent. Everybody begins to realize the lies which was taught to them all these years.
+                        </p>
+                        <p>
+                            Davina goes on. “These real-life examples confuse you: you have the impress that you understand inheritance because animals and dogs are familiar. It’s only a mere illusion. Inheritance can bring a lot of complexity.”
+                        </p>
+                        <p>
+                            Dave shrugs. Suddenly, Davina stands up, addressing what is now her audience. “Let’s see where inheritance come from and why it was invented. I’ll tell you now The Story of Inheritance.”.
+                        </p>
+                        <p>
+                            You see by the window a lightning streaking across the sky. A storm is coming.
+                        </p>
+                        <h2 id="a-brief-history-of-inheritance">
+                            A Brief History of Inheritance
+                        </h2><picture><source srcset="https://thevaluable.dev/images/2021/inheritance/history_inheritance.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/history_inheritance.jpg" alt="Once upon a time in the land of inheritance" /></picture>
+                        <p>
+                            Inheritance has been a hot subject since the creation of the OOP paradigm itself. The first programming languages implementing it was <a href="https://en.wikipedia.org/wiki/Simula" target="_blank" rel="noopener">Simula</a> in the 60s. Simula created also most of the concepts we take for granted in OOP, like classes and objects.
+                        </p>
+                        <p>
+                            The next big step for OOP and inheritance was Smalltalk, a programming language created by Alan Kay and his team at Xerox Park. It’s interesting to note that the first implementation of Smalltalk didn’t include inheritance. From Alan Kay himself:
+                        </p>
+                        <blockquote>
+                            <p>
+                                I didn’t like the way Simula I or Simula 67 did inheritance (though I thought Nygaard and Dahl were just tremendous thinkers and designers). So I decided to leave out inheritance as a built-in feature until I understood it better.
+                            </p>
+                            <footer>
+                                <strong>Alan Kay</strong> <cite><a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" class="source" title="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            Dan Ingalls was part of Alan Kay team and ended up implementing five generations of Smalltalk environments. He liked inheritance, and implemented it in every version of Smalltalk following the first one. It’s where the disagreement with inheritance began in Software Development; this debate continues today.
+                        </p>
+                        <p>
+                            What problem Dan Ingalls tried to solve with inheritance? Code reuse. He wanted a mechanism which could help programmers not repeating the same code in different classes. He wanted a system making the knowledge codified in a codebase more <em>general</em>.
+                        </p>
+                        <p>
+                            Another language designer was heavily influenced by Simula: Bjarne Stroustrup, who created “C with classes”. The goal was to design and reason about complex system more easily. The first implementations of the language were copying many ideas from Simula, including inheritance, while being different from Smalltalk.
+                        </p>
+                        <p>
+                            “C with classes” became C++. As time passed, the language gained a lot of traction: more and more programmers were using it. Smalltalk, after a huge success, began its descent into the Pit of Forgotten Languages. At the end of the 80s, C++ was the only language implementing multiple inheritance, something many believed impossible to achieve.
+                        </p>
+                        <p>
+                            But C++ wasn’t the only attempt to extend C with classes. Apple Computer had its own version called Objective-C. The language was extended by Steve’s Job team at NeXT at the beginning of the 90s, and, among other things, they implemented a construct sharing similar properties with single and multiple inheritance. Similar, but not identical: only the <em>interface</em> was inherited, not the implementation. They called this new construct a <em>protocol</em>.
+                        </p>
+                        <p>
+                            Java, in the middle of the 90s, implemented exactly the same thing, with a different name: <em>interface</em>. I hate this name, it’s too easy to confuse this “interface” with the more general idea of interface (ways from the outside of a construct to act on its inside). That’s why I call this Java “interface” the <em>interface construct</em> in my articles.
+                        </p>
+                        <p>
+                            Davina pauses, drink a bit of water, and adds: “When you read in a random tutorial that a class <code>Dog</code> and a class <code>Platypus</code> inherit from a class <code>Animal</code>, do they speak about code reuse?”
+                        </p>
+                        <p>
+                            You begin to imagine the “code” an <code>Animal</code> could have. Are we in the Matrix?
+                        </p>
+                        <p>
+                            “Not at all. You speak about specialization: a <code>Cat</code> is a specialized form of <code>Animal</code>, although in this context it doesn’t really make sense either. These examples are just lame. Anyway, inheritance is a concept which can bring many powerful features, and that’s its main problem, as we’ll see below. That’s why it was discussed for so long and the concept was ultimately dumbed down”.
+                        </p>
+                        <h2 id="how-powerful-is-single-inheritance">
+                            How Powerful Is Single Inheritance?
+                        </h2><picture><source srcset="https://thevaluable.dev/images/2021/inheritance/powerful_inheritance.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/powerful_inheritance.jpg" alt="Inheritance is as powerful as Hulk!" /></picture>
+                        <p>
+                            To understand the drawbacks of single inheritance your colleagues, friends, and dogs are complaining about, let’s decompose first what we can precisely do with <em>single inheritance of implementation</em>:
+                        </p>
+                        <ol>
+                            <li>You can <em>add</em> some behavior in a subclass.
+                            </li>
+                            <li>You can <em>override</em> (modify) the behavior of any superclass in a subclass.
+                            </li>
+                        </ol>
+                        <p>
+                            Let’s see what the possible benefits and drawbacks of these two approaches.
+                        </p>
+                        <h3 id="adding-behavior-in-a-subclass">
+                            Adding Behavior In a Subclass
+                        </h3>
+                        <p>
+                            Here’s a slightly modified version of our legendary parser:
+                        </p>
+                        <div class="highlight">
+                            <pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span> <span class="k">declare</span><span class="p">(</span><span class="nx">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="k">class</span> <span class="nc">Parser</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">printf</span><span class="p">(</span><span class="s2">"I'm counting lines of %s pretty hard!"</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">JSONParser</span> <span class="k">extends</span> <span class="nx">Parser</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">parse</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">printf</span><span class="p">(</span><span class="s2">"I'm parsing some JSON file %s pretty hard!"</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Shipment</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="nx">JSONParser</span> <span class="nv">$parser</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="nx">JSONParser</span> <span class="nv">$parser</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span> <span class="o">=</span> <span class="nv">$parser</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">import</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span><span class="o">-&gt;</span><span class="na">parse</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="nv">$shipment</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Shipment</span><span class="p">(</span><span class="k">new</span> <span class="nx">JSONParser</span><span class="p">());</span>
+<span class="nv">$shipment</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">(</span><span class="s2">"/my/superb/shipment.json"</span><span class="p">);</span>
+<span class="nv">$shipment</span><span class="o">-&gt;</span><span class="na">import</span><span class="p">(</span><span class="s2">"/my/superb/shipment.json"</span><span class="p">);</span>
+</code></pre>
+                        </div>
+                        <p>
+                            The class <code>JSONParser</code> inherit the implementation of <code>Parser</code> and add its own method <code>parse</code>.
+                        </p>
+                        <p>
+                            How our system supports changes in this example? If we modify the behavior of the method <code>count</code> from <code>Parser</code>, every subclass inheriting from <code>Parser</code> will get the change too. In that sense, inheritance breaks encapsulation between the superclasses and their subclasses.
+                        </p>
+                        <blockquote>
+                            <p>
+                                In languages with inheritance, a data abstraction implementation (i.e., a class) has two kinds of users. There are the “outsiders” who simply use the objects by calling the operations. But in addition there are the “insiders.” These are the subclasses, which are typically permitted to violate encapsulation.
+                            </p>
+                            <footer>
+                                <strong>Barbara Liskov</strong> <cite><a href="https://www.cs.tufts.edu/~nr/cs257/archive/barbara-liskov/data-abstraction-and-hierarchy.pdf" class="source" title="https://www.cs.tufts.edu/~nr/cs257/archive/barbara-liskov/data-abstraction-and-hierarchy.pdf" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            Let’s imagine that <code>Parser</code> has two subclasses, and these subclasses have two more subclasses. You end up with a hierarchy on 3 levels. It doesn’t seem that much of a stretch, but you still end up with seven classes in total. If you modify the base class <code>Parser</code>, six other classes will be affected!
+                        </p>
+                        <p>
+                            We didn’t create a huge inheritance tree here, but changing a superclass has a rippling effect in the whole hierarchy.
+                        </p>
+                        <blockquote>
+                            <p>
+                                Hierarchical systems seem to have the property that something considered as an undivided entity on one level, is considered as a composite object on the next lower level of greater detail.
+                            </p>
+                            <footer>
+                                <strong>Edsger Dijkstra</strong> <cite><a href="https://www.cs.utexas.edu/users/EWD/transcriptions/EWD03xx/EWD340.html" class="source" title="https://www.cs.utexas.edu/users/EWD/transcriptions/EWD03xx/EWD340.html" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            Don’t get me wrong: it can be beneficial if you <em>want</em> that each change of a superclass affects every subclass at every level below. Actually, it’s the main reason why inheritance was invented at the first place: being able to make the code more general and reusing it easily. But you need to be sure that your classes are very <a href="https://thevaluable.dev/single-responsibility-principle-revisited/#cohesion" target="_blank" rel="noopener">cohesive</a>, that is, the change of any superclass <em>needs</em> to affect every subclass.
+                        </p>
+                        <p>
+                            If your classes are not cohesive, you’ll have all the drawbacks of tight coupled classes in your face: nobody will know if changing a superclass will either cover them with glory and fame or crash the entire system. Your codebase, while growing in complexity, will become impossible to reason about, because you don’t have enough brainpower to build in your head an accurate mental model of all the effects of a change. In short, you’ll end up with one of the problem the OOP paradigm tried to solve at the first place.
+                        </p>
+                        <h3 id="overriding-behavior-in-a-subclass">
+                            Overriding Behavior in a Subclass
+                        </h3>
+                        <p>
+                            Let’s continue further by adding a new element in our inheritance soup: overriding. Here’s another simple example:
+                        </p>
+                        <div class="highlight">
+                            <pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span> <span class="k">declare</span><span class="p">(</span><span class="nx">strict_types</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="k">class</span> <span class="nc">Parser</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">printf</span><span class="p">(</span><span class="s2">"I'm counting lines of %s pretty hard!</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">JSONParser</span> <span class="k">extends</span> <span class="nx">Parser</span> <span class="p">{</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">printf</span><span class="p">(</span><span class="s2">"I'm counting JSON objects from file %s pretty hard!</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Shipment</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="nx">Parser</span> <span class="nv">$parser</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="nx">Parser</span> <span class="nv">$parser</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span> <span class="o">=</span> <span class="nv">$parser</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">count</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nv">$shipment</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Shipment</span><span class="p">(</span><span class="k">new</span> <span class="nx">Parser</span><span class="p">());</span>
+<span class="nv">$shipment</span><span class="o">-&gt;</span><span class="na">count</span><span class="p">(</span><span class="s2">"/my/superb/shipment"</span><span class="p">);</span>
+
+</code></pre>
+                        </div>
+                        <p>
+                            We override here the method <code>count</code> in our subclass <code>JSONParser</code>. Now, our class <code>Shipment</code> will “work” if we pass to our new <code>Shipment</code> both <code>Parser</code> or <code>JSONParser</code>, in the sense that no type error will be thrown.
+                        </p>
+                        <p>
+                            But will it works as intended? What parser to use when we want an instance of <code>Shipment</code>? A <code>Parser</code>? A <code>JSONParser</code>?
+                        </p>
+                        <p>
+                            We could look at the implementation of <code>Shipment</code>, then at the implementation of both <code>JSONParser</code> and <code>Parser</code> to decide what behavior we need depending on the context. But we create objects and abstract behavior not to look at their implementations. It frees us some precious brain power to think about the part of the system we want to modify.
+                        </p>
+                        <p>
+                            Mixing overriding and polymorphism is a recipe for disasters. In an inheritance tree with more classes and more overidding, you need to know what superclass override what behavior, if the subclass override what the superclass overrided, and so on.
+                        </p>
+                        <p>
+                            This confusion between inheritance of implementation and specialization led to the Liskov Substitution Principle (LSP).
+                        </p>
+                        <h2 id="the-liskov-substitution-principle">
+                            The Liskov Substitution Principle
+                        </h2><picture><source srcset="https://thevaluable.dev/images/2021/inheritance/lsp.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/lsp.jpg" alt="The LSP is about substituting a parent class with its base class" /></picture>
+                        <p>
+                            Barbara Liskov was a researcher who won the <a href="https://en.wikipedia.org/wiki/Turing_Award" target="_blank" rel="noopener">Turing Award</a> for her work on abstract data types. When she was asked to talk at the keynote of <a href="https://en.wikipedia.org/wiki/OOPSLA" target="_blank" rel="noopener">OOPSLA</a> in 1987, she looked at the papers about inheritance hierarchies and how developers were using them. She was pretty disappointed.
+                        </p>
+                        <p>
+                            This keynote led to the paper <a href="https://www.cs.tufts.edu/~nr/cs257/archive/barbara-liskov/data-abstraction-and-hierarchy.pdf" target="_blank" rel="noopener">Data abstraction and hierarchy</a>. From there, some began to speak about a “Liskov Substitution Principle”, often quoting the following:
+                        </p>
+                        <blockquote>
+                            <p>
+                                If for each object o1 of type S there is an object o2 of type T such that for all programs P defined in terms of T, the behavior of P is unchanged when o1 is substituted for o2, then S is a subtype of T.
+                            </p>
+                            <footer>
+                                <strong>Barbara Liskov</strong> <cite><a href="https://www.cs.tufts.edu/~nr/cs257/archive/barbara-liskov/data-abstraction-and-hierarchy.pdf" class="source" title="https://www.cs.tufts.edu/~nr/cs257/archive/barbara-liskov/data-abstraction-and-hierarchy.pdf" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            Who doesn’t like good old academic writing full of <code>S</code>, <code>T</code>, <code>o2</code>, and friends? Here’s a clearer way to define the same idea:
+                        </p>
+                        <blockquote>
+                            <p>
+                                Objects of subtypes should behave like those of supertypes if used via supertype methods.
+                            </p>
+                            <footer>
+                                <strong>Barbara Liskov</strong> <cite><a href="https://web.stanford.edu/class/ee380/Abstracts/110420-turing-10-slides.pdf" class="source" title="https://web.stanford.edu/class/ee380/Abstracts/110420-turing-10-slides.pdf" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            It’s with this paper that the concept of <em>subtyping</em> was born.
+                        </p>
+                        <p>
+                            This solves the problem of substitution of subclasses. According to Liskov, if you want to use polymorphism with inheritance, you need to have proper <em>subtyping</em>. How? By following this rule: when you substitute one superclass by its subclass, the <em>behavior</em> of the whole system should be <em>unchanged</em>.
+                        </p>
+                        <p>
+                            Said differently: don’t override anything.
+                        </p>
+                        <p>
+                            With this definition of the LSP, and to come back to our example above, there won’t be any doubt about the consequences substituting <code>Parser</code> by its subclass <code>JSONParser</code>. We are sure it won’t have unexpected results because <code>JSONParser</code> doesn’t override any behavior of its superclass. Said differently, you would always use the same method <code>parse</code> from <code>Parser</code> whatever the subclass of Parser you use.
+                        </p>
+                        <p>
+                            But between Barbara Liskov’s first statement and now, the LSP changed. From “the behavior should stay the same”, we know think that “the behavior shouldn’t break the application”. This last definition is more ambiguous: how do we know that our system still behave correctly? What does it mean? Do we have every possible tests to ensure that it’s the case? If our system doesn’t break but doesn’t follow the specifications either, is it a violation of the LSP?
+                        </p>
+                        <p>
+                            “But wait!” interrupts suddenly Dave. “This is not the Liskov Substitution Principle! This is not how it’s defined in the Holy SOLID Principles!”
+                        </p>
+                        <p>
+                            Davina sigh. “The SOLID principles should be the D principle. The last one is the only one we can still save. The others are misinterpretations of important ideas when they’re not bad ideas. The LSP is a misinterpretation: the definition given by Robert Martin has not much to do with the definition given by Barbara Liskov.”.
+                        </p>
+                        <p>
+                            Let’s look at Martin definition of the LSP:
+                        </p>
+                        <blockquote>
+                            <p>
+                                All implementations of interfaces are subtypes of an interface.
+                            </p>
+                            <footer>
+                                <strong>Robert Martin</strong> <cite><a href="https://blog.cleancoder.com/uncle-bob/2020/10/18/Solid-Relevance.html" class="source" title="https://blog.cleancoder.com/uncle-bob/2020/10/18/Solid-Relevance.html" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            From the example above, the class <code>JSONParser</code> implements the same interface as <code>Parser</code>, but one method <code>count</code> count the number of lines and the other count the number of JSON objects. Interface substitution is not what Barbara Liskov was speaking about, and it won’t save your codebase if you try to mix specialization and overriding.
+                        </p>
+                        <p>
+                            Often, <a href="https://wiki.c2.com/?LiskovSubstitutionPrinciple" target="_blank" rel="noopener">developers don’t like strong behavioral subtyping</a> as Barbara Liskov defined it. That’s why the principle was transformed over time. Often, inheritance is used to override the implementation of a superclass. On that regard, it’s interesting to note that inheritance is only interesting for Liskov in the context of subtyping; she doesn’t see any value to use it for inheriting implementation.
+                        </p>
+                        <p>
+                            Why? Because inheritance is not the only solution for code reuse. Many prefer using composition.
+                        </p>
+                        <h2 id="composition-vs-single-inheritance">
+                            Composition vs Single Inheritance
+                        </h2>
+                        <p>
+                            While the open space is still silent, you begin to feel the tension dropping. The magic word has been pronounced: composition. While inheritance is a demon which tries to eat companies and their employees, composition is the solution to every possible disaster.
+                        </p>
+                        <h3 id="composition-delegation-or-aggregation">
+                            Composition, Delegation, or Aggregation?
+                        </h3>
+                        <p>
+                            “Are we speaking about composition, delegation, or aggregation here?” asks Dave. “What’s the difference?” ask another colleague.
+                        </p>
+                        <p>
+                            Dave, with a smile, begins his explanation: “Look at the examples we were speaking about. A <code>JSONParser</code> <em>is a</em> parser, so inheritance makes sense in that case. But, for example, a <code>Shipment</code> <em>has a</em> parser, that’s why we used composition”.
+                        </p>
+                        <p>
+                            You intervene: “does it make sense to say that a shipment <em>has a</em> parser? No, here we’re speaking about delegation: the shipment <em>use a</em> parser, it delegates a task to a parser object. That’s all.”
+                        </p>
+                        <p>
+                            “Really?” begins another colleague. “Are you sure a JSON parser <em>is a</em> parser, or does it <em>has</em> the behavior of a parser?” Another colleague takes part of the conversation: “No! Our <code>Shipment</code> <em>own a</em> <code>Parser</code>, so we’re speaking about aggregation here!”
+                        </p>
+                        <p>
+                            Outside, the thunder growl again. Everybody begins to speak at the same time, throwing at each other <em>is-a</em>, <em>has-a</em>, <em>part-of</em>, <em>add-to</em>, and other pair of very short words you can link with a hyphen.
+                        </p>
+                        <p>
+                            Davina listens to the conversation carefully, and when everybody calms down, she gives her opinion: “I see these ‘<em>is-a</em>’ or ‘<em>has-a</em>’ tricks all over the Internet. I also saw many developers defining different flavors of composition, delegation, aggregation, and whatnot. At the end, our problem are often so specific they don’t fit any of these definitions. They are useless in practice. Don’t use them”.
+                        </p>
+                        <p>
+                            She continues. “Using natural language tricks (like <em>is-a</em> or <em>has-a</em>) to decide what solution we should apply to a problem is ambiguous, as we just witnessed. It’s one of the reason why Mathematical notation was invented at the first place: to avoid the ambiguity of natural language. My advice: don’t use these tricks to decide what solution you should use.”
+                        </p>
+                        <p>
+                            To understand what Davina is speaking about, let’s get back to our class <code>Shipment</code>:
+                        </p>
+                        <div class="highlight">
+                            <pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">Shipment</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="nx">JSONParser</span> <span class="nv">$parser</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="fm">__construct</span><span class="p">(</span><span class="nx">JSONParser</span> <span class="nv">$parser</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span> <span class="o">=</span> <span class="nv">$parser</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">import</span><span class="p">(</span><span class="nx">string</span> <span class="nv">$filepath</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parser</span><span class="o">-&gt;</span><span class="na">parse</span><span class="p">(</span><span class="nv">$filepath</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+                        </div>
+                        <p>
+                            When we want to create an instance of <code>Shipment</code>, we need to inject an object of type <code>JSONParser</code>. It doesn’t matter if it’s called aggregation, composition, or delegation. At the end, it boils down to the same simple mechanism: injecting an object into another one.
+                        </p>
+                        <h3 id="is-composition-better-than-inheritance">
+                            Is Composition Better Than Inheritance?
+                        </h3>
+                        <p>
+                            We all know the Mantra of Composition, the one which will bless your codebase with the benediction of The Hasa and the Partof Gods. If you don’t know it yet, I’m sure you’ll hear it a good hundred of times in your career:
+                        </p>
+                        <blockquote>
+                            <p>
+                                Favor object composition over class inheritance.
+                            </p>
+                        </blockquote>
+                        <p>
+                            This is from the book <a href="https://www.goodreads.com/book/show/85009.Design_Patterns" target="_blank" rel="noopener">Design Patterns</a>, written by the Gang of Four. With a name like that, I’m not sure if they were trying to force some general-but-specific (admire the paradox) solutions to our poor codebases or if their real goals were to create the mafia of software developers. One thing is certain: this book gave to beginners the perfect pretext to show how smart they are by instantly changing a healthy codebase into a legacy mess full of Singleton and Abstract Factories.
+                        </p>
+                        <p>
+                            Like many, I’m no innocent: I’ve chanted the Mantra of Composition for years, without looking at the Mantra in its context. But context is important.
+                        </p>
+                        <p>
+                            So, what our <del>godfathers</del> Gang of Four are saying just after enlightening the world with their Mantra?
+                        </p>
+                        <blockquote>
+                            <p>
+                                You should be able to get all the functionality you need just by assembling existing components through object composition. But this is rarely the case, because the set of available components is never quite rich enough in practice. Reuse by inheritance makes it easier to make new components that can be composed with old ones. Inheritance and object composition thus work together.
+                            </p>
+                            <footer>
+                                <cite><a href="https://www.goodreads.com/book/show/85009.Design_Patterns" class="source" title="https://www.goodreads.com/book/show/85009.Design_Patterns" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            According to this book, we should favor composition not because inheritance is evil, but because nobody uses it correctly. Well, hopefully we understand it better now.
+                        </p>
+                        <h4 id="the-benefits-of-composition">
+                            The Benefits of Composition
+                        </h4>
+                        <p>
+                            Composition is very useful indeed. Let’s imagine that we inject object A into object B. Here are the benefits:
+                        </p>
+                        <ul>
+                            <li>If Object A is properly encapsulated, nobody will destroy anything by changing object’s A inner implementation. Object B can suffer the change, but nothing else down the road.
+                            </li>
+                            <li>You can use only part of the object’s implementation. Object B doesn’t automatically inherit from the whole object A.
+                            </li>
+                        </ul>
+                        <p>
+                            To get back to our <code>Shipment</code> example, this means that the object <code>JSONParser</code> we inject is tightly coupled to the class <code>Shipment</code>, but this coupling stop there. If you instantiate <code>Shipment</code> later and you change the implementation of <code>JSONParser</code>, the class <code>Shipment</code> might need to change, and that’s all.
+                        </p>
+                        <p>
+                            As we saw with inheritance, the problem of tight coupling (or the benefit of cohesion) will affect <em>every layer down the inheritance tree</em>.
+                        </p>
+                        <h4 id="the-drawbacks-of-composition">
+                            The Drawbacks of Composition
+                        </h4>
+                        <p>
+                            Composition is not the best solution when you want to use many objects or objects with a lot of behavior.
+                        </p>
+                        <p>
+                            Let’s say that you want to use 10 methods from 3 different objects and you want to add some implementation on top: you’ll need to inject your 3 objects, create 10 methods in your new class wrapping the 10 methods of the objects injected, and add more methods to take care of your new functionality.
+                        </p>
+                        <p>
+                            “But I could directly call the object <code>JSONParser</code> from an instance of <code>Shipment</code>”, cut Dave.
+                        </p>
+                        <p>
+                            “That’s true, answers Davina. But it would break the encapsulation of our objects <code>Shipment</code> in that case. It means that everything using the object <code>Shipment</code> would be tightly coupled to the object <code>JSONParser</code>. Encapsulation is broken.”
+                        </p>
+                        <p>
+                            Composition doesn’t bring you the benefits of subtyping either. When you inject an object to a class, you’ll need to inject a precise object if your language has some sort of type checking, and nothing else. On that regards, it constrains you (which can be a good thing!). If your language doesn’t have any type checking and you can just give any object to the constructor of your class, it doesn’t mean that it will <em>work as intended</em>. The problem stays the same.
+                        </p>
+                        <p>
+                            At least, an inheritance hierarchy can indicate what object you can use instead of another and, if it follows a strict form of LSP, nothing should break.
+                        </p>
+                        <p>
+                            “That’s wrong!”, shoot Dave, suddenly. “What about the interface construct? I love these, and you can do some good polymorphism with them without using the Demon of Inheritance!”
+                        </p>
+                        <p>
+                            “You’re right, answers Davina. But using interface constructs is only using another form of inheritance.”
+                        </p>
+                        <h2 id="single-and-multiple-inheritance-dumbed-down">
+                            Single and Multiple Inheritance Dumbed Down
+                        </h2><picture><source srcset="https://thevaluable.dev/images/2021/inheritance/less_powerful.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/less_powerful.jpg" alt="Over the years, inheritance has seen less powerful implementations." /></picture>
+                        <p>
+                            As we saw, inheritance is very powerful, because you can mix reuse of implementation and subtyping in a hierarchy tree as deep as you want it to. This power is its biggest problem: many developers, not knowing all the implications we saw above, have a tendency to misuse inheritance, tightly coupling everything in huge inheritance hierarchies, which led to the Mantra of Composition. That’s why many gave up on single inheritance.
+                        </p>
+                        <p>
+                            But multiple inheritance is even more flawed: the possibility for a subclass to have more than one superclass is making everything very ambiguous. As an example, you can look at the <a href="https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem" target="_blank" rel="noopener">diamond problem</a>. Additionally, multiple inheritance is very complex to implement in a programming language.
+                        </p>
+                        <p>
+                            That’s why the designers of Objective-C and Java restricted inheritance with the protocol and the interface construct respectively. The benefits?
+                        </p>
+                        <ol>
+                            <li>A class is forced to use the interface given by a protocol, which guarantee that each subtype has the same interface (but doesn’t guarantee that the substitution will work!).
+                            </li>
+                            <li>There is no multilevel inheritance anymore.
+                            </li>
+                            <li>No more inheritance of implementation: the protocol is only an interface.
+                            </li>
+                            <li>Multiple inheritance of interfaces is much easier to manage than multiple inheritance of implementations.
+                            </li>
+                        </ol>
+                        <blockquote>
+                            <p>
+                                Please note that even Java includes a limited form of multiple inheritance: inheritance of interfaces.”
+                            </p>
+                            <footer>
+                                <strong>Bjarne Stroustrup</strong> <cite><a href="https://stroustrup.com/nantes-interview-english.html" class="source" title="https://stroustrup.com/nantes-interview-english.html" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <h2 id="concrete-use-of-inheritance">
+                            Concrete Use of Inheritance
+                        </h2>
+                        <p>
+                            We saw already some potential use of inheritance, but can we be more concrete? Over the years I’ve come up with this set of rules:
+                        </p>
+                        <ol>
+                            <li>Never use inheritance for classes which are related to the <em>business domain</em>.
+                            </li>
+                            <li>Sometimes use inheritance for reusing implementation of classes bringing some <em>mechanics</em>.
+                            </li>
+                            <li>If you use subtypes, always try to respect the original strictness of LSP as much as possible.
+                            </li>
+                            <li>If you use the interface constructs for subtyping, keep in mind that the implementation of the interface can still break everything.
+                            </li>
+                        </ol>
+                        <p>
+                            These rules are from my experience. Don’t use them as Mantras working in every situation. We should experiment carefully with them and use our brain to see if the technical solutions fit the problem you have.
+                        </p>
+                        <h3 id="inheritance-and-domain-objects">
+                            Inheritance and Domain Objects
+                        </h3>
+                        <p>
+                            Davina explain further: “When I speak about domain objects, I mean all the objects which are related to the business we work for. In our present case, in MegaCorpMoneyMaker, it would be classes like <code>Shipment</code>, <code>Order</code>, or <code>Product</code>.”
+                        </p>
+                        <p>
+                            Introducing any form of hard coupling or <a href="https://thevaluable.dev/dry-principle-cost-benefit-example/">premature abstractions</a> with these objects is always dangerous. They are the <em>representation</em> of real world constructs, and since the real world change in unpredictable manners, these objects will change in unpredictable manners too. Keep them isolated as much as possible from the <em>mechanical parts</em> of your system.
+                        </p>
+                        <h3 id="inheritance-and-mechanics">
+                            Inheritance and Mechanics
+                        </h3>
+                        <p>
+                            You ask Davina: “what do you mean by mechanics”?
+                        </p>
+                        <p>
+                            “These classes are everything which are not domain objects. For example, our classes to parse files represent some mechanisms: they don’t represent anything from our business, they’re just general constructs to parse some files. Objects of this sort are often more general and can be applied in many more contexts than our precise business domain.”
+                        </p>
+                        <p>
+                            For example, it’s not very likely that the world will come up tomorrow with a different definition of stacks. That’s why the object <code>Stack</code> won’t need many changes overtime.
+                        </p>
+                        <p>
+                            Anything representing mathematical constructs are good examples too. After all, Mathematics try to be as disconnected as possible from the real world. It’s when you try to use mathematical concepts on the real world that everything begins to break. That’s what we call applied Mathematics.
+                        </p>
+                        <p>
+                            If we think about it, inheritance create a hierarchy where its elements are not encapsulated with each others, but the hierarchy itself is encapsulated from its outside. We create a new construct doing so, an aggregation of objects. In that case, inheritance can be useful if you have to codify a general and coherent set of ideas where the properties and behaviors of the different objects will rarely change, or when the whole hierarchy needs to change when one of its member change predictably.
+                        </p>
+                        <h2 id="modern-languages-and-inheritance">
+                            Modern Languages and Inheritance
+                        </h2>
+                        <p>
+                            Modern languages often take the decision to implement inheritance differently from “older” languages like Java, Python, Ruby, or PHP. They try hard to differentiate subtyping and inheritance of implementation. For example, in Rust’s documentation:
+                        </p>
+                        <blockquote>
+                            <p>
+                                If a language must have inheritance to be an object-oriented language, then Rust is not one. There is no way to define a struct that inherits the parent struct’s fields and method implementations.
+                            </p>
+                            <footer>
+                                <cite><a href="https://doc.rust-lang.org/book/ch17-01-what-is-oo.html?highlight=inheritance#inheritance-as-a-type-system-and-as-code-sharing" class="source" title="https://doc.rust-lang.org/book/ch17-01-what-is-oo.html?highlight=inheritance#inheritance-as-a-type-system-and-as-code-sharing" target="_blank">Source</a></cite>
+                            </footer>
+                        </blockquote>
+                        <p>
+                            But Rust implement some form of inheritance I didn’t cover here: traits. If you need some polymorphism, Rust give you generic programming like many other languages.
+                        </p>
+                        <p>
+                            Another example: Golang. You can’t do any inheritance of implementation, only composition is allowed. You can also use interface constructs if you want some inheritance of interface.
+                        </p>
+                        <h2 id="inheritance-is-not-evil">
+                            Inheritance Is Not Evil
+                        </h2><picture><source srcset="https://thevaluable.dev/images/2021/inheritance/inheritance_not_evil.webp" type="image/webp" /><img width="780" height="520" src="https://thevaluable.dev/images/2021/inheritance/inheritance_not_evil.jpg" alt="Inheritance is not evil, it's just too powerful." /></picture>
+                        <p>
+                            What did we see in this article?
+                        </p>
+                        <ul>
+                            <li>Inheritance create a hierarchical construct composed of <code>superclasses</code>, <code>subclasses</code>, and <code>base classes</code>.
+                            </li>
+                            <li>Many common programming languages allow us to create a tree with infinite depth (multilevel inheritance) and width (hierarchical inheritance).
+                            </li>
+                            <li>Your system can become hard to maintain if you mix two of the Three Power Gems of Inheritance in the same soup:
+                                <ul>
+                                    <li>Inheritance of implementation.
+                                    </li>
+                                    <li>Substituting superclasses with their subclasses (subtyping if it follows some rules).
+                                    </li>
+                                    <li>Multilevel inheritance.
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>Most of the time, composition seems to be the best alternative to inheritance of implementation.
+                            </li>
+                            <li>Everything is tightly coupled in an inheritance hierarchy, but this blurb of classes is still encapsulated from the outside.
+                            </li>
+                            <li>Inheritance was a crude concept defined at the beginning of OOP and later refined with, for example, the interface construct.
+                            </li>
+                            <li>Inheritance can be useful for the part of your system which won’t change too much (mechanical part).
+                            </li>
+                        </ul>
+                        <p>
+                            If you need to retain one thing from all of that: don’t use DRY, or inheritance, or composition before you understand clearly what’s the problem you’re trying to solve and its context. These concepts should be used when you refactor you code; consider the first writing as a messy draft and, in that spirit, defer all the important decisions making your design hard to change as much as you can.
+                        </p>
+                        <p>
+                            What should be together and what should not (cohesion) is one of these important decision. What should be under a layer of indirection using interface constructs is another.
+                        </p>
+                        <p>
+                            If you think it’s a good idea to use an inheritance hierarchy, begin with a small one and see how it behaves in your system overtime.
+                        </p>
+                        <p>
+                            Davina concludes:
+                        </p>
+                        <p>
+                            “The concept of inheritance was refined over the years and gave us the constructs we use today, like the interface construct. In that sense, inheritance is definitely a pillar of the OOP paradigm. But it’s true that mixing features which are not necessarily orthogonal make inheritance difficult to harness in many programming languages.”
+                        </p>
+                        <p>
+                            Everybody is silent now. The storm outside stopped. Dave is thinking hard, like everybody in the open space of MegaCorpMoneyMaker.
+                        </p>
+                        <p>
+                            At the end, you should always read the documentation of the programming languages you’re using to see exactly how they implement inheritance. You’ll now be able to guess why the language’s designers made their decisions and how you can use their implementation of inheritance effectively.
+                        </p>
+                        <div class="related-sources">
+                            <div class="h2">
+                                Related Sources
+                            </div>
+                            <ul>
+                                <li>
+                                    <a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en" target="_blank" rel="noopener">The meaning of OOP</a> - Alan Kay
+                                </li>
+                                <li>
+                                    <a href="https://www.artima.com/intv/abcs.html" target="_blank" rel="noopener">Inheritance in C++</a> - Scott Meyers
+                                </li>
+                                <li>
+                                    <a href="https://www.thoughtworks.com/insights/blog/composition-vs-inheritance-how-choose" target="_blank" rel="noopener">Composition vs inheritance</a> - Steven Lowe
+                                </li>
+                                <li>
+                                    <a href="https://buttondown.email/hillelwayne/archive/if-inheritance-is-so-bad-why-does-everyone-use-it/" target="_blank" rel="noopener">if inheritance is so bad, why everyone uses it?</a> - Hillel Wayne
+                                </li>
+                                <li>
+                                    <a href="https://www.sicpers.info/2018/03/why-inheritance-never-made-any-sense/" target="_blank" rel="noopener">Why inheritance never made any sense</a> - Graham Lee
+                                </li>
+                                <li>
+                                    <a href="https://www.youtube.com/watch?v=P2mh92d-T3Y" target="_blank" rel="noopener">Object-Oriented Programming (Youtube)</a> - Dan Ingalls
+                                </li>
+                                <li>
+                                    <a href="https://www.cs.tufts.edu/~nr/cs257/archive/barbara-liskov/data-abstraction-and-hierarchy.pdf" target="_blank" rel="noopener">Data abstraction and hierarchy</a> - Barbara Liskov
+                                </li>
+                                <li>
+                                    <a href="https://stroustrup.com/nantes-interview-english.html" target="_blank" rel="noopener">Interview of Bjarne Stroustrup</a> - Pierre Tran
+                                </li>
+                                <li>
+                                    <a href="http://worrydream.com/EarlyHistoryOfSmalltalk/" target="_blank" rel="noopener">Early History of Smalltalk</a> - Alan Kay
+                                </li>
+                                <li>
+                                    <a href="https://medium.com/chmcore/a-short-history-of-objective-c-aff9d2bde8dd" target="_blank" rel="noopener">A Short History of Objective C</a> - Hansen Hsu
+                                </li>
+                                <li>
+                                    <a href="https://doc.rust-lang.org/book/ch17-01-what-is-oo.html" target="_blank" rel="noopener">Characteristics of Object-Oriented Languages</a> - Rust documentation
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+                    <footer class="post-footer">
+                        <section class="newsletter">
+                            <form action="https://buttondown.email/api/emails/embed-subscribe/thevaluabledev" method="post" target="popupwindow" onsubmit="window.open('https://buttondown.email/thevaluabledev','popupwindow')" class="embeddable-buttondown-form">
+                                <h3>
+                                    Let's Connect
+                                </h3>
+                                <p>
+                                    <label for="bd-email">You'll receive <b>each month</b> the last article with additional resources and updates.</label>
+                                </p><input type="email" name="email" placeholder="your-email@example.com" id="bd-email" /> <input type="hidden" value="1" name="embed" /> <input type="submit" value="I want more!" />
+                                <p>
+                                    <a target="_blank" title="Show me your newsletter!" href="https://buttondown.email/thevaluabledev/archive/the-valuable-dev-new-article-about-vim-and-many/">Here's how it looks</a>
+                                </p>
+                                <p>
+                                    You can reply to any email if you have questions, problems, or feedback. I'll write back as soon as I can.
+                                </p>
+                            </form>
+                        </section>
+                        <div class="h3 remark42">
+                            Share Your Knowledge
+                        </div>
+                        <div id="remark42"></div>
+                        <script>
+                        <![CDATA[
+                        var remark_config={host:"https:\/\/remark42.thevaluable.dev",site_id:'jadzD9w1sijz',components:['embed'],max_shown_comments:10};var buttons=document.getElementsByClassName("light-button");for(var i=0;i<buttons.length;i++){buttons[i].addEventListener('click',()=>{let theme=window.localStorage.getItem('theme');if(theme==null||theme=='light'){if(window.REMARK42!=undefined){window.REMARK42.changeTheme('dark');}}
+                        if(theme=='dark'){if(window.REMARK42!=undefined){window.REMARK42.changeTheme('light');}}});}
+                        (function(c){for(var i=0;i<c.length;i++){var d=document,s=d.createElement('script');s.src=remark_config.host+'/web/'+c[i]+'.js';s.defer=true;window.addEventListener("scroll",function(){var theme=window.localStorage.getItem('theme');if(theme==null||theme=='light'){remark_config.theme='light'}else{remark_config.theme='dark'}
+                        (d.head||d.body).appendChild(s);},{once:true});}})(remark_config.components||['embed']);
+                        ]]>
+                        </script>
+                    </footer>
+                </article>
+            </main>
+            <aside class="read-next" id="read-next">
+                <a class="read-next-story" style="background-image:url(/images/2020/compilation_interpretation/interpreted_compiled.webp)" href="https://thevaluable.dev/difference-between-compiler-interpreter/">
+                <section class="post">
+                    <h2>
+                        The Differences Between Interpreter and Compiler Explained
+                    </h2>
+                </section></a><a class="read-next-story prev" style="background-image:url(/images/2021/open_closed_principle/no_change_but_children.webp)" href="https://thevaluable.dev/open-closed-principle-revisited/">
+                <section class="post">
+                    <h2>
+                        Should We Follow The Open-Closed Principle?
+                    </h2>
+                </section></a>
+            </aside>
+            <footer class="site-footer">
+                <section class="copyright">
+                    <a href="">The Valuable Dev</a> All right reserved - 2021
+                </section>
+                <section class="social">
+                    <a class="bloglogo" href="https://thevaluable.dev/page/newsletter" target="_blank"></a>&#160; <a class="bloglogo" href="https://github.com/phantas0s" target="_blank"></a>&#160; <a class="bloglogo" href="https://youtube.com/channel/UCoJtk2M8bme9KXTe6F3K-Yg" target="_blank"></a>&#160; <a class="bloglogo" href="https://twitter.com/Cneude_Matthieu" target="_blank"></a>&#160; <a class="bloglogo" href="https://www.linkedin.com/in/matthieu-cneude-28038182" target="_blank"></a>&#160; <a class="bloglogo" href="https://thevaluable.dev/index.xml" target="blank"></a>
+                </section>
+                <section class="poweredby">
+                    Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>
+                </section>
+            </footer>
+        </div>
+        <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css" media="screen" onload="this.media='screen';" />
+        <script type="text/javascript" src="https://thevaluable.dev/app.86ee819e5e4937b13bc870860b60731404b6bb2a11f91c5b1c75617171f9ee6c.js" integrity="sha256-hu6Bnl5JN7E7yHCGC2BzFAS2uyoR+RxbHHVhcXH57mw=" media="screen"></script>
+    </body>
+</html>
