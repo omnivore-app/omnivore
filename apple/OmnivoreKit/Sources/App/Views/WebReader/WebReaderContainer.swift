@@ -46,8 +46,20 @@ struct WebReaderContainerView: View {
   }
 
   func onHighlightListViewDismissal() {
-    print("has mutations: \(hasPerformedHighlightMutations)")
-    hasPerformedHighlightMutations = false
+    // Reload the web view if mutation happened in highlights list modal
+    guard hasPerformedHighlightMutations else { return }
+
+    hasPerformedHighlightMutations.toggle()
+
+    Task {
+      if let username = dataService.currentViewer?.username {
+        await viewModel.loadContent(
+          dataService: dataService,
+          username: username,
+          itemID: item.unwrappedID
+        )
+      }
+    }
   }
 
   private func handleHighlightAction(message: WKScriptMessage) {
