@@ -1,8 +1,11 @@
 import Models
 import SwiftUI
+import Views
 
 struct HighlightsListCard: View {
   @State var isContextMenuOpen = false
+  @State var annotation = String()
+  @State var showAnnotationModal = false
 
   let highlight: Highlight
 
@@ -34,6 +37,10 @@ struct HighlightsListCard: View {
 
       Text(highlight.annotation ?? "")
     }
+    .onTapGesture {
+      annotation = highlight.annotation ?? ""
+      showAnnotationModal = true
+    }
   }
 
   var addNoteSection: some View {
@@ -48,7 +55,8 @@ struct HighlightsListCard: View {
       Spacer()
     }
     .onTapGesture {
-      print("add a note")
+      annotation = highlight.annotation ?? ""
+      showAnnotationModal = true
     }
   }
 
@@ -95,6 +103,19 @@ struct HighlightsListCard: View {
         }
       }
       .padding(.bottom, 8)
+    }
+    .sheet(isPresented: $showAnnotationModal) {
+      HighlightAnnotationSheet(
+        annotation: $annotation,
+        onSave: {
+          print("new annotation = \(annotation)")
+          showAnnotationModal = false
+        },
+        onCancel: {
+          print("cancel annotation")
+          showAnnotationModal = false
+        }
+      )
     }
   }
 }
