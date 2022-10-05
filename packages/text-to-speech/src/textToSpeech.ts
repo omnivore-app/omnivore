@@ -52,6 +52,7 @@ export const synthesizeTextToSpeech = async (
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
+  let wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -89,7 +90,7 @@ export const synthesizeTextToSpeech = async (
     speechMarks.push({
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
-      start: e.textOffset,
+      start: wordOffset + e.textOffset,
       length: e.text.length,
       type: 'word',
     })
@@ -139,6 +140,7 @@ export const synthesizeTextToSpeech = async (
     }
     // for ssml
     const startSsmlTag = startSsml(ssmlOptions)
+    wordOffset -= startSsmlTag.length
     const text = _.escape(input.text)
     const ssml = `${startSsmlTag}${text}${endSsml()}`
     const result = await speakSsmlAsyncPromise(ssml)
