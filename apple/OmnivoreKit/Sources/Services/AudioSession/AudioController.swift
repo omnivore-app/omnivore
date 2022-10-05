@@ -93,7 +93,9 @@ class SpeechPlayerItem: AVPlayerItem {
     var pendingRequests = Set<AVAssetResourceLoadingRequest>()
     weak var owner: SpeechPlayerItem?
 
-    func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+    func resourceLoader(_: AVAssetResourceLoader,
+                        shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool
+    {
       if owner == nil {
         return true
       }
@@ -120,7 +122,7 @@ class SpeechPlayerItem: AVPlayerItem {
         guard let speechItem = self.owner?.speechItem else {
           // This probably can't happen, but if it does, just returning should
           // let AVPlayer try again.
-          print("No speech item found: ", self.owner)
+          print("No speech item found: ", self.owner?.speechItem)
           return
         }
 
@@ -180,7 +182,8 @@ class SpeechPlayerItem: AVPlayerItem {
       }
 
       let bytesToRespond = min(songDataUnwrapped.count - currentOffset, requestedLength)
-      let dataToRespond = songDataUnwrapped.subdata(in: Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond)))
+      let range = Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond))
+      let dataToRespond = songDataUnwrapped.subdata(in: range)
       dataRequest.respond(with: dataToRespond)
 
       return songDataUnwrapped.count >= requestedLength + requestedOffset
@@ -198,8 +201,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @Published public var currentAudioIndex: Int = 0
   @Published public var readText: String = ""
   @Published public var unreadText: String = ""
-  @Published public var numberOfSpeechItems: Int = 0
-
   @Published public var itemAudioProperties: LinkedItemAudioProperties?
 
   @Published public var timeElapsed: TimeInterval = 0
@@ -255,7 +256,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player?.removeAllItems()
 
     document = nil
-    numberOfSpeechItems = 0
+    textItems = nil
 
     timer = nil
     player = nil
@@ -338,8 +339,16 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
+  public func seek(toUtterance: Int) {
+    player?.pause()
+
+    player?.removeAllItems()
+    synthesizeFrom(start: toUtterance, playWhenReady: state == .playing, atOffset: 0.0)
+    scrubState = .reset
+    fireTimer()
+  }
+
   public func seek(to: TimeInterval) {
-    var hasOffset = false
     let position = max(0, to)
 
     // If we are in reachedEnd state, and seek back, we need to move to
@@ -364,10 +373,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       // Now figure out how far into this segment we need to seek to
       let before = durationBefore(playerIndex: foundIdx)
       let remainder = position - before
-
-      if remainder > 0 {
-        hasOffset = true
-      }
 
       // if the foundIdx happens to be the current item, we just set the position
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
@@ -477,22 +482,24 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     let body: String
   }
 
-  public var textItems: [String]? {
+  public var textItems: [String]?
+
+  func setTextItems() {
     if let document = self.document {
-      return document.utterances.map { utterance in
+      textItems = document.utterances.map { utterance in
         if let regex = try? NSRegularExpression(pattern: "<[^>]*>", options: .caseInsensitive) {
           let modString = regex.stringByReplacingMatches(in: utterance.text, options: [], range: NSRange(location: 0, length: utterance.text.count), withTemplate: "")
           return modString
         }
         return ""
       }
+    } else {
+      textItems = nil
     }
-    return nil
   }
 
   func updateReadText() {
-    if let textItems = textItems, let item = player?.currentItem as? SpeechPlayerItem, let speechMarks = item.speechMarks {
-      // up till:
+    if let item = player?.currentItem as? SpeechPlayerItem, let speechMarks = item.speechMarks {
       var currentItemOffset = 0
       for i in 0 ..< speechMarks.count {
         if speechMarks[i].time ?? 0 < 0 {
@@ -510,44 +517,20 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         }
       }
 
+      // Sometimes we get negatives
+      currentItemOffset = max(currentItemOffset, 0)
+
       let idx = item.speechItem.audioIdx
-      let currentItem = textItems[idx]
-      let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: max(currentItemOffset, currentItem.count))
+      let currentItem = document?.utterances[idx].text ?? ""
+      let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
       let lastItem = String(currentItem[..<currentReadIndex])
       let lastItemAfter = String(currentItem[currentReadIndex...])
 
-      // print("LAST ITEM: ", lastItem)
-//
       readText = lastItem
       unreadText = lastItemAfter
-
-//      readText = Array((textItems[..<idx] + [lastItem]).map { text in
-//        if let regex = try? NSRegularExpression(pattern: "<[^>]*>", options: .caseInsensitive) {
-//          let modString = regex.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: text.count), withTemplate: "")
-//          return modString
-//        }
-//        return ""
-//      })
     } else {
       readText = ""
     }
-  }
-
-  func updateUnreadText() {
-//    if let textItems = textItems, let item = player?.currentItem as? SpeechPlayerItem {
-//      let idx = item.speechItem.audioIdx
-//
-//
-//      unreadText = Array(textItems[idx...].map { text in
-//        if let regex = try? NSRegularExpression(pattern: "<[^>]*>", options: .caseInsensitive) {
-//          let modString = regex.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: text.count), withTemplate: "")
-//          return modString
-//        }
-//        return ""
-//      })
-//    } else {
-//      unreadText = []
-//    }
   }
 
   public func getPreferredVoice(forLanguage language: String) -> String {
@@ -572,6 +555,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         DispatchQueue.main.async {
           if let document = document {
             let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: document)
+
+            self.setTextItems()
             self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
             self.synthesizer = synthesizer
 
@@ -673,7 +658,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
 
         DispatchQueue.main.async {
-          self.numberOfSpeechItems = document?.utterances.count ?? 0
+          self.setTextItems()
           if let document = document {
             self.startStreamingAudio(itemID: itemID, document: document)
           } else {
@@ -698,7 +683,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player = AVQueuePlayer(items: [])
     if let player = player {
       observer = player.observe(\.currentItem, options: [.new]) { _, _ in
-        print("current item did change: ", (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx)
         self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
       }
     }
@@ -816,17 +800,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         }
       }
     }
-
-//    if let item = self.item, let speechItem = player?.currentItem as? SpeechPlayerItem {
-//      NotificationCenter.default.post(
-//        name: NSNotification.SpeakingReaderItem,
-//        object: nil,
-//        userInfo: [
-//          "pageID": item.unwrappedID,
-//          "anchorIdx": String(speechItem.speechItem.htmlIdx)
-//        ]
-//      )
-//    }
   }
 
   func clearNowPlayingInfo() {

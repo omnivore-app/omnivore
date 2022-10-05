@@ -20,11 +20,7 @@ public extension Font {
   }
 
   static var textToSpeechRead: Font {
-    Font.custom(InterFont.bold.rawValue, size: 28, relativeTo: .title2)
-  }
-
-  static var textToSpeechUnread: Font {
-    Font.custom(InterFont.regular.rawValue, size: 22, relativeTo: .title2)
+    Font.custom(InterFont.bold.rawValue, size: 24, relativeTo: .title2)
   }
 
   /// 20pt, Inter-Regular

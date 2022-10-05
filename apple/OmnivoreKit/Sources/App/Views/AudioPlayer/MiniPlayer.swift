@@ -20,6 +20,8 @@ public struct MiniPlayer: View {
   @State var offset: CGFloat = 0
   @State var showVoiceSheet = false
   @State var showLanguageSheet = false
+
+  @State var tabIndex: Int = 0
   @Namespace private var animation
 
   let minExpandedHeight = UIScreen.main.bounds.height / 3
@@ -85,26 +87,6 @@ public struct MiniPlayer: View {
     )
   }
 
-//  var shareButton: some View {
-//    Button(
-//      action: {
-//        let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
-//        if let vc = UIApplication.shared.windows.first?.rootViewController {
-//          shareActivity.popoverPresentationController?.sourceView = vc.view
-//          // Setup share activity position on screen on bottom center
-//          shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
-//          shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
-//          vc.present(shareActivity, animated: true, completion: nil)
-//        }
-//      },
-//      label: {
-//        Image(systemName: "square.and.arrow.up")
-//          .font(.appCallout)
-//          .tint(.appGrayText)
-//      }
-//    )
-//  }
-
   var closeButton: some View {
     Button(
       action: {
@@ -114,10 +96,12 @@ public struct MiniPlayer: View {
       },
       label: {
         Image(systemName: "chevron.down")
-          .font(.appCallout)
-          .tint(.appGrayText)
+          .font(.appTitleTwo)
+          .tint(.appGrayTextContrast)
       }
     )
+
+    .contentShape(Rectangle())
   }
 
   func viewArticle() {
@@ -142,6 +126,36 @@ public struct MiniPlayer: View {
     }
   }
 
+  struct SpeechCard: View {
+    let id: Int
+    @EnvironmentObject var audioController: AudioController
+
+    var body: some View {
+      Group {
+        if id != self.audioController.currentAudioIndex || self.audioController.isLoading {
+          Text(self.audioController.textItems?[id] ?? "\(id)")
+            .font(.textToSpeechRead.leading(.loose))
+            .foregroundColor(Color.appGrayTextContrast)
+        } else {
+          Group {
+            Text(audioController.readText)
+              .font(.textToSpeechRead.leading(.loose))
+              .foregroundColor(Color.appGrayTextContrast)
+              +
+              Text(audioController.unreadText)
+              .font(.textToSpeechRead.leading(.loose))
+              .foregroundColor(Color.appGrayText)
+          }
+        }
+      }
+      .padding(16)
+    }
+
+    init(id: Int) {
+      self.id = id
+    }
+  }
+
   // swiftlint:disable:next function_body_length
   func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
@@ -150,11 +164,8 @@ public struct MiniPlayer: View {
           ZStack {
             closeButton
               .padding(.top, 24)
+              .padding(.leading, 16)
               .frame(maxWidth: .infinity, alignment: .leading)
-
-            //            shareButton
-            //              .padding(.top, 8)
-            //              .frame(maxWidth: .infinity, alignment: .trailing)
 
             Capsule()
               .fill(.gray)
@@ -164,8 +175,7 @@ public struct MiniPlayer: View {
           }
         } else {
           HStack(alignment: .center) {
-            let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
-            let dim = 64.0 // expanded ? maxSize : 64
+            let dim = 64.0
 
             if let imageURL = itemAudioProperties.imageURL {
               AsyncImage(url: imageURL) { phase in
@@ -187,14 +197,12 @@ public struct MiniPlayer: View {
               defaultArtwork(forDimensions: dim)
             }
 
-            // if !expanded {
             VStack {
               Text(itemAudioProperties.title)
                 .font(.appCallout)
                 .foregroundColor(.appGrayTextContrast)
                 .fixedSize(horizontal: false, vertical: false)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
               if let byline = itemAudioProperties.byline {
                 Text(byline)
@@ -203,7 +211,6 @@ public struct MiniPlayer: View {
                   .foregroundColor(.appGrayText)
                   .fixedSize(horizontal: false, vertical: false)
                   .frame(maxWidth: .infinity, alignment: .leading)
-                //    .matchedGeometryEffect(id: "ArticleTitle", in: animation)
               }
             }
 
@@ -215,82 +222,73 @@ public struct MiniPlayer: View {
           }.frame(maxHeight: .infinity)
         }
 
-        //      Spacer(minLength: 0)
-
         if expanded {
-//          Marquee(text: itemAudioProperties.title, font: UIFont(name: "Inter-Regular", size: 22)!)
-//            .foregroundColor(.appGrayTextContrast)
-//            .onTapGesture {
-//              viewArticle()
-//            }
-//
-//          if let byline = itemAudioProperties.byline {
-//            Marquee(text: byline, font: UIFont(name: "Inter-Regular", size: 16)!)
-//              .foregroundColor(.appGrayText)
-//          }
+          ZStack {
+            TabView(selection: $tabIndex) {
+              ForEach(0 ..< (self.audioController.textItems?.count ?? 0), id: \.self) { id in
+                SpeechCard(id: id)
+                  .frame(width: geom.size.width)
+                  .tag(id)
+              }
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .onChange(of: tabIndex, perform: { index in
+              if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
+                audioController.seek(toUtterance: index)
+              }
+            })
+            .onChange(of: audioController.currentAudioIndex, perform: { index in
+              if self.audioController.state != .reachedEnd {
+                tabIndex = index
+              } else {
+                tabIndex = (self.audioController.textItems?.count ?? 0) + 1
+              }
+            })
+            .frame(width: geom.size.width)
 
-          Group {
-            Text(audioController.readText)
-              .font(.textToSpeechRead.leading(.loose))
-              .foregroundColor(Color.appGrayTextContrast)
-              +
-              Text(audioController.unreadText)
-              .font(.textToSpeechRead.leading(.loose))
-              .foregroundColor(Color.appGrayText)
+            if audioController.state == .reachedEnd {
+              // If we have reached the end display a replay button
+              Button(
+                action: {
+                  tabIndex = 0
+                  audioController.unpause()
+                  audioController.seek(to: 0.0)
+                },
+                label: {
+                  Image(systemName: "gobackward")
+                    .font(.appCallout)
+                    .tint(.appGrayTextContrast)
+                  Text("Replay")
+                }
+              )
+            }
           }
-          .padding(24)
-
-//        ScrollView {
-//            ScrollViewReader { _ in
-//              ForEach(Array(self.audioController.readText.enumerated()), id: \.1.self) { index, text in
-//                Text(text)
-//                  .font(.textToSpeechRead)
-//                  .lineSpacing(2.5)
-//                  .padding()
-//                  .id(index)
-//              }
-//
-//              ForEach(Array(self.audioController.unreadText.enumerated()), id: \.1.self) { index, text in
-//                Text(text)
-//                  .font(.textToSpeechUnread)
-//                  .opacity(0.55)
-//                  .lineSpacing(2.5)
-//                  .padding()
-//                  .id(index)
-//
-//              }.onChange(of: self.audioController.currentAudioIndex) { _ in
-//                //                withAnimation(.spring()) {
-//                //                  proxy.scrollTo(value, anchor: .top)
-//                //                }
-//              }
-//            }
-//
-          ////            Text("This is where the main content would go") +
-          ////              Text("its multiple lines of text.") +
-          ////              Text("It would probably need to scroll as our text segments are pretty big")
-//          }
 
           Spacer()
 
-          ScrubberView(value: $audioController.timeElapsed,
-                       minValue: 0, maxValue: self.audioController.duration,
-                       onEditingChanged: { scrubStarted in
-                         if scrubStarted {
-                           self.audioController.scrubState = .scrubStarted
-                         } else {
-                           self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
-                         }
-                       })
+          Group {
+            ScrubberView(value: $audioController.timeElapsed,
+                         minValue: 0, maxValue: self.audioController.duration,
+                         onEditingChanged: { scrubStarted in
+                           if scrubStarted {
+                             self.audioController.scrubState = .scrubStarted
+                           } else {
+                             self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
+                           }
+                         })
 
-          HStack {
-            Text(audioController.timeElapsedString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
-            Spacer()
-            Text(audioController.durationString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
+            HStack {
+              Text(audioController.timeElapsedString ?? "0:00")
+                .font(.appCaptionTwo)
+                .foregroundColor(.appGrayText)
+              Spacer()
+              Text(audioController.durationString ?? "0:00")
+                .font(.appCaptionTwo)
+                .foregroundColor(.appGrayText)
+            }
           }
+          .padding(.leading, 16)
+          .padding(.trailing, 16)
 
           HStack(alignment: .center, spacing: 36) {
             Menu {
@@ -344,7 +342,7 @@ public struct MiniPlayer: View {
           }.padding(.bottom, 16)
         }
       }
-      .padding(EdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6))
+      .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
       .background(
         Color.systemBackground
           .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
