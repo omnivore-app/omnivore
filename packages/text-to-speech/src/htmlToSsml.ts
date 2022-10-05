@@ -1,6 +1,6 @@
 import { parseHTML } from 'linkedom'
 import * as _ from 'underscore'
-import { WordPunctTokenizer } from 'natural'
+import { SentenceTokenizer, WordPunctTokenizer } from 'natural'
 import { htmlToText } from 'html-to-text'
 
 // this code needs to be kept in sync with the
@@ -297,38 +297,52 @@ const textToUtterances = ({
     text = parseHTML(text).document.documentElement.textContent ?? text
     console.info('Converted HTML to text:', text)
   }
-  // if we hit 256, look back for first ending sentence within 80 chars
+
   const MAX_CHARS = 256
-  const MAX_LOOKBACK = 80
-  while (text.length > MAX_CHARS) {
-    let end = MAX_CHARS - MAX_LOOKBACK - 1
-    while (end < text.length && !text[end].match(/[.!?]/)) {
-      end++
+  const sentenceTokenizer = new SentenceTokenizer()
+  const sentences = sentenceTokenizer.tokenize(text)
+  let currentText = ''
+  // max 256 chars per utterance
+  sentences.forEach((sentence, i) => {
+    const nextText = currentText + sentence
+    if (nextText.length > MAX_CHARS) {
+      if (currentText.length > 0) {
+        console.debug('Saving current text in the utterance:', currentText)
+        const wordCount = tokenizer.tokenize(currentText).length
+        utterances.push({
+          idx,
+          text: currentText,
+          wordOffset,
+          wordCount,
+          voice,
+        })
+        wordOffset += wordCount
+        currentText = sentence
+      } else {
+        console.debug('Sentence is too long to fit in an utterance:', sentence)
+        const wordCount = tokenizer.tokenize(sentence).length
+        utterances.push({
+          idx,
+          text: sentence,
+          wordOffset,
+          wordCount,
+          voice,
+        })
+        wordOffset += wordCount
+      }
+    } else {
+      currentText = nextText
     }
-
-    const utterance = text.substring(0, end + 1)
-    const wordCount = tokenizer.tokenize(utterance).length
-    utterances.push({
-      idx,
-      text: utterance,
-      wordOffset,
-      wordCount,
-      voice,
-    })
-    text = text.substring(end + 1)
-    wordOffset += wordCount
-  }
-
-  if (text.length > 0) {
-    const wordCount = tokenizer.tokenize(text).length
-    utterances.push({
-      idx,
-      text,
-      wordOffset,
-      wordCount,
-      voice,
-    })
-  }
+    if (i === sentences.length - 1 && currentText.length > 0) {
+      utterances.push({
+        idx,
+        text: currentText,
+        wordOffset,
+        wordCount: tokenizer.tokenize(currentText).length,
+        voice,
+      })
+    }
+  })
 
   return utterances
 }
