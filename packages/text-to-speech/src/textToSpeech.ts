@@ -91,7 +91,7 @@ export const synthesizeTextToSpeech = async (
       word: e.text,
       time: (timeOffset + e.audioOffset) / 10000,
       start: wordOffset + e.textOffset,
-      length: e.text.length,
+      length: e.wordLength,
       type: 'word',
     })
   }
