@@ -273,13 +273,12 @@ const textToUtterances = ({
   let text = textItems.join('')
   if (!isHtml) {
     // for title
-    const wordCount = tokenizer.tokenize(text).length
     return [
       {
         idx,
         text,
         wordOffset,
-        wordCount,
+        wordCount: tokenizer.tokenize(text).length,
         voice,
       },
     ]
@@ -302,15 +301,11 @@ const textToUtterances = ({
   const MAX_CHARS = 256
   const MAX_LOOKBACK = 80
   while (text.length > MAX_CHARS) {
-    let lookback = MAX_LOOKBACK
-    let end = MAX_CHARS - lookback
-    while (lookback > 0) {
-      if (text[end] === '.' || text[end] === '!' || text[end] === '?') {
-        break
-      }
+    let end = MAX_CHARS - MAX_LOOKBACK - 1
+    while (end < text.length && !text[end].match(/[.!?]/)) {
       end++
-      lookback--
     }
+
     const utterance = text.substring(0, end + 1)
     const wordCount = tokenizer.tokenize(utterance).length
     utterances.push({
@@ -324,14 +319,17 @@ const textToUtterances = ({
     wordOffset += wordCount
   }
 
-  const wordCount = tokenizer.tokenize(text).length
-  utterances.push({
-    idx,
-    text,
-    wordOffset,
-    wordCount,
-    voice,
-  })
+  if (text.length > 0) {
+    const wordCount = tokenizer.tokenize(text).length
+    utterances.push({
+      idx,
+      text,
+      wordOffset,
+      wordCount,
+      voice,
+    })
+  }
+
   return utterances
 }
 
