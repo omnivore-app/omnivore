@@ -254,4 +254,21 @@ describe('convert HTML to Speech file', () => {
     })
     expect(speechFile.utterances).to.have.lengthOf(3)
   })
+
+  it('does not break long sentences', () => {
+    const html = `<div id="readability-content">
+  <div class="page" id="readability-page-1">
+    <div data-omnivore-anchor-idx="1">
+      This meeting did not offer any significant economic boosts, among other things it reviewed reports of the inspection teams sent to several provinces to check on implementation of economic stabilization measures, promised more administrative reforms, and cut toll fees for freight trucks by 10% and government-designated cargo port charges by 20% in Q4.
+    </div>
+  </div>
+</div>
+`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      title: 'Test long sentence',
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(2)
+  })
 })
