@@ -34,6 +34,11 @@ struct HighlightListItemParams: Identifiable {
     }
   }
 
+  func deleteHighlight(highlightID: String, dataService: DataService) {
+    dataService.deleteHighlight(highlightID: highlightID)
+    highlightItems.removeAll { $0.highlightID == highlightID }
+  }
+
   private func loadHighlights(item: LinkedItem) {
     let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
 

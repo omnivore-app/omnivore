@@ -18,14 +18,23 @@ struct HighlightsListView: View {
         ForEach(viewModel.highlightItems) { highlightParams in
           HighlightsListCard(
             highlightParams: highlightParams,
-            hasHighlightMutations: $hasHighlightMutations
-          ) { newAnnotation in
-            viewModel.updateAnnotation(
-              highlightID: highlightParams.highlightID,
-              annotation: newAnnotation,
-              dataService: dataService
-            )
-          }
+            hasHighlightMutations: $hasHighlightMutations,
+            onSaveAnnotation: {
+              viewModel.updateAnnotation(
+                highlightID: highlightParams.highlightID,
+                annotation: $0,
+                dataService: dataService
+              )
+            },
+            onDeleteHighlight: {
+              hasHighlightMutations = true
+
+              viewModel.deleteHighlight(
+                highlightID: highlightParams.highlightID,
+                dataService: dataService
+              )
+            }
+          )
         }
       }
     }

@@ -10,16 +10,29 @@ struct HighlightsListCard: View {
   let highlightParams: HighlightListItemParams
   @Binding var hasHighlightMutations: Bool
   let onSaveAnnotation: (String) -> Void
+  let onDeleteHighlight: () -> Void
 
   var contextMenuView: some View {
     Group {
       Button(
-        action: {},
-        label: { Label("Stubby One", systemImage: "highlighter") }
+        action: {
+          #if os(iOS)
+            UIPasteboard.general.string = highlightParams.quote
+          #endif
+
+          #if os(macOS)
+            let pasteBoard = NSPasteboard.general
+            pasteBoard.clearContents()
+            pasteBoard.writeObjects([highlightParams.quote as NSString])
+          #endif
+
+          Snackbar.show(message: "Highlight copied")
+        },
+        label: { Label("Copy", systemImage: "doc.on.doc") }
       )
       Button(
-        action: {},
-        label: { Label("Stubby Two", systemImage: "textbox") }
+        action: onDeleteHighlight,
+        label: { Label("Delete", systemImage: "trash") }
       )
     }
   }
