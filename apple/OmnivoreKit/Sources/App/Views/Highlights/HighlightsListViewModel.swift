@@ -8,7 +8,11 @@ import Views
   @Published var highlights = [Highlight]()
 
   func load(item: LinkedItem) {
-    highlights = item.highlights.asArray(of: Highlight.self)
+    let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
+
+    highlights = unsortedHighlights.sorted {
+      ($0.createdAt ?? Date()) < ($1.createdAt ?? Date())
+    }
   }
 }
 

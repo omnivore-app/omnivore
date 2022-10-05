@@ -37,7 +37,19 @@ struct HighlightsListCard: View {
   }
 
   var addNoteSection: some View {
-    Text("Tap to add a note")
+    HStack {
+      Image(systemName: "note.text.badge.plus").foregroundColor(.appGrayTextContrast)
+
+      Text("Add a Note")
+        .font(.appSubheadline)
+        .foregroundColor(.appGrayTextContrast)
+        .lineLimit(1)
+
+      Spacer()
+    }
+    .onTapGesture {
+      print("add a note")
+    }
   }
 
   var body: some View {
