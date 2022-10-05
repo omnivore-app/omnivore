@@ -1,8 +1,10 @@
 import {
   CancellationDetails,
   CancellationReason,
+  PropertyId,
   ResultReason,
   SpeechConfig,
+  SpeechSynthesisBoundaryType,
   SpeechSynthesisOutputFormat,
   SpeechSynthesisResult,
   SpeechSynthesizer,
@@ -30,7 +32,7 @@ export interface SpeechMark {
   start?: number
   length?: number
   word: string
-  type: 'word' | 'bookmark'
+  type: 'word' | 'bookmark' | 'punctuation' | 'sentence'
 }
 
 export const synthesizeTextToSpeech = async (
@@ -47,12 +49,17 @@ export const synthesizeTextToSpeech = async (
   )
   speechConfig.speechSynthesisOutputFormat =
     SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
+  // Required for sentence-level WordBoundary events
+  speechConfig.setProperty(
+    PropertyId.SpeechServiceResponse_RequestSentenceBoundary,
+    'true'
+  )
 
   // Create the speech synthesizer.
   const synthesizer = new SpeechSynthesizer(speechConfig)
   const speechMarks: SpeechMark[] = []
   let timeOffset = 0
-  let wordOffset = 0
+  // let wordOffset = 0
 
   synthesizer.synthesizing = function (s, e) {
     // convert arrayBuffer to stream and write to stream
@@ -87,13 +94,14 @@ export const synthesizeTextToSpeech = async (
 
   // The unit of e.audioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
   synthesizer.wordBoundary = (s, e) => {
-    speechMarks.push({
-      word: e.text,
-      time: (timeOffset + e.audioOffset) / 10000,
-      start: wordOffset + e.textOffset,
-      length: e.wordLength,
-      type: 'word',
-    })
+    e.boundaryType === SpeechSynthesisBoundaryType.Sentence &&
+      speechMarks.push({
+        word: e.text,
+        time: (timeOffset + e.audioOffset) / 10000,
+        start: e.textOffset,
+        length: e.text.length,
+        type: 'sentence',
+      })
   }
 
   synthesizer.bookmarkReached = (s, e) => {
@@ -143,7 +151,7 @@ export const synthesizeTextToSpeech = async (
     const text = _.escape(input.text)
     const ssml = `${startSsmlTag}${text}${endSsml()}`
     // set the text offset to be the end of SSML start tag
-    wordOffset -= startSsmlTag.length
+    // wordOffset -= startSsmlTag.length
     const result = await speakSsmlAsyncPromise(ssml)
     if (result.reason === ResultReason.Canceled) {
       throw new Error(result.errorDetails)
