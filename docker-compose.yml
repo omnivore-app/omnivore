@@ -140,8 +140,8 @@ services:
       context: .
       dockerfile: ./packages/content-fetch/Dockerfile-local
     container_name: "omnivore-content-fetch"
-    expose:
-      - 9090
+    ports:
+      - "9090:8080"
     environment:
       - JWT_SECRET=some_secret
       - VERIFICATION_TOKEN=some_token
