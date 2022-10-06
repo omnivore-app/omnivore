@@ -235,7 +235,7 @@ describe('convert HTML to Speech file', () => {
       title: 'Wang Yi at the UN; Fu Zhenghua sentenced; Nvidia China sales',
       options: TEST_OPTIONS,
     })
-    expect(speechFile.utterances).to.have.lengthOf(19)
+    expect(speechFile.utterances).to.have.lengthOf(20)
   })
 
   it('converts long utterances to multiple utterances', () => {
@@ -270,5 +270,24 @@ describe('convert HTML to Speech file', () => {
       options: TEST_OPTIONS,
     })
     expect(speechFile.utterances).to.have.lengthOf(2)
+  })
+
+  it('does not break on not decimal point in sentences', () => {
+    const html = `<div id="readability-content">
+  <div class="page" id="readability-page-1">
+    <div data-omnivore-anchor-idx="1">
+      If terms of the original $12.5 billion financing package remain the same, bankers may struggle to sell the risky Twitter buyout debt just as credit markets begin to crack, with yields at multiyear highs, they’re potentially on the hook for hundreds of millions of dollars of losses on the unsecured portion alone should they try to unload it to investors.
+    </div>
+  </div>
+</div>
+`
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      title: 'Test long sentence with decimal point',
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances[1].text).to.eql(
+      'If terms of the original $12.5 billion financing package remain the same, bankers may struggle to sell the risky Twitter buyout debt just as credit markets begin to crack, with yields at multiyear highs, they’re potentially on the hook for hundreds of millions of dollars of losses on the unsecured portion alone should they try to unload it to investors.'
+    )
   })
 })
