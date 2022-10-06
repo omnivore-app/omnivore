@@ -62,9 +62,9 @@ struct HighlightsListCard: View {
     HStack {
       Image(systemName: "note.text.badge.plus").foregroundColor(.appGrayTextContrast)
 
-      Text("Add a Note")
-        .font(.appSubheadline)
-        .foregroundColor(.appGrayTextContrast)
+      Text("ADD NOTE")
+        .font(.appFootnote)
+        .foregroundColor(Color.appCtaYellow)
         .lineLimit(1)
 
       Spacer()
@@ -78,13 +78,6 @@ struct HighlightsListCard: View {
   var body: some View {
     VStack(alignment: .leading) {
       HStack {
-        Image(systemName: "highlighter")
-
-        Text(highlightParams.title)
-          .font(.appHeadline)
-          .foregroundColor(.appGrayTextContrast)
-          .lineLimit(1)
-
         Spacer()
 
         Menu(
@@ -98,17 +91,18 @@ struct HighlightsListCard: View {
         .frame(width: 16, height: 16, alignment: .center)
         .onTapGesture { isContextMenuOpen = true }
       }
-      .padding(.top, 8)
+      .padding(.top, 16)
 
       HStack {
         Divider()
-          .frame(width: 6)
+          .frame(width: 2)
           .overlay(Color.appYellow48)
+          .opacity(0.8)
+          .padding(.top, 2)
+          .padding(.trailing, 6)
 
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 24) {
           Text(highlightParams.quote)
-
-          Divider()
 
           if highlightParams.annotation.isEmpty {
             addNoteSection
@@ -116,8 +110,8 @@ struct HighlightsListCard: View {
             noteSection
           }
         }
+        .padding(.bottom, 8)
       }
-      .padding(.bottom, 8)
     }
     .sheet(isPresented: $showAnnotationModal) {
       HighlightAnnotationSheet(
