@@ -138,7 +138,7 @@ services:
   content-fetch:
     build:
       context: .
-      dockerfile: ./packages/content-fetch/Dockerfile-local
+      dockerfile: ./packages/content-fetch/Dockerfile
     container_name: "omnivore-content-fetch"
     ports:
       - "9090:8080"
