@@ -18,6 +18,7 @@
     "@google-cloud/pubsub": "^2.16.0",
     "@google-cloud/storage": "^5.18.1",
     "@google-cloud/tasks": "^2.3.0",
+    "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
     "@omnivore/text-to-speech-handler": "1.0.0",
     "@opentelemetry/api": "^1.0.1",

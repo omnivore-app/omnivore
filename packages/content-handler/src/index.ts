@@ -52,6 +52,11 @@ const contentHandlers: ContentHandler[] = [
   new TwitterHandler(),
   new YoutubeHandler(),
   new WikipediaHandler(),
+  new AxiosHandler(),
+  new GolangHandler(),
+  new MorningBrewHandler(),
+  new BloombergNewsletterHandler(),
+  new SubstackHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [
@@ -60,15 +65,13 @@ const newsletterHandlers: ContentHandler[] = [
   new GolangHandler(),
   new SubstackHandler(),
   new MorningBrewHandler(),
-  new SubstackHandler(),
   new BeehiivHandler(),
   new ConvertkitHandler(),
   new RevueHandler(),
 ]
 
 export const preHandleContent = async (
-  url: string,
-  dom?: Document
+  url: string
 ): Promise<PreHandleResult | undefined> => {
   // Before we run the regular handlers we check to see if we need tp
   // pre-resolve the URL. TODO: This should probably happen recursively,
@@ -90,9 +93,25 @@ export const preHandleContent = async (
   // to perform a prefetch action that can modify our requests.
   // enumerate the handlers and see if any of them want to handle the request
   for (const handler of contentHandlers) {
-    if (handler.shouldPreHandle(url, dom)) {
+    if (handler.shouldPreHandle(url)) {
       console.log('preHandleContent', handler.name, url)
-      return handler.preHandle(url, dom)
+      return handler.preHandle(url)
+    }
+  }
+  return undefined
+}
+
+export const preParseContent = async (
+  url: string,
+  dom: Document
+): Promise<Document | undefined> => {
+  // Before we parse the page we check the handlers, to see if they want
+  // to perform a preParse action that can modify our dom.
+  // enumerate the handlers and see if any of them want to handle the dom
+  for (const handler of contentHandlers) {
+    if (handler.shouldPreParse(url, dom)) {
+      console.log('preParseContent', handler.name, url)
+      return handler.preParse(url, dom)
     }
   }
   return undefined
@@ -113,4 +132,5 @@ export const handleNewsletter = async (
 module.exports = {
   preHandleContent,
   handleNewsletter,
+  preParseContent,
 }

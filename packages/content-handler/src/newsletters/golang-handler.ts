@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from '../content-handler'
+import { ContentHandler } from '../content-handler'
 
 export class GolangHandler extends ContentHandler {
   constructor() {
@@ -8,13 +8,13 @@ export class GolangHandler extends ContentHandler {
     this.name = 'golangweekly'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreParse(url: string, dom: Document): boolean {
     const host = this.name + '.com'
     // check if url ends with golangweekly.com
     return new URL(url).hostname.endsWith(host)
   }
 
-  async preHandle(url: string, dom: Document): Promise<PreHandleResult> {
+  async preParse(url: string, dom: Document): Promise<Document> {
     const body = dom.querySelector('body')
 
     // this removes the "Subscribe" button
@@ -22,6 +22,6 @@ export class GolangHandler extends ContentHandler {
     // this removes the title
     body?.querySelector('.el-masthead')?.remove()
 
-    return Promise.resolve({ dom })
+    return Promise.resolve(dom)
   }
 }

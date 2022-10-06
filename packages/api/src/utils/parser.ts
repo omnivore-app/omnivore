@@ -15,6 +15,7 @@ import { User } from '../entity/user'
 import { ILike } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import addressparser from 'addressparser'
+import { preParseContent } from '@omnivore/content-handler'
 
 const logger = buildLogger('utils.parse')
 
@@ -194,7 +195,11 @@ export const parsePreparedContent = async (
     }
   }
 
-  const dom = parseHTML(document).document
+  let dom = parseHTML(document).document
+
+  // preParse content
+  const preParsedDom = await preParseContent(url, dom)
+  preParsedDom && (dom = preParsedDom)
 
   try {
     article = await getReadabilityResult(url, document, dom, isNewsletter)
