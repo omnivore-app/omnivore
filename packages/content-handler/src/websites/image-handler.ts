@@ -6,12 +6,12 @@ export class ImageHandler extends ContentHandler {
     this.name = 'Image'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const IMAGE_URL_PATTERN = /(https?:\/\/.*\.(?:jpg|jpeg|png|webp))/i
     return IMAGE_URL_PATTERN.test(url.toString())
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     const title = url.toString().split('/').pop() || 'Image'
     const content = `
       <html>

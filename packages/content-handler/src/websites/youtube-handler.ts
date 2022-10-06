@@ -24,11 +24,11 @@ export class YoutubeHandler extends ContentHandler {
     this.name = 'Youtube'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     return YOUTUBE_URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     const videoId = getYoutubeVideoId(url)
     if (!videoId) {
       return {}

@@ -6,13 +6,13 @@ export class PdfHandler extends ContentHandler {
     this.name = 'PDF'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const u = new URL(url)
     const path = u.pathname.replace(u.search, '')
     return path.endsWith('.pdf')
   }
 
-  async preHandle(_url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     return Promise.resolve({ contentType: 'application/pdf' })
   }
 }

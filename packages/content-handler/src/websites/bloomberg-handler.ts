@@ -8,13 +8,13 @@ export class BloombergHandler extends ContentHandler {
     this.name = 'Bloomberg'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const BLOOMBERG_URL_MATCH =
       /https?:\/\/(www\.)?bloomberg.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)/
     return BLOOMBERG_URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     console.log('prehandling bloomberg url', url)
 
     try {
