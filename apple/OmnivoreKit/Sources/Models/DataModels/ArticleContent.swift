@@ -9,6 +9,7 @@ public enum ArticleContentStatus: String {
 }
 
 public struct ArticleContent {
+  public let id = UUID()
   public let title: String
   public let htmlContent: String
   public let highlightsJSONString: String

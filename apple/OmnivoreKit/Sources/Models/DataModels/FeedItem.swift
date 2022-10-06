@@ -87,6 +87,12 @@ public extension LinkedItem {
     }
   }
 
+  var sortedHighlights: [Highlight] {
+    highlights.asArray(of: Highlight.self).sorted {
+      ($0.createdAt ?? Date()) < ($1.createdAt ?? Date())
+    }
+  }
+
   var labelsJSONString: String {
     let labels = self.labels.asArray(of: LinkedItemLabel.self).map { label in
       [

@@ -22,15 +22,13 @@ public struct HighlightAnnotationSheet: View {
       HStack {
         Button("Cancel", action: onCancel)
         Spacer()
-        HStack {
-          Image(systemName: "note.text")
-          Text("Note")
-        }
+        Label("Note", systemImage: "note.text")
         Spacer()
         Button("Save") {
           onSave()
         }
       }
+      .foregroundColor(.appGrayTextContrast)
 
       ScrollView {
         TextEditor(text: $annotation)

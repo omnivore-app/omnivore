@@ -8,6 +8,7 @@ public enum GridCardAction {
   case editLabels
   case editTitle
   case downloadAudio
+  case viewHighlights
 }
 
 public struct GridCard: View {
@@ -45,6 +46,10 @@ public struct GridCard: View {
 
   var contextMenuView: some View {
     Group {
+      Button(
+        action: { menuActionHandler(.viewHighlights) },
+        label: { Label("View Highlights", systemImage: "highlighter") }
+      )
       Button(
         action: { menuActionHandler(.editTitle) },
         label: { Label("Edit Title/Description", systemImage: "textbox") }
