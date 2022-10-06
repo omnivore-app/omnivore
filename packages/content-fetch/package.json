@@ -4,6 +4,7 @@
   "description": "Service that fetches page content from a URL",
   "main": "index.js",
   "dependencies": {
+    "@omnivore/content-handler": "1.0.0",
     "axios": "^0.27.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -11,8 +12,7 @@
     "linkedom": "^0.14.9",
     "luxon": "^2.3.1",
     "puppeteer-core": "^16.1.0",
-    "underscore": "^1.13.4",
-    "@omnivore/content-handler": "1.0.0"
+    "underscore": "^1.13.4"
   },
   "scripts": {
     "start": "node app.js",

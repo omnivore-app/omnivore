@@ -1,6 +1,6 @@
 import { parseHTML } from 'linkedom'
 import * as _ from 'underscore'
-import { WordPunctTokenizer } from 'natural'
+import { SentenceTokenizer, WordPunctTokenizer } from 'natural'
 import { htmlToText } from 'html-to-text'
 
 // this code needs to be kept in sync with the
@@ -69,7 +69,6 @@ const TOP_LEVEL_TAGS = [
   'H5',
   'H6',
   'LI',
-  'CODE',
 ]
 
 function parseDomTree(pageNode: Element) {
@@ -148,7 +147,15 @@ function emitElement(
   element: Element,
   isTopLevel: boolean
 ) {
-  const SKIP_TAGS = ['SCRIPT', 'STYLE', 'IMG', 'FIGURE', 'FIGCAPTION', 'IFRAME']
+  const SKIP_TAGS = [
+    'SCRIPT',
+    'STYLE',
+    'IMG',
+    'FIGURE',
+    'FIGCAPTION',
+    'IFRAME',
+    'CODE',
+  ]
 
   const topLevelTags = ssmlTagsForTopLevelElement()
   const idx = element.getAttribute('data-omnivore-anchor-idx')
@@ -255,7 +262,7 @@ export const stripEmojis = (text: string): string => {
   return text.replace(emojiRegex, '').replace(/\s+/g, ' ')
 }
 
-const textToUtterance = ({
+const textToUtterances = ({
   tokenizer,
   idx,
   textItems,
@@ -269,32 +276,86 @@ const textToUtterance = ({
   wordOffset: number
   voice?: string
   isHtml?: boolean
-}): Utterance => {
-  const text = textItems.join('')
-  let textWithWordOffset = text
-  if (isHtml) {
-    try {
-      textWithWordOffset = htmlToText(text, { wordwrap: false })
-    } catch (err) {
-      console.error(
-        'Unable to convert HTML to text, html:',
+}): Utterance[] => {
+  let text = textItems.join('')
+  if (!isHtml) {
+    // for title
+    return [
+      {
+        idx,
         text,
-        ', error:',
-        err
-      )
-      textWithWordOffset =
-        parseHTML(text).document.documentElement.textContent ?? text
-      console.info('Converted HTML to text:', textWithWordOffset)
+        wordOffset,
+        wordCount: tokenizer.tokenize(text).length,
+        voice,
+      },
+    ]
+  }
+
+  const utterances: Utterance[] = []
+  try {
+    text = htmlToText(text, { wordwrap: false })
+  } catch (err) {
+    console.error(
+      'Unable to convert HTML to text, html:',
+      text,
+      ', error:',
+      err
+    )
+    text = parseHTML(text).document.documentElement.textContent ?? text
+    console.info('Converted HTML to text:', text)
+  }
+
+  const MAX_CHARS = 256
+  const sentenceTokenizer = new SentenceTokenizer()
+  const sentences = sentenceTokenizer.tokenize(text)
+  let currentText = ''
+  // split text to max 256 chars per utterance and
+  // use nlp lib to detect sentences and
+  // avoid splitting words and sentences
+  sentences.forEach((sentence, i) => {
+    if (i < sentences.length - 1) {
+      // add space to the end of sentence
+      sentence += ' '
     }
-  }
-  const wordCount = tokenizer.tokenize(textWithWordOffset).length
-  return {
-    idx,
-    text,
-    wordOffset,
-    wordCount,
-    voice,
-  }
+    const nextText = currentText + sentence
+    if (nextText.length > MAX_CHARS) {
+      if (currentText.length > 0) {
+        const wordCount = tokenizer.tokenize(currentText).length
+        utterances.push({
+          idx,
+          text: currentText,
+          wordOffset,
+          wordCount,
+          voice,
+        })
+        wordOffset += wordCount
+        currentText = sentence
+      } else {
+        const wordCount = tokenizer.tokenize(sentence).length
+        utterances.push({
+          idx,
+          text: sentence,
+          wordOffset,
+          wordCount,
+          voice,
+        })
+        wordOffset += wordCount
+      }
+    } else {
+      currentText = nextText
+    }
+    if (i === sentences.length - 1 && currentText.length > 0) {
+      utterances.push({
+        idx,
+        text: currentText,
+        wordOffset,
+        wordCount: tokenizer.tokenize(currentText).length,
+        voice,
+      })
+    }
+  })
+
+  return utterances
 }
 
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
@@ -331,13 +392,13 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   let wordOffset = 0
   if (title) {
     // first utterances is the title
-    const titleUtterance = textToUtterance({
+    const titleUtterance = textToUtterances({
       tokenizer,
       idx: '',
       textItems: [cleanText(title)], // title could have HTML entity names like & or emoji
       wordOffset,
       isHtml: false,
-    })
+    })[0]
     utterances.push(titleUtterance)
     wordOffset += titleUtterance.wordCount
   }
@@ -351,7 +412,7 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
       // use paragraph as anchor
       const idx = i.toString()
       i = emitElement(textItems, node, true)
-      const utterance = textToUtterance({
+      const newUtterances = textToUtterances({
         tokenizer,
         idx,
         textItems,
@@ -359,8 +420,9 @@ export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
         voice:
           node.nodeName === 'BLOCKQUOTE' ? options.secondaryVoice : undefined,
       })
-      utterance.wordCount > 0 && utterances.push(utterance)
-      wordOffset += utterance.wordCount
+      const wordCount = newUtterances.reduce((acc, u) => acc + u.wordCount, 0)
+      wordCount > 0 && utterances.push(...newUtterances)
+      wordOffset += wordCount
     }
   }
 

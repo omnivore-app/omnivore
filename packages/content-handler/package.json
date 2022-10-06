@@ -15,6 +15,11 @@
     "build": "tsc"
   },
   "devDependencies": {
+    "@types/addressparser": "^1.0.1",
+    "@types/luxon": "^3.0.1",
+    "@types/rfc2047": "^2.0.1",
+    "@types/underscore": "^1.11.4",
+    "@types/uuid": "^8.3.4",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "chai-string": "^1.5.0",

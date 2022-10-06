@@ -1,0 +1,12 @@
+{
+  "title": "Is Inheritance That Evil?",
+  "byline": "Matthieu Cneude",
+  "dir": null,
+  "excerpt": "Why inheritance is considered as a pillar of OOP when so many developers criticize it? Well see where inheritance comes from and what problems it solves.",
+  "siteName": "Matthieu Cneude",
+  "siteIcon": "https://thevaluable.dev/images/favicon.png",
+  "previewImage": "https://thevaluable.dev/images/2021/inheritance/inheritance_evil.jpg",
+  "publishedDate": "2021-03-27T00:00:00.000Z",
+  "language": "English",
+  "readerable": true
+}

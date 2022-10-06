@@ -70,6 +70,7 @@ struct WebReader: PlatformViewRepresentable {
     context.coordinator.linkHandler = openLinkAction
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibilityRatio = navBarVisibilityRatioUpdater
+    context.coordinator.articleContentID = articleContent.id
     loadContent(webView: webView)
 
     return webView
@@ -101,8 +102,10 @@ struct WebReader: PlatformViewRepresentable {
     }
 
     // If the webview had been terminated `needsReload` will have been set to true
-    if context.coordinator.needsReload {
+    // Or if the articleContent value has changed then it's id will be different from the coordinator's
+    if context.coordinator.needsReload || context.coordinator.articleContentID != articleContent.id {
       loadContent(webView: webView)
+      context.coordinator.articleContentID = articleContent.id
       context.coordinator.needsReload = false
       return
     }

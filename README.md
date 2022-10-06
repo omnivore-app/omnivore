@@ -97,7 +97,7 @@ with docker compose and the frontend locally:
 ```bash
 docker-compose up api content-fetch
 cd packages/web
-cp .env.local .env
+cp .env.template .env
 yarn dev
 ```
 

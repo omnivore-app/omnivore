@@ -8,6 +8,7 @@ import {
   SpeechSynthesizer,
 } from 'microsoft-cognitiveservices-speech-sdk'
 import { endSsml, htmlToSsmlItems, ssmlItemText, startSsml } from './htmlToSsml'
+import * as _ from 'underscore'
 
 export interface TextToSpeechInput {
   text: string
@@ -138,28 +139,17 @@ export const synthesizeTextToSpeech = async (
       }
     }
     // for ssml
-    let audioData: Buffer = Buffer.from([])
-    // split ssml into chunks of 2000 characters to stream faster
-    // both within limit & without breaking on words and bookmarks <bookmark mark="1"/>
-    const ssmlChunks = input.text.match(/.{1,2000}(?= |$)(?! mark=)/g)
-    if (ssmlChunks) {
-      for (const ssmlChunk of ssmlChunks) {
-        const startSsmlChunk = startSsml(ssmlOptions)
-        const ssml = `${startSsmlChunk}${ssmlChunk}${endSsml()}`
-        // set the text offset to be the end of SSML start tag
-        wordOffset -= startSsmlChunk.length
-        const result = await speakSsmlAsyncPromise(ssml)
-        if (result.reason === ResultReason.Canceled) {
-          throw new Error(result.errorDetails)
-        }
-        timeOffset = timeOffset + result.audioDuration
-        wordOffset = wordOffset + ssmlChunk.length
-        audioData = Buffer.concat([audioData, Buffer.from(result.audioData)])
-      }
+    const startSsmlTag = startSsml(ssmlOptions)
+    wordOffset -= startSsmlTag.length
+    const text = _.escape(input.text)
+    const ssml = `${startSsmlTag}${text}${endSsml()}`
+    const result = await speakSsmlAsyncPromise(ssml)
+    if (result.reason === ResultReason.Canceled) {
+      throw new Error(result.errorDetails)
     }
 
     return {
-      audioData,
+      audioData: Buffer.from(result.audioData),
       speechMarks,
     }
   } catch (error) {
