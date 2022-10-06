@@ -114,7 +114,7 @@ struct WebReaderContainerView: View {
       return Image(systemName: "headphones").font(.appTitleThree)
     }
     let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-    return Image(systemName: name).font(.appTitleThree)
+    return Image(systemName: name).font(.appNavbarIcon)
   }
 
   var navBar: some View {
@@ -139,7 +139,7 @@ struct WebReaderContainerView: View {
         action: { showPreferencesPopover.toggle() },
         label: {
           Image(systemName: "textformat.size")
-            .font(.appTitleThree)
+            .font(.appNavbarIcon)
         }
       )
       .padding(.horizontal)
