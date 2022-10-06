@@ -83,8 +83,7 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
           >
             {viewerData?.me && (
               <LibraryGridCard
-                //layout={props.layoutCoordinator.layout}
-                layout={'LIST_LAYOUT'}
+                layout={props.layoutCoordinator.layout}
                 item={linkedItem.node}
                 viewer={viewerData.me}
                 handleAction={(action: LinkedItemCardAction) => {
