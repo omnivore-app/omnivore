@@ -96,12 +96,11 @@ public struct MiniPlayer: View {
       },
       label: {
         Image(systemName: "chevron.down")
-          .font(.appTitleTwo)
+          .font(.appNavbarIcon)
           .tint(.appGrayTextContrast)
       }
     )
-
-    .contentShape(Rectangle())
+    // .contentShape(Rectangle())
   }
 
   func viewArticle() {
@@ -174,7 +173,7 @@ public struct MiniPlayer: View {
               .transition(.opacity)
           }
         } else {
-          HStack(alignment: .center) {
+          HStack(alignment: .center, spacing: 8) {
             let dim = 64.0
 
             if let imageURL = itemAudioProperties.imageURL {
@@ -219,7 +218,9 @@ public struct MiniPlayer: View {
 
             stopButton
               .frame(width: 28, height: 28)
-          }.frame(maxHeight: .infinity)
+          }
+          .padding(16)
+          .frame(maxHeight: .infinity)
         }
 
         if expanded {
@@ -357,6 +358,8 @@ public struct MiniPlayer: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
               Image(systemName: "chevron.backward")
+                .font(.appNavbarIcon)
+                .tint(.appGrayTextContrast)
             })
         }
       }.sheet(isPresented: $showLanguageSheet) {
@@ -366,6 +369,8 @@ public struct MiniPlayer: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
               Image(systemName: "chevron.backward")
+                .font(.appNavbarIcon)
+                .tint(.appGrayTextContrast)
             })
         }
       }
@@ -441,6 +446,8 @@ public struct MiniPlayer: View {
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
         Image(systemName: "chevron.backward")
+          .font(.appNavbarIcon)
+          .tint(.appGrayTextContrast)
       })
     }
   }

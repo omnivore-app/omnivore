@@ -111,10 +111,10 @@ struct WebReaderContainerView: View {
 
   var textToSpeechButtonImage: some View {
     if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-      return Image(systemName: "headphones").font(Font.system(size: 19))
+      return Image(systemName: "headphones").font(.appTitleThree)
     }
     let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-    return Image(systemName: name).font(.appTitleTwo)
+    return Image(systemName: name).font(.appTitleThree)
   }
 
   var navBar: some View {
@@ -124,7 +124,7 @@ struct WebReaderContainerView: View {
           action: { self.presentationMode.wrappedValue.dismiss() },
           label: {
             Image(systemName: "chevron.backward")
-              .font(.appTitleTwo)
+              .font(.appNavbarIcon)
               .foregroundColor(.appGrayTextContrast)
               .padding(.horizontal)
           }
@@ -139,7 +139,7 @@ struct WebReaderContainerView: View {
         action: { showPreferencesPopover.toggle() },
         label: {
           Image(systemName: "textformat.size")
-            .font(.appTitleTwo)
+            .font(.appTitleThree)
         }
       )
       .padding(.horizontal)

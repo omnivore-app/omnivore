@@ -129,7 +129,7 @@ struct LinkItemDetailView: View {
         action: { self.presentationMode.wrappedValue.dismiss() },
         label: {
           Image(systemName: "chevron.backward")
-            .font(.appTitleTwo)
+            .font(.appNavbarIcon)
             .foregroundColor(.appGrayTextContrast)
             .padding(.horizontal)
         }
