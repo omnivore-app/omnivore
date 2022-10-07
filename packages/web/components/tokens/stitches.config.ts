@@ -129,7 +129,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayProgressBackground: '#FFFFFF',
 
         // Semantic Colors
-        highlightBackground: 'rgba(255, 210, 52, 0.65)',
+        highlightBackground: '250, 227, 146',
         highlight: '#FFD234',
         highlightText: '#3D3D3D',
         error: '#FA5E4A',
@@ -202,7 +202,7 @@ const darkThemeSpec = {
     grayProgressBackground: '#616161',
 
     // Semantic Colors
-    highlightBackground: '#867740',
+    highlightBackground: '134, 119, 64',
     highlight: '#FFD234',
     highlightText: 'white',
     error: '#FA5E4A',
