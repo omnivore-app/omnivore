@@ -263,7 +263,7 @@ export const globalStyles = globalCss({
   // browser prefers this loaded here vs in the article styling css
   '.article-inner-css': {
     '::selection': {
-      background: '$highlightBackground',
+      background: 'rgb($highlightBackground)',
     },
   },
 })

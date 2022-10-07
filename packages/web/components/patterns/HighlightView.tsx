@@ -33,7 +33,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
         }
       }}>
         {props.highlight.prefix}
-        <SpanBox css={{ bg: '$highlightBackground', p: '1px', borderRadius: '2px', }}>
+        <SpanBox css={{ bg: 'rgb($highlightBackground)', p: '1px', borderRadius: '2px', }}>
           {lines.map((line: string, index: number) => (
             <Fragment key={index}>
               {line}
