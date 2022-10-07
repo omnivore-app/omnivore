@@ -37,6 +37,8 @@ class SpeechPlayerItem: AVPlayerItem {
   let resourceLoaderDelegate = ResourceLoaderDelegate()
   let session: AudioController
   let speechItem: SpeechItem
+  var speechMarks: [SpeechMark]?
+
   let completed: () -> Void
 
   var observer: Any?
@@ -91,7 +93,9 @@ class SpeechPlayerItem: AVPlayerItem {
     var pendingRequests = Set<AVAssetResourceLoadingRequest>()
     weak var owner: SpeechPlayerItem?
 
-    func resourceLoader(_: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+    func resourceLoader(_: AVAssetResourceLoader,
+                        shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool
+    {
       if owner == nil {
         return true
       }
@@ -118,17 +122,21 @@ class SpeechPlayerItem: AVPlayerItem {
         guard let speechItem = self.owner?.speechItem else {
           // This probably can't happen, but if it does, just returning should
           // let AVPlayer try again.
-          print("No speech item found: ", self.owner)
+          print("No speech item found: ", self.owner?.speechItem)
           return
         }
 
         // TODO: how do we want to propogate this and handle it in the player
-        let audioData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
+        let speechData = try? await SpeechSynthesizer.download(speechItem: speechItem, session: self.session)
         DispatchQueue.main.async {
-          if audioData == nil {
+          if speechData == nil {
             self.session = nil
           }
-          self.mediaData = audioData
+          if let owner = self.owner, let speechData = speechData {
+            owner.speechMarks = speechData.speechMarks
+          }
+          self.mediaData = speechData?.audioData
+
           self.processPendingRequests()
         }
       }
@@ -174,7 +182,8 @@ class SpeechPlayerItem: AVPlayerItem {
       }
 
       let bytesToRespond = min(songDataUnwrapped.count - currentOffset, requestedLength)
-      let dataToRespond = songDataUnwrapped.subdata(in: Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond)))
+      let range = Range(uncheckedBounds: (currentOffset, currentOffset + bytesToRespond))
+      let dataToRespond = songDataUnwrapped.subdata(in: range)
       dataRequest.respond(with: dataToRespond)
 
       return songDataUnwrapped.count >= requestedLength + requestedOffset
@@ -189,6 +198,9 @@ class SpeechPlayerItem: AVPlayerItem {
 // swiftlint:disable all
 public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate {
   @Published public var state: AudioControllerState = .stopped
+  @Published public var currentAudioIndex: Int = 0
+  @Published public var readText: String = ""
+  @Published public var unreadText: String = ""
   @Published public var itemAudioProperties: LinkedItemAudioProperties?
 
   @Published public var timeElapsed: TimeInterval = 0
@@ -202,6 +214,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   var timer: Timer?
   var player: AVQueuePlayer?
+  var observer: Any?
   var document: SpeechDocument?
   var synthesizer: SpeechSynthesizer?
   var durations: [Double]?
@@ -212,6 +225,11 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     super.init()
     self.voiceList = generateVoiceList()
+  }
+
+  deinit {
+    player = nil
+    observer = nil
   }
 
   public func play(itemAudioProperties: LinkedItemAudioProperties) {
@@ -237,8 +255,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player?.replaceCurrentItem(with: nil)
     player?.removeAllItems()
 
+    document = nil
+    textItems = nil
+
     timer = nil
     player = nil
+    observer = nil
     synthesizer = nil
 
     itemAudioProperties = nil
@@ -317,8 +339,16 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
   }
 
+  public func seek(toUtterance: Int) {
+    player?.pause()
+
+    player?.removeAllItems()
+    synthesizeFrom(start: toUtterance, playWhenReady: state == .playing, atOffset: 0.0)
+    scrubState = .reset
+    fireTimer()
+  }
+
   public func seek(to: TimeInterval) {
-    var hasOffset = false
     let position = max(0, to)
 
     // If we are in reachedEnd state, and seek back, we need to move to
@@ -343,10 +373,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       // Now figure out how far into this segment we need to seek to
       let before = durationBefore(playerIndex: foundIdx)
       let remainder = position - before
-
-      if remainder > 0 {
-        hasOffset = true
-      }
 
       // if the foundIdx happens to be the current item, we just set the position
       if let playerItem = player?.currentItem as? SpeechPlayerItem {
@@ -449,6 +475,64 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     return Voices.Pairs.first(where: { $0.firstKey == voice || $0.secondKey == voice })
   }
 
+  struct TextNode: Codable {
+    let to: String
+    let from: String
+    let heading: String
+    let body: String
+  }
+
+  public var textItems: [String]?
+
+  func setTextItems() {
+    if let document = self.document {
+      textItems = document.utterances.map { utterance in
+        if let regex = try? NSRegularExpression(pattern: "<[^>]*>", options: .caseInsensitive) {
+          let modString = regex.stringByReplacingMatches(in: utterance.text, options: [], range: NSRange(location: 0, length: utterance.text.count), withTemplate: "")
+          return modString
+        }
+        return ""
+      }
+    } else {
+      textItems = nil
+    }
+  }
+
+  func updateReadText() {
+    if let item = player?.currentItem as? SpeechPlayerItem, let speechMarks = item.speechMarks {
+      var currentItemOffset = 0
+      for i in 0 ..< speechMarks.count {
+        if speechMarks[i].time ?? 0 < 0 {
+          continue
+        }
+        if (speechMarks[i].time ?? 0.0) > CMTimeGetSeconds(item.currentTime()) * 1000 {
+          currentItemOffset = speechMarks[i].start ?? 0
+          break
+        }
+      }
+      // check to see if we are greater than all
+      if let last = speechMarks.last, let lastTime = last.time {
+        if CMTimeGetSeconds(item.currentTime()) * 1000 > lastTime {
+          currentItemOffset = (last.start ?? 0) + (last.length ?? 0)
+        }
+      }
+
+      // Sometimes we get negatives
+      currentItemOffset = max(currentItemOffset, 0)
+
+      let idx = item.speechItem.audioIdx
+      let currentItem = document?.utterances[idx].text ?? ""
+      let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
+      let lastItem = String(currentItem[..<currentReadIndex])
+      let lastItemAfter = String(currentItem[currentReadIndex...])
+
+      readText = lastItem
+      unreadText = lastItemAfter
+    } else {
+      readText = ""
+    }
+  }
+
   public func getPreferredVoice(forLanguage language: String) -> String {
     UserDefaults.standard.string(forKey: "\(language)-\(UserDefaultKey.textToSpeechPreferredVoice.rawValue)") ?? currentVoiceLanguage.defaultVoice
   }
@@ -471,6 +555,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         DispatchQueue.main.async {
           if let document = document {
             let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: document)
+
+            self.setTextItems()
             self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
             self.synthesizer = synthesizer
 
@@ -570,7 +656,9 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     if let itemID = itemAudioProperties?.itemID {
       Task {
         let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+
         DispatchQueue.main.async {
+          self.setTextItems()
           if let document = document {
             self.startStreamingAudio(itemID: itemID, document: document)
           } else {
@@ -593,6 +681,12 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
 
     player = AVQueuePlayer(items: [])
+    if let player = player {
+      observer = player.observe(\.currentItem, options: [.new]) { _, _ in
+        self.currentAudioIndex = (player.currentItem as? SpeechPlayerItem)?.speechItem.audioIdx ?? 0
+      }
+    }
+
     let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
     durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
     self.synthesizer = synthesizer
@@ -660,7 +754,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   func startTimer() {
     if timer == nil {
-      timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
+      timer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
       timer?.fire()
     }
   }
@@ -676,6 +770,8 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         duration = durations.reduce(0, +)
         durationString = formatTimeInterval(duration)
       }
+
+      updateReadText()
     }
 
     if let player = player {
@@ -704,17 +800,6 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         }
       }
     }
-
-//    if let item = self.item, let speechItem = player?.currentItem as? SpeechPlayerItem {
-//      NotificationCenter.default.post(
-//        name: NSNotification.SpeakingReaderItem,
-//        object: nil,
-//        userInfo: [
-//          "pageID": item.unwrappedID,
-//          "anchorIdx": String(speechItem.speechItem.htmlIdx)
-//        ]
-//      )
-//    }
   }
 
   func clearNowPlayingInfo() {

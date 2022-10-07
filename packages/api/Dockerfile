@@ -14,15 +14,17 @@ COPY .eslintrc .
 COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/api/package.json ./packages/api/package.json
 COPY /packages/text-to-speech/package.json ./packages/text-to-speech/package.json
+COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 
 RUN yarn install --pure-lockfile
 
 ADD /packages/readabilityjs ./packages/readabilityjs
 ADD /packages/api ./packages/api
 ADD /packages/text-to-speech ./packages/text-to-speech
+ADD /packages/content-handler ./packages/content-handler
 
-RUN yarn
 RUN yarn workspace @omnivore/text-to-speech-handler build
+RUN yarn workspace @omnivore/content-handler build
 RUN yarn workspace @omnivore/api build
 
 # After building, fetch the production dependencies

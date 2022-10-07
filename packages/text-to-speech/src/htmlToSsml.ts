@@ -1,6 +1,6 @@
 import { parseHTML } from 'linkedom'
 import * as _ from 'underscore'
-import { WordPunctTokenizer } from 'natural'
+import { SentenceTokenizer, WordPunctTokenizer } from 'natural'
 import { htmlToText } from 'html-to-text'
 
 // this code needs to be kept in sync with the
@@ -69,7 +69,6 @@ const TOP_LEVEL_TAGS = [
   'H5',
   'H6',
   'LI',
-  'CODE',
 ]
 
 function parseDomTree(pageNode: Element) {
@@ -148,7 +147,15 @@ function emitElement(
   element: Element,
   isTopLevel: boolean
 ) {
-  const SKIP_TAGS = ['SCRIPT', 'STYLE', 'IMG', 'FIGURE', 'FIGCAPTION', 'IFRAME']
+  const SKIP_TAGS = [
+    'SCRIPT',
+    'STYLE',
+    'IMG',
+    'FIGURE',
+    'FIGCAPTION',
+    'IFRAME',
+    'CODE',
+  ]
 
   const topLevelTags = ssmlTagsForTopLevelElement()
   const idx = element.getAttribute('data-omnivore-anchor-idx')
@@ -297,38 +304,56 @@ const textToUtterances = ({
     text = parseHTML(text).document.documentElement.textContent ?? text
     console.info('Converted HTML to text:', text)
   }
-  // if we hit 256, look back for first ending sentence within 80 chars
+
   const MAX_CHARS = 256
-  const MAX_LOOKBACK = 80
-  while (text.length > MAX_CHARS) {
-    let end = MAX_CHARS - MAX_LOOKBACK - 1
-    while (end < text.length && !text[end].match(/[.!?]/)) {
-      end++
+  const sentenceTokenizer = new SentenceTokenizer()
+  const sentences = sentenceTokenizer.tokenize(text)
+  let currentText = ''
+  // split text to max 256 chars per utterance and
+  // use nlp lib to detect sentences and
+  // avoid splitting words and sentences
+  sentences.forEach((sentence, i) => {
+    if (i < sentences.length - 1) {
+      // add space to the end of sentence
+      sentence += ' '
     }
-
-    const utterance = text.substring(0, end + 1)
-    const wordCount = tokenizer.tokenize(utterance).length
-    utterances.push({
-      idx,
-      text: utterance,
-      wordOffset,
-      wordCount,
-      voice,
-    })
-    text = text.substring(end + 1)
-    wordOffset += wordCount
-  }
-
-  if (text.length > 0) {
-    const wordCount = tokenizer.tokenize(text).length
-    utterances.push({
-      idx,
-      text,
-      wordOffset,
-      wordCount,
-      voice,
-    })
-  }
+    const nextText = currentText + sentence
+    if (nextText.length > MAX_CHARS) {
+      if (currentText.length > 0) {
+        const wordCount = tokenizer.tokenize(currentText).length
+        utterances.push({
+          idx,
+          text: currentText,
+          wordOffset,
+          wordCount,
+          voice,
+        })
+        wordOffset += wordCount
+        currentText = sentence
+      } else {
+        const wordCount = tokenizer.tokenize(sentence).length
+        utterances.push({
+          idx,
+          text: sentence,
+          wordOffset,
+          wordCount,
+          voice,
+        })
+        wordOffset += wordCount
+      }
+    } else {
+      currentText = nextText
+    }
+    if (i === sentences.length - 1 && currentText.length > 0) {
+      utterances.push({
+        idx,
+        text: currentText,
+        wordOffset,
+        wordCount: tokenizer.tokenize(currentText).length,
+        voice,
+      })
+    }
+  })
 
   return utterances
 }

@@ -17,9 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.networking.ReadingProgressParams
 import com.google.gson.Gson
-import org.json.JSONObject
 
 
 @Composable

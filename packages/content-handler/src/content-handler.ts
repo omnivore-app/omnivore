@@ -58,12 +58,20 @@ export abstract class ContentHandler {
     return Promise.resolve(url)
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     return false
   }
 
-  async preHandle(url: string, dom?: Document): Promise<PreHandleResult> {
-    return Promise.resolve({ url, dom })
+  async preHandle(url: string): Promise<PreHandleResult> {
+    return Promise.resolve({ url })
+  }
+
+  shouldPreParse(url: string, dom: Document): boolean {
+    return false
+  }
+
+  async preParse(url: string, dom: Document): Promise<Document> {
+    return Promise.resolve(dom)
   }
 
   async isNewsletter(input: {

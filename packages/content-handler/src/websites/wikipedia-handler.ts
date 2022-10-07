@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from '../content-handler'
+import { ContentHandler } from '../content-handler'
 
 export class WikipediaHandler extends ContentHandler {
   constructor() {
@@ -6,15 +6,15 @@ export class WikipediaHandler extends ContentHandler {
     this.name = 'wikipedia'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreParse(url: string, dom: Document): boolean {
     return new URL(url).hostname.endsWith('wikipedia.org')
   }
 
-  async preHandle(url: string, dom: Document): Promise<PreHandleResult> {
+  async preParse(url: string, dom: Document): Promise<Document> {
     // This removes the [edit] anchors from wikipedia pages
     dom.querySelectorAll('.mw-editsection').forEach((e) => e.remove())
     // this removes the sidebar
     dom.querySelector('.infobox')?.remove()
-    return Promise.resolve({ dom })
+    return Promise.resolve(dom)
   }
 }

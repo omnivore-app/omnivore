@@ -1,5 +1,5 @@
 import addressparser from 'addressparser'
-import { ContentHandler, PreHandleResult } from '../content-handler'
+import { ContentHandler } from '../content-handler'
 import { parseHTML } from 'linkedom'
 
 export class SubstackHandler extends ContentHandler {
@@ -8,7 +8,7 @@ export class SubstackHandler extends ContentHandler {
     this.name = 'substack'
   }
 
-  shouldPreHandle(url: string, dom: Document): boolean {
+  shouldPreParse(url: string, dom: Document): boolean {
     const host = this.name + '.com'
     // check if url ends with substack.com
     // or has a profile image hosted at substack.com
@@ -21,7 +21,7 @@ export class SubstackHandler extends ContentHandler {
     )
   }
 
-  async preHandle(url: string, dom: Document): Promise<PreHandleResult> {
+  async preParse(url: string, dom: Document): Promise<Document> {
     const body = dom.querySelector('.email-body-container')
 
     // this removes header and profile avatar

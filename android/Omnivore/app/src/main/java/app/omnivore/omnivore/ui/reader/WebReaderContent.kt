@@ -1,7 +1,9 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
+import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
+import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
   INTER("Inter", "Inter"),
@@ -26,11 +28,15 @@ enum class ArticleContentStatus(val rawValue: String) {
 data class ArticleContent(
   val title: String,
   val htmlContent: String,
-  val highlightsJSONString: String,
+  val highlights: List<Highlight>,
   val contentStatus: String, // ArticleContentStatus,
   val objectID: String?, // whatever the Room Equivalent of objectID is
   val labelsJSONString: String
-)
+) {
+  fun highlightsJSONString(): String {
+    return Gson().toJson(highlights)
+  }
+}
 
 data class WebReaderContent(
   val textFontSize: Int,
@@ -86,7 +92,7 @@ data class WebReaderContent(
                   readingProgressPercent: ${item.readingProgress},
                   readingProgressAnchorIndex: ${item.readingProgressAnchor},
                   labels: ${articleContent.labelsJSONString},
-                  highlights: ${articleContent.highlightsJSONString},
+                  highlights: ${articleContent.highlightsJSONString()},
                 }
 
                 window.fontSize = $textFontSize

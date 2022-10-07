@@ -20,6 +20,8 @@ public struct MiniPlayer: View {
   @State var offset: CGFloat = 0
   @State var showVoiceSheet = false
   @State var showLanguageSheet = false
+
+  @State var tabIndex: Int = 0
   @Namespace private var animation
 
   let minExpandedHeight = UIScreen.main.bounds.height / 3
@@ -67,7 +69,7 @@ public struct MiniPlayer: View {
         },
         label: {
           Image(systemName: playPauseButtonImage)
-            .font(expanded ? .system(size: 64.0, weight: .thin) : .appTitleTwo)
+            .font(expanded ? .system(size: 56.0, weight: .thin) : .appTitleTwo)
         }
       ))
     }
@@ -85,26 +87,6 @@ public struct MiniPlayer: View {
     )
   }
 
-//  var shareButton: some View {
-//    Button(
-//      action: {
-//        let shareActivity = UIActivityViewController(activityItems: [self.audioSession.localAudioUrl], applicationActivities: nil)
-//        if let vc = UIApplication.shared.windows.first?.rootViewController {
-//          shareActivity.popoverPresentationController?.sourceView = vc.view
-//          // Setup share activity position on screen on bottom center
-//          shareActivity.popoverPresentationController?.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height, width: 0, height: 0)
-//          shareActivity.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
-//          vc.present(shareActivity, animated: true, completion: nil)
-//        }
-//      },
-//      label: {
-//        Image(systemName: "square.and.arrow.up")
-//          .font(.appCallout)
-//          .tint(.appGrayText)
-//      }
-//    )
-//  }
-
   var closeButton: some View {
     Button(
       action: {
@@ -114,10 +96,11 @@ public struct MiniPlayer: View {
       },
       label: {
         Image(systemName: "chevron.down")
-          .font(.appCallout)
-          .tint(.appGrayText)
+          .font(.appNavbarIcon)
+          .tint(.appGrayTextContrast)
       }
     )
+    // .contentShape(Rectangle())
   }
 
   func viewArticle() {
@@ -142,19 +125,46 @@ public struct MiniPlayer: View {
     }
   }
 
+  struct SpeechCard: View {
+    let id: Int
+    @EnvironmentObject var audioController: AudioController
+
+    var body: some View {
+      Group {
+        if id != self.audioController.currentAudioIndex || self.audioController.isLoading {
+          Text(self.audioController.textItems?[id] ?? "\(id)")
+            .font(.textToSpeechRead.leading(.loose))
+            .foregroundColor(Color.appGrayTextContrast)
+        } else {
+          Group {
+            Text(audioController.readText)
+              .font(.textToSpeechRead.leading(.loose))
+              .foregroundColor(Color.appGrayTextContrast)
+              +
+              Text(audioController.unreadText)
+              .font(.textToSpeechRead.leading(.loose))
+              .foregroundColor(Color.appGrayText)
+          }
+        }
+      }
+      .padding(16)
+    }
+
+    init(id: Int) {
+      self.id = id
+    }
+  }
+
   // swiftlint:disable:next function_body_length
   func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
     GeometryReader { geom in
-      VStack {
+      VStack(spacing: 0) {
         if expanded {
           ZStack {
             closeButton
               .padding(.top, 24)
+              .padding(.leading, 16)
               .frame(maxWidth: .infinity, alignment: .leading)
-
-//            shareButton
-//              .padding(.top, 8)
-//              .frame(maxWidth: .infinity, alignment: .trailing)
 
             Capsule()
               .fill(.gray)
@@ -162,42 +172,46 @@ public struct MiniPlayer: View {
               .padding(.top, 8)
               .transition(.opacity)
           }
-        }
+        } else {
+          HStack(alignment: .center, spacing: 8) {
+            let dim = 64.0
 
-        Spacer(minLength: 0)
+            if let imageURL = itemAudioProperties.imageURL {
+              AsyncImage(url: imageURL) { phase in
+                if let image = phase.image {
+                  image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                } else if phase.error != nil {
+                  defaultArtwork(forDimensions: dim)
+                } else {
+                  Color.appButtonBackground
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                }
+              }
+            } else {
+              defaultArtwork(forDimensions: dim)
+            }
 
-        HStack {
-          let maxSize = 2 * (min(geom.size.width, geom.size.height) / 3)
-          let dim = expanded ? maxSize : 64
+            VStack {
+              Text(itemAudioProperties.title)
+                .font(.appCallout)
+                .foregroundColor(.appGrayTextContrast)
+                .fixedSize(horizontal: false, vertical: false)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-          if let imageURL = itemAudioProperties.imageURL {
-            AsyncImage(url: imageURL) { phase in
-              if let image = phase.image {
-                image
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
-              } else if phase.error != nil {
-                defaultArtwork(forDimensions: dim)
-              } else {
-                Color.appButtonBackground
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
+              if let byline = itemAudioProperties.byline {
+                Text(byline)
+                  .font(.appCaption)
+                  .lineSpacing(1.25)
+                  .foregroundColor(.appGrayText)
+                  .fixedSize(horizontal: false, vertical: false)
+                  .frame(maxWidth: .infinity, alignment: .leading)
               }
             }
-          } else {
-            defaultArtwork(forDimensions: dim)
-          }
-
-          if !expanded {
-            Text(itemAudioProperties.title)
-              .font(.appCallout)
-              .lineSpacing(1.25)
-              .foregroundColor(.appGrayTextContrast)
-              .fixedSize(horizontal: false, vertical: false)
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .matchedGeometryEffect(id: "ArticleTitle", in: animation)
 
             playPauseButtonItem
               .frame(width: 28, height: 28)
@@ -205,43 +219,79 @@ public struct MiniPlayer: View {
             stopButton
               .frame(width: 28, height: 28)
           }
+          .padding(16)
+          .frame(maxHeight: .infinity)
         }
 
-        Spacer()
-
         if expanded {
-          Marquee(text: itemAudioProperties.title, font: UIFont(name: "Inter-Regular", size: 22)!)
-            .foregroundColor(.appGrayTextContrast)
-            .onTapGesture {
-              viewArticle()
+          ZStack {
+            TabView(selection: $tabIndex) {
+              ForEach(0 ..< (self.audioController.textItems?.count ?? 0), id: \.self) { id in
+                SpeechCard(id: id)
+                  .frame(width: geom.size.width)
+                  .tag(id)
+              }
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .onChange(of: tabIndex, perform: { index in
+              if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
+                audioController.seek(toUtterance: index)
+              }
+            })
+            .onChange(of: audioController.currentAudioIndex, perform: { index in
+              if self.audioController.state != .reachedEnd {
+                tabIndex = index
+              } else {
+                tabIndex = (self.audioController.textItems?.count ?? 0) + 1
+              }
+            })
+            .frame(width: geom.size.width)
 
-          if let byline = itemAudioProperties.byline {
-            Marquee(text: byline, font: UIFont(name: "Inter-Regular", size: 16)!)
-              .foregroundColor(.appGrayText)
+            if audioController.state == .reachedEnd {
+              // If we have reached the end display a replay button
+              Button(
+                action: {
+                  tabIndex = 0
+                  audioController.unpause()
+                  audioController.seek(to: 0.0)
+                },
+                label: {
+                  Image(systemName: "gobackward")
+                    .font(.appCallout)
+                    .tint(.appGrayTextContrast)
+                  Text("Replay")
+                }
+              )
+            }
           }
 
-          ScrubberView(value: $audioController.timeElapsed,
-                       minValue: 0, maxValue: self.audioController.duration,
-                       onEditingChanged: { scrubStarted in
-                         if scrubStarted {
-                           self.audioController.scrubState = .scrubStarted
-                         } else {
-                           self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
-                         }
-                       })
+          Spacer()
 
-          HStack {
-            Text(audioController.timeElapsedString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
-            Spacer()
-            Text(audioController.durationString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
+          Group {
+            ScrubberView(value: $audioController.timeElapsed,
+                         minValue: 0, maxValue: self.audioController.duration,
+                         onEditingChanged: { scrubStarted in
+                           if scrubStarted {
+                             self.audioController.scrubState = .scrubStarted
+                           } else {
+                             self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
+                           }
+                         })
+
+            HStack {
+              Text(audioController.timeElapsedString ?? "0:00")
+                .font(.appCaptionTwo)
+                .foregroundColor(.appGrayText)
+              Spacer()
+              Text(audioController.durationString ?? "0:00")
+                .font(.appCaptionTwo)
+                .foregroundColor(.appGrayText)
+            }
           }
+          .padding(.leading, 16)
+          .padding(.trailing, 16)
 
-          HStack {
+          HStack(alignment: .center, spacing: 36) {
             Menu {
               playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
               playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
@@ -268,8 +318,7 @@ public struct MiniPlayer: View {
             )
 
             playPauseButtonItem
-              .frame(width: 64, height: 64)
-              .padding(32)
+              .frame(width: 56, height: 56)
 
             Button(
               action: { self.audioController.skipForward(seconds: 30) },
@@ -291,10 +340,10 @@ public struct MiniPlayer: View {
               .contentShape(Rectangle())
             }
             .padding(8)
-          }
+          }.padding(.bottom, 16)
         }
       }
-      .padding(EdgeInsets(top: 0, leading: expanded ? 24 : 6, bottom: 0, trailing: expanded ? 24 : 6))
+      .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
       .background(
         Color.systemBackground
           .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
@@ -309,6 +358,8 @@ public struct MiniPlayer: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
               Image(systemName: "chevron.backward")
+                .font(.appNavbarIcon)
+                .tint(.appGrayTextContrast)
             })
         }
       }.sheet(isPresented: $showLanguageSheet) {
@@ -318,6 +369,8 @@ public struct MiniPlayer: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
               Image(systemName: "chevron.backward")
+                .font(.appNavbarIcon)
+                .tint(.appGrayTextContrast)
             })
         }
       }
@@ -393,6 +446,8 @@ public struct MiniPlayer: View {
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
         Image(systemName: "chevron.backward")
+          .font(.appNavbarIcon)
+          .tint(.appGrayTextContrast)
       })
     }
   }

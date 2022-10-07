@@ -12,6 +12,8 @@ struct WebReaderContainerView: View {
   @State private var showPreferencesPopover = false
   @State private var showLabelsModal = false
   @State private var showTitleEdit = false
+  @State private var showHighlightsView = false
+  @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State var safariWebLink: SafariWebLink?
   @State private var navBarVisibilityRatio = 1.0
@@ -40,6 +42,23 @@ struct WebReaderContainerView: View {
 
     if message.name == WebViewAction.highlightAction.rawValue {
       handleHighlightAction(message: message)
+    }
+  }
+
+  func onHighlightListViewDismissal() {
+    // Reload the web view if mutation happened in highlights list modal
+    guard hasPerformedHighlightMutations else { return }
+
+    hasPerformedHighlightMutations.toggle()
+
+    Task {
+      if let username = dataService.currentViewer?.username {
+        await viewModel.loadContent(
+          dataService: dataService,
+          username: username,
+          itemID: item.unwrappedID
+        )
+      }
     }
   }
 
@@ -92,10 +111,10 @@ struct WebReaderContainerView: View {
 
   var textToSpeechButtonImage: some View {
     if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-      return Image(systemName: "headphones").font(Font.system(size: 19))
+      return Image(systemName: "headphones").font(.appTitleThree)
     }
     let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-    return Image(systemName: name).font(.appTitleTwo)
+    return Image(systemName: name).font(.appNavbarIcon)
   }
 
   var navBar: some View {
@@ -105,7 +124,7 @@ struct WebReaderContainerView: View {
           action: { self.presentationMode.wrappedValue.dismiss() },
           label: {
             Image(systemName: "chevron.backward")
-              .font(.appTitleTwo)
+              .font(.appNavbarIcon)
               .foregroundColor(.appGrayTextContrast)
               .padding(.horizontal)
           }
@@ -120,7 +139,7 @@ struct WebReaderContainerView: View {
         action: { showPreferencesPopover.toggle() },
         label: {
           Image(systemName: "textformat.size")
-            .font(.appTitleTwo)
+            .font(.appNavbarIcon)
         }
       )
       .padding(.horizontal)
@@ -131,6 +150,10 @@ struct WebReaderContainerView: View {
       Menu(
         content: {
           Group {
+            Button(
+              action: { showHighlightsView = true },
+              label: { Label("View Highlights", systemImage: "highlighter") }
+            )
             Button(
               action: { showTitleEdit = true },
               label: { Label("Edit Title/Description", systemImage: "textbox") }
@@ -197,6 +220,12 @@ struct WebReaderContainerView: View {
     }
     .sheet(isPresented: $showTitleEdit) {
       LinkedItemTitleEditView(item: item)
+    }
+    .sheet(isPresented: $showHighlightsView, onDismiss: onHighlightListViewDismissal) {
+      HighlightsListView(
+        itemObjectID: item.objectID,
+        hasHighlightMutations: $hasPerformedHighlightMutations
+      )
     }
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())

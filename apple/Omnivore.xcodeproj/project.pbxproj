@@ -42,6 +42,8 @@
 		42321E882714E6B00056429F /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 42321E832714E6B00056429F /* styles */; };
 		42321E892714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
 		42321E8A2714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
+		42704E7328E6BDB000C8C73E /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */; };
+		42E2BFB428E458E0007F29B2 /* AppStoreScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E2BFB328E458E0007F29B2 /* AppStoreScreenshots.swift */; };
 		42FF1B33271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
 		42FF1B34271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
 		42FF1B35271154A700B38C38 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 42FF1AED271154A600B38C38 /* _locales */; };
@@ -100,6 +102,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 42FF1B1F271154A700B38C38;
 			remoteInfo = "SafariExtension (macOS)";
+		};
+		42E2BFB728E458E0007F29B2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AFFD4158DD5DF9B387039311 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8260E9C026EF983F8970EC05;
+			remoteInfo = "Omnivore-iOS";
 		};
 		9DEDC1A5B4AFF9CA06136F13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -209,6 +218,9 @@
 		42321E822714E6B00056429F /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		42321E832714E6B00056429F /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = styles; sourceTree = "<group>"; };
 		42321E842714E6B00056429F /* views */ = {isa = PBXFileReference; lastKnownFileType = folder; path = views; sourceTree = "<group>"; };
+		42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
+		42E2BFB128E458E0007F29B2 /* AppStoreScreenshots.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppStoreScreenshots.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42E2BFB328E458E0007F29B2 /* AppStoreScreenshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreScreenshots.swift; sourceTree = "<group>"; };
 		42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		42FF1AED271154A600B38C38 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; path = _locales; sourceTree = "<group>"; };
 		42FF1AEE271154A600B38C38 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
@@ -273,6 +285,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				260BBE4168E3C57D6D2E225D /* App in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42E2BFAE28E458E0007F29B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +436,7 @@
 				0480E70B26D8A07A006CAE2F /* Omnivore-Mac.xctestplan */,
 				0480E70C26D8A22D006CAE2F /* Omnivore-iOS.xctestplan */,
 				490C83F2909A01FFE92848AF /* Project */,
+				42E2BFB228E458E0007F29B2 /* AppStoreScreenshots */,
 				E601FA26367162479B614F0F /* Products */,
 				4958DE83E1725D3E7A166B8E /* OmnivoreKit */,
 				4214F6EE2714D2260096B644 /* Frameworks */,
@@ -429,6 +449,15 @@
 				040333C8288F50B5008F0BDF /* AuthenticationServices.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		42E2BFB228E458E0007F29B2 /* AppStoreScreenshots */ = {
+			isa = PBXGroup;
+			children = (
+				42E2BFB328E458E0007F29B2 /* AppStoreScreenshots.swift */,
+				42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */,
+			);
+			path = AppStoreScreenshots;
 			sourceTree = "<group>";
 		};
 		42FF1AEA271154A600B38C38 /* SafariExtension */ = {
@@ -521,6 +550,7 @@
 				42FF1B0A271154A700B38C38 /* SafariExtension.app */,
 				42FF1B16271154A700B38C38 /* SafariExtension.appex */,
 				42FF1B20271154A700B38C38 /* SafariExtension.appex */,
+				42E2BFB128E458E0007F29B2 /* AppStoreScreenshots.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -648,6 +678,24 @@
 			productReference = 95D337DDCEA2007A9705A969 /* ShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		42E2BFB028E458E0007F29B2 /* AppStoreScreenshots */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 42E2BFBB28E458E0007F29B2 /* Build configuration list for PBXNativeTarget "AppStoreScreenshots" */;
+			buildPhases = (
+				42E2BFAD28E458E0007F29B2 /* Sources */,
+				42E2BFAE28E458E0007F29B2 /* Frameworks */,
+				42E2BFAF28E458E0007F29B2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				42E2BFB828E458E0007F29B2 /* PBXTargetDependency */,
+			);
+			name = AppStoreScreenshots;
+			productName = AppStoreScreenshots;
+			productReference = 42E2BFB128E458E0007F29B2 /* AppStoreScreenshots.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		42FF1B15271154A700B38C38 /* SafariExtension (iOS) */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 42FF1B4F271154A700B38C38 /* Build configuration list for PBXNativeTarget "SafariExtension (iOS)" */;
@@ -743,7 +791,7 @@
 		AFFD4158DD5DF9B387039311 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1300;
+				LastSwiftUpdateCheck = 1400;
 				LastUpgradeCheck = 1300;
 				TargetAttributes = {
 					0411792626A22860004AE24F = {
@@ -763,6 +811,10 @@
 					};
 					048ECFFB26A0B1CB00469E57 = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					42E2BFB028E458E0007F29B2 = {
+						CreatedOnToolsVersion = 14.0;
+						TestTargetID = 8260E9C026EF983F8970EC05;
 					};
 					42FF1B15271154A700B38C38 = {
 						CreatedOnToolsVersion = 13.0;
@@ -802,6 +854,7 @@
 				042F48D826DFD10E00BF98FC /* UITests-iOS */,
 				42FF1B15271154A700B38C38 /* SafariExtension (iOS) */,
 				42FF1B1F271154A700B38C38 /* SafariExtension (macOS) */,
+				42E2BFB028E458E0007F29B2 /* AppStoreScreenshots */,
 			);
 		};
 /* End PBXProject section */
@@ -842,6 +895,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				04B8B00326A0BA9500D3ED0C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42E2BFAF28E458E0007F29B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1031,6 +1091,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		42E2BFAD28E458E0007F29B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				42E2BFB428E458E0007F29B2 /* AppStoreScreenshots.swift in Sources */,
+				42704E7328E6BDB000C8C73E /* SnapshotHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		42FF1B12271154A700B38C38 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1103,6 +1172,11 @@
 			isa = PBXTargetDependency;
 			target = 42FF1B1F271154A700B38C38 /* SafariExtension (macOS) */;
 			targetProxy = 4214F6F32714D28E0096B644 /* PBXContainerItemProxy */;
+		};
+		42E2BFB828E458E0007F29B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8260E9C026EF983F8970EC05 /* Omnivore-iOS */;
+			targetProxy = 42E2BFB728E458E0007F29B2 /* PBXContainerItemProxy */;
 		};
 		5062BFE08129B9B110FB8AF7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1243,7 +1317,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.ShareExtension-Mac";
@@ -1275,7 +1349,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.ShareExtension-Mac";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1358,7 +1432,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
@@ -1392,7 +1466,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1447,7 +1521,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1457,6 +1531,53 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.5;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		42E2BFB928E458E0007F29B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.AppStoreScreenshots;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Omnivore-iOS";
+			};
+			name = Debug;
+		};
+		42E2BFBA28E458E0007F29B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QJF2XZ86HB;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.AppStoreScreenshots;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Omnivore-iOS";
 			};
 			name = Release;
 		};
@@ -1479,7 +1600,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -1518,7 +1639,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1557,7 +1678,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -1596,7 +1717,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1683,7 +1804,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1738,7 +1859,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1767,7 +1888,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.15.0;
+				MARKETING_VERSION = 1.16.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "app.omnivore.app.share-extension";
 				PRODUCT_NAME = ShareExtension;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1903,6 +2024,15 @@
 			buildConfigurations = (
 				DD62C4BC6F6671BD15B38C9B /* Debug */,
 				9E8E768A4C0FFCAF88EC3EBE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		42E2BFBB28E458E0007F29B2 /* Build configuration list for PBXNativeTarget "AppStoreScreenshots" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42E2BFB928E458E0007F29B2 /* Debug */,
+				42E2BFBA28E458E0007F29B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

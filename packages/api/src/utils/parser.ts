@@ -7,11 +7,6 @@ import { PageType, PreparedDocumentInput } from '../generated/graphql'
 import { buildLogger, LogRecord } from './logger'
 import { createImageProxyUrl } from './imageproxy'
 import axios from 'axios'
-import { WikipediaHandler } from './wikipedia-handler'
-import { SubstackHandler } from './substack-handler'
-import { AxiosHandler } from './axios-handler'
-import { BloombergHandler } from './bloomberg-handler'
-import { GolangHandler } from './golang-handler'
 import * as hljs from 'highlightjs'
 import { decode } from 'html-entities'
 import { parseHTML } from 'linkedom'
@@ -20,7 +15,7 @@ import { User } from '../entity/user'
 import { ILike } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import addressparser from 'addressparser'
-import { MorningBrewHandler } from './morning-brew-handler'
+import { preParseContent } from '@omnivore/content-handler'
 
 const logger = buildLogger('utils.parse')
 
@@ -46,20 +41,6 @@ const DOM_PURIFY_CONFIG = {
 const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
-
-interface ContentHandler {
-  shouldPrehandle: (url: URL, dom: Document) => boolean
-  prehandle: (url: URL, document: Document) => Promise<Document>
-}
-
-const HANDLERS = [
-  new WikipediaHandler(),
-  new SubstackHandler(),
-  new AxiosHandler(),
-  new BloombergHandler(),
-  new GolangHandler(),
-  new MorningBrewHandler(),
-]
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
 const domPurifySanitizeHook = (
@@ -185,33 +166,6 @@ const getReadabilityResult = async (
   return null
 }
 
-const applyHandlers = async (
-  url: string,
-  document: Document
-): Promise<void> => {
-  try {
-    const u = new URL(url)
-    const handler = HANDLERS.find((h) => {
-      try {
-        return h.shouldPrehandle(u, document)
-      } catch (e) {
-        console.log('error with handler: ', h.name, e)
-      }
-      return false
-    })
-    if (handler) {
-      try {
-        console.log('pre-handling url or content with handler: ', handler.name)
-        await handler.prehandle(u, document)
-      } catch (e) {
-        console.log('error with handler: ', handler, e)
-      }
-    }
-  } catch (error) {
-    logger.error('Error prehandling url', url, error)
-  }
-}
-
 export const parsePreparedContent = async (
   url: string,
   preparedDocument: PreparedDocumentInput,
@@ -241,9 +195,11 @@ export const parsePreparedContent = async (
     }
   }
 
-  const dom = parseHTML(document).document
+  let dom = parseHTML(document).document
 
-  await applyHandlers(url, dom)
+  // preParse content
+  const preParsedDom = await preParseContent(url, dom)
+  preParsedDom && (dom = preParsedDom)
 
   try {
     article = await getReadabilityResult(url, document, dom, isNewsletter)
