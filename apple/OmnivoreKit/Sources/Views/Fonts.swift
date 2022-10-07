@@ -14,8 +14,15 @@ public extension Font {
     .customFont(InterFont.regular.rawValue, size: 28, relativeTo: .title)
   }
 
-  /// 22pt, Inter-Regular
   static var appTitleTwo: Font {
+    Font.custom(InterFont.regular.rawValue, size: 28, relativeTo: .title2)
+  }
+
+  static var textToSpeechRead: Font {
+    Font.custom(InterFont.bold.rawValue, size: 24, relativeTo: .title2)
+  }
+
+  static var appNavbarIcon: Font {
     Font.custom(InterFont.regular.rawValue, size: 22, relativeTo: .title2)
   }
 

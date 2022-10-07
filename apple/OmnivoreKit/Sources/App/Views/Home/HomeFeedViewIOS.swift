@@ -358,10 +358,6 @@ import Views
               }
             }
           }
-
-          if viewModel.isLoading {
-            LoadingSection()
-          }
         }
         .listStyle(PlainListStyle())
       }
