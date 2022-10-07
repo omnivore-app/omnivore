@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Url = require('url');
-const puppeteer = require('puppeteer-extra');
+// const puppeteer = require('puppeteer-extra');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
@@ -14,10 +14,8 @@ const { config, format, loggers, transports } = require('winston');
 const { LoggingWinston } = require('@google-cloud/logging-winston');
 const { DateTime } = require('luxon');
 const os = require('os');
-const Sentry = require('@sentry/serverless');
 const { Storage } = require('@google-cloud/storage');
-
-const chromium = require('chrome-aws-lambda');
+const { parseHTML } = require('linkedom');
 const puppeteer = require('puppeteer-core');
 const { preHandleContent } = require("@omnivore/content-handler");
 
@@ -29,11 +27,6 @@ const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
 const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
 
-Sentry.GCPFunction.init({
-  dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 0,
-});
-
 const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
@@ -43,12 +36,6 @@ const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
 const path = require("path");
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
-
-const { parseHTML } = require('linkedom');
-
-// Add stealth plugin to hide puppeteer usage
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
 
 const userAgentForUrl = (url) => {
   try {
@@ -94,8 +81,7 @@ const enableJavascriptForUrl = (url) => {
 };
 
 // launch Puppeteer
-const getBrowserPromise = (async (proxyUrl, chromiumPath) => {
-  console.log("starting with proxy url", proxyUrl)
+const getBrowserPromise = (async () => {
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -122,8 +108,8 @@ const getBrowserPromise = (async (proxyUrl, chromiumPath) => {
       '--window-size=1920,1080',
     ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
-    executablePath: chromiumPath,
-    headless: true,
+    executablePath: process.env.CHROMIUM_PATH,
+    headless: !!process.env.HEADLESS,
     timeout: 120000, // 2 minutes
   });
 })();
@@ -237,7 +223,7 @@ async function fetchContent(req, res) {
     },
   };
 
-  console.log(`Article parsing request`, logRecord);
+  logger.info(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
