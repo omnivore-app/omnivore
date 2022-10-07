@@ -4,21 +4,18 @@ import { DateTime } from 'luxon'
 import _ from 'underscore'
 
 interface TweetIncludes {
-  users: [
-    {
-      id: string
-      name: string
-      profile_image_url: string
-      username: string
-    }
-  ]
-  media?: [
-    {
-      preview_image_url: string
-      type: string
-      url: string
-    }
-  ]
+  users: {
+    id: string
+    name: string
+    profile_image_url: string
+    username: string
+  }[]
+  media?: {
+    preview_image_url: string
+    type: string
+    url: string
+    media_key: string
+  }[]
 }
 
 interface TweetMeta {
@@ -29,22 +26,21 @@ interface TweetData {
   author_id: string
   text: string
   entities: {
-    urls: [
-      {
-        url: string
-        expanded_url: string
-        display_url: string
-      }
-    ]
+    urls: {
+      url: string
+      expanded_url: string
+      display_url: string
+    }[]
   }
   created_at: string
-  referenced_tweets: [
-    {
-      type: string
-      id: string
-    }
-  ]
+  referenced_tweets: {
+    type: string
+    id: string
+  }[]
   conversation_id: number
+  attachments?: {
+    media_keys: string[]
+  }
 }
 
 interface Tweet {
@@ -162,15 +158,30 @@ export class TwitterHandler extends ContentHandler {
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
 
-    const tweetsData = [tweet.data]
+    const tweets = [tweet]
     // check if tweet is a thread
     const thread = await getTweetThread(tweetId, author.username)
     if (thread.meta.result_count > 0) {
-      tweetsData.push(...thread.data)
+      // tweets are in reverse chronological order in the thread
+      for (const t of thread.data.reverse()) {
+        // get the tweet media if it exists
+        const media = thread.includes.media?.filter((m) =>
+          t.attachments?.media_keys?.includes(m.media_key)
+        )
+        const tweet: Tweet = {
+          data: t,
+          includes: {
+            users: thread.includes.users,
+            media,
+          },
+        }
+        tweets.push(tweet)
+      }
     }
 
-    let front = ''
-    for (const tweetData of tweetsData) {
+    let tweetsContent = ''
+    for (const tweet of tweets) {
+      const tweetData = tweet.data
       let text = tweetData.text
       if (tweetData.entities && tweetData.entities.urls) {
         for (const urlObj of tweetData.entities.urls) {
@@ -181,25 +192,26 @@ export class TwitterHandler extends ContentHandler {
         }
       }
 
-      front += `
-      <p>${text}</p>
-    `
-    }
-
-    const includesHtml =
-      tweet.includes.media
-        ?.map((m) => {
-          const linkUrl = m.type == 'photo' ? m.url : url
-          const previewUrl = m.type == 'photo' ? m.url : m.preview_image_url
-          return `<a class="media-link" href=${linkUrl}>
+      const includesHtml =
+        tweet.includes.media
+          ?.map((m) => {
+            const linkUrl = m.type == 'photo' ? m.url : url
+            const previewUrl = m.type == 'photo' ? m.url : m.preview_image_url
+            return `<a class="media-link" href=${linkUrl}>
           <picture>
             <img class="tweet-img" src=${previewUrl} />
           </picture>
           </a>`
-        })
-        .join('\n') ?? ''
+          })
+          .join('\n') ?? ''
 
-    const back = `
+      tweetsContent += `
+      <p>${text}</p>
+      ${includesHtml}
+    `
+    }
+
+    const tweetUrl = `
        — <a href="https://twitter.com/${author.username}">${
       author.username
     }</a> ${author.name} <a href="${url}">${formatTimestamp(
@@ -216,9 +228,8 @@ export class TwitterHandler extends ContentHandler {
     </head>
     <body>
       <div>
-        ${front}
-        ${includesHtml}
-        ${back}
+        ${tweetsContent}
+        ${tweetUrl}
       </div>
     </body>`
 
