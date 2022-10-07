@@ -32,7 +32,7 @@ type HighlightBarProps = {
 }
 
 export function HighlightBar(props: HighlightBarProps): JSX.Element {
-  if (props.displayNearCursor) {
+  if (!props.displayNearCursor) {
     return (
       <Box
         css={{
@@ -93,7 +93,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       css={{
         height: '100%',
         alignItems: 'center',
-        width: props.isTouchscreenDevice ? '100%' : 'auto',
+        width: props.displayNearCursor ? 'auto' '100%',
       }}
     >
       {props.isNewHighlight ? (
