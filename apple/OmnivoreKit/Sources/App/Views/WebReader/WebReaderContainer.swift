@@ -132,9 +132,7 @@ struct WebReaderContainerView: View {
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
       #endif
-      if FeatureFlag.enableTextToSpeechButton {
-        audioNavbarItem
-      }
+      audioNavbarItem
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {

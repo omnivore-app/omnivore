@@ -14,6 +14,5 @@ public enum FeatureFlag {
   public static let enableShareButton = false
   public static let enableSnooze = false
   public static let enableGridCardsOnPhone = false
-  public static let enableTextToSpeechButton = true
   public static let enableHighlightsView = true
 }
