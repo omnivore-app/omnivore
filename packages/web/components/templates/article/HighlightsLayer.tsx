@@ -536,7 +536,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           isNewHighlight={!!selectionData}
           handleButtonClick={handleAction}
           isSharedToFeed={focusedHighlight?.sharedAt != undefined}
-          displayNearCursor={isTouchScreenDevice()}
+          displayAtBottom={isTouchScreenDevice()}
         />
       </>
     )
