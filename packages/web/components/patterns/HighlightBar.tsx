@@ -27,12 +27,12 @@ type HighlightBarProps = {
   anchorCoordinates: PageCoordinates
   isNewHighlight: boolean
   isSharedToFeed: boolean
-  isTouchscreenDevice: boolean
+  displayNearCursor: boolean
   handleButtonClick: (action: HighlightAction) => void
 }
 
 export function HighlightBar(props: HighlightBarProps): JSX.Element {
-  if (props.isTouchscreenDevice) {
+  if (props.displayNearCursor) {
     return (
       <Box
         css={{
@@ -58,23 +58,22 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
     )
   } else {
     return (
-      <AnchoredPopover
-        xAnchorCoordinate={props.anchorCoordinates.pageX}
-        yAnchorCoordinate={props.anchorCoordinates.pageY}
-        preventAutoFocus={false}
+      <Box
+        css={{
+          width: '100%',
+          maxWidth: '240px',
+          height: '48px',
+          position: 'absolute',
+          background: '$grayBg',
+          borderRadius: '4px',
+          border: '1px solid $grayBorder',
+          boxShadow: theme.shadows.cardBoxShadow.toString(),
+          left: props.anchorCoordinates.pageX,
+          top: props.anchorCoordinates.pageY,
+        }}
       >
-        <Box>
-          css=
-          {{
-            width: '350px',
-            background: '$grayBg',
-            borderRadius: '4px',
-            border: '1px solid $grayBorder',
-            boxShadow: '$cardBoxShadow',
-          }}
-          <BarContent {...props} />
-        </Box>
-      </AnchoredPopover>
+        <BarContent {...props} />
+      </Box>
     )
   }
 }
