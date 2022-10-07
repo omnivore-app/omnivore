@@ -8,14 +8,14 @@ export class ScrapingBeeHandler extends ContentHandler {
     this.name = 'ScrapingBee'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const u = new URL(url)
     const hostnames = ['nytimes.com', 'news.google.com']
 
     return hostnames.some((h) => u.hostname.endsWith(h))
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     console.log('prehandling url with scrapingbee', url)
 
     try {

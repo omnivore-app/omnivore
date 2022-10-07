@@ -8,12 +8,12 @@ export class DerstandardHandler extends ContentHandler {
     this.name = 'Derstandard'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const u = new URL(url)
     return u.hostname === 'www.derstandard.at'
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     const response = await axios.get(url, {
       // set cookie to give consent to get the article
       headers: {

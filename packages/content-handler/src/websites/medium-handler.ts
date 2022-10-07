@@ -6,12 +6,12 @@ export class MediumHandler extends ContentHandler {
     this.name = 'Medium'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const u = new URL(url)
     return u.hostname.endsWith('medium.com')
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     console.log('prehandling medium url', url)
 
     try {

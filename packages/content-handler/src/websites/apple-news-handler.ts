@@ -8,12 +8,12 @@ export class AppleNewsHandler extends ContentHandler {
     this.name = 'Apple News'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     const u = new URL(url)
     return u.hostname === 'apple.news'
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     const MOBILE_USER_AGENT =
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36'
     const response = await axios.get(url, {

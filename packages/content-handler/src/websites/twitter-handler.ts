@@ -140,11 +140,11 @@ export class TwitterHandler extends ContentHandler {
     this.name = 'Twitter'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreHandle(url: string): boolean {
     return !!TWITTER_BEARER_TOKEN && TWITTER_URL_MATCH.test(url.toString())
   }
 
-  async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
+  async preHandle(url: string): Promise<PreHandleResult> {
     const tweetId = tweetIdFromStatusUrl(url)
     if (!tweetId) {
       throw new Error('could not find tweet id in url')

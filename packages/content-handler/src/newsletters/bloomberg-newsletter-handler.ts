@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from '../content-handler'
+import { ContentHandler } from '../content-handler'
 
 export class BloombergNewsletterHandler extends ContentHandler {
   constructor() {
@@ -8,7 +8,7 @@ export class BloombergNewsletterHandler extends ContentHandler {
     this.name = 'bloomberg'
   }
 
-  shouldPreHandle(url: string, dom: Document): boolean {
+  shouldPreParse(url: string, dom: Document): boolean {
     const host = this.name + '.com'
     // check if url ends with bloomberg.com
     return (
@@ -18,7 +18,7 @@ export class BloombergNewsletterHandler extends ContentHandler {
     )
   }
 
-  async preHandle(url: string, dom: Document): Promise<PreHandleResult> {
+  async preParse(url: string, dom: Document): Promise<Document> {
     const body = dom.querySelector('.wrapper')
 
     // this removes header
@@ -32,6 +32,6 @@ export class BloombergNewsletterHandler extends ContentHandler {
     body?.querySelector('.component-wrapper')?.remove()
     body?.querySelector('.footer')?.remove()
 
-    return Promise.resolve({ dom })
+    return Promise.resolve(dom)
   }
 }

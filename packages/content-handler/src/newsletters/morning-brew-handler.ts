@@ -1,4 +1,4 @@
-import { ContentHandler, PreHandleResult } from '../content-handler'
+import { ContentHandler } from '../content-handler'
 
 export class MorningBrewHandler extends ContentHandler {
   constructor() {
@@ -8,13 +8,13 @@ export class MorningBrewHandler extends ContentHandler {
     this.name = 'morningbrew'
   }
 
-  shouldPreHandle(url: string, dom?: Document): boolean {
+  shouldPreParse(url: string, dom: Document): boolean {
     const host = this.name + '.com'
     // check if url ends with morningbrew.com
     return new URL(url).hostname.endsWith(host)
   }
 
-  async preHandle(url: string, dom: Document): Promise<PreHandleResult> {
+  async preParse(url: string, dom: Document): Promise<Document> {
     // retain the width of the cells in the table of market info
     dom.querySelectorAll('.markets-arrow-cell').forEach((td) => {
       const table = td.closest('table')
@@ -30,6 +30,6 @@ export class MorningBrewHandler extends ContentHandler {
       }
     })
 
-    return Promise.resolve({ dom })
+    return Promise.resolve(dom)
   }
 }
