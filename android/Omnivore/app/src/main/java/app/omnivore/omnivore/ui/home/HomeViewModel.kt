@@ -24,7 +24,7 @@ class HomeViewModel @Inject constructor(
   private var receivedIdx = 0
 
   // Live Data
-  val searchTextLiveData = MutableLiveData<String>("")
+  val searchTextLiveData = MutableLiveData("")
   val itemsLiveData = MutableLiveData<List<LinkedItem>>(listOf())
 
   fun updateSearchText(text: String) {

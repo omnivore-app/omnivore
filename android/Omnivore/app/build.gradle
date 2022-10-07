@@ -156,6 +156,7 @@ dependencies {
     implementation 'io.coil-kt:coil-compose:2.2.0'
 
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.pspdfkit:pspdfkit:8.4.1'
 }
 
 apollo {

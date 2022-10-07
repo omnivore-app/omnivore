@@ -26,4 +26,9 @@ data class LinkedItem(
   fun publisherDisplayName(): String? {
     return publisherURLString?.toUri()?.host
   }
+
+  fun isPDF(): Boolean {
+    val hasPDFSuffix = pageURLString.endsWith("pdf")
+    return contentReader == "PDF" || hasPDFSuffix
+  }
 }

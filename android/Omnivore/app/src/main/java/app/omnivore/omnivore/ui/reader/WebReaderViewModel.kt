@@ -39,7 +39,7 @@ class WebReaderViewModel @Inject constructor(
       val articleContent = ArticleContent(
         title = article.title,
         htmlContent = article.content ?: "",
-        highlightsJSONString = Gson().toJson(articleQueryResult.highlights),
+        highlights = articleQueryResult.highlights,
         contentStatus = "SUCCEEDED",
         objectID = "",
         labelsJSONString = Gson().toJson(articleQueryResult.labels)

@@ -12,3 +12,4 @@ data class Highlight(
   val updatedAt: Any?,
   val createdByMe : Boolean,
 )
+

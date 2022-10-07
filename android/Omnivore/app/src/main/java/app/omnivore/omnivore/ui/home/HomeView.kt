@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.home
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.models.LinkedItem
+import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 
@@ -53,6 +56,7 @@ fun HomeViewContent(
   navController: NavHostController,
   modifier: Modifier
 ) {
+  val context = LocalContext.current
   val listState = rememberLazyListState()
   val linkedItems: List<LinkedItem> by homeViewModel.itemsLiveData.observeAsState(listOf())
 
@@ -69,7 +73,13 @@ fun HomeViewContent(
       LinkedItemCard(
         item = item,
         onClickHandler = {
-          navController.navigate("WebReader/${item.slug}")
+          if (item.isPDF()) {
+            val intent = Intent(context, PDFReaderActivity::class.java)
+            intent.putExtra("LINKED_ITEM_SLUG", item.slug)
+            context.startActivity(intent)
+          } else {
+            navController.navigate("WebReader/${item.slug}")
+          }
         }
       )
     }
