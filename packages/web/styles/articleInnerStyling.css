@@ -13,13 +13,14 @@
 
 .highlight {
   color: var(--colors-highlightText);
-  background-color: var(--colors-highlightBackground);
+  background-color: rgb(var(--colors-highlightBackground));
   cursor: pointer;
 }
 
 .highlight_with_note {
   color: var(--colors-highlightText);
-  border-bottom: 2px var(--colors-highlightBackground) solid;
+  background-color: rgba(var(--colors-highlightBackground), 0.35);
+  border-bottom: 2px rgb(var(--colors-highlightBackground)) solid;
   border-radius: 2px;
   cursor: pointer;
 }

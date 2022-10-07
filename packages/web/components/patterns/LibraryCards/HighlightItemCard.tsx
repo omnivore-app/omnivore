@@ -48,7 +48,7 @@ export function HighlightItemCard(props: HighlightItemCardProps): JSX.Element {
       >
         <StyledMark
           css={{
-            background: '$highlightBackground',
+            background: 'rgb($highlightBackground)',
             color: '$highlightText',
             fontSize: '14px',
           }}
