@@ -3,6 +3,28 @@ import axios from 'axios'
 import { DateTime } from 'luxon'
 import _ from 'underscore'
 
+interface TweetIncludes {
+  users: [
+    {
+      id: string
+      name: string
+      profile_image_url: string
+      username: string
+    }
+  ]
+  media?: [
+    {
+      preview_image_url: string
+      type: string
+      url: string
+    }
+  ]
+}
+
+interface TweetMeta {
+  result_count: number
+}
+
 interface TweetData {
   author_id: string
   text: string
@@ -22,27 +44,18 @@ interface TweetData {
       id: string
     }
   ]
-  includes: {
-    users: [
-      {
-        id: string
-        name: string
-        profile_image_url: string
-        username: string
-      }
-    ]
-    media: [
-      {
-        preview_image_url: string
-        type: string
-        url: string
-      }
-    ]
-  }
+  conversation_id: number
+}
+
+interface Tweet {
+  data: TweetData
+  includes: TweetIncludes
 }
 
 interface TweetThread {
   data: TweetData[]
+  includes: TweetIncludes
+  meta: TweetMeta
 }
 
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN
@@ -64,14 +77,19 @@ const getTweetFields = () => {
 }
 
 // unroll recent tweet thread
-const getTweetThread = async (id: string): Promise<TweetThread> => {
+const getTweetThread = async (
+  id: string,
+  username: string
+): Promise<TweetThread> => {
   const BASE_ENDPOINT = 'https://api.twitter.com/2/tweets/search/recent'
   const apiUrl = new URL(
     BASE_ENDPOINT +
       '?query=' +
-      encodeURIComponent(`conversation_id:${id}`) +
-      '&' +
-      getTweetFields()
+      encodeURIComponent(
+        `conversation_id:${id} from:${username} to:${username}`
+      ) +
+      getTweetFields() +
+      '&max_results=100'
   )
 
   if (!TWITTER_BEARER_TOKEN) {
@@ -87,7 +105,7 @@ const getTweetThread = async (id: string): Promise<TweetThread> => {
   return response.data
 }
 
-const getTweetById = async (id: string) => {
+const getTweetById = async (id: string): Promise<Tweet> => {
   const BASE_ENDPOINT = 'https://api.twitter.com/2/tweets/'
   const apiUrl = new URL(BASE_ENDPOINT + id + '?' + getTweetFields())
 
@@ -95,12 +113,14 @@ const getTweetById = async (id: string) => {
     throw new Error('No Twitter bearer token found')
   }
 
-  return axios.get(apiUrl.toString(), {
+  const response = await axios.get<Tweet>(apiUrl.toString(), {
     headers: {
       Authorization: `Bearer ${TWITTER_BEARER_TOKEN}`,
       redirect: 'follow',
     },
   })
+
+  return response.data
 }
 
 const titleForAuthor = (author: { name: string }) => {
@@ -129,23 +149,28 @@ export class TwitterHandler extends ContentHandler {
   }
 
   async preHandle(url: string, document?: Document): Promise<PreHandleResult> {
-    console.log('prehandling twitter url', url)
-
     const tweetId = tweetIdFromStatusUrl(url)
     if (!tweetId) {
       throw new Error('could not find tweet id in url')
     }
-    const tweetThread = await getTweetThread(tweetId)
-    const tweetData = tweetThread.data[0]
+    const tweet = await getTweetById(tweetId)
+    const tweetData = tweet.data
     const authorId = tweetData.author_id
-    const author = tweetData.includes.users.filter((u) => (u.id = authorId))[0]
+    const author = tweet.includes.users.filter((u) => (u.id = authorId))[0]
     // escape html entities in title
     const title = _.escape(titleForAuthor(author))
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
 
-    let tweetHtml = ''
-    for (const tweetData of tweetThread.data) {
+    const tweetsData = [tweet.data]
+    // check if tweet is a thread
+    const thread = await getTweetThread(tweetId, author.username)
+    if (thread.meta.result_count > 0) {
+      tweetsData.push(...thread.data)
+    }
+
+    let front = ''
+    for (const tweetData of tweetsData) {
       let text = tweetData.text
       if (tweetData.entities && tweetData.entities.urls) {
         for (const urlObj of tweetData.entities.urls) {
@@ -156,40 +181,31 @@ export class TwitterHandler extends ContentHandler {
         }
       }
 
-      const front = `
-    <div>
+      front += `
       <p>${text}</p>
     `
+    }
 
-      let includesHtml = ''
-      if (tweetData.includes.media) {
-        includesHtml = tweetData.includes.media
-          .map((m) => {
-            const linkUrl = m.type == 'photo' ? m.url : url
-            const previewUrl = m.type == 'photo' ? m.url : m.preview_image_url
-            return `<a class="media-link" href=${linkUrl}>
+    const includesHtml =
+      tweet.includes.media
+        ?.map((m) => {
+          const linkUrl = m.type == 'photo' ? m.url : url
+          const previewUrl = m.type == 'photo' ? m.url : m.preview_image_url
+          return `<a class="media-link" href=${linkUrl}>
           <picture>
             <img class="tweet-img" src=${previewUrl} />
           </picture>
           </a>`
-          })
-          .join('\n')
-      }
+        })
+        .join('\n') ?? ''
 
-      const back = `
+    const back = `
        — <a href="https://twitter.com/${author.username}">${
-        author.username
-      }</a> ${author.name} <a href="${url}">${formatTimestamp(
-        tweetData.created_at
-      )}</a>
-    </div>
+      author.username
+    }</a> ${author.name} <a href="${url}">${formatTimestamp(
+      tweetData.created_at
+    )}</a>
     `
-      tweetHtml += `
-        ${front}
-        ${includesHtml}
-        ${back}
-      `
-    }
 
     const content = `
     <head>
@@ -199,7 +215,11 @@ export class TwitterHandler extends ContentHandler {
       <meta property="og:description" content="${description}" />
     </head>
     <body>
-      ${tweetHtml}
+      <div>
+        ${front}
+        ${includesHtml}
+        ${back}
+      </div>
     </body>`
 
     return { content, url, title }
