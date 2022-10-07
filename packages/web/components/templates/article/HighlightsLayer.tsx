@@ -23,6 +23,7 @@ import { HighlightsModal } from './HighlightsModal'
 import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { ArticleMutations } from '../../../lib/articleActions'
+import { isTouchScreenDevice } from '../../../lib/deviceType'
 
 type HighlightsLayerProps = {
   highlights: Highlight[]
@@ -535,7 +536,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           isNewHighlight={!!selectionData}
           handleButtonClick={handleAction}
           isSharedToFeed={focusedHighlight?.sharedAt != undefined}
-          isTouchscreenDevice={true /* isTouchScreenDevice() */}
+          displayNearCursor={isTouchScreenDevice()}
         />
       </>
     )
