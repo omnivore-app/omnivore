@@ -93,7 +93,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       css={{
         height: '100%',
         alignItems: 'center',
-        width: props.displayNearCursor ? 'auto' '100%',
+        width: props.displayNearCursor ? 'auto' : '100%',
       }}
     >
       {props.isNewHighlight ? (
