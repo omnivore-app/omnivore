@@ -27,12 +27,12 @@ type HighlightBarProps = {
   anchorCoordinates: PageCoordinates
   isNewHighlight: boolean
   isSharedToFeed: boolean
-  displayNearCursor: boolean
+  displayAtBottom: boolean
   handleButtonClick: (action: HighlightAction) => void
 }
 
 export function HighlightBar(props: HighlightBarProps): JSX.Element {
-  if (!props.displayNearCursor) {
+  if (props.displayAtBottom) {
     return (
       <Box
         css={{
@@ -93,7 +93,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       css={{
         height: '100%',
         alignItems: 'center',
-        width: props.displayNearCursor ? 'auto' : '100%',
+        width: props.displayAtBottom ? '100%' : 'auto',
       }}
     >
       {props.isNewHighlight ? (
