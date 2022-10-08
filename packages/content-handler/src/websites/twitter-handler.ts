@@ -37,7 +37,7 @@ interface TweetData {
     type: string
     id: string
   }[]
-  conversation_id: number
+  conversation_id: string
   attachments?: {
     media_keys: string[]
   }
@@ -74,7 +74,7 @@ const getTweetFields = () => {
 
 // unroll recent tweet thread
 const getTweetThread = async (
-  id: string,
+  conversationId: string,
   username: string
 ): Promise<TweetThread> => {
   const BASE_ENDPOINT = 'https://api.twitter.com/2/tweets/search/recent'
@@ -82,7 +82,7 @@ const getTweetThread = async (
     BASE_ENDPOINT +
       '?query=' +
       encodeURIComponent(
-        `conversation_id:${id} from:${username} to:${username}`
+        `conversation_id:${conversationId} from:${username} to:${username}`
       ) +
       getTweetFields() +
       '&max_results=100'
@@ -160,7 +160,7 @@ export class TwitterHandler extends ContentHandler {
 
     const tweets = [tweet]
     // check if tweet is a thread
-    const thread = await getTweetThread(tweetId, author.username)
+    const thread = await getTweetThread(tweetData.conversation_id, author.username)
     if (thread.meta.result_count > 0) {
       // tweets are in reverse chronological order in the thread
       for (const t of thread.data.reverse()) {
