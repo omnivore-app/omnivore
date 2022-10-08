@@ -160,7 +160,10 @@ export class TwitterHandler extends ContentHandler {
 
     const tweets = [tweet]
     // check if tweet is a thread
-    const thread = await getTweetThread(tweetData.conversation_id, author.username)
+    const thread = await getTweetThread(
+      tweetData.conversation_id,
+      author.username
+    )
     if (thread.meta.result_count > 0) {
       // tweets are in reverse chronological order in the thread
       for (const t of thread.data.reverse()) {
