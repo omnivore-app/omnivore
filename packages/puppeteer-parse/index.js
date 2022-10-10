@@ -94,7 +94,6 @@ const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
 
-const path = require("path");
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
 const userAgentForUrl = (url) => {
@@ -142,6 +141,7 @@ const enableJavascriptForUrl = (url) => {
 
 // launch Puppeteer
 const getBrowserPromise = (async () => {
+  console.log("starting with proxy url", process.env.PROXY_URL)
   return puppeteer.launch({
     args: [
       '--allow-running-insecure-content',
@@ -169,7 +169,7 @@ const getBrowserPromise = (async () => {
     ].filter((item) => !!item),
     defaultViewport: { height: 1080, width: 1920 },
     executablePath: process.env.CHROMIUM_PATH,
-    headless: !!process.env.HEADLESS,
+    headless: !!process.env.LAUNCH_HEADLESS,
     timeout: 120000, // 2 minutes
   });
 })();
@@ -268,7 +268,7 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
 };
 
 async function fetchContent(req, res) {
-  const functionStartTime = Date.now();
+  functionStartTime = Date.now();
   // Grabbing execution and trace ids to attach logs to the appropriate function call
   const execution_id = req.get('function-execution-id');
   const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
@@ -280,7 +280,7 @@ async function fetchContent(req, res) {
   });
 
   let url = getUrl(req);
-  const userId = req.body.userId || req.query.userId;
+  const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
 
   logRecord = {
@@ -292,11 +292,11 @@ async function fetchContent(req, res) {
     },
   };
 
-  logger.info(`Article parsing request`, logRecord);
+  logger.log(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.error(`Valid URL to parse not specified`, logRecord);
+    logger.log(`Valid URL to parse not specified`, logRecord);
     return res.sendStatus(400);
   }
 
@@ -312,20 +312,20 @@ async function fetchContent(req, res) {
     if (result && result.content) { content = result.content }
     if (result && result.contentType) { contentType = result.contentType }
   } catch (e) {
-    console.log('error with handler: ', e);
+    logger.log('error with handler: ', e);
   }
 
   let context, page, finalUrl;
   try {
-  if ((!content || !title) && contentType !== 'application/pdf') {
-    const result = await retrievePage(url)
-    if (result && result.context) { context = result.context }
-    if (result && result.page) { page = result.page }
-    if (result && result.finalUrl) { finalUrl = result.finalUrl }
-    if (result && result.contentType) { contentType = result.contentType }
-  } else {
-    finalUrl = url
-  }
+    if ((!content || !title) && contentType !== 'application/pdf') {
+      const result = await retrievePage(url)
+      if (result && result.context) { context = result.context }
+      if (result && result.page) { page = result.page }
+      if (result && result.finalUrl) { finalUrl = result.finalUrl }
+      if (result && result.contentType) { contentType = result.contentType }
+    } else {
+      finalUrl = url
+    }
 
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
@@ -369,7 +369,29 @@ async function fetchContent(req, res) {
     console.log('error', e)
     logRecord.error = e.message;
     console.log(`Error while retrieving page`, logRecord);
-    return res.sendStatus(503);
+
+    // fallback to scrapingbee
+    const sbResult = await fetchContentWithScrapingBee(url);
+    const sbUrl = finalUrl || sbResult.url;
+    const content = sbResult.domContent;
+    logRecord.fetchContentTime = Date.now() - functionStartTime;
+
+    const apiResponse = await sendCreateArticleMutation(userId, {
+      url: sbUrl,
+      articleSavingRequestId,
+      preparedDocument: {
+        document: content,
+        pageInfo: {
+          title: sbResult.title,
+          canonicalUrl: sbUrl,
+        },
+      },
+      skipParsing: !content,
+    });
+
+    logRecord.totalTime = Date.now() - functionStartTime;
+    logRecord.result = apiResponse.createArticle;
+    logger.log(`parse-page`, logRecord);
   } finally {
     if (context) {
       await context.close();
@@ -460,6 +482,7 @@ async function retrievePage(url) {
     ],
   });
 
+  const path = require('path');
   const download_path = path.resolve('./download_dir/');
 
   await client.send('Page.setDownloadBehavior', {
@@ -468,7 +491,7 @@ async function retrievePage(url) {
     downloadPath: download_path,
   })
 
-  client.on('Network.requestIntercepted', async (e) => {
+  client.on('Network.requestIntercepted', async e => {
     const headers = e.responseHeaders || {};
 
     const [contentType] = (headers['content-type'] || headers['Content-Type'] || '')
@@ -581,7 +604,7 @@ async function retrieveHtml(page) {
           }
         })();
       }),
-      await page.waitForTimeout(1000), // 1 second timeout
+      await page.waitForTimeout(1000),
     ]);
     logRecord.timing = { ...logRecord.timing, pageScrolled: Date.now() - pageScrollingStart };
 
