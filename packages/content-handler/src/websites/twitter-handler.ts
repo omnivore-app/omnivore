@@ -149,7 +149,7 @@ export class TwitterHandler extends ContentHandler {
     if (!tweetId) {
       throw new Error('could not find tweet id in url')
     }
-    const tweet = await getTweetById(tweetId)
+    let tweet = await getTweetById(tweetId)
     const tweetData = tweet.data
     const authorId = tweetData.author_id
     const author = tweet.includes.users.filter((u) => (u.id = authorId))[0]
@@ -157,9 +157,14 @@ export class TwitterHandler extends ContentHandler {
     const title = _.escape(titleForAuthor(author))
     const authorImage = author.profile_image_url.replace('_normal', '_400x400')
     const description = _.escape(tweetData.text)
+    const converstationId = tweetData.conversation_id
+    if (converstationId !== tweetId) {
+      // this is a reply, so we need to get the referenced tweet
+      tweet = await getTweetById(converstationId)
+    }
 
     const tweets = [tweet]
-    // check if tweet is a thread
+    // we want to get the full thread
     const thread = await getTweetThread(
       tweetData.conversation_id,
       author.username
