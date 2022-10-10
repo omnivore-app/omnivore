@@ -8,6 +8,9 @@ apple_extension_gen:
 	$(MAKE) -C apple extension_gen
 
 droid:
+	@if ! [ -e android/Omnivore/app/src/main/res/values/secrets.xml ]; then \
+		cp android/Omnivore/secrets.xml android/Omnivore/app/src/main/res/values/secrets.xml; \
+	fi
 	studio android/Omnivore
 
 webview_gen:
