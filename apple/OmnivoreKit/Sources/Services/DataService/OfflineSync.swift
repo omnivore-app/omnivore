@@ -53,7 +53,6 @@ public extension DataService {
       try await updateLinkedItemStatus(id: id, newId: nil, status: .isSyncing)
 
       let uploadRequest = try await uploadFileRequest(id: id, url: url)
-      print("UPLOAD REQUEST, ORIGINAL ID, NEW ID", id, uploadRequest.pageId)
       if let urlString = uploadRequest.urlString, let uploadUrl = URL(string: urlString) {
         try await uploadFile(id: uploadRequest.pageId, localPdfURL: localPdfURL, url: uploadUrl)
       } else {

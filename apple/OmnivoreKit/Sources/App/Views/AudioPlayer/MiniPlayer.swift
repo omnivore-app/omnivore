@@ -239,10 +239,12 @@ public struct MiniPlayer: View {
               }
             })
             .onChange(of: audioController.currentAudioIndex, perform: { index in
+              if index >= (audioController.textItems?.count ?? 0) {
+                return
+              }
+
               if self.audioController.state != .reachedEnd {
                 tabIndex = index
-              } else {
-                tabIndex = (self.audioController.textItems?.count ?? 0) + 1
               }
             })
             .frame(width: geom.size.width)
