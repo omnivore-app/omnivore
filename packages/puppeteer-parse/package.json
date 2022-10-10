@@ -8,7 +8,6 @@
     "@google-cloud/storage": "^5.18.1",
     "@omnivore/content-handler": "1.0.0",
     "axios": "^0.27.2",
-    "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.9",
     "luxon": "^2.3.1",

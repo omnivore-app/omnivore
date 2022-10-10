@@ -38,7 +38,6 @@ ADD /packages/content-fetch ./packages/content-fetch
 ADD /packages/content-handler ./packages/content-handler
 ADD /packages/puppeteer-parse ./packages/puppeteer-parse
 RUN yarn workspace @omnivore/content-handler build
-RUN yarn workspace @omnivore/puppeteer-parse build
 
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/content-fetch/node_modules
