@@ -47,6 +47,7 @@ COPY --from=builder /app/packages/api/node_modules /app/packages/api/node_module
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/package.json /app/package.json
 COPY --from=builder /app/packages/text-to-speech/ /app/packages/text-to-speech/
+COPY --from=builder /app/packages/content-handler/ /app/packages/content-handler/
 EXPOSE 8080
 
 CMD ["yarn", "workspace", "@omnivore/api", "start"]
