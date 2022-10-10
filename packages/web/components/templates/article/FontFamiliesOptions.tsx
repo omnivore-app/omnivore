@@ -12,7 +12,7 @@ const FONT_FAMILIES = [
   'Roboto',
   'Crimson Text',
   'OpenDyslexic',
-  'Source Serif Pro'
+  'Source Serif Pro',
 ]
 
 type FontFamiliesListProps = {
@@ -27,18 +27,28 @@ type FontOptionProps = {
   onSelect: (value: string) => void
 }
 
-function FontOption(props: FontOptionProps):JSX.Element {
+function FontOption(props: FontOptionProps): JSX.Element {
   const isSelected = props.selected === props.family
   return (
-    <HStack distribution='between' alignment='start' css={{ width: '100%', pt: '14px' }}>
+    <HStack
+      distribution="between"
+      alignment="start"
+      css={{ width: '100%', pt: '14px' }}
+    >
       <StyledText
-        css={{ m: '0px', fontSize: 16, fontFamily: props.family, textTransform: 'capitalize', cursor: 'pointer' }}
+        css={{
+          m: '0px',
+          fontSize: 16,
+          fontFamily: props.family,
+          textTransform: 'capitalize',
+          cursor: 'pointer',
+        }}
         onClick={() => props.onSelect(props.family)}
       >
         {props.family}
       </StyledText>
       {isSelected && (
-        <Check color={theme.colors.grayTextContrast.toString()} weight='bold' />
+        <Check color={theme.colors.grayTextContrast.toString()} weight="bold" />
       )}
     </HStack>
   )
@@ -47,22 +57,50 @@ function FontOption(props: FontOptionProps):JSX.Element {
 export function FontFamiliesOptions(props: FontFamiliesListProps): JSX.Element {
   return (
     <>
-      <Box css={{borderBottom: `1px solid ${theme.colors.grayLine.toString()}`, width: '100%'}}>
-        <HStack alignment='center' distribution='between' css={{width: '100%', py: 10, px: 15}}>
+      <Box
+        css={{
+          borderBottom: `1px solid ${theme.colors.grayLine.toString()}`,
+          width: '100%',
+        }}
+      >
+        <HStack
+          alignment="center"
+          distribution="between"
+          css={{ width: '100%', py: 10, px: 15 }}
+        >
           <HStack
-            alignment='center'
-            distribution='start'
+            alignment="center"
+            distribution="start"
             css={{ cursor: 'pointer', py: '4px', width: '100%' }}
             onClick={() => props.setShowFontFamilies(false)}
           >
-            <CaretLeft color={theme.colors.utilityTextSubtle.toString()} size={15} />
-            <StyledText css={{ textAlign: 'center', m: 0, fontSize: 14, fontWeight: 'bold', width: '100%', wordWrap: 'revert' }}>Choose Font</StyledText>
+            <CaretLeft
+              color={theme.colors.utilityTextSubtle.toString()}
+              size={15}
+            />
+            <StyledText
+              css={{
+                textAlign: 'center',
+                m: 0,
+                fontSize: 14,
+                fontWeight: 'bold',
+                width: '100%',
+                wordWrap: 'revert',
+              }}
+            >
+              Choose Font
+            </StyledText>
           </HStack>
         </HStack>
       </Box>
       <Box css={{ px: 15, pb: 15, width: '100%' }}>
         {FONT_FAMILIES.map((family) => (
-          <FontOption selected={props.selected} family={family} onSelect={props.onSelect} key={`font-${family}`} />
+          <FontOption
+            selected={props.selected}
+            family={family}
+            onSelect={props.onSelect}
+            key={`font-${family}`}
+          />
         ))}
       </Box>
     </>

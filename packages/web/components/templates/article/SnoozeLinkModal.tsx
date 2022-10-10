@@ -1,4 +1,8 @@
-import { ModalContent, ModalOverlay, ModalRoot } from '../../elements/ModalPrimitives'
+import {
+  ModalContent,
+  ModalOverlay,
+  ModalRoot,
+} from '../../elements/ModalPrimitives'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
@@ -49,32 +53,40 @@ function SnoozeOptionButton(props: SnoozeOptionButtonProps): JSX.Element {
   }
 
   return (
-    <Button style='modalOption'
+    <Button
+      style="modalOption"
       onClick={props.onClick}
-      css={{ 
-      borderRadius,
-      borderWidth,
-      background: props.selected ? '#FDFAEC' : undefined
-    }}>
-      <HStack css={{ pl: '16px', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+      css={{
+        borderRadius,
+        borderWidth,
+        background: props.selected ? '#FDFAEC' : undefined,
+      }}
+    >
+      <HStack
+        css={{
+          pl: '16px',
+          justifyContent: 'space-between',
+          width: '100%',
+          alignItems: 'center',
+        }}
+      >
         <SpanBox>{props.title}</SpanBox>
-        {props.selected && (
-          <Check width={24} height={24} color='#E2B513' />
-        )}
+        {props.selected && <Check width={24} height={24} color="#E2B513" />}
       </HStack>
-    </Button>)
+    </Button>
+  )
 }
 
-export function SnoozeLinkModal(
-  props: ShareArticleModalProps
-): JSX.Element {
+export function SnoozeLinkModal(props: ShareArticleModalProps): JSX.Element {
   const [sendReminder, setSendReminder] = useState(false)
-  const [snoozeOption, setSnoozeOption] = useState<string | undefined>(undefined)
+  const [snoozeOption, setSnoozeOption] = useState<string | undefined>(
+    undefined
+  )
 
   const setOption = (option: string) => {
     setSnoozeOption(option)
     setSendReminder(true)
-  };
+  }
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
@@ -89,12 +101,20 @@ export function SnoozeLinkModal(
           width: '375px',
           height: '388px',
           overflow: 'auto',
-          background: 'white'
+          background: 'white',
         }}
       >
         <VStack css={{ px: '24px', pt: '22px', m: '0px' }}>
-          <HStack alignment='start' distribution='end' css={{ pb: '16px', width: '100%' }}>
-            <StyledText css={{ fontSize: '24px', m: '0px', mr: '0px', color: '#0A0806' }}>Snooze</StyledText>
+          <HStack
+            alignment="start"
+            distribution="end"
+            css={{ pb: '16px', width: '100%' }}
+          >
+            <StyledText
+              css={{ fontSize: '24px', m: '0px', mr: '0px', color: '#0A0806' }}
+            >
+              Snooze
+            </StyledText>
             <Button
               style="ghost"
               onClick={() => {
@@ -103,35 +123,74 @@ export function SnoozeLinkModal(
               tabIndex={-1}
               css={{ marginLeft: 'auto', p: '0px' }}
             >
-              <X color='black' width={24} height={24} />
+              <X color="black" width={24} height={24} />
             </Button>
           </HStack>
-          <VStack css={{ width: '100%', background: '#F8F8F8', borderRadius: '8px' }}>
-            <SnoozeOptionButton title='Snooze until tonight' position={ButtonPosition.Top} selected={snoozeOption == 'tonight'} onClick={() => setOption('tonight')} />
-            <SnoozeOptionButton title='Snooze until tomorrow' position={ButtonPosition.Middle} selected={snoozeOption == 'tomorrow'} onClick={() => setOption('tomorrow')} />
-            <SnoozeOptionButton title='Snooze until the weekend' position={ButtonPosition.Bottom} selected={snoozeOption == 'weekend'} onClick={() => setOption('weekend')} />
+          <VStack
+            css={{ width: '100%', background: '#F8F8F8', borderRadius: '8px' }}
+          >
+            <SnoozeOptionButton
+              title="Snooze until tonight"
+              position={ButtonPosition.Top}
+              selected={snoozeOption == 'tonight'}
+              onClick={() => setOption('tonight')}
+            />
+            <SnoozeOptionButton
+              title="Snooze until tomorrow"
+              position={ButtonPosition.Middle}
+              selected={snoozeOption == 'tomorrow'}
+              onClick={() => setOption('tomorrow')}
+            />
+            <SnoozeOptionButton
+              title="Snooze until the weekend"
+              position={ButtonPosition.Bottom}
+              selected={snoozeOption == 'weekend'}
+              onClick={() => setOption('weekend')}
+            />
           </VStack>
 
-          <Box css={{ mt: '16px', width: '100%', background: '#F8F8F8',  }}>
-            <SnoozeOptionButton title='Send me a reminder' position={ButtonPosition.Standalone} selected={sendReminder} 
+          <Box css={{ mt: '16px', width: '100%', background: '#F8F8F8' }}>
+            <SnoozeOptionButton
+              title="Send me a reminder"
+              position={ButtonPosition.Standalone}
+              selected={sendReminder}
               onClick={() => {
                 setSendReminder(!sendReminder)
               }}
             />
           </Box>
 
-          <HStack css={{ mt: '16px', justifyContent: 'space-between', width: '100%' }}>
+          <HStack
+            css={{ mt: '16px', justifyContent: 'space-between', width: '100%' }}
+          >
             <Button
-              title='Cancel'
-              css={{ fontSize: '16px', width: '158px', height: '52px', background: 'unset', border: 'unset', color: '#0A0806', fontWeight: '400' }}
+              title="Cancel"
+              css={{
+                fontSize: '16px',
+                width: '158px',
+                height: '52px',
+                background: 'unset',
+                border: 'unset',
+                color: '#0A0806',
+                fontWeight: '400',
+              }}
               onClick={() => {
                 props.onOpenChange(false)
               }}
-            >Cancel</Button>
+            >
+              Cancel
+            </Button>
             <Button
-              style='ctaDarkYellow'
-              title='Save'
-              css={{ fontSize: '16px', width: '158px', height: '52px', marginLeft: 'auto', color: '#0A0806', fontWeight: '400' }}
+              style="ctaDarkYellow"
+              title="Save"
+              css={{
+                fontSize: '16px',
+                width: '158px',
+                height: '52px',
+                marginLeft: 'auto',
+                color: '#0A0806',
+                fontWeight: '400',
+              }}
               onClick={() => {
                 if (snoozeOption) {
                   let msg = 'Link snoozed until '
@@ -149,10 +208,14 @@ export function SnoozeLinkModal(
                   props.submit(snoozeOption, sendReminder, msg)
                   props.onOpenChange(false)
                 } else {
-                  showErrorToast('No option selected', { position: 'bottom-right' })
+                  showErrorToast('No option selected', {
+                    position: 'bottom-right',
+                  })
                 }
               }}
-            >Save</Button>
+            >
+              Save
+            </Button>
           </HStack>
         </VStack>
       </ModalContent>

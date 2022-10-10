@@ -6,8 +6,8 @@ export default {
   component: OnboardingJoinCommunity,
 } as ComponentMeta<typeof OnboardingJoinCommunity>
 
-export const OnboardingPage6Story: ComponentStory<typeof OnboardingJoinCommunity> = (args: any) => {
-  return (
-    <OnboardingJoinCommunity pageNumber={6} />
-  )
+export const OnboardingPage6Story: ComponentStory<
+  typeof OnboardingJoinCommunity
+> = (args: any) => {
+  return <OnboardingJoinCommunity pageNumber={6} />
 }

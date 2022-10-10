@@ -1,31 +1,31 @@
 // Based on react-apple-login
 
-import React from "react";
+import React from 'react'
 
 export interface AppleLoginProps {
-  clientId: string;
-  redirectURI: string;
-  scope: string;
-  state?: string;
-  responseType?: string | "code" | "id_token";
-  responseMode?: string | "query" | "fragment" | "form_post";
-  nonce?: string;
+  clientId: string
+  redirectURI: string
+  scope: string
+  state?: string
+  responseType?: string | 'code' | 'id_token'
+  responseMode?: string | 'query' | 'fragment' | 'form_post'
+  nonce?: string
 }
 
 export const AppleIdButton = (props: AppleLoginProps) => {
   const {
     clientId,
     redirectURI,
-    state = "",
-    responseMode = "query",
-    responseType = "code",
-    nonce = "",
+    state = '',
+    responseMode = 'query',
+    responseType = 'code',
+    nonce = '',
     scope,
-  } = props;
+  } = props
 
   const onClick = async (e: any = null) => {
     if (e) {
-      e.preventDefault();
+      e.preventDefault()
     }
 
     const url = new URL(`https://appleid.apple.com/auth/authorize`)
@@ -35,16 +35,16 @@ export const AppleIdButton = (props: AppleLoginProps) => {
     url.searchParams.append('redirect_uri', redirectURI)
     url.searchParams.append('state', state)
     url.searchParams.append('nonce', nonce)
-    url.searchParams.append('scope', responseMode === "query" ? "" : scope)
+    url.searchParams.append('scope', responseMode === 'query' ? '' : scope)
     window.location.href = url.toString()
-
   }
 
   return (
     <>
       <div id="appleid-signin" onClick={onClick}>
-        <div dangerouslySetInnerHTML={{
-__html: `<div id="center-align-button"><div style=" font-synthesis: none; -moz-font-feature-settings: kern; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; width: 261px; height: 41px; min-width: 130px; max-width: 375px; min-height: 30px; max-height: 64px; position: relative; letter-spacing: initial;" role="button" tabindex="0" aria-label="Continue with Apple">
+        <div
+          dangerouslySetInnerHTML={{
+            __html: `<div id="center-align-button"><div style=" font-synthesis: none; -moz-font-feature-settings: kern; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; width: 261px; height: 41px; min-width: 130px; max-width: 375px; min-height: 30px; max-height: 64px; position: relative; letter-spacing: initial;" role="button" tabindex="0" aria-label="Continue with Apple">
 <div style=" padding-right: 8%; padding-left: 8%; position: absolute; box-sizing: border-box; width: 100%; height: 100%;">
 <svg xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; overflow: visible;" width="100%" height="100%">
 <g>
@@ -109,8 +109,9 @@ src: url(data:application/x-font-woff;charset=utf-8;base64,d09GRgABAAAAAAboAA8AA
 </svg>
 </div>
 <div style=" width: 100%; height: 100%; box-sizing: border-box;"><svg xmlns="http://www.w3.org/2000/svg" style=" overflow: visible;" width="100%" height="100%"><rect width="100%" height="100%" ry="15%" fill="#000"></rect></svg></div>
-</div></div>`
-        }} />
+</div></div>`,
+          }}
+        />
       </div>
     </>
   )

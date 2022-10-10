@@ -8,9 +8,6 @@ export default {
   component: Menubar,
 } as ComponentMeta<typeof Menubar>
 
-const Template: ComponentStory<typeof Menubar> = () => (
-  <Menubar/>
-)
+const Template: ComponentStory<typeof Menubar> = () => <Menubar />
 
 export const MenuStory = Template.bind({})
-

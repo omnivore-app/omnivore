@@ -10,8 +10,8 @@ export function SaveArticleIcon({
 }: CrossIconProps): JSX.Element {
   return (
     <svg
-    {...{width, height}}  
-    viewBox="0 0 174 121"
+      {...{ width, height }}
+      viewBox="0 0 174 121"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"

@@ -115,7 +115,7 @@ export function useGetArticleQuery({
   return {
     articleData: resultData,
     isLoading: !error && !data,
-    articleFetchError: resultError ? resultError as string[] : null,
+    articleFetchError: resultError ? (resultError as string[]) : null,
   }
 }
 

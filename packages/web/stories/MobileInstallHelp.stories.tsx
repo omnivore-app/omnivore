@@ -7,7 +7,8 @@ export default {
   component: MobileInstallHelp,
   argTypes: {
     onboarding: {
-      description: 'Changes the appearence of the component to match onboarding page designs.',
+      description:
+        'Changes the appearence of the component to match onboarding page designs.',
       control: { type: 'boolean' },
     },
   },

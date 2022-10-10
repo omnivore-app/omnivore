@@ -1,11 +1,6 @@
 import { PageMetaData, PageMetaDataProps } from '../patterns/PageMetaData'
 import { Box } from '../elements/LayoutPrimitives'
-import {
-  ReactNode,
-  MutableRefObject,
-  useEffect,
-  useState,
-} from 'react'
+import { ReactNode, MutableRefObject, useEffect, useState } from 'react'
 import { PrimaryHeader } from './../patterns/PrimaryHeader'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -61,14 +56,16 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
       {props.pageMetaDataProps ? (
         <PageMetaData {...props.pageMetaDataProps} />
       ) : null}
-      <Box css={{
-        width: '100vw',
-        height: '100vh',
-        bg: 'transparent',
-        '@smDown': {
-          bg: '$grayBase',
-        }
-      }}>
+      <Box
+        css={{
+          width: '100vw',
+          height: '100vh',
+          bg: 'transparent',
+          '@smDown': {
+            bg: '$grayBase',
+          },
+        }}
+      >
         <PrimaryHeader
           user={viewerData?.me}
           hideHeader={props.hideHeader}
@@ -88,11 +85,11 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           }}
         >
           <Box
-          css={{
-            height: '48px',
-            bg: '$grayBase',
-          }}
-        ></Box>
+            css={{
+              height: '48px',
+              bg: '$grayBase',
+            }}
+          ></Box>
           {props.children}
           {showLogoutConfirmation ? (
             <ConfirmationModal

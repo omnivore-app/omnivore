@@ -1,4 +1,3 @@
-
 type TwitterIconProps = {
   color: string
 }

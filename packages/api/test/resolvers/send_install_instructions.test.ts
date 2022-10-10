@@ -1,7 +1,4 @@
-import {
-  createTestUser,
-  deleteTestUser,
-} from '../db'
+import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import 'mocha'
 

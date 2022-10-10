@@ -46,28 +46,24 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
           <Button
             style="themeSwitch"
             css={{ background: '#FFFFFF' }}
-            data-state={isDark ? 'unselected' : 'selected' }
+            data-state={isDark ? 'unselected' : 'selected'}
             onClick={() => {
               props.actionHandler('apply-lighter-theme')
               setCurrentTheme(currentThemeName())
             }}
           >
-            {!isDark && (
-              <Check color='#F9D354' size={32} />
-            )}
+            {!isDark && <Check color="#F9D354" size={32} />}
           </Button>
           <Button
             style="themeSwitch"
             css={{ background: '#3D3D3D' }}
-            data-state={isDark ? 'selected' : 'unselected' }
+            data-state={isDark ? 'selected' : 'unselected'}
             onClick={() => {
               props.actionHandler('apply-dark-theme')
               setCurrentTheme(currentThemeName())
             }}
           >
-            {isDark && (
-              <Check color='#F9D354' size={32} />
-            )}
+            {isDark && <Check color="#F9D354" size={32} />}
           </Button>
         </HStack>
       </VStack>

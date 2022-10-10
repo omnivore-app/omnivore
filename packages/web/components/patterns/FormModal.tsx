@@ -35,7 +35,10 @@ export function FormModal(props: FormModalProps): JSX.Element {
         css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack>
-          <ModalTitleBar title={props.title} onOpenChange={props.onOpenChange} />
+          <ModalTitleBar
+            title={props.title}
+            onOpenChange={props.onOpenChange}
+          />
           <Box css={{ width: '100%' }}>
             <form
               onSubmit={(event) => {
@@ -46,15 +49,21 @@ export function FormModal(props: FormModalProps): JSX.Element {
             >
               {inputs.map((input, index) => (
                 <VStack key={index}>
-                  <StyledText style={'menuTitle'} css={{ pt: index > 0 ? '10px' : 'unset' }}>
+                  <StyledText
+                    style={'menuTitle'}
+                    css={{ pt: index > 0 ? '10px' : 'unset' }}
+                  >
                     {input.label}
-                    </StyledText>
+                  </StyledText>
                   <Box css={{ width: '100%' }}>
                     <GeneralFormInput {...input} />
                   </Box>
                 </VStack>
               ))}
-              <ModalButtonBar onOpenChange={props.onOpenChange} acceptButtonLabel={props.acceptButtonLabel} />
+              <ModalButtonBar
+                onOpenChange={props.onOpenChange}
+                acceptButtonLabel={props.acceptButtonLabel}
+              />
             </form>
           </Box>
         </VStack>

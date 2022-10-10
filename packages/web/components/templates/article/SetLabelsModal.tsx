@@ -33,24 +33,26 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
       >
         <VStack css={{ width: '100%' }}>
           <HStack
-              distribution="between"
-              alignment="center"
-              css={{ width: '100%' }}
+            distribution="between"
+            alignment="center"
+            css={{ width: '100%' }}
+          >
+            <StyledText style="modalHeadline" css={{ pl: '16px' }}>
+              Labels
+            </StyledText>
+            <Button
+              css={{ pt: '16px', pr: '16px' }}
+              style="ghost"
+              onClick={() => {
+                props.onOpenChange(false)
+              }}
+              tabIndex={-1}
             >
-              <StyledText style="modalHeadline" css={{ pl: '16px' }}>Labels</StyledText>
-              <Button
-                css={{ pt: '16px', pr: '16px' }}
-                style="ghost"
-                onClick={() => {
-                  props.onOpenChange(false)
-                }}
-                tabIndex={-1}
-              >
-                <CrossIcon
-                  size={14}
-                  strokeColor={theme.colors.grayText.toString()}
-                />
-              </Button>
+              <CrossIcon
+                size={14}
+                strokeColor={theme.colors.grayText.toString()}
+              />
+            </Button>
           </HStack>
           <SetLabelsControl {...props} />
         </VStack>

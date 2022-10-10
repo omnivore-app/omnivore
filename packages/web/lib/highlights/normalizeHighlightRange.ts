@@ -3,8 +3,12 @@ export function extendRangeToWordBoundaries(range: Range): void {
   const { nodeValue: endValue } = range.endContainer
   const noWordSnap = disableWordSnap(range.toString())
 
-  const startOffset = noWordSnap ? range.startOffset : findNextWord(range.startOffset, false, startValue)
-  const endOffset = noWordSnap ? range.endOffset : findNextWord(range.endOffset, true, endValue)
+  const startOffset = noWordSnap
+    ? range.startOffset
+    : findNextWord(range.startOffset, false, startValue)
+  const endOffset = noWordSnap
+    ? range.endOffset
+    : findNextWord(range.endOffset, true, endValue)
 
   try {
     range.setStart(range.startContainer, startOffset)
@@ -16,7 +20,7 @@ export function extendRangeToWordBoundaries(range: Range): void {
 
 function disableWordSnap(str: string): boolean {
   // For CJK languages we don't attempt word snapping
-  if (str.match(/[\u3131-\uD79D]/ugi)) {
+  if (str.match(/[\u3131-\uD79D]/giu)) {
     return true
   }
   return false

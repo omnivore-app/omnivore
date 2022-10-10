@@ -12,10 +12,7 @@ export type ScrollOffsetChangeset = {
 
 type Effect = (offset: ScrollOffsetChangeset) => void
 
-export function useScrollWatcher(
-  effect: Effect,
-  delay: number
-): void {
+export function useScrollWatcher(effect: Effect, delay: number): void {
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
   const [currentOffset, setCurrentOffset] = useState<ScrollOffset>({
     x: 0,
@@ -40,7 +37,6 @@ export function useScrollWatcher(
     }
 
     window.addEventListener('scroll', handleScroll)
-    return () =>
-      window.removeEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [currentOffset, delay, effect])
 }

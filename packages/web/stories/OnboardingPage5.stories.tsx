@@ -6,8 +6,8 @@ export default {
   component: OnboardingHighlightInstructions,
 } as ComponentMeta<typeof OnboardingHighlightInstructions>
 
-export const OnboardingPage5Story: ComponentStory<typeof OnboardingHighlightInstructions> = (args: any) => {
-  return (
-    <OnboardingHighlightInstructions pageNumber={5} />
-  )
+export const OnboardingPage5Story: ComponentStory<
+  typeof OnboardingHighlightInstructions
+> = (args: any) => {
+  return <OnboardingHighlightInstructions pageNumber={5} />
 }

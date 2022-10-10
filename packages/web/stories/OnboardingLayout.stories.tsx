@@ -24,8 +24,9 @@ export default {
       description: 'The image on the left column on the page',
     },
     nextPage: {
-      description: 'The link to which the user is sent when next button is pressed'
-    }
+      description:
+        'The link to which the user is sent when next button is pressed',
+    },
   },
 } as ComponentMeta<typeof OnboardingLayout>
 
@@ -40,5 +41,5 @@ OnboardingLayoutStory.args = {
   subTitle:
     'Save any link to your library using our apps and browser extensions',
   description: 'Install our apps and browser extensions',
-  children: <div>This is where the child is rendered.</div>
+  children: <div>This is where the child is rendered.</div>,
 }

@@ -28,7 +28,7 @@ const FullWidthContainer = styled(HStack, {
   width: '100%',
 })
 
-type ToastType  = 'success' | 'error'
+type ToastType = 'success' | 'error'
 
 const showToast = (
   message: string,
@@ -38,22 +38,33 @@ const showToast = (
 ) => {
   return toast(
     ({ id }) => (
-      <FullWidthContainer alignment='center'>
-        {type === 'success' ? <CheckCircle size={24} color='white' /> : <WarningCircle size={24} color='white' />}
+      <FullWidthContainer alignment="center">
+        {type === 'success' ? (
+          <CheckCircle size={24} color="white" />
+        ) : (
+          <WarningCircle size={24} color="white" />
+        )}
         <MessageContainer>{message}</MessageContainer>
-        <HStack distribution='end' css={{marginLeft: 16}}>
-          <X size={18} style={{cursor: 'pointer'}} color='#CCEAC4' weight='bold' onClick={() => toast.dismiss(id)} />
+        <HStack distribution="end" css={{ marginLeft: 16 }}>
+          <X
+            size={18}
+            style={{ cursor: 'pointer' }}
+            color="#CCEAC4"
+            weight="bold"
+            onClick={() => toast.dismiss(id)}
+          />
         </HStack>
       </FullWidthContainer>
     ),
     {
-    style: {
-      ...toastStyles,
-      background: background,
-    },
-    duration: 2000,
-    ...options,
-  })
+      style: {
+        ...toastStyles,
+        background: background,
+      },
+      duration: 2000,
+      ...options,
+    }
+  )
 }
 
 export const showSuccessToast = (message: string, options?: ToastOptions) => {

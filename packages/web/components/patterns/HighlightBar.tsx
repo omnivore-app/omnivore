@@ -133,10 +133,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
         >
           <HStack css={{ height: '100%', alignItems: 'center' }}>
-            <Trash
-              size={24}
-              color={theme.colors.omnivoreRed.toString()}
-            />
+            <Trash size={24} color={theme.colors.omnivoreRed.toString()} />
             <StyledText
               style="body"
               css={{
@@ -157,7 +154,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         style="plainIcon"
         title="Add Note to Highlight"
         onClick={() => props.handleButtonClick('comment')}
-        css={{ color: '$readerFont', height: '100%', m: 0, p: 0}}
+        css={{ color: '$readerFont', height: '100%', m: 0, p: 0 }}
       >
         <HStack css={{ height: '100%', alignItems: 'center' }}>
           <Note size={24} color={theme.colors.readerFont.toString()} />

@@ -183,7 +183,7 @@ export function libraryListCommands(
       actionDescription: 'Move cursor to the previous row',
       shortcutKeyDescription: 'Arrow Up',
       callback: () => actionHandler('moveFocusToPreviousRowItem'),
-    }
+    },
   ]
 }
 

@@ -42,7 +42,7 @@ export async function createLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation) as CreateLabelResult
+    const data = (await gqlFetcher(mutation)) as CreateLabelResult
     console.log('created label', data)
     return data.errorCodes ? undefined : data.createLabel.label
   } catch (error) {

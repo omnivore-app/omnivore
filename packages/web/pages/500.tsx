@@ -9,7 +9,7 @@ export default function Custom500(): JSX.Element {
         <title>An unknown error occurred.</title>
       </Head>
       <SettingsLayout title="An unknown error occurred">
-       <ErrorLayout statusCode={404} message="An unknown error occurred." />
+        <ErrorLayout statusCode={404} message="An unknown error occurred." />
       </SettingsLayout>
     </>
   )

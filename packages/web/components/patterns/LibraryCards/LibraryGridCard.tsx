@@ -16,12 +16,12 @@ const ellipsisText = {
   WebkitLineClamp: 1,
   WebkitBoxOrient: 'vertical',
   margin: 'auto 0',
-  pr:'10px',
+  pr: '10px',
 }
 
 const cardTitleStyle = {
   ...ellipsisText,
-  width:'100%',
+  width: '100%',
   fontSize: '14px',
   fontWeight: '600',
   textAlign: 'left',
@@ -33,9 +33,7 @@ type CardTitleProps = {
 }
 
 // Functions
-function CardTitle(
-  props: CardTitleProps,
-): JSX.Element {
+function CardTitle(props: CardTitleProps): JSX.Element {
   return (
     <StyledText style="listTitle" data-testid="listTitle" css={cardTitleStyle}>
       {props.title}
@@ -67,7 +65,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             distribution="start"
             alignment="start"
             css={{
-              width: '100%'
+              width: '100%',
             }}
           >
             <HStack
@@ -77,7 +75,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
                 display: 'grid',
                 gridTemplateColumns: '1fr 24px',
                 gridTemplateRows: '1fr',
-                width:'100%',
+                width: '100%',
               }}
             >
               <CardTitle title={props.item.title} />
@@ -104,10 +102,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
               </Box>
             </HStack>
             <HStack alignment="start" distribution="between">
-              <StyledText
-                style="caption"
-                css={{ fontWeight: '600'}}
-              >
+              <StyledText style="caption" css={{ fontWeight: '600' }}>
                 {props.item.author && (
                   <SpanBox>{removeHTMLTags(props.item.author)}</SpanBox>
                 )}
@@ -135,8 +130,8 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             distribution="between"
             css={{
               width: '100%',
-               pr: '12px',
-               flexGrow: '1',
+              pr: '12px',
+              flexGrow: '1',
             }}
           >
             <StyledText
@@ -166,7 +161,6 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
             }
           />
         </VStack>
-
       ) : (
         //  ELSE display List Layout
         <VStack

@@ -46,12 +46,15 @@ export function ArticleHeaderToolbar(
   return (
     <HStack distribution="between" alignment="center" css={{ gap: '$2' }}>
       {props.hasHighlights && (
-        <Button style="plainIcon" onClick={() => {
-          if (props.setShowHighlightsModal) {
-            props.setShowHighlightsModal(true)
-          }
-        }}
-          title="View all your highlights and notes">
+        <Button
+          style="plainIcon"
+          onClick={() => {
+            if (props.setShowHighlightsModal) {
+              props.setShowHighlightsModal(true)
+            }
+          }}
+          title="View all your highlights and notes"
+        >
           <CommentIcon
             size={24}
             strokeColor={theme.colors.grayTextContrast.toString()}

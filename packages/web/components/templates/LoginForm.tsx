@@ -41,25 +41,30 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
       <StyledTextHeadline>
         Read-it-later for serious readers.
       </StyledTextHeadline>
-      <StyledText css={{ fontStyle: 'normal',
-        fontWeight: '400',
-        fontSize: '18px',
-        lineHeight: '120%',
-        m: '0px',
-        color: '$omnivoreGray',
-      }}>
+      <StyledText
+        css={{
+          fontStyle: 'normal',
+          fontWeight: '400',
+          fontSize: '18px',
+          lineHeight: '120%',
+          m: '0px',
+          color: '$omnivoreGray',
+        }}
+      >
         Save articles and read them later in our distraction-free reader.
       </StyledText>
       <Link passHref href="/about">
         <a style={{ textDecoration: 'none' }}>
-          <StyledText css={{
-            fontStyle: 'normal',
-            fontWeight: '400',
-            fontSize: '18px',
-            lineHeight: '120%',
-            m: '0px',
-            color: '$omnivoreGray',
-          }}>
+          <StyledText
+            css={{
+              fontStyle: 'normal',
+              fontWeight: '400',
+              fontSize: '18px',
+              lineHeight: '120%',
+              m: '0px',
+              color: '$omnivoreGray',
+            }}
+          >
             Learn More -&gt;
           </StyledText>
         </a>
@@ -68,41 +73,44 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
       <SpanBox css={{ height: '24px' }} />
 
       <VStack alignment="start" distribution="center">
-      {googleID && (
-        <Box
-          style={{
-            cursor: 'pointer',
-            display: 'inline-flex',
-            height: '40px',
-          }}
-        >
-          <GoogleAuthButton />
-        </Box>
-      )}
+        {googleID && (
+          <Box
+            style={{
+              cursor: 'pointer',
+              display: 'inline-flex',
+              height: '40px',
+            }}
+          >
+            <GoogleAuthButton />
+          </Box>
+        )}
 
-      <Box style={{ height: '16px' }}></Box>
+        <Box style={{ height: '16px' }}></Box>
 
-      {appleAuthRedirectURI && (
-        <Box
-          style={{
-            cursor: 'pointer',
-            display: 'inline-flex',
-            width: '210px',
-            height: '40px',
-          }}
-        >
-          <AppleIdButton
-            clientId="app.omnivore"
-            scope="name email"
-            state="web:login"
-            redirectURI={appleAuthRedirectURI}
-            responseMode="form_post"
-            responseType="code id_token"
-          />
-        </Box>
-      )}
+        {appleAuthRedirectURI && (
+          <Box
+            style={{
+              cursor: 'pointer',
+              display: 'inline-flex',
+              width: '210px',
+              height: '40px',
+            }}
+          >
+            <AppleIdButton
+              clientId="app.omnivore"
+              scope="name email"
+              state="web:login"
+              redirectURI={appleAuthRedirectURI}
+              responseMode="form_post"
+              responseType="code id_token"
+            />
+          </Box>
+        )}
         <Link href="/auth/email-login" passHref>
-          <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray', pt: '12px' }}>
+          <StyledTextSpan
+            style="actionLink"
+            css={{ color: '$omnivoreGray', pt: '12px' }}
+          >
             Continue with Email
           </StyledTextSpan>
         </Link>
@@ -114,7 +122,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
 
 function GoogleAuthButton() {
   return (
-    <Box css={{  overflow: 'hidden' }}>
+    <Box css={{ overflow: 'hidden' }}>
       <div
         id="g_id_onload"
         data-client_id={googleID}
@@ -122,7 +130,6 @@ function GoogleAuthButton() {
         data-ux_mode="popup"
         data-login_uri={gauthRedirectURI}
         data-auto_prompt="false"
-        
       />
 
       <div

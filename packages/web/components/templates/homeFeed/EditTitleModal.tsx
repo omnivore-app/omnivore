@@ -18,7 +18,7 @@ import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 type EditTitleModalProps = {
   onOpenChange: (open: boolean) => void
   item: LibraryItem
-  updateItem: (item: LibraryItem) => Promise<void>,
+  updateItem: (item: LibraryItem) => Promise<void>
 }
 
 export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
@@ -32,7 +32,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
         title,
         description,
       })
-      
+
       if (res) {
         await props.updateItem({
           cursor: props.item.cursor,
@@ -52,7 +52,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
         })
       }
     } else {
-      showErrorToast('Title can\'t be empty', {
+      showErrorToast("Title can't be empty", {
         position: 'bottom-right',
       })
     }
@@ -65,7 +65,7 @@ export function EditTitleModal(props: EditTitleModalProps): JSX.Element {
         css={{ bg: '$grayBg', pt: '0px' }}
         onInteractOutside={() => {
           // remove focus from modal
-          (document.activeElement as HTMLElement).blur()
+          ;(document.activeElement as HTMLElement).blur()
         }}
       >
         <VStack distribution="start" css={{ p: '$2' }}>

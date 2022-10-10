@@ -53,8 +53,8 @@ export const TooltipContent = StyledContent
 export const TooltipArrow = StyledArrow
 
 type TooltipWrappedProps = {
-  tooltipContent: string;
-  active?: boolean;
+  tooltipContent: string
+  active?: boolean
   tooltipSide?: TooltipPrimitive.TooltipContentProps['side']
   align?: TooltipPrimitive.TooltipContentProps['align']
   alignOffset?: TooltipPrimitive.TooltipContentProps['alignOffset']
@@ -68,7 +68,7 @@ const DefaultTooltipStyle = {
 }
 
 const DefaultArrowStyle = {
-  fill: '#F9D354'
+  fill: '#F9D354',
 }
 
 export const TooltipWrapped: FC<TooltipWrappedProps> = ({

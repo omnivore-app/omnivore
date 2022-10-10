@@ -194,13 +194,10 @@ export const StyledList = styled('ul', {
   color: '$grayTextContrast',
 })
 
-export const StyledImg = styled('img', {
-})
+export const StyledImg = styled('img', {})
 
 export const StyledAnchor = styled('a', {
-  textDecoration: 'none'
+  textDecoration: 'none',
 })
 
-export const StyledMark = styled('mark', {
-
-})
+export const StyledMark = styled('mark', {})

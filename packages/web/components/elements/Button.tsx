@@ -65,7 +65,7 @@ export const Button = styled('button', {
         },
         '.ctaButtonIcon': {
           visibility: 'hidden',
-        }
+        },
       },
       ctaGray: {
         border: 0,
@@ -211,7 +211,7 @@ export const Button = styled('button', {
         },
         '&[data-state="selected"]': {
           border: '2px solid #F9D354',
-        }
+        },
       },
     },
   },

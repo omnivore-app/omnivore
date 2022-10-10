@@ -12,7 +12,8 @@ export async function createReminderMutation(
   linkId: string,
   reminderType: ReminderType,
   archiveUntil: boolean,
-  sendNotification: boolean): Promise<string | undefined> {
+  sendNotification: boolean
+): Promise<string | undefined> {
   const mutation = gql`
     mutation createReminderMutation($input: CreateReminderInput!) {
       createReminder(input: $input) {
@@ -35,7 +36,7 @@ export async function createReminderMutation(
       reminderType,
       archiveUntil,
       sendNotification,
-      scheduledAt: new Date()
+      scheduledAt: new Date(),
     }
     const data = await gqlFetcher(mutation, { input })
     console.log('created reminder', data)

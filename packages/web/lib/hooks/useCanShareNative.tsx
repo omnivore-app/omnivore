@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { isAndroid, isIOS } from "../deviceType";
+import { useMemo } from 'react'
+import { isAndroid, isIOS } from '../deviceType'
 
 export const useCanShareNative = (): boolean => {
   return useMemo(() => {

@@ -32,7 +32,9 @@ export default function LinkRequestPage(): JSX.Element {
       hideHeader={true}
       pageTestId={router.pathname}
     >
-      <Box css={{ bg: '$grayBase', height: '100vh', width: '100vw', px: '16px' }}>
+      <Box
+        css={{ bg: '$grayBase', height: '100vh', width: '100vw', px: '16px' }}
+      >
         {requestID && username ? (
           <PrimaryContent requestID={requestID} username={username} />
         ) : (
@@ -44,9 +46,7 @@ export default function LinkRequestPage(): JSX.Element {
 }
 
 function Loader(): JSX.Element {
-  return (
-    <Box />
-  )
+  return <Box />
 }
 
 type PrimaryContentProps = {

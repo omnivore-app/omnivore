@@ -10,7 +10,11 @@ type AvatarProps = {
 
 export function LibraryAvatar(props: AvatarProps): JSX.Element {
   return (
-    <VStack alignment="center" distribution="start" css={{ pl: '8px', width: '100%', height: '100%' }}>
+    <VStack
+      alignment="center"
+      distribution="start"
+      css={{ pl: '8px', width: '100%', height: '100%' }}
+    >
       <VStack css={{ height: '100%' }}>
         <StyledAvatar
           css={{
@@ -19,15 +23,18 @@ export function LibraryAvatar(props: AvatarProps): JSX.Element {
             borderRadius: '50%',
           }}
         >
-          {props.viewer?.profile.pictureUrl 
-            ? <StyledImage src={props.viewer.profile.pictureUrl} />
-            : <StyledFallback>{props.viewer?.name.charAt(0) ?? ''}</StyledFallback>
-          }
+          {props.viewer?.profile.pictureUrl ? (
+            <StyledImage src={props.viewer.profile.pictureUrl} />
+          ) : (
+            <StyledFallback>
+              {props.viewer?.name.charAt(0) ?? ''}
+            </StyledFallback>
+          )}
         </StyledAvatar>
       </VStack>
       {/* This spacer is to help align with items in the search box */}
       <SpanBox css={{ marginTop: 'auto', height: '10px', width: '100%' }} />
-    </VStack> 
+    </VStack>
   )
 }
 

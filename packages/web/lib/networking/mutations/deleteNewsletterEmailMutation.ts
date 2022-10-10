@@ -31,8 +31,12 @@ export async function deleteNewsletterEmailMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation, { newsletterEmailId }) as DeleteNewsletterEmailResult
-    return data.errorCodes ? undefined : data.deleteNewsletterEmail.newsletterEmail.id
+    const data = (await gqlFetcher(mutation, {
+      newsletterEmailId,
+    })) as DeleteNewsletterEmailResult
+    return data.errorCodes
+      ? undefined
+      : data.deleteNewsletterEmail.newsletterEmail.id
   } catch (error) {
     console.log('deleteNewsletterEmailMutation error', error)
     return undefined

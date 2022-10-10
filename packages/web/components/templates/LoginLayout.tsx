@@ -1,4 +1,10 @@
-import { Box, HStack, MediumBreakpointBox, SpanBox, VStack } from '../elements/LayoutPrimitives'
+import {
+  Box,
+  HStack,
+  MediumBreakpointBox,
+  SpanBox,
+  VStack,
+} from '../elements/LayoutPrimitives'
 import { LoginForm } from './LoginForm'
 import type { LoginFormProps } from './LoginForm'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
@@ -28,7 +34,10 @@ export function LoginLayout(props: LoginFormProps): JSX.Element {
           width: '100%',
         }}
       >
-        <OmnivoreNameLogo color={theme.colors.omnivoreGray.toString()} href='/login' />
+        <OmnivoreNameLogo
+          color={theme.colors.omnivoreGray.toString()}
+          href="/login"
+        />
       </Box>
     </>
   )
@@ -61,14 +70,16 @@ function MediumLoginLayout(props: LoginFormProps) {
         width: '100vw',
         height: '100vh',
         bg: '$omnivoreYellow',
-        overflowY: 'clip'
+        overflowY: 'clip',
       }}
     >
-      <Box css={{
-        width: '100%',
-        margin: '40px',
-        '@xl': { margin: '138px' },
-        }}>
+      <Box
+        css={{
+          width: '100%',
+          margin: '40px',
+          '@xl': { margin: '138px' },
+        }}
+      >
         <LoginForm {...props} />
       </Box>
       <OmnivoreIllustration isLargeLayout={true} />
@@ -82,22 +93,23 @@ type OmnivoreIllustrationProps = {
 
 function OmnivoreIllustration({ isLargeLayout }: OmnivoreIllustrationProps) {
   return (
-    <Box css={{
-      width: '100%',
-      height: '100%',
-      marginRight: '57px',
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundPositionY: '70px',
-      backgroundImage: `-webkit-image-set(
+    <Box
+      css={{
+        width: '100%',
+        height: '100%',
+        marginRight: '57px',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPositionY: '70px',
+        backgroundImage: `-webkit-image-set(
         url('/static/images/landing-illustration.png') 1x,
         url('/static/images/landing-illustration@2x.png') 2x
       )`,
-      'background-image': `image-set(
+        'background-image': `image-set(
         url('/static/images/landing-illustration.png') 1x,
         url('/static/images/landing-illustration@2x.png') 2x
-      )`
-    }} />
+      )`,
+      }}
+    />
   )
 }
-

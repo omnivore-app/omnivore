@@ -53,7 +53,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     return (
       <VStack>
         {input.options?.map((label, index) => (
-          <HStack key={index} alignment='center'>
+          <HStack key={index} alignment="center">
             <Checkbox
               key={index}
               checked={input.value[index]}
@@ -73,9 +73,19 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
     )
   } else if (props.type === 'select') {
     return (
-      <select onChange={input.onChange} style={{ padding: '8px', height: '38px', borderRadius: '6px', minWidth: '196px' }}>
+      <select
+        onChange={input.onChange}
+        style={{
+          padding: '8px',
+          height: '38px',
+          borderRadius: '6px',
+          minWidth: '196px',
+        }}
+      >
         {input.options?.map((label, index) => (
-          <option key={index} value={label}>{label}</option>
+          <option key={index} value={label}>
+            {label}
+          </option>
         ))}
       </select>
     )

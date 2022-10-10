@@ -29,7 +29,7 @@ const Modal = styled(Content, {
   boxShadow: theme.shadows.cardBoxShadow.toString(),
   position: 'fixed',
   '&:focus': { outline: 'none' },
-  zIndex:'1',
+  zIndex: '1',
 })
 
 export const ModalContent = styled(Modal, {
@@ -57,7 +57,7 @@ export const ModalTitleBar = (props: ModalTitleBarProps) => {
       alignment="center"
       css={{ height: '68px', width: '100%' }}
     >
-      <StyledText style="modalHeadline" css={{  }}>
+      <StyledText style="modalHeadline" css={{}}>
         {props.title}
       </StyledText>
       <Button
@@ -67,10 +67,7 @@ export const ModalTitleBar = (props: ModalTitleBarProps) => {
           props.onOpenChange(false)
         }}
       >
-        <X
-          size={24}
-          color={theme.colors.textNonessential.toString()}
-        />
+        <X size={24} color={theme.colors.textNonessential.toString()} />
       </Button>
     </HStack>
   )
@@ -98,7 +95,10 @@ export const ModalButtonBar = (props: ModalButtonBarProps) => {
         },
       }}
     >
-      <Button style={'ctaOutlineYellow'} type="button" onClick={(event) => {
+      <Button
+        style={'ctaOutlineYellow'}
+        type="button"
+        onClick={(event) => {
           event.preventDefault()
           props.onOpenChange(false)
         }}

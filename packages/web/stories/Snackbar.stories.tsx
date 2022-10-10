@@ -22,7 +22,13 @@ export default {
   },
 } as ComponentMeta<typeof Toaster>
 
-const Template = ({ showToast, position }: { showToast: () => void; position?: ToastPosition }) => (
+const Template = ({
+  showToast,
+  position,
+}: {
+  showToast: () => void
+  position?: ToastPosition
+}) => (
   <div>
     <Toaster position={position} />
     <div
@@ -33,7 +39,7 @@ const Template = ({ showToast, position }: { showToast: () => void; position?: T
         justifyContent: 'center',
       }}
     >
-      <Button style='ctaGray' onClick={showToast}>
+      <Button style="ctaGray" onClick={showToast}>
         Show Toast
       </Button>
     </div>

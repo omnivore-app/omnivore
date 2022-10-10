@@ -10,8 +10,6 @@ import { useCallback, useState } from 'react'
 import { LibraryItemsQueryInput } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
-
-
 export type SearchCoordinator = {
   applySearch: (searchTerm: string) => void
 }
@@ -22,7 +20,7 @@ const useSearchCoordinator = () => {
   }, [])
 
   return {
-    applySearch
+    applySearch,
   }
 }
 
@@ -41,7 +39,7 @@ const useLibraryLayoutCoordinator = () => {
 
   return {
     layout,
-    setLayout
+    setLayout,
   }
 }
 
@@ -54,7 +52,16 @@ export function LibraryContainer(): JSX.Element {
 
   return (
     <>
-      <VStack alignment="start" distribution="start" css={{ width: '100vw', height: '100vh', overflow: 'hidden', bg: '$libraryBackground' }}>
+      <VStack
+        alignment="start"
+        distribution="start"
+        css={{
+          width: '100vw',
+          height: '100vh',
+          overflow: 'hidden',
+          bg: '$libraryBackground',
+        }}
+      >
         <HStack alignment="start" distribution="start" css={{ width: '100%' }}>
           <SpanBox css={{ width: '100%', height: '90px' }}>
             <LibrarySearchBar coordinator={searchCoordinator} />
@@ -63,9 +70,17 @@ export function LibraryContainer(): JSX.Element {
             <LibraryAvatar viewer={viewerData?.me} />
           </SpanBox>
         </HStack>
-        <HStack alignment="start" distribution="start" css={{ width: '100%', height: '100%' }}>
+        <HStack
+          alignment="start"
+          distribution="start"
+          css={{ width: '100%', height: '100%' }}
+        >
           <LibraryMenu />
-          <VStack alignment="start" distribution="start" css={{ width: '100%', height: '100%', mr: '20px' }}>
+          <VStack
+            alignment="start"
+            distribution="start"
+            css={{ width: '100%', height: '100%', mr: '20px' }}
+          >
             <LibraryHeadline layoutCoordinator={layoutCoordinator} />
             <LibraryList layoutCoordinator={layoutCoordinator} />
           </VStack>

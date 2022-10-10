@@ -105,12 +105,14 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
 
   return (
     <>
-      <SpanBox css={{
-        display: props.alwaysDisplayToolbar ? 'none' : 'flex',
-        '@lgDown': {
-          display: 'none',
-        }
-      }}>
+      <SpanBox
+        css={{
+          display: props.alwaysDisplayToolbar ? 'none' : 'flex',
+          '@lgDown': {
+            display: 'none',
+          },
+        }}
+      >
         <FloatingNavHeader
           {...props}
           isVisible={true}
@@ -121,11 +123,13 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
           alwaysDisplayToolbar={props.alwaysDisplayToolbar}
         />
       </SpanBox>
-      <SpanBox css={{
-        '@lg': {
-          display: props.alwaysDisplayToolbar ? 'flex' : 'none',
-        }
-      }}>
+      <SpanBox
+        css={{
+          '@lg': {
+            display: props.alwaysDisplayToolbar ? 'flex' : 'none',
+          },
+        }}
+      >
         <NavHeader
           {...props}
           isVisible={true}
@@ -253,7 +257,7 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
             right: '18px',
             position: 'fixed',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
           <DropdownMenu
@@ -271,4 +275,3 @@ function FloatingNavHeader(props: NavHeaderProps): JSX.Element {
     </>
   )
 }
-

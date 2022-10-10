@@ -49,9 +49,11 @@ export async function userPersonalizationMutation(
 
   try {
     const data = await gqlFetcher(mutation, { input })
-    const result =  data as SetUserPersonalizationResult | undefined
+    const result = data as SetUserPersonalizationResult | undefined
     if (result?.setUserPersonalization?.updatedUserPersonalization) {
-      updateUserPreferencesCache(result.setUserPersonalization.updatedUserPersonalization)
+      updateUserPreferencesCache(
+        result.setUserPersonalization.updatedUserPersonalization
+      )
       return result.setUserPersonalization?.updatedUserPersonalization
     }
     return undefined

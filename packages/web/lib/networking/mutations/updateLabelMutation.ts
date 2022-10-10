@@ -3,8 +3,8 @@ import { gqlFetcher } from '../networkHelpers'
 
 export type UpdateLabelInput = {
   labelId: string
-  name: string,
-  color: string,
+  name: string
+  color: string
   description?: string
 }
 
@@ -39,7 +39,7 @@ export async function updateLabelMutation(
 
   try {
     const data = await gqlFetcher(mutation)
-    console.log(input, data);
+    console.log(input, data)
     const output = data as any
     console.log(output)
     return output?.updatedLabel

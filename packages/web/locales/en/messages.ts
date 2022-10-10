@@ -25,7 +25,8 @@ const errorMessages: Record<string, string> = {
     "Your sign up page has timed out, you'll be redirected to Google sign in page to authenticate again.",
   'error.USER_EXISTS': 'User with this email exists already',
   'error.UNKNOWN': 'An unknown error occurred',
-  'error.INVALID_PASSWORD': 'Invalid password. Password must be at least 8 chars.'
+  'error.INVALID_PASSWORD':
+    'Invalid password. Password must be at least 8 chars.',
 }
 
 const loginPageMessages: Record<string, string> = {
@@ -40,7 +41,7 @@ const loginPageMessages: Record<string, string> = {
   'login.SIGNUP_SUCCESS': 'Sign up successful',
 }
 
-export const formatMessage = (p: { id: string}): string | undefined=> {
+export const formatMessage = (p: { id: string }): string | undefined => {
   if (p.id in errorMessages) {
     return errorMessages[p.id]
   }

@@ -30,7 +30,9 @@ export function EmailResetPassword(): JSX.Element {
   const router = useRouter()
   const [token, setToken] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string>('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -38,7 +40,7 @@ export function EmailResetPassword(): JSX.Element {
     const errorMsg = errorCode
       ? formatMessage({ id: `error.${errorCode}` })
       : undefined
-    
+
     console.log('errorCode', errorCode, errorMsg)
 
     setErrorMessage(errorMsg)
@@ -52,7 +54,9 @@ export function EmailResetPassword(): JSX.Element {
   return (
     <form action={`${fetchEndpoint}/auth/reset-password`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
-        <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+        <VStack
+          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
+        >
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Enter new password</FormLabel>
             <BorderedFormInput
@@ -61,18 +65,21 @@ export function EmailResetPassword(): JSX.Element {
               name="password"
               value={password}
               placeholder="Password"
-              onChange={(e) => { e.preventDefault(); setPassword(e.target.value); }}
+              onChange={(e) => {
+                e.preventDefault()
+                setPassword(e.target.value)
+              }}
             />
-            <FormLabel css={{ fontSize: '12px' }}>(Password must be at least 8 chars)</FormLabel>
+            <FormLabel css={{ fontSize: '12px' }}>
+              (Password must be at least 8 chars)
+            </FormLabel>
 
             <input type="hidden" name="token" value={token} />
           </SpanBox>
         </VStack>
-        
-        {errorMessage && (
-          <StyledText style="error">{errorMessage}</StyledText>
-        )}
-        <Button type="submit" style="ctaDarkYellow" css={{  my: '$2' }}>
+
+        {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
+        <Button type="submit" style="ctaDarkYellow" css={{ my: '$2' }}>
           Update Password
         </Button>
       </VStack>

@@ -10,8 +10,8 @@ type MoreOptionsIconProps = {
 
 export function MoreOptionsIcon(props: MoreOptionsIconProps): JSX.Element {
   return props.orientation == 'horizontal' ? (
-      <DotsThree size={props.size} color={props.strokeColor}/>
-    ) : (
-      <DotsThreeVertical size={props.size} color={props.strokeColor}/>
-    )
+    <DotsThree size={props.size} color={props.strokeColor} />
+  ) : (
+    <DotsThreeVertical size={props.size} color={props.strokeColor} />
+  )
 }

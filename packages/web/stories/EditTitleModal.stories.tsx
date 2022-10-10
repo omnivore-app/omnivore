@@ -35,6 +35,5 @@ export const EditTitleModalStory: ComponentStory<typeof EditTitleModal> = (
       node: { title: '', description: '' } as LibraryItem['node'],
     }}
     updateItem={async () => console.log('update item')}
-    
   />
 )

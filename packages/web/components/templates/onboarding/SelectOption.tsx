@@ -15,39 +15,43 @@ export const SelectOption: React.FC<{
   onCheck: (idx: number) => void
   indexNum: number
   isChecked: boolean
-}> = ({ icon, label, description, onCheck, indexNum, isChecked}) => {
-
+}> = ({ icon, label, description, onCheck, indexNum, isChecked }) => {
   const toggleChecked = () => {
     onCheck(indexNum)
   }
 
   return (
-    <HStack onClick={toggleChecked} css={{
-      border: isChecked ? '1px solid #F9D354' : '1px solid #0000000F',
-      backgroundColor: isChecked ? '#FDFAEC' : '#FFFFFF',
-      boxShadow: '0px 3px 11px 0px #201F1D0A',
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      padding: '$2 $3',
-      marginBottom: 7,
-      width: '100%'
-    }}>
+    <HStack
+      onClick={toggleChecked}
+      css={{
+        border: isChecked ? '1px solid #F9D354' : '1px solid #0000000F',
+        backgroundColor: isChecked ? '#FDFAEC' : '#FFFFFF',
+        boxShadow: '0px 3px 11px 0px #201F1D0A',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        padding: '$2 $3',
+        marginBottom: 7,
+        width: '100%',
+      }}
+    >
       <Checkbox checked={isChecked} setChecked={() => undefined} />
       <SpanBox css={{ marginLeft: '$2', width: '32px', height: '32px' }}>
-        <Image width={32} height={32} layout="fixed"
+        <Image
+          width={32}
+          height={32}
+          layout="fixed"
           src={`/static/images/newsletter/${icon}`}
           alt={`${icon.slice(0, -4)} logo`}
         />
       </SpanBox>
-      <VStack css={{ border: '1', marginLeft: '$2', color: '#0A0806CC', }}>
+      <VStack css={{ border: '1', marginLeft: '$2', color: '#0A0806CC' }}>
         <StyledText
           css={{
             margin: 0,
             fontSize: 16,
             fontWeight: 700,
-            
           }}
         >
           {label}
@@ -67,17 +71,17 @@ export const SelectOption: React.FC<{
   )
 }
 
-export const SelectionOptionCard: React.FC <{
-  title: string,
-  author: string,
-  originText: string,
-  description: string,
-  image: string,
+export const SelectionOptionCard: React.FC<{
+  title: string
+  author: string
+  originText: string
+  description: string
+  image: string
   labels: Label[]
-}> = ({title, author, originText, description, image, labels}) => {
+}> = ({ title, author, originText, description, image, labels }) => {
   const [checked, setChecked] = React.useState(false)
   const toggleChecked = () => setChecked(!checked)
-  
+
   return (
     <VStack
       css={{
@@ -110,8 +114,7 @@ export const SelectionOptionCard: React.FC <{
             borderRadius: '100vmax 100vmax 0 0',
           },
         }}
-      >
-      </Box>
+      ></Box>
       <VStack
         distribution="start"
         alignment="start"
@@ -134,12 +137,14 @@ export const SelectionOptionCard: React.FC <{
             gridTemplateRows: '1fr',
           }}
         >
-          <HStack css={{
-            alignItems: 'center'
-          }}>
-            <Checkbox {...{checked, setChecked}} />
-            <HStack css={{marginRight: '$2'}} />
-            <CardTitle title= {title} />
+          <HStack
+            css={{
+              alignItems: 'center',
+            }}
+          >
+            <Checkbox {...{ checked, setChecked }} />
+            <HStack css={{ marginRight: '$2' }} />
+            <CardTitle title={title} />
           </HStack>
           <Box
             css={{ alignSelf: 'end', alignItems: 'start', height: '100%' }}
@@ -148,15 +153,12 @@ export const SelectionOptionCard: React.FC <{
               // up and causing us to "click" on the link item.
               e.stopPropagation()
             }}
-          >
-          </Box>
+          ></Box>
         </HStack>
         <HStack alignment="start" distribution="between">
           <StyledText style="caption" css={{ my: '0' }}>
             {author && (
-              <SpanBox css={{ mr: '8px' }}>
-                {authoredByText(author)}
-              </SpanBox>
+              <SpanBox css={{ mr: '8px' }}>{authoredByText(author)}</SpanBox>
             )}
             <SpanBox css={{ textDecorationLine: 'underline' }}>
               {originText}

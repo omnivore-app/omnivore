@@ -13,14 +13,12 @@ type ShareArticleModalProps = {
   onOpenChange: (open: boolean) => void
 }
 
-export function ShareArticleModal(
-  props: ShareArticleModalProps
-): JSX.Element {
+export function ShareArticleModal(props: ShareArticleModalProps): JSX.Element {
   return (
     <ShareModalLayout
       url={props.url}
-      type='link'
-      modalTitle='Share Article'
+      type="link"
+      modalTitle="Share Article"
       title={props.title}
       description={props.description}
       onOpenChange={props.onOpenChange}
@@ -34,6 +32,6 @@ export function ShareArticleModal(
         originalArticleUrl={props.originalArticleUrl}
         description={props.description}
       />
-    </ShareModalLayout>      
+    </ShareModalLayout>
   )
 }

@@ -129,8 +129,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const updateColorMode = (event: UpdateColorModeEvent) => {
-      const isDark = event.isDark ?? "false"
-      updateThemeLocally(isDark === "true" ? ThemeId.Dark : ThemeId.Light)
+      const isDark = event.isDark ?? 'false'
+      updateThemeLocally(isDark === 'true' ? ThemeId.Dark : ThemeId.Light)
     }
 
     const share = () => {

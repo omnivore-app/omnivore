@@ -32,7 +32,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       headerToolbarControl={
         <ArticleActionsMenu
           article={undefined}
-          layout='top'
+          layout="top"
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
@@ -44,42 +44,45 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       }}
     >
       <TopBarProgress />
-      <VStack distribution="between" alignment="center" css={{
-        position: 'fixed',
-        flexDirection: 'row-reverse',
-        top: '-120px',
-        left: 8,
-        height: '100%',
-        width: '35px',
-        '@lgDown': {
-          display: 'none',
-        },
+      <VStack
+        distribution="between"
+        alignment="center"
+        css={{
+          position: 'fixed',
+          flexDirection: 'row-reverse',
+          top: '-120px',
+          left: 8,
+          height: '100%',
+          width: '35px',
+          '@lgDown': {
+            display: 'none',
+          },
         }}
       >
         <ArticleActionsMenu
           article={undefined}
-          layout='side'
+          layout="side"
           showReaderDisplaySettings={true}
           articleActionHandler={readerSettings.actionHandler}
         />
       </VStack>
-        <VStack
-          alignment="center"
-          distribution="center"
-          className="disable-webkit-callout"
-          css={{
-            '@smDown': {
-              background: theme.colors.grayBg.toString(),
-            }
-          }}
+      <VStack
+        alignment="center"
+        distribution="center"
+        className="disable-webkit-callout"
+        css={{
+          '@smDown': {
+            background: theme.colors.grayBg.toString(),
+          },
+        }}
+      >
+        <SkeletonArticleContainer
+          margin={readerSettings.marginWidth}
+          fontSize={readerSettings.fontSize}
+          lineHeight={readerSettings.lineHeight}
         >
-          <SkeletonArticleContainer
-            margin={readerSettings.marginWidth}
-            fontSize={readerSettings.fontSize}
-            lineHeight={readerSettings.lineHeight}
-          >
-            {articleId ? <PrimaryContent articleId={articleId} /> : <Loader />}
-          </SkeletonArticleContainer>
+          {articleId ? <PrimaryContent articleId={articleId} /> : <Loader />}
+        </SkeletonArticleContainer>
       </VStack>
     </PrimaryLayout>
   )
@@ -121,7 +124,5 @@ function PrimaryContent(props: PrimaryContentProps): JSX.Element {
     router.replace(successRedirectPath)
   }
 
-  return (
-    <Loader />
-  )
+  return <Loader />
 }

@@ -163,7 +163,6 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         libraryActiveMenuItem: '#F8F8F8',
         border: '#F0F0F0',
 
-
         //utility
         textNonEssential: 'rgba(10, 8, 6, 0.4)',
         overlay: 'rgba(63, 62, 60, 0.2)',
@@ -249,8 +248,8 @@ export const lighterTheme = createTheme(ThemeId.Lighter, {})
 
 // Apply global styles in here
 export const globalStyles = globalCss({
-  'body': {
-    backgroundColor: '$grayBase'
+  body: {
+    backgroundColor: '$grayBase',
   },
   '*': {
     '&:focus': {

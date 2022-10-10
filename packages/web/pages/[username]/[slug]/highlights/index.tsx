@@ -14,12 +14,11 @@ type PublicHighlightsPageProps = {
 export default function PublicHighlightsPage(
   props: PublicHighlightsPageProps
 ): JSX.Element {
-
   useEffect(() => {
     window.analytics?.track('public_link_read', {
       link: props.publicArticle.id,
       slug: props.publicArticle.slug,
-      url: props.publicArticle.url
+      url: props.publicArticle.url,
     })
   }, [props.publicArticle.url])
 

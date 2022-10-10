@@ -9,7 +9,10 @@ import { showSuccessToast } from '../../lib/toastHelpers'
 export default function ForgotPassword(): JSX.Element {
   return (
     <>
-      <PageMetaData title="Reset your password - Omnivore" path="/auth-forgot-password" />
+      <PageMetaData
+        title="Reset your password - Omnivore"
+        path="/auth-forgot-password"
+      />
       <Toaster
         containerStyle={{
           top: '5rem',

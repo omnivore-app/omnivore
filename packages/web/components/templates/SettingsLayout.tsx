@@ -20,7 +20,8 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
-  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] = useState(false)
+  const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
+    useState(false)
 
   useKeyboardShortcuts(navigationCommands(router))
   applyStoredTheme(false)
@@ -41,39 +42,39 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
 
   return (
     <>
-      <PageMetaData path='settings' title='Settings' />
-        <PrimaryHeader
-          user={viewerData?.me}
-          isTransparent={false}
-          userInitials={viewerData?.me?.name.charAt(0) ?? ''}
-          profileImageURL={viewerData?.me?.profile.pictureUrl}
-          setShowLogoutConfirmation={setShowLogoutConfirmation}
-          setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
-        />
-        <Box
-          css={{
-            top: '48px',
-            position: 'fixed',
-            overflowY: 'auto',
-            height: '100%',
-            width: '100vw',
-            bg: '$grayBase',
-          }}
-        >
-          {props.children}
-          {showLogoutConfirmation ? (
-            <ConfirmationModal
-              message={'Are you sure you want to log out?'}
-              onAccept={logout}
-              onOpenChange={() => setShowLogoutConfirmation(false)}
-            />
-          ) : null}
-          {showKeyboardCommandsModal ? (
-            <KeyboardShortcutListModal
-              onOpenChange={() => setShowKeyboardCommandsModal(false)}
-            />
-          ) : null}
-        </Box>
+      <PageMetaData path="settings" title="Settings" />
+      <PrimaryHeader
+        user={viewerData?.me}
+        isTransparent={false}
+        userInitials={viewerData?.me?.name.charAt(0) ?? ''}
+        profileImageURL={viewerData?.me?.profile.pictureUrl}
+        setShowLogoutConfirmation={setShowLogoutConfirmation}
+        setShowKeyboardCommandsModal={setShowKeyboardCommandsModal}
+      />
+      <Box
+        css={{
+          top: '48px',
+          position: 'fixed',
+          overflowY: 'auto',
+          height: '100%',
+          width: '100vw',
+          bg: '$grayBase',
+        }}
+      >
+        {props.children}
+        {showLogoutConfirmation ? (
+          <ConfirmationModal
+            message={'Are you sure you want to log out?'}
+            onAccept={logout}
+            onOpenChange={() => setShowLogoutConfirmation(false)}
+          />
+        ) : null}
+        {showKeyboardCommandsModal ? (
+          <KeyboardShortcutListModal
+            onOpenChange={() => setShowKeyboardCommandsModal(false)}
+          />
+        ) : null}
+      </Box>
     </>
   )
 }

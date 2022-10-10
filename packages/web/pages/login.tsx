@@ -32,13 +32,16 @@ export default function Login(): JSX.Element {
 
   return (
     <>
-      <Head>
-      </Head>
+      <Head></Head>
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
       />
-      <PageMetaData title="Welcome to Omnivore" path="/login" ogImage='/static/images/og-homepage.png' />
+      <PageMetaData
+        title="Welcome to Omnivore"
+        path="/login"
+        ogImage="/static/images/og-homepage.png"
+      />
       <LoginLayout {...loginFormProps} />
       <div data-testid="login-page-tag" />
     </>

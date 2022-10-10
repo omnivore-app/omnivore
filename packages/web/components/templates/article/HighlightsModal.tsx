@@ -4,7 +4,13 @@ import {
   ModalContent,
   ModalTitleBar,
 } from '../../elements/ModalPrimitives'
-import { Box, HStack, VStack, Separator, SpanBox } from '../../elements/LayoutPrimitives'
+import {
+  Box,
+  HStack,
+  VStack,
+  Separator,
+  SpanBox,
+} from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
 import { CrossIcon } from '../../elements/images/CrossIcon'
@@ -20,13 +26,14 @@ import { Pen, Trash } from 'phosphor-react'
 
 type HighlightsModalProps = {
   highlights: Highlight[]
-  scrollToHighlight?: (arg: string) => void;
+  scrollToHighlight?: (arg: string) => void
   deleteHighlightAction?: (highlightId: string) => void
   onOpenChange: (open: boolean) => void
 }
 
 export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
-  const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] = useState<undefined | string>(undefined)
+  const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
+    useState<undefined | string>(undefined)
 
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
@@ -39,7 +46,10 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
         css={{ overflow: 'auto', px: '24px' }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
-          <ModalTitleBar title="All your highlights and notes" onOpenChange={props.onOpenChange} />
+          <ModalTitleBar
+            title="All your highlights and notes"
+            onOpenChange={props.onOpenChange}
+          />
           <Box css={{ overflow: 'auto', mt: '24px', width: '100%' }}>
             {props.highlights.map((highlight) => (
               <ModalHighlightView
@@ -47,7 +57,9 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
                 highlight={highlight}
                 showDelete={!!props.deleteHighlightAction}
                 scrollToHighlight={props.scrollToHighlight}
-                setShowConfirmDeleteHighlightId={setShowConfirmDeleteHighlightId}
+                setShowConfirmDeleteHighlightId={
+                  setShowConfirmDeleteHighlightId
+                }
                 deleteHighlightAction={() => {
                   if (props.deleteHighlightAction) {
                     props.deleteHighlightAction(highlight.id)
@@ -56,31 +68,33 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
               />
             ))}
             {props.highlights.length === 0 && (
-              <SpanBox css={{ textAlign: 'center', width: '100%',  }}>
-                <StyledText css={{ mb: '40px' }}>You have not added any highlights or notes to this document</StyledText>
+              <SpanBox css={{ textAlign: 'center', width: '100%' }}>
+                <StyledText css={{ mb: '40px' }}>
+                  You have not added any highlights or notes to this document
+                </StyledText>
               </SpanBox>
             )}
           </Box>
         </VStack>
       </ModalContent>
       {showConfirmDeleteHighlightId ? (
-          <ConfirmationModal
-            message={'Are you sure you want to delete this highlight?'}
-            onAccept={() => {
-              if (props.deleteHighlightAction) {
-                props.deleteHighlightAction(showConfirmDeleteHighlightId)
-              }
-              setShowConfirmDeleteHighlightId(undefined)
-            }}
-            onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
-            icon={
-              <TrashIcon
-                size={40}
-                strokeColor={theme.colors.grayTextContrast.toString()}
-              />
+        <ConfirmationModal
+          message={'Are you sure you want to delete this highlight?'}
+          onAccept={() => {
+            if (props.deleteHighlightAction) {
+              props.deleteHighlightAction(showConfirmDeleteHighlightId)
             }
-          />
-        ) : null}
+            setShowConfirmDeleteHighlightId(undefined)
+          }}
+          onOpenChange={() => setShowConfirmDeleteHighlightId(undefined)}
+          icon={
+            <TrashIcon
+              size={40}
+              strokeColor={theme.colors.grayTextContrast.toString()}
+            />
+          }
+        />
+      ) : null}
     </ModalRoot>
   )
 }
@@ -88,7 +102,7 @@ export function HighlightsModal(props: HighlightsModalProps): JSX.Element {
 type ModalHighlightViewProps = {
   highlight: Highlight
   showDelete: boolean
-  scrollToHighlight?: (arg: string) => void;
+  scrollToHighlight?: (arg: string) => void
   deleteHighlightAction: () => void
   setShowConfirmDeleteHighlightId: (id: string | undefined) => void
 }
@@ -114,8 +128,17 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
       css={{ width: '100%', pt: '$2' }}
     >
       {props.showDelete && (
-        <Button style="ghost" onClick={() => props.setShowConfirmDeleteHighlightId(props.highlight.id)}>
-          <Trash width={18} height={18} color={theme.colors.grayText.toString()} />
+        <Button
+          style="ghost"
+          onClick={() =>
+            props.setShowConfirmDeleteHighlightId(props.highlight.id)
+          }
+        >
+          <Trash
+            width={18}
+            height={18}
+            color={theme.colors.grayText.toString()}
+          />
         </Button>
       )}
     </HStack>
@@ -153,12 +176,26 @@ function ModalHighlightView(props: ModalHighlightViewProps): JSX.Element {
   return (
     <>
       <VStack>
-        <HighlightView scrollToHighlight={props.scrollToHighlight} highlight={props.highlight} />
+        <HighlightView
+          scrollToHighlight={props.scrollToHighlight}
+          highlight={props.highlight}
+        />
         {props.highlight.annotation && !isEditing ? (
-          <StyledText css={{ borderRadius: '6px', bg: '$grayBase', p: '16px', width: '100%' }}>{props.highlight.annotation}</StyledText>
+          <StyledText
+            css={{
+              borderRadius: '6px',
+              bg: '$grayBase',
+              p: '16px',
+              width: '100%',
+            }}
+          >
+            {props.highlight.annotation}
+          </StyledText>
         ) : null}
         {isEditing ? <TextEditArea /> : <ButtonStack />}
-        <Separator css={{ mt: '$2', mb: '$4', background: '$grayTextContrast' }} />
+        <Separator
+          css={{ mt: '$2', mb: '$4', background: '$grayTextContrast' }}
+        />
       </VStack>
     </>
   )

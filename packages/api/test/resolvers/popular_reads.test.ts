@@ -45,17 +45,28 @@ describe('PopularReads API', () => {
   describe('addPopularRead', () => {
     it('should add a new article if the readName is valid', async () => {
       const readName = 'omnivore_get_started'
-      const res = await graphqlRequest(addPopularReadQuery(readName), authToken).expect(200)
+      const res = await graphqlRequest(
+        addPopularReadQuery(readName),
+        authToken
+      ).expect(200)
       expect(res.body.data.addPopularRead.pageId).to.be
 
-      const page = await getPageByParam({ userId: user.id, _id: res.body.data.addPopularRead.pageId })
-      expect(page?.url).to.eq('https://blog.omnivore.app/p/getting-started-with-omnivore')
+      const page = await getPageByParam({
+        userId: user.id,
+        _id: res.body.data.addPopularRead.pageId,
+      })
+      expect(page?.url).to.eq(
+        'https://blog.omnivore.app/p/getting-started-with-omnivore'
+      )
     })
 
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       const readName = 'omnivore_get_started'
-      return graphqlRequest(addPopularReadQuery(readName), invalidAuthToken).expect(500)
+      return graphqlRequest(
+        addPopularReadQuery(readName),
+        invalidAuthToken
+      ).expect(500)
     })
   })
 })

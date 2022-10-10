@@ -16,9 +16,9 @@ type OnboardingLayoutProps = {
   description?: string
   children: ReactNode
   image?: ReactNode
-  nextPage?: string,
-  reduceSpace?: boolean,
-  onNext?: () => void | Promise<void>,
+  nextPage?: string
+  reduceSpace?: boolean
+  onNext?: () => void | Promise<void>
 }
 
 export const OnboardingLayout = ({
@@ -36,29 +36,30 @@ export const OnboardingLayout = ({
 
   const NextButton = () => {
     const handleNext = async () => {
-      onNext && await onNext()
-      router.push(nextPage ?? `/onboarding/0${pageNumber+1}`)
+      onNext && (await onNext())
+      router.push(nextPage ?? `/onboarding/0${pageNumber + 1}`)
     }
 
     return (
-    <Button
-      style="ctaDarkYellow"
-      css={{ 
-        width: '111px',
-        height: '44px',
-        color: 'rgba(10, 8, 6, 0.8)',
-        fontWeight: 600,
-        fontSize: '16px',
-        textDecoration: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-      onClick={handleNext}
-    >
-      Next
-    </Button>
-  )}
+      <Button
+        style="ctaDarkYellow"
+        css={{
+          width: '111px',
+          height: '44px',
+          color: 'rgba(10, 8, 6, 0.8)',
+          fontWeight: 600,
+          fontSize: '16px',
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onClick={handleNext}
+      >
+        Next
+      </Button>
+    )
+  }
 
   return (
     <>
@@ -255,4 +256,3 @@ export const OnboardingLayout = ({
     </>
   )
 }
-

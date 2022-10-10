@@ -11,13 +11,14 @@ type OnboardingInstallInstructionsProps = {
   pageNumber: number
 }
 
-export const OnboardingInstallInstructions = (props: OnboardingInstallInstructionsProps) => {
+export const OnboardingInstallInstructions = (
+  props: OnboardingInstallInstructionsProps
+) => {
   const onEmailInstructionsClick = async () => {
     const res = await sendInstallInstructions()
     if (res !== undefined) {
       showSuccessToast('Instructions Email Sent', { position: 'bottom-right' })
-    }
-    else {
+    } else {
       showErrorToast('Failed to send', { position: 'bottom-right' })
     }
   }
@@ -27,19 +28,21 @@ export const OnboardingInstallInstructions = (props: OnboardingInstallInstructio
       pageNumber={props.pageNumber}
       title="Save links to read later"
       subTitle="Save any link to your library using our apps and browser extensions"
-      description='Install our apps and browser extensions'
+      description="Install our apps and browser extensions"
       image={
         <img
-          src='/static/images/onboarding/browser-extension.svg'
+          src="/static/images/onboarding/browser-extension.svg"
           alt="Browser Extension"
         />
       }
     >
-      <Box css={{
-        "@lgDown": {
-          marginBottom: 100,
-        }
-      }}>
+      <Box
+        css={{
+          '@lgDown': {
+            marginBottom: 100,
+          },
+        }}
+      >
         <Box
           css={{
             margin: '27px 0',
@@ -97,4 +100,3 @@ export const OnboardingInstallInstructions = (props: OnboardingInstallInstructio
     </OnboardingLayout>
   )
 }
-

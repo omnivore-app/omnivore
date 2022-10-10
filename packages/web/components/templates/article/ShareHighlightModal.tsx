@@ -17,8 +17,10 @@ export function ShareHighlightModal(
   return (
     <ShareModalLayout
       url={props.url}
-      type='highlight'
-      modalTitle={`Share Highlight ${props.highlight?.annotation ? '& Note' : ''}`}
+      type="highlight"
+      modalTitle={`Share Highlight ${
+        props.highlight?.annotation ? '& Note' : ''
+      }`}
       title={props.title}
       description={props.description}
       onOpenChange={props.onOpenChange}
@@ -28,6 +30,6 @@ export function ShareHighlightModal(
         author={props.author}
         highlight={props.highlight}
       />
-    </ShareModalLayout>    
+    </ShareModalLayout>
   )
 }

@@ -10,7 +10,9 @@ type SkeletonArticleContainerProps = {
   children?: React.ReactNode
 }
 
-export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): JSX.Element {
+export function SkeletonArticleContainer(
+  props: SkeletonArticleContainerProps
+): JSX.Element {
   const styles = {
     margin: props.margin ?? 360,
     fontSize: props.fontSize ?? 20,
@@ -51,11 +53,11 @@ export function SkeletonArticleContainer(props: SkeletonArticleContainerProps): 
             margin: `30px 0px`,
           },
           '@md': {
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
           '@lg': {
             margin: `30px 0`,
-            maxWidth: 1024 - (styles.margin),
+            maxWidth: 1024 - styles.margin,
           },
         }}
       >

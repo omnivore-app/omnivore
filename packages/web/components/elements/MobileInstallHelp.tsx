@@ -39,7 +39,13 @@ export default function MobileInstallHelp({
     },
   ]
 
-  const iosContainerStyles = { marginTop: '12px', width: '100%', height: '40px', display: 'flex', justifyContent: !onboarding ? 'flex-end' : 'initial'}
+  const iosContainerStyles = {
+    marginTop: '12px',
+    width: '100%',
+    height: '40px',
+    display: 'flex',
+    justifyContent: !onboarding ? 'flex-end' : 'initial',
+  }
 
   return (
     <Box
@@ -179,7 +185,7 @@ export default function MobileInstallHelp({
         <Box
           css={
             !onboarding
-              ? { ...iosContainerStyles, '@lg': { pl: '16px'} }
+              ? { ...iosContainerStyles, '@lg': { pl: '16px' } }
               : {
                   ...iosContainerStyles,
                   pl: 16,
@@ -224,7 +230,7 @@ export default function MobileInstallHelp({
                   '@lg': {
                     width: '146px',
                     // maxWidth: '210px'
-                  }
+                  },
                 }
           }
         >

@@ -7,7 +7,7 @@ import crypto from 'crypto'
  * // returns "a3dcb4d2-29de-6fde-0db5-686dee47145d"
  * return uuidWithMd5({ foo: 'bar' }, true)
  */
- export default function objectToHash(
+export default function objectToHash(
   obj: unknown,
   convertToUUID = false
 ): string {

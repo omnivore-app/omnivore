@@ -69,7 +69,7 @@ const TableHeading = styled(Box, {
   width: '100%',
   '@md': {
     display: 'flex',
-  }
+  },
 })
 
 const Input = styled('input', {
@@ -158,7 +158,11 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 
   const copy = useCallback(() => {
     copyLink()
-    showSuccessToast(props.type == TextType.EmailAddress ? 'Email Address Copied' : 'Confirmation Code Copied');
+    showSuccessToast(
+      props.type == TextType.EmailAddress
+        ? 'Email Address Copied'
+        : 'Confirmation Code Copied'
+    )
   }, [])
 
   return (
@@ -219,11 +223,7 @@ export default function EmailsPage(): JSX.Element {
         <HeaderWrapper>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
             <Box>
-              <StyledText
-                style="fixedHeadline"
-              >
-                Email Addresses{' '}
-              </StyledText>
+              <StyledText style="fixedHeadline">Email Addresses </StyledText>
             </Box>
             <InfoLink href="/help/newsletters" />
             <Button
@@ -235,27 +235,31 @@ export default function EmailsPage(): JSX.Element {
                 marginLeft: 'auto',
               }}
             >
-              <SpanBox css={{
-                display: 'none',
-                '@md': {
-                  display: 'flex',
-                },
-              }}>
+              <SpanBox
+                css={{
+                  display: 'none',
+                  '@md': {
+                    display: 'flex',
+                  },
+                }}
+              >
                 <SpanBox>Create a new email address</SpanBox>
               </SpanBox>
-              <SpanBox css={{
-                p: '0',
-                display: 'flex',
-                '@md': {
-                  display: 'none',
-                },
-              }}>
+              <SpanBox
+                css={{
+                  p: '0',
+                  display: 'flex',
+                  '@md': {
+                    display: 'none',
+                  },
+                }}
+              >
                 <Plus size={24} />
               </SpanBox>
             </Button>
           </Box>
           <TableHeading>
-          <Box
+            <Box
               css={{
                 flex: '49%',
               }}
@@ -296,7 +300,6 @@ export default function EmailsPage(): JSX.Element {
                   '@mdDown': {
                     borderTopLeftRadius: i === 0 ? '5px' : '',
                     borderTopRightRadius: i === 0 ? '5px' : '',
-
                   },
                   borderBottomLeftRadius: isLastChild ? '5px' : '',
                   borderBottomRightRadius: isLastChild ? '5px' : '',
@@ -384,7 +387,7 @@ export default function EmailsPage(): JSX.Element {
                             css={{
                               '@mdDown': {
                                 border: 'none',
-                              }
+                              },
                             }}
                           >
                             <CopyTextButton

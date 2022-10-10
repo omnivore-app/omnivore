@@ -34,7 +34,7 @@ export async function deleteLabelMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation) as DeleteLabelResult
+    const data = (await gqlFetcher(mutation)) as DeleteLabelResult
     return data.errorCodes ? undefined : data.deleteLabel.label.id
   } catch (error) {
     console.log('deleteLabelMutation error', error)

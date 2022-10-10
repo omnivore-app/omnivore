@@ -22,12 +22,11 @@ export function Loader(): JSX.Element {
       }}
     >
       <Box>
-        <LogoIcon
-          size={140}
-          strokeColor={theme.colors.grayText.toString()}
-        />
+        <LogoIcon size={140} strokeColor={theme.colors.grayText.toString()} />
       </Box>
-      <StyledText style="subHeadline" className='loading'
+      <StyledText
+        style="subHeadline"
+        className="loading"
         css={{
           color: theme.colors.grayText.toString(),
           '&:after': {
@@ -36,7 +35,10 @@ export function Loader(): JSX.Element {
             content: 'test',
             animation: `${breathe} steps(1,end) 2s infinite`,
           },
-        }}>Saving Link</StyledText>
+        }}
+      >
+        Saving Link
+      </StyledText>
     </VStack>
   )
 }

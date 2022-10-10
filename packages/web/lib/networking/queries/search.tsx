@@ -11,7 +11,7 @@ export async function searchQuery({
   limit = 10,
   searchQuery,
 }: LibraryItemsQueryInput): Promise<LibraryItemsData | undefined> {
-    const query = gql`
+  const query = gql`
     query Search($after: String, $first: Int, $query: String) {
       search(first: $first, after: $after, query: $query) {
         ... on SearchSuccess {
@@ -71,8 +71,8 @@ export async function searchQuery({
   }
 
   try {
-    const data = (await gqlFetcher(query, {...variables}))
-    return data as LibraryItemsData || undefined;
+    const data = await gqlFetcher(query, { ...variables })
+    return (data as LibraryItemsData) || undefined
   } catch (error) {
     console.log('search error', error)
     return undefined

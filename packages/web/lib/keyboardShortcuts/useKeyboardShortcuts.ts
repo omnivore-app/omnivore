@@ -54,8 +54,8 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
         })
       })
     })
-    
-    KBAR_KEYS.map((key) => currentKeys[key.toLowerCase()] = false)
+
+    KBAR_KEYS.map((key) => (currentKeys[key.toLowerCase()] = false))
     return currentKeys
   }, [commands])
 

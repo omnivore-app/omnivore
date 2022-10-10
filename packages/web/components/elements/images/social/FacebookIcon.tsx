@@ -1,4 +1,3 @@
-
 type FacebookIconProps = {
   color: string
 }

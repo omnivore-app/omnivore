@@ -1,14 +1,20 @@
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import { removeItemFromCache, useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
+import {
+  removeItemFromCache,
+  useGetArticleQuery,
+} from '../../../lib/networking/queries/useGetArticleQuery'
 import { useRouter } from 'next/router'
 import { VStack } from './../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { articleKeyboardCommands, navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
+import {
+  articleKeyboardCommands,
+  navigationCommands,
+} from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
 import { webBaseURL } from '../../../lib/appConfig'
 import { Toaster } from 'react-hot-toast'
@@ -32,7 +38,6 @@ import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 
-
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
   { ssr: false }
@@ -47,7 +52,7 @@ export default function Home(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const readerSettings = useReaderSettings()
 
-  const { articleData,  articleFetchError } = useGetArticleQuery({
+  const { articleData, articleFetchError } = useGetArticleQuery({
     username: router.query.username as string,
     slug: router.query.slug as string,
     includeFriendsHighlights: false,
@@ -62,11 +67,12 @@ export default function Home(): JSX.Element {
 
   useKeyboardShortcuts(navigationCommands(router))
 
-  const actionHandler = useCallback(async(action: string, arg?: unknown) => {
-    console.log('handling action: ', action, article)
+  const actionHandler = useCallback(
+    async (action: string, arg?: unknown) => {
+      console.log('handling action: ', action, article)
 
-    switch (action) {
-      case 'unarchive':
+      switch (action) {
+        case 'unarchive':
           if (article) {
             removeItemFromCache(cache, mutate, article.id)
 
@@ -88,45 +94,49 @@ export default function Home(): JSX.Element {
             router.push(`/home`)
           }
           break
-      case 'archive':
-        if (article) {
-          removeItemFromCache(cache, mutate, article.id)
+        case 'archive':
+          if (article) {
+            removeItemFromCache(cache, mutate, article.id)
 
-          await setLinkArchivedMutation({
-            linkId: article.id,
-            archived: true,
-          }).then((res) => {
-            if (res) {
-              showSuccessToast('Link archived', { position: 'bottom-right' })
-            } else {
-              // todo: revalidate or put back in cache?
-              showErrorToast('Error archiving link', { position: 'bottom-right' })
-            }
-          })
+            await setLinkArchivedMutation({
+              linkId: article.id,
+              archived: true,
+            }).then((res) => {
+              if (res) {
+                showSuccessToast('Link archived', { position: 'bottom-right' })
+              } else {
+                // todo: revalidate or put back in cache?
+                showErrorToast('Error archiving link', {
+                  position: 'bottom-right',
+                })
+              }
+            })
 
-          router.push(`/home`)
-        }
-        break
-      case 'delete':
-        readerSettings.setShowDeleteConfirmation(true)
-        break
-      case 'openOriginalArticle':
-        const url = article?.url
-        if (url) {
-          window.open(url, '_blank')
-        }
-        break
-      case 'refreshLabels':
-        setLabels(arg as Label[])
-        break
-      case 'showHighlights':
-        setShowHighlightsModal(true)
-        break
-      default:
-        readerSettings.actionHandler(action, arg)
-        break
-    }
-  }, [article, cache, mutate, router, readerSettings])
+            router.push(`/home`)
+          }
+          break
+        case 'delete':
+          readerSettings.setShowDeleteConfirmation(true)
+          break
+        case 'openOriginalArticle':
+          const url = article?.url
+          if (url) {
+            window.open(url, '_blank')
+          }
+          break
+        case 'refreshLabels':
+          setLabels(arg as Label[])
+          break
+        case 'showHighlights':
+          setShowHighlightsModal(true)
+          break
+        default:
+          readerSettings.actionHandler(action, arg)
+          break
+      }
+    },
+    [article, cache, mutate, router, readerSettings]
+  )
 
   useEffect(() => {
     const archive = () => {
@@ -161,16 +171,15 @@ export default function Home(): JSX.Element {
         link: article.id,
         slug: article.slug,
         url: article.originalArticleUrl,
-        userId: viewerData.me.id
+        userId: viewerData.me.id,
       })
     }
   }, [article, viewerData])
-  
+
   const deleteCurrentItem = useCallback(async () => {
     if (article) {
       removeItemFromCache(cache, mutate, article.id)
-      await deleteLinkMutation(article.id)
-      .then((res) => {
+      await deleteLinkMutation(article.id).then((res) => {
         if (res) {
           showSuccessToast('Page deleted', { position: 'bottom-right' })
         } else {
@@ -182,60 +191,63 @@ export default function Home(): JSX.Element {
     }
   }, [article])
 
-  useRegisterActions([
-    {
-      id: 'open',
-      section: 'Article',
-      name: 'Open original article',
-      shortcut: ['o'],
-      perform: () => {
-        document.dispatchEvent(new Event('openOriginalArticle'));
-      }
-    },
-    {
-      id: 'back_home',
-      section: 'Article',
-      name: 'Return to library',
-      shortcut: ['u'],
-      perform: () => router.push(`/home`),
-    },
-    {
-      id: 'archive',
-      section: 'Article',
-      name: 'Archive current item',
-      shortcut: ['e'],
-      perform: () => {
-        document.dispatchEvent(new Event('archive'));
-      }
-    },
-    {
-      id: 'delete',
-      section: 'Article',
-      name: 'Delete current item',
-      shortcut: ['#'],
-      perform: () => {
-        document.dispatchEvent(new Event('delete'));
-      }
-    },
-    {
-      id: 'highlight',
-      section: 'Article',
-      name: 'Highlight selected text',
-      shortcut: ['h'],
-      perform: () => {
-        document.dispatchEvent(new Event('highlight'));
+  useRegisterActions(
+    [
+      {
+        id: 'open',
+        section: 'Article',
+        name: 'Open original article',
+        shortcut: ['o'],
+        perform: () => {
+          document.dispatchEvent(new Event('openOriginalArticle'))
+        },
       },
-    },
-    {
-      id: 'note',
-      section: 'Article',
-      name: 'Highlight selected text and add a note',
-      shortcut: ['n'],
-      perform: () => {
-        document.dispatchEvent(new Event('annotate'));
+      {
+        id: 'back_home',
+        section: 'Article',
+        name: 'Return to library',
+        shortcut: ['u'],
+        perform: () => router.push(`/home`),
       },
-    },
-  ], [])
+      {
+        id: 'archive',
+        section: 'Article',
+        name: 'Archive current item',
+        shortcut: ['e'],
+        perform: () => {
+          document.dispatchEvent(new Event('archive'))
+        },
+      },
+      {
+        id: 'delete',
+        section: 'Article',
+        name: 'Delete current item',
+        shortcut: ['#'],
+        perform: () => {
+          document.dispatchEvent(new Event('delete'))
+        },
+      },
+      {
+        id: 'highlight',
+        section: 'Article',
+        name: 'Highlight selected text',
+        shortcut: ['h'],
+        perform: () => {
+          document.dispatchEvent(new Event('highlight'))
+        },
+      },
+      {
+        id: 'note',
+        section: 'Article',
+        name: 'Highlight selected text and add a note',
+        shortcut: ['n'],
+        perform: () => {
+          document.dispatchEvent(new Event('annotate'))
+        },
+      },
+    ],
+    []
+  )
 
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')
@@ -248,7 +260,7 @@ export default function Home(): JSX.Element {
       headerToolbarControl={
         <ArticleActionsMenu
           article={article}
-          layout='top'
+          layout="top"
           showReaderDisplaySettings={article?.contentReader != 'PDF'}
           articleActionHandler={actionHandler}
         />
@@ -268,22 +280,25 @@ export default function Home(): JSX.Element {
       />
       <Toaster />
 
-      <VStack distribution="between" alignment="center" css={{
-        position: 'fixed',
-        flexDirection: 'row-reverse',
-        top: '-120px',
-        left: 8,
-        height: '100%',
-        width: '35px',
-        '@lgDown': {
-          display: 'none',
-        },
+      <VStack
+        distribution="between"
+        alignment="center"
+        css={{
+          position: 'fixed',
+          flexDirection: 'row-reverse',
+          top: '-120px',
+          left: 8,
+          height: '100%',
+          width: '35px',
+          '@lgDown': {
+            display: 'none',
+          },
         }}
       >
         {article?.contentReader !== 'PDF' ? (
           <ArticleActionsMenu
             article={article}
-            layout='side'
+            layout="side"
             showReaderDisplaySettings={true}
             articleActionHandler={actionHandler}
           />
@@ -305,7 +320,7 @@ export default function Home(): JSX.Element {
           css={{
             '@smDown': {
               background: theme.colors.grayBg.toString(),
-            }
+            },
           }}
         >
           {article && viewerData?.me ? (
@@ -352,7 +367,9 @@ export default function Home(): JSX.Element {
         <DisplaySettingsModal
           centerX={true}
           articleActionHandler={actionHandler}
-          onOpenChange={() => readerSettings.setShowEditDisplaySettingsModal(false)}
+          onOpenChange={() =>
+            readerSettings.setShowEditDisplaySettingsModal(false)
+          }
         />
       )}
       {readerSettings.showDeleteConfirmation && (

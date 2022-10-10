@@ -16,18 +16,18 @@ const TooltipStyle = {
 export function InfoLink(props: InfoLinkProps): JSX.Element {
   return (
     <Box style={{ flex: '1', marginLeft: '9px' }}>
-    <Link passHref href={props.href}>
-      <a style={{ textDecoration: 'none' }}>
-        <TooltipWrapped
-          tooltipContent="Learn More"
-          tooltipSide={'top'}
-          style={TooltipStyle}
-          arrowStyles={{ fill: '#F9D354' }}
-        >
-          <Info size={24} color={theme.colors.grayText.toString()} />
-        </TooltipWrapped>
-      </a>
-    </Link>
-  </Box>
+      <Link passHref href={props.href}>
+        <a style={{ textDecoration: 'none' }}>
+          <TooltipWrapped
+            tooltipContent="Learn More"
+            tooltipSide={'top'}
+            style={TooltipStyle}
+            arrowStyles={{ fill: '#F9D354' }}
+          >
+            <Info size={24} color={theme.colors.grayText.toString()} />
+          </TooltipWrapped>
+        </a>
+      </Link>
+    </Box>
   )
 }

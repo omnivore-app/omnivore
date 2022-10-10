@@ -22,14 +22,14 @@ export function Separator(props: SeparatorProps): JSX.Element {
           mr: '$2',
           content: "''",
           flex: 1,
-          borderBottom: `1px solid ${color}`
+          borderBottom: `1px solid ${color}`,
         },
         '&:after': {
           ml: '$2',
           content: "''",
           flex: 1,
-          borderBottom: `1px solid ${color}`
-        }
+          borderBottom: `1px solid ${color}`,
+        },
       }}
     >
       {props.children}

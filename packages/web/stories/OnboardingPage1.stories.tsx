@@ -6,8 +6,8 @@ export default {
   component: OnboardingReaderPreview,
 } as ComponentMeta<typeof OnboardingReaderPreview>
 
-export const OnboardingPage1Story: ComponentStory<typeof OnboardingReaderPreview> = (args: any) => {
-  return (
-    <OnboardingReaderPreview pageNumber={1} />
-  )
+export const OnboardingPage1Story: ComponentStory<
+  typeof OnboardingReaderPreview
+> = (args: any) => {
+  return <OnboardingReaderPreview pageNumber={1} />
 }

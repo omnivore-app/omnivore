@@ -46,13 +46,14 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
   try {
     if (data) {
       const result = data as NewsletterEmailsResponseData
-      const emailAddresses = result.newsletterEmails?.newsletterEmails as NewsletterEmail[]
+      const emailAddresses = result.newsletterEmails
+        ?.newsletterEmails as NewsletterEmail[]
       return {
         isValidating,
         emailAddresses,
         revalidate: () => {
           mutate(undefined, true)
-        }
+        },
       }
     }
   } catch (error) {
@@ -62,6 +63,6 @@ export function useGetNewsletterEmailsQuery(): NewsletterEmailsQueryResponse {
     isValidating: false,
     emailAddresses: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    revalidate: () => {}
+    revalidate: () => {},
   }
 }

@@ -1,6 +1,10 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { makePublicGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
+import {
+  makePublicGqlFetcher,
+  RequestContext,
+  ssrFetcher,
+} from '../networkHelpers'
 import { Highlight } from '../fragments/highlightFragment'
 
 type PublicArticleQueryInput = {
@@ -125,7 +129,12 @@ export async function publicArticleQuery(
   context: RequestContext,
   input: PublicArticleQueryInput
 ): Promise<PublicArticleAttributes> {
-  const result = (await ssrFetcher(context, query, input, false)) as PublicArticleData
+  const result = (await ssrFetcher(
+    context,
+    query,
+    input,
+    false
+  )) as PublicArticleData
   if (result.sharedArticle.article) {
     return result.sharedArticle.article
   }

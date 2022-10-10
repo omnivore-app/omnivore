@@ -112,9 +112,7 @@ export default function ExtensionsInstallHelp({
             height: '130px',
           }}
         >
-          <img
-            src="/static/images/extension-preview.svg"
-          />
+          <img src="/static/images/extension-preview.svg" />
         </Box>
       </Box>
       <Box

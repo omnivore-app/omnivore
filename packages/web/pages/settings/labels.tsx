@@ -28,10 +28,8 @@ import {
   GenericTableCardProps,
   LabelColorHex,
 } from '../../utils/settings-page/labels/types'
-import { labelColorObjects, } from '../../utils/settings-page/labels/labelColorObjects'
-import {
-  TooltipWrapped
-} from '../../components/elements/Tooltip'
+import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
+import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
 import {
   Dropdown,
@@ -157,7 +155,9 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<string | null>(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
+    string | null
+  >(null)
   const breakpoint = 768
 
   applyStoredTheme(false)
@@ -206,14 +206,13 @@ export default function LabelsPage(): JSX.Element {
     revalidate()
   }
 
-  const onEditPress = (label : Label | null) => {
+  const onEditPress = (label: Label | null) => {
     if (label) {
       setEditingLabelId(label.id)
       setNameInputText(label.name)
       setDescriptionInputText(label.description || '')
       setLabelColorHex({ rowId: '', value: label.color })
-    }
-    else {
+    } else {
       resetLabelState()
     }
   }
@@ -261,25 +260,23 @@ export default function LabelsPage(): JSX.Element {
       >
         {confirmRemoveLabelId ? (
           <ConfirmationModal
-            message={'Are you sure? Deleting a label will remove it from all pages.'}
+            message={
+              'Are you sure? Deleting a label will remove it from all pages.'
+            }
             onAccept={() => {
               onDeleteLabel(confirmRemoveLabelId)
-              setConfirmRemoveLabelId(null)}
-            }
+              setConfirmRemoveLabelId(null)
+            }}
             onOpenChange={() => setConfirmRemoveLabelId(null)}
           />
         ) : null}
         <HeaderWrapper>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
             <Box>
-              <StyledText
-                style="fixedHeadline"
-              >
-                Labels{' '}
-              </StyledText>
+              <StyledText style="fixedHeadline">Labels </StyledText>
             </Box>
             <InfoLink href="/help/labels" />
-            <Box css={{display: 'flex', justifyContent: 'flex-end' }}>
+            <Box css={{ display: 'flex', justifyContent: 'flex-end' }}>
               {isCreateMode ? null : (
                 <>
                   <Button
@@ -294,21 +291,25 @@ export default function LabelsPage(): JSX.Element {
                       alignItems: 'center',
                     }}
                   >
-                    <SpanBox css={{
-                      display: 'none',
-                      '@md': {
-                        display: 'flex',
-                      },
-                    }}>
+                    <SpanBox
+                      css={{
+                        display: 'none',
+                        '@md': {
+                          display: 'flex',
+                        },
+                      }}
+                    >
                       <SpanBox>Add Label</SpanBox>
                     </SpanBox>
-                    <SpanBox css={{
-                      p: '0',
-                      display: 'flex',
-                      '@md': {
-                        display: 'none',
-                      },
-                    }}>
+                    <SpanBox
+                      css={{
+                        p: '0',
+                        display: 'flex',
+                        '@md': {
+                          display: 'none',
+                        },
+                      }}
+                    >
                       <Plus size={24} />
                     </SpanBox>
                   </Button>
@@ -363,46 +364,58 @@ export default function LabelsPage(): JSX.Element {
         </>
         {labels
           ? labels.map((label, i) => {
-            const isLastChild = i === labels.length - 1
-            const isFirstChild = i === 0
-            const cardProps = {
-              label: label,
-              labelColorHex: labelColorHex,
-              editingLabelId: editingLabelId,
-              isCreateMode: isCreateMode,
-              isLastChild: isLastChild,
-              isFirstChild: isFirstChild,
-              handleGenerateRandomColor: handleGenerateRandomColor,
-              setEditingLabelId: setEditingLabelId,
-              setLabelColorHex: setLabelColorHex,
-              deleteLabel: deleteLabel,
-              nameInputText: nameInputText,
-              descriptionInputText: descriptionInputText,
-              setNameInputText: setNameInputText,
-              setDescriptionInputText: setDescriptionInputText,
-              setIsCreateMode: setIsCreateMode,
-              createLabel: createLabel,
-              resetState: resetLabelState,
-              updateLabel: updateLabel,
-            }
-
-            if (editingLabelId == label.id) {
-              if (windowWidth >= breakpoint) {
-                return <DesktopEditCard {...cardProps} />
-              } else {
-                return <MobileEditCard {...cardProps} />
+              const isLastChild = i === labels.length - 1
+              const isFirstChild = i === 0
+              const cardProps = {
+                label: label,
+                labelColorHex: labelColorHex,
+                editingLabelId: editingLabelId,
+                isCreateMode: isCreateMode,
+                isLastChild: isLastChild,
+                isFirstChild: isFirstChild,
+                handleGenerateRandomColor: handleGenerateRandomColor,
+                setEditingLabelId: setEditingLabelId,
+                setLabelColorHex: setLabelColorHex,
+                deleteLabel: deleteLabel,
+                nameInputText: nameInputText,
+                descriptionInputText: descriptionInputText,
+                setNameInputText: setNameInputText,
+                setDescriptionInputText: setDescriptionInputText,
+                setIsCreateMode: setIsCreateMode,
+                createLabel: createLabel,
+                resetState: resetLabelState,
+                updateLabel: updateLabel,
               }
-            }
 
-            return (<GenericTableCard key={label.id} {...cardProps} onEditPress={onEditPress} />)
-          }) : null}
+              if (editingLabelId == label.id) {
+                if (windowWidth >= breakpoint) {
+                  return <DesktopEditCard {...cardProps} />
+                } else {
+                  return <MobileEditCard {...cardProps} />
+                }
+              }
+
+              return (
+                <GenericTableCard
+                  key={label.id}
+                  {...cardProps}
+                  onEditPress={onEditPress}
+                />
+              )
+            })
+          : null}
       </VStack>
       <Box css={{ height: '120px' }} />
     </PrimaryLayout>
   )
 }
 
-function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean; isFirstChild?: boolean}) {
+function GenericTableCard(
+  props: GenericTableCardProps & {
+    isLastChild?: boolean
+    isFirstChild?: boolean
+  }
+) {
   const {
     label,
     isLastChild,
@@ -423,10 +436,10 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
     onEditPress,
     resetState,
   } = props
-  const showInput =
-    editingLabelId === label?.id || (isCreateMode && !label)
-  const labelColor = editingLabelId === label?.id ? labelColorHex.value : label?.color
-  const iconColor = isDarkTheme() ? '#D8D7D5': '#5F5E58'
+  const showInput = editingLabelId === label?.id || (isCreateMode && !label)
+  const labelColor =
+    editingLabelId === label?.id ? labelColorHex.value : label?.color
+  const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
 
   const handleEdit = () => {
     editingLabelId && updateLabel(editingLabelId)
@@ -477,7 +490,12 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             >
               <Trash size={24} color="#AA2D11" />
               <StyledText
-                css={{ m: '0px', fontSize: '$5', marginLeft: '$2', color: '#AA2D11' }}
+                css={{
+                  m: '0px',
+                  fontSize: '$5',
+                  marginLeft: '$2',
+                  color: '#AA2D11',
+                }}
               >
                 Delete
               </StyledText>
@@ -490,15 +508,16 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
 
   return (
     <TableCard
-    css={{
-      '&:hover': {
-        background: 'rgba(255, 234, 159, 0.12)',
-      },
-      borderTopLeftRadius: isFirstChild ? '5px' : '',
-      borderTopRightRadius: isFirstChild ? '5px' : '',
-      borderBottomLeftRadius: isLastChild ? '5px' : '',
-      borderBottomRightRadius: isLastChild ? '5px' : '',
-    }}>
+      css={{
+        '&:hover': {
+          background: 'rgba(255, 234, 159, 0.12)',
+        },
+        borderTopLeftRadius: isFirstChild ? '5px' : '',
+        borderTopRightRadius: isFirstChild ? '5px' : '',
+        borderBottomLeftRadius: isLastChild ? '5px' : '',
+        borderBottomRightRadius: isLastChild ? '5px' : '',
+      }}
+    >
       <TableCardBox
         css={{
           display: 'grid',
@@ -530,17 +549,22 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             padding: '0 5px',
           }}
         >
-          {(showInput && !label) ? null : (
-            <HStack alignment="center" css={{ ml: '16px', '@smDown': { ml: '0px' } }}>
+          {showInput && !label ? null : (
+            <HStack
+              alignment="center"
+              css={{ ml: '16px', '@smDown': { ml: '0px' } }}
+            >
               <LabelChip color={labelColor || ''} text={label?.name || ''} />
             </HStack>
           )}
-          {(showInput && !label) ? (
-            <SpanBox css={{
-              '@smDown': {
-                display: 'none',
-              },
-            }}>
+          {showInput && !label ? (
+            <SpanBox
+              css={{
+                '@smDown': {
+                  display: 'none',
+                },
+              }}
+            >
               <Input
                 type="text"
                 value={nameInputText}
@@ -565,7 +589,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           {showInput ? (
             <Input
               type="text"
-              placeholder='Description (optional)'
+              placeholder="Description (optional)"
               value={descriptionInputText}
               onChange={(event) => setDescriptionInputText(event.target.value)}
               autoFocus={!!label}
@@ -578,7 +602,9 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
                 fontSize: '14px',
               }}
             >
-              {editingLabelId === label?.id ? descriptionInputText : label?.description || ''}
+              {editingLabelId === label?.id
+                ? descriptionInputText
+                : label?.description || ''}
             </StyledText>
           )}
         </HStack>
@@ -603,31 +629,33 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             />
           )}
           {showInput && (
-          <TooltipWrapped
-            tooltipSide={'top'}
-            tooltipContent='Random Color'
-            arrowStyles={{fill: '#F9D354'}}
-            style={{backgroundColor: '#F9D354', color: 'black'}}
-          >
-            <Box css={{py: 4}}>
-              <IconButton
-                style="ctaWhite"
-                css={{
-                  mr: '$1',
-                  width: 40,
-                  height: 40,
-                  background: '$labelButtonsBg',
-                }}
-                onClick={() => handleGenerateRandomColor(label?.id)}
-                disabled={!(isCreateMode && !label) && !(editingLabelId === label?.id)}
-              >
-                <ArrowClockwise size={16} color={iconColor} />
-              </IconButton>
-            </Box>
-          </TooltipWrapped>
+            <TooltipWrapped
+              tooltipSide={'top'}
+              tooltipContent="Random Color"
+              arrowStyles={{ fill: '#F9D354' }}
+              style={{ backgroundColor: '#F9D354', color: 'black' }}
+            >
+              <Box css={{ py: 4 }}>
+                <IconButton
+                  style="ctaWhite"
+                  css={{
+                    mr: '$1',
+                    width: 40,
+                    height: 40,
+                    background: '$labelButtonsBg',
+                  }}
+                  onClick={() => handleGenerateRandomColor(label?.id)}
+                  disabled={
+                    !(isCreateMode && !label) && !(editingLabelId === label?.id)
+                  }
+                >
+                  <ArrowClockwise size={16} color={iconColor} />
+                </IconButton>
+              </Box>
+            </TooltipWrapped>
           )}
           {!showInput && (
-            <Box css={{ marginLeft: 'auto', '@md': { display: 'none' }}}>
+            <Box css={{ marginLeft: 'auto', '@md': { display: 'none' } }}>
               {moreActionsButton()}
             </Box>
           )}
@@ -647,7 +675,7 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
           {showInput && (
             <Input
               type="text"
-              placeholder='What this label is about...'
+              placeholder="What this label is about..."
               value={descriptionInputText}
               onChange={(event) => setDescriptionInputText(event.target.value)}
               autoFocus={!!label}
@@ -662,57 +690,55 @@ function GenericTableCard(props: GenericTableCardProps & { isLastChild?: boolean
             padding: '0px 8px',
           }}
         >
-            {editingLabelId === label?.id || !label ? (
-              <>
-                <Button
-                  style="plainIcon"
-                  css={{ mr: '$1' }}
-                  onClick={() => {
-                    resetState()
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  style="ctaDarkYellow"
-                  css={{ my: '0px', mr: '$1' }}
-                  onClick={() =>
-                    label ? handleEdit() : createLabel()
-                  }
-                >
-                  Save
-                </Button>
-              </>
-            ) : (
-              <HStack
-                distribution="end"
-                alignment="end"
-                css={{
-                  display: 'none',
-                  '@md': {
-                    display: 'flex',
-                    width: '100%'
-                  },
+          {editingLabelId === label?.id || !label ? (
+            <>
+              <Button
+                style="plainIcon"
+                css={{ mr: '$1' }}
+                onClick={() => {
+                  resetState()
                 }}
               >
-                <IconButton
-                  style="ctaWhite"
-                  css={{ mr: '$1', background: '$labelButtonsBg' }}
-                  onClick={() => onEditPress(label)}
-                  disabled={isCreateMode}
-                >
-                  <PencilSimple size={16} color={iconColor} />
-                </IconButton>
-                <IconButton
-                  style="ctaWhite"
-                  css={{ mr: '$1', background: '$labelButtonsBg' }}
-                  onClick={() => deleteLabel(label.id)}
-                  disabled={isCreateMode}
-                >
-                  <Trash size={16} color={iconColor} />
-                </IconButton>
-              </HStack>
-            )}
+                Cancel
+              </Button>
+              <Button
+                style="ctaDarkYellow"
+                css={{ my: '0px', mr: '$1' }}
+                onClick={() => (label ? handleEdit() : createLabel())}
+              >
+                Save
+              </Button>
+            </>
+          ) : (
+            <HStack
+              distribution="end"
+              alignment="end"
+              css={{
+                display: 'none',
+                '@md': {
+                  display: 'flex',
+                  width: '100%',
+                },
+              }}
+            >
+              <IconButton
+                style="ctaWhite"
+                css={{ mr: '$1', background: '$labelButtonsBg' }}
+                onClick={() => onEditPress(label)}
+                disabled={isCreateMode}
+              >
+                <PencilSimple size={16} color={iconColor} />
+              </IconButton>
+              <IconButton
+                style="ctaWhite"
+                css={{ mr: '$1', background: '$labelButtonsBg' }}
+                onClick={() => deleteLabel(label.id)}
+                disabled={isCreateMode}
+              >
+                <Trash size={16} color={iconColor} />
+              </IconButton>
+            </HStack>
+          )}
         </HStack>
       </TableCardBox>
     </TableCard>
@@ -745,12 +771,13 @@ function MobileEditCard(props: any) {
 
   return (
     <TableCard
-    css={{
-      borderTopLeftRadius: isFirstChild ? '5px' : '',
-      borderTopRightRadius: isFirstChild ? '5px' : '',
-      borderBottomLeftRadius: isLastChild ? '5px' : '',
-      borderBottomRightRadius: isLastChild ? '5px' : '',
-    }}>
+      css={{
+        borderTopLeftRadius: isFirstChild ? '5px' : '',
+        borderTopRightRadius: isFirstChild ? '5px' : '',
+        borderBottomLeftRadius: isLastChild ? '5px' : '',
+        borderBottomRightRadius: isLastChild ? '5px' : '',
+      }}
+    >
       <VStack distribution="center" css={{ width: '100%', margin: '8px' }}>
         {nameInputText && (
           <SpanBox css={{ ml: '-2px', mt: '0px' }}>
@@ -773,7 +800,7 @@ function MobileEditCard(props: any) {
           setLabelColorHex={setLabelColorHex}
         />
         <TextArea
-          placeholder='Description (optional)'
+          placeholder="Description (optional)"
           value={descriptionInputText}
           onChange={(event) => setDescriptionInputText(event.target.value)}
           rows={5}
@@ -795,7 +822,7 @@ function MobileEditCard(props: any) {
           <Button
             style="ctaDarkYellow"
             css={{ mr: '$1' }}
-            onClick={() => label ? handleEdit() : createLabel()}
+            onClick={() => (label ? handleEdit() : createLabel())}
           >
             Save
           </Button>
@@ -830,15 +857,19 @@ function DesktopEditCard(props: any) {
   }
 
   return (
-    <TableCard 
-    css={{
-      width: '100%',
-      borderTopLeftRadius: isFirstChild ? '5px' : '',
-      borderTopRightRadius: isFirstChild ? '5px' : '',
-      borderBottomLeftRadius: isLastChild ? '5px' : '',
-      borderBottomRightRadius: isLastChild ? '5px' : '',
-    }}>
-      <VStack distribution="center" css={{ width: '100%', my: '8px', ml: '8px', mr: '0px' }}>
+    <TableCard
+      css={{
+        width: '100%',
+        borderTopLeftRadius: isFirstChild ? '5px' : '',
+        borderTopRightRadius: isFirstChild ? '5px' : '',
+        borderBottomLeftRadius: isLastChild ? '5px' : '',
+        borderBottomRightRadius: isLastChild ? '5px' : '',
+      }}
+    >
+      <VStack
+        distribution="center"
+        css={{ width: '100%', my: '8px', ml: '8px', mr: '0px' }}
+      >
         {nameInputText && (
           <SpanBox css={{ px: '11px', mt: '3px' }}>
             <LabelChip color={labelColorHex.value} text={nameInputText} />
@@ -849,49 +880,49 @@ function DesktopEditCard(props: any) {
           alignment="center"
           css={{ pt: '6px', px: '13px', width: '100%', gap: '16px' }}
         >
-        <Input
-          type="text"
-          value={nameInputText}
-          onChange={(event) => setNameInputText(event.target.value)}
-          autoFocus
-        />
-        <LabelColorDropdown
-          isCreateMode={isCreateMode && !label}
-          canEdit={editingLabelId === label?.id}
-          labelColorHexRowId={labelColorHex.rowId}
-          labelColorHexValue={labelColorHex.value}
-          labelId={label?.id || ''}
-          labelColor={label?.color || 'custom color'}
-          setLabelColorHex={setLabelColorHex}
-        />
-        <Input
-          type="text"
-          placeholder='Description (optional)'
-          value={descriptionInputText}
-          onChange={(event) => setDescriptionInputText(event.target.value)}
-        />
-        <HStack
-          distribution="end"
-          alignment="center"
-          css={{ marginLeft: 'auto', width: '100%' }}
-        >
-          <Button
-            style="ctaOutlineYellow"
-            css={{ mr: '12px' }}
-            onClick={() => {
-              resetState()
-            }}
+          <Input
+            type="text"
+            value={nameInputText}
+            onChange={(event) => setNameInputText(event.target.value)}
+            autoFocus
+          />
+          <LabelColorDropdown
+            isCreateMode={isCreateMode && !label}
+            canEdit={editingLabelId === label?.id}
+            labelColorHexRowId={labelColorHex.rowId}
+            labelColorHexValue={labelColorHex.value}
+            labelId={label?.id || ''}
+            labelColor={label?.color || 'custom color'}
+            setLabelColorHex={setLabelColorHex}
+          />
+          <Input
+            type="text"
+            placeholder="Description (optional)"
+            value={descriptionInputText}
+            onChange={(event) => setDescriptionInputText(event.target.value)}
+          />
+          <HStack
+            distribution="end"
+            alignment="center"
+            css={{ marginLeft: 'auto', width: '100%' }}
           >
-            Cancel
-          </Button>
-          <Button
-            style="ctaDarkYellow"
-            css={{ }}
-            onClick={() => label ? handleEdit() : createLabel()}
-          >
-            Save
-          </Button>
-        </HStack>
+            <Button
+              style="ctaOutlineYellow"
+              css={{ mr: '12px' }}
+              onClick={() => {
+                resetState()
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              style="ctaDarkYellow"
+              css={{}}
+              onClick={() => (label ? handleEdit() : createLabel())}
+            >
+              Save
+            </Button>
+          </HStack>
         </HStack>
       </VStack>
     </TableCard>

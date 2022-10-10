@@ -3,7 +3,6 @@ import { StyledText } from '../elements/StyledText'
 import { CoverImage } from '../elements/CoverImage'
 import { ArticleSubtitle } from './ArticleSubtitle'
 
-
 type ShareArticleViewProps = {
   url: string
   title: string
@@ -16,32 +15,33 @@ type ShareArticleViewProps = {
 
 export function ShareArticleView(props: ShareArticleViewProps): JSX.Element {
   return (
-    <HStack 
-      alignment='start'
-      distribution='start'
+    <HStack
+      alignment="start"
+      distribution="start"
       css={{
         background: 'white',
         width: '100%',
         p: '10px 0px 10px 0px',
-        
-        boxShadow: 'rgb(120 123 134 / 12%) 0px 4px 18px'
-      }}>
+
+        boxShadow: 'rgb(120 123 134 / 12%) 0px 4px 18px',
+      }}
+    >
       {props.imageURL && (
         <CoverImage
           src={props.imageURL}
-          alt='Preview Image'
+          alt="Preview Image"
           width={120}
           height={120}
           onError={(e) => {
-            (e.target as HTMLElement).style.display = 'none'
+            ;(e.target as HTMLElement).style.display = 'none'
           }}
         />
       )}
-      <VStack >
-        <Box css={{ pl: '16px', width: '100%', color: 'black', }}>
-          <StyledText style='shareTitle'>{props.title}</StyledText>
+      <VStack>
+        <Box css={{ pl: '16px', width: '100%', color: 'black' }}>
+          <StyledText style="shareTitle">{props.title}</StyledText>
           <ArticleSubtitle
-            style='shareSubtitle'
+            style="shareSubtitle"
             hideButton={true}
             author={props.author}
             rawDisplayDate={props.publishedAt}

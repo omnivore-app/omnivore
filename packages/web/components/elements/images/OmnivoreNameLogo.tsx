@@ -50,7 +50,13 @@ export function OmnivoreNameLogo(props: OmnivoreNameLogoProps): JSX.Element {
 
   return (
     <Link passHref href={href}>
-      <a style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+      <a
+        style={{
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <OmnivoreLogoIcon size={27} strokeColor={fillColor}></OmnivoreLogoIcon>
         {/* <StyledText style="logoTitle" css={{ color: fillColor, paddingLeft: '12px' }}>Omnivore</StyledText> */}
       </a>

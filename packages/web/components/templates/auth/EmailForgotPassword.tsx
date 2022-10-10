@@ -27,7 +27,9 @@ const FormLabel = styled('label', {
 export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -41,8 +43,12 @@ export function EmailForgotPassword(): JSX.Element {
   return (
     <form action={`${fetchEndpoint}/auth/forgot-password`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
-        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>Reset your password</StyledText>
-        <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
+          Reset your password
+        </StyledText>
+        <VStack
+          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
+        >
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
             <BorderedFormInput
@@ -51,15 +57,16 @@ export function EmailForgotPassword(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
-              onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
+              onChange={(e) => {
+                e.preventDefault()
+                setEmail(e.target.value)
+              }}
             />
           </SpanBox>
         </VStack>
-        
-        {errorMessage && (
-          <StyledText style="error">{errorMessage}</StyledText>
-        )}
-        <Button type="submit" style="ctaDarkYellow" css={{  my: '$2' }}>
+
+        {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
+        <Button type="submit" style="ctaDarkYellow" css={{ my: '$2' }}>
           Reset Password
         </Button>
         <Button

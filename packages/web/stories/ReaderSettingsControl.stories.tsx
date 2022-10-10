@@ -13,12 +13,16 @@ export default {
   },
 } as ComponentMeta<typeof ReaderSettingsControl>
 
-export const ReaderSettingsStory: ComponentStory<typeof ReaderSettingsControl> = (args: any) => {
+export const ReaderSettingsStory: ComponentStory<
+  typeof ReaderSettingsControl
+> = (args: any) => {
   return (
     <div style={{ width: '245px', border: '2px solid black' }}>
-      <ReaderSettingsControl articleActionHandler={(action) => {
-        console.log('articleActionHandler')
-      }} />
+      <ReaderSettingsControl
+        articleActionHandler={(action) => {
+          console.log('articleActionHandler')
+        }}
+      />
     </div>
   )
 }

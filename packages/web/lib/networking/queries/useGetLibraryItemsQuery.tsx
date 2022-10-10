@@ -79,7 +79,7 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
-  subscription?: string,
+  subscription?: string
   readAt?: string
 }
 
@@ -197,7 +197,7 @@ export function useGetLibraryItemsQuery({
   }
 
   const getIndexOf = (page: LibraryItems, item: LibraryItem) => {
-    return page.edges.findIndex(i => i.node.id === item.node.id)
+    return page.edges.findIndex((i) => i.node.id === item.node.id)
   }
 
   const performActionOnItem = async (
@@ -328,7 +328,9 @@ export function useGetLibraryItemsQuery({
           })
           unsubscribeMutation(item.node.subscription).then((res) => {
             if (res) {
-              showSuccessToast('Unsubscribed successfully', { position: 'bottom-right' })
+              showSuccessToast('Unsubscribed successfully', {
+                position: 'bottom-right',
+              })
             } else {
               showErrorToast('Error unsubscribing', {
                 position: 'bottom-right',
@@ -336,8 +338,8 @@ export function useGetLibraryItemsQuery({
             }
           })
         }
-        case 'update-item':
-          updateData(item)
+      case 'update-item':
+        updateData(item)
         break
       case 'refresh':
         await mutate()

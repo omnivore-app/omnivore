@@ -34,8 +34,12 @@ export function EmailSignup(): JSX.Element {
   const [password, setPassword] = useState<string | undefined>(undefined)
   const [fullname, setFullname] = useState<string | undefined>(undefined)
   const [username, setUsername] = useState<string | undefined>(undefined)
-  const [debouncedUsername, setDebouncedUsername] = useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+  const [debouncedUsername, setDebouncedUsername] = useState<
+    string | undefined
+  >(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   useEffect(() => {
     if (!router.isReady) return
@@ -64,7 +68,9 @@ export function EmailSignup(): JSX.Element {
     <form action={`${fetchEndpoint}/auth/email-signup`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
         <StyledText style="subHeadline">Sign Up</StyledText>
-        <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+        <VStack
+          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
+        >
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
             <BorderedFormInput
@@ -73,7 +79,10 @@ export function EmailSignup(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
-              onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
+              onChange={(e) => {
+                e.preventDefault()
+                setEmail(e.target.value)
+              }}
             />
           </SpanBox>
 
@@ -134,11 +143,9 @@ export function EmailSignup(): JSX.Element {
             </StyledText>
           )}
         </VStack>
-        
-        {errorMessage && (
-          <StyledText style="error">{errorMessage}</StyledText>
-        )}
-        
+
+        {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
+
         <HStack
           alignment="center"
           distribution="end"
@@ -148,7 +155,11 @@ export function EmailSignup(): JSX.Element {
             height: '80px',
           }}
         >
-          <Button style={'ctaOutlineYellow'} css={{ color: '$omnivoreGray', borderColor: 'rgba(0, 0, 0, 0.06)' }} type="button" onClick={async (event) => {
+          <Button
+            style={'ctaOutlineYellow'}
+            css={{ color: '$omnivoreGray', borderColor: 'rgba(0, 0, 0, 0.06)' }}
+            type="button"
+            onClick={async (event) => {
               window.localStorage.removeItem('authVerified')
               window.localStorage.removeItem('authToken')
               try {
@@ -161,7 +172,9 @@ export function EmailSignup(): JSX.Element {
           >
             Cancel
           </Button>
-          <Button type="submit" style={'ctaDarkYellow'}>Sign Up</Button>
+          <Button type="submit" style={'ctaDarkYellow'}>
+            Sign Up
+          </Button>
         </HStack>
 
         <StyledText
@@ -169,12 +182,14 @@ export function EmailSignup(): JSX.Element {
           css={{
             pt: '16px',
             color: '$omnivoreLightGray',
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
-          Already have an account? {' '}
+          Already have an account?{' '}
           <Link href="/auth/email-login" passHref>
-            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>Login instead</StyledTextSpan>
+            <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
+              Login instead
+            </StyledTextSpan>
           </Link>
         </StyledText>
         <TermAndConditionsFooter />

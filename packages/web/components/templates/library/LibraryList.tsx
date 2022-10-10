@@ -9,7 +9,6 @@ import { LayoutCoordinator } from './LibraryContainer'
 import { EmptyLibrary } from '../homeFeed/EmptyLibrary'
 import Masonry from 'react-masonry-css'
 
-
 export type LibraryListProps = {
   layoutCoordinator: LayoutCoordinator
 }
@@ -49,11 +48,15 @@ export function LibraryList(props: LibraryListProps): JSX.Element {
   return (
     <Box css={{ overflowY: 'scroll' }}>
       <Masonry
-        breakpointCols={props.layoutCoordinator.layout == 'LIST_LAYOUT' ? 1 : {
-          default: 3,
-          1200: 2,
-          992: 1
-        }}
+        breakpointCols={
+          props.layoutCoordinator.layout == 'LIST_LAYOUT'
+            ? 1
+            : {
+                default: 3,
+                1200: 2,
+                992: 1,
+              }
+        }
         className="omnivore-masonry-grid"
         columnClassName="omnivore-masonry-grid_column"
       >

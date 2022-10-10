@@ -5,7 +5,10 @@ import { ResetSent } from '../../components/templates/auth/ResetSent'
 export default function EmailResetSent(): JSX.Element {
   return (
     <>
-      <PageMetaData title="Reset password email sent - Omnivore" path="/auth-reset-sent" />
+      <PageMetaData
+        title="Reset password email sent - Omnivore"
+        path="/auth-reset-sent"
+      />
       <ProfileLayout>
         <ResetSent />
       </ProfileLayout>

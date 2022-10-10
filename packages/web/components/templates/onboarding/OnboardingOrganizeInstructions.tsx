@@ -11,7 +11,9 @@ type OnboardingOrganizeInstructionsProps = {
   pageNumber: number
 }
 
-export const OnboardingOrganizeInstructions = (props: OnboardingOrganizeInstructionsProps) => {
+export const OnboardingOrganizeInstructions = (
+  props: OnboardingOrganizeInstructionsProps
+) => {
   return (
     <OnboardingLayout
       pageNumber={props.pageNumber}
@@ -19,9 +21,9 @@ export const OnboardingOrganizeInstructions = (props: OnboardingOrganizeInstruct
       subTitle="Information about archiving and tagging
       Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet."
     >
-      <Box css={{width: '100%', height: '100%'}}>
+      <Box css={{ width: '100%', height: '100%' }}>
         <StyledImage
-          src='/static/images/onboarding/organize-content.svg'
+          src="/static/images/onboarding/organize-content.svg"
           alt="Organize Content Desktop"
           css={{
             width: '100%',
@@ -35,11 +37,11 @@ export const OnboardingOrganizeInstructions = (props: OnboardingOrganizeInstruct
             '@xl': {
               width: 'auto',
               height: '95%',
-            }
+            },
           }}
         />
         <StyledImage
-          src='/static/images/onboarding/organize-content-mobile.svg'
+          src="/static/images/onboarding/organize-content-mobile.svg"
           alt="Organize Content Mobile"
           css={{
             mt: 10,
@@ -48,7 +50,7 @@ export const OnboardingOrganizeInstructions = (props: OnboardingOrganizeInstruct
             width: '100%',
             '@sm': {
               display: 'none',
-            }
+            },
           }}
         />
       </Box>

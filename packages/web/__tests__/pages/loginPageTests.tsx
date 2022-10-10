@@ -19,10 +19,7 @@ jest.mock('next/router', () => ({
 // TODO: find better way to wrap contexts (here and for storybook)
 describe('the Login page', () => {
   it('renders itself', () => {
-    const { queryByTestId } = render(
-      <Login />,
-      {}
-    )
+    const { queryByTestId } = render(<Login />, {})
     expect(queryByTestId('login-page-tag')).toBeInTheDocument()
   })
 })
