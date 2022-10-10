@@ -1,3 +1,4 @@
 /build
 keystore.properties
 *.keystore
+src/main/res/values/secrets.xml
