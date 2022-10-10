@@ -292,11 +292,11 @@ async function fetchContent(req, res) {
     },
   };
 
-  logger.log(`Article parsing request`, logRecord);
+  logger.info(`Article parsing request`, logRecord);
 
   if (!url) {
     logRecord.urlIsInvalid = true;
-    logger.log(`Valid URL to parse not specified`, logRecord);
+    logger.info(`Valid URL to parse not specified`, logRecord);
     return res.sendStatus(400);
   }
 
@@ -312,7 +312,7 @@ async function fetchContent(req, res) {
     if (result && result.content) { content = result.content }
     if (result && result.contentType) { contentType = result.contentType }
   } catch (e) {
-    logger.log('error with handler: ', e);
+    logger.info('error with handler: ', e);
   }
 
   let context, page, finalUrl;
@@ -391,7 +391,7 @@ async function fetchContent(req, res) {
 
     logRecord.totalTime = Date.now() - functionStartTime;
     logRecord.result = apiResponse.createArticle;
-    logger.log(`parse-page`, logRecord);
+    logger.info(`parse-page`, logRecord);
   } finally {
     if (context) {
       await context.close();
