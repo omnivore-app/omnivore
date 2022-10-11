@@ -19,7 +19,7 @@ export class SearchHistory {
   user!: User
 
   @Column('varchar', { length: 255 })
-  keyword!: string
+  term!: string
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
