@@ -29,7 +29,6 @@
     "@segment/analytics-next": "^1.33.5",
     "@sentry/nextjs": "^6.16.1",
     "@stitches/react": "^1.2.5",
-    "antd": "^4.23.4",
     "color2k": "^2.0.0",
     "cookie": "^0.5.0",
     "diff-match-patch": "^1.0.5",
