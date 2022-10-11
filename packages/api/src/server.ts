@@ -105,6 +105,25 @@ export const createApp = (): {
     app.use('/api/', apiLimiter)
   }
 
+  // set user device from request header to Redis
+  app.use('/api/', async (req, res, next) => {
+    const device = req.header('X-Device')
+    const token =
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      req.header('Authorization') || (req.cookies['auth'] as string | undefined)
+
+    if (device && token) {
+      const key = `device:${token}`
+      if (!(await redisClient.exists(key))) {
+        await redisClient.set(key, device, {
+          EX: 600, // 10 minutes
+          NX: true,
+        })
+      }
+    }
+    next()
+  })
+
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
@@ -133,18 +152,6 @@ export const createApp = (): {
 
   // The error handler must be before any other error middleware and after all routes
   app.use(Sentry.Handlers.errorHandler())
-
-  // set user device from request header to Redis
-  app.use('/api/', async (req, res, next) => {
-    const device = req.header('X-Device')
-    const token =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      req.header('Authorization') || (req.cookies['auth'] as string | undefined)
-    if (device && token) {
-      await redisClient.set(`device:${token}`, device)
-    }
-    next()
-  })
 
   const apollo = makeApolloServer()
   const httpServer = createServer(app)
