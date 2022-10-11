@@ -67,6 +67,7 @@ import Views
         .sheet(item: $viewModel.itemForHighlightsView) { item in
           HighlightsListView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
         }
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .barLeading) {
             Image.smallOmnivoreLogo
@@ -274,10 +275,13 @@ import Views
         ) {
           EmptyView()
         }
-        VStack {
+        VStack(spacing: 0) {
           if viewModel.showLoadingBar {
             ShimmeringLoader()
+          } else {
+            Spacer(minLength: 2)
           }
+
           List {
             if viewModel.items.count > 0 || viewModel.searchTerm.count > 0 {
               filtersHeader
