@@ -176,6 +176,12 @@ struct WebReaderContainerView: View {
               }
             )
             Button(
+              action: {
+                dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+              },
+              label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
+            )
+            Button(
               action: { shareActionID = UUID() },
               label: { Label("Share Original", systemImage: "square.and.arrow.up") }
             )
