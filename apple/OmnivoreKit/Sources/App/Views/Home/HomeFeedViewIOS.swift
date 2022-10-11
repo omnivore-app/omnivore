@@ -275,10 +275,12 @@ import Views
           EmptyView()
         }
         List {
-          if viewModel.items.count > 0 {
+          if viewModel.showLoadingBar {
+            ShimmeringLoader()
+          }
+          if viewModel.items.count > 0 || viewModel.searchTerm.count > 0 {
             filtersHeader
           }
-
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
