@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.ui.reader
 
 import android.util.Log
+import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +28,7 @@ class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val networker: Networker
 ): ViewModel() {
+  var scrollState = ScrollState(0)
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
 
@@ -90,6 +92,7 @@ class WebReaderViewModel @Inject constructor(
   fun reset() {
     webReaderParamsLiveData.value = null
     annotationLiveData.value = null
+    scrollState = ScrollState(0)
   }
 
   fun cancelAnnotationEdit() {

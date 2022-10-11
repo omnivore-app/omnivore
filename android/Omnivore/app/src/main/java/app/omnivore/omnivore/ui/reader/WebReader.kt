@@ -8,28 +8,96 @@ import android.view.*
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
+import kotlin.math.roundToInt
 
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
 
+  val toolbarHeight = 48.dp
+  val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
+
+  // Offset to collapse toolbar
+  val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+
+  // Create a connection to the nested scroll system and listen to the scroll happening inside child Column
+  val nestedScrollConnection = remember {
+    object : NestedScrollConnection {
+      override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        val delta = available.y
+        val newOffset = toolbarOffsetHeightPx.value + delta
+        toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
+        return Offset.Zero
+      }
+    }
+  }
+
   if (webReaderParams == null) {
     webReaderViewModel.loadItem(slug = slug)
   }
 
   if (webReaderParams != null) {
-    WebReader(webReaderParams!!, webReaderViewModel)
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .nestedScroll(nestedScrollConnection)
+    ) {
+      Column(
+        modifier = Modifier
+          .fillMaxSize()
+          .verticalScroll(webReaderViewModel.scrollState)
+
+      ) {
+        Row(
+          modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(height = toolbarHeight)
+        ) {
+        }
+        WebReader(webReaderParams!!, webReaderViewModel)
+      }
+
+      TopAppBar(
+        modifier = Modifier
+          .height(height = toolbarHeight)
+          .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) },
+        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+        elevation = (-10).dp,
+        title = {},
+        navigationIcon = {
+          IconButton(onClick = {}) {
+            Icon(
+              imageVector = Icons.Filled.Settings,
+              contentDescription = null
+            )
+          }
+        }
+      )
+    }
   } else {
     // TODO: add a proper loading view
     Text("Loading...")
