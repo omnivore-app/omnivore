@@ -274,120 +274,122 @@ import Views
         ) {
           EmptyView()
         }
-        List {
+        VStack {
           if viewModel.showLoadingBar {
             ShimmeringLoader()
           }
-          if viewModel.items.count > 0 || viewModel.searchTerm.count > 0 {
-            filtersHeader
-          }
-          ForEach(viewModel.items) { item in
-            FeedCardNavigationLink(
-              item: item,
-              viewModel: viewModel
-            )
-            .contextMenu {
-              Button(
-                action: { viewModel.itemForHighlightsView = item },
-                label: { Label("View Highlights", systemImage: "highlighter") }
+          List {
+            if viewModel.items.count > 0 || viewModel.searchTerm.count > 0 {
+              filtersHeader
+            }
+            ForEach(viewModel.items) { item in
+              FeedCardNavigationLink(
+                item: item,
+                viewModel: viewModel
               )
-              Button(
-                action: { viewModel.itemUnderTitleEdit = item },
-                label: { Label("Edit Title/Description", systemImage: "textbox") }
-              )
-              Button(
-                action: { viewModel.itemUnderLabelEdit = item },
-                label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-              )
-              Button(action: {
-                withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(
-                    dataService: dataService,
-                    objectID: item.objectID,
-                    archived: !item.isArchived
-                  )
-                }
-              }, label: {
-                Label(
-                  item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+              .contextMenu {
+                Button(
+                  action: { viewModel.itemForHighlightsView = item },
+                  label: { Label("View Highlights", systemImage: "highlighter") }
                 )
-              })
-              Button(
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: { Label("Delete", systemImage: "trash") }
-              )
-              if FeatureFlag.enableSnooze {
-                Button {
-                  viewModel.itemToSnoozeID = item.id
-                  viewModel.snoozePresented = true
-                } label: {
-                  Label { Text("Snooze") } icon: { Image.moon }
-                }
-              }
-              Button(
-                action: { viewModel.downloadAudio(audioController: audioController, item: item) },
-                label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
-              )
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-              if !item.isArchived {
-                Button {
+                Button(
+                  action: { viewModel.itemUnderTitleEdit = item },
+                  label: { Label("Edit Title/Description", systemImage: "textbox") }
+                )
+                Button(
+                  action: { viewModel.itemUnderLabelEdit = item },
+                  label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+                )
+                Button(action: {
                   withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
+                    viewModel.setLinkArchived(
+                      dataService: dataService,
+                      objectID: item.objectID,
+                      archived: !item.isArchived
+                    )
                   }
-                } label: {
-                  Label("Archive", systemImage: "archivebox")
-                }.tint(.green)
-              } else {
-                Button {
-                  withAnimation(.linear(duration: 0.4)) {
-                    viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
-                  }
-                } label: {
-                  Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                }.tint(.indigo)
-              }
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-              Button(
-                role: .destructive,
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: {
-                  Image(systemName: "trash")
-                }
-              )
-            }.alert("Are you sure?", isPresented: $confirmationShown) {
-              Button("Remove Link", role: .destructive) {
-                if let itemToRemove = itemToRemove {
-                  withAnimation {
-                    viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                }, label: {
+                  Label(
+                    item.isArchived ? "Unarchive" : "Archive",
+                    systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+                  )
+                })
+                Button(
+                  action: {
+                    itemToRemove = item
+                    confirmationShown = true
+                  },
+                  label: { Label("Delete", systemImage: "trash") }
+                )
+                if FeatureFlag.enableSnooze {
+                  Button {
+                    viewModel.itemToSnoozeID = item.id
+                    viewModel.snoozePresented = true
+                  } label: {
+                    Label { Text("Snooze") } icon: { Image.moon }
                   }
                 }
-                self.itemToRemove = nil
+                Button(
+                  action: { viewModel.downloadAudio(audioController: audioController, item: item) },
+                  label: { Label("Download Audio", systemImage: "icloud.and.arrow.down") }
+                )
               }
-              Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-            }
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-              if FeatureFlag.enableSnooze {
-                Button {
-                  viewModel.itemToSnoozeID = item.id
-                  viewModel.snoozePresented = true
-                } label: {
-                  Label { Text("Snooze") } icon: { Image.moon }
-                }.tint(.appYellow48)
+              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                if !item.isArchived {
+                  Button {
+                    withAnimation(.linear(duration: 0.4)) {
+                      viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
+                    }
+                  } label: {
+                    Label("Archive", systemImage: "archivebox")
+                  }.tint(.green)
+                } else {
+                  Button {
+                    withAnimation(.linear(duration: 0.4)) {
+                      viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
+                    }
+                  } label: {
+                    Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
+                  }.tint(.indigo)
+                }
+              }
+              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(
+                  role: .destructive,
+                  action: {
+                    itemToRemove = item
+                    confirmationShown = true
+                  },
+                  label: {
+                    Image(systemName: "trash")
+                  }
+                )
+              }.alert("Are you sure?", isPresented: $confirmationShown) {
+                Button("Remove Link", role: .destructive) {
+                  if let itemToRemove = itemToRemove {
+                    withAnimation {
+                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                    }
+                  }
+                  self.itemToRemove = nil
+                }
+                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+              }
+              .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                if FeatureFlag.enableSnooze {
+                  Button {
+                    viewModel.itemToSnoozeID = item.id
+                    viewModel.snoozePresented = true
+                  } label: {
+                    Label { Text("Snooze") } icon: { Image.moon }
+                  }.tint(.appYellow48)
+                }
               }
             }
           }
+          .padding(.top, 0)
+          .listStyle(PlainListStyle())
         }
-        .padding(.top, 0)
-        .listStyle(PlainListStyle())
       }
     }
   }
