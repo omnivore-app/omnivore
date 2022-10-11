@@ -126,6 +126,7 @@ export class AddPopularReadsToNewUser
   }
 
   async afterInsert(event: InsertEvent<Profile>): Promise<void> {
-    await addPopularReadsForNewUser(event.entity.user.id)
+    const isIOSUser = event.entity.user.source === 'APPLE'
+    await addPopularReadsForNewUser(event.entity.user.id, isIOSUser)
   }
 }

@@ -569,21 +569,24 @@ describe('auth router', () => {
     context('when inputs are valid and user not exists', () => {
       let name = 'test_user'
       let username = 'test_user'
+      let sourceUserId = 'test_source_user_id'
+      let email = 'test_user@omnivore.app'
+      let bio = 'test_bio'
 
-      after(async () => {
+      afterEach(async () => {
         await deleteTestUser(username)
       })
 
       it('adds popular reads to the library', async () => {
         const pendingUserToken = await createPendingUserToken({
-          sourceUserId: 'test_source_user_id',
-          email: 'test_user@omnivore.app',
-          provider: 'APPLE',
+          sourceUserId,
+          email,
+          provider: 'EMAIL',
           name,
           username,
         })
         await createAccountRequest(
-          '',
+          bio,
           name,
           username,
           pendingUserToken!
@@ -594,6 +597,30 @@ describe('auth router', () => {
           0,
         ]
 
+        expect(count).to.eql(3)
+      })
+
+      it('adds iOS popular reads to the library if provider is iOS', async () => {
+        const pendingUserToken = await createPendingUserToken({
+          sourceUserId,
+          email,
+          provider: 'APPLE',
+          name,
+          username,
+        })
+        await createAccountRequest(
+          bio,
+          name,
+          username,
+          pendingUserToken!
+        ).expect(200)
+        const user = await getRepository(User).findOneBy({ name })
+        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
+          [],
+          0,
+        ]
+
+        // TODO: update this when we have more iOS popular reads
         expect(count).to.eql(3)
       })
     })

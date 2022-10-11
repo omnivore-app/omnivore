@@ -113,13 +113,15 @@ const addPopularReads = async (
 }
 
 export const addPopularReadsForNewUser = async (
-  userId: string
+  userId: string,
+  isIOSUser = false
 ): Promise<void> => {
   await addPopularReads(
     userId,
     'omnivore_get_started',
     'power_read_it_later',
-    'omnivore_organize'
+    'omnivore_organize',
+    isIOSUser ? 'omnivore_ios' : 'omnivore_android'
   )
 }
 
