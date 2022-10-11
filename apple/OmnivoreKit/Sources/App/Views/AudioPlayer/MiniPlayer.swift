@@ -181,7 +181,16 @@ public struct MiniPlayer: View {
       })
 
       if audioController.state == .reachedEnd {
-        // If we have reached the end display a replay button
+        // If we have reached the end display a replay button with an overlay behind
+        Color.systemBackground.opacity(0.85)
+          .frame(
+            minWidth: 0,
+            maxWidth: .infinity,
+            minHeight: 0,
+            maxHeight: .infinity,
+            alignment: .topLeading
+          )
+
         Button(
           action: {
             tabIndex = 0
@@ -189,12 +198,14 @@ public struct MiniPlayer: View {
             audioController.seek(to: 0.0)
           },
           label: {
-            Image(systemName: "gobackward")
-              .font(.appCallout)
-              .tint(.appGrayTextContrast)
-            Text("Replay")
+            HStack {
+              Image(systemName: "gobackward")
+                .font(.appCallout)
+                .tint(.appGrayTextContrast)
+              Text("Replay")
+            }
           }
-        )
+        ).buttonStyle(RoundedRectButtonStyle())
       }
     }
   }
