@@ -42,6 +42,10 @@ jobs:
           --health-retries 10
         ports:
           - 9200
+      redis:
+        image: "redis:6.2.7"
+        ports:
+          - 6379
     steps:
       - uses: actions/checkout@v2
         with:
