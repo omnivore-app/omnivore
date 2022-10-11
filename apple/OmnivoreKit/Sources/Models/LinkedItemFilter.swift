@@ -6,6 +6,7 @@ public enum LinkedItemFilter: String, CaseIterable {
   case newsletters
   case all
   case archived
+  case hasHighlights
   case files
 }
 
@@ -22,6 +23,8 @@ public extension LinkedItemFilter {
       return "All"
     case .archived:
       return "Archived"
+    case .hasHighlights:
+      return "Highlighted"
     case .files:
       return "Files"
     }
@@ -39,6 +42,8 @@ public extension LinkedItemFilter {
       return "in:all"
     case .archived:
       return "in:archive"
+    case .hasHighlights:
+      return "has:highlights"
     case .files:
       return "type:file"
     }
@@ -84,6 +89,13 @@ public extension LinkedItemFilter {
         format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
+    case .hasHighlights:
+      let hasHighlightsPredicate = NSPredicate(
+        format: "highlights.@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        hasHighlightsPredicate, notInArchivePredicate
+      ])
     }
   }
 }
