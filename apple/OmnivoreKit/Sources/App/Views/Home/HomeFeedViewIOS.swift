@@ -185,9 +185,6 @@ import Views
 
     var body: some View {
       VStack(spacing: 0) {
-//        if viewModel.showLoadingBar {
-//          ShimmeringLoader()
-//        }
         if prefersListLayout || !enableGrid {
           HomeFeedListView(prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
