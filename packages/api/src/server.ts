@@ -46,6 +46,7 @@ import rateLimit from 'express-rate-limit'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { textToSpeechRouter } from './routers/text_to_speech'
+import { connectRedisClient, redisClient } from './utils/redis'
 
 const PORT = process.env.PORT || 4000
 
@@ -133,6 +134,18 @@ export const createApp = (): {
   // The error handler must be before any other error middleware and after all routes
   app.use(Sentry.Handlers.errorHandler())
 
+  // set user device from request header to Redis
+  app.use('/api/', async (req, res, next) => {
+    const device = req.header('X-Device')
+    const token =
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      req.header('Authorization') || (req.cookies['auth'] as string | undefined)
+    if (device && token) {
+      await redisClient.set(`device:${token}`, device)
+    }
+    next()
+  })
+
   const apollo = makeApolloServer()
   const httpServer = createServer(app)
 
@@ -147,6 +160,8 @@ const main = async (): Promise<void> => {
   await AppDataSource.initialize()
 
   await initElasticsearch()
+
+  await connectRedisClient()
 
   const { app, apollo, httpServer } = createApp()
 
