@@ -804,6 +804,17 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
         }
       }
     }
+
+    if timeElapsed - 10 > lastReadUpdate {
+      let percentProgress = timeElapsed / duration
+      let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
+
+      if let itemID = itemAudioProperties?.itemID {
+        dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex)
+      }
+
+      lastReadUpdate = timeElapsed
+    }
   }
 
   func clearNowPlayingInfo() {
