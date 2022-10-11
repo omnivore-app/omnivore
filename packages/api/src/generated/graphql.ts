@@ -1351,6 +1351,7 @@ export type Query = {
   labels: LabelsResult;
   me?: Maybe<User>;
   newsletterEmails: NewsletterEmailsResult;
+  recentSearches: RecentSearchesResult;
   reminder: ReminderResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
@@ -1481,6 +1482,30 @@ export type ReadState = {
   progressPercent: Scalars['Float'];
   reading?: Maybe<Scalars['Boolean']>;
   readingTime?: Maybe<Scalars['Int']>;
+};
+
+export type RecentSearch = {
+  __typename?: 'RecentSearch';
+  createdAt: Scalars['Date'];
+  id: Scalars['ID'];
+  term: Scalars['String'];
+};
+
+export type RecentSearchesError = {
+  __typename?: 'RecentSearchesError';
+  errorCodes: Array<RecentSearchesErrorCode>;
+};
+
+export enum RecentSearchesErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type RecentSearchesResult = RecentSearchesError | RecentSearchesSuccess;
+
+export type RecentSearchesSuccess = {
+  __typename?: 'RecentSearchesSuccess';
+  searches: Array<RecentSearch>;
 };
 
 export type Reminder = {
@@ -2734,6 +2759,11 @@ export type ResolversTypes = {
   Reaction: ResolverTypeWrapper<Reaction>;
   ReactionType: ReactionType;
   ReadState: ResolverTypeWrapper<ReadState>;
+  RecentSearch: ResolverTypeWrapper<RecentSearch>;
+  RecentSearchesError: ResolverTypeWrapper<RecentSearchesError>;
+  RecentSearchesErrorCode: RecentSearchesErrorCode;
+  RecentSearchesResult: ResolversTypes['RecentSearchesError'] | ResolversTypes['RecentSearchesSuccess'];
+  RecentSearchesSuccess: ResolverTypeWrapper<RecentSearchesSuccess>;
   Reminder: ResolverTypeWrapper<Reminder>;
   ReminderError: ResolverTypeWrapper<ReminderError>;
   ReminderErrorCode: ReminderErrorCode;
@@ -3075,6 +3105,10 @@ export type ResolversParentTypes = {
   Query: {};
   Reaction: Reaction;
   ReadState: ReadState;
+  RecentSearch: RecentSearch;
+  RecentSearchesError: RecentSearchesError;
+  RecentSearchesResult: ResolversParentTypes['RecentSearchesError'] | ResolversParentTypes['RecentSearchesSuccess'];
+  RecentSearchesSuccess: RecentSearchesSuccess;
   Reminder: Reminder;
   ReminderError: ReminderError;
   ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
@@ -4031,6 +4065,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
+  recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
@@ -4059,6 +4094,27 @@ export type ReadStateResolvers<ContextType = ResolverContext, ParentType extends
   progressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   reading?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   readingTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentSearchResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentSearch'] = ResolversParentTypes['RecentSearch']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  term?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentSearchesErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentSearchesError'] = ResolversParentTypes['RecentSearchesError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['RecentSearchesErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RecentSearchesResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentSearchesResult'] = ResolversParentTypes['RecentSearchesResult']> = {
+  __resolveType: TypeResolveFn<'RecentSearchesError' | 'RecentSearchesSuccess', ParentType, ContextType>;
+};
+
+export type RecentSearchesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['RecentSearchesSuccess'] = ResolversParentTypes['RecentSearchesSuccess']> = {
+  searches?: Resolver<Array<ResolversTypes['RecentSearch']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -4827,6 +4883,10 @@ export type Resolvers<ContextType = ResolverContext> = {
   Query?: QueryResolvers<ContextType>;
   Reaction?: ReactionResolvers<ContextType>;
   ReadState?: ReadStateResolvers<ContextType>;
+  RecentSearch?: RecentSearchResolvers<ContextType>;
+  RecentSearchesError?: RecentSearchesErrorResolvers<ContextType>;
+  RecentSearchesResult?: RecentSearchesResultResolvers<ContextType>;
+  RecentSearchesSuccess?: RecentSearchesSuccessResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
   ReminderError?: ReminderErrorResolvers<ContextType>;
   ReminderResult?: ReminderResultResolvers<ContextType>;
