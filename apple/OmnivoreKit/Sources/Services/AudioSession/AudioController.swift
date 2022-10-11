@@ -66,7 +66,10 @@ class SpeechPlayerItem: AVPlayerItem {
       }
     }
 
-    NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: self, queue: OperationQueue.main) { [weak self] _ in
+    NotificationCenter.default.addObserver(
+      forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+      object: self, queue: OperationQueue.main
+    ) { [weak self] _ in
       guard let self = self else { return }
       self.completed()
     }
@@ -209,8 +212,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   @Published public var durationString: String?
   @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
 
-  let appEnvironment: AppEnvironment
-  let networker: Networker
+  let dataService: DataService
 
   var timer: Timer?
   var player: AVQueuePlayer?
@@ -218,10 +220,10 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
   var document: SpeechDocument?
   var synthesizer: SpeechSynthesizer?
   var durations: [Double]?
+  var lastReadUpdate = 0.0
 
-  public init(appEnvironment: AppEnvironment, networker: Networker) {
-    self.appEnvironment = appEnvironment
-    self.networker = networker
+  public init(dataService: DataService) {
+    self.dataService = dataService
 
     super.init()
     self.voiceList = generateVoiceList()
@@ -262,6 +264,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     player = nil
     observer = nil
     synthesizer = nil
+    lastReadUpdate = 0
 
     itemAudioProperties = nil
     state = .stopped
@@ -292,7 +295,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     for itemID in itemIDs {
       if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-        let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
+        let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
         do {
           try await synthesizer.preload()
           return true
@@ -306,7 +309,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   public func downloadForOffline(itemID: String) async -> Bool {
     if let document = try? await downloadSpeechFile(itemID: itemID, priority: .low) {
-      let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
+      let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
       for item in synthesizer.createPlayerItems(from: 0) {
         do {
           _ = try await SpeechSynthesizer.download(speechItem: item, redownloadCached: true)
@@ -550,11 +553,11 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
     if let itemID = itemAudioProperties?.itemID {
       Task {
-        let document = try? await downloadSpeechFile(itemID: itemID, priority: .high)
+        let document = try? await self.downloadSpeechFile(itemID: itemID, priority: .high)
 
         DispatchQueue.main.async {
           if let document = document {
-            let synthesizer = SpeechSynthesizer(appEnvironment: self.appEnvironment, networker: self.networker, document: document)
+            let synthesizer = SpeechSynthesizer(appEnvironment: self.dataService.appEnvironment, networker: self.dataService.networker, document: document)
 
             self.setTextItems()
             self.durations = synthesizer.estimatedDurations(forSpeed: self.playbackRate)
@@ -687,7 +690,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
       }
     }
 
-    let synthesizer = SpeechSynthesizer(appEnvironment: appEnvironment, networker: networker, document: document)
+    let synthesizer = SpeechSynthesizer(appEnvironment: dataService.appEnvironment, networker: dataService.networker, document: document)
     durations = synthesizer.estimatedDurations(forSpeed: playbackRate)
     self.synthesizer = synthesizer
 
@@ -754,6 +757,7 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
 
   func startTimer() {
     if timer == nil {
+      lastReadUpdate = 0
       timer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
       timer?.fire()
     }
@@ -908,13 +912,13 @@ public class AudioController: NSObject, ObservableObject, AVAudioPlayerDelegate 
     }
 
     let path = "/api/article/\(itemID)/speech?voice=\(currentVoice)&secondaryVoice=\(secondaryVoice)&priority=\(priority)\(isoLangForCurrentVoice())"
-    guard let url = URL(string: path, relativeTo: appEnvironment.serverBaseURL) else {
+    guard let url = URL(string: path, relativeTo: dataService.appEnvironment.serverBaseURL) else {
       throw BasicError.message(messageText: "Invalid audio URL")
     }
 
     var request = URLRequest(url: url)
     request.httpMethod = "GET"
-    for (header, value) in networker.defaultHeaders {
+    for (header, value) in dataService.networker.defaultHeaders {
       request.setValue(value, forHTTPHeaderField: header)
     }
 
