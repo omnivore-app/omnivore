@@ -25,10 +25,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
 import kotlin.math.roundToInt
@@ -38,19 +36,17 @@ import kotlin.math.roundToInt
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
 
-  val toolbarHeight = 48.dp
-  val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
-
-  // Offset to collapse toolbar
-  val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
+  val maxToolbarHeight = 48.dp
+  val maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
+  val toolbarHeightPx = remember { mutableStateOf(maxToolbarHeightPx) }
 
   // Create a connection to the nested scroll system and listen to the scroll happening inside child Column
   val nestedScrollConnection = remember {
     object : NestedScrollConnection {
       override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         val delta = available.y
-        val newOffset = toolbarOffsetHeightPx.value + delta
-        toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
+        val newHeight = toolbarHeightPx.value + delta
+        toolbarHeightPx.value = newHeight.coerceIn(0f, maxToolbarHeightPx)
         return Offset.Zero
       }
     }
@@ -75,7 +71,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
         Row(
           modifier = Modifier
             .fillMaxWidth()
-            .requiredHeight(height = toolbarHeight)
+            .requiredHeight(height = maxToolbarHeight)
         ) {
         }
         WebReader(webReaderParams!!, webReaderViewModel)
@@ -83,12 +79,12 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 
       TopAppBar(
         modifier = Modifier
-          .height(height = toolbarHeight)
-          .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) },
+          .height(height = with(LocalDensity.current) {
+            toolbarHeightPx.value.roundToInt().toDp()
+          } ),
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-        elevation = (-10).dp,
         title = {},
-        navigationIcon = {
+        actions = {
           IconButton(onClick = {}) {
             Icon(
               imageVector = Icons.Filled.Settings,
