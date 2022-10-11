@@ -21,12 +21,15 @@ struct LibrarySearchView: View {
   }
 
   func performTypeahead(_ searchTerm: String) {
-    Task { await viewModel.search(dataService: self.dataService, searchTerm: searchTerm) }
+    Task {
+      await viewModel.search(dataService: self.dataService, searchTerm: searchTerm)
+    }
   }
 
   func setSearchTerm(_ searchTerm: String) {
     viewModel.searchTerm = searchTerm
     searchBar?.becomeFirstResponder()
+    performTypeahead(searchTerm)
   }
 
   func performSearch(_ searchTerm: String) {
@@ -116,23 +119,26 @@ struct LibrarySearchView: View {
     VStack {
       List {
         if viewModel.searchTerm.count == 0 {
-          Section("Recent Searches") {
-            ForEach(recents, id: \.self) { term in
-              recentSearchRow(term)
+          if recents.count > 0 {
+            Section("Recent Searches") {
+              ForEach(recents, id: \.self) { term in
+                recentSearchRow(term)
+              }
             }
           }
+
           Section("Narrow with advanced search") {
-            (Text("**site:** ") + Text("site or domain (eg omnivore.app)"))
+            (Text("**in:**  ") + Text("filter to inbox, archive, or all"))
+              .foregroundColor(.appGrayText)
+              .onTapGesture { setSearchTerm("is:") }
+
+            (Text("**title:**  ") + Text("search for a specific title"))
               .foregroundColor(.appGrayText)
               .onTapGesture { setSearchTerm("site:") }
 
-            (Text("**author:** ") + Text("author name"))
+            (Text("**has:highlights**  ") + Text("any saved read with highlights"))
               .foregroundColor(.appGrayText)
-              .onTapGesture { setSearchTerm("author:") }
-
-            (Text("**is:** ") + Text("read or unread"))
-              .foregroundColor(.appGrayText)
-              .onTapGesture { setSearchTerm("is:") }
+              .onTapGesture { setSearchTerm("has:highlights") }
 
             Button(action: {}, label: {
               Text("[More on Advanced Search](https://omnivore.app/help/search)")
