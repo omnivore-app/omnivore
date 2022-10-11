@@ -24,6 +24,11 @@ struct LibrarySearchView: View {
     Task { await viewModel.search(dataService: self.dataService, searchTerm: searchTerm) }
   }
 
+  func setSearchTerm(_ searchTerm: String) {
+    viewModel.searchTerm = searchTerm
+    searchBar?.becomeFirstResponder()
+  }
+
   func performSearch(_ searchTerm: String) {
     let term = searchTerm.trimmingCharacters(in: Foundation.CharacterSet.whitespacesAndNewlines)
     viewModel.saveRecentSearch(dataService: dataService, searchTerm: term)
@@ -44,12 +49,11 @@ struct LibrarySearchView: View {
 
       Spacer()
 
-//      Image(systemName: "arrow.up.backward")
-//        .onTapGesture {
-//          viewModel.searchTerm += (viewModel.searchTerm.count > 0 ? " " : "") + term
-//          searchBar?.becomeFirstResponder()
-//        }
-//        .searchCompletion(term)
+      Image(systemName: "arrow.up.backward")
+        .onTapGesture {
+          setSearchTerm(viewModel.searchTerm + (viewModel.searchTerm.count > 0 ? " " : "") + term)
+        }
+        .searchCompletion(term)
     }.swipeActions(edge: .trailing, allowsFullSwipe: true) {
       Button {
         withAnimation(.linear(duration: 0.4)) {
@@ -65,6 +69,8 @@ struct LibrarySearchView: View {
   var body: some View {
     NavigationView {
       innerBody
+    }.introspectViewController { controller in
+      searchBar = Introspect.findChild(ofType: UISearchBar.self, in: controller.view)
     }
   }
 
@@ -81,9 +87,7 @@ struct LibrarySearchView: View {
       }
       listBody
         .navigationTitle("Search")
-        .navigationBarItems(trailing: Button(action: { dismiss() }) {
-          Text("Close")
-        })
+        .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text("Close") }))
         .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
         .searchable(text: $viewModel.searchTerm, placement: .navigationBarDrawer(displayMode: .always)) {
           ForEach(viewModel.items) { item in
@@ -120,15 +124,15 @@ struct LibrarySearchView: View {
           Section("Narrow with advanced search") {
             (Text("**site:** ") + Text("site or domain (eg omnivore.app)"))
               .foregroundColor(.appGrayText)
-              .onTapGesture { viewModel.searchTerm = "site:" }
+              .onTapGesture { setSearchTerm("site:") }
 
             (Text("**author:** ") + Text("author name"))
               .foregroundColor(.appGrayText)
-              .onTapGesture { viewModel.searchTerm = "author:" }
+              .onTapGesture { setSearchTerm("author:") }
 
             (Text("**is:** ") + Text("read or unread"))
               .foregroundColor(.appGrayText)
-              .onTapGesture { viewModel.searchTerm = "is:" }
+              .onTapGesture { setSearchTerm("is:") }
 
             Button(action: {}, label: {
               Text("[More on Advanced Search](https://omnivore.app/help/search)")
