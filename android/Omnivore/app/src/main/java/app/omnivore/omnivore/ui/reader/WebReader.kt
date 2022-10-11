@@ -14,11 +14,8 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -27,6 +24,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
 import kotlin.math.roundToInt
@@ -34,6 +32,19 @@ import kotlin.math.roundToInt
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
+  // TODO: maybe move to web reader view model?
+  val defaultWebPreferences = WebPreferences(
+    textFontSize = 12,
+    lineHeight = 150,
+    maxWidthPercentage = 100,
+    themeKey = "LightGray",
+    fontFamily = WebFont.SYSTEM,
+    prefersHighContrastText = false
+  )
+
+  var showWebPreferencesDialog by remember { mutableStateOf(false ) }
+  var webPreferences by remember { mutableStateOf(defaultWebPreferences ) }
+
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
 
   val maxToolbarHeight = 48.dp
@@ -74,7 +85,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
             .requiredHeight(height = maxToolbarHeight)
         ) {
         }
-        WebReader(webReaderParams!!, webReaderViewModel)
+        WebReader(webReaderParams!!, webPreferences, webReaderViewModel)
       }
 
       TopAppBar(
@@ -85,7 +96,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
         backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
         title = {},
         actions = {
-          IconButton(onClick = {}) {
+          IconButton(onClick = { showWebPreferencesDialog = true }) {
             Icon(
               imageVector = Icons.Filled.Settings,
               contentDescription = null
@@ -93,6 +104,17 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
           }
         }
       )
+
+      if (showWebPreferencesDialog) {
+        WebPreferencesDialog { preferences ->
+          if (preferences != null) {
+            webPreferences = preferences!!
+            showWebPreferencesDialog = false
+          }
+
+          showWebPreferencesDialog = false
+        }
+      }
     }
   } else {
     // TODO: add a proper loading view
@@ -102,7 +124,11 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
+fun WebReader(
+  params: WebReaderParams,
+  preferences: WebPreferences,
+  webReaderViewModel: WebReaderViewModel
+) {
   // TODO: maybe handle cases where js can be queued up?
   val javascriptToExecute = remember { mutableStateOf<String?>(null) }
 
@@ -111,14 +137,10 @@ fun WebReader(params: WebReaderParams, webReaderViewModel: WebReaderViewModel) {
   WebView.setWebContentsDebuggingEnabled(true)
 
   val webReaderContent = WebReaderContent(
-    textFontSize = 12,
-    lineHeight =  150,
-    maxWidthPercentage = 100,
+    preferences = preferences,
     item = params.item,
     themeKey = "LightGray",
-    fontFamily = WebFont.SYSTEM ,
     articleContent = params.articleContent,
-    prefersHighContrastText = false,
   )
 
   val styledContent = webReaderContent.styledContent()

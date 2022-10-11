@@ -39,20 +39,17 @@ data class ArticleContent(
 }
 
 data class WebReaderContent(
-  val textFontSize: Int,
-  val lineHeight: Int,
-  val maxWidthPercentage: Int,
+  val preferences: WebPreferences,
   val item: LinkedItem,
   val themeKey: String,
-  val fontFamily: WebFont,
   val articleContent: ArticleContent,
-  val prefersHighContrastText: Boolean
 ) {
   fun styledContent(): String {
     // TODO: Kotlinize these three values (pasted from Swift)
     val savedAt = "new Date(1662571290735.0).toISOString()"
     val createdAt = "new Date().toISOString()"
     val publishedAt = "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
+    val textFontSize = preferences.textFontSize
 
     val content = """
           <!DOCTYPE html>
@@ -96,11 +93,11 @@ data class WebReaderContent(
                 }
 
                 window.fontSize = $textFontSize
-                window.fontFamily = "${fontFamily.rawValue}"
-                window.maxWidthPercentage = $maxWidthPercentage
-                window.lineHeight = $lineHeight
+                window.fontFamily = "${preferences.fontFamily.rawValue}"
+                window.maxWidthPercentage = $preferences.maxWidthPercentage
+                window.lineHeight = $preferences.lineHeight
                 window.localStorage.setItem("theme", "$themeKey")
-                window.prefersHighContrastFont = $prefersHighContrastText
+                window.prefersHighContrastFont = $preferences.prefersHighContrastText
                 window.enableHighlightBar = false
               </script>
               <script src="bundle.js"></script>
