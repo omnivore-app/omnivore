@@ -10,6 +10,7 @@ import { IntercomClient } from '../../utils/intercom'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { env } from '../../env'
 import { analytics } from '../../utils/analytics'
+import { addPopularReadsForNewUser } from '../../services/popular_reads'
 
 @EventSubscriber()
 export class FollowOmnivoreUser implements EntitySubscriberInterface<Profile> {
@@ -112,5 +113,19 @@ export class PublishNewUserEvent implements EntitySubscriberInterface<Profile> {
       event.entity.user.name,
       event.entity.username
     )
+  }
+}
+
+@EventSubscriber()
+export class AddPopularReadsToNewUser
+  implements EntitySubscriberInterface<Profile>
+{
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  listenTo() {
+    return Profile
+  }
+
+  async afterInsert(event: InsertEvent<Profile>): Promise<void> {
+    await addPopularReadsForNewUser(event.entity.user.id)
   }
 }

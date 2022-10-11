@@ -19,6 +19,12 @@ type PopularRead = {
   originalHtml: string
 }
 
+interface AddPopularReadResult {
+  pageId?: string
+  name: string
+  status: ArticleSavingRequestStatus
+}
+
 const popularRead = (key: string): PopularRead | undefined => {
   const metadata = popularReads.find((pr) => pr.key === key)
   if (!metadata) {
@@ -86,6 +92,35 @@ export const addPopularRead = async (
 
   const pageId = await createPage(articleToSave, ctx)
   return pageId
+}
+
+const addPopularReads = async (
+  userId: string,
+  ...names: string[]
+): Promise<AddPopularReadResult[]> => {
+  const results: AddPopularReadResult[] = []
+  for (const name of names) {
+    const pageId = await addPopularRead(userId, name)
+    results.push({
+      pageId,
+      name,
+      status: pageId
+        ? ArticleSavingRequestStatus.Succeeded
+        : ArticleSavingRequestStatus.Failed,
+    })
+  }
+  return results
+}
+
+export const addPopularReadsForNewUser = async (
+  userId: string
+): Promise<void> => {
+  await addPopularReads(
+    userId,
+    'omnivore_get_started',
+    'power_read_it_later',
+    'omnivore_organize'
+  )
 }
 
 const popularReads = [

@@ -14,6 +14,8 @@ import {
 } from '../../src/utils/auth'
 import sinonChai from 'sinon-chai'
 import chai, { expect } from 'chai'
+import { searchPages } from '../../src/elastic/pages'
+import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
 
 chai.use(sinonChai)
 
@@ -543,6 +545,56 @@ describe('auth router', () => {
             '/auth/reset-password/?errorCodes=TOKEN_EXPIRED'
           )
         })
+      })
+    })
+  })
+
+  describe('create account', () => {
+    const createAccountRequest = (
+      bio: string,
+      name: string,
+      username: string,
+      pendingUserAuth: string
+    ): supertest.Test => {
+      return request
+        .post(`${route}/create-account`)
+        .set('Cookie', [`pendingUserAuth=${pendingUserAuth}`])
+        .send({
+          name,
+          bio,
+          username,
+        })
+    }
+
+    context('when inputs are valid and user not exists', () => {
+      let name = 'test_user'
+      let username = 'test_user'
+
+      after(async () => {
+        await deleteTestUser(username)
+      })
+
+      it('adds popular reads to the library', async () => {
+        const pendingUserToken = await createPendingUserToken({
+          sourceUserId: 'test_source_user_id',
+          email: 'test_user@omnivore.app',
+          provider: 'APPLE',
+          name,
+          username,
+        })
+        await createAccountRequest(
+          '',
+          name,
+          username,
+          pendingUserToken!
+        ).expect(200)
+        const user = await getRepository(User).findOneBy({ name })
+        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
+          [],
+          0,
+        ]
+
+        expect(count).to.eql(3)
       })
     })
   })
