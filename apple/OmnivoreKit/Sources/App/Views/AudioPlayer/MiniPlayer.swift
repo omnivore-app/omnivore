@@ -150,349 +150,238 @@
       }
     }
 
-    init(id: Int) {
-      self.id = id
-    }
-  }
-
-  var audioCards: some View {
-    ZStack {
-      let textItems = self.audioController.textItems ?? []
-      TabView(selection: $tabIndex) {
-        ForEach(0 ..< textItems.count, id: \.self) { id in
-          SpeechCard(id: id)
-            .tag(id)
-        }
-      }
-      .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-      .onChange(of: tabIndex, perform: { index in
-        if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
-          audioController.seek(toUtterance: index)
-        }
-      })
-      .onChange(of: audioController.currentAudioIndex, perform: { index in
-        if index >= textItems.count {
-          return
-        }
-
-        if self.audioController.state != .reachedEnd {
-          tabIndex = index
-        }
-      })
-
-      if audioController.state == .reachedEnd {
-        // If we have reached the end display a replay button with an overlay behind
-        Color.systemBackground.opacity(0.85)
-          .frame(
-            minWidth: 0,
-            maxWidth: .infinity,
-            minHeight: 0,
-            maxHeight: .infinity,
-            alignment: .topLeading
-          )
-
-        Button(
-          action: {
-            tabIndex = 0
-            audioController.unpause()
-            audioController.seek(to: 0.0)
-          },
-          label: {
-            HStack {
-              Image(systemName: "gobackward")
-                .font(.appCallout)
-                .tint(.appGrayTextContrast)
-              Text("Replay")
-            }
+    var audioCards: some View {
+      ZStack {
+        let textItems = self.audioController.textItems ?? []
+        TabView(selection: $tabIndex) {
+          ForEach(0 ..< textItems.count, id: \.self) { id in
+            SpeechCard(id: id)
+              .tag(id)
           }
-        ).buttonStyle(RoundedRectButtonStyle())
-      }
-    }
-  }
-
-  // swiftlint:disable:next function_body_length
-  func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
-    VStack(spacing: 0) {
-      if expanded {
-        ZStack {
-          closeButton
-            .padding(.top, 24)
-            .padding(.leading, 16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-          Capsule()
-            .fill(.gray)
-            .frame(width: 60, height: 4)
-            .padding(.top, 8)
-            .transition(.opacity)
         }
-      } else {
-        HStack(alignment: .center, spacing: 8) {
-          let dim = 64.0
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        .onChange(of: tabIndex, perform: { index in
+          if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
+            audioController.seek(toUtterance: index)
+          }
+        })
+        .onChange(of: audioController.currentAudioIndex, perform: { index in
+          if index >= textItems.count {
+            return
+          }
 
-          if let imageURL = itemAudioProperties.imageURL {
-            AsyncImage(url: imageURL) { phase in
-              if let image = phase.image {
-                image
-                  .resizable()
-                  .aspectRatio(contentMode: .fill)
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
-              } else if phase.error != nil {
-                defaultArtwork(forDimensions: dim)
-              } else {
-                Color.appButtonBackground
-                  .frame(width: dim, height: dim)
-                  .cornerRadius(6)
+          if self.audioController.state != .reachedEnd {
+            tabIndex = index
+          }
+        })
+
+        if audioController.state == .reachedEnd {
+          // If we have reached the end display a replay button with an overlay behind
+          Color.systemBackground.opacity(0.85)
+            .frame(
+              minWidth: 0,
+              maxWidth: .infinity,
+              minHeight: 0,
+              maxHeight: .infinity,
+              alignment: .topLeading
+            )
+
+          Button(
+            action: {
+              tabIndex = 0
+              audioController.unpause()
+              audioController.seek(to: 0.0)
+            },
+            label: {
+              HStack {
+                Image(systemName: "gobackward")
+                  .font(.appCallout)
+                  .tint(.appGrayTextContrast)
+                Text("Replay")
               }
             }
-          } else {
-            defaultArtwork(forDimensions: dim)
-          }
+          ).buttonStyle(RoundedRectButtonStyle())
+        }
+      }
+    }
 
-          VStack {
-            Text(itemAudioProperties.title)
-              .font(.appCallout)
-              .foregroundColor(.appGrayTextContrast)
-              .fixedSize(horizontal: false, vertical: false)
+    // swiftlint:disable:next function_body_length
+    func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
+      VStack(spacing: 0) {
+        if expanded {
+          ZStack {
+            closeButton
+              .padding(.top, 24)
+              .padding(.leading, 16)
               .frame(maxWidth: .infinity, alignment: .leading)
 
-            if let byline = itemAudioProperties.byline {
-              Text(byline)
-                .font(.appCaption)
-                .lineSpacing(1.25)
-                .foregroundColor(.appGrayText)
+            Capsule()
+              .fill(.gray)
+              .frame(width: 60, height: 4)
+              .padding(.top, 8)
+              .transition(.opacity)
+          }
+        } else {
+          HStack(alignment: .center, spacing: 8) {
+            let dim = 64.0
+
+            if let imageURL = itemAudioProperties.imageURL {
+              AsyncImage(url: imageURL) { phase in
+                if let image = phase.image {
+                  image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                } else if phase.error != nil {
+                  defaultArtwork(forDimensions: dim)
+                } else {
+                  Color.appButtonBackground
+                    .frame(width: dim, height: dim)
+                    .cornerRadius(6)
+                }
+              }
+            } else {
+              defaultArtwork(forDimensions: dim)
+            }
+
+            VStack {
+              Text(itemAudioProperties.title)
+                .font(.appCallout)
+                .foregroundColor(.appGrayTextContrast)
                 .fixedSize(horizontal: false, vertical: false)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }
-          }
 
-          playPauseButtonItem
-            .frame(width: 28, height: 28)
-
-          stopButton
-            .frame(width: 28, height: 28)
-        }
-        .padding(16)
-        .frame(maxHeight: .infinity)
-      }
-
-      if expanded {
-        audioCards
-
-        Spacer()
-
-        Group {
-          ScrubberView(value: $audioController.timeElapsed,
-                       minValue: 0, maxValue: self.audioController.duration,
-                       onEditingChanged: { scrubStarted in
-                         if scrubStarted {
-                           self.audioController.scrubState = .scrubStarted
-                         } else {
-                           self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
-                         }
-                       })
-
-          HStack {
-            Text(audioController.timeElapsedString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
-            Spacer()
-            Text(audioController.durationString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
-          }
-        }
-        .padding(.leading, 16)
-        .padding(.trailing, 16)
-
-        HStack(alignment: .center, spacing: 36) {
-          Menu {
-            playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
-            playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
-            playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
-            playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
-            playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
-            playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
-          } label: {
-            VStack {
-              Text(String(format: "%.1f×", audioController.playbackRate))
-                .font(.appCallout)
-                .lineLimit(0)
-            }
-            .contentShape(Rectangle())
-          }
-          .padding(8)
-
-          Button(
-            action: { self.audioController.skipBackwards(seconds: 30) },
-            label: {
-              Image(systemName: "gobackward.30")
-                .font(.appTitleTwo)
-            }
-          )
-
-          playPauseButtonItem
-            .frame(width: 56, height: 56)
-
-          Button(
-            action: { self.audioController.skipForward(seconds: 30) },
-            label: {
-              Image(systemName: "goforward.30")
-                .font(.appTitleTwo)
-            }
-          )
-
-          Menu {
-            Button("View Article", action: { viewArticle() })
-            Button("Change Voice", action: { showVoiceSheet = true })
-          } label: {
-            VStack {
-              Image(systemName: "ellipsis")
-                .font(.appCallout)
-                .frame(width: 20, height: 20)
-            }
-            .contentShape(Rectangle())
-          }
-          .padding(8)
-        }.padding(.bottom, 16)
-      }
-    }
-    .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-    .background(
-      Color.systemBackground
-        .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
-        .mask(Rectangle().padding(.top, -20))
-    )
-    .onTapGesture {
-      withAnimation(.easeIn(duration: 0.08)) { expanded = true }
-    }.sheet(isPresented: $showVoiceSheet) {
-      NavigationView {
-        TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage, showLanguageChanger: true)
-          .navigationBarTitle("Voice")
-          .navigationBarTitleDisplayMode(.inline)
-          .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }, label: {
-            Image(systemName: "chevron.backward")
-              .font(.appNavbarIcon)
-              .tint(.appGrayTextContrast)
-          }))
-      }
-    }.sheet(isPresented: $showLanguageSheet) {
-      NavigationView {
-        TextToSpeechLanguageView()
-          .navigationBarTitle("Language")
-          .navigationBarTitleDisplayMode(.inline)
-          .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
-            Image(systemName: "chevron.backward")
-              .font(.appNavbarIcon)
-              .tint(.appGrayTextContrast)
-          })
-      }
-    }
-  }
-
-  func playbackRateButton(rate: Double, title: String, selected: Bool) -> some View {
-    Button(action: {
-      audioController.playbackRate = rate
-    }) {
-      HStack {
-        Text(title)
-        Spacer()
-        if selected {
-          Image(systemName: "checkmark")
-        }
-      }
-      .contentShape(Rectangle())
-    }
-    .buttonStyle(PlainButtonStyle())
-  }
-
-  public var body: some View {
-    ZStack(alignment: .center) {
-      presentingView
-      if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
-        ZStack(alignment: .bottom) {
-          Color.systemBackground.edgesIgnoringSafeArea(.bottom)
-            .frame(height: 88, alignment: .bottom)
-
-          VStack {
-            Spacer(minLength: 0)
-            playerContent(itemAudioProperties)
-              .offset(y: offset)
-              .frame(maxHeight: expanded ? .infinity : 88)
-              .tint(.appGrayTextContrast)
-              .gesture(DragGesture().onEnded(onDragEnded(value:)).onChanged(onDragChanged(value:)))
-              .background(expanded ? .clear : .systemBackground)
-          }
-        }
-      }
-    }
-  }
-
-  var changeVoiceView: some View {
-    NavigationView {
-      VStack {
-        List {
-          ForEach(audioController.voiceList ?? [], id: \.key.self) { voice in
-            Button(action: {
-              audioController.currentVoice = voice.key
-              self.showVoiceSheet = false
-            }) {
-              HStack {
-                Text(voice.name)
-
-                Spacer()
-
-                if voice.selected {
-                  Image(systemName: "checkmark")
-                }
-              )
-
-              Menu {
-                Button("View Article", action: { viewArticle() })
-                Button("Change Voice", action: { showVoiceSheet = true })
-              } label: {
-                VStack {
-                  Image(systemName: "ellipsis")
-                    .font(.appCallout)
-                    .frame(width: 20, height: 20)
-                }
-                .contentShape(Rectangle())
+              if let byline = itemAudioProperties.byline {
+                Text(byline)
+                  .font(.appCaption)
+                  .lineSpacing(1.25)
+                  .foregroundColor(.appGrayText)
+                  .fixedSize(horizontal: false, vertical: false)
+                  .frame(maxWidth: .infinity, alignment: .leading)
               }
-              .padding(8)
-            }.padding(.bottom, 16)
+            }
+
+            playPauseButtonItem
+              .frame(width: 28, height: 28)
+
+            stopButton
+              .frame(width: 28, height: 28)
           }
+          .padding(16)
+          .frame(maxHeight: .infinity)
         }
-        .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .background(
-          Color.systemBackground
-            .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
-            .mask(Rectangle().padding(.top, -20))
-        )
-        .onTapGesture {
-          withAnimation(.easeIn(duration: 0.08)) { expanded = true }
-        }.sheet(isPresented: $showVoiceSheet) {
-          NavigationView {
-            TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage, showLanguageChanger: true)
-              .navigationBarTitle("Voice")
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
-                Image(systemName: "chevron.backward")
-                  .font(.appNavbarIcon)
-                  .tint(.appGrayTextContrast)
-              })
+
+        if expanded {
+          audioCards
+
+          Spacer()
+
+          Group {
+            ScrubberView(value: $audioController.timeElapsed,
+                         minValue: 0, maxValue: self.audioController.duration,
+                         onEditingChanged: { scrubStarted in
+                           if scrubStarted {
+                             self.audioController.scrubState = .scrubStarted
+                           } else {
+                             self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
+                           }
+                         })
+
+            HStack {
+              Text(audioController.timeElapsedString ?? "0:00")
+                .font(.appCaptionTwo)
+                .foregroundColor(.appGrayText)
+              Spacer()
+              Text(audioController.durationString ?? "0:00")
+                .font(.appCaptionTwo)
+                .foregroundColor(.appGrayText)
+            }
           }
-        }.sheet(isPresented: $showLanguageSheet) {
-          NavigationView {
-            TextToSpeechLanguageView()
-              .navigationBarTitle("Language")
-              .navigationBarTitleDisplayMode(.inline)
-              .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
-                Image(systemName: "chevron.backward")
-                  .font(.appNavbarIcon)
-                  .tint(.appGrayTextContrast)
-              })
-          }
+          .padding(.leading, 16)
+          .padding(.trailing, 16)
+
+          HStack(alignment: .center, spacing: 36) {
+            Menu {
+              playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
+              playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
+              playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
+              playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
+              playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
+              playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
+            } label: {
+              VStack {
+                Text(String(format: "%.1f×", audioController.playbackRate))
+                  .font(.appCallout)
+                  .lineLimit(0)
+              }
+              .contentShape(Rectangle())
+            }
+            .padding(8)
+
+            Button(
+              action: { self.audioController.skipBackwards(seconds: 30) },
+              label: {
+                Image(systemName: "gobackward.30")
+                  .font(.appTitleTwo)
+              }
+            )
+
+            playPauseButtonItem
+              .frame(width: 56, height: 56)
+
+            Button(
+              action: { self.audioController.skipForward(seconds: 30) },
+              label: {
+                Image(systemName: "goforward.30")
+                  .font(.appTitleTwo)
+              }
+            )
+
+            Menu {
+              Button("View Article", action: { viewArticle() })
+              Button("Change Voice", action: { showVoiceSheet = true })
+            } label: {
+              VStack {
+                Image(systemName: "ellipsis")
+                  .font(.appCallout)
+                  .frame(width: 20, height: 20)
+              }
+              .contentShape(Rectangle())
+            }
+            .padding(8)
+          }.padding(.bottom, 16)
+        }
+      }
+      .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+      .background(
+        Color.systemBackground
+          .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
+          .mask(Rectangle().padding(.top, -20))
+      )
+      .onTapGesture {
+        withAnimation(.easeIn(duration: 0.08)) { expanded = true }
+      }.sheet(isPresented: $showVoiceSheet) {
+        NavigationView {
+          TextToSpeechVoiceSelectionView(forLanguage: audioController.currentVoiceLanguage, showLanguageChanger: true)
+            .navigationBarTitle("Voice")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }, label: {
+              Image(systemName: "chevron.backward")
+                .font(.appNavbarIcon)
+                .tint(.appGrayTextContrast)
+            }))
+        }
+      }.sheet(isPresented: $showLanguageSheet) {
+        NavigationView {
+          TextToSpeechLanguageView()
+            .navigationBarTitle("Language")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
+              Image(systemName: "chevron.backward")
+                .font(.appNavbarIcon)
+                .tint(.appGrayTextContrast)
+            })
         }
       }
     }
@@ -602,5 +491,4 @@
       MiniPlayer(presentingView: self)
     }
   }
-
 #endif
