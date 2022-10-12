@@ -46,6 +46,7 @@ import rateLimit from 'express-rate-limit'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { textToSpeechRouter } from './routers/text_to_speech'
+import * as httpContext from 'express-http-context'
 
 const PORT = process.env.PORT || 4000
 
@@ -103,6 +104,16 @@ export const createApp = (): {
     // Apply the rate limiting middleware to API calls only
     app.use('/api/', apiLimiter)
   }
+
+  // set client info in the request context
+  app.use(httpContext.middleware)
+  app.use('/api/', (req, res, next) => {
+    const client = req.header('X-OmnivoreClient')
+    if (client) {
+      httpContext.set('client', client)
+    }
+    next()
+  })
 
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))

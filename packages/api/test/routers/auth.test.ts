@@ -16,6 +16,7 @@ import sinonChai from 'sinon-chai'
 import chai, { expect } from 'chai'
 import { searchPages } from '../../src/elastic/pages'
 import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
+import { AuthProvider } from '../../src/routers/auth/auth_types'
 
 chai.use(sinonChai)
 
@@ -554,10 +555,12 @@ describe('auth router', () => {
       bio: string,
       name: string,
       username: string,
-      pendingUserAuth: string
+      pendingUserAuth: string,
+      client: string
     ): supertest.Test => {
       return request
         .post(`${route}/create-account`)
+        .set('X-OmnivoreClient', client)
         .set('Cookie', [`pendingUserAuth=${pendingUserAuth}`])
         .send({
           name,
@@ -572,6 +575,7 @@ describe('auth router', () => {
       let sourceUserId = 'test_source_user_id'
       let email = 'test_user@omnivore.app'
       let bio = 'test_bio'
+      let provider: AuthProvider = 'EMAIL'
 
       afterEach(async () => {
         await deleteTestUser(username)
@@ -581,7 +585,7 @@ describe('auth router', () => {
         const pendingUserToken = await createPendingUserToken({
           sourceUserId,
           email,
-          provider: 'EMAIL',
+          provider,
           name,
           username,
         })
@@ -589,7 +593,8 @@ describe('auth router', () => {
           bio,
           name,
           username,
-          pendingUserToken!
+          pendingUserToken!,
+          'web'
         ).expect(200)
         const user = await getRepository(User).findOneBy({ name })
         const [popularReads, count] = (await searchPages({}, user?.id!)) || [
@@ -604,7 +609,7 @@ describe('auth router', () => {
         const pendingUserToken = await createPendingUserToken({
           sourceUserId,
           email,
-          provider: 'APPLE',
+          provider,
           name,
           username,
         })
@@ -612,7 +617,8 @@ describe('auth router', () => {
           bio,
           name,
           username,
-          pendingUserToken!
+          pendingUserToken!,
+          'ios'
         ).expect(200)
         const user = await getRepository(User).findOneBy({ name })
         const [popularReads, count] = (await searchPages({}, user?.id!)) || [

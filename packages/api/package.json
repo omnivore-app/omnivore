@@ -53,6 +53,7 @@
     "dot-case": "^3.0.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-http-context": "^1.2.4",
     "express-rate-limit": "^6.3.0",
     "firebase-admin": "^10.0.2",
     "googleapis": "^105.0.0",

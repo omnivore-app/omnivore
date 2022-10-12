@@ -5,6 +5,7 @@ import { PageType } from '../generated/graphql'
 import { generateSlug, stringToHash } from '../utils/helpers'
 import { readFileSync } from 'fs'
 import path from 'path'
+import * as httpContext from 'express-http-context'
 
 type PopularRead = {
   url: string
@@ -113,14 +114,16 @@ const addPopularReads = async (
 }
 
 export const addPopularReadsForNewUser = async (
-  userId: string,
-  client = 'web'
+  userId: string
 ): Promise<void> => {
   const defaultReads = [
     'omnivore_get_started',
     'power_read_it_later',
     'omnivore_organize',
   ]
+
+  // get client from request context
+  const client = httpContext.get('client') as string | undefined
 
   switch (client) {
     case 'web':
