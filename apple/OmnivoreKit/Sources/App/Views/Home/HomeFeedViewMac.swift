@@ -8,13 +8,20 @@ import Views
 #if os(macOS)
   struct HomeFeedView: View {
     @EnvironmentObject var dataService: DataService
+    @EnvironmentObject var audioController: AudioController
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
+      Task {
+        await viewModel.loadItems(
+          dataService: dataService,
+          audioController: audioController,
+          isRefresh: isRefresh
+        )
+      }
     }
 
     var body: some View {

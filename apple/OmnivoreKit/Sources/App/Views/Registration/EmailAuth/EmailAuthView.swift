@@ -48,15 +48,17 @@ struct EmailAuthView: View {
         Color.appBackground.edgesIgnoringSafeArea(.all)
         primaryContent
           .frame(maxWidth: 300)
+        #if os(iOS)
           .navigationBarTitleDisplayMode(.inline)
-          .toolbar {
-            ToolbarItem(placement: .barTrailing) {
-              Button(
-                action: { presentationMode.wrappedValue.dismiss() },
-                label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
-              )
-            }
+        #endif
+        .toolbar {
+          ToolbarItem(placement: .barTrailing) {
+            Button(
+              action: { presentationMode.wrappedValue.dismiss() },
+              label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
+            )
           }
+        }
       }
     }
   }

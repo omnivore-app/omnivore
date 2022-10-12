@@ -43,7 +43,9 @@ import Views
     // Pop the current selected item if needed
     if selectedItem != nil, selectedItem?.objectID != objectID {
       // Temporarily disable animation to avoid excessive animations
-      UIView.setAnimationsEnabled(false)
+      #if os(iOS)
+        UIView.setAnimationsEnabled(false)
+      #endif
 
       linkIsActive = false
       selectedItem = nil
@@ -54,7 +56,9 @@ import Views
       }
 
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200)) {
-        UIView.setAnimationsEnabled(true)
+        #if os(iOS)
+          UIView.setAnimationsEnabled(true)
+        #endif
       }
     } else {
       selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
