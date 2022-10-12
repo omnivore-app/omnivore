@@ -5,7 +5,6 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm'
 import { User } from './user'
 
@@ -23,7 +22,4 @@ export class SearchHistory {
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
-
-  @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt!: Date
 }
