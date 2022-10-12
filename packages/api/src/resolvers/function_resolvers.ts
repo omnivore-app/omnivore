@@ -100,6 +100,7 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { getPageByParam } from '../elastic/pages'
+import { recentSearchesResolver } from './recent_searches'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -196,6 +197,7 @@ export const functionResolvers = {
     typeaheadSearch: typeaheadSearchResolver,
     updatesSince: updatesSinceResolver,
     integrations: integrationsResolver,
+    recentSearches: recentSearchesResolver,
   },
   User: {
     async sharedArticles(
@@ -604,4 +606,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('SetIntegration'),
   ...resultResolveTypeResolver('Integrations'),
   ...resultResolveTypeResolver('DeleteIntegration'),
+  ...resultResolveTypeResolver('RecentSearches'),
 }

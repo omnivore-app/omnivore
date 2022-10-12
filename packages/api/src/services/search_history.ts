@@ -17,7 +17,7 @@ export const saveSearchHistory = async (
   term: string
 ): Promise<void> => {
   const searchHistory = new SearchHistory()
-  searchHistory.user = { id: userId } as any
+  searchHistory.user.id = userId
   searchHistory.term = term
   searchHistory.createdAt = new Date()
   await getRepository(SearchHistory).save(searchHistory)
