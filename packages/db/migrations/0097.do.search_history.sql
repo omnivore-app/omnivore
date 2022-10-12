@@ -12,4 +12,6 @@ CREATE TABLE omnivore.search_history (
     unique (user_id, term)
 );
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.search_history TO omnivore_user;
+
 COMMIT;

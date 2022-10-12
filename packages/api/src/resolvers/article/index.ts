@@ -906,9 +906,9 @@ export const searchResolver = authorized<
     }
   })
 
-  // save in search history
-  if (searchQuery.query) {
-    await saveSearchHistory(claims.uid, searchQuery.query)
+  // save query, including advanced search terms, in search history
+  if (params.query) {
+    await saveSearchHistory(claims.uid, params.query)
   }
 
   return {
