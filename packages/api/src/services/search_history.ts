@@ -16,11 +16,16 @@ export const saveSearchHistory = async (
   userId: string,
   term: string
 ): Promise<void> => {
-  const searchHistory = new SearchHistory()
-  searchHistory.user.id = userId
-  searchHistory.term = term
-  searchHistory.createdAt = new Date()
-  await getRepository(SearchHistory).save(searchHistory)
+  await getRepository(SearchHistory).upsert(
+    {
+      user: { id: userId },
+      term,
+      createdAt: new Date(),
+    },
+    {
+      conflictPaths: ['user', 'term'],
+    }
+  )
 }
 
 export const deleteSearchHistory = async (userId: string): Promise<void> => {
