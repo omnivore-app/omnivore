@@ -47,6 +47,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
   var webPreferences by remember { mutableStateOf(defaultWebPreferences ) }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
+  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
 
   val maxToolbarHeight = 48.dp
   val maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
@@ -116,6 +117,18 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
           showWebPreferencesDialog = false
         }
       }
+
+      if (annotation != null) {
+        AnnotationEditView(
+          initialAnnotation = annotation!!,
+          onSave = {
+            webReaderViewModel.saveAnnotation(it)
+          },
+          onCancel = {
+            webReaderViewModel.cancelAnnotationEdit()
+          }
+        )
+      }
     }
   } else {
     // TODO: add a proper loading view
@@ -130,8 +143,6 @@ fun WebReader(
   preferences: WebPreferences,
   webReaderViewModel: WebReaderViewModel
 ) {
-  val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
-
   val javascriptActionLoopUUID: UUID by webReaderViewModel
     .javascriptActionLoopUUIDLiveData
     .observeAsState(UUID.randomUUID())
@@ -195,18 +206,6 @@ fun WebReader(
         webReaderViewModel.resetJavascriptDispatchQueue()
       }
     })
-
-    if (annotation != null) {
-      AnnotationEditView(
-        initialAnnotation = annotation!!,
-        onSave = {
-          webReaderViewModel.saveAnnotation(it)
-        },
-        onCancel = {
-          webReaderViewModel.cancelAnnotationEdit()
-        }
-      )
-    }
   }
 }
 
