@@ -107,16 +107,16 @@ export const createApp = (): {
 
   // set user device from request header to Redis
   app.use('/api/', async (req, res, next) => {
-    const device = req.header('X-Device')
+    const client = req.header('X-OmnivoreClient')
     const token =
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       req.header('Authorization') || (req.cookies['auth'] as string | undefined)
 
-    if (device && token) {
-      const key = `device:${token}`
+    if (client && token) {
+      const key = `client:${token}`
       if (!(await redisClient.exists(key))) {
-        await redisClient.set(key, device, {
-          EX: 600, // 10 minutes
+        await redisClient.set(key, client, {
+          EX: 600, // expires in 10 minutes
           NX: true,
         })
       }
