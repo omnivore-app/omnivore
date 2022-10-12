@@ -28,6 +28,7 @@ import Views
   @Published var showLoadingBar = false
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
+  @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
   @Published var selectedItem: LinkedItem?
   @Published var linkIsActive = false
 
@@ -51,6 +52,7 @@ import Views
       selectedItem = nil
 
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        self.selectedLinkItem = objectID
         self.selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
         self.linkIsActive = true
       }
@@ -61,6 +63,7 @@ import Views
         #endif
       }
     } else {
+      selectedLinkItem = objectID
       selectedItem = dataService.viewContext.object(with: objectID) as? LinkedItem
       linkIsActive = true
     }

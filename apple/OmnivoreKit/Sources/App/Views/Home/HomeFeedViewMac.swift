@@ -38,7 +38,7 @@ import Views
         List {
           Section {
             ForEach(viewModel.items) { item in
-              FeedCardNavigationLink(
+              MacFeedCardNavigationLink(
                 item: item,
                 viewModel: viewModel
               )
