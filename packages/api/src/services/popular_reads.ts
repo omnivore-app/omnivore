@@ -96,7 +96,7 @@ export const addPopularRead = async (
 
 const addPopularReads = async (
   userId: string,
-  ...names: string[]
+  names: string[]
 ): Promise<AddPopularReadResult[]> => {
   const results: AddPopularReadResult[] = []
   for (const name of names) {
@@ -114,15 +114,27 @@ const addPopularReads = async (
 
 export const addPopularReadsForNewUser = async (
   userId: string,
-  isIOSUser = false
+  client = 'web'
 ): Promise<void> => {
-  await addPopularReads(
-    userId,
+  const defaultReads = [
     'omnivore_get_started',
     'power_read_it_later',
     'omnivore_organize',
-    isIOSUser ? 'omnivore_ios' : 'omnivore_android'
-  )
+  ]
+
+  switch (client) {
+    case 'web':
+      defaultReads.push('omnivore_web')
+      break
+    case 'ios':
+      defaultReads.push('omnivore_ios')
+      break
+    case 'android':
+      defaultReads.push('omnivore_android')
+      break
+  }
+
+  await addPopularReads(userId, defaultReads)
 }
 
 const popularReads = [
