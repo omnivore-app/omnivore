@@ -42,16 +42,6 @@ jobs:
           --health-retries 10
         ports:
           - 9200
-      redis:
-        image: redis
-        # Set health checks to wait until redis has started
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379
     steps:
       - uses: actions/checkout@v2
         with:
@@ -87,7 +77,6 @@ jobs:
           PG_DB: omnivore_test
           PG_POOL_MAX: 10
           ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
-          REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
   build-docker-images:
     name: Build docker images
     runs-on: ubuntu-latest

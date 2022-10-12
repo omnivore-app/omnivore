@@ -97,10 +97,6 @@ interface BackendEnv {
   gcp: {
     location: string
   }
-  redis: {
-    url?: string
-    cert?: string
-  }
 }
 
 /***
@@ -156,8 +152,6 @@ const nullableEnvVars = [
   'AZURE_SPEECH_KEY',
   'AZURE_SPEECH_REGION',
   'GCP_LOCATION',
-  'REDIS_URL',
-  'REDIS_CERT',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -287,11 +281,6 @@ export function getEnv(): BackendEnv {
     location: parse('GCP_LOCATION'),
   }
 
-  const redis = {
-    url: parse('REDIS_URL'),
-    cert: parse('REDIS_CERT'),
-  }
-
   return {
     pg,
     client,
@@ -312,7 +301,6 @@ export function getEnv(): BackendEnv {
     readwise,
     azure,
     gcp,
-    redis,
   }
 }
 
