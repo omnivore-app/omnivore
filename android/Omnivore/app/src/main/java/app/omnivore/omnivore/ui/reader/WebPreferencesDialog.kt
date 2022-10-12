@@ -9,19 +9,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun WebPreferencesDialog(onDismiss: (WebPreferences?) -> Unit) {
-  Dialog(onDismissRequest = { onDismiss(null) }) {
+fun WebPreferencesDialog(onDismiss: () -> Unit) {
+  Dialog(onDismissRequest = { onDismiss() }) {
     Surface(
       shape = RoundedCornerShape(16.dp),
       color = Color.White
     ) {
-      WebPreferencesView(onDismiss)
+      WebPreferencesView()
     }
   }
 }
 
 @Composable
-fun WebPreferencesView(onDismiss: (WebPreferences?) -> Unit) {
+fun WebPreferencesView() {
   Text("Web Prefs")
 }
 

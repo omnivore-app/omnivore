@@ -44,7 +44,6 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
   )
 
   var showWebPreferencesDialog by remember { mutableStateOf(false ) }
-  var webPreferences by remember { mutableStateOf(defaultWebPreferences ) }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
@@ -87,7 +86,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
             .requiredHeight(height = maxToolbarHeight)
         ) {
         }
-        WebReader(webReaderParams!!, webPreferences, webReaderViewModel)
+        WebReader(webReaderParams!!, defaultWebPreferences, webReaderViewModel)
       }
 
       TopAppBar(
@@ -108,12 +107,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
       )
 
       if (showWebPreferencesDialog) {
-        WebPreferencesDialog { preferences ->
-          if (preferences != null) {
-            webPreferences = preferences!!
-            showWebPreferencesDialog = false
-          }
-
+        WebPreferencesDialog {
           showWebPreferencesDialog = false
         }
       }
