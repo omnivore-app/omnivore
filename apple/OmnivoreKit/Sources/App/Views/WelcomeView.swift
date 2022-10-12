@@ -43,7 +43,15 @@ struct WelcomeView: View {
       headlineText
 
       Button(
-        action: { showAboutPage = true },
+        action: {
+          #if os(iOS)
+            showAboutPage = true
+          #else
+            if let url = URL(string: "https://omnivore.app/about") {
+              NSWorkspace.shared.open(url)
+            }
+          #endif
+        },
         label: {
           HStack(spacing: 4) {
             Text("Learn more")
@@ -159,6 +167,9 @@ struct WelcomeView: View {
       }
     )
     .padding(.vertical)
+    #if os(macOS)
+      .buttonStyle(PlainButtonStyle())
+    #endif
 
     return
       VStack(alignment: .center, spacing: 16) {
