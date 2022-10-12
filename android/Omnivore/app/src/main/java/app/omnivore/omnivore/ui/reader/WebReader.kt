@@ -27,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.omnivore.omnivore.R
 import com.google.gson.Gson
+import java.util.*
 import kotlin.math.roundToInt
 
 
@@ -129,10 +130,11 @@ fun WebReader(
   preferences: WebPreferences,
   webReaderViewModel: WebReaderViewModel
 ) {
-  // TODO: maybe handle cases where js can be queued up?
-  val javascriptToExecute = remember { mutableStateOf<String?>(null) }
-
   val annotation: String? by webReaderViewModel.annotationLiveData.observeAsState(null)
+
+  val javascriptActionLoopUUID: UUID by webReaderViewModel
+    .javascriptActionLoopUUIDLiveData
+    .observeAsState(UUID.randomUUID())
 
   WebView.setWebContentsDebuggingEnabled(true)
 
@@ -186,8 +188,11 @@ fun WebReader(
         )
       }
     }, update = {
-      if (javascriptToExecute.value != null) {
-        it.evaluateJavascript(javascriptToExecute.value!!, null)
+      if (javascriptActionLoopUUID != webReaderViewModel.lastJavascriptActionLoopUUID) {
+        for (script in webReaderViewModel.javascriptDispatchQueue) {
+          it.evaluateJavascript(script, null)
+        }
+        webReaderViewModel.resetJavascriptDispatchQueue()
       }
     })
 
@@ -195,9 +200,7 @@ fun WebReader(
       AnnotationEditView(
         initialAnnotation = annotation!!,
         onSave = {
-          val script = "var event = new Event('saveAnnotation');event.annotation = '$it';document.dispatchEvent(event);"
-          javascriptToExecute.value = script
-          webReaderViewModel.cancelAnnotationEdit()
+          webReaderViewModel.saveAnnotation(it)
         },
         onCancel = {
           webReaderViewModel.cancelAnnotationEdit()

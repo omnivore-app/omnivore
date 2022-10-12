@@ -12,6 +12,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.util.*
 import javax.inject.Inject
 
 data class WebReaderParams(
@@ -28,9 +29,13 @@ class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val networker: Networker
 ): ViewModel() {
+  var lastJavascriptActionLoopUUID = UUID.randomUUID()
+  var javascriptDispatchQueue: MutableList<String> = mutableListOf()
   var scrollState = ScrollState(0)
+
   val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
   val annotationLiveData = MutableLiveData<String?>(null)
+  val javascriptActionLoopUUIDLiveData = MutableLiveData(lastJavascriptActionLoopUUID)
 
   fun loadItem(slug: String) {
     viewModelScope.launch {
@@ -93,6 +98,19 @@ class WebReaderViewModel @Inject constructor(
     webReaderParamsLiveData.value = null
     annotationLiveData.value = null
     scrollState = ScrollState(0)
+    javascriptDispatchQueue = mutableListOf()
+  }
+
+  fun resetJavascriptDispatchQueue() {
+    lastJavascriptActionLoopUUID = javascriptActionLoopUUIDLiveData.value
+    javascriptDispatchQueue = mutableListOf()
+  }
+
+  fun saveAnnotation(annotation: String) {
+    val script = "var event = new Event('saveAnnotation');event.annotation = '$annotation';document.dispatchEvent(event);"
+    javascriptDispatchQueue.add(script)
+    javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
+    cancelAnnotationEdit()
   }
 
   fun cancelAnnotationEdit() {
