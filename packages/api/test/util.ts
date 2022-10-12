@@ -50,7 +50,7 @@ export const createTestElasticPage = async (
     content: '<p>test content</p>',
     createdAt: new Date(),
     savedAt: new Date(),
-    url: 'https://example.com/test-url',
+    url: 'https://blog.omnivore.app/test-url',
     slug: 'test-with-omnivore',
     labels: labels,
     readingProgressPercent: 0,
