@@ -19,6 +19,7 @@ import Views
   @Published var itemUnderTitleEdit: LinkedItem?
   @Published var itemForHighlightsView: LinkedItem?
   @Published var searchTerm = ""
+  @Published var scopeSelection = 0
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var snoozePresented = false
@@ -29,6 +30,8 @@ import Views
 
   @Published var selectedItem: LinkedItem?
   @Published var linkIsActive = false
+
+  @Published var showLabelsSheet = false
 
   @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
 

@@ -17,4 +17,5 @@ public enum UserDefaultKey: String {
   case textToSpeechPreferredVoice
   case textToSpeechDefaultLanguage
   case textToSpeechPreloadEnabled
+  case recentSearchTerms
 }

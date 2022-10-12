@@ -75,6 +75,10 @@ public struct TextChipButton: View {
     TextChipButton(title: title, color: .systemGray6, actionType: .show, negated: false, onTap: {})
   }
 
+  public static func makeSearchFilterButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
+    TextChipButton(title: "Search: \(title)", color: .appCtaYellow, actionType: .clear, negated: false, onTap: onTap)
+  }
+
   public static func makeShowOptionsButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {
     TextChipButton(title: title, color: .appButtonBackground, actionType: .add, negated: false, onTap: onTap)
   }
@@ -97,10 +101,11 @@ public struct TextChipButton: View {
     case remove
     case add
     case show
+    case clear
 
     var systemIconName: String {
       switch self {
-      case .remove:
+      case .clear, .remove:
         return "xmark"
       case .add:
         return "plus"
@@ -144,9 +149,10 @@ public struct TextChipButton: View {
       .font(.appFootnote)
       .foregroundColor(foregroundColor)
       .lineLimit(1)
-      .background(Capsule().fill(color))
+      .background(Rectangle().fill(color))
+      .cornerRadius(8)
     }
-    .padding(.vertical, 12)
+    .padding(.vertical, 0)
     .contentShape(Rectangle())
     .onTapGesture { onTap() }
   }

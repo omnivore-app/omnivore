@@ -132,9 +132,7 @@ struct WebReaderContainerView: View {
         .scaleEffect(navBarVisibilityRatio)
         Spacer()
       #endif
-      if FeatureFlag.enableTextToSpeechButton {
-        audioNavbarItem
-      }
+      audioNavbarItem
       Button(
         action: { showPreferencesPopover.toggle() },
         label: {
@@ -176,6 +174,12 @@ struct WebReaderContainerView: View {
                   systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
                 )
               }
+            )
+            Button(
+              action: {
+                dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+              },
+              label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
             )
             Button(
               action: { shareActionID = UUID() },

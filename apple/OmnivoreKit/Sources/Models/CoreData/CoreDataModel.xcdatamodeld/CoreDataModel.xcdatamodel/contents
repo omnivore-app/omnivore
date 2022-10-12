@@ -81,6 +81,11 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
+    <entity name="RecentSearchItem" representedClassName="RecentSearchItem" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="savedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="term" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="Viewer" representedClassName="Viewer" syncable="YES" codeGenerationType="class">
         <attribute name="name" attributeType="String"/>
         <attribute name="profileImageURL" optional="YES" attributeType="String"/>
