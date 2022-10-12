@@ -95,6 +95,7 @@ import {
   updatePage,
 } from '../../elastic/pages'
 import { searchHighlights } from '../../elastic/highlights'
+import { saveSearchHistory } from '../../services/search_history'
 
 export type PartialArticle = Omit<
   Article,
@@ -904,6 +905,11 @@ export const searchResolver = authorized<
       cursor: endCursor,
     }
   })
+
+  // save in search history
+  if (searchQuery.query) {
+    await saveSearchHistory(claims.uid, searchQuery.query)
+  }
 
   return {
     edges,
