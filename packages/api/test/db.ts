@@ -66,7 +66,7 @@ export const createTestConnection = async (): Promise<void> => {
 export const deleteTestUser = async (userId: string) => {
   await AppDataSource.transaction(async (t) => {
     await setClaims(t, userId)
-    await t.getRepository(User).delete({ id: userId })
+    await t.getRepository(User).delete(userId)
   })
 }
 

@@ -7,7 +7,7 @@ import {
   PubSubRequestBody,
 } from '../../src/datalayer/pubsub'
 import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { Integration, IntegrationType } from '../../src/entity/integration'
 import { getRepository } from '../../src/entity/utils'
 import { Highlight, Page, PageContext } from '../../src/elastic/types'
@@ -166,7 +166,7 @@ describe('Integrations routers', () => {
           })
 
           after(async () => {
-            await getRepository(Integration).delete(integration.id)
+            await deleteTestIntegrations(user.id, [integration.id])
             await deletePage(page.id, ctx)
           })
 

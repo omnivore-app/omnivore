@@ -55,7 +55,7 @@ describe('auth router', () => {
       })
 
       afterEach(async () => {
-        const user = await getRepository(User).findOne({ where: { name } })
+        const user = await getRepository(User).findOneBy({ name })
         await deleteTestUser(user!.id)
       })
 
@@ -569,7 +569,8 @@ describe('auth router', () => {
       let provider: AuthProvider = 'EMAIL'
 
       afterEach(async () => {
-        await deleteTestUser(username)
+        const user = await getRepository(User).findOneBy({ name })
+        await deleteTestUser(user!.id)
       })
 
       it('adds popular reads to the library', async () => {
