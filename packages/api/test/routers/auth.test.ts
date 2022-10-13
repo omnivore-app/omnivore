@@ -1,4 +1,4 @@
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser, deleteTestUser, updateTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
 import { StatusType } from '../../src/datalayer/user/model'
 import { getRepository } from '../../src/entity/utils'
@@ -199,17 +199,13 @@ describe('auth router', () => {
 
       beforeEach(async () => {
         fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
-        await getRepository(User).update(user.id, {
-          status: StatusType.Pending,
-        })
+        await updateTestUser(user.id, { status: StatusType.Pending })
         email = user.email
         password = correctPassword
       })
 
       afterEach(async () => {
-        await getRepository(User).update(user.id, {
-          status: StatusType.Active,
-        })
+        await updateTestUser(user.id, { status: StatusType.Active })
         sinon.restore()
       })
 
@@ -241,17 +237,13 @@ describe('auth router', () => {
 
     context('when user has no password stored in db', async () => {
       before(async () => {
-        await getRepository(User).update(user.id, {
-          password: '',
-        })
+        await updateTestUser(user.id, { password: '' })
         email = user.email
         password = user.password!
       })
 
       after(async () => {
-        await getRepository(User).update(user.id, {
-          password,
-        })
+        await updateTestUser(user.id, { password })
       })
 
       it('redirects with error code WrongSource', async () => {
@@ -387,9 +379,7 @@ describe('auth router', () => {
           let fake: (msg: MailDataRequired) => Promise<boolean>
 
           before(async () => {
-            await getRepository(User).update(user.id, {
-              status: StatusType.Active,
-            })
+            await updateTestUser(user.id, { status: StatusType.Active })
           })
 
           context('when reset password email sent', () => {
@@ -431,9 +421,7 @@ describe('auth router', () => {
 
         context('when email is not verified', () => {
           before(async () => {
-            await getRepository(User).update(user.id, {
-              status: StatusType.Pending,
-            })
+            await updateTestUser(user.id, { status: StatusType.Pending })
           })
 
           it('redirects to email-login page with error code PENDING_VERIFICATION', async () => {

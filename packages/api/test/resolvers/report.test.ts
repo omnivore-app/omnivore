@@ -58,12 +58,6 @@ describe('Report API', () => {
         reportTypes = [ReportType.ContentDisplay]
       })
 
-      after(async () => {
-        await getRepository(ContentDisplayReport).delete({
-          elasticPageId: pageId,
-        })
-      })
-
       it('should report an item', async () => {
         await graphqlRequest(query, authToken).expect(200)
 

@@ -13,6 +13,8 @@ import { getRepository, setClaims } from '../src/entity/utils'
 import { createUser } from '../src/services/create_user'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { SubscriptionStatus } from '../src/generated/graphql'
+import { Integration } from '../src/entity/integration'
+import { FindOptionsWhere } from 'typeorm'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -200,5 +202,32 @@ export const createTestSubscription = async (
     user,
     name,
     status: SubscriptionStatus.Active,
+  })
+}
+
+export const deleteTestLabels = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<Label>
+) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(Label).delete(criteria)
+  })
+}
+
+export const deleteTestIntegrations = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<Integration>
+) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(Integration).delete(criteria)
+  })
+}
+
+export const updateTestUser = async (userId: string, update: Partial<User>) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    await t.getRepository(User).update(userId, update)
   })
 }

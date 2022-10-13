@@ -1,6 +1,6 @@
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 import {
   IntegrationType,
@@ -98,9 +98,7 @@ describe('Integrations resolvers', () => {
         })
 
         after(async () => {
-          await getRepository(Integration).delete({
-            id: existingIntegration.id,
-          })
+          await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
         })
 
         it('returns AlreadyExists error code', async () => {
@@ -137,7 +135,7 @@ describe('Integrations resolvers', () => {
           })
 
           afterEach(async () => {
-            await getRepository(Integration).delete({
+            await deleteTestIntegrations(loginUser.id, {
               user: { id: loginUser.id },
               type: integrationType,
             })
@@ -200,9 +198,7 @@ describe('Integrations resolvers', () => {
 
           after(async () => {
             await deleteTestUser(otherUser.id)
-            await getRepository(Integration).delete({
-              id: existingIntegration.id,
-            })
+            await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
           })
 
           it('returns Unauthorized error code', async () => {
@@ -227,9 +223,7 @@ describe('Integrations resolvers', () => {
           })
 
           after(async () => {
-            await getRepository(Integration).delete({
-              id: existingIntegration.id,
-            })
+            await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
           })
 
           context('when enable is false', () => {
@@ -328,7 +322,7 @@ describe('Integrations resolvers', () => {
     })
 
     after(async () => {
-      await getRepository(Integration).delete(existingIntegration.id)
+      await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
     })
 
     it('returns all integrations', async () => {
