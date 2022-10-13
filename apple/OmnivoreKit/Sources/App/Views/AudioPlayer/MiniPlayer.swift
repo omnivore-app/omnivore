@@ -434,7 +434,7 @@
               Button(action: {
                 audioController.currentVoice = voice.key
                 self.showVoiceSheet = false
-              }) {
+              }, label: {
                 HStack {
                   Text(voice.name)
 
@@ -445,8 +445,7 @@
                   }
                 }
                 .contentShape(Rectangle())
-              }
-              .buttonStyle(PlainButtonStyle())
+              }).buttonStyle(PlainButtonStyle())
             }
           }
           .padding(.top, 32)
@@ -455,11 +454,11 @@
         }
         .navigationBarTitle("Voice")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
+        .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }, label: {
           Image(systemName: "chevron.backward")
             .font(.appNavbarIcon)
             .tint(.appGrayTextContrast)
-        })
+        }))
       }
     }
 
