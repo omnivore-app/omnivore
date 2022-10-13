@@ -7,20 +7,18 @@
     typealias UIViewType = UISlider
 
     @Binding var value: Double
-    var minValue: Double
-    var maxValue: Double
+    @Binding var maxValue: Double
     var onEditingChanged: (Bool) -> Void
 
-    init(value: Binding<Double>, minValue: Double, maxValue: Double, onEditingChanged: @escaping (Bool) -> Void) {
+    init(value: Binding<Double>, maxValue: Binding<Double>, onEditingChanged: @escaping (Bool) -> Void) {
       self._value = value
-      self.minValue = minValue
-      self.maxValue = maxValue
+      self._maxValue = maxValue
       self.onEditingChanged = onEditingChanged
     }
 
     func makeUIView(context: Context) -> UISlider {
       let slider = UISlider(frame: .zero)
-      slider.maximumValue = Float(minValue)
+      slider.minimumValue = Float(0.0)
       slider.maximumValue = Float(maxValue)
 
       let tintColor = UIColor(Color.appCtaYellow)
@@ -43,6 +41,7 @@
 
     func updateUIView(_ uiView: UISlider, context _: Context) {
       uiView.value = Float(value)
+      uiView.maximumValue = Float(maxValue)
     }
 
     func makeCoordinator() -> Coordinator {

@@ -153,27 +153,29 @@
     var audioCards: some View {
       ZStack {
         let textItems = self.audioController.textItems ?? []
-        TabView(selection: $tabIndex) {
-          ForEach(0 ..< textItems.count, id: \.self) { id in
-            SpeechCard(id: id)
-              .tag(id)
+        if textItems.count > 0 {
+          TabView(selection: $tabIndex) {
+            ForEach(0 ..< textItems.count, id: \.self) { id in
+              SpeechCard(id: id)
+                .tag(id)
+            }
           }
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-        .onChange(of: tabIndex, perform: { index in
-          if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
-            audioController.seek(toUtterance: index)
-          }
-        })
-        .onChange(of: audioController.currentAudioIndex, perform: { index in
-          if index >= textItems.count {
-            return
-          }
+          .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+          .onChange(of: tabIndex, perform: { index in
+            if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
+              audioController.seek(toUtterance: index)
+            }
+          })
+          .onChange(of: audioController.currentAudioIndex, perform: { index in
+            if index >= textItems.count {
+              return
+            }
 
-          if self.audioController.state != .reachedEnd {
-            tabIndex = index
-          }
-        })
+            if self.audioController.state != .reachedEnd {
+              tabIndex = index
+            }
+          })
+        }
 
         if audioController.state == .reachedEnd {
           // If we have reached the end display a replay button with an overlay behind
@@ -279,7 +281,7 @@
 
           Group {
             ScrubberView(value: $audioController.timeElapsed,
-                         minValue: 0, maxValue: self.audioController.duration,
+                         maxValue: $audioController.duration,
                          onEditingChanged: { scrubStarted in
                            if scrubStarted {
                              self.audioController.scrubState = .scrubStarted
@@ -359,6 +361,12 @@
           .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
           .mask(Rectangle().padding(.top, -20))
       )
+      .onChange(of: audioController.state, perform: { state in
+        // Reset the tabIndex when we load a new audio item
+        if state == .loading {
+          tabIndex = 0
+        }
+      })
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
       }.sheet(isPresented: $showVoiceSheet) {
@@ -432,7 +440,7 @@
               Button(action: {
                 audioController.currentVoice = voice.key
                 self.showVoiceSheet = false
-              }) {
+              }, label: {
                 HStack {
                   Text(voice.name)
 
@@ -443,8 +451,7 @@
                   }
                 }
                 .contentShape(Rectangle())
-              }
-              .buttonStyle(PlainButtonStyle())
+              }).buttonStyle(PlainButtonStyle())
             }
           }
           .padding(.top, 32)
@@ -453,11 +460,11 @@
         }
         .navigationBarTitle("Voice")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }) {
+        .navigationBarItems(leading: Button(action: { self.showVoiceSheet = false }, label: {
           Image(systemName: "chevron.backward")
             .font(.appNavbarIcon)
             .tint(.appGrayTextContrast)
-        })
+        }))
       }
     }
 

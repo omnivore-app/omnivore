@@ -207,6 +207,8 @@
     @Published public var durationString: String?
     @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
 
+    @Published public var textItems: [String]?
+
     let dataService: DataService
 
     var timer: Timer?
@@ -266,6 +268,7 @@
       timeElapsed = 0
       duration = 1
       durations = nil
+      currentAudioIndex = 0
 
       if let stoppedId = stoppedId {
         EventTracker.track(
@@ -480,8 +483,6 @@
       let body: String
     }
 
-    public var textItems: [String]?
-
     func setTextItems() {
       if let document = self.document {
         textItems = document.utterances.map { utterance in
@@ -491,6 +492,7 @@
           }
           return ""
         }
+        currentAudioIndex = 0
       } else {
         textItems = nil
       }
@@ -940,7 +942,7 @@
       let str = String(decoding: data, as: UTF8.self)
       print("result speech file: ", str)
 
-      let document = try? JSONDecoder().decode(SpeechDocument.self, from: data)
+      document = try? JSONDecoder().decode(SpeechDocument.self, from: data)
 
       // Cache the file - if it exists
       if let document = document {
