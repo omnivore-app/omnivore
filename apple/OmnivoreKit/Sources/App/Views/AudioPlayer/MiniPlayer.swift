@@ -153,27 +153,29 @@
     var audioCards: some View {
       ZStack {
         let textItems = self.audioController.textItems ?? []
-        TabView(selection: $tabIndex) {
-          ForEach(0 ..< textItems.count, id: \.self) { id in
-            SpeechCard(id: id)
-              .tag(id)
+        if textItems.count > 0 {
+          TabView(selection: $tabIndex) {
+            ForEach(0 ..< textItems.count, id: \.self) { id in
+              SpeechCard(id: id)
+                .tag(id)
+            }
           }
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-        .onChange(of: tabIndex, perform: { index in
-          if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
-            audioController.seek(toUtterance: index)
-          }
-        })
-        .onChange(of: audioController.currentAudioIndex, perform: { index in
-          if index >= textItems.count {
-            return
-          }
+          .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+          .onChange(of: tabIndex, perform: { index in
+            if index != audioController.currentAudioIndex, index < (audioController.textItems?.count ?? 0) {
+              audioController.seek(toUtterance: index)
+            }
+          })
+          .onChange(of: audioController.currentAudioIndex, perform: { index in
+            if index >= textItems.count {
+              return
+            }
 
-          if self.audioController.state != .reachedEnd {
-            tabIndex = index
-          }
-        })
+            if self.audioController.state != .reachedEnd {
+              tabIndex = index
+            }
+          })
+        }
 
         if audioController.state == .reachedEnd {
           // If we have reached the end display a replay button with an overlay behind

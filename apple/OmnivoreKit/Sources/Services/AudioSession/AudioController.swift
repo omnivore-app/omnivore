@@ -207,6 +207,8 @@
     @Published public var durationString: String?
     @Published public var voiceList: [(name: String, key: String, category: VoiceCategory, selected: Bool)]?
 
+    @Published public var textItems: [String]?
+
     let dataService: DataService
 
     var timer: Timer?
@@ -479,8 +481,6 @@
       let heading: String
       let body: String
     }
-
-    public var textItems: [String]?
 
     func setTextItems() {
       if let document = self.document {
