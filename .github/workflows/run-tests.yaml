@@ -73,6 +73,7 @@ jobs:
           PG_USER: postgres
           PG_PASSWORD: postgres
           PG_DB: omnivore_test
+          ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
       - name: TypeScript, Lint, Tests
         run: |
           source ~/.nvm/nvm.sh
