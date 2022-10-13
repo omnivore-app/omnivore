@@ -136,6 +136,17 @@ describe('Newsletter email test', () => {
         })
       ).to.eventually.be.true
     })
+    it('returns true for milkroad newsletter', async () => {
+      const html = load('./test/data/milkroad-newsletter.html')
+      await expect(
+        new BeehiivHandler().isNewsletter({
+          html,
+          postHeader: '',
+          from: '',
+          unSubHeader: '',
+        })
+      ).to.eventually.be.true
+    })
   })
 
   describe('findNewsletterUrl', async () => {
