@@ -281,7 +281,7 @@
 
           Group {
             ScrubberView(value: $audioController.timeElapsed,
-                         minValue: 0, maxValue: self.audioController.duration,
+                         maxValue: $audioController.duration,
                          onEditingChanged: { scrubStarted in
                            if scrubStarted {
                              self.audioController.scrubState = .scrubStarted
