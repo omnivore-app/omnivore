@@ -361,6 +361,12 @@
           .shadow(color: expanded ? .clear : .gray.opacity(0.33), radius: 8, x: 0, y: 4)
           .mask(Rectangle().padding(.top, -20))
       )
+      .onChange(of: audioController.state, perform: { state in
+        // Reset the tabIndex when we load a new audio item
+        if state == .loading {
+          tabIndex = 0
+        }
+      })
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
       }.sheet(isPresented: $showVoiceSheet) {
