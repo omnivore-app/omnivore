@@ -18,7 +18,11 @@ public final class Services {
     let networker = Networker(appEnvironment: appEnvironment)
     self.authenticator = Authenticator(networker: networker)
     self.dataService = DataService(appEnvironment: appEnvironment, networker: networker)
-    self.audioController = AudioController(dataService: dataService)
+    #if os(iOS)
+      self.audioController = AudioController(dataService: dataService)
+    #else
+      self.audioController = AudioController()
+    #endif
   }
 }
 

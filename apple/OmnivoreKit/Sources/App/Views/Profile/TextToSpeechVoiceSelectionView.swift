@@ -1,21 +1,21 @@
-import Models
-import Services
-import SwiftUI
-import Views
+#if os(iOS)
+  import Models
+  import Services
+  import SwiftUI
+  import Views
 
-struct TextToSpeechVoiceSelectionView: View {
-  @EnvironmentObject var audioController: AudioController
-  let language: VoiceLanguage
-  let showLanguageChanger: Bool
+  struct TextToSpeechVoiceSelectionView: View {
+    @EnvironmentObject var audioController: AudioController
+    let language: VoiceLanguage
+    let showLanguageChanger: Bool
 
-  init(forLanguage: VoiceLanguage, showLanguageChanger: Bool) {
-    self.language = forLanguage
-    self.showLanguageChanger = showLanguageChanger
-  }
+    init(forLanguage: VoiceLanguage, showLanguageChanger: Bool) {
+      self.language = forLanguage
+      self.showLanguageChanger = showLanguageChanger
+    }
 
-  var body: some View {
-    Group {
-      #if os(iOS)
+    var body: some View {
+      Group {
         Form {
           if showLanguageChanger {
             Section("Language") {
@@ -26,22 +26,16 @@ struct TextToSpeechVoiceSelectionView: View {
           }
           innerBody
         }
-      #elseif os(macOS)
-        List {
-          innerBody
-        }
-        .listStyle(InsetListStyle())
-      #endif
+      }
+      .navigationTitle("Choose a Voice")
     }
-    .navigationTitle("Choose a Voice")
-  }
 
-  private var innerBody: some View {
-    ForEach(language.categories, id: \.self) { category in
-      Section(category.rawValue) {
-        ForEach(audioController.voiceList?.filter { $0.category == category } ?? [], id: \.key.self) { voice in
-          HStack {
-            // Voice samples are not working yet
+    private var innerBody: some View {
+      ForEach(language.categories, id: \.self) { category in
+        Section(category.rawValue) {
+          ForEach(audioController.voiceList?.filter { $0.category == category } ?? [], id: \.key.self) { voice in
+            HStack {
+              // Voice samples are not working yet
 //            Button(action: {
 //              audioController.playVoiceSample(voice: voice.key)
 //            }) {
@@ -49,28 +43,29 @@ struct TextToSpeechVoiceSelectionView: View {
 //            }
 //            .buttonStyle(PlainButtonStyle())
 
-            Button(action: {
-              audioController.setPreferredVoice(voice.key, forLanguage: language.key)
-              audioController.currentVoice = voice.key
-            }) {
-              HStack {
-                Text(voice.name)
-                Spacer()
+              Button(action: {
+                audioController.setPreferredVoice(voice.key, forLanguage: language.key)
+                audioController.currentVoice = voice.key
+              }) {
+                HStack {
+                  Text(voice.name)
+                  Spacer()
 
-                if voice.selected {
-                  if audioController.isPlaying, audioController.isLoading {
-                    ProgressView()
-                  } else {
-                    Image(systemName: "checkmark")
+                  if voice.selected {
+                    if audioController.isPlaying, audioController.isLoading {
+                      ProgressView()
+                    } else {
+                      Image(systemName: "checkmark")
+                    }
                   }
                 }
+                .contentShape(Rectangle())
               }
-              .contentShape(Rectangle())
+              .buttonStyle(PlainButtonStyle())
             }
-            .buttonStyle(PlainButtonStyle())
           }
         }
       }
     }
   }
-}
+#endif

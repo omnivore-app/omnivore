@@ -26,11 +26,11 @@ public final class OmnivoreWebView: WKWebView {
 
     #if os(iOS)
       initNativeIOSMenus()
-    #endif
 
-    if #available(iOS 16.0, *) {
-      self.isFindInteractionEnabled = true
-    }
+      if #available(iOS 16.0, *) {
+        self.isFindInteractionEnabled = true
+      }
+    #endif
 
     NotificationCenter.default.addObserver(forName: NSNotification.Name("SpeakingReaderItem"), object: nil, queue: OperationQueue.main, using: { notification in
       if let pageID = notification.userInfo?["pageID"] as? String, let anchorIdx = notification.userInfo?["anchorIdx"] as? String {

@@ -3,13 +3,15 @@ import SwiftUI
 struct HomeView: View {
   @StateObject private var viewModel = HomeFeedViewModel()
 
-  var navView: some View {
-    NavigationView {
-      HomeFeedContainerView(viewModel: viewModel)
+  #if os(iOS)
+    var navView: some View {
+      NavigationView {
+        HomeFeedContainerView(viewModel: viewModel)
+      }
+      .navigationViewStyle(.stack)
+      .accentColor(.appGrayTextContrast)
     }
-    .navigationViewStyle(.stack)
-    .accentColor(.appGrayTextContrast)
-  }
+  #endif
 
   var body: some View {
     #if os(iOS)

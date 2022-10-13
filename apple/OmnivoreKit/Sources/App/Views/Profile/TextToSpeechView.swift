@@ -1,14 +1,14 @@
-import Models
-import Services
-import SwiftUI
-import Views
+#if os(iOS)
+  import Models
+  import Services
+  import SwiftUI
+  import Views
 
-struct TextToSpeechView: View {
-  @EnvironmentObject var audioController: AudioController
+  struct TextToSpeechView: View {
+    @EnvironmentObject var audioController: AudioController
 
-  var body: some View {
-    Group {
-      #if os(iOS)
+    var body: some View {
+      Group {
         Form {
           Section("Audio Settings") {
             Toggle("Enable audio prefetch", isOn: $audioController.preloadEnabled)
@@ -18,22 +18,17 @@ struct TextToSpeechView: View {
           }
           innerBody
         }
-      #elseif os(macOS)
-        List {
-          innerBody
-        }
-        .listStyle(InsetListStyle())
-      #endif
+      }
     }
-  }
 
-  private var innerBody: some View {
-    Section("Voices") {
-      ForEach(Voices.Languages, id: \.key) { language in
-        NavigationLink(destination: TextToSpeechVoiceSelectionView(forLanguage: language, showLanguageChanger: false)) {
-          Text(language.name)
+    private var innerBody: some View {
+      Section("Voices") {
+        ForEach(Voices.Languages, id: \.key) { language in
+          NavigationLink(destination: TextToSpeechVoiceSelectionView(forLanguage: language, showLanguageChanger: false)) {
+            Text(language.name)
+          }
         }
       }
     }
   }
-}
+#endif

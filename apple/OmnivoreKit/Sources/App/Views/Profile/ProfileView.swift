@@ -99,11 +99,13 @@ struct ProfileView: View {
         }
       }
 
-      Section {
-        NavigationLink(destination: TextToSpeechView()) {
-          Text("Text to Speech")
+      #if os(iOS)
+        Section {
+          NavigationLink(destination: TextToSpeechView()) {
+            Text("Text to Speech")
+          }
         }
-      }
+      #endif
 
       Section {
         NavigationLink(

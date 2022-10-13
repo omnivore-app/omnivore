@@ -52,10 +52,12 @@ struct EmailLoginFormView: View {
                 .font(.appFootnote)
                 .foregroundColor(.appGrayText)
               TextField("", text: $email)
+              #if os(iOS)
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
+              #endif
+              .disableAutocorrection(true)
                 .focused($focusedField, equals: .email)
                 .submitLabel(.next)
             }
@@ -67,8 +69,10 @@ struct EmailLoginFormView: View {
                 .foregroundColor(.appGrayText)
               SecureField("", text: $password)
                 .textContentType(.password)
+              #if os(iOS)
                 .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
+              #endif
+              .disableAutocorrection(true)
                 .focused($focusedField, equals: .password)
                 .submitLabel(.done)
             }
