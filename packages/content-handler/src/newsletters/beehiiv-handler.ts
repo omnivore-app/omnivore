@@ -8,7 +8,7 @@ export class BeehiivHandler extends ContentHandler {
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
-    const readOnline = dom.querySelectorAll('table tr td div a')
+    const readOnline = dom.querySelectorAll('table tr td a')
     let res: string | undefined = undefined
     readOnline.forEach((e) => {
       if (e.textContent === 'Read Online') {
