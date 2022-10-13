@@ -42,24 +42,34 @@ struct EmailAuthView: View {
     }
   }
 
-  var body: some View {
-    NavigationView {
-      ZStack {
-        Color.appBackground.edgesIgnoringSafeArea(.all)
-        primaryContent
-          .frame(maxWidth: 300)
-        #if os(iOS)
-          .navigationBarTitleDisplayMode(.inline)
-        #endif
-        .toolbar {
-          ToolbarItem(placement: .barTrailing) {
-            Button(
-              action: { presentationMode.wrappedValue.dismiss() },
-              label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
-            )
-          }
+  var innerBody: some View {
+    ZStack {
+      Color.appBackground.edgesIgnoringSafeArea(.all)
+      primaryContent
+        .frame(maxWidth: 300)
+      #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+      #endif
+      .toolbar {
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: { presentationMode.wrappedValue.dismiss() },
+            label: { Image(systemName: "xmark").foregroundColor(.appGrayTextContrast) }
+          )
         }
       }
     }
+  }
+
+  var body: some View {
+    #if os(iOS)
+      NavigationView {
+        innerBody
+      }
+    #else
+      innerBody
+        .frame(minWidth: 400, minHeight: 400)
+        .buttonStyle(PlainButtonStyle())
+    #endif
   }
 }

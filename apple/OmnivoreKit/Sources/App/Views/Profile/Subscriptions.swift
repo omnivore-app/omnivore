@@ -64,6 +64,12 @@ struct SubscriptionsView: View {
         )
         .buttonStyle(RoundedRectButtonStyle())
       }
+    } else if viewModel.subscriptions.isEmpty {
+      VStack(alignment: .center) {
+        Spacer()
+        Text("You have no current subscriptions.")
+        Spacer()
+      }
     } else {
       Group {
         #if os(iOS)

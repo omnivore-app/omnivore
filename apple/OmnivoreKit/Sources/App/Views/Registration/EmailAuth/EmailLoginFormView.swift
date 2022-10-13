@@ -44,7 +44,7 @@ struct EmailLoginFormView: View {
       VStack(spacing: 28) {
         ScrollView(showsIndicators: false) {
           if horizontalSizeClass == .regular {
-            Spacer(minLength: 150)
+            Spacer(minLength: isMacApp ? 50 : 150)
           }
           VStack {
             VStack(alignment: .leading, spacing: 6) {
