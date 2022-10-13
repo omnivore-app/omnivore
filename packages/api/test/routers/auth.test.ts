@@ -14,6 +14,9 @@ import {
 } from '../../src/utils/auth'
 import sinonChai from 'sinon-chai'
 import chai, { expect } from 'chai'
+import { searchPages } from '../../src/elastic/pages'
+import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
+import { AuthProvider } from '../../src/routers/auth/auth_types'
 
 chai.use(sinonChai)
 
@@ -543,6 +546,88 @@ describe('auth router', () => {
             '/auth/reset-password/?errorCodes=TOKEN_EXPIRED'
           )
         })
+      })
+    })
+  })
+
+  describe('create account', () => {
+    const createAccountRequest = (
+      bio: string,
+      name: string,
+      username: string,
+      pendingUserAuth: string,
+      client: string
+    ): supertest.Test => {
+      return request
+        .post(`${route}/create-account`)
+        .set('X-OmnivoreClient', client)
+        .set('Cookie', [`pendingUserAuth=${pendingUserAuth}`])
+        .send({
+          name,
+          bio,
+          username,
+        })
+    }
+
+    context('when inputs are valid and user not exists', () => {
+      let name = 'test_user'
+      let username = 'test_user'
+      let sourceUserId = 'test_source_user_id'
+      let email = 'test_user@omnivore.app'
+      let bio = 'test_bio'
+      let provider: AuthProvider = 'EMAIL'
+
+      afterEach(async () => {
+        await deleteTestUser(username)
+      })
+
+      it('adds popular reads to the library', async () => {
+        const pendingUserToken = await createPendingUserToken({
+          sourceUserId,
+          email,
+          provider,
+          name,
+          username,
+        })
+        await createAccountRequest(
+          bio,
+          name,
+          username,
+          pendingUserToken!,
+          'web'
+        ).expect(200)
+        const user = await getRepository(User).findOneBy({ name })
+        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
+          [],
+          0,
+        ]
+
+        expect(count).to.eql(3)
+      })
+
+      it('adds iOS popular reads to the library if provider is iOS', async () => {
+        const pendingUserToken = await createPendingUserToken({
+          sourceUserId,
+          email,
+          provider,
+          name,
+          username,
+        })
+        await createAccountRequest(
+          bio,
+          name,
+          username,
+          pendingUserToken!,
+          'ios'
+        ).expect(200)
+        const user = await getRepository(User).findOneBy({ name })
+        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
+          [],
+          0,
+        ]
+
+        // TODO: update this when we have more iOS popular reads
+        expect(count).to.eql(3)
       })
     })
   })

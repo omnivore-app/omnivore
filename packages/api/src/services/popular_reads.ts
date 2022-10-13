@@ -5,6 +5,7 @@ import { PageType } from '../generated/graphql'
 import { generateSlug, stringToHash } from '../utils/helpers'
 import { readFileSync } from 'fs'
 import path from 'path'
+import * as httpContext from 'express-http-context'
 
 type PopularRead = {
   url: string
@@ -17,6 +18,12 @@ type PopularRead = {
 
   content: string
   originalHtml: string
+}
+
+interface AddPopularReadResult {
+  pageId?: string
+  name: string
+  status: ArticleSavingRequestStatus
 }
 
 const popularRead = (key: string): PopularRead | undefined => {
@@ -86,6 +93,51 @@ export const addPopularRead = async (
 
   const pageId = await createPage(articleToSave, ctx)
   return pageId
+}
+
+const addPopularReads = async (
+  userId: string,
+  names: string[]
+): Promise<AddPopularReadResult[]> => {
+  const results: AddPopularReadResult[] = []
+  for (const name of names) {
+    const pageId = await addPopularRead(userId, name)
+    results.push({
+      pageId,
+      name,
+      status: pageId
+        ? ArticleSavingRequestStatus.Succeeded
+        : ArticleSavingRequestStatus.Failed,
+    })
+  }
+  return results
+}
+
+export const addPopularReadsForNewUser = async (
+  userId: string
+): Promise<void> => {
+  const defaultReads = [
+    'omnivore_get_started',
+    'power_read_it_later',
+    'omnivore_organize',
+  ]
+
+  // get client from request context
+  const client = httpContext.get('client') as string | undefined
+
+  switch (client) {
+    case 'web':
+      defaultReads.push('omnivore_web')
+      break
+    case 'ios':
+      defaultReads.push('omnivore_ios')
+      break
+    case 'android':
+      defaultReads.push('omnivore_android')
+      break
+  }
+
+  await addPopularReads(userId, defaultReads)
 }
 
 const popularReads = [
