@@ -66,7 +66,7 @@ jobs:
       - name: Database Migration
         run: |
           yarn workspace @omnivore/db migrate
-          psql -p ${{ job.services.postgres.ports[5432] }} -U postgres -c "CREATE USER app_user WITH ENCRYPTED PASSWORD 'app_pass';GRANT omnivore_user to app_user;"
+          psql -h localhost -p ${{ job.services.postgres.ports[5432] }} -U postgres -c "CREATE USER app_user WITH ENCRYPTED PASSWORD 'app_pass';GRANT omnivore_user to app_user;"
         env:
           PG_HOST: localhost
           PG_PORT: ${{ job.services.postgres.ports[5432] }}
