@@ -41,15 +41,12 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const [showReportIssuesModal, setShowReportIssuesModal] = useState(false)
   const [fontSize, setFontSize] = useState(props.fontSize ?? 20)
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
   const [highContrastFont, setHighContrastFont] = useState(
     props.highContrastFont ?? false
   )
@@ -129,8 +126,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     }
 
     const updateColorMode = (event: UpdateColorModeEvent) => {
-      const isDark = event.isDark ?? "false"
-      updateThemeLocally(isDark === "true" ? ThemeId.Dark : ThemeId.Light)
+      const isDark = event.isDark ?? 'false'
+      updateThemeLocally(isDark === 'true' ? ThemeId.Dark : ThemeId.Light)
     }
 
     const share = () => {
@@ -226,7 +223,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           <StyledText
             style="boldHeadline"
             data-testid="article-headline"
-            css={{ fontFamily: styles.fontFamily }}
+            css={{
+              fontFamily: styles.fontFamily,
+              width: '100%',
+              wordWrap: 'break-word',
+            }}
           >
             {props.article.title}
           </StyledText>
