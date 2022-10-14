@@ -9,7 +9,6 @@ export default function Support(): JSX.Element {
   }, [])
 
   useEffect(() => {
-    initAnalytics()
     window.addEventListener('load', initAnalytics)
     return () => {
       window.removeEventListener('load', initAnalytics)
