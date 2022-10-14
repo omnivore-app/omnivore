@@ -993,18 +993,13 @@ export const updatesSinceResolver = authorized<
   const edges = pages.map((p) => {
     const updateReason = getUpdateReason(p, startDate)
     return {
-      node:
-        updateReason === UpdateReason.Deleted
-          ? null
-          : ({
-              ...p,
-              image: p.image && createImageProxyUrl(p.image, 260, 260),
-              isArchived: !!p.archivedAt,
-              contentReader:
-                p.pageType === PageType.File
-                  ? ContentReader.Pdf
-                  : ContentReader.Web,
-            } as SearchItem),
+      node: {
+        ...p,
+        image: p.image && createImageProxyUrl(p.image, 260, 260),
+        isArchived: !!p.archivedAt,
+        contentReader:
+          p.pageType === PageType.File ? ContentReader.Pdf : ContentReader.Web,
+      } as SearchItem,
       cursor: endCursor,
       itemID: p.id,
       updateReason,
