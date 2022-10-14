@@ -9,6 +9,7 @@ import { TDotCoHandler } from './websites/t-dot-co-handler'
 import { TwitterHandler } from './websites/twitter-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
+import { GitHubHandler } from './websites/github-handler'
 import {
   ContentHandler,
   NewsletterInput,
@@ -52,6 +53,7 @@ const contentHandlers: ContentHandler[] = [
   new TwitterHandler(),
   new YoutubeHandler(),
   new WikipediaHandler(),
+  new GitHubHandler(),
   new AxiosHandler(),
   new GolangHandler(),
   new MorningBrewHandler(),
