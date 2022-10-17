@@ -11,6 +11,7 @@ public struct Subscription {
   public let unsubscribeMailTo: String?
   public let updatedAt: Date?
   public let url: String?
+  public let icon: String?
 
   public init(
     createdAt: Date?,
@@ -22,7 +23,8 @@ public struct Subscription {
     unsubscribeHttpUrl: String?,
     unsubscribeMailTo: String?,
     updatedAt: Date?,
-    url: String?
+    url: String?,
+    icon: String?
   ) {
     self.createdAt = createdAt
     self.description = description
@@ -34,6 +36,7 @@ public struct Subscription {
     self.unsubscribeMailTo = unsubscribeMailTo
     self.updatedAt = updatedAt
     self.url = url
+    self.icon = icon
   }
 }
 
