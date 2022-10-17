@@ -13,6 +13,8 @@ import { generateUniqueUrl } from '../src/content-handler'
 import fs from 'fs'
 import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
 import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
+import { parseHTML } from 'linkedom'
+import { GhostHandler } from '../src/newsletters/ghost-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -93,9 +95,10 @@ describe('Newsletter email test', () => {
   describe('isProbablyNewsletter', () => {
     it('returns true for substack newsletter', async () => {
       const html = load('./test/data/substack-forwarded-newsletter.html')
+      const dom = parseHTML(html).document
       await expect(
         new SubstackHandler().isNewsletter({
-          html,
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -106,9 +109,10 @@ describe('Newsletter email test', () => {
       const html = load(
         './test/data/substack-private-forwarded-newsletter.html'
       )
+      const dom = parseHTML(html).document
       await expect(
         new SubstackHandler().isNewsletter({
-          html,
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -117,9 +121,10 @@ describe('Newsletter email test', () => {
     })
     it('returns false for substack welcome email', async () => {
       const html = load('./test/data/substack-forwarded-welcome-email.html')
+      const dom = parseHTML(html).document
       await expect(
         new SubstackHandler().isNewsletter({
-          html,
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -128,9 +133,10 @@ describe('Newsletter email test', () => {
     })
     it('returns true for beehiiv.com newsletter', async () => {
       const html = load('./test/data/beehiiv-newsletter.html')
+      const dom = parseHTML(html).document
       await expect(
         new BeehiivHandler().isNewsletter({
-          html,
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -139,9 +145,22 @@ describe('Newsletter email test', () => {
     })
     it('returns true for milkroad newsletter', async () => {
       const html = load('./test/data/milkroad-newsletter.html')
+      const dom = parseHTML(html).document
       await expect(
         new BeehiivHandler().isNewsletter({
-          html,
+          dom,
+          postHeader: '',
+          from: '',
+          unSubHeader: '',
+        })
+      ).to.eventually.be.true
+    })
+    it('returns true for ghost newsletter', async () => {
+      const html = load('./test/data/ghost-newsletter.html')
+      const dom = parseHTML(html).document
+      await expect(
+        new GhostHandler().isNewsletter({
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -150,9 +169,10 @@ describe('Newsletter email test', () => {
     })
     it('returns true for convertkit newsletter', async () => {
       const html = load('./test/data/convertkit-newsletter.html')
+      const dom = parseHTML(html).document
       await expect(
         new ConvertkitHandler().isNewsletter({
-          html,
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -243,6 +263,30 @@ describe('Newsletter email test', () => {
       const html = load('./test/data/substack-forwarded-welcome-email.html')
       const url = await new SubstackHandler().findNewsletterUrl(html)
       expect(url).to.be.undefined
+    })
+
+    context('when email is from ghost', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA9nRLefEmmgrd5xWS-2Bc39wxPBpwDRny1FmWt1H0FpgKAz1dv_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nzulL-2F3YyC-2FHgJV0JnOPtjNvgjHSaQVfisQ15hPQtnlo4t73zgTQL4QnDoer4qJ3-2F2Lf-2F2ElFMF3NyoUD4eqWCWwUM0w4P9Feaeo-2BolkySAB611BySXRt6V3Z-2F7mQcpcRX3D9zV-2B-2FdRY0Vn30aR-2BKY8qpTFuivxzF19UkQGjK5srg-3D-3D'
+          )
+          .reply(302, undefined, {
+            Location: 'https://www.openml.fyi/2022-10-14/',
+          })
+          .get('/2022-10-14/')
+          .reply(200, '')
+      })
+
+      after(() => {
+        nock.restore()
+      })
+
+      it('gets the URL from the header', async () => {
+        const html = load('./test/data/ghost-newsletter.html')
+        const url = await new GhostHandler().findNewsletterUrl(html)
+        expect(url).to.startWith('https://www.openml.fyi/2022-10-14/')
+      }).timeout(10000)
     })
   })
 

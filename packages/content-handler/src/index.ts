@@ -24,6 +24,8 @@ import { BloombergNewsletterHandler } from './newsletters/bloomberg-newsletter-h
 import { BeehiivHandler } from './newsletters/beehiiv-handler'
 import { ConvertkitHandler } from './newsletters/convertkit-handler'
 import { RevueHandler } from './newsletters/revue-handler'
+import { GhostHandler } from './newsletters/ghost-handler'
+import { parseHTML } from 'linkedom'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -70,6 +72,7 @@ const newsletterHandlers: ContentHandler[] = [
   new BeehiivHandler(),
   new ConvertkitHandler(),
   new RevueHandler(),
+  new GhostHandler(),
 ]
 
 export const preHandleContent = async (
@@ -122,8 +125,9 @@ export const preParseContent = async (
 export const handleNewsletter = async (
   input: NewsletterInput
 ): Promise<NewsletterResult | undefined> => {
+  const dom = parseHTML(input.html).document
   for (const handler of newsletterHandlers) {
-    if (await handler.isNewsletter(input)) {
+    if (await handler.isNewsletter({ ...input, dom })) {
       return handler.handleNewsletter(input)
     }
   }
