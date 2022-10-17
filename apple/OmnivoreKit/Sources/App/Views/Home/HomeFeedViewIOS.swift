@@ -294,7 +294,7 @@ import Views
               .contextMenu {
                 Button(
                   action: { viewModel.itemForHighlightsView = item },
-                  label: { Label("View Highlights", systemImage: "highlighter") }
+                  label: { Label("View Highlights & Notes", systemImage: "highlighter") }
                 )
                 Button(
                   action: { viewModel.itemUnderTitleEdit = item },
