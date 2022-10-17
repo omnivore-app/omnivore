@@ -32,22 +32,27 @@ const popularRead = (key: string): PopularRead | undefined => {
     return undefined
   }
 
-  const content = readFileSync(
-    path.resolve(__dirname, `popular_reads/${key}-content.html`),
-    'utf8'
-  )
-  const originalHtml = readFileSync(
-    path.resolve(__dirname, `./popular_reads/${key}-original.html`),
-    'utf8'
-  )
-  if (!content || !originalHtml) {
-    return undefined
-  }
+  try {
+    const content = readFileSync(
+      path.resolve(__dirname, `popular_reads/${key}-content.html`),
+      'utf8'
+    )
+    const originalHtml = readFileSync(
+      path.resolve(__dirname, `./popular_reads/${key}-original.html`),
+      'utf8'
+    )
+    if (!content || !originalHtml) {
+      return undefined
+    }
 
-  return {
-    ...metadata,
-    content,
-    originalHtml,
+    return {
+      ...metadata,
+      content,
+      originalHtml,
+    }
+  } catch (e) {
+    console.log('error adding popular read', e)
+    return undefined
   }
 }
 
