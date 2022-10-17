@@ -22,7 +22,13 @@ public class ShareExtensionViewModel: ObservableObject {
         let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
         application.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
       }
+    #else
+      if let workspace = NSWorkspace.value(forKeyPath: #keyPath(NSWorkspace.shared)) as? NSWorkspace {
+        let deepLinkUrl = NSURL(string: "omnivore://shareExtensionRequestID/\(requestId)")
+        workspace.perform(NSSelectorFromString("openURL:"), with: deepLinkUrl)
+      }
     #endif
+
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
