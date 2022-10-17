@@ -12,6 +12,7 @@ import nock from 'nock'
 import { generateUniqueUrl } from '../src/content-handler'
 import fs from 'fs'
 import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
+import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -147,6 +148,17 @@ describe('Newsletter email test', () => {
         })
       ).to.eventually.be.true
     })
+    it('returns true for convertkit newsletter', async () => {
+      const html = load('./test/data/convertkit-newsletter.html')
+      await expect(
+        new ConvertkitHandler().isNewsletter({
+          html,
+          postHeader: '',
+          from: '',
+          unSubHeader: '',
+        })
+      ).to.eventually.be.true
+    })
   })
 
   describe('findNewsletterUrl', async () => {
@@ -200,6 +212,30 @@ describe('Newsletter email test', () => {
         expect(url).to.startWith(
           'https://www.milkroad.com/p/talked-guy-spent-30m-beeple'
         )
+      }).timeout(10000)
+    })
+
+    context('when email is from convertkit', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA7wDTJvdVU1ACmSJ753YuhScf71JWthxqM8RnVh-2FZG0rYzrbR04P99S2ld2OkTtQmrx2FDwArpYdk5N0jVpN9dLBZ-2BdPNqkRHxNvuygY8-2F-2FtRNFoPjxjtTuyWM6L3tcYDYnAnL2xCueddWcFlUNrQWsvLotmgvC-2BrQc7bxsZhW0pUBmS_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nzSBnnaDN-2FNHWDodWnbUOPZ063v3w3z8QtcaPpE1qNu8xYkNJJFb-2F1uZEG-2BzsLfyDkjvvVX5zYs5OyyRYlhMOlXDJcr4-2FtMrFwii0uFAvwbhxDdnTxEpi-2F7maufyH39AEO-2BtCeSUg5V4FM43UpI1zUSXeWK-2Fh5JumSmR5XhrrRAig-3D-3D'
+          )
+          .reply(302, undefined, {
+            Location: 'https://fs.blog/brain-food/october-16-2022/',
+          })
+          .get('/brain-food/october-16-2022/')
+          .reply(200, '')
+      })
+
+      after(() => {
+        nock.restore()
+      })
+
+      it('gets the URL from the header', async () => {
+        const html = load('./test/data/convertkit-newsletter.html')
+        const url = await new ConvertkitHandler().findNewsletterUrl(html)
+        expect(url).to.startWith('https://fs.blog/brain-food/october-16-2022/')
       }).timeout(10000)
     })
 

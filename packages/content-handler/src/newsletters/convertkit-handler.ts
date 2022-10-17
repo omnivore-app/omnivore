@@ -8,10 +8,13 @@ export class ConvertkitHandler extends ContentHandler {
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
-    const readOnline = dom.querySelectorAll('table tr td a')
+    const readOnline = dom.querySelectorAll('a')
     let res: string | undefined = undefined
     readOnline.forEach((e) => {
-      if (e.textContent === 'View this email in your browser') {
+      if (
+        e.textContent === 'View this email in your browser' ||
+        e.textContent === 'Read on FS'
+      ) {
         res = e.getAttribute('href') || undefined
       }
     })
@@ -27,7 +30,7 @@ export class ConvertkitHandler extends ContentHandler {
     const dom = parseHTML(input.html).document
     return Promise.resolve(
       dom.querySelectorAll(
-        'img[src*="convertkit.com"], img[src*="convertkit-mail.com"]'
+        'img[src*="convertkit.com"], img[src*="convertkit-mail"]'
       ).length > 0
     )
   }
