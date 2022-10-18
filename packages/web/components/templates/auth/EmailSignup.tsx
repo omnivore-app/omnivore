@@ -73,6 +73,7 @@ export function EmailSignup(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
+              css={{ bg: 'white '}}
               onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
             />
           </SpanBox>
@@ -85,6 +86,7 @@ export function EmailSignup(): JSX.Element {
               name="password"
               value={password}
               placeholder="Password"
+              css={{ bg: 'white '}}
               onChange={(e) => setPassword(e.target.value)}
             />
           </SpanBox>
@@ -97,6 +99,7 @@ export function EmailSignup(): JSX.Element {
               name="name"
               value={fullname}
               placeholder="Full Name"
+              css={{ bg: 'white '}}
               onChange={(e) => setFullname(e.target.value)}
             />
           </SpanBox>
@@ -109,6 +112,7 @@ export function EmailSignup(): JSX.Element {
               name="username"
               value={username}
               placeholder="Username"
+              css={{ bg: 'white '}}
               onChange={handleUsernameChange}
             />
           </SpanBox>
