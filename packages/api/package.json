@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && yarn copy-files",
     "dev": "ts-node-dev --files src/server.ts",
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
-    "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000"
+    "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000",
+    "copy-files": "copyfiles -u 1 src/**/*.html dist/"
   },
   "dependencies": {
     "@elastic/elasticsearch": "~7.12.0",
@@ -126,6 +127,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-string": "^1.5.0",
     "circular-dependency-plugin": "^5.2.0",
+    "copyfiles": "^2.4.1",
     "mocha": "^9.0.1",
     "mocha-unfunk-reporter": "^0.4.0",
     "nock": "^13.2.4",
