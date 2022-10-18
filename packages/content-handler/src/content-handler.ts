@@ -78,7 +78,8 @@ export abstract class ContentHandler {
     postHeader: string
     from: string
     unSubHeader: string
-    html?: string
+    html: string
+    dom: Document
   }): Promise<boolean> {
     const re = new RegExp(this.senderRegex)
     return Promise.resolve(
