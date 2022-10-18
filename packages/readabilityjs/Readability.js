@@ -2231,12 +2231,12 @@ Readability.prototype = {
 
           // remove all containers the tweet is nested in (if they contain the tweet only)
           let tweetParent = tweet.parentElement || tweet.parentNode;
-          while (tweetParent && tweetParent.children.length === 1) {
+          while (tweetParent && tweetParent.children.length === 1 && tweetParent.parentNode) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
             tweetParent = tweet.parentElement || tweet.parentNode;
           }
 
-          if (tweetParent && tweetParent.className.includes('twitter-tweet')) {
+          if (tweetParent && tweetParent.className.includes('twitter-tweet') && tweetParent.parentNode) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
           }
         } else if (element.parentNode && element.parentNode.className === 'tweet') {
