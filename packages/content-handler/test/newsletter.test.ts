@@ -182,9 +182,10 @@ describe('Newsletter email test', () => {
     })
     it('returns true for node-weekly newsletter', async () => {
       const html = load('./test/data/node-weekly-newsletter.html')
+      const dom = parseHTML(html).document
       await expect(
         new CooperPressHandler().isNewsletter({
-          html,
+          dom,
           postHeader: '',
           from: '',
           unSubHeader: '',
@@ -204,9 +205,9 @@ describe('Newsletter email test', () => {
             Location:
               'https://newsletter.slowchinese.net/p/companies-that-eat-people-217',
           })
-          nock('https://newsletter.slowchinese.net')
-            .head('/p/companies-that-eat-people-217')
-            .reply(200, '')
+        nock('https://newsletter.slowchinese.net')
+          .head('/p/companies-that-eat-people-217')
+          .reply(200, '')
       })
       after(() => {
         nock.restore()

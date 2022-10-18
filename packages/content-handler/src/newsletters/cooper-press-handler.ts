@@ -1,5 +1,4 @@
 import { ContentHandler } from '../content-handler'
-import { parseHTML } from 'linkedom'
 
 export class CooperPressHandler extends ContentHandler {
   constructor() {
@@ -22,9 +21,9 @@ export class CooperPressHandler extends ContentHandler {
     postHeader: string
     from: string
     unSubHeader: string
-    html: string
+    dom: Document
   }): Promise<boolean> {
-    const dom = parseHTML(input.html).document
+    const dom = input.dom
     return Promise.resolve(
       dom.querySelectorAll('a[href*="cooperpress.com"]').length > 0
     )
