@@ -4,16 +4,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.pspdfkit.ui.note.AlignedAnnotationHinterDrawable
 
 @Composable
 fun WebPreferencesDialog(onDismiss: () -> Unit) {
@@ -29,8 +32,19 @@ fun WebPreferencesDialog(onDismiss: () -> Unit) {
 
 @Composable
 fun WebPreferencesView() {
-  Column {
-    Text("Web Preferences")
+  Column(
+    modifier = Modifier
+      .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
+  ) {
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 12.dp, bottom = 12.dp),
+      horizontalArrangement = Arrangement.Center
+    ) {
+      Text("Web Preferences")
+    }
+
     // Font Size: Stepper
     Stepper(
       label = "Font Size:",
@@ -59,13 +73,18 @@ fun WebPreferencesView() {
 
 @Composable
 fun Stepper(label: String, onIncrease: () -> Unit, onDecrease: () -> Unit) {
-  Row {
-    Text(text = label)
+  Row(verticalAlignment = Alignment.CenterVertically) {
+    Text(
+      text = label,
+      modifier = Modifier
+        .padding(bottom = 6.dp)
+    )
+
     Spacer(modifier = Modifier.weight(1.0F))
 
     IconButton(onClick = { onDecrease() }) {
       Icon(
-        imageVector = Icons.Filled.Add,
+        imageVector = Icons.Filled.KeyboardArrowDown,
         contentDescription = null
       )
     }
@@ -73,13 +92,13 @@ fun Stepper(label: String, onIncrease: () -> Unit, onDecrease: () -> Unit) {
     Divider(
       color = Color.Black,
       modifier = Modifier
-        .height(40.dp)
+        .height(20.dp)
         .width(1.dp)
     )
 
     IconButton(onClick = { onIncrease() }) {
       Icon(
-        imageVector = Icons.Filled.Add,
+        imageVector = Icons.Filled.KeyboardArrowUp,
         contentDescription = null
       )
     }
