@@ -33,16 +33,6 @@ import kotlin.math.roundToInt
 
 @Composable
 fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewModel) {
-  // TODO: maybe move to web reader view model?
-  val defaultWebPreferences = WebPreferences(
-    textFontSize = 12,
-    lineHeight = 150,
-    maxWidthPercentage = 100,
-    themeKey = "LightGray",
-    fontFamily = WebFont.SYSTEM,
-    prefersHighContrastText = false
-  )
-
   var showWebPreferencesDialog by remember { mutableStateOf(false ) }
 
   val webReaderParams: WebReaderParams? by webReaderViewModel.webReaderParamsLiveData.observeAsState(null)
@@ -86,7 +76,7 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
             .requiredHeight(height = maxToolbarHeight)
         ) {
         }
-        WebReader(webReaderParams!!, defaultWebPreferences, webReaderViewModel)
+        WebReader(webReaderParams!!, webReaderViewModel.storedWebPreferences(), webReaderViewModel)
       }
 
       TopAppBar(
@@ -107,9 +97,12 @@ fun WebReaderLoadingContainer(slug: String, webReaderViewModel: WebReaderViewMod
       )
 
       if (showWebPreferencesDialog) {
-        WebPreferencesDialog {
-          showWebPreferencesDialog = false
-        }
+        WebPreferencesDialog(
+          onDismiss = {
+            showWebPreferencesDialog = false
+          },
+          webReaderViewModel = webReaderViewModel
+        )
       }
 
       if (annotation != null) {
@@ -195,6 +188,7 @@ fun WebReader(
     }, update = {
       if (javascriptActionLoopUUID != webReaderViewModel.lastJavascriptActionLoopUUID) {
         for (script in webReaderViewModel.javascriptDispatchQueue) {
+          Log.d("js", "executing script: $script")
           it.evaluateJavascript(script, null)
         }
         webReaderViewModel.resetJavascriptDispatchQueue()

@@ -16,22 +16,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.pspdfkit.ui.note.AlignedAnnotationHinterDrawable
 
 @Composable
-fun WebPreferencesDialog(onDismiss: () -> Unit) {
+fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderViewModel) {
   Dialog(onDismissRequest = { onDismiss() }) {
     Surface(
       shape = RoundedCornerShape(16.dp),
       color = Color.White
     ) {
-      WebPreferencesView()
+      WebPreferencesView(webReaderViewModel)
     }
   }
 }
 
 @Composable
-fun WebPreferencesView() {
+fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
   Column(
     modifier = Modifier
       .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
@@ -48,22 +47,22 @@ fun WebPreferencesView() {
     // Font Size: Stepper
     Stepper(
       label = "Font Size:",
-      onIncrease = {},
-      onDecrease = {}
+      onIncrease = { webReaderViewModel.updateFontSize(isIncrease = true) },
+      onDecrease = { webReaderViewModel.updateFontSize(isIncrease = false) }
     )
 
     // Margin: Slider
     Stepper(
       label = "Margin:",
-      onIncrease = {},
-      onDecrease = {}
+      onIncrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = false) },
+      onDecrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = true) }
     )
 
     // Line Spacing: Slider
     Stepper(
       label = "Line Spacing:",
-      onIncrease = {},
-      onDecrease = {}
+      onIncrease = { webReaderViewModel.updateLineSpacing(isIncrease = true) },
+      onDecrease = { webReaderViewModel.updateLineSpacing(isIncrease = false) }
     )
 
     // High Contrast Text: Switch

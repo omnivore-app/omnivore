@@ -5,12 +5,14 @@ import androidx.compose.foundation.ScrollState
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.models.LinkedItem
 import app.omnivore.omnivore.networking.*
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
@@ -29,7 +31,7 @@ class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val networker: Networker
 ): ViewModel() {
-  var lastJavascriptActionLoopUUID = UUID.randomUUID()
+  var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
   var scrollState = ScrollState(0)
 
@@ -102,18 +104,84 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun resetJavascriptDispatchQueue() {
-    lastJavascriptActionLoopUUID = javascriptActionLoopUUIDLiveData.value
+    lastJavascriptActionLoopUUID = javascriptActionLoopUUIDLiveData.value ?: UUID.randomUUID()
     javascriptDispatchQueue = mutableListOf()
   }
 
   fun saveAnnotation(annotation: String) {
     val script = "var event = new Event('saveAnnotation');event.annotation = '$annotation';document.dispatchEvent(event);"
-    javascriptDispatchQueue.add(script)
-    javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
+    enqueueScript(script)
     cancelAnnotationEdit()
   }
 
   fun cancelAnnotationEdit() {
     annotationLiveData.value = null
+  }
+
+  private fun enqueueScript(javascript: String) {
+    javascriptDispatchQueue.add(javascript)
+    javascriptActionLoopUUIDLiveData.value = UUID.randomUUID()
+  }
+
+  fun storedWebPreferences(): WebPreferences = runBlocking {
+    val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
+    val storedLineHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
+    val storedMaxWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
+    val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily)
+    val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
+
+    WebPreferences(
+      textFontSize = storedFontSize ?: 12,
+      lineHeight = storedLineHeight ?: 150,
+      maxWidthPercentage = storedMaxWidth ?: 100,
+      themeKey = "LightGray",
+      fontFamily = WebFont.SYSTEM,
+      prefersHighContrastText = prefersHighContrastFont
+    )
+  }
+
+  fun updateFontSize(isIncrease: Boolean)  {
+    val delta = if (isIncrease) 2 else -2
+    var newFontSize: Int
+
+    runBlocking {
+      val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
+      newFontSize = ((storedFontSize ?: 12) + delta).coerceIn(8, 28)
+      datastoreRepo.putInt(DatastoreKeys.preferredWebFontSize, newFontSize)
+    }
+
+    // Get value from data store and then update it
+    val script = "var event = new Event('updateFontSize');event.fontSize = '$newFontSize';document.dispatchEvent(event);"
+    enqueueScript(script)
+  }
+
+  fun updateMaxWidthPercentage(isIncrease: Boolean)  {
+    val delta = if (isIncrease) 10 else -10
+    var newMaxWidthPercentageValue: Int
+
+    runBlocking {
+      val storedWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
+      newMaxWidthPercentageValue = ((storedWidth ?: 100) + delta).coerceIn(40, 100)
+      datastoreRepo.putInt(DatastoreKeys.preferredWebMaxWidthPercentage, newMaxWidthPercentageValue)
+    }
+
+    // Get value from data store and then update it
+    val script = "var event = new Event('updateMaxWidthPercentage');event.maxWidthPercentage = '$newMaxWidthPercentageValue';document.dispatchEvent(event);"
+    enqueueScript(script)
+  }
+
+  fun updateLineSpacing(isIncrease: Boolean)  {
+    val delta = if (isIncrease) 25 else -25
+    var newLineHeight: Int
+
+    runBlocking {
+      val storedHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
+      newLineHeight = ((storedHeight ?: 150) + delta).coerceIn(100, 300)
+      datastoreRepo.putInt(DatastoreKeys.preferredWebLineHeight, newLineHeight)
+    }
+
+    // Get value from data store and then update it
+    val script = "var event = new Event('updateLineHeight');event.lineHeight = '$newLineHeight';document.dispatchEvent(event);"
+    enqueueScript(script)
   }
 }
