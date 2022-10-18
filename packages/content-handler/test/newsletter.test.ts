@@ -15,6 +15,7 @@ import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
 import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
 import { parseHTML } from 'linkedom'
 import { GhostHandler } from '../src/newsletters/ghost-handler'
+import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -179,6 +180,17 @@ describe('Newsletter email test', () => {
         })
       ).to.eventually.be.true
     })
+    it('returns true for node-weekly newsletter', async () => {
+      const html = load('./test/data/node-weekly-newsletter.html')
+      await expect(
+        new CooperPressHandler().isNewsletter({
+          html,
+          postHeader: '',
+          from: '',
+          unSubHeader: '',
+        })
+      ).to.eventually.be.true
+    })
   })
 
   describe('findNewsletterUrl', async () => {
@@ -287,6 +299,30 @@ describe('Newsletter email test', () => {
         const html = load('./test/data/ghost-newsletter.html')
         const url = await new GhostHandler().findNewsletterUrl(html)
         expect(url).to.startWith('https://www.openml.fyi/2022-10-14/')
+      }).timeout(10000)
+    })
+
+    context('when email is from cooper press', () => {
+      before(() => {
+        nock('https://u25184427.ct.sendgrid.net')
+          .head(
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA7mFdqmsIs-2B5Xs-2FNpSIs56o0z9xhskaXR4aYohHPLtwRHfml_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nxtQVfuqJiLh7Fio3fEtt5ouN4IH56AfszUQpxY-2FQ233kp0bjSZhBBVWAB43dgKumQkDW-2BxDFnQIUpvhmEgzSJq-2FMRG00GM7fkZVuPU-2BX8cdg8AGRHUU9Qhw6W67XEMkJVygTdm70Mo9ypNi8N33hgmhM3F6un9s7p1K1Gq-2FunslA-3D-3D'
+          )
+          .reply(302, undefined, {
+            Location: 'https://nodeweekly.com/issues/458',
+          })
+          .get('/issues/458')
+          .reply(200, '')
+      })
+
+      after(() => {
+        nock.restore()
+      })
+
+      it('gets the URL from the header', async () => {
+        const html = load('./test/data/node-weekly-newsletter.html')
+        const url = await new CooperPressHandler().findNewsletterUrl(html)
+        expect(url).to.startWith('https://nodeweekly.com/issues/458')
       }).timeout(10000)
     })
   })
