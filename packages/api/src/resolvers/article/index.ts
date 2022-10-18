@@ -54,6 +54,7 @@ import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
   generateSlug,
+  isBase64Image,
   isParsingTimeout,
   pageError,
   stringToHash,
@@ -889,6 +890,10 @@ export const searchResolver = authorized<
   }
 
   const edges = results.map((r) => {
+    let siteIcon = r.siteIcon
+    if (siteIcon && !isBase64Image(siteIcon)) {
+      siteIcon = createImageProxyUrl(siteIcon, 128, 128)
+    }
     return {
       node: {
         ...r,
@@ -900,7 +905,7 @@ export const searchResolver = authorized<
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
         pageType: r.pageType || PageType.Highlights,
-        siteIcon: r.siteIcon && createImageProxyUrl(r.siteIcon, 32, 32),
+        siteIcon,
       } as SearchItem,
       cursor: endCursor,
     }
