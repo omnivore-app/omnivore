@@ -442,7 +442,7 @@ export const fetchFavicon = async (
     const response = await axios.head(url, { timeout: 5000 })
     const realUrl = response.request.res.responseUrl
     const domain = new URL(realUrl).hostname
-    return `https://api.faviconkit.com/${domain}/32`
+    return `https://api.faviconkit.com/${domain}/128`
   } catch (e) {
     console.log('Error fetching favicon', e)
     return undefined

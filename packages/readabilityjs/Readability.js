@@ -1909,10 +1909,21 @@ Readability.prototype = {
       values["og:site_name"] || null;
 
     // get website icon
-    const iconLink = this._doc.querySelector(
+    const siteIcon = this._doc.querySelector(
       "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
     );
-    metadata.siteIcon = iconLink?.href;
+    if (siteIcon) {
+      const iconHref = siteIcon.getAttribute("href");
+      if (iconHref) {
+        if (this.REGEXPS.b64DataUrl.test(iconHref)) {
+          // base64 encoded image
+          metadata.siteIcon = iconHref;
+        } else {
+          // allow relative URLs
+          metadata.siteIcon = this.toAbsoluteURI(iconHref);
+        }
+      }
+    }
 
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
