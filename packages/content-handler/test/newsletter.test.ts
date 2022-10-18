@@ -172,8 +172,9 @@ describe('Newsletter email test', () => {
             Location:
               'https://newsletter.slowchinese.net/p/companies-that-eat-people-217',
           })
-          .get('/p/companies-that-eat-people-217')
-          .reply(200, '')
+          nock('https://newsletter.slowchinese.net')
+            .head('/p/companies-that-eat-people-217')
+            .reply(200, '')
       })
       after(() => {
         nock.restore()
@@ -186,7 +187,7 @@ describe('Newsletter email test', () => {
         expect(url).to.startWith(
           'https://newsletter.slowchinese.net/p/companies-that-eat-people-217'
         )
-      }).timeout(10000)
+      })
     })
 
     context('when email is from beehiiv', () => {
