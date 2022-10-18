@@ -122,9 +122,9 @@ export const addPopularReadsForNewUser = async (
   userId: string
 ): Promise<void> => {
   const defaultReads = [
-    'omnivore_get_started',
-    'power_read_it_later',
     'omnivore_organize',
+    'power_read_it_later',
+    'omnivore_get_started',
   ]
 
   // get client from request context
