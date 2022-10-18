@@ -61,6 +61,7 @@ export function EmailResetPassword(): JSX.Element {
               name="password"
               value={password}
               placeholder="Password"
+              css={{ bg: 'white '}}
               onChange={(e) => { e.preventDefault(); setPassword(e.target.value); }}
             />
             <FormLabel css={{ fontSize: '12px' }}>(Password must be at least 8 chars)</FormLabel>
