@@ -95,6 +95,9 @@ export function PrimaryHeader(props: HeaderProps): JSX.Element {
       case 'navigate-to-api':
         router.push('/settings/api')
         break
+      case 'navigate-to-integrations':
+        router.push('/settings/integrations')
+        break
       case 'logout':
         props.setShowLogoutConfirmation(true)
         break
