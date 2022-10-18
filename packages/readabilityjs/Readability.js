@@ -2212,13 +2212,12 @@ Readability.prototype = {
 
   _createPlaceholders: async function (e) {
     for (const element of Array.from(e.getElementsByTagName('a'))) {
-
       if (this.isEmbed(element)) {
         return;
       }
 
       // Create tweets placeholders from links
-      if (element.href.includes('twitter.com') || element.parentNode.className === 'tweet') {
+      if (element.href.includes('twitter.com') || (element.parentNode && element.parentNode.className === 'tweet')) {
         const link = element.href;
         const regex = /(https?:\/\/twitter\.com\/\w+\/status\/)(\d+)/gm;
         const match = regex.exec(link);
