@@ -9,11 +9,18 @@ import { generateApiKeyMutation } from '../../lib/networking/mutations/generateA
 import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Table } from '../../components/elements/Table'
+// import { Table } from '../../components/elements/Table'
 
 import { FormInputProps } from '../../components/elements/FormElements'
 import { FormModal } from '../../components/patterns/FormModal'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+
+import { Breadcrumb, Button, Space, Table } from 'antd'
+
+import 'antd/dist/antd.dark.css'
+// import 'antd/dist/antd.compact.css'
+
+import { Box, HStack } from '../../components/elements/LayoutPrimitives'
 
 interface ApiKey {
   name: string
@@ -49,22 +56,22 @@ export default function Api(): JSX.Element {
   }, [router.query])
 
   const headers = ['Name', 'Scopes', 'Used at', 'Expires on']
-  const rows = useMemo(() => {
-    const rows = new Map<string, ApiKey>()
-    apiKeys.forEach((apiKey) =>
-      rows.set(apiKey.id, {
-        name: apiKey.name,
+
+  const dataSource = useMemo(() => {
+    return apiKeys.map((apiKey: any) => {
+      console.log('key: ', apiKey)
+      return {
+        name: apiKey.name.length > 0 ? apiKey.name : 'Test Key',
         scopes: apiKey.scopes.join(', ') || 'All',
         usedAt: apiKey.usedAt
           ? new Date(apiKey.usedAt).toISOString()
           : 'Never used',
         expiresAt:
           new Date(apiKey.expiresAt).getTime() != neverExpiresDate.getTime()
-            ? new Date(apiKey.expiresAt).toDateString()
-            : 'Never',
-      })
-    )
-    return rows
+          ? new Date(apiKey.expiresAt).toDateString()
+          : 'Never',
+      }
+    })
   }, [apiKeys])
 
   applyStoredTheme(false)
@@ -140,6 +147,46 @@ export default function Api(): JSX.Element {
     ])
   }
 
+  // const dataSource = [
+  //   {
+  //     key: '1',
+  //     name: 'Mike',
+  //     expiresOn: Date(),
+  //     usedAt: Date(),
+  //   },
+  //   {
+  //     key: '2',
+  //     name: 'John',
+  //     usedAt: Date(),
+  //     expiresOn: Date(),
+  //   },
+  // ];
+  
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Last Used',
+      dataIndex: 'usedAt',
+      key: 'usedAt',
+    },
+    {
+      title: 'Expires On',
+      dataIndex: 'expiresAt',
+      key: 'expiresAt',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <a>Delete</a>
+      ),
+    },
+  ];
+ 
   return (
     <PrimaryLayout pageTestId={'api-keys'}>
       <Toaster
@@ -183,7 +230,25 @@ export default function Api(): JSX.Element {
         />
       )}
 
-      <Table
+<Box css={{ pt: '44px', px: '10%', '@smDown': { px: '0' } }}>
+
+    <Breadcrumb>
+        <Breadcrumb.Item>Home</Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <a href="">Settings</a>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>API Keys</Breadcrumb.Item>
+      </Breadcrumb>
+
+      <HStack css={{ py: '16px' }} distribution="end">
+        <Button onClick={() => { setAddModalOpen(true) }} type="primary">
+          Create a new API Key
+        </Button>
+      </HStack>
+
+      <Table dataSource={dataSource} columns={columns} />
+      </Box>
+      {/* <Table
         heading={'API Keys'}
         headers={headers}
         rows={rows}
@@ -194,7 +259,7 @@ export default function Api(): JSX.Element {
           setExpiresAt(new Date(defaultExpiresAt))
           setAddModalOpen(true)
         }}
-      />
+      /> */}
     </PrimaryLayout>
   )
 }

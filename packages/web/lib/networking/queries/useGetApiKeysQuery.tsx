@@ -56,7 +56,7 @@ export function useGetApiKeysQuery(): ApiKeysQueryResponse {
       const apiKeys = result.apiKeys.apiKeys as ApiKey[]
       return {
         isValidating,
-        apiKeys,
+        apiKeys: apiKeys || [],
         revalidate: () => {
           mutate()
         },
