@@ -121,10 +121,7 @@ const addPopularReads = async (
 export const addPopularReadsForNewUser = async (
   userId: string
 ): Promise<void> => {
-  const defaultReads = [
-    'omnivore_organize',
-    'power_read_it_later',
-  ]
+  const defaultReads = ['omnivore_organize', 'power_read_it_later']
 
   // get client from request context
   const client = httpContext.get('client') as string | undefined
@@ -162,12 +159,13 @@ const popularReads = [
   {
     key: 'omnivore_ios',
     url: 'https://blog.omnivore.app/p/saving-links-from-your-iphone-or',
-    title: "Saving Links from Your iPhone or iPad",
+    title: 'Saving Links from Your iPhone or iPad',
     author: 'Omnivore',
     description: 'Learn how to save articles on iOS.',
-    previewImage: 'https://proxy-prod.omnivore-image-cache.app/260x260,suM2fz_-6_1PDsQDursGPD2bQqnpgGH9Ymj-IVb5dUR4/https://substackcdn.com/image/youtube/w_728,c_limit/k6RkIqepAig',
-    publishedAt:  new Date('2021-10-19'),
-    siteName: 'Omnivore Blog'
+    previewImage:
+      'https://proxy-prod.omnivore-image-cache.app/260x260,suM2fz_-6_1PDsQDursGPD2bQqnpgGH9Ymj-IVb5dUR4/https://substackcdn.com/image/youtube/w_728,c_limit/k6RkIqepAig',
+    publishedAt: new Date('2021-10-19'),
+    siteName: 'Omnivore Blog',
   },
   {
     key: 'omnivore_organize',
