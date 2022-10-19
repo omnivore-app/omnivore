@@ -55,7 +55,7 @@ export function EmailLogin(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
-              css={{ bg: 'white '}}
+              css={{ backgroundColor: 'white', color: 'black' }}
               onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
             />
           </SpanBox>
@@ -68,7 +68,7 @@ export function EmailLogin(): JSX.Element {
               name="password"
               value={password}
               placeholder="Password"
-              css={{ bg: 'white '}}
+              css={{ bg: 'white', color: 'black' }}
               onChange={(e) => setPassword(e.target.value)}
             />
           </SpanBox>

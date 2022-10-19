@@ -51,7 +51,7 @@ export function EmailForgotPassword(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
-              css={{ bg: 'white '}}
+              css={{ bg: 'white', color: 'black' }}
               onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
             />
           </SpanBox>

@@ -139,7 +139,7 @@ export function ConfirmProfileModal(): JSX.Element {
               {isUsernameValid && (
                 <StyledText
                   style="caption"
-                  css={{ m: 0, pl: '$2', alignSelf: 'flex-start' }}
+                  css={{ m: 0, pl: '$2', alignSelf: 'flex-start', color: '$omnivoreGray' }}
                 >
                   Username is available.
                 </StyledText>
