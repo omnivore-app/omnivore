@@ -1,5 +1,7 @@
 package app.omnivore.omnivore.ui.reader
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -8,12 +10,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +33,7 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
       shape = RoundedCornerShape(16.dp),
       color = Color.White,
       modifier = Modifier
-        .height(250.dp)
+        .height(300.dp)
     ) {
       WebPreferencesView(webReaderViewModel)
     }
@@ -42,7 +43,9 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
 @Composable
 fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
   val currentWebPreferences = webReaderViewModel.storedWebPreferences()
+  val isFontListExpanded = remember { mutableStateOf(false) }
   val highContrastTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
+  val selectedWebFontRawValue = remember { mutableStateOf(currentWebPreferences.fontFamily.rawValue) }
 
   Column(
     modifier = Modifier
@@ -61,29 +64,24 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
       modifier = Modifier
         .verticalScroll(rememberScrollState())
     ) {
-
-      // Font Size: Stepper
       Stepper(
         label = "Font Size:",
         onIncrease = { webReaderViewModel.updateFontSize(isIncrease = true) },
         onDecrease = { webReaderViewModel.updateFontSize(isIncrease = false) }
       )
 
-      // Margin: Slider
       Stepper(
         label = "Margin:",
         onIncrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = false) },
         onDecrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = true) }
       )
 
-      // Line Spacing: Slider
       Stepper(
         label = "Line Spacing:",
         onIncrease = { webReaderViewModel.updateLineSpacing(isIncrease = true) },
         onDecrease = { webReaderViewModel.updateLineSpacing(isIncrease = false) }
       )
 
-      // High Contrast Text: Switch
       Row(verticalAlignment = Alignment.CenterVertically) {
         Text("High Contrast Text")
         Spacer(modifier = Modifier.weight(1.0F))
@@ -96,7 +94,48 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
         )
       }
 
-      // Reader Font: List of Fonts
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+          .clickable(onClick = { isFontListExpanded.value = !isFontListExpanded.value })
+      ) {
+        Text("Font Family")
+        Spacer(modifier = Modifier.weight(1.0F))
+        Icon(
+          imageVector =
+          if (isFontListExpanded.value)
+            Icons.Filled.KeyboardArrowDown
+          else
+            Icons.Filled.KeyboardArrowRight,
+          contentDescription = null
+        )
+      }
+
+      if (isFontListExpanded.value) {
+        WebFont.values().forEach {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+              .clickable(onClick = {
+                selectedWebFontRawValue.value = it.rawValue
+                webReaderViewModel.applyWebFont(it)
+              })
+          ) {
+            Text(
+              it.displayText,
+              modifier = Modifier
+                .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
+            )
+            Spacer(modifier = Modifier.weight(1.0F))
+            if (it.rawValue == selectedWebFontRawValue.value) {
+              Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null
+              )
+            }
+          }
+        }
+      }
     }
   }
 }

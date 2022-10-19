@@ -193,4 +193,9 @@ class WebReaderViewModel @Inject constructor(
     val script = "var event = new Event('handleFontContrastChange');event.fontContrast = '$fontContrastValue';document.dispatchEvent(event);"
     enqueueScript(script)
   }
+
+  fun applyWebFont(font: WebFont) {
+    // TODO: update value in datastore and dispatch update to web view
+    Log.d("Font", "Web Font selected: ${font.displayText}")
+  }
 }
