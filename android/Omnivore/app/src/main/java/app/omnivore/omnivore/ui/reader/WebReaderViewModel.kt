@@ -184,4 +184,13 @@ class WebReaderViewModel @Inject constructor(
     val script = "var event = new Event('updateLineHeight');event.lineHeight = '$newLineHeight';document.dispatchEvent(event);"
     enqueueScript(script)
   }
+
+  fun updateHighContrastTextPreference(prefersHighContrastText: Boolean) {
+    runBlocking {
+      datastoreRepo.putString(DatastoreKeys.prefersWebHighContrastText, prefersHighContrastText.toString())
+    }
+    val fontContrastValue = if (prefersHighContrastText) "high" else "normal"
+    val script = "var event = new Event('handleFontContrastChange');event.fontContrast = '$fontContrastValue';document.dispatchEvent(event);"
+    enqueueScript(script)
+  }
 }

@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.reader
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -11,6 +12,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +36,9 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
 
 @Composable
 fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
+  val currentWebPreferences = webReaderViewModel.storedWebPreferences()
+  val highContrastTextSwitchState = remember { mutableStateOf(currentWebPreferences.prefersHighContrastText) }
+
   Column(
     modifier = Modifier
       .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
@@ -68,6 +74,18 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
     )
 
     // High Contrast Text: Switch
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Text("High Contrast Text")
+      Spacer(modifier = Modifier.weight(1.0F))
+      Switch(
+        checked = highContrastTextSwitchState.value,
+        onCheckedChange = {
+          highContrastTextSwitchState.value = it
+          webReaderViewModel.updateHighContrastTextPreference(it)
+        }
+      )
+    }
+
     // Reader Font: List of Fonts
   }
 }
