@@ -1,7 +1,10 @@
 package app.omnivore.omnivore.ui.reader
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -27,7 +30,9 @@ fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderVie
   Dialog(onDismissRequest = { onDismiss() }) {
     Surface(
       shape = RoundedCornerShape(16.dp),
-      color = Color.White
+      color = Color.White,
+      modifier = Modifier
+        .height(250.dp)
     ) {
       WebPreferencesView(webReaderViewModel)
     }
@@ -52,41 +57,47 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
       Text("Web Preferences")
     }
 
-    // Font Size: Stepper
-    Stepper(
-      label = "Font Size:",
-      onIncrease = { webReaderViewModel.updateFontSize(isIncrease = true) },
-      onDecrease = { webReaderViewModel.updateFontSize(isIncrease = false) }
-    )
+    Column(
+      modifier = Modifier
+        .verticalScroll(rememberScrollState())
+    ) {
 
-    // Margin: Slider
-    Stepper(
-      label = "Margin:",
-      onIncrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = false) },
-      onDecrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = true) }
-    )
-
-    // Line Spacing: Slider
-    Stepper(
-      label = "Line Spacing:",
-      onIncrease = { webReaderViewModel.updateLineSpacing(isIncrease = true) },
-      onDecrease = { webReaderViewModel.updateLineSpacing(isIncrease = false) }
-    )
-
-    // High Contrast Text: Switch
-    Row(verticalAlignment = Alignment.CenterVertically) {
-      Text("High Contrast Text")
-      Spacer(modifier = Modifier.weight(1.0F))
-      Switch(
-        checked = highContrastTextSwitchState.value,
-        onCheckedChange = {
-          highContrastTextSwitchState.value = it
-          webReaderViewModel.updateHighContrastTextPreference(it)
-        }
+      // Font Size: Stepper
+      Stepper(
+        label = "Font Size:",
+        onIncrease = { webReaderViewModel.updateFontSize(isIncrease = true) },
+        onDecrease = { webReaderViewModel.updateFontSize(isIncrease = false) }
       )
-    }
 
-    // Reader Font: List of Fonts
+      // Margin: Slider
+      Stepper(
+        label = "Margin:",
+        onIncrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = false) },
+        onDecrease = { webReaderViewModel.updateMaxWidthPercentage(isIncrease = true) }
+      )
+
+      // Line Spacing: Slider
+      Stepper(
+        label = "Line Spacing:",
+        onIncrease = { webReaderViewModel.updateLineSpacing(isIncrease = true) },
+        onDecrease = { webReaderViewModel.updateLineSpacing(isIncrease = false) }
+      )
+
+      // High Contrast Text: Switch
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("High Contrast Text")
+        Spacer(modifier = Modifier.weight(1.0F))
+        Switch(
+          checked = highContrastTextSwitchState.value,
+          onCheckedChange = {
+            highContrastTextSwitchState.value = it
+            webReaderViewModel.updateHighContrastTextPreference(it)
+          }
+        )
+      }
+
+      // Reader Font: List of Fonts
+    }
   }
 }
 
