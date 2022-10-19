@@ -63,7 +63,7 @@ export function EmailSignup(): JSX.Element {
   return (
     <form action={`${fetchEndpoint}/auth/email-signup`} method="POST">
       <VStack alignment="center" css={{ padding: '16px' }}>
-        <StyledText style="subHeadline">Sign Up</StyledText>
+        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>Sign Up</StyledText>
         <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
@@ -73,7 +73,7 @@ export function EmailSignup(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
-              css={{ bg: 'white '}}
+              css={{ backgroundColor: 'white', color: 'black' }}
               onChange={(e) => { e.preventDefault(); setEmail(e.target.value); }}
             />
           </SpanBox>
@@ -86,7 +86,7 @@ export function EmailSignup(): JSX.Element {
               name="password"
               value={password}
               placeholder="Password"
-              css={{ bg: 'white '}}
+              css={{ bg: 'white', color: 'black' }}
               onChange={(e) => setPassword(e.target.value)}
             />
           </SpanBox>
@@ -99,7 +99,7 @@ export function EmailSignup(): JSX.Element {
               name="name"
               value={fullname}
               placeholder="Full Name"
-              css={{ bg: 'white '}}
+              css={{ bg: 'white', color: 'black' }}
               onChange={(e) => setFullname(e.target.value)}
             />
           </SpanBox>
@@ -112,7 +112,7 @@ export function EmailSignup(): JSX.Element {
               name="username"
               value={username}
               placeholder="Username"
-              css={{ bg: 'white '}}
+              css={{ bg: 'white', color: 'black' }}
               onChange={handleUsernameChange}
             />
           </SpanBox>
@@ -132,7 +132,7 @@ export function EmailSignup(): JSX.Element {
           {isUsernameValid && (
             <StyledText
               style="caption"
-              css={{ m: 0, pl: '$2', alignSelf: 'flex-start' }}
+              css={{ m: 0, pl: '$2', alignSelf: 'flex-start', color: '$omnivoreGray' }}
             >
               Username is available.
             </StyledText>
