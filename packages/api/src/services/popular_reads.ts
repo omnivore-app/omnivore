@@ -124,7 +124,6 @@ export const addPopularReadsForNewUser = async (
   const defaultReads = [
     'omnivore_organize',
     'power_read_it_later',
-    'omnivore_get_started',
   ]
 
   // get client from request context
@@ -142,6 +141,9 @@ export const addPopularReadsForNewUser = async (
       break
   }
 
+  // We always want this to be the top-most article in the user's
+  // list. So we save it last to have the greatest saved_at
+  defaultReads.push('omnivore_get_started')
   await addPopularReads(userId, defaultReads)
 }
 
@@ -156,6 +158,16 @@ const popularReads = [
       'https://proxy-prod.omnivore-image-cache.app/88x88,sBp_gMyIp8Y4Mje8lzL39vzrBQg5m9KbprssrGjCbbHw/https://substackcdn.com/image/fetch/w_1200,h_600,c_limit,f_jpg,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F658efff4-341a-4720-8cf6-9b2bdbedfaa7_800x668.gif',
     publishedAt: new Date('2021-10-13'),
     siteName: 'Omnivore Blog',
+  },
+  {
+    key: 'omnivore_ios',
+    url: 'https://blog.omnivore.app/p/saving-links-from-your-iphone-or',
+    title: "Saving Links from Your iPhone or iPad",
+    author: 'Omnivore',
+    description: 'Learn how to save articles on iOS.',
+    previewImage: 'https://proxy-prod.omnivore-image-cache.app/260x260,suM2fz_-6_1PDsQDursGPD2bQqnpgGH9Ymj-IVb5dUR4/https://substackcdn.com/image/youtube/w_728,c_limit/k6RkIqepAig',
+    publishedAt:  new Date('2021-10-19'),
+    siteName: 'Omnivore Blog'
   },
   {
     key: 'omnivore_organize',
