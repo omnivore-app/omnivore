@@ -12,7 +12,35 @@ struct HighlightsListView: View {
   let itemObjectID: NSManagedObjectID
   @Binding var hasHighlightMutations: Bool
 
+  var emptyView: some View {
+    Text("""
+    You have not added any highlights to this page.
+    """)
+      .multilineTextAlignment(.center)
+      .padding(16)
+  }
+
   var innerBody: some View {
+    (viewModel.highlightItems.count > 0 ? AnyView(listView) : AnyView(emptyView))
+      .navigationTitle("Highlights & Notes")
+      .listStyle(PlainListStyle())
+    #if os(iOS)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          dismissButton
+        }
+      }
+    #else
+      .toolbar {
+        ToolbarItemGroup {
+          dismissButton
+        }
+      }
+    #endif
+  }
+
+  var listView: some View {
     List {
       Section {
         ForEach(viewModel.highlightItems) { highlightParams in
@@ -38,22 +66,6 @@ struct HighlightsListView: View {
         }
       }
     }
-    .navigationTitle("Highlights")
-    .listStyle(PlainListStyle())
-    #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          dismissButton
-        }
-      }
-    #else
-      .toolbar {
-        ToolbarItemGroup {
-          dismissButton
-        }
-      }
-    #endif
   }
 
   var dismissButton: some View {
