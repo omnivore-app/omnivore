@@ -14,8 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import app.omnivore.omnivore.R
 
 @Composable
 fun WebPreferencesDialog(onDismiss: () -> Unit, webReaderViewModel: WebReaderViewModel) {
@@ -83,7 +85,7 @@ fun Stepper(label: String, onIncrease: () -> Unit, onDecrease: () -> Unit) {
 
     IconButton(onClick = { onDecrease() }) {
       Icon(
-        imageVector = Icons.Filled.KeyboardArrowDown,
+        painter = painterResource(id = R.drawable.minus),
         contentDescription = null
       )
     }
@@ -97,7 +99,7 @@ fun Stepper(label: String, onIncrease: () -> Unit, onDecrease: () -> Unit) {
 
     IconButton(onClick = { onIncrease() }) {
       Icon(
-        imageVector = Icons.Filled.KeyboardArrowUp,
+        painter = painterResource(id = R.drawable.plus),
         contentDescription = null
       )
     }
