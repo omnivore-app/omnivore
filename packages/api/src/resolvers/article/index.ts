@@ -437,11 +437,19 @@ export const getArticleResolver: ResolverFn<
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
       (await getPageByParam(
-        { userId: claims.uid, slug },
+        {
+          userId: claims.uid,
+          slug,
+          state: ArticleSavingRequestStatus.Succeeded,
+        },
         includeOriginalHtml
       )) ||
       (await getPageByParam(
-        { userId: claims.uid, _id: slug },
+        {
+          userId: claims.uid,
+          _id: slug,
+          state: ArticleSavingRequestStatus.Succeeded,
+        },
         includeOriginalHtml
       ))
 
@@ -643,10 +651,16 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      // delete the page
+      // delete the page and its metadata
       const deleted = await updatePage(
         pageRemoved.id,
-        { state: ArticleSavingRequestStatus.Deleted },
+        {
+          state: ArticleSavingRequestStatus.Deleted,
+          labels: [],
+          highlights: [],
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+        },
         { pubsub, uid }
       )
       if (!deleted) {
