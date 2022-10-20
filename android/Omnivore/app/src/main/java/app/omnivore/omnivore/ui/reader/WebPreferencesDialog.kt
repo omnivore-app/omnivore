@@ -117,8 +117,8 @@ fun WebPreferencesView(webReaderViewModel: WebReaderViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
               .clickable(onClick = {
-                selectedWebFontRawValue.value = it.rawValue
                 webReaderViewModel.applyWebFont(it)
+                selectedWebFontRawValue.value = it.rawValue
               })
           ) {
             Text(

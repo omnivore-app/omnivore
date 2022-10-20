@@ -127,15 +127,18 @@ class WebReaderViewModel @Inject constructor(
     val storedFontSize = datastoreRepo.getInt(DatastoreKeys.preferredWebFontSize)
     val storedLineHeight = datastoreRepo.getInt(DatastoreKeys.preferredWebLineHeight)
     val storedMaxWidth = datastoreRepo.getInt(DatastoreKeys.preferredWebMaxWidthPercentage)
-    val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily)
+
+    val storedFontFamily = datastoreRepo.getString(DatastoreKeys.preferredWebFontFamily) ?: WebFont.SYSTEM.rawValue
+    val storedWebFont = WebFont.values().first { it.rawValue == storedFontFamily }
+
     val prefersHighContrastFont = datastoreRepo.getString(DatastoreKeys.prefersWebHighContrastText) == "true"
 
     WebPreferences(
       textFontSize = storedFontSize ?: 12,
       lineHeight = storedLineHeight ?: 150,
       maxWidthPercentage = storedMaxWidth ?: 100,
-      themeKey = "LightGray",
-      fontFamily = WebFont.SYSTEM,
+      themeKey = "LightGray", // TODO: match system value
+      fontFamily = storedWebFont,
       prefersHighContrastText = prefersHighContrastFont
     )
   }
@@ -195,7 +198,11 @@ class WebReaderViewModel @Inject constructor(
   }
 
   fun applyWebFont(font: WebFont) {
-    // TODO: update value in datastore and dispatch update to web view
-    Log.d("Font", "Web Font selected: ${font.displayText}")
+    runBlocking {
+      datastoreRepo.putString(DatastoreKeys.preferredWebFontFamily, font.rawValue)
+    }
+
+    val script = "var event = new Event('updateFontFamily');event.fontFamily = '${font.rawValue}';document.dispatchEvent(event);"
+    enqueueScript(script)
   }
 }

@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.reader
 
-import android.util.Log
 import app.omnivore.omnivore.models.Highlight
 import app.omnivore.omnivore.models.LinkedItem
 import com.google.gson.Gson
@@ -15,7 +14,6 @@ enum class WebFont(val displayText: String, val rawValue: String) {
   ROBOTO("Roboto", "Roboto"),
   CRIMSON_TEXT("Crimson Text", "Crimson Text"),
   SOURCE_SERIF_PRO("Source Serif Pro", "Source Serif Pro"),
-  Inter("Inter", "Inter"),
 }
 
 enum class ArticleContentStatus(val rawValue: String) {
@@ -48,17 +46,19 @@ data class WebReaderContent(
     // TODO: Kotlinize these three values (pasted from Swift)
     val savedAt = "new Date(1662571290735.0).toISOString()"
     val createdAt = "new Date().toISOString()"
-    val publishedAt = "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
+    val publishedAt =
+      "new Date().toISOString()" //if (item.publishDate != null) "new Date((item.publishDate!.timeIntervalSince1970 * 1000)).toISOString()" else "undefined"
     val textFontSize = preferences.textFontSize
+    val highlightCssFilePath = "highlight${if (themeKey == "Gray") "-dark" else ""}.css"
 
-    val content = """
+    return """
           <!DOCTYPE html>
           <html>
             <head>
               <meta charset="utf-8" />
               <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
                 <style>
-                  @import url("highlight${if (themeKey == "Gray") "-dark" else ""}.css");
+                  @import url("highlightCssFilePath");
                 </style>
             </head>
             <body>
@@ -106,7 +106,5 @@ data class WebReaderContent(
             </body>
           </html>
     """
-
-    return content
   }
 }
