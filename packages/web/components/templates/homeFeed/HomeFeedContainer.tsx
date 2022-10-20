@@ -346,8 +346,22 @@ export function HomeFeedContainer(): JSX.Element {
   }
 
   const modalTargetItem = useMemo(() => {
-    return (labelsTarget || snoozeTarget || shareTarget || linkToEdit || linkToRemove || linkToUnsubscribe)
-  }, [labelsTarget, snoozeTarget, shareTarget, linkToEdit, linkToRemove, linkToUnsubscribe])
+    return (
+      labelsTarget ||
+      snoozeTarget ||
+      shareTarget ||
+      linkToEdit ||
+      linkToRemove ||
+      linkToUnsubscribe
+    )
+  }, [
+    labelsTarget,
+    snoozeTarget,
+    shareTarget,
+    linkToEdit,
+    linkToRemove,
+    linkToUnsubscribe,
+  ])
 
   useKeyboardShortcuts(
     libraryListCommands((action) => {
@@ -638,7 +652,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const [showRemoveLinkConfirmation, setShowRemoveLinkConfirmation] =
     useState(false)
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
-  useState(false)
+    useState(false)
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -975,7 +989,9 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       )}
       {showRemoveLinkConfirmation && (
         <ConfirmationModal
-          message={'Are you sure you want to remove this link?'}
+          message={
+            'Are you sure you want to remove this item? All associated notes and highlights will be deleted.'
+          }
           onAccept={removeItem}
           onOpenChange={() => setShowRemoveLinkConfirmation(false)}
         />
