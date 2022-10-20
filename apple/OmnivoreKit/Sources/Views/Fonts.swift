@@ -14,6 +14,10 @@ public extension Font {
     .customFont(InterFont.regular.rawValue, size: 28, relativeTo: .title)
   }
 
+  static var appIconLarge: Font {
+    Font.custom(InterFont.regular.rawValue, size: 52, relativeTo: .title2)
+  }
+
   static var appTitleTwo: Font {
     Font.custom(InterFont.regular.rawValue, size: 28, relativeTo: .title2)
   }
