@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { styled } from '@stitches/react'
 import { Toaster } from 'react-hot-toast'
-import { Plus } from 'phosphor-react'
+import { DownloadSimple, Eye, Link, Plus } from 'phosphor-react'
 import Image from 'next/image'
 
 import {
@@ -26,14 +26,15 @@ const Para = styled(Box, {
   //width: '100%',
   padding: '20px',
   color: '$utilityTextDefault',
-  borderBottom: '0.5px solid $utilityTextDefault',
+  borderBottom: '1px solid $grayLine',
 })
 
-const IntegrationsCard = styled(Box, {
+const IntegrationCard = styled(Box, {
   width: '100%',
   borderRadius: '5px',
   backgroundColor: '$grayBg',
   margin: '10px 0',
+  padding: '20px',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -59,7 +60,11 @@ type integrationsCard = {
   icon: string
   title: string
   subText?: string
-  button?: string
+  button: {
+    text: string
+    icon?: JSX.Element
+    style: string
+  }
 }
 export default function Integrations(): JSX.Element {
   applyStoredTheme(false)
@@ -74,19 +79,31 @@ export default function Integrations(): JSX.Element {
         icon: '/static/icons/logseq.svg',
         title: 'Logseq',
         subText: 'Organize your personal knowledge base',
-        button: 'install Logseq Plugin',
+        button: {
+          text: `Install Logseq Plugin`,
+          icon: <DownloadSimple size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+        },
       },
       {
         icon: '/static/icons/readwise.svg',
         title: 'ReadWise',
         subText: 'Synchronize ebooks & articles from Readwise account',
-        button: 'Connect to Readwise',
+        button: {
+          text: 'Connect to Readwise',
+          icon: <Link size={16} weight={'bold'} />,
+          style: 'ctaDarkYellow',
+        },
       },
       {
         icon: '/static/icons/webhooks.svg',
         title: 'Webhooks',
         subText: '## Webhooks',
-        button: 'View Webhooks',
+        button: {
+          text: 'View Webhooks',
+          icon: <Eye size={16} weight={'bold'} />,
+          style: 'ctaWhite',
+        },
       },
     ])
   }, [])
@@ -120,19 +137,23 @@ export default function Integrations(): JSX.Element {
         <Header>Applications</Header>
         {integrationsArray.map((item) => {
           return (
-            <IntegrationsCard key={item.title}>
+            <IntegrationCard key={item.title}>
               <Image
                 src={item.icon}
                 alt="integration Image"
-                width={100}
-                height={100}
+                width={90}
+                height={90}
               />
               <IntegrationContent>
                 <h3>{item.title}</h3>
                 <p>{item.subText}</p>
               </IntegrationContent>
               <Button
-                style="ctaDarkYellow"
+                style={
+                  item.button.style === 'ctaDarkYellow'
+                    ? 'ctaDarkYellow'
+                    : 'ctaWhite'
+                }
                 css={{
                   py: '10px',
                   px: '14px',
@@ -142,14 +163,14 @@ export default function Integrations(): JSX.Element {
                   minWidth: '255px',
                 }}
               >
-                <Plus size={16} weight="bold" />
+                {item.button.icon}
                 <SpanBox
                   css={{ pl: '10px', fontWeight: '600', fontSize: '16px' }}
                 >
-                  {item.button}
+                  {item.button.text}
                 </SpanBox>
               </Button>
-            </IntegrationsCard>
+            </IntegrationCard>
           )
         })}
       </VStack>
