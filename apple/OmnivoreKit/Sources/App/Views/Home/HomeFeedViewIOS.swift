@@ -323,8 +323,10 @@ import Views
                     itemToRemove = item
                     confirmationShown = true
                   },
-                  label: { Label("Delete", systemImage: "trash") }
-                )
+                  label: {
+                    Label("Remove Item", systemImage: "trash")
+                  }
+                ).tint(.red)
                 if FeatureFlag.enableSnooze {
                   Button {
                     viewModel.itemToSnoozeID = item.id
@@ -340,26 +342,23 @@ import Views
               }
               .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 if !item.isArchived {
-                  Button {
+                  Button(action: {
                     withAnimation(.linear(duration: 0.4)) {
                       viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
                     }
-                  } label: {
+                  }, label: {
                     Label("Archive", systemImage: "archivebox")
-                  }.tint(.green)
+                  }).tint(.green)
                 } else {
-                  Button {
+                  Button(action: {
                     withAnimation(.linear(duration: 0.4)) {
                       viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: false)
                     }
-                  } label: {
+                  }, label: {
                     Label("Unarchive", systemImage: "tray.and.arrow.down.fill")
-                  }.tint(.indigo)
+                  }).tint(.indigo)
                 }
-              }
-              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(
-                  role: .destructive,
                   action: {
                     itemToRemove = item
                     confirmationShown = true
@@ -367,17 +366,7 @@ import Views
                   label: {
                     Image(systemName: "trash")
                   }
-                )
-              }.alert("Are you sure?", isPresented: $confirmationShown) {
-                Button("Remove Link", role: .destructive) {
-                  if let itemToRemove = itemToRemove {
-                    withAnimation {
-                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                    }
-                  }
-                  self.itemToRemove = nil
-                }
-                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+                ).tint(.red)
               }
               .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 if FeatureFlag.enableSnooze {
@@ -393,6 +382,18 @@ import Views
           }
           .padding(.top, 0)
           .listStyle(PlainListStyle())
+          .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.",
+                 isPresented: $confirmationShown) {
+            Button("Remove Item") {
+              if let itemToRemove = itemToRemove {
+                withAnimation {
+                  viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+                }
+              }
+              self.itemToRemove = nil
+            }
+            Button("Cancel", role: .cancel) { self.itemToRemove = nil }
+          }
         }
       }
     }
@@ -448,17 +449,6 @@ import Views
                 isContextMenuOpen: $isContextMenuOpen,
                 viewModel: viewModel
               )
-              .alert("Are you sure?", isPresented: $confirmationShown) {
-                Button("Remove Link", role: .destructive) {
-                  if let itemToRemove = itemToRemove {
-                    withAnimation {
-                      viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
-                    }
-                  }
-                  self.itemToRemove = nil
-                }
-                Button("Cancel", role: .cancel) { self.itemToRemove = nil }
-              }
             }
           }
           .padding()
@@ -482,6 +472,17 @@ import Views
             LoadingSection()
           }
         }
+      }
+      .alert("Are you sure you want to remove this item? All associated notes and highlights will be deleted.", isPresented: $confirmationShown) {
+        Button("Remove Item", role: .destructive) {
+          if let itemToRemove = itemToRemove {
+            withAnimation {
+              viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+            }
+          }
+          self.itemToRemove = nil
+        }
+        Button("Cancel", role: .cancel) { self.itemToRemove = nil }
       }
     }
   }
