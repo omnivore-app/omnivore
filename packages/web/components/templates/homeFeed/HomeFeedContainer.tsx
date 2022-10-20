@@ -990,7 +990,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       {showRemoveLinkConfirmation && (
         <ConfirmationModal
           message={
-            'Are you sure you want to remove this link? All your highlights will be deleted.'
+            'Are you sure you want to remove this item? All associated notes and highlights will be deleted.'
           }
           onAccept={removeItem}
           onOpenChange={() => setShowRemoveLinkConfirmation(false)}
