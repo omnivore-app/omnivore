@@ -16,39 +16,17 @@ import { Button } from '../../components/elements/Button'
 
 // Styles
 const Header = styled(Box, {
-  //width: '100%',
   color: '$utilityTextDefault',
   fontSize: 'x-large',
   margin: '10px',
 })
 
-const Para = styled(Box, {
-  //width: '100%',
+const Subheader = styled(Box, {
   padding: '20px',
   color: '$utilityTextDefault',
   borderBottom: '1px solid $grayLine',
-})
-
-const IntegrationCard = styled(Box, {
-  width: '100%',
-  borderRadius: '5px',
-  backgroundColor: '$grayBg',
-  margin: '10px 0',
-  padding: '20px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-})
-
-const IntegrationContent = styled(Box, {
-  width: '60%',
-  minWidth: '200px',
-  padding: '10px',
-  color: '$utilityTextDefault',
-  m: '10px',
-  'h3, p': {
-    margin: '0',
-  },
+  margin: '0 auto',
+  width: '80%',
 })
 
 //interface
@@ -115,17 +93,12 @@ export default function Integrations(): JSX.Element {
           top: '5rem',
         }}
       />
-      <HStack css={{ width: '80%', margin: '0 auto' }}>
-        <Header css={{ textAlign: 'center' }}>Integrations</Header>
-      </HStack>
-
-      <HStack css={{ width: '80%', margin: '0 auto' }}>
-        <Para>
-          Connect with other applications can help enhance and streamline your
-          experience with Omnivore, below are some useful apps to connect your
-          Omnivore account to.
-        </Para>
-      </HStack>
+      <Header css={{ textAlign: 'center' }}>Integrations</Header>
+      <Subheader>
+        Connect with other applications can help enhance and streamline your
+        experience with Omnivore, below are some useful apps to connect your
+        Omnivore account to.
+      </Subheader>
       <VStack
         distribution={'start'}
         css={{
@@ -135,42 +108,69 @@ export default function Integrations(): JSX.Element {
         }}
       >
         <Header>Applications</Header>
+
         {integrationsArray.map((item) => {
           return (
-            <IntegrationCard key={item.title}>
+            <HStack
+              key={item.title}
+              css={{
+                width: '100%',
+                borderRadius: '5px',
+                backgroundColor: '$grayBg',
+                margin: '10px 0',
+                padding: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                '@smDown': {
+                  flexWrap: 'wrap',
+                },
+              }}
+            >
               <Image
                 src={item.icon}
                 alt="integration Image"
-                width={90}
-                height={90}
+                width={75}
+                height={75}
               />
-              <IntegrationContent>
-                <h3>{item.title}</h3>
-                <p>{item.subText}</p>
-              </IntegrationContent>
-              <Button
-                style={
-                  item.button.style === 'ctaDarkYellow'
-                    ? 'ctaDarkYellow'
-                    : 'ctaWhite'
-                }
+              <Box
                 css={{
-                  py: '10px',
-                  px: '14px',
-                  mr: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  minWidth: '255px',
+                  width: '60%',
+                  padding: '10px',
+                  color: '$utilityTextDefault',
+                  m: '10px',
+                  'h3, p': {
+                    margin: '0',
+                  },
                 }}
               >
-                {item.button.icon}
-                <SpanBox
-                  css={{ pl: '10px', fontWeight: '600', fontSize: '16px' }}
+                <h3>{item.title}</h3>
+                <p>{item.subText}</p>
+              </Box>
+              <HStack css={{}}>
+                <Button
+                  style={
+                    item.button.style === 'ctaDarkYellow'
+                      ? 'ctaDarkYellow'
+                      : 'ctaWhite'
+                  }
+                  css={{
+                    py: '10px',
+                    px: '14px',
+                    mr: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    minWidth: '255px',
+                  }}
                 >
-                  {item.button.text}
-                </SpanBox>
-              </Button>
-            </IntegrationCard>
+                  {item.button.icon}
+                  <SpanBox
+                    css={{ pl: '10px', fontWeight: '600', fontSize: '16px' }}
+                  >
+                    {item.button.text}
+                  </SpanBox>
+                </Button>
+              </HStack>
+            </HStack>
           )
         })}
       </VStack>
