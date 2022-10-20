@@ -440,7 +440,6 @@ export const getArticleResolver: ResolverFn<
         {
           userId: claims.uid,
           slug,
-          state: ArticleSavingRequestStatus.Succeeded,
         },
         includeOriginalHtml
       )) ||
@@ -448,12 +447,11 @@ export const getArticleResolver: ResolverFn<
         {
           userId: claims.uid,
           _id: slug,
-          state: ArticleSavingRequestStatus.Succeeded,
         },
         includeOriginalHtml
       ))
 
-    if (!page) {
+    if (!page || page.state === ArticleSavingRequestStatus.Deleted) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
