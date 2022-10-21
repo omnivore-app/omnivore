@@ -152,7 +152,7 @@ struct WebReaderContainerView: View {
           Group {
             Button(
               action: { showHighlightsView = true },
-              label: { Label("View Highlights", systemImage: "highlighter") }
+              label: { Label("View Highlights & Notes", systemImage: "highlighter") }
             )
             Button(
               action: { showTitleEdit = true },

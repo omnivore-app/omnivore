@@ -33,7 +33,7 @@ export function Loader(): JSX.Element {
           '&:after': {
             width: '10px',
             display: 'inline-block',
-            content: 'test',
+            content: '',
             animation: `${breathe} steps(1,end) 2s infinite`,
           },
         }}>Saving Link</StyledText>

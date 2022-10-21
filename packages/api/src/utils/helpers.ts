@@ -269,3 +269,7 @@ export const wordsCount = (text: string, isHtml = true): number => {
     return 0
   }
 }
+
+export const isBase64Image = (str: string): boolean => {
+  return str.startsWith('data:image/')
+}

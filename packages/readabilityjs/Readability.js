@@ -1909,10 +1909,21 @@ Readability.prototype = {
       values["og:site_name"] || null;
 
     // get website icon
-    const iconLink = this._doc.querySelector(
+    const siteIcon = this._doc.querySelector(
       "link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']"
     );
-    metadata.siteIcon = iconLink?.href;
+    if (siteIcon) {
+      const iconHref = siteIcon.getAttribute("href");
+      if (iconHref) {
+        if (this.REGEXPS.b64DataUrl.test(iconHref)) {
+          // base64 encoded image
+          metadata.siteIcon = iconHref;
+        } else {
+          // allow relative URLs
+          metadata.siteIcon = this.toAbsoluteURI(iconHref);
+        }
+      }
+    }
 
     // get published date
     metadata.publishedDate = jsonld.publishedDate ||
@@ -2212,13 +2223,12 @@ Readability.prototype = {
 
   _createPlaceholders: async function (e) {
     for (const element of Array.from(e.getElementsByTagName('a'))) {
-
       if (this.isEmbed(element)) {
         return;
       }
 
       // Create tweets placeholders from links
-      if (element.href.includes('twitter.com') || element.parentNode.className === 'tweet') {
+      if (element.href.includes('twitter.com') || (element.parentNode && element.parentNode.className === 'tweet')) {
         const link = element.href;
         const regex = /(https?:\/\/twitter\.com\/\w+\/status\/)(\d+)/gm;
         const match = regex.exec(link);
@@ -2232,12 +2242,12 @@ Readability.prototype = {
 
           // remove all containers the tweet is nested in (if they contain the tweet only)
           let tweetParent = tweet.parentElement || tweet.parentNode;
-          while (tweetParent && tweetParent.children.length === 1) {
+          while (tweetParent && tweetParent.children.length === 1 && tweetParent.parentNode) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
             tweetParent = tweet.parentElement || tweet.parentNode;
           }
 
-          if (tweetParent && tweetParent.className.includes('twitter-tweet')) {
+          if (tweetParent && tweetParent.className.includes('twitter-tweet') && tweetParent.parentNode) {
             tweetParent.parentNode.replaceChild(tweet, tweetParent);
           }
         } else if (element.parentNode && element.parentNode.className === 'tweet') {

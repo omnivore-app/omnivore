@@ -54,6 +54,7 @@ import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
   generateSlug,
+  isBase64Image,
   isParsingTimeout,
   pageError,
   stringToHash,
@@ -436,15 +437,21 @@ export const getArticleResolver: ResolverFn<
     // We allow the backend to use the ID instead of a slug to fetch the article
     const page =
       (await getPageByParam(
-        { userId: claims.uid, slug },
+        {
+          userId: claims.uid,
+          slug,
+        },
         includeOriginalHtml
       )) ||
       (await getPageByParam(
-        { userId: claims.uid, _id: slug },
+        {
+          userId: claims.uid,
+          _id: slug,
+        },
         includeOriginalHtml
       ))
 
-    if (!page) {
+    if (!page || page.state === ArticleSavingRequestStatus.Deleted) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
@@ -642,10 +649,16 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      // delete the page
+      // delete the page and its metadata
       const deleted = await updatePage(
         pageRemoved.id,
-        { state: ArticleSavingRequestStatus.Deleted },
+        {
+          state: ArticleSavingRequestStatus.Deleted,
+          labels: [],
+          highlights: [],
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+        },
         { pubsub, uid }
       )
       if (!deleted) {
@@ -889,6 +902,10 @@ export const searchResolver = authorized<
   }
 
   const edges = results.map((r) => {
+    let siteIcon = r.siteIcon
+    if (siteIcon && !isBase64Image(siteIcon)) {
+      siteIcon = createImageProxyUrl(siteIcon, 128, 128)
+    }
     return {
       node: {
         ...r,
@@ -900,7 +917,7 @@ export const searchResolver = authorized<
         publishedAt: validatedDate(r.publishedAt),
         ownedByViewer: r.userId === claims.uid,
         pageType: r.pageType || PageType.Highlights,
-        siteIcon: r.siteIcon && createImageProxyUrl(r.siteIcon, 32, 32),
+        siteIcon,
       } as SearchItem,
       cursor: endCursor,
     }

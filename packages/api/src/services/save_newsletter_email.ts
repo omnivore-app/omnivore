@@ -14,6 +14,7 @@ import { saveSubscription } from './subscriptions'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { fetchFavicon } from '../utils/parser'
 import { updatePage } from '../elastic/pages'
+import { isBase64Image } from '../utils/helpers'
 
 interface NewsletterMessage {
   email: string
@@ -69,8 +70,8 @@ export const saveNewsletterEmail = async (
     return false
   }
 
-  if (!page.siteIcon) {
-    // fetch favicon if not already set
+  if (!page.siteIcon || isBase64Image(page.siteIcon)) {
+    // fetch favicon if not already set or is a base64 image
     const favicon = await fetchFavicon(page.url)
     if (favicon) {
       page.siteIcon = favicon

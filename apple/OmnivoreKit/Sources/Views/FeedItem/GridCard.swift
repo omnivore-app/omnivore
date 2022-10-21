@@ -48,7 +48,7 @@ public struct GridCard: View {
     Group {
       Button(
         action: { menuActionHandler(.viewHighlights) },
-        label: { Label("View Highlights", systemImage: "highlighter") }
+        label: { Label("View Highlights & Notes", systemImage: "highlighter") }
       )
       Button(
         action: { menuActionHandler(.editTitle) },

@@ -1,19 +1,16 @@
 import { ContentHandler } from '../content-handler'
 
-export class ConvertkitHandler extends ContentHandler {
+export class CooperPressHandler extends ContentHandler {
   constructor() {
     super()
-    this.name = 'convertkit'
+    this.name = 'cooper-press'
   }
 
   findNewsletterHeaderHref(dom: Document): string | undefined {
     const readOnline = dom.querySelectorAll('a')
     let res: string | undefined = undefined
     readOnline.forEach((e) => {
-      if (
-        e.textContent === 'View this email in your browser' ||
-        e.textContent === 'Read on FS'
-      ) {
+      if (e.textContent === 'Read on the Web') {
         res = e.getAttribute('href') || undefined
       }
     })
@@ -28,9 +25,7 @@ export class ConvertkitHandler extends ContentHandler {
   }): Promise<boolean> {
     const dom = input.dom
     return Promise.resolve(
-      dom.querySelectorAll(
-        'img[src*="convertkit.com"], img[src*="convertkit-mail"]'
-      ).length > 0
+      dom.querySelectorAll('a[href*="cooperpress.com"]').length > 0
     )
   }
 

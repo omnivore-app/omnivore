@@ -72,6 +72,7 @@ export async function createMobileEmailSignUpResponse(
       json: {},
     }
   } catch (e) {
+    console.log('error', e)
     return signUpFailedPayload
   }
 }

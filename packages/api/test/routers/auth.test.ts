@@ -626,8 +626,7 @@ describe('auth router', () => {
           0,
         ]
 
-        // TODO: update this when we have more iOS popular reads
-        expect(count).to.eql(3)
+        expect(count).to.eql(4)
       })
     })
   })
