@@ -13,9 +13,9 @@ import { generateUniqueUrl } from '../src/content-handler'
 import fs from 'fs'
 import { BeehiivHandler } from '../src/newsletters/beehiiv-handler'
 import { ConvertkitHandler } from '../src/newsletters/convertkit-handler'
-import { parseHTML } from 'linkedom'
 import { GhostHandler } from '../src/newsletters/ghost-handler'
 import { CooperPressHandler } from '../src/newsletters/cooper-press-handler'
+import { getNewsletterHandler } from '../src'
 
 chai.use(chaiAsPromised)
 chai.use(chaiString)
@@ -93,104 +93,95 @@ describe('Newsletter email test', () => {
     })
   })
 
-  describe('isProbablyNewsletter', () => {
-    it('returns true for substack newsletter', async () => {
+  describe('getNewsletterHandler', () => {
+    it('returns substack newsletter handler', async () => {
       const html = load('./test/data/substack-forwarded-newsletter.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new SubstackHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(SubstackHandler)
     })
-    it('returns true for private forwarded substack newsletter', async () => {
+
+    it('returns SubstackHandler for private forwarded substack newsletter', async () => {
       const html = load(
         './test/data/substack-private-forwarded-newsletter.html'
       )
-      const dom = parseHTML(html).document
-      await expect(
-        new SubstackHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(SubstackHandler)
     })
-    it('returns false for substack welcome email', async () => {
+
+    it('returns undefined for substack welcome email', async () => {
       const html = load('./test/data/substack-forwarded-welcome-email.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new SubstackHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.false
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.undefined
     })
-    it('returns true for beehiiv.com newsletter', async () => {
+
+    it('returns BeehiivHandler for beehiiv.com newsletter', async () => {
       const html = load('./test/data/beehiiv-newsletter.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new BeehiivHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(BeehiivHandler)
     })
-    it('returns true for milkroad newsletter', async () => {
+
+    it('returns BeehiivHandler for milkroad newsletter', async () => {
       const html = load('./test/data/milkroad-newsletter.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new BeehiivHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(BeehiivHandler)
     })
-    it('returns true for ghost newsletter', async () => {
+
+    it('returns GhostHandler for ghost newsletter', async () => {
       const html = load('./test/data/ghost-newsletter.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new GhostHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(GhostHandler)
     })
-    it('returns true for convertkit newsletter', async () => {
+
+    it('returns ConvertkitHandler for convertkit newsletter', async () => {
       const html = load('./test/data/convertkit-newsletter.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new ConvertkitHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(ConvertkitHandler)
     })
-    it('returns true for node-weekly newsletter', async () => {
+
+    it('returns CooperPressHandler for node-weekly newsletter', async () => {
       const html = load('./test/data/node-weekly-newsletter.html')
-      const dom = parseHTML(html).document
-      await expect(
-        new CooperPressHandler().isNewsletter({
-          dom,
-          postHeader: '',
-          from: '',
-          unSubHeader: '',
-        })
-      ).to.eventually.be.true
+      const handler = await getNewsletterHandler({
+        html,
+        postHeader: '',
+        from: '',
+        unSubHeader: '',
+      })
+      expect(handler).to.be.instanceOf(CooperPressHandler)
     })
   })
 
@@ -293,18 +284,18 @@ describe('Newsletter email test', () => {
       before(() => {
         nock('https://u25184427.ct.sendgrid.net')
           .head(
-            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA7mFdqmsIs-2B5Xs-2FNpSIs56o0z9xhskaXR4aYohHPLtwRHfml_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nxtQVfuqJiLh7Fio3fEtt5ouN4IH56AfszUQpxY-2FQ233kp0bjSZhBBVWAB43dgKumQkDW-2BxDFnQIUpvhmEgzSJq-2FMRG00GM7fkZVuPU-2BX8cdg8AGRHUU9Qhw6W67XEMkJVygTdm70Mo9ypNi8N33hgmhM3F6un9s7p1K1Gq-2FunslA-3D-3D'
+            '/ls/click?upn=MnmHBiCwIPe9TmIJeskmA7mFdqmsIs-2B5Xs-2FNpSIs56obSPDXnoBEjufvIqRCEJUf5Uqg_vVXscVLXlj5UtQe3aqo5RMTdTq2PepdZjP86UOmA8nyFE700vlj1-2FK27spZiPEiEkDU3SIXWGeoiU60KFhM-2B-2Bxx5yiL8KKbAV6oFceRi8O1gMc3mdwg5D8FaaM3PublaX24iAcVbn99PzxJaPuVrU6xDWbRovw2UgGTIoEI-2BBO-2B0qzi2wv5c6yJTkUGZOcsJ6xGLXO1BO-2BHSbyZMZV4NMw-3D-3D'
           )
           .reply(301, undefined, {
-            Location: 'https://nodeweekly.com/issues/458',
+            Location: 'https://nodeweekly.com/issues/459',
           })
-        nock('https://nodeweekly.com').head('/issues/458').reply(200, '')
+        nock('https://nodeweekly.com').head('/issues/459').reply(200, '')
       })
 
       it('gets the URL from the header', async () => {
         const html = load('./test/data/node-weekly-newsletter.html')
         const url = await new CooperPressHandler().findNewsletterUrl(html)
-        expect(url).to.startWith('https://nodeweekly.com/issues/458')
+        expect(url).to.startWith('https://nodeweekly.com/issues/459')
       })
     })
   })

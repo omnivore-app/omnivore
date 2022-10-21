@@ -26,6 +26,7 @@ import { ConvertkitHandler } from './newsletters/convertkit-handler'
 import { RevueHandler } from './newsletters/revue-handler'
 import { GhostHandler } from './newsletters/ghost-handler'
 import { parseHTML } from 'linkedom'
+import { CooperPressHandler } from './newsletters/cooper-press-handler'
 
 const validateUrlString = (url: string) => {
   const u = new URL(url)
@@ -73,6 +74,7 @@ const newsletterHandlers: ContentHandler[] = [
   new ConvertkitHandler(),
   new RevueHandler(),
   new GhostHandler(),
+  new CooperPressHandler(),
 ]
 
 export const preHandleContent = async (
@@ -122,14 +124,29 @@ export const preParseContent = async (
   return undefined
 }
 
-export const handleNewsletter = async (
-  input: NewsletterInput
-): Promise<NewsletterResult | undefined> => {
+export const getNewsletterHandler = async (input: {
+  postHeader: string
+  from: string
+  unSubHeader: string
+  html: string
+}): Promise<ContentHandler | undefined> => {
   const dom = parseHTML(input.html).document
   for (const handler of newsletterHandlers) {
     if (await handler.isNewsletter({ ...input, dom })) {
-      return handler.handleNewsletter(input)
+      return handler
     }
+  }
+
+  return undefined
+}
+
+export const handleNewsletter = async (
+  input: NewsletterInput
+): Promise<NewsletterResult | undefined> => {
+  const handler = await getNewsletterHandler(input)
+  if (handler) {
+    console.log('handleNewsletter', handler.name, input.title)
+    return handler.handleNewsletter(input)
   }
 
   return undefined
@@ -139,4 +156,5 @@ module.exports = {
   preHandleContent,
   handleNewsletter,
   preParseContent,
+  getNewsletterHandler,
 }
