@@ -161,12 +161,12 @@
         if let itemAudioProperties = self.audioController.itemAudioProperties, isPresented {
           ZStack(alignment: .bottom) {
             Color.systemBackground.edgesIgnoringSafeArea(.bottom)
-              .frame(height: 88, alignment: .bottom)
+              .frame(height: expanded ? 0 : 88, alignment: .bottom)
 
             VStack {
               Spacer(minLength: 0)
               playerContent(itemAudioProperties)
-                .frame(maxHeight: 88)
+                .frame(maxHeight: expanded ? 0 : 88)
                 .tint(.appGrayTextContrast)
                 .background(Color.systemBackground)
             }
