@@ -299,6 +299,9 @@
         }.padding(.bottom, 16)
       }
       .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+      .onAppear {
+        self.tabIndex = audioController.currentAudioIndex
+      }
       .onChange(of: audioController.state, perform: { state in
         // Reset the tabIndex when we load a new audio item
         if state == .loading {
@@ -321,11 +324,11 @@
           TextToSpeechLanguageView()
             .navigationBarTitle("Language")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }) {
+            .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }, label: {
               Image(systemName: "chevron.backward")
                 .font(.appNavbarIcon)
                 .tint(.appGrayTextContrast)
-            })
+            }))
         }
       }
     }
