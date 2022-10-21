@@ -148,10 +148,10 @@
       .onTapGesture {
         withAnimation(.easeIn(duration: 0.08)) { expanded = true }
       }.sheet(isPresented: $expanded) {
-        NavigationView {
-          ExpandedPlayer()
-        }
+        ExpandedPlayer()
       }
+      .offset(y: expanded ? 88 : 0)
+      .opacity(expanded ? 0.0 : 1.0)
     }
 
     public var body: some View {
