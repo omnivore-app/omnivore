@@ -12,8 +12,6 @@
     @Environment(\.dismiss) private var dismiss
 
     @State var showVoiceSheet = false
-    @State var showLanguageSheet = false
-
     @State var tabIndex: Int = 0
 
     var isPresented: Bool {
@@ -237,6 +235,63 @@
       }
     }
 
+    var scrubber: some View {
+      Group {
+        ScrubberView(value: $audioController.timeElapsed,
+                     maxValue: $audioController.duration,
+                     onEditingChanged: { scrubStarted in
+                       if scrubStarted {
+                         self.audioController.scrubState = .scrubStarted
+                       } else {
+                         self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
+                       }
+                     })
+
+        HStack {
+          Text(audioController.timeElapsedString ?? "0:00")
+            .font(.appCaptionTwo)
+            .foregroundColor(.appGrayText)
+          Spacer()
+          Text(audioController.durationString ?? "0:00")
+            .font(.appCaptionTwo)
+            .foregroundColor(.appGrayText)
+        }
+      }
+      .padding(.leading, 16)
+      .padding(.trailing, 16)
+    }
+
+    var audioButtons: some View {
+      HStack(alignment: .center) {
+        Spacer()
+
+        Button(
+          action: { self.audioController.skipBackwards(seconds: 30) },
+          label: {
+            Image(systemName: "gobackward.30")
+              .font(.appTitleTwo)
+          }
+        )
+
+        Spacer()
+
+        playPauseButtonItem
+          .frame(width: 56, height: 56)
+
+        Spacer()
+
+        Button(
+          action: { self.audioController.skipForward(seconds: 30) },
+          label: {
+            Image(systemName: "goforward.30")
+              .font(.appTitleTwo)
+          }
+        )
+        Spacer()
+
+      }.padding(.bottom, 16)
+    }
+
     func playerContent(_: LinkedItemAudioProperties) -> some View {
       VStack(spacing: 0) {
         header
@@ -245,58 +300,9 @@
 
         Spacer()
 
-        Group {
-          ScrubberView(value: $audioController.timeElapsed,
-                       maxValue: $audioController.duration,
-                       onEditingChanged: { scrubStarted in
-                         if scrubStarted {
-                           self.audioController.scrubState = .scrubStarted
-                         } else {
-                           self.audioController.scrubState = .scrubEnded(self.audioController.timeElapsed)
-                         }
-                       })
+        scrubber
 
-          HStack {
-            Text(audioController.timeElapsedString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
-            Spacer()
-            Text(audioController.durationString ?? "0:00")
-              .font(.appCaptionTwo)
-              .foregroundColor(.appGrayText)
-          }
-        }
-        .padding(.leading, 16)
-        .padding(.trailing, 16)
-
-        HStack(alignment: .center) {
-          Spacer()
-
-          Button(
-            action: { self.audioController.skipBackwards(seconds: 30) },
-            label: {
-              Image(systemName: "gobackward.30")
-                .font(.appTitleTwo)
-            }
-          )
-
-          Spacer()
-
-          playPauseButtonItem
-            .frame(width: 56, height: 56)
-
-          Spacer()
-
-          Button(
-            action: { self.audioController.skipForward(seconds: 30) },
-            label: {
-              Image(systemName: "goforward.30")
-                .font(.appTitleTwo)
-            }
-          )
-          Spacer()
-
-        }.padding(.bottom, 16)
+        audioButtons
       }
       .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
       .onAppear {
@@ -319,24 +325,13 @@
                 .tint(.appGrayTextContrast)
             }))
         }
-      }.sheet(isPresented: $showLanguageSheet) {
-        NavigationView {
-          TextToSpeechLanguageView()
-            .navigationBarTitle("Language")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(leading: Button(action: { self.showLanguageSheet = false }, label: {
-              Image(systemName: "chevron.backward")
-                .font(.appNavbarIcon)
-                .tint(.appGrayTextContrast)
-            }))
-        }
       }
     }
 
     func playbackRateButton(rate: Double, title: String, selected: Bool) -> some View {
       Button(action: {
         audioController.playbackRate = rate
-      }) {
+      }, label: {
         HStack {
           Text(title)
           Spacer()
@@ -345,8 +340,8 @@
           }
         }
         .contentShape(Rectangle())
-      }
-      .buttonStyle(PlainButtonStyle())
+      })
+        .buttonStyle(PlainButtonStyle())
     }
 
     public var body: some View {
