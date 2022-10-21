@@ -111,7 +111,9 @@
     func viewArticle() {
       if let objectID = audioController.itemAudioProperties?.objectID {
         NSNotification.pushReaderItem(objectID: objectID)
-        dismiss()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+          dismiss()
+        }
       }
     }
 

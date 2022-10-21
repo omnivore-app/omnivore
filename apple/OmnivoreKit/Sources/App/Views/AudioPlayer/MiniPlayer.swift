@@ -4,6 +4,7 @@
   import Models
   import Services
   import SwiftUI
+  import Utils
   import Views
 
   public struct MiniPlayer: View {
@@ -11,7 +12,7 @@
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
     private let presentingView: AnyView
 
-    @State var expanded = false
+    @AppStorage(UserDefaultKey.audioPlayerExpanded.rawValue) var expanded = true
 
     init<PresentingView>(
       presentingView: PresentingView
