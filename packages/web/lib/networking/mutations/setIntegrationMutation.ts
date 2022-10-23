@@ -1,7 +1,6 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-
-type IntegrationType = 'readwise'
+import { IntegrationType } from '../queries/useGetIntegrationsQuery'
 
 export type SetIntegrationInput = {
   id?: string
@@ -54,7 +53,7 @@ export async function setIntegrationMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation) as SetIntegrationResult
+    const data = await gqlFetcher(mutation, { input }) as SetIntegrationResult
     console.log(input, data);
     const output = data as any
     console.log(output)
