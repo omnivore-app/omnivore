@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { styled } from '@stitches/react'
 import { Toaster } from 'react-hot-toast'
 import { DownloadSimple, Eye, Link, Plus } from 'phosphor-react'
@@ -13,6 +13,7 @@ import {
 import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { Button } from '../../components/elements/Button'
+import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
 
 // Styles
 const Header = styled(Box, {
@@ -46,10 +47,15 @@ type integrationsCard = {
 }
 export default function Integrations(): JSX.Element {
   applyStoredTheme(false)
+  const { integrations } = useGetIntegrationsQuery()
 
   const [integrationsArray, setIntegrationsArray] = useState(
     Array<integrationsCard>()
   )
+
+  const readwiseConnected = useMemo(() => {
+    return integrations.some((i) => i.type == 'READWISE')
+  }, [integrations])
 
   useEffect(() => {
     setIntegrationsArray([
@@ -68,7 +74,7 @@ export default function Integrations(): JSX.Element {
         title: 'ReadWise',
         subText: 'Synchronize ebooks & articles from Readwise account',
         button: {
-          text: 'Connect to Readwise',
+          text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
           style: 'ctaDarkYellow',
         },
